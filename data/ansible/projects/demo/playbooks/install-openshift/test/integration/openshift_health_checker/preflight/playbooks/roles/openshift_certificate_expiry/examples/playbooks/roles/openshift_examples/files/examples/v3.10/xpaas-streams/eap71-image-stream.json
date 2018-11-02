@@ -1,0 +1,104 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "eap71-image-stream",
+        "annotations": {
+            "description": "ImageStream definition for Red Hat JBoss EAP 7.1.",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jboss-eap71-openshift",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat JBoss EAP 7.1",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.4.14"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.14"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "latest",
+                        "annotations": {
+                            "description": "JBoss EAP 7.1 S2I image (latest).",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.1,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jboss-developer/jboss-eap-quickstarts.git",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "7.1.0.GA",
+                            "version": "latest",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.1"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/jboss-eap-7/eap71-openshift:latest"
+                        }
+                    },
+                    {
+                        "name": "1.1",
+                        "annotations": {
+                            "description": "JBoss EAP 7.1 S2I image.",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.1,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jboss-developer/jboss-eap-quickstarts.git",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "7.1.0.GA",
+                            "version": "1.0",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.1"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/jboss-eap-7/eap71-openshift:1.1"
+                        }
+                    },
+                    {
+                        "name": "1.2",
+                        "annotations": {
+                            "description": "JBoss EAP 7.1 S2I image.",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.1,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jboss-developer/jboss-eap-quickstarts.git",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "7.1.0.GA",
+                            "version": "1.2",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.1"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/jboss-eap-7/eap71-openshift:1.2"
+                        }
+                    },
+                    {
+                        "name": "1.3",
+                        "annotations": {
+                            "description": "JBoss EAP 7.1 S2I image.",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.1,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jboss-developer/jboss-eap-quickstarts.git",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "7.1.0.GA",
+                            "version": "1.3",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.1"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/jboss-eap-7/eap71-openshift:1.3"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

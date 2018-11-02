@@ -1,0 +1,5 @@
+[break-yum]
+name=break-yum
+baseurl=file:///mnt/localrepo/break-yum
+enabled=0
+gpgcheck=0

@@ -1,0 +1,1261 @@
+base_env: &base_env
+- name: RAILS_ENV
+  value: "production"
+- name: DATABASE_URL
+  value: "mysql2://root:${MYSQL_ROOT_PASSWORD}@system-mysql/${MYSQL_DATABASE}"
+- name: FORCE_SSL
+  value: "true"
+- name: THREESCALE_SUPERDOMAIN
+  value: "${WILDCARD_DOMAIN}"
+- name: TENANT_NAME
+  value: "${TENANT_NAME}"
+- name: APICAST_ACCESS_TOKEN
+  value: "${APICAST_ACCESS_TOKEN}"
+- name: ADMIN_ACCESS_TOKEN
+  value: "${ADMIN_ACCESS_TOKEN}"
+- name: PROVIDER_PLAN
+  value: 'enterprise'
+- name: USER_LOGIN
+  value: "${ADMIN_USERNAME}"
+- name: USER_PASSWORD
+  value: "${ADMIN_PASSWORD}"
+- name: RAILS_LOG_TO_STDOUT
+  value: "true"
+- name: RAILS_LOG_LEVEL
+  value: "info"
+- name: THINKING_SPHINX_ADDRESS
+  value: "system-sphinx"
+- name: THINKING_SPHINX_PORT
+  value: "9306"
+- name: THINKING_SPHINX_CONFIGURATION_FILE
+  value: "/tmp/sphinx.conf"
+- name: EVENTS_SHARED_SECRET
+  value: "${SYSTEM_BACKEND_SHARED_SECRET}"
+- name: THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE
+  value: "VERIFY_NONE"
+- name: APICAST_BACKEND_ROOT_ENDPOINT
+  value: "https://backend-${TENANT_NAME}.${WILDCARD_DOMAIN}"
+- name: CONFIG_INTERNAL_API_USER
+  value: "${SYSTEM_BACKEND_USERNAME}"
+- name: CONFIG_INTERNAL_API_PASSWORD
+  value: "${SYSTEM_BACKEND_PASSWORD}"
+- name: SECRET_KEY_BASE
+  value: "${SYSTEM_APP_SECRET_KEY_BASE}"
+- name: AMP_RELEASE
+  value: "${AMP_RELEASE}"
+- name: SMTP_ADDRESS
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: address
+- name: SMTP_USER_NAME
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: username
+- name: SMTP_PASSWORD
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: password
+- name: SMTP_DOMAIN
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: domain
+- name: SMTP_PORT
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: port
+- name: SMTP_AUTHENTICATION
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: authentication
+- name: SMTP_OPENSSL_VERIFY_MODE
+  valueFrom:
+    configMapKeyRef:
+      name: smtp
+      key: openssl.verify.mode
+- name: BACKEND_ROUTE
+  value: "https://backend-${TENANT_NAME}.${WILDCARD_DOMAIN}"
+
+apiVersion: v1
+kind: Template
+metadata:
+  name: "system"
+message: "Login on https://${TENANT_NAME}-admin.${WILDCARD_DOMAIN} as ${ADMIN_USERNAME}/${ADMIN_PASSWORD}"
+objects:
+
+- apiVersion: "v1"
+  kind: "PersistentVolumeClaim"
+  metadata:
+    name: "system-storage"
+  spec:
+    accessModes:
+    - "ReadWriteMany"
+    resources:
+      requests:
+        storage: "100Mi"
+
+- apiVersion: "v1"
+  kind: "PersistentVolumeClaim"
+  metadata:
+    name: "mysql-storage"
+  spec:
+    accessModes:
+    - "ReadWriteOnce"
+    resources:
+      requests:
+        storage: "1Gi"
+
+- apiVersion: "v1"
+  kind: "PersistentVolumeClaim"
+  metadata:
+    name: "system-redis-storage"
+  spec:
+    accessModes:
+    - "ReadWriteOnce"
+    resources:
+      requests:
+        storage: "1Gi"
+
+- apiVersion: "v1"
+  kind: "PersistentVolumeClaim"
+  metadata:
+    name: "backend-redis-storage"
+  spec:
+    accessModes:
+    - "ReadWriteOnce"
+    resources:
+      requests:
+        storage: "1Gi"
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: backend-cron
+  spec:
+    replicas: 1
+    selector:
+      name: backend-cron
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: backend-cron
+      spec:
+        containers:
+        - args:
+          - backend-cron
+          env:
+          - name: CONFIG_REDIS_PROXY
+            value: "backend-redis:6379"
+          - name: CONFIG_QUEUES_MASTER_NAME
+            value: "backend-redis:6379/1"
+          - name: RACK_ENV
+            value: "production"
+          image: 3scale-amp20/backend:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: backend-cron
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: backend-redis
+  spec:
+    replicas: 1
+    selector:
+      name: backend-redis
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: backend-redis
+      spec:
+        containers:
+        - image: ${REDIS_IMAGE}
+          imagePullPolicy: IfNotPresent
+          name: backend-redis
+          readinessProbe:
+            exec:
+              command:
+              - "container-entrypoint"
+              - "bash"
+              - "-c"
+              - "redis-cli set liveness-probe \"`date`\" | grep OK"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 1
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          volumeMounts:
+          - name: backend-redis-storage
+            mountPath: "/var/lib/redis/data"
+          - name: redis-config
+            mountPath: /etc/redis.conf
+            subPath: redis.conf
+        volumes:
+        - name: backend-redis-storage
+          persistentVolumeClaim:
+            claimName: backend-redis-storage
+        - name: redis-config
+          configMap:
+            name: redis-config
+            items:
+            - key: redis.conf
+              path: redis.conf
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: backend-listener
+  spec:
+    replicas: 1
+    selector:
+      name: backend-listener
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: backend-listener
+      spec:
+        containers:
+        - args:
+          - 3scale_backend
+          - start
+          - "-e"
+          - production
+          - "-p"
+          - '3000'
+          - "-x"
+          - "/dev/stdout"
+          env:
+          - name: CONFIG_REDIS_PROXY
+            value: "backend-redis:6379"
+          - name: CONFIG_QUEUES_MASTER_NAME
+            value: "backend-redis:6379/1"
+          - name: RACK_ENV
+            value: "production"
+          - name: CONFIG_INTERNAL_API_USER
+            value: "${SYSTEM_BACKEND_USERNAME}"
+          - name: CONFIG_INTERNAL_API_PASSWORD
+            value: "${SYSTEM_BACKEND_PASSWORD}"
+          image: 3scale-amp20/backend:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: backend-listener
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            tcpSocket:
+              port: 3000
+          readinessProbe:
+            httpGet:
+              path: "/status"
+              port: 3000
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: backend-redis
+  spec:
+    ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+    selector:
+      name: backend-redis
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: backend-listener
+  spec:
+    ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+      name: http
+    selector:
+      name: backend-listener
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: system-provider
+  spec:
+    ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: provider
+      name: http
+    selector:
+      name: system-app
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: system-developer
+  spec:
+    ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: developer
+      name: http
+    selector:
+      name: system-app
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: backend-worker
+  spec:
+    replicas: 1
+    selector:
+      name: backend-worker
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: backend-worker
+      spec:
+        containers:
+        - args:
+          - 3scale_backend_worker
+          - run
+          env:
+          - name: CONFIG_REDIS_PROXY
+            value: "backend-redis:6379"
+          - name: CONFIG_QUEUES_MASTER_NAME
+            value: "backend-redis:6379/1"
+          - name: RACK_ENV
+            value: "production"
+          - name: CONFIG_EVENTS_HOOK
+            value: http://system-provider:3000/master/events/import
+          - name: CONFIG_EVENTS_HOOK_SHARED_SECRET
+            value: ${SYSTEM_BACKEND_SHARED_SECRET}
+          image: 3scale-amp20/backend:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: backend-worker
+    triggers:
+    - type: ConfigChange
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: 'system-mysql'
+  spec:
+    ports:
+    - name: system-mysql
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 0
+    selector:
+      name: 'system-mysql'
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: system-redis
+  spec:
+    ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+      name: redis
+    selector:
+      name: system-redis
+
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-redis
+  spec:
+    replicas: 1
+    selector:
+      name: system-redis
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: system-redis
+      spec:
+        containers:
+        - args:
+          image: ${REDIS_IMAGE}
+          imagePullPolicy: IfNotPresent
+          name: system-redis
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - name: system-redis-storage
+            mountPath: "/var/lib/redis/data"
+          - name: redis-config
+            mountPath: /etc/redis.conf
+            subPath: redis.conf
+          readinessProbe:
+            exec:
+              command:
+              - "container-entrypoint"
+              - "bash"
+              - "-c"
+              - "redis-cli set liveness-probe \"`date`\" | grep OK"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 10
+            periodSeconds: 5
+        volumes:
+        - name: system-redis-storage
+          persistentVolumeClaim:
+            claimName: system-redis-storage
+        - name: redis-config
+          configMap:
+            name: redis-config
+            items:
+            - key: redis.conf
+              path: redis.conf
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: system-sphinx
+  spec:
+    ports:
+    - port: 9306
+      protocol: TCP
+      targetPort: 9306
+      name: sphinx
+    selector:
+      name: system-sphinx
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-sphinx
+  spec:
+    replicas: 1
+    selector:
+      name: system-sphinx
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: system-sphinx
+      spec:
+        volumes:
+        - name: system-sphinx-database
+          emptyDir: {}
+        containers:
+        - args:
+          - rake
+          - 'openshift:thinking_sphinx:start'
+          volumeMounts:
+          - name: system-sphinx-database
+            mountPath: "/opt/system/db/sphinx"
+          env:
+          - name: RAILS_ENV
+            value: production
+          - name: DATABASE_URL
+            value: "mysql2://root:${MYSQL_ROOT_PASSWORD}@system-mysql/${MYSQL_DATABASE}"
+          - name: THINKING_SPHINX_ADDRESS
+            value: 0.0.0.0
+          - name: THINKING_SPHINX_CONFIGURATION_FILE
+            value: "db/sphinx/production.conf"
+          - name: THINKING_SPHINX_PID_FILE
+            value: db/sphinx/searchd.pid
+          - name: DELTA_INDEX_INTERVAL
+            value: '5'
+          - name: FULL_REINDEX_INTERVAL
+            value: '60'
+          image: 3scale-amp20/system:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: system-sphinx
+          livenessProbe:
+            tcpSocket:
+              port: 9306
+            initialDelaySeconds: 60
+            periodSeconds: 10
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: system-memcache
+  spec:
+    ports:
+    - port: 11211
+      protocol: TCP
+      targetPort: 11211
+      name: memcache
+    selector:
+      name: system-memcache
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-memcache
+  spec:
+    replicas: 1
+    selector:
+      name: system-memcache
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: system-memcache
+      spec:
+        containers:
+        - args:
+          env:
+          image: 3scale-amp20/memcached:1.4.15-7
+          imagePullPolicy: IfNotPresent
+          name: memcache
+          readinessProbe:
+            exec:
+              command:
+              - "sh"
+              - "-c"
+              - "echo version | nc $HOSTNAME 11211 | grep VERSION"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 11211
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          command:
+          - "memcached"
+          - "-m"
+          - "64"
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: system-provider-admin-route
+    labels:
+      app: system-route
+  spec:
+    host: ${TENANT_NAME}-admin.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: system-provider
+    port:
+      targetPort: http
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: backend-route
+    labels:
+      app: system-route
+  spec:
+    host: backend-${TENANT_NAME}.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: backend-listener
+    port:
+      targetPort: http
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: system-developer-route
+    labels:
+      app: system-route
+  spec:
+    host: ${TENANT_NAME}.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: system-developer
+    port:
+      targetPort: http
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: apicast-staging
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: apicast-staging
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 1800
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: apicast-staging
+      spec:
+        containers:
+        - env:
+          - name: THREESCALE_PORTAL_ENDPOINT
+            value: http://${APICAST_ACCESS_TOKEN}@system-provider:3000
+          - name: APICAST_CONFIGURATION_LOADER
+            value: "lazy"
+          - name: APICAST_CONFIGURATION_CACHE
+            value: "0"
+          - name: THREESCALE_DEPLOYMENT_ENV
+            value: "sandbox"
+          - name: APICAST_MANAGEMENT_API
+            value: "${APICAST_MANAGEMENT_API}"
+          - name: BACKEND_ENDPOINT_OVERRIDE
+            value: http://backend-listener:3000
+          - name: OPENSSL_VERIFY
+            value: '${APICAST_OPENSSL_VERIFY}'
+          - name: APICAST_RESPONSE_CODES
+            value: '${APICAST_RESPONSE_CODES}'
+          - name: REDIS_URL
+            value: "redis://system-redis:6379/2"
+          image: 3scale-amp20/apicast-gateway:1.0-3
+          imagePullPolicy: IfNotPresent
+          name: apicast-staging
+          livenessProbe:
+            httpGet:
+              path: /status/live
+              port: 8090
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: 8090
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 30
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8090
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast-staging
+  spec:
+    ports:
+    - name: gateway
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: management
+      port: 8090
+      protocol: TCP
+      targetPort: 8090
+    selector:
+      deploymentconfig: apicast-staging
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: apicast-production
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: apicast-production
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 1800
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: apicast-production
+      spec:
+        containers:
+        - env:
+          - name: THREESCALE_PORTAL_ENDPOINT
+            value: "http://${APICAST_ACCESS_TOKEN}@system-provider:3000"
+          - name: APICAST_CONFIGURATION_LOADER
+            value: "boot"
+          - name: APICAST_CONFIGURATION_CACHE
+            value: "300"
+          - name: THREESCALE_DEPLOYMENT_ENV
+            value: "production"
+          - name: APICAST_MANAGEMENT_API
+            value: "${APICAST_MANAGEMENT_API}"
+          - name: BACKEND_ENDPOINT_OVERRIDE
+            value: http://backend-listener:3000
+          - name: OPENSSL_VERIFY
+            value: '${APICAST_OPENSSL_VERIFY}'
+          - name: APICAST_RESPONSE_CODES
+            value: '${APICAST_RESPONSE_CODES}'
+          - name: REDIS_URL
+            value: "redis://system-redis:6379/1"
+          image: 3scale-amp20/apicast-gateway:1.0-3
+          imagePullPolicy: IfNotPresent
+          name: apicast-production
+          livenessProbe:
+            httpGet:
+              path: /status/live
+              port: 8090
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: 8090
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 30
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8090
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast-production
+  spec:
+    ports:
+    - name: gateway
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: management
+      port: 8090
+      protocol: TCP
+      targetPort: 8090
+    selector:
+      deploymentconfig: apicast-production
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: api-apicast-staging-route
+    labels:
+      app: apicast-staging
+  spec:
+    host: api-${TENANT_NAME}-apicast-staging.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: apicast-staging
+    port:
+      targetPort: gateway
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: api-apicast-production-route
+    labels:
+      app: apicast-production
+  spec:
+    host: api-${TENANT_NAME}-apicast-production.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: apicast-production
+    port:
+      targetPort: gateway
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-app
+  spec:
+    replicas: 1
+    selector:
+      name: system-app
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+        pre:
+          failurePolicy: Retry
+          execNewPod:
+            containerName: system-provider
+            command:
+            - bash
+            - -c
+            - bundle exec rake boot openshift:deploy
+            env: *base_env
+            volumes:
+            - system-storage
+        post:
+          failurePolicy: Abort
+          execNewPod:
+            containerName: system-provider
+            command:
+            - bash
+            - -c
+            - bundle exec rake boot openshift:post_deploy
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: system-app
+      spec:
+        containers:
+        - args:
+          env: *base_env
+          image: 3scale-amp20/system:1.0-2
+          imagePullPolicy: IfNotPresent
+          command: ['env', 'TENANT_MODE=provider', 'PORT=3000', 'container-entrypoint', 'bundle', 'exec', 'unicorn', '-c', 'config/unicorn.rb']
+          name: system-provider
+          livenessProbe:
+            timeoutSeconds: 10
+            initialDelaySeconds: 20
+            tcpSocket:
+              port: provider
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /check.txt
+              port: provider
+              scheme: HTTP
+              httpHeaders:
+              - name: X-Forwarded-Proto
+                value: https
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 30
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+            name: provider
+          volumeMounts:
+          - name: system-storage
+            mountPath: /opt/system/public/system
+        - args:
+          env: *base_env
+          image: 3scale-amp20/system:1.0-2
+          command: ['env', 'TENANT_MODE=developer', 'PORT=3001', 'container-entrypoint', 'bundle', 'exec', 'unicorn', '-c', 'config/unicorn.rb']
+          imagePullPolicy: IfNotPresent
+          name: system-developer
+          livenessProbe:
+            timeoutSeconds: 10
+            initialDelaySeconds: 20
+            tcpSocket:
+              port: developer
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /check.txt
+              port: developer
+              scheme: HTTP
+              httpHeaders:
+              - name: X-Forwarded-Proto
+                value: https
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 30
+          ports:
+          - containerPort: 3001
+            protocol: TCP
+            name: developer
+          volumeMounts:
+          - name: system-storage
+            mountPath: /opt/system/public/system
+            readOnly: true
+        volumes:
+        - name: system-storage
+          persistentVolumeClaim:
+            claimName: system-storage
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-resque
+  spec:
+    replicas: 1
+    selector:
+      name: system-resque
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: system-resque
+      spec:
+        containers:
+        - args:
+          - 'rake'
+          - 'resque:work'
+          - 'QUEUE=*'
+          env: *base_env
+          image: 3scale-amp20/system:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: system-resque
+          volumeMounts:
+          - name: system-storage
+            mountPath: /opt/system/public/system
+        - args:
+          - 'rake'
+          - 'resque:scheduler'
+          - 'QUEUE=*'
+          env: *base_env
+          image: 3scale-amp20/system:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: system-scheduler
+        volumes:
+        - name: system-storage
+          persistentVolumeClaim:
+            claimName: system-storage
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: system-sidekiq
+  spec:
+    replicas: 1
+    selector:
+      name: system-sidekiq
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          name: system-sidekiq
+      spec:
+        containers:
+        - args:
+          - rake
+          - sidekiq:worker
+          env: *base_env
+          image: 3scale-amp20/system:1.0-2
+          imagePullPolicy: IfNotPresent
+          name: system-sidekiq
+          volumeMounts:
+          - name: system-storage
+            mountPath: /opt/system/public/system
+        volumes:
+        - name: system-storage
+          persistentVolumeClaim:
+            claimName: system-storage
+    triggers:
+    - type: ConfigChange
+
+
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: 'system-mysql'
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: 'system-mysql'
+    template:
+      metadata:
+        labels:
+          name: 'system-mysql'
+      spec:
+        containers:
+        - name: system-mysql
+          image: ${MYSQL_IMAGE}
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              cpu: '1'
+              memory: 1Gi
+          readinessProbe:
+            timeoutSeconds: 5
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            exec:
+              command:
+              - /bin/sh
+              - '-i'
+              - '-c'
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE -e 'SELECT 1'
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            tcpSocket:
+              port: 3306
+          env:
+          - name: MYSQL_USER
+            value: ${MYSQL_USER}
+          - name: MYSQL_PASSWORD
+            value: ${MYSQL_PASSWORD}
+          - name: MYSQL_DATABASE
+            value: ${MYSQL_DATABASE}
+          - name: MYSQL_ROOT_PASSWORD
+            value: ${MYSQL_ROOT_PASSWORD}
+          - name: MYSQL_LOWER_CASE_TABLE_NAMES
+            value: "1"
+          volumeMounts:
+          - name: 'mysql-storage'
+            mountPath: /var/lib/mysql/data
+          imagePullPolicy: IfNotPresent
+        volumes:
+        - name: 'mysql-storage'
+          persistentVolumeClaim:
+            claimName: 'mysql-storage'
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: redis-config
+  data:
+    redis.conf: |
+      protected-mode no
+
+      port 6379
+
+      timeout 0
+      tcp-keepalive 300
+
+      daemonize no
+      supervised no
+
+      loglevel notice
+
+      databases 16
+
+      save 900 1
+      save 300 10
+      save 60 10000
+
+      stop-writes-on-bgsave-error yes
+
+      rdbcompression yes
+      rdbchecksum yes
+
+      dbfilename dump.rdb
+
+      slave-serve-stale-data yes
+      slave-read-only yes
+
+      repl-diskless-sync no
+      repl-disable-tcp-nodelay no
+
+      appendonly yes
+      appendfilename "appendonly.aof"
+      appendfsync everysec
+      no-appendfsync-on-rewrite no
+      auto-aof-rewrite-percentage 100
+      auto-aof-rewrite-min-size 64mb
+      aof-load-truncated yes
+
+      lua-time-limit 5000
+
+      activerehashing no
+
+      aof-rewrite-incremental-fsync yes
+      dir /var/lib/redis/data
+
+- kind: ConfigMap
+
+  apiVersion: v1
+  metadata:
+    name: smtp
+  data:
+    address: ""
+    username: ""
+    password: ""
+    domain: ""
+    port: ""
+    authentication: ""
+    openssl.verify.mode: ""
+
+parameters:
+- name: AMP_RELEASE
+  description: "AMP release tag."
+  value: 2.0.0-CR2-redhat-1
+  required: true
+- name: ADMIN_PASSWORD
+  required: true
+  generate: expression
+  from: "[a-z0-9]{8}"
+- name: ADMIN_USERNAME
+  value: admin
+  required: true
+- name: APICAST_ACCESS_TOKEN
+  required: true
+  generate: expression
+  from: "[a-z0-9]{8}"
+  description: "Read Only Access Token that is APIcast going to use to download its configuration."
+- name: ADMIN_ACCESS_TOKEN
+  required: false
+  generate: expression
+  from: "[a-z0-9]{16}"
+  description: "Admin Access Token with all scopes and write permissions for API access."
+- name: WILDCARD_DOMAIN
+  description: Root domain for the wildcard routes. Eg. example.com will generate 3scale-admin.example.com.
+  required: true
+- name: TENANT_NAME
+  description: "Tenant name under the root that Admin UI will be available with -admin suffix."
+  required: true
+  value: "3scale"
+- name: MYSQL_USER
+  displayName: MySQL User
+  description: Username for MySQL user that will be used for accessing the database.
+  value: "mysql"
+  required: true
+- name: MYSQL_PASSWORD
+  displayName: MySQL Password
+  description: Password for the MySQL user.
+  generate: expression
+  from: "[a-z0-9]{8}"
+  required: true
+- name: MYSQL_DATABASE
+  displayName: MySQL Database Name
+  description: Name of the MySQL database accessed.
+  value: "system"
+  required: true
+- name: MYSQL_ROOT_PASSWORD
+  displayName: MySQL Root password.
+  description: Password for Root user.
+  generate: expression
+  from: "[a-z0-9]{8}"
+  required: true
+- name: SYSTEM_BACKEND_USERNAME
+  description: Internal 3scale API username for internal 3scale api auth.
+  value: "3scale_api_user"
+  required: true
+- name: SYSTEM_BACKEND_PASSWORD
+  description: Internal 3scale API password for internal 3scale api auth.
+  generate: expression
+  from: "[a-z0-9]{8}"
+  required: true
+- name: REDIS_IMAGE
+  description: Redis image to use
+  required: true
+  value: rhscl/redis-32-rhel7:3.2-5.7
+- name: MYSQL_IMAGE
+  description: Mysql image to use
+  required: true
+  value: rhscl/mysql-56-rhel7:5.6-13.14
+- name: SYSTEM_BACKEND_SHARED_SECRET
+  description: Shared secret to import events from backend to system.
+  generate: expression
+  from: "[a-z0-9]{8}"
+  required: true
+- name: SYSTEM_APP_SECRET_KEY_BASE
+  description: System application secret key base
+  generate: expression
+  from: "[a-f0-9]{128}"
+  required: true
+- name: APICAST_MANAGEMENT_API
+  description: "Scope of the APIcast Management API. Can be disabled, status or debug. At least status required for health checks."
+  required: false
+  value: "status"
+- name: APICAST_OPENSSL_VERIFY
+  description: "Turn on/off the OpenSSL peer verification when downloading the configuration. Can be set to true/false."
+  required: false
+  value: "false"
+- name: APICAST_RESPONSE_CODES
+  description: "Enable logging response codes in APIcast."
+  value: "true"
+  required: false

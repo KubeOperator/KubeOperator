@@ -1,0 +1,43 @@
+---
+- name: Install clients
+  package: name={{ openshift_service_type }}-clients{{ openshift_pkg_version | default('') }} state=present
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+- block:
+  - name: Pull CLI Image (docker)
+    docker_image:
+      name: "{{ openshift_cli_image }}"
+    when: not openshift_use_crio_only | bool
+
+  - name: Pull CLI Image (atomic)
+    command: >
+      atomic pull --storage ostree {{ system_openshift_cli_image }}
+    register: pull_result
+    changed_when: "'Pulling layer' in pull_result.stdout"
+    when: openshift_use_crio_only | bool
+
+  # openshift_container_binary_sync is a custom module in lib_utils
+  - name: Copy client binaries/symlinks out of CLI image for use on the host
+    openshift_container_binary_sync:
+      image: "{{ openshift_cli_image }}"
+      backend: "{{ l_openshift_cli_image_backend }}"
+  when: openshift_is_atomic | bool
+
+- name: Install bash completion for oc tools
+  package: name=bash-completion state=present
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+# TODO(michaelgugino) Remove in 3.11.
+- name: Ensure binaries from containerized deployments are cleaned up.
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - /usr/local/bin/oc
+  - /usr/local/bin/openshift
+  - /usr/local/bin/kubectl
+  when: not openshift_is_atomic

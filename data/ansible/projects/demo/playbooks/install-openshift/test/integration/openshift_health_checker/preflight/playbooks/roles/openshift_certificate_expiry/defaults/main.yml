@@ -1,0 +1,8 @@
+---
+openshift_certificate_expiry_config_base: "/etc/origin"
+openshift_certificate_expiry_warning_days: 30
+openshift_certificate_expiry_show_all: no
+openshift_certificate_expiry_generate_html_report: no
+openshift_certificate_expiry_html_report_path: "/tmp/cert-expiry-report.html"
+openshift_certificate_expiry_save_json_results: no
+openshift_certificate_expiry_json_results_path: "/tmp/cert-expiry-report.json"

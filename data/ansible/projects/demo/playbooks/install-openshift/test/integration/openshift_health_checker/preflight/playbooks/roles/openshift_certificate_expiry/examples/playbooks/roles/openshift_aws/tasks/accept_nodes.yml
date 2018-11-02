@@ -1,0 +1,43 @@
+---
+- include_tasks: setup_master_group.yml
+
+- name: fetch masters
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region | default('us-east-1') }}"
+    filters:
+      "{{ {'tag:kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid,
+           'tag:host-type': 'master', 'instance-state-name': 'running'} }}"
+  register: mastersout
+  retries: 20
+  delay: 3
+  until: "'instances' in mastersout and mastersout.instances|length > 0"
+
+- name: fetch new node instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "{{ {'tag:kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid,
+           'tag:host-type': 'node',
+           'instance-state-name': 'running'} }}"
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: "'instances' in instancesout and instancesout.instances|length > 0"
+
+- name: Dump the private dns names
+  debug:
+    msg: "{{ instancesout.instances|map(attribute='private_dns_name') | list }}"
+
+- name: Dump the master public ip address
+  debug:
+    msg: "{{ mastersout.instances[0].public_ip_address }}"
+
+- name: Approve node certificates when bootstrapping
+  oc_csr_approve:
+    oc_bin: "{{ hostvars[groups.masters.0]['first_master_client_binary'] }}"
+    oc_conf: "{{ hostvars[groups.masters.0].openshift.common.config_base }}/master/admin.kubeconfig"
+    node_list: "{{ instancesout.instances|map(attribute='private_dns_name') | list  }}"
+  register: aws_csr_approve
+  retries: 30
+  until: aws_csr_approve is succeeded
+  delegate_to: "{{ groups.masters.0 }}"

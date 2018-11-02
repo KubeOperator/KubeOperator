@@ -1,0 +1,18 @@
+---
+- name: Copy cloud CA certificate
+  copy:
+    content: "{{ openshift_cloudprovider_openstack_ca_file }}"
+    dest: "{{ openshift_openstack_ca_file_path }}"
+  when: openshift_cloudprovider_openstack_ca_file is defined
+
+- name: Create cloud config from template
+  template:
+    dest: "{{ openshift.common.config_base }}/cloudprovider/openstack.conf"
+    src: openstack.conf.j2
+  when: openshift_cloudprovider_openstack_auth_url is defined and openshift_cloudprovider_openstack_username is defined and openshift_cloudprovider_openstack_password is defined and (openshift_cloudprovider_openstack_tenant_id is defined or openshift_cloudprovider_openstack_tenant_name is defined) and openshift_cloudprovider_openstack_conf_file is not defined
+
+- name: Create cloud config from local file
+  copy:
+    dest: "{{ openshift.common.config_base }}/cloudprovider/openstack.conf"
+    src: "{{ openshift_cloudprovider_openstack_conf_file }}"
+  when: openshift_cloudprovider_openstack_conf_file is defined

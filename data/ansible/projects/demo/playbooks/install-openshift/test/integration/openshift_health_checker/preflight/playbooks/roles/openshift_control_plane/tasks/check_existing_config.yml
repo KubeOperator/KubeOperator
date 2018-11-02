@@ -1,0 +1,35 @@
+---
+# We need to scrape existing config and check some items.
+- stat:
+    path: "/etc/origin/master/master-config.yaml"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: master_config_path_check
+
+- slurp:
+    src: "/etc/origin/master/master-config.yaml"
+  register: openshift_master_config_encoded_contents
+  when: master_config_path_check.stat.exists
+
+# The existing config will also be used to determine first node selector on
+# first master.
+- set_fact:
+    l_existing_config_master_config: "{{ (openshift_master_config_encoded_contents.content | b64decode | from_yaml) }}"
+  when:
+  - openshift_master_config_encoded_contents is defined
+  - openshift_master_config_encoded_contents.content is defined
+
+- name: Check for file paths outside of /etc/origin/master in master's config
+  master_check_paths_in_config:
+    mastercfg: "{{ l_existing_config_master_config }}"
+  when: l_existing_config_master_config is defined
+
+- set_fact:
+    # Take list of existing IDProviders so we can use/modify them later,
+    # especially for migrating htpasswd file.
+    openshift_master_existing_idproviders: "{{ l_existing_config_master_config.oauthConfig.identityProviders }}"
+  when:
+  - l_existing_config_master_config is defined
+  - l_existing_config_master_config.oauthConfig is defined
+  - l_existing_config_master_config.oauthConfig.identityProviders is defined

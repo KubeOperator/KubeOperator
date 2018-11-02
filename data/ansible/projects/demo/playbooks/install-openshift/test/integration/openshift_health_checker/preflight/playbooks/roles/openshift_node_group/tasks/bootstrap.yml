@@ -1,0 +1,11 @@
+---
+- name: create node config template
+  template:
+    src: node-config.yaml.j2
+    dest: "/etc/origin/node/bootstrap-node-config.yaml"
+    mode: 0600
+# Make sure a single master has node-config so that SDN and sync daemonsets requires it
+- name: remove existing node config
+  file:
+    dest: "/etc/origin/node/node-config.yaml"
+    state: absent

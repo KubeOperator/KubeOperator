@@ -1,0 +1,308 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: prometheus
+  namespace: {{ namespace }}
+  labels:
+    app: prometheus
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  selector:
+    provider: openshift
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      name: prometheus
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: "{{ openshift_prometheus_service_name }}"
+{% if openshift_prometheus_node_selector is iterable and openshift_prometheus_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in openshift_prometheus_node_selector.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+      containers:
+      # Deploy Prometheus behind an oauth proxy
+      - name: prom-proxy
+        image: "{{ openshift_prometheus_proxy_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if openshift_prometheus_oauth_proxy_memory_requests is defined and openshift_prometheus_oauth_proxy_memory_requests is not none %}
+            memory: "{{ openshift_prometheus_oauth_proxy_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_requests is defined and openshift_prometheus_oauth_proxy_cpu_requests is not none %}
+            cpu: "{{ openshift_prometheus_oauth_proxy_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_prometheus_oauth_proxy_memory_limit is defined and openshift_prometheus_oauth_proxy_memory_limit is not none %}
+            memory: "{{ openshift_prometheus_oauth_proxy_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_limit is defined and openshift_prometheus_oauth_proxy_cpu_limit is not none %}
+            cpu: "{{ openshift_prometheus_oauth_proxy_cpu_limit }}"
+{% endif %}
+        ports:
+        - containerPort: {{ openshift_prometheus_service_targetport }}
+          name: web
+        args:
+        - -provider=openshift
+        - -https-address=:{{ openshift_prometheus_service_targetport }}
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9090
+        - -client-id=system:serviceaccount:{{ namespace }}:{{ openshift_prometheus_service_name }}
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -openshift-ca=/etc/pki/tls/cert.pem
+        - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - -skip-auth-regex=^/metrics
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: prometheus-tls-secret
+        - mountPath: /etc/proxy/secrets
+          name: prometheus-proxy-secret
+        - mountPath: /prometheus
+          name: prometheus-data
+
+      - name: prometheus
+        args:
+{% for arg in openshift_prometheus_args %}
+        - {{ arg }}
+{% endfor %}
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --web.listen-address=localhost:9090
+        - --web.external-url=https://{{ openshift_prometheus_hostname }}
+        image: "{{ openshift_prometheus_image }}"
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - |-
+              set -euo pipefail;
+              touch /tmp/prometheusconfig.hash;
+              if [[ $(find /etc/prometheus -type f | sort | xargs md5sum | md5sum) != $(cat /tmp/prometheusconfig.hash) ]]; then
+                find /etc/prometheus -type f | sort | xargs md5sum | md5sum > /tmp/prometheusconfig.hash;
+                kill -HUP 1;
+              fi
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        resources:
+          requests:
+{% if openshift_prometheus_memory_requests is defined and openshift_prometheus_memory_requests is not none %}
+            memory: "{{ openshift_prometheus_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_cpu_requests is defined and openshift_prometheus_cpu_requests is not none %}
+            cpu: "{{ openshift_prometheus_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_prometheus_memory_limit is defined and openshift_prometheus_memory_limit is not none %}
+            memory: "{{ openshift_prometheus_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_cpu_limit is defined and openshift_prometheus_cpu_limit is not none %}
+            cpu: "{{ openshift_prometheus_cpu_limit }}"
+{% endif %}
+
+        volumeMounts:
+        - mountPath: /etc/prometheus
+          name: prometheus-config
+        - mountPath: /prometheus
+          name: prometheus-data
+
+      # Deploy alert-buffer behind oauth alerts-proxy
+      - name: alerts-proxy
+        image: "{{ openshift_prometheus_proxy_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if openshift_prometheus_oauth_proxy_memory_requests is defined and openshift_prometheus_oauth_proxy_memory_requests is not none %}
+            memory: "{{ openshift_prometheus_oauth_proxy_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_requests is defined and openshift_prometheus_oauth_proxy_cpu_requests is not none %}
+            cpu: "{{ openshift_prometheus_oauth_proxy_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_prometheus_oauth_proxy_memory_limit is defined and openshift_prometheus_oauth_proxy_memory_limit is not none %}
+            memory: "{{ openshift_prometheus_oauth_proxy_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_limit is defined and openshift_prometheus_oauth_proxy_cpu_limit is not none %}
+            cpu: "{{ openshift_prometheus_oauth_proxy_cpu_limit }}"
+{% endif %}
+        ports:
+        - containerPort: {{ openshift_prometheus_alerts_service_targetport }}
+          name: web
+        args:
+        - -provider=openshift
+        - -https-address=:{{ openshift_prometheus_alerts_service_targetport }}
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9099
+        - -client-id=system:serviceaccount:{{ namespace }}:{{ openshift_prometheus_service_name }}
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -openshift-ca=/etc/pki/tls/cert.pem
+        - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - -skip-auth-regex=^/metrics
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: alerts-tls-secret
+        - mountPath: /etc/proxy/secrets
+          name: alerts-proxy-secret
+
+      - name: alert-buffer
+        args:
+        - --storage-path=/alert-buffer/messages.db
+        image: "{{ openshift_prometheus_alertbuffer_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if openshift_prometheus_alertbuffer_memory_requests is defined and openshift_prometheus_alertbuffer_memory_requests is not none %}
+            memory: "{{ openshift_prometheus_alertbuffer_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_alertbuffer_cpu_requests is defined and openshift_prometheus_alertbuffer_cpu_requests is not none %}
+            cpu: "{{ openshift_prometheus_alertbuffer_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_prometheus_alertbuffer_memory_limit is defined and openshift_prometheus_alertbuffer_memory_limit is not none %}
+            memory: "{{ openshift_prometheus_alertbuffer_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_alertbuffer_cpu_limit is defined and openshift_prometheus_alertbuffer_cpu_limit is not none %}
+            cpu: "{{ openshift_prometheus_alertbuffer_cpu_limit }}"
+{% endif %}
+        volumeMounts:
+        - mountPath: /alert-buffer
+          name: alerts-data
+
+      # Deploy alertmanager behind oauth alertmanager-proxy
+      - name: alertmanager-proxy
+        image: "{{ openshift_prometheus_proxy_image }}"
+        imagePullPolicy: IfNotPresent
+        requests:
+{% if openshift_prometheus_oauth_proxy_memory_requests is defined and openshift_prometheus_oauth_proxy_memory_requests is not none %}
+          memory: "{{ openshift_prometheus_oauth_proxy_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_requests is defined and openshift_prometheus_oauth_proxy_cpu_requests is not none %}
+          cpu: "{{ openshift_prometheus_oauth_proxy_cpu_requests }}"
+{% endif %}
+        limits:
+{% if openshift_prometheus_oauth_proxy_memory_limit is defined and openshift_prometheus_oauth_proxy_memory_limit is not none %}
+          memory: "{{ openshift_prometheus_oauth_proxy_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_oauth_proxy_cpu_limit is defined and openshift_prometheus_oauth_proxy_cpu_limit is not none %}
+          cpu: "{{ openshift_prometheus_oauth_proxy_cpu_limit }}"
+{% endif %}
+        ports:
+        - containerPort: {{ openshift_prometheus_alertmanager_service_targetport }}
+          name: web
+        args:
+        - -provider=openshift
+        - -https-address=:{{ openshift_prometheus_alertmanager_service_targetport }}
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9093
+        - -client-id=system:serviceaccount:{{ namespace }}:{{ openshift_prometheus_service_name }}
+        - -openshift-ca=/etc/pki/tls/cert.pem
+        - -openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - '-openshift-sar={"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get", "resourceName": "{{ namespace }}", "namespace": "{{ namespace }}"}}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -skip-auth-regex=^/metrics
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: alertmanager-tls-secret
+        - mountPath: /etc/proxy/secrets
+          name: alertmanager-proxy-secret
+
+      - name: alertmanager
+        args:
+        - --config.file=/etc/alertmanager/alertmanager.yml
+        image: "{{ openshift_prometheus_alertmanager_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if openshift_prometheus_alertmanager_memory_requests is defined and openshift_prometheus_alertmanager_memory_requests is not none %}
+            memory: "{{ openshift_prometheus_alertmanager_memory_requests }}"
+{% endif %}
+{% if openshift_prometheus_alertmanager_cpu_requests is defined and openshift_prometheus_alertmanager_cpu_requests is not none %}
+            cpu: "{{ openshift_prometheus_alertmanager_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_prometheus_alertmanager_memory_limit is defined and openshift_prometheus_alertmanager_memory_limit is not none %}
+            memory: "{{ openshift_prometheus_alertmanager_memory_limit }}"
+{% endif %}
+{% if openshift_prometheus_alertmanager_cpu_limit is defined and openshift_prometheus_alertmanager_cpu_limit is not none %}
+            cpu: "{{ openshift_prometheus_alertmanager_cpu_limit }}"
+{% endif %}
+        volumeMounts:
+        - mountPath: /etc/alertmanager
+          name: alertmanager-config
+        - mountPath: /alertmanager
+          name: alertmanager-data
+
+      restartPolicy: Always
+      volumes:
+
+      - name: prometheus-config
+        configMap:
+          defaultMode: 420
+          name: prometheus
+      - name: prometheus-proxy-secret
+        secret:
+          secretName: prometheus-proxy
+      - name: prometheus-tls-secret
+        secret:
+          secretName: prometheus-tls
+      - name: prometheus-data
+{% if openshift_prometheus_storage_type == 'pvc' %}
+        persistentVolumeClaim:
+          claimName: {{ openshift_prometheus_pvc_name }}
+{% else %}
+        emptydir: {}
+{% endif %}
+      - name: alertmanager-config
+        configMap:
+          defaultMode: 420
+          name: alertmanager
+      - name: alertmanager-proxy-secret
+        secret:
+          secretName: alertmanager-proxy
+      - name: alertmanager-tls-secret
+        secret:
+          secretName: alertmanager-tls
+      - name: alerts-tls-secret
+        secret:
+          secretName: alerts-tls
+      - name: alerts-proxy-secret
+        secret:
+          secretName: alerts-proxy
+      - name: alertmanager-data
+{% if openshift_prometheus_alertmanager_storage_type == 'pvc' %}
+        persistentVolumeClaim:
+          claimName: {{ openshift_prometheus_alertmanager_pvc_name }}
+{% else %}
+        emptydir: {}
+{% endif %}
+      - name: alerts-data
+{% if openshift_prometheus_alertbuffer_storage_type == 'pvc' %}
+        persistentVolumeClaim:
+          claimName: {{ openshift_prometheus_alertbuffer_pvc_name }}
+{% else %}
+        emptydir: {}
+{% endif %}

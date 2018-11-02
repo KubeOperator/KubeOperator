@@ -1,0 +1,523 @@
+{'_playbooks': ['playbooks/prerequisites.yml'], '_inventory': <ansible_ui.inventory.AnsibleUIInventory object at 0x1135aef60>, '_variable_manager': <ansible.vars.manager.VariableManager object at 0x113e651d0>, '_loader': <ansible.parsing.dataloader.DataLoader object at 0x113e50da0>, '_options': Options(verbosity=0, listhosts=None, subset=None, module_path=None, extra_vars=[], forks=5, ask_vault_pass=False, vault_password_files=[], new_vault_password_files=[], vault_ids=[], new_vault_id=None, tags=['all'], skip_tags=[], ask_pass=False, private_key_file='', remote_user='root', connection='smart', timeout=10, ssh_common_args='', sftp_extra_args='', scp_extra_args='', ssh_extra_args='', sudo=False, sudo_user=None, su=False, su_user=None, become=False, become_method='sudo', become_user='root', ask_sudo_pass=False, ask_su_pass=False, become_ask_pass=False, check=False, syntax=None, diff=False, force_handlers=False, flush_cache=None, listtasks=None, listtags=None, step=None, start_at_task=None, passwords=None, host_key_checking=False, roles_path=['/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/roles'], gathering='smart'), 'passwords': None, '_unreachable_hosts': {}, '_tqm': <ansible.executor.task_queue_manager.TaskQueueManager object at 0x113e657b8>}
+[1;35m [WARNING]: Could not match supplied host pattern, ignoring: oo_masters_to_config[0m
+[1;35m[0m
+PLAY [Fail openshift_kubelet_name_override for new hosts] **********************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [Fail when openshift_kubelet_name_override is defined] ********************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[1;35m [WARNING]: Failure using method (v2_runner_on_skipped) in callback plugin (<ansible_ui.ansible.callback.PlaybookResultCallBack object at 0x113e65748>): 'skipped'[0m
+[1;35m[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+PLAY [Initialization Checkpoint Start] *****************************************
+TASK [Set install initialization 'In Progress'] ********************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+PLAY [Populate config host groups] *********************************************
+TASK [Load group name mapping variables] ***************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost][0m
+TASK [Evaluate groups - g_nfs_hosts is single host] ****************************
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_all_hosts] ***************************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=node2.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=node1.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_masters] *****************************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_first_master] ************************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost][0m
+TASK [Evaluate oo_new_etcd_to_config] ******************************************
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_masters_to_config] *******************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_etcd_to_config] **********************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_first_etcd] **************************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost][0m
+TASK [Evaluate oo_etcd_hosts_to_upgrade] ***************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_etcd_hosts_to_backup] ****************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_nodes_to_config] *********************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=node2.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=node1.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_lb_to_config] ************************************************
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_nfs_to_config] ***********************************************
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_glusterfs_to_config] *****************************************
+>>>>>>>>>>> localhost : localhost
+TASK [Evaluate oo_etcd_to_migrate] *********************************************
+>>>>>>>>>>> localhost : localhost
+[0;32mok: [localhost] => (item=master.jumpserver.org)[0m
+>>>>>>>>>>> localhost : localhost
+[1;35m [WARNING]: Could not match supplied host pattern, ignoring: oo_lb_to_config[0m
+[1;35m[0m
+[1;35m [WARNING]: Could not match supplied host pattern, ignoring: oo_nfs_to_config[0m
+[1;35m[0m
+PLAY [Ensure that all non-node hosts are accessible] ***************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+PLAY [Initialize basic host facts] *********************************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_sanitize_inventory : include_tasks] ****************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;36mincluded: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/deprecations.yml for master.jumpserver.org, node2.jumpserver.org, node1.jumpserver.org[0m
+TASK [openshift_sanitize_inventory : Check for usage of deprecated variables] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [openshift_sanitize_inventory : debug] ************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : set_stats] ********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : set_fact] *********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [openshift_sanitize_inventory : Standardize on latest variable names] *****
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [openshift_sanitize_inventory : Normalize openshift_release] **************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Abort when openshift_release is invalid] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : include_tasks] ****************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;36mincluded: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/unsupported.yml for master.jumpserver.org, node2.jumpserver.org, node1.jumpserver.org[0m
+TASK [openshift_sanitize_inventory : set_fact] *********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure that dynamic provisioning is set if using dynamic storage] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure the hosted registry's GlusterFS storage is configured correctly] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure the hosted registry's GlusterFS storage is configured correctly] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Check for deprecated prometheus/grafana install] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure clusterid is set along with the cloudprovider] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure ansible_service_broker_remove and ansible_service_broker_install are mutually exclusive] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure template_service_broker_remove and template_service_broker_install are mutually exclusive] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure that all requires vsphere configuration variables are set] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : ensure provider configuration variables are defined] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure removed web console extension variables are not set] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : Ensure that web console port matches API server port] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_sanitize_inventory : At least one master is schedulable] *******
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [Detecting Operating System from ostree_booted] ***************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set openshift_deployment_type if unset] **********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [initialize_facts set fact openshift_is_atomic and openshift_is_containerized] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [Determine Atomic ClusterHost Docker Version] ************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [assert atomic host docker version is 1.12 or later] **********************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+PLAY [Retrieve existing master configs and validate] ***************************
+TASK [openshift_control_plane : stat] ******************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_control_plane : slurp] *****************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_control_plane : set_fact] **************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_control_plane : Check for file paths outside of /etc/origin/master in master's config] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_control_plane : set_fact] **************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+PLAY [Initialize special first-master variables] *******************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+PLAY [Disable web console if required] *****************************************
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+PLAY [Setup yum repositories for all hosts] ************************************
+TASK [rhel_subscribe : fail] ***************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Install Red Hat Subscription manager] *******************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Is host already registered?] ****************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Register host using user/password] **********************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Register host using activation key] *********************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Determine if OpenShift Pool Already Attached] ***********
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Attach to OpenShift Pool] *******************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [rhel_subscribe : Satellite preparation] **********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_repos : Ensure libselinux-python is installed] *****************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [openshift_repos : Remove openshift_additional.repo file] *****************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_repos : Create any additional repos that are defined] **********
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_repos : include_tasks] *****************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [openshift_repos : include_tasks] *****************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;36mincluded: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/tasks/centos_repos.yml for master.jumpserver.org, node2.jumpserver.org, node1.jumpserver.org[0m
+TASK [openshift_repos : Configure origin gpg keys] *****************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_repos : Configure correct origin release repository] ***********
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;33mchanged: [node2.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)[0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;33mchanged: [node1.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;33mchanged: [master.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)[0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+TASK [openshift_repos : Ensure clean repo cache in the event repos have been changed manually] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org] => {[0m
+[0;32m    "msg": "First run of openshift_repos"[0m
+[0;32m}[0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org] => {[0m
+[0;32m    "msg": "First run of openshift_repos"[0m
+[0;32m}[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org] => {[0m
+[0;32m    "msg": "First run of openshift_repos"[0m
+[0;32m}[0m
+TASK [openshift_repos : Record that openshift_repos already ran] ***************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+RUNNING HANDLER [openshift_repos : refresh cache] ******************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mnode2.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mLoaded plugins: fastestmirror[0m
+[0;32mCleaning repos: base centos-openshift-origin extras updates[0m
+[0;32mCleaning up everything[0m
+[0;32mMaybe you want: rm -rf /var/cache/yum, to also free up space taken by orphaned data from disabled or removed repos[0m
+[0;32mCleaning up list of fastest mirrors[0m
+[0;32m[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mnode1.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mLoaded plugins: fastestmirror[0m
+[0;32mCleaning repos: base centos-openshift-origin extras updates[0m
+[0;32mCleaning up everything[0m
+[0;32mMaybe you want: rm -rf /var/cache/yum, to also free up space taken by orphaned data from disabled or removed repos[0m
+[0;32mCleaning up list of fastest mirrors[0m
+[0;32m[0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mmaster.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mLoaded plugins: fastestmirror[0m
+[0;32mCleaning repos: base centos-openshift-origin epel extras updates[0m
+[0;32mCleaning up everything[0m
+[0;32mMaybe you want: rm -rf /var/cache/yum, to also free up space taken by orphaned data from disabled or removed repos[0m
+[0;32mCleaning up list of fastest mirrors[0m
+[0;32m[0m
+PLAY [Install packages necessary for installer] ********************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [Determine if chrony is installed] ****************************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[1;35m [WARNING]: Consider using the yum, dnf or zypper module rather than running[0m
+[1;35mrpm.  If you need to use command because yum, dnf or zypper is insufficient you[0m
+[1;35mcan add warn=False to this command task or set command_warnings=False in[0m
+[1;35mansible.cfg to get rid of this message.[0m
+[1;35m[0m
+[0;32mnode2.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mchrony-3.1-2.el7.centos.x86_64[0m
+[0;32m[0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mmaster.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mchrony-3.1-2.el7.centos.x86_64[0m
+[0;32m[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mnode1.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32mchrony-3.1-2.el7.centos.x86_64[0m
+[0;32m[0m
+TASK [Install ntp package] *****************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [Start and enable ntpd/chronyd] *******************************************
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mnode2.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32m[0m
+[0;32m[0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mmaster.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32m[0m
+[0;32m[0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mnode1.jumpserver.org | SUCCESS | rc=0 >>[0m
+[0;32m[0m
+[0;32m[0m
+TASK [Ensure openshift-ansible installer package deps are installed] ***********
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+PLAY [Initialize cluster facts] ************************************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [get openshift_current_version] *******************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact openshift_portal_net if present on masters] *********************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+TASK [Gather Cluster facts] ****************************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;33mchanged: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;33mchanged: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;33mchanged: [master.jumpserver.org][0m
+TASK [Set fact of no_proxy_internal_hostnames] *********************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+TASK [Initialize openshift.node.sdn_mtu] ***************************************
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact l_kubelet_node_name] ********************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+>>>>>>>>>>> node2.jumpserver.org : node2.jumpserver.org
+[0;32mok: [node2.jumpserver.org][0m
+>>>>>>>>>>> node1.jumpserver.org : node1.jumpserver.org
+[0;32mok: [node1.jumpserver.org][0m
+PLAY [Initialize etcd host variables] ******************************************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [set_fact] ****************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+PLAY [Determine openshift_version to configure on first master] ****************
+TASK [Gathering Facts] *********************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [include_role] ************************************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+TASK [openshift_version : Use openshift_current_version fact as version to configure if already installed] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_version : Set openshift_version to openshift_release if undefined] ***
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+TASK [openshift_version : debug] ***********************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org] => {[0m
+[0;32m    "msg": "openshift_pkg_version was not defined. Falling back to -3.9.0"[0m
+[0;32m}[0m
+TASK [openshift_version : set_fact] ********************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_version : debug] ***********************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org] => {[0m
+[0;32m    "msg": "openshift_image_tag was not defined. Falling back to v3.9.0"[0m
+[0;32m}[0m
+TASK [openshift_version : set_fact] ********************************************
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+[0;32mok: [master.jumpserver.org][0m
+TASK [openshift_version : assert openshift_release in openshift_image_tag] *****
+>>>>>>>>>>> master.jumpserver.org : master.jumpserver.org
+PLAY RECAP *********************************************************************
+[0;32mlocalhost[0m                  : [0;32mok=11  [0m changed=0    unreachable=0    failed=0
+[0;31mmaster.jumpserver.org[0m      : [0;32mok=47  [0m [0;33mchanged=6   [0m unreachable=0    [0;31mfailed=1   [0m
+[0;33mnode1.jumpserver.org[0m       : [0;32mok=28  [0m [0;33mchanged=6   [0m unreachable=0    failed=0
+[0;33mnode2.jumpserver.org[0m       : [0;32mok=27  [0m [0;33mchanged=6   [0m unreachable=0    failed=0
+INSTALLER STATUS ***************************************************************
+[0;31mInitialization  : In Progress (0:01:02)[0m
+Task ansible_ui.tasks.execute_playbook[c4952753-4fa5-4406-b8cd-ab16d827722c] succeeded in 64.548008570011s: {'success': False, 'contacted': [{'hostname': 'node2.jumpserver.org', 'tasks': [...]}, {'hostname': 'master.jumpserver.org', 'tasks': [...]}, {'hostname': 'node1.jumpserver.org', 'tasks': [...]}, {'hostname': 'localhost', 'tasks': [...]}], 'dark': [{'hostname': 'master.jumpserver.org', 'tasks': [...]}]}

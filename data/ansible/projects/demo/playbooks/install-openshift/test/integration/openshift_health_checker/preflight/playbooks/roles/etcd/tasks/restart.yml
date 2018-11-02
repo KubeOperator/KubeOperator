@@ -1,0 +1,3 @@
+---
+- name: restart etcd
+  command: "{{ l_etcd_restart_command }}"

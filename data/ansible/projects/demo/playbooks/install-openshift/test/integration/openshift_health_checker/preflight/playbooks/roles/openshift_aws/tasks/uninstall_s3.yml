@@ -1,0 +1,26 @@
+---
+- name: empty S3 bucket
+  block:
+  - name: get S3 object list
+    aws_s3:
+      bucket: "{{ openshift_aws_s3_bucket_name }}"
+      mode: list
+      region: "{{ openshift_aws_region }}"
+    register: s3_out
+
+  - name: delete S3 objects
+    aws_s3:
+      bucket: "{{ openshift_aws_s3_bucket_name }}"
+      mode: delobj
+      object: "{{ item }}"
+    with_items: "{{ s3_out.s3_keys }}"
+  when: openshift_aws_create_s3 | bool
+
+- name: delete S3 bucket
+  aws_s3:
+    bucket: "{{ openshift_aws_s3_bucket_name }}"
+    mode: delete
+    region: "{{ openshift_aws_region }}"
+  when:
+  - openshift_aws_create_s3 | bool
+  - openshift_aws_really_delete_s3_bucket | bool

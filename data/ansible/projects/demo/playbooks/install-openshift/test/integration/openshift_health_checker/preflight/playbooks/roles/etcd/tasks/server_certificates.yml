@@ -1,0 +1,6 @@
+---
+- include_tasks: ca.yml
+  when:
+  - etcd_ca_setup | default(True) | bool
+
+- include_tasks: certificates/fetch_server_certificates_from_ca.yml

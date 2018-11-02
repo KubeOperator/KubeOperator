@@ -1,0 +1,10 @@
+[Unit]
+Description=Update the OpenShift node bootstrap credentials hourly
+
+[Timer]
+OnBootSec=30s
+OnCalendar=hourly
+Persistent=true     
+ 
+[Install]
+WantedBy=timers.target

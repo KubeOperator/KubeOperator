@@ -1,0 +1,16 @@
+---
+- name: Wait for GlusterFS pods
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: pod
+    state: list
+    selector: "glusterfs={{ glusterfs_name }}-pod"
+  register: glusterfs_pods_wait
+  until:
+  - "glusterfs_pods_wait.results.results[0]['items'] | count > 0"
+  # There must be as many pods with 'Ready' staus  True as there are nodes expecting those pods
+  - "glusterfs_pods_wait.results.results[0]['items'] | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Ready'}) | map('bool') | select | list | count == l_glusterfs_count | int"
+  delay: 10
+  retries: "{{ (glusterfs_timeout | int / 10) | int }}"
+  vars:
+    l_glusterfs_count: "{{ glusterfs_count | default(glusterfs_nodes | count) }}"

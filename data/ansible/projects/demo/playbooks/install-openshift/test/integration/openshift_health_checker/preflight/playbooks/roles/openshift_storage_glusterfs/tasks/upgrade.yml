@@ -1,0 +1,26 @@
+---
+- import_tasks: mktemp.yml
+
+- name: Set state facts
+  set_fact:
+    openshift_storage_glusterfs_heketi_deploy_is_missing: False
+    openshift_storage_glusterfs_heketi_topology_load: False
+    openshift_storage_glusterfs_restart: True
+
+- name: upgrade glusterfs
+  block:
+    - import_tasks: glusterfs_config_facts.yml
+    - import_tasks: glusterfs_upgrade.yml
+  when:
+    - "'glusterfs' in groups"
+    - "groups['glusterfs'] | length > 0"
+
+- name: upgrade glusterfs_registry
+  block:
+    - import_tasks: glusterfs_registry_facts.yml
+    - import_tasks: glusterfs_upgrade.yml
+  when:
+    - "'glusterfs_registry' in groups"
+    - "groups['glusterfs_registry'] | length > 0"
+
+- import_tasks: rmtemp.yml

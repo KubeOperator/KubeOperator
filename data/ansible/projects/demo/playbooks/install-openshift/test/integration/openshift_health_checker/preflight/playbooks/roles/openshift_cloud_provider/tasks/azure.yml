@@ -1,0 +1,11 @@
+---
+- name: set seboolean for samba use
+  seboolean:
+    name: virt_use_samba
+    state: yes
+    persistent: yes
+
+- name: create cloud config
+  template:
+    dest: "{{ openshift.common.config_base }}/cloudprovider/azure.conf"
+    src: azure.conf.j2

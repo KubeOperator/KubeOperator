@@ -1,0 +1,27 @@
+Task ansible_ui.tasks.execute_playbook[fa7f0940-c25c-4555-b386-95b202a96662] raised unexpected: GitCommandError(['git', 'clone', '--branch=release-3.10', '-v', 'https://github.com/openshift/openshift-ansible.git', '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift'], 128, b"Cloning into '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift'...\nPOST git-upload-pack (gzip 82243 to 41165 bytes)\n")
+Traceback (most recent call last):
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/tasks.py", line 20, in execute_playbook
+    return playbook.execute(save_history=save_history)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/models/playbook.py", line 208, in execute
+    return True, None
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/models/playbook.py", line 179, in install
+    if self.type == self.TYPE_JSON:
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/models/playbook.py", line 160, in install_from_git
+    remote = repo.remote()
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/git/repo/base.py", line 988, in clone_from
+    return cls._clone(git, url, to_path, GitCmdObjectDB, progress, **kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/git/repo/base.py", line 939, in _clone
+    finalize_process(proc, stderr=stderr)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/git/util.py", line 333, in finalize_process
+    proc.wait(**kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/git/cmd.py", line 415, in wait
+    raise GitCommandError(self.args, status, errstr)
+git.exc.GitCommandError: Cmd('git') failed due to: exit code(128)
+  cmdline: git clone --branch=release-3.10 -v https://github.com/openshift/openshift-ansible.git /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift
+  stderr: 'Cloning into '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift'...
+POST git-upload-pack (gzip 82243 to 41165 bytes)
+'

@@ -1,0 +1,27 @@
+Install playbook from: https://github.com/openshift/openshift-ansible.git
+{'_playbooks': ['/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift/site.yml'], '_inventory': <ansible_ui.inventory.AnsibleUIInventory object at 0x113740978>, '_variable_manager': <ansible.vars.manager.VariableManager object at 0x1138a2198>, '_loader': <ansible.parsing.dataloader.DataLoader object at 0x113896b70>, '_options': Options(verbosity=0, listhosts=None, subset=None, module_path=None, extra_vars=[], forks=5, ask_vault_pass=False, vault_password_files=[], new_vault_password_files=[], vault_ids=[], new_vault_id=None, tags=['all'], skip_tags=[], ask_pass=False, private_key_file='', remote_user='root', connection='smart', timeout=10, ssh_common_args='', sftp_extra_args='', scp_extra_args='', ssh_extra_args='', sudo=False, sudo_user=None, su=False, su_user=None, become=False, become_method='sudo', become_user='root', ask_sudo_pass=False, ask_su_pass=False, become_ask_pass=False, check=False, syntax=None, diff=False, force_handlers=False, flush_cache=None, listtasks=None, listtags=None, step=None, start_at_task=None, passwords=None, host_key_checking=False, roles_path=['/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/roles'], gathering='smart'), 'passwords': None, '_unreachable_hosts': {}, '_tqm': <ansible.executor.task_queue_manager.TaskQueueManager object at 0x1138a2828>}
+Task ansible_ui.tasks.execute_playbook[f9a2dd74-f666-49d9-80d3-3fa415855cab] raised unexpected: Unable to retrieve file contents
+Could not find or access '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift/site.yml'
+Traceback (most recent call last):
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/tasks.py", line 20, in execute_playbook
+    return playbook.execute(save_history=save_history)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/models/playbook.py", line 224, in execute
+    result = runner.run(self.playbook_path)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/ansible/runner.py", line 242, in run
+    executor.run()
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/executor/playbook_executor.py", line 83, in run
+    pb = Playbook.load(playbook_path, variable_manager=self._variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 54, in load
+    pb._load_playbook_data(file_name=file_name, variable_manager=variable_manager)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 78, in _load_playbook_data
+    ds = self._loader.load_from_file(os.path.basename(file_name))
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/parsing/dataloader.py", line 88, in load_from_file
+    (b_file_data, show_content) = self._get_file_contents(file_name)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/parsing/dataloader.py", line 156, in _get_file_contents
+    raise AnsibleFileNotFound("Unable to retrieve file contents", file_name=file_name)
+ansible.errors.AnsibleFileNotFound: Unable to retrieve file contents
+Could not find or access '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/install-openshift/site.yml'

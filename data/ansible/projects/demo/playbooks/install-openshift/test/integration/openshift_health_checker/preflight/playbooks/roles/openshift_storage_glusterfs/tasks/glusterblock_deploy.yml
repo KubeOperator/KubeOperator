@@ -1,0 +1,40 @@
+---
+- name: Copy initial glusterblock provisioner resource file
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item }}"
+  with_items:
+  - "glusterblock-provisioner.yml"
+
+- name: Create glusterblock provisioner template
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: template
+    name: "glusterblock-provisioner"
+    state: present
+    files:
+    - "{{ mktemp.stdout }}/glusterblock-provisioner.yml"
+
+- name: Deploy glusterblock provisioner
+  oc_process:
+    namespace: "{{ glusterfs_namespace }}"
+    template_name: "glusterblock-provisioner"
+    create: True
+    params:
+      IMAGE_NAME: "{{ glusterfs_block_image }}"
+      NAMESPACE: "{{ glusterfs_namespace }}"
+      CLUSTER_NAME: "{{ glusterfs_name }}"
+
+- name: Wait for glusterblock provisioner pod
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: pod
+    state: list
+    selector: "glusterfs=block-{{ glusterfs_name }}-provisioner-pod"
+  register: glusterblock_pod
+  until:
+  - "glusterblock_pod.results.results[0]['items'] | count > 0"
+  # Pod's 'Ready' status must be True
+  - "glusterblock_pod.results.results[0]['items'] | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Ready'}) | map('bool') | select | list | count == 1"
+  delay: 10
+  retries: "{{ (glusterfs_timeout | int / 10) | int }}"

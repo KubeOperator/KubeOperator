@@ -1,0 +1,113 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: ovs
+  namespace: openshift-sdn
+  annotations:
+    kubernetes.io/description: |
+      This daemon set launches the openvswitch daemon.
+    image.openshift.io/triggers: |
+      [{"from":{"kind":"ImageStreamTag","name":"node:v3.10"},"fieldPath":"spec.template.spec.containers[?(@.name==\"openvswitch\")].image"}]
+spec:
+  selector:
+    matchLabels:
+      app: ovs
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ovs
+        component: network
+        type: infra
+        openshift.io/component: network
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      # Requires fairly broad permissions - ability to read all services and network functions as well
+      # as all pods.
+      serviceAccountName: sdn
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: openvswitch
+        image: " "
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -euo pipefail
+
+          # if another process is listening on the cni-server socket, wait until it exits
+          trap 'kill $(jobs -p); exit 0' TERM
+          retries=0
+          while true; do
+            if /usr/share/openvswitch/scripts/ovs-ctl status &>/dev/null; then
+              echo "warning: Another process is currently managing OVS, waiting 15s ..." 2>&1
+              sleep 15 & wait
+              (( retries += 1 ))
+            else
+              break
+            fi
+            if [[ "${retries}" -gt 40 ]]; then
+              echo "error: Another process is currently managing OVS, exiting" 2>&1
+              exit 1
+            fi
+          done
+
+          # launch OVS
+          function quit {
+              /usr/share/openvswitch/scripts/ovs-ctl stop
+              exit 0
+          }
+          trap quit SIGTERM
+          /usr/share/openvswitch/scripts/ovs-ctl start --no-ovs-vswitchd --system-id=random
+
+          # Restrict the number of pthreads ovs-vswitchd creates to reduce the
+          # amount of RSS it uses on hosts with many cores
+          # https://bugzilla.redhat.com/show_bug.cgi?id=1571379
+          # https://bugzilla.redhat.com/show_bug.cgi?id=1572797
+          if [[ `nproc` -gt 12 ]]; then
+              ovs-vsctl --no-wait set Open_vSwitch . other_config:n-revalidator-threads=4
+              ovs-vsctl --no-wait set Open_vSwitch . other_config:n-handler-threads=10
+          fi
+          /usr/share/openvswitch/scripts/ovs-ctl start --no-ovsdb-server --system-id=random
+          while true; do sleep 5; done
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        volumeMounts:
+        - mountPath: /lib/modules
+          name: host-modules
+          readOnly: true
+        - mountPath: /run/openvswitch
+          name: host-run-ovs
+        - mountPath: /var/run/openvswitch
+          name: host-run-ovs
+        - mountPath: /sys
+          name: host-sys
+          readOnly: true
+        - mountPath: /etc/openvswitch
+          name: host-config-openvswitch
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            cpu: 200m
+            memory: 400Mi
+
+      volumes:
+      - name: host-modules
+        hostPath:
+          path: /lib/modules
+      - name: host-run-ovs
+        hostPath:
+          path: /run/openvswitch
+      - name: host-sys
+        hostPath:
+          path: /sys
+      - name: host-config-openvswitch
+        hostPath:
+          path: /etc/origin/openvswitch

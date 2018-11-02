@@ -1,0 +1,20 @@
+# LIO iSCSI
+# TODO: Add env variables for tweaking
+devices {
+        device {
+                vendor "LIO-ORG"
+                user_friendly_names "yes" 
+                path_grouping_policy "failover"
+                path_selector "round-robin 0"
+                failback immediate
+                path_checker "tur"
+                prio "alua"
+                no_path_retry 120
+                rr_weight "uniform"
+        }
+}
+defaults {
+	user_friendly_names yes
+	find_multipaths yes
+}
+

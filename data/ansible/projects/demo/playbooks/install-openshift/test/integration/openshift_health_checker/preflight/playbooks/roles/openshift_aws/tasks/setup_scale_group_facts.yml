@@ -1,0 +1,50 @@
+---
+- name: fetch all created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "{{ {'tag:kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid,
+           'instance-state-name': 'running'} }}"
+  register: qinstances
+
+# The building of new and current groups is dependent of having a list of the current asgs and the created ones
+# that can be found in the variables: openshift_aws_created_asgs, openshift_aws_current_asgs.  If these do not exist, we cannot determine which hosts are
+# new and which hosts are current.
+- name: Build new node group
+  add_host:
+    groups: oo_sg_new_nodes
+    ansible_ssh_host: "{{ item.public_dns_name }}"
+    name: "{{ item.public_dns_name }}"
+    hostname: "{{ item.public_dns_name }}"
+  when:
+  - openshift_aws_created_asgs != []
+  - "'aws:autoscaling:groupName' in item.tags"
+  - item.tags['aws:autoscaling:groupName'] in openshift_aws_created_asgs
+  - "'node' in item.tags['host-type']"
+  with_items: "{{ qinstances.instances }}"
+
+- name: dump openshift_aws_current_asgs
+  debug:
+    msg: "{{ openshift_aws_current_asgs }}"
+
+- name: Build current node group
+  add_host:
+    groups: oo_sg_current_nodes
+    ansible_ssh_host: "{{ item.public_dns_name }}"
+    name: "{{ item.public_dns_name }}"
+    hostname: "{{ item.public_dns_name }}"
+  when:
+  - openshift_aws_current_asgs != []
+  - "'aws:autoscaling:groupName' in item.tags"
+  - item.tags['aws:autoscaling:groupName'] in openshift_aws_current_asgs
+  - "'node' in item.tags['host-type']"
+  with_items: "{{ qinstances.instances }}"
+
+- name: place all nodes into nodes group
+  add_host:
+    groups: nodes
+    ansible_ssh_host: "{{ item.public_dns_name }}"
+    name: "{{ item.public_dns_name }}"
+    hostname: "{{ item.public_dns_name }}"
+    openshift_node_group_name: "{{ item.tags['openshift-node-group-config'] | default('unset') }}"
+  with_items: "{{ qinstances.instances }}"

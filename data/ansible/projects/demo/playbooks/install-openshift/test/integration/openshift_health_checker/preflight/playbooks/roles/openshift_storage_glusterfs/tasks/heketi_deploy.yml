@@ -1,0 +1,78 @@
+---
+- name: Generate heketi endpoints
+  template:
+    src: "heketi-endpoints.yml.j2"
+    dest: "{{ mktemp.stdout }}/heketi-endpoints.yml"
+
+- name: Generate heketi service
+  template:
+    src: "heketi-service.yml.j2"
+    dest: "{{ mktemp.stdout }}/heketi-service.yml"
+
+- name: Create heketi endpoints
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    state: present
+    kind: endpoints
+    name: "heketi-db-{{ glusterfs_name }}-endpoints"
+    files:
+    - "{{ mktemp.stdout }}/heketi-endpoints.yml"
+
+- name: Create heketi service
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    state: present
+    kind: service
+    name: "heketi-db-{{ glusterfs_name }}-endpoints"
+    files:
+    - "{{ mktemp.stdout }}/heketi-service.yml"
+
+- name: Copy heketi template
+  copy:
+    src: "heketi-template.yml"
+    dest: "{{ mktemp.stdout }}/heketi-template.yml"
+
+- name: Create heketi template
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: template
+    name: heketi
+    state: present
+    files:
+    - "{{ mktemp.stdout }}/heketi-template.yml"
+
+- name: Deploy heketi pod
+  oc_process:
+    namespace: "{{ glusterfs_namespace }}"
+    template_name: "heketi"
+    create: True
+    params:
+      IMAGE_NAME: "{{ glusterfs_heketi_image }}"
+      HEKETI_ROUTE: "{{ glusterfs_heketi_url | default(['heketi-',glusterfs_name]|join) }}"
+      HEKETI_USER_KEY: "{{ glusterfs_heketi_user_key }}"
+      HEKETI_ADMIN_KEY: "{{ glusterfs_heketi_admin_key }}"
+      HEKETI_EXECUTOR: "{{ glusterfs_heketi_executor }}"
+      HEKETI_FSTAB: "{{ glusterfs_heketi_fstab }}"
+      CLUSTER_NAME: "{{ glusterfs_name }}"
+
+- name: Wait for heketi pod
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: pod
+    state: list
+    selector: "glusterfs=heketi-{{ glusterfs_name }}-pod"
+  register: heketi_pod_wait
+  until:
+  - "heketi_pod_wait.results.results[0]['items'] | count > 0"
+  # Pod's 'Ready' status must be True
+  - "heketi_pod_wait.results.results[0]['items'] | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Ready'}) | map('bool') | select | list | count == 1"
+  delay: 10
+  retries: "{{ (glusterfs_timeout | int / 10) | int }}"
+
+- import_tasks: heketi_set_cli.yml
+  vars:
+    heketi_pod: "{{ heketi_pod_wait.results.results[0]['items'][0] }}"
+
+- name: Set heketi deployed fact
+  set_fact:
+    glusterfs_heketi_is_missing: False

@@ -1,0 +1,7 @@
+---
+- name: Create an s3 bucket
+  aws_s3:
+    bucket: "{{ openshift_aws_s3_bucket_name }}"
+    mode: "{{ openshift_aws_s3_mode }}"
+    region: "{{ openshift_aws_region }}"
+  when: openshift_aws_create_s3 | bool

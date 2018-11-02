@@ -1,0 +1,19 @@
+---
+- name: Set builddefaults
+  openshift_facts:
+    role: builddefaults
+    # TODO: add ability to define builddefaults env vars sort of like this
+    # may need to move the config generation to a filter however.
+    local_facts:
+      http_proxy: "{{ openshift_builddefaults_http_proxy | default(None) }}"
+      https_proxy: "{{ openshift_builddefaults_https_proxy | default(None) }}"
+      no_proxy: "{{ openshift_builddefaults_no_proxy | default(None) }}"
+      git_http_proxy: "{{ openshift_builddefaults_git_http_proxy | default(None) }}"
+      git_https_proxy: "{{ openshift_builddefaults_git_https_proxy | default(None) }}"
+      git_no_proxy: "{{ openshift_builddefaults_git_no_proxy | default(None) }}"
+
+- name: Set builddefaults config structure
+  openshift_facts:
+    role: builddefaults
+    local_facts:
+      config: "{{ openshift_builddefaults_json | default(builddefaults_yaml) }}"

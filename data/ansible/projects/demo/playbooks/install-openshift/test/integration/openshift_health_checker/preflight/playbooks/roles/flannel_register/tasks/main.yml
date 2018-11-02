@@ -1,0 +1,14 @@
+---
+- name: Assures /etc/flannel dir exists
+  become: yes
+  file: path=/etc/flannel state=directory
+
+- name: Generate etcd configuration for etcd
+  become: yes
+  template:
+    src: "flannel-config.json"
+    dest: "/etc/flannel/config.json"
+
+- name: Insert flannel configuration into etcd
+  become: yes
+  command: 'curl -L --cacert "{{ etcd_peer_ca_file }}" --cert "{{ etcd_peer_cert_file }}" --key "{{ etcd_peer_key_file }}" "{{ etcd_hosts[0] }}/v2/keys{{ flannel_etcd_key }}/config" -XPUT --data-urlencode value@/etc/flannel/config.json'

@@ -1,0 +1,33 @@
+---
+- name: Create the ldap ca file if needed
+  copy:
+    dest: "/etc/origin/master/{{ item.name }}_ldap_ca.crt"
+    content: "{{ openshift.master.ldap_ca }}"
+    mode: 0600
+    backup: yes
+  when:
+  - openshift.master.ldap_ca is defined
+  - item.kind == 'LDAPPasswordIdentityProvider'
+  with_items: "{{ openshift_master_identity_providers }}"
+
+- name: Create the openid ca file if needed
+  copy:
+    dest: "/etc/origin/master/{{ item.name }}_openid_ca.crt"
+    content: "{{ openshift.master.openid_ca }}"
+    mode: 0600
+    backup: yes
+  when:
+  - openshift.master.openid_ca is defined
+  - item.kind == 'OpenIDIdentityProvider'
+  with_items: "{{ openshift_master_identity_providers }}"
+
+- name: Create the request header ca file if needed
+  copy:
+    dest: "/etc/origin/master/{{ item.name }}_request_header_ca.crt"
+    content: "{{ openshift_master_request_header_ca }}"
+    mode: 0600
+    backup: yes
+  when:
+  - openshift_master_request_header_ca != l_osm_request_header_none
+  - item.kind == 'RequestHeaderIdentityProvider'
+  with_items: "{{ openshift_master_identity_providers }}"

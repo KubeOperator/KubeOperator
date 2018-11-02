@@ -1,0 +1,160 @@
+---
+- name: Stop control plane services
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+  - "{{ openshift_service_type }}-master-api"
+  - "{{ openshift_service_type }}-master-controllers"
+  failed_when: false
+
+# Only needed for 3.10, remove in 3.11.
+- import_tasks: migrate_idproviders.yml
+
+- import_tasks: static_shim.yml
+
+- import_tasks: upgrade/upgrade_scheduler.yml
+- import_tasks: create_ca_files.yml
+
+# master_config_hook is passed in from upgrade play.
+- include_tasks: "upgrade/{{ master_config_hook }}"
+  when: master_config_hook is defined
+
+- import_tasks: set_loopback_context.yml
+
+- name: Check for ca-bundle.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_bundle_stat
+  failed_when: false
+
+- name: Check for ca.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    get_checksum: false
+    get_mime: false
+  register: ca_crt_stat
+  failed_when: false
+
+- name: Migrate ca.crt to ca-bundle.crt
+  command: mv ca.crt ca-bundle.crt
+  args:
+    chdir: "{{ openshift.common.config_base }}/master"
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists
+
+- name: Link ca.crt to ca-bundle.crt
+  file:
+    src: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    state: link
+    force: yes
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists
+
+# Anyone upgrading to 3.7 or 3.9 should've had their certs updated to be
+# compatible with this so this is the only valid value for internal registry
+- name: Update imagePolicyConfig.internalRegistryHostname
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "imagePolicyConfig.internalRegistryHostname"
+    value: "docker-registry.default.svc:5000"
+
+# TODO(michaelgugino): Remove in 3.11
+- name: Add new network config section to master conf
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: networkConfig.clusterNetworks
+    value: "{{ l_new_config_clusterNetworks }}"
+  # l_existing_config_master_config is set via playbooks/init/basic_facts.yml
+  when: l_existing_config_master_config.networkConfig.clusterNetworks is not defined
+
+# TODO(michaelgugino): Remove in 3.11
+- name: Remove old network config section in master conf
+  yedit:
+    src: /etc/origin/master/master-config.yaml
+    key: "{{ item }}"
+    state: absent
+  with_items:
+  - networkConfig.clusterNetworkCIDR
+  - networkConfig.hostSubnetLength
+
+# TODO(michaelgugino): Remove in 3.11
+- name: Check for old master env file
+  stat:
+    path: "/etc/sysconfig/{{ openshift_service_type }}-master-api"
+  register: old_env
+
+# TODO(michaelgugino): Remove in 3.11
+- name: Migrate old master env file to new location
+  master_env_config_migrate:
+    src: "/etc/sysconfig/{{ openshift_service_type }}-master-api"
+    dest: "{{ openshift.common.config_base }}/master/master.env"
+  when: old_env.stat.exists
+
+# TODO(michaelgugino): Remove in 3.11
+- name: mv old master env file to .backup
+  command: "mv {{ l_old_env_file }} {{ l_old_env_file_backup }}"
+  vars:
+    l_old_env_file: "/etc/sysconfig/{{ openshift_service_type }}-master-api"
+    l_old_env_file_backup: "/etc/sysconfig/{{ openshift_service_type }}-master-api.backup"
+  when: old_env.stat.exists
+
+- name: Update oreg value
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'imageConfig.format'
+    value: "{{ oreg_url | default(oreg_url_master) }}"
+  when: oreg_url is defined or oreg_url_master is defined
+
+- name: Change default node selector to compute=true
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'projectConfig.defaultNodeSelector'
+    value: '{{ hostvars[groups.oo_first_master.0].l_osm_default_node_selector }}'
+  when: openshift_upgrade_target is version_compare('3.9', '>=')
+
+- name: Remove use of pod presets from master config
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'admissionConfig.pluginConfig.PodPreset'
+    state: absent
+- name: Find current value for runtime-config
+  yedit:
+    src: "/tmp/master-config.yaml"
+    key: "kubernetesMasterConfig.apiServerArguments.runtime-config"
+    state: list
+  register: runtime_config
+- name: Set the runtime-config to exclude pod presets
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "kubernetesMasterConfig.apiServerArguments.runtime-config"
+    value: "{{ r_c | difference(['apis/settings.k8s.io/v1alpha1=true']) }}"
+  vars:
+    r_c: "{{ runtime_config.result | default([]) }}"
+
+# The master package gets updated due to the dependencies of the atomic-openshift
+# package when upgrading from 3.9 to 3.10.
+- name: Remove atomic-openshift-master package
+  package:
+    name: "{{ openshift_service_type }}-master"
+    state: absent
+  when: not openshift_is_atomic | bool
+
+- name: Remove old service information
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - /etc/systemd/system/atomic-openshift-master-api.service
+  - /etc/systemd/system/atomic-openshift-master-controllers.service
+  - /etc/systemd/system/origin-master-api.service
+  - /etc/systemd/system/origin-master-controllers.service
+  - /usr/lib/systemd/system/atomic-openshift-master-api.service
+  - /usr/lib/systemd/system/atomic-openshift-master-controllers.service
+  - /usr/lib/systemd/system/origin-master-api.service
+  - /usr/lib/systemd/system/origin-master-controllers.service
+
+- name: reload systemd units
+  command: systemctl daemon-reload

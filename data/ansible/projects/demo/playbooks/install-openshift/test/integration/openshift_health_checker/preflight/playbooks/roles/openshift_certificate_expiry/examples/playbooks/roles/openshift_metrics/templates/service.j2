@@ -1,0 +1,38 @@
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: "{{obj_name}}"
+{% if annotations is defined%}
+  annotations:
+{% for key, value in annotations.items() %}
+    {{key}}: {{value}}
+{% endfor %}
+{% endif %}
+{% if labels is defined%}
+  labels:
+{% for key, value in labels.items() %}
+    {{key}}: {{value}}
+{% endfor %}
+{% endif %}
+spec:
+{% if headless is defined and headless %}
+  portalIP: None
+  clusterIP: None
+{% endif %}
+  ports:
+{% for port in ports %}
+  -
+{% for key, value in port.items() %}
+    {{key}}: {{value}}
+{% endfor %}
+{% if port.targetPort is undefined %}
+    clusterIP: "None"
+{% endif %}
+{% endfor %}
+{% if service_targetPort is defined %}
+    targetPort: {{service_targetPort}}
+{% endif %}
+  selector:
+  {% for key, value in selector.items() %}
+  {{key}}: {{value}}
+  {% endfor %}

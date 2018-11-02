@@ -1,0 +1,179 @@
+# More info about the template: https://docs.openstack.org/kuryr-kubernetes/latest/installation/containerized.html#generating-kuryr-resource-definitions-for-kubernetes
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: kuryr-cni-ds
+  namespace: {{ kuryr_namespace }}
+  labels:
+    tier: node
+    app: kuryr
+  annotations:
+    image.openshift.io/triggers: |
+      [
+        {"from":{"kind":"ImageStreamTag","name":"node:v3.10"},"fieldPath":"spec.template.spec.initContainers[?(@.name==\"install-cni-plugins\")].image"},
+        {"from":{"kind":"ImageStreamTag","name":"node:v3.10"},"fieldPath":"spec.template.spec.containers[?(@.name==\"sky-dns\")].image"}
+      ]
+spec:
+  template:
+    metadata:
+      labels:
+        tier: node
+        app: kuryr
+    spec:
+      hostNetwork: true
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      serviceAccountName: kuryr-controller
+      initContainers:
+      - name: install-cni-plugins
+        image: " "
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -ex
+          # Take over network functions on the node
+          rm -Rf /host-cni-bin/*
+          cp -Rf /opt/cni/bin/* /host-cni-bin/
+        volumeMounts:
+        - name: bin
+          mountPath: /host-cni-bin
+        securityContext:
+          privileged: true
+      containers:
+      - name: sky-dns
+        image: " "
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -ex
+
+          # if the node config doesn't exist yet, wait until it does
+          retries=0
+          while true; do
+            if [[ ! -f /etc/origin/node/node-config.yaml ]]; then
+              echo "warning: Cannot find existing node-config.yaml, waiting 15s ..." 2>&1
+              sleep 15 & wait
+              (( retries += 1 ))
+            else
+              break
+            fi
+            if [[ "${retries}" -gt 40 ]]; then
+              echo "error: No existing node-config.yaml, exiting" 2>&1
+              exit 1
+            fi
+          done
+
+          if [[ -f /etc/sysconfig/origin-node ]]; then
+            set -o allexport
+            source /etc/sysconfig/origin-node
+          fi
+
+          # use either the bootstrapped node kubeconfig or the static configuration
+          file=/etc/origin/node/node.kubeconfig
+          if [[ ! -f "${file}" ]]; then
+            # use the static node config if it exists
+            # TODO: remove when static node configuration is no longer supported
+            for f in /etc/origin/node/system*.kubeconfig; do
+              echo "info: Using ${f} for node configuration" 1>&2
+              file="${f}"
+              break
+            done
+          fi
+          # Use the same config as the node, but with the service account token
+          oc config "--config=${file}" view --flatten > /tmp/kubeconfig
+          oc config --config=/tmp/kubeconfig set-credentials sa "--token=$( cat /var/run/secrets/kubernetes.io/serviceaccount/token )"
+          oc config --config=/tmp/kubeconfig set-context "$( oc config --config=/tmp/kubeconfig current-context )" --user=sa
+
+          # Launch the SkyDNS
+          exec openshift start network --enable=dns --config=/etc/origin/node/node-config.yaml --kubeconfig=/tmp/kubeconfig --loglevel=${DEBUG_LOGLEVEL:-2}
+
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        env:
+        - name: OPENSHIFT_DNS_DOMAIN
+          value: cluster.local
+        volumeMounts:
+        - name: host-config
+          mountPath: /etc/origin/node
+          readOnly: true
+        - mountPath: /etc/sysconfing/origin-node
+          name: host-sysconfig-node
+          readOnly: true
+        - mountPath: /var/run
+          name: host-var-run
+      - name: kuryr-cni
+        image: {{ openshift_openstack_kuryr_cni_image }}
+        imagePullPolicy: IfNotPresent
+        command: [ "cni_ds_init" ]
+        env:
+        - name: CNI_DAEMON
+          value: "True"
+        - name: KUBERNETES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KURYR_CNI_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: bin
+          mountPath: /opt/cni/bin
+        - name: net-conf
+          mountPath: /etc/cni/net.d
+        - name: config-volume
+          mountPath: /etc/kuryr/kuryr.conf
+          subPath: kuryr-cni.conf
+        - name: proc
+          mountPath: /host_proc
+        - name: openvswitch
+          mountPath: /var/run/openvswitch
+{% if enable_kuryr_cni_probes|default(true)|bool %}
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: {{ kuryr_cni_healthcheck_port }}
+            scheme: HTTP
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: {{ kuryr_cni_healthcheck_port }}
+          initialDelaySeconds: 15
+{% endif %}
+      volumes:
+        - name: bin
+          hostPath:
+            path: {{ cni_bin_dir }}
+        - name: net-conf
+          hostPath:
+            path: /etc/cni/net.d
+        - name: config-volume
+          configMap:
+            name: kuryr-config
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: openvswitch
+          hostPath:
+            path: /var/run/openvswitch
+        - name: host-config
+          hostPath:
+            path: /etc/origin/node
+        - name: host-sysconfig-node
+          hostPath:
+            path: /etc/sysconfig/origin-node
+        - name: host-var-run
+          hostPath:
+            path: /var/run

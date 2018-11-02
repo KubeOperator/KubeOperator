@@ -1,0 +1,271 @@
+---
+# set facts
+- include_tasks: facts.yaml
+
+- name: Ensure that Prometheus has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_prometheus_node_selector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Prometheus
+
+# namespace
+- name: Add prometheus project
+  oc_project:
+    state: present
+    name: "{{ openshift_prometheus_namespace }}"
+    node_selector: ""
+    description: Prometheus
+
+# secrets
+- name: Set alert, alertmanager and prometheus secrets
+  oc_secret:
+    state: present
+    name: "{{ item }}-proxy"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    contents:
+    - path: session_secret
+      data: "{{ 43 | lib_utils_oo_random_word }}="
+  with_items:
+  - prometheus
+  - alerts
+  - alertmanager
+
+# serviceaccount
+- name: create prometheus serviceaccount
+  oc_serviceaccount:
+    state: present
+    name: "{{ openshift_prometheus_service_name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  changed_when: no
+
+# serviceaccount reader
+- name: create openshift_prometheus_reader_serviceaccount_name serviceaccount
+  oc_serviceaccount:
+    state: present
+    name: "{{ openshift_prometheus_reader_serviceaccount_name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  changed_when: no
+
+# TODO remove this when annotations are supported by oc_serviceaccount
+- name: annotate serviceaccount
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig annotate --overwrite -n {{ openshift_prometheus_namespace }}
+    serviceaccount {{ openshift_prometheus_service_name }} {{ item }}
+  with_items:
+    "{{ openshift_prometheus_serviceaccount_annotations }}"
+
+# add required permissions to prometheus for scraping router metrics
+- name: Create router-metrics cluster role
+  oc_clusterrole:
+    state: present
+    name: router-metrics
+    rules:
+    - apiGroups: ["route.openshift.io"]
+      resources: ["routers/metrics"]
+      verbs: ["get"]
+
+# create clusterrolebinding for prometheus serviceaccount
+- name: Set clusterrole permissions for prometheus
+  oc_adm_policy_user:
+    state: present
+    namespace: "{{ openshift_prometheus_namespace }}"
+    resource_kind: cluster-role
+    resource_name: "{{ item }}"
+    user: "system:serviceaccount:{{ openshift_prometheus_namespace }}:{{ openshift_prometheus_service_name }}"
+  with_items:
+  - cluster-reader
+  - router-metrics
+
+# create view role for prometheus-reader serviceaccount
+- name: Set view permissions for prometheus reader
+  oc_adm_policy_user:
+    state: present
+    namespace: "{{ openshift_prometheus_namespace }}"
+    resource_kind: cluster-role
+    resource_name: view
+    user: "system:serviceaccount:{{ openshift_prometheus_namespace }}:{{ openshift_prometheus_reader_serviceaccount_name }}"
+
+
+- name: create services for prometheus
+  oc_service:
+    name: "{{ openshift_prometheus_service_name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    labels:
+      name: prometheus
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/scheme: https
+      service.alpha.openshift.io/serving-cert-secret-name: prometheus-tls
+    ports:
+    - name: prometheus
+      port: "{{ openshift_prometheus_service_port }}"
+      targetPort: "{{ openshift_prometheus_service_targetport }}"
+      protocol: TCP
+    selector:
+      app: prometheus
+
+- name: create services for alert buffer
+  oc_service:
+    name: "{{ openshift_prometheus_alerts_service_name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    labels:
+      name: prometheus
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: alerts-tls
+    ports:
+    - name: prometheus
+      port: "{{ openshift_prometheus_service_port }}"
+      targetPort: "{{ openshift_prometheus_alerts_service_targetport }}"
+      protocol: TCP
+    selector:
+      app: prometheus
+
+- name: create services for alertmanager
+  oc_service:
+    name: "{{ openshift_prometheus_alertmanager_service_name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    labels:
+      name: prometheus
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: alertmanager-tls
+    ports:
+    - name: prometheus
+      port: "{{ openshift_prometheus_service_port }}"
+      targetPort: "{{ openshift_prometheus_alertmanager_service_targetport }}"
+      protocol: TCP
+    selector:
+      app: prometheus
+
+# create prometheus and alerts routes
+# TODO: oc_route module should support insecureEdgeTerminationPolicy: Redirect
+- name: create prometheus and alerts routes
+  oc_route:
+    state: present
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    service_name: "{{ item.name }}"
+    tls_termination: reencrypt
+  with_items:
+  - name: prometheus
+    host: "{{ openshift_prometheus_hostname }}"
+  - name: alerts
+    host: "{{ openshift_prometheus_alerts_hostname }}"
+  - name: alertmanager
+    host: "{{ openshift_prometheus_alertmanager_hostname }}"
+
+# Storage
+- name: create prometheus pvc
+  oc_pvc:
+    namespace: "{{ openshift_prometheus_namespace }}"
+    name: "{{ openshift_prometheus_pvc_name }}"
+    access_modes: "{{ openshift_prometheus_pvc_access_modes }}"
+    volume_capacity: "{{ openshift_prometheus_pvc_size }}"
+    selector: "{{ openshift_prometheus_pvc_pv_selector }}"
+    storage_class_name: "{{ openshift_prometheus_sc_name }}"
+  when: openshift_prometheus_storage_type == 'pvc'
+
+- name: create alertmanager pvc
+  oc_pvc:
+    namespace: "{{ openshift_prometheus_namespace }}"
+    name: "{{ openshift_prometheus_alertmanager_pvc_name }}"
+    access_modes: "{{ openshift_prometheus_alertmanager_pvc_access_modes }}"
+    volume_capacity: "{{ openshift_prometheus_alertmanager_pvc_size }}"
+    selector: "{{ openshift_prometheus_alertmanager_pvc_pv_selector }}"
+    storage_class_name: "{{ openshift_prometheus_alertmanager_sc_name }}"
+  when: openshift_prometheus_alertmanager_storage_type == 'pvc'
+
+- name: create alertbuffer pvc
+  oc_pvc:
+    namespace: "{{ openshift_prometheus_namespace }}"
+    name: "{{ openshift_prometheus_alertbuffer_pvc_name }}"
+    access_modes: "{{ openshift_prometheus_alertbuffer_pvc_access_modes }}"
+    volume_capacity: "{{ openshift_prometheus_alertbuffer_pvc_size }}"
+    selector: "{{ openshift_prometheus_alertbuffer_pvc_pv_selector }}"
+    storage_class_name: "{{ openshift_prometheus_alertbuffer_sc_name }}"
+  when: openshift_prometheus_alertbuffer_storage_type == 'pvc'
+
+# prometheus configmap
+# Copy the additional rules file if it is defined
+- name: Copy additional rules file to host
+  copy:
+    src: "{{ openshift_prometheus_additional_rules_file }}"
+    dest: "{{ tempdir }}/prometheus.additional.rules"
+  when:
+  - openshift_prometheus_additional_rules_file is defined
+  - openshift_prometheus_additional_rules_file is not none
+  - openshift_prometheus_additional_rules_file | trim | length > 0
+
+- stat:
+    path: "{{ tempdir }}/prometheus.additional.rules"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: additional_rules_stat
+
+- template:
+    src: prometheus.yml.j2
+    dest: "{{ tempdir }}/prometheus.yml"
+  changed_when: no
+
+- template:
+    src: prometheus.rules.j2
+    dest: "{{ tempdir }}/prometheus.rules"
+  changed_when: no
+
+# In prometheus configmap create "additional.rules" section if file exists
+- name: Set prometheus configmap
+  oc_configmap:
+    state: present
+    name: "prometheus"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    from_file:
+      prometheus.rules: "{{ tempdir }}/prometheus.rules"
+      prometheus.additional.rules: "{{ tempdir }}/prometheus.additional.rules"
+      prometheus.yml: "{{ tempdir }}/prometheus.yml"
+  when: additional_rules_stat.stat.exists == True
+
+- name: Set prometheus configmap
+  oc_configmap:
+    state: present
+    name: "prometheus"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    from_file:
+      prometheus.rules: "{{ tempdir }}/prometheus.rules"
+      prometheus.yml: "{{ tempdir }}/prometheus.yml"
+  when: additional_rules_stat.stat.exists == False
+
+# alertmanager configmap
+- template:
+    src: alertmanager.yml.j2
+    dest: "{{ tempdir }}/alertmanager.yml"
+  changed_when: no
+
+- name: Set alertmanager configmap
+  oc_configmap:
+    state: present
+    name: "alertmanager"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    from_file:
+      alertmanager.yml: "{{ tempdir }}/alertmanager.yml"
+
+# create prometheus stateful set
+- name: Set prometheus template
+  template:
+    src: prometheus.j2
+    dest: "{{ tempdir }}/templates/prometheus.yaml"
+  vars:
+    namespace: "{{ openshift_prometheus_namespace }}"
+#    prom_replicas: "{{ openshift_prometheus_replicas }}"
+
+- name: Set prometheus stateful set
+  oc_obj:
+    state: present
+    name: "prometheus"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    kind: statefulset
+    files:
+    - "{{ tempdir }}/templates/prometheus.yaml"
+    delete_after: true

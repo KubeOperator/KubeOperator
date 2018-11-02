@@ -1,0 +1,15 @@
+set current project: ROOT
+set current project: demo
+2018-10-26 02:23:19 Start task: Ansible Ad-hoc
+Get matched hosts: [host1, host2]
+PLAY [Ansible Ad-hoc] **********************************************************
+TASK [shell: {'_raw_params': 'whoami'}] ****************************************
+[0;32mhost2 | SUCCESS | rc=0 >>[0m
+[0;32mroot[0m
+[0;32m[0m
+[1;31mfatal: [host1]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 192.168.244.142 port 22: Operation timed out\r\n", "unreachable": true}[0m
+PLAY RECAP *********************************************************************
+[0;31mhost1[0m                      : ok=0    changed=0    [1;31munreachable=1   [0m failed=0
+[0;33mhost2[0m                      : [0;32mok=1   [0m [0;33mchanged=1   [0m unreachable=0    failed=0
+2018-10-26 02:23:29 Task finish
+Task ansible_ui.tasks.execute_adhoc[bc5105e2-e582-4824-943f-c03ae874b655] succeeded in 10.543994077999969s: {'success': False, 'contacted': [{'hostname': 'host2', 'tasks': [...]}], 'dark': [{'hostname': 'host1', 'tasks': [...]}]}

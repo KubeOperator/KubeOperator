@@ -1,0 +1,7 @@
+---
+openshift_service_catalog_remove: false
+openshift_service_catalog_async_bindings_enabled: true
+openshift_service_catalog_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'service-catalog') }}"
+
+# Number of retries when waiting for the service catalog healthz to return 'ok' (retried every 10 seconds)
+openshift_service_catalog_retries: 60

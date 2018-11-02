@@ -1,0 +1,12 @@
+---
+- import_tasks: udev_workaround.yml
+  when: docker_udev_workaround | default(False) | bool
+
+- name: Add enterprise registry, if necessary
+  set_fact:
+    l2_docker_additional_registries: "{{ l2_docker_additional_registries + [openshift_docker_ent_reg] }}"
+  when:
+    - openshift_deployment_type == 'openshift-enterprise'
+    - openshift_docker_ent_reg != ''
+    - openshift_docker_ent_reg not in l2_docker_additional_registries
+    - not openshift_use_crio_only | bool

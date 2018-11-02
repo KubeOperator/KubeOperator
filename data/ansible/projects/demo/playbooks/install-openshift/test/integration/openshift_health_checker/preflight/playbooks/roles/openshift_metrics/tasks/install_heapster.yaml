@@ -1,0 +1,77 @@
+---
+- name: Ensure that Heapster has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_metrics_heapster_nodeselector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Heapster
+
+- command: >
+    {{ openshift_client_binary }} -n {{ openshift_metrics_project | quote }}
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    get rc heapster -o jsonpath='{.spec.replicas}'
+  register: heapster_replica_count
+  failed_when: false
+  changed_when: no
+
+- name: Generate heapster replication controller
+  template: src=heapster.j2 dest={{mktemp.stdout}}/templates/metrics-heapster-rc.yaml
+  vars:
+    replica_count: "{{heapster_replica_count.stdout | default(0)}}"
+    node_selector: "{{openshift_metrics_heapster_nodeselector | default('') }}"
+  changed_when: no
+
+- set_fact:
+    heapster_sa_secrets: ["heapster-secrets"]
+
+- set_fact:
+    heapster_sa_secrets: "{{ heapster_sa_secrets + [item] }}"
+  with_items:
+  - hawkular-metrics-certs
+  - hawkular-metrics-account
+  when: not openshift_metrics_heapster_standalone | bool
+
+- name: Generating serviceaccount for heapster
+  template: src=serviceaccount.j2 dest={{mktemp.stdout}}/templates/metrics-{{obj_name}}-sa.yaml
+  vars:
+    obj_name: heapster
+    labels:
+      metrics-infra: support
+    secrets: "{{ heapster_sa_secrets }}"
+  changed_when: no
+
+- name: Generate service for heapster
+  template: src=service.j2 dest={{mktemp.stdout}}/templates/metrics-{{obj_name}}-svc.yaml
+  vars:
+    obj_name: heapster
+    ports:
+    - {port: 80, targetPort: http-endpoint}
+    selector:
+      name: "{{obj_name}}"
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: heapster-certs
+    labels:
+      metrics-infra: "{{obj_name}}"
+      name: "{{obj_name}}"
+  changed_when: no
+
+- name: generate cluster-reader role binding for the heapster service account
+  template:
+    src: rolebinding.j2
+    dest: "{{ mktemp.stdout }}/templates/heapster-rolebinding.yaml"
+  vars:
+    cluster: True
+    obj_name: heapster-cluster-reader
+    labels:
+      metrics-infra: heapster
+    roleRef:
+      kind: ClusterRole
+      name: cluster-reader
+    subjects:
+    - kind: ServiceAccount
+      name: heapster
+      namespace: "{{ openshift_metrics_project }}"
+  changed_when: no
+
+- include_tasks: generate_heapster_secrets.yaml

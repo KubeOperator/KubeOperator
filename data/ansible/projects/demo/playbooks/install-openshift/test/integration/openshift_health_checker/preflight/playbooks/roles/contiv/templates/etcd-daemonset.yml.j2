@@ -1,0 +1,83 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: contiv-etcd
+  namespace: kube-system
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: contiv-etcd
+  template:
+    metadata:
+      namespace: kube-system
+      labels:
+        name: contiv-etcd
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      serviceAccountName: contiv-etcd
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+{% for node in groups.oo_masters_to_config %}
+                  - "{{ node }}"
+{% endfor %}
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      initContainers:
+        - name: contiv-etcd-init
+          image: "{{ contiv_etcd_init_image_repo }}:{{ contiv_etcd_init_image_tag }}"
+          env:
+            - name: ETCD_INIT_ARGSFILE
+              value: "{{ contiv_etcd_conf_dir }}/contiv-etcd-args"
+            - name: ETCD_INIT_LISTEN_PORT
+              value: "{{ contiv_etcd_port }}"
+            - name: ETCD_INIT_PEER_PORT
+              value: "{{ contiv_etcd_peer_port }}"
+            - name: ETCD_INIT_CLUSTER
+              value: "{{ contiv_etcd_peers }}"
+            - name: ETCD_INIT_DATA_DIR
+              value: "{{ contiv_etcd_data_dir }}"
+          volumeMounts:
+            - name: contiv-etcd-conf-dir
+              mountPath: "{{ contiv_etcd_conf_dir }}"
+          securityContext:
+            runAsUser: "{{ contiv_etcd_system_uid }}"
+            fsGroup: "{{ contiv_etcd_system_gid }}"
+      containers:
+        - name: contiv-etcd
+          image: "{{ contiv_etcd_image_repo }}:{{ contiv_etcd_image_tag }}"
+          command:
+            - sh
+            - -c
+            - 'exec etcd $(cat "$ETCD_INIT_ARGSFILE")'
+          env:
+            - name: ETCD_INIT_ARGSFILE
+              value: "{{ contiv_etcd_conf_dir }}/contiv-etcd-args"
+          volumeMounts:
+            - name: contiv-etcd-conf-dir
+              mountPath: "{{ contiv_etcd_conf_dir }}"
+            - name: contiv-etcd-data-dir
+              mountPath: "{{ contiv_etcd_data_dir }}"
+          securityContext:
+            runAsUser: "{{ contiv_etcd_system_uid }}"
+            fsGroup: "{{ contiv_etcd_system_gid }}"
+      volumes:
+        - name: contiv-etcd-data-dir
+          hostPath:
+            type: DirectoryOrCreate
+            path: "{{ contiv_etcd_data_dir }}"
+        - name: contiv-etcd-conf-dir
+          hostPath:
+            type: DirectoryOrCreate
+            path: "{{ contiv_etcd_conf_dir }}"

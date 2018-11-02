@@ -1,0 +1,334 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+#
+# Yedit test so that we can quickly determine if features are working
+# Ensure that the kube-manager.yaml file exists
+#
+# ./yedit_test.yml
+#
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    test_file: kube-manager-test.yaml
+    test: test
+
+  post_tasks:
+  - name: copy the kube-manager.yaml file so that we have a pristine copy each time
+    copy:
+      src: kube-manager.yaml
+      dest: "./{{ test_file }}"
+    changed_when: False
+
+  ####### add key to top level #####
+  - name: add a key at the top level
+    yedit:
+      src: "{{ test_file }}"
+      key: yedittest
+      value: yedittest
+
+  - name: retrieve the inserted key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: yedittest
+    register: results
+
+  - name: Assert that key is at top level
+    assert:
+      that: results.result == 'yedittest'
+      msg: 'Test: add a key to top level failed.  yedittest != [{{ results.result }}]'
+  ###### end add key to top level #####
+
+  ###### modify multilevel key, value #####
+  - name: modify multilevel key, value
+    yedit:
+      src: "{{ test_file }}"
+      key: metadata-namespace
+      value: openshift-is-awesome
+      separator: '-'
+
+  - name: retrieve the inserted key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: metadata-namespace
+      separator: '-'
+    register: results
+
+  - name: Assert that key is as expected
+    assert:
+      that: results.result == 'openshift-is-awesome'
+      msg: 'Test: multilevel key, value modification:  openshift-is-awesome != [{{ results.result }}]'
+  ###### end modify multilevel key, value #####
+
+  ###### test a string boolean #####
+  - name: test a string boolean
+    yedit:
+      src: "{{ test_file }}"
+      key: spec.containers[0].volumeMounts[1].readOnly
+      value: 'true'
+      value_type: str
+
+  - name: retrieve the inserted key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: spec.containers[0].volumeMounts[1].readOnly
+    register: results
+
+  - name: Assert that key is a string
+    assert:
+      that: results.result == "true"
+      msg: "Test: boolean str:  'true' != [{{ results.result }}]"
+
+  - name: Assert that key is not bool
+    assert:
+      that: results.result != true
+      msg: "Test: boolean str:  true != [{{ results.result }}]"
+  ###### end test boolean string #####
+
+  ###### test array append #####
+  - name: test array append
+    yedit:
+      src: "{{ test_file }}"
+      key: spec.containers[0].command
+      value: --my-new-parameter=openshift
+      append: True
+
+  - name: retrieve the array
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: spec.containers[0].command
+    register: results
+
+  - name: Assert that the last element in array is our value
+    assert:
+      that: results.result[-1] == "--my-new-parameter=openshift"
+      msg: "Test: '--my-new-parameter=openshift' != [{{ results.result[-1] }}]"
+  ###### end test array append #####
+
+  ###### test non-existing array append #####
+  - name: test array append to non-existing key
+    yedit:
+      src: "{{ test_file }}"
+      key: nonexistingkey
+      value: --my-new-parameter=openshift
+      append: True
+
+  - name: retrieve the array
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: nonexistingkey
+    register: results
+
+  - name: Assert that the last element in array is our value
+    assert:
+      that: results.result[-1] == "--my-new-parameter=openshift"
+      msg: "Test: '--my-new-parameter=openshift' != [{{ results.result[-1] }}]"
+  ###### end test non-existing array append #####
+
+  ###### test array update modify #####
+  - name: test array update modify
+    yedit:
+      src: "{{ test_file }}"
+      key: spec.containers[0].command
+      value: --root-ca-file=/etc/k8s/ssl/my.pem
+      curr_value: --root-ca-file=/etc/kubernetes/ssl/ca.pem
+      curr_value_format: str
+      update: True
+
+  - name: retrieve the array
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: spec.containers[0].command
+    register: results
+
+  - name: Assert that the element in array is our value
+    assert:
+      that: results.result[5] == "--root-ca-file=/etc/k8s/ssl/my.pem"
+      msg: "Test: '--root-ca-file=/etc/k8s/ssl/my.pem' != [{{ results.result[5] }}]"
+  ###### end test array update modify#####
+
+  ###### test dict create #####
+  - name: test dict create
+    yedit:
+      src: "{{ test_file }}"
+      key: a.b.c
+      value: d
+
+  - name: retrieve the key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: a.b.c
+    register: results
+
+  - name: Assert that the key was created
+    assert:
+      that: results.result == "d"
+      msg: "Test: 'd' != [{{ results.result }}]"
+  ###### end test dict create #####
+
+  ###### test create dict value #####
+  - name: test create dict value
+    yedit:
+      src: "{{ test_file }}"
+      key: e.f.g
+      value:
+        h:
+          i:
+            j: k
+
+  - name: retrieve the key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: e.f.g.h.i.j
+    register: results
+
+  - name: Assert that the key was created
+    assert:
+      that: results.result == "k"
+      msg: "Test: 'k' != [{{ results.result }}]"
+  ###### end test dict create #####
+
+  ###### test create list value #####
+  - name: test create list value
+    yedit:
+      src: "{{ test_file }}"
+      key: z.x.y
+      value:
+      - 1
+      - 2
+      - 3
+
+  - name: retrieve the key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: z#x#y
+      separator: '#'
+    register: results
+  - debug: var=results
+
+  - name: Assert that the key was created
+    assert:
+      that: results.result == [1, 2, 3]
+      msg: "Test: '[1, 2, 3]' != [{{ results.result }}]"
+  ###### end test create list value #####
+
+  ###### test create multiple list value #####
+  - name: test multiple edits
+    yedit:
+      src: "{{ test_file }}"
+      edits:
+      - key: z.x.y
+        value:
+        - 1
+        - 2
+        - 3
+      - key: z.x.y
+        value: 4
+        action: append
+
+  - name: retrieve the key
+    yedit:
+      src: "{{ test_file }}"
+      state: list
+      key: z#x#y
+      separator: '#'
+    register: results
+  - debug: var=results
+
+  - name: Assert that the key was created
+    assert:
+      that: results.result == [1, 2, 3, 4]
+      msg: "Test: '[1, 2, 3, 4]' != [{{ results.result }}]"
+      ###### end test create multiple list value #####
+
+  ###### test state absent on list item #####
+  - name: test state absent on a list item
+    yedit:
+      state: absent
+      content: ['oranges', 'apples']
+      value: apples
+    register: absentout
+
+  - debug: var=absentout
+  - assert:
+      that:
+      - absentout.result == ['oranges']
+      - absentout.result|length == 1
+
+  - name: test state absent on a list item
+    yedit:
+      state: absent
+      content: ['oranges', 'apples']
+      index: 1
+    register: absentout
+
+  - debug: var=absentout
+  - assert:
+      that:
+      - absentout.result == ['oranges']
+      - absentout.result|length == 1
+      ###### end test state absent on list item ####
+
+
+  ###### test backup ext on filename #####
+  - name: test backup ext on file
+    yedit:
+      state: present
+      src: "{{ test_file }}"
+      key: test
+      backup: true
+      backup_ext: .orig
+      value: "{{ lookup('pipe', 'date +%s') }}"
+
+  - name: second call which should be noop
+    yedit:
+      state: present
+      src: "{{ test_file }}"
+      key: test
+      backup: true
+      value: "{{ lookup('pipe', 'date +%s') }}"
+
+  - name: stat file
+    stat:
+      path: "{{ test_file }}.orig"
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: statout
+
+  - assert:
+      that:
+      - statout.stat.exists
+
+  - name: set the date string for backup_ext
+    set_fact:
+      date_str: "{{ lookup('pipe', 'date +%s') }}"
+
+  - yedit:
+      state: present
+      src: "{{ test_file }}"
+      key: test
+      backup: true
+      backup_ext: "{{ date_str }}"
+      value: "{{ lookup('pipe', 'date +%s') }}"
+
+  - name: stat file
+    stat:
+      path: "{{ test_file }}{{ date_str }}"
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: statout
+
+  - assert:
+      that:
+      - statout.stat.exists
+      ###### end test state absent on list item ####

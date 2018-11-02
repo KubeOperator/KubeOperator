@@ -1,0 +1,22 @@
+---
+- name: Check status of node image pre-pull
+  async_status:
+    jid: "{{ image_prepull.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  when:
+  - node_image.stdout_lines == []
+  - not openshift_is_atomic | bool
+  retries: 20
+  delay: 30
+  failed_when: false
+
+- name: Check status of node pod image pre-pull
+  async_status:
+    jid: "{{ pod_image_prepull.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  when: pod_image.stdout_lines == []
+  retries: 20
+  delay: 30
+  failed_when: false

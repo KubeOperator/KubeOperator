@@ -1,0 +1,52 @@
+---
+- name: Create AWS VPC
+  ec2_vpc_net:
+    state: present
+    cidr_block: "{{ openshift_aws_vpc.cidr }}"
+    dns_support: True
+    dns_hostnames: True
+    region: "{{ openshift_aws_region }}"
+    name: "{{ openshift_aws_clusterid }}"
+    tags: "{{ openshift_aws_vpc_tags }}"
+  register: vpc
+
+- name: Sleep to avoid a race condition when creating the vpc
+  pause:
+    seconds: 5
+  when: vpc.changed
+
+- name: assign the vpc igw
+  ec2_vpc_igw:
+    region: "{{ openshift_aws_region }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+  register: igw
+
+- name: assign the vpc subnets
+  ec2_vpc_subnet:
+    region: "{{ openshift_aws_region }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+    cidr: "{{ item.cidr }}"
+    az: "{{ item.az }}"
+    resource_tags:
+      Name: "{{ item.az }}"
+  with_items: "{{ openshift_aws_vpc.subnets[openshift_aws_region] }}"
+
+- name: Grab the route tables from our VPC
+  ec2_vpc_route_table_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      vpc-id: "{{ vpc.vpc.id }}"
+  register: route_table
+
+- name: update the route table in the vpc
+  ec2_vpc_route_table:
+    lookup: id
+    route_table_id: "{{ route_table.route_tables[0].id }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+    region: "{{ openshift_aws_region }}"
+    tags:
+      Name: "{{ openshift_aws_vpc_name }}"
+    routes:
+    - dest: 0.0.0.0/0
+      gateway_id: igw
+  register: route_table_out

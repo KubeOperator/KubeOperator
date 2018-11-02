@@ -1,0 +1,22 @@
+---
+# This work is to migrate the OPENSHIFT_DEFAULT_REGISTRY variable
+# inside of the docker-registry's dc to REGISTRY_OPENSHIFT_SERVER_ADDR
+- name: migrate docker registry env var
+  oc_edit:
+    kind: dc
+    name: "{{ openshift_hosted_registry_name }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    edits:
+    - action: update
+      key: spec.template.spec.containers[0].env
+      value:
+        name: REGISTRY_OPENSHIFT_SERVER_ADDR
+        value: docker-registry.default.svc:5000
+      curr_value:
+        name: OPENSHIFT_DEFAULT_REGISTRY
+        value: docker-registry.default.svc:5000
+  register: editout
+
+- debug:
+    var: editout
+    verbosity: 1

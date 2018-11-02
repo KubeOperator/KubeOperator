@@ -1,0 +1,37 @@
+---
+- block:
+    - name: create the docker-storage config file
+      template:
+        src: docker-storage-setup-overlayfs.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+  when:
+    - ansible_distribution_version is version_compare('7.4', '>=')
+    - ansible_distribution == "RedHat"
+
+- block:
+    - name: create the docker-storage-setup config file
+      template:
+        src: docker-storage-setup-dm.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+  when:
+    - ansible_distribution_version is version_compare('7.4', '<')
+    - ansible_distribution == "RedHat"
+
+- block:
+    - name: create the docker-storage-setup config file for CentOS
+      template:
+        src: docker-storage-setup-dm.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+
+  # TODO(shadower): Find out which CentOS version supports overlayfs2
+  when:
+    - ansible_distribution == "CentOS"

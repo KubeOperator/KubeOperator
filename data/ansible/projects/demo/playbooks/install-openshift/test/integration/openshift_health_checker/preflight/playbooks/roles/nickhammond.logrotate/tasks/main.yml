@@ -1,0 +1,13 @@
+---
+- name: nickhammond.logrotate | Install logrotate
+  package: name=logrotate state=present
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+- name: nickhammond.logrotate | Setup logrotate.d scripts
+  template:
+    src: logrotate.d.j2
+    dest: /etc/logrotate.d/{{ item.name }}
+  with_items: "{{ logrotate_scripts | default([]) }}"
+  when: logrotate_scripts is defined

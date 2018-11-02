@@ -1,0 +1,9 @@
+Task ansible_ui.tasks.hello[b9d90a40-de39-4c20-aa4d-0f735922bb63] raised unexpected: TypeError('argument must be an int, or have a fileno() method.',)
+Traceback (most recent call last):
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/tasks.py", line 51, in hello
+    curses.setupterm()
+TypeError: argument must be an int, or have a fileno() method.

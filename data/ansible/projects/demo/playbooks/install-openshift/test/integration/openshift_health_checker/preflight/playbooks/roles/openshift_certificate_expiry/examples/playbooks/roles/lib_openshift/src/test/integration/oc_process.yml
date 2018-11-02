@@ -1,0 +1,83 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/:../../../../lib_utils/library
+
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+  vars:
+    template_name: mysql-ephemeral
+    ns_name: test
+
+  post_tasks:
+  - name: get the mysql-ephemeral template
+    oc_obj:
+      name: mysql-ephemeral
+      state: list
+      namespace: openshift
+      kind: template
+    register: mysqltempl
+
+  - name: fix namespace
+    yedit:
+      src: /tmp/mysql-template
+      key: metadata.namespace
+      value: test
+      backup: false
+      content: "{{ mysqltempl.results.results[0] | to_yaml }}"
+
+  - name: create the test namespace
+    oc_obj:
+      name: test
+      state: present
+      namespace: test
+      kind: namespace
+      content:
+        path: /tmp/ns_test
+        data:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: test
+          spec:
+            finalizers:
+            - openshift.io/origin
+            - kubernetes
+    register: mysqltempl
+
+  - name: create the mysql-ephemeral template
+    oc_obj:
+      name: mysql-ephemeral
+      state: present
+      namespace: test
+      kind: template
+      files:
+      - /tmp/mysql-template
+      delete_after: True
+    register: mysqltempl
+
+  - name: process mysql-ephemeral
+    oc_process:
+      template_name: mysql-ephemeral
+      namespace: test
+      params:
+        NAMESPACE: test
+        DATABASE_SERVICE_NAME: testdb
+      create: False
+      reconcile: false
+    register: procout
+
+  - assert:
+      that:
+      - not procout.changed
+      - procout.results.results['items'][0]['metadata']['name'] == 'testdb'
+      - procout.results.results['items'][0]['kind'] == 'Service'
+      - procout.results.results['items'][1]['metadata']['name'] == 'testdb'
+      - procout.results.results['items'][1]['kind'] == 'DeploymentConfig'
+      msg: process failed on template
+
+  - name: remove namespace test
+    oc_obj:
+      kind: namespace
+      name: test
+      namespace: test
+      state: absent

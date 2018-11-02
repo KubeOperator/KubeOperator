@@ -1,0 +1,46 @@
+---
+vm_prefix: "ci_test"
+#aws_use_auto_terminator is set to True by default, as rh-dev account doesn't have permission
+# to terminate instances. These should be stopped and renamed to include 'terminate' instead
+#aws_use_auto_terminator: false
+
+type: aws
+aws_user: "ec2-user"
+python: "/usr/bin/python"
+
+aws_key: "libra"
+aws_region: "us-east-1"
+aws_cluster_id: "ci"
+# us-east-1d
+aws_subnet: "subnet-cf57c596"
+
+aws_expiration_date: "{{ lookup('pipe','date -d \"4 hours\" --iso=minutes --utc') }}"
+
+aws_ami_tags:
+  "tag:operating_system": "rhel"
+  "tag:image_stage": "base"
+  "tag:ready": "yes"
+
+aws_instances:
+- name: "{{ vm_prefix }}-master"
+  ansible_groups:
+    - masters
+    - etcd
+    - nodes
+  aws_flavor: t2.large
+  aws_security_group: public
+  node_group: "node-config-all-in-one"
+  # Use custom AMI tags
+  # aws_ami_tags:
+  #   operating_system: "rhel"
+  #   image_stage: "base"
+  #   ready: "yes"
+  # Use custom AMI
+  #aws_image: "ami-70e8fd66"
+  # Attach custom volumes
+  #aws_volumes:
+  # - device_name: /dev/sdb
+  #   volume_size: 50
+  #   delete_on_termination: yes
+  #Set expiration date for instances on CI namespace
+  #aws_expiration_date: "{{ lookup('pipe','date -d \"4 hours\" --iso=minutes --utc') }}"

@@ -1,0 +1,16 @@
+---
+- block:
+  - import_tasks: glusterfs_config_facts.yml
+  - import_tasks: cluster_health.yml
+  when:
+  - openshift_storage_glusterfs_is_native | bool
+  - "'glusterfs' in groups"
+  - "groups['glusterfs'] | length > 0"
+
+- block:
+  - import_tasks: glusterfs_registry_facts.yml
+  - import_tasks: cluster_health.yml
+  when:
+  - openshift_storage_glusterfs_registry_is_native | bool
+  - "'glusterfs_registry' in groups"
+  - "groups['glusterfs_registry'] | length > 0"

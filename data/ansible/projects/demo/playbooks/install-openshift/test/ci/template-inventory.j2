@@ -1,0 +1,26 @@
+[OSEv3:vars]
+ansible_python_interpreter="{{ python }}"
+ansible_user="{{ aws_user }}"
+aws_region="{{ aws_region }}"
+openshift_master_default_subdomain="{{ hostvars[groups[('lb' in groups) | ternary('lb', 'masters')][0]]["aws_ip"] }}.xip.io"
+
+[OSEv3:children]
+{% for group in groups %}
+{% if group not in ["all", "ungrouped", "OSEv3"] %}
+{{group}}
+{% endif %}
+{% endfor %}
+
+{% for group in groups %}
+{% if group not in ["all", "ungrouped", "OSEv3"] %}
+[{{group}}]
+{% for entry in groups[group] %}
+{% set addon_opts = "" %}
+{% if group == "nodes" %}
+{% set addon_opts = addon_opts + " openshift_node_group_name='" + hostvars[entry]['openshift_node_group_name'] + "'" %}
+{% endif %}
+{{ entry }} ansible_host='{{ hostvars[entry]['ansible_host'] }}' aws_id='{{ hostvars[entry]['aws_id'] }}' {{ addon_opts }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

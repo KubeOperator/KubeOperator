@@ -1,0 +1,203 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: sdn
+  namespace: openshift-sdn
+  annotations:
+    kubernetes.io/description: |
+      This daemon set launches the OpenShift networking components (kube-proxy, DNS, and openshift-sdn).
+      It expects that OVS is running on the node.
+    image.openshift.io/triggers: |
+      [
+        {"from":{"kind":"ImageStreamTag","name":"node:v3.10"},"fieldPath":"spec.template.spec.containers[?(@.name==\"sdn\")].image"}
+      ]
+spec:
+  selector:
+    matchLabels:
+      app: sdn
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: sdn
+        component: network
+        type: infra
+        openshift.io/component: network
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      # Requires fairly broad permissions - ability to read all services and network functions as well
+      # as all pods.
+      serviceAccountName: sdn
+      hostNetwork: true
+      hostPID: true
+      containers:
+      # The network container launches the openshift-sdn process, the kube-proxy, and the local DNS service.
+      # It relies on an up to date node-config.yaml being present.
+      - name: sdn
+        image: " "
+        command: 
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -euo pipefail
+
+          # if another process is listening on the cni-server socket, wait until it exits
+          trap 'kill $(jobs -p); exit 0' TERM
+          retries=0
+          while true; do
+            if echo 'test' | socat - UNIX-CONNECT:/var/run/openshift-sdn/cni-server.sock >/dev/null; then
+              echo "warning: Another process is currently listening on the CNI socket, waiting 15s ..." 2>&1
+              sleep 15 & wait
+              (( retries += 1 ))
+            else
+              break
+            fi
+            if [[ "${retries}" -gt 40 ]]; then
+              echo "error: Another process is currently listening on the CNI socket, exiting" 2>&1
+              exit 1
+            fi
+          done
+          # if the node config doesn't exist yet, wait until it does
+          retries=0
+          while true; do
+            if [[ ! -f /etc/origin/node/node-config.yaml ]]; then
+              echo "warning: Cannot find existing node-config.yaml, waiting 15s ..." 2>&1
+              sleep 15 & wait
+              (( retries += 1 ))
+            else
+              break
+            fi
+            if [[ "${retries}" -gt 40 ]]; then
+              echo "error: No existing node-config.yaml, exiting" 2>&1
+              exit 1
+            fi
+          done
+
+          # Take over network functions on the node
+          rm -Rf /etc/cni/net.d/*
+          rm -Rf /host/opt/cni/bin/*
+          cp -Rf /opt/cni/bin/* /host/opt/cni/bin/
+
+          if [[ -f /etc/sysconfig/origin-node ]]; then
+            set -o allexport
+            source /etc/sysconfig/origin-node
+          fi
+
+          # use either the bootstrapped node kubeconfig or the static configuration
+          file=/etc/origin/node/node.kubeconfig
+          if [[ ! -f "${file}" ]]; then
+            # use the static node config if it exists
+            # TODO: remove when static node configuration is no longer supported
+            for f in /etc/origin/node/system*.kubeconfig; do
+              echo "info: Using ${f} for node configuration" 1>&2
+              file="${f}"
+              break
+            done
+          fi
+          # Use the same config as the node, but with the service account token
+          oc config "--config=${file}" view --flatten > /tmp/kubeconfig
+          oc config --config=/tmp/kubeconfig set-credentials sa "--token=$( cat /var/run/secrets/kubernetes.io/serviceaccount/token )"
+          oc config --config=/tmp/kubeconfig set-context "$( oc config --config=/tmp/kubeconfig current-context )" --user=sa
+          # Launch the network process
+          exec openshift start network --config=/etc/origin/node/node-config.yaml --kubeconfig=/tmp/kubeconfig --loglevel=${DEBUG_LOGLEVEL:-2}
+
+        securityContext:
+          runAsUser: 0
+          # Permission could be reduced by selecting an appropriate SELinux policy
+          privileged: true
+
+        volumeMounts:
+        # Directory which contains the host configuration.
+        - mountPath: /etc/origin/node/
+          name: host-config
+          readOnly: true
+        - mountPath: /etc/sysconfig/origin-node
+          name: host-sysconfig-node
+          readOnly: true
+        # Mount the entire run directory for socket access for Docker or CRI-o
+        # TODO: remove
+        - mountPath: /var/run
+          name: host-var-run
+        # Run directories where we need to be able to access sockets
+        - mountPath: /var/run/dbus/
+          name: host-var-run-dbus
+          readOnly: true
+        - mountPath: /var/run/openvswitch/
+          name: host-var-run-ovs
+          readOnly: true
+        - mountPath: /var/run/kubernetes/
+          name: host-var-run-kubernetes
+          readOnly: true
+        # We mount our socket here
+        - mountPath: /var/run/openshift-sdn
+          name: host-var-run-openshift-sdn
+        # CNI related mounts which we take over
+        - mountPath: /host/opt/cni/bin
+          name: host-opt-cni-bin
+        - mountPath: /etc/cni/net.d
+          name: host-etc-cni-netd
+        - mountPath: /var/lib/cni/networks/openshift-sdn
+          name: host-var-lib-cni-networks-openshift-sdn
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        env:
+        - name: OPENSHIFT_DNS_DOMAIN
+          value: cluster.local
+        ports:
+        - name: healthz
+          containerPort: 10256
+        # TODO: Temporarily disabled until we determine how to wait for clean default
+        # config
+        # livenessProbe:
+        #   initialDelaySeconds: 10
+        #   httpGet:
+        #     path: /healthz
+        #     port: 10256
+        #     scheme: HTTP
+        lifecycle:
+
+      volumes:
+      # In bootstrap mode, the host config contains information not easily available
+      # from other locations.
+      - name: host-config
+        hostPath:
+          path: /etc/origin/node
+      - name: host-sysconfig-node
+        hostPath:
+          path: /etc/sysconfig/origin-node
+      - name: host-modules
+        hostPath:
+          path: /lib/modules
+
+      # TODO: access to the docker socket should be replaced by CRI socket
+      - name: host-var-run
+        hostPath:
+          path: /var/run
+      - name: host-var-run-dbus
+        hostPath:
+          path: /var/run/dbus
+      - name: host-var-run-ovs
+        hostPath:
+          path: /var/run/openvswitch
+      - name: host-var-run-kubernetes
+        hostPath:
+          path: /var/run/kubernetes
+      - name: host-var-run-openshift-sdn
+        hostPath:
+          path: /var/run/openshift-sdn
+
+      - name: host-opt-cni-bin
+        hostPath:
+          path: /opt/cni/bin
+      - name: host-etc-cni-netd
+        hostPath:
+          path: /etc/cni/net.d
+      - name: host-var-lib-cni-networks-openshift-sdn
+        hostPath:
+          path: /var/lib/cni/networks/openshift-sdn

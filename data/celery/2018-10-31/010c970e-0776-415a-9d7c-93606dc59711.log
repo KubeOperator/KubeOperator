@@ -1,0 +1,13 @@
+2018-10-31 02:37:32 Start task: Ansible Ad-hoc
+Get matched hosts: [node1.jumpserver.org, node2.jumpserver.org, master.jumpserver.org]
+PLAY [Ansible Ad-hoc] **********************************************************
+TASK [ping:] *******************************************************************
+[0;32mok: [node2.jumpserver.org][0m
+[0;32mok: [node1.jumpserver.org][0m
+[0;32mok: [master.jumpserver.org][0m
+PLAY RECAP *********************************************************************
+[0;32mmaster.jumpserver.org[0m      : [0;32mok=1   [0m changed=0    unreachable=0    failed=0
+[0;32mnode1.jumpserver.org[0m       : [0;32mok=1   [0m changed=0    unreachable=0    failed=0
+[0;32mnode2.jumpserver.org[0m       : [0;32mok=1   [0m changed=0    unreachable=0    failed=0
+2018-10-31 02:37:34 Task finish
+Task ansible_ui.tasks.execute_adhoc[010c970e-0776-415a-9d7c-93606dc59711] succeeded in 2.8603803599835373s: {'success': True, 'contacted': [{'hostname': 'node2.jumpserver.org', 'tasks': [...]}, {'hostname': 'node1.jumpserver.org', 'tasks': [...]}, {'hostname': 'master.jumpserver.org', 'tasks': [...]}]}

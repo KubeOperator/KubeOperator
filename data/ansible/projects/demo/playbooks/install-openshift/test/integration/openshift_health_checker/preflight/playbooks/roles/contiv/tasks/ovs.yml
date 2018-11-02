@@ -1,0 +1,28 @@
+---
+- include_tasks: packageManagerInstall.yml
+  when: contiv_source_type == "packageManager"
+  tags:
+    - binary-update
+
+- name: OVS | Configure selinux for ovs
+  command: "semanage permissive -a openvswitch_t"
+
+- name: OVS | Enable ovs
+  service:
+    name: openvswitch
+    enabled: yes
+
+- name: OVS | Start ovs
+  service:
+    name: openvswitch
+    state: started
+  register: ovs_started
+
+- name: OVS | Configure ovs
+  command: "ovs-vsctl set-manager {{ item }}"
+  with_items:
+    - "tcp:127.0.0.1:6640"
+    - "ptcp:6640"
+
+- name: OVS | Configure ovsdb-server
+  command: "ovs-appctl -t ovsdb-server ovsdb-server/add-remote ptcp:6640"

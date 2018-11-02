@@ -1,0 +1,19 @@
+---
+# Sanity checks to ensure the role will complete and provide helpful error
+# messages for common problems.
+
+- name: Error out if Docker pre-installed but too old
+  fail:
+    msg: "Docker {{ curr_docker_version.stdout }} is installed, but >= {{ l_required_docker_version }} is required."
+  when:
+  - not (curr_docker_version is skipped)
+  - curr_docker_version.stdout != ''
+  - curr_docker_version.stdout is version_compare(l_required_docker_version, '<')
+  - not (docker_version is defined)
+
+- name: Error out if requested Docker is too old
+  fail:
+    msg: "Docker {{ docker_version }} requested, but >= {{ l_required_docker_version }} is required."
+  when:
+  - docker_version is defined
+  - docker_version is version_compare(l_required_docker_version, '<')

@@ -1,0 +1,11 @@
+{% if docker_storage_mountpoints is defined %}
+DEVS="{{ docker_storage_mountpoints }}"
+{% else %}
+DEVS="{{ openshift_openstack_container_storage_setup.docker_dev }}"
+{% endif %}
+VG="{{ openshift_openstack_container_storage_setup.docker_vg }}"
+DATA_SIZE="{{ openshift_openstack_container_storage_setup.docker_data_size }}"
+STORAGE_DRIVER=overlay2
+CONTAINER_ROOT_LV_NAME="{{ openshift_openstack_container_storage_setup.container_root_lv_name }}"
+CONTAINER_ROOT_LV_MOUNT_PATH="{{ openshift_openstack_container_storage_setup.container_root_lv_mount_path }}"
+CONTAINER_ROOT_LV_SIZE=100%FREE

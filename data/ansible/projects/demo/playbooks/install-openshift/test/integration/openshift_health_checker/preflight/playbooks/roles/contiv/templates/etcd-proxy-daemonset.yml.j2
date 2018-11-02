@@ -1,0 +1,55 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: contiv-etcd-proxy
+  namespace: kube-system
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: contiv-etcd-proxy
+  template:
+    metadata:
+      namespace: kube-system
+      labels:
+        name: contiv-etcd-proxy
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      serviceAccountName: contiv-etcd
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+{% for node in groups.oo_masters_to_config %}
+                  - "{{ node }}"
+{% endfor %}
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: contiv-etcd-proxy
+          image: "{{ contiv_etcd_image_repo }}:{{ contiv_etcd_image_tag }}"
+          command:
+            - etcd
+            - "--proxy=on"
+            - "--listen-client-urls=http://127.0.0.1:{{ contiv_etcd_port }}"
+            - "--advertise-client-urls=http://127.0.0.1:{{ contiv_etcd_port }}"
+            - "--initial-cluster={{ contiv_etcd_peers }}"
+            - "--data-dir={{ contiv_etcd_data_dir }}"
+          volumeMounts:
+            - name: contiv-etcd-data-dir
+              mountPath: "{{ contiv_etcd_data_dir }}"
+          securityContext:
+            runAsUser: "{{ contiv_etcd_system_uid }}"
+            fsGroup: "{{ contiv_etcd_system_gid }}"
+      volumes:
+        - name: contiv-etcd-data-dir
+          emptyDir: {}

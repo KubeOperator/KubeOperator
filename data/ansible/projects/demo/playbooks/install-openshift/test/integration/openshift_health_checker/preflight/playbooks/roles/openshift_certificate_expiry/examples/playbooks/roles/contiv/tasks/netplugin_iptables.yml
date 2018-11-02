@@ -1,0 +1,52 @@
+---
+- name: Netplugin IPtables | Add internal rules
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: "{{ item[0].split('/')[1] }}"
+    match: "{{ item[0].split('/')[1] }}"
+    destination_port: "{{ item[0].split('/')[0] }}"
+    source: "{{ item[1] }}"
+    jump: ACCEPT
+    comment: contiv
+  with_nested:
+    - "{{ contiv_netplugin_internal }}"
+    - "{{ groups.oo_nodes_to_config|difference(hostvars[inventory_hostname]['ansible_' + contiv_netmaster_interface].ipv4.address)|list }}"
+  notify: Save iptables rules
+
+- name: Netplugin IPtables | Add [in] forward rules
+  iptables:
+    action: insert
+    chain: FORWARD
+    in_interface: "{{ item }}"
+    jump: ACCEPT
+    comment: contiv
+  with_items: "{{ contiv_netplugin_forward_interfaces }}"
+  notify: Save iptables rules
+
+- name: Netplugin IPtables | Add [out] forward rules
+  iptables:
+    action: insert
+    chain: FORWARD
+    out_interface: "{{ item }}"
+    jump: ACCEPT
+    comment: contiv
+  with_items: "{{ contiv_netplugin_forward_interfaces }}"
+  notify: Save iptables rules
+
+- name: Netplugin IPtables | Add dns rule
+  iptables:
+    action: insert
+    chain: INPUT
+    protocol: udp
+    match: udp
+    destination_port: 53
+    in_interface: contivh0
+    jump: ACCEPT
+    comment: contiv
+  notify: Save iptables rules
+
+- name: Netplugin IPtables | Enable iptables at boot
+  service:
+    name: iptables
+    enabled: yes

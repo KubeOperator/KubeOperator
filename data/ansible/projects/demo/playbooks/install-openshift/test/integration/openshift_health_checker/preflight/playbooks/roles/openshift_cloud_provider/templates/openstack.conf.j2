@@ -1,0 +1,29 @@
+[Global]
+auth-url = {{ openshift_cloudprovider_openstack_auth_url }}
+username = {{ openshift_cloudprovider_openstack_username }}
+password = {{ openshift_cloudprovider_openstack_password }}
+{% if openshift_cloudprovider_openstack_domain_id is defined %}
+domain-id = {{ openshift_cloudprovider_openstack_domain_id }}
+{% elif openshift_cloudprovider_openstack_domain_name is defined %}
+domain-name = {{ openshift_cloudprovider_openstack_domain_name }}
+{% endif %}
+{% if openshift_cloudprovider_openstack_tenant_id is defined %}
+tenant-id = {{ openshift_cloudprovider_openstack_tenant_id }}
+{% else %}
+tenant-name = {{ openshift_cloudprovider_openstack_tenant_name }}
+{% endif %}
+{% if openshift_cloudprovider_openstack_region is defined %}
+region = {{ openshift_cloudprovider_openstack_region }}
+{% endif %}
+{% if openshift_cloudprovider_openstack_ca_file is defined %}
+ca-file = {{ openshift_openstack_ca_file_path }}
+{% endif %}
+{% if openshift_cloudprovider_openstack_lb_subnet_id is defined %}
+[LoadBalancer]
+subnet-id = {{ openshift_cloudprovider_openstack_lb_subnet_id }}
+{% endif %}
+[BlockStorage]
+ignore-volume-az = {{ openshift_cloudprovider_openstack_blockstorage_ignore_volume_az | bool | ternary('yes', 'no') }}
+{% if openshift_cloudprovider_openstack_blockstorage_version is defined %}
+bs-version={{ openshift_cloudprovider_openstack_blockstorage_version }}
+{% endif %}

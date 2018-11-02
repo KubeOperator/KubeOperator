@@ -1,0 +1,63 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "sso70-image-stream",
+        "annotations": {
+            "description": "ImageStream definition for Red Hat Single Sign-On 7.0.",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "redhat-sso70-openshift",
+                "annotations": {
+                    "description": "Red Hat SSO 7.0",
+                    "openshift.io/display-name": "Red Hat Single Sign-On 7.0",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.4.14"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.14"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "1.3",
+                        "annotations": {
+                            "description": "Red Hat SSO 7.0",
+                            "iconClass": "icon-sso",
+                            "tags": "sso,keycloak,redhat,hidden",
+                            "supports": "sso:7.0",
+                            "version": "1.3",
+                            "openshift.io/display-name": "Red Hat Single Sign-On 7.0"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/redhat-sso-7/sso70-openshift:1.3"
+                        }
+                    },
+                    {
+                        "name": "1.4",
+                        "annotations": {
+                            "description": "Red Hat SSO 7.0",
+                            "iconClass": "icon-sso",
+                            "tags": "sso,keycloak,redhat,hidden",
+                            "supports": "sso:7.0",
+                            "version": "1.4",
+                            "openshift.io/display-name": "Red Hat Single Sign-On 7.0"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/redhat-sso-7/sso70-openshift:1.4"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

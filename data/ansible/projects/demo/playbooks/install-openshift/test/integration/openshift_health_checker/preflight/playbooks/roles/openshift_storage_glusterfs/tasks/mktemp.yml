@@ -1,0 +1,12 @@
+---
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-glusterfs-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+  check_mode: no
+
+- name: Copy the admin client config
+  command: >
+    cp {{ openshift.common.config_base }}/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: False
+  check_mode: no

@@ -1,0 +1,19 @@
+apiVersion: "descheduler/v1alpha1"
+kind: "DeschedulerPolicy"
+strategies:
+  "RemoveDuplicates":
+     enabled: {{ openshift_descheduler_strategies_dict['remove_duplicates'] | to_json }}
+  "RemovePodsViolatingInterPodAntiAffinity":
+     enabled: {{ openshift_descheduler_strategies_dict['remove_pods_violating_inter_pod_anti_affinity'] | to_json }}
+  "LowNodeUtilization":
+     enabled: {{ openshift_descheduler_strategies_dict['low_node_utilization'] | to_json }}
+     params:
+       nodeResourceUtilizationThresholds:
+         thresholds:
+           "cpu" : {{ openshift_descheduler_strategy_low_node_utilization_dict['cpu_threshold'] }}
+           "memory": {{ openshift_descheduler_strategy_low_node_utilization_dict['mem_threshold'] }}
+           "pods": {{ openshift_descheduler_strategy_low_node_utilization_dict['pods_threshold'] }}
+         targetThresholds:
+           "cpu" : {{ openshift_descheduler_strategy_low_node_utilization_dict['cpu_target_threshold'] }}
+           "memory": {{ openshift_descheduler_strategy_low_node_utilization_dict['mem_target_threshold'] }}
+           "pods": {{ openshift_descheduler_strategy_low_node_utilization_dict['pods_target_threshold'] }}

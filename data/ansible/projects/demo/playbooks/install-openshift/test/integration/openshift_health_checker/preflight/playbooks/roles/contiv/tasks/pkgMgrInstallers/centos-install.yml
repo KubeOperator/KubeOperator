@@ -1,0 +1,39 @@
+---
+- name: PkgMgr RHEL/CentOS | Install net-tools pkg for route
+  yum:
+    pkg=net-tools
+    state=latest
+  register: result
+  until: result is succeeded
+
+- name: PkgMgr RHEL/CentOS | Get openstack ocata rpm
+  get_url:
+    url: https://repos.fedorapeople.org/repos/openstack/openstack-ocata/rdo-release-ocata-2.noarch.rpm
+    dest: /tmp/rdo-release-ocata-2.noarch.rpm
+    validate_certs: False
+  environment:
+    http_proxy: "{{ contiv_http_proxy|default('') }}"
+    https_proxy: "{{ contiv_https_proxy|default('') }}"
+    no_proxy: "{{ contiv_no_proxy|default('') }}"
+  tags:
+    - ovs_install
+
+- name: PkgMgr RHEL/CentOS | Install openstack ocata rpm
+  yum: name=/tmp/rdo-release-ocata-2.noarch.rpm state=present
+  tags:
+    - ovs_install
+  register: result
+  until: result is succeeded
+
+- name: PkgMgr RHEL/CentOS | Install ovs
+  yum:
+    pkg=openvswitch
+    state=present
+  environment:
+    http_proxy: "{{ contiv_http_proxy|default('') }}"
+    https_proxy: "{{ contiv_https_proxy|default('') }}"
+    no_proxy: "{{ contiv_no_proxy|default('') }}"
+  tags:
+    - ovs_install
+  register: result
+  until: result is succeeded

@@ -1,0 +1,113 @@
+apiVersion: "v1"
+kind: "DeploymentConfig"
+metadata:
+  name: "{{deploy_name}}"
+  labels:
+    provider: openshift
+    component: "{{component}}"
+    logging-infra: "{{logging_component}}"
+spec:
+  replicas: {{curator_replicas|default(1)}}
+  selector:
+    provider: openshift
+    component: "{{component}}"
+    logging-infra: "{{logging_component}}"
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Recreate
+  template:
+    metadata:
+      name: "{{deploy_name}}"
+      labels:
+        logging-infra: "{{logging_component}}"
+        provider: openshift
+        component: "{{component}}"
+    spec:
+      terminationGracePeriod: 600
+      serviceAccountName: aggregated-logging-curator
+{% if curator_node_selector is iterable and curator_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in curator_node_selector.items() %}
+        {{key}}: "{{value}}"
+{% endfor %}
+{% endif %}
+      containers:
+        -
+          name: "curator"
+          image: "{{ openshift_logging_curator_image }}"
+          imagePullPolicy: IfNotPresent
+{% if (curator_memory_limit is defined and curator_memory_limit is not none and curator_memory_limit != "") or (curator_cpu_limit is defined and curator_cpu_limit is not none and curator_cpu_limit != "") or (curator_cpu_request is defined and curator_cpu_request is not none and curator_cpu_request != "") %}
+          resources:
+{%   if (curator_memory_limit is defined and curator_memory_limit is not none and curator_memory_limit != "") or (curator_cpu_limit is defined and curator_cpu_limit is not none and curator_cpu_limit != "") %}
+            limits:
+{%     if curator_cpu_limit is defined and curator_cpu_limit is not none and curator_cpu_limit != "" %}
+              cpu: "{{curator_cpu_limit}}"
+{%     endif %}
+{%     if curator_memory_limit is defined and curator_memory_limit is not none and curator_memory_limit != "" %}
+              memory: "{{curator_memory_limit}}"
+{%     endif %}
+{%   endif %}
+{%   if (curator_memory_limit is defined and curator_memory_limit is not none and curator_memory_limit != "") or (curator_cpu_request is defined and curator_cpu_request is not none and curator_cpu_request != "") %}
+            requests:
+{%     if curator_cpu_request is defined and curator_cpu_request is not none and curator_cpu_request != "" %}
+              cpu: "{{curator_cpu_request}}"
+{%     endif %}
+{%     if curator_memory_limit is defined and curator_memory_limit is not none and curator_memory_limit != "" %}
+              memory: "{{curator_memory_limit}}"
+{%     endif %}
+{%   endif %}
+{% endif %}
+          env:
+            -
+              name: "K8S_HOST_URL"
+              value: "{{openshift_logging_curator_master_url}}"
+            -
+              name: "ES_HOST"
+              value: "{{es_host}}"
+            -
+              name: "ES_PORT"
+              value: "{{es_port}}"
+            -
+              name: "ES_CLIENT_CERT"
+              value: "/etc/curator/keys/cert"
+            -
+              name: "ES_CLIENT_KEY"
+              value: "/etc/curator/keys/key"
+            -
+              name: "ES_CA"
+              value: "/etc/curator/keys/ca"
+            -
+              name: "CURATOR_DEFAULT_DAYS"
+              value: "{{openshift_logging_curator_default_days}}"
+            -
+              name: "CURATOR_RUN_HOUR"
+              value: "{{openshift_logging_curator_run_hour}}"
+            -
+              name: "CURATOR_RUN_MINUTE"
+              value: "{{openshift_logging_curator_run_minute}}"
+            -
+              name: "CURATOR_RUN_TIMEZONE"
+              value: "{{openshift_logging_curator_run_timezone}}"
+            -
+              name: "CURATOR_SCRIPT_LOG_LEVEL"
+              value: "{{openshift_logging_curator_script_log_level}}"
+            -
+              name: "CURATOR_LOG_LEVEL"
+              value: "{{openshift_logging_curator_log_level}}"
+          volumeMounts:
+            - name: certs
+              mountPath: /etc/curator/keys
+              readOnly: true
+            - name: config
+              mountPath: /etc/curator/settings
+              readOnly: true
+      volumes:
+        - name: certs
+          secret:
+            secretName: logging-curator
+        - name: config
+          configMap:
+            name: logging-curator

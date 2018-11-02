@@ -1,0 +1,91 @@
+---
+# Kuryr conf directory
+kuryr_config_dir: /etc/kuryr
+
+# Kuryr username
+kuryr_openstack_username: kuryr
+
+# Kuryr domain name or id containing user
+kuryr_openstack_user_domain_name: default
+
+# Kuryr domain name or id containing project
+kuryr_openstack_project_domain_name: default
+
+# Kuryr OpenShift namespace
+kuryr_namespace: openshift-infra
+
+# Kuryr health check server port
+kuryr_controller_healthcheck_port: 8082
+kuryr_cni_healthcheck_port: 8090
+
+
+# Whether to run the cni plugin in debug mode
+kuryr_cni_debug: "false"
+
+# Default pod-in-VM link interface
+kuryr_cni_link_interface: eth0
+
+# The version of cni binaries
+cni_version: v0.5.2
+
+# Path to bin dir (where kuryr execs get installed)
+bin_dir: /usr/bin
+
+# Default controller and CNI images
+openshift_openstack_kuryr_controller_image: kuryr/controller:latest
+openshift_openstack_kuryr_cni_image: kuryr/cni:latest
+
+# Enable kuryr ports pool by default
+kuryr_openstack_pool_driver: nested
+
+# Enable kuryr healthchecks probes by default
+enable_kuryr_controller_probes: True
+enable_kuryr_cni_probes: True
+
+# Path to the cni binaries
+cni_bin_dir: /opt/cni/bin
+
+# URL for cni binaries
+cni_bin_url_base: "https://github.com/containernetworking/cni/releases/download/"
+cni_bin_url: "{{ cni_bin_url_base }}/{{ cni_version }}/cni-{{ cni_version }}.tgz"
+cni_bin_checksum: "71f411080245aa14d0cc06f6824e8039607dd9e9"
+
+# Kuryr ClusterRole definition
+kuryr_clusterrole:
+  name: kuryrctl
+  state: present
+  rules:
+    - apiGroups:
+        - ""
+      attributeRestrictions: null
+      verbs:
+        - get
+        - list
+        - watch
+      resources:
+        - daemonsets
+        - deployments
+        - deploymentconfigs
+        - endpoints
+        - ingress
+        - nodes
+        - namespaces
+        - pods
+        - projects
+        - routes
+        - services
+    - apiGroups:
+        - ""
+      attributeRestrictions: null
+      verbs:
+        - update
+        - patch
+      resources:
+        - endpoints
+        - ingress
+        - pods
+        - namespaces
+        - nodes
+        - services
+        - services/status
+        - routes

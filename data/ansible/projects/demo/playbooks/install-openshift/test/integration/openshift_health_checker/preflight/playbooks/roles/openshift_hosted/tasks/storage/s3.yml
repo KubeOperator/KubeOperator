@@ -1,0 +1,45 @@
+---
+- name: Assert that S3 variables are provided for registry_config template
+  assert:
+    that:
+    - openshift_hosted_registry_storage_s3_bucket | default(none) is not none
+    - openshift_hosted_registry_storage_s3_region | default(none) is not none
+    msg: |
+      When using S3 storage, the following variables are required:
+        openshift_hosted_registry_storage_s3_bucket
+        openshift_hosted_registry_storage_s3_region
+
+- name: If cloudfront is being used, assert that we have all the required variables
+  assert:
+    that:
+    - "openshift_hosted_registry_storage_s3_cloudfront_privatekeyfile | default(none) is not none"
+    - "openshift_hosted_registry_storage_s3_cloudfront_keypairid | default(none) is not none"
+    msg: |
+      When openshift_hosted_registry_storage_s3_cloudfront_baseurl is provided
+        openshift_hosted_registry_storage_s3_cloudfront_keypairid and
+        openshift_hosted_registry_storage_s3_cloudfront_privatekeyfile are required
+  when: openshift_hosted_registry_storage_s3_cloudfront_baseurl is defined
+
+# Inject the cloudfront private key as a secret when required
+- block:
+
+  - name: Create registry secret for cloudfront
+    oc_secret:
+      state: present
+      namespace: "{{ openshift_hosted_registry_namespace }}"
+      name: docker-registry-s3-cloudfront
+      contents:
+      - path: cloudfront.pem
+        data: "{{ lookup('file', openshift_hosted_registry_storage_s3_cloudfront_privatekeyfile) }}"
+
+  - name: Append cloudfront secret registry volume to openshift_hosted_registry_volumes
+    set_fact:
+      openshift_hosted_registry_volumes: "{{ openshift_hosted_registry_volumes | union(s3_volume_mount) }}"
+    vars:
+      s3_volume_mount:
+      - name: cloudfront-vol
+        path: /etc/origin
+        type: secret
+        secret_name: docker-registry-s3-cloudfront
+
+  when: openshift_hosted_registry_storage_s3_cloudfront_baseurl | default(none) is not none

@@ -1,0 +1,17 @@
+---
+- name: Netplugin Firewalld | Add internal rules
+  firewalld:
+    immediate: true
+    permanent: true
+    port: "{{ item[0] }}"
+    source: "{{ item[1] }}"
+  with_nested:
+    - "{{ contiv_netplugin_internal }}"
+    - "{{ groups.oo_nodes_to_config|difference(hostvars[inventory_hostname]['ansible_' + contiv_netmaster_interface].ipv4.address)|list }}"
+
+- name: Netplugin Firewalld | Add dns rule
+  firewalld:
+    immediate: true
+    permanent: true
+    port: "53/udp"
+    interface: contivh0

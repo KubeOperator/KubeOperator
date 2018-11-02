@@ -1,0 +1,71 @@
+---
+- name: Default network | Wait for netmaster
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" tenant ls'
+  register: tenant_result
+  until: tenant_result.stdout.find("default") != -1
+  retries: 9
+  delay: 10
+
+- name: Default network | Set globals
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" global set --fabric-mode {{ contiv_fabric_mode }} --vlan-range {{ contiv_vlan_range }} --fwd-mode {{ contiv_netplugin_fwd_mode }} --private-subnet {{ contiv_private_ext_subnet }}'
+  run_once: true
+
+- name: Default network | Set arp mode to flood if ACI
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" global set --arp-mode flood'
+  when: contiv_fabric_mode == "aci"
+  run_once: true
+
+- name: Default network | Check if default-net exists
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" net ls'
+  register: net_result
+  run_once: true
+
+- name: Default network | Create default-net
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" net create --subnet={{ contiv_default_subnet }} -e {{ contiv_encap_mode }} -p {{ contiv_default_network_tag }} --gateway {{ contiv_default_gw }} default-net'
+  when: net_result.stdout.find("default-net") == -1
+  run_once: true
+
+- name: Default network | Create host access infra network for VxLan routing case
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" net create --subnet={{ contiv_h1_subnet_default }} --gateway={{ contiv_h1_gw_default }} --nw-type="infra" contivh1'
+  when: (contiv_encap_mode == "vxlan") and (contiv_netplugin_fwd_mode == "routing")
+  run_once: true
+
+#- name: Default network | Create an allow-all policy for the default-group
+#  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" policy create ose-allow-all-policy'
+#  when: contiv_fabric_mode == "aci"
+#  run_once: true
+
+- name: Default network | Set up aci external contract to consume default external contract
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" external-contracts create -c -a {{ contiv_apic_default_external_contract }} oseExtToConsume'
+  when: (contiv_fabric_mode == "aci") and (apic_configure_default_policy == true)
+  run_once: true
+
+- name: Default network | Set up aci external contract to provide default external contract
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" external-contracts create -p -a {{ contiv_apic_default_external_contract }} oseExtToProvide'
+  when: (contiv_fabric_mode == "aci") and (apic_configure_default_policy == true)
+  run_once: true
+
+- name: Default network | Create aci default-group
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" group create default-net default-group'
+  when: contiv_fabric_mode == "aci"
+  run_once: true
+
+- name: Default network | Add external contracts to the default-group
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" group create -e oseExtToConsume -e oseExtToProvide default-net default-group'
+  when: (contiv_fabric_mode == "aci") and (apic_configure_default_policy == true)
+  run_once: true
+
+#- name: Default network | Add policy rule 1 for allow-all policy
+#  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" policy rule-add -d in --action allow ose-allow-all-policy 1'
+#  when: contiv_fabric_mode == "aci"
+#  run_once: true
+
+#- name: Default network | Add policy rule 2 for allow-all policy
+#  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" policy rule-add -d out --action allow ose-allow-all-policy 2'
+#  when: contiv_fabric_mode == "aci"
+#  run_once: true
+
+- name: Default network | Create default aci app profile
+  command: 'netctl --netmaster "http://{{ inventory_hostname }}:{{ contiv_netmaster_port }}" app-profile create -g default-group {{ contiv_apic_default_app_profile }}'
+  when: contiv_fabric_mode == "aci"
+  run_once: true

@@ -1,0 +1,167 @@
+---
+# openshift_master_defaults_in_use is a workaround to detect if we are consuming
+# the plays from the role or outside of the role.
+openshift_master_defaults_in_use: True
+openshift_master_debug_level: "{{ debug_level | default(2) }}"
+
+r_openshift_master_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_openshift_master_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+openshift_imageconfig_format: "{{ oreg_url_master | default(oreg_url) | default(l_osm_registry_url_default) }}"
+
+l_osm_id_providers_dict:
+  openshift-enterprise:
+  - name: 'deny_all'
+    challenge: True
+    login: True
+    kind: 'DenyAllPasswordIdentityProvider'
+  origin:
+  - name: 'allow_all'
+    challenge: True
+    login: True
+    kind: 'AllowAllPasswordIdentityProvider'
+
+openshift_master_identity_providers: "{{ l_osm_id_providers_dict[openshift_deployment_type] }}"
+
+l_osm_disabled_features: "{{ openshift_deployment_subtype == 'registry' | bool }}"
+l_osm_disabled_features_list:
+- Builder
+- S2IBuilder
+- WebConsole
+
+
+openshift_master_dns_port: 8053
+osm_project_request_template: ''
+osm_mcs_allocator_range: 's0:/2'
+osm_mcs_labels_per_project: 5
+osm_uid_allocator_range: '1000000000-1999999999/10000'
+osm_project_request_message: ''
+
+openshift_node_ips: []
+r_openshift_master_clean_install: false
+r_openshift_master_os_firewall_enable: true
+r_openshift_master_os_firewall_deny: []
+default_r_openshift_master_os_firewall_allow:
+- service: api server https
+  port: "{{ openshift_master_api_port }}/tcp"
+- service: api controllers https
+  port: "{{ openshift.master.controllers_port }}/tcp"
+- service: skydns tcp
+  port: "{{ openshift_master_dns_port }}/tcp"
+- service: skydns udp
+  port: "{{ openshift_master_dns_port }}/udp"
+r_openshift_master_os_firewall_allow: "{{ default_r_openshift_master_os_firewall_allow | union(openshift_master_open_ports | default([])) }}"
+
+# oreg_url is defined by user input
+oreg_host: "{{ oreg_url.split('/')[0] if (oreg_url is defined and '.' in oreg_url.split('/')[0]) else '' }}"
+oreg_auth_credentials_path: "{{ r_openshift_master_data_dir }}/.docker"
+oreg_auth_credentials_replace: False
+openshift_docker_alternative_creds: "{{ openshift_use_crio_only | bool }}"
+
+containerized_svc_dir: "/usr/lib/systemd/system"
+ha_svc_template_path: "native-cluster"
+
+openshift_docker_service_name: "docker"
+
+openshift_master_loopback_config: "/etc/origin/master/openshift-master.kubeconfig"
+loopback_context_string: "current-context: {{ openshift.master.loopback_context_name }}"
+openshift_master_policy: "/etc/origin/master/policy.json"
+
+scheduler_config:
+  kind: Policy
+  apiVersion: v1
+  predicates: "{{ openshift_master_scheduler_predicates
+                  | default(openshift_master_scheduler_current_predicates
+                            | default(openshift_master_scheduler_default_predicates)) }}"
+  priorities: "{{ openshift_master_scheduler_priorities
+                  | default(openshift_master_scheduler_current_priorities
+                            | default(openshift_master_scheduler_default_priorities)) }}"
+
+openshift_master_valid_grant_methods:
+- auto
+- prompt
+- deny
+
+openshift_master_is_scaleup_host: False
+
+# openshift_master_oauth_template is deprecated.  Should be added to deprecations
+# and removed.
+openshift_master_oauth_template: False
+openshift_master_oauth_templates_default:
+  login: "{{ openshift_master_oauth_template }}"
+openshift_master_oauth_templates: "{{ openshift_master_oauth_template | ternary(openshift_master_oauth_templates_default, False) }}"
+# Here we combine openshift_master_oath_template into 'login' key of openshift_master_oath_templates, if not present.
+l_openshift_master_oauth_templates: "{{ openshift_master_oauth_templates | default(openshift_master_oauth_templates_default) }}"
+
+# NOTE
+# r_openshift_master_*_default may be defined external to this role.
+# openshift_use_*, if defined, may affect other roles or play behavior.
+r_openshift_master_use_openshift_sdn_default: "{{ openshift_use_openshift_sdn | default(True) }}"
+r_openshift_master_use_openshift_sdn: "{{ r_openshift_master_use_openshift_sdn_default }}"
+
+r_openshift_master_use_nuage_default: "{{ openshift_use_nuage | default(False) }}"
+r_openshift_master_use_nuage: "{{ r_openshift_master_use_nuage_default }}"
+
+r_openshift_master_use_contiv_default: "{{ openshift_use_contiv | default(False) }}"
+r_openshift_master_use_contiv: "{{ r_openshift_master_use_contiv_default }}"
+
+r_openshift_master_use_kuryr_default: "{{ openshift_use_kuryr | default(False) }}"
+r_openshift_master_use_kuryr: "{{ r_openshift_master_use_kuryr_default }}"
+
+r_openshift_master_data_dir_default: "{{ openshift_data_dir | default('/var/lib/origin') }}"
+r_openshift_master_data_dir: "{{ r_openshift_master_data_dir_default }}"
+
+r_openshift_master_sdn_network_plugin_name_default: "{{ os_sdn_network_plugin_name }}"
+r_openshift_master_sdn_network_plugin_name: "{{ r_openshift_master_sdn_network_plugin_name_default }}"
+
+openshift_master_use_persistentlocalvolumes: "{{ openshift_persistentlocalstorage_enabled | default(False) | bool }}"
+
+openshift_master_image_config_latest_default: "{{ openshift_image_config_latest | default(False) }}"
+openshift_master_image_config_latest: "{{ openshift_master_image_config_latest_default }}"
+
+openshift_master_csr_sa: node-bootstrapper
+openshift_master_csr_namespace: openshift-infra
+
+l_osm_sess_auth_def: "{{ hostvars[groups.oo_first_master.0]['l_osm_session_auth_secrets'] }}"
+l_osm_session_auth_secrets: "{{ openshift_master_session_auth_secrets | default(l_osm_sess_auth_def) }}"
+
+l_osm_sess_encrypt_def: "{{ hostvars[groups.oo_first_master.0]['l_osm_session_encryption_secrets'] }}"
+l_osm_session_encryption_secrets: "{{ openshift_master_session_encryption_secrets | default(l_osm_sess_encrypt_def) }}"
+
+openshift_master_access_token_max_seconds: 86400
+openshift_master_auth_token_max_seconds: 500
+
+# oo_htpasswd_users_from_file is a custom filter in role lib_utils
+l_osm_htpasswd_users_none: {}
+openshift_master_htpasswd_users: "{{ lookup('file', openshift_master_htpasswd_file) | oo_htpasswd_users_from_file if openshift_master_htpasswd_file is defined else l_osm_htpasswd_users_none }}"
+l_osm_request_header_none: {}
+openshift_master_request_header_ca: "{{ lookup('file', openshift_master_request_header_ca_file) if openshift_master_request_header_ca_file is defined else l_osm_request_header_none }}"
+openshift_master_oauth_grant_method: auto
+openshift_master_dynamic_provisioning_enabled: True
+openshift_master_max_requests_inflight: 500
+openshift_master_embedded_dns: True
+openshift_master_embedded_kube: True
+openshift_master_pod_eviction_timeout: ""
+
+# TODO(michaelgugino): Remove in 3.11
+l_new_config_clusterNetworks:
+- cidr: "{{ openshift_cluster_network_cidr }}"
+  hostSubnetLength: "{{ openshift_host_subnet_length }}"
+
+# added so that it can lay down the static pod definitions in a configurable place
+openshift_control_plane_static_pod_location: /etc/origin/node/pods/
+openshift_control_plane_apply_cluster_signing_config: True
+
+l_core_api_list:
+- "apps.openshift.io"
+- "authorization.openshift.io"
+- "build.openshift.io"
+- "image.openshift.io"
+- "network.openshift.io"
+- "oauth.openshift.io"
+- "project.openshift.io"
+- "quota.openshift.io"
+- "route.openshift.io"
+- "security.openshift.io"
+- "template.openshift.io"
+- "user.openshift.io"

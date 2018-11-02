@@ -1,0 +1,70 @@
+---
+- name: Create local temp dir for registry-console template
+  command: mktemp -d /tmp/openshift-ansible-XXXXXXX
+  register: mktemp
+  # AUDIT:changed_when: not set here because this task actually
+  # creates something
+
+- name: Copy the admin client config(s)
+  command: >
+    cp {{ openshift.common.config_base }}/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: False
+
+- name: Copy registry-console template to tmp dir
+  copy:
+    src: "registry-console.yaml"
+    dest: "{{ mktemp.stdout }}/registry-console.yaml"
+
+- name: Create registry-console template
+  command: >
+    {{ openshift_client_binary }} apply
+    -f {{ mktemp.stdout }}/registry-console.yaml
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    -n openshift
+  register: oht_import_templates
+  failed_when: "'already exists' not in oht_import_templates.stderr and oht_import_templates.rc != 0"
+  changed_when: "'created' in oht_import_templates.stdout"
+
+# When openshift_hosted_manage_registry=true the openshift_hosted
+# role will create the appropriate route for the docker-registry.
+# When openshift_hosted_manage_registry=false then this code will
+# not be run.
+- name: fetch the docker-registry route
+  oc_route:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    name: docker-registry
+    namespace: default
+    state: list
+  register: docker_registry_route
+
+- name: Create passthrough route for registry-console
+  oc_route:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    name: registry-console
+    namespace: default
+    service_name: registry-console
+    state: present
+    tls_termination: passthrough
+  register: registry_console_cockpit_kube
+
+- name: Deploy registry-console
+  shell: >
+    {{ openshift_client_binary }} process openshift//registry-console
+    -p IMAGE_NAME="{{ openshift_cockpit_deployer_image }}"
+    -p OPENSHIFT_OAUTH_PROVIDER_URL="{{ openshift.master.public_api_url }}"
+    -p REGISTRY_HOST="{{ docker_registry_route.results[0].spec.host }}"
+    -p COCKPIT_KUBE_URL="https://{{ registry_console_cockpit_kube.results.results[0].spec.host }}"
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    -n default
+    | {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+  register: deploy_registry_console
+  changed_when: "'already exists' not in deploy_registry_console.stderr"
+  failed_when:
+  - "'already exists' not in deploy_registry_console.stderr"
+  - "deploy_registry_console.rc != 0"
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

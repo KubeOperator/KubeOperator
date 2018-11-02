@@ -1,0 +1,135 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_service
+short_description: Create, modify, and idempotently manage openshift services.
+description:
+  - Manage openshift service objects programmatically.
+options:
+  state:
+    description:
+    - State represents whether to create, modify, delete, or list
+    required: False
+    default: present
+    choices: ["present", "absent", "list"]
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  name:
+    description:
+    - Name of the object that is being queried.
+    required: false
+    default: None
+    aliases: []
+  namespace:
+    description:
+    - The namespace where the object lives.
+    required: false
+    default: default
+    aliases: []
+  annotations:
+    description:
+    - Annotations to apply to the object
+    required: false
+    default: None
+    aliases: []
+  selector:
+    description:
+    - The selector to apply when filtering for services.
+    required: false
+    default: None
+    aliases: []
+  labels:
+    description:
+    - The labels to apply on the service.
+    required: false
+    default: None
+    aliases: []
+  clusterip:
+    description:
+    - The cluster ip address to use with this service.
+    required: false
+    default: None
+    aliases: []
+  portalip:
+    description:
+    - The portal ip(virtual ip) address to use with this service.
+    - "https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/pods_and_services.html#services"
+    required: false
+    default: None
+    aliases: []
+  ports:
+    description:
+    - A list of the ports that are used for this service.  This includes name, port, protocol, and targetPort.
+    - See examples.
+    required: false
+    default: None
+    aliases: []
+  session_affinity:
+    description:
+    - The type of session affinity to use.
+    required: false
+    default: 'None'
+    aliases: []
+  service_type:
+    description:
+    - The type of service desired.  Each option tells the service to behave accordingly.
+    - https://kubernetes.io/docs/user-guide/services/
+    required: false
+    default: ClusterIP
+    choices:
+    - ClusterIP
+    - NodePort
+    - LoadBalancer
+    - ExternalName
+    aliases: []
+  externalips:
+    description:
+    - A list of the external IPs that are exposed for this service.
+    - https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
+    required: false
+    default: None
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: get docker-registry service
+  run_once: true
+  oc_service:
+    namespace: default
+    name: docker-registry
+    state: list
+  register: registry_service_out
+
+- name: create the docker-registry service
+  oc_service:
+    namespace: default
+    name: docker-registry
+    ports:
+    - name: 5000-tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+    selector:
+      docker-registry: default
+    session_affinity: ClientIP
+    service_type: ClusterIP
+  register: svc_out
+  notify:
+  - restart openshift master services
+'''

@@ -1,0 +1,32 @@
+---
+- name: stop metrics
+  include_tasks: stop_metrics.yaml
+
+- name: remove metrics components
+  command: >
+    {{ openshift_client_binary }} -n {{ openshift_metrics_project }} --config={{ mktemp.stdout }}/admin.kubeconfig
+    delete --ignore-not-found --selector=metrics-infra
+    all,sa,secrets,templates,routes,pvc,rolebindings,clusterrolebindings,clusterrole
+  register: delete_metrics
+  changed_when: delete_metrics.stdout != 'No resources found'
+
+- name: remove rolebindings
+  command: >
+    {{ openshift_client_binary }} -n {{ openshift_metrics_project }} --config={{ mktemp.stdout }}/admin.kubeconfig
+    delete --ignore-not-found
+    rolebinding/hawkular-view
+    clusterrolebinding/heapster-cluster-reader
+    clusterrolebinding/hawkular-metrics
+  changed_when: delete_metrics.stdout != 'No resources found'
+
+# Update the web config in openshift-web-console namespace
+- name: Remove metrics route information from the web console config
+  include_role:
+    name: openshift_web_console
+    tasks_from: update_console_config.yml
+  vars:
+    console_config_edits:
+      - key: clusterInfo#metricsPublicURL
+        value: ""
+  when:
+    - openshift_web_console_install | default(true) | bool

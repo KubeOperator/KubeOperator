@@ -1,0 +1,39 @@
+---
+- name: Install dnsmasq configuration
+  template:
+    src: origin-dns.conf.j2
+    dest: /etc/dnsmasq.d/origin-dns.conf
+  notify: restart dnsmasq
+
+- name: Deploy additional dnsmasq.conf
+  template:
+    src: "{{ openshift_node_dnsmasq_additional_config_file }}"
+    dest: /etc/dnsmasq.d/openshift-ansible.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: openshift_node_dnsmasq_additional_config_file is defined
+  notify: restart dnsmasq
+
+- name: Create override dnsmasq systemd unit directory
+  file:
+    path: /etc/systemd/system/dnsmasq.service.d
+    state: directory
+
+- name: Copy systemd dnsmasq unit override file
+  copy:
+    src: override.conf
+    dest: /etc/systemd/system/dnsmasq.service.d/override.conf
+  notify:
+    - reload systemd units
+    - restart dnsmasq
+
+- name: Enable dnsmasq
+  systemd:
+    name: dnsmasq
+    enabled: yes
+    state: started
+
+# Dynamic NetworkManager based dispatcher
+- import_tasks: dnsmasq/network-manager.yml
+  when: network_manager_active | bool

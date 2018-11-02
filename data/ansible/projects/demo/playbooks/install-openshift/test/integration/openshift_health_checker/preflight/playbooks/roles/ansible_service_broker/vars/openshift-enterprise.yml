@@ -1,0 +1,10 @@
+---
+__ansible_service_broker_registry_type: rhcc
+__ansible_service_broker_registry_name: rh
+__ansible_service_broker_registry_url: "https://registry.access.redhat.com"
+__ansible_service_broker_registry_user: null
+__ansible_service_broker_registry_password: null
+__ansible_service_broker_registry_organization: null
+__ansible_service_broker_registry_tag: "{{ openshift_image_tag }}"
+__ansible_service_broker_registry_whitelist:
+  - '.*-apb$'

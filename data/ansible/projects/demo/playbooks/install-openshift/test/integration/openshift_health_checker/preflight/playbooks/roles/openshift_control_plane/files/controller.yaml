@@ -1,0 +1,58 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: master-controllers
+  namespace: kube-system
+  labels:
+    openshift.io/control-plane: "true"
+    openshift.io/component: controllers
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+spec:
+  restartPolicy: Always
+  hostNetwork: true
+  containers:
+  - name: controllers
+    image: docker.io/openshift/origin:v3.10.0
+    command: ["/bin/bash", "-c"]
+    args:
+    - |
+      #!/bin/bash
+      set -euo pipefail
+      if [[ -f /etc/origin/master/master.env ]]; then
+        set -o allexport
+        source /etc/origin/master/master.env
+      fi
+      exec openshift start master controllers --config=/etc/origin/master/master-config.yaml --listen=https://0.0.0.0:8444 --loglevel=${DEBUG_LOGLEVEL:-2}
+    securityContext:
+      privileged: true
+    volumeMounts:
+     - mountPath: /etc/origin/master/
+       name: master-config
+     - mountPath: /etc/origin/cloudprovider/
+       name: master-cloud-provider
+     - mountPath: /etc/containers/registries.d/
+       name: signature-import
+     - mountPath: /usr/libexec/kubernetes/kubelet-plugins
+       name: kubelet-plugins
+       mountPropagation: "HostToContainer"
+    livenessProbe:
+      httpGet:
+        scheme: HTTPS
+        port: 8444
+        path: healthz
+  # second controllers container would be started here
+  # scheduler container started here
+  volumes:
+  - name: master-config
+    hostPath:
+      path: /etc/origin/master/
+  - name: master-cloud-provider
+    hostPath:
+      path: /etc/origin/cloudprovider
+  - hostPath:
+      path: /etc/containers/registries.d
+    name: signature-import
+  - name: kubelet-plugins
+    hostPath:
+      path: /usr/libexec/kubernetes/kubelet-plugins

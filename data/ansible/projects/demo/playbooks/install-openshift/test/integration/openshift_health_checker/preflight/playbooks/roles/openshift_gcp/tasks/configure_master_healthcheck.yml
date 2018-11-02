@@ -1,0 +1,19 @@
+---
+- name: refresh yum cache
+  command: yum clean all
+  args:
+    warn: no
+  when: ansible_os_family == "RedHat"
+
+- name: install haproxy
+  package: name=haproxy state=present
+  register: result
+  until: result is succeeded
+  retries: 10
+  delay: 10
+
+- name: configure haproxy
+  template: src=master_healthcheck.j2 dest=/etc/haproxy/haproxy.cfg
+
+- name: start and enable haproxy service
+  service: name=haproxy state=started enabled=yes

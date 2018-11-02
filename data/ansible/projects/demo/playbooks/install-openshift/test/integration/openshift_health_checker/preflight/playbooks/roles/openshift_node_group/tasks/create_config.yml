@@ -1,0 +1,108 @@
+---
+# This file is looped over, must use include_tasks, not import_tasks
+- include_tasks: fetch_config.yml
+
+
+- name: create a temp dir for this work
+  command: mktemp -d /tmp/openshift_node_config-XXXXXX
+  register: mktempout
+  run_once: true
+
+- name: create node config template
+  template:
+    src: node-config.yaml.j2
+    dest: "{{ mktempout.stdout }}/node-config.yaml"
+  when:
+  - configout.results.results.0 == {}
+  run_once: true
+
+- name: lay down the config from the existing configmap
+  copy:
+    content: "{{ configout.results.results.0.data['node-config.yaml'] }}"
+    dest: "{{ mktempout.stdout }}/node-config.yaml"
+  when:
+  - configout.results.results.0 != {}
+  run_once: true
+
+- name: "specialize the generated configs for {{ l_openshift_node_group_name }}"
+  yedit:
+    content:
+    src: "{{ mktempout.stdout }}/node-config.yaml"
+    edits: "{{ l_openshift_node_group_all_edits }}"
+  register: yeditout
+  run_once: true
+  vars:
+    l_openshift_node_group_all_edits: "{{ l_openshift_node_group_edits | union(openshift_node_labels_edit) }}"
+  when: l_openshift_node_group_all_edits != []
+
+- name: show the yeditout debug var
+  debug:
+    var: yeditout
+  run_once: true
+
+- name: create volume config template
+  template:
+    src: volume-config.yaml.j2
+    dest: "{{ mktempout.stdout }}/volume-config.yaml"
+  when:
+  - "'data' not in configout['results']['results'][0] or 'volume-config.yaml' not in configout['results']['results'][0]['data']"
+  - l_openshift_node_group_name != ""
+  - openshift_node_local_quota_per_fsgroup is defined
+  - openshift_node_local_quota_per_fsgroup != ""
+  run_once: true
+
+- name: lay down the volume config from the existing configmap
+  copy:
+    content: "{{ configout.results.results.0.data['volume-config.yaml'] }}"
+    dest: "{{ mktempout.stdout }}/volume-config.yaml"
+  when:
+  - "'data' in configout['results']['results'][0]"
+  - "'volume-config.yaml' in configout['results']['results'][0]['data']"
+  - l_openshift_node_group_name != ""
+  - openshift_node_local_quota_per_fsgroup is defined
+  - openshift_node_local_quota_per_fsgroup != ""
+  run_once: true
+
+- name: "specialize the volume config for {{ l_openshift_node_group_name }}"
+  yedit:
+    content:
+    src: "{{ mktempout.stdout }}/volume-config.yaml"
+    key: localQuota.perFSGroup
+    value: "{{ openshift_node_local_quota_per_fsgroup }}"
+  register: volume_yeditout
+  when:
+  - openshift_node_local_quota_per_fsgroup is defined
+  - openshift_node_local_quota_per_fsgroup != ""
+  run_once: true
+
+- name: show the volume_yeditout debug var
+  debug:
+    var: volume_yeditout
+  run_once: true
+
+- name: create node-config.yaml configmap
+  oc_configmap:
+    name: "{{ l_openshift_node_group_name }}"
+    namespace: "{{ openshift_node_group_namespace }}"
+    from_file:
+      node-config.yaml: "{{ mktempout.stdout }}/node-config.yaml"
+  when:
+  - openshift_node_local_quota_per_fsgroup is undefined or openshift_node_local_quota_per_fsgroup == ""
+  run_once: true
+
+- name: create node-config.yaml and volume-config.yaml configmap
+  oc_configmap:
+    name: "{{ l_openshift_node_group_name }}"
+    namespace: "{{ openshift_node_group_namespace }}"
+    from_file:
+      node-config.yaml: "{{ mktempout.stdout }}/node-config.yaml"
+      volume-config.yaml: "{{ mktempout.stdout }}/volume-config.yaml"
+  when:
+  - openshift_node_local_quota_per_fsgroup is defined and openshift_node_local_quota_per_fsgroup != ""
+  run_once: true
+
+- name: remove templated files
+  file:
+    dest: "{{ mktempout.stdout }}/"
+    state: absent
+  run_once: true

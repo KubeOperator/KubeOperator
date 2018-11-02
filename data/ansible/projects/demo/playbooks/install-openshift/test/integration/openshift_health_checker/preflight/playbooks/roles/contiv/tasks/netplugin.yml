@@ -1,0 +1,129 @@
+---
+- include_tasks: netplugin_firewalld.yml
+  when: contiv_has_firewalld
+
+- include_tasks: netplugin_iptables.yml
+  when: not contiv_has_firewalld and contiv_has_iptables
+
+- name: Netplugin | Ensure localhost entry correct in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.0\.1.*'
+    line: '127.0.0.1 localhost {{ ansible_hostname }}'
+    state: present
+
+- name: Netplugin | Remove incorrect localhost entry in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^::1. localhost '
+    line: '::1 '
+    state: absent
+
+- include_tasks: ovs.yml
+  when: contiv_netplugin_driver == "ovs"
+
+- name: Netplugin | Create Netplugin bin symlink
+  file:
+    src: "{{ contiv_current_release_directory }}/netplugin"
+    dest: "{{ contiv_bin_dir }}/netplugin"
+    state: link
+    force: yes
+
+- name: Netplugin | Ensure contiv_cni_bin_dir exists
+  file:
+    path: "{{ contiv_cni_bin_dir }}"
+    recurse: yes
+    state: directory
+
+- name: Netplugin | Create CNI bin symlink
+  file:
+    src: "{{ contiv_current_release_directory }}/contivk8s"
+    dest: "{{ contiv_cni_bin_dir }}/contivk8s"
+    state: link
+    force: yes
+
+- name: Netplugin | Copy CNI loopback bin
+  copy:
+    src: "{{ contiv_cni_download_dir }}/loopback"
+    dest: "{{ contiv_cni_bin_dir }}/loopback"
+    remote_src: True
+    mode: 0755
+
+- name: Netplugin | Ensure contiv_kube_plugin_dir and cni/net.d directories exist
+  file:
+    path: "{{ item }}"
+    recurse: yes
+    state: directory
+  with_items:
+    - "{{ contiv_kube_plugin_dir }}"
+    - "/etc/cni/net.d"
+
+- name: Netplugin | Ensure contiv_config_dir exists
+  file:
+    path: "{{ contiv_config_dir }}"
+    recurse: yes
+    state: directory
+
+- name: Netplugin | Copy contiv_cni.conf file
+  copy:
+    src: contiv_cni.conf
+    dest: "{{ item }}"
+  with_items:
+    - "{{ contiv_kube_plugin_dir }}/contiv_cni.conf"
+    - "/etc/cni/net.d"
+# notify: restart kubelet
+
+- name: Netplugin | Setup contiv.json config for the cni plugin
+  template:
+    src: contiv.cfg.j2
+    dest: "{{ contiv_config_dir }}/contiv.json"
+  notify: restart netplugin
+
+- name: Netplugin | Copy environment file for netplugin
+  template:
+    src: netplugin.j2
+    dest: /etc/default/netplugin
+    mode: 0644
+  notify: restart netplugin
+
+- name: Netplugin | Make sure docker proxy setting exists
+  lineinfile:
+    dest: /etc/sysconfig/docker-network
+    regexp: '^https_proxy.*'
+    line: 'https_proxy={{ contiv_https_proxy }}'
+    state: present
+  register: docker_updated
+
+- name: Netplugin | Copy systemd unit for netplugin
+  template:
+    src: netplugin.service
+    dest: /etc/systemd/system/netplugin.service
+  notify: reload systemd
+
+- name: systemd reload
+  command: systemctl daemon-reload
+  when: docker_updated is changed
+
+- name: Netplugin | Flush handlers
+  meta: flush_handlers
+
+- name: Netplugin | Restart docker
+  service:
+    name: "{{ contiv_openshift_docker_service_name }}"
+    state: restarted
+  when: docker_updated is changed
+  register: l_docker_restart_docker_in_contiv_result
+  until: not (l_docker_restart_docker_in_contiv_result is failed)
+  retries: 3
+  delay: 30
+
+- name: Netplugin | Enable Netplugin
+  service:
+    name: netplugin
+    enabled: yes
+
+- name: Netplugin | Start Netplugin
+  service:
+    name: netplugin
+    state: started
+# notify: restart kubelet

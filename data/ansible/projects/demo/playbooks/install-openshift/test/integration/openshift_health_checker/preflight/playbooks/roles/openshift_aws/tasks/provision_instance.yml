@@ -1,0 +1,42 @@
+---
+- include_tasks: vpc_and_subnet_id.yml
+
+- name: create instance for ami creation
+  ec2:
+    assign_public_ip: yes
+    region: "{{ openshift_aws_region }}"
+    key_name: "{{ openshift_aws_ssh_key_name }}"
+    group: "{{ openshift_aws_build_ami_group }}"
+    instance_type: "{{ openshift_aws_instance_type }}"
+    vpc_subnet_id: "{{ openshift_aws_subnet_id | default(subnetout.subnets[0].id) }}"
+    image: "{{ openshift_aws_base_ami }}"
+    volumes: "{{ openshift_aws_node_group_config_node_volumes }}"
+    wait: yes
+    exact_count: 1
+    count_tag:
+      Name: "{{ openshift_aws_base_ami_name }}"
+    instance_tags:
+      Name: "{{ openshift_aws_base_ami_name }}"
+
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "tag:Name": "{{ openshift_aws_base_ami_name }}"
+      instance-state-name: running
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: instancesout.instances|length > 0
+
+- name: wait for ssh to become available
+  wait_for:
+    port: 22
+    host: "{{ instancesout.instances[0].public_ip_address }}"
+    timeout: 300
+    search_regex: OpenSSH
+
+- name: add host to nodes
+  add_host:
+    groups: nodes,g_new_node_hosts
+    name: "{{ instancesout.instances[0].public_dns_name }}"

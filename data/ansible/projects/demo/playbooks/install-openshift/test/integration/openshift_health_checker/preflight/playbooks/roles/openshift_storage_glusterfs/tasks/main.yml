@@ -1,0 +1,14 @@
+---
+- import_tasks: mktemp.yml
+
+- import_tasks: glusterfs_config.yml
+  when:
+  - groups.glusterfs | default([]) | count > 0
+
+- import_tasks: glusterfs_registry.yml
+  when: >
+    groups.glusterfs_registry | default([]) | count > 0
+    or (openshift_hosted_registry_storage_kind | default(none) == 'glusterfs')
+    or (openshift_hosted_registry_storage_glusterfs_swap | default(False))
+
+- import_tasks: rmtemp.yml

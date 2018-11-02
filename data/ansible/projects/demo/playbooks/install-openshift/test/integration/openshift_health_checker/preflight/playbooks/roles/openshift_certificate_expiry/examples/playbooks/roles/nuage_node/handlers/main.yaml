@@ -1,0 +1,8 @@
+---
+- name: restart node
+  become: yes
+  systemd: name={{ openshift_service_type }}-node daemon-reload=yes state=restarted
+
+- name: save iptable rules
+  become: yes
+  command: iptables-save

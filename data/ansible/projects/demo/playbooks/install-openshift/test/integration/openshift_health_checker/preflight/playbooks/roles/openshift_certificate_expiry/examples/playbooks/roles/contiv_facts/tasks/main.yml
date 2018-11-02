@@ -1,0 +1,63 @@
+---
+- name: Determine if CoreOS
+  raw: "grep '^NAME=' /etc/os-release | sed s'/NAME=//'"
+  register: distro
+  check_mode: no
+
+- name: Init the contiv_is_coreos fact
+  set_fact:
+    contiv_is_coreos: false
+
+- name: Set the contiv_is_coreos fact
+  set_fact:
+    contiv_is_coreos: true
+  when: "'CoreOS' in distro.stdout"
+
+- name: Set the bin directory path for CoreOS
+  set_fact:
+    contiv_bin_dir: "/opt/bin"
+  when: contiv_is_coreos
+
+- name: Create the directory used to store binaries
+  file:
+    path: "{{ contiv_bin_dir }}"
+    state: directory
+
+- name: Create Ansible temp directory
+  file:
+    path: "{{ contiv_ansible_temp_dir }}"
+    state: directory
+
+- name: Determine if has rpm
+  stat:
+    path: /usr/bin/rpm
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: s
+  changed_when: false
+  check_mode: no
+
+- name: Init the contiv_has_rpm fact
+  set_fact:
+    contiv_has_rpm: false
+
+- name: Set the contiv_has_rpm fact
+  set_fact:
+    contiv_has_rpm: true
+  when: s.stat.exists
+
+- name: Init the contiv_has_firewalld fact
+  set_fact:
+    contiv_has_firewalld: false
+
+- name: Init the contiv_has_iptables fact
+  set_fact:
+    contiv_has_iptables: false
+
+# collect information about what packages are installed
+- include_tasks: rpm.yml
+  when: contiv_has_rpm
+
+- include_tasks: fedora-install.yml
+  when: not openshift_is_atomic and ansible_distribution == "Fedora"

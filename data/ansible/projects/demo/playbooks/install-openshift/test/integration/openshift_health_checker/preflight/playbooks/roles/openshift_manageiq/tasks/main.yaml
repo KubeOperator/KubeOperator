@@ -1,0 +1,59 @@
+---
+- name: Add Management Infrastructure project
+  oc_project:
+    name: management-infra
+    description: Management Infrastructure
+
+- name: Create Admin and Image Inspector Service Account
+  oc_serviceaccount:
+    name: "{{ item }}"
+    namespace: management-infra
+    state: present
+  with_items:
+  - management-admin
+  - inspector-admin
+
+- name: Create manageiq cluster role
+  oc_clusterrole:
+    name: management-infra-admin
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - pods/log
+      verbs:
+      - "get"
+    - apiGroups:
+      - ""
+      resources:
+      - pods/proxy
+      verbs:
+      - "*"
+
+- name: Create Hawkular Metrics Admin Cluster Role
+  oc_clusterrole:
+    name: hawkular-metrics-admin
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - hawkular-alerts
+      - hawkular-metrics
+      verbs:
+      - "*"
+
+- name: Configure role/user permissions
+  oc_adm_policy_user:
+    namespace: management-infra
+    resource_name: "{{ item.resource_name }}"
+    resource_kind: "{{ item.resource_kind }}"
+    user: "{{ item.user }}"
+  with_items: "{{ manage_iq_tasks }}"
+
+- name: Configure 3_2 role/user permissions
+  oc_adm_policy_user:
+    namespace: management-infra
+    resource_name: "{{ item.resource_name }}"
+    resource_kind: "{{ item.resource_kind }}"
+    user: "{{ item.user }}"
+  with_items: "{{manage_iq_openshift_3_2_tasks}}"

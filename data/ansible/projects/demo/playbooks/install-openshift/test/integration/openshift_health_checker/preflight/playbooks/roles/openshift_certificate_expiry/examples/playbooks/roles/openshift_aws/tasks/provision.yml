@@ -1,0 +1,31 @@
+---
+- include_tasks: vpc_and_subnet_id.yml
+
+- name: include scale group creation for master
+  include_tasks: build_node_group.yml
+  with_items: "{{ openshift_aws_master_group }}"
+  vars:
+    l_node_group_config: "{{ openshift_aws_master_group_config }}"
+  loop_control:
+    loop_var: openshift_aws_node_group
+
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "tag:clusterid": "{{ openshift_aws_clusterid }}"
+      "tag:host-type": "master"
+      instance-state-name: running
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: instancesout.instances|length > 0
+
+- name: wait for ssh to become available
+  wait_for:
+    port: 22
+    host: "{{ item.public_ip_address }}"
+    timeout: 300
+    search_regex: OpenSSH
+  with_items: "{{ instancesout.instances }}"
+  when: openshift_aws_wait_for_ssh | bool

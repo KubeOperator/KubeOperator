@@ -1,0 +1,5 @@
+---
+- name: Archive backup
+  archive:
+    path: "{{ l_etcd_backup_dir }}"
+    dest: "{{ l_etcd_backup_dir }}.tgz"

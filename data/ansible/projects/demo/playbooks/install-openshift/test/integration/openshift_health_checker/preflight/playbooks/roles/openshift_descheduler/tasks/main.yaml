@@ -1,0 +1,6 @@
+---
+- include_tasks: install_descheduler.yaml
+  when: openshift_descheduler_install | bool
+
+- include_tasks: uninstall_descheduler.yaml
+  when: not openshift_descheduler_install | bool

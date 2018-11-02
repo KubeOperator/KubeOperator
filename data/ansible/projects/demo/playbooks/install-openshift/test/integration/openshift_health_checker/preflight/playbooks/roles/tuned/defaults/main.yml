@@ -1,0 +1,5 @@
+---
+tuned_etc_directory: '/etc/tuned'
+tuned_templates_source: '../templates'
+openshift_fs_inotify_max_user_watches: 65536
+openshift_fs_inotify_max_user_instances: 8192

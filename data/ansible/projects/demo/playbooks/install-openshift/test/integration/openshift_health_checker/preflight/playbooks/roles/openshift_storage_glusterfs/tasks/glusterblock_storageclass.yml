@@ -1,0 +1,25 @@
+---
+- name: Create heketi block secret
+  oc_secret:
+    namespace: "{{ glusterfs_namespace }}"
+    state: present
+    name: "heketi-{{ glusterfs_name }}-admin-secret-block"
+    type: "gluster.org/glusterblock"
+    force: True
+    contents:
+    - path: key
+      data: "{{ glusterfs_heketi_admin_key }}"
+  when: glusterfs_heketi_admin_key is defined
+
+- name: Generate Gluster Block StorageClass file
+  template:
+    src: "gluster-block-storageclass.yml.j2"
+    dest: "{{ mktemp.stdout }}/gluster-block-storageclass.yml"
+
+- name: Create Gluster Block StorageClass
+  oc_obj:
+    state: present
+    kind: storageclass
+    name: "glusterfs-{{ glusterfs_name }}-block"
+    files:
+    - "{{ mktemp.stdout }}/gluster-block-storageclass.yml"

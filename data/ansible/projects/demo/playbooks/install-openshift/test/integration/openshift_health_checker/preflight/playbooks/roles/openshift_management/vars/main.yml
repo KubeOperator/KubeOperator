@@ -1,0 +1,80 @@
+---
+# Misc enumerated values
+#---------------------------------------------------------------------
+# Allowed choices for the storage class parameter
+__openshift_management_storage_classes:
+  - nfs
+  - nfs_external
+  - preconfigured
+  - cloudprovider
+
+#---------------------------------------------------------------------
+# DEFAULT PV SIZES
+# How large to make the MIQ application PV
+__openshift_management_app_pv_size: 5Gi
+# How large to make the MIQ PostgreSQL PV
+__openshift_management_db_pv_size: 15Gi
+
+# Name of the application templates with object/parameter definitions
+__openshift_management_app_templates:
+  - miq-template-ext-db
+  - miq-template
+  - cfme-template-ext-db
+  - cfme-template
+
+# PostgreSQL database connection parameters
+__openshift_management_db_parameters:
+  - DATABASE_USER
+  - DATABASE_PASSWORD
+  - DATABASE_IP
+  - DATABASE_PORT
+  - DATABASE_NAME
+
+__openshift_management_flavors:
+  miq:
+    short: miq
+    long: manageiq
+  cfme:
+    short: cfme
+    long: cloudforms
+
+__openshift_management_flavor: "{{ __openshift_management_flavors[openshift_management_app_template.split('-')[0]]['long'] }}"
+__openshift_management_flavor_short: "{{ __openshift_management_flavors[openshift_management_app_template.split('-')[0]]['short'] }}"
+
+__openshift_management_use_ext_db: "{{ true if 'ext-db' in openshift_management_app_template else false }}"
+
+######################################################################
+# ACCOUNTING
+######################################################################
+# Service Account SSCs
+__openshift_system_account_sccs:
+  - name: -anyuid
+    resource_name: anyuid
+  - name: -orchestrator
+    resource_name: anyuid
+  - name: -privileged
+    resource_name: privileged
+  - name: -httpd
+    resource_name: anyuid
+
+# Service Account Roles
+__openshift_management_system_account_roles:
+  - name: -orchestrator
+    resource_name: view
+  - name: -orchestrator
+    resource_name: edit
+
+######################################################################
+# DEFAULTS
+######################################################################
+# User only has to provide parameters they need to override, we will
+# do a hash update method with the provided user parameters to create
+# the final connection structure.
+#
+# TODO: Update user provided configs with this if they are missing fields
+__openshift_management_required_db_conn_params:
+  - DATABASE_USER
+  - DATABASE_PASSWORD
+  - DATABASE_IP
+  - DATABASE_PORT
+  - DATABASE_NAME

@@ -1,0 +1,22 @@
+#!/bin/bash
+# Sets up handy aliases for etcd, need etcdctl2 and etcdctl3 because
+# command flags are different between the two. Should work on stand
+# alone etcd hosts and master + etcd hosts too because we use the peer keys.
+etcdctl2() {
+
+ cmd="ETCDCTL_API=2 etcdctl --cert-file {{ etcd_peer_cert_file }} --key-file {{ etcd_peer_key_file }} --ca-file {{ etcd_peer_ca_file }} --endpoints https://`hostname`:2379 ${@}"
+ if [[ -f /usr/local/bin/master-exec ]]; then
+   /usr/local/bin/master-exec etcd etcd /bin/sh -c "$cmd"
+ else
+   /bin/sh -c "$cmd"
+ fi
+}
+
+etcdctl3() {
+ cmd="ETCDCTL_API=3 etcdctl --cert {{ etcd_peer_cert_file }} --key {{ etcd_peer_key_file }} --cacert {{ etcd_peer_ca_file }} --endpoints https://`hostname`:2379 ${@}"
+ if [[ -f /usr/local/bin/master-exec ]]; then
+   /usr/local/bin/master-exec etcd etcd /bin/sh -c "$cmd"
+ else
+   /bin/sh -c "$cmd"
+ fi
+}

@@ -1,0 +1,92 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_label
+short_description: Create, modify, and idempotently manage openshift labels.
+description:
+  - Modify openshift labels programmatically.
+options:
+  state:
+    description:
+    - State controls the action that will be taken with resource
+    - 'present' will create or update and object to the desired state
+    - 'absent' will ensure certain labels are removed
+    - 'list' will read the labels
+    - 'add' will insert labels to the already existing labels
+    default: present
+    choices: ["present", "absent", "list", "add"]
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  kind:
+    description:
+    - The kind of object that can be managed.
+    default: node
+    choices:
+    - node
+    - pod
+    - namespace
+    aliases: []
+  labels:
+    description:
+    - A list of labels for the resource.
+    - Each list consists of a key and a value.
+    - eg, {'key': 'foo', 'value': 'bar'}
+    required: false
+    default: None
+    aliases: []
+  selector:
+    description:
+    - The selector to apply to the resource query
+    required: false
+    default: None
+    aliases: []
+author:
+- "Joel Diaz <jdiaz@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: Add a single label to a node's existing labels
+  oc_label:
+    name: ip-172-31-5-23.ec2.internal
+    state: add
+    kind: node
+    labels:
+      - key: logging-infra-fluentd
+        value: 'true'
+
+- name: remove a label from a node
+  oc_label:
+    name: ip-172-31-5-23.ec2.internal
+    state: absent
+    kind: node
+    labels:
+      - key: color
+        value: blue
+
+- name: Ensure node has these exact labels
+  oc_label:
+    name: ip-172-31-5-23.ec2.internal
+    state: present
+    kind: node
+    labels:
+      - key: color
+        value: green
+      - key: type
+        value: master
+      - key: environment
+        value: production
+'''

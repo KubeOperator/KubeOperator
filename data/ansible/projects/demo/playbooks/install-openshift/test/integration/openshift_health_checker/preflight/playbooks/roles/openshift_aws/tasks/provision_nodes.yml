@@ -1,0 +1,32 @@
+---
+# Get bootstrap config token
+# bootstrap should be created on first master
+# need to fetch it and shove it into cloud data
+- include_tasks: setup_master_group.yml
+
+- name: slurp down the bootstrap.kubeconfig
+  slurp:
+    src: /etc/origin/master/bootstrap.kubeconfig
+  delegate_to: "{{ groups.masters.0 }}"
+  register: bootstrap
+
+- name: set_fact for kubeconfig token
+  set_fact:
+    openshift_aws_launch_config_bootstrap_token: "{{ bootstrap['content'] | b64decode }}"
+
+- include_tasks: vpc_and_subnet_id.yml
+
+- name: include build compute and infra node groups
+  include_tasks: build_node_group.yml
+  with_items: "{{ openshift_aws_node_groups }}"
+  vars:
+    l_node_group_config: "{{ openshift_aws_node_group_config }}"
+  loop_control:
+    loop_var: openshift_aws_node_group
+
+# instances aren't scaling fast enough here, we need to wait for them
+- when: openshift_aws_wait_for_ssh | bool
+  name: wait for our new nodes to come up
+  include_tasks: wait_for_groups.yml
+  vars:
+    created_asgs: "{{ openshift_aws_created_asgs }}"

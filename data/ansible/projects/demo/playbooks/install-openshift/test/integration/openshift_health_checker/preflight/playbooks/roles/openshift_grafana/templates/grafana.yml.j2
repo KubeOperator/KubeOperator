@@ -1,0 +1,118 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: {{ grafana_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+      name: grafana
+    spec:
+      serviceAccountName: {{ grafana_serviceaccount_name }}
+{% if grafana_node_selector is iterable and grafana_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in grafana_node_selector.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+      containers:
+      - name: oauth-proxy
+        image: "{{ openshift_grafana_proxy_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if grafana_oauth_proxy_memory_requests is defined and grafana_oauth_proxy_memory_requests is not none %}
+            memory: "{{ grafana_oauth_proxy_memory_requests }}"
+{% endif %}
+{% if grafana_oauth_proxy_cpu_requests is defined and grafana_oauth_proxy_cpu_requests is not none %}
+            cpu: "{{ grafana_oauth_proxy_cpu_requests }}"
+{% endif %}
+          limits:
+{% if grafana_oauth_proxy_memory_limit is defined and grafana_oauth_proxy_memory_limit is not none %}
+            memory: "{{ grafana_oauth_proxy_memory_limit }}"
+{% endif %}
+{% if grafana_oauth_proxy_cpu_limit is defined and grafana_oauth_proxy_cpu_limit is not none %}
+            cpu: "{{ grafana_oauth_proxy_cpu_limit }}"
+{% endif %}
+        ports:
+        - containerPort: {{ grafana_service_port }}
+          name: web
+        args:
+        - -https-address=:{{ grafana_service_targetport }}
+        - -http-address=
+        - -email-domain=*
+        - -client-id=system:serviceaccount:{{ grafana_namespace }}:{{ grafana_serviceaccount_name }}
+        - -upstream=http://localhost:{{ grafana_container_port }}
+        - -provider=openshift
+#       - '-openshift-delegate-urls={"/api/datasources": {"resource": "namespace", "verb": "get", "resourceName": "{{ grafana_namespace }}", "namespace": "{{ grafana_namespace }}"}}'
+        - '-openshift-sar={"namespace": "{{ grafana_namespace }}", "verb": "list", "resource": "services"}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -skip-auth-regex=^/metrics,/api/datasources,/api/dashboards
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: grafana-tls-secret
+        - mountPath: /etc/proxy/secrets
+          name: grafana-proxy-secrets
+
+      - name: grafana
+        image: "{{ openshift_grafana_image }}"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+{% if openshift_grafana_memory_requests is defined and openshift_grafana_memory_requests is not none %}
+            memory: "{{ openshift_grafana_memory_requests }}"
+{% endif %}
+{% if openshift_grafana_cpu_requests is defined and openshift_grafana_cpu_requests is not none %}
+            cpu: "{{ openshift_grafana_cpu_requests }}"
+{% endif %}
+          limits:
+{% if openshift_grafana_memory_limit is defined and openshift_grafana_memory_limit is not none %}
+            memory: "{{ openshift_grafana_memory_limit }}"
+{% endif %}
+{% if openshift_grafana_cpu_limit is defined and openshift_grafana_cpu_limit is not none %}
+            cpu: "{{ openshift_grafana_cpu_limit }}"
+{% endif %}
+        ports:
+        - name: grafana-http
+          containerPort: {{ grafana_container_port }}
+        volumeMounts:
+        - mountPath: "/root/go/src/github.com/grafana/grafana/data"
+          name: grafana-data
+        - mountPath: "/root/go/src/github.com/grafana/grafana/conf"
+          name: grafana-config
+        - mountPath: /etc/tls/private
+          name: grafana-tls-secret
+        - mountPath: /etc/proxy/secrets
+          name: grafana-proxy-secrets
+        command:
+         - "./bin/grafana-server"
+
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-config
+      - name: grafana-proxy-secrets
+        secret:
+          secretName: grafana-proxy
+      - name: grafana-tls-secret
+        secret:
+          secretName: grafana-tls
+      - name: grafana-data
+{% if grafana_storage_type == 'pvc' %}
+        persistentVolumeClaim:
+          claimName: {{ grafana_pvc_name }}
+{% else %}
+        emptydir: {}
+{% endif %}

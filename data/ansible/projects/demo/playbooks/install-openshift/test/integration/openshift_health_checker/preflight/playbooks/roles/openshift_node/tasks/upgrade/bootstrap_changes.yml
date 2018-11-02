@@ -1,0 +1,101 @@
+---
+- name: Check for existing node-config.yaml
+  stat:
+    path: "{{ openshift.common.config_base }}/node/node-config.yaml"
+  register: existing_node_config
+
+- name: Copy existing configuration to bootstrap configuration
+  copy:
+    remote_src: true
+    src: "{{ openshift.common.config_base }}/node/node-config.yaml"
+    dest: "{{ openshift.common.config_base }}/node/bootstrap-node-config.yaml"
+    force: no
+    owner: root
+    group: root
+    mode: 0600
+  when: existing_node_config.stat.exists
+
+- name: Find existing credentials
+  find:
+    paths:
+    - "{{ openshift.common.config_base }}/node"
+    patterns:
+    - system*.kubeconfig
+    - node.kubeconfig
+  register: system_kubeconfigs
+
+- name: Copy existing credentials to bootstrap credentials
+  copy:
+    remote_src: true
+    src: "{{ item }}"
+    dest: "{{ openshift.common.config_base }}/node/bootstrap.kubeconfig"
+    force: no
+    owner: root
+    group: root
+    mode: 0600
+  with_items: "{{ system_kubeconfigs.files | default([]) | map(attribute='path') | list }}"
+
+- name: Remove non-bootstrap configuration
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+  - "{{ openshift.common.config_base }}/node/node.kubeconfig"
+  - "{{ openshift.common.config_base }}/node/node-config.yaml"
+
+- name: Update node-config to prepare for bootstrapping
+  yedit:
+    src: "{{ openshift.common.config_base }}/node/bootstrap-node-config.yaml"
+    edits:
+    - key: servingInfo.certFile
+      value: ""
+    - key: servingInfo.clientCA
+      value: client-ca.crt
+    - key: servingInfo.keyFile
+      value: ""
+    - key: kubeletArguments.bootstrap-kubeconfig
+      value:
+      - "{{ openshift.common.config_base }}/node/bootstrap.kubeconfig"
+    - key: kubeletArguments.rotate-certificates
+      value:
+      - "true"
+    - key: kubeletArguments.cert-dir
+      value:
+      - "{{ openshift.common.config_base }}/node/certificates"
+    - key: kubeletArguments.feature-gates
+      value:
+      - RotateKubeletClientCertificate=true,RotateKubeletServerCertificate=true
+    - key: masterKubeConfig
+      value: node.kubeconfig
+
+- name: Use the admin.kubeconfig for the kubelet bootstrap identity
+  copy:
+    remote_src: true
+    src: "{{ openshift.common.config_base }}/master/admin.kubeconfig"
+    dest: "{{ openshift.common.config_base }}/node/bootstrap.kubeconfig"
+    force: yes
+    owner: root
+    group: root
+    mode: 0600
+  when: inventory_hostname in groups.oo_masters_to_config
+
+- name: Update symlink master CA for docker-registry (name changed)
+  file:
+    src: "{{ item }}"
+    dest: "/etc/docker/certs.d/docker-registry.default.svc:5000/{{ item | basename }}"
+    state: link
+    force: yes
+    follow: no
+  with_items:
+  - "{{ openshift.common.config_base }}/node/client-ca.crt"
+
+- name: Remove previous bootstrap certificates
+  file:
+    path: "{{ openshift.common.config_base }}/node/certificates"
+    state: absent
+
+- name: Update the sysconfig to group "{{ openshift_node_group_name }}"
+  lineinfile:
+    dest: "/etc/sysconfig/{{ openshift_service_type }}-node"
+    line: "BOOTSTRAP_CONFIG_NAME={{ openshift_node_group_name }}"
+    regexp: "^BOOTSTRAP_CONFIG_NAME=.*"

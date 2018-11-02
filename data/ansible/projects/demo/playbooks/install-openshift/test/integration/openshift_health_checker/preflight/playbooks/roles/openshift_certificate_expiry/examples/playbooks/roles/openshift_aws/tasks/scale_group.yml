@@ -1,0 +1,39 @@
+---
+- name: set node group name
+  set_fact:
+    l_node_group_name: "{{ openshift_aws_node_group.name }} {{ l_deployment_serial }}"
+
+- set_fact:
+    l_openshift_aws_node_group_config_tags: "{{ openshift_aws_node_group_config_tags }}"
+
+- name: Set scale group instances autonaming
+  set_fact:
+    l_openshift_aws_node_group_config_tags: "{{ l_openshift_aws_node_group_config_tags | combine({'Name': l_node_group_name }) }}"
+  when: openshift_aws_autoname_scale_group_instances | default(false)
+
+- name: Create the scale group
+  ec2_asg:
+    name: "{{ l_node_group_name }}"
+    launch_config_name: "{{ openshift_aws_node_group.name }}-{{ openshift_aws_ami_map[openshift_aws_node_group.group] | default(openshift_aws_ami) }}-{{ l_epoch_time }}"
+    health_check_period: "{{ l_node_group_config[openshift_aws_node_group.group].health_check.period }}"
+    health_check_type: "{{ l_node_group_config[openshift_aws_node_group.group].health_check.type }}"
+    min_size: "{{ l_node_group_config[openshift_aws_node_group.group].min_size }}"
+    max_size: "{{ l_node_group_config[openshift_aws_node_group.group].max_size }}"
+    desired_capacity: "{{ l_node_group_config[openshift_aws_node_group.group].desired_size }}"
+    region: "{{ openshift_aws_region }}"
+    termination_policies: "{{ l_node_group_config[openshift_aws_node_group.group].termination_policy if 'termination_policy' in  l_node_group_config[openshift_aws_node_group.group] else omit }}"
+    load_balancers: "{{ l_node_group_config[openshift_aws_node_group.group].elbs if 'elbs' in l_node_group_config[openshift_aws_node_group.group] else omit }}"
+    wait_for_instances: "{{ l_node_group_config[openshift_aws_node_group.group].wait_for_instances | default(False)}}"
+    vpc_zone_identifier: "{{ subnetout.subnets[0].id }}"
+    replace_instances: "{{ openshift_aws_node_group_replace_instances if openshift_aws_node_group_replace_instances != [] else omit }}"
+    replace_all_instances: "{{ omit if openshift_aws_node_group_replace_instances != []
+                                    else (l_node_group_config[openshift_aws_node_group.group].replace_all_instances | default(omit)) }}"
+    tags:
+    - "{{ l_openshift_aws_node_group_config_tags
+          | combine(openshift_aws_node_group.tags)
+          | combine({'deployment_serial': l_deployment_serial, 'ami': openshift_aws_ami_map[openshift_aws_node_group.group] | default(openshift_aws_ami)})
+          | combine({'openshift-node-group-config': openshift_aws_node_group.node_group_config | default('unset') }) }}"
+
+- name: append the asg name to the openshift_aws_created_asgs fact
+  set_fact:
+    openshift_aws_created_asgs: "{{ [l_node_group_name] | union(openshift_aws_created_asgs) | list }}"

@@ -1,0 +1,14 @@
+---
+- name: Update router image to current version
+  oc_edit:
+    kind: dc
+    name: "{{ item['name'] }}"
+    namespace: "{{ item['namespace'] }}"
+    content:
+      spec.template.spec.containers[0].image: "{{ l_osh_router_image }}"
+  with_items: "{{ openshift_hosted_routers }}"
+  vars:
+    l_osh_router_image: "{{ openshift_hosted_router_registryurl | replace( '${component}', 'haproxy-router' ) |
+                            replace ( '${version}', openshift_image_tag ) }}"
+  when:
+  - openshift_hosted_routers | length > 0

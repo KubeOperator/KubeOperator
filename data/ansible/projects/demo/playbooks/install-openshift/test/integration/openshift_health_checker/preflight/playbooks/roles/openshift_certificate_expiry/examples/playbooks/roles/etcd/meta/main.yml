@@ -1,0 +1,21 @@
+---
+# This module is based on https://github.com/retr0h/ansible-etcd with most
+# changes centered around installing from a pre-existing rpm
+# TODO: Extend https://github.com/retr0h/ansible-etcd rather than forking
+galaxy_info:
+  author: Scott Dodson
+  description: etcd management
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.2
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  categories:
+  - cloud
+  - system
+dependencies:
+- role: lib_openshift
+- role: lib_utils
+- role: openshift_facts

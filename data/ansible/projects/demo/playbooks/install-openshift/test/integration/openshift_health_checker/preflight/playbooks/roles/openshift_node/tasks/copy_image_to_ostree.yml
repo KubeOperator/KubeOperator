@@ -1,0 +1,9 @@
+---
+- name: Copy node container image to ostree storage
+  command: >
+    atomic pull --storage=ostree docker:{{ osn_image }}
+  register: pull_result
+  retries: 3
+  delay: 5
+  until: pull_result.rc == 0
+  changed_when: "'Pulling layer' in pull_result.stdout"

@@ -1,0 +1,82 @@
+# Global settings
+#---------------------------------------------------------------------
+global
+    maxconn     {{ openshift_loadbalancer_global_maxconn | default(20000) }}
+    log         /dev/log local0 info
+{% if openshift_is_containerized | bool %}
+    stats socket /var/lib/haproxy/run/haproxy.sock mode 600 level admin
+{% else %}
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+{% endif %}
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+#    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          300s
+    timeout server          300s
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 {{ openshift_loadbalancer_default_maxconn | default(20000) }}
+
+listen stats
+    bind :9000
+    mode http
+    stats enable
+    stats uri /
+
+{% for frontend in openshift_loadbalancer_frontends %}
+frontend  {{ frontend.name }}
+{% for bind in frontend.binds %}
+    bind {{ bind }}
+{% endfor %}
+    default_backend {{ frontend.default_backend }}
+{% if 'mode' in frontend %}
+    mode {{ frontend.mode }}
+{% endif %}
+{% if 'options' in frontend %}
+{% for option in frontend.options %}
+    option {{ option }}
+{% endfor %}
+{% endif %}
+{% if 'redirects' in frontend %}
+{% for redirect in frontend.redirects %}
+    redirect {{ redirect }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+{% for backend in openshift_loadbalancer_backends %}
+backend {{ backend.name }}
+    balance {{ backend.balance }}
+{% if 'mode' in backend %}
+    mode {{ backend.mode }}
+{% endif %}
+{% if 'options' in backend %}
+{% for option in backend.options %}
+    option {{ option }}
+{% endfor %}
+{% endif %}
+{% for server in backend.servers %}
+    server      {{ server.name }} {{ server.address }} {{ server.opts }}
+{% endfor %}
+{% endfor %}

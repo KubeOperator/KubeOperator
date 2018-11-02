@@ -1,0 +1,64 @@
+---
+- include_tasks: netmaster_firewalld.yml
+  when: contiv_has_firewalld
+
+- include_tasks: netmaster_iptables.yml
+  when: not contiv_has_firewalld and contiv_has_iptables
+
+- include_tasks: etcd.yml
+
+- name: Netmaster | Create netmaster symlinks
+  file:
+    src: "{{ contiv_current_release_directory }}/{{ item }}"
+    dest: "{{ contiv_bin_dir }}/{{ item }}"
+    state: link
+    force: yes
+  with_items:
+    - netmaster
+    - netctl
+
+- name: Netmaster | Copy environment file for netmaster
+  template:
+    src: netmaster.j2
+    dest: /etc/default/netmaster
+    mode: 0644
+  notify: restart netmaster
+
+- name: Netmaster | Ensure contiv_config_dir exists
+  file:
+    path: "{{ contiv_config_dir }}"
+    recurse: yes
+    state: directory
+
+- name: Netmaster | Setup contiv.json config for the cni plugin
+  template:
+    src: contiv.cfg.master.j2
+    dest: "{{ contiv_config_dir }}/contiv.json"
+  notify: restart netmaster
+
+- name: Netmaster | Copy systemd units for netmaster
+  template:
+    src: netmaster.service
+    dest: /etc/systemd/system/netmaster.service
+  notify: reload systemd
+
+- name: Netmaster | Flush handlers
+  meta: flush_handlers
+
+- name: Netmaster | Enable Netmaster
+  service:
+    name: netmaster
+    enabled: yes
+
+- name: Netmaster | Start Netmaster
+  service:
+    name: netmaster
+    state: started
+
+- include_tasks: aci.yml
+  when: contiv_fabric_mode == "aci"
+
+- include_tasks: default_network.yml
+  when: contiv_default_network == true
+
+- include_tasks: api_proxy.yml

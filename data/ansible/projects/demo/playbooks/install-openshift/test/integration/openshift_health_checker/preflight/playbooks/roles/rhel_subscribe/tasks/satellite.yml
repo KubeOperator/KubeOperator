@@ -1,0 +1,5 @@
+---
+- name: Satellite preparation
+  command: "rpm -Uvh http://{{ rhsub_server }}/pub/katello-ca-consumer-latest.noarch.rpm"
+  args:
+    creates: /etc/rhsm/ca/katello-server-ca.pem

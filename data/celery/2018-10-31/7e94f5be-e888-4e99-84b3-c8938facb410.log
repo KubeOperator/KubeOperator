@@ -1,0 +1,75 @@
+{'_playbooks': ['playbooks/prerequisites.yml'], '_inventory': <ansible_ui.inventory.AnsibleUIInventory object at 0x113e14940>, '_variable_manager': <ansible.vars.manager.VariableManager object at 0x114a66160>, '_loader': <ansible.parsing.dataloader.DataLoader object at 0x114313588>, '_options': Options(verbosity=0, listhosts=None, subset=None, module_path=None, extra_vars=[], forks=5, ask_vault_pass=False, vault_password_files=[], new_vault_password_files=[], vault_ids=[], new_vault_id=None, tags=['all'], skip_tags=[], ask_pass=False, private_key_file='', remote_user='root', connection='smart', timeout=10, ssh_common_args='', sftp_extra_args='', scp_extra_args='', ssh_extra_args='', sudo=False, sudo_user=None, su=False, su_user=None, become=False, become_method='sudo', become_user='root', ask_sudo_pass=False, ask_su_pass=False, become_ask_pass=False, check=False, syntax=None, diff=False, force_handlers=False, flush_cache=None, listtasks=None, listtags=None, step=None, start_at_task=None, passwords=None, host_key_checking=False, roles_path=['/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/roles'], gathering='smart'), 'passwords': None, '_unreachable_hosts': {}, '_tqm': <ansible.executor.task_queue_manager.TaskQueueManager object at 0x1148be9e8>}
+Task ansible_ui.tasks.execute_playbook[7e94f5be-e888-4e99-84b3-c8938facb410] raised unexpected: no action detected in task. This often indicates a misspelled module name, or incorrect module path.
+
+The error appears to have been in '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/playbooks/init/version.yml': line 11, column 5, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  # this will set_fact booleans for openshift_verison
+  - name: set openshift_version booleans (first master)
+    ^ here
+Traceback (most recent call last):
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/tasks.py", line 18, in execute_playbook
+    return playbook.execute(save_history=save_history)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/models/playbook.py", line 185, in execute
+    result = runner.run(self.playbook_path)
+  File "/Users/guang/projects/AnsibleUI/ansible_ui/ansible/runner.py", line 242, in run
+    executor.run()
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/executor/playbook_executor.py", line 83, in run
+    pb = Playbook.load(playbook_path, variable_manager=self._variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 54, in load
+    pb._load_playbook_data(file_name=file_name, variable_manager=variable_manager)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 99, in _load_playbook_data
+    pb = PlaybookInclude.load(entry, basedir=self._basedir, variable_manager=variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/playbook_include.py", line 42, in load
+    return PlaybookInclude().load_data(ds=data, basedir=basedir, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/playbook_include.py", line 72, in load_data
+    pb._load_playbook_data(file_name=file_name, variable_manager=variable_manager)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 99, in _load_playbook_data
+    pb = PlaybookInclude.load(entry, basedir=self._basedir, variable_manager=variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/playbook_include.py", line 42, in load
+    return PlaybookInclude().load_data(ds=data, basedir=basedir, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/playbook_include.py", line 72, in load_data
+    pb._load_playbook_data(file_name=file_name, variable_manager=variable_manager)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/__init__.py", line 106, in _load_playbook_data
+    entry_obj = Play.load(entry, variable_manager=variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/play.py", line 111, in load
+    return p.load_data(data, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/base.py", line 256, in load_data
+    self._attributes[target_name] = method(name, ds[name])
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/play.py", line 142, in _load_tasks
+    return load_list_of_blocks(ds=ds, play=self, variable_manager=self._variable_manager, loader=self._loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/helpers.py", line 80, in load_list_of_blocks
+    loader=loader,
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/block.py", line 93, in load
+    return b.load_data(data, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/base.py", line 256, in load_data
+    self._attributes[target_name] = method(name, ds[name])
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/block.py", line 129, in _load_block
+    use_handlers=self._use_handlers,
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/helpers.py", line 344, in load_list_of_tasks
+    t = Task.load(task_ds, block=block, role=role, task_include=task_include, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/task.py", line 142, in load
+    return t.load_data(data, variable_manager=variable_manager, loader=loader)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/base.py", line 243, in load_data
+    ds = self.preprocess_data(ds)
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/playbook/task.py", line 185, in preprocess_data
+    (action, args, delegate_to) = args_parser.parse()
+  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/ansible/parsing/mod_args.py", line 296, in parse
+    obj=self._task_ds)
+ansible.errors.AnsibleParserError: no action detected in task. This often indicates a misspelled module name, or incorrect module path.
+
+The error appears to have been in '/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/playbooks/init/version.yml': line 11, column 5, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+  # this will set_fact booleans for openshift_verison
+  - name: set openshift_version booleans (first master)
+    ^ here
+

@@ -1,0 +1,136 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+---
+- hosts: localhost
+  gather_facts: no
+
+  tasks:
+  - name: basic query test - Act
+    repoquery:
+      name: bash
+    register: rq_out
+
+  - name: Set a real package version to be used later
+    set_fact:
+      latest_available_bash_version: "{{ rq_out.results.versions.latest }}"
+      latest_available_full_bash_version: "{{ rq_out.results.versions.latest_full }}"
+
+  - name: basic query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == True"
+      - "rq_out.results.package_name == 'bash'"
+      - "rq_out.results.versions.available_versions | length == 1"
+      - "rq_out.results.versions.available_versions_full | length == 1"
+      - "rq_out.results.versions.latest is defined"
+      - "rq_out.results.versions.latest in rq_out.results.versions.available_versions"
+      - "rq_out.results.versions.latest_full is defined"
+      - "rq_out.results.versions.latest_full in rq_out.results.versions.available_versions_full"
+
+  - name: show_duplicates query test - Act
+    repoquery:
+      name: bash
+      show_duplicates: True
+    register: rq_out
+
+  - name: show_duplicates query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == True"
+      - "rq_out.results.package_name == 'bash'"
+      - "rq_out.results.versions.available_versions | length >= 1"
+      - "rq_out.results.versions.available_versions_full | length >= 1"
+      - "rq_out.results.versions.latest is defined"
+      - "rq_out.results.versions.latest in rq_out.results.versions.available_versions"
+      - "rq_out.results.versions.latest_full is defined"
+      - "rq_out.results.versions.latest_full in rq_out.results.versions.available_versions_full"
+
+  - name: show_duplicates verbose query test - Act
+    repoquery:
+      name: bash
+      show_duplicates: True
+      verbose: True
+    register: rq_out
+
+  - name: show_duplicates verbose query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == True"
+      - "rq_out.results.package_name == 'bash'"
+      - "rq_out.results.raw_versions | length > 0"
+      - "rq_out.results.versions.available_versions | length > 0"
+      - "rq_out.results.versions.available_versions_full | length > 0"
+      - "rq_out.results.versions.latest is defined"
+      - "rq_out.results.versions.latest in rq_out.results.versions.available_versions"
+      - "rq_out.results.versions.latest_full is defined"
+      - "rq_out.results.versions.latest_full in rq_out.results.versions.available_versions_full"
+
+  - name: query package does not exist query test - Act
+    repoquery:
+      name: somemadeuppackagenamethatwontmatch
+      show_duplicates: True
+    register: rq_out
+
+  - name: query package does not exist query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == False"
+      - "rq_out.results.results == ''"
+
+
+  - name: query match_version does not exist query test - Act
+    repoquery:
+      name: bash
+      show_duplicates: True
+      match_version: somemadeupversionnotexist
+    register: rq_out
+
+  - name: query match_version does not exist query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == True"
+      - "rq_out.results.package_name == 'bash'"
+      - "rq_out.results.versions.matched_version_found == False"
+      - "rq_out.results.versions.available_versions | length > 0"
+      - "rq_out.results.versions.available_versions_full | length > 0"
+      - "rq_out.results.versions.latest is defined"
+      - "rq_out.results.versions.latest in rq_out.results.versions.available_versions"
+      - "rq_out.results.versions.latest_full is defined"
+      - "rq_out.results.versions.latest_full in rq_out.results.versions.available_versions_full"
+
+  - name: query match_version exists query test - Act
+    repoquery:
+      name: bash
+      show_duplicates: True
+      match_version: "{{ latest_available_bash_version }}"
+    register: rq_out
+
+  - name: query match_version exists query test - Assert
+    assert:
+      that:
+      - "rq_out.state == 'list'"
+      - "rq_out.changed == False"
+      - "rq_out.results.returncode == 0"
+      - "rq_out.results.package_found == True"
+      - "rq_out.results.package_name == 'bash'"
+      - "rq_out.results.versions.matched_version_found == True"
+      - "rq_out.results.versions.available_versions | length > 0"
+      - "rq_out.results.versions.available_versions_full | length > 0"
+      - "rq_out.results.versions.latest is defined"
+      - "rq_out.results.versions.latest in rq_out.results.versions.available_versions"
+      - "rq_out.results.versions.latest_full is defined"
+      - "rq_out.results.versions.latest_full in rq_out.results.versions.available_versions_full"

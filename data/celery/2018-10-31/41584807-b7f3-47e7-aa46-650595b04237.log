@@ -1,0 +1,15 @@
+Write playbook to: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/playbook2/playbook.yml
+PLAY [all] *********************************************************************
+TASK [Update use key] **********************************************************
+[0;33mchanged: [node2.jumpserver.org][0m
+[0;33mchanged: [master.jumpserver.org][0m
+[0;33mchanged: [node1.jumpserver.org][0m
+TASK [ping] ********************************************************************
+[0;32mok: [node2.jumpserver.org][0m
+[0;32mok: [node1.jumpserver.org][0m
+[0;32mok: [master.jumpserver.org][0m
+PLAY RECAP *********************************************************************
+[0;33mmaster.jumpserver.org[0m      : [0;32mok=2   [0m [0;33mchanged=1   [0m unreachable=0    failed=0
+[0;33mnode1.jumpserver.org[0m       : [0;32mok=2   [0m [0;33mchanged=1   [0m unreachable=0    failed=0
+[0;33mnode2.jumpserver.org[0m       : [0;32mok=2   [0m [0;33mchanged=1   [0m unreachable=0    failed=0
+Task ansible_ui.tasks.execute_playbook[41584807-b7f3-47e7-aa46-650595b04237] succeeded in 2.2211157540150452s: {'success': True, 'contacted': [{'hostname': 'node2.jumpserver.org', 'tasks': [...]}, {'hostname': 'master.jumpserver.org', 'tasks': [...]}, {'hostname': 'node1.jumpserver.org', 'tasks': [...]}]}

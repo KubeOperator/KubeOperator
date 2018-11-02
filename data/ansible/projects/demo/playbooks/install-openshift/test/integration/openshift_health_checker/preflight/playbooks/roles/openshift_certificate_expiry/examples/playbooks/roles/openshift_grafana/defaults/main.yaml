@@ -1,0 +1,58 @@
+---
+# We should probably use something more official here.
+openshift_grafana_image: "docker.io/mrsiano/grafana-ocp:latest"
+openshift_grafana_proxy_image: "{{ l2_os_logging_proxy_image }}"
+
+openshift_grafana_state: present
+openshift_grafana_namespace: openshift-grafana
+openshift_grafana_pod_timeout: 300
+openshift_grafana_prometheus_namespace: "openshift-monitoring"
+openshift_grafana_prometheus_serviceaccount: "prometheus-k8s"
+openshift_grafana_prometheus_route: "prometheus-k8s"
+openshift_grafana_serviceaccount_name: grafana
+openshift_grafana_serviceaccount_annotations: []
+l_openshift_grafana_serviceaccount_annotations:
+  - serviceaccounts.openshift.io/oauth-redirectreference.primary='{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana"}}'
+openshift_grafana_datasource_name: "prometheus"
+openshift_grafana_node_exporter: false
+openshift_grafana_graph_granularity: "2m"
+openshift_grafana_node_selector: {"node-role.kubernetes.io/infra":"true"}
+openshift_grafana_hostname: grafana-{{openshift_grafana_namespace}}.{{openshift_master_default_subdomain}}
+openshift_grafana_service_name: grafana
+openshift_grafana_service_port: 443
+openshift_grafana_service_targetport: 8443
+openshift_grafana_container_port: 3000
+
+openshift_grafana_storage_type: "emptydir"
+openshift_grafana_pvc_name: grafana
+openshift_grafana_pvc_size: "{{ openshift_grafana_storage_volume_size | default('10Gi') }}"
+openshift_grafana_pvc_access_modes: [ReadWriteOnce]
+openshift_grafana_pvc_pv_selector: "{{ openshift_grafana_storage_labels | default({}) }}"
+openshift_grafana_sc_name: "{{ openshift_grafana_storage_class | default(None) }}"
+
+openshift_grafana_dashboards: []
+l_openshift_grafana_dashboards:
+  - openshift-cluster-monitoring.json
+  - node-exporter-full-dashboard.json
+
+# container resources
+openshift_grafana_cpu_limit: null
+openshift_grafana_memory_limit: null
+openshift_grafana_cpu_requests: null
+openshift_grafana_memory_requests: null
+openshift_grafana_oauth_proxy_cpu_limit: null
+openshift_grafana_oauth_proxy_memory_limit: null
+openshift_grafana_oauth_proxy_cpu_requests: null
+openshift_grafana_oauth_proxy_memory_requests: null
+
+openshift_grafana_datasource_payload:
+  name: grafana_name
+  type: prometheus
+  typeLogoUrl: ''
+  access: proxy
+  url: https://prometheus_url
+  basicAuth: false
+  withCredentials: false
+  jsonData:
+    tlsSkipVerify: true
+    token: satoken

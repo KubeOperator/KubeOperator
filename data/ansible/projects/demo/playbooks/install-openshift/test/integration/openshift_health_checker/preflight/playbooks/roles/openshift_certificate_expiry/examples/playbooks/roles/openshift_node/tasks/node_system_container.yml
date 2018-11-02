@@ -1,0 +1,27 @@
+---
+# system containers create their own service unit files based on templates
+# that are part of the container image.
+# oc_atomic_container will create a systemd service unit file in
+# /etc/systemd/system/origin-node.service (origin) or
+# /etc/systemd/system/atomic-openshift-node.service (enterprise)
+
+# TODO: remove when system container is fixed to not include it
+- name: Ensure old system path is set
+  file:
+    state: directory
+    path: "{{ item }}"
+    mode: '0750'
+  with_items:
+  - "/etc/origin/openvswitch"
+  - "/var/lib/kubelet"
+  - "/opt/cni/bin"
+
+- import_tasks: node_system_container_install.yml
+
+# TODO: network manager on RHEL is failing to execute 99-origin-dns.sh with signal 13, an immediate
+# restart seems to allow the job to configure. Only occurs with system containers.
+- name: Restart network manager to ensure networking configuration is in place
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: restarted

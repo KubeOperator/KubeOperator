@@ -1,0 +1,14 @@
+---
+- shell: ls /var/lib/etcd
+  register: output
+
+- debug:
+    msg: "output: {{ output }}"
+
+- name: Unarchive backup
+  # can't use unarchive https://github.com/ansible/ansible/issues/30821
+  # unarchive:
+  #   src: "{{ l_etcd_backup_dir }}.tgz"
+  #   dest: "{{ l_etcd_backup_dir }}"
+  command: >
+    tar -xf "{{ l_etcd_backup_dir }}.tgz" -C "{{ etcd_data_dir }}"

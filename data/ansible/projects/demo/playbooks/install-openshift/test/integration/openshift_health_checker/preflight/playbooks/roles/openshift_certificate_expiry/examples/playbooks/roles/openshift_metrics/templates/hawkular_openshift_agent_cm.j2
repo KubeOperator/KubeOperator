@@ -1,0 +1,54 @@
+id: hawkular-openshift-agent
+kind: ConfigMap
+apiVersion: v1
+name: Hawkular OpenShift Agent Configuration
+metadata:
+  name: hawkular-openshift-agent-configuration
+  labels:
+    metrics-infra: agent
+  namespace: {{openshift_metrics_hawkular_agent_namespace}}
+data:
+  config.yaml: |
+    kubernetes:
+      tenant: ${POD:namespace_name}
+    hawkular_server:
+      url: https://hawkular-metrics.openshift-infra.svc.cluster.local       
+      credentials:
+        username: secret:openshift-infra/hawkular-metrics-account/hawkular-metrics.username
+        password: secret:openshift-infra/hawkular-metrics-account/hawkular-metrics.password
+      ca_cert_file: secret:openshift-infra/hawkular-metrics-certs/ca.crt
+    emitter:
+      status_enabled: false
+    collector:
+      minimum_collection_interval: 10s
+      default_collection_interval: 30s
+      metric_id_prefix: pod/${POD:uid}/custom/
+      tags:
+        metric_name: ${METRIC:name}
+        description: ${METRIC:description}
+        units: ${METRIC:units}
+        namespace_id: ${POD:namespace_uid}
+        namespace_name: ${POD:namespace_name}
+        node_name: ${POD:node_name}
+        pod_id: ${POD:uid}
+        pod_ip: ${POD:ip}
+        pod_name: ${POD:name}
+        pod_namespace: ${POD:namespace_name}
+        hostname: ${POD:hostname}
+        host_ip: ${POD:host_ip}
+        labels: ${POD:labels}
+        type: pod
+        collector: hawkular_openshift_agent
+        custom_metric: true
+  hawkular-openshift-agent: |
+    endpoints:
+    - type: prometheus
+      protocol: "http"
+      port: 8080
+      path: /metrics
+      collection_interval: 30s
+      metrics:
+      - name: hawkular_openshift_agent_metric_data_points_collected_total
+      - name: hawkular_openshift_agent_monitored_endpoints
+      - name: hawkular_openshift_agent_monitored_pods
+      - name: hawkular_openshift_agent_monitored_metrics

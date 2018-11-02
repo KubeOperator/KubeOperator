@@ -1,0 +1,76 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: controller-manager
+  name: controller-manager
+spec:
+  selector:
+    matchLabels:
+      app: controller-manager
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: controller-manager
+    spec:
+      serviceAccountName: service-catalog-controller
+      nodeSelector:
+{% for key, value in node_selector.items() %}
+        {{key}}: "{{value}}"
+{% endfor %}
+      containers:
+      - env:
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        args:
+        - controller-manager
+        - --secure-port
+        - "6443"
+        - -v
+        - "3"
+        - --leader-election-namespace
+        - kube-service-catalog
+        - --leader-elect-resource-lock
+        - configmaps
+        - --cluster-id-configmap-namespace=kube-service-catalog
+        - --broker-relist-interval
+        - "5m"
+        - --feature-gates
+        - OriginatingIdentity=true
+{% if openshift_service_catalog_async_bindings_enabled | bool %}
+        - --feature-gates
+        - AsyncBindingOperations=true
+{% endif %}
+        image: {{ openshift_service_catalog_image }}
+        command: ["/usr/bin/service-catalog"]
+        imagePullPolicy: IfNotPresent
+        name: controller-manager
+        ports:
+        - containerPort: 6443
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+        - mountPath: /var/run/kubernetes-service-catalog
+          name: service-catalog-ssl
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: service-catalog-ssl
+        secret:
+          defaultMode: 420
+          items:
+          - key: tls.crt
+            path: apiserver.crt
+          - key: tls.key
+            path: apiserver.key
+          secretName: controllermanager-ssl

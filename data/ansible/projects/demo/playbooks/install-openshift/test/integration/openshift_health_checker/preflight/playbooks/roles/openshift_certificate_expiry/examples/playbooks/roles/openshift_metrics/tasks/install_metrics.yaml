@@ -1,0 +1,101 @@
+---
+- include_tasks: pre_install.yaml
+
+- name: Install Metrics
+  include_tasks: "install_{{ include_file }}.yaml"
+  with_items:
+    - support
+    - heapster
+    - hawkular_schema_job
+    - hawkular
+    - cassandra
+  loop_control:
+    loop_var: include_file
+  when: not openshift_metrics_heapster_standalone | bool
+
+- name: Install Heapster Standalone
+  include_tasks: install_heapster.yaml
+  when: openshift_metrics_heapster_standalone | bool
+
+- name: Install Hawkular OpenShift Agent (HOSA)
+  include_tasks: install_hosa.yaml
+  when: openshift_metrics_install_hawkular_agent | default(false) | bool
+
+- find:
+    paths: "{{ mktemp.stdout }}/templates"
+    patterns: "^(?!metrics-hawkular-openshift-agent).*.yaml"
+    use_regex: true
+  register: object_def_files
+  changed_when: no
+
+- slurp:
+    src: "{{item.path}}"
+  register: object_defs
+  with_items: "{{object_def_files.files}}"
+  changed_when: no
+
+- name: Create objects
+  include_tasks: oc_apply.yaml
+  vars:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    namespace: "{{ openshift_metrics_project }}"
+    file_name: "{{ item.source }}"
+    file_content: "{{ item.content | b64decode | from_yaml }}"
+  with_items: "{{ object_defs.results }}"
+
+- find:
+    paths: "{{ mktemp.stdout }}/templates"
+    patterns: "^metrics-hawkular-openshift-agent.*.yaml"
+    use_regex: true
+  register: hawkular_agent_object_def_files
+  when: openshift_metrics_install_hawkular_agent | bool
+  changed_when: no
+
+- slurp:
+    src: "{{item.path}}"
+  register: hawkular_agent_object_defs
+  with_items: "{{ hawkular_agent_object_def_files.files }}"
+  when: openshift_metrics_install_hawkular_agent | bool
+  changed_when: no
+
+- name: Create Hawkular Agent objects
+  include_tasks: oc_apply.yaml
+  vars:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    namespace: "{{ openshift_metrics_hawkular_agent_namespace }}"
+    file_name: "{{ item.source }}"
+    file_content: "{{ item.content | b64decode | from_yaml }}"
+  with_items: "{{ hawkular_agent_object_defs.results }}"
+  when: openshift_metrics_install_hawkular_agent | bool
+
+# Update asset config in openshift-web-console namespace
+- name: Add metrics route information to web console asset config
+  include_role:
+    name: openshift_web_console
+    tasks_from: update_console_config.yml
+  vars:
+    console_config_edits:
+      - key: clusterInfo#metricsPublicURL
+        value: "https://{{ openshift_metrics_hawkular_hostname}}/hawkular/metrics"
+  when:
+    - openshift_web_console_install | default(true) | bool
+
+- command: >
+    {{openshift_client_binary}}
+    --config={{mktemp.stdout}}/admin.kubeconfig
+    get rc
+    -l metrics-infra
+    -o name
+    -n {{openshift_metrics_project}}
+  register: existing_metrics_rc
+  changed_when: no
+
+- name: Scaling down cluster to recognize changes
+  include_tasks: stop_metrics.yaml
+  when: existing_metrics_rc.stdout_lines | length > 0
+
+- name: Scaling up cluster
+  include_tasks: start_metrics.yaml
+  tags: openshift_metrics_start_cluster
+  when:
+    - openshift_metrics_start_cluster | default(true) | bool

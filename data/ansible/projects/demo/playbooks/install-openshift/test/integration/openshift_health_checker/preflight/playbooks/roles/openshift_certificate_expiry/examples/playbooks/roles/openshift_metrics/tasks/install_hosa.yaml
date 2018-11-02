@@ -1,0 +1,52 @@
+---
+- name: Ensure that Hawkular Agent (HOSA) has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_metrics_hawkular_agent_nodeselector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Hawkular Agent (HOSA)
+
+- name: Generate Hawkular Agent (HOSA) Cluster Role
+  template:
+    src: hawkular_openshift_agent_role.j2
+    dest: "{{mktemp.stdout}}/templates/metrics-hawkular-openshift-agent-role.yaml"
+  changed_when: no
+
+- name: Generate Hawkular Agent (HOSA) Service Account
+  template:
+    src: hawkular_openshift_agent_sa.j2
+    dest: "{{mktemp.stdout}}/templates/metrics-hawkular-openshift-agent-sa.yaml"
+  changed_when: no
+
+- name: Generate Hawkular Agent (HOSA) Daemon Set
+  template:
+    src: hawkular_openshift_agent_ds.j2
+    dest: "{{mktemp.stdout}}/templates/metrics-hawkular-openshift-agent-ds.yaml"
+  vars:
+    node_selector: "{{openshift_metrics_hawkular_agent_nodeselector | default('') }}"
+  changed_when: no
+
+- name: Generate the Hawkular Agent (HOSA) Configmap
+  template:
+    src: hawkular_openshift_agent_cm.j2
+    dest: "{{mktemp.stdout}}/templates/metrics-hawkular-openshift-agent-cm.yaml"
+  changed_when: no
+
+- name: Generate role binding for the hawkular-openshift-agent service account
+  template:
+    src: rolebinding.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-hawkular-openshift-agent-rolebinding.yaml"
+  vars:
+    cluster: True
+    obj_name: hawkular-openshift-agent-rb
+    labels:
+      metrics-infra: hawkular-agent
+    roleRef:
+      kind: ClusterRole
+      name: hawkular-openshift-agent
+    subjects:
+    - kind: ServiceAccount
+      name: hawkular-openshift-agent
+      namespace: "{{openshift_metrics_hawkular_agent_namespace}}"
+  changed_when: no

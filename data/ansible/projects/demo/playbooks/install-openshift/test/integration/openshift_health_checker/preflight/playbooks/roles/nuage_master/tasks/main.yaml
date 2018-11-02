@@ -1,0 +1,137 @@
+---
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Set the Nuage certificate directory fact for Atomic hosts
+  set_fact:
+    cert_output_dir: /var/usr/share/nuage-openshift-monitor
+  when: openshift_is_atomic | bool
+
+- name: Set the Nuage kubeconfig file path fact for Atomic hosts
+  set_fact:
+    kube_config: /var/usr/share/nuage-openshift-monitor/nuage.kubeconfig
+  when: openshift_is_atomic | bool
+
+- name: Set the Nuage monitor yaml location fact for Atomic hosts
+  set_fact:
+    kubemon_yaml: /var/usr/share/nuage-openshift-monitor/nuage-openshift-monitor.yaml
+  when: openshift_is_atomic | bool
+
+- name: Set the Nuage monitor certs location fact for Atomic hosts
+  set_fact:
+    nuage_master_crt_dir: /var/usr/share/nuage-openshift-monitor/
+  when: openshift_is_atomic | bool
+
+- name: Set the Nuage master config directory for daemon sets install
+  set_fact:
+    nuage_master_config_dsets_mount_dir: /var/usr/share/
+  when: master_host_type == "is_atomic"
+
+- name: Set the Nuage node config directory for daemon sets install
+  set_fact:
+    nuage_node_config_dsets_mount_dir: /var/usr/share/
+  when: slave_host_type == "is_atomic"
+
+- name: Set the Nuage CNI plugin binary directory for daemon sets install
+  set_fact:
+    nuage_cni_bin_dsets_mount_dir: /var/opt/cni/bin
+  when: openshift_is_atomic | bool
+
+- name: Create directory /usr/share/nuage-openshift-monitor
+  become: yes
+  file: path=/usr/share/nuage-openshift-monitor state=directory
+  when: not openshift_is_atomic | bool
+
+- name: Create directory /var/usr/share/nuage-openshift-monitor
+  become: yes
+  file: path=/var/usr/share/nuage-openshift-monitor state=directory
+  when: openshift_is_atomic | bool
+
+- name: Create directory /var/usr/bin for monitor binary on atomic
+  become: yes
+  file: path=/var/usr/bin state=directory
+  when: openshift_is_atomic | bool
+
+- name: Create CNI bin directory /var/opt/cni/bin
+  become: yes
+  file: path=/var/opt/cni/bin state=directory
+  when: openshift_is_atomic | bool
+
+- name: Create the log directory
+  become: yes
+  file: path={{ nuage_mon_rest_server_logdir }} state=directory
+
+- include_tasks: serviceaccount.yml
+
+- name: Download the certs and keys
+  become: yes
+  fetch: src={{ cert_output_dir }}/{{ item }} dest=/tmp/{{ item }} flat=yes
+  with_items:
+    - ca.crt
+    - nuage.crt
+    - nuage.key
+    - nuage.kubeconfig
+
+- name: Copy the certificates and keys
+  become: yes
+  copy: src="/tmp/{{ item }}" dest="{{ cert_output_dir }}/{{ item }}"
+  with_items:
+    - ca.crt
+    - nuage.crt
+    - nuage.key
+    - nuage.kubeconfig
+
+- include_tasks: etcd_certificates.yml
+- include_tasks: certificates.yml
+
+- name: Install Nuage VSD user certificate
+  become: yes
+  copy: src="{{ vsd_user_cert_file }}" dest="{{ cert_output_dir }}/{{ vsd_user_cert_file | basename }}"
+
+- name: Install Nuage VSD user key
+  become: yes
+  copy: src="{{ vsd_user_key_file }}" dest="{{ cert_output_dir }}/{{ vsd_user_key_file | basename }}"
+
+- name: Create Nuage master daemon set yaml file
+  become: yes
+  template: src=nuage-master-config-daemonset.j2 dest=/etc/nuage-master-config-daemonset.yaml owner=root mode=0644
+
+- name: Create Nuage node daemon set yaml file
+  become: yes
+  template: src=nuage-node-config-daemonset.j2 dest=/etc/nuage-node-config-daemonset.yaml owner=root mode=0644
+
+- name: Create Nuage Infra Pod daemon set yaml file
+  become: yes
+  template: src=nuage-infra-pod-config-daemonset.j2 dest=/etc/nuage-infra-pod-config-daemonset.yaml owner=root mode=0644
+
+- name: Add the service account to the privileged scc to have root permissions for kube-system
+  shell: oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:daemon-set-controller
+  ignore_errors: true
+  when: inventory_hostname == groups.oo_first_master.0
+
+- name: Add the service account to the privileged scc to have root permissions for openshift-infra
+  shell: oc adm policy add-scc-to-user privileged system:serviceaccount:openshift-infra:daemonset-controller
+  ignore_errors: true
+  when: inventory_hostname == groups.oo_first_master.0
+
+- name: Spawn Nuage Master monitor daemon sets pod
+  shell: oc create -f /etc/nuage-master-config-daemonset.yaml
+  ignore_errors: true
+  when: inventory_hostname == groups.oo_first_master.0
+
+- name: Spawn Nuage CNI daemon sets pod
+  shell: oc create -f /etc/nuage-node-config-daemonset.yaml
+  ignore_errors: true
+  when: inventory_hostname == groups.oo_first_master.0
+
+- name: Spawn Nuage Infra daemon sets pod
+  shell: oc create -f /etc/nuage-infra-pod-config-daemonset.yaml
+  ignore_errors: true
+  when: inventory_hostname == groups.oo_first_master.0
+
+- name: Restart daemons
+  command: /bin/true
+  notify:
+    - restart master api
+    - restart master controllers
+  ignore_errors: true

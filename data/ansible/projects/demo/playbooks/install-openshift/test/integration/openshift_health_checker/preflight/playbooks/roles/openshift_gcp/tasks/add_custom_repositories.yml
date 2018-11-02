@@ -1,0 +1,20 @@
+---
+- name: Copy custom repository secrets
+  copy:
+    src: "{{ files_dir }}/{{ item.1.sslclientcert }}"
+    dest: /var/lib/yum/custom_secret_{{ item.0 }}_cert
+  when: item.1.sslclientcert | default(false)
+  with_indexed_items: "{{ provision_custom_repositories }}"
+- name: Copy custom repository secrets
+  copy:
+    src: "{{ files_dir }}/{{ item.1.sslclientkey }}"
+    dest: /var/lib/yum/custom_secret_{{ item.0 }}_key
+  when: item.1.sslclientkey | default(false)
+  with_indexed_items: "{{ provision_custom_repositories }}"
+
+- name: Create any custom repos that are defined
+  template:
+    src: yum_repo.j2
+    dest: /etc/yum.repos.d/provision_custom_repositories.repo
+  when: provision_custom_repositories | length > 0
+  notify: refresh cache

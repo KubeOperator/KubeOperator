@@ -1,0 +1,1247 @@
+yaml => <ansible.plugins.inventory.yaml.InventoryModule object at 0x10723cac8>
+{'_playbooks': ['playbooks/prerequisites.yml'], '_inventory': <ansible.inventory.manager.InventoryManager object at 0x10742fc18>, '_variable_manager': <ansible.vars.manager.VariableManager object at 0x10723cac8>, '_loader': <ansible.parsing.dataloader.DataLoader object at 0x10742fbe0>, '_options': <Values at 0x10742fb70: {'verbosity': 0, 'inventory': ['/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/hosts.yaml'], 'listhosts': None, 'subset': None, 'module_path': None, 'extra_vars': [], 'forks': 20, 'ask_vault_pass': False, 'vault_password_files': [], 'vault_ids': [], 'tags': ['all'], 'skip_tags': [], 'ask_pass': False, 'private_key_file': None, 'remote_user': 'root', 'connection': 'smart', 'timeout': 30, 'ssh_common_args': '', 'sftp_extra_args': '', 'scp_extra_args': '', 'ssh_extra_args': '', 'sudo': False, 'sudo_user': None, 'su': False, 'su_user': None, 'become': False, 'become_method': 'sudo', 'become_user': 'root', 'ask_sudo_pass': False, 'ask_su_pass': False, 'become_ask_pass': False, 'check': False, 'syntax': None, 'diff': False, 'force_handlers': False, 'flush_cache': None, 'listtasks': None, 'listtags': None, 'step': None, 'start_at_task': None}>, 'passwords': {'conn_pass': None, 'become_pass': None}, '_unreachable_hosts': {}, '_tqm': <ansible.executor.task_queue_manager.TaskQueueManager object at 0x10742fd30>}
+
+PLAY [Initialization Checkpoint Start] *********************************************************************************************************************************************************************************************
+
+TASK [Set install initialization 'In Progress'] ************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.047)       0:00:00.048 ***** 
+ok: [master.jumpserver.org]
+
+PLAY [Populate config host groups] *************************************************************************************************************************************************************************************************
+
+TASK [Load group name mapping variables] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.072)       0:00:00.120 ***** 
+ok: [localhost]
+
+TASK [Evaluate groups - g_etcd_hosts or g_new_etcd_hosts required] *****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.043)       0:00:00.163 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_master_hosts or g_new_master_hosts required] *************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.052)       0:00:00.216 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_node_hosts or g_new_node_hosts required] *****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.049)       0:00:00.265 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_lb_hosts required] ***************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.045)       0:00:00.311 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_nfs_hosts required] **************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.034)       0:00:00.345 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_nfs_hosts is single host] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.057)       0:00:00.402 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - g_glusterfs_hosts required] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:16 +0000 (0:00:00.055)       0:00:00.458 ***** 
+skipping: [localhost]
+
+TASK [Evaluate groups - Fail if no etcd hosts group is defined] ********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.054)       0:00:00.512 ***** 
+skipping: [localhost]
+
+TASK [Evaluate oo_all_hosts] *******************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.047)       0:00:00.560 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+ok: [localhost] => (item=node1.jumpserver.org)
+ok: [localhost] => (item=node2.jumpserver.org)
+
+TASK [Evaluate oo_masters] *********************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.134)       0:00:00.695 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+
+TASK [Evaluate oo_first_master] ****************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.079)       0:00:00.774 ***** 
+ok: [localhost]
+
+TASK [Evaluate oo_new_etcd_to_config] **********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.066)       0:00:00.840 ***** 
+
+TASK [Evaluate oo_masters_to_config] ***********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.038)       0:00:00.879 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+
+TASK [Evaluate oo_etcd_to_config] **************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.117)       0:00:00.997 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+
+TASK [Evaluate oo_first_etcd] ******************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.055)       0:00:01.052 ***** 
+ok: [localhost]
+
+TASK [Evaluate oo_etcd_hosts_to_upgrade] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.049)       0:00:01.102 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+
+TASK [Evaluate oo_etcd_hosts_to_backup] ********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.051)       0:00:01.153 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+
+TASK [Evaluate oo_nodes_to_config] *************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.051)       0:00:01.205 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+ok: [localhost] => (item=node1.jumpserver.org)
+ok: [localhost] => (item=node2.jumpserver.org)
+
+TASK [Add master to oo_nodes_to_config] ********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.068)       0:00:01.273 ***** 
+skipping: [localhost] => (item=master.jumpserver.org) 
+
+TASK [Evaluate oo_lb_to_config] ****************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.046)       0:00:01.320 ***** 
+
+TASK [Evaluate oo_nfs_to_config] ***************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.031)       0:00:01.351 ***** 
+
+TASK [Evaluate oo_glusterfs_to_config] *********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.033)       0:00:01.384 ***** 
+
+TASK [Evaluate oo_etcd_to_migrate] *************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:17 +0000 (0:00:00.035)       0:00:01.420 ***** 
+ok: [localhost] => (item=master.jumpserver.org)
+ [WARNING]: Could not match supplied host pattern, ignoring: oo_lb_to_config
+ [WARNING]: Could not match supplied host pattern, ignoring: oo_nfs_to_config
+
+PLAY [Ensure that all non-node hosts are accessible] *******************************************************************************************************************************************************************************
+
+PLAY [Initialize basic host facts] *************************************************************************************************************************************************************************************************
+
+TASK [openshift_sanitize_inventory : include_tasks] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.090)       0:00:01.510 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/deprecations.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_sanitize_inventory : Check for usage of deprecated variables] ******************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.148)       0:00:01.659 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : debug] ****************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.195)       0:00:01.855 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : set_stats] ************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.095)       0:00:01.950 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Assign deprecated variables to correct counterparts] ******************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.092)       0:00:02.042 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/__deprecations_metrics.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/__deprecations_logging.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_sanitize_inventory : conditional_set_fact] *************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:18 +0000 (0:00:00.203)       0:00:02.246 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : conditional_set_fact] *************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.274)       0:00:02.520 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : set_fact] *************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.172)       0:00:02.693 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Standardize on latest variable names] *********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.122)       0:00:02.816 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Normalize openshift_release] ******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.116)       0:00:02.933 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Abort when openshift_release is invalid] ******************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.098)       0:00:03.032 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : include_tasks] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.093)       0:00:03.125 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_sanitize_inventory/tasks/unsupported.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_sanitize_inventory : Ensure that openshift_use_dnsmasq is true] ****************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.162)       0:00:03.288 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure that openshift_node_dnsmasq_install_network_manager_hook is true] **********************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.095)       0:00:03.384 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : set_fact] *************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:19 +0000 (0:00:00.094)       0:00:03.478 ***** 
+
+TASK [openshift_sanitize_inventory : Ensure that dynamic provisioning is set if using dynamic storage] *****************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.126)       0:00:03.605 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure the hosted registry's GlusterFS storage is configured correctly] ***********************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.102)       0:00:03.707 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure the hosted registry's GlusterFS storage is configured correctly] ***********************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.100)       0:00:03.807 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure clusterid is set along with the cloudprovider] *****************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.091)       0:00:03.899 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure ansible_service_broker_remove and ansible_service_broker_install are mutually exclusive] ***********************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.105)       0:00:04.005 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure template_service_broker_remove and template_service_broker_install are mutually exclusive] *********************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.096)       0:00:04.102 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure that all requires vsphere configuration variables are set] *****************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.094)       0:00:04.196 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure removed web console extension variables are not set] ***********************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.093)       0:00:04.289 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : Ensure that web console port matches API server port] *****************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.094)       0:00:04.384 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_sanitize_inventory : At least one master is schedulable] ***********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:20 +0000 (0:00:00.092)       0:00:04.476 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [Detecting Operating System from ostree_booted] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.127)       0:00:04.603 ***** 
+ok: [node2.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [set openshift_deployment_type if unset] **************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.389)       0:00:04.993 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [initialize_facts set fact openshift_is_atomic and openshift_is_containerized] ************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.098)       0:00:05.091 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [Set use_crio to True if cri-o rpm is requested] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.122)       0:00:05.214 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [Determine Atomic ClusterHost Docker Version] ****************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.096)       0:00:05.311 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [assert atomic host docker version is 1.12 or later] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:21 +0000 (0:00:00.095)       0:00:05.406 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+PLAY [Initialize special first-master variables] ***********************************************************************************************************************************************************************************
+
+TASK [stat] ************************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:22 +0000 (0:00:00.100)       0:00:05.507 ***** 
+ok: [master.jumpserver.org]
+
+TASK [slurp] ***********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:22 +0000 (0:00:00.275)       0:00:05.783 ***** 
+ok: [master.jumpserver.org]
+
+TASK [set_fact] ********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:22 +0000 (0:00:00.359)       0:00:06.142 ***** 
+ok: [master.jumpserver.org]
+
+TASK [set_fact] ********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:22 +0000 (0:00:00.315)       0:00:06.457 ***** 
+ok: [master.jumpserver.org]
+
+PLAY [Disable web console if required] *********************************************************************************************************************************************************************************************
+
+TASK [set_fact] ********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:23 +0000 (0:00:00.110)       0:00:06.568 ***** 
+skipping: [master.jumpserver.org]
+
+PLAY [Install packages necessary for installer] ************************************************************************************************************************************************************************************
+
+TASK [Ensure openshift-ansible installer package deps are installed] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:23 +0000 (0:00:00.113)       0:00:06.682 ***** 
+ok: [node2.jumpserver.org] => (item=iproute)
+ok: [node1.jumpserver.org] => (item=iproute)
+ok: [master.jumpserver.org] => (item=iproute)
+ok: [node2.jumpserver.org] => (item=dbus-python)
+ok: [node1.jumpserver.org] => (item=dbus-python)
+ok: [master.jumpserver.org] => (item=dbus-python)
+ok: [node1.jumpserver.org] => (item=PyYAML)
+ok: [node2.jumpserver.org] => (item=PyYAML)
+ok: [master.jumpserver.org] => (item=PyYAML)
+ok: [node1.jumpserver.org] => (item=python-ipaddress)
+ok: [node2.jumpserver.org] => (item=python-ipaddress)
+ok: [master.jumpserver.org] => (item=python-ipaddress)
+ok: [node1.jumpserver.org] => (item=yum-utils)
+ok: [node2.jumpserver.org] => (item=yum-utils)
+ok: [master.jumpserver.org] => (item=yum-utils)
+
+TASK [Ensure various deps for running system containers are installed] *************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:25 +0000 (0:00:02.297)       0:00:08.980 ***** 
+skipping: [master.jumpserver.org] => (item=atomic) 
+skipping: [master.jumpserver.org] => (item=ostree) 
+skipping: [node1.jumpserver.org] => (item=atomic) 
+skipping: [master.jumpserver.org] => (item=runc) 
+skipping: [node1.jumpserver.org] => (item=ostree) 
+skipping: [node2.jumpserver.org] => (item=atomic) 
+skipping: [node1.jumpserver.org] => (item=runc) 
+skipping: [node2.jumpserver.org] => (item=ostree) 
+skipping: [node2.jumpserver.org] => (item=runc) 
+
+PLAY [Initialize cluster facts] ****************************************************************************************************************************************************************************************************
+
+TASK [Gather Cluster facts] ********************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:25 +0000 (0:00:00.161)       0:00:09.142 ***** 
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [Set fact of no_proxy_internal_hostnames] *************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:27 +0000 (0:00:01.338)       0:00:10.481 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [Initialize openshift.node.sdn_mtu] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:27 +0000 (0:00:00.096)       0:00:10.577 ***** 
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+ok: [master.jumpserver.org]
+
+PLAY [Initialize etcd host variables] **********************************************************************************************************************************************************************************************
+
+TASK [set_fact] ********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:28 +0000 (0:00:00.964)       0:00:11.542 ***** 
+ok: [master.jumpserver.org]
+
+TASK [set_fact] ********************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:28 +0000 (0:00:00.114)       0:00:11.656 ***** 
+ok: [master.jumpserver.org]
+
+PLAY [Determine openshift_version to configure on first master] ********************************************************************************************************************************************************************
+
+TASK [include_role] ****************************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:28 +0000 (0:00:00.084)       0:00:11.740 ***** 
+skipping: [master.jumpserver.org]
+
+PLAY [Set openshift_version for etcd, node, and master hosts] **********************************************************************************************************************************************************************
+skipping: no hosts matched
+
+PLAY [Ensure the requested version packages are available.] ************************************************************************************************************************************************************************
+skipping: no hosts matched
+
+PLAY [Verify Requirements] *********************************************************************************************************************************************************************************************************
+
+TASK [Run variable sanity checks] **************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:28 +0000 (0:00:00.064)       0:00:11.805 ***** 
+ok: [master.jumpserver.org]
+
+PLAY [Initialization Checkpoint End] ***********************************************************************************************************************************************************************************************
+
+TASK [Set install initialization 'Complete'] ***************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:29 +0000 (0:00:00.936)       0:00:12.741 ***** 
+ok: [master.jumpserver.org]
+
+PLAY [Validate node hostnames] *****************************************************************************************************************************************************************************************************
+
+TASK [Query DNS for IP address of master] ******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:29 +0000 (0:00:00.092)       0:00:12.834 ***** 
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [Validate openshift_hostname when defined] ************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:29 +0000 (0:00:00.402)       0:00:13.237 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [Validate openshift_ip exists on node when defined] ***************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:29 +0000 (0:00:00.098)       0:00:13.336 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+PLAY [Setup yum repositories for all hosts] ****************************************************************************************************************************************************************************************
+
+TASK [rhel_subscribe : fail] *******************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:29 +0000 (0:00:00.111)       0:00:13.447 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : Install Red Hat Subscription manager] ***********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.097)       0:00:13.545 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : Is host already registered?] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.098)       0:00:13.643 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : Register host] **********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.093)       0:00:13.736 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : fail] *******************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.093)       0:00:13.830 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : Determine if OpenShift Pool Already Attached] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.096)       0:00:13.926 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : Attach to OpenShift Pool] ***********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.094)       0:00:14.021 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [rhel_subscribe : include_tasks] **********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.093)       0:00:14.115 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_repos : openshift_repos detect ostree] *****************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:30 +0000 (0:00:00.097)       0:00:14.213 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_repos : Ensure libselinux-python is installed] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:31 +0000 (0:00:00.318)       0:00:14.532 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_repos : Remove openshift_additional.repo file] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:31 +0000 (0:00:00.572)       0:00:15.104 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_repos : Create any additional repos that are defined] **************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:31 +0000 (0:00:00.365)       0:00:15.470 ***** 
+
+TASK [openshift_repos : include_tasks] *********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:32 +0000 (0:00:00.098)       0:00:15.568 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_repos : include_tasks] *********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:32 +0000 (0:00:00.099)       0:00:15.668 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/tasks/centos_repos.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_repos : Configure origin gpg keys] *********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:32 +0000 (0:00:00.167)       0:00:15.835 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_repos : Configure correct origin release repository] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:32 +0000 (0:00:00.583)       0:00:16.418 ***** 
+ok: [node1.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)
+ok: [master.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)
+ok: [node2.jumpserver.org] => (item=/Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_repos/templates/CentOS-OpenShift-Origin.repo.j2)
+
+TASK [openshift_repos : Ensure clean repo cache in the event repos have been changed manually] *************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:33 +0000 (0:00:00.623)       0:00:17.042 ***** 
+changed: [master.jumpserver.org] => {
+    "msg": "First run of openshift_repos"
+}
+changed: [node1.jumpserver.org] => {
+    "msg": "First run of openshift_repos"
+}
+changed: [node2.jumpserver.org] => {
+    "msg": "First run of openshift_repos"
+}
+
+TASK [openshift_repos : Record that openshift_repos already ran] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:33 +0000 (0:00:00.125)       0:00:17.167 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+RUNNING HANDLER [openshift_repos : refresh cache] **********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:33 +0000 (0:00:00.103)       0:00:17.271 ***** 
+changed: [node1.jumpserver.org]
+changed: [node2.jumpserver.org]
+changed: [master.jumpserver.org]
+
+PLAY [Configure os_firewall] *******************************************************************************************************************************************************************************************************
+
+TASK [os_firewall : Detecting Atomic ClusterHost Operating System] ************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:34 +0000 (0:00:00.505)       0:00:17.777 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [os_firewall : Set fact r_os_firewall_is_atomic] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:34 +0000 (0:00:00.270)       0:00:18.048 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [os_firewall : include_tasks] *************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:34 +0000 (0:00:00.122)       0:00:18.170 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [os_firewall : include_tasks] *************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:34 +0000 (0:00:00.098)       0:00:18.269 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/os_firewall/tasks/iptables.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [os_firewall : Ensure firewalld service is not enabled] ***********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:34 +0000 (0:00:00.150)       0:00:18.420 ***** 
+ok: [node2.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [os_firewall : Wait 10 seconds after disabling firewalld] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:35 +0000 (0:00:00.438)       0:00:18.858 ***** 
+skipping: [master.jumpserver.org]
+
+TASK [os_firewall : Install iptables packages] *************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:35 +0000 (0:00:00.044)       0:00:18.903 ***** 
+ok: [master.jumpserver.org] => (item=iptables)
+ok: [node1.jumpserver.org] => (item=iptables)
+ok: [node2.jumpserver.org] => (item=iptables)
+ok: [node1.jumpserver.org] => (item=iptables-services)
+ok: [master.jumpserver.org] => (item=iptables-services)
+ok: [node2.jumpserver.org] => (item=iptables-services)
+
+TASK [os_firewall : Start and enable iptables service] *****************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:36 +0000 (0:00:00.939)       0:00:19.843 ***** 
+ok: [master.jumpserver.org -> None] => (item=master.jumpserver.org)
+ok: [master.jumpserver.org -> None] => (item=node1.jumpserver.org)
+ok: [master.jumpserver.org -> None] => (item=node2.jumpserver.org)
+
+TASK [os_firewall : need to pause here, otherwise the iptables service starting can sometimes cause ssh to fail] *******************************************************************************************************************
+Wednesday 31 October 2018  11:12:37 +0000 (0:00:00.718)       0:00:20.562 ***** 
+skipping: [master.jumpserver.org]
+
+PLAY [create oo_hosts_containerized_managed_true host group] ***********************************************************************************************************************************************************************
+skipping: no hosts matched
+ [WARNING]: Could not match supplied host pattern, ignoring: oo_hosts_containerized_managed_true
+
+PLAY [oo_nodes_to_config:oo_hosts_containerized_managed_true] **********************************************************************************************************************************************************************
+
+TASK [container_runtime : Setup the docker-storage for overlay] ********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:37 +0000 (0:00:00.065)       0:00:20.627 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+PLAY [create oo_hosts_containerized_managed_true host group] ***********************************************************************************************************************************************************************
+skipping: no hosts matched
+
+PLAY [oo_nodes_to_config:oo_hosts_containerized_managed_true] **********************************************************************************************************************************************************************
+
+TASK [openshift_excluder : Install excluders] **************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:37 +0000 (0:00:00.116)       0:00:20.744 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_excluder/tasks/install.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_excluder : Install docker excluder - yum] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:12:37 +0000 (0:00:00.140)       0:00:20.885 ***** 
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [openshift_excluder : Install docker excluder - dnf] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:08 +0000 (0:00:31.238)       0:00:52.124 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Install openshift excluder - yum] ***********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:08 +0000 (0:00:00.104)       0:00:52.228 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Install openshift excluder - dnf] ***********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:08 +0000 (0:00:00.102)       0:00:52.331 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [openshift_excluder : set_fact] ***********************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:08 +0000 (0:00:00.097)       0:00:52.429 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Enable excluders] ***************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:09 +0000 (0:00:00.121)       0:00:52.550 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/openshift_excluder/tasks/exclude.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [openshift_excluder : Check for docker-excluder] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:09 +0000 (0:00:00.144)       0:00:52.695 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Enable docker excluder] *********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:09 +0000 (0:00:00.275)       0:00:52.970 ***** 
+changed: [master.jumpserver.org]
+changed: [node1.jumpserver.org]
+changed: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Check for openshift excluder] ***************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:09 +0000 (0:00:00.367)       0:00:53.337 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [openshift_excluder : Enable openshift excluder] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.274)       0:00:53.612 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.098)       0:00:53.711 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/container_runtime/tasks/common/pre.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.153)       0:00:53.864 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Add enterprise registry, if necessary] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.098)       0:00:53.962 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.101)       0:00:54.063 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Get current installed Docker version] ********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:10 +0000 (0:00:00.130)       0:00:54.193 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.457)       0:00:54.651 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/container_runtime/tasks/docker_sanity.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [container_runtime : Error out if Docker pre-installed but too old] ***********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.162)       0:00:54.813 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Error out if requested Docker is too old] ****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.104)       0:00:54.917 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Fail if Docker version requested but downgrade is required] **********************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.097)       0:00:55.015 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Error out if attempting to upgrade Docker across the 1.10 boundary] **************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.098)       0:00:55.114 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Install Docker] ******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.105)       0:00:55.220 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure docker.service.d directory exists] ****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:11 +0000 (0:00:00.103)       0:00:55.323 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Configure Docker service unit file] **********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:12 +0000 (0:00:00.278)       0:00:55.602 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : stat] ****************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:12 +0000 (0:00:00.575)       0:00:56.177 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Set registry params] *************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:12 +0000 (0:00:00.290)       0:00:56.467 ***** 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'ADD_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--add-registry'}) 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'BLOCK_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--block-registry'}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'ADD_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--add-registry'}) 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'INSECURE_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--insecure-registry'}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'BLOCK_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--block-registry'}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'ADD_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--add-registry'}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'INSECURE_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--insecure-registry'}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'BLOCK_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--block-registry'}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'INSECURE_REGISTRY', 'reg_fact_val': [], 'reg_flag': '--insecure-registry'}) 
+
+TASK [container_runtime : Place additional/blocked/insecure registries in /etc/containers/registries.conf] *************************************************************************************************************************
+Wednesday 31 October 2018  11:13:13 +0000 (0:00:00.164)       0:00:56.632 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Set Proxy Settings] **************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:13 +0000 (0:00:00.099)       0:00:56.731 ***** 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'HTTP_PROXY', 'reg_fact_val': ''}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'HTTP_PROXY', 'reg_fact_val': ''}) 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'HTTPS_PROXY', 'reg_fact_val': ''}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'HTTPS_PROXY', 'reg_fact_val': ''}) 
+skipping: [master.jumpserver.org] => (item={'reg_conf_var': 'NO_PROXY', 'reg_fact_val': ''}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'HTTP_PROXY', 'reg_fact_val': ''}) 
+skipping: [node1.jumpserver.org] => (item={'reg_conf_var': 'NO_PROXY', 'reg_fact_val': ''}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'HTTPS_PROXY', 'reg_fact_val': ''}) 
+skipping: [node2.jumpserver.org] => (item={'reg_conf_var': 'NO_PROXY', 'reg_fact_val': ''}) 
+
+TASK [container_runtime : Set various Docker options] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:13 +0000 (0:00:00.172)       0:00:56.904 ***** 
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+ok: [master.jumpserver.org]
+
+TASK [container_runtime : stat] ****************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:13 +0000 (0:00:00.407)       0:00:57.311 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Configure Docker Network OPTIONS] ************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:14 +0000 (0:00:00.293)       0:00:57.604 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Detect if docker is already started] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:14 +0000 (0:00:00.287)       0:00:57.892 ***** 
+ok: [node1.jumpserver.org]
+ok: [master.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Start the Docker service] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:14 +0000 (0:00:00.286)       0:00:58.178 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : set_fact] ************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:15 +0000 (0:00:00.350)       0:00:58.529 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:15 +0000 (0:00:00.129)       0:00:58.659 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/container_runtime/tasks/common/post.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [container_runtime : Ensure /var/lib/containers exists] ***********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:15 +0000 (0:00:00.163)       0:00:58.822 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : Fix SELinux Permissions on /var/lib/containers] **********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:15 +0000 (0:00:00.286)       0:00:59.108 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:15 +0000 (0:00:00.325)       0:00:59.434 ***** 
+included: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/openshift-ansible-openshift/roles/container_runtime/tasks/registry_auth.yml for master.jumpserver.org, node1.jumpserver.org, node2.jumpserver.org
+
+TASK [container_runtime : Check for credentials file for registry auth] ************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.191)       0:00:59.625 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Create credentials for docker cli registry auth] *********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.102)       0:00:59.728 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Create credentials for docker cli registry auth (alternative)] *******************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.107)       0:00:59.835 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : stat the docker data dir] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.101)       0:00:59.937 ***** 
+ok: [master.jumpserver.org]
+ok: [node1.jumpserver.org]
+ok: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.295)       0:01:00.232 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Fail quickly if openshift_docker_options are set] ********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.104)       0:01:00.337 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:16 +0000 (0:00:00.095)       0:01:00.433 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.100)       0:01:00.534 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Install Docker so we can use the client] *****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.099)       0:01:00.633 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Disable Docker] ******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.095)       0:01:00.728 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure proxies are in the atomic.conf] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.111)       0:01:00.840 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : debug] ***************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.096)       0:01:00.936 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.096)       0:01:01.033 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Pre-pull Container Engine System Container image] ********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.099)       0:01:01.133 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure container-engine.service.d directory exists] ******************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.101)       0:01:01.235 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure /etc/docker directory exists] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.093)       0:01:01.329 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Install Container Engine System Container] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:17 +0000 (0:00:00.134)       0:01:01.464 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Configure Container Engine Service File] *****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.094)       0:01:01.558 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Configure Container Engine] ******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.091)       0:01:01.649 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Start the container-engine service] **********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.096)       0:01:01.746 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : set_fact] ************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.095)       0:01:01.841 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.092)       0:01:01.934 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Check we are not using node as a Docker container with CRI-O] ********************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.097)       0:01:02.031 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.094)       0:01:02.125 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.098)       0:01:02.224 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Check that overlay is in the kernel] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.094)       0:01:02.318 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Add overlay to modprobe.d] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:18 +0000 (0:00:00.093)       0:01:02.412 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Manually modprobe overlay into the kernel] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.094)       0:01:02.506 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Enable and start systemd-modules-load] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.095)       0:01:02.601 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure proxies are in the atomic.conf] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.091)       0:01:02.693 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : debug] ***************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.123)       0:01:02.817 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Pre-pull CRI-O System Container image] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.092)       0:01:02.910 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Install CRI-O System Container] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.094)       0:01:03.005 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Remove CRI-O default configuration files] ****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.094)       0:01:03.099 ***** 
+skipping: [master.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [master.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+skipping: [node1.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [node1.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+skipping: [node2.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [node2.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+
+TASK [container_runtime : Create the CRI-O configuration] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.101)       0:01:03.201 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure CNI configuration directory exists] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.099)       0:01:03.300 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Add iptables allow rules] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:19 +0000 (0:00:00.094)       0:01:03.395 ***** 
+skipping: [master.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node1.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node2.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+
+TASK [container_runtime : Remove iptables rules] ***********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.098)       0:01:03.493 ***** 
+
+TASK [container_runtime : Add firewalld allow rules] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.099)       0:01:03.593 ***** 
+skipping: [master.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node1.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node2.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+
+TASK [container_runtime : Remove firewalld allow rules] ****************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.104)       0:01:03.698 ***** 
+
+TASK [container_runtime : Configure the CNI network] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.095)       0:01:03.793 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Create /etc/sysconfig/crio-storage] **********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.097)       0:01:03.890 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Create /etc/sysconfig/crio-network] **********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.094)       0:01:03.985 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : debug] ***************************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.091)       0:01:04.077 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Start the CRI-O service] *********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.096)       0:01:04.174 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.092)       0:01:04.266 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Fail if Atomic ClusterHost since this is an rpm request] ********************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.099)       0:01:04.366 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:20 +0000 (0:00:00.093)       0:01:04.460 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Check that overlay is in the kernel] *********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.096)       0:01:04.556 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Add overlay to modprobe.d] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.099)       0:01:04.655 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Manually modprobe overlay into the kernel] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.095)       0:01:04.750 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Enable and start systemd-modules-load] *******************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.092)       0:01:04.843 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Install cri-o] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.098)       0:01:04.941 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Remove CRI-O default configuration files] ****************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.093)       0:01:05.034 ***** 
+skipping: [master.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [master.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+skipping: [node1.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [node1.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+skipping: [node2.jumpserver.org] => (item=/etc/cni/net.d/200-loopback.conf) 
+skipping: [node2.jumpserver.org] => (item=/etc/cni/net.d/100-crio-bridge.conf) 
+
+TASK [container_runtime : Create the CRI-O configuration] **************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.107)       0:01:05.142 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Ensure CNI configuration directory exists] ***************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.098)       0:01:05.240 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Add iptables allow rules] ********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.096)       0:01:05.336 ***** 
+skipping: [master.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node1.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node2.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+
+TASK [container_runtime : Remove iptables rules] ***********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:21 +0000 (0:00:00.113)       0:01:05.450 ***** 
+
+TASK [container_runtime : Add firewalld allow rules] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.097)       0:01:05.547 ***** 
+skipping: [master.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node1.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+skipping: [node2.jumpserver.org] => (item={'service': 'crio', 'port': '10010/tcp'}) 
+
+TASK [container_runtime : Remove firewalld allow rules] ****************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.101)       0:01:05.649 ***** 
+
+TASK [container_runtime : Configure the CNI network] *******************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.132)       0:01:05.781 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Create /etc/sysconfig/crio-network] **********************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.103)       0:01:05.884 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : Start the CRI-O service] *********************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.094)       0:01:05.979 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+TASK [container_runtime : include_tasks] *******************************************************************************************************************************************************************************************
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.098)       0:01:06.078 ***** 
+skipping: [master.jumpserver.org]
+skipping: [node1.jumpserver.org]
+skipping: [node2.jumpserver.org]
+
+PLAY RECAP *************************************************************************************************************************************************************************************************************************
+localhost                  : ok=11   changed=0    unreachable=0    failed=0   
+master.jumpserver.org      : ok=63   changed=3    unreachable=0    failed=0   
+node1.jumpserver.org       : ok=53   changed=3    unreachable=0    failed=0   
+node2.jumpserver.org       : ok=53   changed=3    unreachable=0    failed=0   
+
+
+INSTALLER STATUS *******************************************************************************************************************************************************************************************************************
+Initialization             : Complete (0:00:13)
+
+Wednesday 31 October 2018  11:13:22 +0000 (0:00:00.082)       0:01:06.160 ***** 
+=============================================================================== 
+openshift_excluder : Install docker excluder - yum ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 31.24s
+Ensure openshift-ansible installer package deps are installed --------------------------------------------------------------------------------------------------------------------------------------------------------------- 2.30s
+Gather Cluster facts -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 1.34s
+Initialize openshift.node.sdn_mtu ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.96s
+os_firewall : Install iptables packages ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.94s
+Run variable sanity checks -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.94s
+os_firewall : Start and enable iptables service ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.72s
+openshift_repos : Configure correct origin release repository --------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.62s
+openshift_repos : Configure origin gpg keys --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.58s
+container_runtime : Configure Docker service unit file ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.58s
+openshift_repos : Ensure libselinux-python is installed --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.57s
+openshift_repos : refresh cache --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.51s
+container_runtime : Get current installed Docker version -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.46s
+os_firewall : Ensure firewalld service is not enabled ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.44s
+container_runtime : Set various Docker options ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 0.41s
+Query DNS for IP address of master ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 0.40s
+Detecting Operating System from ostree_booted ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.39s
+openshift_excluder : Enable docker excluder --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.37s
+openshift_repos : Remove openshift_additional.repo file --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.37s
+slurp ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 0.36s
+Task ansible_ui.tasks.execute_playbook_using_command[6aea07da-8873-471b-a5d9-7a7de57744b9] succeeded in 68.20732250899891s: {'success': True}

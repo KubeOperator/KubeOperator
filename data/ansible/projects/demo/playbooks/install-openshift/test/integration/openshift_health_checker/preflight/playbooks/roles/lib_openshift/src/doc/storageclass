@@ -1,0 +1,98 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_storageclass
+short_description: Create, modify, and idempotently manage openshift storageclasses.
+description:
+  - Manage openshift storageclass objects programmatically.
+options:
+  state:
+    description:
+    - State represents whether to create, modify, delete, or list
+    required: False
+    default: present
+    choices: ["present", "absent", "list"]
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  name:
+    description:
+    - Name of the object that is being queried.
+    required: false
+    default: None
+    aliases: []
+  provisioner:
+    description:
+    - Any annotations to add to the storageclass
+    required: false
+    default: 'aws-ebs'
+    aliases: []
+  default_storage_class:
+    description:
+    - Whether or not this is the default storage class
+    required: false
+    default: False
+    aliases: []
+  parameters:
+    description:
+    - A dictionary with the parameters to configure the storageclass.  This will be based on provisioner
+    required: false
+    default: None
+    aliases: []
+  api_version:
+    description:
+    - The api version.
+    required: false
+    default: v1
+    aliases: []
+  mount_options:
+    description:
+    - A list of mount options to pass when mounting volumes of this storage class.
+    required: false
+    default: None
+    aliases: []
+  reclaim_policy:
+    description:
+    - The reclaim policy to use for this storage class.
+    required: false
+    default: None
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: get storageclass
+  run_once: true
+  oc_storageclass:
+    name: gp2
+    state: list
+  register: registry_sc_out
+
+- name: create the storageclass
+  oc_storageclass:
+  run_once: true
+    name: gp2
+    parameters:
+      type: gp2
+      encrypted: 'true'
+      kmsKeyId: '<full kms key arn>'
+    provisioner: aws-ebs
+    default_storage_class: False
+  register: sc_out
+  notify:
+  - restart openshift master services
+'''

@@ -1,0 +1,3 @@
+[host323, host3]
+PLAY RECAP *********************************************************************
+Task ansible_ui.tasks.execute_playbook[babb0b03-b045-4509-a621-4c502527d59f] succeeded in 0.20690584399562795s: {'success': True}

@@ -1,0 +1,15 @@
+set current project: ROOT
+set current project: demo
+Write playbook to: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/playbook2/playbook.yml
+PLAY [all] *********************************************************************
+TASK [Gathering Facts] *********************************************************
+[0;32mok: [host2][0m
+[1;31mfatal: [host1]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 192.168.244.142 port 22: Operation timed out\r\n", "unreachable": true}[0m
+TASK [Update use key] **********************************************************
+[0;32mok: [host2][0m
+TASK [ping] ********************************************************************
+[0;32mok: [host2][0m
+PLAY RECAP *********************************************************************
+[0;31mhost1[0m                      : ok=0    changed=0    [1;31munreachable=1   [0m failed=0
+[0;32mhost2[0m                      : [0;32mok=3   [0m changed=0    unreachable=0    failed=0
+Task ansible_ui.tasks.execute_playbook[18907756-551d-4a77-894c-956394fac41d] succeeded in 11.076935438031796s: {'success': False, 'contacted': [{'hostname': 'host2', 'tasks': [...]}], 'dark': [{'hostname': 'host1', 'tasks': [...]}]}

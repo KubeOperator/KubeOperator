@@ -1,0 +1,202 @@
+apiVersion: "v1"
+kind: "DeploymentConfig"
+metadata:
+  name: "{{deploy_name}}"
+  labels:
+    provider: openshift
+    component: "{{component}}"
+    logging-infra: "{{logging_component}}"
+spec:
+  replicas: {{mux_replicas|default(1)}}
+  selector:
+    provider: openshift
+    component: "{{component}}"
+    logging-infra: "{{logging_component}}"
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: "{{deploy_name}}"
+      labels:
+        logging-infra: "{{logging_component}}"
+        provider: openshift
+        component: "{{component}}"
+    spec:
+      serviceAccountName: aggregated-logging-mux
+{% if mux_node_selector is iterable and mux_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in mux_node_selector.items() %}
+        {{key}}: "{{value}}"
+{% endfor %}
+{% endif %}
+      containers:
+      - name: "mux"
+        image: {{image}}
+        imagePullPolicy: IfNotPresent
+{% if (mux_memory_limit is defined and mux_memory_limit is not none) or (mux_cpu_limit is defined and mux_cpu_limit is not none) or (mux_cpu_request is defined and mux_cpu_request is not none) %}
+        resources:
+{%   if (mux_memory_limit is defined and mux_memory_limit is not none) or (mux_cpu_limit is defined and mux_cpu_limit is not none) %}
+          limits:
+{%     if mux_cpu_limit is not none %}
+            cpu: "{{mux_cpu_limit}}"
+{%     endif %}
+{%     if mux_memory_limit is not none %}
+            memory: "{{mux_memory_limit}}"
+{%     endif %}
+{%   endif %}
+{%   if (mux_memory_limit is defined and mux_memory_limit is not none) or (mux_cpu_request is defined and mux_cpu_request is not none) %}
+          requests:
+{%     if mux_cpu_request is not none %}
+            cpu: "{{mux_cpu_request}}"
+{%     endif %}
+{%     if mux_memory_limit is not none %}
+            memory: "{{mux_memory_limit}}"
+{%     endif %}
+{%   endif %}
+{% endif %}
+        ports:
+        - containerPort: {{ openshift_logging_mux_port }}
+          name: mux-forward
+        volumeMounts:
+        - name: config
+          mountPath: /etc/fluent/configs.d/user
+          readOnly: true
+        - name: certs
+          mountPath: /etc/fluent/keys
+          readOnly: true
+        - name: dockerhostname
+          mountPath: /etc/docker-hostname
+          readOnly: true
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: muxcerts
+          mountPath: /etc/fluent/muxkeys
+          readOnly: true
+        - name: filebufferstorage
+          mountPath: /var/lib/fluentd
+        env:
+        - name: "K8S_HOST_URL"
+          value: "{{openshift_logging_mux_master_url}}"
+        - name: "ES_HOST"
+          value: "{{openshift_logging_mux_app_host}}"
+        - name: "ES_PORT"
+          value: "{{openshift_logging_mux_app_port}}"
+        - name: "ES_CLIENT_CERT"
+          value: "{{openshift_logging_mux_app_client_cert}}"
+        - name: "ES_CLIENT_KEY"
+          value: "{{openshift_logging_mux_app_client_key}}"
+        - name: "ES_CA"
+          value: "{{openshift_logging_mux_app_ca}}"
+        - name: "OPS_HOST"
+          value: "{{openshift_logging_mux_ops_host}}"
+        - name: "OPS_PORT"
+          value: "{{openshift_logging_mux_ops_port}}"
+        - name: "OPS_CLIENT_CERT"
+          value: "{{openshift_logging_mux_ops_client_cert}}"
+        - name: "OPS_CLIENT_KEY"
+          value: "{{openshift_logging_mux_ops_client_key}}"
+        - name: "OPS_CA"
+          value: "{{openshift_logging_mux_ops_ca}}"
+        - name: "JOURNAL_SOURCE"
+          value: "{{openshift_logging_mux_journal_source | default('')}}"
+        - name: "JOURNAL_READ_FROM_HEAD"
+          value: "{{openshift_logging_mux_journal_read_from_head|lower}}"
+        - name: FORWARD_LISTEN_HOST
+          value: "{{ openshift_logging_mux_hostname }}"
+        - name: FORWARD_LISTEN_PORT
+          value: "{{ openshift_logging_mux_port }}"
+        - name: USE_MUX
+          value: "true"
+        - name: "BUFFER_QUEUE_LIMIT"
+          value: "{{ openshift_logging_mux_buffer_queue_limit }}"
+        - name: "BUFFER_SIZE_LIMIT"
+          value: "{{ openshift_logging_mux_buffer_size_limit }}"
+        - name: "MUX_CPU_LIMIT"
+          valueFrom:
+            resourceFieldRef:
+              containerName: "mux"
+              resource: limits.cpu
+        - name: "MUX_MEMORY_LIMIT"
+          valueFrom:
+            resourceFieldRef:
+              containerName: "mux"
+              resource: limits.memory
+        - name: "FILE_BUFFER_LIMIT"
+          value: "{{ openshift_logging_mux_file_buffer_limit | default('2Gi') }}"
+
+{% if openshift_logging_mux_remote_syslog is defined and openshift_logging_mux_remote_syslog %}
+        - name: USE_REMOTE_SYSLOG
+          value: "true"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_host is defined %}
+        - name: REMOTE_SYSLOG_HOST
+          value: "{{ openshift_logging_mux_remote_syslog_host }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_port is defined %}
+        - name: REMOTE_SYSLOG_PORT
+          value: "{{ openshift_logging_mux_remote_syslog_port }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_severity is defined %}
+        - name: REMOTE_SYSLOG_SEVERITY
+          value: "{{ openshift_logging_mux_remote_syslog_severity }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_facility is defined %}
+        - name: REMOTE_SYSLOG_FACILITY
+          value: "{{ openshift_logging_mux_remote_syslog_facility }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_remove_tag_prefix is defined %}
+        - name: REMOTE_SYSLOG_REMOVE_TAG_PREFIX
+          value: "{{ openshift_logging_mux_remote_syslog_remove_tag_prefix }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_tag_key is defined %}
+        - name: REMOTE_SYSLOG_TAG_KEY
+          value: "{{ openshift_logging_mux_remote_syslog_tag_key }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_use_record is defined %}
+        - name: REMOTE_SYSLOG_USE_RECORD
+          value: "{{ openshift_logging_mux_remote_syslog_use_record }}"
+{% endif %}
+
+{% if openshift_logging_mux_remote_syslog_payload_key is defined %}
+        - name: REMOTE_SYSLOG_PAYLOAD_KEY
+          value: "{{ openshift_logging_mux_remote_syslog_payload_key }}"
+{% endif %}
+
+      volumes:
+      - name: config
+        configMap:
+          name: logging-mux
+      - name: certs
+        secret:
+          secretName: logging-fluentd
+      - name: dockerhostname
+        hostPath:
+          path: /etc/hostname
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: muxcerts
+        secret:
+          secretName: logging-mux
+      - name: filebufferstorage
+{% if openshift_logging_mux_file_buffer_storage_type == 'pvc' %}
+        persistentVolumeClaim:
+          claimName: {{ openshift_logging_mux_file_buffer_pvc_name }}
+{% elif openshift_logging_mux_file_buffer_storage_type == 'hostmount' %}
+        hostPath:
+          path: "/var/log/fluentd"
+{% else %}
+        emptydir: {}
+{% endif %}

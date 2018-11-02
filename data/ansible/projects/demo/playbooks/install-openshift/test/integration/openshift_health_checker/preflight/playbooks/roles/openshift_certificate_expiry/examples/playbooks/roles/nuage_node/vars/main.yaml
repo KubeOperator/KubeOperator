@@ -1,0 +1,27 @@
+---
+vrs_config: /etc/default/openvswitch
+vsp_openshift_dir: /usr/share/vsp-openshift
+vsp_openshift_yaml: "{{ vsp_openshift_dir }}/vsp-openshift.yaml"
+client_cert: "{{ vsp_openshift_dir }}/nuage.crt"
+client_key: "{{ vsp_openshift_dir }}/nuage.key"
+ca_cert: "{{ vsp_openshift_dir }}/ca.crt"
+api_server: "{{ openshift_node_master_api_url }}"
+nuage_mon_rest_server_port: "{{ nuage_openshift_monitor_rest_server_port | default('9443') }}"
+nuage_mon_rest_server_url: "https://{{ openshift_master_cluster_hostname }}:{{ nuage_mon_rest_server_port }}"
+docker_bridge: "{{ nuage_docker_bridge | default('docker0') }}"
+rest_client_cert: "{{ vsp_openshift_dir }}/nuageMonClient.crt"
+rest_client_key: "{{ vsp_openshift_dir }}/nuageMonClient.key"
+rest_server_ca_cert: "{{ vsp_openshift_dir }}/nuageMonCA.crt"
+vport_mtu: "{{ nuage_interface_mtu | default('1460') }}"
+plugin_log_level: "{{ nuage_plugin_log_level | default('err') }}"
+
+nuage_plugin_rest_client_crt_dir: "{{ nuage_ca_master_crt_dir }}/{{ ansible_nodename }}"
+nuage_ca_master_plugin_key: "{{ nuage_plugin_rest_client_crt_dir }}/nuageMonClient.key"
+nuage_ca_master_plugin_crt: "{{ nuage_plugin_rest_client_crt_dir }}/nuageMonClient.crt"
+
+cni_conf_dir: "/etc/cni/net.d/"
+cni_bin_dir: "/opt/cni/bin/"
+
+nuage_plugin_crt_dir: /usr/share/vsp-openshift
+openshift_atomic_node_config_file: /etc/sysconfig/{{ openshift_service_type }}-node
+nuage_atomic_docker_additional_mounts: "NUAGE_ADDTL_BIND_MOUNTS=-v /var/usr/share/vsp-openshift:/var/usr/share/vsp-openshift -v /etc/default:/etc/default -v /var/run:/var/run -v /opt/cni/bin:/opt/cni/bin -v /etc/cni/net.d:/etc/cni/net.d"

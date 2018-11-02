@@ -1,0 +1,9 @@
+Write playbook to: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/playbook32/playbook.yml
+PLAY [all] *********************************************************************
+TASK [Gathering Facts] *********************************************************
+[1;31mfatal: [host323]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 192.168.244.128 port 22: Operation timed out\r\n", "unreachable": true}[0m
+[1;31mfatal: [host3]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 192.168.244.128 port 22: Operation timed out\r\n", "unreachable": true}[0m
+PLAY RECAP *********************************************************************
+[0;31mhost3[0m                      : ok=0    changed=0    [1;31munreachable=1   [0m failed=0
+[0;31mhost323[0m                    : ok=0    changed=0    [1;31munreachable=1   [0m failed=0
+Task ansible_ui.tasks.execute_playbook[47d07e8d-5d57-41c7-b3fe-f87b45d4d756] succeeded in 10.899610877000669s: {'success': False, 'dark': [{'hostname': 'host323', 'tasks': [...]}, {'hostname': 'host3', 'tasks': [...]}]}

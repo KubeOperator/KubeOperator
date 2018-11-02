@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[Unit]
+Wants=iptables.service
+After=iptables.service
+
+# The following line is a work-around to ensure docker is restarted whenever
+# iptables is restarted.  This ensures the proper iptables rules will be in
+# place for docker.
+# Note:  This will also cause docker to be stopped if iptables is stopped.
+PartOf=iptables.service

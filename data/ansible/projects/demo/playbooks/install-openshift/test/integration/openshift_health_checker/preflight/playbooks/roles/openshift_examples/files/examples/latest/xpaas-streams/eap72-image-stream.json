@@ -1,0 +1,74 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "jboss-eap72-image-streams",
+        "annotations": {
+            "description": "ImageStream definition for Red Hat JBoss EAP 7.2.",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+    {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jboss-eap72-openshift",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat JBoss EAP 7.2",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.0"
+                }
+            },
+            "labels": {
+                "xpaas": "1.0.0"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "latest",
+                        "annotations": {
+                            "description": "Red Hat JBoss EAP 7.2 S2I Image [Tech Preview]",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.2,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jbossas/eap-quickstarts/openshift",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "openshift",
+                            "version": "latest",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.2"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-eap-7-tech-preview/eap72-openshift:latest"
+                        }
+                    },
+                    {
+                        "name": "1.0",
+                        "annotations": {
+                            "description": "Red Hat JBoss EAP 7.2 S2I Image [Tech Preview]",
+                            "iconClass": "icon-eap",
+                            "tags": "builder,eap,javaee,java,jboss,hidden",
+                            "supports": "eap:7.2,javaee:7,java:8",
+                            "sampleRepo": "https://github.com/jbossas/eap-quickstarts/openshift",
+                            "sampleContextDir": "kitchensink",
+                            "sampleRef": "openshift",
+                            "version": "1.0",
+                            "openshift.io/display-name": "Red Hat JBoss EAP 7.2"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-eap-7-tech-preview/eap72-openshift:1.0"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

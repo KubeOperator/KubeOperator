@@ -1,0 +1,51 @@
+---
+- name: Create heketi DB volume
+  command: "{{ glusterfs_heketi_client }} setup-openshift-heketi-storage --image {{ glusterfs_heketi_image }} --listfile /tmp/heketi-storage.json"
+  register: setup_storage
+
+- name: Copy heketi-storage list
+  shell: "{{ openshift_client_binary }} --config={{ mktemp.stdout }}/admin.kubeconfig rsh --namespace={{ glusterfs_namespace }} {{ heketi_pod_name }} cat /tmp/heketi-storage.json > {{ mktemp.stdout }}/heketi-storage.json"
+
+# Need `command` here because heketi-storage.json contains multiple objects.
+- name: Copy heketi DB to GlusterFS volume
+  command: "{{ openshift_client_binary }} --config={{ mktemp.stdout }}/admin.kubeconfig create -f {{ mktemp.stdout }}/heketi-storage.json -n {{ glusterfs_namespace }}"
+  when: setup_storage.rc == 0
+
+- name: Wait for copy job to finish
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: job
+    state: list
+    name: "heketi-storage-copy-job"
+  register: heketi_job
+  until:
+  - "'results' in heketi_job.results and heketi_job.results.results | count > 0"
+  # Pod's 'Complete' status must be True
+  - "heketi_job.results.results | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Complete'}) | map('bool') | select | list | count == 1"
+  delay: 10
+  retries: "{{ (glusterfs_timeout | int / 10) | int }}"
+  failed_when:
+  - "'results' in heketi_job.results"
+  - "heketi_job.results.results | count > 0"
+  # Fail when pod's 'Failed' status is True
+  - "heketi_job.results.results | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Failed'}) | map('bool') | select | list | count == 1"
+  when: setup_storage.rc == 0
+
+- name: Delete deploy resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "template,route,service,jobs,dc,secret"
+    selector: "deploy-heketi"
+  - kind: "svc"
+    name: "heketi-storage-endpoints"
+  - kind: "secret"
+    name: "heketi-{{ glusterfs_name | default }}-topology-secret"
+
+- name: Set deploy-heketi deployed fact
+  set_fact:
+    glusterfs_heketi_deploy_is_missing: True

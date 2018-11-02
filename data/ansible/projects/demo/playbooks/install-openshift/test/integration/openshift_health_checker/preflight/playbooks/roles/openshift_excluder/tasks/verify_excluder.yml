@@ -1,0 +1,32 @@
+---
+# input variables:
+# - excluder
+- name: Get available excluder version
+  repoquery:
+    name: "{{ excluder }}{{ '-' ~ r_openshift_excluder_upgrade_target.split('.')[0:2] | join('.') ~ '*' if r_openshift_excluder_upgrade_target is defined else '' }}"
+    ignore_excluders: true
+  register: repoquery_out
+
+- name: Fail when excluder package is not found
+  fail:
+    msg: "Package {{ excluder }} not found"
+  when: not repoquery_out.results.package_found
+
+- name: Set fact excluder_version
+  set_fact:
+    excluder_version: "{{ repoquery_out.results.versions.available_versions.0 }}"
+
+- name: "{{ excluder }} version detected"
+  debug:
+    msg: "{{ excluder }}: {{ excluder_version }}"
+
+- name: Printing upgrade target version
+  debug:
+    msg: "{{ r_openshift_excluder_upgrade_target }}"
+
+- name: Check the available {{ excluder }} version is at most of the upgrade target version
+  fail:
+    msg: "Available {{ excluder }} version {{ excluder_version }} is higher than the upgrade target version"
+  when:
+  - excluder_version != ''
+  - excluder_version.split('.')[0:2] | join('.') is version_compare(r_openshift_excluder_upgrade_target.split('.')[0:2] | join('.'), '>', strict=True)

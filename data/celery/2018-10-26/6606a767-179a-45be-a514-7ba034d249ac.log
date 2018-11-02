@@ -1,0 +1,3 @@
+[1;35m [WARNING]: Could not match supplied host pattern, ignoring: group6[0m
+[1;35m[0m
+Task ansible_ui.tasks.execute_adhoc[6606a767-179a-45be-a514-7ba034d249ac] succeeded in 0.06628847699903417s: {'success': False, 'error': 'pattern: group6  dose not match any hosts.'}

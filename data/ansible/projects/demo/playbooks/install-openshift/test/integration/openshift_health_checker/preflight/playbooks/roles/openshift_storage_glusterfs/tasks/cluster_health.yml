@@ -1,0 +1,15 @@
+---
+# glusterfs_check_containerized is a custom module defined at
+# lib_utils/library/glusterfs_check_containerized.py
+- name: Check for GlusterFS cluster health
+  glusterfs_check_containerized:
+    oc_bin: "{{ hostvars[groups.oo_first_master.0]['first_master_client_binary'] }}"
+    oc_conf: "{{ openshift.common.config_base }}/master/admin.kubeconfig"
+    oc_namespace: "{{ glusterfs_namespace }}"
+    cluster_name: "{{ glusterfs_name }}"
+    exclude_node: "{{ openshift.common.hostname }}"
+  delegate_to: "{{ groups.oo_first_master.0 }}"
+  retries: "{{ (glusterfs_health_timeout | int / 10) | int }}"
+  delay: 10
+  register: glusterfs_check_containerized_res
+  until: glusterfs_check_containerized_res is succeeded

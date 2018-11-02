@@ -1,0 +1,18 @@
+---
+openshift_provisioners_install_provisioners: True
+
+openshift_provisioners_efs: False
+openshift_provisioners_efs_path: /persistentvolumes
+openshift_provisioners_efs_name: openshift.org/aws-efs
+openshift_provisioners_efs_nodeselector: ""
+openshift_provisioners_efs_supplementalgroup: '65534'
+
+openshift_provisioners_project: openshift-infra
+
+openshift_provisioners_image_prefix_dict:
+  origin: "docker.io/openshift/origin-"
+  openshift-enterprise: "registry.access.redhat.com/openshift3/"
+
+openshift_provisioners_image_version_dict:
+  origin: "latest"
+  openshift-enterprise: "latest"

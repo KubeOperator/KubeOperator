@@ -1,0 +1,137 @@
+---
+- name: Ensure CA certificate exists on etcd_ca_host
+  stat:
+    path: "{{ etcd_ca_cert }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: g_ca_cert_stat_result
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- fail:
+    msg: >
+      CA certificate {{ etcd_ca_cert }} doesn't exist on CA host
+      {{ etcd_ca_host }}. Apply 'etcd_ca' action from `etcd` role to
+      {{ etcd_ca_host }}.
+  when: not g_ca_cert_stat_result.stat.exists | bool
+  run_once: true
+
+- name: Check status of external etcd certificatees
+  stat:
+    path: "{{ etcd_cert_config_dir }}/{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  with_items:
+  - "{{ etcd_cert_prefix }}client.crt"
+  - "{{ etcd_cert_prefix }}client.key"
+  - "{{ etcd_cert_prefix }}ca.crt"
+  register: g_external_etcd_cert_stat_result
+  when: not etcd_certificates_redeploy | default(false) | bool
+
+- set_fact:
+    etcd_client_certs_missing: "{{ true if etcd_certificates_redeploy | default(false) | bool
+                                   else (False in (g_external_etcd_cert_stat_result.results
+                                                   | default({})
+                                                   | lib_utils_oo_collect(attribute='stat.exists')
+                                                   | list)) }}"
+
+- name: Ensure generated_certs directory present
+  file:
+    path: "{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}"
+    state: directory
+    mode: 0700
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+- name: Create the client csr
+  command: >
+    openssl req -new -keyout {{ etcd_cert_prefix }}client.key
+    -config {{ etcd_openssl_conf }}
+    -out {{ etcd_cert_prefix }}client.csr
+    -reqexts {{ etcd_req_ext }} -batch -nodes
+    -subj /CN={{ etcd_hostname }}
+  args:
+    chdir: "{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}"
+    creates: "{{ etcd_generated_certs_dir ~ '/' ~  etcd_cert_subdir ~ '/'
+                 ~ etcd_cert_prefix ~ 'client.csr' }}"
+  environment:
+    SAN: "IP:{{ etcd_ip }},DNS:{{ etcd_hostname }}"
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+# Certificates must be signed serially in order to avoid competing
+# for the serial file.
+# delegated_serial_command is a custom module in lib_utils
+- name: Sign and create the client crt
+  delegated_serial_command:
+    command: >
+      openssl ca -name {{ etcd_ca_name }} -config {{ etcd_openssl_conf }}
+      -out {{ etcd_cert_prefix }}client.crt
+      -in {{ etcd_cert_prefix }}client.csr
+      -batch
+    chdir: "{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}"
+    creates: "{{ etcd_generated_certs_dir ~ '/' ~  etcd_cert_subdir ~ '/'
+                 ~ etcd_cert_prefix ~ 'client.crt' }}"
+  environment:
+    SAN: "IP:{{ etcd_ip }}"
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+- file:
+    src: "{{ etcd_ca_cert }}"
+    dest: "{{ etcd_generated_certs_dir}}/{{ etcd_cert_subdir }}/{{ etcd_cert_prefix }}ca.crt"
+    state: hard
+    force: yes
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+- name: Create a tarball of the etcd certs
+  command: >
+    tar -czvf {{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}.tgz
+      -C {{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }} .
+  args:
+    creates: "{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}.tgz"
+    # Disables the following warning:
+    # Consider using unarchive module rather than running tar
+    warn: no
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+- name: Retrieve the etcd cert tarballs
+  fetch:
+    src: "{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}.tgz"
+    dest: "/tmp"
+    fail_on_missing: yes
+    validate_checksum: yes
+  when: etcd_client_certs_missing | bool
+  delegate_to: "{{ etcd_ca_host }}"
+
+- name: Ensure certificate directory exists
+  file:
+    path: "{{ etcd_cert_config_dir }}"
+    state: directory
+  when: etcd_client_certs_missing | bool
+
+- name: Unarchive etcd cert tarballs
+  unarchive:
+    src: "/tmp/{{ inventory_hostname }}/{{ etcd_generated_certs_dir }}/{{ etcd_cert_subdir }}.tgz"
+    dest: "{{ etcd_cert_config_dir }}"
+  when: etcd_client_certs_missing | bool
+
+- name: Delete temporary directory
+  local_action: file path="/tmp/{{ inventory_hostname }}" state=absent
+  changed_when: False
+  when: etcd_client_certs_missing | bool
+
+- file:
+    path: "{{ etcd_cert_config_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+  - "{{ etcd_cert_prefix }}client.crt"
+  - "{{ etcd_cert_prefix }}client.key"
+  - "{{ etcd_cert_prefix }}ca.crt"
+  when: etcd_client_certs_missing | bool

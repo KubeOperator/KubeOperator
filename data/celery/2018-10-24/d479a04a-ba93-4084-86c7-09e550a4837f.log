@@ -1,0 +1,9 @@
+set current project: ROOT
+set current project: demo
+Write playbook to: /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/playbooks/playbook2/playbook.yml
+PLAY [all] *********************************************************************
+TASK [Gathering Facts] *********************************************************
+TASK [Update use key] **********************************************************
+TASK [ping] ********************************************************************
+PLAY RECAP *********************************************************************
+Task ansible_ui.tasks.execute_playbook[d479a04a-ba93-4084-86c7-09e550a4837f] succeeded in 0.07813137595076114s: {'success': True}

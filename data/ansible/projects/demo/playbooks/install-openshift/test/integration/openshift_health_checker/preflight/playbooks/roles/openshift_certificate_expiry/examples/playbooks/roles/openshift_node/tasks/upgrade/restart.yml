@@ -1,0 +1,75 @@
+---
+# input variables:
+# - openshift_service_type
+# - openshift.common.hostname
+# - openshift_master_api_port
+
+# NOTE: This is needed to make sure we are using the correct set
+#       of systemd unit files. The RPMs lay down defaults but
+#       the install/upgrade may override them in /etc/systemd/system/.
+# NOTE: We don't use the systemd module as some versions of the module
+#       require a service to be part of the call.
+- name: Reload systemd to ensure latest unit files
+  command: systemctl daemon-reload
+
+- name: Restart support services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - NetworkManager
+    - dnsmasq
+
+- name: Restart container runtime
+  service:
+    name: "{{ openshift_docker_service_name }}"
+    state: started
+  register: docker_start_result
+  until: not (docker_start_result is failed)
+  retries: 3
+  delay: 30
+
+- name: Restart cri-o
+  service:
+    name: cri-o
+    state: started
+    enabled: true
+  when: openshift_use_crio | bool
+
+- name: Start node service
+  service:
+    name: "{{ openshift_service_type }}-node"
+    state: started
+  async: 300
+  poll: 0
+  register: node_service
+  failed_when: false
+
+- name: Approve the node
+  oc_csr_approve:
+    oc_bin: "{{ hostvars[groups.oo_first_master.0]['first_master_client_binary'] }}"
+    oc_conf: "{{ openshift.common.config_base }}/master/admin.kubeconfig"
+    node_list:
+      - "{{ l_kubelet_node_name | lower }}"
+  delegate_to: "{{ groups.oo_first_master.0 }}"
+  register: node_upgrade_oc_csr_approve
+  retries: 30
+  until: node_upgrade_oc_csr_approve is succeeded
+
+- name: Check status of node service
+  async_status:
+    jid: "{{ node_service.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 30
+  delay: 10
+
+- name: Wait for master API to come back online
+  wait_for:
+    host: "{{ openshift.common.hostname }}"
+    state: started
+    delay: 10
+    port: "{{ openshift_master_api_port }}"
+    timeout: 600
+  when: inventory_hostname in groups.oo_masters_to_config

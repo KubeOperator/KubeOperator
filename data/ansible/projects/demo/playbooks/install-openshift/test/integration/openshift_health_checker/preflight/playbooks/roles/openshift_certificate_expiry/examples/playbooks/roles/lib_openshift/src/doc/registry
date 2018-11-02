@@ -1,0 +1,192 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_adm_registry
+short_description: Module to manage openshift registry
+description:
+  - Manage openshift registry programmatically.
+options:
+  state:
+    description:
+    - The desired action when managing openshift registry
+    - present - update or create the registry
+    - absent - tear down the registry service and deploymentconfig
+    - list - returns the current representiation of a registry
+    required: false
+    default: False
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  name:
+    description:
+    - The name of the registry
+    required: false
+    default: None
+    aliases: []
+  namespace:
+    description:
+    - The selector when filtering on node labels
+    required: false
+    default: None
+    aliases: []
+  images:
+    description:
+    - The image to base this registry on - ${component} will be replaced with --type
+    required: 'registry.access.redhat.com/openshift3/ose-${component}:${version}'
+    default: None
+    aliases: []
+  latest_images:
+    description:
+    - If true, attempt to use the latest image for the registry instead of the latest release.
+    required: false
+    default: False
+    aliases: []
+  labels:
+    description:
+    - A set of labels to uniquely identify the registry and its components.
+    required: false
+    default: None
+    aliases: []
+  enforce_quota:
+    description:
+    - If set, the registry will refuse to write blobs if they exceed quota limits
+    required: False
+    default: False
+    aliases: []
+  mount_host:
+    description:
+    - If set, the registry volume will be created as a host-mount at this path.
+    required: False
+    default: False
+    aliases: []
+  ports:
+    description:
+    - A comma delimited list of ports or port pairs to expose on the registry pod.  The default is set for 5000.
+    required: False
+    default: [5000]
+    aliases: []
+  replicas:
+    description:
+    - The replication factor of the registry; commonly 2 when high availability is desired.
+    required: False
+    default: 1
+    aliases: []
+  selector:
+    description:
+    - Selector used to filter nodes on deployment. Used to run registries on a specific set of nodes.
+    required: False
+    default: None
+    aliases: []
+  service_account:
+    description:
+    - Name of the service account to use to run the registry pod.
+    required: False
+    default: 'registry'
+    aliases: []
+  tls_certificate:
+    description:
+    - An optional path to a PEM encoded certificate (which may contain the private key) for serving over TLS
+    required: false
+    default: None
+    aliases: []
+  tls_key:
+    description:
+    - An optional path to a PEM encoded private key for serving over TLS
+    required: false
+    default: None
+    aliases: []
+  volume_mounts:
+    description:
+    - The volume mounts for the registry.
+    required: false
+    default: None
+    aliases: []
+  daemonset:
+    description:
+    - Use a daemonset instead of a deployment config.
+    required: false
+    default: False
+    aliases: []
+  edits:
+    description:
+    - A list of modifications to make on the deploymentconfig
+    required: false
+    default: None
+    aliases: []
+  env_vars:
+    description:
+    - A dictionary of modifications to make on the deploymentconfig. e.g. FOO: BAR
+    required: false
+    default: None
+    aliases: []
+  force:
+    description:
+    - Force a registry update.
+    required: false
+    default: False
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: create a secure registry
+  oc_adm_registry:
+    name: docker-registry
+    service_account: registry
+    replicas: 2
+    namespace: default
+    selector: type=infra
+    images: "registry.access.redhat.com/openshift3/ose-${component}:${version}"
+    env_vars:
+      REGISTRY_CONFIGURATION_PATH: /etc/registryconfig/config.yml
+      REGISTRY_HTTP_TLS_CERTIFICATE: /etc/secrets/registry.crt
+      REGISTRY_HTTP_TLS_KEY: /etc/secrets/registry.key
+      REGISTRY_HTTP_SECRET: supersecret
+    volume_mounts:
+    - path: /etc/secrets
+      name: dockercerts
+      type: secret
+      secret_name: registry-secret
+    - path: /etc/registryconfig
+      name: dockersecrets
+      type: secret
+      secret_name: docker-registry-config
+    edits:
+    - key: spec.template.spec.containers[0].livenessProbe.httpGet.scheme
+      value: HTTPS
+      action: put
+    - key: spec.template.spec.containers[0].readinessProbe.httpGet.scheme
+      value: HTTPS
+      action: put
+    - key: spec.strategy.rollingParams
+      value:
+        intervalSeconds: 1
+        maxSurge: 50%
+        maxUnavailable: 50%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      action: put
+    - key: spec.template.spec.containers[0].resources.limits.memory
+      value: 2G
+      action: update
+    - key: spec.template.spec.containers[0].resources.requests.memory
+      value: 1G
+      action: update
+
+  register: registryout
+
+'''

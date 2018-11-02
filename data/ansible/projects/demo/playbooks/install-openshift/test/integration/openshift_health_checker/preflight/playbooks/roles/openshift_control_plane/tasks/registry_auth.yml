@@ -1,0 +1,35 @@
+---
+- name: Check for credentials file for registry auth
+  stat:
+    path: "{{ oreg_auth_credentials_path }}"
+  when: oreg_auth_user is defined
+  register: master_oreg_auth_credentials_stat
+
+- name: Create credentials for registry auth
+  command: "docker --config={{ oreg_auth_credentials_path }} login -u {{ oreg_auth_user }} -p {{ oreg_auth_password }} {{ oreg_host }}"
+  when:
+  - not (openshift_docker_alternative_creds | default(False))
+  - oreg_auth_user is defined
+  - (not master_oreg_auth_credentials_stat.stat.exists or oreg_auth_credentials_replace) | bool
+  register: master_oreg_auth_credentials_create
+  retries: 3
+  delay: 5
+  until: master_oreg_auth_credentials_create.rc == 0
+  notify: restart master
+
+# docker_creds is a custom module from lib_utils
+# 'docker login' requires a docker.service running on the local host, this is an
+# alternative implementation for non-docker hosts.  This implementation does not
+# check the registry to determine whether or not the credentials will work.
+- name: Create credentials for registry auth (alternative)
+  docker_creds:
+    path: "{{ oreg_auth_credentials_path }}"
+    registry: "{{ oreg_host }}"
+    username: "{{ oreg_auth_user }}"
+    password: "{{ oreg_auth_password }}"
+  when:
+  - openshift_docker_alternative_creds | default(False) | bool
+  - oreg_auth_user is defined
+  - (not master_oreg_auth_credentials_stat.stat.exists or oreg_auth_credentials_replace) | bool
+  register: master_oreg_auth_credentials_create_alt
+  notify: restart master

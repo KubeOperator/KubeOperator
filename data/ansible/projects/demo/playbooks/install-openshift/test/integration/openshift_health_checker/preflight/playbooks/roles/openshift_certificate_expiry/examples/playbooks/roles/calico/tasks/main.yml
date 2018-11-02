@@ -1,0 +1,47 @@
+---
+- name: Check for legacy service
+  stat:
+    path: /lib/systemd/system/calico.service
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: sym
+- fail:
+    msg: You are running a systemd based installation of Calico. Please run the calico upgrade playbook to upgrade to a self-hosted installation.
+  when: sym.stat.exists
+
+- name: Configure NetworkManager to ignore Calico interfaces
+  copy:
+    src: files/calico.conf
+    dest: /etc/NetworkManager/conf.d/
+  when: using_network_manager | default(true) | bool
+  register: nm
+
+- name: restart NetworkManager
+  systemd:
+    name: NetworkManager
+    state: restarted
+  when: nm.changed
+
+# TODO: Move into shared vars file
+- name: Load default node image
+  set_fact:
+    calico_node_image: "quay.io/calico/node:v3.1.3"
+  when: calico_node_image is not defined
+
+- name: Prepull Images
+  command: "docker pull {{ calico_node_image }}"
+
+- name: Apply node label
+  delegate_to: "{{ groups.oo_first_master.0 }}"
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig label node {{ l_kubelet_node_name | lower }} --overwrite projectcalico.org/ds-ready=true
+
+- name: Wait for node running
+  uri:
+    url: http://localhost:9099/readiness
+    status_code: 204
+  delay: 3
+  retries: 10
+  register: result
+  until: result.status == 204

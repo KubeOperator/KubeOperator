@@ -1,0 +1,8 @@
+---
+- name: Configure etcd profile.d aliases
+  template:
+    dest: "/etc/profile.d/etcdctl.sh"
+    src: etcdctl.sh.j2
+    mode: 0755
+    owner: root
+    group: root

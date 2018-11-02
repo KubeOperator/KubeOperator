@@ -1,0 +1,98 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+# ./oc_storageclass.yml -M ../../../library -e "cli_master_test=$OPENSHIFT_MASTER
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+  tasks:
+  - name: create a storageclass
+    oc_storageclass:
+      name: testsc
+      parameters:
+        type: gp2
+      default_storage_class: "true"
+    register: sc_out
+  - debug: var=sc_out
+
+  - assert:
+      that:
+      - "sc_out.results.results[0]['metadata']['name'] == 'testsc'"
+      - sc_out.changed
+      - "sc_out.results.results[0]['parameters']['type'] == 'gp2'"
+      msg: storageclass create failed.
+
+  # Test idempotent create
+  - name: NOOP create the storageclass
+    oc_storageclass:
+      name: testsc
+      parameters:
+        type: gp2
+      default_storage_class: "true"
+    register: sc_out
+
+  - assert:
+      that:
+      - "sc_out.results.results[0]['metadata']['name'] == 'testsc'"
+      - sc_out.changed == False
+      msg: storageclass create failed.  No changes expected
+
+  - name: test list storageclass
+    oc_storageclass:
+      name: testsc
+      state: list
+    register: sc_out
+  - debug: var=sc_out
+
+  - assert:
+      that: "sc_out.results[0]['metadata']['name'] == 'testsc'"
+      msg: storageclass list failed
+
+  - name: update the storageclass
+    oc_storageclass:
+      name: testsc
+      parameters:
+        type: gp2
+        encrypted: "true"
+      default_storage_class: "true"
+      mount_options:
+      - debug
+      reclaim_policy: Delete
+    register: sc_out
+
+  - assert:
+      that: "sc_out.results.results[0]['parameters']['encrypted'] == 'true'"
+      msg: storageclass update failed
+
+  - assert:
+      that: "sc_out.results.results[0]['reclaimPolicy'] == 'Delete'"
+      msg: storageclass update failed
+
+  - assert:
+      that: "sc_out.results.results[0]['mountOptions'] == ['debug']"
+      msg: storageclass update failed
+
+  - name: oc delete storageclass
+    oc_storageclass:
+      name: testsc
+      state: absent
+    register: sc_out
+  - debug: var=sc_out
+
+  - assert:
+      that:
+      - "sc_out.results['returncode'] == 0"
+      - "sc_out.results.results == {}"
+      msg: storageclass delete failed
+
+  - name: oc get storageclass
+    oc_storageclass:
+      name: testsc
+      state: list
+    register: sc_out
+  - debug: var=sc_out
+
+  - assert:
+      that:
+      - sc_out.changed == False
+      - "sc_out.results == [{}]"
+      msg: storageclass get failed

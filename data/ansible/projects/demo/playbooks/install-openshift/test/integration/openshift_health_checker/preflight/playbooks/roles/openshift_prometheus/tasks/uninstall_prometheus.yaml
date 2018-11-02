@@ -1,0 +1,107 @@
+---
+
+- name: Remove node_exporter daemon set
+  oc_obj:
+    state: absent
+    name: "prometheus-node-exporter"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    kind: daemonset
+
+- name: Remove node_exporter services
+  oc_service:
+    state: absent
+    name: "prometheus-node-exporter"
+    namespace: "{{ openshift_prometheus_namespace }}"
+
+- name: Remove prometheus stateful set
+  oc_obj:
+    state: absent
+    name: "prometheus"
+    namespace: "{{ openshift_prometheus_namespace }}"
+    kind: statefulset
+
+- name: Remove prometheus configmaps
+  oc_configmap:
+    state: absent
+    name: "{{ item }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  with_items:
+    - "prometheus"
+    - "alertmanager"
+
+- name: Remove prometheus PVCs
+  oc_pvc:
+    namespace: "{{ openshift_prometheus_namespace }}"
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ openshift_prometheus_pvc_name }}"
+    - "{{ openshift_prometheus_alertmanager_pvc_name }}"
+    - "{{ openshift_prometheus_alertbuffer_pvc_name }}"
+
+- name: Remove prometheus and alerts routes
+  oc_route:
+    state: absent
+    name: "{{ item.name }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  with_items:
+    - name: prometheus
+    - name: alerts
+    - name: alertmanager
+
+- name: Remove services for prometheus
+  oc_service:
+    state: absent
+    name: "{{ item }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  with_items:
+    - "{{ openshift_prometheus_service_name }}"
+    - "{{ openshift_prometheus_alertmanager_service_name }}"
+    - "{{ openshift_prometheus_alerts_service_name }}"
+
+- name: Remove prometheus secrets
+  oc_secret:
+    state: absent
+    name: "{{ item }}-proxy"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  with_items:
+    - prometheus
+    - alerts
+    - alertmanager
+
+- name: Remove prometheus serviceaccounts
+  oc_serviceaccount:
+    state: absent
+    name: "{{ item }}"
+    namespace: "{{ openshift_prometheus_namespace }}"
+  with_items:
+    - "{{ openshift_prometheus_service_name }}"
+    - "{{ openshift_prometheus_reader_serviceaccount_name }}"
+    - prometheus-node-exporter
+
+# Check for any remaining objects in the namespace
+- name: Get all objects in prometheus namespace
+  oc_obj:
+    state: list
+    kind: all
+    namespace: "{{ openshift_prometheus_namespace }}"
+  register: __prometheus_namespace_objects
+
+- name: Set prometheus objects facts
+  set_fact:
+    num_prometheus_objects: "{{ __prometheus_namespace_objects['results']['results'][0]['items'] | length }}"
+
+# If there are no remaining objects then it should be safe to delete
+# the clusterrole and the project/namespace
+- name: delete router-metrics cluster role
+  oc_obj:
+    state: absent
+    kind: clusterrole
+    name: router-metrics
+  when: num_prometheus_objects | int == 0
+
+- name: Remove prometheus project
+  oc_project:
+    state: absent
+    name: "{{ openshift_prometheus_namespace }}"
+  when: num_prometheus_objects | int == 0

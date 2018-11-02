@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{obj_name}}
+{% if labels is defined%}
+  labels:
+{% for key, value in labels.items() %}
+    {{key}}: {{value}}
+{% endfor %}
+{% endif %}
+{% if crb_usernames is defined %}
+userNames:
+{% for name in crb_usernames %}
+  - {{ name }}
+{% endfor %}
+{% endif %}
+{% if crb_groupnames is defined %}
+groupNames:
+{% for name in crb_groupnames %}
+  - {{ name }}
+{% endfor %}
+{% endif %}
+subjects:
+{% for sub in subjects %}
+  - kind: {{ sub.kind }}
+    name: {{ sub.name }}
+    namespace: {{sub.namespace}}
+{% endfor %}
+roleRef:
+  name: {{cr_name}}

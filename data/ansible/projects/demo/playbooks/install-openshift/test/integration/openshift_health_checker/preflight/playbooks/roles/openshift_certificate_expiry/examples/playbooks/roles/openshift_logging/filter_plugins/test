@@ -1,0 +1,49 @@
+import unittest
+from openshift_logging import walk
+from openshift_logging import min_cpu
+
+class TestFilterMethods(unittest.TestCase):
+    
+
+    def test_min_cpu_for_none(self):
+        source = "1000M"
+        self.assertEquals(min_cpu(source, None), "1000M")
+
+    def test_min_cpu_for_millis(self):
+        source = "1"
+        self.assertEquals(min_cpu(source, "0.1"), "0.1")
+
+
+    def test_min_cpu_for_whole(self):
+        source = "120M"
+        self.assertEquals(min_cpu(source, "2"), "120M")
+
+
+    def test_walk_find_key(self):
+        source = {'foo': {'bar.xyz': 'myvalue'}}
+        self.assertEquals(walk(source,'foo#bar.xyz', 123, delimiter='#'), 'myvalue')
+
+
+    def test_walk_return_default(self):
+        source = {'foo': {'bar.xyz': 'myvalue'}}
+        self.assertEquals(walk(source,'foo#bar.abc', 123, delimiter='#'), 123)
+
+
+    def test_walk_limit_max_depth(self):
+        source = {'foo': {'bar.xyz': 'myvalue'}}
+        self.assertEquals(walk(source,'foo#bar.abc#dontfindme', 123, delimiter='#'), 123)
+
+    def test_complex_hash(self):
+        source = {
+            'elasticsearch': {
+                'configmaps': {
+                    'logging-elasticsearch': {
+                        'elasticsearch.yml':  "a string value"
+                    } 
+                }
+            }
+        } 
+        self.assertEquals(walk(source,'elasticsearch#configmaps#logging-elasticsearch#elasticsearch.yml', 123, delimiter='#'), "a string value")
+
+if __name__ == '__main__':
+    unittest.main()

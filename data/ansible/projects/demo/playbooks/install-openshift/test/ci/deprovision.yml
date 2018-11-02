@@ -1,0 +1,45 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - include_vars: "{{ item }}"
+      with_first_found:
+        - vars.yml
+        - vars.yaml
+
+    - name: Gather ec2 facts
+      ec2_instance_facts:
+        region: "{{ aws_region }}"
+        filters:
+          tag-key: "kubernetes.io/cluster/{{ aws_cluster_id }}"
+      register: ec2
+
+    - name: Terminate instances
+      ec2:
+        instance_ids: "{{ item.instance_id }}"
+        region: "{{ aws_region }}"
+        state: absent
+        wait: no
+      with_items: "{{ ec2.instances }}"
+      when: not aws_use_auto_terminator | default(true)
+
+    - when: aws_use_auto_terminator | default(true)
+      block:
+        - name: Stop VMs
+          ec2:
+            instance_ids: "{{ item.instance_id }}"
+            region: "{{ aws_region }}"
+            state: stopped
+            wait: no
+          with_items: "{{ ec2.instances }}"
+          ignore_errors: true
+
+        - name: Rename VMs
+          ec2_tag:
+            resource: "{{ item.instance_id }}"
+            region: "{{ aws_region }}"
+            tags:
+              Name: "{{ item.tags.Name }}-terminate"
+          when: "'-terminate' not in item.tags.Name"
+          with_items: "{{ ec2.instances }}"

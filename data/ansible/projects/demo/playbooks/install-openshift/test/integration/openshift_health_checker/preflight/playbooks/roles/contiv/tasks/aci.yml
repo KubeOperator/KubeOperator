@@ -1,0 +1,32 @@
+---
+- name: ACI | Check aci-gw container image
+  command: "docker inspect contiv/aci-gw"
+  register: docker_aci_inspect_result
+  ignore_errors: yes
+
+- name: ACI | Pull aci-gw container
+  command: "docker pull contiv/aci-gw"
+  when: "'No such image' in docker_aci_inspect_result.stderr"
+
+- name: ACI | Copy shell script used by aci-gw service
+  template:
+    src: aci_gw.j2
+    dest: "{{ contiv_bin_dir }}/aci_gw.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: ACI | Copy systemd units for aci-gw
+  template:
+    src: aci-gw.service
+    dest: /etc/systemd/system/aci-gw.service
+  notify: reload systemd
+
+- name: ACI | Enable aci-gw service
+  service:
+    name: aci-gw
+    enabled: yes
+
+- name: ACI | Start aci-gw service
+  service:
+    name: aci-gw
+    state: started
+  register: aci-gw_started

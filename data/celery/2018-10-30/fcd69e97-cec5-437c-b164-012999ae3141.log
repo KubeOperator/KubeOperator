@@ -1,0 +1,7 @@
+2018-10-30 11:20:02 Start task: Ansible Ad-hoc
+Get matched hosts: [abc]
+PLAY [Ansible Ad-hoc] **********************************************************
+TASK [shell: {'executable': '/usr/bin/python', '_raw_params': "print 'hello'"}] ***
+PLAY RECAP *********************************************************************
+2018-10-30 11:20:02 Task finish
+Task ansible_ui.tasks.execute_adhoc[fcd69e97-cec5-437c-b164-012999ae3141] succeeded in 0.5050684960151557s: {'success': True}

@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: OpenShift Development <dev@lists.openshift.redhat.com>
+  description: Deploy OpenShift SDN
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.4
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Fedora
+    versions:
+    - all
+  categories:
+  - openshift
+dependencies:
+- role: lib_openshift
+- role: openshift_facts

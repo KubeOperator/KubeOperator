@@ -1,0 +1,9 @@
+---
+- name: Ensure NFS utilities are installed.
+  package: name=nfs-utils state=present
+
+- name: Ensure rpcbind is running as configured.
+  service:
+    name: rpcbind
+    state: "{{ nfs_rpcbind_state }}"
+    enabled: "{{ nfs_rpcbind_enabled }}"

@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: 3scale-gateway
+  annotations:
+    description: "3scale API Gateway"
+    iconClass: "icon-load-balancer"
+    tags: "api,gateway,3scale"
+objects:
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${APICAST_NAME}"
+  spec:
+    replicas: 2
+    selector:
+      deploymentconfig: "${APICAST_NAME}"
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: "${APICAST_NAME}"
+      spec:
+        containers:
+        - env:
+          - name: THREESCALE_PORTAL_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: "${CONFIGURATION_URL_SECRET}"
+                key: password
+          - name: THREESCALE_CONFIG_FILE
+            value: "${CONFIGURATION_FILE_PATH}"
+          - name: THREESCALE_DEPLOYMENT_ENV
+            value: "${DEPLOYMENT_ENVIRONMENT}"
+          - name: RESOLVER
+            value: "${RESOLVER}"
+          - name: APICAST_SERVICES
+            value: "${SERVICES_LIST}"
+          - name: APICAST_CONFIGURATION_LOADER
+            value: "${CONFIGURATION_LOADER}"
+          - name: APICAST_LOG_LEVEL
+            value: "${LOG_LEVEL}"
+          - name: APICAST_PATH_ROUTING_ENABLED
+            value: "${PATH_ROUTING}"
+          - name: APICAST_RESPONSE_CODES
+            value: "${RESPONSE_CODES}"
+          - name: APICAST_CONFIGURATION_CACHE
+            value: "${CONFIGURATION_CACHE}"
+          - name: REDIS_URL
+            value: "${REDIS_URL}"
+          - name: APICAST_MANAGEMENT_API
+            value: "${MANAGEMENT_API}"
+          - name: OPENSSL_VERIFY
+            value: "${OPENSSL_VERIFY}"
+          image: 3scale-amp20/apicast-gateway:1.0-3
+          imagePullPolicy: IfNotPresent
+          name: "${APICAST_NAME}"
+          livenessProbe:
+            httpGet:
+              path: /status/live
+              port: management
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: management
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          ports:
+          - name: proxy
+            containerPort: 8080
+            protocol: TCP
+          - name: management
+            containerPort: 8090
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${APICAST_NAME}"
+  spec:
+    ports:
+    - name: proxy
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: management
+      port: 8090
+      protocol: TCP
+      targetPort: 8090
+    selector:
+      deploymentconfig: "${APICAST_NAME}"
+
+parameters:
+- name: AMP_RELEASE
+  description: "AMP release tag."
+  value: 2.0.0-CR2-redhat-1
+  required: true
+- description: "Name of the secret containing the THREESCALE_PORTAL_ENDPOINT with the access-token or provider key"
+  value: apicast-configuration-url-secret
+  name: CONFIGURATION_URL_SECRET
+  required: true
+- description: "Path to saved JSON file with configuration for the gateway. Has to be injected to the docker image as read only volume."
+  value:
+  name: CONFIGURATION_FILE_PATH
+  required: false
+- description: "Deployment environment. Can be sandbox or production."
+  value: production
+  name: DEPLOYMENT_ENVIRONMENT
+  required: true
+- description: "Name for the 3scale API Gateway"
+  value: apicast
+  name: APICAST_NAME
+  required: true
+- description: "DNS Resolver for openresty, if empty it will be autodiscovered"
+  value:
+  name: RESOLVER
+  required: false
+- description: "Subset of services to run. Use comma separated list of service ids (eg. 42,1337)"
+  value:
+  name: SERVICES_LIST
+  required: false
+- name: CONFIGURATION_LOADER
+  description: "When to load configuration. If on gateway start or incoming request. Allowed values are: lazy, boot."
+  value: boot
+  required: false
+- description: "Log level. One of the following: debug, info, notice, warn, error, crit, alert, or emerg."
+  name: LOG_LEVEL
+  required: false
+- description: "Enable path routing. Experimental feature."
+  name: PATH_ROUTING
+  required: false
+  value: "false"
+- description: "Enable logging response codes to 3scale."
+  value: "false"
+  name: RESPONSE_CODES
+  required: false
+- name: CONFIGURATION_CACHE
+  description: "For how long to cache the downloaded configuration in seconds. Can be left empty, 0 or greater than 60."
+  value: ""
+  required: false
+- description: "Redis URL. Required for OAuth2 integration. ex: redis://PASSWORD@127.0.0.1:6379/0"
+  name: REDIS_URL
+  required: false
+- name: MANAGEMENT_API
+  description: "Scope of the Management API. Can be disabled, status or debug. At least status required for health checks."
+  required: false
+  value: "status"
+- name: OPENSSL_VERIFY
+  description: "Turn on/off the OpenSSL peer verification. Can be set to true/false."
+  required: true
+  value: "false"

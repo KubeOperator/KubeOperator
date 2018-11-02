@@ -1,0 +1,40 @@
+#
+# These tasks configure the instance to periodically update the project metadata with the
+# latest bootstrap kubeconfig from the project metadata. This keeps the project metadata
+# in sync with the cluster's configuration. We then invoke a CSR approve on any nodes that
+# are waiting to join the cluster.
+#
+---
+- name: Copy unit service
+  copy:
+    src: openshift-bootstrap-update.timer
+    dest: /etc/systemd/system/openshift-bootstrap-update.timer
+    owner: root
+    group: root
+    mode: 0664
+
+- name: Copy unit timer
+  copy:
+    src: openshift-bootstrap-update.service
+    dest: /etc/systemd/system/openshift-bootstrap-update.service
+    owner: root
+    group: root
+    mode: 0664
+
+- name: Create bootstrap update script
+  template: src=openshift-bootstrap-update.j2 dest=/usr/bin/openshift-bootstrap-update mode=u+rx
+
+- name: Start bootstrap update timer
+  systemd:
+    name: "openshift-bootstrap-update.timer"
+    state: started
+
+- name: Approve node certificates when bootstrapping
+  oc_csr_approve:
+    oc_bin: "{{ hostvars[groups.masters.0]['first_master_client_binary'] }}"
+    oc_conf: "{{ hostvars[groups.masters.0].openshift.common.config_base }}/master/admin.kubeconfig"
+    node_list: "{{ groups['all'] | map('extract', hostvars) | selectattr('gce_metadata.bootstrap', 'match', 'true') | map(attribute='gce_name') | list }}"
+  register: gcp_csr_approve
+  retries: 30
+  until: gcp_csr_approve is succeeded
+  when: groups['all'] | map('extract', hostvars) | selectattr('gce_metadata.bootstrap', 'match', 'true') | map(attribute='gce_name') | list | length > 0

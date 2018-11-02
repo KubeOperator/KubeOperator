@@ -1,0 +1,7 @@
+---
+
+# remove namespace - This will delete all the objects inside the namespace
+- name: Remove grafana project
+  oc_project:
+    state: absent
+    name: "{{ openshift_grafana_namespace }}"

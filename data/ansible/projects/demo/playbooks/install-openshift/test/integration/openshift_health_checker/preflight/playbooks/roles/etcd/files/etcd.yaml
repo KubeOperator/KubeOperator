@@ -1,0 +1,42 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: master-etcd
+  namespace: kube-system
+  labels:
+    openshift.io/control-plane: "true"
+    openshift.io/component: etcd
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ''
+spec:
+  restartPolicy: Always
+  hostNetwork: true
+  containers:
+  - name: etcd
+    image: quay.io/coreos/etcd:v3.3
+    workingDir: /var/lib/etcd
+    command: ["/bin/sh", "-c"]
+    args:
+    - |
+      #!/bin/sh
+      set -o allexport
+      source /etc/etcd/etcd.conf
+      exec etcd
+    securityContext:
+      privileged: true
+    volumeMounts:
+     - mountPath: /etc/etcd/
+       name: master-config
+       readOnly: true
+     - mountPath: /var/lib/etcd/
+       name: master-data
+    livenessProbe:
+      exec:
+      initialDelaySeconds: 45
+  volumes:
+  - name: master-config
+    hostPath:
+      path: /etc/etcd/
+  - name: master-data
+    hostPath:
+      path: /var/lib/etcd

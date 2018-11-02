@@ -1,0 +1,202 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_adm_router
+short_description: Module to manage openshift router
+description:
+  - Manage openshift router programmatically.
+options:
+  state:
+    description:
+    - Whether to create or delete the router
+    - present - create the router
+    - absent - remove the router
+    - list - return the current representation of a router
+    required: false
+    default: present
+    choices:
+    - present
+    - absent
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  name:
+    description:
+    - The name of the router
+    required: false
+    default: router
+    aliases: []
+  namespace:
+    description:
+    - The namespace where to manage the router.
+    required: false
+    default: default
+    aliases: []
+  images:
+    description:
+    - The image to base this router on - ${component} will be replaced with --type
+    required: 'registry.access.redhat.com/openshift3/ose-${component}:${version}'
+    default: None
+    aliases: []
+  latest_images:
+    description:
+    - If true, attempt to use the latest image for the registry instead of the latest release.
+    required: false
+    default: False
+    aliases: []
+  labels:
+    description:
+    - A set of labels to uniquely identify the registry and its components.
+    required: false
+    default: None
+    aliases: []
+  ports:
+    description:
+    - A list of strings in the 'port:port' format
+    required: False
+    default:
+    - 80:80
+    - 443:443
+    aliases: []
+  replicas:
+    description:
+    - The replication factor of the registry; commonly 2 when high availability is desired.
+    required: False
+    default: 1
+    aliases: []
+  selector:
+    description:
+    - Selector used to filter nodes on deployment. Used to run routers on a specific set of nodes.
+    required: False
+    default: None
+    aliases: []
+  service_account:
+    description:
+    - Name of the service account to use to run the router pod.
+    required: False
+    default: router
+    aliases: []
+  router_type:
+    description:
+    - The router image to use - if you specify --images this flag may be ignored.
+    required: false
+    default: haproxy-router
+    aliases: []
+  external_host:
+    description:
+    - If the underlying router implementation connects with an external host, this is the external host's hostname.
+    required: false
+    default: None
+    aliases: []
+  external_host_vserver:
+    description:
+    - If the underlying router implementation uses virtual servers, this is the name of the virtual server for HTTP connections.
+    required: false
+    default: None
+    aliases: []
+  external_host_insecure:
+    description:
+    - If the underlying router implementation connects with an external host
+    - over a secure connection, this causes the router to skip strict certificate verification with the external host.
+    required: false
+    default: False
+    aliases: []
+  external_host_partition_path:
+    description:
+    - If the underlying router implementation uses partitions for control boundaries, this is the path to use for that partition.
+    required: false
+    default: None
+    aliases: []
+  external_host_username:
+    description:
+    - If the underlying router implementation connects with an external host, this is the username for authenticating with the external host.
+    required: false
+    default: None
+    aliases: []
+  external_host_password:
+    description:
+    - If the underlying router implementation connects with an external host, this is the password for authenticating with the external host.
+    required: false
+    default: None
+    aliases: []
+  external_host_private_key:
+    description:
+    - If the underlying router implementation requires an SSH private key, this is the path to the private key file.
+    required: false
+    default: None
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment:
+- There are some exceptions to note when doing the idempotency in this module.
+- The strategy is to use the oc adm router command to generate a default
+- configuration when creating or updating a router.  Often times there
+- differences from the generated template and what is in memory in openshift.
+- We make exceptions to not check these specific values when comparing objects.
+- Here are a list of exceptions:
+- - DeploymentConfig:
+    - dnsPolicy
+    - terminationGracePeriodSeconds
+    - restartPolicy
+    - timeoutSeconds
+    - livenessProbe
+    - readinessProbe
+    - terminationMessagePath
+    - hostPort
+    - defaultMode
+  - Service:
+    - portalIP
+    - clusterIP
+    - sessionAffinity
+    - type
+  - ServiceAccount:
+    - secrets
+    - imagePullSecrets
+'''
+
+EXAMPLES = '''
+- name: create routers
+  oc_adm_router:
+    name: router
+    service_account: router
+    replicas: 2
+    namespace: default
+    selector: type=infra
+    cert_file: /etc/origin/master/named_certificates/router.crt
+    key_file: /etc/origin/master/named_certificates/router.key
+    cacert_file: /etc/origin/master/named_certificates/router.ca
+    edits:
+    - key: spec.strategy.rollingParams
+      value:
+        intervalSeconds: 1
+        maxSurge: 50%
+        maxUnavailable: 50%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      action: put
+    - key: spec.template.spec.containers[0].resources.limits.memory
+      value: 2G
+      action: put
+    - key: spec.template.spec.containers[0].resources.requests.memory
+      value: 1G
+      action: put
+    - key: spec.template.spec.containers[0].env
+      value:
+        name: EXTENDED_VALIDATION
+        value: 'false'
+      action: update
+  register: router_out
+  run_once: True
+'''

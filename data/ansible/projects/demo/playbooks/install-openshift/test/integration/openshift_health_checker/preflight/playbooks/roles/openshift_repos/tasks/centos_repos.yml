@@ -1,0 +1,24 @@
+---
+# Note: OpenShift repositories under CentOS may be shipped through the
+# "centos-release-openshift-origin" package which configures the repository.
+# This task matches the file names provided by the package so that they are
+# not installed twice in different files and remains idempotent.
+
+- name: Configure origin gpg keys
+  copy:
+    src: "origin/gpg_keys/openshift-ansible-CentOS-SIG-PaaS"
+    dest: "/etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-PaaS"
+  notify: refresh cache
+
+# openshift_version is formatted to a standard string in openshift_version role.
+# openshift_version is expected to be in format 'x.y.z...' here.
+# Here, we drop the '.' characters and try to match the correct repo template
+# for our corresponding openshift_version.
+- name: Configure correct origin release repository
+  template:
+    src: "{{ item }}"
+    dest: "/etc/yum.repos.d/{{ (item | basename | splitext)[0] }}"
+  with_first_found:
+    - "CentOS-OpenShift-Origin{{ ((openshift_version | default('')).split('.') | join(''))[0:2] }}.repo.j2"
+    - "CentOS-OpenShift-Origin.repo.j2"
+  notify: refresh cache

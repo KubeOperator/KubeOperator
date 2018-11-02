@@ -1,0 +1,133 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+# ./oc_service.yml -M ../../../library -e "cli_master_test=$OPENSHIFT_MASTER
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+  tasks:
+  - name: create the default registry service
+    oc_service:
+      namespace: default
+      name: test-registry
+      ports:
+      - name: 9000-tcp
+        port: 9000
+        protocol: TCP
+        targetPort: 9000
+      selector:
+        test-registtry: default
+      session_affinity: ClientIP
+      service_type: ClusterIP
+      labels:
+        component: test-registry
+        infra: registry
+    register: svc_out
+  - debug: var=svc_out
+
+  - assert:
+      that:
+      - "svc_out.results.results[0]['metadata']['name'] == 'test-registry'"
+      - svc_out.changed
+      - "svc_out.results.results[0]['metadata']['labels']['component'] == 'test-registry'"
+      - "svc_out.results.results[0]['metadata']['labels']['infra'] == 'registry'"
+      msg: service create failed.
+
+  # Test idempotent create
+  - name: NOOP create the default registry service
+    oc_service:
+      namespace: default
+      name: test-registry
+      ports:
+      - name: 9000-tcp
+        port: 9000
+        protocol: TCP
+        targetPort: 9000
+      selector:
+        test-registtry: default
+      session_affinity: ClientIP
+      service_type: ClusterIP
+    register: svc_out
+
+  - assert:
+      that:
+      - "svc_out.results.results[0]['metadata']['name'] == 'test-registry'"
+      - svc_out.changed == False
+      msg: service create failed.  No changes expected
+
+  - name: create the default registry service
+    oc_service:
+      namespace: default
+      name: test-registry
+      ports:
+      - name: 9000-tcp
+        port: 9000
+        protocol: TCP
+        targetPort: 9000
+      selector:
+        test-registtry: default
+      session_affinity: ClientIP
+      service_type: ClusterIP
+    register: svc_out
+
+  - assert:
+      that: "svc_out.results.results[0]['metadata']['name'] == 'test-registry'"
+      msg: service create failed
+
+  - name: oc_service
+    oc_service:
+      name: test-registry
+      namespace: default
+      state: list
+    register: svc_out
+
+  - assert:
+      that: "svc_out.results.results[0]['metadata']['name'] == 'test-registry'"
+      msg: service create failed
+
+  - name: create the default registry service
+    oc_service:
+      namespace: default
+      name: test-registry
+      ports:
+      - name: 9001-tcp
+        port: 9001
+        protocol: TCP
+        targetPort: 9001
+      selector:
+        test-registtry: default
+      session_affinity: ClientIP
+      service_type: ClusterIP
+    register: svc_out
+
+  - assert:
+      that: "svc_out.results.results[0]['spec']['ports'][0]['name'] == '9001-tcp'"
+      msg: service update failed
+
+  - name: oc delete service
+    oc_service:
+      name: test-registry
+      namespace: default
+      state: absent
+    register: svc_out
+  - debug: var=svc_out
+
+  - assert:
+      that:
+      - "svc_out.results['returncode'] == 0"
+      - "svc_out.results.results == ''"
+      msg: service delete failed
+
+  - name: oc get service
+    oc_service:
+      name: test-registry
+      namespace: default
+      state: list
+    register: svc_out
+  - debug: var=svc_out
+
+  - assert:
+      that:
+      - svc_out.changed == False
+      - svc_out.results.returncode == 0
+      - "'not found' in svc_out.results.stderr"
+      msg: service get failed

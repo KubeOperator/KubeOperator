@@ -1,0 +1,9 @@
+---
+__ansible_service_broker_registry_type: dockerhub
+__ansible_service_broker_registry_name: dh
+__ansible_service_broker_registry_url: null
+__ansible_service_broker_registry_user: null
+__ansible_service_broker_registry_password: null
+__ansible_service_broker_registry_organization: ansibleplaybookbundle
+__ansible_service_broker_registry_tag: latest
+__ansible_service_broker_registry_whitelist: []

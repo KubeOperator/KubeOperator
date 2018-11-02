@@ -1,0 +1,40 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_version
+short_description: Return the current openshift version
+description:
+  - Return the openshift installed version.  `oc version`
+options:
+  state:
+    description:
+    - Currently list is only supported state.
+    required: true
+    default: list
+    choices: ["list"]
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+oc_version:
+- name: get oc version
+  oc_version:
+  register: oc_version
+'''

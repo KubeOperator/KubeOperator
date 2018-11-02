@@ -1,0 +1,11 @@
+---
+- name: Old version cleanup | Delete old firewalld rules
+  firewalld:
+    state: absent
+    immediate: true
+    permanent: true
+    port: "{{ item }}"
+  with_items:
+    - "9999/tcp"
+    - "6640/tcp"
+    - "8472/udp"

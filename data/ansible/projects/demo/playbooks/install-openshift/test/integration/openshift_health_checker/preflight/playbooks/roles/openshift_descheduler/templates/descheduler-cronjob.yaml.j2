@@ -1,0 +1,44 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: "{{ openshift_descheduler_cronjob_name }}"
+  namespace: openshift-descheduler
+spec:
+  schedule: "{{ openshift_descheduler_cronjob_schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            scheduler.alpha.kubernetes.io/critical-pod: ''
+          name: "{{ openshift_descheduler_cronjob_name }}"
+        spec:
+          containers:
+          - name: descheduler
+            image: "{{ openshift_descheduler_image }}"
+            volumeMounts:
+            - mountPath: /policy-dir
+              name: policy-volume
+            command:
+            - /bin/descheduler
+            args:
+            - --policy-config-file=/policy-dir/policy.yaml
+            - --v={{ openshift_descheduler_debug_level }}
+{% if openshift_descheduler_dry_run_mode is defined and (openshift_descheduler_dry_run_mode | bool) %}
+            - --dry-run
+{% endif %}
+{% if openshift_descheduler_node_selectors is defined and openshift_descheduler_node_selectors is not none %}
+            - --node-selector="{{ openshift_descheduler_node_selectors }}"
+{% endif %}
+          restartPolicy: "Never"
+{% if openshift_descheduler_cronjob_node_selector is iterable and openshift_descheduler_cronjob_node_selector | length > 0 %}
+          nodeSelector:
+{% for key, value in openshift_descheduler_cronjob_node_selector.items() %}
+            {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+          serviceAccountName: "{{ openshift_descheduler_service_account }}"
+          volumes:
+          - name: policy-volume
+            configMap:
+              name: "{{ openshift_descheduler_policy_configmap_name }}"

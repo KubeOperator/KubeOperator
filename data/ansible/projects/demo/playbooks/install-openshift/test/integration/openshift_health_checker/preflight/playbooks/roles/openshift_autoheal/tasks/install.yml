@@ -1,0 +1,51 @@
+---
+
+- name: Create a temporary directory for doing work in the target host
+  command: mktemp -d -p '' openshift-autoheal-XXXXXX
+  register: tmpdir
+  changed_when: False
+
+- name: Copy the template to the temporary directory
+  copy:
+    src: template.yml
+    dest: "{{ tmpdir.stdout }}"
+
+- name: Generate the proxy secret
+  command: openssl rand -base64 32
+  register: secret
+  changed_when: False
+
+- name: Create the namespace
+  oc_obj:
+    kind: Namespace
+    name: openshift-autoheal
+    content:
+      path: "{{ tmpdir.stdout }}/namespace.yml"
+      data:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: openshift-autoheal
+
+- name: Create the template
+  oc_obj:
+    namespace: openshift-autoheal
+    name: autoheal-template
+    kind: Template
+    files:
+    - "{{ tmpdir.stdout }}/template.yml"
+
+- name: Apply the template
+  oc_process:
+    namespace: openshift-autoheal
+    template_name: autoheal-template
+    params:
+      IMAGE: "{{ openshift_autoheal_image }}"
+      CONFIG: "{{ openshift_autoheal_config | b64encode }}"
+      SECRET: "{{ secret.stdout }}"
+
+- name: Delete the temporary directory
+  file:
+    name: "{{ tmpdir.stdout }}"
+    state: absent
+  changed_when: False

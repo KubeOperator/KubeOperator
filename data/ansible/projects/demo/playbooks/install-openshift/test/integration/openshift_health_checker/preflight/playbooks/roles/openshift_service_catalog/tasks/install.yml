@@ -1,0 +1,202 @@
+---
+# do any asserts here
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-service-catalog-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Set Service Catalog namespace
+  oc_project:
+    state: present
+    name: "kube-service-catalog"
+    node_selector: ""
+
+- when: os_sdn_network_plugin_name == 'redhat/openshift-ovs-multitenant'
+  block:
+  - name: Waiting for netnamespace kube-service-catalog to be ready
+    oc_obj:
+      kind: netnamespace
+      name: kube-service-catalog
+      state: list
+    register: get_output
+    until: not get_output.results.stderr is defined
+    retries: 30
+    delay: 1
+    changed_when: false
+
+  - name: Make kube-service-catalog project network global
+    command: >
+      {{ openshift_client_binary }} --config=/etc/origin/master/admin.kubeconfig adm pod-network make-projects-global kube-service-catalog
+
+- include_tasks: generate_certs.yml
+
+- copy:
+    src: kubeservicecatalog_roles_bindings.yml
+    dest: "{{ mktemp.stdout }}/kubeservicecatalog_roles_bindings.yml"
+
+- oc_obj:
+    name: service-catalog-role-bindings
+    kind: template
+    namespace: "kube-service-catalog"
+    files:
+    - "{{ mktemp.stdout }}/kubeservicecatalog_roles_bindings.yml"
+
+- oc_process:
+    create: True
+    template_name: service-catalog-role-bindings
+    namespace: "kube-service-catalog"
+
+- copy:
+    src: kubesystem_roles_bindings.yml
+    dest: "{{ mktemp.stdout }}/kubesystem_roles_bindings.yml"
+
+- oc_obj:
+    name: kube-system-service-catalog-role-bindings
+    kind: template
+    namespace: kube-system
+    files:
+    - "{{ mktemp.stdout }}/kubesystem_roles_bindings.yml"
+
+- oc_process:
+    create: True
+    template_name: kube-system-service-catalog-role-bindings
+    namespace: kube-system
+
+- copy:
+    src: openshift_catalog_clusterroles.yml
+    dest: "{{ mktemp.stdout }}/openshift_catalog_clusterroles.yml"
+
+- name: Apply Service Catalog cluster roles
+  retries: 5
+  delay: 2
+  register: task_result
+  until: task_result.rc == 0
+  shell: >
+    {{ openshift_client_binary }} auth reconcile --config={{ openshift.common.config_base }}/master/admin.kubeconfig -f {{ mktemp.stdout}}/openshift_catalog_clusterroles.yml
+
+- oc_adm_policy_user:
+    namespace: kube-service-catalog
+    resource_kind: scc
+    resource_name: hostmount-anyuid
+    state: present
+    user: "system:serviceaccount:kube-service-catalog:service-catalog-apiserver"
+
+- name: Set SA cluster-role
+  oc_adm_policy_user:
+    state: present
+    namespace: "kube-service-catalog"
+    resource_kind: cluster-role
+    resource_name: admin
+    user: "system:serviceaccount:kube-service-catalog:default"
+
+- name: Checking for master.etcd-ca.crt
+  stat:
+    path: /etc/origin/master/master.etcd-ca.crt
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: etcd_ca_crt
+  check_mode: no
+
+## api server
+- template:
+    src: api_server.j2
+    dest: "{{ mktemp.stdout }}/service_catalog_api_server.yml"
+  vars:
+    image: ""
+    namespace: ""
+    cpu_limit: none
+    memory_limit: none
+    cpu_requests: none
+    memory_request: none
+    cors_allowed_origin: localhost
+    etcd_servers: "{{ openshift_master_etcd_urls | join(',') }}"
+    etcd_cafile: "{{ '/etc/origin/master/master.etcd-ca.crt' if etcd_ca_crt.stat.exists else '/etc/origin/master/ca-bundle.crt' }}"
+    node_selector: {'node-role.kubernetes.io/master': 'true'}
+    # apiserver_ca is defined in generate_certs.yml
+    ca_hash: "{{ apiserver_ca.content|hash('sha1') }}"
+
+- name: Set Service Catalog API Server daemonset
+  oc_obj:
+    state: present
+    namespace: "kube-service-catalog"
+    kind: daemonset
+    name: apiserver
+    files:
+    - "{{ mktemp.stdout }}/service_catalog_api_server.yml"
+    delete_after: yes
+
+- name: Set Service Catalog API Server service
+  oc_service:
+    name: apiserver
+    namespace: kube-service-catalog
+    state: present
+    ports:
+    - name: secure
+      port: 443
+      protocol: TCP
+      targetPort: 6443
+    selector:
+      app: apiserver
+    session_affinity: None
+
+- template:
+    src: api_server_route.j2
+    dest: "{{ mktemp.stdout }}/service_catalog_api_route.yml"
+
+- name: Set Service Catalog API Server route
+  oc_obj:
+    state: present
+    namespace: "kube-service-catalog"
+    kind: route
+    name: apiserver
+    files:
+    - "{{ mktemp.stdout }}/service_catalog_api_route.yml"
+    delete_after: yes
+
+## controller manager
+- template:
+    src: controller_manager.j2
+    dest: "{{ mktemp.stdout }}/controller_manager.yml"
+  vars:
+    image: ""
+    cpu_limit: none
+    memory_limit: none
+    node_selector: {'node-role.kubernetes.io/master': 'true'}
+
+- name: Set Controller Manager deployment
+  oc_obj:
+    state: present
+    namespace: "kube-service-catalog"
+    kind: daemonset
+    name: controller-manager
+    files:
+    - "{{ mktemp.stdout }}/controller_manager.yml"
+    delete_after: yes
+
+- name: Set Controller Manager service
+  oc_service:
+    name: controller-manager
+    namespace: kube-service-catalog
+    state: present
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: controllermanager-ssl
+      prometheus.io/scrape: "true"
+      prometheus.io/scheme: https
+    ports:
+    - name: secure
+      port: 443
+      protocol: TCP
+      targetPort: 6443
+    selector:
+      app: controller-manager
+    session_affinity: None
+    service_type: ClusterIP
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False
+
+- include_tasks: start.yml

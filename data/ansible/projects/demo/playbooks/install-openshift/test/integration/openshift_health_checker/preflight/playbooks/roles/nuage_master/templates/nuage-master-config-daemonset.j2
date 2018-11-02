@@ -1,0 +1,112 @@
+# This ConfigMap is used to configure Nuage VSP configuration on master nodes
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nuage-master-config
+  namespace: kube-system
+data:
+  # This will generate the required Nuage configuration
+  # on master nodes
+  monitor_yaml_config: |
+
+      # .kubeconfig that includes the nuage service account
+      kubeConfig: {{ nuage_master_crt_dir }}/nuage.kubeconfig
+      # name of the nuage service account, or another account with 'cluster-reader'
+      # permissions
+      # Openshift master config file
+      masterConfig: /etc/origin/master/master-config.yaml
+      # URL of the VSD Architect
+      vsdApiUrl: {{ vsd_api_url }}
+      # API version to query against.  Usually "v3_2"
+      vspVersion: {{ vsp_version }}
+      # Name of the enterprise in which pods will reside
+      enterpriseName: {{ enterprise }}
+      # Name of the domain in which pods will reside
+      domainName: {{ domain }}
+      # VSD generated user certificate file location on master node
+      userCertificateFile: {{ nuage_master_crt_dir }}/{{ vsd_user }}.pem
+      # VSD generated user key file location on master node
+      userKeyFile: {{ nuage_master_crt_dir }}/{{ vsd_user }}-Key.pem
+      # Location where logs should be saved
+      log_dir: /var/log/nuage-openshift-monitor
+      # Monitor rest server parameters
+      # Logging level for the nuage openshift monitor
+      # allowed options are: 0 => INFO, 1 => WARNING, 2 => ERROR, 3 => FATAL
+      logLevel: 0
+      # Parameters related to the nuage monitor REST server
+      nuageMonServer:
+          URL: 0.0.0.0:9443
+          certificateDirectory: {{ nuage_master_crt_dir }}
+          clientCA: ""
+          serverCertificate: ""
+          serverKey: ""
+      # etcd config required for HA
+      etcdClientConfig:
+          ca: {{ nuage_master_crt_dir }}/nuageEtcd-ca.crt
+          certFile: {{ nuage_master_crt_dir }}/nuageEtcd-client.crt
+          keyFile: {{ nuage_master_crt_dir }}/nuageEtcd-client.key
+          urls:
+      {% for etcd_url in openshift_master_etcd_urls %}
+              - {{ etcd_url }}
+      {% endfor %}
+
+---
+
+# This manifest installs Nuage master node configuration on
+# each Nuage master node in a cluster.
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: nuage-master-config
+  namespace: kube-system
+  labels:
+    k8s-app: nuage-master-config
+spec:
+  selector:
+    matchLabels:
+      k8s-app: nuage-master-config
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: nuage-master-config
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        install-monitor: "true"
+      containers:
+        # This container configures Nuage Master node
+        - name: install-nuage-master-config
+          image: nuage/master:{{ nuage_monitor_container_image_version }}
+          ports:
+            - containerPort: 9443
+              hostPort: 9443
+          command: ["/configure-master.sh"]
+          args: ["ose", "{{ master_host_type }}"]
+          securityContext:
+            privileged: true
+          env:
+            # nuage-openshift-monitor.yaml config to install on each slave node.
+            - name: NUAGE_MASTER_VSP_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-master-config
+                  key: monitor_yaml_config
+          volumeMounts:
+            - mountPath: /var/log
+              name: cni-log-dir
+            - mountPath: {{ nuage_master_config_dsets_mount_dir }}
+              name: usr-share-dir
+            - mountPath: /etc/origin/
+              name: master-config-dir
+      volumes:
+        - name: cni-log-dir
+          hostPath:
+            path: /var/log
+        - name: usr-share-dir
+          hostPath:
+            path: {{ nuage_master_config_dsets_mount_dir }}
+        - name: master-config-dir
+          hostPath:
+            path: /etc/origin/

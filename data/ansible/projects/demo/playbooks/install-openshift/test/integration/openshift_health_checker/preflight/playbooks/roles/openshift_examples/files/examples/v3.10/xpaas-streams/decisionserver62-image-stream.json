@@ -1,0 +1,49 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "decisionserver62-image-stream",
+        "annotations": {
+            "description": "ImageStream definition for Red Hat JBoss BRMS 6.2 decision server.",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jboss-decisionserver62-openshift",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat JBoss BRMS 6.2 decision server",
+                    "version": "1.4.14"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.14"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "1.2",
+                        "annotations": {
+                            "description": "Red Hat JBoss BRMS 6.2 decision server S2I images.",
+                            "iconClass": "icon-decisionserver",
+                            "tags": "builder,decisionserver,hidden",
+                            "supports": "decisionserver:6.2",
+                            "sampleRepo": "https://github.com/jboss-openshift/openshift-quickstarts.git",
+                            "sampleContextDir": "decisionserver/hellorules",
+                            "sampleRef": "1.2",
+                            "version": "1.2",
+                            "openshift.io/display-name": "Red Hat JBoss BRMS 6.2 decision server"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/jboss-decisionserver-6/decisionserver62-openshift:1.2"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

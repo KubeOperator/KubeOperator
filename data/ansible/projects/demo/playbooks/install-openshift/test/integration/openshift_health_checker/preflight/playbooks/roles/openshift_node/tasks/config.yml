@@ -1,0 +1,43 @@
+---
+- name: Install the systemd units
+  import_tasks: systemd_units.yml
+
+- file:
+    dest: "{{ l2_openshift_node_kubelet_args['config'] }}"
+    state: directory
+  when: ('config' in l2_openshift_node_kubelet_args) | bool
+
+# TODO: add the validate parameter when there is a validation command to run
+- name: Create the Node config
+  template:
+    dest: "{{ openshift.common.config_base }}/node/node-config.yaml"
+    src: node.yaml.v1.j2
+    backup: true
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Configure Node Environment Variables
+  lineinfile:
+    dest: /etc/sysconfig/{{ openshift_service_type }}-node
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: true
+  with_dict: "{{ openshift_node_env_vars }}"
+
+- name: Ensure the node static pod directory exists
+  file:
+    path: "{{ openshift.common.config_base }}/node/pods"
+    state: directory
+    mode: 0755
+
+- name: Create flexvolume directory when running on atomic
+  file:
+    state: directory
+    path: "/etc/origin/kubelet-plugins/volume/exec"
+    mode: '0750'
+  when: openshift_is_atomic | bool
+
+- name: include aws provider credentials
+  import_tasks: aws.yml
+  when: not (openshift_node_use_instance_profiles | default(False))

@@ -1,0 +1,114 @@
+---
+ansible_become: true
+ansible_become_sudo: true
+
+openshift_deployment_type: origin
+openshift_repos_enable_testing: false
+
+#Minimal set of services
+openshift_web_console_install: true
+openshift_console_install: true
+openshift_metrics_install_metrics: false
+openshift_metrics_install_logging: false
+openshift_logging_install_logging: false
+openshift_management_install_management: false
+openshift_hosted_prometheus_deploy: false
+template_service_broker_install: false
+ansible_service_broker_install: false
+openshift_enable_service_catalog: false
+osm_use_cockpit: false
+openshift_monitoring_deploy: false
+openshift_metering_install: false
+openshift_metrics_server_install: false
+openshift_monitor_availability_install: false
+openshift_enable_olm: false
+openshift_descheduler_install: false
+openshift_node_problem_detector_install: false
+openshift_autoheal_deploy: false
+openshift_cluster_autoscaler_install: false
+
+# debugging
+debug_level: 4
+etcd_debug: true
+etcd_log_package_levels: 'auth=INFO,etcdmain=DEBUG,etcdserver=DEBUG'
+openshift_docker_options: "--log-driver=journald"
+
+#Disable journald persistence
+journald_vars_to_replace:
+  - { var: Storage, val: volatile }
+  - { var: Compress, val: no }
+  - { var: SyncIntervalSec, val: 1s }
+  - { var: RateLimitInterval, val: 1s }
+  - { var: RateLimitBurst, val: 10000 }
+  - { var: SystemMaxUse, val: 8G }
+  - { var: SystemKeepFree, val: 20% }
+  - { var: SystemMaxFileSize, val: 10M }
+  - { var: MaxRetentionSec, val: 1month }
+  - { var: MaxFileSec, val: 1day }
+  - { var: ForwardToSyslog, val: no }
+  - { var: ForwardToWall, val: no }
+
+#Other settings
+openshift_enable_origin_repo: false
+osm_default_node_selector: "node-role.kubernetes.io/compute=true"
+openshift_hosted_infra_selector: "node-role.kubernetes.io/infra=true"
+openshift_logging_es_nodeselector:
+  node-role.kubernetes.io/infra: "true"
+openshift_logging_es_ops_nodeselector:
+  node-role.kubernetes.io/infra: "true"
+osm_controller_args:
+  enable-hostpath-provisioner:
+    - "true"
+openshift_hosted_router_create_certificate: true
+openshift_master_audit_config:
+  enabled: true
+openshift_master_identity_providers:
+  - name: "allow_all"
+    login: "true"
+    challenge: "true"
+    kind: "AllowAllPasswordIdentityProvider"
+openshift_template_service_broker_namespaces:
+  - "openshift"
+enable_excluders: "true"
+osm_cluster_network_cidr: "10.128.0.0/14"
+openshift_portal_net: "172.30.0.0/16"
+osm_host_subnet_length: 9
+openshift_check_min_host_disk_gb: 1.5
+openshift_check_min_host_memory_gb: 1.9
+openshift_disable_check: package_update,package_availability,memory_availability,disk_availability
+
+openshift_logging_use_mux: false
+openshift_logging_use_ops: true
+openshift_logging_es_log_appenders:
+  - "console"
+openshift_logging_fluentd_journal_read_from_head: false
+openshift_logging_fluentd_audit_container_engine: true
+
+openshift_logging_curator_cpu_request: "100m"
+openshift_logging_curator_memory_limit: "32Mi"
+openshift_logging_curator_ops_cpu_request: "100m"
+openshift_logging_curator_ops_memory_limit: "32Mi"
+openshift_logging_elasticsearch_proxy_cpu_request: "100m"
+openshift_logging_elasticsearch_proxy_memory_limit: "32Mi"
+openshift_logging_es_cpu_request: "400m"
+openshift_logging_es_memory_limit: "4Gi"
+openshift_logging_es_ops_cpu_request: "400m"
+openshift_logging_es_ops_memory_limit: "4Gi"
+openshift_logging_eventrouter_cpu_request: "100m"
+openshift_logging_eventrouter_memory_limit: "64Mi"
+openshift_logging_fluentd_cpu_request: "100m"
+openshift_logging_fluentd_memory_limit: "256Mi"
+openshift_logging_kibana_cpu_request: "100m"
+openshift_logging_kibana_memory_limit: "128Mi"
+openshift_logging_kibana_ops_cpu_request: "100m"
+openshift_logging_kibana_ops_memory_limit: "128Mi"
+openshift_logging_kibana_ops_proxy_cpu_request: "100m"
+openshift_logging_kibana_ops_proxy_memory_limit: "64Mi"
+openshift_logging_kibana_proxy_cpu_request: "100m"
+openshift_logging_kibana_proxy_memory_limit: "64Mi"
+openshift_logging_mux_cpu_request: "400m"
+openshift_logging_mux_memory_limit: "256Mi"
+
+openshift_master_cluster_method: native
+
+openshift_node_port_range: '30000-32000'

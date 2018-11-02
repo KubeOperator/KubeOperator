@@ -1,0 +1,20 @@
+---
+# Fact setting and validations
+- name: Set default image variables based on deployment type
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ openshift_deployment_type }}.yml"
+    - "default_images.yml"
+
+- name: set ansible_service_broker facts
+  set_fact:
+    ansible_service_broker_registry_type: "{{ ansible_service_broker_registry_type | default(__ansible_service_broker_registry_type) }}"
+    ansible_service_broker_registry_name: "{{ ansible_service_broker_registry_name | default(__ansible_service_broker_registry_name) }}"
+    ansible_service_broker_registry_url: "{{ ansible_service_broker_registry_url | default(__ansible_service_broker_registry_url) }}"
+    ansible_service_broker_registry_user: "{{ ansible_service_broker_registry_user | default(__ansible_service_broker_registry_user) }}"
+    ansible_service_broker_registry_password: "{{ ansible_service_broker_registry_password | default(__ansible_service_broker_registry_password) }}"
+    ansible_service_broker_registry_organization: "{{ ansible_service_broker_registry_organization | default(__ansible_service_broker_registry_organization) }}"
+    ansible_service_broker_registry_tag: "{{ ansible_service_broker_registry_tag | default(__ansible_service_broker_registry_tag) }}"
+    ansible_service_broker_registry_whitelist: "{{ ansible_service_broker_registry_whitelist | default(__ansible_service_broker_registry_whitelist) }}"
+
+- include_tasks: validate_facts.yml

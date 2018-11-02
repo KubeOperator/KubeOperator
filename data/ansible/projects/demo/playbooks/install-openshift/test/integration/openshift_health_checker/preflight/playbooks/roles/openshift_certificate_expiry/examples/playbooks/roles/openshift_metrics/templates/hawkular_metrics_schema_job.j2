@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hawkular-metrics-schema
+  labels:
+    metrics-infra: hawkular-metrics
+    name: hawkular-metrics-schema
+spec:
+  template:
+    spec:
+      version: v1
+      metadata:
+        labels:
+          metrics-infra: hawkular-metrics
+          #name: hawkular-metrics
+      containers:
+      - name: hawkular-metrics-schema
+        image: {{ openshift_metrics_schema_installer_image }}
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: TRUSTSTORE_AUTHORITIES
+            value: "/hawkular-metrics-certs/tls.truststore.crt"
+        volumeMounts:
+        - mountPath: /hawkular-metrics-certs
+          name: hawkular-metrics-certs
+        - mountPath: /hawkular-account
+          name: hawkular-metrics-account
+      volumes:
+      - name: hawkular-metrics-certs
+        secret:
+          secretName: hawkular-metrics-certs
+      - name: hawkular-metrics-account
+        secret:
+          secretName: hawkular-metrics-account
+      restartPolicy: OnFailure

@@ -1,0 +1,19 @@
+---
+- name: Detecting Atomic ClusterHost Operating System
+  stat:
+    path: /run/ostree-booted
+  register: r_os_firewall_ostree_booted
+
+- name: Set fact r_os_firewall_is_atomic
+  set_fact:
+    r_os_firewall_is_atomic: "{{ r_os_firewall_ostree_booted.stat.exists }}"
+
+- import_tasks: firewalld.yml
+  when:
+  - os_firewall_enabled | bool
+  - os_firewall_use_firewalld | bool
+
+- import_tasks: iptables.yml
+  when:
+  - os_firewall_enabled | bool
+  - not os_firewall_use_firewalld | bool

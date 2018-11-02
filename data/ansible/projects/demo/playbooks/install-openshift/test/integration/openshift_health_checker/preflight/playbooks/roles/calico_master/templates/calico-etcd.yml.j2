@@ -1,0 +1,88 @@
+# This manifest installs the Calico etcd on the master.  This uses a DaemonSet
+# to force it to run on the master even when the master isn't schedulable, and uses
+# nodeSelector to ensure it only runs on the master.
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: calico-etcd
+  namespace: kube-system
+  labels:
+    k8s-app: calico-etcd
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: calico-etcd
+      annotations:
+        # Mark this pod as a critical add-on; when enabled, the critical add-on scheduler
+        # reserves resources for critical add-on pods so that they can be rescheduled after
+        # a failure.  This annotation works in tandem with the toleration below.
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      tolerations:
+      # this taint is set by all kubelets running `--cloud-provider=external`
+      # so we should tolerate it to schedule the calico pods
+      - key: node.cloudprovider.kubernetes.io/uninitialized
+        value: "true"
+        effect: NoSchedule
+      # Toleration allows the pod to run on master
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      # Allow this pod to be rescheduled while the node is in "critical add-ons only" mode.
+      # This, along with the annotation above marks this pod as a critical add-on.
+      - key: CriticalAddonsOnly
+        operator: Exists
+      # Only run this pod on configure nodes with calico-etcd true in /etc/ansible/hosts.
+      nodeSelector:
+        calico-etcd: "true"
+      hostNetwork: true
+      serviceAccountName: calico-node
+      containers:
+        - name: calico-etcd
+          image: quay.io/coreos/etcd:v3.2.5
+          env:
+            - name: CALICO_ETCD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: CALICO_ETCD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          command: ["/bin/sh","-c"]
+          args: ["/usr/local/bin/etcd --name=$CALICO_ETCD_NAME --data-dir={{ calico_etcd_mount }}/calico-data --advertise-client-urls=https://$CALICO_ETCD_IP:{{ calico_etcd_clients_port }} --listen-client-urls=https://0.0.0.0:{{ calico_etcd_clients_port }} --listen-peer-urls=https://$CALICO_ETCD_IP:{{ calico_etcd_peers_port }} --cert-file={{ calico_etcd_cert_file }} --key-file={{ calico_etcd_key_file }} --trusted-ca-file={{ calico_etcd_ca_cert_file }} --initial-cluster-token=calico-cluster-1 --initial-cluster={{ calico_etcd_initial_cluster }} --initial-advertise-peer-urls=https://$CALICO_ETCD_IP:{{ calico_etcd_peers_port }} --peer-client-cert-auth --peer-trusted-ca-file={{ calico_etcd_ca_cert_file }} --peer-cert-file={{ calico_etcd_cert_file }} --peer-key-file={{ calico_etcd_key_file }}"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: var-etcd
+              mountPath: {{ calico_etcd_mount }}
+            - name: etcd-certs
+              mountPath: {{ calico_etcd_cert_dir }}
+      volumes:
+        - name: var-etcd
+          hostPath:
+            path: {{ calico_etcd_mount }}
+        - name: etcd-certs
+          hostPath:
+            path: {{ calico_etcd_cert_dir }}
+
+---
+
+# This manifest installs the Service which gets traffic to the Calico
+# etcd.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: calico-etcd
+  name: calico-etcd
+  namespace: kube-system
+spec:
+  # Select the calico-etcd pod running on the master.
+  selector:
+    k8s-app: calico-etcd
+  # This ClusterIP needs to be known in advance, since we cannot rely
+  # on DNS to get access to etcd.
+  clusterIP: {{ calico_etcd_service_ip }}
+  ports:
+    - port: {{ calico_etcd_clients_port }}

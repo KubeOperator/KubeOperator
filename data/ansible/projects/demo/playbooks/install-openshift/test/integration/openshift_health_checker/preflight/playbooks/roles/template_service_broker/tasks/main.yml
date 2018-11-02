@@ -1,0 +1,8 @@
+---
+# do any asserts here
+
+- include_tasks: install.yml
+  when: template_service_broker_install | bool
+
+- include_tasks: remove.yml
+  when: template_service_broker_remove | bool

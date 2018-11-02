@@ -1,0 +1,94 @@
+---
+######################################################################)
+# Users, projects, and privileges
+
+- name: Run pre-install Management validation checks
+  include_tasks: validate.yml
+
+# This creates a service account allowing Container Provider
+# integration (managing OCP/Origin via MIQ/Management)
+- name: Enable Container Provider Integration
+  import_role:
+    role: openshift_manageiq
+
+- name: "Ensure the Management '{{ openshift_management_project }}' namespace exists"
+  oc_project:
+    state: present
+    name: "{{ openshift_management_project }}"
+    display_name: "{{ openshift_management_project_description }}"
+    node_selector: "{{ openshift_management_nodeselector }}"
+
+- name: Create and Authorize Management Accounts
+  include_tasks: accounts.yml
+
+######################################################################
+# STORAGE - Initialize basic storage class
+- name: Determine the correct NFS host if required
+  include_tasks: storage/nfs_server.yml
+  when: openshift_management_storage_class in ['nfs', 'nfs_external']
+
+#---------------------------------------------------------------------
+# * nfs - set up NFS shares on the first master for a proof of concept
+- name: Create required NFS exports for Management app storage
+  include_tasks: storage/nfs.yml
+  when: openshift_management_storage_class == 'nfs'
+
+#---------------------------------------------------------------------
+# * external - NFS again, but pointing to a pre-configured NFS server
+- name: Note Storage Type -  External NFS
+  debug:
+    msg: "Setting up external NFS storage, openshift_management_storage_class is {{ openshift_management_storage_class }}"
+  when: openshift_management_storage_class == 'nfs_external'
+
+#---------------------------------------------------------------------
+# * cloudprovider - use an existing cloudprovider based storage
+- name: Note Storage Type - Cloud Provider
+  debug:
+    msg: Validating cloud provider storage type, openshift_management_storage_class is 'cloudprovider'
+  when: openshift_management_storage_class == 'cloudprovider'
+
+#---------------------------------------------------------------------
+# * preconfigured - don't do anything, assume it's all there ready to go
+- name: Note Storage Type - Preconfigured
+  debug:
+    msg: Skipping storage configuration, openshift_management_storage_class is 'preconfigured'
+  when: openshift_management_storage_class == 'preconfigured'
+
+######################################################################
+# APPLICATION TEMPLATE
+- name: Install the Management app and PV templates
+  include_tasks: template.yml
+
+######################################################################
+# APP & DB Storage
+
+# For local/external NFS backed installations
+- name: "Create the required App and DB PVs using {{ openshift_management_storage_class }}"
+  include_tasks: storage/create_nfs_pvs.yml
+  when: openshift_management_storage_class in ['nfs', 'nfs_external']
+
+######################################################################
+# CREATE APP
+- name: Note the correct ext-db template name
+  set_fact:
+    openshift_management_template_name: "{{ __openshift_management_flavor }}-ext-db"
+  when: __openshift_management_use_ext_db
+
+- name: Note the correct podified db template name
+  set_fact:
+    openshift_management_template_name: "{{ __openshift_management_flavor }}"
+  when: not __openshift_management_use_ext_db
+
+- name: Ensure the Management App is created
+  oc_process:
+    namespace: "{{ openshift_management_project }}"
+    template_name: "{{ openshift_management_template_name }}"
+    create: True
+    params: "{{ openshift_management_template_parameters }}"
+
+- name: Wait for the app to come up. May take several minutes, 30s check intervals, {{ openshift_management_pod_rollout_retries }} retries
+  command: "oc logs {{ __openshift_management_flavor }}-0 -n {{ openshift_management_project }}"
+  register: app_seeding_logs
+  until: app_seeding_logs.stdout.find('Server starting complete') != -1
+  delay: 30
+  retries: "{{ openshift_management_pod_rollout_retries }}"

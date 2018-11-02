@@ -1,0 +1,207 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+# ./oc_obj.yml -e "cli_master_test=$OPENSHIFT_MASTER
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+  tasks:
+  - name: create test project
+    oc_project:
+      name: test
+      description: all things test
+      node_selector: ""
+
+  # Create Check #
+  - name: create a dc
+    oc_obj:
+      state: present
+      name: mysql
+      namespace: test
+      kind: dc
+      content:
+        path: /tmp/dcout
+        data:
+          apiVersion: v1
+          kind: DeploymentConfig
+          metadata:
+            labels:
+              name: mysql
+            name: mysql
+          spec:
+            replicas: 1
+            selector: {}
+            strategy:
+              resources: {}
+              type: Recreate
+            template:
+              metadata:
+                labels:
+                  name: mysql
+              spec:
+                containers:
+                - env:
+                  - name: MYSQL_USER
+                    value: mysql
+                  - name: MYSQL_PASSWORD
+                    value: mysql
+                  - name: MYSQL_DATABASE
+                    value: mysql
+                  - name: MYSQL_ROOT_PASSWORD
+                    value: mysql
+                  image: openshift/mysql-55-centos7:latest
+                  imagePullPolicy: Always
+                  name: mysql
+                  ports:
+                  - containerPort: 3306
+                    name: tcp-3306
+                    protocol: TCP
+                  resources: {}
+                  securityContext:
+                    capabilities: {}
+                    privileged: false
+                  terminationMessagePath: /dev/termination-log
+                dnsPolicy: ClusterFirst
+                restartPolicy: Always
+                securityContext: {}
+                terminationGracePeriodSeconds: 31
+            triggers:
+            - type: ConfigChange
+            - imageChangeParams:
+                automatic: true
+                containerNames:
+                - mysql
+                from:
+                  kind: ImageStreamTag
+                  name: mysql:latest
+              type: ImageChange
+
+  - name: fetch created dc
+    oc_obj:
+      name: mysql
+      kind: dc
+      state: list
+      namespace: test
+    register: dcout
+
+  - debug: var=dcout
+
+  - assert:
+      that:
+      - dcout.results.returncode == 0
+      - dcout.results.results[0].metadata.name == 'mysql'
+  # End Create Check #
+
+
+  # Delete Check #
+  - name: delete created dc
+    oc_obj:
+      name: mysql
+      kind: dc
+      state: absent
+      namespace: test
+    register: dcout
+
+  - name: fetch delete dc
+    oc_obj:
+      name: mysql
+      kind: dc
+      state: list
+      namespace: test
+    register: dcout
+
+  - debug: var=dcout
+
+  - assert:
+      that:
+      - dcout.results.returncode == 0
+      - "'\"mysql\" not found' in dcout.results.stderr"
+  # End Delete Check #
+
+  # Delete selector Check #
+  - name: create a dc
+    oc_obj:
+      state: present
+      name: mysql
+      namespace: test
+      kind: dc
+      content:
+        path: /tmp/dcout
+        data:
+          apiVersion: v1
+          kind: DeploymentConfig
+          metadata:
+            labels:
+              name: mysql
+            name: mysql
+          spec:
+            replicas: 1
+            selector: {}
+            strategy:
+              resources: {}
+              type: Recreate
+            template:
+              metadata:
+                labels:
+                  name: mysql
+              spec:
+                containers:
+                - env:
+                  - name: MYSQL_USER
+                    value: mysql
+                  - name: MYSQL_PASSWORD
+                    value: mysql
+                  - name: MYSQL_DATABASE
+                    value: mysql
+                  - name: MYSQL_ROOT_PASSWORD
+                    value: mysql
+                  image: openshift/mysql-55-centos7:latest
+                  imagePullPolicy: Always
+                  name: mysql
+                  ports:
+                  - containerPort: 3306
+                    name: tcp-3306
+                    protocol: TCP
+                  resources: {}
+                  securityContext:
+                    capabilities: {}
+                    privileged: false
+                  terminationMessagePath: /dev/termination-log
+                dnsPolicy: ClusterFirst
+                restartPolicy: Always
+                securityContext: {}
+                terminationGracePeriodSeconds: 31
+            triggers:
+            - type: ConfigChange
+            - imageChangeParams:
+                automatic: true
+                containerNames:
+                - mysql
+                from:
+                  kind: ImageStreamTag
+                  name: mysql:latest
+              type: ImageChange
+
+  - name: delete using selector
+    oc_obj:
+      namespace: test
+      selector: name=mysql
+      kind: dc
+      state: absent
+    register: dcout
+
+  - debug: var=dcout
+
+  - name: get the dc
+    oc_obj:
+      namespace: test
+      selector: name=mysql
+      kind: dc
+      state: list
+    register: dcout
+
+  - debug: var=dcout
+
+  - assert:
+      that:
+      - dcout.results.returncode == 0
+      - dcout.results.results[0]["items"]|length == 0

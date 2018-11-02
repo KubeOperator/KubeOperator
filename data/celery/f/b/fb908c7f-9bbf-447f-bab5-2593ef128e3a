@@ -1,0 +1,4 @@
+- downloading role 'apache', owned by geerlingguy
+- downloading role from https://github.com/geerlingguy/ansible-role-apache/archive/3.0.3.tar.gz
+- extracting geerlingguy.apache to /Users/guang/projects/AnsibleUI/data/ansible/projects/demo/roles/geerlingguy.apache
+Task ansible_ui.tasks.install_role[fb908c7f-9bbf-447f-bab5-2593ef128e3a] succeeded in 7.8894693620022736s: (False, the specified role geerlingguy.apache appears to already exist. Use --force to replace it.)

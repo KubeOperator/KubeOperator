@@ -1,0 +1,3 @@
+---
+openshift_additional_repos: {}
+openshift_repos_enable_testing: false

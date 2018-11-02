@@ -1,0 +1,20 @@
+---
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-grafana-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+  check_mode: no
+
+- include_tasks: facts.yaml
+- include_tasks: install_grafana.yaml
+  when: grafana_state == 'present'
+
+- include_tasks: uninstall_grafana.yaml
+  when: grafana_state == 'absent'
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False
+  check_mode: no

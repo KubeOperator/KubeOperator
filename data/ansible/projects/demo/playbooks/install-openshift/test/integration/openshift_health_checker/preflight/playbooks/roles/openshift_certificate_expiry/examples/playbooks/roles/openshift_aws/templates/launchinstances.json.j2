@@ -1,0 +1,146 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+	{
+	    "Sid": "AllowPassDescribeInstancesRole",
+	    "Effect": "Allow",
+	    "Action": [
+		"iam:PassRole"
+	    ],
+	    "Resource": [
+		"arn:aws:iam::*:role/openshift_node_describe_instances_{{ openshift_aws_clusterid }}"
+	    ]
+	},
+	{
+	    "Sid": "AllowDescribeResources",
+	    "Effect": "Allow",
+	    "Action": [
+		"ec2:DescribeAvailabilityZones",
+		"ec2:DescribeImages",
+		"ec2:DescribeInstances",
+		"ec2:DescribeKeyPairs",
+		"ec2:DescribeSecurityGroups",
+		"ec2:DescribeVpcs",
+		"ec2:DescribeSubnets"
+	    ],
+	    "Resource": [
+		"*"
+	    ]
+	},
+        {
+	    "Sid": "AllowRunInstances",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:image/*",
+                "arn:aws:ec2:*:*:subnet/*",
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:*:*:key-pair/*"
+            ]
+        },
+        {
+	    "Sid": "AllowRunTaggedInstances",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:volume/*",
+                "arn:aws:ec2:*:*:instance/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestTag/clusterid": "{{ openshift_aws_clusterid }}"
+                },
+                "ForAnyValue:StringEquals": {
+                    "aws:TagKeys": [
+                        "clusterid"
+                    ]
+                }
+            }
+        },
+        {
+	    "Sid": "AllowCreateTagsRunInstances",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateTags"
+            ],
+            "Resource": "arn:aws:ec2:*:*:*/*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:CreateAction": "RunInstances"
+                }
+            }
+        },
+	{
+	    "Sid": "AllowCreateTaggedVolumes",
+	    "Effect": "Allow",
+	    "Action": [
+		"ec2:CreateVolume"
+	    ],
+            "Resource": [
+                "arn:aws:ec2:*:*:volume/*"
+            ],
+	    "Condition": {
+		"StringEquals": {
+		    "aws:RequestTag/clusterid": "{{ openshift_aws_clusterid }}"
+		},
+		"ForAnyValue:StringEquals": {
+		    "aws:TagKeys": [
+			"clusterid"
+		    ]
+		}
+	    }
+	},
+        {
+	    "Sid": "AllowCreateTagsCreateVolume",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateTags"
+            ],
+            "Resource": "arn:aws:ec2:*:*:*/*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:CreateAction": "CreateVolume"
+                }
+            }
+        },
+	{
+	    "Sid": "AllowManageTaggedInstances",
+	    "Effect": "Allow",
+	    "Action": [
+		"ec2:StartInstances",
+		"ec2:StopInstances",
+		"ec2:TerminateInstances"
+	    ],
+	    "Resource": [
+		"*"
+	    ],
+	    "Condition": {
+		"StringEquals": {
+		    "ec2:ResourceTag/clusterid": "{{ openshift_aws_clusterid }}"
+		}
+	    }
+	},
+	{
+	    "Sid": "AllowManageTaggedVolumes",
+	    "Effect": "Allow",
+	    "Action": [
+		"ec2:DetachVolume",
+		"ec2:DeleteVolume",
+		"ec2:AttachVolume"
+	    ],
+	    "Resource": [
+		"*"
+	    ],
+	    "Condition": {
+		"StringEquals": {
+		    "ec2:ResourceTag/clusterid": "{{ openshift_aws_clusterid }}"
+		}
+	    }
+	}
+    ]
+}

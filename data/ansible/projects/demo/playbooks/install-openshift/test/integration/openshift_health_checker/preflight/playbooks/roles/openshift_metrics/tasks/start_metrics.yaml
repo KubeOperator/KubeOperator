@@ -1,0 +1,66 @@
+---
+- command: >
+    {{openshift_client_binary}}
+    --config={{mktemp.stdout}}/admin.kubeconfig
+    get rc
+    -l metrics-infra=hawkular-cassandra
+    -o name
+    -n {{openshift_metrics_project}}
+  register: metrics_cassandra_rc
+  changed_when: no
+
+- name: Start Hawkular Cassandra
+  oc_scale:
+    kind: rc
+    name: "{{object.split('/')[1]}}"
+    kubeconfig: "{{mktemp.stdout}}/admin.kubeconfig"
+    namespace: "{{openshift_metrics_project}}"
+    replicas: 1
+  with_items: "{{metrics_cassandra_rc.stdout_lines}}"
+  loop_control:
+    loop_var: object
+  when: metrics_cassandra_rc is defined
+  changed_when: metrics_cassandra_rc | length > 0
+
+- command: >
+    {{openshift_client_binary}}
+    --config={{mktemp.stdout}}/admin.kubeconfig
+    get rc
+    -l metrics-infra=hawkular-metrics
+    -o name
+    -n {{openshift_metrics_project}}
+  register: metrics_metrics_rc
+  changed_when: no
+
+- name: Start Hawkular Metrics
+  oc_scale:
+    kind: rc
+    name: "{{object.split('/')[1]}}"
+    kubeconfig: "{{mktemp.stdout}}/admin.kubeconfig"
+    namespace: "{{openshift_metrics_project}}"
+    replicas: "{{openshift_metrics_hawkular_replicas}}"
+  with_items: "{{metrics_metrics_rc.stdout_lines}}"
+  loop_control:
+    loop_var: object
+  changed_when: metrics_metrics_rc | length > 0
+
+- command: >
+    {{openshift_client_binary}}
+    --config={{mktemp.stdout}}/admin.kubeconfig
+    get rc
+    -l metrics-infra=heapster
+    -o name
+    -n {{openshift_metrics_project}}
+  register: metrics_heapster_rc
+  changed_when: no
+
+- name: Start Heapster
+  oc_scale:
+    kind: rc
+    name: "{{object.split('/')[1]}}"
+    kubeconfig: "{{mktemp.stdout}}/admin.kubeconfig"
+    namespace: "{{openshift_metrics_project}}"
+    replicas: 1
+  with_items: "{{metrics_heapster_rc.stdout_lines}}"
+  loop_control:
+    loop_var: object

@@ -1,0 +1,27 @@
+---
+- name: restart flanneld
+  become: yes
+  systemd: name=flanneld state=restarted
+
+- name: restart docker
+  become: yes
+  systemd:
+    name: "{{ openshift_docker_service_name }}"
+    state: restarted
+  register: l_docker_restart_docker_in_flannel_result
+  until: not (l_docker_restart_docker_in_flannel_result is failed)
+  retries: 3
+  delay: 30
+
+- name: restart node
+  systemd:
+    name: "{{ openshift_service_type }}-node"
+    state: restarted
+  register: l_restart_node_result
+  until: not (l_restart_node_result is failed)
+  retries: 3
+  delay: 30
+
+- name: save iptable rules
+  become: yes
+  command: 'iptables-save'

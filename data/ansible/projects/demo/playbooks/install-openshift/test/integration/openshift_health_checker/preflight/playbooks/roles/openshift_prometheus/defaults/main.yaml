@@ -1,0 +1,111 @@
+---
+# defaults file for openshift_prometheus
+openshift_prometheus_state: present
+openshift_prometheus_node_exporter_install: true
+
+openshift_prometheus_namespace: openshift-metrics
+
+# Need to standardise these tags
+l_openshift_prometheus_version_dict:
+  origin:
+    prometheus: 'v2.3.2'
+    alert_manager: 'v0.15.1'
+    alert_buffer: 'v0.0.2'
+    node_exporter: 'v0.15.2'
+  openshift-enterprise:
+    prometheus: "{{ openshift_image_tag }}"
+    alert_manager: "{{ openshift_image_tag }}"
+    alert_buffer: "{{ openshift_image_tag }}"
+    node_exporter: "{{ openshift_image_tag }}"
+
+l_openshift_prometheus_alertmanager_version: "{{ l_openshift_prometheus_version_dict[openshift_deployment_type]['alert_manager'] }}"
+l_openshift_prometheus_alertmanager_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_openshift_prometheus_alertmanager_version) }}"
+openshift_prometheus_alertmanager_image: "{{ l_openshift_prometheus_alertmanager_image | regex_replace(l_os_logging_non_standard_reg_search | regex_escape, 'prometheus-alertmanager') }}"
+
+l_openshift_prometheus_alertbuffer_version: "{{ l_openshift_prometheus_version_dict[openshift_deployment_type]['alert_buffer'] }}"
+l_openshift_prometheus_alertbuffer_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_openshift_prometheus_alertbuffer_version) }}"
+openshift_prometheus_alertbuffer_image: "{{ l_openshift_prometheus_alertbuffer_image | regex_replace(l_os_logging_non_standard_reg_search | regex_escape, 'prometheus-alert-buffer') }}"
+
+l_openshift_prometheus_node_exporter_version: "{{ l_openshift_prometheus_version_dict[openshift_deployment_type]['node_exporter'] }}"
+l_openshift_prometheus_node_exporter_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_openshift_prometheus_node_exporter_version) }}"
+openshift_prometheus_node_exporter_image: "{{ l_openshift_prometheus_node_exporter_image | regex_replace(l_os_logging_non_standard_reg_search | regex_escape, 'prometheus-node-exporter') }}"
+
+l_openshift_prometheus_version: "{{ l_openshift_prometheus_version_dict[openshift_deployment_type]['prometheus'] }}"
+l_openshift_prometheus_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_openshift_prometheus_version) }}"
+openshift_prometheus_image: "{{ l_openshift_prometheus_image | regex_replace(l_os_logging_non_standard_reg_search | regex_escape, 'prometheus') }}"
+
+openshift_prometheus_proxy_image: "{{ l2_os_logging_proxy_image }}"
+
+# defaults hosts for routes
+openshift_prometheus_hostname: prometheus-{{openshift_prometheus_namespace}}.{{openshift_master_default_subdomain}}
+openshift_prometheus_alerts_hostname: alerts-{{openshift_prometheus_namespace}}.{{openshift_master_default_subdomain}}
+openshift_prometheus_alertmanager_hostname: alertmanager-{{openshift_prometheus_namespace}}.{{openshift_master_default_subdomain}}
+
+openshift_prometheus_node_selector: "{{ openshift_hosted_infra_selector | default('node-role.kubernetes.io/infra=true') | map_from_pairs }}"
+
+openshift_prometheus_service_port: 443
+openshift_prometheus_service_targetport: 8443
+openshift_prometheus_service_name: prometheus
+openshift_prometheus_reader_serviceaccount_name: prometheus-reader
+openshift_prometheus_alerts_service_targetport: 9443
+openshift_prometheus_alerts_service_name: alerts
+openshift_prometheus_alertmanager_service_targetport: 10443
+openshift_prometheus_alertmanager_service_name: alertmanager
+openshift_prometheus_serviceaccount_annotations: []
+l_openshift_prometheus_serviceaccount_annotations:
+  - serviceaccounts.openshift.io/oauth-redirectreference.prom='{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"prometheus"}}'
+  - serviceaccounts.openshift.io/oauth-redirectreference.alerts='{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"alerts"}}'
+  - serviceaccounts.openshift.io/oauth-redirectreference.alertmanager='{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"alertmanager"}}'
+
+# additional prometheus rules file
+openshift_prometheus_additional_rules_file: null
+
+#prometheus application arguments
+openshift_prometheus_args: ['--storage.tsdb.retention=3d']
+
+# storage
+# One of ['emptydir', 'pvc']
+openshift_prometheus_storage_type: "emptydir"
+openshift_prometheus_pvc_name: prometheus
+openshift_prometheus_pvc_size: "{{ openshift_prometheus_storage_volume_size | default('10Gi') }}"
+openshift_prometheus_pvc_access_modes: [ReadWriteOnce]
+openshift_prometheus_pvc_pv_selector: "{{ openshift_prometheus_storage_labels | default({}) }}"
+openshift_prometheus_sc_name: "{{ openshift_prometheus_storage_class | default(None) }}"
+
+# One of ['emptydir', 'pvc']
+openshift_prometheus_alertmanager_storage_type: "emptydir"
+openshift_prometheus_alertmanager_pvc_name: prometheus-alertmanager
+openshift_prometheus_alertmanager_pvc_size: "{{ openshift_prometheus_alertmanager_storage_volume_size | default('10Gi') }}"
+openshift_prometheus_alertmanager_pvc_access_modes: [ReadWriteOnce]
+openshift_prometheus_alertmanager_pvc_pv_selector: "{{ openshift_prometheus_alertmanager_storage_labels | default({}) }}"
+openshift_prometheus_alertmanager_sc_name: "{{ openshift_prometheus_alertmanager_storage_class | default(None) }}"
+
+# One of ['emptydir', 'pvc']
+openshift_prometheus_alertbuffer_storage_type: "emptydir"
+openshift_prometheus_alertbuffer_pvc_name: prometheus-alertbuffer
+openshift_prometheus_alertbuffer_pvc_size: "{{ openshift_prometheus_alertbuffer_storage_volume_size | default('10Gi') }}"
+openshift_prometheus_alertbuffer_pvc_access_modes: [ReadWriteOnce]
+openshift_prometheus_alertbuffer_pvc_pv_selector: "{{ openshift_prometheus_alertbuffer_storage_labels | default({}) }}"
+openshift_prometheus_alertbuffer_sc_name: "{{ openshift_prometheus_alertbuffer_storage_class | default(None) }}"
+
+# container resources
+openshift_prometheus_cpu_limit: null
+openshift_prometheus_memory_limit: null
+openshift_prometheus_cpu_requests: null
+openshift_prometheus_memory_requests: null
+openshift_prometheus_alertmanager_cpu_limit: null
+openshift_prometheus_alertmanager_memory_limit: null
+openshift_prometheus_alertmanager_cpu_requests: null
+openshift_prometheus_alertmanager_memory_requests: null
+openshift_prometheus_alertbuffer_cpu_limit: null
+openshift_prometheus_alertbuffer_memory_limit: null
+openshift_prometheus_alertbuffer_cpu_requests: null
+openshift_prometheus_alertbuffer_memory_requests: null
+openshift_prometheus_oauth_proxy_cpu_limit: null
+openshift_prometheus_oauth_proxy_memory_limit: null
+openshift_prometheus_oauth_proxy_cpu_requests: null
+openshift_prometheus_oauth_proxy_memory_requests: null
+openshift_prometheus_node_exporter_cpu_limit: 200m
+openshift_prometheus_node_exporter_memory_limit: 50Mi
+openshift_prometheus_node_exporter_cpu_requests: 100m
+openshift_prometheus_node_exporter_memory_requests: 30Mi

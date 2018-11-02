@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "amp-apicast-wildcard-router"
+objects:
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: apicast-router
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: apicast-router
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: apicast-router
+      spec:
+        volumes:
+        - name: apicast-router-config
+          configMap:
+            name: apicast-router-config
+            items:
+            - key: router.conf
+              path: router.conf
+        containers:
+        - env:
+          - name: APICAST_CONFIGURATION_LOADER
+            value: "lazy"
+          - name: APICAST_CONFIGURATION_CACHE
+            value: "0"
+          image: 3scale-amp20/apicast-gateway:1.0-3
+          imagePullPolicy: IfNotPresent
+          name: apicast-router
+          command: ['bin/apicast']
+          livenessProbe:
+            tcpSocket:
+              port: router
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: management
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 30
+          volumeMounts:
+          - name: apicast-router-config
+            mountPath: /opt/app-root/src/sites.d/
+            readOnly: true
+          ports:
+          - containerPort: 8082
+            name: router
+            protocol: TCP
+          - containerPort: 8090
+            name: management
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast-router
+  spec:
+    ports:
+    - name: router
+      port: 80
+      protocol: TCP
+      targetPort: router
+    selector:
+      deploymentconfig: apicast-router
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: apicast-router-config
+  data:
+    router.conf: |-
+      upstream wildcard {
+        server 0.0.0.1:1;
+
+        balancer_by_lua_block {
+          local round_robin = require 'resty.balancer.round_robin'
+          local balancer = round_robin.new()
+          local peers = balancer:peers(ngx.ctx.apicast)
+
+          local peer, err = balancer:set_peer(peers)
+
+          if not peer then
+            ngx.status = ngx.HTTP_SERVICE_UNAVAILABLE
+            ngx.log(ngx.ERR, "failed to set current backend peer: ", err)
+            ngx.exit(ngx.status)
+          end
+        }
+
+        keepalive 1024;
+      }
+
+      server {
+        listen 8082;
+        server_name ~-(?<apicast>apicast-(staging|production))\.;
+        access_log /dev/stdout combined;
+
+        location / {
+          access_by_lua_block {
+            local resolver = require('resty.resolver'):instance()
+            local servers = resolver:get_servers(ngx.var.apicast, { port = 8080 })
+
+            if #servers == 0 then
+              ngx.status = ngx.HTTP_BAD_GATEWAY
+              ngx.exit(ngx.HTTP_OK)
+            end
+
+            ngx.ctx.apicast = servers
+          }
+          proxy_http_version 1.1;
+          proxy_pass $scheme://wildcard;
+          proxy_set_header Host $host;
+          proxy_set_header Connection "";
+        }
+      }
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: apicast-wildcard-router
+    labels:
+      app: apicast-wildcard-router
+  spec:
+    host: apicast-${TENANT_NAME}.${WILDCARD_DOMAIN}
+    to:
+      kind: Service
+      name: apicast-router
+    port:
+      targetPort: router
+    wildcardPolicy: Subdomain
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+parameters:
+- name: AMP_RELEASE
+  description: "AMP release tag."
+  value: 2.0.0-CR2-redhat-1
+  required: true
+- name: WILDCARD_DOMAIN
+  description: Root domain for the wildcard routes. Eg. example.com will generate 3scale-admin.example.com.
+  required: true
+- name: TENANT_NAME
+  description: "Domain name under the root that Admin UI will be available with -admin suffix."
+  required: true
+  value: "3scale"

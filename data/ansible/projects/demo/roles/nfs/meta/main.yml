@@ -1,0 +1,29 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: geerlingguy
+  description: NFS installation for Linux.
+  company: "Midwestern Mac, LLC"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.4
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - system
+    - nfs
+    - filesystem
+    - share
+    - nfsv4
+    - efs

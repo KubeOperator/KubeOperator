@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+oc serviceaccounts create-kubeconfig -n openshift-infra node-bootstrapper > /root/bootstrap.kubeconfig
+gcloud compute project-info --project '{{ openshift_gcp_project }}' add-metadata --metadata-from-file '{{ openshift_gcp_prefix + openshift_gcp_clusterid | default("default") }}-bootstrap-config=/root/bootstrap.kubeconfig'
+rm -f /root/bootstrap.kubeconfig

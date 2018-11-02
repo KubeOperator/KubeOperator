@@ -1,0 +1,10 @@
+---
+cni_conf_dir: "/etc/cni/net.d/"
+cni_bin_dir: "/opt/cni/bin/"
+
+calico_url_policy_controller: "quay.io/calico/kube-controllers:v3.1.3"
+calico_node_image: "quay.io/calico/node:v3.1.3"
+calico_cni_image: "quay.io/calico/cni:v3.1.3"
+calico_upgrade_image: "quay.io/calico/upgrade:v1.0.5"
+calico_ipv4pool_ipip: "always"
+use_calico_etcd: False

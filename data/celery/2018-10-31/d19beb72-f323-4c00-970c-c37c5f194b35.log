@@ -1,0 +1,16 @@
+[1;35m [WARNING]: Could not match supplied host pattern, ignoring: oo_masters_to_config[0m
+[1;35m[0m
+PLAY [Fail openshift_kubelet_name_override for new hosts] **********************
+TASK [Gathering Facts] *********************************************************
+[0;32mok: [node2.jumpserver.org][0m
+[0;32mok: [node1.jumpserver.org][0m
+[0;32mok: [master.jumpserver.org][0m
+TASK [Fail when openshift_kubelet_name_override is defined] ********************
+[1;35m [WARNING]: Failure using method (v2_runner_on_skipped) in callback plugin (<ansible_ui.ansible.callback.PlaybookResultCallBack object at 0x113ea5550>): 'skipped'[0m
+[1;35m[0m
+PLAY [Initialization Checkpoint Start] *****************************************
+TASK [Set install initialization 'In Progress'] ********************************
+[0;32mok: [node1.jumpserver.org][0m
+PLAY [Populate config host groups] *********************************************
+TASK [Load group name mapping variables] ***************************************
+Task ansible_ui.tasks.execute_playbook[d19beb72-f323-4c00-970c-c37c5f194b35] succeeded in 3.7052255319722462s: {'success': False, 'error': '\'NoneType\' object has no attribute \'name\''}

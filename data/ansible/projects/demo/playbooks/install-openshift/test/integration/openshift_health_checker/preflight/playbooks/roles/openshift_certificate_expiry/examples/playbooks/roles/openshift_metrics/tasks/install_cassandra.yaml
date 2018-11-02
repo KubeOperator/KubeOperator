@@ -1,0 +1,43 @@
+---
+- name: Ensure that Cassandra has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_metrics_cassandra_nodeselector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Cassandra
+
+- shell: >
+    {{ openshift_client_binary }} -n {{ openshift_metrics_project | quote }}
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    get rc hawkular-cassandra-{{node}} -o jsonpath='{.spec.replicas}' || echo 0
+  vars:
+    node: "{{ item }}"
+  register: cassandra_replica_count
+  with_sequence: count={{ openshift_metrics_cassandra_replicas }}
+  changed_when: false
+  failed_when: false
+
+- name: generate hawkular-cassandra replication controllers
+  template:
+    src: hawkular_cassandra_rc.j2
+    dest: "{{ mktemp.stdout }}/templates/hawkular-cassandra-rc{{ item }}.yaml"
+  vars:
+    node: "{{ item }}"
+    master: "{{ (item == '1')|string|lower }}"
+    replica_count: "{{cassandra_replica_count.results[item|int - 1].stdout}}"
+    node_selector: "{{openshift_metrics_cassandra_nodeselector | default('') }}"
+    fsgroup: "{{ openshift_metrics_namespace_fsgroup }}"
+    run_as_uid: "{{ openshift_metrics_namespace_uid }}"
+    selinux_level: "{{ openshift_metrics_namespace_selinux }}"
+
+  with_sequence: count={{ openshift_metrics_cassandra_replicas }}
+  changed_when: false
+
+- set_fact: openshift_metrics_cassandra_pvc_prefix="hawkular-metrics"
+  when: "not openshift_metrics_cassandra_pvc_prefix or openshift_metrics_cassandra_pvc_prefix == ''"
+
+- include_tasks: generate_cassandra_pvcs.yaml
+  with_sequence: count={{ openshift_metrics_cassandra_replicas }}
+  loop_control:
+    loop_var: metrics_pvc_index

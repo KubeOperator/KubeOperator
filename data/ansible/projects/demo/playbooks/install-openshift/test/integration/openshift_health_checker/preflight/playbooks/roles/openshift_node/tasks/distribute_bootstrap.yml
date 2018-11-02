@@ -1,0 +1,43 @@
+---
+- name: Gather node information
+  openshift_facts:
+    role: node
+    local_facts:
+      bootstrapped: true
+
+- name: Copy master bootstrap config locally
+  slurp:
+    src: "/etc/origin/master/bootstrap.kubeconfig"
+  register: bootstrap_credentials
+  delegate_to: "{{ groups.oo_first_master.0 }}"
+  run_once: true
+  no_log: true
+
+- name: Distribute bootstrap kubeconfig if one does not exist
+  copy:
+    content: "{{ bootstrap_credentials.content | b64decode }}"
+    dest: "/etc/origin/node/bootstrap.kubeconfig"
+    mode: 0700
+    owner: root
+    group: root
+    force: no
+  no_log: true
+
+- name: Start and enable node for bootstrapping
+  systemd:
+    name: "{{ openshift_service_type }}-node"
+    state: restarted
+    enabled: yes
+    no_block: yes
+  register: node_start
+
+- when: node_start is failed
+  block:
+  - name: Get node logs
+    command: journalctl --no-pager -n 300 -u {{ openshift_service_type }}-node
+    register: logs_node
+    ignore_errors: true
+  - debug:
+      msg: "{{ logs_node.stdout_lines }}"
+  - fail:
+      msg: Node start failed.

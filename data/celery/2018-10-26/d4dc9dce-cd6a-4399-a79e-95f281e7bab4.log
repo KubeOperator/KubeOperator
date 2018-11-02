@@ -1,0 +1,2 @@
+PLAY RECAP *********************************************************************
+Task ansible_ui.tasks.execute_playbook[d4dc9dce-cd6a-4399-a79e-95f281e7bab4] succeeded in 0.18584287299745483s: {'success': True}

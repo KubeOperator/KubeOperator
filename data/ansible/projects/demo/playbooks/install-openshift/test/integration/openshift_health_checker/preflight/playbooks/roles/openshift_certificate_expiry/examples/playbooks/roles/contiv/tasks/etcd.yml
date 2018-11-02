@@ -1,0 +1,114 @@
+---
+# To run contiv-etcd in a container as non-root, we need to match the uid/gid
+# with the filesystem permissions on the host.
+- name: Contiv etcd | Create local unix group
+  group:
+    name: "{{ contiv_etcd_system_group }}"
+    gid: "{{ contiv_etcd_system_gid }}"
+    system: yes
+
+- name: Contiv etcd | Create local unix user
+  user:
+    name: "{{ contiv_etcd_system_user }}"
+    createhome: no
+    uid: "{{ contiv_etcd_system_uid }}"
+    group: "{{ contiv_etcd_system_group }}"
+    home: "{{ contiv_etcd_data_dir }}"
+    shell: /bin/false
+    system: yes
+
+- name: Contiv etcd | Create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: g-rwx,o-rwx
+    owner: "{{ contiv_etcd_system_user }}"
+    group: "{{ contiv_etcd_system_group }}"
+    setype: svirt_sandbox_file_t
+    seuser: system_u
+    serole: object_r
+    selevel: s0
+    recurse: yes
+  with_items:
+    - "{{ contiv_etcd_data_dir }}"
+    - "{{ contiv_etcd_conf_dir }}"
+
+- name: Contiv etcd | Create contiv-etcd openshift user
+  oc_serviceaccount:
+    state: present
+    name: contiv-etcd
+    namespace: kube-system
+  run_once: true
+
+- name: Contiv etcd | Create temp directory for doing work
+  command: mktemp -d /tmp/openshift-contiv-XXXXXX
+  register: mktemp
+  changed_when: False
+  # For things that pass temp files between steps, we want to make sure they
+  # run on the same node.
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Create etcd-scc.yml from template
+  template:
+    src: etcd-scc.yml.j2
+    dest: "{{ mktemp.stdout }}/etcd-scc.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Create etcd.yml from template
+  template:
+    src: etcd-daemonset.yml.j2
+    dest: "{{ mktemp.stdout }}/etcd-daemonset.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Create etcd-proxy.yml from template
+  template:
+    src: etcd-proxy-daemonset.yml.j2
+    dest: "{{ mktemp.stdout }}/etcd-proxy-daemonset.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Add etcd scc
+  oc_obj:
+    state: present
+    namespace: "kube-system"
+    kind: SecurityContextConstraints
+    name: contiv-etcd
+    files:
+      - "{{ mktemp.stdout }}/etcd-scc.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+# Always "import" this file, k8s won't do anything if it matches exactly what
+# is already in the cluster.
+- name: Contiv etcd | Add etcd daemonset
+  oc_obj:
+    state: present
+    namespace: "kube-system"
+    kind: daemonset
+    name: contiv-etcd
+    files:
+      - "{{ mktemp.stdout }}/etcd-daemonset.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Add etcd-proxy daemonset
+  oc_obj:
+    state: present
+    namespace: "kube-system"
+    kind: daemonset
+    name: contiv-etcd-proxy
+    files:
+      - "{{ mktemp.stdout }}/etcd-proxy-daemonset.yml"
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true
+
+- name: Contiv etcd | Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False
+  delegate_to: "{{ groups.oo_masters_to_config.0 }}"
+  run_once: true

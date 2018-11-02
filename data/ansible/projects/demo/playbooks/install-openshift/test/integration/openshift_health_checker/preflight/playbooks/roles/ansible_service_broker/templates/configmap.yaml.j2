@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-config
+  namespace: openshift-ansible-service-broker
+  labels:
+    app: openshift-ansible-service-broker
+data:
+  broker-config: |
+    registry:
+      - type: {{ ansible_service_broker_registry_type }}
+        name: {{ ansible_service_broker_registry_name }}
+        url:  {{ ansible_service_broker_registry_url }}
+        org:  {{ ansible_service_broker_registry_organization }}
+        tag:  {{ ansible_service_broker_registry_tag }}
+        white_list: {{  ansible_service_broker_registry_whitelist | to_yaml }}
+        auth_type: "{{ ansible_service_broker_registry_auth_type | default("") }}"
+        auth_name: "{{ ansible_service_broker_registry_auth_name | default("") }}"
+      - type: local_openshift
+        name: localregistry
+        namespaces: ['openshift']
+        white_list: {{ ansible_service_broker_local_registry_whitelist | to_yaml }}
+    dao:
+      type: crd
+    log:
+      stdout: true
+      level: {{ ansible_service_broker_log_level }}
+      color: true
+    openshift:
+      host: ""
+      ca_file: ""
+      bearer_token_file: ""
+      namespace: openshift-ansible-service-broker
+      sandbox_role: {{ ansible_service_broker_sandbox_role }}
+      image_pull_policy: {{ ansible_service_broker_image_pull_policy }}
+      keep_namespace: {{ ansible_service_broker_keep_namespace | bool | lower }}
+      keep_namespace_on_error: {{ ansible_service_broker_keep_namespace_on_error | bool | lower }}
+    broker:
+      dev_broker: {{ ansible_service_broker_dev_broker | bool | lower }}
+{% if ansible_service_broker_enable_dashboard_redirector %}
+      dashboard_redirector: {{ ansible_service_broker_dashboard_redirector_route }}
+{% endif %}
+      bootstrap_on_startup: {{ ansible_service_broker_bootstrap_on_startup | bool | lower }}
+      refresh_interval: {{ ansible_service_broker_refresh_interval }}
+      launch_apb_on_bind: {{ ansible_service_broker_launch_apb_on_bind | bool | lower }}
+      output_request: {{ ansible_service_broker_output_request | bool | lower }}
+      recovery: {{ ansible_service_broker_recovery | bool | lower }}
+      ssl_cert_key: /etc/tls/private/tls.key
+      ssl_cert: /etc/tls/private/tls.crt
+      auto_escalate: {{ ansible_service_broker_auto_escalate }}
+      auth:
+        - type: basic
+          enabled: false
+

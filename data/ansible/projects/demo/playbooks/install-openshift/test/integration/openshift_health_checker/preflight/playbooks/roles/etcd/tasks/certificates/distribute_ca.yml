@@ -1,0 +1,47 @@
+---
+- name: Create a tarball of the etcd ca certs
+  command: >
+    tar -czvf {{ etcd_conf_dir }}/{{ etcd_ca_name }}.tgz
+      -C {{ etcd_ca_dir }} .
+  args:
+    creates: "{{ etcd_conf_dir }}/{{ etcd_ca_name }}.tgz"
+    warn: no
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- name: Retrieve etcd ca cert tarball
+  fetch:
+    src: "{{ etcd_conf_dir }}/{{ etcd_ca_name }}.tgz"
+    dest: "{{ etcd_sync_cert_dir }}/"
+    flat: yes
+    fail_on_missing: yes
+    validate_checksum: yes
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- name: Ensure ca directory exists
+  file:
+    path: "{{ etcd_ca_dir }}"
+    state: directory
+
+- name: Unarchive etcd ca cert tarballs
+  unarchive:
+    src: "{{ etcd_sync_cert_dir }}/{{ etcd_ca_name }}.tgz"
+    dest: "{{ etcd_ca_dir }}"
+
+- name: Read current etcd CA
+  slurp:
+    src: "{{ etcd_conf_dir }}/ca.crt"
+  register: g_current_etcd_ca_output
+
+- name: Read new etcd CA
+  slurp:
+    src: "{{ etcd_ca_dir }}/ca.crt"
+  register: g_new_etcd_ca_output
+
+- copy:
+    content: "{{ (g_new_etcd_ca_output.content|b64decode) + (g_current_etcd_ca_output.content|b64decode) }}"
+    dest: "{{ item }}/ca.crt"
+  with_items:
+  - "{{ etcd_conf_dir }}"
+  - "{{ etcd_ca_dir }}"

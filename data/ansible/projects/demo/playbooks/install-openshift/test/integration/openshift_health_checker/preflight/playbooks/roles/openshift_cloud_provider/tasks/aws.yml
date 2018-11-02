@@ -1,0 +1,17 @@
+---
+# Work around ini_file create option in 2.2 which defaults to no
+- name: Create cloud config file
+  file:
+    dest: "{{ openshift.common.config_base }}/cloudprovider/aws.conf"
+    state: touch
+    mode: 0660
+    owner: root
+    group: root
+  changed_when: false
+
+- name: Configure AWS cloud provider
+  ini_file:
+    dest: "{{ openshift.common.config_base }}/cloudprovider/aws.conf"
+    section: Global
+    option: Zone
+    value: "{{ openshift.provider.zone }}"

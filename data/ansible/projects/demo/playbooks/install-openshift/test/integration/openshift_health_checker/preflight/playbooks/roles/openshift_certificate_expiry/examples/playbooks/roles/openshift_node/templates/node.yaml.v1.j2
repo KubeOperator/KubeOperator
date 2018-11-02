@@ -1,0 +1,76 @@
+allowDisabledDocker: false
+apiVersion: v1
+dnsBindAddress: 127.0.0.1:53
+dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
+dnsDomain: {{ openshift.common.dns_domain }}
+dnsIP: 0.0.0.0
+dockerConfig:
+  execHandlerName: ""
+iptablesSyncPeriod: "{{ openshift_node_iptables_sync_period }}"
+imageConfig:
+  format: {{ oreg_url_node }}
+  latest: {{ openshift_node_image_config_latest }}
+kind: NodeConfig
+kubeletArguments: {{  l2_openshift_node_kubelet_args  | default(None) | lib_utils_to_padded_yaml(level=1) }}
+{% if openshift_is_atomic | bool %}
+  volume-plugin-dir:
+  - "/etc/origin/kubelet-plugins/volume/exec"
+{% endif %}
+{% if openshift_use_crio | bool %}
+  container-runtime:
+  - remote
+  container-runtime-endpoint:
+  - {{ l_crio_var_sock }}
+  image-service-endpoint:
+  - {{ l_crio_var_sock }}
+  runtime-request-timeout:
+  - 10m
+{% endif %}
+{% if openshift_node_use_persistentlocalvolumes | bool %}
+  feature-gates:
+  - PersistentLocalVolumes=true
+  - VolumeScheduling=true
+{% endif %}
+masterClientConnectionOverrides:
+  acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+  contentType: application/vnd.kubernetes.protobuf
+  burst: 200
+  qps: 100
+masterKubeConfig: system:node:{{ openshift.common.hostname | lower }}.kubeconfig
+networkConfig:
+   mtu: {{ openshift.node.sdn_mtu }}
+{% if openshift_node_use_openshift_sdn | bool or openshift_node_use_nuage | bool or openshift_node_use_contiv | bool or openshift_node_use_kuryr | bool or openshift_node_sdn_network_plugin_name == 'cni' %}
+   networkPluginName: {{ openshift_node_sdn_network_plugin_name }}
+{% endif %}
+{% if openshift_set_node_ip | bool %}
+nodeIP: {{ openshift.common.ip }}
+{% endif %}
+nodeName: {{ l_kubelet_node_name }}
+podManifestConfig:
+servingInfo:
+  bindAddress: 0.0.0.0:10250
+  certFile: server.crt
+  clientCA: ca.crt
+  keyFile: server.key
+{% if openshift_node_min_tls_version is defined %}
+  minTLSVersion: {{ openshift_node_min_tls_version }}
+{% endif %}
+{% if openshift_node_cipher_suites is defined %}
+  cipherSuites:
+{% for cipher_suite in openshift_node_cipher_suites %}
+  - {{ cipher_suite }}
+{% endfor %}
+{% endif %}
+volumeDirectory: {{ openshift_node_data_dir }}/openshift.local.volumes
+{% if not (openshift_node_use_kuryr | default(False)) | bool %}
+proxyArguments:
+  proxy-mode:
+     - {{ openshift_node_proxy_mode }}
+{% if openshift_use_calico | default(False) | bool %}
+  cluster-cidr:
+    - {{ osm_cluster_network_cidr }}
+{% endif %}
+{% endif %}
+volumeConfig:
+  localQuota:
+    perFSGroup: {{ openshift_node_local_quota_per_fsgroup }}

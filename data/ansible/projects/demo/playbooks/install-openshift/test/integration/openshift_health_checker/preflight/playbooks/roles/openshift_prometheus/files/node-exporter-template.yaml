@@ -1,0 +1,93 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: prometheus-node-exporter
+  annotations:
+    openshift.io/display-name: Prometheus Node Exporter
+    description: Prometheus exporter for node host metrics
+    iconClass: fa fa-cogs
+    tags: monitoring,prometheus
+    openshift.io/support-url: https://access.redhat.com
+    openshift.io/provider-display-name: Red Hat, Inc.
+parameters:
+- name: IMAGE
+  value: openshift/prometheus-node-exporter:v0.15.2
+- name: MEMORY_REQUESTS
+  value: 30Mi
+- name: CPU_REQUESTS
+  value: 100m
+- name: MEMORY_LIMITS
+  value: 50Mi
+- name: CPU_LIMITS
+  value: 200m
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: prometheus-node-exporter
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      prometheus.io/scrape: "true"
+    labels:
+      app: prometheus-node-exporter
+    name: prometheus-node-exporter
+  spec:
+    clusterIP: None
+    ports:
+    - name: scrape
+      port: 9100
+      protocol: TCP
+      targetPort: 9100
+    selector:
+      app: prometheus-node-exporter
+- apiVersion: extensions/v1beta1
+  kind: DaemonSet
+  metadata:
+    name: prometheus-node-exporter
+    labels:
+      app: prometheus-node-exporter
+      role: monitoring
+  spec:
+    updateStrategy:
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          app: prometheus-node-exporter
+          role: monitoring
+        name: prometheus-exporter
+      spec:
+        serviceAccountName: prometheus-node-exporter
+        hostNetwork: true
+        hostPID: true
+        containers:
+        - image: ${IMAGE}
+          name: node-exporter
+          args:
+          - --no-collector.wifi
+          ports:
+          - containerPort: 9100
+            name: scrape
+          resources:
+            requests:
+              memory: ${MEMORY_REQUESTS}
+              cpu: ${CPU_REQUESTS}
+            limits:
+              memory: ${MEMORY_LIMITS}
+              cpu: ${CPU_LIMITS}
+          volumeMounts:
+          - name: proc
+            readOnly:  true
+            mountPath: /host/proc
+          - name: sys
+            readOnly: true
+            mountPath: /host/sys
+        volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys

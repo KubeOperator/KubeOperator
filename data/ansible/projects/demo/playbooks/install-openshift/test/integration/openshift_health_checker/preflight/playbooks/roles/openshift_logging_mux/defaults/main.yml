@@ -1,0 +1,68 @@
+---
+### General logging settings
+openshift_logging_mux_image_pull_secret: "{{ openshift_hosted_logging_image_pull_secret | default('') }}"
+openshift_logging_mux_master_url: "https://kubernetes.default.svc.{{ openshift.common.dns_domain }}"
+openshift_logging_mux_master_public_url: "{{ openshift_hosted_logging_master_public_url | default('https://' + openshift.common.public_hostname + ':' ~ openshift_master_api_port) }}"
+openshift_logging_mux_namespace: logging
+
+openshift_logging_mux_image: "{{ openshift_logging_fluentd_image }}"
+
+### Common settings
+# map_from_pairs is a custom filter plugin in role lib_utils
+openshift_logging_mux_nodeselector: "{{ openshift_hosted_logging_mux_nodeselector_label | default('') | map_from_pairs }}"
+openshift_logging_mux_cpu_limit: null
+openshift_logging_mux_cpu_request: 100m
+openshift_logging_mux_memory_limit: 512Mi
+openshift_logging_mux_buffer_queue_limit: 32
+openshift_logging_mux_buffer_size_limit: 8m
+
+openshift_logging_mux_replicas: 1
+
+# Destination for the application based logs
+openshift_logging_mux_app_host: "logging-es"
+openshift_logging_mux_app_port: 9200
+# Destination for the operations based logs
+openshift_logging_mux_ops_host: "{{ openshift_logging_mux_app_host }}"
+openshift_logging_mux_ops_port: "{{ openshift_logging_mux_app_port }}"
+
+### Used by "hosted" and "secure-aggregator" deployments
+openshift_logging_mux_journal_source: "{{ openshift_hosted_logging_journal_source | default('') }}"
+openshift_logging_mux_journal_read_from_head: "{{ openshift_hosted_logging_journal_read_from_head | default('') }}"
+
+openshift_logging_mux_allow_external: False
+openshift_logging_use_mux: "{{ openshift_logging_mux_allow_external | default(False) }}"
+openshift_logging_mux_hostname: "{{ 'mux.' ~ openshift_master_default_subdomain }}"
+openshift_logging_mux_port: 24284
+openshift_logging_mux_external_address: "{{ ansible_default_ipv4.address }}"
+# the namespace to use for undefined projects
+# namespaces to create for mux clients - users will need to set this
+openshift_logging_mux_namespaces: []
+
+openshift_logging_mux_app_client_cert: /etc/fluent/keys/cert
+openshift_logging_mux_app_client_key: /etc/fluent/keys/key
+openshift_logging_mux_app_ca: /etc/fluent/keys/ca
+openshift_logging_mux_ops_client_cert: /etc/fluent/keys/cert
+openshift_logging_mux_ops_client_key: /etc/fluent/keys/key
+openshift_logging_mux_ops_ca: /etc/fluent/keys/ca
+
+# following can be uncommented to provide values for configmaps -- take care when providing file contents as it may cause your cluster to not operate correctly
+#mux_config_contents:
+#mux_throttle_contents:
+#mux_secureforward_contents:
+
+# One of ['emptydir', 'pvc', 'hostmount']
+openshift_logging_mux_file_buffer_storage_type: "emptydir"
+
+# pvc options
+# the name of the PVC we will bind to -- create it if it does not exist
+openshift_logging_mux_file_buffer_pvc_name: "logging-mux-pvc"
+
+# required if the PVC does not already exist
+openshift_logging_mux_file_buffer_pvc_size: 2Gi
+openshift_logging_mux_file_buffer_pvc_dynamic: false
+openshift_logging_mux_file_buffer_pvc_pv_selector: {}
+openshift_logging_mux_file_buffer_pvc_access_modes: ['ReadWriteOnce']
+openshift_logging_mux_file_buffer_storage_group: '65534'
+
+openshift_logging_mux_file_buffer_pvc_prefix: "logging-mux"
+openshift_logging_mux_file_buffer_limit: 2Gi

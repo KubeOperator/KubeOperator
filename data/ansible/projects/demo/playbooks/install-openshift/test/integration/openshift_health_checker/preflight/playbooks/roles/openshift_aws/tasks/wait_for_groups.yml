@@ -1,0 +1,42 @@
+---
+# The idea here is to wait until all scale groups are at
+# their desired capacity before continuing.
+#  This is accomplished with a custom filter_plugin and until clause
+- name: "fetch the scale groups"
+  ec2_asg_facts:
+    region: "{{ openshift_aws_region }}"
+    tags:
+      "{{ {'kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid } }}"
+  register: qasg
+  # scale_groups_match_capacity is a custom filter in role lib_utils
+  until: qasg | json_query('results[*]') | scale_groups_match_capacity | bool
+  delay: 10
+  retries: 60
+
+- debug: var=openshift_aws_created_asgs
+
+# how do we gaurantee the instances are up?
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "{{ {'tag:kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid,
+           'tag:aws:autoscaling:groupName': item,
+           'instance-state-name': 'running'} }}"
+  with_items: "{{ openshift_aws_created_asgs if openshift_aws_created_asgs != [] else qasg | sum(attribute='results', start=[]) }}"
+  register: instancesout
+  until: instancesout.instances|length > 0
+  delay: 5
+  retries: 60
+
+- name: dump instances
+  debug:
+    msg: "{{ instancesout.results | sum(attribute='instances', start=[]) }}"
+
+- name: wait for ssh to become available
+  wait_for:
+    port: 22
+    host: "{{ item.public_ip_address }}"
+    timeout: 300
+    search_regex: OpenSSH
+  with_items: "{{ instancesout.results | sum(attribute='instances', start=[]) }}"

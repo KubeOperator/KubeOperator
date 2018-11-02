@@ -1,0 +1,9 @@
+---
+- name: Remove the public keys for the user(s)
+  ec2_key:
+    state: absent
+    name: "{{ item.key_name }}"
+    region: "{{ openshift_aws_region }}"
+  with_items: "{{ openshift_aws_users }}"
+  no_log: True
+  when: openshift_aws_enable_uninstall_shared_objects | bool

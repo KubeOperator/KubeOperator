@@ -1,0 +1,24 @@
+---
+- include_tasks: provision_nodes.yml
+  vars:
+    openshift_aws_node_group_upgrade: True
+
+- debug: var=openshift_aws_current_asgs
+- debug: var=openshift_aws_created_asgs
+
+- name: fail if asg variables aren't set
+  fail:
+    msg: "Please ensure that openshift_aws_created_asgs and openshift_aws_current_asgs are defined."
+  when:
+  - openshift_aws_created_asgs == []
+  - openshift_aws_current_asgs == []
+
+- include_tasks: accept_nodes.yml
+  when: openshift_aws_upgrade_accept_nodes | default(True)
+
+- include_tasks: setup_scale_group_facts.yml
+
+- include_tasks: setup_master_group.yml
+  vars:
+    # we do not set etcd here as its limited to 1 or 3
+    openshift_aws_masters_groups: masters,nodes

@@ -1,0 +1,17 @@
+---
+- name: Netmaster Firewalld | Add internal rules
+  firewalld:
+    immediate: true
+    permanent: true
+    port: "{{ item[0] }}"
+    source: "{{ item[1] }}"
+  with_nested:
+    - "{{ contiv_netmaster_internal }}"
+    - "{{ groups.oo_nodes_to_config|difference(hostvars[inventory_hostname]['ansible_' + contiv_netmaster_interface].ipv4.address)|list }}"
+
+- name: Netmaster Firewalld | Add external rules
+  firewalld:
+    immediate: true
+    permanent: true
+    port: "{{ item }}"
+  with_items: "{{ contiv_netmaster_external }}"
