@@ -3,7 +3,7 @@
 
 from rest_framework import viewsets
 
-from .mixin import ProjectObjectMixin
+from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..models import Role
 from ..serializers import RoleReadSerializer, RoleSerializer
@@ -20,5 +20,5 @@ class RoleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
 
 
-class ProjectRoleViewSet(ProjectObjectMixin, RoleViewSet):
+class ProjectRoleViewSet(ProjectResourceAPIMixin, RoleViewSet):
     serializer_class = RoleSerializer

@@ -9,9 +9,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from common import models as common_models
-from .mixins import AbstractProjectResourceModel
 from ..ansible.runner import AdHocRunner
 from ..signals import pre_adhoc_exec, post_adhoc_exec
+from .mixins import AbstractProjectResourceModel
 from .utils import format_result_as_list
 
 
@@ -19,7 +19,6 @@ __all__ = ['AdHoc', 'AdHocExecution']
 
 
 class AdHoc(AbstractProjectResourceModel):
-    # Ansible playbook content
     pattern = models.CharField(max_length=1024, default='all', verbose_name=_('Pattern'))
     module = models.CharField(max_length=128, default='command', verbose_name=_("Module"))
     args = common_models.JsonTextField(verbose_name=_("Args"))

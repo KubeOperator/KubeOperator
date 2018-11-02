@@ -3,8 +3,9 @@
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
-from .mixin import ProjectObjectMixin
+from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..serializers import (
     PlaybookReadSerializer, PlaybookSerializer,
@@ -16,27 +17,21 @@ from ..tasks import execute_playbook
 
 __all__ = [
     'ProjectPlaybookViewSet',
-    'ProjectPlaybookExecutionViewSet',
+    'PlaybookExecutionViewSet',
 ]
 
 
-class ProjectPlaybookViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class ProjectPlaybookViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Playbook.objects.all()
     permission_classes = (IsSuperUser,)
     serializer_class = PlaybookSerializer
     read_serializer_class = PlaybookReadSerializer
 
 
-class ProjectPlaybookExecutionViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class PlaybookExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = PlaybookExecution.objects.all()
     permission_classes = (IsSuperUser,)
     serializer_class = PlaybookExecutionSerializer
+    http_method_names = ['post', 'get', 'option', 'head']
 
-    def retrieve(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        task = execute_playbook.delay(str(instance.id))
-        return Response({"task": task.id})
 

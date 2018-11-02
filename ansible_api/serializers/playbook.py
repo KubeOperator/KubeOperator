@@ -14,7 +14,7 @@ __all__ = [
 
 
 class PlayReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
-    vars = serializers.DictField(required=False, allow_null=True)
+    vars = serializers.DictField(required=False, default={})
     tasks = serializers.ListField(child=serializers.DictField(), required=False, allow_null=True)
     roles = serializers.ListField(child=serializers.DictField(), required=False, allow_null=True)
 
@@ -31,7 +31,7 @@ class PlayReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
         return data
 
 
-class PlaySerializer(ProjectSerializerMixin, PlayReadSerializer):
+class PlaySerializer(PlayReadSerializer, ProjectSerializerMixin):
     pass
 
 
@@ -62,18 +62,22 @@ class PlaybookReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
         return playbook
 
 
-class PlaybookSerializer(ProjectSerializerMixin, PlaybookReadSerializer):
+class PlaybookSerializer(PlaybookReadSerializer, ProjectSerializerMixin):
     plays = PlaySerializer(many=True, required=False)
 
 
-class PlaybookExecutionSerializer(ProjectSerializerMixin, serializers.ModelSerializer):
+class PlaybookExecutionSerializer(serializers.ModelSerializer, ProjectSerializerMixin):
     summary = serializers.JSONField(read_only=True)
     raw = serializers.JSONField(read_only=True)
 
     class Meta:
         model = PlaybookExecution
         fields = [
-            'id', 'playbook', 'is_finished', 'is_success', 'timedelta',
+            'id', 'playbook', 'num', 'is_finished', 'is_success', 'timedelta',
+            'raw', 'summary', 'date_start', 'date_finished',
+        ]
+        read_only_fields = [
+            'id', 'num', 'is_finished', 'is_finished', 'is_success', 'timedelta',
             'raw', 'summary', 'date_start', 'date_finished',
         ]
 

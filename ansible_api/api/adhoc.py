@@ -4,10 +4,10 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from common.api import LogTailApi
-from .mixin import ProjectObjectMixin
+from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..models import AdHoc, AdHocExecution
-from ..serializers import AdHocReadSerializer, AdHocSerializer
+from ..serializers import AdHocReadSerializer, AdHocSerializer, AdHocExecutionSerializer
 from ..tasks import execute_adhoc
 
 
@@ -16,17 +16,19 @@ __all__ = [
 ]
 
 
-class AdHocViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class AdHocViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = AdHoc.objects.all()
     permission_classes = (IsSuperUser,)
     pagination_class = LimitOffsetPagination
     serializer_class = AdHocSerializer
 
 
-class AdHocExecutionViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class AdHocExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = AdHocExecution.objects.all()
     permission_classes = (IsSuperUser,)
-    serializer_class = AdHocReadSerializer
+    serializer_class = AdHocExecutionSerializer
+
+    http_method_names = ['post', 'get', 'option', 'head']
 
     # def update(self, request, *args, **kwargs):
     #     # serializer = self.get_serializer(data=request.data)

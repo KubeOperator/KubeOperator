@@ -6,6 +6,8 @@ class CustomSwaggerAutoSchema(SwaggerAutoSchema):
         if operation_keys[0] == 'projects' and len(operation_keys) >= 3:
             if operation_keys[1] == 'inventory' and len(operation_keys) > 3:
                 value = operation_keys[2]
+            elif operation_keys[1] in ('adhoc', 'playbooks') and len(operation_keys) > 3:
+                value = operation_keys[1] + '-' + operation_keys[2]
             else:
                 value = operation_keys[1]
             return ['project-' + value]

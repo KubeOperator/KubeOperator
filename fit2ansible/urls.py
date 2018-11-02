@@ -22,9 +22,12 @@ schema_view = get_schema_view(
 
 
 def get_api_v1_urlpatterns():
-    from users.urls import urlpatterns as user_url_patterns
-    from ansible_api.urls import api_urlpatterns as ansible_api_urlpatterns
-    return user_url_patterns + ansible_api_urlpatterns
+    _urlpatterns = [
+        path('', include('users.urls')),
+        path('', include('ansible_api.urls.api_urls')),
+        path('', include('celery_api.urls.api_urls')),
+    ]
+    return _urlpatterns
 
 
 def get_view_url_patterns():

@@ -19,17 +19,11 @@ router.register(r'modules', api.AnsibleModuleViewSet, 'ansible-module')
 project_router = routers.NestedDefaultRouter(router, r'projects', lookup='project')
 project_router.register(r'inventory/hosts', api.ProjectHostViewSet, 'project-host')
 project_router.register(r'inventory/groups', api.ProjectGroupViewSet, 'project-group')
-project_router.register(r'adhoc/execution', api.AdHocExecutionViewSet, 'project-adhoc-execution')
+project_router.register(r'adhoc/executions', api.AdHocExecutionViewSet, 'project-adhoc-execution')
 project_router.register(r'adhoc', api.AdHocViewSet, 'project-adhoc')
 project_router.register(r'roles', api.ProjectRoleViewSet, 'project-role')
-project_router.register(r'playbooks/executions', api.ProjectPlaybookExecutionViewSet, 'project-playbook-execution')
+project_router.register(r'playbooks/executions', api.PlaybookExecutionViewSet, 'project-playbook-execution')
 project_router.register(r'playbooks', api.ProjectPlaybookViewSet, 'project-playbook')
-
-# adhoc_router = routers.NestedDefaultRouter(project_router, r'adhoc', lookup='adhoc')
-# adhoc_router.register(r'executions', api.AdHocExecutionViewSet, 'project-adhoc-execution')
-
-# playbook_router = routers.NestedDefaultRouter(project_router, r'playbooks', lookup='playbook')
-# playbook_router.register('executions', api.ProjectPlaybookExecutionViewSet, 'project-playbook-execution')
 
 
 urlpatterns = [

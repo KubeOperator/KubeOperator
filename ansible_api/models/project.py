@@ -34,7 +34,7 @@ class Project(models.Model):
 
     @property
     def inventory(self):
-        return Inventory(self.projecthost_set.all(), self.projectgroup_set.all())
+        return Inventory(self.host_set.all(), self.group_set.all())
 
     @property
     def inventory_file_path(self):

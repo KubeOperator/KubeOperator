@@ -12,25 +12,12 @@ logger = logging.getLogger(__file__)
 
 
 @shared_task
-def execute_playbook(tid, save_history=True, **kwargs):
+def execute_playbook(tid, **kwargs):
     change_to_root()
     playbook = get_object_or_none(Playbook, id=tid)
     if playbook:
         set_current_project(playbook.project)
-        return playbook.execute(save_history=save_history)
-    else:
-        msg = "No playbook found: {}".format(tid)
-        logger.error(msg)
-        return {"error": msg}
-
-
-@shared_task
-def execute_playbook_using_command(tid, save_history=True, **kwargs):
-    change_to_root()
-    playbook = get_object_or_none(Playbook, id=tid)
-    if playbook:
-        set_current_project(playbook.project)
-        return playbook.execute_using_command(save_history=save_history)
+        return playbook.execute()
     else:
         msg = "No playbook found: {}".format(tid)
         logger.error(msg)
@@ -70,12 +57,3 @@ def hello_callback(result):
     print("Hello {} :".format(result))
     result += ':'
     return result
-
-
-@shared_task
-def prerequisite():
-    import subprocess
-    PLAYBOOK_DIR = '/Users/guang/projects/fit2openshift/data/playbooks/openshift-ansible/3.10'
-    os.chdir(PLAYBOOK_DIR)
-    p = subprocess.call(['ansible-playbook', '-i', 'hosts', 'playbooks/prerequisites.yml'])
-    return

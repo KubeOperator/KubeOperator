@@ -15,7 +15,7 @@ __all__ = [
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    options = serializers.DictField(required=False, allow_null=True)
+    options = serializers.DictField(required=False, default={})
     validated_options = ('forks', 'timeout')
 
     class Meta:

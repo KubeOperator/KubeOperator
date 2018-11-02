@@ -5,7 +5,7 @@ from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.generics import RetrieveUpdateAPIView
 
-from .mixin import ProjectObjectMixin
+from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..models import ClusterHost, ClusterGroup, Group, Host
 from ..serializers import (
@@ -32,19 +32,19 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
 
 
-class ProjectHostViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class ProjectHostViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = HostSerializer
     permission_classes = (IsSuperUser,)
     queryset = Host.objects.all()
 
 
-class ProjectGroupViewSet(ProjectObjectMixin, viewsets.ModelViewSet):
+class ProjectGroupViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
     permission_classes = (IsSuperUser,)
 
 
-class ProjectInventoryApi(ProjectObjectMixin, RetrieveUpdateAPIView):
+class ProjectInventoryApi(ProjectResourceAPIMixin, RetrieveUpdateAPIView):
     serializer_class = InventorySerializer
     permission_classes = (IsSuperUser,)
 

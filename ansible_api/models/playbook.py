@@ -214,14 +214,13 @@ class Playbook(AbstractProjectResourceModel):
     def pre_check(self):
         return True, None
 
-    def execute(self, save_history=True):
+    def execute(self):
         result = {"raw": {}, "summary": {}}
         success, err = self.install()
         if not success:
             result["summary"] = {"error": str(err)}
         os.chdir(self.playbook_dir)
         try:
-            pre_playbook_exec.send(self.__class__, playbook=self, save_history=save_history)
             runner = PlayBookRunner(
                 self.project.inventory_obj,
                 options=self.project.cleaned_options,
@@ -229,9 +228,7 @@ class Playbook(AbstractProjectResourceModel):
             result = runner.run(self.playbook_path)
         except IndexError as e:
             result["summary"] = {'error': str(e)}
-        finally:
-            post_playbook_exec.send(self.__class__, playbook=self, save_history=save_history, result=result)
-        return format_result_as_list(result.get('summary', {}))
+        return result
 
     def create_period_task(self):
         from ..tasks import execute_playbook
@@ -297,8 +294,23 @@ class PlaybookExecution(AbstractProjectResourceModel):
     date_start = models.DateTimeField(auto_now_add=True, verbose_name=_('Start time'))
     date_finished = models.DateTimeField(blank=True, null=True, verbose_name=_('End time'))
 
+    class Meta:
+        get_latest_by = 'date_start'
+        unique_together = ('playbook', 'num')
+
     def __str__(self):
         return "{} run at {}".format(self.playbook.__str__(), self.date_start)
+
+    def execute(self, save_history=True):
+        try:
+            pre_playbook_exec.send(self.__class__, playbook=self, save_history=save_history)
+            result = self.playbook.execute()
+        except IndexError as e:
+            result["summary"] = {'error': str(e)}
+        finally:
+            post_playbook_exec.send(self.__class__, playbook=self, save_history=save_history, result=result)
+        return format_result_as_list(result.get('summary', {}))
+
 
     @property
     def log_path(self):
@@ -317,6 +329,3 @@ class PlaybookExecution(AbstractProjectResourceModel):
     @property
     def failed_hosts(self):
         return self.summary.get('dark', {}) if self.summary else []
-
-    class Meta:
-        get_latest_by = 'date_start'

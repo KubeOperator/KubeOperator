@@ -26,7 +26,7 @@ class AdHocReadSerializer(serializers.ModelSerializer):
         )
 
 
-class AdHocSerializer(ProjectSerializerMixin, AdHocReadSerializer):
+class AdHocSerializer(AdHocReadSerializer, ProjectSerializerMixin):
     pass
 
 
@@ -38,6 +38,10 @@ class AdHocExecutionSerializer(serializers.ModelSerializer):
         model = AdHocExecution
         fields = [
             'id', 'adhoc', 'is_finished', 'is_success', 'timedelta',
+            'raw', 'summary', 'date_start', 'date_finished',
+        ]
+        read_only_fields = [
+            'id', 'is_finished', 'is_success', 'timedelta',
             'raw', 'summary', 'date_start', 'date_finished',
         ]
 

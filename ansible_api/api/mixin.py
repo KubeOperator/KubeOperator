@@ -7,7 +7,7 @@ from ..ctx import set_current_project
 from ..models import Project
 
 
-class ProjectObjectMixin:
+class ProjectResourceAPIMixin:
     is_project_request = False
     project = None
     project_name = ''
@@ -28,15 +28,11 @@ class ProjectObjectMixin:
             self.project = get_object_or_404(Project, name=self.project_name)
         return self.project
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'project': self.project
-        })
-        return super().get_context_data(**kwargs)
-
     def get_serializer_class(self):
         if hasattr(self, 'action') and self.action in ('list', 'retrieve') \
                 and hasattr(self, 'read_serializer_class'):
-            print(self.read_serializer_class)
             return self.read_serializer_class
         return super().get_serializer_class()
+
+    def get_queryset(self):
+        return super().get_queryset().all()

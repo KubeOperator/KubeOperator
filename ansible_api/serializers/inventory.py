@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework_bulk import BulkListSerializer
 from django.db import transaction
 
-from .mixins import ProjectSerializerMixin
+from .mixins import ProjectSerializerMixin, ReadSerializerMixin
 from ..models import Inventory, ClusterGroup, ClusterHost, Group, Host
 from ..ctx import current_project
 
@@ -18,7 +18,7 @@ __all__ = [
 
 
 class ClusterHostSerializer(serializers.ModelSerializer):
-    vars = serializers.DictField(required=False, allow_null=True)
+    vars = serializers.DictField(required=False, allow_null=True, default={})
     groups = serializers.SlugRelatedField(
         many=True, read_only=False, queryset=ClusterGroup.objects.all(),
         slug_field='name', required=False,
@@ -33,12 +33,12 @@ class ClusterHostSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
         fields = [
             'id', 'name', 'ip', 'port', 'username', 'password',
-            'private_key', 'groups', 'vars', 'is_project_private',
+            'private_key', 'groups', 'vars',
         ]
 
 
-class HostSerializer(ProjectSerializerMixin, serializers.ModelSerializer):
-    vars = serializers.DictField(required=False, allow_null=True)
+class HostReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
+    vars = serializers.DictField(required=False, default={})
     groups = serializers.SlugRelatedField(
         many=True, read_only=False, queryset=ClusterGroup.objects.all(),
         slug_field='name', required=False,
@@ -53,8 +53,12 @@ class HostSerializer(ProjectSerializerMixin, serializers.ModelSerializer):
         read_only_fields = ['id']
         fields = [
             'id', 'name', 'ip', 'port', 'username', 'password',
-            'private_key', 'groups', 'vars', 'project', 'is_project_private'
+            'private_key', 'groups', 'vars', 'project',
         ]
+
+
+class HostSerializer(HostReadSerializer, ProjectSerializerMixin):
+    pass
 
 
 class ClusterGroupSerializer(serializers.ModelSerializer):
@@ -66,7 +70,7 @@ class ClusterGroupSerializer(serializers.ModelSerializer):
         many=True, read_only=False, queryset=ClusterHost.objects.all(),
         slug_field='name', required=False
     )
-    vars = serializers.DictField(required=False, allow_null=True)
+    vars = serializers.DictField(required=False, default={})
 
     class Meta:
         model = ClusterGroup
@@ -75,7 +79,7 @@ class ClusterGroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'hosts', 'children', 'vars', ]
 
 
-class GroupSerializer(ProjectSerializerMixin, serializers.ModelSerializer):
+class GroupReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
     children = serializers.SlugRelatedField(
         many=True, read_only=False, queryset=Group.objects.all(),
         slug_field='name', required=False,
@@ -84,13 +88,17 @@ class GroupSerializer(ProjectSerializerMixin, serializers.ModelSerializer):
         many=True, read_only=False, queryset=Host.objects.all(),
         slug_field='name', required=False
     )
-    vars = serializers.DictField(required=False, allow_null=True)
+    vars = serializers.DictField(required=False, default={})
 
     class Meta:
         model = Group
         list_serializer_class = BulkListSerializer
         read_only_fields = ['id']
         fields = ['id', 'name', 'hosts', 'children', 'vars', 'project']
+
+
+class GroupSerializer(GroupReadSerializer, ProjectSerializerMixin):
+    pass
 
 
 class InventorySerializer(serializers.Serializer):
