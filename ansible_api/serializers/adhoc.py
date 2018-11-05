@@ -2,6 +2,7 @@
 #
 
 from rest_framework import serializers
+from django.shortcuts import reverse
 
 from ..models import AdHoc, AdHocExecution
 from .mixins import ProjectSerializerMixin
@@ -30,18 +31,29 @@ class AdHocSerializer(AdHocReadSerializer, ProjectSerializerMixin):
     pass
 
 
-class AdHocExecutionSerializer(serializers.ModelSerializer):
-    summary = serializers.JSONField(read_only=True)
-    result = serializers.JSONField(read_only=True)
+class AdHocExecutionSerializer(serializers.ModelSerializer, ProjectSerializerMixin):
+    result_summary = serializers.JSONField(read_only=True)
+    log_url = serializers.SerializerMethodField()
+    log_ws_url = serializers.SerializerMethodField()
 
     class Meta:
         model = AdHocExecution
         fields = [
-            'id', 'adhoc', 'is_finished', 'is_success', 'timedelta',
-            'raw', 'summary', 'date_start', 'date_finished',
+            'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',
+            'result_summary', 'date_created', 'date_start', 'date_end',
+            'adhoc', 'project'
         ]
         read_only_fields = [
-            'id', 'is_finished', 'is_success', 'timedelta',
-            'raw', 'summary', 'date_start', 'date_finished',
+            'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',
+            'result_summary', 'date_created', 'date_start', 'date_end',
+            'project'
         ]
+
+    @staticmethod
+    def get_log_url(obj):
+        return reverse('celery-api:task-log-api', kwargs={'pk': obj.id})
+
+    @staticmethod
+    def get_log_ws_url(obj):
+        return '/ws/tasks/{}/log/'.format(obj.id)
 

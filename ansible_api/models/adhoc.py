@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 #
 
-import uuid
-import datetime
-import os
-
+from celery import current_task
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from common import models as common_models
+from celery_api.utils import get_celery_task_log_path
 from ..ansible.runner import AdHocRunner
-from ..signals import pre_adhoc_exec, post_adhoc_exec
-from .mixins import AbstractProjectResourceModel
+from ..signals import pre_execution_start, post_execution_start
+from .mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from .utils import format_result_as_list
 
 
@@ -22,12 +20,23 @@ class AdHoc(AbstractProjectResourceModel):
     pattern = models.CharField(max_length=1024, default='all', verbose_name=_('Pattern'))
     module = models.CharField(max_length=128, default='command', verbose_name=_("Module"))
     args = common_models.JsonTextField(verbose_name=_("Args"))
+
+    execute_times = models.IntegerField(default=0)
     created_by = models.CharField(max_length=128, blank=True, null=True, default='')
 
     COMMAND_MODULES = ('shell', 'command', 'raw')
 
     def __str__(self):
         return "{}: {}".format(self.module, self.clean_args)
+
+    def execute(self):
+        pk = None
+        if current_task:
+            pk = current_task.request.id
+        execution = AdHocExecution(adhoc=self, pk=pk)
+        execution.save()
+        result = execution.start()
+        return result
 
     @property
     def clean_args(self):
@@ -56,18 +65,6 @@ class AdHoc(AbstractProjectResourceModel):
     def inventory(self):
         return self.project.inventory_obj
 
-    def execute(self, save_history=True):
-        result = {"raw": {}, "summary": {}}
-        try:
-            pre_adhoc_exec.send(self.__class__, adhoc=self, save_history=save_history)
-            runner = AdHocRunner(self.inventory, options=self.project.cleaned_options)
-            result = runner.run(self.tasks, pattern=self.pattern)
-        except Exception as e:
-            result['summary'] = {'error': str(e)}
-        finally:
-            post_adhoc_exec.send(self.__class__, adhoc=self, save_history=save_history, result=result)
-        return format_result_as_list(result.get('summary', {}))
-
     @staticmethod
     def test_tasks():
         return [
@@ -81,47 +78,18 @@ class AdHoc(AbstractProjectResourceModel):
         ]
 
 
-class AdHocExecution(AbstractProjectResourceModel):
-    id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+class AdHocExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     adhoc = models.ForeignKey('AdHoc', on_delete=models.SET_NULL, null=True)
-    is_finished = models.BooleanField(default=False, verbose_name=_('Is finished'))
-    is_success = models.BooleanField(default=False, verbose_name=_('Is success'))
-    timedelta = models.FloatField(default=0.0, verbose_name=_('Time'), null=True)
-    raw = common_models.JsonDictTextField(blank=True, null=True, default='{}', verbose_name=_('Adhoc raw result'))
-    summary = common_models.JsonDictTextField(blank=True, null=True, default='{}', verbose_name=_('Adhoc summary'))
-    date_start = models.DateTimeField(auto_now_add=True, verbose_name=_('Start time'))
-    date_finished = models.DateTimeField(blank=True, null=True, verbose_name=_('End time'))
 
-    @property
-    def summary_as_list(self):
-        summary = {"contacted": [], "dark": []}
-        for status, result in self.summary.items():
-            for hostname, _tasks in result.items():
-                tasks = []
-                for task_name, detail in _tasks.items():
-                    detail["task"] = task_name
-                    tasks.append(detail)
-                summary[status].append({"hostname": hostname, "tasks": tasks})
-        return summary
+    def start(self):
+        result = {"raw": {}, "summary": {}}
+        try:
+            pre_execution_start.send(self.__class__, execution=self)
+            runner = AdHocRunner(self.adhoc.inventory, options=self.project.cleaned_options)
+            result = runner.run(self.adhoc.tasks, pattern=self.adhoc.pattern)
+        except Exception as e:
+            result['summary'] = {'error': str(e)}
+        finally:
+            post_execution_start.send(self.__class__, execution=self, result=result)
+        return result
 
-    @property
-    def stdout(self):
-        with open(self.log_path, 'r') as f:
-            data = f.read()
-        return data
-
-    @property
-    def success_hosts(self):
-        return self.summary.get('contacted', []) if self.summary else []
-
-    @property
-    def failed_hosts(self):
-        return self.summary.get('dark', {}) if self.summary else []
-
-    @property
-    def log_path(self):
-        dt = datetime.datetime.now().strftime('%Y-%m-%d')
-        log_dir = os.path.join(self.project.adhoc_dir, dt)
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-        return os.path.join(log_dir, str(self.id) + '.log')

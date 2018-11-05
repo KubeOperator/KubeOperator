@@ -10,7 +10,7 @@ from django.utils import timezone
 from celery import current_task
 
 from .models import Playbook, Role, PlaybookExecution
-from .signals import pre_playbook_exec, post_playbook_exec
+from .signals import pre_execution_start, post_execution_start
 
 logger = logging.getLogger(__file__)
 
@@ -36,42 +36,23 @@ def on_role_create_or_update(sender, instance, created, **kwargs):
         install_role.delay(instance.id)
 
 
-@receiver(pre_playbook_exec)
-def on_playbook_start(sender, playbook, save_history, **kwargs):
-    if not save_history:
-        return
-    pk = current_task.request.id if current_task else str(uuid.uuid4())
-    history = PlaybookExecution.objects.create(
-        id=pk, playbook=playbook, project=playbook.project
-    )
-    playbook._history = history
+@receiver(pre_execution_start)
+def on_execution_start(sender, execution, **kwargs):
+    execution.date_start = timezone.now()
+    execution.state = execution.STATE_STARTED
+    execution.save()
 
 
-@receiver(post_playbook_exec)
-def on_playbook_end(sender, playbook, save_history, result, **kwargs):
-    if not hasattr(playbook, '_history'):
-        return
-    if not save_history:
-        return
-    playbook.times += 1
-    playbook.save()
+@receiver(post_execution_start)
+def on_execution_end(sender, execution, result, **kwargs):
     date_finished = timezone.now()
-    timedelta = (timezone.now() - playbook._history.date_start).seconds
-    data = {
-        'raw': result.get('raw'),
-        'summary': result.get('summary'),
-        'num': playbook.times,
-        'is_success': result.get('summary', {}).get("success", False),
-        'is_finished': True,
-        'date_finished': date_finished,
-        'timedelta': timedelta
-    }
-    PlaybookExecution.objects.filter(pk=playbook._history.id).update(**data)
-
-
-
-# @receiver(post_save, sender=AdHoc)
-# def on_adhoc_create_or_update(sender, instance, created, **kwargs):
-#     from .tasks import run_adhoc
-#     if created:
-#         run_adhoc.delay(instance.id)
+    timedelta = (timezone.now() - execution.date_start).seconds
+    state = execution.STATE_FAILURE
+    if result.get('summary', {}).get("success", False):
+        state = execution.STATE_SUCCESS
+    execution.result_summary = result.get('summary', {})
+    execution.result_raw = result.get('raw', {})
+    execution.state = state
+    execution.date_finished = date_finished
+    execution.timedelta = timedelta
+    execution.save()

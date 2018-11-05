@@ -8,7 +8,8 @@ import uuid
 import git
 import requests
 
-from django.db import models
+from celery import current_task
+from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django_celery_beat.models import PeriodicTask
 
@@ -18,12 +19,12 @@ from celery_api.utils import (
     create_or_update_periodic_task, get_celery_task_log_path
 )
 
-from .mixins import AbstractProjectResourceModel
+from .mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from .role import Role
 from .utils import format_result_as_list
 from ..utils import get_logger
 from ..ansible.runner import PlayBookRunner
-from ..signals import pre_playbook_exec, post_playbook_exec
+from ..signals import pre_execution_start, post_execution_start
 
 logger = get_logger(__file__)
 
@@ -119,11 +120,11 @@ class Playbook(AbstractProjectResourceModel):
         (TYPE_HTTP, TYPE_HTTP),
     )
     name = models.SlugField(max_length=128, allow_unicode=True, verbose_name=_('Name'))
+    alias = models.CharField(max_length=128, blank=True, default='site.yml')
     type = models.CharField(choices=TYPE_CHOICES, default=TYPE_JSON, max_length=16)
     plays = models.ManyToManyField('Play', verbose_name='Plays')
     git = common_models.JsonDictCharField(max_length=4096, default={'repo': '', 'branch': 'master'})
     url = models.URLField(verbose_name=_("http url"), blank=True)
-    rel_path = models.CharField(max_length=128, blank=True, default='site.yml')
 
     # Extra schedule content
     is_periodic = models.BooleanField(default=False, verbose_name=_("Enable"))
@@ -131,7 +132,7 @@ class Playbook(AbstractProjectResourceModel):
     crontab = models.CharField(verbose_name=_("Crontab"), null=True, blank=True, max_length=128, help_text=_("5 * * * *"))
     meta = common_models.JsonDictTextField(blank=True, verbose_name=_("Meta"))
 
-    times = models.IntegerField(default=0)
+    execute_times = models.IntegerField(default=0)
     comment = models.TextField(blank=True, verbose_name=_("Comment"))
     is_active = models.BooleanField(default=True, verbose_name=_("Active"))
     created_by = models.CharField(max_length=128, blank=True, null=True)
@@ -150,7 +151,7 @@ class Playbook(AbstractProjectResourceModel):
         return path
 
     @property
-    def latest_execute_history(self):
+    def latest_execution(self):
         try:
             return self.history.all().latest()
         except PlaybookExecution.DoesNotExist:
@@ -159,7 +160,7 @@ class Playbook(AbstractProjectResourceModel):
     @property
     def playbook_path(self):
         # path = 'playbooks/prerequisites.yml'
-        path = os.path.join(self.playbook_dir, self.rel_path)
+        path = os.path.join(self.playbook_dir, self.alias)
         return path
 
     def get_plays_data(self, fmt='py'):
@@ -215,19 +216,12 @@ class Playbook(AbstractProjectResourceModel):
         return True, None
 
     def execute(self):
-        result = {"raw": {}, "summary": {}}
-        success, err = self.install()
-        if not success:
-            result["summary"] = {"error": str(err)}
-        os.chdir(self.playbook_dir)
-        try:
-            runner = PlayBookRunner(
-                self.project.inventory_obj,
-                options=self.project.cleaned_options,
-            )
-            result = runner.run(self.playbook_path)
-        except IndexError as e:
-            result["summary"] = {'error': str(e)}
+        pk = None
+        if current_task:
+            pk = current_task.request.id
+        execution = PlaybookExecution(playbook=self, pk=pk)
+        execution.save()
+        result = execution.start()
         return result
 
     def create_period_task(self):
@@ -282,50 +276,29 @@ class Playbook(AbstractProjectResourceModel):
         ]
 
 
-class PlaybookExecution(AbstractProjectResourceModel):
-    id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
-    playbook = models.ForeignKey(Playbook, related_name='history', on_delete=models.SET_NULL, null=True)
-    num = models.IntegerField(default=1)
-    timedelta = models.FloatField(default=0.0, verbose_name=_('Time'), null=True)
-    is_finished = models.BooleanField(default=False, verbose_name=_('Is finished'))
-    is_success = models.BooleanField(default=False, verbose_name=_('Is success'))
-    raw = common_models.JsonDictTextField(blank=True, null=True, default='{}', verbose_name=_('Adhoc raw result'))
-    summary = common_models.JsonDictTextField(blank=True, null=True, default='{}', verbose_name=_('Adhoc summary'))
-    date_start = models.DateTimeField(auto_now_add=True, verbose_name=_('Start time'))
-    date_finished = models.DateTimeField(blank=True, null=True, verbose_name=_('End time'))
+class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
+    playbook = models.ForeignKey(Playbook, related_name='executions', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         get_latest_by = 'date_start'
-        unique_together = ('playbook', 'num')
 
     def __str__(self):
         return "{} run at {}".format(self.playbook.__str__(), self.date_start)
 
-    def execute(self, save_history=True):
+    def start(self):
+        pre_execution_start.send(self.__class__, execution=self)
+        result = {"raw": {}, "summary": {}}
+        success, err = self.playbook.install()
+        if not success:
+            result["summary"] = {"error": str(err)}
+        os.chdir(self.playbook.playbook_dir)
         try:
-            pre_playbook_exec.send(self.__class__, playbook=self, save_history=save_history)
-            result = self.playbook.execute()
+            runner = PlayBookRunner(
+                self.project.inventory_obj,
+                options=self.project.cleaned_options,
+            )
+            result = runner.run(self.playbook.playbook_path)
         except IndexError as e:
             result["summary"] = {'error': str(e)}
-        finally:
-            post_playbook_exec.send(self.__class__, playbook=self, save_history=save_history, result=result)
-        return format_result_as_list(result.get('summary', {}))
-
-
-    @property
-    def log_path(self):
-        return get_celery_task_log_path(self.id)
-
-    @property
-    def stdout(self):
-        with open(self.log_path, 'r') as f:
-            data = f.read()
-        return data
-
-    @property
-    def success_hosts(self):
-        return self.summary.get('contacted', []) if self.summary else []
-
-    @property
-    def failed_hosts(self):
-        return self.summary.get('dark', {}) if self.summary else []
+        post_execution_start.send(self.__class__, execution=self, result=result)
+        return result

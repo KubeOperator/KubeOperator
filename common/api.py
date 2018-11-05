@@ -2,6 +2,7 @@ import os
 import uuid
 
 from django.core.cache import cache
+from django.utils.translation import ugettext as _
 from rest_framework import generics
 from rest_framework.response import Response
 

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 
+from django.shortcuts import reverse
 from rest_framework import serializers
 
 from ..models import Playbook, PlaybookExecution, Play
-from .mixins import ProjectSerializerMixin, ReadSerializerMixin
+from .mixins import ProjectSerializerMixin, ReadSerializerMixin, ExecutionSerializerMixin
 from .base import GitSerializer
 
 __all__ = [
@@ -42,8 +43,7 @@ class PlaybookReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Playbook
         fields = [
-            'id', 'name', 'project', 'type', 'plays', 'git',
-            'rel_path',
+            'id', 'name', 'alias', 'project', 'type', 'plays', 'git',
             'is_periodic', 'interval', 'crontab', 'is_active',
             'comment', 'created_by', 'date_created', 'project'
         ]
@@ -67,17 +67,29 @@ class PlaybookSerializer(PlaybookReadSerializer, ProjectSerializerMixin):
 
 
 class PlaybookExecutionSerializer(serializers.ModelSerializer, ProjectSerializerMixin):
-    summary = serializers.JSONField(read_only=True)
-    raw = serializers.JSONField(read_only=True)
+    result_summary = serializers.JSONField(read_only=True)
+    log_url = serializers.SerializerMethodField()
+    log_ws_url = serializers.SerializerMethodField()
 
     class Meta:
         model = PlaybookExecution
         fields = [
-            'id', 'playbook', 'num', 'is_finished', 'is_success', 'timedelta',
-            'raw', 'summary', 'date_start', 'date_finished',
+            'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',
+            'result_summary', 'date_created', 'date_start', 'date_end',
+            'playbook', 'project'
         ]
         read_only_fields = [
-            'id', 'num', 'is_finished', 'is_finished', 'is_success', 'timedelta',
-            'raw', 'summary', 'date_start', 'date_finished',
+            'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',
+            'result_summary', 'date_created', 'date_start', 'date_end',
+            'project'
         ]
+
+    @staticmethod
+    def get_log_url(obj):
+        return reverse('celery-api:task-log-api', kwargs={'pk': obj.id})
+
+    @staticmethod
+    def get_log_ws_url(obj):
+        return '/ws/tasks/{}/log/'.format(obj.id)
+
 

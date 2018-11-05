@@ -5,7 +5,7 @@ import logging
 from celery import shared_task, subtask
 
 from common.utils import get_object_or_none
-from .models import Playbook, AdHoc, Role
+from .models import Playbook, AdHoc, Role, PlaybookExecution, AdHocExecution
 from .ctx import set_current_project, change_to_root
 
 logger = logging.getLogger(__file__)
@@ -25,14 +25,40 @@ def execute_playbook(tid, **kwargs):
 
 
 @shared_task
-def execute_adhoc(tid, passwords=None, **kwargs):
+def start_playbook_execution(eid, **kwargs):
+    change_to_root()
+    execution = get_object_or_none(PlaybookExecution, id=eid)
+    if execution:
+        set_current_project(execution.project)
+        return execution.start()
+    else:
+        msg = "No execution found: {}".format(eid)
+        logger.error(msg)
+        return {"error": msg}
+
+
+@shared_task
+def execute_adhoc(tid, **kwargs):
     change_to_root()
     adhoc = get_object_or_none(AdHoc, id=tid)
     if adhoc:
         set_current_project(adhoc.project)
-        return adhoc.execute(passwords)
+        return adhoc.execute()
     else:
         msg = "No adhoc found: {}".format(tid)
+        logger.error(msg)
+        return {"error": msg}
+
+
+@shared_task
+def start_adhoc_execution(eid, **kwargs):
+    change_to_root()
+    execution = get_object_or_none(AdHocExecution, id=eid)
+    if execution:
+        set_current_project(execution.project)
+        return execution.start()
+    else:
+        msg = "No execution found: {}".format(eid)
         logger.error(msg)
         return {"error": msg}
 

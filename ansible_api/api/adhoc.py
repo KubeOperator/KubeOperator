@@ -8,19 +8,19 @@ from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..models import AdHoc, AdHocExecution
 from ..serializers import AdHocReadSerializer, AdHocSerializer, AdHocExecutionSerializer
-from ..tasks import execute_adhoc
+from ..tasks import start_playbook_execution, start_adhoc_execution
 
 
 __all__ = [
-    'AdHocViewSet', 'AdHocExecutionViewSet', 'AdHocLogApi',
+    'AdHocViewSet', 'AdHocExecutionViewSet',
 ]
 
 
 class AdHocViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = AdHoc.objects.all()
     permission_classes = (IsSuperUser,)
-    pagination_class = LimitOffsetPagination
     serializer_class = AdHocSerializer
+    read_serializer_class = AdHocReadSerializer
 
 
 class AdHocExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
@@ -30,28 +30,8 @@ class AdHocExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
 
     http_method_names = ['post', 'get', 'option', 'head']
 
-    # def update(self, request, *args, **kwargs):
-    #     # serializer = self.get_serializer(data=request.data)
-    #     # serializer.is_valid(raise_exception=True)
-    #     adhoc = self.get_object()
-    #     # passwords = serializer.validated_data.get('passwords')
-    #     task = execute_adhoc.delay(str(adhoc.id))
-    #     return Response({"task": task.id})
-    #
-    # def retrieve(self, request, *args, **kwargs):
-    #     return self.update(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        start_adhoc_execution.delay(instance.id)
+        return instance
 
-
-class AdHocLogApi(LogTailApi):
-    queryset = AdHoc.objects.all()
-    object = None
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def get_log_path(self):
-        return self.object.log_path
-
-    def is_end(self):
-        return self.object.is_finished
