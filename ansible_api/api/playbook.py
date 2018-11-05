@@ -37,5 +37,7 @@ class PlaybookExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        start_playbook_execution.delay(instance.id)
+        start_playbook_execution.apply_async(
+            args=(instance.id,), task_id=str(instance.id)
+        )
         return instance

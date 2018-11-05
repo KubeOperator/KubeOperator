@@ -1,14 +1,11 @@
 # ~*~ coding: utf-8 ~*~
-from rest_framework import viewsets, generics
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
+from rest_framework import viewsets
 
-from common.api import LogTailApi
 from .mixin import ProjectResourceAPIMixin
 from ..permissions import IsSuperUser
 from ..models import AdHoc, AdHocExecution
 from ..serializers import AdHocReadSerializer, AdHocSerializer, AdHocExecutionSerializer
-from ..tasks import start_playbook_execution, start_adhoc_execution
+from ..tasks import start_adhoc_execution
 
 
 __all__ = [
@@ -32,6 +29,7 @@ class AdHocExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        start_adhoc_execution.delay(instance.id)
+        start_adhoc_execution.apply_async(
+            args=(instance.id,), task_id=str(instance.id)
+        )
         return instance
-

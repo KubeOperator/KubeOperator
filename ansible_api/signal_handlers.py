@@ -26,7 +26,7 @@ def on_playbook_create_or_update(sender, instance, created, **kwargs):
 
 @receiver(pre_delete, sender=Playbook)
 def on_playbook_delete(sender, instance, **kwargs):
-    instance.remove_period_task()
+    instance.cleanup()
 
 
 @receiver(post_save, sender=Role)

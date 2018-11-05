@@ -4,24 +4,22 @@
 import os
 import json
 import yaml
-import uuid
 import git
 import requests
 
 from celery import current_task
-from django.db import models, transaction
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_celery_beat.models import PeriodicTask
 
 from common import models as common_models
 from celery_api.utils import (
     delete_celery_periodic_task, disable_celery_periodic_task,
-    create_or_update_periodic_task, get_celery_task_log_path
+    create_or_update_periodic_task
 )
 
 from .mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from .role import Role
-from .utils import format_result_as_list
 from ..utils import get_logger
 from ..ansible.runner import PlayBookRunner
 from ..signals import pre_execution_start, post_execution_start
@@ -32,7 +30,6 @@ __all__ = ['Play', 'Playbook', 'PlaybookExecution']
 
 
 class PlaybookQuerySet(models.QuerySet):
-
     def delete(self):
         for obj in self:
             obj.delete()
@@ -119,12 +116,19 @@ class Playbook(AbstractProjectResourceModel):
         (TYPE_GIT, TYPE_GIT),
         (TYPE_HTTP, TYPE_HTTP),
     )
+    PULL_POLICY_ALWAYS, PULL_POLICY_IF_NOT_PRESENT, PULL_POLICY_NEVER = ('always', 'if_not_present', 'never')
+    PULL_POLICY_CHOICES = (
+        (PULL_POLICY_IF_NOT_PRESENT, PULL_POLICY_IF_NOT_PRESENT),
+        (PULL_POLICY_ALWAYS, PULL_POLICY_ALWAYS),
+        (PULL_POLICY_NEVER, PULL_POLICY_NEVER),
+    )
     name = models.SlugField(max_length=128, allow_unicode=True, verbose_name=_('Name'))
     alias = models.CharField(max_length=128, blank=True, default='site.yml')
     type = models.CharField(choices=TYPE_CHOICES, default=TYPE_JSON, max_length=16)
     plays = models.ManyToManyField('Play', verbose_name='Plays')
     git = common_models.JsonDictCharField(max_length=4096, default={'repo': '', 'branch': 'master'})
     url = models.URLField(verbose_name=_("http url"), blank=True)
+    pull_policy = models.CharField(choices=PULL_POLICY_CHOICES, max_length=16, default=PULL_POLICY_IF_NOT_PRESENT)
 
     # Extra schedule content
     is_periodic = models.BooleanField(default=False, verbose_name=_("Enable"))
@@ -153,7 +157,7 @@ class Playbook(AbstractProjectResourceModel):
     @property
     def latest_execution(self):
         try:
-            return self.history.all().latest()
+            return self.executions.all().latest()
         except PlaybookExecution.DoesNotExist:
             return None
 
@@ -251,6 +255,10 @@ class Playbook(AbstractProjectResourceModel):
             return PeriodicTask.objects.get(name=self.__str__())
         except PeriodicTask.DoesNotExist:
             return None
+
+    def cleanup(self):
+        self.remove_period_task()
+        os.removedirs(self.playbook_dir)
 
     @staticmethod
     def test_tasks():
