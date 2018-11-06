@@ -193,8 +193,8 @@ REST_FRAMEWORK = {
     'SEARCH_PARAM': "search",
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S %z',
     'DATETIME_INPUT_FORMATS': ['%Y-%m-%d %H:%M:%S %z'],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 25
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 25
 }
 
 SWAGGER_SETTINGS = {

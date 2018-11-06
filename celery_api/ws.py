@@ -1,5 +1,7 @@
 import time
 import threading
+
+from .utils import get_celery_task_log_path
 from channels.generic.websocket import JsonWebsocketConsumer
 
 
@@ -10,14 +12,9 @@ class CeleryLogWebsocket(JsonWebsocketConsumer):
 
     def connect(self):
         task_id = self.scope['url_route']['kwargs']['task_id']
+        log_path = get_celery_task_log_path(task_id)
         try:
-            self.task = CeleryTask.objects.get(id=task_id)
-        except CeleryTask.DoesNotExist:
-            self.send({'message': "Task {} not found".format(task_id)})
-            self.disconnect(None)
-            return
-        try:
-            self.task_log_f = open(self.task.log_path)
+            self.task_log_f = open(log_path)
         except OSError:
             self.send({'message': "Task {} log not found".format(task_id)})
             self.disconnect(None)
@@ -37,6 +34,7 @@ class CeleryLogWebsocket(JsonWebsocketConsumer):
             while not self.disconnected:
                 data = self.task_log_f.read(4096)
                 if data:
+                    data = data.replace('\n', '\r\n')
                     self.send_json({'message': data})
                 time.sleep(0.2)
         thread = threading.Thread(target=func)
