@@ -3,7 +3,7 @@
 
 args=$1
 
-image=registry.fit2cloud.com/jumpserver/ansible_ui
+image=registry.fit2cloud.com/jumpserver/fit2ansible
 
 function build(){
    docker build -t $image .

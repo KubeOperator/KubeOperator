@@ -106,6 +106,29 @@ class Play(AbstractProjectResourceModel):
             names.extend(play.get_play_roles_names())
         return names
 
+    @staticmethod
+    def test_tasks():
+        return [
+            {
+                "name": "Test ping",
+                "ping": ""
+            },
+            {
+                "name": "Ifconfig",
+                "command": "ifconfig"
+            }
+        ]
+
+    @staticmethod
+    def test_roles():
+        return [
+            {
+                "role": "bennojoy.memcached",
+                "memcached_port": 11244,
+                "memcached_cache_size": 512
+            }
+        ]
+
 
 class Playbook(AbstractProjectResourceModel):
     TYPE_JSON, TYPE_TEXT, TYPE_FILE, TYPE_GIT, TYPE_HTTP = ('json', 'text', 'file', 'git', 'http')
@@ -118,9 +141,9 @@ class Playbook(AbstractProjectResourceModel):
     )
     PULL_POLICY_ALWAYS, PULL_POLICY_IF_NOT_PRESENT, PULL_POLICY_NEVER = ('always', 'if_not_present', 'never')
     PULL_POLICY_CHOICES = (
-        (PULL_POLICY_IF_NOT_PRESENT, PULL_POLICY_IF_NOT_PRESENT),
-        (PULL_POLICY_ALWAYS, PULL_POLICY_ALWAYS),
-        (PULL_POLICY_NEVER, PULL_POLICY_NEVER),
+        (PULL_POLICY_IF_NOT_PRESENT, _('Always')),
+        (PULL_POLICY_ALWAYS, _("If not present")),
+        (PULL_POLICY_NEVER, _("Never")),
     )
     name = models.SlugField(max_length=128, allow_unicode=True, verbose_name=_('Name'))
     alias = models.CharField(max_length=128, blank=True, default='site.yml')
@@ -155,17 +178,16 @@ class Playbook(AbstractProjectResourceModel):
         return path
 
     @property
+    def playbook_path(self):
+        path = os.path.join(self.playbook_dir, self.alias)
+        return path
+
+    @property
     def latest_execution(self):
         try:
             return self.executions.all().latest()
         except PlaybookExecution.DoesNotExist:
             return None
-
-    @property
-    def playbook_path(self):
-        # path = 'playbooks/prerequisites.yml'
-        path = os.path.join(self.playbook_dir, self.alias)
-        return path
 
     def get_plays_data(self, fmt='py'):
         return Play.get_plays_data(self.plays.all(), fmt=fmt)
@@ -176,12 +198,14 @@ class Playbook(AbstractProjectResourceModel):
             success, error = False, 'Not repo get'
             return success, error
         try:
-            print("Install playbook from: {}".format(self.git.get('repo')))
             if os.path.isdir(os.path.join(self.playbook_dir, '.git')):
-                repo = git.Repo(self.playbook_dir)
-                remote = repo.remote()
-                remote.pull()
+                if self.pull_policy == self.PULL_POLICY_ALWAYS:
+                    print("Update playbook from: {}".format(self.git.get('repo')))
+                    repo = git.Repo(self.playbook_dir)
+                    remote = repo.remote()
+                    remote.pull()
             else:
+                print("Install playbook from: {}".format(self.git.get('repo')))
                 git.Repo.clone_from(
                     self.git['repo'], self.playbook_dir,
                     branch=self.git.get('branch'), depth=1,
@@ -215,9 +239,6 @@ class Playbook(AbstractProjectResourceModel):
             return self.install_from_git()
         else:
             return False, 'Not support {}'.format(self.type)
-
-    def pre_check(self):
-        return True, None
 
     def execute(self):
         pk = None
@@ -260,29 +281,6 @@ class Playbook(AbstractProjectResourceModel):
         self.remove_period_task()
         os.removedirs(self.playbook_dir)
 
-    @staticmethod
-    def test_tasks():
-        return [
-            {
-                "name": "Test ping",
-                "ping": ""
-            },
-            {
-                "name": "Ifconfig",
-                "command": "ifconfig"
-            }
-        ]
-
-    @staticmethod
-    def test_roles():
-        return [
-            {
-                "role": "bennojoy.memcached",
-                "memcached_port": 11244,
-                "memcached_cache_size": 512
-            }
-        ]
-
 
 class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     playbook = models.ForeignKey(Playbook, related_name='executions', on_delete=models.SET_NULL, null=True)
@@ -299,6 +297,8 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         success, err = self.playbook.install()
         if not success:
             result["summary"] = {"error": str(err)}
+            post_execution_start.send(self.__class__, execution=self, result=result)
+            return result
         os.chdir(self.playbook.playbook_dir)
         try:
             runner = PlayBookRunner(
@@ -308,5 +308,6 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             result = runner.run(self.playbook.playbook_path)
         except IndexError as e:
             result["summary"] = {'error': str(e)}
-        post_execution_start.send(self.__class__, execution=self, result=result)
+        finally:
+            post_execution_start.send(self.__class__, execution=self, result=result)
         return result

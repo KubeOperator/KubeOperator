@@ -1,7 +1,7 @@
 FROM registry.fit2cloud.com/jumpserver/python:v3
-MAINTAINER Jumpserver Team <ibuler@qq.com>
+MAINTAINER Fit2anything Team <ibuler@qq.com>
 
-WORKDIR /opt/AnsibleUI
+WORKDIR /opt/fit2ansible
 
 COPY ./requirements /tmp/requirements
 
@@ -16,15 +16,15 @@ RUN sed -i "s@'uri': True@'uri': False@g" /opt/py3/lib/python3.6/site-packages/d
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
 ENV VENV=/opt/py3
-ENV APP_DIR=/opt/AnsibleUI
+ENV APP_DIR=/opt/fit2ansible
 ENV PYTHONOPTIMIZE=1
 ENV C_FORCE_ROOT=1
 
 RUN mkdir -p /root/.ssh/
 RUN echo "ClusterHost *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > /root/.ssh/config
 
-COPY . /opt/AnsibleUI
-VOLUME /opt/AnsibleUI/data
+COPY . /opt/fit2ansible
+VOLUME /opt/fit2ansible/data
 
 EXPOSE 8000
 CMD ["bash", "-c", "python3 entrypoint.py start"]
