@@ -21,9 +21,8 @@ class BaseHost(models.Model):
     username = models.CharField(max_length=1024, default='root')
     password = common_models.EncryptCharField(max_length=4096, blank=True, null=True)
     private_key = common_models.EncryptCharField(max_length=8192, blank=True, null=True)
-    vars = common_models.JsonDictTextField()
-
-    is_project_private = False
+    vars = common_models.JsonDictTextField(default={})
+    meta = common_models.JsonDictTextField(default={})
 
     class Meta:
         abstract = True
@@ -79,11 +78,10 @@ class Host(AbstractProjectResourceModel, BaseHost):
 
 class BaseGroup(models.Model):
     name = models.CharField(max_length=64, validators=[name_validator])
-    vars = common_models.JsonDictTextField()
+    vars = common_models.JsonDictTextField(default={})
     hosts = models.ManyToManyField('BaseHost', related_name='groups')
     children = models.ManyToManyField('BaseGroup', related_name='parents', blank=True)
-
-    is_project_private = False
+    meta = common_models.JsonDictTextField(default={})
 
     class Meta:
         abstract = True
