@@ -8,15 +8,16 @@ from ..models import Project
 
 
 class ProjectResourceAPIMixin:
+    lookup_kwargs = 'project_name'
     is_project_request = False
     project = None
     project_name = ''
 
     @transaction.atomic
     def dispatch(self, request, *args, **kwargs):
-        if kwargs.get('project_name'):
+        if kwargs.get(self.lookup_kwargs):
             self.is_project_request = True
-            self.project_name = kwargs['project_name']
+            self.project_name = kwargs[self.lookup_kwargs]
             self.project = self.get_project()
             set_current_project(self.project)
         return super().dispatch(request, *args, **kwargs)

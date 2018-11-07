@@ -26,6 +26,7 @@ def get_api_v1_urlpatterns():
         path('', include('users.urls')),
         path('', include('ansible_api.urls.api_urls')),
         path('', include('celery_api.urls.api_urls')),
+        path('', include('openshift_api.url')),
     ]
     return _urlpatterns
 

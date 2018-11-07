@@ -11,6 +11,8 @@ class CustomSwaggerAutoSchema(SwaggerAutoSchema):
             else:
                 value = operation_keys[1]
             return ['project-' + value]
+        elif operation_keys[0] == 'clusters' and len(operation_keys) >= 3:
+            return ['cluster-' + operation_keys[1]]
         elif operation_keys[0] == 'inventory' and len(operation_keys) >= 3:
             return [operation_keys[1]]
         return super().get_tags(operation_keys)
