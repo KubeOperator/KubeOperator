@@ -19,3 +19,5 @@ tmp
 dump.rdb
 data/celery/
 data/ansible/
+data/projects/
+data/openshift-ansible/

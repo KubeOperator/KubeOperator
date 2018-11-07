@@ -1,8 +1,0 @@
-#{{ ansible_managed }}
-dm_thin_pool
-dm_multipath
-target_core_user
-{% if (groups.glusterfs is defined and inventory_hostname in groups.glusterfs) or (groups.glusterfs_registry is defined and inventory_hostname in groups.glusterfs_registry) %}
-dm_snapshot
-dm_mirror
-{% endif %}

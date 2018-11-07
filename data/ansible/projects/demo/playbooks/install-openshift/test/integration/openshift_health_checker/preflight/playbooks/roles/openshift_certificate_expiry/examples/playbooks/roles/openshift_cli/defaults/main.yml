@@ -1,2 +1,0 @@
----
-l_openshift_cli_image_backend: "{{ (openshift_use_crio_only | bool) | ternary('atomic', 'docker') }}"

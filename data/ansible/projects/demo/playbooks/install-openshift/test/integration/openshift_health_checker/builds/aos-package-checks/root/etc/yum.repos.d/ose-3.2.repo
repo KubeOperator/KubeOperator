@@ -1,5 +1,0 @@
-[ose-3.2]
-name=ose-3.2
-baseurl=file:///mnt/localrepo/ose-3.2
-enabled=0
-gpgcheck=0

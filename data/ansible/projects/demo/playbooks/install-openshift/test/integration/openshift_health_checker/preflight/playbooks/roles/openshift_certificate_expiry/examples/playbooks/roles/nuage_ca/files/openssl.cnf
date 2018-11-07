@@ -1,3 +1,0 @@
-[ clientauth ]
-basicConstraints=CA:FALSE
-extendedKeyUsage=critical,clientAuth

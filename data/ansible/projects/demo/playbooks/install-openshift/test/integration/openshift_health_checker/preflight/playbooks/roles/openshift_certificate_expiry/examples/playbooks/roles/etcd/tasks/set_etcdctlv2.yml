@@ -1,4 +1,0 @@
----
-- name: Set fact etcdctlv2
-  set_fact:
-    etcdctlv2: "{{ etcdctlv2 }}"

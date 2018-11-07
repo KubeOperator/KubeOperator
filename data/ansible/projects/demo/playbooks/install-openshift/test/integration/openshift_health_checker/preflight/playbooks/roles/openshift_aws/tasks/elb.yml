@@ -1,9 +1,0 @@
----
-- name: "dump the elb listeners for {{ l_elb_dict_item.key }}"
-  debug:
-    msg: "{{ l_elb_dict_item.value }}"
-    verbosity: 1
-
-- name: Create ELB(s)
-  include_tasks: elb_single.yml
-  with_dict: "{{ l_elb_dict_item.value }}"

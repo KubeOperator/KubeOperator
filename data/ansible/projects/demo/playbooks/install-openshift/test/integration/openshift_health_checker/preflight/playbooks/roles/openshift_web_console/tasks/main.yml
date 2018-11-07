@@ -1,8 +1,0 @@
----
-# do any asserts here
-
-- include_tasks: install.yml
-  when: openshift_web_console_install | default(true) | bool
-
-- include_tasks: remove.yml
-  when: not openshift_web_console_install | default(true) | bool

@@ -1,5 +1,0 @@
----
-docker_systemd_dir: /etc/systemd/system/docker.service.d
-container_engine_systemd_dir: /etc/systemd/system/container-engine.service.d
-docker_conf_dir: /etc/docker/
-udevw_udevd_dir: /etc/systemd/system/systemd-udevd.service.d

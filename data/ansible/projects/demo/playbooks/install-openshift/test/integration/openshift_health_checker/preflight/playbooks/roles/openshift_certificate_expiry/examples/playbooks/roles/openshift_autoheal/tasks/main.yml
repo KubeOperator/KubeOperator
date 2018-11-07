@@ -1,6 +1,0 @@
----
-- include_tasks: install.yml
-  when: openshift_autoheal_deploy | bool
-
-- include_tasks: uninstall.yml
-  when: not openshift_autoheal_deploy | bool

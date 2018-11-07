@@ -1,9 +1,0 @@
----
-# This role is intended to be used with import_role.
-# import_role:
-#   name:  openshift_hosted
-#   tasks_from: "{{ item }}"
-# with_items:
-#   - create_projects.yml
-#   - router.yml
-#   - registry.yml

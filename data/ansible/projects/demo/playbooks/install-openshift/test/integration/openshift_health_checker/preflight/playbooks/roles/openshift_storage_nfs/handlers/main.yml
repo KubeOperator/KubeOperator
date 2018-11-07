@@ -1,6 +1,0 @@
----
-- name: restart nfs-server
-  systemd:
-    name: nfs-server
-    state: restarted
-  when: not (nfs_service_status_changed | default(false))

@@ -1,3 +1,0 @@
----
-- include_tasks: nfs.yml
-  when: not (openshift_cloudprovider_kind | default('none') in ['aws', 'azure', 'gce'])
