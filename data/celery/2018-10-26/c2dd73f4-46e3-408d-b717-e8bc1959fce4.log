@@ -1,1 +1,0 @@
-Task ansible_ui.tasks.execute_adhoc[c2dd73f4-46e3-408d-b717-e8bc1959fce4] succeeded in 0.057388266002817545s: {'success': False, 'error': 'Inventory is empty.'}

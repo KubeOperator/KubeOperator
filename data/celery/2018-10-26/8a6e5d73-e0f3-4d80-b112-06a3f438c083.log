@@ -1,4 +1,0 @@
-set current project: ROOT
-set current project: demo
-PLAY RECAP *********************************************************************
-Task ansible_ui.tasks.execute_playbook[8a6e5d73-e0f3-4d80-b112-06a3f438c083] succeeded in 0.19758895999984816s: {'success': True}

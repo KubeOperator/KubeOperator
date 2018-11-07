@@ -1,3 +1,0 @@
-[1;35m [WARNING]: Could not match supplied host pattern, ignoring: oo_masters_to_config[0m
-[1;35m[0m
-[0;31mFATAL: Current Ansible version (2.5.5) is not supported. Supported versions: 2.5.7 or newer[0m

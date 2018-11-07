@@ -1,9 +1,0 @@
-set current project: ROOT
-set current project: demo
-2018-10-26 02:22:53 Start task: Ansible Ad-hoc
-Get matched hosts: [host1, host2]
-PLAY [Ansible Ad-hoc] **********************************************************
-TASK [shell: {'_raw_params': 'whoami'}] ****************************************
-PLAY RECAP *********************************************************************
-2018-10-26 02:22:53 Task finish
-Task ansible_ui.tasks.execute_adhoc[bba5687a-dd5f-4465-9064-0d23d4a6c5a8] succeeded in 0.45710083499989196s: {'success': True}

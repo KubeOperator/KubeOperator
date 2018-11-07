@@ -1,9 +1,0 @@
-Task ansible_ui.tasks.prerequisite[6da8b693-e1c2-4cf2-98b1-5d5e745f1222] raised unexpected: NameError("name 'self' is not defined",)
-Traceback (most recent call last):
-  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 382, in trace_task
-    R = retval = fun(*args, **kwargs)
-  File "/Users/guang/.virtualenvs/ansible/lib/python3.6/site-packages/celery/app/trace.py", line 641, in __protected_call__
-    return self.run(*args, **kwargs)
-  File "/Users/guang/projects/AnsibleUI/ansible_ui/tasks.py", line 88, in prerequisite
-    os.chdir(self.PLAYBOOK_DIR)
-NameError: name 'self' is not defined

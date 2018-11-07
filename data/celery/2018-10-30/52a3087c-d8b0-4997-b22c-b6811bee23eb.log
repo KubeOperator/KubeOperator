@@ -1,9 +1,0 @@
-Write playbook to: /Users/guang/projects/AnsibleUI/data/ansible/projects/2875d299-9be3-4b1b-ba5a-f63d61ce2c4b/playbooks/2875d299-9be3-4b1b-ba5a-f63d61ce2c4b/playbook.yml
-PLAY [all] *********************************************************************
-TASK [test ping] ***************************************************************
-[0;32mok: [abc][0m
-TASK [create user] *************************************************************
-[0;32mok: [abc][0m
-PLAY RECAP *********************************************************************
-[0;32mabc[0m                        : [0;32mok=2   [0m changed=0    unreachable=0    failed=0
-Task ansible_ui.tasks.execute_playbook[52a3087c-d8b0-4997-b22c-b6811bee23eb] succeeded in 4.520928874990204s: {'success': True, 'contacted': [{'hostname': 'abc', 'tasks': [...]}]}
