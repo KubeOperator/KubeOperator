@@ -23,7 +23,7 @@ class BaseHost(models.Model):
     private_key = common_models.EncryptCharField(max_length=8192, blank=True, null=True)
     vars = common_models.JsonDictTextField(default={})
     meta = common_models.JsonDictTextField(default={})
-    comment = models.TextField()
+    comment = models.TextField(blank=True)
 
     class Meta:
         abstract = True
@@ -83,7 +83,7 @@ class BaseGroup(models.Model):
     hosts = models.ManyToManyField('BaseHost', related_name='groups')
     children = models.ManyToManyField('BaseGroup', related_name='parents', blank=True)
     meta = common_models.JsonDictTextField(default={})
-    comment = models.TextField()
+    comment = models.TextField(blank=True)
 
     class Meta:
         abstract = True
