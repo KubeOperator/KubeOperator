@@ -185,7 +185,6 @@ class InventorySerializer(serializers.Serializer):
 
     def set_host_groups(self):
         for host_name, group_names in self.hosts_groups_map.items():
-            print(host_name)
             host = Host.objects.get(name=host_name)
             host.set_groups(group_names)
 

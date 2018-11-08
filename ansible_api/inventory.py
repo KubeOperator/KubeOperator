@@ -263,3 +263,43 @@ class AnsibleUIInventory(BaseInventory):
                 'children': group.children.all().values_list('name', flat=True)
             })
         return groups
+
+
+class AnsibleUIDataInventory(BaseInventory):
+    def __init__(self, inventory):
+        self.inventory = inventory
+        data = self.parse_resource()
+        super().__init__(data)
+
+    def parse_resource(self):
+        groups = self._parse_groups()
+        hosts = self._parse_hosts()
+        return {'hosts': hosts, 'groups': groups}
+
+    def _parse_hosts(self):
+        hosts = []
+        _hosts = self.inventory.get('hosts', [])
+        for host in _hosts:
+            _vars = host.get('vars', {})
+            _vars.update({
+                'ansible_ssh_host': host.get('ip') or host['name'],
+                'ansible_ssh_port': host.get('port') or 22,
+                'ansible_ssh_user': host.get('username'),
+                'ansible_ssh_pass': host.get('password'),
+            })
+            hosts.append({
+                'hostname': host['name'],
+                'vars': _vars
+            })
+        return hosts
+
+    def _parse_groups(self):
+        groups = []
+        for group in self.inventory.get('groups', []):
+            groups.append({
+                'name': group.get('name'),
+                'vars': group.get('vars', {}),
+                'hosts': group.get('hosts', []),
+                'children': group.get('children', [])
+            })
+        return groups
