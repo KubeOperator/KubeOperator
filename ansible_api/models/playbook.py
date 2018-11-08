@@ -2,6 +2,7 @@
 #
 
 import os
+import shutil
 import json
 import yaml
 import git
@@ -279,7 +280,7 @@ class Playbook(AbstractProjectResourceModel):
 
     def cleanup(self):
         self.remove_period_task()
-        os.removedirs(self.playbook_dir)
+        shutil.rmtree(self.playbook_dir, ignore_errors=True)
 
 
 class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):

@@ -43,16 +43,17 @@ class Cluster(Project):
         execution = DeployExecution.objects.create(project=self)
         return execution.start()
 
-    def create_internal_roles(self):
-        names = ['OSEv3', 'masters', 'nodes', 'etcd', "infra", "compute"]
-        for name in names:
-            Role.objects.get_or_create(name=name, project=self)
+    def configs(self):
+        self.change_to()
+        return Role.osev3().vars
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         instance = super().save(force_insert=force_insert, force_update=force_update,
                                 using=using, update_fields=update_fields)
-        self.create_internal_roles()
+        Role.create_internal_roles(self)
+        Node.create_localhost()
+        self.create_playbooks('release-3.10')
         return instance
 
 
@@ -63,6 +64,34 @@ class Node(Host):
     @property
     def roles(self):
         return self.groups
+
+    @roles.setter
+    def roles(self, value):
+        self.groups.set(value)
+
+    def add_vars(self, _vars):
+        __vars = {k: v for k, v in self.vars.items()}
+        __vars.update(_vars)
+        if self.vars != __vars:
+            self.vars = __vars
+            self.save()
+
+    def remove_var(self, key):
+        __vars = self.vars
+        if key in __vars:
+            del __vars[key]
+            self.vars = __vars
+            self.save()
+
+    @classmethod
+    def create_localhost(cls):
+        cls.objects.create(name="localhost", vars={"ansible_connection": "local"})
+
+    def get_var(self, key, default):
+        return self.vars.get(key, default)
+
+    def get_node_group_label(self):
+        return self.get_var("openshift_node_group_name", "-").split('-')[-1]
 
 
 class Role(Group):
@@ -78,16 +107,28 @@ class Role(Group):
     ROLE_ETCD = "etcd"
     ROLE_INFRA = "infra"
     ROLE_COMPUTE = "compute"
+    ROLE_LB = "lb"
+    ROLE_NFS = "nfs"
     ROLE_OSEv3 = "OSEv3"
 
-    ROLE_INTERNAL_NAMES = (
-        (ROLE_MASTERS, "主节点"),
-        (ROLE_COMPUTE, "计算节点"),
-        (ROLE_INFRA, "架构节点"),
-        (ROLE_ETCD, "ETCD节点"),
-        (ROLE_NODES, "节点"),
-        (ROLE_OSEv3, "OSEv3"),
-    )
+    ROLE_INTERNAL_NAMES = [
+        {"name": ROLE_MASTERS, "comment": "主节点"},
+        {"name": ROLE_COMPUTE, "comment": "计算节点"},
+        {"name": ROLE_INFRA, "comment": "架构节点"},
+        {"name": ROLE_ETCD, "comment": "ETCD节点", "children": (ROLE_MASTERS,)},
+        {"name": ROLE_NODES, "comment": "节点", "children": (ROLE_MASTERS, ROLE_INFRA, ROLE_COMPUTE)},
+        {
+            "name": ROLE_OSEv3, "comment": "OSEv3",
+            "children": (ROLE_MASTERS, ROLE_NODES, ROLE_ETCD, ROLE_LB, ROLE_ETCD),
+            "vars": {
+                "openshift_deployment_type": "origin",
+                "openshift_master_identity_providers": [
+                    {'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}
+                ],
+                "openshift_disable_check": "disk_availability,docker_storage,memory_availability,docker_image_availability"
+            }
+        },
+    ]
 
     class Meta:
         proxy = True
@@ -101,17 +142,60 @@ class Role(Group):
         self.hosts.set(value)
 
     @classmethod
-    def create_internal_roles(cls):
-        for name, comment in cls.ROLE_INTERNAL_NAMES:
-            pass
-        for name in names:
-            Role.objects.get_or_create(name=name, project=self)
-
+    def masters(cls):
+        return cls.objects.get(name=cls.ROLE_MASTERS)
 
     @classmethod
-    def update_nodes_group_label(cls):
+    def infra(cls):
+        return cls.objects.get(name=cls.ROLE_INFRA)
+
+    @classmethod
+    def osev3(cls):
+        return cls.objects.get(name=cls.ROLE_OSEv3)
+
+    @classmethod
+    def compute(cls):
+        return cls.objects.get(name=cls.ROLE_COMPUTE)
+
+    @classmethod
+    def create_internal_roles(cls, cluster):
+        cluster.change_to()
+        for r in cls.ROLE_INTERNAL_NAMES:
+            role = cls.objects.create(
+                name=r["name"], comment=r.get("comment", ""),
+                vars=r.get("vars", {}), project=cluster
+            )
+            children_names = r.get("children")
+            if children_names:
+                children = cls.objects.filter(name__in=children_names)
+                role.children.set(children)
+
+    def on_nodes_join(self, nodes):
+        self.__class__.update_node_group_labels()
         pass
 
+    def on_nodes_leave(self, nodes):
+        self.__class__.update_node_group_labels()
+        pass
+
+    @classmethod
+    def update_node_group_labels(cls):
+        if Node.objects.all().count() == 1:
+            Node.objects.first().add_vars({"openshift_node_group_name": cls.NODE_GROUP_ALL_IN_ONE})
+            return
+        infra_role = cls.infra()
+        masters_role = cls.masters()
+        compute_role = cls.compute()
+        if infra_role.nodes.count() == 0:
+            tag_name = cls.NODE_GROUP_MASTER_INFRA
+        else:
+            tag_name = cls.NODE_GROUP_MASTER
+        for node in Node.objects.filter(groups=masters_role):
+            node.add_vars({"openshift_node_group_name": tag_name})
+        for node in Node.objects.filter(groups=compute_role):
+            node.add_vars({"openshift_node_group_name": cls.NODE_GROUP_COMPUTE})
+        for node in Node.objects.filter(groups=infra_role):
+            node.add_vars({"openshift_node_group_name": cls.NODE_GROUP_INFRA})
 
 
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
@@ -122,7 +206,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_execution_start.send(self.__class__, execution=self)
         for playbook in self.project.playbook_set.all():
             _result = playbook.execute()
-            result["summary"].update(_result["result"])
+            result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):
                 break
         post_execution_start.send(self.__class__, execution=self, result=result)
