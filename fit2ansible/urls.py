@@ -45,8 +45,8 @@ urlpatterns = [
     path('api/v1/', include(get_api_v1_urlpatterns())),
     path('', include(get_view_url_patterns())),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
-            + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 handler404 = error_handler.error404
 handler500 = 'rest_framework.exceptions.server_error'
 handler400 = 'rest_framework.exceptions.bad_request'
