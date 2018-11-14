@@ -71,3 +71,4 @@ wcwidth==0.1.7
 Werkzeug==0.14.1
 channels==2.1.5
 channels_redis==2.3.1
+gunicorn==19.9.0
