@@ -52,7 +52,7 @@ def collect_static():
 
 def prepare():
     make_migrations()
-    # collect_static()
+    collect_static()
 
 
 def check_pid(pid):
