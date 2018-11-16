@@ -11,6 +11,8 @@ def add_default_admin(apps, schema_editor):
         username="admin",
         email="admin@mycomany.com",
         password=make_password("admin"),
+        is_superuser=True,
+        is_staff=True
     )
 
 
