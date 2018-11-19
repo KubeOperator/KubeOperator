@@ -27,9 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'openshift_api.apps.OpenshiftApiConfig',
     'ansible_api.apps.AnsibleApiConfig',

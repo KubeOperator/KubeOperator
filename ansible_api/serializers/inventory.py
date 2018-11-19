@@ -53,7 +53,7 @@ class HostReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
         read_only_fields = ['id']
         fields = [
             'id', 'name', 'ip', 'port', 'username', 'password',
-            'private_key', 'groups', 'vars', 'project',
+            'private_key', 'groups', 'vars', 'project', 'comment'
         ]
 
 
@@ -94,7 +94,7 @@ class GroupReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
         model = Group
         list_serializer_class = BulkListSerializer
         read_only_fields = ['id']
-        fields = ['id', 'name', 'hosts', 'children', 'vars', 'project']
+        fields = ['id', 'name', 'hosts', 'children', 'vars', 'project', 'comment']
 
 
 class GroupSerializer(GroupReadSerializer, ProjectSerializerMixin):
@@ -185,7 +185,6 @@ class InventorySerializer(serializers.Serializer):
 
     def set_host_groups(self):
         for host_name, group_names in self.hosts_groups_map.items():
-            print(host_name)
             host = Host.objects.get(name=host_name)
             host.set_groups(group_names)
 

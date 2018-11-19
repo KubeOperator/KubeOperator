@@ -52,7 +52,7 @@ def collect_static():
 
 def prepare():
     make_migrations()
-    # collect_static()
+    collect_static()
 
 
 def check_pid(pid):
@@ -118,8 +118,21 @@ def start_redis():
 def start_django():
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
+    service = 'gunicorn'
+    bind = '{}:{}'.format('0.0.0.0', 8080)
+    log_format = '%(h)s %(t)s "%(r)s" %(s)s %(b)s '
+    pid_file = get_pid_file_path(service)
+    log_file = get_log_file_path(service)
     cmd = [
-        PYTHON_EXE, 'manage.py', 'runserver', '0.0.0.0:8000'
+        'gunicorn', 'fit2ansible.wsgi',
+        '-b', bind,
+        # '-k', 'eventlet',
+        '-k', 'gthread',
+        '--threads', '10',
+        '-w', str(WORKERS),
+        '--max-requests', '4096',
+        '--access-logformat', log_format,
+        '-p', pid_file,
     ]
 
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
@@ -142,7 +155,7 @@ def start_celery():
 
     cmd = [
         'celery', 'worker',
-        '-A',  'ccelery',
+        '-A',  'celery_api',
         '-l', LOG_LEVEL,
         '--pidfile', pid_file,
         '-c', str(WORKERS),
@@ -158,7 +171,6 @@ def start_celery():
 
 def start_beat():
     print("\n- Start Beat as Periodic Task Scheduler")
-
     pid_file = get_pid_file_path('beat')
     log_file = get_log_file_path('beat')
 
@@ -169,7 +181,7 @@ def start_beat():
     scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
     cmd = [
         'celery',  'beat',
-        '-A', 'ccelery',
+        '-A', 'celery_api',
         '--pidfile', pid_file,
         '-l', LOG_LEVEL,
         '--scheduler', scheduler,
@@ -186,14 +198,12 @@ def start_beat():
 
 def start_service(s):
     print(time.ctime())
-
     services_handler = {
          "redis": start_redis,
          "django": start_django,
          "celery": start_celery,
          "beat": start_beat
     }
-
     services_set = parse_service(s)
     processes = []
     for i in services_set:

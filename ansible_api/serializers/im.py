@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import uuid
 
 from rest_framework import serializers
 
@@ -8,8 +7,7 @@ from .inventory import InventorySerializer
 from .role import SimpleRoleSerializer
 from .playbook import PlaySerializer
 from .adhoc import AdHocSerializer
-from ..ctx import set_current_project
-from ..models import Playbook, Project
+from ..models import Playbook
 
 
 __all__ = ['IMPlaybookSerializer', 'IMAdHocSerializer']
@@ -21,19 +19,18 @@ class IMBaseSerializer(serializers.Serializer):
     project = None
     inv_serializer = None
 
-    def is_valid(self, raise_exception=False):
-        self.project = Project.objects.create(
-            name=str(uuid.uuid4()), comment='#IM#'
-        )
-        set_current_project(self.project)
-        self.inv_serializer = InventorySerializer(
-            data=self.initial_data.pop('inventory', {})
-        )
-        self.inv_serializer.is_valid(raise_exception=True)
-        return super().is_valid(raise_exception=raise_exception)
+    def check_inventory(self):
+        hosts = self.initial_data.get("inventory", {}).get("hosts")
+        if not hosts:
+            raise serializers.ValidationError({"inventory", "hosts is null"})
 
-    def create_inventory(self):
-        self.inv_serializer.save()
+        for host in hosts:
+            if not host.get('name'):
+                raise serializers.ValidationError({"hosts", "name is null"})
+
+    def is_valid(self, raise_exception=False):
+        self.check_inventory()
+        return super().is_valid(raise_exception=raise_exception)
 
 
 class IMPlaybookSerializer(IMBaseSerializer):
@@ -81,12 +78,13 @@ class IMAdHocSerializer(IMBaseSerializer):
         adhoc = self.create_adhoc()
         return adhoc
 
+    def is_valid(self, raise_exception=False):
+        adhoc_data = self.initial_data.get('adhoc')
+        if not adhoc_data.get("pattern"):
+            raise serializers.ValidationError({"pattern": "pattern is null"})
+        elif not adhoc_data.get("module"):
+            raise serializers.ValidationError({"module": "module is null"})
+        return super().is_valid()
+
     def update(self, instance, validated_data):
         pass
-
-    def create_adhoc(self):
-        serializer = AdHocSerializer(
-            data=self.validated_data.get('adhoc'),
-        )
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
