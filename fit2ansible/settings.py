@@ -86,7 +86,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -105,7 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -119,7 +117,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -131,7 +128,6 @@ REDIS_PORT = 6379
 
 REDIS_PASSWORD = ""
 LOGIN_URL = '/admin/login'
-
 
 CACHES = {
     'default': {
@@ -201,7 +197,6 @@ SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'fit2ansible.swagger.CustomSwaggerAutoSchema',
 }
 
-
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -214,8 +209,5 @@ CHANNEL_LAYERS = {
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3600),
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-
-
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'openshift_api.utils.jwt_response_payload_handler',
 }
-
-
