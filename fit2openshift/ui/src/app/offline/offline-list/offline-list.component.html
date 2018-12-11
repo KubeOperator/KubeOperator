@@ -1,0 +1,19 @@
+<clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
+  <clr-dg-column [clrDgField]="location">路径</clr-dg-column>
+  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
+  <clr-dg-column [clrDgField]="is_active">可用</clr-dg-column>
+
+
+  <clr-dg-row *ngFor="let offline of offlines" [clrDgItem]="offline">
+    <clr-dg-cell>{{offline.name}}</clr-dg-cell>
+    <clr-dg-cell>{{offline.location}}</clr-dg-cell>
+    <clr-dg-cell>{{offline.comment}}</clr-dg-cell>
+    <clr-dg-cell>{{offline.is_active}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>

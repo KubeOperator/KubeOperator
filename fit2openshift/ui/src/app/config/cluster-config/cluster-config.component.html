@@ -1,0 +1,15 @@
+<h5>集群配置</h5>
+<form clrForm>
+  <clr-input-container>
+    <label>路由:</label>
+    <input clrInput type="text" [(ngModel)]="model" name="example"/>
+  </clr-input-container>
+
+
+  <clr-select-container>
+    <label>离线包:</label>
+    <select clrSelect name="options" [(ngModel)]="options">
+      <option *ngFor="let offline of offlines" value="offline.id">{{offline.name}}</option>
+    </select>
+  </clr-select-container>
+</form>

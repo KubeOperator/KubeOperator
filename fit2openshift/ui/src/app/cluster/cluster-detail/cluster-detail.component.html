@@ -1,0 +1,21 @@
+<a (click)="backToCluster()" class="backStyle">&lt;集群</a>
+<nav class="subnav sub-nav-bg-color">
+  <ul class="nav">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="overview" routerLinkActive="active">概览</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="node" routerLinkActive="active">节点</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="log" routerLinkActive="active">日志</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="config" routerLinkActive="active">配置</a>
+    </li>
+    <!--<li class="nav-item">-->
+      <!--<a class="nav-link" routerLink="monitor" routerLinkActive="active">监控</a>-->
+    <!--</li>-->
+  </ul>
+</nav>
+<router-outlet></router-outlet>

@@ -1,0 +1,25 @@
+<clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-action-bar>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="plus" size="16"></clr-icon>
+      添加
+    </button>
+  </clr-dg-action-bar>
+  <clr-dg-column [clrDgField]="username">用户名</clr-dg-column>
+  <clr-dg-column [clrDgField]="email">email</clr-dg-column>
+  <clr-dg-column [clrDgField]="is_superuser">管理员</clr-dg-column>
+  <clr-dg-column [clrDgField]="is_active">启用</clr-dg-column>
+
+
+  <clr-dg-row *ngFor="let user of users" [clrDgItem]="user">
+    <clr-dg-cell>{{user.username}}</clr-dg-cell>
+    <clr-dg-cell>{{user.email}}</clr-dg-cell>
+    <clr-dg-cell>{{user.is_superuser}}</clr-dg-cell>
+    <clr-dg-cell>{{user.is_active}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>

@@ -1,0 +1,24 @@
+<clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-action-bar>
+    <button type="button" class="btn btn-sm btn-secondary">
+      <clr-icon shape="plus" size="16"></clr-icon>
+      添加
+    </button>
+  </clr-dg-action-bar>
+  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
+  <clr-dg-column [clrDgField]="offline_name">当前版本</clr-dg-column>
+  <clr-dg-column [clrDgField]="status">状态</clr-dg-column>
+  <clr-dg-column [clrDgField]="date_created">创建时间</clr-dg-column>
+
+  <clr-dg-row *ngFor="let cluster of clusters" [clrDgItem]="cluster">
+    <clr-dg-cell><a href="javascript:void(0)" (click)="goToLink(cluster.id)">{{cluster.name}}</a></clr-dg-cell>
+    <clr-dg-cell>{{cluster.offline_name}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.status}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>
