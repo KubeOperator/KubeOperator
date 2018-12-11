@@ -24,7 +24,7 @@ FIT2OpenShift 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 ## FIT2OpenShift 的架构图？
 
-![架构图](https://github.com/fit2cloudrd/fit2openshift/blob/master/structure.jpg)
+![架构图](https://raw.githubusercontent.com/fit2anything/fit2openshift/master/docs/overview.jpg)
 
 ## FIT2OpenShift 项目背后是谁在支持？
 
