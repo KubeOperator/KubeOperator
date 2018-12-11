@@ -2,7 +2,7 @@
 
 ## 什么是 FIT2OpenShift？
 
-FIT2OpenShift 是一个开源项目，帮助运维人员通过 Web 控制台，在完全离线环境下实现 OpenShift 社区版（okd）集群的可视化部署及运维管理。
+FIT2OpenShift 是一个开源项目，帮助运维人员通过 Web 控制台，在完全离线环境下实现 [OpenShift](https://www.openshift.com/) 社区版（[okd](https://www.okd.io/)）集群的可视化部署及运维管理。
 
 ## 为什么需要 FIT2OpenShift? 
 
@@ -28,4 +28,4 @@ FIT2OpenShift 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 ## FIT2OpenShift 项目背后是谁在支持？
 
-FIT2CLOUD 是FIT2OpenShift 项目的发起者及核心贡献者。该项目由第一开源堡垒机 Jumpserver 的原帮团队倾力打造。FIT2CLOUD 飞致云是国内拥有「红帽认证OpenShift 管理员」最多的公司。
+[FIT2CLOUD](https://www.fit2cloud.com) 是FIT2OpenShift 项目的发起者及核心贡献者。该项目由第一开源堡垒机 [Jumpserver](http://www.jumpserver.org/) 的原帮团队倾力打造。[FIT2CLOUD](https://www.fit2cloud.com) 飞致云是国内拥有「红帽认证OpenShift 管理员」最多的公司。
