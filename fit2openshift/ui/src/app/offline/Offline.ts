@@ -1,3 +1,5 @@
+import {ConfigBase} from '../config/cluster-config/config-base';
+
 export class Offline {
   id: string;
   name: string;
@@ -5,4 +7,5 @@ export class Offline {
   branch: string;
   comment: string;
   is_active: boolean;
+  config: ConfigBase<string>[];
 }

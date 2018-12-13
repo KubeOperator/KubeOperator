@@ -1,0 +1,20 @@
+<div [formGroup]="form">
+  <clr-input-container>
+    <label>{{test}}</label>
+    <input formGroupName="test">
+  </clr-input-container>
+
+
+    <clr-input-container *ngIf="config.controlType ==='textbox'">
+      <label [attr.for]="config.name">{{config.comment}}</label>
+      <input clrInput="" [formControlName]="config.name" [id]="config.name"
+             [type]="config.type">
+    </clr-input-container>
+
+    <clr-select-container *ngIf="config.controlType ==='select'">
+      <label [attr.for]="config.name">{{config.comment}}</label>
+      <select clrSelect [id]="config.name" [formControlName]="config.name">
+        <option *ngFor="let op of config.options" [value]="op.key">{{op.value}}</option>
+      </select>
+    </clr-select-container>
+</div>
