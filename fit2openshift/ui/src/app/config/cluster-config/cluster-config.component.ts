@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, Output} from '@angular/core';
 import {OfflineService} from '../../offline/offline.service';
 import {Offline} from '../../offline/Offline';
 import {ConfigBase} from './config-base';
@@ -18,7 +18,6 @@ export class ClusterConfigComponent implements OnInit {
   form = new FormGroup({
     offline: new FormControl()
   });
-  currentOffline: Offline;
 
 
   constructor(private offlineService: OfflineService, private ccs: ConfigControlService) {
@@ -33,10 +32,14 @@ export class ClusterConfigComponent implements OnInit {
     this.offlineService.listOfflines().subscribe(data => this.offlines = data);
   }
 
+  onSubmit() {
+    console.log(this.form.value);
+  }
+
   getConfig() {
     this.form.get('offline').valueChanges.subscribe(data => {
       this.offlineService.getOffline('aa').subscribe(data => {
-        this.configs=data.config;
+        this.configs = data.config;
         this.form.addControl('config', this.ccs.toFormGroup(this.configs));
       });
     });

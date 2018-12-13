@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Cluster} from '../cluster';
 import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
@@ -13,6 +13,7 @@ export class ClusterListComponent implements OnInit {
   loading = true;
   clusters: Cluster[] = [];
   selectedRow: Cluster[] = [];
+  @Output() addCluster = new EventEmitter<void>();
 
   constructor(private clusterService: ClusterService, private router: Router) {
   }
@@ -28,6 +29,10 @@ export class ClusterListComponent implements OnInit {
     }, error => {
       this.loading = false;
     });
+  }
+
+  addNewCluster() {
+    this.addCluster.emit();
   }
 
   goToLink(clusterId: string) {

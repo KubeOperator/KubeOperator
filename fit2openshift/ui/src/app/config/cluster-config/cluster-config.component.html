@@ -6,7 +6,7 @@
       <option *ngFor="let offline of offlines" [value]="offline.id">{{offline.name}}</option>
     </select>
   </clr-select-container>
-  
+
   <div *ngFor="let config of configs">
     <app-config-item [config]="config" [form]="form.get('config')"></app-config-item>
   </div>

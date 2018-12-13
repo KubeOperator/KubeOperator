@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NodeService} from '../node.service';
 import {Node} from '../node';
 
@@ -13,6 +13,7 @@ export class NodeListComponent implements OnInit {
   nodes: Node[] = [];
   selectedRow: Node[] = [];
   @Input() clusterId: string;
+  @Output() addNode = new EventEmitter();
 
   constructor(private nodeService: NodeService) {
   }
@@ -44,4 +45,11 @@ export class NodeListComponent implements OnInit {
     this.nodes.push(node2);
   }
 
+  refresh() {
+    this.listNodes();
+  }
+
+  addNewNode() {
+    this.addNode.emit();
+  }
 }
