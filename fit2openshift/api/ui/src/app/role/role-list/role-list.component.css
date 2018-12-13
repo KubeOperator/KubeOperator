@@ -1,0 +1,40 @@
+.role-box {
+  height: 300px;
+  text-align: center;
+}
+
+.desc {
+  padding: 20px 0;
+}
+
+hr {
+  border-top-color: #ccd1d3;
+  border: 0;
+  border-top: 1px solid #ccd1d3;
+}
+
+.logo img {
+  width: auto;
+  height: auto;
+  max-height: 80px;
+  max-width: 180px;
+  vertical-align: middle;
+  border: 0;
+}
+
+.title {
+  text-align: center;
+  padding-top: 15px;
+  margin: 0 15px;
+  font-weight: 700;
+}
+
+.comment {
+  max-width: 200px;
+  margin: auto;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}

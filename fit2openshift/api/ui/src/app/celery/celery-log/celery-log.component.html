@@ -1,0 +1,9 @@
+<clr-modal [(clrModalOpen)]="show" [clrModalSize]="size" [clrModalStaticBackdrop]="staticBackdrop" [clrModalClosable]="closable">
+  <h3 class="modal-title">日志</h3>
+  <div class="modal-body" #terminal style="height: 800px;">
+    <!--<div #terminal></div>-->
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+  </div>
+</clr-modal>

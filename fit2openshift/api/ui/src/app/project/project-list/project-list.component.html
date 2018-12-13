@@ -1,0 +1,37 @@
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selectedRow">
+  <clr-dg-action-bar>
+    <button type="button" class="btn btn-sm" (click)="addNewProject()"><clr-icon shape="plus" size="16"></clr-icon>&nbsp;添加</button>
+    <button type="button" class="btn btn-sm btn-danger" [disabled]="!(selectedRow.length)" ><clr-icon shape="times" size="16"></clr-icon>&nbsp;删除</button>
+  </clr-dg-action-bar>
+  <clr-dg-placeholder>We couldn't find any projects!</clr-dg-placeholder>
+  <clr-dg-column [clrDgField]="'name'">Name</clr-dg-column>
+  <clr-dg-column>Comment</clr-dg-column>
+  <clr-dg-column>Created by</clr-dg-column>
+  <clr-dg-column>Date created</clr-dg-column>
+  <clr-dg-column>Action</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let project of projects" [clrDgItem]="project">
+    <clr-dg-cell>
+      <a routerLink="{{ project.name }}" >{{project.name}}</a>
+    </clr-dg-cell>
+    <clr-dg-cell>{{ project.comment }}</clr-dg-cell>
+    <clr-dg-cell>{{ project.created_by }}</clr-dg-cell>
+    <clr-dg-cell>{{ project.date_created | date}}</clr-dg-cell>
+    <clr-dg-cell style="padding: .158333rem .3rem;">
+      <clr-button-group class="btn-sm btn-icon" [clrMenuPosition]="'bottom-right'">
+        <clr-button class="btn-primary">
+          <clr-icon shape="play"></clr-icon>&nbsp; Edit
+        </clr-button>
+        <clr-button [clrInMenu]="true" class="btn-icon">
+          View
+        </clr-button>
+        <clr-button [clrInMenu]="true">
+          Delete
+        </clr-button>
+      </clr-button-group>
+    </clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>{{ projects?.length }} projects</clr-dg-footer>
+  Selected projects: <span *ngFor="let project of selectedRow">{{project.name}}</span>
+</clr-datagrid>

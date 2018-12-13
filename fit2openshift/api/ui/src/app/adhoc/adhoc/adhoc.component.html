@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+  <form clrForm #adHocForm="ngForm">
+    <clr-input-container>
+      <label>Pattern: </label>
+      <input clrInput [(ngModel)]="adhoc.pattern" placeholder="Input command or args">
+    </clr-input-container>
+    <div class="col-md-4">
+      <clr-dropdown>
+        <button type="button" class="btn btn-outline-primary" clrDropdownTrigger>
+          Dropdown
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu clrPosition="top-left" *clrIfOpen>
+          <label class="dropdown-header">Dropdown header</label>
+          <button type="button" clrDropdownItem>Action 1</button>
+          <button type="button" disabled clrDropdownItem>Disabled Action</button>
+          <div class="dropdown-divider"></div>
+          <clr-dropdown>
+            <button type="button" clrDropdownTrigger>Link 1</button>
+            <clr-dropdown-menu>
+              <button type="button" clrDropdownItem>Foo</button>
+              <clr-dropdown>
+                <button type="button" clrDropdownTrigger>Bar</button>
+                <clr-dropdown-menu clrPosition="left-top">
+                  <button type="button" clrDropdownItem>Baz</button>
+                </clr-dropdown-menu>
+              </clr-dropdown>
+            </clr-dropdown-menu>
+          </clr-dropdown>
+          <button type="button" clrDropdownItem>Link 2</button>
+        </clr-dropdown-menu>
+      </clr-dropdown>
+    </div>
+    <div class="col-md-8 col-sm-9">
+      <clr-input-container>
+        <input clrInput [(ngModel)]="adhoc.args" placeholder="Input command or args">
+      </clr-input-container>
+    </div>
+  </form>
+  </div>
+</div>

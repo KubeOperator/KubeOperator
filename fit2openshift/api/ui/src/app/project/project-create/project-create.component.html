@@ -1,0 +1,41 @@
+<clr-modal [(clrModalOpen)]="createProjectOpened" [clrModalStaticBackdrop]="staticBackdrop" [clrModalClosable]="closable">
+  <h3 class="modal-title">创建项目</h3>
+  <!--<inline-alert class="modal-title"></inline-alert>-->
+  <div class="modal-body" style="height: 12.8em; overflow-y: hidden;">
+    <form #projectForm="ngForm">
+      <section class="form-block">
+        <div class="form-group" style="padding-left: 135px;">
+          <label for="project_name" class="col-md-3 form-group-label-override required">Name: </label>
+          <label for="project_name" aria-haspopup="true" role="tooltip" [class.invalid]="!isNameValid" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+            <input type="text" id="project_name"  [(ngModel)]="project.name"
+                   name="project_name" size="255"  style="width: 296px;"
+                   required
+                   pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+                   minlength="2"
+                   #projectName="ngModel"
+                   autocomplete="off"
+                   (keyup)='handleValidation()'>
+            <span class="tooltip-content">
+              {{ nameTooltipText }}
+            </span>
+          </label>
+          <span class="spinner spinner-inline" [hidden]="!checkOnGoing"></span>
+        </div>
+        <div class="form-group" style="padding-left: 135px;">
+          <label for="project_comment" class="col-md-3 form-group-label-override">Comment: </label>
+          <label for="project_comment" aria-haspopup="true" role="tooltip">
+            <textarea type="text" id="project_comment"  [(ngModel)]="project.comment"
+                   name="project_comment" style="width: 296px;"
+                   autocomplete="off"
+            >
+            </textarea>
+          </label>
+        </div>
+      </section>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="onCancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!isValid" (click)="onSubmit()">Confirm</button>
+  </div>
+</clr-modal>

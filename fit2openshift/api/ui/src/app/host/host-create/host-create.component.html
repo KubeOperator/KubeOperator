@@ -1,0 +1,76 @@
+<clr-modal [(clrModalOpen)]="shown" [clrModalStaticBackdrop]="staticBackdrop" [clrModalClosable]="closable">
+  <h3 class="modal-title">添加 Host</h3>
+  <!--<inline-alert class="modal-title"></inline-alert>-->
+  <div class="modal-body" style="overflow-y: hidden;">
+    <form #hostForm="ngForm">
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="name" class="col-md-3 form-group-label-override required">Name: </label>
+        <label for="name" aria-haspopup="true" role="tooltip" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+          <input type="text" id="name"  [(ngModel)]="host.name"
+                 name="name" size="255"  style="width: 296px;"
+                 required
+                 minlength="2"
+                 autocomplete="off"
+                 >
+        </label>
+      </div>
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="ip" class="col-md-3 form-group-label-override">IP: </label>
+        <label for="ip" aria-haspopup="true" role="tooltip" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+          <input type="text" id="ip"  [(ngModel)]="host.ip"
+                 name="ip" size="255"  style="width: 296px;"
+                 required
+                 minlength="2"
+                 autocomplete="off"
+          >
+        </label>
+      </div>
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="port" class="col-md-3 form-group-label-override required">Port: </label>
+        <label for="port" aria-haspopup="true" role="tooltip" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+          <input type="text" id="port"  [(ngModel)]="host.port"
+                 name="port" size="255"  style="width: 29px;"
+                 required
+                 minlength="2"
+                 autocomplete="off"
+          >
+        </label>
+      </div>
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="username" class="col-md-3 form-group-label-override required">Username: </label>
+        <label for="username" aria-haspopup="true" role="tooltip" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+          <input type="text" id="username"  [(ngModel)]="host.username"
+                 name="username" size="255"  style="width: 296px;"
+                 required
+                 minlength="2"
+                 autocomplete="off"
+          >
+        </label>
+      </div>
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="password" class="col-md-3 form-group-label-override required">Password: </label>
+        <label for="password" aria-haspopup="true" role="tooltip" class="tooltip tooltip-validation tooltip-md tooltip-bottom-left">
+          <input type="password" id="password"  [(ngModel)]="host.password"
+                 name="password" size="255"  style="width: 296px;"
+                 required
+                 autocomplete="off"
+          >
+        </label>
+      </div>
+      <div class="form-group" style="padding-left: 135px;">
+        <label for="comment" class="col-md-3 form-group-label-override">Comment: </label>
+        <label for="comment" aria-haspopup="true" role="tooltip">
+            <textarea type="text" id="comment"  [(ngModel)]="host.comment"
+                      name="comment" style="width: 296px;"
+                      autocomplete="off"
+            >
+            </textarea>
+        </label>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="onCancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!isValid" (click)="onSubmit()">Confirm</button>
+  </div>
+</clr-modal>
