@@ -20,10 +20,10 @@ const routes: Routes = [
   {
     path: 'fit2openshift',
     component: ShellComponent,
-    // canActivate: [AuthUserActiveService],
-    // canActivateChild: [AuthUserActiveService],
+    canActivate: [AuthUserActiveService],
+    canActivateChild: [AuthUserActiveService],
     children: [
-      {path: '', redirectTo: 'offline', pathMatch: 'full'},
+      {path: '', redirectTo: 'cluster', pathMatch: 'full'},
       {path: 'cluster', component: ClusterComponent},
       {path: 'offline', component: OfflineComponent},
       {path: 'user', component: UserComponent},

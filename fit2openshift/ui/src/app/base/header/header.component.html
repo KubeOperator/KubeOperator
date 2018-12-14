@@ -3,8 +3,15 @@
     fit2openshift
   </div>
   <div class="header-actions">
-    <a href="javascript://" class="nav-link nav-icon">
-      <clr-icon shape="cog"></clr-icon>
-    </a>
+    <clr-dropdown class="dropdown">
+      <button class="nav-text" clrDropdownToggle>
+        <clr-icon shape="user" class="is-inverse" size="24"></clr-icon>
+        <span>{{user.username}}</span>
+        <clr-icon shape="caret down"></clr-icon>
+      </button>
+      <clr-dropdown-menu [clrPosition]="'bottom-right'" >
+        <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
+      </clr-dropdown-menu>
+    </clr-dropdown>
   </div>
 </clr-header>

@@ -1,0 +1,33 @@
+<clr-modal [(clrModalOpen)]="createUserOpened" [clrModalStaticBackdrop]="staticBackdrop"
+           [clrModalClosable]="closable">
+  <h3 class="modal-title">添加用户</h3>
+  <div class="modal-body modal-height">
+    <form [formGroup]="form" clrForm (ngSubmit)="onSubmit()">
+      <clr-input-container>
+        <label>Eamil:</label>
+        <input clrInput type="text" formControlName="email">
+      </clr-input-container>
+
+      <clr-input-container>
+        <label>用户名:</label>
+        <input clrInput type="text" formControlName="username">
+      </clr-input-container>
+
+
+      <clr-password-container>
+        <label>password:</label>
+        <input clrPassword type="password" formControlName="passwrod">
+      </clr-password-container>
+
+      <clr-textarea-container>
+        <label>描述:</label>
+        <textarea clrTextarea formControlName="comment"></textarea>
+      </clr-textarea-container>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()">提交</button>
+      </div>
+    </form>
+  </div>
+</clr-modal>
+
