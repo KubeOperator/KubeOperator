@@ -1,14 +1,14 @@
 <clr-datagrid [clrDgLoading]="loading">
 
-  <clr-dg-column [clrDgField]="name">时间戳</clr-dg-column>
-  <clr-dg-column [clrDgField]="ip">级别</clr-dg-column>
-  <clr-dg-column [clrDgField]="roles">内容</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">时间戳</clr-dg-column>
+  <clr-dg-column [clrDgField]="level">级别</clr-dg-column>
+  <clr-dg-column [clrDgField]="msg">消息</clr-dg-column>
 
 
-  <clr-dg-row *ngFor="let log of logs" [clrDgItem]="log">
-    <clr-dg-cell>{{log.date}}</clr-dg-cell>
+  <clr-dg-row *ngFor="let log of logs" [clrDgItem]="log" [style.background-color]="getColor(log)">
+    <clr-dg-cell>{{log.timestamp}}</clr-dg-cell>
     <clr-dg-cell>{{log.level}}</clr-dg-cell>
-    <clr-dg-cell>{{log.message}}</clr-dg-cell>
+    <clr-dg-cell>{{log.msg}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>
