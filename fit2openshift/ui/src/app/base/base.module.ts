@@ -5,9 +5,10 @@ import {HeaderComponent} from './header/header.component';
 import {NavigatorComponent} from './navigator/navigator.component';
 import {ShellComponent} from './shell/shell.component';
 import {CoreModule} from '../core/core.module';
+import { MessageComponent } from './message/message.component';
 
 @NgModule({
-  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent],
+  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent, MessageComponent],
   imports: [
     CommonModule,
     CoreModule
