@@ -1,4 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {FormControl, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-user-create',
@@ -10,6 +11,12 @@ export class UserCreateComponent implements OnInit {
   createUserOpened = false;
   staticBackdrop = true;
   closable = true;
+  form = new FormGroup({
+    'email': new FormControl(),
+    'username': new FormControl(),
+    'password': new FormControl(),
+    'comment': new FormControl()
+  });
 
   @Output() create = new EventEmitter<boolean>();
 

@@ -1,0 +1,144 @@
+pass  openshift(软件)
+
+
+
+
+openshfit : master(任务调度/集群数据存储)    　compute(无状态)  //多节点
+
+
+从单点  批量维护openshift 集群
+
+
+ansible    （批量运维）
+
+
+{
+	a:12	
+	b:13
+	c14
+
+	[master]
+	a
+
+	[compute]
+	b,c
+
+	[nodes]
+	master,compute
+}
+
+
+{
+
+	master: install openshift-master
+	compute: install openshift-compute	
+	nodes: do sth
+}
+
+
+
+
+ansible 
+
+model wenzhang{
+	titile:
+	content
+	}i
+	
+
+
+
+import fit2ansible.Project
+import fit2ansible.Host
+cluster {
+	name,.....,project_id
+	
+
+
+	save(Cluster cluster){
+		
+		project.name=cluster.name
+		...	
+		instance=project.save();
+
+		cluster=instance.id
+
+		cluster.save();
+		
+		}
+	}
+
+
+
+
+	Node{
+		name ... cluster_id,
+
+		save(node)
+		node.cluster_id -> cluster
+		cluster.project_id
+		
+		host.name=node.name
+
+		host.save(host,project_id)
+
+		
+		}
+
+
+		
+		master,compute 
+
+
+		Role
+		cLUSTER->PROJECT->GROUP MASGER COMPUTE
+		
+		Role{
+			
+			addnode(node....){
+					
+
+					node -> host
+					host->role->group
+
+
+
+					
+				}
+			
+			}
+
+
+
+
+
+docker 1
+
+
+docker 2
+	playbook
+	config
+
+
+
+docker 3
+
+
+
+
+
+claster
+
+
+--package
+  --playbooks
+  --config.yml
+
+
+
+
+
+
+
+
+

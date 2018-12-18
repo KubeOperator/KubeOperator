@@ -17,7 +17,6 @@ export class MessageComponent implements OnInit {
 
   ngOnInit() {
     this.showMassage();
-    this.msgService.announceMessage('aaa', MessageLevels.ERROR);
   }
 
   showMassage() {

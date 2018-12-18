@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {ClusterListComponent} from './cluster-list/cluster-list.component';
+import {Cluster} from './cluster';
 
 @Component({
   selector: 'app-cluster',
@@ -25,5 +26,6 @@ export class ClusterComponent implements OnInit {
 
   openModal(): void {
     this.creationCluster.newCluster();
+    Cluster
   }
 }

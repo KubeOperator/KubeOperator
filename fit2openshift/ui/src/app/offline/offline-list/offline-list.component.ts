@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Offline} from '../Offline';
 import {OfflineService} from '../offline.service';
+import {MessageService} from '../../base/message.service';
+import {MessageLevels} from '../../base/message/message-level';
 
 @Component({
   selector: 'app-offline-list',
@@ -13,18 +15,24 @@ export class OfflineListComponent implements OnInit {
   offlines: Offline[] = [];
   selectedRow: Offline[] = [];
 
-  constructor(private offlineService: OfflineService) {
+  constructor(private offlineService: OfflineService, private messageService: MessageService) {
   }
 
   ngOnInit() {
+    this.messageService.announceMessage('text', MessageLevels.ERROR);
     this.listOfflines();
   }
 
   listOfflines() {
+    this.loading = true;
     this.offlineService.listOfflines().subscribe(data => {
       this.offlines = data;
       this.loading = false;
     });
+  }
+
+  refresh() {
+    this.listOfflines();
   }
 
 }

@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import {GlobalMessageService} from '../global-message/global-message.service';
 import {httpStatusCode, AlertType} from './shared.const';
 
 /**
@@ -57,13 +56,3 @@ export const errorHandler = function (error: any): string {
  *
  * If handled the 401 or 403, then return true otherwise false
  */
-export const accessErrorHandler = function (error: any, msgService: GlobalMessageService): boolean {
-  if (error && error.status && msgService) {
-    if (error.status === httpStatusCode.Unauthorized) {
-      msgService.announceAppLevelMessage(error.status, 'UNAUTHORIZED_ERROR', AlertType.DANGER);
-      return true;
-    }
-  }
-
-  return false;
-};
