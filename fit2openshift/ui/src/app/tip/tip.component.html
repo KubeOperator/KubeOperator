@@ -1,0 +1,30 @@
+<div class="alert alert-danger alert-sm" *ngIf="tipShow && currentTipLevel === 'error'">
+  <div class="alert-items">
+    <div class="alert-item static" role="alert">
+      <div class="alert-icon-wrapper">
+        <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+      </div>
+      <span class="alert-text">
+        {{currentTip.msg}}
+      </span>
+    </div>
+  </div>
+  <button type="button" class="close" aria-label="Close" (click)="close()">
+    <clr-icon aria-hidden="true" shape="close"></clr-icon>
+  </button>
+</div>
+<div class="alert alert-success alert-sm" role="alert" *ngIf="tipShow && currentTipLevel=== 'success'">
+  <div class="alert-items">
+    <div class="alert-item static">
+      <div class="alert-icon-wrapper">
+        <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
+      </div>
+      <span class="alert-text">
+      {{currentTip.msg}}
+      </span>
+    </div>
+  </div>
+  <button type="button" class="close" aria-label="Close" (click)="close()">
+    <clr-icon aria-hidden="true" shape="close"></clr-icon>
+  </button>
+</div>
