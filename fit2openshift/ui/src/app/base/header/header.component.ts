@@ -11,6 +11,7 @@ import {SessionUser} from '../../shared/session-user';
 })
 export class HeaderComponent implements OnInit {
   user: SessionUser = new SessionUser();
+  username = 'guest';
 
   constructor(private sessionService: SessionService, private router: Router) {
   }
@@ -21,6 +22,9 @@ export class HeaderComponent implements OnInit {
 
   getCurrentUser() {
     this.user = this.sessionService.getCacheUser();
+    if (this.user) {
+      this.username = this.user.username;
+    }
   }
 
   logOut() {
