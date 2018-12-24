@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
-
 import {mergeMap} from 'rxjs/operators';
 import {MessageService} from '../base/message.service';
 import {MessageLevels} from '../base/message/message-level';

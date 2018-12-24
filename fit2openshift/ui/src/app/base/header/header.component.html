@@ -1,6 +1,6 @@
 <clr-header class="header-6" [ngStyle]="{'background-color':'#2b415a'}">
-  <div class="branding">
-    fit2openshift
+  <div class="branding" >
+    <img src="../../../assets/images/logo.png" width="600px" >
   </div>
   <div class="header-actions">
     <clr-dropdown class="dropdown">
@@ -9,7 +9,7 @@
         <span>{{user.username}}</span>
         <clr-icon shape="caret down"></clr-icon>
       </button>
-      <clr-dropdown-menu [clrPosition]="'bottom-right'" >
+      <clr-dropdown-menu [clrPosition]="'bottom-right'">
         <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
       </clr-dropdown-menu>
     </clr-dropdown>

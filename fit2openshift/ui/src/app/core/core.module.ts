@@ -8,6 +8,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {RouterModule} from '@angular/router';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {BaseModule} from '../base/base.module';
+import {TipModule} from '../tip/tip.module';
 
 
 @NgModule({
