@@ -21,7 +21,6 @@ export class HeaderComponent implements OnInit {
 
   getCurrentUser() {
     this.user = this.sessionService.getCacheUser();
-    console.log(this.user.username);
   }
 
   logOut() {
