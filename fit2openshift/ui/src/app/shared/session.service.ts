@@ -25,7 +25,11 @@ export class SessionService {
   }
 
   getCacheUser(): SessionUser {
-    return JSON.parse(localStorage.getItem('current_user')).user;
+    let currentUser = null;
+    if (localStorage.getItem('current_user') !== null) {
+      currentUser = JSON.parse(localStorage.getItem('current_user')).user;
+    }
+    return currentUser;
   }
 
   getUser(): Observable<SessionUser> {
