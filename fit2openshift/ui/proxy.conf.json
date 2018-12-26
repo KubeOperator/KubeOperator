@@ -1,18 +1,18 @@
 {
   "/api": {
-    "target": "https://www.easy-mock.com/mock/5c0f32a97214cf627b8d4405",
+    "target": "http://localhost:8000",
     "secure": false
   },
   "/admin": {
-    "target": "https://www.easy-mock.com/mock/5c0f32a97214cf627b8d4405",
+    "target": "http://localhost:8000",
     "secure": false
   },
   "/static": {
-    "target": "https://www.easy-mock.com/mock/5c0f32a97214cf627b8d4405",
+    "target": "http://localhost:8000",
     "secure": false
   },
   "/ws": {
-    "target": "https://www.easy-mock.com/mock/5c0f32a97214cf627b8d4405",
+    "target": "http://localhost:8000",
     "secure": false,
     "ws": true
   }
