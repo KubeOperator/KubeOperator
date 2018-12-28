@@ -16,7 +16,6 @@ export class ClusterComponent implements OnInit {
   @ViewChild(ClusterListComponent)
   listCluster: ClusterListComponent;
 
-  loading = true;
 
   constructor() {
   }
@@ -26,6 +25,12 @@ export class ClusterComponent implements OnInit {
 
   openModal(): void {
     this.creationCluster.newCluster();
-    Cluster
+  }
+
+  createCluster(created: boolean) {
+    console.log(created);
+    if (created) {
+      this.listCluster.listCluster();
+    }
   }
 }

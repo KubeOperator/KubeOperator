@@ -27,7 +27,7 @@ export class InterceptorService implements HttpInterceptor {
 
     return next.handle(req).pipe(
       mergeMap((event: any) => {
-        if (event instanceof HttpResponse && event.status !== 200) {
+        if (event instanceof HttpResponse && event.status >= 400) {
           this.messageService.announceMessage(event.statusText, MessageLevels.ERROR);
         }
         return Observable.create(observer => observer.next(event));
