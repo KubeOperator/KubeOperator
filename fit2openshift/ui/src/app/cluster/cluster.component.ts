@@ -28,7 +28,6 @@ export class ClusterComponent implements OnInit {
   }
 
   createCluster(created: boolean) {
-    console.log(created);
     if (created) {
       this.listCluster.listCluster();
     }

@@ -1,6 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
 import {NodeService} from '../node.service';
+import {Cluster} from '../../cluster/cluster';
+import {Node} from '../node';
+import {TipService} from '../../tip/tip.service';
+import {TipLevels} from '../../tip/tipLevels';
 
 @Component({
   selector: 'app-node-create',
@@ -8,6 +12,9 @@ import {NodeService} from '../node.service';
   styleUrls: ['./node-create.component.css']
 })
 export class NodeCreateComponent implements OnInit {
+
+  @Input() currentCluster: Cluster;
+  node: Node = new Node();
 
   form = new FormGroup({
     name: new FormControl(''),
@@ -22,19 +29,34 @@ export class NodeCreateComponent implements OnInit {
   isSubmitGoing = false;
   @Output() create = new EventEmitter<boolean>();
 
-  @Input() clusterId: string;
 
-  constructor(private nodeService: NodeService) {
+  constructor(private nodeService: NodeService, private tipService: TipService) {
   }
 
   ngOnInit() {
   }
 
   onSubmit() {
-    this.create.emit();
+    if (this.isSubmitGoing) {
+      return;
+    }
+    this.isSubmitGoing = true;
+    this.node.name = this.form.value.name;
+    this.node.ip = this.form.value.ip;
+    this.node.username = this.form.value.username;
+    this.node.password = this.form.value.password;
+    this.node.comment = this.form.value.comment;
+
+    this.nodeService.createNode(this.currentCluster.name, this.node).subscribe(data => {
+      this.isSubmitGoing = false;
+      this.create.emit(true);
+      this.tipService.showTip('创建节点 ' + this.node.name + '成功', TipLevels.SUCCESS);
+      this.createNodeOpened = false;
+    });
   }
 
   newNode() {
+    this.node = new Node();
     this.createNodeOpened = true;
   }
 

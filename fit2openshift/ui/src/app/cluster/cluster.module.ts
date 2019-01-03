@@ -7,6 +7,7 @@ import {ClusterService} from './cluster.service';
 import {ClusterDetailComponent} from './cluster-detail/cluster-detail.component';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {TipModule} from '../tip/tip.module';
+import {ClusterRoutingResolverService} from './cluster-routing-resolver.service';
 
 @NgModule({
   declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent],
@@ -15,7 +16,7 @@ import {TipModule} from '../tip/tip.module';
     TipModule,
     CoreModule
   ],
-  providers: [ClusterService]
+  providers: [ClusterService, ClusterRoutingResolverService]
 })
 export class ClusterModule {
 }

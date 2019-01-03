@@ -2,7 +2,7 @@
 <nav class="subnav sub-nav-bg-color">
   <ul class="nav">
     <li class="nav-item">
-      <a class="nav-link" routerLink="overview" routerLinkActive="active">概览</a>
+      <a class="nav-link" [queryParams]="currentCluster" routerLink="overview" routerLinkActive="active">概览</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" routerLink="node" routerLinkActive="active">节点</a>

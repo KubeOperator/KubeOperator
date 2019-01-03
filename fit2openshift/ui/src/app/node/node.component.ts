@@ -2,6 +2,8 @@ import {Component, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {NodeService} from './node.service';
 import {NodeCreateComponent} from './node-create/node-create.component';
 import {NodeListComponent} from './node-list/node-list.component';
+import {ActivatedRoute} from '@angular/router';
+import {Cluster} from '../cluster/cluster';
 
 @Component({
   selector: 'app-node',
@@ -16,7 +18,9 @@ export class NodeComponent implements OnInit {
   @ViewChild(NodeListComponent)
   listNode: NodeListComponent;
 
-  constructor() {
+  private currentCluster: Cluster;
+
+  constructor(private route: ActivatedRoute) {
   }
 
   openModal() {
@@ -34,6 +38,9 @@ export class NodeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.route.parent.data.subscribe(data => {
+      this.currentCluster = data['cluster'];
+    });
   }
 
 

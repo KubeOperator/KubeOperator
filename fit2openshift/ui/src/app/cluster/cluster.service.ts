@@ -20,8 +20,8 @@ export class ClusterService {
       catchError(error => throwError(error)));
   }
 
-  getCluster(clusterId): Observable<Cluster> {
-    return this.http.get<Cluster>(`${baseClusterUrl}/${clusterId}`).pipe(
+  getCluster(clusterName): Observable<Cluster> {
+    return this.http.get<Cluster>(`${baseClusterUrl}/${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
   }

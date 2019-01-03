@@ -55,8 +55,8 @@ export class ClusterListComponent implements OnInit {
     this.addCluster.emit();
   }
 
-  goToLink(clusterId: string) {
-    const linkUrl = ['fit2openshift', 'cluster', clusterId, 'overview'];
+  goToLink(clusterName: string) {
+    const linkUrl = ['fit2openshift', 'cluster', clusterName, 'overview'];
     this.router.navigate(linkUrl);
   }
 
