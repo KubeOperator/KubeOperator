@@ -7,10 +7,7 @@ import json
 import yaml
 import git
 import requests
-<<<<<<< HEAD
 import shutil
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 from celery import current_task
 from django.db import models
@@ -136,20 +133,15 @@ class Play(AbstractProjectResourceModel):
 
 
 class Playbook(AbstractProjectResourceModel):
-<<<<<<< HEAD
     TYPE_JSON, TYPE_TEXT, TYPE_FILE, TYPE_GIT, TYPE_HTTP, TYPE_LOCAL = (
         'json', 'text', 'file', 'git', 'http', 'local',
     )
-=======
-    TYPE_JSON, TYPE_TEXT, TYPE_FILE, TYPE_GIT, TYPE_HTTP = ('json', 'text', 'file', 'git', 'http')
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     TYPE_CHOICES = (
         (TYPE_JSON, TYPE_JSON),
         (TYPE_TEXT, TYPE_TEXT),
         (TYPE_FILE, TYPE_FILE),
         (TYPE_GIT, TYPE_GIT),
         (TYPE_HTTP, TYPE_HTTP),
-<<<<<<< HEAD
         (TYPE_LOCAL, TYPE_LOCAL),
     )
     UPDATE_POLICY_ALWAYS, UPDATE_POLICY_IF_NOT_PRESENT, UPDATE_POLICY_NEVER = ('always', 'if_not_present', 'never')
@@ -157,14 +149,6 @@ class Playbook(AbstractProjectResourceModel):
         (UPDATE_POLICY_IF_NOT_PRESENT, _('Always')),
         (UPDATE_POLICY_ALWAYS, _("If not present")),
         (UPDATE_POLICY_NEVER, _("Never")),
-=======
-    )
-    PULL_POLICY_ALWAYS, PULL_POLICY_IF_NOT_PRESENT, PULL_POLICY_NEVER = ('always', 'if_not_present', 'never')
-    PULL_POLICY_CHOICES = (
-        (PULL_POLICY_IF_NOT_PRESENT, _('Always')),
-        (PULL_POLICY_ALWAYS, _("If not present")),
-        (PULL_POLICY_NEVER, _("Never")),
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     )
     name = models.SlugField(max_length=128, allow_unicode=True, verbose_name=_('Name'))
     alias = models.CharField(max_length=128, blank=True, default='site.yml')
@@ -172,11 +156,7 @@ class Playbook(AbstractProjectResourceModel):
     plays = models.ManyToManyField('Play', verbose_name='Plays')
     git = common_models.JsonDictCharField(max_length=4096, default={'repo': '', 'branch': 'master'})
     url = models.URLField(verbose_name=_("http url"), blank=True)
-<<<<<<< HEAD
     update_policy = models.CharField(choices=UPDATE_POLICY_CHOICES, max_length=16, default=UPDATE_POLICY_IF_NOT_PRESENT)
-=======
-    pull_policy = models.CharField(choices=PULL_POLICY_CHOICES, max_length=16, default=PULL_POLICY_IF_NOT_PRESENT)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
     # Extra schedule content
     is_periodic = models.BooleanField(default=False, verbose_name=_("Enable"))
@@ -196,26 +176,15 @@ class Playbook(AbstractProjectResourceModel):
     def __str__(self):
         return '{}-{}'.format(self.project, self.name)
 
-<<<<<<< HEAD
     def playbook_dir(self, auto_create=True):
         path = os.path.join(self.project.playbooks_dir, str(self.name))
         if not os.path.isdir(path) and auto_create:
             os.makedirs(path, exist_ok=True)
-=======
-    @property
-    def playbook_dir(self):
-        path = os.path.join(self.project.playbooks_dir, str(self.name))
-        os.makedirs(path, exist_ok=True)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         return path
 
     @property
     def playbook_path(self):
-<<<<<<< HEAD
         path = os.path.join(self.playbook_dir(), self.alias)
-=======
-        path = os.path.join(self.playbook_dir, self.alias)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         return path
 
     @property
@@ -234,27 +203,16 @@ class Playbook(AbstractProjectResourceModel):
             success, error = False, 'Not repo get'
             return success, error
         try:
-<<<<<<< HEAD
             if os.path.isdir(os.path.join(self.playbook_dir(), '.git')):
                 if self.update_policy == self.UPDATE_POLICY_ALWAYS:
                     print("Update playbook from: {}".format(self.git.get('repo')))
                     repo = git.Repo(self.playbook_dir())
-=======
-            if os.path.isdir(os.path.join(self.playbook_dir, '.git')):
-                if self.pull_policy == self.PULL_POLICY_ALWAYS:
-                    print("Update playbook from: {}".format(self.git.get('repo')))
-                    repo = git.Repo(self.playbook_dir)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
                     remote = repo.remote()
                     remote.pull()
             else:
                 print("Install playbook from: {}".format(self.git.get('repo')))
                 git.Repo.clone_from(
-<<<<<<< HEAD
                     self.git['repo'], self.playbook_dir(),
-=======
-                    self.git['repo'], self.playbook_dir,
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
                     branch=self.git.get('branch'), depth=1,
                 )
         except Exception as e:
@@ -262,17 +220,10 @@ class Playbook(AbstractProjectResourceModel):
         return success, error
 
     def install_from_http(self):
-<<<<<<< HEAD
         if os.listdir(self.playbook_dir()):
             os.removedirs(self.playbook_dir())
         r = requests.get(self.url)
         tmp_file_path = os.path.join(self.playbook_dir(), 'tmp')
-=======
-        if os.listdir(self.playbook_dir):
-            os.removedirs(self.playbook_dir)
-        r = requests.get(self.url)
-        tmp_file_path = os.path.join(self.playbook_dir, 'tmp')
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         with open(tmp_file_path, 'wb') as f:
             f.write(r.content)
         # TODO: compress it
@@ -286,7 +237,6 @@ class Playbook(AbstractProjectResourceModel):
             f.write(self.get_plays_data(fmt='yaml'))
         return True, None
 
-<<<<<<< HEAD
     def install_from_local(self):
         playbook_dir = self.playbook_dir(auto_create=False)
         if self.update_policy == self.UPDATE_POLICY_NEVER:
@@ -304,29 +254,18 @@ class Playbook(AbstractProjectResourceModel):
             return False, e
         return True, None
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     def install(self):
         if self.type == self.TYPE_JSON:
             return self.install_from_plays()
         elif self.type == self.TYPE_GIT:
             return self.install_from_git()
-<<<<<<< HEAD
         elif self.type == self.TYPE_LOCAL:
             return self.install_from_local()
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         else:
             return False, 'Not support {}'.format(self.type)
 
     def execute(self):
-<<<<<<< HEAD
         pk = current_task.request.id if current_task else None
-=======
-        pk = None
-        if current_task:
-            pk = current_task.request.id
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         execution = PlaybookExecution(playbook=self, pk=pk)
         execution.save()
         result = execution.start()
@@ -362,11 +301,7 @@ class Playbook(AbstractProjectResourceModel):
 
     def cleanup(self):
         self.remove_period_task()
-<<<<<<< HEAD
         shutil.rmtree(self.playbook_dir(), ignore_errors=True)
-=======
-        shutil.rmtree(self.playbook_dir, ignore_errors=True)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 
 class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
@@ -386,11 +321,7 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             result["summary"] = {"error": str(err)}
             post_execution_start.send(self.__class__, execution=self, result=result)
             return result
-<<<<<<< HEAD
         os.chdir(self.playbook.playbook_dir())
-=======
-        os.chdir(self.playbook.playbook_dir)
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         try:
             runner = PlayBookRunner(
                 self.project.inventory_obj,

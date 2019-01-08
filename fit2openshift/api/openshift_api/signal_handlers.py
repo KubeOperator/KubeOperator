@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -43,15 +42,3 @@ def on_execution_end(sender, execution, result, **kwargs):
 
 
 auto_lookup_packages()
-=======
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
-
-from ansible_api.models import Group
-from .models import Role
-
-
-@receiver(m2m_changed, sender=Group.hosts.through)
-def on_role_hosts_change(sender, action, instance, reverse, model, pk_set, **kwargs):
-    Role.update_node_group_labels()
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce

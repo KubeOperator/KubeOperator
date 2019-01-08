@@ -9,23 +9,15 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-<<<<<<< HEAD
 
 import os
 import datetime
-=======
-import datetime
-import os
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
-<<<<<<< HEAD
 #添加离线包路径
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -93,7 +85,6 @@ ASGI_APPLICATION = 'fit2ansible.routing.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-<<<<<<< HEAD
         'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3'),
         'OPTIONS': {
             'timeout': 20
@@ -102,12 +93,6 @@ DATABASES = {
 }
 
 
-=======
-        'NAME': os.path.join(BASE_DIR, 'data', 'db.sqlite3')
-    }
-}
-
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -126,10 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -143,10 +125,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -159,10 +138,7 @@ REDIS_PORT = 6379
 REDIS_PASSWORD = ""
 LOGIN_URL = '/admin/login'
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
@@ -216,13 +192,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-<<<<<<< HEAD
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-=======
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     ),
     'ORDERING_PARAM': "order",
     'SEARCH_PARAM': "search",
@@ -236,10 +207,7 @@ SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'fit2ansible.swagger.CustomSwaggerAutoSchema',
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -252,9 +220,5 @@ CHANNEL_LAYERS = {
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3600),
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
-<<<<<<< HEAD
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
-=======
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'openshift_api.utils.jwt_response_payload_handler',
->>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 }
