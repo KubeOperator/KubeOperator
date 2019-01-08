@@ -5,7 +5,7 @@ import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
 
-const baseClusterUrl = '/api/v1/cluster/';
+const baseClusterUrl = '/api/v1/clusters/';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +20,8 @@ export class ClusterService {
       catchError(error => throwError(error)));
   }
 
-  getCluster(clusterId): Observable<Cluster> {
-    return this.http.get<Cluster>(`${baseClusterUrl}/${clusterId}`).pipe(
+  getCluster(clusterName): Observable<Cluster> {
+    return this.http.get<Cluster>(`${baseClusterUrl}/${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
   }
@@ -32,8 +32,8 @@ export class ClusterService {
     );
   }
 
-  deleteCluster(clusterId): Observable<any> {
-    return this.http.delete(`${baseClusterUrl}/${clusterId}`).pipe(
+  deleteCluster(clusterName): Observable<any> {
+    return this.http.delete(`${baseClusterUrl}/${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
   }

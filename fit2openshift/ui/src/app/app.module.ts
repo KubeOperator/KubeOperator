@@ -15,6 +15,7 @@ import {NodeModule} from './node/node.module';
 import {ConfigModule} from './config/config.module';
 import {MonitorModule} from './monitor/monitor.module';
 import {LogModule} from './log/log.module';
+import {TipModule} from './tip/tip.module';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import {LogModule} from './log/log.module';
     NodeModule,
     ConfigModule,
     LogModule,
-    MonitorModule
+    MonitorModule,
+    TipModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

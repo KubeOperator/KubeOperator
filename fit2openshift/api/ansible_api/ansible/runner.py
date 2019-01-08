@@ -93,7 +93,11 @@ class AdHocRunner:
     variable_manager_class = VariableManager
     default_options = get_default_options()
     options = None
+<<<<<<< HEAD
     command_modules_choices = ('shell', 'raw', 'command', 'script', 'win_shell')
+=======
+    command_modules_choices = ('shell', 'raw', 'command', 'script')
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
     def __init__(self, inventory, options=None, stdout=None):
         self.options = self.get_options(options)
@@ -137,6 +141,7 @@ class AdHocRunner:
                 "pattern: %s  dose not match any hosts." % pattern
             )
 
+<<<<<<< HEAD
     def clean_args(self, module, args):
         if module not in self.command_modules_choices:
             return args
@@ -151,14 +156,20 @@ class AdHocRunner:
         else:
             return args
 
+=======
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     def clean_tasks(self, tasks):
         cleaned_tasks = []
         for task in tasks:
             module = task['action']['module']
             args = task['action'].get('args')
+<<<<<<< HEAD
             cleaned_args = self.clean_args(module, args)
             task['args'] = cleaned_args
             self.check_module_args(module, cleaned_args)
+=======
+            self.check_module_args(module, args)
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
             cleaned_tasks.append(task)
         return cleaned_tasks
 

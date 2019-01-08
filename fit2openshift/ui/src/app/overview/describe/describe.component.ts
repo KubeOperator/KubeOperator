@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {Cluster} from '../../cluster/cluster';
 
 @Component({
   selector: 'app-describe',
@@ -7,9 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DescribeComponent implements OnInit {
 
-  constructor() { }
+  @Input() currentCluster: Cluster;
+
+  constructor() {
+  }
 
   ngOnInit() {
+    console.log(this.currentCluster);
   }
 
 }

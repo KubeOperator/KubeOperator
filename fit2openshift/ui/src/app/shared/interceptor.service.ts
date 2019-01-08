@@ -1,11 +1,14 @@
 import {Injectable} from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {mergeMap} from 'rxjs/operators';
+import {MessageService} from '../base/message.service';
+import {MessageLevels} from '../base/message/message-level';
 
 @Injectable()
 export class InterceptorService implements HttpInterceptor {
 
-  constructor() {
+  constructor(private messageService: MessageService) {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -22,7 +25,14 @@ export class InterceptorService implements HttpInterceptor {
       });
     }
 
-    return next.handle(req);
+    return next.handle(req).pipe(
+      mergeMap((event: any) => {
+        if (event instanceof HttpResponse && event.status >= 400) {
+          this.messageService.announceMessage(event.statusText, MessageLevels.ERROR);
+        }
+        return Observable.create(observer => observer.next(event));
+      })
+    );
   }
 
 

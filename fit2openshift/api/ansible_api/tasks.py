@@ -6,7 +6,11 @@ from common.utils import get_object_or_none
 from .models import Playbook, AdHoc, Role, PlaybookExecution, AdHocExecution
 from .ansible.runner import AdHocRunner
 from .ctx import set_current_project, change_to_root
+<<<<<<< HEAD
 from .inventory import WithHostInfoInventory
+=======
+from .inventory import AnsibleUIDataInventory
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 logger = logging.getLogger(__file__)
 
@@ -74,6 +78,7 @@ def install_role(tid, **kwargs):
 
 
 @shared_task
+<<<<<<< HEAD
 def run_im_adhoc(adhoc_data, inventory_data):
     inventory = WithHostInfoInventory(inventory_data)
     runner = AdHocRunner(inventory)
@@ -82,6 +87,15 @@ def run_im_adhoc(adhoc_data, inventory_data):
     args = adhoc_data.get('args') or ''
     tasks = [{'action': {'module': module, 'args': args}}]
     result = runner.run(tasks, pattern=pattern)
+=======
+def run_adhoc_raw(adhoc_data, inventory_data):
+    inventory = AnsibleUIDataInventory(inventory_data)
+    runner = AdHocRunner(inventory)
+    adhoc = AdHoc(pattern=adhoc_data.get('pattern'),
+                  module=adhoc_data.get('module'),
+                  args=adhoc_data.get('args'))
+    result = runner.run(adhoc.tasks, pattern=adhoc.pattern)
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     return result
 
 

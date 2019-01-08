@@ -13,6 +13,7 @@ import {NodeComponent} from './node/node.component';
 import {LogComponent} from './log/log.component';
 import {ConfigComponent} from './config/config.component';
 import {MonitorComponent} from './monitor/monitor.component';
+import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.service';
 
 const routes: Routes = [
   {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
@@ -23,14 +24,16 @@ const routes: Routes = [
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],
     children: [
-      {path: '', redirectTo: 'offline', pathMatch: 'full'},
+      {path: '', redirectTo: 'cluster', pathMatch: 'full'},
       {path: 'cluster', component: ClusterComponent},
       {path: 'offline', component: OfflineComponent},
       {path: 'user', component: UserComponent},
       {
-        path: 'cluster/:id',
+        path: 'cluster/:name',
         component: ClusterDetailComponent,
+        resolve: {cluster: ClusterRoutingResolverService},
         children: [
+          {path: '', redirectTo: 'overview', pathMatch: 'full'},
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'log', component: LogComponent},

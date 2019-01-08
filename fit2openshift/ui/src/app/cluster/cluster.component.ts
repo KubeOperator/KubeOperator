@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
+import {ClusterListComponent} from './cluster-list/cluster-list.component';
+import {Cluster} from './cluster';
 
 @Component({
   selector: 'app-cluster',
@@ -7,9 +10,26 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ClusterComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(ClusterCreateComponent)
+  creationCluster: ClusterCreateComponent;
+
+  @ViewChild(ClusterListComponent)
+  listCluster: ClusterListComponent;
+
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
 
+  openModal(): void {
+    this.creationCluster.newCluster();
+  }
+
+  createCluster(created: boolean) {
+    if (created) {
+      this.listCluster.listCluster();
+    }
+  }
 }

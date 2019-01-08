@@ -5,7 +5,11 @@ from .ansible.inventory import BaseInventory
 
 
 __all__ = [
+<<<<<<< HEAD
     'AdHocInventory', 'LocalModelInventory'
+=======
+    'AdHocInventory', 'AnsibleUIInventory'
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 ]
 
 
@@ -222,11 +226,16 @@ class JMSInventory(BaseInventory):
         return {"ansible_ssh_common_args": proxy_command}
 
 
+<<<<<<< HEAD
 class LocalModelInventory(BaseInventory):
     def __init__(self, inventory):
         """
         :param inventory: .models Inventory Object
         """
+=======
+class AnsibleUIInventory(BaseInventory):
+    def __init__(self, inventory):
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         self.inventory = inventory
         data = self.parse_resource()
         super().__init__(data)
@@ -268,9 +277,15 @@ class LocalModelInventory(BaseInventory):
         return groups
 
 
+<<<<<<< HEAD
 class WithHostInfoInventory(BaseInventory):
     def __init__(self, inventory_data):
         self.inventory_data = inventory_data
+=======
+class AnsibleUIDataInventory(BaseInventory):
+    def __init__(self, inventory):
+        self.inventory = inventory
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         data = self.parse_resource()
         super().__init__(data)
 
@@ -281,7 +296,11 @@ class WithHostInfoInventory(BaseInventory):
 
     def _parse_hosts(self):
         hosts = []
+<<<<<<< HEAD
         _hosts = self.inventory_data.get('hosts', [])
+=======
+        _hosts = self.inventory.get('hosts', [])
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         for host in _hosts:
             _vars = host.get('vars', {})
             _vars.update({
@@ -298,7 +317,11 @@ class WithHostInfoInventory(BaseInventory):
 
     def _parse_groups(self):
         groups = []
+<<<<<<< HEAD
         for group in self.inventory_data.get('groups', []):
+=======
+        for group in self.inventory.get('groups', []):
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
             groups.append({
                 'name': group.get('name'),
                 'vars': group.get('vars', {}),

@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Log} from '../log';
+import {LogService} from '../log.service';
 
 @Component({
   selector: 'app-log-list',
@@ -12,7 +13,7 @@ export class LogListComponent implements OnInit {
   logs: Log[] = [];
   @Input() clusterId: string;
 
-  constructor() {
+  constructor(private logService: LogService) {
   }
 
   ngOnInit() {
@@ -20,12 +21,32 @@ export class LogListComponent implements OnInit {
   }
 
   listLog() {
-    const log: Log = new Log();
-    log.date = '2018-12-11 09:33:33';
-    log.level = 'INFO';
-    log.message = 'create a job ......';
-    this.logs.push(log);
-    this.loading = false;
+    this.loading = true;
+    this.logService.getLogs(this.clusterId).subscribe(data => {
+      this.loading = false;
+      this.logs = data;
+    }, error => {
+      this.loading = false;
+    });
   }
 
+  getColor(log: Log): string {
+    const warn = '#FCFCAD';
+    const error = '#FFAAAA';
+    const info = '#AAFFCC';
+    console.log(log.level)
+    switch (log.level) {
+      case 'INFO':
+        return info;
+      case 'WARN':
+        return warn;
+      case 'ERROR':
+        return error;
+    }
+
+  }
+
+  refresh() {
+    this.listLog();
+  }
 }

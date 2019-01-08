@@ -1,36 +1,48 @@
 <h5>节点配置</h5>
-<clr-datagrid [clrDgLoading]="loading">
-  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="ip">IP</clr-dg-column>
-  <clr-dg-column [clrDgField]="status">状态</clr-dg-column>
-  <clr-dg-column [clrDgField]="status">角色</clr-dg-column>
+<!--<clr-datagrid [clrDgLoading]="loading">-->
+<!--<clr-dg-column [clrDgField]="name">名称</clr-dg-column>-->
+<!--<clr-dg-column [clrDgField]="ip">IP</clr-dg-column>-->
+<!--<clr-dg-column [clrDgField]="status">状态</clr-dg-column>-->
+<!--<clr-dg-column [clrDgField]="status">角色</clr-dg-column>-->
 
 
-  <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
-    <clr-dg-cell>{{node.name}}</clr-dg-cell>
-    <clr-dg-cell>{{node.ip}}</clr-dg-cell>
-    <clr-dg-cell>{{node.status}}</clr-dg-cell>
-
-    <clr-dg-cell>
+<clr-stack-view style="margin-top: 20px">
+  <clr-stack-block *ngFor="let node of nodes">
+    <clr-stack-label>{{node.name}}</clr-stack-label>
+    <clr-stack-label>-</clr-stack-label>
+    <clr-stack-label>{{node.ip}}</clr-stack-label>
+    <clr-stack-content>
       <div class="clr-control-container clr-control-inline">
-        <div class="clr-checkbox-wrapper">
-          <input type="checkbox" id="vertical-checkbox1" name="checkbox-full" value="option1" class="clr-checkbox">
-          <label for="vertical-checkbox1" class="clr-control-label">master</label>
-        </div>
-        <div class="clr-checkbox-wrapper">
-          <input type="checkbox" id="vertical-checkbox2" name="checkbox-full" value="option1" class="clr-checkbox">
-          <label for="vertical-checkbox1" class="clr-control-label">node</label>
-        </div>
-        <div class="clr-checkbox-wrapper">
-          <input type="checkbox" id="vertical-checkbox3" name="checkbox-full" value="option1" class="clr-checkbox">
-          <label for="vertical-checkbox1" class="clr-control-label">etcd</label>
+        <div class="clr-checkbox-wrapper" *ngFor="let role of roles">
+          <input type="checkbox" id="{{role.id}}"
+                 class="clr-checkbox">
+          <label for="{{role.id}}" class="clr-control-label">{{role.name}}</label>
         </div>
       </div>
-    </clr-dg-cell>
-  </clr-dg-row>
+    </clr-stack-content>
+    <clr-stack-block>
+      <clr-stack-label style="padding-top: 20px">label name:</clr-stack-label>
+      <clr-stack-content>
+        <clr-input-container>
+          <input clrInput type="text" placeholder="label value">
+        </clr-input-container>
+      </clr-stack-content>
+    </clr-stack-block>
+  </clr-stack-block>
+</clr-stack-view>
 
-  <clr-dg-footer>
+<!--<clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">-->
+<!--<clr-dg-cell>{{node.name}}</clr-dg-cell>-->
+<!--<clr-dg-cell>{{node.ip}}</clr-dg-cell>-->
+<!--<clr-dg-cell>{{node.status}}</clr-dg-cell>-->
 
-  </clr-dg-footer>
+<!--<clr-dg-cell>-->
 
-</clr-datagrid>
+<!--</clr-dg-cell>-->
+<!--</clr-dg-row>-->
+
+<!--<clr-dg-footer>-->
+
+<!--</clr-dg-footer>-->
+
+<!--</clr-datagrid>-->

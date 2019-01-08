@@ -13,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 LOG_DIR = os.path.join(BASE_DIR, 'data', 'celery')
 VENV = os.environ.get('VENV')
+<<<<<<< HEAD
 if VENV:
     OLD_PATH = os.environ.get('PATH')
     NEW_PATH = "{}:{}".format(os.path.join(VENV, 'bin'), OLD_PATH)
@@ -21,6 +22,14 @@ if VENV:
 else:
     PYTHON_EXE = 'python'
 sys.path.append(BASE_DIR)
+=======
+OLD_PATH = os.environ.get('PATH')
+NEW_PATH = "{}:{}".format(os.path.join(VENV, 'bin'), OLD_PATH)
+PYTHON_EXE = os.path.join(VENV, 'bin', 'python')
+sys.path.append(BASE_DIR)
+os.environ["PATH"] = NEW_PATH
+
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
@@ -29,7 +38,11 @@ DAEMON = False
 LOG_LEVEL = 'INFO'
 
 EXIT_EVENT = threading.Event()
+<<<<<<< HEAD
 all_services = ['redis', 'gunicorn', 'celery', 'beat']
+=======
+all_services = ['redis', 'django', 'celery', 'beat']
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
 try:
     os.makedirs(os.path.join(BASE_DIR, "data", "static"), exist_ok=True)
@@ -117,13 +130,21 @@ def start_redis():
     return p
 
 
+<<<<<<< HEAD
 def start_gunicorn():
+=======
+def start_django():
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
     service = 'gunicorn'
     bind = '{}:{}'.format('0.0.0.0', 8080)
     log_format = '%(h)s %(t)s "%(r)s" %(s)s %(b)s '
     pid_file = get_pid_file_path(service)
+<<<<<<< HEAD
+=======
+    log_file = get_log_file_path(service)
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     cmd = [
         'gunicorn', 'fit2ansible.wsgi',
         '-b', bind,
@@ -201,7 +222,11 @@ def start_service(s):
     print(time.ctime())
     services_handler = {
          "redis": start_redis,
+<<<<<<< HEAD
          "gunicorn": start_gunicorn,
+=======
+         "django": start_django,
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
          "celery": start_celery,
          "beat": start_beat
     }
@@ -295,7 +320,11 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
+<<<<<<< HEAD
         choices=("all", "gunicorn", "celery", "beat", "redis"),
+=======
+        choices=("all", "django", "celery", "beat", "redis"),
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)

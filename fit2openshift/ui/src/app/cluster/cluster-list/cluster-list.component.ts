@@ -1,7 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Cluster} from '../cluster';
 import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
+import {TipService} from '../../tip/tip.service';
+import {TipLevels} from '../../tip/tipLevels';
 
 @Component({
   selector: 'app-cluster-list',
@@ -12,9 +14,10 @@ export class ClusterListComponent implements OnInit {
 
   loading = true;
   clusters: Cluster[] = [];
-  selectedRow: Cluster[] = [];
+  selected: Cluster[] = [];
+  @Output() addCluster = new EventEmitter<void>();
 
-  constructor(private clusterService: ClusterService, private router: Router) {
+  constructor(private clusterService: ClusterService, private router: Router, private tipService: TipService) {
   }
 
   ngOnInit() {
@@ -30,8 +33,30 @@ export class ClusterListComponent implements OnInit {
     });
   }
 
-  goToLink(clusterId: string) {
-    const linkUrl = ['fit2openshift', 'cluster', clusterId, 'overview'];
+  deleteClusters() {
+    if (!(this.selected.length > 0)) {
+      this.tipService.showTip('请选择要删除的集群!', TipLevels.ERROR);
+      return;
+    }
+    this.loading = true;
+    this.selected.forEach(cluster => {
+      let flag = false;
+      this.clusterService.deleteCluster(cluster.name).subscribe(data => {
+        flag = true;
+      });
+      while (!flag) {
+
+      }
+    });
+    this.loading = false;
+  }
+
+  addNewCluster() {
+    this.addCluster.emit();
+  }
+
+  goToLink(clusterName: string) {
+    const linkUrl = ['fit2openshift', 'cluster', clusterName, 'overview'];
     this.router.navigate(linkUrl);
   }
 

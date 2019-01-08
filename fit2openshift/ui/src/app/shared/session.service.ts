@@ -24,8 +24,12 @@ export class SessionService {
     return this.http.post<SessionUser>(authUserUrl, credential);
   }
 
-  getCacheUser() {
-    return localStorage.getItem('current_user');
+  getCacheUser(): SessionUser {
+    let currentUser = null;
+    if (localStorage.getItem('current_user') !== null) {
+      currentUser = JSON.parse(localStorage.getItem('current_user')).user;
+    }
+    return currentUser;
   }
 
   getUser(): Observable<SessionUser> {

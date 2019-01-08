@@ -2,13 +2,12 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot} from '@angular/router';
 import {Observable} from 'rxjs';
 import {SessionService} from '../session.service';
-import {MessageHandlerService} from '../message-handler/message-handler.service';
 import {CommonRoutes} from '../shared.const';
 
 @Injectable()
 export class AuthUserActiveService implements CanActivate, CanActivateChild {
 
-  constructor(private authService: SessionService, private router: Router, private msgHandler: MessageHandlerService) {
+  constructor(private authService: SessionService, private router: Router) {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {

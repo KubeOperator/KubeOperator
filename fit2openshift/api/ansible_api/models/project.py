@@ -19,10 +19,17 @@ __all__ = ['Project']
 class Project(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.SlugField(max_length=128, allow_unicode=True, unique=True, verbose_name=_('Name'))
+<<<<<<< HEAD
     # Run full_options, ex: forks,
     options = common_models.JsonCharField(max_length=1024, blank=True, null=True, verbose_name=_('Run options'))
     comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
     meta = common_models.JsonDictTextField(blank=True, null=True)
+=======
+    meta = common_models.JsonDictTextField(blank=True, null=True)
+    # Run full_options, ex: forks,
+    options = common_models.JsonCharField(max_length=1024, blank=True, null=True, verbose_name=_('Run options'))
+    comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
     created_by = models.CharField(max_length=128, blank=True, null=True, default='')
     date_created = models.DateTimeField(auto_now_add=True)
 

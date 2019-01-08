@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Cluster} from '../cluster';
+import {ClusterService} from '../cluster.service';
 
 @Component({
   selector: 'app-cluster-detail',
@@ -8,10 +10,15 @@ import {Router} from '@angular/router';
 })
 export class ClusterDetailComponent implements OnInit {
 
-  constructor(private router: Router) {
+  currentCluster: Cluster;
+
+  constructor(private router: Router, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.route.data.subscribe(data => {
+      this.currentCluster = data['cluster'];
+    });
   }
 
   backToCluster() {

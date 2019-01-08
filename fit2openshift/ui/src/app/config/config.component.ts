@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {Cluster} from '../cluster/cluster';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-config',
@@ -7,9 +9,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ConfigComponent implements OnInit {
 
-  constructor() { }
+  currentCluster: Cluster;
+
+  constructor(private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
+    this.route.parent.data.subscribe(data => {
+      this.currentCluster = data['cluster'];
+    });
   }
 
 }

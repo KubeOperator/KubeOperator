@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {NodeService} from '../../node/node.service';
 import {Node} from '../../node/node';
+import {Cluster} from '../../cluster/cluster';
+import {Role} from '../../node/role';
 
 @Component({
   selector: 'app-node-config',
@@ -9,31 +11,25 @@ import {Node} from '../../node/node';
 })
 export class NodeConfigComponent implements OnInit {
 
-  @Input() clusterId: string;
+  @Input() currentCluster: Cluster;
   nodes: Node[] = [];
+  roles: Role[] = [];
 
   constructor(private nodeService: NodeService) {
   }
 
   ngOnInit() {
     this.listNode();
+    this.listRole();
   }
 
   listNode() {
-    // this.nodeService.listNodes(this.clusterId).subscribe(data => this.nodes = data);
-    const node: Node = new Node();
-    node.name = 'master-1';
-    node.ip = '172.101.1.1';
-    node.roles = 'master';
-    node.status = 'running';
-    this.nodes.push(node);
-
-    const node2: Node = new Node();
-    node2.name = 'master-1';
-    node2.ip = '172.101.1.1';
-    node2.roles = 'master';
-    node2.status = 'running';
-    this.nodes.push(node2);
+    this.nodeService.listNodes(this.currentCluster.name)
+      .subscribe(data => this.nodes = data);
   }
 
+  listRole() {
+    this.nodeService.listRoles(this.currentCluster.name)
+      .subscribe(data => this.roles = data);
+  }
 }

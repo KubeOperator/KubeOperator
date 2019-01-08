@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Offline} from '../Offline';
 import {OfflineService} from '../offline.service';
+import {MessageLevels} from '../../base/message/message-level';
+import {TipService} from '../../tip/tip.service';
+import {TipLevels} from '../../tip/tipLevels';
 
 @Component({
   selector: 'app-offline-list',
@@ -13,7 +16,7 @@ export class OfflineListComponent implements OnInit {
   offlines: Offline[] = [];
   selectedRow: Offline[] = [];
 
-  constructor(private offlineService: OfflineService) {
+  constructor(private offlineService: OfflineService, private tipService: TipService) {
   }
 
   ngOnInit() {
@@ -21,10 +24,16 @@ export class OfflineListComponent implements OnInit {
   }
 
   listOfflines() {
+    this.loading = true;
     this.offlineService.listOfflines().subscribe(data => {
       this.offlines = data;
       this.loading = false;
     });
+  }
+
+  refresh() {
+    this.tipService.showTip('刷新成功', TipLevels.SUCCESS);
+    this.listOfflines();
   }
 
 }

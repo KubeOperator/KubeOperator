@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {User} from '../user';
 import {UserService} from '../user.service';
 
@@ -12,6 +12,7 @@ export class UserListComponent implements OnInit {
   loading = true;
   users: User[] = [];
   selectedRow: User[] = [];
+  @Output() addUser = new EventEmitter();
 
   constructor(private userService: UserService) {
   }
@@ -27,4 +28,11 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  addNewUser() {
+    this.addUser.emit();
+  }
+
+  refresh() {
+    this.listUser();
+  }
 }

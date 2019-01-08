@@ -10,7 +10,11 @@ class ProjectTestCase(BaseTestCase):
     def test_project_create(self):
         data = {
             "name": "Test project",
+<<<<<<< HEAD
             "inventory_data": {
+=======
+            "inventory": {
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
                 "groups": [
                     {
                         "name": "CentOS",
@@ -49,8 +53,13 @@ class ProjectTestCase(BaseTestCase):
         response = self.client.post_json(url, data)
         self.assertEqual(response.status_code, 201, "Response code not 201")
 
+<<<<<<< HEAD
         inventory = data.pop('inventory_data', None)
         inventory_resp = response.data.pop('inventory_data', None)
+=======
+        inventory = data.pop('inventory', None)
+        inventory_resp = response.data.pop('inventory', None)
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
 
         hosts = {i['hostname']: i for i in inventory.get('hosts')}
         hosts_resp = inventory_resp.get('hosts')

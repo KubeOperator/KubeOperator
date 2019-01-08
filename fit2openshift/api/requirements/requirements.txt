@@ -72,4 +72,9 @@ Werkzeug==0.14.1
 channels==2.1.5
 channels_redis==2.3.1
 gunicorn==19.9.0
+<<<<<<< HEAD
 djangorestframework-jwt==1.11.0
+=======
+djangorestframework-jwt
+
+>>>>>>> 9c76263301cfc6cf73a3338535563cc4b44211ce
