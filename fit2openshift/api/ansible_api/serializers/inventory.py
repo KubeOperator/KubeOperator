@@ -48,6 +48,7 @@ class HostReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
         model = Host
         extra_kwargs = {
             'password': {'write_only': True},
+            'username': {'write_only': True},
             'private_key': {'write_only': True},
         }
         read_only_fields = ['id']
@@ -138,7 +139,7 @@ class InventorySerializer(serializers.Serializer):
 
     def is_valid(self, raise_exception=False):
         if not self.initial_data:
-            raise serializers.ValidationError({"inventory": "inventory empty"})
+            raise serializers.ValidationError({"inventory_data": "inventory_data empty"})
         self._save_point = transaction.savepoint()
         try:
             current_project.clear_inventory()

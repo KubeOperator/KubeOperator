@@ -6,11 +6,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from common import models as common_models
-from celery_api.utils import get_celery_task_log_path
 from ..ansible.runner import AdHocRunner
 from ..signals import pre_execution_start, post_execution_start
 from .mixins import AbstractProjectResourceModel, AbstractExecutionModel
-from .utils import format_result_as_list
 
 
 __all__ = ['AdHoc', 'AdHocExecution']
@@ -24,10 +22,8 @@ class AdHoc(AbstractProjectResourceModel):
     execute_times = models.IntegerField(default=0)
     created_by = models.CharField(max_length=128, blank=True, null=True, default='')
 
-    COMMAND_MODULES = ('shell', 'command', 'raw')
-
     def __str__(self):
-        return "{}: {}".format(self.module, self.clean_args)
+        return "{}: {}".format(self.module, self.args)
 
     def execute(self):
         pk = None
@@ -39,25 +35,12 @@ class AdHoc(AbstractProjectResourceModel):
         return result
 
     @property
-    def clean_args(self):
-        if self.module in self.COMMAND_MODULES and isinstance(self.args, str):
-            if self.args.startswith('executable='):
-                _args = self.args.split(' ')
-                executable, command = _args[0].split('=')[1], ' '.join(_args[1:])
-                args = {'executable': executable, '_raw_params':  command}
-            else:
-                args = {'_raw_params':  self.args}
-            return args
-        else:
-            return self.args
-
-    @property
     def tasks(self):
         return [{
             "name": self.__str__(),
             "action": {
                 "module": self.module,
-                "args": self.clean_args,
+                "args": self.args,
             },
         }]
 

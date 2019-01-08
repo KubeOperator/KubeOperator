@@ -5,7 +5,7 @@ from .ansible.inventory import BaseInventory
 
 
 __all__ = [
-    'AdHocInventory', 'AnsibleUIInventory'
+    'AdHocInventory', 'LocalModelInventory'
 ]
 
 
@@ -222,8 +222,11 @@ class JMSInventory(BaseInventory):
         return {"ansible_ssh_common_args": proxy_command}
 
 
-class AnsibleUIInventory(BaseInventory):
+class LocalModelInventory(BaseInventory):
     def __init__(self, inventory):
+        """
+        :param inventory: .models Inventory Object
+        """
         self.inventory = inventory
         data = self.parse_resource()
         super().__init__(data)
@@ -265,9 +268,9 @@ class AnsibleUIInventory(BaseInventory):
         return groups
 
 
-class AnsibleUIDataInventory(BaseInventory):
-    def __init__(self, inventory):
-        self.inventory = inventory
+class WithHostInfoInventory(BaseInventory):
+    def __init__(self, inventory_data):
+        self.inventory_data = inventory_data
         data = self.parse_resource()
         super().__init__(data)
 
@@ -278,7 +281,7 @@ class AnsibleUIDataInventory(BaseInventory):
 
     def _parse_hosts(self):
         hosts = []
-        _hosts = self.inventory.get('hosts', [])
+        _hosts = self.inventory_data.get('hosts', [])
         for host in _hosts:
             _vars = host.get('vars', {})
             _vars.update({
@@ -295,7 +298,7 @@ class AnsibleUIDataInventory(BaseInventory):
 
     def _parse_groups(self):
         groups = []
-        for group in self.inventory.get('groups', []):
+        for group in self.inventory_data.get('groups', []):
             groups.append({
                 'name': group.get('name'),
                 'vars': group.get('vars', {}),

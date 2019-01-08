@@ -1,0 +1,86 @@
+name: example
+version: 3.11
+install_playbooks:
+  - name: 1-prepaire
+    alias: prepare.yml
+  - name: 2-run-prequisites
+    alias: openshift-ansible/playbooks/prerequisites.yml
+  - name: 3-deploy-cluster
+    alias: openshift-ansible/playbooks/deploy_cluster.yml
+upgrade_playbooks: upgrade.yml
+configs:
+  - name: openshift_master_cluster_hostname
+    alias: 域名
+    type: Input
+    default: master.fit2openshift.com
+    required: true
+    help_text: 访问的fit2openshift的域名
+
+  - name: openshift_master_default_subdomain
+    alias: 子域名后缀
+    type: Input
+    default: apps.test.example.com
+    required: true
+    help_text: 部署app后service的域名
+
+# 所有template公用的
+roles:
+  - name: etcd
+    children:
+      - masters
+    meta:
+      hidden: true
+  - name: OSEv3
+    meta:
+      hidden: true
+    vars:
+      openshift_deployment_type: origin
+      openshift_release: 3.11
+      openshift_master_identity_providers:
+        - name: htpasswd_auth
+          login: true
+          challenge: true
+          kind: HTPasswdPasswordIdentityProvider
+      openshift_disable_check: disk_availability,docker_storage,memory_availability,docker_image_availability
+
+templates:
+  - name: 单节点
+    roles:
+    - name: masters
+      vars:
+        openshift_node_group_name: node-config-all-in-one
+      meta:
+        hidden: false
+        nodes_require:
+          - '='
+          - 1
+    - name: nodes
+      children:
+        - masters
+      meta:
+        hidden: true
+
+  - name: 一主多节点
+    roles:
+    - name: masters
+      vars:
+        openshift_node_group_name: node-config-master-infra
+      meta:
+        hidden: false
+        nodes_require:
+          - '='
+          - 1
+    - name: cumpute
+      meta:
+        hidden: false
+        nodes_require:
+          - '>'
+          - 2
+    - name: nodes
+      children:
+        - masters
+        - compute
+      meta:
+        hidden: false
+
+

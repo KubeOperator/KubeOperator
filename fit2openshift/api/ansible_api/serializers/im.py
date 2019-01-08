@@ -22,7 +22,7 @@ class IMBaseSerializer(serializers.Serializer):
     def check_inventory(self):
         hosts = self.initial_data.get("inventory", {}).get("hosts")
         if not hosts:
-            raise serializers.ValidationError({"inventory", "hosts is null"})
+            raise serializers.ValidationError("hosts is null")
 
         for host in hosts:
             if not host.get('name'):
@@ -74,16 +74,14 @@ class IMAdHocSerializer(IMBaseSerializer):
     inv_serializer = None
 
     def create(self, validated_data):
-        self.create_inventory()
-        adhoc = self.create_adhoc()
-        return adhoc
+        pass
 
     def is_valid(self, raise_exception=False):
         adhoc_data = self.initial_data.get('adhoc')
         if not adhoc_data.get("pattern"):
-            raise serializers.ValidationError({"pattern": "pattern is null"})
+            raise serializers.ValidationError("pattern is null")
         elif not adhoc_data.get("module"):
-            raise serializers.ValidationError({"module": "module is null"})
+            raise serializers.ValidationError("module is null")
         return super().is_valid()
 
     def update(self, instance, validated_data):
