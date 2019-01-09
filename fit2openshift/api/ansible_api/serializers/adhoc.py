@@ -20,7 +20,7 @@ class AdHocReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdHoc
         fields = [
-            'id', 'pattern', 'module', 'args', 'project',
+            'id', 'pattern', 'module', 'args', 'project', 'summary', 'result'
         ]
         read_only_fields = (
             'id', 'created_by',

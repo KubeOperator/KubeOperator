@@ -13,12 +13,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 LOG_DIR = os.path.join(BASE_DIR, 'data', 'celery')
 VENV = os.environ.get('VENV')
-OLD_PATH = os.environ.get('PATH')
-NEW_PATH = "{}:{}".format(os.path.join(VENV, 'bin'), OLD_PATH)
-PYTHON_EXE = os.path.join(VENV, 'bin', 'python')
+if VENV:
+    OLD_PATH = os.environ.get('PATH')
+    NEW_PATH = "{}:{}".format(os.path.join(VENV, 'bin'), OLD_PATH)
+    os.environ["PATH"] = NEW_PATH
+    PYTHON_EXE = os.path.join(VENV, 'bin', 'python')
+else:
+    PYTHON_EXE = 'python'
 sys.path.append(BASE_DIR)
-os.environ["PATH"] = NEW_PATH
-
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
@@ -27,7 +29,7 @@ DAEMON = False
 LOG_LEVEL = 'INFO'
 
 EXIT_EVENT = threading.Event()
-all_services = ['redis', 'django', 'celery', 'beat']
+all_services = ['redis', 'gunicorn', 'celery', 'beat']
 
 try:
     os.makedirs(os.path.join(BASE_DIR, "data", "static"), exist_ok=True)
@@ -115,14 +117,13 @@ def start_redis():
     return p
 
 
-def start_django():
+def start_gunicorn():
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
     service = 'gunicorn'
     bind = '{}:{}'.format('0.0.0.0', 8080)
     log_format = '%(h)s %(t)s "%(r)s" %(s)s %(b)s '
     pid_file = get_pid_file_path(service)
-    log_file = get_log_file_path(service)
     cmd = [
         'gunicorn', 'fit2ansible.wsgi',
         '-b', bind,
@@ -200,7 +201,7 @@ def start_service(s):
     print(time.ctime())
     services_handler = {
          "redis": start_redis,
-         "django": start_django,
+         "gunicorn": start_gunicorn,
          "celery": start_celery,
          "beat": start_beat
     }
@@ -294,7 +295,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
-        choices=("all", "django", "celery", "beat", "redis"),
+        choices=("all", "gunicorn", "celery", "beat", "redis"),
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)

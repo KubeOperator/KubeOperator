@@ -1,17 +1,9 @@
 from celery import shared_task
 
 from common.utils import get_object_or_none
-from ansible_api.ctx import change_to_root, set_current_project
+from ansible_api.ctx import change_to_root
 
 from .models import DeployExecution
-
-
-@shared_task
-def start_openshift_deploy(cluster_id):
-    from .models import Cluster
-    cluster = Cluster.objects.get(id=cluster_id)
-    cluster.change_to()
-    return cluster.execute()
 
 
 @shared_task
@@ -19,7 +11,7 @@ def start_deploy_execution(eid, **kwargs):
     change_to_root()
     execution = get_object_or_none(DeployExecution, id=eid)
     if execution:
-        set_current_project(execution.project)
+        execution.project.change_to()
         return execution.start()
     else:
         msg = "No execution found: {}".format(eid)

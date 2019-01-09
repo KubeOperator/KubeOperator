@@ -9,7 +9,7 @@ from rest_framework import permissions, generics
 from rest_framework.response import Response
 
 from ..serializers import IMPlaybookSerializer, IMAdHocSerializer
-from ..tasks import execute_playbook, run_adhoc_raw
+from ..tasks import execute_playbook, run_im_adhoc
 
 __all__ = ['IMPlaybookApi', 'IMAdHocApi']
 
@@ -35,7 +35,7 @@ class IMAdHocApi(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            task = run_adhoc_raw.delay(
+            task = run_im_adhoc.delay(
                 serializer.validated_data.get('adhoc'),
                 serializer.validated_data.get('inventory'),
             )
