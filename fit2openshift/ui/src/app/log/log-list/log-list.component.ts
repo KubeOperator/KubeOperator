@@ -18,6 +18,11 @@ export class LogListComponent implements OnInit {
 
   ngOnInit() {
     this.listLog();
+
+    this.logService.messages.subscribe(data => {
+      console.log(data.data);
+    });
+
   }
 
   listLog() {
@@ -34,7 +39,7 @@ export class LogListComponent implements OnInit {
     const warn = '#FCFCAD';
     const error = '#FFAAAA';
     const info = '#AAFFCC';
-    console.log(log.level)
+    console.log(log.level);
     switch (log.level) {
       case 'INFO':
         return info;
