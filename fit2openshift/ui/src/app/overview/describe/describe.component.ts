@@ -14,7 +14,6 @@ export class DescribeComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.currentCluster);
   }
 
 }

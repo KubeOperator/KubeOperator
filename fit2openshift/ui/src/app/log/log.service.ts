@@ -2,27 +2,25 @@ import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {Log} from './log';
-import {WebsocketService} from './websocket.service';
+import {WebsocketService} from '../overview/term/websocket.service';
+import {Execution} from '../overview/operater/execution';
 
-const baseUrl = '/api/v1/cluster/{clusterId}/log';
+const baseUrl = '/api/v1/clusters/{clusterName}/executions/';
 
 @Injectable()
 export class LogService implements OnInit {
 
-  private url = 'ws:localhost:4200/ws/tasks/fe5b341d-82f9-4987-b3d9-5301ad3421d7/log/';
-  messages: Subject<any>;
 
-  constructor(private http: HttpClient, private wsService: WebsocketService) {
-    this.messages = this.wsService.connect(this.url);
-  }
+  constructor(private http: HttpClient) {
 
-  getLogs(clusterId): Observable<Log[]> {
-    return this.http.get<Log[]>(`${baseUrl.replace('{clusterId}', clusterId)}`);
   }
 
   ngOnInit(): void {
 
   }
 
+  listExecutions(clusterName): Observable<Execution[]> {
+    return this.http.get<Execution[]>(`${baseUrl.replace('{clusterName}', clusterName)}`);
+  }
 
 }

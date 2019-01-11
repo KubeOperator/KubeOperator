@@ -1,9 +1,13 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster} from '../cluster';
-import {ClusterService} from '../cluster.service';
-import {FormControl, FormGroup} from '@angular/forms';
 import {TipService} from '../../tip/tip.service';
+import {ClrWizard} from '@clr/angular';
+import {Package, Template} from '../../package/package';
+import {PackageService} from '../../package/package.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {Node} from '../../node/node';
+import {ClusterService} from '../cluster.service';
+import {NodeService} from '../../node/node.service';
 
 @Component({
   selector: 'app-cluster-create',
@@ -12,25 +16,76 @@ import {TipLevels} from '../../tip/tipLevels';
 })
 export class ClusterCreateComponent implements OnInit {
 
-  form = new FormGroup({
-    name: new FormControl(''),
-  });
-  staticBackdrop = true;
-  closable = false;
+
+  @ViewChild('wizard') wizard: ClrWizard;
   createClusterOpened: boolean;
   isSubmitGoing = false;
   cluster: Cluster = new Cluster();
+  template: Template;
+  packages: Package[] = [];
+  templates: Template[] = [];
+  nodes: Node[] = [];
   @Output() create = new EventEmitter<boolean>();
+  loadingFlag = false;
 
-  constructor(private clusterService: ClusterService, private tipService: TipService) {
+  constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService,
+              private packageService: PackageService) {
   }
 
   ngOnInit() {
+    this.listPackages();
   }
 
   newCluster() {
+    // 清空对象
+    this.reset();
     this.createClusterOpened = true;
+  }
+
+  reset() {
+    this.wizard.reset();
     this.cluster = new Cluster();
+    this.template = null;
+    this.templates = null;
+    this.nodes = null;
+  }
+
+  packgeOnChange() {
+    this.packages.forEach((pak) => {
+      if (pak.name === this.cluster.package) {
+        this.templates = pak.meta.templates;
+      }
+    });
+  }
+
+  listPackages() {
+    this.packageService.listPackage().subscribe(data => {
+      this.packages = data;
+    }, error => {
+      this.tipService.showTip('加载离线包错误!: \n' + error, TipLevels.ERROR);
+    });
+  }
+
+  templateOnChange() {
+    this.nodes = [];
+    console.log(this.cluster.template);
+    this.templates.forEach(tmp => {
+      if (tmp.name === this.cluster.template) {
+        tmp.roles.forEach(role => {
+          if (!role.meta.hidden) {
+            const name = role.name;
+            console.log(role);
+            const roleNumber = role.meta.nodes_require[1];
+            for (let i = 0; i < roleNumber; i++) {
+              const node: Node = new Node();
+              node.name = role.name + '-' + i;
+              node.roles.push(role.name);
+              this.nodes.push(node);
+            }
+          }
+        });
+      }
+    });
   }
 
 
@@ -38,20 +93,23 @@ export class ClusterCreateComponent implements OnInit {
     if (this.isSubmitGoing) {
       return;
     }
-    this.isSubmitGoing = true;
-    this.cluster.name = this.form.value.name;
-    this.clusterService.createCluster(this.cluster).subscribe((data) => {
+    this.clusterService.createCluster(this.cluster).subscribe(data => {
+      this.createNodes(this.cluster.name);
       this.isSubmitGoing = false;
-      this.tipService.showTip('集群: ' + this.cluster.name + ' 创建成功', TipLevels.SUCCESS);
+      this.createClusterOpened = false;
       this.create.emit(true);
-    }, error => {
-      this.isSubmitGoing = false;
-      this.create.emit(false);
     });
-    this.createClusterOpened = false;
+  }
+
+  createNodes(clusterName) {
+    this.isSubmitGoing = true;
+    this.nodes.forEach(node => {
+      this.nodeService.createNode(clusterName, node).subscribe();
+    });
   }
 
   onCancel() {
+    this.reset();
     this.createClusterOpened = false;
   }
 

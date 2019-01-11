@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Log} from '../log';
 import {LogService} from '../log.service';
+import {Cluster} from '../../cluster/cluster';
+import {Execution} from '../../overview/operater/execution';
 
 @Component({
   selector: 'app-log-list',
@@ -11,27 +13,21 @@ export class LogListComponent implements OnInit {
 
   loading = true;
   logs: Log[] = [];
-  @Input() clusterId: string;
+  executions: Execution[] = [];
+  @Input() currentCluster: Cluster;
 
   constructor(private logService: LogService) {
   }
 
   ngOnInit() {
     this.listLog();
-
-    this.logService.messages.subscribe(data => {
-      console.log(data.data);
-    });
-
   }
 
   listLog() {
     this.loading = true;
-    this.logService.getLogs(this.clusterId).subscribe(data => {
+    this.logService.listExecutions(this.currentCluster.name).subscribe(data => {
       this.loading = false;
-      this.logs = data;
-    }, error => {
-      this.loading = false;
+      this.executions = data;
     });
   }
 

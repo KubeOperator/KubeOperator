@@ -5,9 +5,11 @@ import { ProgressComponent } from './progress/progress.component';
 import { CharsComponent } from './chars/chars.component';
 import {CoreModule} from '../core/core.module';
 import { DescribeComponent } from './describe/describe.component';
+import { TermComponent } from './term/term.component';
+import { OperaterComponent } from './operater/operater.component';
 
 @NgModule({
-  declarations: [OverviewComponent, ProgressComponent, CharsComponent, DescribeComponent],
+  declarations: [OverviewComponent, ProgressComponent, CharsComponent, DescribeComponent, TermComponent, OperaterComponent],
   imports: [
     CommonModule,
     CoreModule

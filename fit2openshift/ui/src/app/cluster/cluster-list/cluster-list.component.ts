@@ -40,13 +40,9 @@ export class ClusterListComponent implements OnInit {
     }
     this.loading = true;
     this.selected.forEach(cluster => {
-      let flag = false;
       this.clusterService.deleteCluster(cluster.name).subscribe(data => {
-        flag = true;
+        this.listCluster();
       });
-      while (!flag) {
-
-      }
     });
     this.loading = false;
   }

@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {Cluster} from '../cluster/cluster';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-log',
@@ -6,10 +8,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./log.component.css']
 })
 export class LogComponent implements OnInit {
+  currentCluster: Cluster;
 
-  constructor() { }
+  constructor(private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
+    this.route.parent.data.subscribe(data => {
+      this.currentCluster = data['cluster'];
+    });
   }
 
 }

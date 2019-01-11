@@ -1,14 +1,17 @@
 <clr-datagrid [clrDgLoading]="loading">
 
-  <clr-dg-column [clrDgField]="timestamp">时间戳</clr-dg-column>
-  <clr-dg-column [clrDgField]="level">级别</clr-dg-column>
-  <clr-dg-column [clrDgField]="msg">消息</clr-dg-column>
 
-
-  <clr-dg-row *ngFor="let log of logs" [clrDgItem]="log" [style.background-color]="getColor(log)">
-    <clr-dg-cell>{{log.timestamp}}</clr-dg-cell>
-    <clr-dg-cell>{{log.level}}</clr-dg-cell>
-    <clr-dg-cell>{{log.msg}}</clr-dg-cell>
+  <clr-dg-column [clrDgField]="timestamp">任务类型</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">创建时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">开始时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">完成时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">状态</clr-dg-column>
+  <clr-dg-row *ngFor="let execution of executions" [clrDgItem]="log">
+    <clr-dg-cell>部署</clr-dg-cell>
+    <clr-dg-cell>{{execution.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{execution.date_start}}</clr-dg-cell>
+    <clr-dg-cell>{{execution.date_end}}</clr-dg-cell>
+    <clr-dg-cell>{{execution.state}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

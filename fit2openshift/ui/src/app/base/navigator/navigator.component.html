@@ -3,19 +3,13 @@
     <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>
     集群
   </a>
-  <clr-vertical-nav-group routerLinkActive="active">
-    <clr-icon shape="administrator" clrVerticalNavIcon></clr-icon>
-    系统管理
-    <clr-vertical-nav-group-children *clrIfExpanded="true">
-      <a clrVerticalNavLink routerLinkActive="active" routerLink="/fit2openshift/offline">
-        <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
-        离线包管理
-      </a>
-      <a clrVerticalNavLink routerLinkActive="active" routerLink="/fit2openshift/user">
-        <clr-icon shape="users" clrVerticalNavIcon></clr-icon>
-        用户管理
-      </a>
-    </clr-vertical-nav-group-children>
-  </clr-vertical-nav-group>
 
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/fit2openshift/user">
+    <clr-icon shape="users" clrVerticalNavIcon></clr-icon>
+    用户
+  </a>
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/fit2openshift/offline">
+    <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
+    离线包
+  </a>
 </clr-vertical-nav>

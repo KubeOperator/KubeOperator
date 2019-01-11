@@ -7,7 +7,7 @@ import {BaseModule} from './base/base.module';
 import {AccountModule} from './account/account.module';
 import {InterceptorService} from './shared/interceptor.service';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
-import {OfflineModule} from './offline/offline.module';
+import {PackageModule} from './package/package.module';
 import {UserModule} from './user/user.module';
 import {ClusterModule} from './cluster/cluster.module';
 import {OverviewModule} from './overview/overview.module';
@@ -27,7 +27,7 @@ import {TipModule} from './tip/tip.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     AccountModule,
-    OfflineModule,
+    PackageModule,
     UserModule,
     ClusterModule,
     OverviewModule,

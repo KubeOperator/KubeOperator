@@ -10,15 +10,18 @@
     </button>
   </clr-dg-action-bar>
   <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="offline_name">当前版本</clr-dg-column>
-  <clr-dg-column [clrDgField]="status">状态</clr-dg-column>
-  <clr-dg-column [clrDgField]="create_time">创建时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="package">离线包</clr-dg-column>
+  <clr-dg-column [clrDgField]="template">部署模型</clr-dg-column>
+  <clr-dg-column [clrDgField]="date_created">创建时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
+
 
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
-    <clr-dg-cell>{{cluster.offline}}</clr-dg-cell>
-    <clr-dg-cell>{{cluster.status}}</clr-dg-cell>
-    <clr-dg-cell>{{cluster.create_time}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.package}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.comment}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

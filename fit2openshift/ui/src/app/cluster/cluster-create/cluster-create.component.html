@@ -1,16 +1,118 @@
-<clr-modal [(clrModalOpen)]="createClusterOpened" [clrModalStaticBackdrop]="staticBackdrop"
-           [clrModalClosable]="closable">
-  <h3 class="modal-title">创建集群</h3>
-  <div class="modal-body modal-height">
-    <form [formGroup]="form" clrForm (ngSubmit)="onSubmit()">
+<clr-wizard #wizard [(clrWizardOpen)]="createClusterOpened" (clrWizardOnCancel)="onCancel()"
+            (clrWizardOnFinish)="onSubmit()" >
+  <clr-wizard-title>创建集群</clr-wizard-title>
+
+  <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
+  <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
+  <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
+  <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
+  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid">
+
+    <form #basicFrom='ngForm' clrForm>
+      <ng-template clrPageTitle>基本信息</ng-template>
+      <div class="spinner" *ngIf="loadingFlag">
+        Loading...
+      </div>
       <clr-input-container>
-        <label>名称:</label>
-        <input clrInput type="text" formControlName="name">
+        <label>集群名称:</label>
+        <input clrInput type="text" [(ngModel)]="cluster.name" name="name" required>
       </clr-input-container>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()">提交</button>
+      <clr-select-container>
+        <label>离线包:</label>
+        <select clrSelect name="package" [(ngModel)]="cluster.package" (change)="packgeOnChange()" required>
+          <option *ngFor="let package of packages" value="{{package.name}}">{{package.name}}</option>
+        </select>
+      </clr-select-container>
+      <clr-textarea-container>
+        <label>描述:</label>
+        <textarea clrTextarea [(ngModel)]="cluster.comment" name="comment"></textarea>
+      </clr-textarea-container>
+    </form>
+
+  </clr-wizard-page>
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="!templateForm.valid">
+    <ng-template clrPageTitle>部署模型</ng-template>
+    <form clrForm #templateForm='ngForm'>
+      <clr-radio-wrapper *ngFor="let template of templates">
+        <input required type="radio" clrRadio [(ngModel)]="cluster.template" [value]="template.name"
+               name="template" (change)="templateOnChange()"/>
+        <label>{{template.name}}</label>
+      </clr-radio-wrapper>
+    </form>
+  </clr-wizard-page>
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid">
+    <ng-template clrPageTitle>配置节点</ng-template>
+    <form #nodeForm='ngForm' clrForm>
+      <div *ngFor="let node of nodes">
+        <h5>{{node.name}}</h5>
+        <clr-input-container>
+          <label>IP:</label>
+          <input clrInput type="text" [(ngModel)]="node.ip" [ngModelOptions]="{standalone: true}" required>
+        </clr-input-container>
+        <clr-input-container>
+          <label>username</label>
+          <input clrInput type="text" [(ngModel)]="node.username" [ngModelOptions]="{standalone: true}" required>
+        </clr-input-container>
+        <clr-password-container>
+          <label>password:</label>
+          <input clrPassword type="password" [(ngModel)]="node.password" [ngModelOptions]="{standalone: true}" required>
+        </clr-password-container>
       </div>
     </form>
-  </div>
-</clr-modal>
+  </clr-wizard-page>
+
+  <!--<clr-wizard-page>-->
+  <!--<form>-->
+  <!--<ng-template clrPageTitle>设置参数</ng-template>-->
+  <!--<clr-input-container>-->
+  <!--<label>域名:</label>-->
+  <!--<input clrInput type="text">-->
+  <!--</clr-input-container>-->
+
+  <!--<clr-select-container>-->
+  <!--<label>存储类型:</label>-->
+  <!--<select clrSelect>-->
+  <!--<option>OSS</option>-->
+  <!--<option>OCS</option>-->
+  <!--</select>-->
+  <!--</clr-select-container>-->
+  <!--</form>-->
+  <!--</clr-wizard-page>-->
+
+  <clr-wizard-page>
+    <ng-template clrPageTitle>完成</ng-template>
+    <section class="form-block">
+      <div class="form-group">
+        <label>集群名称:</label>
+        <span>{{cluster.name}}</span>
+      </div>
+      <div class="form-group">
+        <label>部署模型:</label>
+        <span>{{cluster.template}}</span>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <h5>节点信息</h5>
+          <table class="table">
+            <thead>
+            <tr>
+              <th>节点名称</th>
+              <th>IP</th>
+              <th>角色</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let node of nodes">
+              <td>{{node.name}}</td>
+              <td>{{node.ip}}</td>
+              <td>{{node.roles}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </clr-wizard-page>
+</clr-wizard>

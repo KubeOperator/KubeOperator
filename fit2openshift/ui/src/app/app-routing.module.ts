@@ -4,7 +4,7 @@ import {ShellComponent} from './base/shell/shell.component';
 import {NotFoundComponent} from './shared/not-found/not-found.component';
 import {SignInComponent} from './account/sign-in/sign-in.component';
 import {AuthUserActiveService} from './shared/route/auth-user-active.service';
-import {OfflineComponent} from './offline/offline.component';
+import {PackageComponent} from './package/package.component';
 import {UserComponent} from './user/user.component';
 import {ClusterComponent} from './cluster/cluster.component';
 import {ClusterDetailComponent} from './cluster/cluster-detail/cluster-detail.component';
@@ -26,7 +26,7 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'cluster', pathMatch: 'full'},
       {path: 'cluster', component: ClusterComponent},
-      {path: 'offline', component: OfflineComponent},
+      {path: 'offline', component: PackageComponent},
       {path: 'user', component: UserComponent},
       {
         path: 'cluster/:name',

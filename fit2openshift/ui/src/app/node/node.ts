@@ -7,6 +7,6 @@ export class Node {
   password: string;
   vars: string;
   comment: string;
-  roles: string;
+  roles: any[] = [];
   status: string;
 }

@@ -25,12 +25,14 @@
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/@clr/ui/clr-ui.min.css",
+              "node_modules/xterm/dist/xterm.css",
               "src/styles.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/custom-elements/custom-elements.min.js",
               "node_modules/@clr/icons/clr-icons.min.js",
               "node_modules/echarts/dist/echarts.min.js",
+              "node_modules/xterm/dist/xterm.js"
             ]
           },
           "configurations": {

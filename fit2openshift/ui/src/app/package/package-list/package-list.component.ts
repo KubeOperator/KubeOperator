@@ -1,22 +1,22 @@
 import {Component, OnInit} from '@angular/core';
-import {Offline} from '../Offline';
-import {OfflineService} from '../offline.service';
+import {Package} from '../package';
+import {PackageService} from '../package.service';
 import {MessageLevels} from '../../base/message/message-level';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 
 @Component({
   selector: 'app-offline-list',
-  templateUrl: './offline-list.component.html',
-  styleUrls: ['./offline-list.component.css']
+  templateUrl: './package-list.component.html',
+  styleUrls: ['./package-list.component.css']
 })
-export class OfflineListComponent implements OnInit {
+export class PackageListComponent implements OnInit {
 
   loading = true;
-  offlines: Offline[] = [];
-  selectedRow: Offline[] = [];
+  packages: Package[] = [];
+  selectedRow: Package[] = [];
 
-  constructor(private offlineService: OfflineService, private tipService: TipService) {
+  constructor(private offlineService: PackageService, private tipService: TipService) {
   }
 
   ngOnInit() {
@@ -25,8 +25,8 @@ export class OfflineListComponent implements OnInit {
 
   listOfflines() {
     this.loading = true;
-    this.offlineService.listOfflines().subscribe(data => {
-      this.offlines = data;
+    this.offlineService.listPackage().subscribe(data => {
+      this.packages = data;
       this.loading = false;
     });
   }

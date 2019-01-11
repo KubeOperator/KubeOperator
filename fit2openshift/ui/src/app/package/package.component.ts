@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-offline',
-  templateUrl: './offline.component.html',
-  styleUrls: ['./offline.component.css']
+  templateUrl: './package.component.html',
+  styleUrls: ['./package.component.css']
 })
-export class OfflineComponent implements OnInit {
+export class PackageComponent implements OnInit {
 
   constructor() { }
 
