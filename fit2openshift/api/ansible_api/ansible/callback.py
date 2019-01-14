@@ -8,7 +8,7 @@ from ansible.plugins.callback.minimal import CallbackModule as CMDCallBackModule
 
 
 class CallbackMixin:
-    def __init__(self, display=None):
+    def __init__(self):
         # result_raw example: {
         #   "ok": {"hostname": {"task_name": {}，...},..},
         #   "failed": {"hostname": {"task_name": {}..}, ..},
@@ -36,8 +36,6 @@ class CallbackMixin:
             'summary': self.results_summary,
         }
         super().__init__()
-        if display:
-            self._display = display
         self._display.columns = 79
 
     def display(self, msg):

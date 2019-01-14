@@ -2,10 +2,14 @@
 #
 import uuid
 import yaml
+import os
+from hashlib import md5
 
 from django.db import models, transaction
 
 from common import models as common_models
+from common.utils import ssh_key_string_to_obj
+from django.conf import settings
 from .utils import name_validator
 from .mixins import AbstractProjectResourceModel
 from ..inventory import LocalModelInventory
@@ -35,7 +39,26 @@ class BaseHost(models.Model):
         host_vars['ansible_ssh_port'] = self.port
         host_vars['ansible_ssh_user'] = self.username
         host_vars['ansible_ssh_pass'] = self.password
+        host_vars['ansible_ssh_private_key_file'] = self.private_key_path
         return host_vars
+
+    @property
+    def private_key_obj(self):
+        return ssh_key_string_to_obj(self.private_key, self.password)
+
+    @property
+    def private_key_path(self):
+        if not self.private_key_obj:
+            return None
+        tmp_dir = os.path.join(settings.BASE_DIR, 'data', 'tmp')
+        if not os.path.isdir(tmp_dir):
+            os.makedirs(tmp_dir)
+        key_name = '.' + md5(self.private_key.encode('utf-8')).hexdigest()
+        key_path = os.path.join(tmp_dir, key_name)
+        if not os.path.exists(key_path):
+            self.private_key_obj.write_private_key_file(key_path)
+            os.chmod(key_path, 0o400)
+        return key_path
 
     def add_to_groups(self, group_names, auto_create=True):
         with transaction.atomic():

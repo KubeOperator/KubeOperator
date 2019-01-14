@@ -10,7 +10,6 @@ from ansible.playbook.play import Play
 import ansible.constants as C
 
 from .callback import AdHocResultCallback, PlaybookResultCallBack
-from .display import LogFileDisplay
 from .exceptions import AnsibleError
 
 
@@ -95,10 +94,9 @@ class AdHocRunner:
     options = None
     command_modules_choices = ('shell', 'raw', 'command', 'script', 'win_shell')
 
-    def __init__(self, inventory, options=None, stdout=None):
+    def __init__(self, inventory, options=None):
         self.options = self.get_options(options)
         self.inventory = inventory
-        self.stdout = stdout
         self.loader = DataLoader()
         self.variable_manager = VariableManager(
             loader=self.loader, inventory=self.inventory
@@ -106,10 +104,7 @@ class AdHocRunner:
         self.set_result_callback()
 
     def get_result_callback(self):
-        display = None
-        if self.stdout:
-            display = LogFileDisplay(self.stdout)
-        return self.results_callback_class(display=display)
+        return self.results_callback_class()
 
     def set_result_callback(self):
         self.results_callback = self.get_result_callback()
@@ -237,7 +232,7 @@ class PlayBookRunner(AdHocRunner):
         :param options: Ansible full_options like ansible.cfg
         :param inventory: Ansible inventory_obj
         """
-        super().__init__(inventory, options=options, stdout=stdout)
+        super().__init__(inventory, options=options)
         C.RETRY_FILES_ENABLED = False
 
     def run(self, playbook_path, **kwargs):

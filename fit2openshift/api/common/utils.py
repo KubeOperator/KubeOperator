@@ -6,6 +6,9 @@ import tarfile
 import zipfile
 import gzip
 
+import paramiko
+from io import StringIO
+
 from itsdangerous import TimedJSONWebSignatureSerializer, \
     JSONWebSignatureSerializer, BadSignature, SignatureExpired
 from django.conf import settings
@@ -118,3 +121,15 @@ def uncompress_gz(src_file, dest_dir):
         return False, e
 
 
+def ssh_key_string_to_obj(text, password=None):
+    key = None
+    try:
+        key = paramiko.RSAKey.from_private_key(StringIO(text), password=password)
+    except paramiko.SSHException:
+        pass
+
+    try:
+        key = paramiko.DSSKey.from_private_key(StringIO(text), password=password)
+    except paramiko.SSHException:
+        pass
+    return key

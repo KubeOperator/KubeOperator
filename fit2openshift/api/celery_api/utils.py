@@ -205,15 +205,6 @@ def after_app_shutdown_clean(func):
     return decorate
 
 
-def log_task_stdout(func):
-    def deco(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        finally:
-            pass
-    return deco
-
-
 def get_celery_task_log_path(task_id):
     task_id = str(task_id)
     rel_path = os.path.join(task_id[0], task_id[1], task_id + '.log')
@@ -221,8 +212,3 @@ def get_celery_task_log_path(task_id):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
 
-
-def redirect_stdout(logger):
-    proxy = NoStripLoggingProxy(logger, 'INFO')
-    sys.stdout = proxy
-    sys.stderr = proxy

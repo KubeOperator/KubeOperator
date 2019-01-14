@@ -120,20 +120,10 @@ def start_redis():
 def start_gunicorn():
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
-    service = 'gunicorn'
     bind = '{}:{}'.format('0.0.0.0', 8080)
-    log_format = '%(h)s %(t)s "%(r)s" %(s)s %(b)s '
-    pid_file = get_pid_file_path(service)
     cmd = [
-        'gunicorn', 'fit2ansible.wsgi',
-        '-b', bind,
-        # '-k', 'eventlet',
-        '-k', 'gthread',
-        '--threads', '10',
-        '-w', str(WORKERS),
-        '--max-requests', '4096',
-        '--access-logformat', log_format,
-        '-p', pid_file,
+        'python', 'manage.py',
+        'runserver', bind
     ]
 
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
