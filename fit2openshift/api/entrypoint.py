@@ -127,7 +127,7 @@ def start_gunicorn():
     ]
 
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
-    pid_file = get_pid_file_path('django')
+    pid_file = get_pid_file_path('gunicorn')
     with open(pid_file, 'w') as f:
         f.write(str(p.pid))
     return p
