@@ -1,0 +1,12 @@
+registry: bastion:5000
+registry_packages:
+ - docker-distribution
+ - skopeo
+ - openssl
+registry_path: /etc/docker-distribution/registry
+registry_conf: config.yml
+registry_secret: changeme
+proxy_packages:
+ - squid
+proxy_cidr: 192.168.0.0/24
+

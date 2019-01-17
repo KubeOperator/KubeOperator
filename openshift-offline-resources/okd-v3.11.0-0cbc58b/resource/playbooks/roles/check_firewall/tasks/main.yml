@@ -1,0 +1,11 @@
+- name: Check that all needed ports are open
+  wait_for:
+    host: "{{item[0]}}"
+    port: "{{item[1]}}"
+    delay: 0
+    timeout: 1
+  when: item[0] != nodes[0]
+  with_nested:
+  - "{{ nodes }}"
+  - "{{ firewall_ports }}"
+  ignore_errors: true

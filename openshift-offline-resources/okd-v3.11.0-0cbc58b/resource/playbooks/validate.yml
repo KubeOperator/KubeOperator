@@ -1,0 +1,74 @@
+---
+#- name: Install Docker
+#  hosts: registry-ip
+#  gather_facts: yes
+#  vars_files:
+#  - "{{file_env}}"
+#  roles:
+#  - offline_install_docker
+#
+me: config registory
+  hosts: all
+  tasks:
+    - name: config registry hostname
+      shell: echo "{{ lookup('env','REGISTORY_HOSTNAME') }}       registry.fit2openshift.io" >> /etc/hosts
+
+- name: replace repos.
+  hosts: all
+  roles:
+  - replace_repos
+
+
+- name: configure DNS and hostnmae.
+  hosts: all
+  roles:
+  - config_dns
+
+- name: ensure nodes packages.
+  hosts: nodes
+  serial: 1
+  gather_facts: no
+  roles:
+  - check_packages_nodes
+
+- name: Validate environment
+  gather_facts: no
+  hosts: all
+  tasks:
+    - import_role:
+         name: check_networking
+#    - import_role:
+#        name: check_disks
+#    - import_role:
+#        name: check_os
+    - import_role:
+        name: check_connectivity
+#    - import_role:
+#        name: check_sizing
+#      when: inventory_hostname in groups['nodes']
+#    - import_role:
+#        name: check_dns
+    - import_role:
+        name: check_selinux
+#    - import_role:
+#        name: check_storage
+#      when: inventory_hostname in groups['nodes']
+
+- name: Initialize firewall check
+  hosts: nodes
+  gather_facts: no
+  roles:
+  - check_firewall_initialize
+
+- name: Execute firewall check
+  hosts: localhost
+  gather_facts: yes
+  roles:
+  - check_firewall
+
+- name: Cleanup validation trash
+  hosts: all
+  gather_facts: yes
+  roles:
+  - check_cleanup
+

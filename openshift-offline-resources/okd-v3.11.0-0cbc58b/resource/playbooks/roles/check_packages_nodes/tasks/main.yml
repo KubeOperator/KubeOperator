@@ -1,0 +1,24 @@
+- name: Install packages
+  yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+  - "{{packages}}"
+#- name: Update packages
+#  yum:
+#    name: '*'
+#    state: latest
+#- name: Shutdown
+#  shell: sleep 2 && shutdown -r now "Reboot triggered by Ansible"
+#  async: 1
+#  poll: 0
+#  ignore_errors: true
+- name: Wait for host to come back up
+  local_action:
+    module: wait_for
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 5
+    timeout: 300
+#- name: Update packages
+#  command: yum update -y

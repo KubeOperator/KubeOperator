@@ -1,0 +1,23 @@
+[Openshift-Centos-Base]
+name=CentOS Base
+baseurl=http://{{installer_ip}}:8088/repository/openshift-origin-base/$releasever/extras/$basearch/
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-Extras]
+name=CentOS Extras
+baseurl=http://{{installer_ip}}:8088/repository/openshift-origin-base/$releasever/os/$basearch/
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-epel]
+name=CentOS epel-epel
+baseurl=http://{{installer_ip}}:8088/repository/openshift-centos-epel
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-Origin]
+name=Openshift-Centos-311
+baseurl=http://{{installer_ip}}:8088/repository/openshift-centos-311
+enabled=1
+gpgcheck=0

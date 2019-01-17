@@ -1,0 +1,4 @@
+- name: ping installer
+  shell: "ping -c 2 {{ installer_ip }}"
+  register: connectivity
+  changed_when: false

@@ -1,0 +1,25 @@
+- name: Check DNS resolution for OpenShift API endpoint. If fails if it's not resolved OK.
+  command: nslookup "{{api_dns}}"
+  ignore_errors: yes
+  register: api_ns
+  changed_when: false
+- name: Check DNS resolution for OpenShift apps subdomain. If fails if it's not resolved OK.
+  command: nslookup apps."{{apps_dns}}"
+  ignore_errors: yes
+  register: apps_ns
+  changed_when: false
+- debug:
+    msg: "{{api_dns}} resolved to {{api_ns.stdout}}"
+  failed_when: "'server can\\'t find' in api_ns.stdout"
+- debug:
+    msg: "apps.{{apps_dns}} resolved to {{apps_ns.stdout}}"
+  failed_when: "'server can\\'t find' in apps_ns.stdout"
+- name: Figure out DNS server from NetworkManager
+  shell: "for uuid in `nmcli -g UUID connection show --active`; do  dns=`nmcli -g ipv4.dns,IP4.DNS connection show $uuid`; if [ -n $dns ]; then echo $dns;  break; fi; done"
+  register: nm_nameserver
+  changed_when: false
+  ignore_errors: true
+- debug:
+    msg: "Your nameserver DNS is '{{nm_nameserver.stdout}}'"
+  failed_when: nm_nameserver == ''
+
