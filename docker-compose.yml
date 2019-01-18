@@ -1,0 +1,26 @@
+version : '2'
+services : 
+        fit2openshift: 
+                image: registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest
+                ports: 
+                        - 80:80 
+                        - 8080:8080
+                volumes:
+                        - share-volume:/opt/fit2openshift/data/packages
+                environment:
+                        - host_name=10.1.240.44
+                networks:
+                        - fit2openshift-network
+        okd-3.11_offline:
+                image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:3.11
+                ports:
+                        - 8081:8081
+                        - 8082:8082
+                volumes:
+                        - share-volume:/opt/fit2openshift/offline_packages
+                networks:
+                        - fit2openshift-network
+volumes:
+        share-volume:
+networks:
+        fit2openshift-network:
