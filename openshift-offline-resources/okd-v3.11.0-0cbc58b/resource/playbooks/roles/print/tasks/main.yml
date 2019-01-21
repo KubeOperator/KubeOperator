@@ -1,0 +1,8 @@
+- debug:
+    msg: |
+      {{name}}
+      {{value}}
+      {{file}}
+- name: Print var to file
+  local_action: |
+    shell echo '{{name}}: "{{value}}"' >> {{file}}

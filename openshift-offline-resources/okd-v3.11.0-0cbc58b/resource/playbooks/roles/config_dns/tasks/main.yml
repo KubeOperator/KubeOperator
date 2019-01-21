@@ -1,0 +1,3 @@
+- name: Add specfic DNS into /etc/resolv.conf
+  shell: grep {{installer_ip}} /etc/resolv.conf || echo "nameserver {{installer_ip}}" >> /etc/resolv.conf
+

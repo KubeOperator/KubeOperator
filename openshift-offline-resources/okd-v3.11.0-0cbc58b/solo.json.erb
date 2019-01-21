@@ -1,0 +1,64 @@
+// Copyright (c) 2016-present Sonatype, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+<%=
+require 'json'
+
+raise RuntimeError, 'environment variable DOCKER_TYPE is required' if ENV['DOCKER_TYPE'].nil? || ENV['DOCKER_TYPE'].empty?
+raise RuntimeError, 'environment variable SONATYPE_DIR is required' if ENV['SONATYPE_DIR'].nil? || ENV['SONATYPE_DIR'].empty?
+raise RuntimeError, 'environment variable NEXUS_HOME is required' if ENV['NEXUS_HOME'].nil? || ENV['NEXUS_HOME'].empty?
+raise RuntimeError, 'environment variable NEXUS_DATA is required' if ENV['NEXUS_DATA'].nil? || ENV['NEXUS_DATA'].empty?
+
+{
+  :run_list => [ "recipe[nexus_repository_manager::#{ENV['DOCKER_TYPE']}]" ],
+  :java => {
+    :jdk_version => ENV['JAVA_VERSION_MAJOR'],
+    :java_home => ENV['JAVA_HOME'],
+    :install_flavor => 'oracle',
+    :oracle => {
+      :accept_oracle_download_terms => true
+    },
+    :jdk => {
+      :'8' => {
+        :x86_64 => {
+          :url => ENV['JAVA_URL'],
+          :checksum => ENV['JAVA_DOWNLOAD_SHA256_HASH']
+        }
+      }
+    }
+  },
+  :nexus_repository_manager => {
+    :version => ENV['NEXUS_VERSION'],
+    :nexus_download_url => ENV['NEXUS_DOWNLOAD_URL'],
+    :nexus_download_sha256 => ENV['NEXUS_DOWNLOAD_SHA256_HASH'],
+    :sonatype => {
+      :path => ENV['SONATYPE_DIR'],
+    },
+    :sonatype_work => {
+      :path => ENV['SONATYPE_DIR'] + '/sonatype-work'
+    },
+    :nexus_home => {
+      :path => ENV['SONATYPE_DIR'] + '/nexus'
+    },
+    :nexus_data => {
+      :path => ENV['NEXUS_DATA']
+    },
+    :properties => {
+      # Set the context_path to the NEXUS_CONTEXT environment variable
+      # that may be passed into the docker run command.
+      :context_path => "/${NEXUS_CONTEXT}"
+    }
+  }
+}.to_json
+%>

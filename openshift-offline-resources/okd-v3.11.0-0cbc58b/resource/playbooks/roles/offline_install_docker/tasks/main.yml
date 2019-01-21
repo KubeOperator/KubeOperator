@@ -1,0 +1,10 @@
+- name: Copy Docker File
+  unarchive: src={{item.src}} dest={{item.dest}} copy=yes
+  with_items:
+    - {src: 'docker-offline.tar.gz', dest: '/usr/bin/'}
+- name: Config Docker Service
+  copy: src={{item.src}} dest=/etc/systemd/system/{{item.dest}} owner=root group=root mode=0754
+  with_items:
+    - {src: 'docker.service', dest: 'docker.service'}
+- name: Start Docker Service
+  service: name=docker state=restarted

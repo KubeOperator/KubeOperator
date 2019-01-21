@@ -1,0 +1,7 @@
+- shell: |
+    lsblk -r | grep -c disk
+  register: number_of_disks
+- name: check number of disks in nodes
+  fail:
+    msg: All nodes and masters need 2+ disks
+  when: "number_of_disks.stdout|int < 2 and inventory_hostname in groups['nodes']"

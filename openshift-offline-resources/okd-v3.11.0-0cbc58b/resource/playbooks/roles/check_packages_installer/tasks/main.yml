@@ -1,0 +1,11 @@
+- name: Install packages
+  yum:
+    name: "{{item}}"
+    state: latest
+  with_items:
+  - "{{ packages }}"
+  - "{{ packages_installer }}"
+- name: update installer packages
+  yum:
+    name: '*'
+    state: latest

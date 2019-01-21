@@ -1,0 +1,6 @@
+- shell: echo 'Currently CPU has {{ ansible_processor_vcpus }} vCPUs and memory is {{ (ansible_memory_mb.real.total / 1024) | round | int }} GBs. Node sizing is {{ node_vcpus }} for vCPUs, and {{ (node_mem / 1024) | round | int }} for memory.'
+  register: status_msg
+- debug: msg="{{ status_msg.stdout }}"
+- fail:
+    msg: "Not enough CPU cores or memory."
+  when: sizing == "fixed" and (((ansible_memory_mb.real.total / 1024) | round | int)<((node_mem / 1024) | round | int) or ansible_processor_vcpus<node_vcpus)
