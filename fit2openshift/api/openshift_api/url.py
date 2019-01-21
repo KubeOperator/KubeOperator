@@ -13,6 +13,7 @@ router.register('clusters', api.ClusterViewSet, 'cluster')
 router.register('packages', api.PackageViewSet, 'package')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
+cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
 cluster_router.register(r'nodes', api.NodeViewSet, 'cluster-node')
 cluster_router.register(r'roles', api.RoleViewSet, 'cluster-role')
 cluster_router.register(r'executions', api.DeployExecutionViewSet, 'cluster-deploy-execution')

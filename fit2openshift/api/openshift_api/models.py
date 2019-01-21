@@ -102,6 +102,42 @@ class Cluster(Project):
         self.create_node_localhost()
         self.create_install_playbooks()
 
+    def configs(self, tp='list'):
+        self.change_to()
+        role = Role.objects.get(name='OSEv3')
+        configs = role.vars
+        if tp == 'list':
+            configs = [{'key': k, 'value': v} for k, v in configs.items()]
+        return configs
+
+    def set_config(self, k, v):
+        self.change_to()
+        role = Role.objects.get(name='OSEv3')
+        _vars = role.vars
+        _vars[k] = v
+        role.vars = _vars
+        role.save()
+
+    def get_config(self, k):
+        v = self.configs(tp='dict').get(k)
+        return {'key': k, 'value': v}
+
+    def del_config(self, k):
+        self.change_to()
+        role = Role.objects.get(name='OSEv3')
+        _vars = role.vars
+        _vars.pop(k, None)
+        role.vars = _vars
+        role.save()
+
+
+class ClusterConfig(models.Model):
+    key = models.CharField(max_length=1024)
+    value = JsonTextField()
+
+    class Meta:
+        abstract = True
+
 
 class Node(Host):
     class Meta:
@@ -163,5 +199,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 break
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)
         return result
+
+    class Meta:
+        get_latest_by = 'date_created'
+        ordering = ('-date_created', )
+
 
 

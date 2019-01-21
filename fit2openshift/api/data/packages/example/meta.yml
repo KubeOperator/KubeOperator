@@ -46,41 +46,41 @@ roles:
 templates:
   - name: 单节点
     roles:
-      - name: masters
-        vars:
-          openshift_node_group_name: node-config-all-in-one
-        meta:
-          hidden: false
-          nodes_require:
-            - '='
-            - 1
-      - name: nodes
-        children:
-          - masters
-        meta:
-          hidden: true
+    - name: masters
+      vars:
+        openshift_node_group_name: node-config-all-in-one
+      meta:
+        hidden: false
+        nodes_require:
+          - '='
+          - 1
+    - name: nodes
+      children:
+        - masters
+      meta:
+        hidden: true
 
   - name: 一主多节点
     roles:
-      - name: masters
-        vars:
-          openshift_node_group_name: node-config-master-infra
-        meta:
-          hidden: false
-          nodes_require:
-            - '='
-            - 1
-      - name: cumpute
-        meta:
-          hidden: false
-          nodes_require:
-            - '>'
-            - 2
-      - name: nodes
-        children:
-          - masters
-          - compute
-        meta:
-          hidden: true
+    - name: masters
+      vars:
+        openshift_node_group_name: node-config-master-infra
+      meta:
+        hidden: false
+        nodes_require:
+          - '='
+          - 1
+    - name: cumpute
+      meta:
+        hidden: false
+        nodes_require:
+          - '>'
+          - 2
+    - name: nodes
+      children:
+        - masters
+        - compute
+      meta:
+        hidden: false
 
 
