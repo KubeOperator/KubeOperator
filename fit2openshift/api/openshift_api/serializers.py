@@ -32,6 +32,11 @@ class ClusterSerializer(ProjectSerializer):
         read_only_fields = ['id', 'date_created']
 
 
+class ClusterConfigSerializer(serializers.Serializer):
+    key = serializers.CharField(max_length=128)
+    value = serializers.JSONField()
+
+
 class NodeSerializer(HostSerializer):
     roles = serializers.SlugRelatedField(
         many=True, queryset=Role.objects.all(),
