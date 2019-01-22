@@ -249,7 +249,7 @@ class Playbook(AbstractProjectResourceModel):
         if self.url.startswith('file://'):
             url = self.url.replace('file://', '')
         try:
-            shutil.copytree(url, playbook_dir)
+            shutil.copytree(url, playbook_dir, symlinks=True)
         except Exception as e:
             return False, e
         return True, None
