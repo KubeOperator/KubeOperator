@@ -93,7 +93,7 @@ class AdHocResultCallback(CallbackMixin, CallbackModule, CMDCallBackModule):
                 result, ignore_errors=ignore_errors
             )
         else:
-            super(CMDCallBackModule, self).v2_runner_on_failed(
+            super(CallbackModule, self).v2_runner_on_failed(
                 result, ignore_errors=ignore_errors
             )
 
