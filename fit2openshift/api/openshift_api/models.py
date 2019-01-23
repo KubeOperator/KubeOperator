@@ -99,6 +99,7 @@ class Cluster(Project):
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
+        self.create_node_localhost()
         self.create_install_playbooks()
 
     def configs(self, tp='list'):
