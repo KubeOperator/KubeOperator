@@ -73,3 +73,4 @@ channels==2.1.5
 channels_redis==2.3.1
 gunicorn==19.9.0
 djangorestframework-jwt==1.11.0
+mysqlclient
