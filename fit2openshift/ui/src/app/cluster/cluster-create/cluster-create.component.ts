@@ -1,8 +1,8 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {Cluster} from '../cluster';
+import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
-import {Package, Template} from '../../package/package';
+import {Config, Package, Template} from '../../package/package';
 import {PackageService} from '../../package/package.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {Node} from '../../node/node';
@@ -22,6 +22,7 @@ export class ClusterCreateComponent implements OnInit {
   isSubmitGoing = false;
   cluster: Cluster = new Cluster();
   template: Template;
+  configs: Config[] = [];
   packages: Package[] = [];
   templates: Template[] = [];
   nodes: Node[] = [];
@@ -48,11 +49,13 @@ export class ClusterCreateComponent implements OnInit {
     this.template = null;
     this.templates = null;
     this.nodes = null;
+    this.configs = null;
   }
 
   packgeOnChange() {
     this.packages.forEach((pak) => {
       if (pak.name === this.cluster.package) {
+        this.configs = pak.meta.configs;
         this.templates = pak.meta.templates;
       }
     });
@@ -68,13 +71,11 @@ export class ClusterCreateComponent implements OnInit {
 
   templateOnChange() {
     this.nodes = [];
-    console.log(this.cluster.template);
     this.templates.forEach(tmp => {
       if (tmp.name === this.cluster.template) {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
             const name = role.name;
-            console.log(role);
             const roleNumber = role.meta.nodes_require[1];
             for (let i = 0; i < roleNumber; i++) {
               const node: Node = new Node();
@@ -95,11 +96,22 @@ export class ClusterCreateComponent implements OnInit {
     }
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.createNodes(this.cluster.name);
+      this.configCluster(this.cluster.name);
       this.isSubmitGoing = false;
       this.createClusterOpened = false;
       this.create.emit(true);
     });
   }
+
+  configCluster(clusterName) {
+    this.configs.forEach(config => {
+      const extraConfig: ExtraConfig = new ExtraConfig();
+      extraConfig.key = config.name;
+      extraConfig.value = config.value;
+      this.clusterService.configCluster(clusterName, extraConfig).subscribe();
+    });
+  }
+
 
   createNodes(clusterName) {
     this.isSubmitGoing = true;

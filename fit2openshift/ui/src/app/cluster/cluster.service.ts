@@ -1,11 +1,13 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Cluster} from './cluster';
+import {Cluster, ExtraConfig} from './cluster';
 import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
 
 const baseClusterUrl = '/api/v1/clusters/';
+
+const baseClusterConfigUrl = '/api/v1/clusters/{cluster_name}/configs/';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +23,19 @@ export class ClusterService {
   }
 
   getCluster(clusterName): Observable<Cluster> {
-    return this.http.get<Cluster>(`${baseClusterUrl}/${clusterName}`).pipe(
+    return this.http.get<Cluster>(`${baseClusterUrl}${clusterName}`).pipe(
+      catchError(error => throwError(error))
+    );
+  }
+
+  configCluster(clusterName: string, extraConfig: ExtraConfig): Observable<ExtraConfig> {
+    return this.http.post<ExtraConfig>(`${baseClusterConfigUrl.replace('{cluster_name}', clusterName)}`, extraConfig).pipe(
+      catchError(error => throwError(error))
+    );
+  }
+
+  getClusterConfigs(clusterName: string): Observable<ExtraConfig[]> {
+    return this.http.get<ExtraConfig[]>(`${baseClusterConfigUrl.replace('{cluster_name}', clusterName)}`).pipe(
       catchError(error => throwError(error))
     );
   }
@@ -33,7 +47,7 @@ export class ClusterService {
   }
 
   deleteCluster(clusterName): Observable<any> {
-    return this.http.delete(`${baseClusterUrl}/${clusterName}`).pipe(
+    return this.http.delete(`${baseClusterUrl}${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
   }

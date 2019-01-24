@@ -14,6 +14,6 @@ export class Cluster {
 }
 
 export class ExtraConfig {
-  name: string;
+  key: string;
   value: any;
 }
