@@ -19,10 +19,10 @@ __all__ = ['ClusterHost', 'ClusterGroup', 'Host', 'Group', 'Inventory']
 
 
 class BaseHost(models.Model):
-    name = models.CharField(max_length=1024, validators=[name_validator])
+    name = models.CharField(max_length=256, validators=[name_validator])
     ip = models.GenericIPAddressField(null=True)
     port = models.IntegerField(default=22)
-    username = models.CharField(max_length=1024, default='root')
+    username = models.CharField(max_length=256, default='root')
     password = common_models.EncryptCharField(max_length=4096, blank=True, null=True)
     private_key = common_models.EncryptCharField(max_length=8192, blank=True, null=True)
     vars = common_models.JsonDictTextField(default={})

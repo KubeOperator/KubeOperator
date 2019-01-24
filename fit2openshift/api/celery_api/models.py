@@ -31,7 +31,7 @@ class CeleryTask(models.Model):
     root_id = models.UUIDField()
     # root_id = models.UUIDField()
     # parent_id = models.UUIDField(null=True)
-    name = models.CharField(max_length=1024)
+    name = models.CharField(max_length=256)
     state = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATE_PENDING)
     result = common_models.JsonTextField(null=True)
     date_start = models.DateTimeField(auto_now_add=True)
