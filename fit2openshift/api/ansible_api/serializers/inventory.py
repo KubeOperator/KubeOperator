@@ -139,7 +139,7 @@ class InventorySerializer(serializers.Serializer):
 
     def is_valid(self, raise_exception=False):
         if not self.initial_data:
-            raise serializers.ValidationError({"inventory_data": "inventory_data empty"})
+            raise serializers.ValidationError({"inventory": "inventory empty"})
         self._save_point = transaction.savepoint()
         try:
             current_project.clear_inventory()

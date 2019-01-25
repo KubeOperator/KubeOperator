@@ -4,10 +4,11 @@ import logging
 
 from celery.signals import after_setup_logger
 from celery.utils.log import get_logger
+from kombu.utils.encoding import safe_str
 
 from .logger import CeleryTaskFileHandler
 
-
+safe_str = lambda x: x
 logger = get_logger(__file__)
 
 

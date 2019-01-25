@@ -23,4 +23,6 @@ app.autodiscover_tasks(lambda: [app_config.split('.')[0] for app_config in setti
 
 @app.task
 def add(x, y):
+    print('This is a \033[1;35m test \033[0m!')
+    print('\033[1;33;44mThis is a test !\033[0m')
     return x + y

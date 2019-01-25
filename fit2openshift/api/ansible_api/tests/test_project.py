@@ -49,8 +49,8 @@ class ProjectTestCase(BaseTestCase):
         response = self.client.post_json(url, data)
         self.assertEqual(response.status_code, 201, "Response code not 201")
 
-        inventory = data.pop('inventory_data', None)
-        inventory_resp = response.data.pop('inventory_data', None)
+        inventory = data.pop('inventory', None)
+        inventory_resp = response.data.pop('inventory', None)
 
         hosts = {i['hostname']: i for i in inventory.get('hosts')}
         hosts_resp = inventory_resp.get('hosts')

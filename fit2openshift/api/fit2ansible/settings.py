@@ -160,7 +160,7 @@ CELERY_LOG_BROKER_URL = 'redis://:%(password)s@%(host)s:%(port)s/6' % {
 CELERY_LOG_DIR = os.path.join(BASE_DIR, 'data', 'celery')
 
 # Celery using redis as broker
-CELERY_BROKER_URL = 'redis://:%(password)s@%(host)s:%(port)s/3' % {
+CELERY_BROKER_URL = 'redis://:%(password)s@%(host)s:%(port)s/6' % {
     'password': REDIS_PASSWORD,
     'host': REDIS_HOST,
     'port': REDIS_PORT,
