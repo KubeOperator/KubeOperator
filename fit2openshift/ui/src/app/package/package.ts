@@ -16,9 +16,16 @@ export class Config {
   name: string;
   alias: string;
   type: string;
+  options: Option[];
+  value: string;
   default: string;
   require: boolean;
   help_text: string;
+}
+
+export class Option {
+  name: string;
+  alias: string;
 }
 
 export class Role {

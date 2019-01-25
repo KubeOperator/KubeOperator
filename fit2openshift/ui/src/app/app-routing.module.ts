@@ -37,8 +37,7 @@ const routes: Routes = [
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'log', component: LogComponent},
-          {path: 'config', component: ConfigComponent},
-          {path: 'monitor', component: MonitorComponent}
+
         ]
       }
     ]

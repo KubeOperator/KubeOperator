@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {timer} from 'rxjs';
 import {OperaterService} from '../operater/operater.service';
+import {LogService} from '../../log/log.service';
 
 @Component({
   selector: 'app-progress',

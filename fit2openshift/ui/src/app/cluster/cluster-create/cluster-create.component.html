@@ -1,5 +1,5 @@
 <clr-wizard #wizard [(clrWizardOpen)]="createClusterOpened" (clrWizardOnCancel)="onCancel()"
-            (clrWizardOnFinish)="onSubmit()" >
+            (clrWizardOnFinish)="onSubmit()">
   <clr-wizard-title>创建集群</clr-wizard-title>
 
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
@@ -63,23 +63,30 @@
     </form>
   </clr-wizard-page>
 
-  <!--<clr-wizard-page>-->
-  <!--<form>-->
-  <!--<ng-template clrPageTitle>设置参数</ng-template>-->
-  <!--<clr-input-container>-->
-  <!--<label>域名:</label>-->
-  <!--<input clrInput type="text">-->
-  <!--</clr-input-container>-->
+  <clr-wizard-page [clrWizardPageNextDisabled]="!configForm.valid">
+    <ng-template clrPageTitle>设置参数</ng-template>
+    <form #configForm='ngForm' clrForm>
+      <div *ngFor="let config of configs">
+        <div [ngSwitch]="config.type">
+          <clr-input-container *ngSwitchCase="'Input'">
+            <label>{{config.alias}}</label>
+            <label>
+              <input clrInput type="text" [value]="config.default" [(ngModel)]="config.value"
+                     [ngModelOptions]="{standalone: true}" [required]="config.require">
+            </label>
+          </clr-input-container>
 
-  <!--<clr-select-container>-->
-  <!--<label>存储类型:</label>-->
-  <!--<select clrSelect>-->
-  <!--<option>OSS</option>-->
-  <!--<option>OCS</option>-->
-  <!--</select>-->
-  <!--</clr-select-container>-->
-  <!--</form>-->
-  <!--</clr-wizard-page>-->
+          <!--<clr-select-container *ngSwitchCase="'Select'">-->
+          <!--<label>{{config.alias}}</label>-->
+          <!--<select [name]="config.name" clrSelect>-->
+          <!--<option *ngFor="let option of config.options" [value]="option.name">{{option.alias}}</option>-->
+          <!--</select>-->
+          <!--</clr-select-container>-->
+        </div>
+      </div>
+    </form>
+
+  </clr-wizard-page>
 
   <clr-wizard-page>
     <ng-template clrPageTitle>完成</ng-template>
@@ -88,10 +95,19 @@
         <label>集群名称:</label>
         <span>{{cluster.name}}</span>
       </div>
+
+
       <div class="form-group">
         <label>部署模型:</label>
         <span>{{cluster.template}}</span>
       </div>
+
+      <div class="form-group" *ngFor="let config of configs">
+        <label>{{config.alias}}:</label>
+        <span>{{config.value}}</span>
+      </div>
+
+
       <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h5>节点信息</h5>
