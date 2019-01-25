@@ -124,7 +124,7 @@ roles:
       # custom registry
       oreg_url: registory.fit2openshift.io:8082/openshift/origin-${component}:${version}
       system_images_registry: registory.fit2openshift.io:8082
-      openshift_examples_modify_imagestreams: true
+      #openshift_examples_modify_imagestreams: true
       openshift_docker_additional_registries: registory.fit2openshift.io:8082
       openshift_service_catalog_image_prefix: registory.fit2openshift.io:8082/openshift/origin-
       openshift_metrics_image_prefix: registory.fit2openshift.io:8082/openshift/origin-
