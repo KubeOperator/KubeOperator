@@ -8,11 +8,19 @@ services :
                 volumes:
                         - share-volume:/opt/fit2openshift/data/packages
                 environment:
-                        - host_name=10.1.240.44
+                        - REGISTORY_HOSTNAME=10.1.240.44
                 networks:
                         - fit2openshift-network
+        fit2openshift-db:
+                image: mysql:5.7.24
+                ports:
+                        - 3306:3306
+                volumes:
+                        - /opt/fit2openshift/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+                        - /opt/fit2openshift/bin/mysql:/docker-entrypoint-initdb.d/
+                        - host-opt-fit2openshift-mysql-data:/var/lib/mysql
         okd-3.11_offline:
-                image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:3.11
+                image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:v3.11.0-0cbc58b
                 ports:
                         - 8081:8081
                         - 8082:8082
@@ -22,5 +30,10 @@ services :
                         - fit2openshift-network
 volumes:
         share-volume:
+        host-opt-fit2cloud-mysql-data:
+          driver_opts:
+          type: none
+          device: /opt/fit2openshift/data/mysql
+          o: bind
 networks:
         fit2openshift-network:

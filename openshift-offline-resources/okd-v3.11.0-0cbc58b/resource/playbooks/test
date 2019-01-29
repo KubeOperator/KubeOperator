@@ -1,0 +1,8 @@
+
+
+
+[nodes]
+10.1.240.49 ansible_ssh_user=root ansible_ssh_pass=Calong@2015
+[OSEv3:children]
+nodes
+[OSEv3]
