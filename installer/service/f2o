@@ -1,0 +1,55 @@
+#!/bin/bash
+# chkconfig: 2345 10 90
+# description: fit2openshift service
+
+
+docker_compose_file_args="-f /opt/fit2openshift/docker-compose.yml"
+
+function startFIT2OPENSHIFT
+{
+    docker ps
+    docker image ls
+    docker-compose $docker_compose_file_args up -d
+    docker ps
+}
+
+function stopFIT2OPENSHIFT
+{
+    docker ps
+    docker image ls
+    docker-compose $docker_compose_file_args down -v -t 60
+    docker ps
+}
+
+function restartFIT2OPENSHIFT
+{
+    stopFIT2OPENSHIFT
+    docker-compose $docker_compose_file_args up -d
+    docker ps
+}
+
+function statusFIT2OPENSHIFT
+{
+    docker-compose $docker_compose_file_args ps
+}
+
+
+export HOSTNAME=$HOSTNAME
+
+case "$1" in
+        start)
+                startFIT2OPENSHIFT
+                ;;
+        stop)
+                stopFIT2OPENSHIFT
+                ;;
+        restart)
+                restartFIT2OPENSHIFT
+                ;;
+        status)
+                statusFIT2OPENSHIFT
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart|status}"
+                ;;
+esac
