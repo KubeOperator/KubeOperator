@@ -8,6 +8,7 @@ import {TipLevels} from '../../tip/tipLevels';
 import {Node} from '../../node/node';
 import {ClusterService} from '../cluster.service';
 import {NodeService} from '../../node/node.service';
+import {RelationService} from '../relation.service';
 
 @Component({
   selector: 'app-cluster-create',
@@ -26,15 +27,17 @@ export class ClusterCreateComponent implements OnInit {
   packages: Package[] = [];
   templates: Template[] = [];
   nodes: Node[] = [];
+  options = {};
   @Output() create = new EventEmitter<boolean>();
   loadingFlag = false;
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService,
-              private packageService: PackageService) {
+              private packageService: PackageService, private relationService: RelationService) {
   }
 
   ngOnInit() {
     this.listPackages();
+    this.generateChars();
   }
 
   newCluster() {
@@ -119,6 +122,12 @@ export class ClusterCreateComponent implements OnInit {
       this.nodeService.createNode(clusterName, node).subscribe();
     });
   }
+
+
+  generateChars() {
+    this.options = this.relationService.genOptions(this.nodes);
+  }
+
 
   onCancel() {
     this.reset();
