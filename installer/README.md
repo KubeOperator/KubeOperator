@@ -1,4 +1,4 @@
-#  FIT2OPENSHIFT 安装文档
+#  FIT2OPENSHIFT 安装文档
 ## 环境
 -  CPU: 64位双核处理器
 -  内存: 4G DDR3
