@@ -53,6 +53,13 @@ class Cluster(Project):
     template = models.CharField(max_length=64, blank=True, default='')
     current_task_id = models.CharField(max_length=128, blank=True, default='')
 
+    @property
+    def state(self):
+        if not self.current_task_id is "":
+            c = DeployExecution.objects.filter(id=self.current_task_id).first()
+            return c.state
+        return None
+
     def create_roles(self):
         _roles = {}
         for role in self.package.meta.get('roles', []):
@@ -189,10 +196,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        instance = super().save(force_insert, force_update, using, update_fields)
+        super().save(force_insert, force_update, using, update_fields)
         Cluster.objects.filter(id=self.project.id).update(current_task_id=self.id)
-
-
 
     def start(self):
         result = {"raw": {}, "summary": {}}

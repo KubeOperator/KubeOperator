@@ -4,7 +4,6 @@ from django.shortcuts import reverse
 from ansible_api.serializers import HostSerializer, GroupSerializer, ProjectSerializer
 from .models import Cluster, Node, Role, DeployExecution, Package
 
-
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
     'RoleSerializer', 'DeployExecutionSerializer',
@@ -28,8 +27,8 @@ class ClusterSerializer(ProjectSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'comment','current_task_id', 'date_created']
-        read_only_fields = ['id', 'date_created','current_task_id']
+        fields = ['id', 'name', 'package', 'template', 'comment', 'current_task_id', 'state', 'date_created']
+        read_only_fields = ['id', 'date_created', 'current_task_id', 'state']
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -65,7 +64,7 @@ class NodeSerializer(HostSerializer):
 
 class RoleSerializer(GroupSerializer):
     nodes = serializers.SlugRelatedField(
-        many=True,  queryset=Node.objects.all(),
+        many=True, queryset=Node.objects.all(),
         slug_field='name', required=False
     )
     meta = serializers.JSONField()
