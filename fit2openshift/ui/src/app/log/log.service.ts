@@ -23,4 +23,8 @@ export class LogService implements OnInit {
     return this.http.get<Execution[]>(`${baseUrl.replace('{clusterName}', clusterName)}`);
   }
 
+  getExecution(clusterName, executionId): Observable<Execution> {
+    return this.http.get<Execution>(`${baseUrl.replace('{clusterName}', clusterName)}` + executionId);
+  }
+
 }

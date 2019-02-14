@@ -16,18 +16,18 @@ export class OperaterComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
   @Output() currentExecution: Execution;
-  clusterStatus = 'PENDING';
 
   ngOnInit() {
-    this.getClusterStatus();
+    if (this.currentCluster.current_task_id !== '') {
+      this.getCurrentExecution();
+    }
   }
 
-  getClusterStatus() {
-    this.logService.listExecutions(this.currentCluster.name).subscribe(data => {
-      if (data.length > 0) {
-        this.currentExecution = data[0];
+  getCurrentExecution() {
+    this.logService.getExecution(this.currentCluster.name, this.currentCluster.current_task_id).subscribe(data => {
+      this.currentExecution = data;
+      if (this.currentExecution) {
         this.operaterService.executionQueue.next(this.currentExecution);
-        this.clusterStatus = this.currentExecution.state;
       }
     });
   }
@@ -35,7 +35,6 @@ export class OperaterComponent implements OnInit {
   startDeploy() {
     this.operaterService.startDeploy(this.currentCluster.name).subscribe(data => {
       this.currentExecution = data;
-      this.clusterStatus = this.currentExecution.state;
     });
   }
 }

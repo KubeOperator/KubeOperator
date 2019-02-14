@@ -30,9 +30,9 @@ export class TermComponent implements OnInit {
     });
     this.term.open(this.terminal.nativeElement);
     this.operaterService.$executionQueue.subscribe(data => {
+      this.term.clear();
       this.wsUrl = 'ws://' + window.location.host + data.log_ws_url;
       this.wsService.connect(this.wsUrl).subscribe(msg => {
-        console.log(JSON.parse(msg.data));
         this.term.write(JSON.parse(msg.data).message);
       });
     });

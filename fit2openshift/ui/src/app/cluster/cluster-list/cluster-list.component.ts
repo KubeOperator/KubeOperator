@@ -11,10 +11,11 @@ import {TipLevels} from '../../tip/tipLevels';
   styleUrls: ['./cluster-list.component.css']
 })
 export class ClusterListComponent implements OnInit {
-
   loading = true;
   clusters: Cluster[] = [];
-  selected: Cluster[] = [];
+  deleteModal = false;
+  selectedCluster: Cluster = new Cluster();
+
   @Output() addCluster = new EventEmitter<void>();
 
   constructor(private clusterService: ClusterService, private router: Router, private tipService: TipService) {
@@ -33,19 +34,23 @@ export class ClusterListComponent implements OnInit {
     });
   }
 
-  deleteClusters() {
-    if (!(this.selected.length > 0)) {
-      this.tipService.showTip('请选择要删除的集群!', TipLevels.ERROR);
-      return;
-    }
-    this.loading = true;
-    this.selected.forEach(cluster => {
-      this.clusterService.deleteCluster(cluster.name).subscribe(data => {
-        this.listCluster();
-      });
-    });
-    this.loading = false;
+
+  deleteCluster(cluster: Cluster) {
+    this.deleteModal = true;
+    this.selectedCluster = cluster;
   }
+
+  confirmDelete() {
+    this.clusterService.deleteCluster(this.selectedCluster.name).subscribe(data => {
+      this.deleteModal = false;
+      this.listCluster();
+      this.tipService.showTip('删除成功！', TipLevels.SUCCESS);
+    }, error => {
+      this.deleteModal = false;
+      this.tipService.showTip('删除失败！ msg:' + error, TipLevels.ERROR);
+    });
+  }
+
 
   addNewCluster() {
     this.addCluster.emit();

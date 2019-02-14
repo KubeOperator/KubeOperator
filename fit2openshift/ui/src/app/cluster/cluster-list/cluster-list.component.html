@@ -1,12 +1,19 @@
+<clr-modal [(clrModalOpen)]="deleteModal" [clrModalSize]="'lg'">
+  <h3 class="modal-title">确认删除</h3>
+  <div class="modal-body">
+    <p>删除操作不可恢复,确认要删除集群: {{selectedCluster.name}}？</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
+    <button type="button" class="btn" (click)="deleteModal = false">>取消</button>
+  </div>
+</clr-modal>
+
 <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
       <clr-icon shape="plus" size="16"></clr-icon>
       添加
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="deleteClusters()">
-      <clr-icon shape="plus" size="16"></clr-icon>
-      删除
     </button>
   </clr-dg-action-bar>
   <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
@@ -17,6 +24,9 @@
 
 
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
+    <clr-dg-action-overflow>
+      <button class="action-item" (click)="deleteCluster(cluster)">删除</button>
+    </clr-dg-action-overflow>
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.package}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
@@ -29,3 +39,4 @@
   </clr-dg-footer>
 
 </clr-datagrid>
+
