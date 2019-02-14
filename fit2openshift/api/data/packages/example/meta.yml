@@ -57,7 +57,7 @@ roles:
       # Docker / Registry Configuration
       openshift_docker_disable_push_dockerhub: true
       openshift_docker_options: "--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=https://docker.mirrors.ustc.edu.cn"
-      openshift_docker_insecure_registries: docker-registry.default.svc,docker-registry.default.svc.cluster.local,10.1.240.44:8082
+      openshift_docker_insecure_registries: docker-registry.default.svc,docker-registry.default.svc.cluster.local,registory.fit2openshift.io:8082
       # Native high availability cluster method with optional load balancer.
       openshift_master_cluster_method: native
       openshift_master_api_port: 8443

@@ -28,8 +28,8 @@ class ClusterSerializer(ProjectSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'comment', 'date_created']
-        read_only_fields = ['id', 'date_created']
+        fields = ['id', 'name', 'package', 'template', 'comment','current_task_id', 'date_created']
+        read_only_fields = ['id', 'date_created','current_task_id']
 
 
 class ClusterConfigSerializer(serializers.Serializer):

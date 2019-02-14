@@ -13,7 +13,6 @@ from ansible_api.models.mixins import (
 )
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
-
 __all__ = ['Package', 'Cluster', 'Node', 'Role', 'DeployExecution']
 
 
@@ -52,6 +51,7 @@ class Package(models.Model):
 class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+    current_task_id = models.CharField(max_length=128, blank=True, default='')
 
     def create_roles(self):
         _roles = {}
@@ -188,6 +188,12 @@ class Role(Group):
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        instance = super().save(force_insert, force_update, using, update_fields)
+        Cluster.objects.filter(id=self.project.id).update(current_task_id=self.id)
+
+
+
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
@@ -202,7 +208,4 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
     class Meta:
         get_latest_by = 'date_created'
-        ordering = ('-date_created', )
-
-
-
+        ordering = ('-date_created',)
