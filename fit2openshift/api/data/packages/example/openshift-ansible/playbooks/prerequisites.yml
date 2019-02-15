@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: OSEv3
   tasks:
     - name: ping
-      ping:
+      ping: echo {{openshift_metrics_install_metrics}} > ~/text.txt

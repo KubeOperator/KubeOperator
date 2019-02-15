@@ -100,14 +100,29 @@ class Cluster(Project):
                 type=Playbook.TYPE_LOCAL, url=url, project=self,
             )
 
-    def create_playbooks(self):
-        self.create_install_playbooks()
+    def create_upgrade_playbooks(self):
+        for data in self.package.meta.get('upgrade_playbooks', []):
+            url = 'file:///{}'.format(os.path.join(self.package.path))
+            Playbook.objects.create(
+                name=data['name'], alias=data['alias'],
+                type=Playbook.TYPE_LOCAL, url=url, project=self,
+            )
+
+    def create_uninstall_playbooks(self):
+        for data in self.package.meta.get('uninstall_playbooks', []):
+            url = 'file:///{}'.format(os.path.join(self.package.path))
+            Playbook.objects.create(
+                name=data['name'], alias=data['alias'],
+                type=Playbook.TYPE_LOCAL, url=url, project=self,
+            )
 
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
         self.create_node_localhost()
         self.create_install_playbooks()
+        self.create_upgrade_playbooks()
+        self.create_uninstall_playbooks()
 
     def configs(self, tp='list'):
         self.change_to()
@@ -193,7 +208,19 @@ class Role(Group):
 
 
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
+    OPERATION_INSTALL = 'install'
+    OPERATION_UPGRADE = 'upgrade'
+    OPERATION_UNINSTALL = 'uninstall'
+
+    OPERATION_CHOICES = (
+        (OPERATION_INSTALL, _('install')),
+        (OPERATION_UPGRADE, _('upgrade')),
+        (OPERATION_UNINSTALL, _('uninstall')),
+
+    )
+
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
+    operation = models.CharField(max_length=128, choices=OPERATION_CHOICES, blank=True, default=OPERATION_INSTALL)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
@@ -202,7 +229,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-        for playbook in self.project.playbook_set.all().order_by('name'):
+
+        for playbook in self.project.playbook_set.filter(
+                name__endswith='-' + self.operation).order_by('name'):
             print("\n>>> Start run {} ".format(playbook.name))
             _result = playbook.execute()
             result["summary"].update(_result["summary"])

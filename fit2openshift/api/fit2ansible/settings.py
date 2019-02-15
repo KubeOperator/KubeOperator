@@ -16,7 +16,7 @@ import datetime
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
-#添加离线包路径
+# 添加离线包路径
 
 
 # Quick-start development settings - unsuitable for production
@@ -83,6 +83,14 @@ ASGI_APPLICATION = 'fit2ansible.routing.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fit2openshift',
+    #     'USER': 'root',
+    #     'PASSWORD': 'Password123@mysql',
+    #     'HOST': 'fit2openshift-db',
+    #     'PORT': '3306',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'fit2openshift',
@@ -92,7 +100,6 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -112,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -126,7 +132,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -138,7 +143,6 @@ REDIS_PORT = 6379
 
 REDIS_PASSWORD = ""
 LOGIN_URL = '/admin/login'
-
 
 CACHES = {
     'default': {
@@ -193,8 +197,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'ORDERING_PARAM': "order",
     'SEARCH_PARAM': "search",
@@ -207,7 +211,6 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'fit2ansible.swagger.CustomSwaggerAutoSchema',
 }
-
 
 CHANNEL_LAYERS = {
     'default': {
