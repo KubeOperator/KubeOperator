@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.shortcuts import reverse
 
 from ansible_api.serializers import HostSerializer, GroupSerializer, ProjectSerializer
-from .models import Cluster, Node, Role, DeployExecution, Package
+from .models import Cluster, Node, Role, DeployExecution, Package, NodeChangeLog
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -19,6 +19,15 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
+class NodeChangeLogSerializer(serializers.ModelSerializer):
+    meta = serializers.JSONField()
+
+    class Meta:
+        model = NodeChangeLog
+        fields = ['id', 'node', 'original', 'target']
+        read_only_fields = ['id', 'original']
+
+
 class ClusterSerializer(ProjectSerializer):
     package = serializers.SlugRelatedField(
         queryset=Package.objects.all(),
@@ -27,7 +36,7 @@ class ClusterSerializer(ProjectSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'comment', 'current_task_id', 'state', 'date_created']
+        fields = ['id', 'name', 'package', 'template', 'comment', 'current_task_id', 'state', 'date_created', ]
         read_only_fields = ['id', 'date_created', 'current_task_id', 'state']
 
 
@@ -41,6 +50,7 @@ class NodeSerializer(HostSerializer):
         many=True, queryset=Role.objects.all(),
         slug_field='name', required=False
     )
+
     meta = serializers.JSONField()
 
     def get_field_names(self, declared_fields, info):
@@ -55,9 +65,10 @@ class NodeSerializer(HostSerializer):
     class Meta:
         model = Node
         extra_kwargs = HostSerializer.Meta.extra_kwargs
+
         fields = [
             'id', 'name', 'ip', 'username', 'password', 'vars', 'comment',
-            'roles'
+            'roles',
         ]
         read_only_fields = ['id']
 

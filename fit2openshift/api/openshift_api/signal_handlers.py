@@ -3,13 +3,19 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
-from .models import Role, Package, Cluster
+from .models import Role, Package, Cluster, Node
 
 
 @receiver(post_save, sender=Cluster)
 def on_cluster_save(sender, instance=None, **kwargs):
     if instance and instance.template:
         instance.on_cluster_create()
+
+
+@receiver(post_save, sender=Node)
+def on_node_save(sender, instance=None, created=False, **kwargs):
+    if created:
+        instance.on_node_create()
 
 
 def auto_lookup_packages():

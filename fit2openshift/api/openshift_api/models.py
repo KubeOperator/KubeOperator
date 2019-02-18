@@ -1,13 +1,13 @@
 import os
 import uuid
 import yaml
-
+import json
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from common.models import JsonTextField
-from ansible_api.models import Project, Host, Group, Playbook
+from ansible_api.models import Project, Host, Group, Playbook, AdHoc
 from ansible_api.models.mixins import (
     AbstractProjectResourceModel, AbstractExecutionModel
 )
@@ -52,6 +52,7 @@ class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
     current_task_id = models.CharField(max_length=128, blank=True, default='')
+    is_super = models.BooleanField(default=False)
 
     @property
     def state(self):
@@ -162,8 +163,10 @@ class ClusterConfig(models.Model):
 
 
 class Node(Host):
-    class Meta:
-        proxy = True
+    memory = models.fields.BigIntegerField(default=0)
+    os = models.fields.CharField(max_length=128, default="")
+    os_version = models.fields.CharField(max_length=128, default="")
+    cpu_core = models.fields.IntegerField(default=0)
 
     @property
     def roles(self):
@@ -189,6 +192,26 @@ class Node(Host):
 
     def get_var(self, key, default):
         return self.vars.get(key, default)
+
+    def on_node_create(self):
+        self.get_os_info()
+
+    def get_os_info(self):
+        adhoc = AdHoc.objects.create(
+            pattern=self.name,
+            module="setup",
+            args="", project=self.project
+        )
+        result = adhoc.execute()
+        if not result.get('summary', {}).get('success', False):
+            raise Exception("get os info failed!")
+        else:
+            facts = result["raw"]["ok"][self.name]["setup: "]["ansible_facts"]
+            self.memory = facts["ansible_memtotal_mb"]
+            self.cpu_core = facts["ansible_processor_count"]
+            self.os = facts["ansible_distribution"]
+            self.os_version = facts["ansible_distribution_version"]
+            self.save()
 
 
 class Role(Group):
@@ -216,7 +239,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         (OPERATION_INSTALL, _('install')),
         (OPERATION_UPGRADE, _('upgrade')),
         (OPERATION_UNINSTALL, _('uninstall')),
-
     )
 
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
@@ -243,3 +265,18 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('-date_created',)
+
+
+class NodeChangeLog(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    node = models.ForeignKey('Node', on_delete=models.CASCADE)
+    original = models.ForeignKey('ansible_api.Project', related_name="original", on_delete=models.CASCADE)
+    target = models.ForeignKey('ansible_api.Project', related_name="target", on_delete=models.CASCADE)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        n = Host.objects.filter(node=self.node).filter().first()
+        self.original = n.project
+        n.project = self.target
+        Host.save(n)
+        super().save(self)

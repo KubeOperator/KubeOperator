@@ -54,7 +54,7 @@ roles:
       openshift_image_tag: v3.11
       enable_excluders: false
       enable_docker_excluder: false
-      containerized=: true
+      containerized: true
       # Skip env validation
       openshift_disable_check: disk_availability,docker_storage,memory_availability,docker_image_availability
       # Configure usage of openshift_clock role.
@@ -129,8 +129,8 @@ roles:
       installer_ip: registry.fit2openshift.io
 
       # custom registry
-      oreg_url: registory.fit2openshift.io:8082/openshift/origin-${component}:${version}
-      system_images_registry: registory.fit2openshift.io:8082
+      oreg_url: registry.fit2openshift.io:8082/openshift/origin-${component}:${version}
+      system_images_registry: registry.fit2openshift.io:8082
       #openshift_examples_modify_imagestreams: true
       openshift_docker_additional_registries: registry.fit2openshift.io:8082
       openshift_service_catalog_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
