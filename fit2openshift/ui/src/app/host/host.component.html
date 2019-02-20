@@ -1,3 +1,8 @@
-<p>
-  host works!
-</p>
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <h2>主机</h2>
+    <app-tip></app-tip>
+    <app-host-list (addHost)="openModal()"></app-host-list>
+    <app-host-create (create)="createHost($event)"></app-host-create>
+  </div>
+</div>

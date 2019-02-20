@@ -5,10 +5,12 @@ import {ClrWizard} from '@clr/angular';
 import {Config, Package, Template} from '../../package/package';
 import {PackageService} from '../../package/package.service';
 import {TipLevels} from '../../tip/tipLevels';
-import {Node} from '../../node/node';
 import {ClusterService} from '../cluster.service';
 import {NodeService} from '../../node/node.service';
 import {RelationService} from '../relation.service';
+import {Host} from '../../host/host';
+import {Node} from '../../node/node';
+import {HostService} from '../../host/host.service';
 
 @Component({
   selector: 'app-cluster-create',
@@ -27,23 +29,31 @@ export class ClusterCreateComponent implements OnInit {
   packages: Package[] = [];
   templates: Template[] = [];
   nodes: Node[] = [];
-  options = {};
+  hosts: Host[] = [];
   @Output() create = new EventEmitter<boolean>();
   loadingFlag = false;
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService,
-              private packageService: PackageService, private relationService: RelationService) {
+              private packageService: PackageService, private relationService: RelationService, private hostService: HostService) {
   }
 
   ngOnInit() {
     this.listPackages();
-    this.generateChars();
+    this.getAllHost();
   }
 
   newCluster() {
     // 清空对象
     this.reset();
     this.createClusterOpened = true;
+  }
+
+  getAllHost() {
+    this.hostService.listHosts().subscribe(data => {
+      this.hosts = data;
+    }, error => {
+      console.log(error);
+    });
   }
 
   reset() {
@@ -78,7 +88,6 @@ export class ClusterCreateComponent implements OnInit {
       if (tmp.name === this.cluster.template) {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
-            const name = role.name;
             const roleNumber = role.meta.nodes_require[1];
             for (let i = 0; i < roleNumber; i++) {
               const node: Node = new Node();
@@ -86,48 +95,86 @@ export class ClusterCreateComponent implements OnInit {
               node.roles.push(role.name);
               this.nodes.push(node);
             }
+            this.initNodeHostList();
           }
         });
       }
     });
   }
 
-
   onSubmit() {
     if (this.isSubmitGoing) {
       return;
     }
+    this.isSubmitGoing = true;
     this.clusterService.createCluster(this.cluster).subscribe(data => {
-      this.createNodes(this.cluster.name);
-      this.configCluster(this.cluster.name);
-      this.isSubmitGoing = false;
-      this.createClusterOpened = false;
-      this.create.emit(true);
+      this.cluster = data;
+      this.createNodes();
     });
   }
 
-  configCluster(clusterName) {
+  createNodes() {
+    this.nodes.forEach(node => {
+      this.nodeService.createNode(this.cluster.name, node).subscribe(data => {
+        this.configCluster();
+      });
+    });
+  }
+
+
+  configCluster() {
     this.configs.forEach(config => {
       const extraConfig: ExtraConfig = new ExtraConfig();
       extraConfig.key = config.name;
       extraConfig.value = config.value;
-      this.clusterService.configCluster(clusterName, extraConfig).subscribe();
+      this.clusterService.configCluster(this.cluster.name, extraConfig).subscribe(() => {
+        this.isSubmitGoing = false;
+        this.createClusterOpened = false;
+        this.create.emit(true);
+      });
     });
   }
 
-
-  createNodes(clusterName) {
-    this.isSubmitGoing = true;
+  initNodeHostList() {
     this.nodes.forEach(node => {
-      this.nodeService.createNode(clusterName, node).subscribe();
+      node.hostList = this.hosts;
     });
   }
 
-
-  generateChars() {
-    this.options = this.relationService.genOptions(this.nodes);
+  changeNode() {
+    this.nodes.forEach(node => {
+      this.onNodeChange(node);
+    });
   }
 
+  onNodeChange(node: Node) {
+    node.hostList = [];
+    this.hosts.forEach(host => {
+      if (host.cluster === '无' && !this.finds(host, node, this.nodes)) {
+        node.hostList.push(host);
+      }
+    });
+  }
+
+  private finds(host: Host, currentNode: Node, node: Node[]): boolean {
+    let flag = false;
+    for (let i = 0; i < node.length; i++) {
+      if (node[i].host === host.id && currentNode !== node[i]) {
+        flag = true;
+        break;
+      }
+    }
+    return flag;
+  }
+
+
+  getHostInfo(host: Host) {
+    const template = '{N} [{C}核  {M}MB  {O}]';
+    return template.replace('{C}', host.cpu_core.toString())
+      .replace('{M}', host.memory.toString())
+      .replace('{O}', host.os + host.os_version)
+      .replace('{N}', host.name);
+  }
 
   onCancel() {
     this.reset();

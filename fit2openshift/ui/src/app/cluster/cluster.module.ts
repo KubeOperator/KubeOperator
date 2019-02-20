@@ -8,9 +8,10 @@ import {ClusterDetailComponent} from './cluster-detail/cluster-detail.component'
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {TipModule} from '../tip/tip.module';
 import {ClusterRoutingResolverService} from './cluster-routing-resolver.service';
+import {HostFilterPipe} from '../host/host-filter.pipe';
 
 @NgModule({
-  declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent],
+  declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent, HostFilterPipe],
   imports: [
     CommonModule,
     TipModule,

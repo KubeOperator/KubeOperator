@@ -43,9 +43,6 @@ export class NodeCreateComponent implements OnInit {
     this.isSubmitGoing = true;
     this.node.name = this.form.value.name;
     this.node.ip = this.form.value.ip;
-    this.node.username = this.form.value.username;
-    this.node.password = this.form.value.password;
-    this.node.comment = this.form.value.comment;
 
     this.nodeService.createNode(this.currentCluster.name, this.node).subscribe(data => {
       this.isSubmitGoing = false;
@@ -59,6 +56,7 @@ export class NodeCreateComponent implements OnInit {
     this.node = new Node();
     this.createNodeOpened = true;
   }
+
 
   onCancel() {
     this.createNodeOpened = false;

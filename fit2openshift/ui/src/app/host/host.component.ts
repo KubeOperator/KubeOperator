@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {NodeCreateComponent} from '../node/node-create/node-create.component';
+import {NodeListComponent} from '../node/node-list/node-list.component';
+import {HostCreateComponent} from './host-create/host-create.component';
+import {HostListComponent} from './host-list/host-list.component';
 
 @Component({
   selector: 'app-host',
@@ -7,9 +11,31 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HostComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(HostCreateComponent)
+  creationHost: HostCreateComponent;
+
+  @ViewChild(HostListComponent)
+  listHost: HostListComponent;
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
+
+  openModal() {
+    this.creationHost.newHost();
+  }
+
+  createHost(created: boolean) {
+    if (created) {
+      this.refresh();
+    }
+  }
+
+  refresh() {
+    this.listHost.refresh();
+  }
+
 
 }

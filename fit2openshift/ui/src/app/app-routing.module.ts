@@ -14,6 +14,7 @@ import {LogComponent} from './log/log.component';
 import {ConfigComponent} from './config/config.component';
 import {MonitorComponent} from './monitor/monitor.component';
 import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.service';
+import {HostComponent} from './host/host.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
@@ -28,6 +29,7 @@ const routes: Routes = [
       {path: 'cluster', component: ClusterComponent},
       {path: 'offline', component: PackageComponent},
       {path: 'user', component: UserComponent},
+      {path: 'host', component: HostComponent},
       {
         path: 'cluster/:name',
         component: ClusterDetailComponent,

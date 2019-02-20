@@ -1,0 +1,46 @@
+<clr-modal [(clrModalOpen)]="deleteModal" [clrModalSize]="'lg'">
+  <h3 class="modal-title">确认删除</h3>
+  <div class="modal-body">
+    <p>删除操作不可恢复,确认要删除主机: {{selectedHost.name}}？</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
+    <button type="button" class="btn" (click)="deleteModal = false">取消</button>
+  </div>
+</clr-modal>
+
+<clr-datagrid [clrDgLoading]="loading" >
+  <clr-dg-action-bar>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
+      <clr-icon shape="plus" size="16"></clr-icon>
+      添加
+    </button>
+  </clr-dg-action-bar>
+
+  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
+  <clr-dg-column [clrDgField]="ip">IP 地址</clr-dg-column>
+  <clr-dg-column [clrDgField]="cpu_core">CPU(核)</clr-dg-column>
+  <clr-dg-column [clrDgField]="memory">内存(MB)</clr-dg-column>
+  <clr-dg-column [clrDgField]="os">操作系统</clr-dg-column>
+  <clr-dg-column [clrDgField]="cluster">集群</clr-dg-column>
+  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
+    <clr-dg-action-overflow>
+      <button class="action-item" (click)="deleteHost(host)">删除</button>
+    </clr-dg-action-overflow>
+    <clr-dg-cell>{{host.name}}</clr-dg-cell>
+    <clr-dg-cell>{{host.ip}}</clr-dg-cell>
+    <clr-dg-cell>{{host.cpu_core}}</clr-dg-cell>
+    <clr-dg-cell>{{host.memory}}</clr-dg-cell>
+    <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
+    <clr-dg-cell>{{host.cluster}}</clr-dg-cell>
+    <clr-dg-cell>{{host.comment}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>
+

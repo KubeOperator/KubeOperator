@@ -7,7 +7,6 @@
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
   <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid">
-
     <form #basicFrom='ngForm' clrForm>
       <ng-template clrPageTitle>基本信息</ng-template>
       <div class="spinner" *ngIf="loadingFlag">
@@ -17,6 +16,7 @@
         <label>集群名称:</label>
         <input clrInput type="text" [(ngModel)]="cluster.name" name="name" required>
       </clr-input-container>
+
       <clr-select-container>
         <label>离线包:</label>
         <select clrSelect name="package" [(ngModel)]="cluster.package" (change)="packgeOnChange()" required>
@@ -47,18 +47,12 @@
     <form #nodeForm='ngForm' clrForm>
       <div *ngFor="let node of nodes">
         <h5>{{node.name}}</h5>
-        <clr-input-container>
-          <label>IP:</label>
-          <input clrInput type="text" [(ngModel)]="node.ip" [ngModelOptions]="{standalone: true}" required>
-        </clr-input-container>
-        <clr-input-container>
-          <label>username</label>
-          <input clrInput type="text" [(ngModel)]="node.username" [ngModelOptions]="{standalone: true}" required>
-        </clr-input-container>
-        <clr-password-container>
-          <label>password:</label>
-          <input clrPassword type="password" [(ngModel)]="node.password" [ngModelOptions]="{standalone: true}" required>
-        </clr-password-container>
+        <clr-select-container>
+          <label>选择主机:</label>
+          <select clrSelect [(ngModel)]="node.host" name="node" (change)="changeNode()">
+            <option *ngFor="let host of node.hostList " [ngValue]="host.id">{{getHostInfo(host)}}</option>
+          </select>
+        </clr-select-container>
       </div>
     </form>
   </clr-wizard-page>
@@ -106,12 +100,7 @@
         <label>{{config.alias}}:</label>
         <span>{{config.value}}</span>
       </div>
-
-
       <div class="row">
-        <div echarts [options]="options" class="col-lg-12 col-md-12 col-sm-12 col-xs-12"></div>
-
-
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h5>节点信息</h5>
           <table class="table">
@@ -119,6 +108,9 @@
             <tr>
               <th>节点名称</th>
               <th>IP</th>
+              <th>CPU(核)</th>
+              <th>内存</th>
+              <th>操作系统</th>
               <th>角色</th>
             </tr>
             </thead>
@@ -126,13 +118,14 @@
             <tr *ngFor="let node of nodes">
               <td>{{node.name}}</td>
               <td>{{node.ip}}</td>
+              <td>{{node.host_cpu_core}}</td>
+              <td>{{node.host_memory}}</td>
+              <td>{{node.host_os}} {{node.host_os_version}}</td>
               <td>{{node.roles}}</td>
             </tr>
             </tbody>
           </table>
         </div>
-
-
       </div>
     </section>
   </clr-wizard-page>

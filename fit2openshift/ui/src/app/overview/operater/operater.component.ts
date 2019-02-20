@@ -32,8 +32,14 @@ export class OperaterComponent implements OnInit {
     });
   }
 
-  startDeploy() {
-    this.operaterService.startDeploy(this.currentCluster.name).subscribe(data => {
+  install() {
+    this.operaterService.executeOperate(this.currentCluster.name, 'install').subscribe(data => {
+      this.currentExecution = data;
+    });
+  }
+
+  uninstall() {
+    this.operaterService.executeOperate(this.currentCluster.name, 'uninstall').subscribe(data => {
       this.currentExecution = data;
     });
   }

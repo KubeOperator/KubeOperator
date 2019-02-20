@@ -17,8 +17,8 @@ export class OperaterService {
   constructor(private http: HttpClient) {
   }
 
-  startDeploy(clusterName): Observable<any> {
-    return this.http.post(`${this.baseUrl.replace('{clusterName}', clusterName)}`, {}).pipe(
+  executeOperate(clusterName, opt: string): Observable<any> {
+    return this.http.post(`${this.baseUrl.replace('{clusterName}', clusterName)}`, {'operation': opt}).pipe(
       tap(data => {
         this.executionQueue.next(data);
       })

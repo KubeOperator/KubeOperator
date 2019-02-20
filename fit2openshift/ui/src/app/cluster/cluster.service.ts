@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Cluster, ExtraConfig} from './cluster';
 import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
+import {HostService} from '../host/host.service';
 
 
 const baseClusterUrl = '/api/v1/clusters/';
@@ -14,7 +15,7 @@ const baseClusterConfigUrl = '/api/v1/clusters/{cluster_name}/configs/';
 })
 export class ClusterService {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private hostService: HostService) {
   }
 
   listCluster(): Observable<Cluster[]> {
@@ -34,11 +35,6 @@ export class ClusterService {
     );
   }
 
-  getClusterConfigs(clusterName: string): Observable<ExtraConfig[]> {
-    return this.http.get<ExtraConfig[]>(`${baseClusterConfigUrl.replace('{cluster_name}', clusterName)}`).pipe(
-      catchError(error => throwError(error))
-    );
-  }
 
   createCluster(cluster: Cluster): Observable<Cluster> {
     return this.http.post<Cluster>(baseClusterUrl, cluster).pipe(
