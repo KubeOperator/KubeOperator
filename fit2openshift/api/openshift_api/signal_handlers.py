@@ -1,4 +1,4 @@
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -22,6 +22,12 @@ def on_host_save(sender, instance=None, created=False, **kwargs):
 def on_node_save(sender, instance=None, created=False, **kwargs):
     if created and not instance.name == 'localhost':
         instance.on_node_save()
+
+
+@receiver(pre_save, sender=Node)
+def before_node_save(sender, instance=None, created=False, **kwargs):
+    if created and not instance.name == 'localhost':
+        instance.before_node_save()
 
 
 def auto_lookup_packages():

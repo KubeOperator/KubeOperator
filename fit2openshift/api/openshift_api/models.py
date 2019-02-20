@@ -233,6 +233,12 @@ class Node(Ansible_Host):
         self.host.save()
         self.save()
 
+    def before_node_save(self):
+        host = Host.objects.filter(id=self.host_id).first()
+        print(host.node_id)
+        if not host.node_id is None:
+            raise Exception('host ' + host.name + 'in use')
+
     def add_vars(self, _vars):
         __vars = {k: v for k, v in self.vars.items()}
         __vars.update(_vars)
