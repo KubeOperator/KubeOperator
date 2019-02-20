@@ -15,6 +15,7 @@ import {ConfigComponent} from './config/config.component';
 import {MonitorComponent} from './monitor/monitor.component';
 import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.service';
 import {HostComponent} from './host/host.component';
+import {DeployComponent} from './deploy/deploy.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
@@ -38,6 +39,7 @@ const routes: Routes = [
           {path: '', redirectTo: 'overview', pathMatch: 'full'},
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
+          {path: 'deploy', component: DeployComponent},
           {path: 'log', component: LogComponent},
 
         ]

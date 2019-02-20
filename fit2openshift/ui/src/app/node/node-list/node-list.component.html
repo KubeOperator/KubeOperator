@@ -7,16 +7,18 @@
   </clr-dg-action-bar>
   <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
   <clr-dg-column [clrDgField]="ip">IP</clr-dg-column>
+  <clr-dg-column [clrDgField]="cpu_core">CPU(核)</clr-dg-column>
+  <clr-dg-column [clrDgField]="memory">内存(MB)</clr-dg-column>
+  <clr-dg-column [clrDgField]="os">操作系统</clr-dg-column>
   <clr-dg-column [clrDgField]="roles">角色</clr-dg-column>
-  <clr-dg-column [clrDgField]="status">状态</clr-dg-column>
-  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
     <clr-dg-cell>{{node.name}}</clr-dg-cell>
     <clr-dg-cell>{{node.ip}}</clr-dg-cell>
+    <clr-dg-cell>{{node.host_cpu_core}}</clr-dg-cell>
+    <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>
+    <clr-dg-cell>{{node.host_os}} {{node.host_os_version}}</clr-dg-cell>
     <clr-dg-cell>{{node.roles}}</clr-dg-cell>
-    <clr-dg-cell>{{node.status}}</clr-dg-cell>
-    <clr-dg-cell>{{node.comment}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

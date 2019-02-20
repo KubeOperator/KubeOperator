@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Log} from '../log';
 import {LogService} from '../log.service';
 import {Cluster} from '../../cluster/cluster';
-import {Execution} from '../../overview/operater/execution';
+import {Execution} from '../../deploy/operater/execution';
 
 @Component({
   selector: 'app-log-list',

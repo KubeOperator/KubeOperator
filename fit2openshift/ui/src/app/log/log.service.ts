@@ -2,8 +2,8 @@ import {Injectable, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {Log} from './log';
-import {WebsocketService} from '../overview/term/websocket.service';
-import {Execution} from '../overview/operater/execution';
+import {WebsocketService} from '../deploy/term/websocket.service';
+import {Execution} from '../deploy/operater/execution';
 
 const baseUrl = '/api/v1/clusters/{clusterName}/executions/';
 
