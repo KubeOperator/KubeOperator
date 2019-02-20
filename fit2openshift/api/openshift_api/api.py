@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from ansible_api.permissions import IsSuperUser
 from . import serializers
-from .models import Cluster, Node, Role, DeployExecution, Package, NodeChangeLog
+from .models import Cluster, Node, Role, DeployExecution, Package, Host
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 
@@ -17,11 +17,10 @@ class ClusterViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'name'
 
 
-class NodeChangeLogViewSet(viewsets.ModelViewSet):
-    queryset = NodeChangeLog.objects.all()
-    serializer_class = serializers.NodeChangeLogSerializer
+class HostViewSet(viewsets.ModelViewSet):
+    queryset = Host.objects.all()
+    serializer_class = serializers.HostSerializer
     permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'post', 'head', 'options']
 
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):

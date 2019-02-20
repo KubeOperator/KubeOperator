@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
 
-from ansible_api.serializers import HostSerializer, GroupSerializer, ProjectSerializer
-from .models import Cluster, Node, Role, DeployExecution, Package, NodeChangeLog
+from ansible_api.serializers import GroupSerializer, ProjectSerializer
+from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
+from ansible_api.serializers.inventory import HostReadSerializer
+from .models import Cluster, Node, Role, DeployExecution, Package, Host
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -19,13 +21,17 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
-class NodeChangeLogSerializer(serializers.ModelSerializer):
+class HostSerializer(HostReadSerializer):
     meta = serializers.JSONField()
 
     class Meta:
-        model = NodeChangeLog
-        fields = ['id', 'node', 'original', 'target']
-        read_only_fields = ['id', 'original']
+        model = Host
+        extra_kwargs = HostReadSerializer.Meta.extra_kwargs
+        fields = [
+            'id', 'name', 'ip', 'username', 'password', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'comment',
+            'cluster'
+        ]
+        read_only_fields = ['id', 'memory', 'os', 'os_version', 'cpu_core', 'comment', 'cluster']
 
 
 class ClusterSerializer(ProjectSerializer):
@@ -45,7 +51,7 @@ class ClusterConfigSerializer(serializers.Serializer):
     value = serializers.JSONField()
 
 
-class NodeSerializer(HostSerializer):
+class NodeSerializer(AnsibleHostSerializer):
     roles = serializers.SlugRelatedField(
         many=True, queryset=Role.objects.all(),
         slug_field='name', required=False
@@ -64,13 +70,12 @@ class NodeSerializer(HostSerializer):
 
     class Meta:
         model = Node
-        extra_kwargs = HostSerializer.Meta.extra_kwargs
+        extra_kwargs = AnsibleHostSerializer.Meta.extra_kwargs
 
         fields = [
-            'id', 'name', 'ip', 'username', 'password', 'vars', 'comment',
-            'roles',
+            'id', 'name', 'ip', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version'
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip']
 
 
 class RoleSerializer(GroupSerializer):

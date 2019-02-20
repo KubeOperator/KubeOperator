@@ -1,13 +1,15 @@
 import os
 import uuid
 import yaml
-import json
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from ansible_api.models.inventory import BaseHost
+from ansible_api.tasks import run_im_adhoc
 from common.models import JsonTextField
-from ansible_api.models import Project, Host, Group, Playbook, AdHoc
+from ansible_api.models import Project, Group, Playbook, AdHoc
+from ansible_api.models import Host as Ansible_Host
 from ansible_api.models.mixins import (
     AbstractProjectResourceModel, AbstractExecutionModel
 )
@@ -161,20 +163,75 @@ class ClusterConfig(models.Model):
     class Meta:
         abstract = True
 
+    target = models.ForeignKey('ansible_api.Project', related_name="target", on_delete=models.CASCADE)
 
-class Node(Host):
+
+class Host(BaseHost):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    node = models.ForeignKey('Node', default=None, null=True, related_name='node',
+                             on_delete=models.SET_NULL)
     memory = models.fields.BigIntegerField(default=0)
     os = models.fields.CharField(max_length=128, default="")
     os_version = models.fields.CharField(max_length=128, default="")
     cpu_core = models.fields.IntegerField(default=0)
 
     @property
+    def cluster(self):
+        if not self.node is None:
+            return self.node.project.name
+        else:
+            return '无'
+
+    def get_host_info(self):
+        hosts = [self.__dict__]
+        result = run_im_adhoc(adhoc_data={'pattern': self.name, 'module': 'setup'},
+                              inventory_data={'hosts': hosts, 'vars': {}})
+        if not result.get('summary', {}).get('success', False):
+            raise Exception("get os info failed!")
+        else:
+            facts = result["raw"]["ok"][self.name]["setup"]["ansible_facts"]
+            self.memory = facts["ansible_memtotal_mb"]
+            self.cpu_core = facts["ansible_processor_count"]
+            self.os = facts["ansible_distribution"]
+            self.os_version = facts["ansible_distribution_version"]
+            self.save()
+
+
+class Node(Ansible_Host):
+    host = models.ForeignKey('Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
+
+    @property
     def roles(self):
         return self.groups
+
+    @property
+    def host_memory(self):
+        return self.host.memory
+
+    @property
+    def host_cpu_core(self):
+        return self.host.cpu_core
+
+    @property
+    def host_os(self):
+        return self.host.os
+
+    @property
+    def host_os_version(self):
+        return self.host.os_version
 
     @roles.setter
     def roles(self, value):
         self.groups.set(value)
+
+    def on_node_save(self):
+        self.ip = self.host.ip
+        self.username = self.host.username
+        self.password = self.host.password
+        self.private_key = self.host.private_key
+        self.host.node_id = self.id
+        self.host.save()
+        self.save()
 
     def add_vars(self, _vars):
         __vars = {k: v for k, v in self.vars.items()}
@@ -192,26 +249,6 @@ class Node(Host):
 
     def get_var(self, key, default):
         return self.vars.get(key, default)
-
-    def on_node_create(self):
-        self.get_os_info()
-
-    def get_os_info(self):
-        adhoc = AdHoc.objects.create(
-            pattern=self.name,
-            module="setup",
-            args="", project=self.project
-        )
-        result = adhoc.execute()
-        if not result.get('summary', {}).get('success', False):
-            raise Exception("get os info failed!")
-        else:
-            facts = result["raw"]["ok"][self.name]["setup: "]["ansible_facts"]
-            self.memory = facts["ansible_memtotal_mb"]
-            self.cpu_core = facts["ansible_processor_count"]
-            self.os = facts["ansible_distribution"]
-            self.os_version = facts["ansible_distribution_version"]
-            self.save()
 
 
 class Role(Group):
@@ -275,8 +312,11 @@ class NodeChangeLog(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
+        default = Cluster.objects.filter(name='default').first()
         n = Host.objects.filter(node=self.node).filter().first()
         self.original = n.project
+        if self.target == 'default':
+            self.target = default.id
         n.project = self.target
         Host.save(n)
         super().save(self)
