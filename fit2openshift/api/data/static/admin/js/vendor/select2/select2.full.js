@@ -4976,14 +4976,14 @@ S2.define('select2/options',[
     if ($e.data('ajaxUrl')) {
       if (this.options.debug && window.console && console.warn) {
         console.warn(
-          'Select2: The `data-ajax-url` attribute has been changed to ' +
-          '`data-ajax--url` and support for the old attribute will be removed' +
+          'Select2: The `data-ajax-urls` attribute has been changed to ' +
+          '`data-ajax--urls` and support for the old attribute will be removed' +
           ' in future versions of Select2.'
         );
       }
 
-      $e.attr('ajax--url', $e.data('ajaxUrl'));
-      $e.data('ajax--url', $e.data('ajaxUrl'));
+      $e.attr('ajax--urls', $e.data('ajaxUrl'));
+      $e.data('ajax--urls', $e.data('ajaxUrl'));
     }
 
     var dataset = {};

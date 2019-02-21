@@ -95,13 +95,14 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     result_summary = serializers.JSONField(read_only=True)
     log_url = serializers.SerializerMethodField()
     log_ws_url = serializers.SerializerMethodField()
+    progress_ws_url = serializers.SerializerMethodField()
 
     class Meta:
         model = DeployExecution
         fields = '__all__'
         read_only_fields = [
             'id', 'state', 'num', 'result_summary', 'result_raw',
-            'date_created', 'date_start', 'date_end', 'project', 'timedelta'
+            'date_created', 'date_start', 'date_end', 'project', 'timedelta', 'current_task', 'progress'
         ]
 
     @staticmethod
@@ -111,3 +112,7 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_log_ws_url(obj):
         return '/ws/tasks/{}/log/'.format(obj.id)
+
+    @staticmethod
+    def get_progress_ws_url(obj):
+        return '/ws/progress/{}/'.format(obj.id)

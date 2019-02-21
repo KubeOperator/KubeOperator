@@ -9,7 +9,7 @@ if (redocSettings.url) {
     specURL = redocSettings.url;
     delete redocSettings.url;
 }
-redoc.setAttribute("spec-url", specURL);
+redoc.setAttribute("spec-urls", specURL);
 
 function camelToKebab(str) {
     return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();

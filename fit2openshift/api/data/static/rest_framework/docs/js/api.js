@@ -94,7 +94,7 @@ $(function () {
 
     var $form = $(this).closest('form')
     var $requestMethod = $form.find('.request-method')
-    var $requestUrl = $form.find('.request-url')
+    var $requestUrl = $form.find('.request-urls')
     var $toggleView = $form.closest('.modal-content').find('.toggle-view')
     var $responseStatusCode = $form.find('.response-status-code')
     var $meta = $form.find('.meta')

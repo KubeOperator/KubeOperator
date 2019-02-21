@@ -1,7 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
-
-from . import api
+from openshift_api import api
 
 app_name = "openshift_api"
 router = DefaultRouter()
@@ -18,5 +17,4 @@ cluster_router.register(r'roles', api.RoleViewSet, 'cluster-role')
 cluster_router.register(r'executions', api.DeployExecutionViewSet, 'cluster-deploy-execution')
 
 urlpatterns = [
-
               ] + router.urls + cluster_router.urls

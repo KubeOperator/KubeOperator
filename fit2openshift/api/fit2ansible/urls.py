@@ -7,28 +7,26 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from . import error_handler
 
-
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Ansible UI Restful API",
-      default_version='v1',
-      description="It's ansible ui project restful api document",
-      terms_of_service="http://www.jumpserver.org",
-      contact=openapi.Contact(email="ibuler@fit2cloud.com"),
-      license=openapi.License(name="GPLv2"),
-   ),
-   # validators=['flex', 'ssv'],
-   public=True,
-   # permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="Ansible UI Restful API",
+        default_version='v1',
+        description="It's ansible ui project restful api document",
+        terms_of_service="http://www.jumpserver.org",
+        contact=openapi.Contact(email="ibuler@fit2cloud.com"),
+        license=openapi.License(name="GPLv2"),
+    ),
+    # validators=['flex', 'ssv'],
+    public=True,
+    # permission_classes=(permissions.AllowAny,),
 )
 
 
 def get_api_v1_urlpatterns():
     _urlpatterns = [
         path('', include('users.urls')),
-        # path('', include('ansible_api.urls.api_urls')),
         path('', include('celery_api.urls.api_urls')),
-        path('', include('openshift_api.url')),
+        path('', include('openshift_api.api_url')),
     ]
     return _urlpatterns
 

@@ -286,6 +286,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
     operation = models.CharField(max_length=128, choices=OPERATION_CHOICES, blank=True, default=OPERATION_INSTALL)
+    current_task = models.CharField(max_length=128, null=True, blank=True, default=None)
+    progress = models.FloatField(max_length=64, null=True, blank=True, default=0.0)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
@@ -294,16 +296,37 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-
-        for playbook in self.project.playbook_set.filter(
-                name__endswith='-' + self.operation).order_by('name'):
+        playbooks = self.project.playbook_set.filter(name__endswith='-' + self.operation).order_by('name')
+        for index, playbook in enumerate(playbooks):
             print("\n>>> Start run {} ".format(playbook.name))
+            self.update_task(playbook.name)
             _result = playbook.execute()
             result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):
                 break
+            else:
+                self.update_progress((index + 1) / len(playbooks))
+            if len(playbooks) == index + 1:
+                self.update_task('Finish')
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)
         return result
+
+    def update_task(self, task):
+
+        self.current_task = task
+        self.save()
+
+    def update_progress(self, progress):
+        self.progress = progress
+        self.save()
+
+    def to_json(self):
+        return {
+            'id': self.id.__str__(),
+            'progress': self.progress,
+            'current_task': self.current_task,
+            'state': self.state
+        }
 
     class Meta:
         get_latest_by = 'date_created'

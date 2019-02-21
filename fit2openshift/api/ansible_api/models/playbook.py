@@ -155,7 +155,7 @@ class Playbook(AbstractProjectResourceModel):
     type = models.CharField(choices=TYPE_CHOICES, default=TYPE_JSON, max_length=16)
     plays = models.ManyToManyField('Play', verbose_name='Plays')
     git = common_models.JsonDictCharField(max_length=4096, default={'repo': '', 'branch': 'master'})
-    url = models.URLField(verbose_name=_("http url"), blank=True)
+    url = models.URLField(verbose_name=_("http urls"), blank=True)
     update_policy = models.CharField(choices=UPDATE_POLICY_CHOICES, max_length=16, default=UPDATE_POLICY_IF_NOT_PRESENT)
 
     # Extra schedule content
