@@ -5,12 +5,14 @@
   <clr-dg-column [clrDgField]="timestamp">创建时间</clr-dg-column>
   <clr-dg-column [clrDgField]="timestamp">开始时间</clr-dg-column>
   <clr-dg-column [clrDgField]="timestamp">完成时间</clr-dg-column>
+  <clr-dg-column [clrDgField]="timestamp">耗时</clr-dg-column>
   <clr-dg-column [clrDgField]="timestamp">状态</clr-dg-column>
   <clr-dg-row *ngFor="let execution of executions" [clrDgItem]="log">
-    <clr-dg-cell>部署</clr-dg-cell>
+    <clr-dg-cell>{{execution.operation}}</clr-dg-cell>
     <clr-dg-cell>{{execution.date_created}}</clr-dg-cell>
     <clr-dg-cell>{{execution.date_start}}</clr-dg-cell>
     <clr-dg-cell>{{execution.date_end}}</clr-dg-cell>
+    <clr-dg-cell>{{execution.timedelta}}</clr-dg-cell>
     <clr-dg-cell>{{execution.state}}</clr-dg-cell>
   </clr-dg-row>
 

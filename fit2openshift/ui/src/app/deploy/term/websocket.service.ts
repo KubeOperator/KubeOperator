@@ -9,11 +9,8 @@ export class WebsocketService {
   constructor() {
   }
 
-  private subject: Subject<MessageEvent>;
-
   connect(url): Subject<MessageEvent> {
-    this.subject = this.create(url);
-    return this.subject;
+    return this.create(url);
   }
 
   create(url): Subject<MessageEvent> {
