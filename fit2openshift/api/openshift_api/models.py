@@ -308,21 +308,3 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('-date_created',)
-
-
-class NodeChangeLog(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    node = models.ForeignKey('Node', on_delete=models.CASCADE)
-    original = models.ForeignKey('ansible_api.Project', related_name="original", on_delete=models.CASCADE)
-    target = models.ForeignKey('ansible_api.Project', related_name="target", on_delete=models.CASCADE)
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        default = Cluster.objects.filter(name='default').first()
-        n = Host.objects.filter(node=self.node).filter().first()
-        self.original = n.project
-        if self.target == 'default':
-            self.target = default.id
-        n.project = self.target
-        Host.save(n)
-        super().save(self)

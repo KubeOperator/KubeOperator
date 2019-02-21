@@ -54,7 +54,7 @@ def on_execution_end(sender, execution, result, **kwargs):
     execution.result_summary = result.get('summary', {})
     execution.result_raw = result.get('raw', {})
     execution.state = state
-    execution.date_finished = date_finished
+    execution.date_end = date_finished
     execution.timedelta = timedelta
     execution.save()
 
