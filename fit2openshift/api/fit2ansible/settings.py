@@ -14,10 +14,12 @@ import os
 import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from fit2ansible.conf import load_env
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
 # 添加离线包路径
-
+FIT2OPENSHIFT_ENVS = load_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -81,7 +83,7 @@ ASGI_APPLICATION = 'fit2ansible.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
+# read conf
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
@@ -91,14 +93,7 @@ DATABASES = {
     #     'HOST': 'fit2openshift-db',
     #     'PORT': '3306',
     # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fit2openshift',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': FIT2OPENSHIFT_ENVS['DATA_BASE']
 }
 
 # Password validation
