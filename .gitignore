@@ -1,7 +1,14 @@
+*.retry
+*.swo
 .DS_Store
 *.pyc
 *.pyo
 *.swp
+*.swo
+*.retry
+*.tar
+*.gz
+*.rpm
 .env
 env
 venv

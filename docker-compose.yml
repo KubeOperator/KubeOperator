@@ -2,38 +2,47 @@ version : '2'
 services : 
         fit2openshift: 
                 image: registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest
+                container_name: fit2openshift-app
                 ports: 
                         - 80:80 
                         - 8080:8080
                 volumes:
-                        - share-volume:/opt/fit2openshift/data/packages
+                        - share-volumes:/opt/fit2openshift/data/packages
                 environment:
                         - REGISTORY_HOSTNAME=10.1.240.44
                 networks:
                         - fit2openshift-network
+                restart: always
         fit2openshift-db:
+                container_name: fit2openshift-db
                 image: mysql:5.7.24
+                env_file:
+                        - /opt/fit2openshift/mysql/mysql.env
                 ports:
                         - 3306:3306
                 volumes:
                         - /opt/fit2openshift/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
-                        - /opt/fit2openshift/bin/mysql:/docker-entrypoint-initdb.d/
+                        - /opt/fit2openshift/mysql/bin:/docker-entrypoint-initdb.d/
                         - host-opt-fit2openshift-mysql-data:/var/lib/mysql
+                networks:
+                  - fit2openshift-network
         okd-3.11_offline:
+                container_name: okd-3.11_offline
                 image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:v3.11.0-0cbc58b
                 ports:
                         - 8081:8081
                         - 8082:8082
                 volumes:
-                        - share-volume:/opt/fit2openshift/offline_packages
+                        - share-volumes:/opt/fit2openshift/offline_packages
                 networks:
                         - fit2openshift-network
+
 volumes:
-        share-volume:
-        host-opt-fit2cloud-mysql-data:
+        host-opt-fit2openshift-mysql-data:
           driver_opts:
-          type: none
-          device: /opt/fit2openshift/data/mysql
-          o: bind
+            type: none
+            device: /opt/fit2openshift/data/mysql
+            o: bind
+        share-volumes:
 networks:
         fit2openshift-network:
