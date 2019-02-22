@@ -26,7 +26,6 @@ RUN mkdir -p /root/.ssh/
 # RUN echo "ClusterHost *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > /root/.ssh/config
 
 ADD ./api/ /opt/fit2openshift
-ADD ./default.conf /etc/nginx/conf.d/
 ADD ./ui/dist/fit2openshift-portal /usr/share/nginx/html
 
 
