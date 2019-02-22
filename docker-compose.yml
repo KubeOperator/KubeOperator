@@ -21,8 +21,8 @@ services :
                 ports:
                         - 3306:3306
                 volumes:
-                        - /opt/fit2openshift/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
-                        - /opt/fit2openshift/mysql/bin:/docker-entrypoint-initdb.d/
+                        - /opt/fit2openshift/conf/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+                        - /opt/fit2openshift/conf/mysql/bin:/docker-entrypoint-initdb.d/
                         - host-opt-fit2openshift-mysql-data:/var/lib/mysql
                 networks:
                   - fit2openshift-network
