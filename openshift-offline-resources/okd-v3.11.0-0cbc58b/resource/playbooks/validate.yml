@@ -84,7 +84,7 @@
 
 
 - name: Cleanup validation trash
-  hosts: all
+  hosts: OSEv3
   gather_facts: yes
   roles:
   - check_cleanup

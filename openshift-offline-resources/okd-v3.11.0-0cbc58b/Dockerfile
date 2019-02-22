@@ -40,11 +40,14 @@ ENV NEXUS_HOME=${SONATYPE_DIR}/nexus \
 
 ARG NEXUS_REPOSITORY_MANAGER_COOKBOOK_VERSION="release-0.5.20180828-231916.863899c"
 ARG NEXUS_REPOSITORY_MANAGER_COOKBOOK_URL="https://github.com/sonatype/chef-nexus-repository-manager/releases/download/${NEXUS_REPOSITORY_MANAGER_COOKBOOK_VERSION}/chef-nexus-repository-manager.tar.gz"
-ENV  OFFLINE_PACKAGE=/opt/fit2openshift/offline_packages/okd-3.11
-ADD solo.json.erb /var/chef/solo.json.erb
+ENV  OFFLINE_PACKAGE=/opt/fit2openshift/offline_packages
+ADD ./okd-3.11-meta/solo.json.erb /var/chef/solo.json.erb
+ADD ./okd-3.11-meta/dependencies/chef-14.9.13-1.el7.x86_64.rpm /opt
+
+RUN rpm -ihv /opt/chef-14.9.13-1.el7.x86_64.rpm
 
 # Install using chef-solo
-RUN curl -L https://www.getchef.com/chef/install.sh | bash \
+RUN echo hello chef \
     && /opt/chef/embedded/bin/erb /var/chef/solo.json.erb > /var/chef/solo.json \
     && chef-solo \
        --recipe-url ${NEXUS_REPOSITORY_MANAGER_COOKBOOK_URL} \
@@ -58,14 +61,12 @@ RUN curl -L https://www.getchef.com/chef/install.sh | bash \
 
 COPY ./okd-3.11-meta/nexus-okd  ${NEXUS_DATA}
 
-COPY ./resource ${OFFLINE_PACKAGE}
+COPY ./resource ${OFFLINE_PACKAGE}/okd-v3.11.0-0cbc58b
 
-RUN chmod -R 777 ${NEXUS_DATA}
+RUN chmod -R 777 ${NEXUS_DATA} && chmod -R 777 ${OFFLINE_PACKAGE}
 
-VOLUME ${OFFLINE_PACKAGE} 
-VOLUME ${NEXUS_DATA}
 
-EXPOSE 8081
+EXPOSE 8081 8082
 USER nexus
 
 ENV INSTALL4J_ADD_VM_PARAMS="-Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=2g -Djava.util.prefs.userRoot=${NEXUS_DATA}/javaprefs"
