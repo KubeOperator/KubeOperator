@@ -1,0 +1,8 @@
+DATA_BASE:
+  DATA_BASE:
+  ENGINE: 'django.db.backends.mysql'
+  NAME: 'fit2openshift'
+  USER: 'root'
+  PASSWORD: 'Password123@mysql'
+  HOST: 'fit2openshift-db'
+  PORT: '3306'
