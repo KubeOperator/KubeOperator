@@ -8,9 +8,19 @@ function colorMsg()
   echo -e "\033[$1m $2 \033[0m"
 }
 
+function success()
+{
+if [ "$?" == "0" ];then    
+    exit 1
+else 
+    colorMsg $green "[ok]"
+fi
+}
+
+
+
 colorMsg $blue "INSTALL BUILD TOOLS"
 
-printf "%-65s .......... " "Install Node.js:"
 logPath="/opt/fit2openshift/logs/install/"
 timestamp=$(date -d now +%F)
 errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
@@ -19,35 +29,42 @@ fullLogFile=${logPath}"install_"${timestamp}".log"
 
 #install node,docker
 #install node
-node -v  
-if [ "$?" == "0" ];then
-    echo "Skip install node..."
-else
+ 
+printf "%-65s .......... " "Install Node:"
+hasNode=`which node 2>&1`
+if [[ "${hasNode}" =~ "no node" ]]; then
     wget https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz -O /tmp/node-v8.11.2-linux-x64.tar.xz 1>>$infoLogFile 2>>$errorLogFile  \
     && cd /tmp \
     && xz -d node-v8.11.2-linux-x64.tar.xz \
     && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1<&2 \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/node /usr/bin/node \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/npm /usr/bin/npm \
-    && rm -fr /tmp/node-v8.11.2-linux-x64.tar.xz	
- .  && npm i npm@latest -g
+    && rm -fr /tmp/node-v8.11.2-linux-x64.tar.xz \
+    && npm i npm@latest -g 1>>$infoLogFile 2>>$errorLogFile
+    success
+else 
+    colorMsg $green "[ok]"
 fi
+
+printf "\n"
 printf "%-65s .......... " "Install Docker::"
 
 #install docker
-docker -v
-if [ "$?" == "0" ];then
-    echo "Skip install docker..."
-else
-    yum install docker 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1<&2  && service docker start
+hasDocker=`which docker 2>&1`
+if [[ "${hasDocker}" =~ "no docker" ]]; then
+    yum install docker 1>>$infoLogFile 2>>$errorLogFile   && service docker start
+    success
+else 
+    colorMsg $green "[ok]"
 fi
+printf "\n"
 
+printf "%-65s .......... " "Install Angular Cli:"
 #install ng
-ng version
-if [ "$?" == "0" ];then
-    echo "Skip install angular..."
-else
-    npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile 
+hasNg=`which docker 2>&1`
+if [[ "${hasNg}" =~ "no ng" ]]; then
+     npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile 
+     success
+else 
+    colorMsg $green "[ok]"
 fi
-
-colorMsg $green "[OK]"
