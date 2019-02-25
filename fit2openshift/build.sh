@@ -18,7 +18,7 @@ errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
 infoLogFile=${logPath}"info/install_info_"${timestamp}".log"
 fullLogFile=${logPath}"install_"${timestamp}".log"
 printf "%-65s .......... " "Build fit2openshift webconsole ui:"
-cd ui && ng config -g cli.warnings.versionMismatch false && ng build 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1>&2
+cd ui && npm run-script build 1>>$infoLogFile 2>>$errorLogFile
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"
 else
@@ -30,7 +30,7 @@ else
 fi
 
 printf "%-65s .......... " "Build fit2openshift webconsole api: "
-cd .. && docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:test . 1>>$infoLogFile 2>>$errorLogFile $fullLogFile 1>&2
+cd .. && docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:test . 1>>$infoLogFile 2>>$errorLogFile
 
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"

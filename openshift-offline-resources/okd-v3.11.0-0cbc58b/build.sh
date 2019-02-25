@@ -21,8 +21,8 @@ fullLogFile=${logPath}"install_"${timestamp}".log"
 printf "%-65s .......... " "build image: okd_ffline_package:v3.11.0-0cbc58b"
 
 cd okd-3.11-meta \
-&& ./download-dependencies.sh 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1>&2 \
-&&  docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:v3.11.0-0cbc58b . 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1>&2 \
+&& ./download-dependencies.sh 1>>$infoLogFile 2>>$errorLogFile  \
+&&  docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:v3.11.0-0cbc58b . 1>>$infoLogFile 2>>$errorLogFile \
 
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"
