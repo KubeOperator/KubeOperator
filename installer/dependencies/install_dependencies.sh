@@ -13,13 +13,12 @@ function success()
 if [ "$?" == "0" ];then    
     exit 1
 else 
-    colorMsg $green "[ok]"
+    colorMsg $green "[OK]"
 fi
 }
 
 
 
-colorMsg $blue "INSTALL BUILD TOOLS"
 
 logPath="/opt/fit2openshift/logs/install/"
 timestamp=$(date -d now +%F)
@@ -43,7 +42,7 @@ if [[ "${hasNode}" =~ "no node" ]]; then
     && npm i npm@latest -g 1>>$infoLogFile 2>>$errorLogFile
     success
 else 
-    colorMsg $green "[ok]"
+   colorMsg $green "[OK]"
 fi
 
 printf "\n"
@@ -55,7 +54,7 @@ if [[ "${hasDocker}" =~ "no docker" ]]; then
     yum install docker 1>>$infoLogFile 2>>$errorLogFile   && service docker start
     success
 else 
-    colorMsg $green "[ok]"
+    colorMsg $green "[OK]"
 fi
 printf "\n"
 
@@ -66,5 +65,5 @@ if [[ "${hasNg}" =~ "no ng" ]]; then
      npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile 
      success
 else 
-    colorMsg $green "[ok]"
+   colorMsg $green "[OK]"
 fi

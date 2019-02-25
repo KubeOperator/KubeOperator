@@ -59,7 +59,7 @@ RUN echo hello chef \
     && rm -rf /var/cache/yum \
     && rm -rf /var/chef
 
-COPY ./okd-3.11-meta/nexus-okd  ${NEXUS_DATA}
+COPY ./okd-3.11-meta/nexus-data  ${NEXUS_DATA}
 
 COPY ./resource ${OFFLINE_PACKAGE}/okd-v3.11.0-0cbc58b
 

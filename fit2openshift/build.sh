@@ -10,8 +10,6 @@ function colorMsg()
 {
   echo -e "\033[$1m $2 \033[0m"
 }
-
-colorMsg $blue "Build FIT2OPENSHIFT IMAGES"
 logPath="/opt/fit2openshift/logs/install/"
 timestamp=$(date -d now +%F)
 errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
@@ -28,7 +26,7 @@ else
     printf "\n"
     exit 1
 fi
-
+print "\n"
 printf "%-65s .......... " "Build fit2openshift webconsole api: "
 cd .. && docker build --rm=true --tag=registry.fit3cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest . 1>>$infoLogFile 2>>$errorLogFile
 
@@ -42,4 +40,3 @@ else
     exit 1
 fi
 
-colorMsg $blue "Build FIT2OPENSHIFT IMAGES completed!"
