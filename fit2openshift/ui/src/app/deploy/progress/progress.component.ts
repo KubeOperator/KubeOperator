@@ -40,10 +40,8 @@ export class ProgressComponent implements OnInit, OnDestroy {
     this.deployService.$executionQueue.subscribe(data => {
       this.currentExecution = data;
       if (this.currentExecution === null) {
-        this.showProgress = false;
       } else {
         // 判断是否完成
-        this.showProgress = true;
         if (this.currentExecution.state !== 'SUCCESS' && this.currentExecution.state !== 'FAILURE') {
           this.subProgress();
         } else {

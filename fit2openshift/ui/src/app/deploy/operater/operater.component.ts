@@ -27,7 +27,6 @@ export class OperaterComponent implements OnInit {
           this.disableBtn = true;
         }
       }
-
       this.deployService.$finished.subscribe(finished => {
         this.disableBtn = !finished;
       });

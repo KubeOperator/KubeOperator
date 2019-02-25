@@ -35,15 +35,15 @@ export class TermComponent implements OnInit, OnDestroy {
         } else {
           this.getLog();
         }
-        this.operaterService.$executionQueue.subscribe(e => {
-          this.term.clear();
-          if (this.logSub !== undefined && !this.logSub.closed) {
-            this.logSub.unsubscribe();
-          }
-          this.currentExecution = e;
-          this.subLog();
-        });
       }
+      this.operaterService.$executionQueue.subscribe(e => {
+        this.term.clear();
+        if (this.logSub !== undefined && !this.logSub.closed) {
+          this.logSub.unsubscribe();
+        }
+        this.currentExecution = e;
+        this.subLog();
+      });
     });
 
     this.term = new Terminal({

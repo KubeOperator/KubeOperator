@@ -18,7 +18,8 @@ export class DeployComponent implements OnInit {
   currentCluster: Cluster;
   currentExecution: Execution;
 
-  constructor(private route: ActivatedRoute, private clusterService: ClusterService, private executionService: LogService, private deployService: DeployService) {
+  constructor(private route: ActivatedRoute, private clusterService: ClusterService, private executionService: LogService,
+              private deployService: DeployService) {
   }
 
 
@@ -29,7 +30,7 @@ export class DeployComponent implements OnInit {
       // 更新cluster
       this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
         this.currentCluster = cluster;
-        if (cluster.current_task_id != null) {
+        if (cluster.current_task_id) {
           this.executionService.getExecution(this.currentCluster.name, this.currentCluster.current_task_id).subscribe(execution => {
             this.deployService.next(execution);
           });
