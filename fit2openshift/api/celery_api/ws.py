@@ -13,6 +13,7 @@ class CeleryLogWebsocket(JsonWebsocketConsumer):
     def connect(self):
         task_id = self.scope['url_route']['kwargs']['task_id']
         log_path = get_celery_task_log_path(task_id)
+        self.accept()
         try:
             self.task_log_f = open(log_path)
         except OSError:
@@ -20,7 +21,6 @@ class CeleryLogWebsocket(JsonWebsocketConsumer):
             self.disconnect(None)
             return
 
-        self.accept()
         self.send_log_to_client()
 
     def disconnect(self, close_code):
@@ -37,5 +37,6 @@ class CeleryLogWebsocket(JsonWebsocketConsumer):
                     data = data.replace('\n', '\r\n')
                     self.send_json({'message': data})
                 time.sleep(0.2)
+
         thread = threading.Thread(target=func)
         thread.start()
