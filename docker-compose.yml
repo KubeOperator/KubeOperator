@@ -17,7 +17,7 @@ services :
                 container_name: fit2openshift-db
                 image: mysql:5.7.24
                 env_file:
-                        - /opt/fit2openshift/mysql/mysql.env
+                        - /opt/fit2openshift/conf/mysql/mysql.env
                 ports:
                         - 3306:3306
                 volumes:

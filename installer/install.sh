@@ -40,12 +40,11 @@ colorMsg $blue "Powered by FIT2CLOUD 飞致云"
 echo -e " \n"
 
 basepath=$(cd `dirname $0`; pwd)/..
-
-#install node and docker
-cd $basepath/installer/dependencies && ./install_dependencies.sh
-exit_error
 #copy install files
 cd $basepath/installer/scripts && ./copy_files.sh
+exit_error
+#install node and docker
+cd $basepath/installer/dependencies && ./install_dependencies.sh
 exit_error
 #build openshift
 cd $basepath/fit2openshift && ./build.sh

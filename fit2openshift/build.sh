@@ -30,7 +30,7 @@ else
 fi
 
 printf "%-65s .......... " "Build fit2openshift webconsole api: "
-cd .. && docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:test . 1>>$infoLogFile 2>>$errorLogFile
+cd .. && docker build --rm=true --tag=registry.fit3cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest . 1>>$infoLogFile 2>>$errorLogFile
 
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"
