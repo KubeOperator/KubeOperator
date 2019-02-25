@@ -1,0 +1,129 @@
+---
+# We should print out deprecations prior to any failures so that if a play does fail for other reasons
+# the user would also be aware of any deprecated variables they should note to adjust
+- include_tasks: deprecations.yml
+  when: not ( openshift_skip_deprecation_check | default(false) ) | bool
+
+- name: Standardize on latest variable names
+  set_fact:
+    deployment_subtype: "{{ openshift_deployment_subtype | default(deployment_subtype) | default('basic') | string }}"
+    openshift_deployment_subtype: "{{ openshift_deployment_subtype | default(deployment_subtype) | default('basic') | string }}"
+
+- name: Normalize openshift_release
+  set_fact:
+    # Normalize release if provided, e.g. "v3.5" => "3.5"
+    # Currently this is not required to be defined for all installs, and the
+    # `openshift_version` role can generally figure out the specific version
+    # that gets installed (e.g. 3.5.0.1). So consider this the user's expressed
+    # intent (if any), not the authoritative version that will be installed.
+    openshift_release: "{{ openshift_release | string | regex_replace('^v', '') }}"
+  when: openshift_release is defined
+
+- name: Abort when openshift_release is invalid
+  when:
+    - openshift_release is defined
+    - not (openshift_release is match('^\d+(\.\d+){1,3}$'))
+  fail:
+    msg: |-
+      openshift_release is "{{ openshift_release }}" which is not a valid version string.
+      Please set openshift_release to a version string and ensure that the value is quoted, ex: openshift_release="3.4".
+
+- include_tasks: unsupported.yml
+  when:
+    - not openshift_enable_unsupported_configurations | default(false) | bool
+
+- name: Ensure clusterid is set along with the cloudprovider
+  fail:
+    msg: >
+      Ensure that the openshift_clusterid is set and that all infrastructure has the required tags.
+
+      For dynamic provisioning when using multiple clusters in different zones, tag each node with Key=kubernetes.io/cluster/xxxx,Value=clusterid where xxxx and clusterid are unique per cluster. In versions prior to 3.6, this was Key=KubernetesCluster,Value=clusterid.
+
+      https://github.com/openshift/openshift-docs/blob/master/install_config/persistent_storage/dynamically_provisioning_pvs.adoc#available-dynamically-provisioned-plug-ins
+  when:
+    - openshift_clusterid is not defined
+    - openshift_cloudprovider_kind is defined
+    - openshift_cloudprovider_kind == 'aws'
+
+- name: Ensure ansible_service_broker_remove and ansible_service_broker_install are mutually exclusive
+  fail:
+    msg: >
+      Ensure ansible_service_broker_remove and ansible_service_broker_install are mutually exclusive,
+      do not set both to true. ansible_service_broker_install defaults to true.
+  when:
+    - ansible_service_broker_remove | default(false) | bool
+    - ansible_service_broker_install | default(true) | bool
+
+- name: Ensure template_service_broker_remove and template_service_broker_install are mutually exclusive
+  fail:
+    msg: >
+      Ensure that template_service_broker_remove and template_service_broker_install are mutually exclusive,
+      do not set both to true. template_service_broker_remove defaults to true.
+  when:
+    - template_service_broker_remove | default(false) | bool
+    - template_service_broker_install | default(true) | bool
+
+- name: Ensure that all requires vsphere configuration variables are set
+  fail:
+    msg: >
+      When the vSphere cloud provider is configured you must define all of these variables:
+      openshift_cloudprovider_vsphere_username, openshift_cloudprovider_vsphere_password,
+      openshift_cloudprovider_vsphere_host, openshift_cloudprovider_vsphere_datacenter,
+      openshift_cloudprovider_vsphere_datastore
+  when:
+    - openshift_cloudprovider_kind is defined
+    - openshift_cloudprovider_kind == 'vsphere'
+    - ( openshift_cloudprovider_vsphere_username is undefined or openshift_cloudprovider_vsphere_password is undefined or
+        openshift_cloudprovider_vsphere_host is undefined or openshift_cloudprovider_vsphere_datacenter is undefined or
+        openshift_cloudprovider_vsphere_datastore is undefined )
+
+- name: Ensure azure configuration variables are defined
+  when: openshift_cloudprovider_kind | default('none') == 'azure'
+  block:
+    - name: ensure provider configuration variables are defined
+      fail:
+        msg: >
+          Required variable(s) for azure provider not defined. Refer to documentation
+          for more information on configuring for azure provider.
+
+          https://github.com/openshift/openshift-docs/blob/master/install_config/configuring_azure.adoc
+      when: >
+        openshift_cloudprovider_azure_client_id is not defined
+        or openshift_cloudprovider_azure_client_secret is not defined
+        or openshift_cloudprovider_azure_tenant_id is not defined
+        or openshift_cloudprovider_azure_subscription_id is not defined
+        or openshift_cloudprovider_azure_resource_group is not defined
+        or openshift_cloudprovider_azure_location is not defined
+
+- name: Ensure removed web console extension variables are not set
+  fail:
+    msg: >
+      The OpenShift web console extensions must now be served as URLs. You can
+      add extensions using the openshift_web_console_extension_script_urls
+      and openshift_web_console_extension_stylesheet_urls variables. The
+      following variables are no longer used: openshift_master_extension_scripts,
+      openshift_master_extension_stylesheets, openshift_master_extensions
+  when:
+    - openshift_master_extension_scripts is defined or openshift_master_extension_stylesheets is defined or openshift_master_extensions is defined
+
+- name: Ensure that web console port matches API server port
+  fail:
+    msg: >
+      The OpenShift web console port must now match the API server port. If you
+      were previoiusly running the web console on a different port than the API
+      server, please open a support ticket.
+  when:
+    - openshift_master_console_port is defined
+    - openshift_master_console_port != openshift_master_api_port
+
+- name: At least one master is schedulable
+  fail:
+    msg: >
+      No schedulable masters found, please remove 'openshift_schedulable=False' from all of your masters.
+  when:
+    - l_master_schedulable | length > 0
+    - false in l_master_schedulable
+  vars:
+    l_masters: "{{ groups['oo_masters_to_config'] | default([]) }}"
+    l_openshift_schedulable: "{{ l_masters | map('extract', hostvars, 'openshift_schedulable') | select('defined') | list }}"
+    l_master_schedulable: "{{ l_openshift_schedulable | map('bool') | list }}"

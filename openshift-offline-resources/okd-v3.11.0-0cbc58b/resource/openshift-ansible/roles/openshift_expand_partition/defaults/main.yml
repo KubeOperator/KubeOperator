@@ -1,0 +1,18 @@
+---
+# oep_drive
+# Drive that has the partition we wish to expand.
+oep_drive: "/dev/xvda"
+
+# oep_partition
+# Partition that we wish to expand.
+oep_partition: 3
+
+# oep_partition_mount_point
+# Where the partition is mounted
+oep_partition_mount_point: /var
+
+# oep_file_system
+# What file system is on the partition
+#   Currently only xfs, and ext(2,3,4) are supported
+#   For ext2, ext3, or ext4 just use ext
+oep_file_system: "xfs"

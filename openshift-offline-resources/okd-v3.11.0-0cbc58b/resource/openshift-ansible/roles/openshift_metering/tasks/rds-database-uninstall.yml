@@ -1,0 +1,7 @@
+---
+- name: Delete  Metering Hive metadata RDS database
+  local_action:
+    module: rds
+    command: delete
+    instance_name: "{{ openshift_metering_hive_metastore_db_rds_instance_name }}"
+  when: openshift_metering_hive_metastore_db_rds_delete | bool

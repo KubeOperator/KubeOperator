@@ -1,0 +1,12 @@
+{
+    "version": "1.0",
+    "defaultValues": {
+        "OPTS": "",
+        "VAR_LIB_OPENSHIFT_INSTALLER" : "/var/lib/openshift-installer",
+        "VAR_LOG_OPENSHIFT_LOG": "/var/log/ansible.log",
+        "PLAYBOOK_FILE": "/usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml",
+	"HOME_ROOT": "/root",
+	"ANSIBLE_CONFIG": "/usr/share/ansible/openshift-ansible/ansible.cfg",
+        "INVENTORY_FILE": "/dev/null"
+    }
+}

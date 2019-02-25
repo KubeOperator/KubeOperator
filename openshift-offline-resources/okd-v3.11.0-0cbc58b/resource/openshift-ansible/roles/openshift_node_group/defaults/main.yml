@@ -1,0 +1,15 @@
+---
+openshift_node_group_cloud_provider: "{{ openshift_cloudprovider_kind | default('') }}"
+openshift_node_group_network_plugin_default: "{{ os_sdn_network_plugin_name }}"
+openshift_node_group_network_plugin: "{{ openshift_node_group_network_plugin_default }}"
+openshift_node_group_node_data_dir_default: "{{ openshift_data_dir | default('/var/lib/origin') }}"
+openshift_node_group_node_data_dir: "{{ openshift_node_group_node_data_dir_default }}"
+
+openshift_imageconfig_format: "{{ oreg_url | default(l_osm_registry_url_default) }}"
+
+openshift_node_group_use_persistentlocalvolumes: "{{ openshift_persistentlocalstorage_enabled | default(False) | bool }}"
+openshift_node_group_name: 'node-config-compute'
+
+l_openshift_node_group_labels: []
+
+openshift_node_iptables_sync_period: '30s'

@@ -1,0 +1,76 @@
+---
+####################################################################################
+# Post upgrade - Upgrade web console, default router, default registry, and examples
+####################################################################################
+- name: Upgrade web console
+  hosts: oo_first_master
+  roles:
+  - role: openshift_web_console
+    when:
+    - openshift_web_console_install | default(true) | bool
+
+- name: Install admin console
+  hosts: oo_first_master
+  roles:
+  - role: openshift_console
+    when:
+    - openshift_console_install | default(true) | bool
+
+# upgrade registry and router pods; we defer waiting for these pods
+# until after the next play to hopefully save some time polling.
+- import_playbook: ../../../openshift-hosted/private/upgrade.yml
+
+- name: Upgrade manageiq, templates, examples
+  hosts: oo_first_master
+  roles:
+  - lib_utils
+  - openshift_manageiq
+  - role: openshift_project_request_template
+    when: openshift_project_request_template_manage
+  # Create the new templates shipped in 3.2, existing templates are left
+  # unmodified. This prevents the subsequent role definition for
+  # openshift_examples from failing when trying to replace templates that do
+  # not already exist. We could have potentially done a replace --force to
+  # create and update in one step.
+  - role: openshift_examples
+    when: openshift_install_examples | default(true) | bool
+  # Update the existing templates
+  - role: openshift_examples
+    when: openshift_install_examples | default(true) | bool
+    openshift_examples_import_command: replace
+
+# Poll for registry and router pods, redeploy registry certs if needed.
+- import_playbook: ../../../openshift-hosted/private/upgrade_poll_and_check_certs.yml
+  when: openshift_hosted_manage_registry | default(True)
+
+# Check for warnings to be printed at the end of the upgrade:
+- name: Clean up and display warnings
+  hosts: oo_masters_to_config
+  tags:
+  - always
+  gather_facts: no
+  roles:
+  - role: openshift_excluder
+    r_openshift_excluder_action: enable
+  post_tasks:
+  # Check if any masters are using pluginOrderOverride and warn if so, only for 1.3/3.3 and beyond:
+  - name: grep pluginOrderOverride
+    command: grep pluginOrderOverride {{ openshift.common.config_base }}/master/master-config.yaml
+    register: grep_plugin_order_override
+    changed_when: false
+    failed_when: false
+
+  - name: Warn if pluginOrderOverride is in use in master-config.yaml
+    debug:
+      msg: "WARNING pluginOrderOverride is being deprecated in master-config.yaml, please see https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/admission_controllers.html for more information."
+    when:
+    - not (grep_plugin_order_override is skipped)
+    - grep_plugin_order_override.rc == 0
+
+  - name: Warn if shared-resource-viewer could not be updated
+    debug:
+      msg: "WARNING the shared-resource-viewer role could not be upgraded to 3.6 spec because it's marked protected, please see https://bugzilla.redhat.com/show_bug.cgi?id=1493213"
+    when:
+    - __shared_resource_viewer_protected | default(false)
+
+- import_playbook: upgrade_components.yml

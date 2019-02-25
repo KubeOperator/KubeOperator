@@ -1,0 +1,523 @@
+# This deletes *ALL* Origin and OpenShift Container Platform content installed by
+# ansible.  This includes:
+#
+#    configuration
+#    containers
+#    example templates and imagestreams
+#    images
+#    RPMs
+---
+- hosts: OSEv3:children
+  become: yes
+  tasks:
+  - name: Detecting Operating System
+    shell: ls /run/ostree-booted
+    ignore_errors: yes
+    failed_when: false
+    register: ostree_output
+
+  # Since we're not calling openshift_facts we'll do this for now
+  - set_fact:
+      openshift_is_atomic: "{{ ostree_output.rc == 0 }}"
+
+# Stop services on all hosts prior to removing files.
+- hosts: nodes
+  become: yes
+  tasks:
+  - name: Remove dnsmasq dispatcher
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+    - /etc/dnsmasq.d/origin-dns.conf
+    - /etc/dnsmasq.d/origin-upstream-dns.conf
+    - /etc/dnsmasq.d/openshift-ansible.conf
+    - /etc/NetworkManager/dispatcher.d/99-origin-dns.sh
+  - service:
+      name: NetworkManager
+      state: restarted
+  - name: Stop services
+    service: name={{ item }} state=stopped
+    with_items:
+    - atomic-openshift-node
+    - openshift-node
+    - origin-node
+    failed_when: false
+  - name: Stop OVS service
+    service: name=openvswitch state=stopped
+    failed_when: false
+    when: openshift_use_openshift_sdn | default(True) | bool
+
+- hosts: etcd
+  become: yes
+  tasks:
+  - name: Stop services
+    service: name={{ item }} state=stopped
+    with_items:
+    - etcd
+    failed_when: false
+
+- hosts: lb
+  become: yes
+  tasks:
+  - name: Stop services
+    service: name={{ item }} state=stopped
+    with_items:
+    - haproxy
+    failed_when: false
+
+- hosts: nodes
+  become: yes
+  vars:
+    node_dirs:
+    - "/etc/origin"
+    - "/var/lib/origin"
+  tasks:
+  - name: unmask services
+    command: systemctl unmask "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - firewalld
+
+  - when: openshift_remove_all | default(true) | bool
+    block:
+
+    - when: not openshift_is_atomic | bool
+      block:
+
+      - name: Remove packages
+        package:
+          name: "{{ pkg_list | join(',') }} "
+          state: absent
+        vars:
+          pkg_list:
+          - atomic-openshift
+          - atomic-openshift-clients
+          - atomic-openshift-excluder
+          - atomic-openshift-docker-excluder
+          - atomic-openshift-node
+          - atomic-openshift-sdn-ovs
+          - atomic-openshift-hyperkube
+          - cockpit-bridge
+          - cockpit-docker
+          - cockpit-system
+          - cockpit-ws
+          - kubernetes-client
+          - openshift
+          - openshift-node
+          - openshift-sdn
+          - openshift-sdn-ovs
+          - origin
+          - origin-excluder
+          - origin-docker-excluder
+          - origin-clients
+          - origin-node
+          - origin-sdn-ovs
+          - origin-hyperkube
+          - tuned-profiles-atomic-openshift-node
+          - tuned-profiles-origin-node
+        register: result
+        until: result is succeeded
+
+      - name: Remove OVS package
+        package:
+          name: openvswitch
+          state: absent
+        register: result
+        until: result is succeeded
+        when: openshift_use_openshift_sdn | default(True) | bool
+
+      - name: Remove flannel package
+        package:
+          name: flannel
+          state: absent
+        when: openshift_use_flannel | default(false) | bool
+        register: result
+        until: result is succeeded
+
+    - shell: systemctl reset-failed
+      changed_when: False
+
+    - shell: systemctl daemon-reload
+      changed_when: False
+
+    - name: Remove br0 interface
+      shell: ovs-vsctl del-br br0
+      changed_when: False
+      failed_when: False
+      when: openshift_use_openshift_sdn | default(True) | bool
+
+    - name: Remove linux interfaces
+      shell: ip link del "{{ item }}"
+      changed_when: False
+      failed_when: False
+      with_items:
+      - lbr0
+      - vlinuxbr
+      - vovsbr
+      when: openshift_use_openshift_sdn | default(True) | bool
+
+    - name: Remove virtual devices
+      command: nmcli delete device "{{ item }}"
+      failed_when: False
+      with_items:
+      - tun0
+      when: openshift_use_openshift_sdn | default(True) | bool
+
+  - shell: atomic uninstall "{{ item }}"-node
+    changed_when: False
+    failed_when: False
+    with_items:
+    - openshift-enterprise
+    - origin
+
+  - shell: atomic uninstall "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - etcd
+
+  - shell: atomic uninstall "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - openvswitch
+    when: openshift_use_openshift_sdn | default(True) | bool
+
+  - shell: find /var/lib/origin/openshift.local.volumes -type d -exec umount {} \; 2>/dev/null || true
+    changed_when: False
+
+  - shell: docker rm -f "{{ item }}"-master "{{ item }}"-node
+    changed_when: False
+    failed_when: False
+    with_items:
+    - openshift-enterprise
+    - origin
+
+  - shell: docker ps -a | grep Exited | egrep "{{ item }}" | awk '{print $1}'
+    changed_when: False
+    failed_when: False
+    register: exited_containers_to_delete
+    with_items:
+    - openshift3/ose
+    - openshift3/node
+    - openshift3/openvswitch
+    - openshift/origin
+
+  - shell: "docker rm {{ item.stdout_lines | join(' ') }}"
+    changed_when: False
+    failed_when: False
+    with_items: "{{ exited_containers_to_delete.results }}"
+
+  - name: Remove k8s_ containters
+    shell: docker ps -a -q -f name=k8s_ | xargs docker rm -f
+    failed_when: False
+
+  - block:
+    - block:
+      - shell: docker images | egrep {{ item }} | awk '{ print $3 }'
+        changed_when: False
+        failed_when: False
+        register: images_to_delete
+        with_items:
+        - registry\.access\..*redhat\.com/openshift3
+        - registry\.qe\.openshift\.com/.*
+        - registry\.access\..*redhat\.com/rhel7/etcd
+        - docker.io/openshift
+
+      - shell: "docker rmi -f {{ item.stdout_lines | join(' ') }}"
+        changed_when: False
+        failed_when: False
+        with_items: "{{ images_to_delete.results }}"
+      when: openshift_uninstall_images | default(True) | bool
+
+    - name: remove sdn drop files
+      file:
+        path: /run/openshift-sdn
+        state: absent
+
+    - name: Remove files owned by RPMs
+      file: path={{ item }} state=absent
+      with_items:
+      - /etc/sysconfig/openshift-node
+      - /run/openshift-sdn
+
+    - name: Remove files owned by OVS RPM
+      file: path=/etc/sysconfig/openvswitch state=absent
+      when: openshift_use_openshift_sdn | default(True) | bool
+
+    when: openshift_remove_all | default(True) | bool
+
+  - find: path={{ item }} file_type=file
+    register: files
+    with_items:
+    - "{{ node_dirs }}"
+
+  - find: path={{ item }} file_type=directory
+    register: directories
+    with_items:
+    - "{{ node_dirs }}"
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ files.results | default([]) }}"
+    - files
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ directories.results | default([]) }}"
+    - files
+
+  - shell: systemctl daemon-reload
+    changed_when: False
+
+  - name: Remove remaining files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/ansible/facts.d/openshift.fact
+    - /etc/openshift
+    - /etc/openshift-sdn
+    - /etc/pki/ca-trust/source/anchors/openshift-ca.crt
+    - /etc/sysconfig/atomic-openshift-node
+    - /etc/sysconfig/atomic-openshift-node-dep
+    - /etc/sysconfig/openshift-node-dep
+    - /etc/sysconfig/origin-node
+    - /etc/sysconfig/origin-node
+    - /etc/sysconfig/origin-node-dep
+    - /etc/systemd/system/atomic-openshift-node-dep.service
+    - /etc/systemd/system/atomic-openshift-node.service
+    - /etc/systemd/system/atomic-openshift-node.service.wants
+    - /etc/systemd/system/origin-node-dep.service
+    - /etc/systemd/system/origin-node.service
+    - /etc/systemd/system/origin-node.service.wants
+
+  - name: Remove remaining OVS files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/systemd/system/openvswitch.service
+    - /etc/cni/net.d/80-openshift-network.conf
+    when: openshift_use_openshift_sdn | default(True) | bool
+
+  - name: Rebuild ca-trust
+    command: update-ca-trust
+
+- hosts: masters
+  become: yes
+  vars:
+    master_dirs:
+    - "/etc/origin"
+    - "/var/lib/origin"
+  tasks:
+  - name: unmask services
+    command: systemctl unmask "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - firewalld
+    - atomic-openshift-master
+
+  - name: Remove packages
+    package:
+      name: "{{ pkg_list | join(',') }}"
+      state: absent
+    when:
+    - not openshift_is_atomic | bool
+    - openshift_remove_all | default(True) | bool
+    vars:
+      pkg_list:
+      - atomic-openshift
+      - atomic-openshift-clients
+      - atomic-openshift-excluder
+      - atomic-openshift-docker-excluder
+      - atomic-openshift-master
+      - cockpit-bridge
+      - cockpit-docker
+      - cockpit-system
+      - cockpit-ws
+      - corosync
+      - kubernetes-client
+      - openshift
+      - openshift-master
+      - origin
+      - origin-clients
+      - origin-excluder
+      - origin-docker-excluder
+      - origin-master
+    register: result
+    until: result is succeeded
+
+  - shell: systemctl reset-failed
+    changed_when: False
+
+  - shell: systemctl daemon-reload
+    changed_when: False
+
+  - name: Remove files owned by RPMs
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/sysconfig/atomic-openshift-master
+    when: openshift_remove_all | default(True) | bool
+
+  - name: Remove files owned by OVS RPM
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/sysconfig/openvswitch
+    when:
+    - openshift_remove_all | default(True) | bool
+    - openshift_use_openshift_sdn | default(True) | bool
+
+  - find: path={{ item }} file_type=file
+    register: files
+    with_items:
+    - "{{ master_dirs }}"
+
+  - find: path={{ item }} file_type=directory
+    register: directories
+    with_items:
+    - "{{ master_dirs }}"
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ files.results | default([]) }}"
+    - files
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ directories.results | default([]) }}"
+    - files
+
+  - set_fact:
+      client_users: "{{ [ansible_ssh_user, 'root'] | unique }}"
+
+  - name: Remove client kubeconfigs
+    file:
+      path: "~{{ item }}/.kube"
+      state: absent
+    with_items:
+    - "{{ client_users }}"
+
+  - name: Remove remaining files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/ansible/facts.d/openshift.fact
+    - /etc/corosync
+    - /usr/share/openshift/examples
+    - /usr/local/bin/openshift
+    - /usr/local/bin/oadm
+    - /usr/local/bin/oc
+    - /usr/local/bin/kubectl
+    - /etc/flannel
+
+  - name: Remove remaining OVS files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/systemd/system/openvswitch.service
+    when: openshift_use_openshift_sdn | default(True) | bool
+
+- hosts: etcd
+  become: yes
+  vars:
+    etcd_dirs:
+    - "/etc/etcd"
+    - "/var/lib/etcd"
+  tasks:
+  - name: unmask services
+    command: systemctl unmask "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - etcd
+    - etcd3
+    - firewalld
+
+  - name: Remove packages
+    package:
+      name: "{{ pkg_list | join(',') }}"
+      state: absent
+    when:
+    - not openshift_is_atomic | bool
+    - openshift_remove_all | default(True) | bool
+    vars:
+      pkg_list:
+      - etcd
+      - etcd3
+    register: result
+    until: result is succeeded
+
+  - shell: systemctl reset-failed
+    changed_when: False
+
+  - shell: systemctl daemon-reload
+    changed_when: False
+
+  - find: path={{ item }} file_type=file
+    register: files
+    with_items:
+    - "{{ etcd_dirs }}"
+
+  - find: path={{ item }} file_type=directory
+    register: directories
+    with_items:
+    - "{{ etcd_dirs }}"
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ files.results | default([]) }}"
+    - files
+
+  - file: path={{ item.1.path }} state=absent
+    with_subelements:
+    - "{{ directories.results | default([]) }}"
+    - files
+
+  # Intenationally using rm command over file module because if someone had mounted a filesystem
+  # at /var/lib/etcd then the contents was not removed correctly
+  - name: Remove etcd data
+    shell: rm -rf /var/lib/etcd/*
+    args:
+      warn: no
+    failed_when: false
+
+  - name: Remove remaining files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/ansible/facts.d/openshift.fact
+    - /etc/systemd/system/etcd_container.service
+    - /etc/profile.d/etcdctl.sh
+
+- hosts: lb
+  become: yes
+  tasks:
+  - name: unmask services
+    command: systemctl unmask "{{ item }}"
+    changed_when: False
+    failed_when: False
+    with_items:
+    - firewalld
+
+  - name: Remove packages
+    package:
+      name: haproxy
+      state: absent
+    when:
+    - not openshift_is_atomic | bool
+    - openshift_remove_all | default(True) | bool
+    register: result
+    until: result is succeeded
+
+  - shell: systemctl reset-failed
+    changed_when: False
+
+  - shell: systemctl daemon-reload
+    changed_when: False
+
+  - name: Remove remaining files
+    file: path={{ item }} state=absent
+    with_items:
+    - /etc/ansible/facts.d/openshift.fact
+    - /var/lib/haproxy/stats
+    # Here we remove only limits.conf rather than directory, as users may put their files.
+    # - /etc/systemd/system/haproxy.service.d
+    - /etc/systemd/system/haproxy.service.d/limits.conf
+    - /etc/systemd/system/haproxy.service

@@ -1,0 +1,7 @@
+---
+- name: Disable excluders
+  hosts: oo_nodes_to_config
+  gather_facts: no
+  roles:
+  - role: openshift_excluder
+    r_openshift_excluder_action: disable

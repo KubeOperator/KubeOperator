@@ -1,0 +1,63 @@
+---
+- name: Install flannel
+  become: yes
+  package:
+    name: flannel
+    state: present
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+- name: Set flannel etcd options
+  become: yes
+  lineinfile:
+    dest: /etc/sysconfig/flanneld
+    backrefs: yes
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: "^(FLANNEL_ETCD=)", line: '\1{{ etcd_hosts|join(",") }}' }
+    - { regexp: "^(FLANNEL_ETCD_ENDPOINTS=)", line: '\1{{ etcd_hosts|join(",") }}' }
+    - { regexp: "^(FLANNEL_ETCD_KEY=)", line: '\1{{ flannel_etcd_key }}' }
+    - { regexp: "^(FLANNEL_ETCD_PREFIX=)", line: '\1{{ flannel_etcd_key }}' }
+
+- name: Set flannel options
+  become: yes
+  lineinfile:
+    dest: /etc/sysconfig/flanneld
+    backrefs: yes
+    regexp: "^#?(FLANNEL_OPTIONS=)"
+    line: '\1--iface {{ flannel_interface }} --etcd-cafile={{ etcd_peer_ca_file }} --etcd-keyfile={{ etcd_peer_key_file }} --etcd-certfile={{ etcd_peer_cert_file }}'
+
+- name: Enable flanneld
+  become: yes
+  systemd:
+    name: flanneld
+    state: started
+    enabled: yes
+  register: start_result
+
+- name: Remove docker bridge ip
+  become: yes
+  shell: ip a del `ip a show docker0 | grep "inet[[:space:]]" | awk '{print $2}'` dev docker0
+  notify:
+    - restart docker
+    - restart node
+
+- name: Enable Pod to Pod communication
+  command: /sbin/iptables --wait -I FORWARD -d {{ openshift_cluster_network_cidr }} -i {{ flannel_interface }} -j ACCEPT -m comment --comment "Pod to Pod communication"
+  notify:
+    - save iptable rules
+
+- name: Allow external network access
+  command: /sbin/iptables -t nat -A POSTROUTING -o {{ flannel_interface }}  -j MASQUERADE -m comment --comment "Allow external network access"
+  notify:
+    - save iptable rules
+
+- name: Allow DNS access
+  command: /sbin/iptables -A OS_FIREWALL_ALLOW -p {{ item }} -m {{ item }} --dport 53 -j ACCEPT -m comment --comment "Allow DNS {{ item }} access"
+  with_items:
+    - "tcp"
+    - "udp"
+  notify:
+    - save iptable rules

@@ -1,0 +1,10 @@
+---
+- name: Setup the master bootstrap settings
+  import_role:
+    name: openshift_control_plane
+    tasks_from: bootstrap_settings.yml
+
+- name: Setup the bootstrap kubeconfig
+  import_role:
+    name: openshift_control_plane
+    tasks_from: bootstrap.yml

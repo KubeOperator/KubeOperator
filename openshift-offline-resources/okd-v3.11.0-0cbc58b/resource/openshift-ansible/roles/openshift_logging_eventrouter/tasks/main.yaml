@@ -1,0 +1,6 @@
+---
+- include_tasks: install_eventrouter.yaml
+  when: openshift_logging_install_eventrouter | default(false) | bool
+
+- include_tasks: delete_eventrouter.yaml
+  when: not openshift_logging_install_eventrouter | default(false) | bool

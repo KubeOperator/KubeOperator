@@ -1,0 +1,13 @@
+---
+- import_playbook: ../init/evaluate_groups.yml
+
+- name: Subscribe hosts, update repos and update OS packages
+  hosts: oo_all_hosts
+  roles:
+  - role: rhel_subscribe
+    when:
+    - openshift_deployment_type == 'openshift-enterprise'
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+  - role: openshift_repos
+  - role: os_update_latest

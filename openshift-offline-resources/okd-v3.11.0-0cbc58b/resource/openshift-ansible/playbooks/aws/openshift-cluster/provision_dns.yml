@@ -1,0 +1,9 @@
+---
+- name: provision dns
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: provision dns
+    import_role:
+      name: openshift_aws
+      tasks_from: provision_dns.yml

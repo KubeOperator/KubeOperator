@@ -1,0 +1,199 @@
+---
+- name: Verify image build prerequisites
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Require openshift_openstack_build_base_image
+    fail:
+      msg: "A base image name is required for image building. Please ensure `openshift_openstack_build_base_image` is defined."
+    when: openshift_openstack_build_base_image is undefined
+
+  - name: Require openshift_openstack_default_image_name
+    fail:
+      msg: >
+        You must specify the name the new image will be saved to Glance as.
+        Please make sure `openshift_openstack_default_image_name` is defined.
+    when:
+    - openshift_openstack_default_image_name is not defined
+
+  - name: Get the target image facts
+    os_image_facts:
+      image: "{{ openshift_openstack_default_image_name }}"
+    register: image_check
+
+  - name: Verify that the resulting image does not exist
+    fail:
+      msg: >
+        The image "{{ openshift_openstack_default_image_name }}" specified in
+        `openshift_openstack_default_image_name` exists already.
+        Please choose a different name or delete it.
+    when: image_check.ansible_facts.openstack_image
+
+  - set_fact:
+      build_prefix: "{{ openshift_openstack_clusterid|default('build') }}.{{ openshift_openstack_public_dns_domain|default('example.com') }}-build"
+
+
+- name: Launch image build instance
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  tasks:
+  # NOTE: we create a temporary network, subnet, router and security groups
+  # to have a known environment to launch the image build VM in.
+  # They get deleted once we save the image.
+  # TODO(shadower): allow specifying an existing subnet etc. instead.
+  - name: Create a network
+    os_network:
+      name: "{{ build_prefix }}-network"
+    register: network
+
+  - name: Create a subnet
+    os_subnet:
+      name: "{{ build_prefix }}-subnet"
+      network_name: "{{ network.network.name }}"
+      cidr: "{{ openshift_openstack_build_network_cidr | default('192.168.23.0/24') }}"
+    register: subnet
+
+  - name: Create the router
+    os_router:
+      name: "{{ build_prefix }}-router"
+      network: "{{ openshift_openstack_external_network_name }}"
+      interfaces:
+      - "{{ subnet.id }}"
+    register: router
+
+  - name: Create a security group
+    os_security_group:
+      name: "{{ build_prefix }}-security-group"
+      description: Security group for the image build server
+    register: security_group
+
+  - name: Allow pinging the server
+    os_security_group_rule:
+      security_group: "{{ security_group.id }}"
+      protocol: icmp
+      port_range_min: -1
+      port_range_max: -1
+
+  - name: Allow SSH access
+    os_security_group_rule:
+      security_group: "{{ security_group.id }}"
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+
+  - name: Launch the image build instance
+    os_server:
+      name: "{{ build_prefix }}-image-server"
+      network: "{{ network.id }}"
+      auto_ip: yes
+      flavor: "{{ openshift_openstack_default_flavor }}"
+      image: "{{ openshift_openstack_build_base_image }}"
+      key_name: "{{ openshift_openstack_keypair_name }}"
+      security_groups:
+      - "{{ security_group.id }}"
+      # Create a known SSH user so we can log in to the VM.
+      # TODO(shadower): should we create a temporary keypair & user here
+      # and delete it when done?
+      userdata: |
+        #cloud-config
+        system_info:
+          default_user:
+            name: {{ ansible_user|default('openshift') }}
+            sudo: ["ALL=(ALL) NOPASSWD: ALL"]
+        write_files:
+          - path: /etc/sudoers.d/00-openshift-no-requiretty
+            permissions: 440
+            content: |
+              Defaults:{{ ansible_user|default('openshift') }} !requiretty
+      state: present
+    register: image_vm
+
+  - name: Add host to nodes
+    add_host:
+      name: "{{ image_vm.openstack.accessIPv4 }}"
+      groups: nodes,OSEv3
+      ansible_become: true
+
+  - name: Wait for instance to respond to SSH
+    wait_for:
+      delay: 1
+      host: "{{ image_vm.openstack.accessIPv4 }}"
+      port: 22
+      state: started
+      timeout: 120
+
+
+- name: Wait for full SSH connection
+  hosts: nodes
+  gather_facts: no
+  tasks:
+  - wait_for_connection:
+  - setup:
+  - set_fact:
+      openshift_node_image_prep_packages:
+      - cloud-init
+      - cloud-utils-growpart
+
+- name: run the init
+  import_playbook: ../../init/main.yml
+
+# This is the part that installs all of the software and configs for the instance
+# to become a node.
+- import_playbook: ../../openshift-node/private/image_prep.yml
+
+- name: Finish image preparation
+  hosts: nodes
+  become: yes
+  tasks:
+  - name: Update to latest package versions
+    import_role:
+      name: os_update_latest
+    when:
+    - ansible_distribution == "RedHat"
+
+  - name: Unsubscribe image
+    import_role:
+      name: rhel_unsubscribe
+    when:
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+- name: Commit image
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Stop the image VM
+    os_server_action:
+      server: "{{ image_vm.id }}"
+      action: stop
+
+  - name: Save the new image
+    command: openstack server image create --wait --name "{{ openshift_openstack_default_image_name }}" "{{ image_vm.id }}"
+
+  # Remove the temporary OpenStack resources
+  - name: Remove the imabe build instance
+    os_server:
+      name: "{{ image_vm.id }}"
+      state: absent
+
+  - name: Remove the security group
+    os_security_group:
+      name: "{{ security_group.id }}"
+      state: absent
+
+  - name: Remove the router
+    os_router:
+      name: "{{ router.id }}"
+      state: absent
+
+  - name: Remove the subnet
+    os_subnet:
+      name: "{{ subnet.id }}"
+      state: absent
+
+  - name: Remove the network
+    os_network:
+      name: "{{ network.id }}"
+      state: absent

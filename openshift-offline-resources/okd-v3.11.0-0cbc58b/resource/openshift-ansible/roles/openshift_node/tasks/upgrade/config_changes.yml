@@ -1,0 +1,40 @@
+---
+- name: Ensure the node static pod directory exists
+  file:
+    path: "{{ openshift.common.config_base }}/node/pods"
+    state: directory
+    mode: 0755
+
+- name: Ensure docker-registry directory exists
+  file:
+    state: directory
+    path: "/etc/docker/certs.d/docker-registry.default.svc:5000"
+
+- name: Update the docker-registry CA symlink
+  file:
+    src: "{{ openshift_node_config_dir }}/client-ca.crt"
+    dest: "/etc/docker/certs.d/docker-registry.default.svc:5000/node-client-ca.crt"
+    state: link
+    force: yes
+    follow: no
+
+- name: Reset selinux context
+  command: restorecon -RF {{ openshift_node_data_dir }}/openshift.local.volumes
+  when:
+  - ansible_selinux is defined
+  - ansible_selinux.status == 'enabled'
+
+- name: Update systemd units
+  import_tasks: ../systemd_units.yml
+
+# Get stat of /etc/crio/crio.conf
+- stat: path=/etc/crio/crio.conf
+  register: crio_conf
+# Update the cri-o pause image to use latest version after an upgrade
+# if cri-o is the container runtime i.e /etc/crio/crio.conf exists
+- name: Update cri-o pause image
+  lineinfile:
+    dest: /etc/crio/crio.conf
+    line: pause_image = "{{ openshift_crio_pause_image }}"
+    regexp: '^pause_image ='
+  when: crio_conf.stat.exists == True

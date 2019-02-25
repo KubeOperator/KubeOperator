@@ -1,0 +1,12 @@
+---
+# Warning, use with caution, this will remove all resources
+# from the group.
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: delete resource group
+    azure_rm_resourcegroup:
+      name: "{{ openshift_azure_resource_group_name }}"
+      state: absent
+      force: yes  # removes all resources within the group

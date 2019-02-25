@@ -1,0 +1,14 @@
+---
+- name: Install node, clients, and conntrack packages
+  package:
+    name: "{{ pkg_list | join(',') }}"
+    state: present
+  register: result
+  until: result is succeeded
+  vars:
+    pkg_list:
+    - "{{ openshift_service_type }}-node{{ (openshift_pkg_version | default('')) | lib_utils_oo_image_tag_to_rpm_version(include_dash=True) }}"
+    - "{{ openshift_service_type }}-clients{{ (openshift_pkg_version | default('')) | lib_utils_oo_image_tag_to_rpm_version(include_dash=True) }}"
+    - conntrack-tools
+  when:
+  - not openshift_is_atomic | bool

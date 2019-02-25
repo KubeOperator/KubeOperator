@@ -1,0 +1,13 @@
+---
+- name: ensure the /etc/origin folder exists
+  file: name=/etc/origin state=directory
+
+- name: configure gce cloud config options
+  ini_file: dest=/etc/origin/cloudprovider/gce.conf section=Global option={{ item.key }} value={{ item.value }} state=present create=yes
+  with_items:
+    - { key: 'project-id', value: '{{ openshift_gcp_project }}' }
+    - { key: 'network-project-id', value: '{{ openshift_gcp_network_project | default(openshift_gcp_project) }}' }
+    - { key: 'network-name', value: '{{ openshift_gcp_network_name }}' }
+    - { key: 'node-tags', value: '{{ openshift_gcp_prefix }}ocp' }
+    - { key: 'node-instance-prefix', value: '{{ openshift_gcp_prefix }}' }
+    - { key: 'multizone', value: '{{ openshift_gcp_multizone | string }}' }

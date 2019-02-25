@@ -1,0 +1,72 @@
+---
+# input variables:
+# - openshift_service_type
+# - openshift.common.hostname
+# - openshift_master_api_port
+
+# NOTE: This is needed to make sure we are using the correct set
+#       of systemd unit files. The RPMs lay down defaults but
+#       the install/upgrade may override them in /etc/systemd/system/.
+# NOTE: We don't use the systemd module as some versions of the module
+#       require a service to be part of the call.
+- name: Reload systemd to ensure latest unit files
+  command: systemctl daemon-reload
+
+- name: Restart support services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - NetworkManager
+    - dnsmasq
+
+- name: Restart container runtime
+  service:
+    name: "{{ openshift_docker_service_name }}"
+    state: started
+  register: docker_start_result
+  until: not (docker_start_result is failed)
+  retries: 3
+  delay: 30
+
+- name: Restart cri-o
+  service:
+    name: cri-o
+    state: started
+  when: openshift_use_crio | bool
+
+# For atomic, container runtime needs to be operational before we can upgrade
+# node system container image.
+- name: Install node system container
+  import_tasks: ../node_system_container.yml
+  when: openshift_is_atomic | bool
+
+- import_tasks: ../config/configure-node-settings.yml
+- import_tasks: ../configure-proxy-settings.yml
+
+- name: Start node service
+  service:
+    name: "{{ openshift_service_type }}-node"
+    state: started
+  async: 300
+  poll: 0
+  register: node_service
+  failed_when: false
+
+- name: Check status of node service
+  async_status:
+    jid: "{{ node_service.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 30
+  delay: 10
+
+- name: Wait for master API to come back online
+  wait_for:
+    host: "{{ openshift.common.hostname }}"
+    state: started
+    delay: 10
+    port: "{{ openshift_master_api_port }}"
+    timeout: 600
+  when: inventory_hostname in groups.oo_masters_to_config

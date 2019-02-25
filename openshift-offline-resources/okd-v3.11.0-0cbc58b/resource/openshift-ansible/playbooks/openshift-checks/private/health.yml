@@ -1,0 +1,31 @@
+---
+- name: OpenShift Health Checks
+  hosts: oo_all_hosts
+
+  roles:
+  - lib_openshift
+  - openshift_health_checker
+  vars:
+  - r_openshift_health_checker_playbook_context: health
+  post_tasks:
+  - name: Get cluster resources
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    run_once: True
+    oc_obj:
+      state: list
+      kind: "{{ item }}"
+      all_namespaces: True
+    register: resources
+    with_items:
+    - nodes
+    - pods
+    - services
+    - endpoints
+    - routes
+    - clusternetworks
+    - hostsubnets
+    - netnamespaces
+  - name: Run health checks (@health)
+    action: openshift_health_check
+    args:
+      checks: ['@health']

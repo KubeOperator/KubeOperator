@@ -1,0 +1,31 @@
+---
+- name: creating route53 zone(s)
+  route53_zone:
+    comment: "{{ openshift_aws_dns_zone }}"
+    state: present
+    vpc_id: "{{ item }}"
+    vpc_region: "{{ openshift_aws_region }}"
+    zone: "{{ openshift_aws_dns_zone }}"
+  with_items: "{{ l_zone_items }}"
+  vars:
+    # for each item in openshift_aws_dns_records, determine value of private_zone (false if unset), map to list
+    l_pz_list: "{{ openshift_aws_dns_records | list | map('extract', openshift_aws_dns_records, 'private_zone') | map('bool') | list }}"
+    l_pz_add_private: "{{ (True in l_pz_list) | ternary([vpcout.vpcs.0.id], []) }}"
+    l_pz_add_public: "{{ (False in l_pz_list) | ternary([''], []) }}"
+    # This will add '' if there are any private_zone: No records, and will add
+    # vpcout.vpcs.0.id if there are any private_zone: Yes records.
+    l_zone_items: "{{ [] + l_pz_add_public + l_pz_add_private }}"
+
+- name: creating record
+  route53:
+    command: create
+    overwrite: no
+    private_zone: "{{ l_openshift_aws_dns_element.value['private_zone'] | bool }}"
+    record: "{{ l_openshift_aws_dns_element.key }}.{{ openshift_aws_dns_zone }}"
+    type: "{{ l_openshift_aws_dns_element.value['type'] }}"
+    ttl: 300
+    value: "{{ l_openshift_aws_dns_element.value['value'] }}"
+    zone: "{{ openshift_aws_dns_zone }}"
+  with_dict: "{{ l_openshift_aws_dns_records }}"
+  loop_control:
+    loop_var: l_openshift_aws_dns_element

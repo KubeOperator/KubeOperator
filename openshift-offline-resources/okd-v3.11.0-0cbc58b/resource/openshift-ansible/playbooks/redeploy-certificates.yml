@@ -1,0 +1,30 @@
+---
+- import_playbook: init/main.yml
+
+- import_playbook: openshift-etcd/private/redeploy-certificates.yml
+
+- import_playbook: openshift-master/private/redeploy-certificates.yml
+
+- import_playbook: openshift-etcd/private/restart.yml
+  vars:
+    g_etcd_certificates_expired: "{{ ('expired' in (hostvars | lib_utils_oo_select_keys(groups['etcd']) | lib_utils_oo_collect('check_results.check_results.etcd') | lib_utils_oo_collect('health'))) | bool }}"
+
+- import_playbook: openshift-master/private/restart.yml
+
+- import_playbook: openshift-node/private/restart.yml
+
+- import_playbook: openshift-hosted/private/redeploy-router-certificates.yml
+  when: openshift_hosted_manage_router | default(true) | bool
+
+- import_playbook: openshift-hosted/private/redeploy-registry-certificates.yml
+  when: openshift_hosted_manage_registry | default(true) | bool
+
+- import_playbook: openshift-master/private/revert-client-ca.yml
+
+- import_playbook: openshift-master/private/restart.yml
+
+- import_playbook: openshift-web-console/private/redeploy-certificates.yml
+  when: openshift_web_console_install | default(true) | bool
+
+- import_playbook: openshift-console/private/redeploy-certificates.yml
+  when: openshift_console_install | default(true) | bool

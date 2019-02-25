@@ -1,0 +1,11 @@
+---
+- name: Determine etcd version
+  hosts: oo_etcd_hosts_to_upgrade
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: version_detect.yml
+
+- import_playbook: upgrade_rpm_members.yml
+  vars:
+    etcd_upgrade_version: '3.2'

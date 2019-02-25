@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# This file sets up the user to run in a cloud environment.
+# It provides dynamic inventory that works well when run in
+# a container environment by setting up a default inventory.
+# It assumes the user has provided a service account token
+# and ssh-privatekey file at "$(pwd)/inventory/dynamic/injected"
+# and automatically links any YAML files found into the group
+# vars directory, which allows the playbook to more easily be
+# run in containerized contexts.
+#
+# Currently GCP and Azure are supported.
+
+set -euo pipefail
+
+WORK=$(pwd)
+FILES="${WORK}/inventory/dynamic/injected"
+
+# Patch /etc/passwd file with the current user info.
+# The current user's entry must be correctly defined in this file in order for
+# the `ssh` command to work within the created container.
+
+if ! whoami &>/dev/null; then
+  echo "${USER:-default}:x:$(id -u):$(id -g):Default User:$HOME:/sbin/nologin" >> /etc/passwd
+fi
+
+# Provide a "files_dir" variable that points to inventory/dynamic/injected
+mkdir -p "${WORK}/inventory/dynamic/${TYPE}/group_vars/all"
+echo "files_dir: \"${FILES}\"" > "${WORK}/inventory/dynamic/${TYPE}/group_vars/all/00_default_files_dir.yml"
+# Add any injected variable files into the group vars directory
+find "${FILES}" \( -name '*.yml' -or -name '*.yaml' -or -name vars \) -print0 | xargs -0 -L1 -I {} ln -fs {} "${WORK}/inventory/dynamic/${TYPE}/group_vars/all"
+# Avoid sudo when running locally - nothing in the image requires it.
+mkdir -p "${WORK}/inventory/dynamic/${TYPE}/host_vars/localhost"
+echo "ansible_become: no" > "${WORK}/inventory/dynamic/${TYPE}/host_vars/localhost/00_skip_root.yaml"
+
+if [[ -z "${ANSIBLE_CONFIG-}" ]]; then
+  export ANSIBLE_CONFIG="${WORK}/inventory/dynamic/${TYPE}/ansible.cfg"
+fi
+
+# SSH requires the file to be owned by the current user, but Docker copies
+# files in as root. Put the file into the ssh dir with the right permissions
+if [[ -f "${FILES}/ssh-privatekey" ]]; then
+  if [[ "$TYPE" == 'gcp' ]]; then
+    keyfile="${HOME}/.ssh/google_compute_engine"
+  else
+    keyfile="${HOME}/.ssh/id_rsa"
+  fi
+  mkdir "${HOME}/.ssh"
+  rm -f "${keyfile}"
+  cat "${FILES}/ssh-privatekey" > "${keyfile}"
+  chmod 0600 "${keyfile}"
+  ssh-keygen -y -f "${keyfile}" >  "${keyfile}.pub"
+fi
+
+if [[ "$TYPE" == 'gcp' ]]; then
+  if [[ -f "${FILES}/gce.json" ]]; then
+    gcloud auth activate-service-account --quiet --key-file="${FILES}/gce.json"
+  else
+    echo "No service account file found at ${FILES}/gce.json, bypassing login"
+  fi
+fi
+
+if [[ "$TYPE" == 'azure' ]]; then
+  if [[ -f "${FILES}/credentials" ]]; then
+    set -a
+    . "${FILES}/credentials"
+    set +a
+
+    az login --service-principal --username "$AZURE_CLIENT_ID" --password "$AZURE_SECRET" --tenant "$AZURE_TENANT" >/dev/null
+
+  else
+    echo "No service account file found at ${FILES}/credentials, bypassing login"
+  fi
+fi
+
+exec "$@"

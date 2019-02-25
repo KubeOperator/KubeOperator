@@ -1,0 +1,69 @@
+---
+# This playbook attempts to cleanup unwanted docker files to help alleviate docker disk space issues.
+#
+#  To run:
+#
+#  1. run the playbook:
+#
+#   ansible-playbook -e 'cli_tag_name=<tag-name>' docker_storage_cleanup.yml
+#
+#  Example:
+#
+#   ansible-playbook -e 'cli_tag_name=ops-node-compute-12345' docker_storage_cleanup.yml
+#
+#  Notes:
+#  *  This *should* not interfere with running docker images
+#
+
+- name: Clean up Docker Storage
+  gather_facts: no
+  hosts: "tag_Name_{{ cli_tag_name }}"
+  user: root
+  connection: ssh
+
+  pre_tasks:
+
+  - fail:
+      msg: "This playbook requires {{item}} to be set."
+    when: item is not defined or item == ''
+    with_items:
+    - cli_tag_name
+
+  - name: Ensure docker is running
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Get docker info
+    command: docker info
+    register: docker_info
+
+  - name: Show docker info
+    debug:
+      var: docker_info.stdout_lines
+
+  - name: Remove exited and dead containers
+    shell: "docker ps -a | awk '/Exited|Dead/ {print $1}' | xargs --no-run-if-empty docker rm"
+    ignore_errors: yes
+
+  - name: Remove dangling docker images
+    shell: "docker images -q -f dangling=true | xargs --no-run-if-empty docker rmi"
+    ignore_errors: yes
+
+  - name: Remove non-running docker images
+    shell: "docker images | grep -v -e registry.redhat.io -e registry.access.redhat.com -e docker-registry.usersys.redhat.com -e docker-registry.ops.rhcloud.com | awk '{print $3}' | xargs --no-run-if-empty docker rmi 2>/dev/null"
+    ignore_errors: yes
+
+  # leaving off the '-t' for docker exec.  With it, it doesn't work with ansible and tty support
+  - name: update zabbix docker items
+    command: docker exec -i oso-rhel7-host-monitoring /usr/local/bin/cron-send-docker-metrics.py
+
+  # Get and show docker info again.
+  - name: Get docker info
+    command: docker info
+    register: docker_info
+
+  - name: Show docker info
+    debug:
+      var: docker_info.stdout_lines

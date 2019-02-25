@@ -1,0 +1,156 @@
+---
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ openshift_daemonset_config_daemonset_name }}
+  annotations:
+    kubernetes.io/description: |
+      This daemon set manages the operational configuration for a cluster and ensures all nodes have
+      a concrete set of config in place. It could also use a local ansible run against the /host directory.
+spec:
+  selector:
+    matchLabels:
+      app: {{ openshift_daemonset_config_daemonset_name }}
+      confighosts: ops
+      ops.openshift.io/role: operations
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ openshift_daemonset_config_daemonset_name }}
+        confighosts: ops
+        ops.openshift.io/role: operations
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+{% if openshift_daemonset_config_node_selector is defined and openshift_daemonset_config_node_selector != {} %}
+      nodeSelector: {{ openshift_daemonset_config_node_selector | to_json }}
+{% endif %}
+      serviceAccountName: {{ openshift_daemonset_config_sa_name }}
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      priorityClassName: system-node-critical
+      containers:
+      - name: config
+        image: "{{ openshift_daemonset_config_image }}"
+        env:
+        - name: RESYNC_INTERVAL
+          value: "{{ openshift_daemonset_config_interval }}"
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/sh
+          set -o errexit
+
+          while true; do
+
+            # execute user defined script
+            sh /opt/config/{{ openshift_daemonset_config_script }}
+
+            # sleep for ${RESYNC_INTERVAL} minutes, then loop. if we fail Kubelet will restart us again
+            echo "Success, sleeping for ${RESYNC_INTERVAL}s. Date: $(date)"
+            sleep ${RESYNC_INTERVAL}
+
+          # Return to perform the config
+          done
+        securityContext:
+          # Must be root to modify host system
+          runAsUser: {{ openshift_daemonset_config_runasuser }}
+          # Permission could be reduced by selecting an appropriate SELinux policy that allows
+          # us to update the named directories
+          privileged: {{ openshift_daemonset_config_privileged }}
+        volumeMounts:
+        # Directory which contains the host volume.
+        - mountPath: /host
+          name: host
+        # Our node configuration
+        - mountPath: /opt/config
+          name: config
+        - mountPath: /opt/tmp_shared_config
+          name: tmp-shared-dir
+{% if openshift_daemonset_config_secrets != {} %}
+        # Our delivered secrets
+        - mountPath: /opt/secrets
+          name: secrets
+{% endif %}
+        resources:
+          requests:
+            cpu: {{ openshift_daemonset_config_resources.cpu }}
+            memory: {{ openshift_daemonset_config_resources.memory }}
+{% if openshift_daemonset_config_monitoring %}
+      - name: monitoring
+        image: "{{ openshift_daemonset_config_monitoring_image }}"
+        env:
+        - name: OO_PAUSE_ON_START
+          value: "{{ openshift_daemonset_config_monitoring_pos }}"
+        securityContext:
+          # Must be root to read content
+          runAsUser: 0
+          privileged: true
+        volumeMounts:
+        - mountPath: /host
+          name: host
+          readOnly: true
+        - mountPath: /etc/localtime
+          subPath: etc/localtime
+          name: host
+          readOnly: true
+        - mountPath: /sys
+          subPath: sys
+          name: host
+          readOnly: true
+        - mountPath: /run/docker.sock
+          name: docker-sock
+          readOnly: true
+        - mountPath: /var/run/openvswitch
+          subPath: var/run/openvswitch
+          name: host
+          readOnly: true
+        - mountPath: /etc/origin
+          subPath: etc/origin
+          name: host
+          readOnly: true
+        - mountPath: /usr/bin/oc
+          subPath: usr/bin/oc
+          name: host
+          readOnly: true
+          name: host
+          readOnly: true
+        - mountPath: /host/var/cache/yum
+          subPath: var/cache/yum
+          name: host
+          readOnly: true
+        - mountPath: /container_setup
+          name: tmp-shared-dir
+        - mountPath: /opt/config
+          name: config
+{% if openshift_daemonset_config_secrets != {} %}
+        - mountPath: /opt/secrets
+          name: secrets
+{% endif %}
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
+{% endif %}
+      volumes:
+      - name: tmp-shared-dir
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: {{ openshift_daemonset_config_configmap_name }}
+{% if openshift_daemonset_config_secrets != {} %}
+      - name: secrets
+        secret:
+          secretName: {{ openshift_daemonset_config_secret_name }}
+{% endif %}
+      - name: host
+        hostPath:
+          path: /
+      - hostPath:
+          path: /run/docker.sock
+          type: ""
+        name: docker-sock

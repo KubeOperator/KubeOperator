@@ -1,0 +1,48 @@
+# This deletes *ALL* Origin and OpenShift Container Platform content installed by
+# ansible.  This includes:
+#
+#    configuration
+#    containers
+#    example templates and imagestreams
+#    images
+#    RPMs
+---
+- hosts: OSEv3:children
+  become: yes
+  tasks:
+  - name: Detecting Operating System
+    shell: ls /run/ostree-booted
+    ignore_errors: yes
+    failed_when: false
+    register: ostree_output
+
+  # Since we're not calling openshift_facts we'll do this for now
+  - set_fact:
+      openshift_is_atomic: "{{ ostree_output.rc == 0 }}"
+
+- hosts: nodes:masters
+  become: yes
+  tasks:
+
+  - name: Stop docker service
+    service:
+      name: docker
+      state: stopped
+      enabled: no
+    failed_when: false
+    register: l_docker_restart_docker_in_pb_result
+    until: not (l_docker_restart_docker_in_pb_result is failed)
+    retries: 3
+    delay: 30
+
+  - name: Reset docker-storage-setup
+    shell: docker-storage-setup --reset
+    failed_when: False
+
+  - name: rm -rf docker config files
+    shell: "rm {{ item }} -rf"
+    failed_when: False
+    with_items:
+    - /etc/docker*
+    - /etc/sysconfig/docker*
+    - /etc/systemd/system/docker*

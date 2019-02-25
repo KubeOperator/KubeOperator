@@ -1,0 +1,21 @@
+---
+- name: Generate ClusterRoleBindings
+  template:
+    src: clusterrolebinding.j2
+    dest: "{{ mktemp.stdout }}/templates/{{ obj_name }}-clusterrolebinding.yaml"
+  vars:
+    acct_name: provisioners-{{item}}
+    obj_name: run-provisioners-{{item}}
+    labels:
+      provisioners-infra: support
+    crb_usernames: ["system:serviceaccount:{{openshift_provisioners_project}}:{{acct_name}}"]
+    subjects:
+      - kind: ServiceAccount
+        name: "{{acct_name}}"
+        namespace: "{{openshift_provisioners_project}}"
+    cr_name: "system:persistent-volume-provisioner"
+  with_items:
+    # TODO
+    - efs
+  check_mode: no
+  changed_when: no

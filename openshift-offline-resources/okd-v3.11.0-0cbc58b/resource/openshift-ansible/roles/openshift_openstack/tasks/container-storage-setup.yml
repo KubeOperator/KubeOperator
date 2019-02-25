@@ -1,0 +1,55 @@
+---
+- block:
+    - name: create the docker-storage config file
+      template:
+        src: docker-storage-setup-overlayfs.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+  when:
+    - ansible_distribution_version is version('7.4', '>=')
+    - ansible_distribution == "RedHat"
+
+- block:
+    - name: create the docker-storage-setup config file
+      template:
+        src: docker-storage-setup-dm.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+  when:
+    - ansible_distribution_version is version('7.4', '<')
+    - ansible_distribution == "RedHat"
+
+- block:
+    - name: create the docker-storage-setup config file for CentOS
+      template:
+        src: docker-storage-setup-dm.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+
+  # TODO(shadower): Find out which CentOS version supports overlayfs2
+  when:
+    - ansible_distribution == "CentOS"
+
+- name: Check if docker is running
+  command: systemctl status {{ openshift_docker_service_name }}
+  register: docker_running
+  ignore_errors: yes
+
+- name: restart docker after storage configuration
+  become: yes
+  systemd:
+    name: "{{ openshift_docker_service_name }}"
+    state: restarted
+  register: l_docker_restart_docker_in_storage_setup_result
+  until: not (l_docker_restart_docker_in_storage_setup_result is failed)
+  retries: 3
+  delay: 30
+  when:
+    - not openshift_use_crio_only|default(None)
+    - docker_running.rc == 0

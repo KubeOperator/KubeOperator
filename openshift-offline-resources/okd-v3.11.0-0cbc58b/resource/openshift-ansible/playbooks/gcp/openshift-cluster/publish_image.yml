@@ -1,0 +1,9 @@
+---
+- name: Publish the most recent image
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - import_role:
+      name: openshift_gcp
+      tasks_from: publish_image.yml

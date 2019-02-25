@@ -1,0 +1,8 @@
+---
+- name: Uninstall GlusterFS
+  hosts: oo_first_master
+  tasks:
+  - name: Run glusterfs uninstall role
+    import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: uninstall.yml

@@ -1,0 +1,78 @@
+---
+- name: Calico Node | Set cert flag
+  set_fact:
+    calico_certs_provided: "{{ calico_etcd_ca_cert_file is defined or calico_etcd_cert_file is defined or calico_etcd_key_file is defined or calico_etcd_endpoints is defined | bool }}"
+
+- name: Calico Node | Error if invalid cert arguments
+  fail:
+    msg: "Must provide all or none for the following etcd params: calico_etcd_ca_cert_file, calico_etcd_cert_file, calico_etcd_key_file, calico_etcd_endpoints"
+  when:
+  - calico_certs_provided
+  - not (calico_etcd_ca_cert_file is defined and calico_etcd_cert_file is defined and calico_etcd_key_file is defined and calico_etcd_endpoints is defined)
+
+- name: Calico Node | Set separate Calico etcd flag
+  set_fact:
+    use_calico_etcd: "{{ calico_etcd_initial_cluster is defined or calico_etcd_generate_certs is defined or calico_etcd_service_ip is defined or calico_etcd_clients_port is defined or calico_etcd_peers_port is defined or calico_etcd_cert_dir is defined or calico_etcd_mount is defined | bool }}"
+
+- name: Calico Node | Error if using separate etcd with invalid arguments
+  fail:
+    msg: "Must provide all or none of the following etcd params: calico_etcd_initial_cluster, calico_etcd_generate_certs, calico_etcd_service_ip, calico_etcd_clients_port, calico_etcd_peers_port, calico_etcd_cert_dir, and calico_etcd_mount"
+  when:
+  - use_calico_etcd
+  - not (calico_certs_provided and calico_etcd_initial_cluster is defined and calico_etcd_generate_certs is defined and calico_etcd_service_ip is defined and calico_etcd_clients_port is defined and calico_etcd_peers_port is defined and calico_etcd_cert_dir is defined and calico_etcd_mount is defined)
+
+- name: Calico Node | Configure separate Calico etcd and certs
+  when: use_calico_etcd
+  become: yes
+  include_role:
+    name: etcd
+    tasks_from: server_certificates
+  vars:
+    etcd_cert_prefix: calico-etcd-
+    etcd_conf_dir: "{{ calico_etcd_cert_dir }}"
+    etcd_cert_config_dir: "{{ calico_etcd_cert_dir }}"
+    etcd_ca_host: "{{ groups.oo_etcd_to_config.0 }}"
+    etcd_cert_subdir: "calico-etcd-{{ openshift.common.hostname }}"
+
+- name: Calico Node | Set etcd cert location facts
+  when: not calico_certs_provided
+  set_fact:
+    calico_etcd_ca_cert_file: "/etc/origin/master/master.etcd-ca.crt"
+    calico_etcd_cert_file: "/etc/origin/master/master.etcd-client.crt"
+    calico_etcd_key_file: "/etc/origin/master/master.etcd-client.key"
+    calico_etcd_endpoints: "{{ hostvars[groups.oo_first_master.0].openshift_master_etcd_urls | join(',') }}"
+
+- name: Calico Node | Error if no certs set.
+  fail:
+    msg: "Invalid etcd configuration for calico."
+  when: item is not defined or item == ''
+  with_items:
+  - calico_etcd_ca_cert_file
+  - calico_etcd_cert_file
+  - calico_etcd_key_file
+  - calico_etcd_endpoints
+
+- name: Calico Node | Assure the calico certs are present
+  stat:
+    path: "{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  with_items:
+  - "{{ calico_etcd_ca_cert_file }}"
+  - "{{ calico_etcd_cert_file }}"
+  - "{{ calico_etcd_key_file }}"
+
+- name: Create secret
+  oc_secret:
+    name: calico-etcd-secrets
+    state: present
+    namespace: kube-system
+    files:
+    - name: etcd-key
+      path: "{{ calico_etcd_key_file }}"
+    - name: etcd-cert
+      path: "{{ calico_etcd_cert_file }}"
+    - name: etcd-ca
+      path: "{{ calico_etcd_ca_cert_file }}"
+  run_once: true

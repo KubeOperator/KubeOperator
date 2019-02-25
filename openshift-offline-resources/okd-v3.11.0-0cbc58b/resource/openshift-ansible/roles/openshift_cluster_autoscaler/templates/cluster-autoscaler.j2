@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ openshift_cluster_autoscaler_name }}
+  name: {{ openshift_cluster_autoscaler_name }}
+  namespace: {{ openshift_cluster_autoscaler_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ openshift_cluster_autoscaler_name }}
+      role: infra
+  template:
+    metadata:
+      labels:
+        app: {{ openshift_cluster_autoscaler_name }}
+        role: infra
+    spec:
+      containers:
+      - args:
+        - /bin/cluster-autoscaler
+        - --alsologtostderr
+        - --v={{ openshift_cluster_autoscaler_loglevel }}
+        - --skip-nodes-with-local-storage={{ openshift_cluster_autoscaler_skip_nodes_local_storage }}
+        - --leader-elect-resource-lock=configmaps
+        - --namespace={{ openshift_cluster_autoscaler_namespace }}
+{% if openshift_cluster_autoscaler_scale_down_delay is defined %}
+        - --scale-down-delay={{ openshift_cluster_autoscaler_scale_down_delay }}
+{% endif %}
+        - --cloud-provider={{ openshift_cluster_autoscaler_cloud_provider }}
+{% for group in openshift_cluster_autoscaler_node_groups %}
+        - --nodes={{ group.min }}:{{ group.max }}:{{ group.name }}
+{% endfor %}
+{% if openshift_cluster_autoscaler_scale_down_delay_after_failure is defined %}
+        - --scale-down-delay-after-failure={{ openshift_cluster_autoscaler_scale_down_delay_after_failure }}
+{% endif %}
+{% if openshift_cluster_autoscaler_scale_down_unneeded_timeout is defined %}
+        - --scale-down-unneeded-time={{ openshift_cluster_autoscaler_scale_down_unneeded_timeout }}
+{% endif %}
+{% if openshift_cluster_autoscaler_scale_down_delay_after_add is defined %}
+        - --scale-down-delay-after-add={{ openshift_cluster_autoscaler_scale_down_delay_after_add }}
+{% endif %}
+{% if openshift_cluster_autoscaler_cloud_provider == 'aws' %}
+        env: {{ openshift_cluster_autoscaler_aws_env_vars | union(openshift_cluster_autoscaler_env_vars) | to_json }}
+{% else %}
+        env: {{ openshift_cluster_autoscaler_env_vars }}
+{% endif %}
+        image: {{ openshift_cluster_autoscaler_image }}
+        name: autoscaler
+{% if openshift_cluster_autoscaler_cloud_provider == 'aws' %}
+        volumeMounts:
+        - mountPath: {{ openshift_cluster_autoscaler_aws_creds_path | dirname }}
+          name: {{ openshift_cluster_autoscaler_aws_creds_name }}
+          readOnly: true
+{% endif %}
+      nodeSelector: {{ openshift_cluster_autoscaler_node_selector | to_json }}
+      dnsPolicy: ClusterFirst
+      serviceAccountName: {{ openshift_cluster_autoscaler_serviceaccount }}
+      terminationGracePeriodSeconds: 30
+{% if openshift_cluster_autoscaler_cloud_provider == 'aws' %}
+      volumes:
+      - name: {{ openshift_cluster_autoscaler_aws_creds_name }}
+        secret:
+          defaultMode: 420
+          secretName: {{ openshift_cluster_autoscaler_aws_secret_name }}
+{% endif %}

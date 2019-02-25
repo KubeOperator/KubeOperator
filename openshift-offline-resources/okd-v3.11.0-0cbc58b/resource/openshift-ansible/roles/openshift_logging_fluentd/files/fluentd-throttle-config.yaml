@@ -1,0 +1,7 @@
+# Logging example fluentd throttling config file
+
+#example-project:
+#  read_lines_limit: 10
+#
+#.operations:
+#  read_lines_limit: 100

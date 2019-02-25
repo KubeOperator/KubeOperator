@@ -1,0 +1,29 @@
+---
+l_openshift_logging_search_dict:
+  origin: "${component}"
+  openshift-enterprise: "ose-${component}"
+l_openshift_logging_search: "{{ l_openshift_logging_search_dict[openshift_deployment_type] }}"
+
+l_os_logging_non_standard_reg_search_dict:
+  origin: "origin-${component}"
+  openshift-enterprise: "ose-${component}"
+l_os_logging_non_standard_reg_search: "{{ l_os_logging_non_standard_reg_search_dict[openshift_deployment_type] }}"
+
+l_os_logging_proxy_image_version_dict:
+  origin: 'v1.1.0'
+  openshift-enterprise: "{{ openshift_image_tag }}"
+l_os_logging_proxy_image_version: "{{ l_os_logging_proxy_image_version_dict[openshift_deployment_type] }}"
+
+# We need to regex_replace ${version} with either v1.0.0 or openshift_image_tag
+l_os_logging_proxy_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_os_logging_proxy_image_version) }}"
+# We need to regex_replace the origin-${component} with 'oauth-proxy'
+l2_os_logging_proxy_image: "{{ l_os_logging_proxy_image | regex_replace(l_os_logging_non_standard_reg_search | regex_escape, 'oauth-proxy') }}"
+
+openshift_logging_curator_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'logging-curator5') }}"
+openshift_logging_elasticsearch_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'logging-elasticsearch5') }}"
+openshift_logging_elasticsearch_proxy_image: "{{ l2_os_logging_proxy_image }}"
+openshift_logging_fluentd_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'logging-fluentd') }}"
+openshift_logging_kibana_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'logging-kibana5') }}"
+openshift_logging_kibana_proxy_image: "{{ l2_os_logging_proxy_image }}"
+openshift_logging_mux_image: "{{ openshift_logging_fluentd_image }}"
+openshift_logging_eventrouter_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'logging-eventrouter') }}"

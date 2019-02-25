@@ -1,0 +1,133 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: deploy-heketi
+  labels:
+    glusterfs: heketi-template
+    deploy-heketi: support
+  annotations:
+    description: Bootstrap Heketi installation
+    tags: glusterfs,heketi,installation
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: deploy-heketi-${CLUSTER_NAME}
+    labels:
+      glusterfs: deploy-heketi-${CLUSTER_NAME}-service
+      deploy-heketi: support
+    annotations:
+      description: Exposes Heketi service
+  spec:
+    ports:
+    - name: deploy-heketi-${CLUSTER_NAME}
+      port: 8080
+      targetPort: 8080
+    selector:
+      glusterfs: deploy-heketi-${CLUSTER_NAME}-pod
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${HEKETI_ROUTE}
+    labels:
+      glusterfs: deploy-heketi-${CLUSTER_NAME}-route
+      deploy-heketi: support
+  spec:
+    to:
+      kind: Service
+      name: deploy-heketi-${CLUSTER_NAME}
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: deploy-heketi-${CLUSTER_NAME}
+    labels:
+      glusterfs: deploy-heketi-${CLUSTER_NAME}-dc
+      deploy-heketi: support
+    annotations:
+      description: Defines how to deploy Heketi
+  spec:
+    replicas: 1
+    selector:
+      glusterfs: deploy-heketi-${CLUSTER_NAME}-pod
+    triggers:
+    - type: ConfigChange
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        name: deploy-heketi
+        labels:
+          glusterfs: deploy-heketi-${CLUSTER_NAME}-pod
+          deploy-heketi: support
+      spec:
+        serviceAccountName: heketi-${CLUSTER_NAME}-service-account
+        containers:
+        - name: heketi
+          image: ${IMAGE_NAME}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: HEKETI_USER_KEY
+            value: ${HEKETI_USER_KEY}
+          - name: HEKETI_ADMIN_KEY
+            value: ${HEKETI_ADMIN_KEY}
+          - name: HEKETI_EXECUTOR
+            value: ${HEKETI_EXECUTOR}
+          - name: HEKETI_FSTAB
+            value: ${HEKETI_FSTAB}
+          - name: HEKETI_SNAPSHOT_LIMIT
+            value: '14'
+          - name: HEKETI_KUBE_GLUSTER_DAEMONSET
+            value: '1'
+          - name: HEKETI_IGNORE_STALE_OPERATIONS
+            value: "true"
+          ports:
+          - containerPort: 8080
+          volumeMounts:
+          - name: db
+            mountPath: /var/lib/heketi
+          - name: config
+            mountPath: /etc/heketi
+          readinessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 3
+            httpGet:
+              path: /hello
+              port: 8080
+          livenessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+            httpGet:
+              path: /hello
+              port: 8080
+        volumes:
+        - name: db
+        - name: config
+          secret:
+            secretName: heketi-${CLUSTER_NAME}-config-secret
+parameters:
+- name: HEKETI_USER_KEY
+  displayName: Heketi User Secret
+  description: Set secret for those creating volumes as type _user_
+- name: HEKETI_ADMIN_KEY
+  displayName: Heketi Administrator Secret
+  description: Set secret for administration of the Heketi service as user _admin_
+- name: HEKETI_EXECUTOR
+  displayName: heketi executor type
+  description: Set the executor type, kubernetes or ssh
+  value: kubernetes
+- name: HEKETI_FSTAB
+  displayName: heketi fstab path
+  description: Set the fstab path, file that is populated with bricks that heketi creates
+  value: /var/lib/heketi/fstab
+- name: HEKETI_ROUTE
+  displayName: heketi route name
+  description: Set the hostname for the route URL
+  value: "heketi-glusterfs"
+- name: IMAGE_NAME
+  displayName: heketi container image name
+  required: True
+- name: CLUSTER_NAME
+  displayName: GlusterFS cluster name
+  description: A unique name to identify this heketi service, useful for running multiple heketi instances
+  value: glusterfs

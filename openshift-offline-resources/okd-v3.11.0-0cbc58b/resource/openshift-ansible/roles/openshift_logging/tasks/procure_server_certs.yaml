@@ -1,0 +1,66 @@
+---
+- name: Checking for {{ cert_info.procure_component }}.crt
+  stat:
+    path: "{{generated_certs_dir}}/{{ cert_info.procure_component }}.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: component_cert_file
+  check_mode: no
+
+- name: Checking for {{ cert_info.procure_component }}.key
+  stat:
+    path: "{{generated_certs_dir}}/{{ cert_info.procure_component }}.key"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: component_key_file
+  check_mode: no
+
+- name: Trying to discover server cert variable name for {{ cert_info.procure_component }}
+  set_fact: procure_component_crt={{ lookup('env', '{{cert_info.procure_component}}' + '_crt') }}
+  when:
+  - cert_info.hostnames is undefined
+  - cert_info[ cert_info.procure_component + '_crt' ] is defined
+  - cert_info[ cert_info.procure_component + '_key' ] is defined
+  check_mode: no
+
+- name: Trying to discover the server key variable name for {{ cert_info.procure_component }}
+  set_fact: procure_component_key={{ lookup('env', '{{cert_info.procure_component}}' + '_key') }}
+  when:
+  - cert_info.hostnames is undefined
+  - cert_info[ cert_info.procure_component + '_crt' ] is defined
+  - cert_info[ cert_info.procure_component + '_key' ] is defined
+  check_mode: no
+
+- name: Creating signed server cert and key for {{ cert_info.procure_component }}
+  command: >
+     {{ openshift_client_binary }} adm --config={{ mktemp.stdout }}/admin.kubeconfig ca create-server-cert
+     --key={{generated_certs_dir}}/{{cert_info.procure_component}}.key --cert={{generated_certs_dir}}/{{cert_info.procure_component}}.crt
+     --hostnames={{cert_info.hostnames|quote}} --signer-cert={{generated_certs_dir}}/ca.crt --signer-key={{generated_certs_dir}}/ca.key
+     --signer-serial={{generated_certs_dir}}/ca.serial.txt
+  check_mode: no
+  when:
+  - cert_info.hostnames is defined
+  - not component_key_file.stat.exists
+  - not component_cert_file.stat.exists
+
+- name: Copying server key for {{ cert_info.procure_component }} to generated certs directory
+  copy: content="{{procure_component_key}}" dest={{generated_certs_dir}}/{{cert_info.procure_component}}.key
+  check_mode: no
+  when:
+  - cert_info.hostnames is undefined
+  - cert_info[ cert_info.procure_component + '_crt' ] is defined
+  - cert_info[ cert_info.procure_component + '_key' ] is defined
+  - not component_key_file.stat.exists
+  - not component_cert_file.stat.exists
+
+- name: Copying Server cert for {{ cert_info.procure_component }} to generated certs directory
+  copy: content="{{procure_component_crt}}" dest={{generated_certs_dir}}/{{cert_info.procure_component}}.crt
+  check_mode: no
+  when:
+  - cert_info.hostnames is undefined
+  - cert_info[ cert_info.procure_component + '_crt' ] is defined
+  - cert_info[ cert_info.procure_component + '_key' ] is defined
+  - not component_key_file.stat.exists
+  - not component_cert_file.stat.exists

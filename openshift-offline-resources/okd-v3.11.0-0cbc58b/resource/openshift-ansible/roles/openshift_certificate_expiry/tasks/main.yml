@@ -1,0 +1,48 @@
+---
+- name: Ensure python dateutil library is present
+  package:
+    name: "{{ 'python3-dateutil' if ansible_distribution == 'Fedora' else 'python-dateutil' }}"
+    state: present
+  when: not openshift_is_atomic | bool
+
+- name: Check cert expirys on host
+  openshift_cert_expiry:
+    warning_days: "{{ openshift_certificate_expiry_warning_days|int }}"
+    config_base: "{{ openshift_certificate_expiry_config_base }}"
+    show_all: "{{ openshift_certificate_expiry_show_all|bool }}"
+  register: check_results
+
+- name: Generate expiration report HTML
+  run_once: yes
+  template:
+    src: cert-expiry-table.html.j2
+    dest: "{{ openshift_certificate_expiry_html_report_path }}"
+  delegate_to: localhost
+  when: >
+        openshift_certificate_expiry_generate_html_report | bool
+        or (openshift_certificate_expiry_fail_on_warn | bool and
+            check_results.warn_certs | bool)
+
+- name: Generate results JSON file
+  run_once: yes
+  template:
+    src: save_json_results.j2
+    dest: "{{ openshift_certificate_expiry_json_results_path }}"
+  delegate_to: localhost
+  when: >
+        openshift_certificate_expiry_save_json_results | bool
+        or (openshift_certificate_expiry_fail_on_warn | bool and
+            check_results.warn_certs | bool)
+  vars:
+    json_result_string: "{{ hostvars|oo_cert_expiry_results_to_json(play_hosts) }}"
+
+- name: Fail when certs are near or already expired
+  fail:
+    msg: >
+      Cluster certificates found to be expired or within
+      {{ openshift_certificate_expiry_warning_days|int }} days of expiring.
+      You may view the report at {{ openshift_certificate_expiry_html_report_path }}
+      or {{ openshift_certificate_expiry_json_results_path }}.
+  when:
+  - openshift_certificate_expiry_fail_on_warn | bool
+  - check_results.warn_certs | bool

@@ -1,0 +1,43 @@
+---
+#####
+# Instance profiles consist of two parts. The first part is creating a role
+# in which the instance has access and will use this role's permissions
+# to make API calls on his behalf.  This role requires a trust policy
+# which links a service (ec2) to the role.  This states that this role
+# has access to make call ec2 API calls.
+# See ../files/trustpolicy.json
+#
+# Currently openshift-node requires
+# access to the AWS API to call describeinstances.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1510519
+#####
+- name: Create an iam role
+  iam_role:
+    name: "{{ openshift_aws_launch_config_iam_roles[l_item].name }}"
+    assume_role_policy_document: "{{ lookup('file','trustpolicy.json') }}"
+    state: "{{ openshift_aws_iam_role_state | default('present') }}"
+  loop: "{{ openshift_aws_launch_config_iam_roles | list }}"
+  loop_control:
+    loop_var: l_item
+  retries: 3
+  delay: 3
+
+#####
+# The second part of this task file is linking the role to a policy
+# that specifies which calls the role can make to the ec2 API.
+# Currently all that is required is DescribeInstances.
+# See ../files/describeinstances.json
+#####
+- name: create an iam policy
+  iam_policy:
+    iam_type: role
+    iam_name: "{{ openshift_aws_launch_config_iam_roles[l_item].name }}"
+    policy_json: "{{ openshift_aws_launch_config_iam_roles[l_item].policy_json }}"
+    policy_name: "{{ openshift_aws_launch_config_iam_roles[l_item].policy_name }}"
+    state: "{{ openshift_aws_iam_role_state | default('present') }}"
+  register: l_iam_create_policy_out
+  loop: "{{ openshift_aws_launch_config_iam_roles | list }}"
+  loop_control:
+    loop_var: l_item
+  retries: 3
+  delay: 3

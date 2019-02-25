@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cluster-monitoring-operator
+  namespace: {{ openshift_cluster_monitoring_operator_namespace }}
+  labels:
+    app: cluster-monitoring-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cluster-monitoring-operator
+  template:
+    metadata:
+      labels:
+        app: cluster-monitoring-operator
+    spec:
+      serviceAccountName: cluster-monitoring-operator
+{% if openshift_cluster_monitoring_operator_node_selector is iterable and openshift_cluster_monitoring_operator_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in openshift_cluster_monitoring_operator_node_selector.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+      containers:
+      - image: "{{ openshift_cluster_monitoring_operator_image }}"
+        name: cluster-monitoring-operator
+        args:
+        - "-namespace={{ openshift_cluster_monitoring_operator_namespace }}"
+        - "-configmap=cluster-monitoring-config"
+        - "-logtostderr=true"
+        - "-v=4"
+{% if openshift_deployment_type == 'openshift-enterprise' %}
+        - "-tags=prometheus-operator={{ openshift_image_tag }}"
+        - "-tags=prometheus-config-reloader={{ openshift_image_tag }}"
+        - "-tags=config-reloader={{ openshift_image_tag }}"
+        - "-tags=prometheus={{ openshift_image_tag }}"
+        - "-tags=alertmanager={{ openshift_image_tag }}"
+        - "-tags=grafana={{ openshift_image_tag }}"
+        - "-tags=oauth-proxy={{ openshift_image_tag }}"
+        - "-tags=node-exporter={{ openshift_image_tag }}"
+        - "-tags=kube-state-metrics={{ openshift_image_tag }}"
+        - "-tags=kube-rbac-proxy={{ openshift_image_tag }}"
+{% endif %}
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: 20m
+            memory: 50Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi

@@ -1,0 +1,49 @@
+---
+- name: Old version cleanup | Check if old auth proxy service exists
+  stat:
+    path: /etc/systemd/system/auth-proxy.service
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: auth_proxy_stat
+
+- name: Old version cleanup | Stop old auth proxy
+  service:
+    name: auth-proxy
+    enabled: no
+    state: stopped
+  when: auth_proxy_stat.stat.exists
+
+# Note(NB): The new containerized contiv-etcd service uses the same data
+# directory on the host, so etcd data is not lost.
+- name: Old version cleanup | Check if old contiv-etcd service exists
+  stat:
+    path: /etc/systemd/system/contiv-etcd.service
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: contiv_etcd_stat
+
+- name: Old version cleanup | Stop old contiv-etcd
+  service:
+    name: contiv-etcd
+    enabled: no
+    state: stopped
+  when: contiv_etcd_stat.stat.exists
+
+- name: Old version cleanup | Delete old files
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - /etc/systemd/system/auth-proxy.service
+    - /var/contiv/certs
+    - /usr/bin/auth_proxy.sh
+    - /etc/systemd/system/contiv-etcd.service
+    - /etc/systemd/system/contiv-etcd.service.d
+
+- include_tasks: old_version_cleanup_iptables.yml
+  when: not contiv_has_firewalld and contiv_has_iptables
+
+- include_tasks: old_version_cleanup_firewalld.yml
+  when: contiv_has_firewalld

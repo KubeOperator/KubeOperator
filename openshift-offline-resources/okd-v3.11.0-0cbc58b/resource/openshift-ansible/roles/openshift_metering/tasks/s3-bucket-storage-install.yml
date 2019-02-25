@@ -1,0 +1,7 @@
+---
+- name: Create Metering S3 bucket for Storage using AWS S3
+  local_action:
+    module: s3_bucket
+    state: present
+    name: "{{ openshift_metering_s3_storage_bucket_name }}"
+  when: openshift_metering_s3_bucket_create | bool

@@ -1,0 +1,99 @@
+---
+- import_tasks: registry_auth.yml
+
+- import_tasks: static_shim.yml
+
+- import_tasks: upgrade/upgrade_scheduler.yml
+
+# master_config_hook is passed in from upgrade play.
+- include_tasks: "upgrade/{{ master_config_hook }}"
+  when: master_config_hook is defined
+
+- import_tasks: set_loopback_context.yml
+
+- name: Check for ca-bundle.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_bundle_stat
+  failed_when: false
+
+- name: Check for ca.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    get_checksum: false
+    get_mime: false
+  register: ca_crt_stat
+  failed_when: false
+
+- name: Migrate ca.crt to ca-bundle.crt
+  command: mv ca.crt ca-bundle.crt
+  args:
+    chdir: "{{ openshift.common.config_base }}/master"
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists
+
+- name: Link ca.crt to ca-bundle.crt
+  file:
+    src: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    state: link
+    force: yes
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists
+
+# Anyone upgrading to 3.7 or 3.9 should've had their certs updated to be
+# compatible with this so this is the only valid value for internal registry
+- name: Update imagePolicyConfig.internalRegistryHostname
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "imagePolicyConfig.internalRegistryHostname"
+    value: "docker-registry.default.svc:5000"
+
+- name: Update oreg value
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'imageConfig.format'
+    value: "{{ openshift_imageconfig_format }}"
+
+- name: Change default node selector to compute=true
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'projectConfig.defaultNodeSelector'
+    value: '{{ hostvars[groups.oo_first_master.0].l_osm_default_node_selector }}'
+  when: openshift_upgrade_target is version('3.9', '>=')
+
+- name: Remove use of pod presets from master config
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'admissionConfig.pluginConfig.PodPreset'
+    state: absent
+- name: Find current value for runtime-config
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "kubernetesMasterConfig.apiServerArguments.runtime-config"
+    state: list
+  register: runtime_config
+- name: Set the runtime-config to exclude pod presets
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "kubernetesMasterConfig.apiServerArguments.runtime-config"
+    value: "{{ r_c | difference(['apis/settings.k8s.io/v1alpha1=true']) }}"
+  vars:
+    r_c: "{{ runtime_config.result | default([]) }}"
+- name: Copy recyler pod to config directory
+  template:
+    src: "recycler_pod.yaml.j2"
+    dest: "/etc/origin/master/recycler_pod.yaml"
+- name: Update controller-manager to have nfs recycler pod
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "kubernetesMasterConfig.controllerArguments.pv-recycler-pod-template-filepath-nfs"
+    value:
+    - /etc/origin/master/recycler_pod.yaml
+- name: Update controller-manager to have hostpath recycler pod
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: "kubernetesMasterConfig.controllerArguments.pv-recycler-pod-template-filepath-hostpath"
+    value:
+    - /etc/origin/master/recycler_pod.yaml

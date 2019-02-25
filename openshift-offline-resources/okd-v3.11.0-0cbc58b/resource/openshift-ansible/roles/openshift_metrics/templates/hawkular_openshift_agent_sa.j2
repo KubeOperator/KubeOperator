@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hawkular-openshift-agent
+  labels:
+    metrics-infra: agent
+  namespace: {{openshift_metrics_hawkular_agent_namespace}}

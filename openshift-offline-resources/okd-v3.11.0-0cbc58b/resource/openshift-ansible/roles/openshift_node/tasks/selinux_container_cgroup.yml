@@ -1,0 +1,9 @@
+---
+# Required in some selinux policy versions see
+# https://bugzilla.redhat.com/show_bug.cgi?id=1587825
+# https://bugzilla.redhat.com/show_bug.cgi?id=1549765
+- name: Setting sebool container_manage_cgroup
+  seboolean:
+    name: container_manage_cgroup
+    state: yes
+    persistent: yes

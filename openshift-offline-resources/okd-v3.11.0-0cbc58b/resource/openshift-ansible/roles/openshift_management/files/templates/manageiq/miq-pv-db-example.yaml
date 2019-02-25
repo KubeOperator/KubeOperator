@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: manageiq-db-pv
+metadata:
+  name: manageiq-db-pv
+  annotations:
+    description: PV Template for MIQ PostgreSQL DB
+    tags: PVS, MIQ
+objects:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: miq-db
+  spec:
+    capacity:
+      storage: "${PV_SIZE}"
+    accessModes:
+    - ReadWriteOnce
+    nfs:
+      path: "${BASE_PATH}/miq-db"
+      server: "${NFS_HOST}"
+    persistentVolumeReclaimPolicy: Retain
+parameters:
+- name: PV_SIZE
+  displayName: PV Size for DB
+  required: true
+  description: The size of the MIQ DB PV given in Gi
+  value: 15Gi
+- name: BASE_PATH
+  displayName: Exports Directory Base Path
+  required: true
+  description: The parent directory of your NFS exports
+  value: "/exports"
+- name: NFS_HOST
+  displayName: NFS Server Hostname
+  required: true
+  description: The hostname or IP address of the NFS server

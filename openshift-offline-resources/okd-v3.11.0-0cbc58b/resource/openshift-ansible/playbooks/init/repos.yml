@@ -1,0 +1,17 @@
+---
+# l_repo_hosts is passed in via prerequisites.yml.
+
+- name: Setup yum repositories for all hosts
+  hosts: "{{ l_repo_hosts | default('all:!all') }}"
+  gather_facts: no
+  tasks:
+  - name: subscribe instances to Red Hat Subscription Manager
+    import_role:
+      name: rhel_subscribe
+    when:
+    - ansible_distribution == 'RedHat'
+    - openshift_deployment_type == 'openshift-enterprise'
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+  - name: initialize openshift repos
+    import_role:
+      name: openshift_repos

@@ -1,0 +1,44 @@
+---
+- name: Evaluate basic OpenStack groups
+  import_playbook: evaluate_groups.yml
+
+- name: Evaluate remaining cluster groups
+  import_playbook: ../../init/evaluate_groups.yml
+
+- name: Unsubscribe RHEL instances
+  hosts: oo_all_hosts
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Unsubscribe RHEL instances
+    import_role:
+      name: rhel_unsubscribe
+    when:
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+- name: Clean DNS entries
+  hosts: localhost
+  ignore_errors: True
+  tasks:
+  - name: Clean DNS entries
+    import_role:
+      name: openshift_openstack
+      tasks_from: populate-dns.yml
+    vars:
+      l_openshift_openstack_dns_update_nodes: "{{ groups.OSEv3 }}"
+      l_dns_record_state: absent
+    when:
+    - openshift_openstack_external_nsupdate_keys is defined
+    - openshift_openstack_external_nsupdate_keys.private is defined or openshift_openstack_external_nsupdate_keys.public is defined
+
+- name: Remove OpenStack resources
+  hosts: localhost
+  tasks:
+  - name: retrieve cluster name from the environment if present
+    set_fact:
+      openshift_openstack_stack_name: "{{ lookup('env', 'OPENSHIFT_CLUSTER') | ternary (lookup('env', 'OPENSHIFT_CLUSTER'), omit) }}"
+  - name: Remove OpenStack resources
+    import_role:
+      name: openshift_openstack
+      tasks_from: unprovision.yml

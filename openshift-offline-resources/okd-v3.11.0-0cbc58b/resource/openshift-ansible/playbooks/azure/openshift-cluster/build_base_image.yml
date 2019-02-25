@@ -1,0 +1,52 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: calculate input image
+    command: az image list -g "{{ openshift_azure_input_image_ns }}" --query "[?starts_with(name, '{{ openshift_azure_input_image_prefix }}-') && tags.valid=='true'] | sort_by(@, &name) | [-1]"
+    register: input_image
+
+  - name: provision resource group
+    import_tasks: tasks/provision_instance.yml
+
+- hosts: nodes
+  tasks:
+  - name: calculate yum repositories
+    set_fact:
+      openshift_additional_repos: "{{ azure_base_repos[ansible_distribution] }}"
+
+  - name: configure yum repositories
+    import_tasks: tasks/yum_certs.yml
+
+  - name: update rpms
+    import_role:
+      name: os_update_latest
+    vars:
+      os_update_latest_reboot: True
+
+  - name: deconfigure yum repositories
+    import_tasks: tasks/remove_yum.yml
+
+  - name: run waagent deprovision
+    command: waagent -deprovision+user -force
+    args:
+      chdir: /
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: create image
+    import_tasks: tasks/create_image_from_vm.yml
+    vars:
+      image_resource_group: "{{ openshift_azure_output_image_ns }}"
+      image_name: "{{ openshift_azure_output_image_name }}"
+      image_tags:
+        root_image: "{{ (input_image.stdout | from_json).name }}"
+        kernel: "{{ hostvars[groups['nodes'][0]]['ansible_kernel'] }}"
+        valid: "true"
+
+  - name: create blob
+    import_tasks: tasks/create_blob_from_vm.yml
+    vars:
+      image_name: "{{ openshift_azure_output_image_name }}"
+    when: openshift_azure_storage_account is defined and openshift_azure_storage_account

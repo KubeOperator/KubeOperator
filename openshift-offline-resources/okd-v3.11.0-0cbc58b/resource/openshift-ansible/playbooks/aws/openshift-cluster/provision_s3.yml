@@ -1,0 +1,10 @@
+---
+- name: Create s3 bucket
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: create s3 bucket
+    include_role:
+      name: openshift_aws
+      tasks_from: s3.yml
+    when: openshift_aws_create_s3 | default(true) | bool

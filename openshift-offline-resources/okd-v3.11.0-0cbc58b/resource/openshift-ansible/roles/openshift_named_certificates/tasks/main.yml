@@ -1,0 +1,45 @@
+---
+- set_fact:
+    parsed_named_certificates: "{{ named_certificates | lib_utils_oo_parse_named_certificates(named_certs_dir, internal_hostnames) }}"
+  when: named_certificates | length > 0
+  delegate_to: localhost
+  run_once: true
+
+- openshift_facts:
+    role: master
+    local_facts:
+      named_certificates: "{{ parsed_named_certificates | default([]) }}"
+    additive_facts_to_overwrite:
+    - "{{ 'master.named_certificates' if overwrite_named_certs | bool else omit }}"
+
+- name: Clear named certificates
+  file:
+    path: "{{ named_certs_dir }}"
+    state: absent
+  when: overwrite_named_certs | bool
+
+- name: Ensure named certificate directory exists
+  file:
+    path: "{{ named_certs_dir }}"
+    state: directory
+    mode: 0700
+
+- name: Land named certificates
+  copy:
+    src: "{{ item.certfile }}"
+    dest: "{{ named_certs_dir }}/{{ item.certfile | basename }}"
+  with_items: "{{ named_certificates }}"
+
+- name: Land named certificate keys
+  copy:
+    src: "{{ item.keyfile }}"
+    dest: "{{ named_certs_dir }}/{{ item.keyfile | basename }}"
+    mode: 0600
+  with_items: "{{ named_certificates }}"
+
+- name: Land named CA certificates
+  copy:
+    src: "{{ item }}"
+    dest: "{{ named_certs_dir }}/{{ item | basename }}"
+    mode: 0600
+  with_items: "{{ named_certificates | lib_utils_oo_collect('cafile') }}"

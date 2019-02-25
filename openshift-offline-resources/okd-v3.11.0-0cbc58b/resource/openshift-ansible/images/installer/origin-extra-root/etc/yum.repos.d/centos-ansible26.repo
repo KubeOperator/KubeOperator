@@ -1,0 +1,6 @@
+
+[centos-ansible26-testing]
+name=CentOS Ansible 2.6 testing repo
+baseurl=https://cbs.centos.org/repos/configmanagement7-ansible-26-testing/x86_64/os/
+enabled=1
+gpgcheck=0

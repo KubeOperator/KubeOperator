@@ -1,0 +1,5 @@
+---
+- name: Remove openshift-web-console project
+  oc_project:
+    name: openshift-web-console
+    state: absent

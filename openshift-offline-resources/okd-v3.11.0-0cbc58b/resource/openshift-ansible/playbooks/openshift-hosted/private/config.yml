@@ -1,0 +1,44 @@
+---
+- name: Hosted Install Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Hosted install 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_hosted:
+          title: "Hosted Install"
+          playbook: "playbooks/openshift-hosted/config.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- import_playbook: openshift_default_storage_class.yml
+
+- import_playbook: create_persistent_volumes.yml
+
+- import_playbook: openshift_hosted_create_projects.yml
+
+- import_playbook: openshift_hosted_router.yml
+
+- import_playbook: openshift_hosted_registry.yml
+
+- import_playbook: openshift_hosted_wait_for_pods.yml
+
+- import_playbook: openshift_hosted_registry_storage.yml
+
+- import_playbook: cockpit-ui.yml
+
+- import_playbook: install_docker_gc.yml
+
+- name: Hosted Install Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Hosted install 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_hosted:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cloudforms-restore
+spec:
+  template:
+    metadata:
+      name: cloudforms-restore
+    spec:
+      containers:
+      - name: postgresql
+        image: registry.redhat.io/cloudforms46/cfme-openshift-postgresql:latest
+        command:
+        - "/opt/rh/cfme-container-scripts/restore_db"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: cloudforms-secrets
+              key: database-url
+        - name: BACKUP_VERSION
+          value: latest
+        volumeMounts:
+        - name: cfme-backup-vol
+          mountPath: "/backups"
+        - name: cfme-prod-vol
+          mountPath: "/restore"
+      volumes:
+      - name: cfme-backup-vol
+        persistentVolumeClaim:
+          claimName: cloudforms-backup
+      - name: cfme-prod-vol
+        persistentVolumeClaim:
+          claimName: cloudforms-postgresql
+      restartPolicy: Never

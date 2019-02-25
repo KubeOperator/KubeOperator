@@ -1,0 +1,26 @@
+[Unit]
+Description=OpenShift Node
+After={{ openshift_docker_service_name }}.service
+After=chronyd.service
+After=ntpd.service
+Wants={{ openshift_docker_service_name }}.service
+Documentation=https://github.com/openshift/origin
+Wants=dnsmasq.service
+After=dnsmasq.service
+{% if openshift_use_crio | bool %}Wants=cri-o.service{% endif %}
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/{{ openshift_service_type }}-node
+ExecStart=/usr/local/bin/openshift-node
+LimitNOFILE=65536
+LimitCORE=infinity
+WorkingDirectory=/var/lib/origin/
+SyslogIdentifier={{ openshift_service_type }}-node
+Restart=always
+RestartSec=5s
+TimeoutStartSec=300
+OOMScoreAdjust=-999
+
+[Install]
+WantedBy=multi-user.target

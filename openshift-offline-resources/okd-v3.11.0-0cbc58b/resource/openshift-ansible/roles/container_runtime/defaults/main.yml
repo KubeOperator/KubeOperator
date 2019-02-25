@@ -1,0 +1,82 @@
+---
+docker_cli_auth_config_path: '/root/.docker'
+openshift_docker_signature_verification: False
+
+openshift_docker_selinux_enabled: True
+openshift_docker_service_name: "docker"
+
+openshift_docker_hosted_registry_insecure: False  # bool
+
+openshift_docker_hosted_registry_network: "{{ openshift.common.portal_net }}"
+
+openshift_docker_additional_registries: []
+openshift_docker_blocked_registries: []
+openshift_docker_insecure_registries: []
+
+openshift_docker_ent_reg: 'registry.redhat.io'
+
+openshift_docker_options: False  # str
+openshift_docker_log_driver: False  # str
+openshift_docker_log_options_defaults:
+  json-file:
+  - "max-size=50m"
+openshift_docker_log_options: "{{ openshift_docker_log_options_defaults[openshift_docker_log_driver] | default([]) }}"
+
+# The l2_docker_* variables convert csv strings to lists, if
+# necessary.  These variables should be used in place of their respective
+# openshift_docker_* counterparts to ensure the properly formatted lists are
+# utilized.
+l2_docker_additional_registries: "{% if openshift_docker_additional_registries is string %}{% if openshift_docker_additional_registries == '' %}[]{% elif ',' in openshift_docker_additional_registries %}{{ openshift_docker_additional_registries.split(',') | list }}{% else %}{{ [ openshift_docker_additional_registries ] }}{% endif %}{% else %}{{ openshift_docker_additional_registries }}{% endif %}"
+l2_docker_blocked_registries: "{% if openshift_docker_blocked_registries is string %}{% if openshift_docker_blocked_registries == '' %}[]{% elif ',' in openshift_docker_blocked_registries %}{{ openshift_docker_blocked_registries.split(',') | list }}{% else %}{{ [ openshift_docker_blocked_registries ] }}{% endif %}{% else %}{{ openshift_docker_blocked_registries }}{% endif %}"
+l2_docker_insecure_registries: "{% if openshift_docker_insecure_registries is string %}{% if openshift_docker_insecure_registries == '' %}[]{% elif ',' in openshift_docker_insecure_registries %}{{ openshift_docker_insecure_registries.split(',') | list }}{% else %}{{ [ openshift_docker_insecure_registries ] }}{% endif %}{% else %}{{ openshift_docker_insecure_registries }}{% endif %}"
+l2_docker_log_options: "{% if openshift_docker_log_options is string %}{% if ',' in openshift_docker_log_options %}{{ openshift_docker_log_options.split(',') | list }}{% else %}{{ [ openshift_docker_log_options ] }}{% endif %}{% else %}{{ openshift_docker_log_options }}{% endif %}"
+
+openshift_docker_use_etc_containers: False
+containers_registries_conf_path: /etc/containers/registries.conf
+
+r_crio_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_crio_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+r_crio_os_firewall_deny: []
+r_crio_os_firewall_allow:
+- service: crio
+  port: 10010/tcp
+
+r_crio_use_openshift_sdn: "{{ openshift_use_openshift_sdn | default(True) }}"
+
+docker_alt_storage_path: /var/lib/containers/docker
+docker_default_storage_path: /var/lib/docker
+docker_storage_path: "{{ docker_default_storage_path }}"
+docker_storage_size: 40G
+docker_storage_setup_options:
+  vg: docker_vg
+  data_size: 99%VG
+  storage_driver: overlay2
+  root_lv_name: docker-root-lv
+  root_lv_size: 100%FREE
+  root_lv_mount_path: "{{ docker_storage_path }}"
+docker_storage_extra_options:
+- "--storage-opt overlay2.override_kernel_check=true"
+- "{{ '--storage-opt overlay2.size=' ~ docker_storage_size if container_runtime_docker_storage_setup_device is defined and container_runtime_docker_storage_setup_device != '' else '' }}"
+- "--graph={{ docker_storage_path}}"
+
+container_runtime_extra_storage: []
+
+# Set local versions of facts that must be in json format for container-daemon.json
+# NOTE: When jinja2.9+ is used the container-daemon.json file can move to using tojson
+l_docker_log_options: "{{ l2_docker_log_options | to_json }}"
+l_docker_log_options_dict: "{{ l2_docker_log_options | lib_utils_oo_list_to_dict | to_json }}"
+l_docker_additional_registries: "{{ l2_docker_additional_registries | to_json }}"
+l_docker_blocked_registries: "{{ l2_docker_blocked_registries | to_json }}"
+l_docker_insecure_registries: "{{ l2_docker_insecure_registries | to_json }}"
+l_docker_selinux_enabled: "{{ openshift_docker_selinux_enabled | to_json }}"
+
+docker_http_proxy: "{{ openshift_http_proxy | default('') }}"
+docker_https_proxy: "{{ openshift.common.https_proxy | default('') }}"
+docker_no_proxy: "{{ openshift.common.no_proxy | default('') }}"
+
+l_required_docker_version: '1.13'
+
+l_insecure_crio_registries: "{{ '\"{}\"'.format('\", \"'.join(l2_docker_insecure_registries)) }}"
+l_crio_registries: "{{ l2_docker_additional_registries + ['docker.io'] }}"
+l_additional_crio_registries: "{{ '\"{}\"'.format('\", \"'.join(l_crio_registries)) }}"

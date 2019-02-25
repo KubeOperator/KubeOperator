@@ -1,0 +1,72 @@
+---
+openshift_cluster_monitoring_operator_namespace: openshift-monitoring
+
+l_openshift_cluster_monitoring_operator_image_dicts:
+  origin: 'quay.io/coreos/cluster-monitoring-operator:v0.1.1'
+  openshift-enterprise: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'cluster-monitoring-operator') }}"
+
+openshift_cluster_monitoring_operator_image: "{{ l_openshift_cluster_monitoring_operator_image_dicts[openshift_deployment_type] }}"
+
+l_openshift_cluster_monitoring_non_standard_reg_url: "{{ oreg_url | default(l_osm_registry_url_default) }}"
+l_openshift_cluster_monitoring_image_dicts:
+  origin:
+    prometheus_operator: quay.io/coreos/prometheus-operator
+    prometheus: openshift/prometheus
+    alertmanager: openshift/prometheus-alertmanager
+    node_exporter: openshift/prometheus-node-exporter
+    prometheus_config_reloader: quay.io/coreos/prometheus-config-reloader
+    configmap_reloader: quay.io/coreos/configmap-reload
+    grafana: grafana/grafana
+    kube_state_metrics: quay.io/coreos/kube-state-metrics
+    kube_rbac_proxy: quay.io/coreos/kube-rbac-proxy
+    oauth_proxy: openshift/oauth-proxy
+  openshift-enterprise:
+    prometheus_operator: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'prometheus-operator') | regex_replace(':[^:]*$', '') }}"
+    prometheus: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'prometheus') | regex_replace(':[^:]*$', '') }}"
+    alertmanager: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'prometheus-alertmanager') | regex_replace(':[^:]*$', '') }}"
+    node_exporter: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'prometheus-node-exporter') | regex_replace(':[^:]*$', '') }}"
+    prometheus_config_reloader: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'prometheus-config-reloader') | regex_replace(':[^:]*$', '') }}"
+    configmap_reloader: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'configmap-reloader') | regex_replace(':[^:]*$', '') }}"
+    grafana: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'grafana') | regex_replace(':[^:]*$', '') }}"
+    kube_state_metrics: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'kube-state-metrics') | regex_replace(':[^:]*$', '') }}"
+    kube_rbac_proxy: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'kube-rbac-proxy') | regex_replace(':[^:]*$', '') }}"
+    oauth_proxy: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'oauth-proxy') | regex_replace(':[^:]*$', '') }}"
+
+openshift_cluster_monitoring_operator_prometheus_operator_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_operator']}}"
+openshift_cluster_monitoring_operator_prometheus_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus']}}"
+openshift_cluster_monitoring_operator_alertmanager_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['alertmanager']}}"
+openshift_cluster_monitoring_operator_node_exporter_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['node_exporter']}}"
+openshift_cluster_monitoring_operator_prometheus_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_config_reloader']}}"
+openshift_cluster_monitoring_operator_configmap_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['configmap_reloader']}}"
+openshift_cluster_monitoring_operator_grafana_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['grafana']}}"
+openshift_cluster_monitoring_operator_kube_state_metrics_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_state_metrics']}}"
+openshift_cluster_monitoring_operator_kube_rbac_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_rbac_proxy']}}"
+openshift_cluster_monitoring_operator_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['oauth_proxy']}}"
+
+openshift_cluster_monitoring_operator_prometheus_storage_enabled: false
+openshift_cluster_monitoring_operator_prometheus_storage_capacity: "50Gi"
+openshift_cluster_monitoring_operator_prometheus_storage_class_name: ""
+openshift_cluster_monitoring_operator_alertmanager_storage_enabled: false
+openshift_cluster_monitoring_operator_alertmanager_storage_class_name: ""
+openshift_cluster_monitoring_operator_alertmanager_storage_capacity: "2Gi"
+
+openshift_cluster_monitoring_operator_cluster_id: "{{ openshift_clusterid | default(openshift_master_cluster_public_hostname, true) | default(openshift_master_cluster_hostname, true) | default('openshift', true) }}"
+
+openshift_cluster_monitoring_operator_node_selector: "{{ openshift_hosted_infra_selector | default('node-role.kubernetes.io/infra=true') | map_from_pairs }}"
+
+openshift_cluster_monitoring_operator_alertmanager_config: |+
+  global:
+    resolve_timeout: 5m
+  route:
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 12h
+    receiver: default
+    routes:
+    - match:
+        alertname: DeadMansSwitch
+      repeat_interval: 5m
+      receiver: deadmansswitch
+  receivers:
+  - name: default
+  - name: deadmansswitch

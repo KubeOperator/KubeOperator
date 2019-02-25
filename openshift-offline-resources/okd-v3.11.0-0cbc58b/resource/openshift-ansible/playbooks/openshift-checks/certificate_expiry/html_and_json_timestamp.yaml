@@ -1,0 +1,14 @@
+---
+# Generate timestamped HTML and JSON reports in /var/lib/certcheck
+
+- name: Check cert expirys
+  hosts: nodes:masters:etcd
+  vars:
+    openshift_certificate_expiry_generate_html_report: yes
+    openshift_certificate_expiry_save_json_results: yes
+    openshift_certificate_expiry_show_all: yes
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d') }}"
+    openshift_certificate_expiry_html_report_path: "/var/lib/certcheck/{{ timestamp }}-cert-expiry-report.html"
+    openshift_certificate_expiry_json_results_path: "/var/lib/certcheck/{{ timestamp }}-cert-expiry-report.json"
+  roles:
+    - role: openshift_certificate_expiry

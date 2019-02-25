@@ -1,0 +1,53 @@
+---
+- name: Health Check Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Health Check 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_health:
+          title: "Health Check"
+          playbook: "playbooks/openshift-checks/pre-install.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: OpenShift Health Checks
+  hosts: oo_all_hosts
+  any_errors_fatal: true
+  roles:
+  - openshift_health_checker
+  vars:
+  - r_openshift_health_checker_playbook_context: install
+  post_tasks:
+  - name: Run health checks (install) - EL
+    when: ansible_distribution != "Fedora"
+    action: openshift_health_check
+    args:
+      checks:
+      - disk_availability
+      - memory_availability
+      - package_availability
+      - package_version
+      - docker_image_availability
+      - docker_storage
+
+  - name: Run health checks (install) - Fedora
+    when: ansible_distribution == "Fedora"
+    action: openshift_health_check
+    args:
+      checks:
+      - docker_image_availability
+
+- name: Health Check Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Health Check 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_health:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

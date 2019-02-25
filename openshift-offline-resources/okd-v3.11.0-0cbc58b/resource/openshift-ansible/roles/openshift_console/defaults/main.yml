@@ -1,0 +1,28 @@
+---
+openshift_console_nodeselector: {"node-role.kubernetes.io/master":"true"}
+
+__console_template_file: "console-template.yaml"
+__console_config_file: "console-config.yaml"
+
+openshift_console_image_name: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'console') }}"
+
+# Default the replica count to the number of masters.
+openshift_console_replica_count: "{{ groups.oo_masters_to_config | length }}"
+
+openshift_console_hostname: "console.{{openshift_master_default_subdomain}}"
+openshift_console_cert: ""
+openshift_console_key: ""
+openshift_console_ca: ""
+
+openshift_console_auth_ca_file: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+# Determines the logo and title used throughout the console.
+l_openshift_console_branding_dict:
+  origin: 'okd'
+  openshift-enterprise: 'ocp'
+openshift_console_branding: "{{ l_openshift_console_branding_dict[openshift_deployment_type] }}"
+
+l_openshift_console_documentation_url_dict:
+  origin: 'https://docs.okd.io/3.11/'
+  openshift-enterprise: 'https://docs.openshift.com/container-platform/3.11/'
+openshift_console_documentation_base_url: "{{ l_openshift_console_documentation_url_dict[openshift_deployment_type] }}"

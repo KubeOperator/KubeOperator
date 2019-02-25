@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: rh-operators
+  namespace: operator-lifecycle-manager
+spec:
+  sourceType: internal
+  configMap: rh-operators
+  displayName: Red Hat Operators
+  publisher: Red Hat
+

@@ -1,0 +1,7 @@
+---
+#
+# Node Scale Group Upgrade Playbook
+#
+# Upgrades scale group nodes only.
+#
+- import_playbook: ../../../../common/openshift-cluster/upgrades/upgrade_scale_group.yml

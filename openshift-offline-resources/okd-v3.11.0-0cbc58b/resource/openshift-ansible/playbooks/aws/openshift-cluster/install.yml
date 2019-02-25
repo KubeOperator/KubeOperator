@@ -1,0 +1,24 @@
+---
+- name: Setup master instances
+  hosts: localhost
+  tasks:
+  - import_role:
+      name: openshift_aws
+      tasks_from: setup_master_group.yml
+
+- name: set the master facts for hostname to elb
+  hosts: masters
+  gather_facts: no
+  remote_user: root
+  tasks:
+  - import_role:
+      name: openshift_aws
+      tasks_from: master_facts.yml
+
+- name: run the init
+  import_playbook: ../../init/main.yml
+
+- import_playbook: ../../openshift-checks/private/install.yml
+
+- name: configure the control plane
+  import_playbook: ../../common/private/control_plane.yml

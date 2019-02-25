@@ -1,0 +1,20 @@
+---
+# This play is called during upgrade_control_plane via post_control_plane.yml
+- name: Upgrade default router and default registry
+  hosts: oo_first_master
+  roles:
+  - lib_utils
+  - openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_hosted
+      tasks_from: upgrade_routers.yml
+    when: openshift_hosted_manage_router | default(True) | bool
+  - import_role:
+      name: openshift_hosted
+      tasks_from: upgrade_registry.yml
+    when: openshift_hosted_manage_registry | default(True) | bool
+  - import_role:
+      name: openshift_docker_gc
+    when:
+    - openshift_crio_enable_docker_gc | bool

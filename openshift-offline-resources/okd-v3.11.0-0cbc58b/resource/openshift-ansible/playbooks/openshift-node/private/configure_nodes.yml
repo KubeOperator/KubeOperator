@@ -1,0 +1,22 @@
+---
+- name: Configure nodes
+  hosts: oo_nodes_to_config
+  vars:
+    openshift_node_master_api_url: "{{ hostvars[groups.oo_first_master.0].openshift.master.api_url }}"
+    openshift_node_first_master_ip: "{{ hostvars[groups.oo_first_master.0].openshift.common.ip }}"
+    openshift_no_proxy_internal_hostnames: "{{ hostvars | lib_utils_oo_select_keys(groups['oo_nodes_to_config']
+                                                    | union(groups['oo_masters_to_config'])
+                                                    | union(groups['oo_etcd_to_config'] | default([])))
+                                                | lib_utils_oo_collect('openshift.common.hostname') | default([]) | join (',')
+                                                }}"
+  roles:
+  - role: openshift_cloud_provider
+    when: openshift_cloudprovider_kind is defined
+  - role: openshift_node
+  - role: tuned
+  - role: nickhammond.logrotate
+  tasks:
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: kernel_modules.yml
+    when: "'glusterfs' in osn_storage_plugin_deps"

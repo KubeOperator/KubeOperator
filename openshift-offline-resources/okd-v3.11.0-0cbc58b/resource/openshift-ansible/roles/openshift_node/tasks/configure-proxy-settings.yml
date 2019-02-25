@@ -1,0 +1,20 @@
+---
+- openshift_facts:
+    role: master
+    local_facts:
+      cluster_hostname: "{{ openshift_master_cluster_hostname | default(None) }}"
+
+- name: Configure Proxy Settings
+  lineinfile:
+    dest: /etc/sysconfig/{{ openshift_service_type }}-node
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    create: true
+  with_items:
+  - regex: '^HTTP_PROXY='
+    line: "HTTP_PROXY={{ openshift.common.http_proxy | default('') }}"
+  - regex: '^HTTPS_PROXY='
+    line: "HTTPS_PROXY={{ openshift.common.https_proxy | default('') }}"
+  - regex: '^NO_PROXY='
+    line: "NO_PROXY={{ openshift.common.no_proxy | default([]) }},{{ openshift.common.portal_net }},{{ openshift_cluster_network_cidr }}"
+  when: ('http_proxy' in openshift.common and openshift.common.http_proxy != '')

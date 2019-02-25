@@ -1,0 +1,3 @@
+hosts
+/dynamic/gcp/group_vars/all/00_default_files_dir.yml
+/dynamic/aws/group_vars/all/00_default_files_dir.yml

@@ -1,0 +1,35 @@
+---
+- name: Upgrade Service Catalog
+  hosts: oo_first_master
+  vars:
+    first_master: "{{ groups.oo_first_master[0] }}"
+  tasks:
+  - import_role:
+      name: openshift_service_catalog
+      tasks_from: install.yml
+    when:
+    - openshift_enable_service_catalog | default(true) | bool
+  - import_role:
+      name: ansible_service_broker
+      tasks_from: install.yml
+    when:
+    - openshift_enable_service_catalog | default(true) | bool
+    - ansible_service_broker_install | default(true) | bool
+  - import_role:
+      name: template_service_broker
+      tasks_from: upgrade.yml
+    when:
+    - openshift_enable_service_catalog | default(true) | bool
+    - template_service_broker_install | default(true) | bool
+
+- import_playbook: ../../../olm/private/config.yml
+  when: openshift_enable_olm | default(false) | bool
+
+- import_playbook: ../../../openshift-monitoring/private/config.yml
+  when: openshift_cluster_monitoring_operator_install | default(true) | bool
+
+- import_playbook: ../../../openshift-monitor-availability/private/config.yml
+  when: openshift_monitor_availability_install | default(false) | bool
+
+- import_playbook: ../../../openshift-node-problem-detector/private/config.yml
+  when: openshift_node_problem_detector_install | default(false) | bool

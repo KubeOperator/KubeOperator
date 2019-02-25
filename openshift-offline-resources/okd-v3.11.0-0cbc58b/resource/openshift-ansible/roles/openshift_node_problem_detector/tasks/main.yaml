@@ -1,0 +1,6 @@
+---
+- include_tasks: install.yaml
+  when: openshift_node_problem_detector_state == 'present'
+
+- include_tasks: uninstall.yaml
+  when: openshift_node_problem_detector_state == 'absent'

@@ -1,0 +1,31 @@
+---
+- name: ACI | Check aci-gw container image
+  command: "{{ openshift_container_cli }} images -q contiv/aci-gw"
+  register: docker_aci_image
+
+- name: ACI | Pull aci-gw container
+  command: "{{ openshift_container_cli }} pull contiv/aci-gw"
+  when: docker_aci_image.stdout_lines == []
+
+- name: ACI | Copy shell script used by aci-gw service
+  template:
+    src: aci_gw.j2
+    dest: "{{ contiv_bin_dir }}/aci_gw.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: ACI | Copy systemd units for aci-gw
+  template:
+    src: aci-gw.service
+    dest: /etc/systemd/system/aci-gw.service
+  notify: reload systemd
+
+- name: ACI | Enable aci-gw service
+  service:
+    name: aci-gw
+    enabled: yes
+
+- name: ACI | Start aci-gw service
+  service:
+    name: aci-gw
+    state: started
+  register: aci-gw_started

@@ -1,0 +1,6 @@
+[Service]
+ExecStart=$EXEC_START
+ExecStop=-$EXEC_STOP
+Restart=no
+WorkingDirectory=$DESTDIR
+Type=oneshot

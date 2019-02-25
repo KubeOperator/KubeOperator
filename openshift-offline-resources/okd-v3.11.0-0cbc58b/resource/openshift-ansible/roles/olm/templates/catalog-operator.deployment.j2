@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-operator
+  namespace: operator-lifecycle-manager
+  labels:
+    app: catalog-operator
+spec:
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-operator
+  template:
+    metadata:
+      labels:
+        app: catalog-operator
+    spec:
+      serviceAccountName: olm-operator-serviceaccount
+      containers:
+        - name: catalog-operator
+          command:
+          - /bin/catalog
+          - '-namespace'
+          - operator-lifecycle-manager
+          - '-debug'
+          image: {{ olm_catalog_operator_image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+

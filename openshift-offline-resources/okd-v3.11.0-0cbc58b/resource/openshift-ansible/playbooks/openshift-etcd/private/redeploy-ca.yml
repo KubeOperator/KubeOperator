@@ -1,0 +1,102 @@
+---
+- name: Check cert expirys
+  hosts: oo_etcd_to_config:oo_masters_to_config
+  vars:
+    openshift_certificate_expiry_show_all: yes
+  roles:
+  # Sets 'check_results' per host which contains health status for
+  # etcd, master and node certificates.  We will use 'check_results'
+  # to determine if any certificates were expired prior to running
+  # this playbook. Service restarts will be skipped if any
+  # certificates were previously expired.
+  - role: openshift_certificate_expiry
+
+- name: Backup existing etcd CA certificate directories
+  hosts: oo_etcd_to_config
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: backup_ca_certificates.yml
+  - import_role:
+      name: etcd
+      tasks_from: remove_ca_certificates.yml
+
+- import_playbook: ca.yml
+
+- name: Create temp directory for syncing certs
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Create local temp directory for syncing certs
+    local_action: command mktemp -d /tmp/openshift-ansible-XXXXXXX
+    register: g_etcd_mktemp
+    changed_when: false
+
+  - name: Chmod local temp directory for syncing certs
+    local_action: file path="{{ g_etcd_mktemp.stdout }}" mode=0777
+    changed_when: false
+
+- name: Distribute etcd CA to etcd hosts
+  hosts: oo_etcd_to_config
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: distribute_ca.yml
+    vars:
+      etcd_sync_cert_dir: "{{ hostvars['localhost'].g_etcd_mktemp.stdout }}"
+
+- import_playbook: restart.yml
+  # Do not restart etcd when etcd certificates were previously expired.
+  when: ('expired' not in (hostvars
+                           | lib_utils_oo_select_keys(groups['etcd'])
+                           | lib_utils_oo_collect('check_results.check_results.etcd')
+                           | lib_utils_oo_collect('health')))
+
+- name: Retrieve etcd CA certificate
+  hosts: oo_first_etcd
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: retrieve_ca_certificates.yml
+    vars:
+      etcd_sync_cert_dir: "{{ hostvars['localhost'].g_etcd_mktemp.stdout }}"
+
+- name: Distribute etcd CA to masters
+  hosts: oo_masters_to_config
+  roles:
+  - openshift_facts
+  tasks:
+  - name: Deploy etcd CA
+    copy:
+      src: "{{ hostvars['localhost'].g_etcd_mktemp.stdout }}/ca.crt"
+      dest: "{{ openshift.common.config_base }}/master/master.etcd-ca.crt"
+    when: groups.oo_etcd_to_config | default([]) | length > 0
+
+- name: Delete temporary directory on localhost
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - file:
+      name: "{{ g_etcd_mktemp.stdout }}"
+      state: absent
+    changed_when: false
+
+- import_playbook: ../../openshift-master/private/restart.yml
+  # Do not restart masters when master or etcd certificates were previously expired.
+  when:
+  # masters
+  - ('expired' not in hostvars
+      | lib_utils_oo_select_keys(groups['oo_masters_to_config'])
+      | lib_utils_oo_collect('check_results.check_results.ocp_certs')
+      | lib_utils_oo_collect('health', {'path':hostvars[groups.oo_first_master.0].openshift.common.config_base ~ "/master/master.server.crt"}))
+  - ('expired' not in hostvars
+      | lib_utils_oo_select_keys(groups['oo_masters_to_config'])
+      | lib_utils_oo_collect('check_results.check_results.ocp_certs')
+      | lib_utils_oo_collect('health', {'path':hostvars[groups.oo_first_master.0].openshift.common.config_base ~ "/master/ca-bundle.crt"}))
+  # etcd
+  - ('expired' not in (hostvars
+      | lib_utils_oo_select_keys(groups['etcd'])
+      | lib_utils_oo_collect('check_results.check_results.etcd')
+      | lib_utils_oo_collect('health')))

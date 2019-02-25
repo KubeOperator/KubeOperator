@@ -1,0 +1,66 @@
+---
+- oc_obj:
+    state: list
+    kind: pod
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    selector: component=es
+  register: pod_list
+
+- set_fact:
+    available_pod: "{{ item.metadata.name }}"
+  with_items: "{{ pod_list.results.results[0]['items'] }}"
+  when:
+  - pod_list.results.results is defined
+  - item.status.phase == "Running"
+  - item.status.containerStatuses[0].ready == true
+  - item.status.containerStatuses[1].ready == true
+
+- name: "Getting ES version for logging-es cluster"
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig exec {{ available_pod }} -c elasticsearch -n {{ openshift_logging_elasticsearch_namespace }} -- {{ __es_local_curl }} -XGET 'https://localhost:9200/'
+  register: _curl_output
+  when: available_pod is defined
+
+- oc_obj:
+    state: list
+    kind: pod
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    selector: component=es-ops
+  register: ops_pod_list
+
+- set_fact:
+    available_ops_pod: "{{ item.metadata.name }}"
+  with_items: "{{ ops_pod_list.results.results[0]['items'] }}"
+  when:
+  - ops_pod_list.results.results is defined
+  - item.status.phase == "Running"
+  - item.status.containerStatuses[0].ready == true
+  - item.status.containerStatuses[1].ready == true
+
+- name: "Getting ES version for logging-es-ops cluster"
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig exec {{ available_ops_pod }} -c elasticsearch -n {{ openshift_logging_elasticsearch_namespace }} -- {{ __es_local_curl }} -XGET 'https://localhost:9200/'
+  register: _ops_curl_output
+  when: available_ops_pod is defined
+
+- set_fact:
+    _es_output: "{{ _curl_output.stdout | from_json }}"
+  when: _curl_output.stdout is defined
+
+- set_fact:
+    _es_ops_output: "{{ _ops_curl_output.stdout | from_json }}"
+  when: _ops_curl_output.stdout is defined
+
+- set_fact:
+    _es_installed_version: "{{ _es_output.version.number }}"
+  when:
+  - _es_output is defined
+  - _es_output.version is defined
+  - _es_output.version.number is defined
+
+- set_fact:
+    _es_ops_installed_version: "{{ _es_ops_output.version.number }}"
+  when:
+  - _es_ops_output is defined
+  - _es_ops_output.version is defined
+  - _es_ops_output.version.number is defined

@@ -1,0 +1,18 @@
+---
+- include_tasks: storage/glusterfs.yml
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) == 'glusterfs' or openshift_hosted_registry_storage_glusterfs_swap
+
+- include_tasks: storage/hostpath.yml
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) in ['hostpath']
+
+- when:
+  - openshift_hosted_registry_storage_kind | default(none) == 'nfs'
+  block:
+  - name: Set warning about NFS not being recommended
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_hosted:
+          message: "The use of NFS for the core OpenShift Container Platform components is not recommended, as NFS (and the NFS Protocol) does not provide the proper consistency needed for the applications that make up the OpenShift Container Platform infrastructure."

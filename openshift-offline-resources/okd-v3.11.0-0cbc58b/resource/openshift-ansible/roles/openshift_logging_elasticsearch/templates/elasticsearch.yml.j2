@@ -1,0 +1,69 @@
+cluster:
+  name: ${CLUSTER_NAME}
+
+script:
+  inline: true
+  stored: true
+
+node:
+  name: ${DC_NAME}
+  master: ${IS_MASTER}
+  data: ${HAS_DATA}
+  max_local_storage_nodes: 1
+
+network:
+  host: 0.0.0.0
+
+discovery.zen:
+  ping.unicast.hosts: {{ es_unicast_host }}
+  minimum_master_nodes: ${NODE_QUORUM}
+
+gateway:
+  recover_after_nodes: ${NODE_QUORUM}
+  expected_nodes: ${RECOVER_EXPECTED_NODES}
+  recover_after_time: ${RECOVER_AFTER_TIME}
+
+io.fabric8.elasticsearch.kibana.mapping.app: /usr/share/elasticsearch/index_patterns/com.redhat.viaq-openshift.index-pattern.json
+io.fabric8.elasticsearch.kibana.mapping.ops: /usr/share/elasticsearch/index_patterns/com.redhat.viaq-openshift.index-pattern.json
+io.fabric8.elasticsearch.kibana.mapping.empty: /usr/share/elasticsearch/index_patterns/com.redhat.viaq-openshift.index-pattern.json
+
+openshift.config:
+  use_common_data_model: true
+  project_index_prefix: "project"
+  time_field_name: "@timestamp"
+
+openshift.searchguard:
+  keystore.path: /etc/elasticsearch/secret/admin.jks
+  truststore.path: /etc/elasticsearch/secret/searchguard.truststore
+
+openshift.operations.allow_cluster_reader: {{allow_cluster_reader | default (false)}}
+
+openshift.kibana.index.mode: {{es_kibana_index_mode | default('unique')}}
+
+path:
+  data: /elasticsearch/persistent/${CLUSTER_NAME}/data
+  logs: /elasticsearch/persistent/${CLUSTER_NAME}/logs
+
+searchguard:
+  authcz.admin_dn:
+  - CN=system.admin,OU=OpenShift,O=Logging
+  config_index_name: ".searchguard"
+  ssl:
+    transport:
+      enabled: true
+      enforce_hostname_verification: false
+      keystore_type: JKS
+      keystore_filepath: /etc/elasticsearch/secret/searchguard.key
+      keystore_password: kspass
+      truststore_type: JKS
+      truststore_filepath: /etc/elasticsearch/secret/searchguard.truststore
+      truststore_password: tspass
+    http:
+      enabled: true
+      keystore_type: JKS
+      keystore_filepath: /etc/elasticsearch/secret/key
+      keystore_password: kspass
+      clientauth_mode: OPTIONAL
+      truststore_type: JKS
+      truststore_filepath: /etc/elasticsearch/secret/truststore
+      truststore_password: tspass

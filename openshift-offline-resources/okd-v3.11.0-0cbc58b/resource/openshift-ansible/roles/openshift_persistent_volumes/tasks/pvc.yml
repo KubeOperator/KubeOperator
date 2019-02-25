@@ -1,0 +1,17 @@
+---
+- name: Deploy PersistentVolumeClaim definitions
+  template:
+    dest: "{{ mktemp.stdout }}/persistent-volume-claims.yml"
+    src: persistent-volume-claim.yml.j2
+  when: persistent_volume_claims | length > 0
+  changed_when: False
+
+- name: Create PersistentVolumeClaims
+  command: >
+    {{ openshift_client_binary }} create
+    -f {{ mktemp.stdout }}/persistent-volume-claims.yml
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+  register: pvc_create_output
+  when: persistent_volume_claims | length > 0
+  failed_when: "('already exists' not in pvc_create_output.stderr) and ('created' not in pvc_create_output.stdout) and pvc_create_output.rc != 0"
+  changed_when: ('created' in pvc_create_output.stdout)

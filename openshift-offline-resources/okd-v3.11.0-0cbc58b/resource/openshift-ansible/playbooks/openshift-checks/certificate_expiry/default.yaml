@@ -1,0 +1,9 @@
+---
+# Default behavior, you will need to ensure you run ansible with the
+# -v option to see report results:
+
+- name: Check cert expirys
+  hosts: nodes:masters:etcd
+  become: yes
+  roles:
+    - role: openshift_certificate_expiry

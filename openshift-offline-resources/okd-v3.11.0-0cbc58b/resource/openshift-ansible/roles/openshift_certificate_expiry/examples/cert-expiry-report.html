@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>OCP Certificate Expiry Report</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" />
+    <style type="text/css">
+      body {
+      font-family: 'Source Sans Pro', sans-serif;
+      margin-left: 50px;
+      margin-right: 50px;
+      margin-bottom: 20px;
+      padding-top: 70px;
+      }
+      table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      }
+      table, th, td {
+      border: 1px solid black;
+      }
+      th, td {
+      padding: 5px;
+      }
+      .cert-kind {
+      margin-top: 5px;
+      margin-bottom: 5px;
+      }
+      footer {
+      font-size: small;
+      text-align: center;
+      }
+      tr.odd {
+      background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">OCP Certificate Expiry Report</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <p class="navbar-text navbar-right">
+	    <button>
+	      <a href="https://docs.openshift.com/container-platform/latest/install_config/redeploying_certificates.html"
+		 target="_blank"
+		 class="navbar-link">
+		 <i class="glyphicon glyphicon-book"></i> Redeploying Certificates
+	      </a>
+	    </button>
+	    <button>
+	      <a href="https://github.com/openshift/openshift-ansible/tree/master/roles/openshift_certificate_expiry"
+		 target="_blank"
+		 class="navbar-link">
+		 <i class="glyphicon glyphicon-book"></i> Expiry Role Documentation
+	      </a>
+	    </button>
+	  </p>
+        </div>
+      </div>
+    </nav>
+
+              <h1>m01.example.com</h1>
+
+      <p>
+        Checked 12 total certificates. Expired/Warning/OK: 0/10/2. Warning window: 1500 days
+      </p>
+      <ul>
+        <li><b>Expirations checked at:</b> 2017-01-17 10:36:25.230920</li>
+        <li><b>Warn after date:</b> 2021-02-25 10:36:25.230920</li>
+      </ul>
+
+      <table border="1" width="100%">
+        <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">ocp_certs</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:172.30.0.1, DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc.cluster.local, DNS:m01.example.com, DNS:openshift, DNS:openshift.default, DNS:openshift.default.svc, DNS:openshift.default.svc.cluster.local, DNS:172.30.0.1, DNS:192.168.124.148, IP Address:172.30.0.1, IP Address:192.168.124.148</td>
+	      <td><code>int(4)/hex(0x4)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:02</td>
+              <td>/etc/origin/master/master.server.crt</td>
+            </tr>
+
+            <tr class="even">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:192.168.124.148, DNS:m01.example.com, DNS:192.168.124.148, IP Address:192.168.124.148</td>
+	      <td><code>int(12)/hex(0xc)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:03:29</td>
+              <td>/etc/origin/node/server.crt</td>
+            </tr>
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-ok"></i></td>
+              <td style="width:33%">CN:openshift-signer@1483981200</td>
+	      <td><code>int(1)/hex(0x1)</code></td>
+              <td>ok</td>
+              <td>1817</td>
+              <td>2022-01-08 17:00:01</td>
+              <td>/etc/origin/master/ca.crt</td>
+            </tr>
+
+            <tr class="even">
+              <td style="text-align:center"><i class="glyphicon glyphicon-ok"></i></td>
+              <td style="width:33%">CN:openshift-signer@1483981200</td>
+	      <td><code>int(1)/hex(0x1)</code></td>
+              <td>ok</td>
+              <td>1817</td>
+              <td>2022-01-08 17:00:01</td>
+              <td>/etc/origin/node/ca.crt</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">etcd</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:172.30.0.1, DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc.cluster.local, DNS:m01.example.com, DNS:openshift, DNS:openshift.default, DNS:openshift.default.svc, DNS:openshift.default.svc.cluster.local, DNS:172.30.0.1, DNS:192.168.124.148, IP Address:172.30.0.1, IP Address:192.168.124.148</td>
+	      <td><code>int(7)/hex(0x7)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:03</td>
+              <td>/etc/origin/master/etcd.server.crt</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">kubeconfigs</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:nodes, CN:system:node:m01.example.com</td>
+	      <td><code>int(11)/hex(0xb)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:03:28</td>
+              <td>/etc/origin/node/system:node:m01.example.com.kubeconfig</td>
+            </tr>
+
+            <tr class="even">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:cluster-admins, CN:system:admin</td>
+	      <td><code>int(8)/hex(0x8)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:03</td>
+              <td>/etc/origin/master/admin.kubeconfig</td>
+            </tr>
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:masters, CN:system:openshift-master</td>
+	      <td><code>int(3)/hex(0x3)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:02</td>
+              <td>/etc/origin/master/openshift-master.kubeconfig</td>
+            </tr>
+
+            <tr class="even">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:routers, CN:system:openshift-router</td>
+	      <td><code>int(9)/hex(0x9)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:03</td>
+              <td>/etc/origin/master/openshift-router.kubeconfig</td>
+            </tr>
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:registries, CN:system:openshift-registry</td>
+	      <td><code>int(10)/hex(0xa)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:00:03</td>
+              <td>/etc/origin/master/openshift-registry.kubeconfig</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">router</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:router.default.svc, DNS:router.default.svc, DNS:router.default.svc.cluster.local</td>
+	      <td><code>int(5050662940948454653)/hex(0x46178f2f6b765cfd)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:05:46</td>
+              <td>/api/v1/namespaces/default/secrets/router-certs</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">registry</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:172.30.242.251, DNS:docker-registry-default.router.default.svc.cluster.local, DNS:docker-registry.default.svc.cluster.local, DNS:172.30.242.251, IP Address:172.30.242.251</td>
+	      <td><code>int(13)/hex(0xd)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:05:54</td>
+              <td>/api/v1/namespaces/default/secrets/registry-certificates</td>
+            </tr>
+                                          </table>
+      <hr />
+          <h1>n01.example.com</h1>
+
+      <p>
+        Checked 3 total certificates. Expired/Warning/OK: 0/2/1. Warning window: 1500 days
+      </p>
+      <ul>
+        <li><b>Expirations checked at:</b> 2017-01-17 10:36:25.217103</li>
+        <li><b>Warn after date:</b> 2021-02-25 10:36:25.217103</li>
+      </ul>
+
+      <table border="1" width="100%">
+        <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">ocp_certs</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">CN:192.168.124.11, DNS:n01.example.com, DNS:192.168.124.11, IP Address:192.168.124.11</td>
+	      <td><code>int(12)/hex(0xc)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:03:29</td>
+              <td>/etc/origin/node/server.crt</td>
+            </tr>
+
+            <tr class="even">
+              <td style="text-align:center"><i class="glyphicon glyphicon-ok"></i></td>
+              <td style="width:33%">CN:openshift-signer@1483981200</td>
+	      <td><code>int(1)/hex(0x1)</code></td>
+              <td>ok</td>
+              <td>1817</td>
+              <td>2022-01-08 17:00:01</td>
+              <td>/etc/origin/node/ca.crt</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">etcd</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">kubeconfigs</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+
+            <tr class="odd">
+              <td style="text-align:center"><i class="glyphicon glyphicon-alert"></i></td>
+              <td style="width:33%">O:system:nodes, CN:system:node:n01.example.com</td>
+	      <td><code>int(11)/hex(0xb)</code></td>
+              <td>warning</td>
+              <td>722</td>
+              <td>2019-01-09 17:03:28</td>
+              <td>/etc/origin/node/system:node:n01.example.com.kubeconfig</td>
+            </tr>
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">router</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+                            <tr>
+            <th colspan="7" style="text-align:center"><h2 class="cert-kind">registry</h2></th>
+          </tr>
+
+          <tr>
+            <th>&nbsp;</th>
+            <th style="width:33%">Certificate Common/Alt Name(s)</th>
+	    <td>Serial</th>
+            <th>Health</th>
+            <th>Days Remaining</th>
+            <th>Expiration Date</th>
+            <th>Path</th>
+          </tr>
+
+                                          </table>
+      <hr />
+
+    <footer>
+      <p>
+        Expiration report generated by
+        the <a href="https://github.com/openshift/openshift-ansible"
+        target="_blank">openshift-ansible</a>
+	<a href="https://github.com/openshift/openshift-ansible/tree/master/roles/openshift_certificate_expiry"
+	   target="_blank">certificate expiry</a> role.
+      </p>
+      <p>
+        Status icons from bootstrap/glyphicon
+      </p>
+    </footer>
+  </body>
+</html>

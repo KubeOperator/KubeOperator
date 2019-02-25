@@ -1,0 +1,1 @@
+NETMASTER_ARGS='--etcd={{ contiv_etcd_url }} --listen-url=127.0.0.1:{{ contiv_netmaster_port }} --fwdmode={{ contiv_netplugin_fwd_mode }} --infra={{ contiv_fabric_mode }} --control-url={{ contiv_netmaster_ctrl_ip }}:{{ contiv_netmaster_port }} --cluster-mode=kubernetes --netmode={{ contiv_encap_mode }}'

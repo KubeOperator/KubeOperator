@@ -1,0 +1,54 @@
+---
+# This playbook is intended to be included from playbooks/updates/registry_auth.yml
+
+- name: Update registry authentication credentials
+  hosts: oo_nodes_to_config
+  tasks:
+  - name: Install registry_auth dependencies
+    package:
+      name: "{{ pkg_list | join(',') }}"
+      state: present
+    register: result
+    until: result is succeeded
+    when: not (openshift_is_atomic | bool)
+    vars:
+      pkg_list:
+      - atomic
+      - skopeo
+  - import_role:
+      name: openshift_node
+      tasks_from: registry_auth.yml
+
+# l_reg_auth_restart_hosts is passed in via imageconfig.yml to prevent
+# the nodes from restarting because the sync pod will be restarting them
+# anyway.
+- name: Restart nodes
+  hosts: "{{ l_reg_auth_restart_hosts | default('oo_nodes_to_config') }}"
+  serial: "{{ openshift_restart_nodes_serial | default(1) }}"
+  roles:
+  - lib_openshift
+  - openshift_facts
+  tasks:
+  - name: restart node
+    service:
+      name: "{{ openshift_service_type }}-node"
+      state: restarted
+      daemon-reload: yes
+
+  - name: Wait for node to be ready
+    oc_obj:
+      state: list
+      kind: node
+      name: "{{ l_kubelet_node_name | lower }}"
+    register: node_output
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    when: inventory_hostname in groups.oo_nodes_to_config
+    until:
+    - node_output.results is defined
+    - node_output.results.returncode is defined
+    - node_output.results.results is defined
+    - node_output.results.returncode == 0
+    - node_output.results.results[0].status.conditions | selectattr('type', 'match', '^Ready$') | map(attribute='status') | join | bool == True
+    # Give the node three minutes to come back online.
+    retries: 36
+    delay: 5

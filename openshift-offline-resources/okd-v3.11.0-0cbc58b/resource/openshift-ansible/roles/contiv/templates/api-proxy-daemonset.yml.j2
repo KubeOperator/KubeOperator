@@ -1,0 +1,57 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: contiv-api-proxy
+  namespace: kube-system
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: contiv-api-proxy
+  template:
+    metadata:
+      namespace: kube-system
+      labels:
+        name: contiv-api-proxy
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+    spec:
+      serviceAccountName: contiv-api-proxy
+      hostNetwork: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+{% for node in groups.oo_masters_to_config %}
+                  - "{{ node }}"
+{% endfor %}
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: contiv-api-proxy
+          image: "{{ contiv_api_proxy_image_repo }}:{{ contiv_version }}"
+          args:
+            - "--listen-address=0.0.0.0:{{ contiv_api_proxy_port }}"
+            - --tls-key-file=/var/contiv/api_proxy_key.pem
+            - --tls-certificate=/var/contiv/api_proxy_cert.pem
+            - "--data-store-address={{ etcd_host }}"
+            - --data-store-driver=etcd
+            - "--netmaster-address=127.0.0.1:{{ contiv_netmaster_port }}"
+          ports:
+            - containerPort: "{{ contiv_api_proxy_port }}"
+              hostPort: "{{ contiv_api_proxy_port }}"
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /var/contiv
+              readOnly: true
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: contiv-api-proxy-secret

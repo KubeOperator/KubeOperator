@@ -1,0 +1,52 @@
+#!/bin/bash -e
+#
+# This file serves as the default command to the openshift-ansible image.
+# Runs a playbook with inventory as specified by environment variables.
+#
+# For more information see the documentation:
+#	https://github.com/openshift/openshift-ansible/blob/master/README_CONTAINER_IMAGE.md
+
+# SOURCE and HOME DIRECTORY: /opt/app-root/src
+
+if [[ -z "${PLAYBOOK_FILE}" ]]; then
+  echo
+  echo "PLAYBOOK_FILE must be provided."
+  exec /usr/local/bin/usage
+fi
+
+INVENTORY="$(mktemp)"
+if [[ -v INVENTORY_FILE ]]; then
+  # Make a copy so that ALLOW_ANSIBLE_CONNECTION_LOCAL below
+  # does not attempt to modify the original
+  cp ${INVENTORY_FILE} ${INVENTORY}
+elif [[ -v INVENTORY_DIR ]]; then
+  INVENTORY="$(mktemp -d)"
+  cp -RL ${INVENTORY_DIR}/* ${INVENTORY}
+elif [[ -v INVENTORY_URL ]]; then
+  curl -o ${INVENTORY} ${INVENTORY_URL}
+elif [[ -v DYNAMIC_SCRIPT_URL ]]; then
+  curl -o ${INVENTORY} ${DYNAMIC_SCRIPT_URL}
+  chmod 755 ${INVENTORY}
+elif [[ -v GENERATE_INVENTORY ]]; then
+  # dynamically generate inventory file using bind-mounted info
+  /usr/local/bin/generate ${INVENTORY}
+else
+  echo
+  echo "One of INVENTORY_FILE, INVENTORY_DIR, INVENTORY_URL, GENERATE_INVENTORY, or DYNAMIC_SCRIPT_URL must be provided."
+  exec /usr/local/bin/usage
+fi
+INVENTORY_ARG="-i ${INVENTORY}"
+
+if [[ "$ALLOW_ANSIBLE_CONNECTION_LOCAL" = false ]]; then
+  sed -i s/ansible_connection=local// ${INVENTORY}
+fi
+
+if [[ -v VAULT_PASS ]]; then
+  VAULT_PASS_FILE="$(mktemp)"
+  echo ${VAULT_PASS} > ${VAULT_PASS_FILE}
+  VAULT_PASS_ARG="--vault-password-file ${VAULT_PASS_FILE}"
+fi
+
+cd ${WORK_DIR}
+
+exec ansible-playbook ${INVENTORY_ARG} ${VAULT_PASS_ARG} ${OPTS} ${PLAYBOOK_FILE}

@@ -1,0 +1,691 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "annotations": {
+            "iconClass": "icon-eap",
+            "tags": "eap,javaee,java,jboss,hidden",
+            "version": "1.4.14",
+            "openshift.io/display-name": "JBoss EAP 7.1 (with https, DB drivers)",
+            "openshift.io/provider-display-name": "Red Hat, Inc.",
+            "description": "An example EAP 7 DB application. For more information about using this template, see https://github.com/jboss-openshift/application-templates.",
+            "template.openshift.io/long-description": "This template defines resources needed to develop Red Hat Enterprise Application Server 7.1 based application, including a build configuration, application deployment configuration, using third-party DB drivers and secure communication using https.",
+            "template.openshift.io/documentation-url": "https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/",
+            "template.openshift.io/support-url": "https://access.redhat.com"
+        },
+        "name": "eap71-third-party-db-s2i"
+    },
+    "labels": {
+        "template": "eap71-third-party-db-s2i",
+        "xpaas": "1.4.14"
+    },
+    "message": "A new EAP 7 based application with SSL support has been created in your project. Please be sure to create the following secrets:\"${CONFIGURATION_NAME}\" containing the datasource configuration details required by the deployed application(s);  \"${HTTPS_SECRET}\" containing the ${HTTPS_KEYSTORE} file used for serving secure content; \"${JGROUPS_ENCRYPT_SECRET}\" containing the ${JGROUPS_ENCRYPT_KEYSTORE} file used for securing JGroups communications.",
+    "parameters": [
+        {
+            "displayName": "Application Name",
+            "description": "The name for the application.",
+            "name": "APPLICATION_NAME",
+            "value": "eap-app",
+            "required": true
+        },
+        {
+            "displayName": "Configuration Secret Name",
+            "description": "The name of the secret containing configuration properties for the datasources.",
+            "name": "CONFIGURATION_NAME",
+            "value": "eap-app-config",
+            "required": true
+        },
+        {
+            "displayName": "Custom http Route Hostname",
+            "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+            "name": "HOSTNAME_HTTP",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Custom https Route Hostname",
+            "description": "Custom hostname for https service route.  Leave blank for default hostname, e.g.: secure-<application-name>-<project>.<default-domain-suffix>",
+            "name": "HOSTNAME_HTTPS",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Git Repository URL",
+            "description": "Git source URI for application",
+            "name": "SOURCE_REPOSITORY_URL",
+            "value": "https://github.com/jboss-openshift/openshift-quickstarts",
+            "required": true
+        },
+        {
+            "displayName": "Git Reference",
+            "description": "Git branch/tag reference",
+            "name": "SOURCE_REPOSITORY_REF",
+            "value": "master",
+            "required": false
+        },
+        {
+            "displayName": "Context Directory",
+            "description": "Path within Git project to build; empty for root project directory.",
+            "name": "CONTEXT_DIR",
+            "value": "datavirt/hibernate-webapp",
+            "required": false
+        },
+        {
+            "displayName": "Drivers ImageStreamTag",
+            "description": "ImageStreamTag definition for the image containing the drivers and configuration, e.g. jboss-datavirt63-driver-openshift:1.1",
+            "name": "EXTENSIONS_IMAGE",
+            "value": "jboss-datavirt63-driver-openshift:1.1",
+            "required": true
+        },
+        {
+            "displayName": "Drivers ImageStream Namespace",
+            "description": "Namespace within which the ImageStream definition for the image containing the drivers and configuration is located.",
+            "name": "EXTENSIONS_IMAGE_NAMESPACE",
+            "value": "openshift",
+            "required": true
+        },
+        {
+            "displayName": "Drivers Image Install Directory",
+            "description": "Full path to the directory within the extensions image where the extensions are located (e.g. install.sh, modules/, etc.)",
+            "name": "EXTENSIONS_INSTALL_DIR",
+            "value": "/extensions",
+            "required": true
+        },
+        {
+            "displayName": "Queue Names",
+            "description": "Queue names to preconfigure within Messaging subsystem.",
+            "name": "MQ_QUEUES",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Topic Names",
+            "description": "Topic names to preconfigure within Messaging subsystem.",
+            "name": "MQ_TOPICS",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Secret Name",
+            "description": "The name of the secret containing the keystore file",
+            "name": "HTTPS_SECRET",
+            "value": "eap-app-secret",
+            "required": true
+        },
+        {
+            "displayName": "Server Keystore Filename",
+            "description": "The name of the keystore file within the secret",
+            "name": "HTTPS_KEYSTORE",
+            "value": "keystore.jks",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Type",
+            "description": "The type of the keystore file (JKS or JCEKS)",
+            "name": "HTTPS_KEYSTORE_TYPE",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Server Certificate Name",
+            "description": "The name associated with the server certificate",
+            "name": "HTTPS_NAME",
+            "value": "jboss",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Password",
+            "description": "The password for the keystore and certificate",
+            "name": "HTTPS_PASSWORD",
+            "value": "mykeystorepass",
+            "required": false
+        },
+        {
+            "displayName": "Messaging Cluster Admin Password",
+            "description": "Admin password for Messaging cluster.",
+            "name": "MQ_CLUSTER_PASSWORD",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "Github Webhook Secret",
+            "description": "A secret string used to configure the GitHub webhook.",
+            "name": "GITHUB_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "Generic Webhook Secret",
+            "description": "A secret string used to configure the Generic webhook.",
+            "name": "GENERIC_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "ImageStream Namespace",
+            "description": "Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.",
+            "name": "IMAGE_STREAM_NAMESPACE",
+            "value": "openshift",
+            "required": true
+        },
+        {
+            "displayName": "JGroups Secret Name",
+            "description": "The name of the secret containing the keystore to be used for securing JGroups communications.",
+            "name": "JGROUPS_ENCRYPT_SECRET",
+            "value": "eap-app-secret",
+            "required": false
+        },
+        {
+            "displayName": "JGroups Keystore Filename",
+            "description": "The name of the keystore file within the JGroups secret.",
+            "name": "JGROUPS_ENCRYPT_KEYSTORE",
+            "value": "jgroups.jceks",
+            "required": false
+        },
+        {
+            "displayName": "JGroups Certificate Name",
+            "description": "The name associated with the JGroups server certificate",
+            "name": "JGROUPS_ENCRYPT_NAME",
+            "value": "secret-key",
+            "required": false
+        },
+        {
+            "displayName": "JGroups Keystore Password",
+            "description": "The password for the keystore and certificate",
+            "name": "JGROUPS_ENCRYPT_PASSWORD",
+            "value": "password",
+            "required": false
+        },
+        {
+            "displayName": "JGroups Cluster Password",
+            "description": "Password used by JGroups to authenticate nodes in the cluster.",
+            "name": "JGROUPS_CLUSTER_PASSWORD",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "Deploy Exploded Archives",
+            "description": "Controls whether exploded deployment content should be automatically deployed",
+            "name": "AUTO_DEPLOY_EXPLODED",
+            "value": "false",
+            "required": false
+        },
+        {
+            "displayName": "Maven mirror URL",
+            "description": "Maven mirror to use for S2I builds",
+            "name": "MAVEN_MIRROR_URL",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Maven Additional Arguments",
+            "description": "Maven additional arguments to use for S2I builds",
+            "name": "MAVEN_ARGS_APPEND",
+            "value": "",
+            "required": false
+        },
+        {
+            "description": "List of directories from which archives will be copied into the deployment folder. If unspecified, all archives in /target will be copied.",
+            "name": "ARTIFACT_DIR",
+            "value": "",
+            "required": false
+        },
+        {
+            "description": "Container memory limit",
+            "name": "MEMORY_LIMIT",
+            "value": "1Gi",
+            "required": false
+        }
+    ],
+    "objects": [
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's http port."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 8443,
+                        "targetPort": 8443
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's https port."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "clusterIP": "None",
+                "ports": [
+                    {
+                        "name": "ping",
+                        "port": 8888
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-ping",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
+                    "description": "The JGroups ping port for clustering."
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-http",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's http service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTP}",
+                "to": {
+                    "name": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-https",
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's https service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTPS}",
+                "to": {
+                    "name": "secure-${APPLICATION_NAME}"
+                },
+                "tls": {
+                    "termination": "passthrough"
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+                        "ref": "${SOURCE_REPOSITORY_REF}"
+                    },
+                    "contextDir": "${CONTEXT_DIR}",
+                    "images": [
+                        {
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${EXTENSIONS_IMAGE_NAMESPACE}",
+                                "name": "${EXTENSIONS_IMAGE}"
+                            },
+                            "paths": [
+                                {
+                                    "destinationDir": "./${CONTEXT_DIR}/extensions/extras",
+                                    "sourcePath": "${EXTENSIONS_INSTALL_DIR}/."
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "env": [
+                            {
+                                "name": "MAVEN_MIRROR_URL",
+                                "value": "${MAVEN_MIRROR_URL}"
+                            },
+                            {
+                                "name": "MAVEN_ARGS_APPEND",
+                                "value": "${MAVEN_ARGS_APPEND}"
+                            },
+                            {
+                                "name": "CUSTOM_INSTALL_DIRECTORIES",
+                                "value": "extensions/*"
+                            },
+                            {
+                                "name": "ARTIFACT_DIR",
+                                "value": "${ARTIFACT_DIR}"
+                            }
+                        ],
+                        "forcePull": true,
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "namespace": "${IMAGE_STREAM_NAMESPACE}",
+                            "name": "jboss-eap71-openshift:1.3"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}:latest"
+                    }
+                },
+                "triggers": [
+                    {
+                        "type": "GitHub",
+                        "github": {
+                            "secret": "${GITHUB_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "Generic",
+                        "generic": {
+                            "secret": "${GENERIC_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${EXTENSIONS_IMAGE_NAMESPACE}",
+                                "name": "${EXTENSIONS_IMAGE}"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${APPLICATION_NAME}:latest"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "deploymentConfig": "${APPLICATION_NAME}",
+                            "application": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "terminationGracePeriodSeconds": 75,
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}",
+                                "image": "${APPLICATION_NAME}",
+                                "imagePullPolicy": "Always",
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${MEMORY_LIMIT}"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "name": "configuration",
+                                        "mountPath": "/etc/eap-environment",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "name": "eap-keystore-volume",
+                                        "mountPath": "/etc/eap-secret-volume",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "name": "eap-jgroups-keystore-volume",
+                                        "mountPath": "/etc/jgroups-encrypt-secret-volume",
+                                        "readOnly": true
+                                    }
+                                ],
+                                "livenessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/eap/bin/livenessProbe.sh"
+                                        ]
+                                    },
+                                    "initialDelaySeconds": 60
+                                },
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/eap/bin/readinessProbe.sh"
+                                        ]
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "name": "jolokia",
+                                        "containerPort": 8778,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "https",
+                                        "containerPort": 8443,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "ping",
+                                        "containerPort": 8888,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "JGROUPS_PING_PROTOCOL",
+                                        "value": "openshift.DNS_PING"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_DNS_PING_SERVICE_NAME",
+                                        "value": "${APPLICATION_NAME}-ping"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
+                                        "value": "8888"
+                                    },
+                                    {
+                                        "name": "ENV_FILES",
+                                        "value": "/etc/eap-environment/*"
+                                    },
+                                    {
+                                        "name": "HTTPS_KEYSTORE_DIR",
+                                        "value": "/etc/eap-secret-volume"
+                                    },
+                                    {
+                                        "name": "HTTPS_KEYSTORE",
+                                        "value": "${HTTPS_KEYSTORE}"
+                                    },
+                                    {
+                                        "name": "HTTPS_KEYSTORE_TYPE",
+                                        "value": "${HTTPS_KEYSTORE_TYPE}"
+                                    },
+                                    {
+                                        "name": "HTTPS_NAME",
+                                        "value": "${HTTPS_NAME}"
+                                    },
+                                    {
+                                        "name": "HTTPS_PASSWORD",
+                                        "value": "${HTTPS_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "MQ_CLUSTER_PASSWORD",
+                                        "value": "${MQ_CLUSTER_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "MQ_QUEUES",
+                                        "value": "${MQ_QUEUES}"
+                                    },
+                                    {
+                                        "name": "MQ_TOPICS",
+                                        "value": "${MQ_TOPICS}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_ENCRYPT_SECRET",
+                                        "value": "${JGROUPS_ENCRYPT_SECRET}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_ENCRYPT_KEYSTORE_DIR",
+                                        "value": "/etc/jgroups-encrypt-secret-volume"
+                                    },
+                                    {
+                                        "name": "JGROUPS_ENCRYPT_KEYSTORE",
+                                        "value": "${JGROUPS_ENCRYPT_KEYSTORE}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_ENCRYPT_NAME",
+                                        "value": "${JGROUPS_ENCRYPT_NAME}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_ENCRYPT_PASSWORD",
+                                        "value": "${JGROUPS_ENCRYPT_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_CLUSTER_PASSWORD",
+                                        "value": "${JGROUPS_CLUSTER_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "AUTO_DEPLOY_EXPLODED",
+                                        "value": "${AUTO_DEPLOY_EXPLODED}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "configuration",
+                                "secret": {
+                                    "secretName": "${CONFIGURATION_NAME}"
+                                }
+                            },
+                            {
+                                "name": "eap-keystore-volume",
+                                "secret": {
+                                    "secretName": "${HTTPS_SECRET}"
+                                }
+                            },
+                            {
+                                "name": "eap-jgroups-keystore-volume",
+                                "secret": {
+                                    "secretName": "${JGROUPS_ENCRYPT_SECRET}"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

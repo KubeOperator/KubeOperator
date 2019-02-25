@@ -1,0 +1,7 @@
+---
+# This file is looped over, must use include_tasks, not import_tasks
+- include_tasks: fetch_config.yml
+
+- fail:
+    msg: "Configmap for {{ l_openshift_node_group_name }} must be present. Please see https://docs.openshift.com/container-platform/3.10/upgrading/automated_upgrades.html for details."
+  when: configout.results.results.0 == {}

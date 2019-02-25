@@ -1,0 +1,49 @@
+{
+  "clusters": [
+{%- set clusters = {} -%}
+{%- for node in glusterfs_nodes -%}
+  {%- set cluster = hostvars[node].glusterfs_cluster if 'glusterfs_cluster' in hostvars[node] else '1' -%}
+  {%- if cluster in clusters -%}
+    {%- set _dummy = clusters[cluster].append(node) -%}
+  {%- else -%}
+    {%- set _dummy = clusters.update({cluster: [ node, ]}) -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- for cluster in clusters -%}
+    {
+      "nodes": [
+{%- for node in clusters[cluster] -%}
+        {
+          "node": {
+            "hostnames": {
+              "manage": [
+{%- if 'glusterfs_hostname' in hostvars[node] -%}
+                "{{ hostvars[node].glusterfs_hostname }}"
+{%- elif 'openshift' in hostvars[node] -%}
+                "{{ hostvars[node].l_kubelet_node_name }}"
+{%- else -%}
+                "{{ node }}"
+{%- endif -%}
+              ],
+              "storage": [
+{%- if 'glusterfs_ip' in hostvars[node] -%}
+                "{{ hostvars[node].glusterfs_ip }}"
+{%- else -%}
+                "{{ hostvars[node].openshift.common.ip }}"
+{%- endif -%}
+              ]
+            },
+            "zone": {{ hostvars[node].glusterfs_zone | default(1) }}
+          },
+          "devices": [
+{%- for device in hostvars[node].glusterfs_devices -%}
+            "{{ device }}"{% if not loop.last %},{% endif %}
+{%- endfor -%}
+          ]
+        }{% if not loop.last %},{% endif %}
+{%- endfor -%}
+      ]
+    }{% if not loop.last %},{% endif %}
+{%- endfor -%}
+  ]
+}

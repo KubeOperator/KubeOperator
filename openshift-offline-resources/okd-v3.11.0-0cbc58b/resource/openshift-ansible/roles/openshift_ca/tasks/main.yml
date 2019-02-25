@@ -1,0 +1,283 @@
+---
+- fail:
+    msg: "Both 'certfile' and 'keyfile' keys must be supplied when configuring openshift_master_ca_certificate"
+  when: openshift_master_ca_certificate is defined and ('certfile' not in openshift_master_ca_certificate or 'keyfile' not in openshift_master_ca_certificate)
+
+- name: Install the base package for admin tooling
+  package:
+    name: "{{ openshift_service_type }}{{ openshift_pkg_version | default('') | lib_utils_oo_image_tag_to_rpm_version(include_dash=True) }}"
+    state: present
+  when: not hostvars[openshift_ca_host].openshift_is_atomic | bool
+  register: install_result
+  until: install_result is succeeded
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- name: Reload generated facts
+  openshift_facts:
+  when:
+  - hostvars[openshift_ca_host].install_result | default({'changed':false}) is changed
+
+- name: Create openshift_ca_config_dir if it does not exist
+  file:
+    path: "{{ openshift_ca_config_dir }}"
+    state: directory
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- name: Determine if CA must be created
+  stat:
+    path: "{{ openshift_ca_config_dir }}/{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: g_master_ca_stat_result
+  with_items:
+  - ca-bundle.crt
+  - ca.crt
+  - ca.key
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- name: Determine if front-proxy CA must be created
+  stat:
+    path: "{{ openshift_ca_config_dir }}/{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: g_master_front_proxy_ca_stat_result
+  with_items:
+  - front-proxy-ca.crt
+  - front-proxy-ca.key
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- set_fact:
+    master_ca_missing: "{{ False in (g_master_ca_stat_result.results
+                                     | lib_utils_oo_collect(attribute='stat.exists')
+                                     | list) }}"
+    master_front_proxy_ca_missing: "{{ False in (g_master_front_proxy_ca_stat_result.results
+                                     | lib_utils_oo_collect(attribute='stat.exists')
+                                     | list) }}"
+  run_once: true
+
+- name: Retain original serviceaccount keys
+  copy:
+    src: "{{ item }}"
+    dest: "{{ item }}.keep"
+    remote_src: true
+  with_items:
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.private.key"
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.public.key"
+  when: openshift_certificates_redeploy | default(false) | bool
+
+- name: Deploy master ca certificate
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ openshift_ca_config_dir }}/{{ item.dest }}"
+    force: no
+  with_items:
+  - src: "{{ (openshift_master_ca_certificate | default({'certfile':none})).certfile }}"
+    dest: ca.crt
+  - src: "{{ (openshift_master_ca_certificate | default({'keyfile':none})).keyfile }}"
+    dest: ca.key
+  when: openshift_master_ca_certificate is defined
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+# Upload additional CA if necessary
+- name: Deploy additional ca
+  copy:
+    src: "{{ openshift_additional_ca }}"
+    dest: "{{ openshift.common.config_base }}/master/additional_ca.crt"
+    mode: 0644
+  when: openshift_additional_ca is defined
+
+- name: Create ca serial
+  copy:
+    content: "00"
+    dest: "{{ openshift_ca_config_dir }}/ca.serial.txt"
+    force: "{{ openshift_certificates_redeploy | default(false) | bool }}"
+  when: openshift_master_ca_certificate is defined
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- find:
+    paths: "{{ openshift.common.config_base }}/master/legacy-ca/"
+    patterns: ".*-ca.crt"
+    use_regex: true
+  register: g_master_legacy_ca_result
+
+# This should NOT replace the CA due to --overwrite=false when a CA already exists.
+- name: Create the front-proxy CA if it does not already exist
+  command: >
+    {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm ca create-signer-cert
+    --cert="{{ openshift_ca_config_dir }}/front-proxy-ca.crt"
+    --key="{{ openshift_ca_config_dir }}/front-proxy-ca.key"
+    --serial="{{ openshift_ca_config_dir }}/ca.serial.txt"
+    --expire-days={{ openshift_ca_cert_expire_days }}
+    --overwrite=false
+  when: master_front_proxy_ca_missing | bool or openshift_certificates_redeploy | default(false) | bool
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+# This should NOT replace the CA due to --overwrite=false when a CA already exists.
+- name: Create the master certificates if they do not already exist
+  command: >
+    {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm ca create-master-certs
+    {% for named_ca_certificate in openshift.master.named_certificates | default([]) | lib_utils_oo_collect('cafile') %}
+    --certificate-authority {{ named_ca_certificate }}
+    {% endfor %}
+    {% for legacy_ca_certificate in g_master_legacy_ca_result.files | default([]) | lib_utils_oo_collect('path') %}
+    --certificate-authority {{ legacy_ca_certificate }}
+    {% endfor %}
+    {% if openshift_additional_ca is defined %}
+    --certificate-authority {{ openshift.common.config_base }}/master/additional_ca.crt
+    {% endif %}
+    --hostnames={{ hostvars[openshift_ca_host].openshift.common.all_hostnames | join(',') }}
+    --master={{ openshift.master.api_url }}
+    --public-master={{ openshift.master.public_api_url }}
+    --cert-dir={{ openshift_ca_config_dir }}
+    --expire-days={{ openshift_master_cert_expire_days }}
+    --signer-expire-days={{ openshift_ca_cert_expire_days }}
+    --overwrite=false
+  when: master_ca_missing | bool or openshift_certificates_redeploy | default(false) | bool
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+# Create client-ca-bundle.crt containing old and new OpenShift CA
+# certificates. This bundle will be used when rolling the OpenShift CA
+# certificate.
+- name: Create client-ca-bundle.crt
+  block:
+  - command: mktemp -d /tmp/openshift-ansible-XXXXXX
+    register: openshift_ca_clientconfig_tmpdir
+    delegate_to: "{{ openshift_ca_host }}"
+  - copy:
+      src: "{{ item }}"
+      dest: "{{ openshift_ca_clientconfig_tmpdir.stdout }}/"
+      remote_src: true
+    with_items: "{{ g_master_legacy_ca_result.files | default([]) | lib_utils_oo_collect('path') }}"
+    delegate_to: "{{ openshift_ca_host }}"
+    run_once: true
+  - copy:
+      src: "{{ openshift_ca_config_dir }}/ca.crt"
+      dest: "{{ openshift_ca_clientconfig_tmpdir.stdout }}/"
+      remote_src: true
+    delegate_to: "{{ openshift_ca_host }}"
+    run_once: true
+  - assemble:
+      src: "{{ openshift_ca_clientconfig_tmpdir.stdout }}"
+      dest: "{{ openshift_ca_config_dir }}/client-ca-bundle.crt"
+      mode: 0644
+      owner: root
+      group: root
+    delegate_to: "{{ openshift_ca_host }}"
+    run_once: true
+
+- name: Test local loopback context
+  command: >
+    {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} config view
+    --config={{ openshift_master_loopback_config }}
+  changed_when: false
+  register: loopback_config
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+# create-api-client-config generates a ca.crt file which will
+# overwrite the OpenShift CA certificate.  Generate the loopback
+# kubeconfig in a temporary directory and then copy files into the
+# master config dir to avoid overwriting ca.crt.
+- block:
+  - name: Create temp directory for loopback master client config
+    command: mktemp -d /tmp/openshift-ansible-XXXXXX
+    register: openshift_ca_loopback_tmpdir
+  - name: Generate the loopback master client config
+    command: >
+      {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm create-api-client-config
+        --certificate-authority={{ openshift_ca_cert }}
+        {% for named_ca_certificate in openshift.master.named_certificates | default([]) | lib_utils_oo_collect('cafile') %}
+        --certificate-authority {{ named_ca_certificate }}
+        {% endfor %}
+        --client-dir={{ openshift_ca_loopback_tmpdir.stdout }}
+        --groups=system:masters,system:openshift-master
+        --master={{ hostvars[openshift_ca_host].openshift.master.loopback_api_url }}
+        --public-master={{ hostvars[openshift_ca_host].openshift.master.loopback_api_url }}
+        --signer-cert={{ openshift_ca_cert }}
+        --signer-key={{ openshift_ca_key }}
+        --signer-serial={{ openshift_ca_serial }}
+        --user=system:openshift-master
+        --basename=openshift-master
+        --expire-days={{ openshift_master_cert_expire_days }}
+  - name: Copy generated loopback master client config to master config dir
+    copy:
+      src: "{{ openshift_ca_loopback_tmpdir.stdout }}/{{ item }}"
+      dest: "{{ openshift_ca_config_dir }}"
+      remote_src: true
+    with_items:
+    - openshift-master.crt
+    - openshift-master.key
+    - openshift-master.kubeconfig
+  - name: Delete temp directory
+    file:
+      name: "{{ openshift_ca_loopback_tmpdir.stdout }}"
+      state: absent
+  when: loopback_context_string not in loopback_config.stdout
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+# create-api-client-config generates a ca.crt file which will
+# overwrite the OpenShift CA certificate.  Generate the loopback
+# kubeconfig in a temporary directory and then copy files into the
+# master config dir to avoid overwriting ca.crt.
+- block:
+  - name: Create temp directory for loopback master client config
+    command: mktemp -d /tmp/openshift-ansible-XXXXXX
+    register: openshift_ca_loopback_tmpdir
+  - name: Generate the aggregator api-client config
+    command: >
+      {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm create-api-client-config
+        --certificate-authority={{ openshift_ca_cert }}
+        {% for named_ca_certificate in openshift.master.named_certificates | default([]) | lib_utils_oo_collect('cafile') %}
+        --certificate-authority {{ named_ca_certificate }}
+        {% endfor %}
+        --client-dir={{ openshift_ca_loopback_tmpdir.stdout }}
+        --user=aggregator-front-proxy
+        --signer-cert="{{ openshift_ca_config_dir }}/front-proxy-ca.crt"
+        --signer-key="{{ openshift_ca_config_dir }}/front-proxy-ca.key"
+        --signer-serial={{ openshift_ca_serial }}
+        --expire-days={{ openshift_master_cert_expire_days }}
+  - name: Copy generated loopback master client config to master config dir
+    copy:
+      src: "{{ openshift_ca_loopback_tmpdir.stdout }}/{{ item }}"
+      dest: "{{ openshift_ca_config_dir }}"
+      remote_src: true
+    with_items:
+    - aggregator-front-proxy.crt
+    - aggregator-front-proxy.key
+    - aggregator-front-proxy.kubeconfig
+  - name: Delete temp directory
+    file:
+      name: "{{ openshift_ca_loopback_tmpdir.stdout }}"
+      state: absent
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- name: Restore original serviceaccount keys
+  copy:
+    src: "{{ item }}.keep"
+    dest: "{{ item }}"
+    remote_src: true
+  with_items:
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.private.key"
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.public.key"
+  when: openshift_certificates_redeploy | default(false) | bool
+
+- name: Remove backup serviceaccount keys
+  file:
+    path: "{{ item }}.keep"
+    state: absent
+  with_items:
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.private.key"
+  - "{{ openshift_ca_config_dir }}/serviceaccounts.public.key"
+  when: openshift_certificates_redeploy | default(false) | bool

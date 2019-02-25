@@ -1,0 +1,11 @@
+---
+- name: Install docker gc
+  hosts: oo_first_master
+  gather_facts: false
+  roles:
+  - openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_docker_gc
+    when:
+    - openshift_crio_enable_docker_gc | bool

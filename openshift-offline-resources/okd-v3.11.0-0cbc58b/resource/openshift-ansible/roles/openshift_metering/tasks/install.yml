@@ -1,0 +1,5 @@
+---
+- name: Openshift Metering Cloud resource provisioning
+  import_tasks: provision-cloud-resources.yml
+- name: Openshift Metering Operator installation
+  include_tasks: operator-install.yml

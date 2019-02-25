@@ -1,0 +1,73 @@
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: bootstrap-autoapprover
+  namespace: openshift-infra
+  annotations:
+    image.openshift.io/triggers: |
+      [{"from":{"kind":"ImageStreamTag","name":"node:v3.11"},"fieldPath":"spec.template.spec.containers[?(@.name==\"signer\")].image"}]
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bootstrap-autoapprover
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: 'true'
+      serviceAccountName: bootstrap-autoapprover
+      terminationGracePeriodSeconds: 1
+      containers:
+      - name: signer
+        image: " "
+        command:
+        - /bin/bash
+        - -c
+        args:
+        - |
+          #!/bin/bash
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          unset KUBECONFIG
+          cat <<SCRIPT > /tmp/signer
+          #!/bin/bash
+          #
+          # It will approve any CSR that is not approved yet, and delete any CSR that expired more than 60 seconds
+          # ago.
+          #
+
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          name=\${1}
+          condition=\${2}
+          certificate=\${3}
+          username=\${4}
+
+          # auto approve
+          if [[ -z "\${condition}" && ("\${username}" == "system:serviceaccount:openshift-infra:node-bootstrapper" || "\${username}" == "system:node:"* || "\${username}" == "system:admin" ) ]]; then
+            oc adm certificate approve "\${name}"
+            exit 0
+          fi
+
+          # check certificate age
+          if [[ -n "\${certificate}" ]]; then
+            text="\$( echo "\${certificate}" | base64 -d - )"
+            if ! echo "\${text}" | openssl x509 -noout; then
+              echo "error: Unable to parse certificate" 2>&1
+              exit 1
+            fi
+            if ! echo "\${text}" | openssl x509 -checkend -60 > /dev/null; then
+              echo "Certificate is expired, deleting"
+              oc delete csr "\${name}"
+            fi
+            exit 0
+          fi
+          SCRIPT
+          chmod u+x /tmp/signer
+
+          exec oc observe csr --maximum-errors=1 --resync-period=10m -a '{.status.conditions[*].type}' -a '{.status.certificate}' -a '{.spec.username}' -- /tmp/signer

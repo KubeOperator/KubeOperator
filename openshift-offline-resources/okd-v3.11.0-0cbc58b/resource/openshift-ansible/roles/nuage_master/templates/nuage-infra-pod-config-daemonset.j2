@@ -1,0 +1,96 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nuage-infra-config
+  namespace: kube-system
+data:
+  # Name of the enterprise in which pods will reside
+  enterprise_name: {{ enterprise }}
+  # Name of the domain in which pods will reside
+  domain_name: {{ domain }}
+  # Name of the VSD user in admin group
+  vsd_user: {{ vsd_user }}
+  # Name of the VSD user in admin group
+  pod_network_cidr: {{ nuage_pod_cidr | default('70.70.0.0/16') }}
+  # Infra pod functionality depends on personality type
+  personality: {{ nuage_personality | default('vrs') }}
+
+---
+
+# This manifest installs Nuage Infra pod on
+# each worker node in a Kubernetes cluster.
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: nuage-infra-ds
+  namespace: kube-system
+  labels:
+    k8s-app: nuage-infra-ds
+spec:
+  selector:
+    matchLabels:
+      k8s-app: nuage-infra-ds
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: nuage-infra-ds
+    spec:
+{% if nuage_personality == 'evdf' %}
+      hostNetwork: true
+{% endif %}
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+          operator: Exists
+      containers:
+        # This container spawns a Nuage Infra pod
+        # on each worker node
+        - name: install-nuage-infra
+          image: {{ nuage_infra_image_name }}:{{ nuage_infra_container_image_version }}
+          command: ["/usr/bin/nuage-k8s-infra-pod.sh"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/log
+              name: log-dir
+            - mountPath: /var/run
+              name: openvswitch-dir
+          env:
+            - name: VSP_ENTERPRISE
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-infra-config
+                  key: enterprise_name
+            - name: VSP_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-infra-config
+                  key: domain_name
+            - name: VSP_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-infra-config
+                  key: vsd_user
+            - name: POD_NETWORK_CIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-infra-config
+                  key: pod_network_cidr
+            - name: PERSONALITY
+              valueFrom:
+                configMapKeyRef:
+                  name: nuage-infra-config
+                  key: personality
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/bin/nuage-k8s-infra-pod.sh", "-c"]
+      volumes:
+        - name: log-dir
+          hostPath:
+            path: /var/log
+        - name: openvswitch-dir
+          hostPath:
+            path: /var/run

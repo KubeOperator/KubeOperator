@@ -1,0 +1,34 @@
+---
+#
+# Node Upgrade Playbook
+#
+# Upgrades nodes only, but requires the control plane to have already been upgraded.
+#
+- import_playbook: ../init.yml
+  vars:
+    l_upgrade_cert_check_hosts: "oo_nodes_to_config"
+
+- name: Configure the upgrade target for the common upgrade tasks
+  hosts: oo_all_hosts
+  tasks:
+  - set_fact:
+      openshift_upgrade_target: '3.11'
+      openshift_upgrade_min: '3.10'
+      openshift_release: '3.11'
+
+- import_playbook: ../pre/config.yml
+  vars:
+    l_upgrade_repo_hosts: "oo_nodes_to_config"
+    l_upgrade_no_proxy_hosts: "oo_all_hosts"
+    l_upgrade_health_check_hosts: "oo_nodes_to_config"
+    l_upgrade_verify_targets_hosts: "oo_nodes_to_config"
+    l_upgrade_docker_target_hosts: "oo_nodes_to_config"
+    l_upgrade_excluder_hosts: "oo_nodes_to_config:!oo_masters_to_config"
+    l_upgrade_nodes_only: True
+
+# Need to run sanity checks after version has been run.
+- import_playbook: ../../../../init/sanity_checks.yml
+
+# Pre-upgrade completed
+
+- import_playbook: ../upgrade_nodes.yml

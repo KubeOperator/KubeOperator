@@ -1,0 +1,15 @@
+---
+# INPUT etcd_upgrade_version
+# INPUT etcd_rpm_version
+- name: Upgrade to {{ etcd_upgrade_version }}
+  hosts: oo_etcd_hosts_to_upgrade
+  serial: 1
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: upgrade_rpm.yml
+    vars:
+      r_etcd_upgrade_version: "{{ etcd_upgrade_version }}"
+    when:
+    - etcd_rpm_version.stdout | default('99') is version(etcd_upgrade_version, '<')
+    - ansible_distribution == 'RedHat'

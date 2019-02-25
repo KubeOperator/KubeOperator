@@ -1,0 +1,10 @@
+# GCE instances are starting with xfs AND barrier=1, which is only for extfs.
+---
+- name: Remove barrier=1 from XFS fstab entries
+  command: sed -i -e 's/xfs\(.*\)barrier=1/xfs\1/g; s/, / /g' /etc/fstab
+
+- name: Ensure the root filesystem has XFS group quota turned on
+  command: sed -i -e 's/linux16 \(.*\)$/linux16 \1 rootflags=gquota/g' /boot/grub2/grub.cfg
+
+- name: Ensure the root partition grows on startup
+  copy: src=partition.conf dest=/etc/systemd/system/google-instance-setup.service.d/

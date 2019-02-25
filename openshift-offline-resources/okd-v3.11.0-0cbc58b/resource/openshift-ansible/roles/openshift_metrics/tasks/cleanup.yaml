@@ -1,0 +1,8 @@
+---
+- name: Delete temp directory
+  local_action: file path=local_tmp.stdout state=absent
+  tags: metrics_cleanup
+  changed_when: False
+  check_mode: no
+  vars:
+    ansible_become: false

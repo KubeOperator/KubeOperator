@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: ClusterRole
+metadata:
+  name: cluster-autoscaler
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  - persistentvolumes
+  - pods
+  - replicationcontrollers
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  attributeRestrictions: null
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - create
+  attributeRestrictions: null
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  attributeRestrictions: null
+- apiGroups:
+  - extensions
+  - apps
+  resources:
+  - daemonsets
+  - replicasets
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+  attributeRestrictions: null
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - get
+  - list
+  - watch
+  attributeRestrictions: null

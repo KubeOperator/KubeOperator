@@ -1,0 +1,96 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: metering-operator
+  labels:
+    app: metering-operator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: metering-operator
+  template:
+    metadata:
+      labels:
+        app: metering-operator
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: metering-operator
+        image: "quay.io/coreos/metering-helm-operator:0.7.0-latest"
+        args: ["run-operator.sh"]
+        imagePullPolicy: Always
+        env:
+        - name: HELM_RELEASE_CRD_NAME
+          value: Metering
+        - name: HELM_RELEASE_CRD_API_GROUP
+          value: metering.openshift.io
+        - name: HELM_CHART_PATH
+          value: /openshift-metering-0.1.0.tgz
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: HELM_HOST
+          value: "127.0.0.1:44134"
+        - name: HELM_WAIT
+          value: "false"
+        - name: HELM_RECONCILE_INTERVAL_SECONDS
+          value: "30"
+        - name: RELEASE_HISTORY_LIMIT
+          value: "3"
+        resources:
+          requests:
+            memory: "25Mi"
+            cpu: "50m"
+          limits:
+            memory: "25Mi"
+            cpu: "50m"
+      - name: tiller
+        image: "quay.io/coreos/metering-helm-operator:0.7.0-latest"
+        args: ["/tiller"]
+        imagePullPolicy: Always
+        env:
+        - name: TILLER_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: TILLER_HISTORY_MAX
+          value: "3"
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+          limits:
+            memory: "100Mi"
+            cpu: "50m"
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /liveness
+            port: 44135
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readiness
+            port: 44135
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      serviceAccount: metering-operator

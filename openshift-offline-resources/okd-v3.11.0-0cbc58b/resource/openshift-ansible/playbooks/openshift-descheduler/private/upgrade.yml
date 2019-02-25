@@ -1,0 +1,10 @@
+---
+# This play is called during descheduler upgrade
+- name: Upgrade descheduler
+  hosts: oo_first_master
+  roles:
+  - openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_descheduler
+      tasks_from: upgrade.yaml

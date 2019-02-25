@@ -1,0 +1,26 @@
+---
+- name: query vpc
+  ec2_vpc_net_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      'tag:Name': "{{ openshift_aws_vpc_name }}"
+  register: vpcout
+
+- name: debug vpcout
+  debug:
+    var: vpcout
+    verbosity: 1
+
+- name: fetch the subnet ids
+  ec2_vpc_subnet_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      availability-zone: "{{ item }}"
+      vpc-id: "{{ vpcout.vpcs[0].id }}"
+  with_items: "{{ openshift_aws_vpc.subnets[openshift_aws_region] | map(attribute='az') | list }}"
+  register: subnetout
+
+- name: debug subnetout
+  debug:
+    var: subnetout
+    verbosity: 1

@@ -1,0 +1,13 @@
+---
+# This playbook is intended to be included from playbooks/updates/registry_auth.yml
+- name: Update master registry_auth
+  hosts: oo_masters_to_config
+  serial: 1
+  tasks:
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: registry_auth.yml
+
+- import_playbook: restart.yml
+  vars:
+    openshift_rolling_restart_mode: 'services'

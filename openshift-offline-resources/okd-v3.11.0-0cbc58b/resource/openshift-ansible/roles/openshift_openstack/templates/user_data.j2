@@ -1,0 +1,40 @@
+#cloud-config
+disable_root: {{ openshift_openstack_disable_root }}
+
+system_info:
+  default_user:
+    name: {{ openshift_openstack_user }}
+    sudo: ["ALL=(ALL) NOPASSWD: ALL"]
+
+write_files:
+  - path: /etc/sudoers.d/00-openshift-no-requiretty
+    permissions: 440
+    content: |
+      Defaults:openshift !requiretty
+
+  - path: /root/openshift_bootstrap/openshift_settings.yaml
+    owner: 'root:root'
+    permissions: '0640'
+    content: |
+        openshift_node_config_name: %OPENSHIFT_NODE_CONFIG_NAME%
+
+{% if openshift_openstack_provision_user_commands %}
+  - path: /root/ansible_install.sh
+    permissions: '0544'
+    content: |
+{% for cmd in openshift_openstack_provision_user_commands %}
+{% if cmd is string %}
+      {{ cmd }}
+{% elif cmd is iterable %}
+      {{ cmd|join(' ') }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+runcmd:
+{% if openshift_openstack_provision_user_commands %}
+  - /root/ansible_install.sh
+{% endif %}
+{% if openshift_openstack_node_run_bootstrap_startup %}
+  - [ ansible-playbook, /root/openshift_bootstrap/bootstrap.yml]
+{% endif %}

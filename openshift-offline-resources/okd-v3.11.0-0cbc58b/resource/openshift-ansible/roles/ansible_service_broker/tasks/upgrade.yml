@@ -1,0 +1,15 @@
+---
+- name: retrieve broker configmap
+  oc_configmap:
+    state: list
+    name: broker-config
+    namespace: openshift-ansible-service-broker
+  register: broker_configmap_raw
+
+- set_fact:
+    broker_configmap: '{{ (broker_configmap_raw.results.results.0.data | from_yaml)["broker-config"] | from_yaml }}'
+  when: broker_configmap_raw.results.results.0.data is defined
+
+- name: Migrate from etcd to CRDs
+  import_tasks: migrate.yml
+  when: broker_configmap is defined and broker_configmap.dao.get('type') != 'crd'

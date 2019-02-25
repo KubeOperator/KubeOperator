@@ -1,0 +1,10 @@
+---
+- name: Create the Cinder Registry volume
+  os_volume:
+    display_name: "{{ cinder_registry_volume_name }}"
+    size: "{{ cinder_registry_volume_size }}"
+    display_description: "Storage for the OpenShift registry"
+  register: cinder_registry_volume
+  vars:
+    cinder_registry_volume_name: "{{ hostvars[groups.openstack_infra_nodes.0].openshift_hosted_registry_storage_volume_name }}"
+    cinder_registry_volume_size: "{{ hostvars[groups.openstack_infra_nodes.0].openshift_hosted_registry_storage_volume_size | regex_replace('[A-Z]i$') }}"

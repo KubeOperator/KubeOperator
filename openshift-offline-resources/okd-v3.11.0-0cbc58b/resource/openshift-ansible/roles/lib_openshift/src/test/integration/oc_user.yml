@@ -1,0 +1,240 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+#
+# ./oc_user.yml -e "cli_master_test=$OPENSHIFT_MASTER
+#
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+
+  vars:
+    test_user: testuser@email.com
+    test_user_fullname: "Test User"
+  pre_tasks:
+  - name: ensure needed vars are defined
+    fail:
+      msg: "{{ item }} no defined"
+    when: item is not defined
+    with_items:
+    - cli_master_test  # ansible inventory instance to run playbook against
+
+  tasks:
+  - name: delete test user (so future tests work)
+    oc_user:
+      state: absent
+      username: "{{ test_user }}"
+
+  - name: get user list
+    oc_user:
+      state: list
+      username: "{{ test_user }}"
+    register: user_out
+  - name: "assert test user does not exist"
+    assert:
+      that: user_out['results'][0] == {}
+      msg: "{{ user_out }}"
+
+  - name: get all list
+    oc_user:
+      state: list
+    register: user_out
+  #- debug: var=user_out
+
+  - name: add test user
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      full_name: "{{ test_user_fullname }}"
+    register: user_out
+  - name: assert result set to changed
+    assert:
+      that: user_out['changed'] == True
+      msg: "{{ user_out }}"
+
+  - name: check test user actually added
+    oc_user:
+      state: list
+      username: "{{ test_user }}"
+    register: user_out
+  - name: assert user actually added
+    assert:
+      that: user_out['results'][0]['metadata']['name'] == "{{ test_user }}" and
+            user_out['results'][0]['fullName'] == "{{ test_user_fullname }}"
+      msg: "{{ user_out }}"
+
+  - name: re-add test user
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      full_name: "{{ test_user_fullname }}"
+    register: user_out
+  - name: assert re-add result set to not changed
+    assert:
+      that: user_out['changed'] == False
+      msg: "{{ user_out }}"
+
+  - name: modify existing user
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      full_name: 'Something Different'
+    register: user_out
+  - name: assert modify existing user result set to changed
+    assert:
+      that: user_out['changed'] == True
+      msg: "{{ user_out }}"
+
+  - name: check modify test user
+    oc_user:
+      state: list
+      username: "{{ test_user }}"
+    register: user_out
+  - name: assert modification successful
+    assert:
+      that: user_out['results'][0]['metadata']['name'] == "{{ test_user }}" and
+            user_out['results'][0]['fullName'] == 'Something Different'
+      msg: "{{ user_out }}"
+
+  - name: delete test user
+    oc_user:
+      state: absent
+      username: "{{ test_user }}"
+    register: user_out
+  - name: assert delete marked changed
+    assert:
+      that: user_out['changed'] == True
+      msg: "{{ user_out }}"
+
+  - name: check delete user
+    oc_user:
+      state: list
+      username: "{{ test_user }}"
+    register: user_out
+  - name: assert deletion successful
+    assert:
+      that: user_out['results'][0] == {}
+      msg: "{{ user_out }}"
+
+  - name: re-delete test user
+    oc_user:
+      state: absent
+      username: "{{ test_user }}"
+    register: user_out
+  - name: check re-delete marked not changed
+    assert:
+      that: user_out['changed'] == False
+      msg: "{{ user_out }}"
+
+  - name: delete test group
+    oc_obj:
+      kind: group
+      state: absent
+      name: integration-test-group
+
+  - name: create test group
+    command: oadm groups new integration-test-group
+
+  - name: check group creation
+    oc_obj:
+      kind: group
+      state: list
+      name: integration-test-group
+    register: user_out
+  - name: assert test group created
+    assert:
+      that: user_out['results']['results'][0]['metadata']['name'] == "integration-test-group"
+      msg: "{{ user_out }}"
+
+  - name: create user with group membership
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      groups:
+      - "integration-test-group"
+    register: user_out
+  - debug: var=user_out
+  - name: get group user members
+    oc_obj:
+      kind: group
+      state: list
+      name: integration-test-group
+    register: user_out
+  - name: assert user group membership
+    assert:
+      that: "'{{ test_user }}' in user_out['results']['results'][0]['users'][0]"
+      msg: "{{ user_out }}"
+
+  - name: delete second test group
+    oc_obj:
+      kind: group
+      state: absent
+      name: integration-test-group2
+
+  - name: create empty second group
+    command: oadm groups new integration-test-group2
+
+  - name: update user with second group membership
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      groups:
+      - "integration-test-group"
+      - "integration-test-group2"
+    register: user_out
+  - name: assert adding more group changed
+    assert:
+      that: user_out['changed'] == True
+
+  - name: get group memberships
+    oc_obj:
+      kind: group
+      state: list
+      name: "{{ item }}"
+    with_items:
+    - integration-test-group
+    - integration-test-group2
+    register: user_out
+  - name: assert user member of above groups
+    assert:
+      that: "'{{ test_user }}' in user_out['results'][0]['results']['results'][0]['users'] and \
+            '{{ test_user }}' in user_out['results'][1]['results']['results'][0]['users']"
+      msg: "{{ user_out }}"
+
+  - name: update user with only one group
+    oc_user:
+      state: present
+      username: "{{ test_user }}"
+      groups:
+      - "integration-test-group2"
+    register: user_out
+  - assert:
+      that: user_out['changed'] == True
+
+  - name: get group memberships
+    oc_obj:
+      kind: group
+      state: list
+      name: "{{ item }}"
+    with_items:
+    - "integration-test-group"
+    - "integration-test-group2"
+    register: user_out
+  - debug: var=user_out
+  - name: assert proper user membership
+    assert:
+      that: "'{{ test_user }}' not in user_out['results'][0]['results']['results'][0]['users'] and \
+             '{{ test_user }}' in user_out['results'][1]['results']['results'][0]['users']"
+
+  - name: clean up test groups
+    oc_obj:
+      kind: group
+      state: absent
+      name: "{{ item }}"
+    with_items:
+    - "integration-test-group"
+    - "integration-test-group2"
+
+  - name: clean up test user
+    oc_user:
+      state: absent
+      username: "{{ test_user }}"

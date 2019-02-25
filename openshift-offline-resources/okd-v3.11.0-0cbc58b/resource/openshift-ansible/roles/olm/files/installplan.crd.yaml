@@ -1,0 +1,76 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: installplans.operators.coreos.com
+  annotations:
+    displayName: Install Plan
+    description: Represents a plan to install and resolve dependencies for Cluster Services
+spec:
+  group: operators.coreos.com
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+  scope: Namespaced
+  names:
+    plural: installplans
+    singular: installplan
+    kind: InstallPlan
+    listKind: InstallPlanList
+    categories:
+    - all
+    - olm
+  additionalPrinterColumns:
+  - name: CSV
+    type: string
+    description: The first CSV in the list of clusterServiceVersionNames
+    JSONPath: .spec.clusterServiceVersionNames[0]
+  - name: Source
+    type: string
+    description: The catalog source for the specified CSVs.
+    JSONPath: .spec.source
+  - name: Approval
+    type: string
+    description: The approval mode
+    JSONPath: .spec.approval
+  - name: Approved
+    type: boolean
+    JSONPath: .spec.approved
+  subresources:
+    # status enables the status subresource.
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          type: object
+          description: Spec for an InstallPlan
+          required:
+          - clusterServiceVersionNames
+          - approval
+          properties:
+            source:
+              type: string
+              description: Name of the preferred CatalogSource
+            sourceNamespace:
+              type: string
+              description: Namespace that contains the preffered CatalogSource
+            clusterServiceVersionNames:
+              type: array
+              description: A list of the names of the Cluster Services
+              items:
+                type: string
+          anyOf:
+            - properties:
+                approval:
+                  enum:
+                    - Manual
+                approved:
+                  type: boolean
+              required:
+                - approved
+            - properties:
+                approval:
+                  enum:
+                    - Automatic

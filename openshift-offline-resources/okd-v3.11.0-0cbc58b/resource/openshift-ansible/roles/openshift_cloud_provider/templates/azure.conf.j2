@@ -1,0 +1,19 @@
+tenantId: {{ openshift_cloudprovider_azure_tenant_id }}
+subscriptionId: {{ openshift_cloudprovider_azure_subscription_id }}
+aadClientId: {{ openshift_cloudprovider_azure_client_id }}
+aadClientSecret: {{ openshift_cloudprovider_azure_client_secret }}
+aadTenantId: {{ openshift_cloudprovider_azure_tenant_id }}
+resourceGroup: {{ openshift_cloudprovider_azure_resource_group }}
+{% if openshift_cloudprovider_azure_cloud is defined %}
+cloud: {{ openshift_cloudprovider_azure_cloud }}
+{% endif %}
+location: {{ openshift_cloudprovider_azure_location }}
+{% if openshift_cloudprovider_azure_vnet_name is defined %}
+vnetName: {{ openshift_cloudprovider_azure_vnet_name }} 
+{% endif %}
+{% if openshift_cloudprovider_azure_security_group_name is defined %}
+securityGroupName: {{ openshift_cloudprovider_azure_security_group_name }}
+{% endif %}
+{% if openshift_cloudprovider_azure_availability_set_name is defined %}
+primaryAvailabilitySetName: {{ openshift_cloudprovider_azure_availability_set_name }}
+{% endif %}

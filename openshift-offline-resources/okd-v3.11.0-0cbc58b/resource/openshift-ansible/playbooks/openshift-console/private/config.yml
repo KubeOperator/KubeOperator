@@ -1,0 +1,34 @@
+---
+- name: Console Install Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Console install 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_console:
+          title: "Console Install"
+          playbook: "playbooks/openshift-console/config.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: Console
+  hosts: oo_first_master
+  vars:
+    first_master: "{{ groups.oo_first_master[0] }}"
+  tasks:
+  - import_role:
+      name: openshift_console
+
+- name: Console Install Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Console install 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_console:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

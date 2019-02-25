@@ -1,0 +1,88 @@
+---
+- name: Add descheduler project
+  oc_project:
+    state: present
+    name: openshift-descheduler
+    node_selector: ""
+    description: Descheduler
+
+- name: create descheduler service account
+  oc_serviceaccount:
+    name: "{{ openshift_descheduler_service_account }}"
+    namespace: openshift-descheduler
+    state: present
+
+- name: create descheduler cluster role
+  oc_clusterrole:
+    state: present
+    name: "{{ openshift_descheduler_cluster_role_name }}"
+    rules:
+      - apiGroups: [""]
+        resources: ["nodes"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: ["get", "list", "watch", "delete"]
+      - apiGroups: [""]
+        resources: ["pods/eviction"]
+        verbs: ["create"]
+
+#- name: copy descheduler cluster role file
+#  copy:
+#    src: "{{ item }}"
+#    dest: "{{ openshift_descheduler_tmp_location }}/{{ item }}"
+#  with_items:
+#  - clusterrole.yml
+#  when: openshift_descheduler_state == 'present'
+
+#- name: "Ensure descheduler cluster roles are {{ openshift_descheduler_state }}"
+#  oc_obj:
+#    namespace: openshift-descheduler
+#    state: present
+#    kind: "{{ item.type }}"
+#    name: "{{ item.name }}"
+#    delete_after: "{{ openshift_descheduler_delete_config }}"
+#    files:
+#    - "{{ openshift_descheduler_tmp_location }}/{{ item.fname }}"
+#  with_items:
+#  - fname: clusterrole.yml
+#    type: clusterrole
+#    name: "{{ openshift_descheduler_name }}"
+
+- name: bind descheduler cluster role to its service account
+  oc_adm_policy_user:
+    state: present
+    user: "system:serviceaccount:openshift-descheduler:{{ openshift_descheduler_service_account }}"
+    namespace: openshift-descheduler
+    resource_kind: cluster-role
+    resource_name: "{{ openshift_descheduler_cluster_role_name }}"
+
+- name: copy descheduler policy template to tmp dir
+  template:
+    src: policy.yaml.j2
+    dest: "{{ openshift_descheduler_tmp_location }}/policy.yaml"
+  when: openshift_descheduler_install | bool
+
+- name: create descheduler policy configmap
+  oc_configmap:
+    state: present
+    name: "{{ openshift_descheduler_policy_configmap_name }}"
+    namespace: openshift-descheduler
+    from_file:
+      policy.yaml: "{{ openshift_descheduler_tmp_location }}/policy.yaml"
+
+- name: copy the cronjob file for descheduler
+  template:
+    src: descheduler-cronjob.yaml.j2
+    dest: "{{ openshift_descheduler_tmp_location }}/descheduler-cronjob.yaml"
+  when: openshift_descheduler_install | bool
+
+- name: Ensure the descheduler is present
+  oc_obj:
+    namespace: openshift-descheduler
+    state: present
+    kind: cronjob
+    name: "{{ openshift_descheduler_cronjob_name }}"
+    delete_after: "{{ openshift_descheduler_delete_config }}"
+    files:
+      - "{{ openshift_descheduler_tmp_location }}/descheduler-cronjob.yaml"

@@ -1,0 +1,18 @@
+---
+- hosts: all
+  sudo: True
+  roles:
+    - ansible-logrotate
+    - role: ansible-logrotate
+      logrotate_scripts:
+        - name: nginx-options
+          path: /var/log/nginx/options.log
+          options:
+            - daily
+
+    - role: ansible-logrotate
+      logrotate_scripts:
+        - name: nginx-scripts
+          path: /var/log/nginx/scripts.log
+          scripts:
+            postrotate: "echo test"

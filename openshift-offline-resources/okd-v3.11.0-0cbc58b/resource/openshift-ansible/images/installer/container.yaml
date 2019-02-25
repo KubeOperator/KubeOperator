@@ -1,0 +1,13 @@
+---
+compose:
+  packages:
+  - openshift-ansible
+  - python2-crypto
+  - httpd-tools
+  - google-cloud-sdk
+  - java-1.8.0-openjdk-headless
+  - atomic-openshift-clients
+  - openssl
+  - iproute
+  - python-boto
+  - python2-boto3

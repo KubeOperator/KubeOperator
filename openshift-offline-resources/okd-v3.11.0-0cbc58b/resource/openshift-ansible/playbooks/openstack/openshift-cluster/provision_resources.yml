@@ -1,0 +1,17 @@
+---
+- name: Create the OpenStack resources for cluster installation or scaleup
+  any_errors_fatal: true
+  hosts: localhost
+  tasks:
+  - name: retrieve cluster name from the environment if present
+    set_fact:
+      openshift_openstack_stack_name: "{{ lookup('env', 'OPENSHIFT_CLUSTER') | ternary (lookup('env', 'OPENSHIFT_CLUSTER'), omit) }}"
+  - name: provision cluster
+    import_role:
+      name: openshift_openstack
+      tasks_from: provision.yml
+    vars:
+      l_hostname_domain_suffix: >-
+        {% if openshift_openstack_fqdn_nodes -%}
+        .{{ openshift_openstack_full_dns_domain }}
+        {%- endif -%}

@@ -1,0 +1,13 @@
+---
+- name: create node config template
+  template:
+    src: node-config.yaml.j2
+    dest: "/etc/origin/node/bootstrap-node-config.yaml"
+    mode: 0600
+
+- name: Update bootstrap-node-config.yaml to use crio
+  yedit:
+    content:
+    src: "/etc/origin/node/bootstrap-node-config.yaml"
+    edits: "{{ openshift_node_group_edits_crio }}"
+  when: openshift_use_crio | bool

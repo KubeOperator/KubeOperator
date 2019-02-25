@@ -1,0 +1,5 @@
+---
+openshift_project_request_template_manage: false
+openshift_project_request_template_namespace: default
+openshift_project_request_template_name: project-request
+openshift_project_request_template_edits: []

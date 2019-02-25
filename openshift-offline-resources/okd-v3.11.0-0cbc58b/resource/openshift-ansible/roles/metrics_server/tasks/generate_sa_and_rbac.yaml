@@ -1,0 +1,30 @@
+---
+- name: Generate service account for metrics-server
+  template:
+    src: metrics-server-sa.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-sa.yaml"
+  changed_when: no
+
+- name: generate the metrics-server cluster role
+  template:
+    src: metrics-server-role.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-role.yaml"
+  changed_when: no
+
+- name: generate auth-delegator role binding for the metrics-server service account
+  template:
+    src: metrics-server-auth-delegator.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-auth-delegator-rolebinding.yaml"
+  changed_when: no
+
+- name: generate auth-reader role binding for the metrics-server api extension server
+  template:
+    src: metrics-server-auth-reader.j2
+    dest: "{{ mktemp.stdout }}/templates/extension-apiserver-authentication-reader-metrics-server-rolebinding.yaml"
+  changed_when: no
+
+- name: generate resource-reader role binding for the metrics-server service account
+  template:
+    src: metrics-server-resource-reader.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-resource-reader-rolebinding.yaml"
+  changed_when: no

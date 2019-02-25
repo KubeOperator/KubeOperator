@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Ensure the container provider configuration is defined
+    assert:
+      that: container_providers_config is defined
+      msg: |
+        Error: Must provide providers config path. Fix: Add '-e container_providers_config=/path/to/your/config' to the ansible-playbook command
+
+  - name: Include providers/management configuration
+    include_vars:
+      file: "{{ container_providers_config }}"
+
+  - name: Ensure this cluster is a container provider
+    uri:
+      url: "https://{{ management_server['hostname'] }}/api/providers"
+      body_format: json
+      method: POST
+      user: "{{ management_server['user'] }}"
+      password: "{{ management_server['password'] }}"
+      validate_certs: no
+      # Docs on formatting the BODY of the POST request:
+      # http://manageiq.org/docs/reference/latest/api/reference/providers.html#specifying-connection-configurations
+      body: "{{ item }}"
+    failed_when: false
+    with_items: "{{ container_providers }}"
+    register: results
+
+  # Include openshift_management for access to filter_plugins.
+  - import_role:
+      name: openshift_management
+      tasks_from: noop.yml
+
+  - name: print each result
+    debug:
+      msg: "{{ results.results | oo_filter_container_providers }}"

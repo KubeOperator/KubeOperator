@@ -1,0 +1,55 @@
+---
+azure_base_repos:
+  RedHat:
+  - name: rhel-server-7-releases
+    baseurl: https://mirror.openshift.com/libra/rhui-rhel-server-7-releases/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  - name: rhel-server-7-extras
+    baseurl: https://mirror.openshift.com/libra/rhui-rhel-server-7-extras/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  CentOS: []
+
+azure_node_repos:
+  RedHat:
+  - name: rhel-server-7-releases
+    baseurl: https://mirror.openshift.com/libra/rhui-rhel-server-7-releases/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  - name: rhel-server-7-extras
+    baseurl: https://mirror.openshift.com/libra/rhui-rhel-server-7-extras/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  - name: rhel-7-server-ansible-2.6-rpms
+    baseurl: https://mirror.openshift.com/enterprise/rhel/rhel-7-server-ansible-2.6-rpms/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  - name: rhel-server-7-ose-3.11
+    baseurl: https://mirror.openshift.com/libra/rhui-rhel-server-7-ose-3.11/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+    sslclientcert: /var/lib/yum/client-cert.pem
+    sslclientkey: /var/lib/yum/client-key.pem
+    enabled: yes
+
+  CentOS:
+  # TODO: should be using a repo which only provides prerequisites
+  - name: openshift-origin
+    baseurl: http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin/
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-PaaS
+    enabled: yes

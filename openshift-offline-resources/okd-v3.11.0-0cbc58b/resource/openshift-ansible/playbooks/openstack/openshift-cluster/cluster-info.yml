@@ -1,0 +1,11 @@
+---
+- name: Show information about the cluster
+  hosts: localhost
+  become: no
+  gather_facts: no
+  tasks:
+  - name: Print the API / UI Public IP Address
+    debug: var=openshift_openstack_public_api_ip
+
+  - name: Print the OpenShift Router Public IP Address
+    debug: var=openshift_openstack_public_router_ip

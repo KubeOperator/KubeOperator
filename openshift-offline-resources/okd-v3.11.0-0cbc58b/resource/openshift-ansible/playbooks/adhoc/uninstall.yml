@@ -1,0 +1,4 @@
+---
+- import_playbook: uninstall_openshift.yml
+- import_playbook: uninstall_docker.yml
+  when: openshift_uninstall_docker | default(False) | bool

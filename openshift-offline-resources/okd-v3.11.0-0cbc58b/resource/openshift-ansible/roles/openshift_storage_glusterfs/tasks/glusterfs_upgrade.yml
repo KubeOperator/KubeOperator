@@ -1,0 +1,71 @@
+---
+- import_tasks: heketi_get_key.yml
+  when: glusterfs_heketi_admin_key is undefined
+
+- name: Delete heketi resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "template,svc,route,dc,secret,sa"
+    selector: "heketi"
+  - kind: "template,svc,route,dc,secret,sa"
+    selector: "deploy-heketi"
+  failed_when: False
+
+- name: Wait for heketi pod to delete
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: pod
+    state: list
+    selector: "heketi"
+  register: heketi_pod_wait
+  until:
+  - "heketi_pod_wait.results.results[0]['items'] | count == 0"
+  delay: 10
+  retries: "{{ (glusterfs_timeout | int / 10) | int }}"
+
+- name: Delete other glusterfs resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "template,svc,route,clusterrole,sa,dc"
+    selector: "glusterfs"
+  - kind: "clusterrolebinding"
+    name: "glusterblock-provisioner"
+  - kind: "clusterrolebinding"
+    name: "glusterblock-{{ glusterfs_name }}-provisioner"
+  failed_when: False
+
+# oc delete --cascade=false seems broken for DaemonSets.
+# Using curl to talk to the API directly.
+- name: Delete glusterfs daemonset w/o cascade
+  shell: "curl -k -X DELETE https://localhost:8443/apis/extensions/v1beta1/namespaces/glusterfs/daemonsets/glusterfs-storage -d '{\"kind\":\"DeleteOptions\",\"apiVersion\":\"v1\",\"propagationPolicy\":\"Orphan\"}' -H \"Accept: application/json\" -H \"Content-Type: application/json\"  --cert {{ openshift.common.config_base }}/master/admin.crt --key {{ openshift.common.config_base }}//master/admin.key"
+  #shell: "{{ first_master_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig delete ds --namespace={{ glusterfs_namespace }} --cascade=false --selector=glusterfs"
+  delegate_to: "{{ groups.oo_first_master.0 }}"
+  failed_when: False
+
+- name: Get old-style GlusterFS pods
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: pod
+    state: list
+    selector: "glusterfs=pod"
+  register: glusterfs_pods
+
+- name: Relabel old-style GlusterFS pods
+  oc_label:
+    name: "{{ item.['metadata']['name'] }}"
+    kind: node
+    state: add
+    labels: "[ { 'key': 'glusterfs', 'value': '{{ glusterfs_name }}'-pod } ]"
+  with_items: "{{ glusterfs_pods.results.results[0]['items'] | default([]) }}"
+
+- import_tasks: glusterfs_common.yml

@@ -1,0 +1,83 @@
+---
+- name: Node Join Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Node Join 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_node_join:
+          title: "Node Join"
+          playbook: "playbooks/openshift-node/join.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: Distribute bootstrap and start nodes
+  hosts: oo_nodes_to_config
+  gather_facts: no
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: distribute_bootstrap.yml
+
+- name: Approve any pending CSR requests from inventory nodes
+  hosts: oo_first_master
+  gather_facts: no
+  tasks:
+  - name: Dump all candidate bootstrap hostnames
+    debug:
+      msg: "{{ groups['oo_nodes_to_config'] | default([]) }}"
+
+  - name: Find all hostnames for bootstrapping
+    set_fact:
+      l_nodes_to_join: "{{ groups['oo_nodes_to_config'] | default([]) | map('extract', hostvars) | map(attribute='l_kubelet_node_name') | list }}"
+
+  - name: Dump the bootstrap hostnames
+    debug:
+      msg: "{{ l_nodes_to_join }}"
+
+  - name: Approve node certificates when bootstrapping
+    oc_csr_approve:
+      oc_bin: "{{ openshift_client_binary }}"
+      oc_conf: "{{ openshift.common.config_base }}/master/admin.kubeconfig"
+      node_list: "{{ l_nodes_to_join }}"
+    register: node_bootstrap_csr_approve
+    retries: 30
+    until: node_bootstrap_csr_approve is succeeded
+    when:
+    - l_nodes_to_join|length > 0
+
+- name: Ensure any inventory labels are applied to the nodes
+  hosts: oo_nodes_to_config
+  vars:
+    openshift_node_master_api_url: "{{ hostvars[groups.oo_first_master.0].openshift.master.api_url }}"
+  roles:
+  - role: openshift_manage_node
+    openshift_master_host: "{{ groups.oo_first_master.0 }}"
+    openshift_manage_node_is_master: "{{ ('oo_masters_to_config' in group_names) | bool }}"
+
+- name: Create additional node network plugin groups
+  hosts: "{{ openshift_node_scale_up_group | default('oo_nodes_to_config') }}"
+  tasks:
+  - group_by:
+      key: oo_nodes_use_{{ (openshift_use_calico | default(False)) | ternary('calico','nothing') }}
+    changed_when: False
+
+- name: Additional calico node config
+  hosts: oo_nodes_use_calico
+  roles:
+  - role: calico_node
+    when: openshift_use_calico | default(false) | bool
+
+- name: Node Join Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Node Join 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_node_join:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

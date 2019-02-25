@@ -1,0 +1,28 @@
+---
+# INPUT r_etcd_upgrade_version?
+
+# F23 GA'd with etcd 2.0, currently has 2.2 in updates
+# F24 GA'd with etcd-2.2, currently has 2.2 in updates
+# F25 Beta currently has etcd 3.0
+# RHEL 7.3.4 with etcd-3.1.3-1.el7
+# RHEL 7.3.3 with etcd-3.1.0-2.el7
+# RHEL 7.3.2 with etcd-3.0.15-1.el7
+
+- import_tasks: verify_cluster_health.yml
+
+- set_fact:
+    l_etcd_target_package: "{{ 'etcd' if r_etcd_upgrade_version is not defined else 'etcd-'+r_etcd_upgrade_version+'*' }}"
+
+- name: Update etcd RPM to {{ l_etcd_target_package }}
+  package:
+    name: "{{ l_etcd_target_package }}"
+    state: latest
+  register: result
+  until: result is succeeded
+
+- import_tasks: validate_etcd_conf.yml
+
+- name: restart etcd
+  command: "{{ l_etcd_restart_command }}"
+
+- import_tasks: verify_cluster_health.yml

@@ -1,0 +1,73 @@
+---
+- include_tasks: vars.yml
+
+# TODO: replace shell module with command and update later checks
+- name: Check available disk space for etcd backup
+  shell: df --output=avail -k {{ etcd_data_dir }} | tail -n 1
+  register: l_avail_disk
+  # AUDIT:changed_when: `false` because we are only inspecting
+  # state, not manipulating anything
+  changed_when: false
+
+# TODO: replace shell module with command and update later checks
+- name: Check current etcd disk usage
+  shell: du --exclude='*openshift-backup*' -k {{ etcd_data_dir }} | tail -n 1 | cut -f1
+  register: l_etcd_disk_usage
+  # AUDIT:changed_when: `false` because we are only inspecting
+  # state, not manipulating anything
+  changed_when: false
+
+- name: Abort if insufficient disk space for etcd backup
+  fail:
+    msg: >
+      {{ l_etcd_disk_usage.stdout|int*2 }} Kb disk space required for etcd backup,
+      {{ l_avail_disk.stdout }} Kb available.
+  when: l_etcd_disk_usage.stdout|int*2 > l_avail_disk.stdout|int
+
+# For non containerized we should have the correct version of
+# etcd installed already. So don't do anything.
+#
+# For static pod installs we now exec into etcd_container
+
+- name: Check selinux label of '{{ etcd_data_dir }}'
+  command: >
+    stat -c '%C' {{ etcd_data_dir }}
+  register: l_etcd_selinux_labels
+
+- debug:
+    msg: "{{ l_etcd_selinux_labels }}"
+
+- name: Make sure the '{{ etcd_data_dir }}' has the proper label
+  command: >
+    chcon -t svirt_sandbox_file_t  "{{ etcd_data_dir }}"
+  when:
+  - l_etcd_selinux_labels.rc == 0
+  - "'svirt_sandbox_file_t' not in l_etcd_selinux_labels.stdout"
+
+- name: Generate etcd backup
+  command: >
+    {{ r_etcd_common_etcdctl_command }} backup --data-dir={{ l_etcd_incontainer_data_dir }}
+    --backup-dir={{ l_etcd_incontainer_backup_dir }}
+
+# According to the docs change you can simply copy snap/db
+# https://github.com/openshift/openshift-docs/commit/b38042de02d9780842dce95cfa0ef45d53b58bc6
+- name: Check for v3 data store
+  stat:
+    path: "{{ etcd_data_dir }}/member/snap/db"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: l_v3_db
+
+- name: Copy etcd v3 data store
+  command: >
+    cp -a {{ etcd_data_dir }}/member/snap/db
+    {{ l_etcd_backup_dir }}/member/snap/
+  when: l_v3_db.stat.exists
+
+- set_fact:
+    r_etcd_common_backup_complete: True
+
+- name: Display location of etcd backup
+  debug:
+    msg: "Etcd backup created in {{ l_etcd_backup_dir }}"

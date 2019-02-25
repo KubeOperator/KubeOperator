@@ -1,0 +1,2 @@
+---
+openshift_use_external_openvswitch: false

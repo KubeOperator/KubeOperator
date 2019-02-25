@@ -1,0 +1,26 @@
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  name: "recyler-pod-"
+  namespace: "openshift-infra"
+spec:
+  activeDeadlineSeconds: 60
+  restartPolicy: "Never"
+  serviceAccountName: "pv-recycler-controller"
+  containers:
+    -
+      name: "recyler-container"
+      image: "{{ openshift_volume_recycler_image }}"
+      command:
+      - "/usr/bin/openshift-recycle"
+      args:
+      - "/scrub"
+      volumeMounts:
+        -
+          mountPath: "/scrub"
+          name: "vol"
+      securityContext:
+        runAsUser: 0
+  volumes:
+    -
+      name: "vol"

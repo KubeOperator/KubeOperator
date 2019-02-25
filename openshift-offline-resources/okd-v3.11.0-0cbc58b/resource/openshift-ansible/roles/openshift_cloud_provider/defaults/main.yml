@@ -1,0 +1,7 @@
+---
+openshift_gcp_project: ''
+openshift_gcp_prefix: ''
+openshift_gcp_network_name: "{{ openshift_gcp_prefix }}network"
+openshift_gcp_multizone: False
+openshift_openstack_ca_file_path: '/etc/origin/cloudprovider/openstack.crt'
+openshift_cloudprovider_openstack_blockstorage_ignore_volume_az: false

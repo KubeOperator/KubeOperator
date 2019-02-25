@@ -1,0 +1,98 @@
+---
+# When openshift_aws_use_custom_ami is '' then
+# we retrieve the latest build AMI.
+# Then set openshift_aws_ami to the ami.
+- when:
+  - (openshift_aws_ami == '' and openshift_aws_node_group.group not in openshift_aws_ami_map) or (openshift_aws_node_group.group in openshift_aws_ami_map and openshift_aws_ami_map[openshift_aws_node_group.group] == '')
+  block:
+  - name: fetch recently created AMI
+    ec2_ami_facts:
+      region: "{{ openshift_aws_region }}"
+      filters: "{ 'name': '{{ openshift_aws_ami_name }}*',
+             {%- for key in openshift_aws_ami_tags -%}
+                 'tag:{{ key }}': '{{ openshift_aws_ami_tags[key] }}',
+             {%- endfor -%} }"
+    register: amiout
+    failed_when: "amiout.images|length == 0"
+
+  - name: Set the openshift_aws_ami
+    set_fact:
+      openshift_aws_ami: "{{ ( amiout.images | sort(attribute='creation_date') | map(attribute='image_id') | reverse | list )[0] }}"
+    when:
+    - "'images' in amiout"
+    - amiout.images|length > 0
+
+# query asg's and determine if we need to create the others.
+# if we find more than 1 for each type, and this isn't an upgrade, then exit
+- name: query all asg's for this cluster
+  ec2_asg_facts:
+    region: "{{ openshift_aws_region }}"
+    tags: "{{ {'kubernetes.io/cluster/' ~ openshift_aws_clusterid: openshift_aws_clusterid} | combine(openshift_aws_node_group.tags) }}"
+  register: asgs
+
+- debug:
+    msg: "{{ asgs }}"
+
+- fail:
+    msg: "Found more than 1 auto scaling group that matches the query for group: {{ openshift_aws_node_group }}"
+  when:
+  - not openshift_aws_node_group_upgrade
+  - asgs.results|length > 1
+
+- fail:
+    msg: "Upgrade: Found more than 2 auto scaling group that matches the query for group: {{ openshift_aws_node_group }}"
+  when:
+  - openshift_aws_node_group_upgrade
+  - asgs.results|length > 2
+
+- name: set the value for the deployment_serial and the current asgs
+  set_fact:
+    # scale_groups_serial is a custom filter in role lib_utils
+    l_deployment_serial: "{{  openshift_aws_node_group_deployment_serial if openshift_aws_node_group_deployment_serial is defined else asgs.results | scale_groups_serial(openshift_aws_node_group_upgrade) }}"
+    openshift_aws_current_asgs: "{{ openshift_aws_current_asgs + [asgs.results[0]['auto_scaling_group_name']] if asgs.results else openshift_aws_current_asgs }}"
+
+- name: dump deployment serial
+  debug:
+    msg: "Deployment serial: {{ l_deployment_serial }}"
+
+- name: dump current_asgs
+  debug:
+    msg: "openshift_aws_current_asgs: {{ openshift_aws_current_asgs }}"
+
+- name: set appropriate vars for upgrade resume
+  set_fact:
+    openshift_aws_created_asgs: "{{ [openshift_aws_node_group.name ~ ' ' ~  l_deployment_serial]
+                                    | union(openshift_aws_created_asgs) | list }}"
+  when:
+  - openshift_aws_node_group_upgrade | default(False)
+  - asgs.results|length == 2
+
+- set_fact:
+    l_instance_tags: "{{ openshift_aws_node_group_config_tags
+    | combine(openshift_aws_node_group.tags)
+    | combine({'deployment_serial': l_deployment_serial, 'ami': openshift_aws_ami_map[openshift_aws_node_group.group] | default(openshift_aws_ami)})
+    | combine({'openshift-node-group-config': openshift_aws_node_group.node_group_config | default('unset') }) }}"
+    l_node_group_name: "{{ openshift_aws_node_group.name }} {{ l_deployment_serial }}"
+
+- name: fetch the iam role
+  iam_role_facts:
+    name: "{{ openshift_aws_launch_config_iam_roles[openshift_aws_node_group.group].name }}"
+  register: l_profilename
+  retries: 3
+  delay: 3
+  when: openshift_aws_create_iam_role
+
+- name: Set scale group instances autonaming
+  set_fact:
+    l_instance_tags: "{{ l_instance_tags | combine({'Name': l_node_group_name }) }}"
+  when: openshift_aws_autoname_scale_group_instances | default(false)
+
+- when:
+  - openshift_aws_create_launch_config
+  - asgs.results|length != 2
+  include_tasks: launch_config.yml
+
+- when:
+  - openshift_aws_create_scale_group
+  - asgs.results|length != 2
+  include_tasks: scale_group.yml

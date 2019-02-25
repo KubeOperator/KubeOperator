@@ -1,0 +1,164 @@
+---
+- name: Ensure openshift-web-console project exists
+  oc_project:
+    name: openshift-web-console
+    state: present
+    node_selector:
+    - ""
+  register: create_console_project
+
+- name: Make temp directory for web console templates
+  command: mktemp -d /tmp/console-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy admin client config
+  command: >
+    cp {{ openshift.common.config_base }}/master//admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: false
+
+- name: Copy web console templates to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item }}"
+  with_items:
+  - "{{ __console_template_file }}"
+  - "{{ __console_config_file }}"
+
+# Check if an existing webconsole-config config map exists. If so, use those
+# contents so we don't overwrite changes.
+- name: Read the existing web console config map
+  oc_configmap:
+    namespace: openshift-web-console
+    name: webconsole-config
+    state: list
+  register: webconsole_config_map
+
+- set_fact:
+    existing_config_map_data: "{{ webconsole_config_map.results.results[0].data | default({}) }}"
+
+- name: Copy the existing web console config to temp directory
+  copy:
+    content: "{{ existing_config_map_data['webconsole-config.yaml'] }}"
+    dest: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+  when: existing_config_map_data['webconsole-config.yaml'] is defined
+
+- set_fact:
+    console_picker_admin_console_public_url: "https://{{ openshift_console_hostname | default('console.{{openshift_master_default_subdomain}}') }}{{ openshift_console_base_path | default('/') }}"
+  when: (openshift_web_console_enable_context_selector | default(true) | bool) and (openshift_console_install | default(true) | bool)
+
+# Generate a new config when a config map is not defined.
+- when: existing_config_map_data['webconsole-config.yaml'] is not defined
+  block:
+  # Migrate the previous master-config.yaml asset config if it exists into the new
+  # web console config config map.
+  - name: Read existing assetConfig in master-config.yaml
+    slurp:
+      src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    register: master_config_output
+
+  - set_fact:
+      config_to_migrate: "{{ master_config_output.content | b64decode | from_yaml }}"
+
+  - set_fact:
+      cro_plugin_enabled: "{{ config_to_migrate.admissionConfig is defined and config_to_migrate.admissionConfig.pluginConfig is defined and config_to_migrate.admissionConfig.pluginConfig.ClusterResourceOverrides is defined }}"
+
+  # Update properties in the config template based on inventory vars when the
+  # asset config does not exist.
+  - name: Set web console config properties from inventory variables
+    yedit:
+      src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+      edits:
+      - key: clusterInfo#consolePublicURL
+        # Must have a trailing slash
+        value: "{{ openshift.master.public_console_url }}/"
+      - key: clusterInfo#masterPublicURL
+        value: "{{ openshift.master.public_api_url }}"
+      - key: clusterInfo#logoutPublicURL
+        value: "{{ openshift.master.logout_url | default('') }}"
+      - key: features#inactivityTimeoutMinutes
+        value: "{{ openshift_web_console_inactivity_timeout_minutes | default(0) }}"
+      - key: features#clusterResourceOverridesEnabled
+        value: "{{ openshift_web_console_cluster_resource_overrides_enabled | default(cro_plugin_enabled) }}"
+      - key: extensions#scriptURLs
+        value: "{{ openshift_web_console_extension_script_urls | default([]) }}"
+      - key: extensions#stylesheetURLs
+        value: "{{ openshift_web_console_extension_stylesheet_urls | default([]) }}"
+      - key: extensions#properties
+        value: "{{ openshift_web_console_extension_properties | default({}) }}"
+      separator: '#'
+      state: present
+    when: config_to_migrate.assetConfig is not defined
+
+  - name: Migrate assetConfig from master-config.yaml
+    yedit:
+      src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+      edits:
+      - key: clusterInfo#consolePublicURL
+        value: "{{ config_to_migrate.assetConfig.publicURL }}"
+      - key: clusterInfo#masterPublicURL
+        value: "{{ config_to_migrate.assetConfig.masterPublicURL }}"
+      - key: clusterInfo#logoutPublicURL
+        value: "{{ config_to_migrate.assetConfig.logoutURL | default('') }}"
+      - key: clusterInfo#metricsPublicURL
+        value: "{{ config_to_migrate.assetConfig.metricsPublicURL | default('') }}"
+      - key: clusterInfo#loggingPublicURL
+        value: "{{ config_to_migrate.assetConfig.loggingPublicURL | default('') }}"
+      - key: servingInfo#maxRequestsInFlight
+        value: "{{ config_to_migrate.assetConfig.servingInfo.maxRequestsInFlight | default(0) }}"
+      - key: servingInfo#requestTimeoutSeconds
+        value: "{{ config_to_migrate.assetConfig.servingInfo.requestTimeoutSeconds | default(0) }}"
+      - key: features#clusterResourceOverridesEnabled
+        value: "{{ openshift_web_console_cluster_resource_overrides_enabled | default(cro_plugin_enabled) }}"
+      separator: '#'
+      state: present
+    when: config_to_migrate.assetConfig is defined
+
+# Add the admin console URL to the console picker on upgrade, even if there is an existing config.
+- name: Add context selector URL
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+    edits:
+    - key: clusterInfo#adminConsolePublicURL
+      value: "{{ console_picker_admin_console_public_url | default('') }}"
+    separator: '#'
+    state: present
+
+- slurp:
+    src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+  register: updated_console_config
+
+# Avoids an issue where existing replica sets can be orphaned due to the label selector changing.
+- name: Apply the app label to pods and replica sets
+  shell: >
+    {{ openshift_client_binary }} label rs,pods -l webconsole=true app=openshift-web-console --overwrite=true -n openshift-web-console
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+  when: not create_console_project.changed
+
+- name: Apply the web console template file
+  shell: >
+    {{ openshift_client_binary }} process -f "{{ mktemp.stdout }}/{{ __console_template_file }}"
+    --param API_SERVER_CONFIG="{{ updated_console_config['content'] | b64decode }}"
+    --param IMAGE="{{ openshift_web_console_image }}"
+    --param NODE_SELECTOR={{ openshift_web_console_nodeselector | to_json | quote }}
+    --param REPLICA_COUNT="{{ openshift_web_console_replica_count }}"
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    | {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False
+
+# Wait to give the rollout time to start before verifying that the console is
+# running. Unfortunately, we can't check if the deployment revision changed
+# because it's possible applying the template did not result in any changes to
+# the pod template spec, which would skip a new revision.
+- name: Pause for the web console deployment to start
+  pause:
+    seconds: 30
+  # Skip if the project didn't exist since there was no previous deployment.
+  when: not create_console_project.changed
+
+- include_tasks: start.yml

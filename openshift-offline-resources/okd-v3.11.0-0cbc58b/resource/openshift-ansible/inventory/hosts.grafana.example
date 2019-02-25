@@ -1,0 +1,17 @@
+[OSEv3:children]
+masters
+nodes
+
+[OSEv3:vars]
+# Grafana Configuration
+#grafana_namespace=grafana
+#grafana_user=grafana
+#grafana_password=grafana
+#grafana_datasource_name="example"
+#grafana_prometheus_namespace="openshift-metrics"
+#grafana_prometheus_sa=prometheus
+#grafana_node_exporter=false
+#grafana_graph_granularity="2m"
+
+[masters]
+master

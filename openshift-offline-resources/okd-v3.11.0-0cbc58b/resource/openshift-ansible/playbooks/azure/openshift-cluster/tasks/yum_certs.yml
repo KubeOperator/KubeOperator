@@ -1,0 +1,19 @@
+---
+- name: copy yum client certificate
+  copy:
+    content: "{{ item.content }}"
+    dest: "/var/lib/yum/{{ item.name }}"
+    mode: '0600'
+  with_items:
+  - name: client-cert.pem
+    content: "{{ yum_client_cert_contents }}"
+  - name: client-key.pem
+    content: "{{ yum_client_key_contents }}"
+  no_log: True
+  when: ansible_distribution == "RedHat"
+
+- name: add yum repositories
+  include_role:
+    name: openshift_repos
+  vars:
+    r_openshift_repos_has_run: True

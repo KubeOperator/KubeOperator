@@ -1,0 +1,59 @@
+---
+# resource group where temporary resources associated with playbook will be
+# placed
+openshift_azure_resource_group_name:
+
+# azure region where resource group will be created
+openshift_azure_resource_location: eastus
+
+# input image resource group
+openshift_azure_input_image_ns: images
+
+# input image prefix, needed by base and node image building playbooks,
+# e.g. centos7-root or centos7-base
+openshift_azure_input_image_prefix:
+
+# complete name of input image, needed by launch.yml playbook,
+# e.g. centos7-3.10-201806071434
+openshift_azure_input_image_name:
+
+# output image resource group
+openshift_azure_output_image_ns: images
+
+# complete name of output image, e.g. centos7-base-201806071412 or centos7-3.10-201806071434
+openshift_azure_output_image_name:
+
+# azure vm image size, defaults to Standard_D4s_v3
+openshift_azure_vm_size:
+
+# ssh public key for VMs created by playbook; private key must be accessible to
+# ansible
+openshift_azure_vm_ssh_public_key: ssh-rsa ...
+
+# additional yum repo containing origin rpms, used for PR testing
+#openshift_azure_install_repo: http://...
+
+# yum client certificate and key, used if building RHEL images
+#yum_client_cert_contents: |
+#  -----BEGIN CERTIFICATE-----
+#  ...
+#  -----END CERTIFICATE-----
+#yum_client_key_contents: |
+#  -----BEGIN RSA PRIVATE KEY-----
+#  ...
+#  -----END RSA PRIVATE KEY-----
+
+# alternative image registry, used if building OCP pre-release images
+#oreg_url: "registry.reg-aws.openshift.com:443/openshift3/ose-${component}:${version}"
+#oreg_auth_user: <USERNAME>
+#oreg_auth_password: <TOKEN>
+
+# optional storage account in which to place image blob
+#openshift_azure_storage_account:
+
+# resource group of storage account
+#openshift_azure_storage_account_ns:
+
+# container within storage account to hold image blob
+#openshift_azure_container:
+

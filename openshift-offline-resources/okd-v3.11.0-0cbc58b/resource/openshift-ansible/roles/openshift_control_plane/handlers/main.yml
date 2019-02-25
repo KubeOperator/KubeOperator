@@ -1,0 +1,28 @@
+---
+- name: restart master
+  command: /usr/local/bin/master-restart "{{ item }}"
+  with_items:
+  - api
+  - controllers
+  retries: 5
+  delay: 5
+  register: result
+  until: result.rc == 0
+  notify: verify API server
+
+- name: verify API server
+  # Using curl here since the uri module requires python-httplib2 and
+  # wait_for port doesn't provide health information.
+  command: >
+    curl --silent --tlsv1.2 --max-time 2
+    --cacert {{ openshift.common.config_base }}/master/ca-bundle.crt
+    {{ openshift.master.api_url }}/healthz/ready
+  args:
+    # Disables the following warning:
+    # Consider using get_url or uri module rather than running curl
+    warn: no
+  register: l_api_available_output
+  until: l_api_available_output.stdout == 'ok'
+  retries: 120
+  delay: 1
+  changed_when: false

@@ -1,0 +1,15 @@
+---
+- import_tasks: vpc_and_subnet_id.yml
+
+- import_tasks: build_elb_dict.yml
+
+- name: provision route53
+  import_tasks: dns_route53.yml
+  when: "openshift_aws_dns_provider == 'route53'"
+
+- name: provision custom dns
+  include_role:
+    name: "{{ openshift_aws_custom_dns_provider_role }}"
+    tasks_from: "{{ openshift_aws_custom_provider_role_tasks | default('main.yml') }}"
+  when:
+  - openshift_aws_custom_dns_provider_role is defined

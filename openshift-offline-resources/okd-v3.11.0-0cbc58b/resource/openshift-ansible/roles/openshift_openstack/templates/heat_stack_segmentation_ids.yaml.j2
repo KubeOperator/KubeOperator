@@ -1,0 +1,25 @@
+heat_template_version: {{ openshift_openstack_heat_template_version }}
+
+description: Simple template to generate the needed vlan ids
+
+parameters:
+  number_of_vlan_ids:
+    type: number
+    description: Number of vlan segmentation IDs
+    default: 1
+
+resources:
+  segmentation_ids:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: number_of_vlan_ids }
+      removal_policies: [ { "resource_list": ["0"] } ]
+      resource_def:
+        type: OS::Heat::Value
+        properties:
+          type: string
+          value: "%index%"
+
+outputs:
+  vlan_ids:
+    value: { get_attr: [segmentation_ids, value] }

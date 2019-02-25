@@ -1,0 +1,9 @@
+---
+# This playbook is intended to be included from playbooks/updates/registry_auth.yml
+
+- name: Update registry authentication credentials
+  hosts: oo_nodes_to_config
+  tasks:
+  - import_role:
+      name: container_runtime
+      tasks_from: registry_auth.yml

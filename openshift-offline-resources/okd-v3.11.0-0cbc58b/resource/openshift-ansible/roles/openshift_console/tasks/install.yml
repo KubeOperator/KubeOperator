@@ -1,0 +1,119 @@
+---
+- name: Ensure openshift-console project exists
+  oc_project:
+    name: openshift-console
+    state: present
+    node_selector:
+    - ""
+
+- name: Make temp directory for console templates
+  command: mktemp -d /tmp/console-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy admin client config
+  command: >
+    cp {{ openshift.common.config_base }}/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: false
+
+- name: Copy console templates to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item }}"
+  with_items:
+  - "{{ __console_template_file }}"
+  - "{{ __console_config_file }}"
+
+# Check if an existing console-config config map exists. If so, use those
+# contents so we don't overwrite changes.
+- name: Read the existing console config map
+  oc_configmap:
+    namespace: openshift-console
+    name: console-config
+    state: list
+  register: console_config_map
+
+- set_fact:
+    existing_config_map_data: "{{ console_config_map.results.results[0].data | default({}) }}"
+
+- name: Copy the existing web console config to temp directory
+  copy:
+    content: "{{ existing_config_map_data['console-config.yaml'] }}"
+    dest: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+  when: existing_config_map_data['console-config.yaml'] is defined
+
+- set_fact:
+    # Must have a trailing slash
+    console_picker_developer_console_public_url: "{{ openshift.master.public_console_url }}/"
+  when: (openshift_web_console_enable_context_selector | default(true) | bool) and (openshift_web_console_install | default(true) | bool)
+
+- set_fact: console_cert={{ lookup('file', openshift_console_cert) }}
+  when: openshift_console_cert is exists
+  changed_when: false
+
+- set_fact: console_key={{ lookup('file', openshift_console_key) }}
+  when: openshift_console_key is exists
+  changed_when: false
+
+- set_fact: console_ca_cert={{ lookup('file', openshift_console_ca) }}
+  when: openshift_console_ca is exists
+  changed_when: false
+
+# Generate a new config when a config map is not defined.
+- name: Set web console config properties from inventory variables
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+    edits:
+    - key: clusterInfo#consoleBaseAddress
+      value: "https://{{ openshift_console_hostname }}"
+    - key: clusterInfo#consoleBasePath
+      value: "{{ openshift_console_base_path | default('') }}"
+    - key: clusterInfo#masterPublicURL
+      value: "{{ openshift.master.public_api_url }}"
+    - key: auth#oauthEndpointCAFile
+      value: "{{ openshift_console_auth_ca_file }}"
+    - key: auth#logoutRedirect
+      value: "{{ openshift.master.logout_url | default('') }}"
+    - key: customization#branding
+      value: "{{ openshift_console_branding }}"
+    - key: customization#documentationBaseURL
+      value: "{{ openshift_console_documentation_base_url }}"
+    separator: '#'
+    state: present
+  when: existing_config_map_data['console-config.yaml'] is not defined
+
+# Add the developer console URL to the console picker on upgrade, even if there is an existing config.
+- name: Add context selector URL
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+    edits:
+    - key: clusterInfo#developerConsolePublicURL
+      value: "{{ console_picker_developer_console_public_url | default('') }}"
+    separator: '#'
+    state: present
+
+- slurp:
+    src: "{{ mktemp.stdout }}/{{ __console_config_file }}"
+  register: updated_console_config
+
+- name: Apply the console template file
+  shell: >
+    {{ openshift_client_binary }} process -f "{{ mktemp.stdout }}/{{ __console_template_file }}"
+    --param IMAGE="{{ openshift_console_image_name }}"
+    --param NODE_SELECTOR={{ openshift_console_nodeselector | to_json | quote }}
+    --param SERVER_CONFIG="{{ updated_console_config['content'] | b64decode }}"
+    --param REPLICA_COUNT="{{ openshift_console_replica_count }}"
+    --param CONSOLE_HOSTNAME="{{ openshift_console_hostname }}"
+    --param TLS_CERT="{{ console_cert | default('') }}"
+    --param TLS_KEY="{{ console_key | default('') }}"
+    --param TLS_CA_CERT="{{ console_ca_cert | default('') }}"
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    | {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False
+
+- include_tasks: start.yml

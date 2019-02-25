@@ -1,0 +1,3 @@
+---
+- import_playbook: private/setup.yml
+- import_playbook: private/uninstall.yml

@@ -1,0 +1,43 @@
+---
+#
+# Adhoc playbook to fix clusters affected by https://bugzilla.redhat.com/show_bug.cgi?id=1645164
+- import_playbook: ../init.yml
+  vars:
+    l_upgrade_no_switch_firewall_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_init_fact_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_base_packages_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_cert_check_hosts: "oo_masters_to_config:oo_etcd_to_config"
+
+- name: Configure the upgrade target for the common upgrade tasks 3.11
+  hosts: oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config
+  tasks:
+  - set_fact:
+      openshift_upgrade_target: '3.11'
+      openshift_upgrade_min: '3.10'
+      openshift_release: '3.11'
+
+- import_playbook: ../pre/config.yml
+  # These vars a meant to exclude oo_nodes from plays that would otherwise include
+  # them by default.
+  vars:
+    l_openshift_version_set_hosts: "oo_etcd_to_config:oo_masters_to_config:!oo_first_master"
+    l_upgrade_repo_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_no_proxy_hosts: "oo_masters_to_config"
+    l_upgrade_health_check_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_verify_targets_hosts: "oo_masters_to_config"
+    l_upgrade_docker_target_hosts: "oo_masters_to_config:oo_etcd_to_config"
+    l_upgrade_excluder_hosts: "oo_masters_to_config"
+    openshift_protect_installed_version: False
+
+- name: Update master nodes
+  hosts: oo_first_master
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade_pre.yml
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade.yml
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: verify_api_server.yml

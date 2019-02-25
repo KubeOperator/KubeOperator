@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+# Restart the named component by stopping its base container.
+if [[ -z "${1-}" ]]; then
+  echo "A component name like 'api', 'etcd', or 'controllers' must be specified." 1>&2
+  exit 1
+fi
+
+types=( "atomic-openshift" "origin" )
+for type in "${types[@]}"; do
+  if systemctl cat "${type}-master-${1}.service" &>/dev/null; then
+    systemctl restart "${type}-master-${1}.service"
+    exit 0
+  fi
+done
+
+# TODO: move to cri-ctl
+# TODO: short term hack for cri-o
+
+# Get a child container name to wait for it to stop
+child_container=$(docker ps -l -q --filter "label=io.kubernetes.container.name=${1}")
+
+container=$(docker ps -l -q --filter "label=openshift.io/component=${1}" --filter "label=io.kubernetes.container.name=POD")
+if [[ -z "${container}" ]]; then
+  echo "Component ${1} is already stopped" 1>&2
+  exit 0
+fi
+# Stop the pod
+docker stop "${container}" --time 30 >/dev/null
+
+# Wait for child container to change state
+if [[ -z "${child_container}" ]]; then
+  echo "Component ${1} is already stopped" 1>&2
+  exit 0
+fi
+exec timeout 60 docker wait $child_container

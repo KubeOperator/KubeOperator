@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: httpd-configmap-generator
+metadata:
+  name: httpd-configmap-generator
+  annotations:
+    description: Httpd Configmap Generator
+    tags: httpd,httpd-configmap-generator
+    iconClass: icon-rails
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: httpd-configmap-generator
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME}"
+    annotations:
+      description: Exposes the httpd configmap generator server
+      service.alpha.openshift.io/dependencies: '[{"name":"${NAME}","namespace":"","kind":"Service"}]'
+  spec:
+    ports:
+    - name: httpd-configmap-generator
+      port: 80
+      targetPort: 80
+    selector:
+      name: httpd-configmap-generator
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME}"
+    annotations:
+      description: Defines how to deploy httpd
+  spec:
+    strategy:
+      type: Recreate
+      recreateParams:
+        timeoutSeconds: 1200
+    triggers:
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME}"
+    template:
+      metadata:
+        name: "${HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME}"
+        labels:
+          name: "${HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME}"
+      spec:
+        containers:
+        - name: httpd-configmap-generator
+          image: "${HTTPD_CONFIGMAP_GENERATOR_IMG_NAME}:${HTTPD_CONFIGMAP_GENERATOR_IMG_TAG}"
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - pidof
+              - httpd
+            initialDelaySeconds: 15
+            timeoutSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+          resources:
+            requests:
+              memory: "${HTTPD_CONFIGMAP_GENERATOR_MEM_REQ}"
+              cpu: "${HTTPD_CONFIGMAP_GENERATOR_CPU_REQ}"
+            limits:
+              memory: "${HTTPD_CONFIGMAP_GENERATOR_MEM_LIMIT}"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                - "/usr/bin/save-container-environment"
+        serviceAccount: httpd-configmap-generator
+        serviceAccountName: httpd-configmap-generator
+parameters:
+- name: HTTPD_CONFIGMAP_GENERATOR_SERVICE_NAME
+  required: true
+  displayName: Httpd Configmap Generator Service Name
+  description: The name of the OpenShift Service exposed for the httpd configmap generator container.
+  value: httpd-configmap-generator
+- name: HTTPD_CONFIGMAP_GENERATOR_IMG_NAME
+  displayName: Httpd Configmap Generator Image Name
+  description: This is the httpd configmap generator image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-httpd-configmap-generator
+- name: HTTPD_CONFIGMAP_GENERATOR_IMG_TAG
+  displayName: Httpd Configmap Generator Image Tag
+  description: This is the httpd configmap generator image tag/version requested to deploy.
+  value: latest
+- name: HTTPD_CONFIGMAP_GENERATOR_CPU_REQ
+  displayName: Httpd Configmap Generator Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the httpd configmap generator container will need (expressed in millicores).
+  value: 500m
+- name: HTTPD_CONFIGMAP_GENERATOR_MEM_REQ
+  displayName: Httpd Configmap Generator Min RAM Requested
+  required: true
+  description: Minimum amount of memory the httpd configmap generator will need.
+  value: 512Mi
+- name: HTTPD_CONFIGMAP_GENERATOR_MEM_LIMIT
+  displayName: Httpd Configmap Generator Max RAM Limit
+  required: true
+  description: Maximum amount of memory the httpd configmap generator container can consume.
+  value: 8192Mi

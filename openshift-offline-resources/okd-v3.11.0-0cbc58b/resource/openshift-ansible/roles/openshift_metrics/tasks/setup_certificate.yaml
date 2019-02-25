@@ -1,0 +1,43 @@
+---
+- name: generate {{ component }} keys
+  command: >
+    {{ openshift_client_binary }} adm ca create-server-cert
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    --key='{{ mktemp.stdout }}/{{ component }}.key'
+    --cert='{{ mktemp.stdout }}/{{ component }}.crt'
+    --hostnames='{{ hostnames }}'
+    --signer-cert='{{ mktemp.stdout }}/ca.crt'
+    --signer-key='{{ mktemp.stdout }}/ca.key'
+    --signer-serial='{{ mktemp.stdout }}/ca.serial.txt'
+
+- slurp: src={{item}}
+  register: component_certs
+  with_items:
+    - '{{ mktemp.stdout | quote }}/{{ component|quote }}.key'
+    - '{{ mktemp.stdout | quote }}/{{ component|quote }}.crt'
+
+- name: generate {{ component }} certificate
+  copy:
+    dest: '{{ mktemp.stdout }}/{{ component }}.pem'
+    content: "{{ component_certs.results | map(attribute='content') | map('b64decode') | join('')  }}"
+
+- name: generate random password for the {{ component }} keystore
+  copy:
+    content: "{{ 15 | lib_utils_oo_random_word }}"
+    dest: '{{ mktemp.stdout }}/{{ component }}-keystore.pwd'
+
+- slurp: src={{ mktemp.stdout | quote }}/{{ component|quote }}-keystore.pwd
+  register: keystore_password
+
+- name: create the {{ component }} pkcs12 from the pem file
+  command: >
+    openssl pkcs12 -export
+    -in '{{ mktemp.stdout }}/{{ component }}.pem'
+    -out '{{ mktemp.stdout }}/{{ component }}.pkcs12'
+    -name '{{ component }}' -noiter -nomaciter
+    -password 'pass:{{keystore_password.content | b64decode }}'
+
+- name: generate random password for the {{ component }} truststore
+  copy:
+    content: "{{ 15 | lib_utils_oo_random_word }}"
+    dest: '{{ mktemp.stdout | quote }}/{{ component|quote }}-truststore.pwd'

@@ -1,0 +1,16 @@
+---
+openshift_monitor_app_create_images:
+  origin:
+    prefix: "quay.io/redhat/openshift-monitor-project-lifecycle"
+    version: "0.0.1"
+  openshift-enterprise:
+    prefix: "quay.io/redhat/openshift-monitor-project-lifecycle"
+    version: "0.0.1"
+
+openshift_monitor_app_create_image_prefix: "{{ openshift_monitor_app_create_images[openshift_deployment_type]['prefix'] }}"
+openshift_monitor_app_create_image_version: "{{ openshift_monitor_app_create_images[openshift_deployment_type]['version'] }}"
+openshift_monitor_app_create_image: "{{ openshift_monitor_app_create_image_prefix }}:{{ openshift_monitor_app_create_image_version }}"
+
+openshift_monitor_app_create_run_interval: 5m
+openshift_monitor_app_create_timeout: 5m
+openshift_monitor_app_create_log_level: 0

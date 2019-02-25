@@ -1,0 +1,49 @@
+---
+# We need docker service up to remove all the images, but these services will keep
+# trying to re-start and thus re-pull the images we're trying to delete.
+- name: Restart static master services
+  command: /usr/local/bin/master-restart "{{ item }}"
+  with_items:
+  - api
+  - controllers
+  - etcd
+  failed_when: false
+
+- name: Check Docker image count
+  shell: "docker images -aq | wc -l"
+  register: docker_image_count
+
+- debug: var=docker_image_count.stdout
+
+- name: Remove all containers and images
+  script: nuke_images.sh
+  register: nuke_images_result
+  when: docker_upgrade_nuke_images is defined and docker_upgrade_nuke_images | bool
+
+- name: Check Docker image count
+  shell: "docker images -aq | wc -l"
+  register: docker_image_count
+  when: docker_upgrade_nuke_images is defined and docker_upgrade_nuke_images | bool
+
+- debug: var=docker_image_count.stdout
+  when: docker_upgrade_nuke_images is defined and docker_upgrade_nuke_images | bool
+
+- service:
+    name: docker
+    state: stopped
+  register: l_pb_docker_upgrade_stop_result
+  until: not (l_pb_docker_upgrade_stop_result is failed)
+  retries: 3
+  delay: 30
+
+- name: Upgrade Docker
+  package:
+    name: docker{{ '-' + docker_version }}
+    state: present
+  register: result
+  until: result is succeeded
+
+- import_role:
+    name: container_runtime
+    tasks_from: docker_restart.yml
+  when: not skip_docker_restart | default(False) | bool

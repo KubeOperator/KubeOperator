@@ -1,0 +1,132 @@
+---
+- name: Verify prerequisites for image build
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Require openshift_gcp_base_image
+    fail:
+      msg: "A base image name or family is required for image building.  Please ensure `openshift_gcp_base_image` is defined."
+    when: openshift_gcp_base_image is undefined
+
+- name: Provision ssh key
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Set up core host GCP configuration
+    import_role:
+      name: openshift_gcp
+      tasks_from: provision_ssh_keys.yml
+
+- name: Launch image build instance
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Set facts
+    set_fact:
+      openshift_master_unsupported_embedded_etcd: True
+
+  - name: Create the image instance disk
+    gce_pd:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      name: "{{ openshift_gcp_prefix }}build-image-instance"
+      disk_type: pd-ssd
+      image: "{{ openshift_gcp_base_image }}"
+      size_gb: 10
+      state: present
+
+  - name: Launch the image build instance
+    gce:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      machine_type: n1-standard-1
+      instance_names: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: present
+      tags:
+      - build-image-instance
+      disk_auto_delete: false
+      disks:
+      - "{{ openshift_gcp_prefix }}build-image-instance"
+    register: gce
+
+  - name: add host to nodes
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: nodes
+    with_items: "{{ gce.instance_data }}"
+
+  - name: Wait for instance to respond to SSH
+    wait_for:
+      delay: 1
+      host: "{{ item.public_ip }}"
+      port: 22
+      state: started
+      timeout: 120
+    with_items: "{{ gce.instance_data }}"
+
+- name: Wait for full SSH connection
+  hosts: nodes
+  gather_facts: no
+  tasks:
+  - wait_for_connection:
+
+- name: Add custom repositories
+  hosts: nodes
+  handlers:
+  - import_tasks: ../../roles/openshift_repos/handlers/main.yml
+  tasks:
+  - include_role:
+      name: openshift_gcp
+      tasks_from: add_custom_repositories.yml
+
+# This is the part that installs all of the software and configs for the instance
+# to become a node.
+- import_playbook: ../../openshift-node/private/image_prep.yml
+
+# Add additional GCP specific behavior
+- hosts: nodes
+  tasks:
+  - include_role:
+      name: openshift_gcp
+      tasks_from: node_cloud_config.yml
+  - include_role:
+      name: openshift_gcp
+      tasks_from: frequent_log_rotation.yml
+
+- name: Commit image
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Terminate the image build instance
+    gce:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      instance_names: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: absent
+
+  - name: Save the new image
+    command: >
+      gcloud
+      --project {{ openshift_gcp_project}} compute images create {{ (openshift_gcp_image_name | default(openshift_gcp_image + '-' + lookup('pipe','date +%Y%m%d-%H%M%S'))) | quote }}
+      --source-disk {{ (openshift_gcp_prefix + 'build-image-instance') | quote }}
+      --source-disk-zone {{ openshift_gcp_zone | quote }}
+      --family {{ openshift_gcp_image | quote }}
+      {% if openshift_gcp_licenses is defined %} --licenses {{ openshift_gcp_licenses | quote }}{% endif %}
+
+  - name: Remove the image instance disk
+    gce_pd:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      name: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: absent

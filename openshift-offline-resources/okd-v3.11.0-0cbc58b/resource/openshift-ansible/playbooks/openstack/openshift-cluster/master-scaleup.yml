@@ -1,0 +1,84 @@
+---
+- name: Save groups before scaling
+  any_errors_fatal: true
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  tasks:
+  - name: Save the node groups to openshift_openstack_existing
+    set_fact:
+      openshift_openstack_existing: "{{ groups }}"
+
+- name: Create the new OpenStack resources
+  import_playbook: provision_resources.yml
+
+- name: Set the new_nodes and new_masters groups
+  import_playbook: evaluate_groups.yml
+
+- name: Evaluate remaining cluster groups
+  import_playbook: ../../init/evaluate_groups.yml
+
+- name: Wait for the new nodes and gather their facts
+  any_errors_fatal: true
+  hosts: new_nodes:new_masters:new_etcd
+  become: yes
+  # NOTE: The nodes may not be up yet, don't gather facts here.
+  # They'll be collected after `wait_for_connection`.
+  gather_facts: no
+  tasks:
+  - name: Wait for the the new nodes to come up
+    wait_for_connection:
+
+  - name: Gather facts for the new nodes
+    setup:
+
+
+- name: Populate the DNS entries for the new nodes
+  any_errors_fatal: true
+  hosts: localhost
+  tasks:
+  - name: Add DNS records for the newly created nodes
+    import_role:
+      name: openshift_openstack
+      tasks_from: populate-dns.yml
+    vars:
+      l_openshift_openstack_dns_update_nodes: "{{ groups.new_nodes }}"
+    when:
+    - openshift_openstack_external_nsupdate_keys is defined
+    - openshift_openstack_external_nsupdate_keys.private is defined or openshift_openstack_external_nsupdate_keys.public is defined
+
+- import_playbook: ../../init/basic_facts.yml
+
+- name: Optionally subscribe the RHEL nodes
+  any_errors_fatal: true
+  hosts: new_nodes:new_masters:new_etcd
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Subscribe RHEL instances
+    import_role:
+      name: rhel_subscribe
+    when:
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+- name: Configure the new OpenStack nodes
+  import_playbook: configure-new-nodes.yml
+
+
+- import_playbook: ../../prerequisites.yml
+  vars:
+    l_scale_up_hosts: "oo_nodes_to_config:oo_masters_to_config"
+    l_base_packages_hosts: "oo_nodes_to_config:oo_masters_to_config"
+    l_init_fact_hosts: "oo_masters:oo_etcd_to_config:oo_lb_to_config:oo_nodes_to_config"
+    l_sanity_check_hosts: "{{ groups['oo_nodes_to_config'] | union(groups['oo_masters']) }}"
+
+- import_playbook: ../../init/version.yml
+  vars:
+    l_openshift_version_set_hosts: "oo_masters_to_config:oo_nodes_to_config:!oo_first_master"
+
+- import_playbook: ../../openshift-master/private/scaleup.yml
+
+- name: Show information about the deployed cluster
+  import_playbook: cluster-info.yml

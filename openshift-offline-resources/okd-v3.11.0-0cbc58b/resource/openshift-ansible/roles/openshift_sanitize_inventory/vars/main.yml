@@ -1,0 +1,8 @@
+---
+
+__deprecation_header: "[DEPRECATION WARNING]: The following are deprecated variables and will be no longer be used in the next minor release. Please update your inventory accordingly."
+
+# this is a list of variables that we will be deprecating within the next minor release, this list should be expected to change from release to release
+__warn_deprecated_vars:
+  # logging
+  - 'openshift_logging_namespace'

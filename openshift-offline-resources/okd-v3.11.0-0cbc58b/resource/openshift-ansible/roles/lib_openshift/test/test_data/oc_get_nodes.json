@@ -1,0 +1,450 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2018-08-10T23:50:59Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "glusterfs": "storage-host",
+                    "kubernetes.io/hostname": "fedora1.openshift.io",
+                    "node-role.kubernetes.io/compute": "true",
+                    "node-role.kubernetes.io/infra": "true",
+                    "node-role.kubernetes.io/master": "true"
+                },
+                "name": "fedora1.openshift.io",
+                "namespace": "",
+                "resourceVersion": "1732411",
+                "selfLink": "/api/v1/nodes/fedora1.openshift.io",
+                "uid": "3b52eed5-9cf8-11e8-964a-525400650cba"
+            },
+            "spec": {
+                "externalID": "fedora1.openshift.io"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.124.106",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "fedora1.openshift.io",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8070076Ki",
+                    "pods": "250"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8172476Ki",
+                    "pods": "250"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:50:53Z",
+                        "message": "kubelet has sufficient disk space available",
+                        "reason": "KubeletHasSufficientDisk",
+                        "status": "False",
+                        "type": "OutOfDisk"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:50:53Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:50:53Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:50:53Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-11T00:01:06Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-node@sha256:d8e0b4e5912e12e84ccd2b72a90ce66ce6e5569dfcc62f9cd69f0315d59c6a91",
+                            "docker.io/openshift/origin-node:v3.10",
+                            "docker.io/openshift/origin-node:v3.10.0"
+                        ],
+                        "sizeBytes": 1281495850
+                    },
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-control-plane@sha256:8a030a68593d64703c0572454d3fd9475bcfadf5d26d2899f92418516c1c49be",
+                            "docker.io/openshift/origin-control-plane:v3.10",
+                            "docker.io/openshift/origin-control-plane:v3.10.0"
+                        ],
+                        "sizeBytes": 815862538
+                    },
+                    {
+                        "names": [
+                            "docker.io/gluster/gluster-centos@sha256:850fd2399d254f678b40bebe1602aa0c46d60facc7804b922c81c1524e05903a",
+                            "docker.io/gluster/gluster-centos:latest"
+                        ],
+                        "sizeBytes": 328338103
+                    },
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-pod@sha256:6ae0714fe9bf19f1312e2a869bc3d7b7cd01aea330c33675f1e215e3de857385",
+                            "docker.io/openshift/origin-pod:v3.10.0"
+                        ],
+                        "sizeBytes": 222597999
+                    },
+                    {
+                        "names": [
+                            "quay.io/coreos/etcd@sha256:43fbc8a457aa0cb887da63d74a48659e13947cb74b96a53ba8f47abb6172a948",
+                            "quay.io/coreos/etcd:v3.2.22"
+                        ],
+                        "sizeBytes": 37269372
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "fc58c6b9-9f67-4377-8cbe-57f0c3f7a517",
+                    "containerRuntimeVersion": "docker://1.13.1",
+                    "kernelVersion": "4.13.9-300.fc27.x86_64",
+                    "kubeProxyVersion": "v1.10.0+b81c8f8",
+                    "kubeletVersion": "v1.10.0+b81c8f8",
+                    "machineID": "57f56a8c5aeb47a98ca1fd94281c64aa",
+                    "operatingSystem": "linux",
+                    "osImage": "Fedora 27 (Cloud Edition)",
+                    "systemUUID": "57F56A8C-5AEB-47A9-8CA1-FD94281C64AA"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2018-08-10T23:53:32Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "glusterfs": "storage-host",
+                    "kubernetes.io/hostname": "fedora2.openshift.io",
+                    "node-role.kubernetes.io/infra": "true"
+                },
+                "name": "fedora2.openshift.io",
+                "namespace": "",
+                "resourceVersion": "1732413",
+                "selfLink": "/api/v1/nodes/fedora2.openshift.io",
+                "uid": "965edafb-9cf8-11e8-964a-525400650cba"
+            },
+            "spec": {
+                "externalID": "fedora2.openshift.io"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.124.48",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "fedora2.openshift.io",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8070076Ki",
+                    "pods": "250"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8172476Ki",
+                    "pods": "250"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:17Z",
+                        "lastTransitionTime": "2018-08-22T21:40:58Z",
+                        "message": "kubelet has sufficient disk space available",
+                        "reason": "KubeletHasSufficientDisk",
+                        "status": "False",
+                        "type": "OutOfDisk"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:17Z",
+                        "lastTransitionTime": "2018-08-22T21:40:58Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:17Z",
+                        "lastTransitionTime": "2018-08-22T21:40:58Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:17Z",
+                        "lastTransitionTime": "2018-08-10T23:53:32Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:17Z",
+                        "lastTransitionTime": "2018-08-22T21:41:08Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "False",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-node@sha256:d8e0b4e5912e12e84ccd2b72a90ce66ce6e5569dfcc62f9cd69f0315d59c6a91",
+                            "docker.io/openshift/origin-node:v3.10",
+                            "docker.io/openshift/origin-node:v3.10.0"
+                        ],
+                        "sizeBytes": 1281495850
+                    },
+                    {
+                        "names": [
+                            "docker.io/heketi/heketi@sha256:d847e721966c6b6b09a50cbe3ec209d7d6cf4ad7cca204cf114028c98a39aecd",
+                            "docker.io/heketi/heketi:latest"
+                        ],
+                        "sizeBytes": 361586900
+                    },
+                    {
+                        "names": [
+                            "docker.io/gluster/gluster-centos@sha256:850fd2399d254f678b40bebe1602aa0c46d60facc7804b922c81c1524e05903a",
+                            "docker.io/gluster/gluster-centos:latest"
+                        ],
+                        "sizeBytes": 328338103
+                    },
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-pod@sha256:6ae0714fe9bf19f1312e2a869bc3d7b7cd01aea330c33675f1e215e3de857385",
+                            "docker.io/openshift/origin-pod:v3.10.0"
+                        ],
+                        "sizeBytes": 222597999
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "9bced612-abc1-4129-8d92-b17e786df8dd",
+                    "containerRuntimeVersion": "docker://1.13.1",
+                    "kernelVersion": "4.13.9-300.fc27.x86_64",
+                    "kubeProxyVersion": "v1.10.0+b81c8f8",
+                    "kubeletVersion": "v1.10.0+b81c8f8",
+                    "machineID": "a883f7e82e0645578114dafea6fca8bb",
+                    "operatingSystem": "linux",
+                    "osImage": "Fedora 27 (Cloud Edition)",
+                    "systemUUID": "A883F7E8-2E06-4557-8114-DAFEA6FCA8BB"
+                }
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2018-08-10T23:53:32Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "glusterfs": "storage-host",
+                    "kubernetes.io/hostname": "fedora3.openshift.io",
+                    "node-role.kubernetes.io/infra": "true"
+                },
+                "name": "fedora3.openshift.io",
+                "namespace": "",
+                "resourceVersion": "1732410",
+                "selfLink": "/api/v1/nodes/fedora3.openshift.io",
+                "uid": "9646e307-9cf8-11e8-964a-525400650cba"
+            },
+            "spec": {
+                "externalID": "fedora3.openshift.io"
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.124.171",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "fedora3.openshift.io",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8070068Ki",
+                    "pods": "250"
+                },
+                "capacity": {
+                    "cpu": "4",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "8172468Ki",
+                    "pods": "250"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:53:32Z",
+                        "message": "kubelet has sufficient disk space available",
+                        "reason": "KubeletHasSufficientDisk",
+                        "status": "False",
+                        "type": "OutOfDisk"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:53:32Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:53:32Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-10T23:53:32Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2018-08-23T20:01:16Z",
+                        "lastTransitionTime": "2018-08-11T00:01:06Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-node@sha256:d8e0b4e5912e12e84ccd2b72a90ce66ce6e5569dfcc62f9cd69f0315d59c6a91",
+                            "docker.io/openshift/origin-node:v3.10",
+                            "docker.io/openshift/origin-node:v3.10.0"
+                        ],
+                        "sizeBytes": 1281495850
+                    },
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-deployer@sha256:72d013cdfdf3d16557b64ac0a459c2fc4e90e37422ceed1564a2f69d68607e2a",
+                            "docker.io/openshift/origin-deployer:v3.10.0"
+                        ],
+                        "sizeBytes": 815862538
+                    },
+                    {
+                        "names": [
+                            "docker.io/heketi/heketi@sha256:e6d0362d217573a3f92792e14c611d75df04eb7bc8f245e8c44c4a9c3a870ee1",
+                            "docker.io/heketi/heketi:latest"
+                        ],
+                        "sizeBytes": 384664289
+                    },
+                    {
+                        "names": [
+                            "docker.io/gluster/gluster-centos@sha256:850fd2399d254f678b40bebe1602aa0c46d60facc7804b922c81c1524e05903a",
+                            "docker.io/gluster/gluster-centos:latest"
+                        ],
+                        "sizeBytes": 328338103
+                    },
+                    {
+                        "names": [
+                            "docker.io/openshift/origin-pod@sha256:6ae0714fe9bf19f1312e2a869bc3d7b7cd01aea330c33675f1e215e3de857385",
+                            "docker.io/openshift/origin-pod:v3.10.0"
+                        ],
+                        "sizeBytes": 222597999
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "a81e3aa0-bf11-432d-b671-aa7d86344c3f",
+                    "containerRuntimeVersion": "docker://1.13.1",
+                    "kernelVersion": "4.13.9-300.fc27.x86_64",
+                    "kubeProxyVersion": "v1.10.0+b81c8f8",
+                    "kubeletVersion": "v1.10.0+b81c8f8",
+                    "machineID": "95bf4677a2ac4f8daa29a31efdb09eed",
+                    "operatingSystem": "linux",
+                    "osImage": "Fedora 27 (Cloud Edition)",
+                    "systemUUID": "95BF4677-A2AC-4F8D-AA29-A31EFDB09EED"
+                }
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}

@@ -1,0 +1,14 @@
+# This playbook installs onto a provisioned cluster
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: place all scale groups into Ansible groups
+    include_role:
+      name: openshift_gcp
+      tasks_from: setup_scale_group_facts.yml
+    vars:
+      all_nodes: true
+
+- name: run the upgrade
+  import_playbook: ../../common/openshift-cluster/upgrades/v3_11/upgrade.yml

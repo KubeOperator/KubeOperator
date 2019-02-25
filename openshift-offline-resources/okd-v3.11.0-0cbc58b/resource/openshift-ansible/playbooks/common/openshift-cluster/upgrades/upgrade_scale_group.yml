@@ -1,0 +1,68 @@
+---
+- name: create new scale group
+  hosts: localhost
+  tasks:
+  - name: build upgrade scale groups
+    import_role:
+      name: openshift_aws
+      tasks_from: upgrade_node_group.yml
+
+  - fail:
+      msg: "Ensure that new scale groups were provisioned before proceeding to update."
+    when:
+    - "'oo_sg_new_nodes' not in groups or groups.oo_sg_new_nodes|length == 0"
+    - "'oo_sg_current_nodes' not in groups or groups.oo_sg_current_nodes|length == 0"
+    - groups.oo_sg_current_nodes == groups.oo_sg_new_nodes
+
+- name: initialize upgrade bits
+  import_playbook: init.yml
+  vars:
+    l_upgrade_cert_check_hosts: "oo_masters_to_config:oo_etcd_to_config"
+
+- name: unschedule nodes
+  hosts: oo_sg_current_nodes
+  tasks:
+  - name: Load lib_openshift modules
+    import_role:
+      name: ../roles/lib_openshift
+
+  - name: Mark node unschedulable
+    oc_adm_manage_node:
+      node: "{{ l_kubelet_node_name | lower }}"
+      schedulable: False
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    retries: 10
+    delay: 5
+    register: node_unschedulable
+    until: node_unschedulable is succeeded
+
+- name: Drain nodes
+  hosts: oo_sg_current_nodes
+  # This var must be set with -e on invocation, as it is not a per-host inventory var
+  # and is evaluated early. Values such as "20%" can also be used.
+  serial: "{{ openshift_upgrade_nodes_serial | default(1) }}"
+  max_fail_percentage: "{{ openshift_upgrade_nodes_max_fail_percentage | default(0) }}"
+  tasks:
+  - name: Drain Node for Kubelet upgrade
+    command: >
+      {{ hostvars[groups.oo_first_master.0]['first_master_client_binary'] }} adm drain {{ l_kubelet_node_name | lower }}
+      --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+      --force --delete-local-data --ignore-daemonsets
+      --timeout={{ openshift_upgrade_nodes_drain_timeout | default(0) }}s
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    register: l_upgrade_nodes_drain_result
+    until: not (l_upgrade_nodes_drain_result is failed)
+    retries: "{{ 1 if ( openshift_upgrade_nodes_drain_timeout | default(0) | int ) == 0 else 0 }}"
+    delay: 5
+    failed_when:
+    - l_upgrade_nodes_drain_result is failed
+    - openshift_upgrade_nodes_drain_timeout | default(0) | int == 0
+
+# Alright, let's clean up!
+- name: clean up the old scale group
+  hosts: localhost
+  tasks:
+  - name: clean up scale group
+    import_role:
+      name: openshift_aws
+      tasks_from: remove_scale_group.yml

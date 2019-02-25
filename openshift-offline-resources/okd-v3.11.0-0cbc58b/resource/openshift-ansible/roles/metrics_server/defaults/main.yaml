@@ -1,0 +1,15 @@
+---
+openshift_metrics_server_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'metrics-server') }}"
+
+# if the user has metrics turned on, don't break existing installations by not installing metrics-server,
+# and behave sanely for new installations by default.
+openshift_metrics_server_install: "{{ openshift_metrics_install_metrics | default(False) }}"
+openshift_metrics_server_resolution: 30s
+openshift_metrics_server_project: openshift-metrics-server
+
+#####
+# Caution should be taken for the following defaults before
+# overriding the values here
+#####
+
+openshift_metrics_server_master_url: https://kubernetes.default.svc

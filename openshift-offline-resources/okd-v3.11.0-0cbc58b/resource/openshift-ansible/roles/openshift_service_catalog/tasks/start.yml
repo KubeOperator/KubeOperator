@@ -1,0 +1,76 @@
+---
+- name: Wait for API Server rollout success
+  command: >
+      {{ openshift_client_binary }} rollout status --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog ds/apiserver
+  changed_when: false
+  # Ignore errors so we can log troubleshooting info on failures.
+  ignore_errors: yes
+  register: apiserver_rollout_status
+  until: apiserver_rollout_status.rc == 0
+  retries: 5
+  delay: 10
+
+
+- name: Wait for Controller Manager rollout success
+  command: >
+      {{ openshift_client_binary }} rollout status --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog ds/controller-manager
+  changed_when: false
+  # Ignore errors so we can log troubleshooting info on failures.
+  ignore_errors: yes
+  register: controllermanager_rollout_status
+  until: controllermanager_rollout_status.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Verify that the Catalog API Server is running
+  command: >
+    curl -k https://apiserver.kube-service-catalog.svc/healthz
+  args:
+    # Disables the following warning:
+    # Consider using get_url or uri module rather than running curl
+    warn: no
+  register: endpoint_health
+  until: endpoint_health.stdout == 'ok'
+  retries: "{{ openshift_service_catalog_retries }}"
+  delay: 10
+  changed_when: false
+  # Ignore errors so we can log troubleshooting info on failures.
+  ignore_errors: yes
+
+# Log the result of `oc status`, `oc get pods`, `oc get events`, and `oc logs deployment/webconsole` for troubleshooting failures.
+- when: (controllermanager_rollout_status.rc !=0 or apiserver_rollout_status.rc !=0 or endpoint_health.stdout != 'ok')
+  block:
+  - name: Check status in the kube-service-catalog namespace
+    command: >
+      {{ openshift_client_binary }} status --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog
+    register: endpoint_status
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_status.stdout_lines }}"
+  - name: Get pods in the kube-service-catalog namespace
+    command: >
+      {{ openshift_client_binary }} get pods --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog -o wide
+    register: endpoint_pods
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_pods.stdout_lines }}"
+  - name: Get events in the kube-service-catalog namespace
+    command: >
+      {{ openshift_client_binary }} get events --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog
+    register: endpoint_events
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_events.stdout_lines }}"
+  - name: Get pod logs
+    command: >
+      {{ openshift_client_binary }} logs daemonset/apiserver --tail=200 --config=/etc/origin/master/admin.kubeconfig -n kube-service-catalog
+    register: endpoint_log
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_log.stdout_lines }}"
+
+- when: (controllermanager_rollout_status.rc !=0 or apiserver_rollout_status.rc !=0 or endpoint_health.stdout != 'ok')
+  block:
+  - name: Report errors
+    fail:
+      msg: Catalog install failed.

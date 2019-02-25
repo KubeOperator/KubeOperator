@@ -1,0 +1,33 @@
+---
+- name: Stop node services
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+  - "{{ openshift_service_type }}-node"
+  failed_when: false
+
+- name: stop docker to kill static pods
+  service:
+    name: docker
+    state: stopped
+  register: l_openshift_node_upgrade_docker_stop_result
+  until: not (l_openshift_node_upgrade_docker_stop_result is failed)
+  retries: 3
+  delay: 30
+  when: >
+        inventory_hostname in groups['oo_masters_to_config']
+        or (l_docker_upgrade is defined and l_docker_upgrade | bool)
+
+- name: Stop crio
+  service:
+    name: cri-o
+    state: stopped
+  when: openshift_use_crio | bool
+
+# TODO: Need to determine if this is needed long term or just 3.9 to 3.10
+# Upgrading cri-o, at least from 1.9 to 1.10, requires that all
+# pods be stopped
+- name: Clean up cri-o pods
+  script: clean-up-crio-pods.sh
+  when: openshift_use_crio | bool

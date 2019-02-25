@@ -1,0 +1,8 @@
+---
+- import_playbook: provision_vpc.yml
+
+- import_playbook: provision_ssh_keypair.yml
+
+- import_playbook: provision_sec_group.yml
+
+- import_playbook: provision_iam_role.yml

@@ -1,0 +1,49 @@
+---
+- name: Filter list of nodes to be upgraded if necessary
+  hosts: oo_first_master
+
+  roles:
+  - lib_openshift
+
+  tasks:
+  - when: openshift_upgrade_nodes_label is defined
+    block:
+    - name: Retrieve list of openshift nodes matching upgrade label
+      oc_obj:
+        state: list
+        kind: node
+        selector: "{{ openshift_upgrade_nodes_label }}"
+      register: nodes_to_upgrade
+
+    - name: Fail if no nodes match openshift_upgrade_nodes_label
+      fail:
+        msg: "openshift_upgrade_nodes_label was specified but no nodes matched"
+      when: nodes_to_upgrade.results.results[0]['items'] | length == 0
+
+    # We got a list of nodes with the label, now we need to match these with inventory hosts
+    # using their openshift.common.hostname fact.
+    - name: Map labelled nodes to inventory hosts
+      add_host:
+        name: "{{ item }}"
+        groups: temp_nodes_to_upgrade
+        ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+        ansible_become: "{{ g_sudo | default(omit) }}"
+      with_items: " {{ groups['oo_nodes_to_config'] }}"
+      when:
+      - hostvars[item].openshift is defined
+      - hostvars[item].openshift.common.hostname | lower in nodes_to_upgrade.results.results[0]['items'] | map(attribute='metadata.name') | list
+      changed_when: false
+
+  # Build up the oo_nodes_to_upgrade group, use the list filtered by label if
+  # present, otherwise hit all nodes:
+  - name: Evaluate oo_nodes_to_upgrade
+    add_host:
+      name: "{{ item }}"
+      groups: oo_nodes_to_upgrade
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    when: item not in dedicated_etcds
+    vars:
+      dedicated_etcds: "{{ groups['oo_etcd_to_config'] | difference(groups['oo_masters']) }}"
+    with_items: "{{ groups['temp_nodes_to_upgrade'] | default(groups['oo_nodes_to_config']) }}"
+    changed_when: False

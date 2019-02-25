@@ -1,0 +1,32 @@
+---
+- name: Create temp directory for volume definitions
+  command: mktemp -d /tmp/openshift-ansible-XXXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy the admin client config(s)
+  command: >
+    cp /etc/origin/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: False
+
+- name: create standard pv and pvc lists
+  # generate_pv_pvcs_list is a custom action module defined in
+  # roles/lib_utils/action_plugins/generate_pv_pvcs_list.py
+  generate_pv_pvcs_list: {}
+  register: l_pv_pvcs_list
+
+- include_tasks: pv.yml
+  vars:
+    l_extra_persistent_volumes: "{{ openshift_persistent_volume_extras }}"
+    persistent_volumes: "{{ l_pv_pvcs_list.persistent_volumes | union(l_extra_persistent_volumes) }}"
+
+- include_tasks: pvc.yml
+  vars:
+    l_extra_persistent_volume_claims: "{{ openshift_persistent_volume_claims_extras }}"
+    persistent_volume_claims: "{{ l_pv_pvcs_list.persistent_volume_claims | union(l_extra_persistent_volume_claims) }}"
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

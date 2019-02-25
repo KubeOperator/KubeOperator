@@ -1,0 +1,12 @@
+---
+- name: Ensure all cloud resources necessary for the cluster, including instances, have been started
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - openshift_gcp
+  tasks:
+  - name: recalculate the dynamic inventory
+    import_role:
+      name: openshift_gcp
+      tasks_from: dynamic_inventory.yml

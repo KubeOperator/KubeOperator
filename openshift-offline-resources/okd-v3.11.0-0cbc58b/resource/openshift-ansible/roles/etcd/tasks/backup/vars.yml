@@ -1,0 +1,15 @@
+---
+# set the etcd backup directory name here in case the tag or sufix consists of dynamic value that changes over time
+# e.g. openshift-backup-{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }} value will change every second so if the date changes
+# right after setting l_etcd_incontainer_backup_dir and before l_etcd_backup_dir facts, the backup directory name is different
+- set_fact:
+    l_backup_dir_name: "openshift-backup-{{ r_etcd_common_backup_tag }}{{ r_etcd_common_backup_sufix_name }}"
+
+- set_fact:
+    l_etcd_incontainer_data_dir: "{{ etcd_data_dir }}"
+
+- set_fact:
+    l_etcd_incontainer_backup_dir: "{{ l_etcd_incontainer_data_dir }}/{{ l_backup_dir_name }}"
+
+- set_fact:
+    l_etcd_backup_dir: "{{ etcd_data_dir }}/{{ l_backup_dir_name }}"

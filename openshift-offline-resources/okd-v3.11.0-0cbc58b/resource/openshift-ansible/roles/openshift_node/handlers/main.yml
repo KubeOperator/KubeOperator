@@ -1,0 +1,20 @@
+---
+- name: reload systemd units
+  command: systemctl daemon-reload
+  when:
+  - (not skip_node_svc_handlers | default(False) | bool)
+
+- name: restart NetworkManager
+  systemd:
+    name: NetworkManager
+    state: restarted
+    enabled: True
+  when:
+  - (not skip_node_svc_handlers | default(False) | bool)
+
+- name: restart dnsmasq
+  systemd:
+    name: dnsmasq
+    state: restarted
+  when:
+  - (not skip_node_svc_handlers | default(False) | bool)

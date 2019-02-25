@@ -1,0 +1,206 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    iconClass: icon-jboss
+    tags: rhdm,decisionserver,jboss,optaweb,employee-rostering,trial
+    version: "1.1"
+    openshift.io/display-name: Red Hat Decision Manager 7.1 Business Optimizer Employee Rostering ephemeral trial environment
+    openshift.io/provider-display-name: Red Hat, Inc.
+    description: Application template for an ephemeral Optaweb Employee Rostering for Red Hat Decision Manager 7.1
+    template.openshift.io/long-description: This web application assists the operations department to assign shifts to employees, for example in hospitals, factories, guard firms or call centers. It automatically finds the best employee for each shift, taking into account labor regulations, skill requirements, employee preferences and other constraints.
+    template.openshift.io/documentation-url: https://access.redhat.com/documentation/en-us/red_hat_decision_manager/7.1/html/deploying_the_employee_roster_starter_application_for_red_hat_business_optimizer_on_red_hat_openshift_container_platform/
+    template.openshift.io/support-url: https://access.redhat.com
+    template.openshift.io/bindable: "false"
+  name: rhdm71-optaweb-employee-rostering-trial-ephemeral
+labels:
+  template: rhdm71-optaweb-employee-rostering-trial-ephemeral
+  rhdm: "1.1"
+message: |-
+          A new Decision Manager Optaweb employee rostering application have been created in your project.
+
+          Please remember that this is an ephemeral environment and any work will be LOST with a simple pod restart.
+parameters:
+- displayName: Application Name
+  description: The name for the application.
+  name: APPLICATION_NAME
+  value: myapp
+  required: true
+- displayName: OptaWeb Admin User
+  description: OptaWeb administrator username
+  name: OPTAWEB_ADMIN_USER
+  value: adminUser
+  required: false
+- displayName: OptaWeb Admin Password
+  description: OptaWeb administrator password (Default is "RedHat")
+  name: OPTAWEB_ADMIN_PWD
+  value: RedHat
+  required: true
+- displayName: ImageStream Namespace
+  description: Namespace in which the ImageStreams for Red Hat Middleware images are
+    installed. These ImageStreams are normally installed in the openshift namespace.
+    You should only need to modify this if you've installed the ImageStreams in a
+    different namespace/project.
+  name: IMAGE_STREAM_NAMESPACE
+  value: openshift
+  required: true
+- displayName: Optaweb Employee Rostering ImageStream Name
+  description: The name of the image stream to use for Optaweb employee rostering. Default is "rhdm71-optaweb-employee-rostering-openshift".
+  name: OPTAWEB_IMAGE_STREAM_NAME
+  value: "rhdm71-optaweb-employee-rostering-openshift"
+  required: true
+- displayName: ImageStream Tag
+  description: A named pointer to an image in an image stream. Default is "1.1".
+  name: IMAGE_STREAM_TAG
+  value: "1.1"
+  required: true
+- displayName: Optaweb Employee Rostering Custom http Route Hostname
+  description: 'Custom hostname for http service route, if set will also configure the OPTAWEB_HOST. Leave blank for default hostname,
+    e.g.: <application-name>-optaweb-employee-rostering-<project>.<default-domain-suffix>'
+  name: OPTAWEB_HOSTNAME_HTTP
+  value: ''
+  required: false
+- displayName: Optaweb Employee Rostering Container Memory Limit
+  description: Optaweb employee rostering Container memory limit
+  name: OPTAWEB_MEMORY_LIMIT
+  value: 1Gi
+  required: false
+- displayName: Optaweb Employee Rostering Generator Zone ID
+  description: The timezone id used by the OptaWeb Generator (Sets the optaweb.generator.zoneId system property; defaults to local timezone)
+  name: OPTAWEB_GENERATOR_ZONE_ID
+  value: ''
+  required: false
+objects:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    labels:
+      application: "${APPLICATION_NAME}"
+- kind: RoleBinding
+  apiVersion: v1
+  metadata:
+     name: "${APPLICATION_NAME}-optaweb-employee-rostering-view"
+  subjects:
+  - kind: ServiceAccount
+    name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+  roleRef:
+    name: view
+- kind: Service
+  apiVersion: v1
+  spec:
+    ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-optaweb-employee-rostering"
+  metadata:
+    name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    annotations:
+      description: All the Optaweb employee rostering web server's ports.
+- kind: Route
+  apiVersion: v1
+  id: "${APPLICATION_NAME}-optaweb-employee-rostering-http"
+  metadata:
+    name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    annotations:
+      description: Route for Optaweb employee rostering's http service.
+  spec:
+    host: "${OPTAWEB_HOSTNAME_HTTP}"
+    to:
+      name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    port:
+      targetPort: http
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    annotations:
+      template.alpha.openshift.io/wait-for-ready: "true"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - "${APPLICATION_NAME}-optaweb-employee-rostering"
+        from:
+          kind: ImageStreamTag
+          namespace: "${IMAGE_STREAM_NAMESPACE}"
+          name: "${OPTAWEB_IMAGE_STREAM_NAME}:${IMAGE_STREAM_TAG}"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-optaweb-employee-rostering"
+    template:
+      metadata:
+        name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+        labels:
+          deploymentConfig: "${APPLICATION_NAME}-optaweb-employee-rostering"
+          application: "${APPLICATION_NAME}"
+          service: "${APPLICATION_NAME}-optaweb-employee-rostering"
+      spec:
+        serviceAccountName: "${APPLICATION_NAME}-optaweb-employee-rostering"
+        terminationGracePeriodSeconds: 60
+        containers:
+        - name: "${APPLICATION_NAME}-optaweb-employee-rostering"
+          image: "${OPTAWEB_IMAGE_STREAM_NAME}"
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "${OPTAWEB_MEMORY_LIMIT}"
+          livenessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "curl --fail --silent -u '${KIE_ADMIN_USER}:${KIE_ADMIN_PWD}' http://localhost:8080/swagger/index.html"
+            initialDelaySeconds: 180
+            timeoutSeconds: 2
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "curl --fail --silent -u '${KIE_ADMIN_USER}:${KIE_ADMIN_PWD}' http://localhost:8080/swagger/index.html"
+            initialDelaySeconds: 60
+            timeoutSeconds: 2
+            periodSeconds: 30
+            failureThreshold: 6
+          ports:
+          - name: jolokia
+            containerPort: 8778
+            protocol: TCP
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          env:
+          - name: KIE_ADMIN_USER
+            value: "${OPTAWEB_ADMIN_USER}"
+          - name: KIE_ADMIN_PWD
+            value: "${OPTAWEB_ADMIN_PWD}"
+## OptaWeb employee rostering settings BEGIN
+          - name: OPTAWEB_EMPLOYEE_ROSTERING_PERSISTENCE_DATASOURCE
+            value: "java:jboss/datasources/ExampleDS"
+          - name: OPTAWEB_EMPLOYEE_ROSTERING_PERSISTENCE_DIALECT
+            value: "org.hibernate.dialect.H2Dialect"
+          - name: OPTAWEB_EMPLOYEE_ROSTERING_PERSISTENCE_HBM2DDL_AUTO
+            value: "create"
+          - name: OPTAWEB_GENERATOR_ZONE_ID
+            value: "${OPTAWEB_GENERATOR_ZONE_ID}"
+## OptaWeb employee rostering settings END

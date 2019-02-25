@@ -1,0 +1,52 @@
+---
+- name: Fail when OpenShift is not installed
+  fail:
+    msg: Verify OpenShift is already installed
+  when: openshift_current_version is not defined
+
+- name: Update oreg_auth docker login credentials if necessary
+  import_role:
+    name: container_runtime
+    tasks_from: registry_auth.yml
+  when: oreg_auth_user is defined
+
+- name: Verify containers are available for upgrade
+  command: "{{ openshift_container_cli }} pull {{ openshift_cli_image }}"
+  register: pull_result
+  changed_when: "'Downloaded newer image' in pull_result.stdout"
+  when: openshift_is_atomic | bool
+
+- when: not openshift_is_atomic | bool
+  block:
+  - name: Check latest available OpenShift RPM version
+    repoquery:
+      name: "{{ openshift_service_type }}{{ '-' ~ openshift_version ~ '*' }}"
+      ignore_excluders: true
+    register: repoquery_out
+
+  - name: Fail when unable to determine available OpenShift RPM version
+    fail:
+      msg: "Unable to determine available OpenShift RPM version"
+    when:
+    - not repoquery_out.results.package_found
+
+  - name: Set fact avail_openshift_version
+    set_fact:
+      avail_openshift_version: "{{ repoquery_out.results.versions.available_versions_full.0 }}"
+  - name: Set openshift_pkg_version when not specified
+    set_fact:
+      openshift_pkg_version: "-{{ repoquery_out.results.versions.available_versions_full.0 }}"
+    when: openshift_pkg_version | default('') == ''
+
+  - name: Verify OpenShift RPMs are available for upgrade
+    fail:
+      msg: "OpenShift {{ avail_openshift_version }} is available, but {{ openshift_upgrade_target }} or greater is required"
+    when:
+    - (openshift_pkg_version | default('-0.0', True)).split('-')[1] is version(openshift_upgrade_target, '<')
+
+- name: Fail when openshift version does not meet minimum requirement for Origin upgrade
+  fail:
+    msg: "This upgrade playbook must be run against OpenShift {{ openshift_upgrade_min }} or later"
+  when:
+  - openshift_deployment_type == 'origin'
+  - openshift_current_version is version(openshift_upgrade_min,'<')

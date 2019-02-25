@@ -1,0 +1,12 @@
+---
+openshift_docker_gc_image_dict:
+  origin: "origin"
+  openshift-enterprise: "ose-control-plane"
+
+l_os_dockergc_reg_search_dict:
+  origin: "origin-${component}"
+  openshift-enterprise: "ose-${component}"
+l_os_dockergc_reg_search: "{{ l_os_dockergc_reg_search_dict[openshift_deployment_type] }}"
+l_os_dockergc_replace: "{{ openshift_docker_gc_image_dict[openshift_deployment_type] }}"
+
+openshift_docker_gc_image: "{{ l_os_registry_url | regex_replace(l_os_dockergc_reg_search | regex_escape, l_os_dockergc_replace) }}"

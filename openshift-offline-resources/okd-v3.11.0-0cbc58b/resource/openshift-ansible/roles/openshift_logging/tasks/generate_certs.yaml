@@ -1,0 +1,172 @@
+---
+# we will ensure our secrets and configmaps are set up here first
+- name: Checking for ca.key
+  stat:
+    path: "{{generated_certs_dir}}/ca.key"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_key_file
+  check_mode: no
+
+- name: Checking for ca.crt
+  stat:
+    path: "{{generated_certs_dir}}/ca.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_cert_file
+  check_mode: no
+
+- name: Checking for ca.serial.txt
+  stat:
+    path: "{{generated_certs_dir}}/ca.serial.txt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_serial_file
+  check_mode: no
+
+- name: Generate certificates
+  command: >
+    {{ openshift_client_binary }} adm --config={{ mktemp.stdout }}/admin.kubeconfig ca create-signer-cert
+    --key={{generated_certs_dir}}/ca.key --cert={{generated_certs_dir}}/ca.crt
+    --serial={{generated_certs_dir}}/ca.serial.txt --name=logging-signer-test
+  check_mode: no
+  when:
+    - not ca_key_file.stat.exists
+    - not ca_cert_file.stat.exists
+    - not ca_serial_file.stat.exists
+
+- name: Checking for signing.conf
+  stat:
+    path: "{{generated_certs_dir}}/signing.conf"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: signing_conf_file
+  check_mode: no
+
+- template: src=signing.conf.j2 dest={{generated_certs_dir}}/signing.conf
+  vars:
+    - top_dir: '{{generated_certs_dir}}'
+  when: not signing_conf_file.stat.exists
+
+- include_tasks: procure_server_certs.yaml
+  loop_control:
+    loop_var: cert_info
+  with_items:
+    - procure_component: kibana
+    - procure_component: kibana-ops
+    - procure_component: kibana-internal
+      hostnames: "kibana, kibana-ops, {{openshift_logging_kibana_hostname}}, {{openshift_logging_kibana_ops_hostname}}"
+
+- include_tasks: procure_server_certs.yaml
+  loop_control:
+    loop_var: cert_info
+  with_items:
+    - procure_component: mux
+      hostnames: "logging-mux, {{openshift_logging_mux_hostname}}"
+  when: openshift_logging_use_mux | bool
+
+- include_tasks: procure_shared_key.yaml
+  loop_control:
+    loop_var: shared_key_info
+  with_items:
+    - procure_component: mux
+  when: openshift_logging_use_mux | bool
+
+- include_tasks: procure_server_certs.yaml
+  loop_control:
+    loop_var: cert_info
+  with_items:
+    - procure_component: es
+      hostnames: "es, {{openshift_logging_es_hostname}}"
+  when: openshift_logging_es_allow_external | bool
+
+- include_tasks: procure_server_certs.yaml
+  loop_control:
+    loop_var: cert_info
+  with_items:
+    - procure_component: es-ops
+      hostnames: "es-ops, {{openshift_logging_es_ops_hostname}}"
+  when:
+    - openshift_logging_es_allow_external | bool
+    - openshift_logging_use_ops | bool
+
+- name: Copy proxy TLS configuration file
+  copy: src=server-tls.json dest={{generated_certs_dir}}/server-tls.json
+  when: server_tls_json is undefined
+  check_mode: no
+
+- name: Copy proxy TLS configuration file
+  copy: content="{{server_tls_json}}" dest={{generated_certs_dir}}/server-tls.json
+  when: server_tls_json is defined
+  check_mode: no
+
+- name: Checking for ca.db
+  stat:
+    path: "{{generated_certs_dir}}/ca.db"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_db_file
+  check_mode: no
+
+- copy: content="" dest={{generated_certs_dir}}/ca.db
+  check_mode: no
+  when:
+    - not ca_db_file.stat.exists
+
+- name: Checking for ca.crl.srl
+  stat:
+    path: "{{generated_certs_dir}}/ca.crl.srl"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_crl_srl_file
+  check_mode: no
+
+- copy: content="" dest={{generated_certs_dir}}/ca.crl.srl
+  check_mode: no
+  when:
+    - not ca_crl_srl_file.stat.exists
+
+- name: Generate PEM certs
+  include_tasks: generate_pems.yaml component={{node_name}}
+  with_items:
+    - system.logging.fluentd
+    - system.logging.kibana
+    - system.logging.curator
+    - system.admin
+  loop_control:
+    loop_var: node_name
+
+- name: Generate PEM cert for mux
+  include_tasks: generate_pems.yaml component={{node_name}}
+  with_items:
+    - system.logging.mux
+  loop_control:
+    loop_var: node_name
+  when: openshift_logging_use_mux | bool
+
+- name: Generate PEM cert for Elasticsearch external route
+  include_tasks: generate_pems.yaml component={{node_name}}
+  with_items:
+    - system.logging.es
+  loop_control:
+    loop_var: node_name
+  when: openshift_logging_es_allow_external | bool
+
+- name: Creating necessary JKS certs
+  include_tasks: generate_jks.yaml
+
+# TODO: make idempotent
+- name: Generate proxy session
+  set_fact: session_secret={{ 200 | lib_utils_oo_random_word}}
+  check_mode: no
+
+# TODO: make idempotent
+- name: Generate oauth client secret
+  set_fact: oauth_secret={{ 64 | lib_utils_oo_random_word}}
+  check_mode: no

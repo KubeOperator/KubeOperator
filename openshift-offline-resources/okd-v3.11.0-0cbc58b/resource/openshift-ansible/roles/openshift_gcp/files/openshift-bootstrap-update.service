@@ -1,0 +1,7 @@
+[Unit]
+Description=Update the OpenShift node bootstrap configuration
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/openshift-bootstrap-update
+User=root

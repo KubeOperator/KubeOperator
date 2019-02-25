@@ -1,0 +1,6 @@
+---
+- name: Set buildoverrides config structure
+  openshift_facts:
+    role: buildoverrides
+    local_facts:
+      config: "{{ openshift_buildoverrides_json | default(buildoverrides_yaml) }}"

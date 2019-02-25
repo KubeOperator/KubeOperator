@@ -1,0 +1,69 @@
+---
+- name: Create the OpenStack resources for cluster installation
+  import_playbook: provision_resources.yml
+
+- name: Evaluate OpenStack groups from the dynamic inventory
+  import_playbook: evaluate_groups.yml
+
+- name: Evaluate remaining cluster groups
+  import_playbook: ../../init/evaluate_groups.yml
+
+- name: Wait for the nodes and gather their facts
+  any_errors_fatal: true
+  hosts: oo_all_hosts
+  become: yes
+  # NOTE: The nodes may not be up yet, don't gather facts here.
+  # They'll be collected after `wait_for_connection`.
+  gather_facts: no
+  tasks:
+  - name: Wait for the the nodes to come up
+    wait_for_connection:
+
+  - name: Gather facts for the new nodes
+    setup:
+
+
+# TODO(shadower): consider splitting this up so people can stop here
+# and configure their DNS if they have to.
+- name: Populate the DNS entries
+  any_errors_fatal: true
+  hosts: localhost
+  tasks:
+  - name: Add the DNS records
+    import_role:
+      name: openshift_openstack
+      tasks_from: populate-dns.yml
+    vars:
+      l_openshift_openstack_dns_update_nodes: "{{ groups.OSEv3 }}"
+    when:
+    - openshift_openstack_external_nsupdate_keys is defined
+    - openshift_openstack_external_nsupdate_keys.private is defined or openshift_openstack_external_nsupdate_keys.public is defined
+
+
+- import_playbook: ../../init/basic_facts.yml
+
+- name: Run the init
+  import_playbook: ../../init/main.yml
+
+- name: Optionally subscribe the RHEL nodes
+  any_errors_fatal: true
+  hosts: oo_all_hosts
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Subscribe RHEL instances
+    import_role:
+      name: rhel_subscribe
+    when:
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+  - name: Configuring proper repositories
+    import_role:
+      name: openshift_repos
+    when:
+    - ansible_distribution == "RedHat"
+    - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+- name: Show information about the deployed cluster
+  import_playbook: cluster-info.yml

@@ -1,0 +1,101 @@
+---
+- name: Update registry certificates
+  hosts: oo_first_master
+  vars:
+  roles:
+  - lib_openshift
+  - openshift_facts
+  tasks:
+  - name: Create temp directory for kubeconfig
+    command: mktemp -d /tmp/openshift-ansible-XXXXXX
+    register: mktemp
+    changed_when: false
+
+  - name: Copy admin client config(s)
+    command: >
+      cp {{ openshift.common.config_base }}/master//admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+    changed_when: false
+
+  - name: Determine if docker-registry exists
+    command: >
+      {{ openshift_client_binary }} get dc/docker-registry -o json
+      --config={{ mktemp.stdout }}/admin.kubeconfig
+      -n default
+    register: l_docker_registry_dc
+    failed_when: false
+    changed_when: false
+
+  - set_fact:
+      docker_registry_env_vars: "{{ ((l_docker_registry_dc.stdout | from_json)['spec']['template']['spec']['containers'][0]['env']
+                                      | lib_utils_oo_collect('name'))
+                                      | default([]) }}"
+      docker_registry_secrets: "{{ ((l_docker_registry_dc.stdout | from_json)['spec']['template']['spec']['volumes']
+                                     | lib_utils_oo_collect('secret')
+                                     | lib_utils_oo_collect('secretName'))
+                                     | default([]) }}"
+    changed_when: false
+    when: l_docker_registry_dc.rc == 0
+
+  # Replace dc/docker-registry environment variable certificate data if set.
+  - name: Update docker-registry environment variables
+    shell: >
+      {{ openshift_client_binary }} set env dc/docker-registry
+      OPENSHIFT_CA_DATA="$(cat /etc/origin/master/ca.crt)"
+      OPENSHIFT_CERT_DATA="$(cat /etc/origin/master/openshift-registry.crt)"
+      OPENSHIFT_KEY_DATA="$(cat /etc/origin/master/openshift-registry.key)"
+      --config={{ mktemp.stdout }}/admin.kubeconfig
+      -n default
+    when: l_docker_registry_dc.rc == 0 and 'OPENSHIFT_CA_DATA' in docker_registry_env_vars and 'OPENSHIFT_CERT_DATA' in docker_registry_env_vars and 'OPENSHIFT_KEY_DATA' in docker_registry_env_vars
+
+  # Replace dc/docker-registry certificate secret contents if set.
+  - block:
+    - name: Retrieve registry service IP
+      oc_service:
+        namespace: default
+        name: docker-registry
+        state: list
+      register: docker_registry_service_ip
+      changed_when: false
+
+    - set_fact:
+        docker_registry_route_hostname: "{{ 'docker-registry-default.' ~ openshift_master_default_subdomain }}"
+      changed_when: false
+
+    - name: Generate registry certificate
+      command: >
+        {{ openshift_client_binary }} adm ca create-server-cert
+        --signer-cert={{ openshift.common.config_base }}/master/ca.crt
+        --signer-key={{ openshift.common.config_base }}/master/ca.key
+        --signer-serial={{ openshift.common.config_base }}/master/ca.serial.txt
+        --config={{ mktemp.stdout }}/admin.kubeconfig
+        --hostnames="{{ docker_registry_service_ip.results.clusterip }},docker-registry.default.svc,docker-registry.default.svc.cluster.local,{{ docker_registry_route_hostname }}"
+        --cert={{ openshift.common.config_base }}/master/registry.crt
+        --key={{ openshift.common.config_base }}/master/registry.key
+        --expire-days={{ openshift_hosted_registry_cert_expire_days | default(730) }}
+
+    - name: Update registry certificates secret
+      oc_secret:
+        kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+        name: registry-certificates
+        namespace: default
+        state: present
+        files:
+        - name: registry.crt
+          path: "{{ openshift.common.config_base }}/master/registry.crt"
+        - name: registry.key
+          path: "{{ openshift.common.config_base }}/master/registry.key"
+      run_once: true
+    when: l_docker_registry_dc.rc == 0 and 'registry-certificates' in docker_registry_secrets and 'REGISTRY_HTTP_TLS_CERTIFICATE' in docker_registry_env_vars and 'REGISTRY_HTTP_TLS_KEY' in docker_registry_env_vars
+
+  - name: Redeploy docker registry
+    command: >
+      {{ openshift_client_binary }} rollout latest dc/docker-registry
+      --config={{ mktemp.stdout }}/admin.kubeconfig
+      -n default
+    when: l_docker_registry_dc.rc == 0
+
+  - name: Delete temp directory
+    file:
+      name: "{{ mktemp.stdout }}"
+      state: absent
+    changed_when: False

@@ -1,0 +1,72 @@
+---
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Install nfs-utils
+  package:
+    name: nfs-utils
+    state: present
+  register: result
+  until: result is succeeded
+
+- name: Configure NFS
+  lineinfile:
+    dest: /etc/sysconfig/nfs
+    regexp: '^RPCNFSDARGS=.*$'
+    line: 'RPCNFSDARGS="-N 2 -N 3"'
+  register: nfs_config
+
+- name: Restart nfs-config
+  systemd: name=nfs-config state=restarted
+  when: nfs_config is changed
+
+- name: Ensure exports directory exists
+  file:
+    path: "{{ openshift_hosted_registry_storage_nfs_directory }}"
+    state: directory
+
+- name: Ensure export directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+    owner: nfsnobody
+    group: nfsnobody
+  with_items:
+    - "{{ openshift_hosted_registry_storage_nfs_directory }}/{{ openshift_hosted_registry_storage_volume_name }}"
+    - "{{ openshift_metrics_storage_nfs_directory }}/{{ openshift_metrics_storage_volume_name }}"
+    - "{{ openshift_logging_storage_nfs_directory }}/{{ openshift_logging_storage_volume_name }}"
+    - "{{ openshift_loggingops_storage_nfs_directory }}/{{ openshift_loggingops_storage_volume_name }}"
+    - "{{ openshift_hosted_etcd_storage_nfs_directory }}/{{ openshift_hosted_etcd_storage_volume_name }}"
+
+- name: Configure exports
+  template:
+    dest: /etc/exports.d/openshift-ansible.exports
+    src: exports.j2
+  notify:
+    - restart nfs-server
+
+# Now that we're putting our exports in our own file clean up the old ones
+- name: register exports
+  command: cat /etc/exports.d/openshift-ansible.exports
+  register: exports_out
+
+- name: remove exports from /etc/exports
+  lineinfile:
+    dest: /etc/exports
+    line: "{{ item }}"
+    state: absent
+  with_items: "{{ exports_out.stdout_lines | default([]) }}"
+  when: exports_out.rc == 0
+  notify:
+    - restart nfs-server
+
+- name: Enable and start services
+  systemd:
+    name: nfs-server
+    state: started
+    enabled: yes
+  register: start_result
+
+- set_fact:
+    nfs_service_status_changed: "{{ start_result is changed }}"

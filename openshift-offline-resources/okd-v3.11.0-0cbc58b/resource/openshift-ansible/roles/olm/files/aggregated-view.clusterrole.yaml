@@ -1,0 +1,11 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: aggregate-olm-view
+  labels:
+    # Add these permissions to the "view" default roles
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups: ["operators.coreos.com"]
+  resources: ["clusterserviceversions", "catalogsources", "installplans", "subscriptions"]
+  verbs: ["get", "list", "watch"]

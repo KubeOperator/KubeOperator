@@ -1,0 +1,6 @@
+{% if contiv_encap_mode == "vlan" %}
+NETPLUGIN_ARGS='--vlan-if={{ contiv_netplugin_interface }} --ctrl-ip={{ contiv_netplugin_ctrl_ip }} --etcd={{ contiv_etcd_url }} --fwdmode={{ contiv_netplugin_fwd_mode }} --cluster-mode=kubernetes --netmode={{ contiv_encap_mode }}'
+{% endif %}
+{% if contiv_encap_mode == "vxlan" %}
+NETPLUGIN_ARGS='--vtep-ip={{ contiv_netplugin_ctrl_ip }} --vxlan-port={{ contiv_vxlan_port }} --ctrl-ip={{ contiv_netplugin_ctrl_ip }} --etcd={{ contiv_etcd_url }} --fwdmode={{ contiv_netplugin_fwd_mode }} --cluster-mode=kubernetes --netmode={{ contiv_encap_mode }}'
+{% endif %}

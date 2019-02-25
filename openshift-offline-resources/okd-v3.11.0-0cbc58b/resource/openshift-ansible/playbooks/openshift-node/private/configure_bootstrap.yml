@@ -1,0 +1,14 @@
+---
+- name: node bootstrap config
+  hosts: oo_nodes_to_config
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: bootstrap.yml
+  - import_role:
+      name: openshift_node_group
+      tasks_from: bootstrap.yml
+  - name: Have the nodes automatically pull their configuration
+    import_role:
+      name: openshift_node_group
+      tasks_from: bootstrap_config.yml

@@ -1,0 +1,5 @@
+[flake8]
+# TODO: cleanup flake8 issues with utils/test/*
+exclude=.tox,inventory
+max_line_length = 120
+ignore = E501,T003

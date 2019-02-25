@@ -1,0 +1,28 @@
+---
+- name: Check that node image is present
+  command: "{{ openshift_container_cli }} images -q {{ osn_image }}"
+  register: node_image
+
+# This task runs async to save time while the node is being configured
+- name: Pre-pull node image
+  command: "{{ openshift_container_cli }} pull {{ osn_image }}"
+  when: node_image.stdout_lines == []
+  # 10 minutes to pull the image
+  async: 600
+  poll: 0
+  register: image_prepull
+
+- name: Check that pod image is present
+  command: "{{ openshift_container_cli }} images -q {{ osn_pod_image }}"
+  register: pod_image
+
+# This task runs async to save time while other downloads proceed
+- name: pre-pull pod image
+  command: "{{ openshift_container_cli }} pull {{ osn_pod_image }}"
+  environment:
+    NO_PROXY: "{{ openshift.common.no_proxy | default('') }}"
+  when: pod_image.stdout_lines == []
+  # 10 minutes to pull the image
+  async: 600
+  poll: 0
+  register: pod_image_prepull

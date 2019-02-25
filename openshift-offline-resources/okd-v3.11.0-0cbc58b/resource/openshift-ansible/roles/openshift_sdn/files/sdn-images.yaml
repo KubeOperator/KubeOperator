@@ -1,0 +1,10 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStreamTag
+metadata:
+  name: node:v3.11
+  namespace: openshift-sdn
+tag:
+  reference: true
+  from:
+    kind: DockerImage
+    name: openshift/node:v3.11.0

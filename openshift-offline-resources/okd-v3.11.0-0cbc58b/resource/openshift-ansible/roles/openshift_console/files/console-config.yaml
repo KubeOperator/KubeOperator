@@ -1,0 +1,13 @@
+apiVersion: console.openshift.io/v1beta1
+kind: ConsoleConfig
+servingInfo:
+  bindAddress: https://0.0.0.0:8443
+  certFile: /var/serving-cert/tls.crt
+  keyFile: /var/serving-cert/tls.key
+clusterInfo:
+  consoleBaseAddress: ''
+auth:
+  clientID: openshift-console
+  clientSecretFile: /var/oauth-config/clientSecret
+customization:
+  branding: origin

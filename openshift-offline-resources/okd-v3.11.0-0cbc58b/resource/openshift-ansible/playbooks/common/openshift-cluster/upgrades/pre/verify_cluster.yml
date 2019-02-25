@@ -1,0 +1,76 @@
+---
+# Verify a few items before we proceed with upgrade process.
+
+- name: Verify upgrade can proceed on first master
+  hosts: oo_first_master
+  gather_facts: no
+  tasks:
+
+  # Error out in situations where the user has older versions specified in their
+  # inventory in any of the openshift_release, openshift_image_tag, and
+  # openshift_pkg_version variables. These must be removed or updated to proceed
+  # with upgrade.
+  # TODO: Should we block if you're *over* the next major release version as well?
+  - fail:
+      msg: >
+        openshift_pkg_version is {{ openshift_pkg_version }} which is not a
+        valid version for a {{ openshift_upgrade_target }} upgrade
+    when:
+    - openshift_pkg_version is defined
+    - openshift_pkg_version != ""
+    - openshift_pkg_version.split('-',1).1 is version(openshift_upgrade_target ,'<')
+
+  - fail:
+      msg: >
+        openshift_image_tag is {{ openshift_image_tag }} which is not a
+        valid version for a {{ openshift_upgrade_target }} upgrade
+    when:
+    - openshift_image_tag is defined
+    - openshift_image_tag != ""
+    - openshift_image_tag.split('v',1).1 is version(openshift_upgrade_target ,'<')
+
+  - set_fact:
+      openshift_release: "{{ openshift_release[1:] }}"
+    when: openshift_release is defined and openshift_release[0] == 'v'
+
+  - fail:
+      msg: >
+        openshift_release is {{ openshift_release }} which is not a
+        valid release for a {{ openshift_upgrade_target }} upgrade
+    when:
+    - openshift_release is defined
+    - not (openshift_release is version(openshift_upgrade_target ,'='))
+
+  # Ensure glusterfs clusters are healthy before starting an upgrade.
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: check_cluster_health.yml
+    when: >
+          ('glusterfs' in groups and groups['glusterfs'] | length > 0)
+          or ('glusterfs_registry' in groups and groups['glusterfs_registry'] | length > 0)
+- name: Verify master processes
+  hosts: oo_masters_to_config
+  roles:
+  - lib_utils
+  - openshift_facts
+  tasks:
+  - name: Read master storage backend setting
+    yedit:
+      state: list
+      src: /etc/origin/master/master-config.yaml
+      key: kubernetesMasterConfig.apiServerArguments.storage-backend
+    register: _storage_backend
+
+  - fail:
+      msg: "The cluster must be migrated to etcd v3 prior to upgrading to 3.7. Please see https://docs.openshift.com/container-platform/3.7/install_config/upgrading/migrating_etcd.html"
+    when:
+    # assuming the master-config.yml is properly configured, i.e. the value is a list
+    - _storage_backend.result | default([], true) | length == 0 or _storage_backend.result[0] != "etcd3"
+
+  - debug:
+      msg: "Storage backend is set to etcd3"
+
+  - openshift_facts:
+      role: master
+      local_facts:
+        ha: "{{ groups.oo_masters_to_config | length > 1 }}"

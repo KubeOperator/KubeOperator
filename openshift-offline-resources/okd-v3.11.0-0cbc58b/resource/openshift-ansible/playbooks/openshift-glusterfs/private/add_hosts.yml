@@ -1,0 +1,23 @@
+---
+# This play runs when new gluster hosts are part of new_nodes group during
+# master or node scaleup.
+
+# Need to gather facts on glusterfs hosts to ensure we collect l_kubelet_node_name
+# for topology file.
+- import_playbook: ../../init/basic_facts.yml
+  vars:
+    l_init_fact_hosts: "glusterfs:glusterfs_registry"
+
+- import_playbook: ../../init/cluster_facts.yml
+  vars:
+    l_init_fact_hosts: "glusterfs:glusterfs_registry"
+
+- import_playbook: gluster_hosts.yml
+  vars:
+    # we only want the intersection of new_nodes and gluster hosts here.
+    l_glusterfs_hosts: "oo_glusterfs_to_config:&oo_nodes_to_config"
+
+- import_playbook: update_topology.yml
+  vars:
+    l_gluster_reload_topo: "{{ groups['oo_nodes_to_config'] | intersect(groups['glusterfs'] | default([])) | length > 0 }}"
+    l_gluster_registry_reload_topo: "{{ groups['oo_nodes_to_config'] | intersect(groups['glusterfs_registry'] | default([])) | length > 0 }}"

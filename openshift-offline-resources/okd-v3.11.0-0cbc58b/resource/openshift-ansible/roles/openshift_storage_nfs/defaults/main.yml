@@ -1,0 +1,26 @@
+---
+r_openshift_storage_nfs_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_openshift_storage_nfs_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+r_openshift_storage_nfs_os_firewall_deny: []
+r_openshift_storage_nfs_os_firewall_allow:
+- service: nfs
+  port: "2049/tcp"
+
+openshift:
+  hosted:
+    registry:
+      storage:
+        nfs:
+          directory: "/exports"
+          options: "*(rw,root_squash)"
+        volume:
+          name: "registry"
+    metrics:
+      deploy: False
+      storage:
+        nfs:
+          directory: "/exports"
+          options: "*(rw,root_squash)"
+        volume:
+          name: "metrics"

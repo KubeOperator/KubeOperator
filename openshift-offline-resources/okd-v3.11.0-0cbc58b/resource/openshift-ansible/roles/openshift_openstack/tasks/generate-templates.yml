@@ -1,0 +1,39 @@
+---
+- name: create HOT stack template prefix
+  register: stack_template_pre
+  tempfile:
+    state: directory
+    prefix: openshift-ansible
+
+- name: set template paths
+  set_fact:
+    stack_template_path: "{{ stack_template_pre.path }}/stack.yaml"
+    user_data_template_path: "{{ stack_template_pre.path }}/user-data"
+
+- name: Print out the Heat template directory
+  debug: var=stack_template_pre
+
+- name: generate HOT stack template from jinja2 template
+  template:
+    src: heat_stack.yaml.j2
+    dest: "{{ stack_template_path }}"
+
+- name: generate HOT server template from jinja2 template
+  template:
+    src: heat_stack_server.yaml.j2
+    dest: "{{ stack_template_pre.path }}/server.yaml"
+
+- name: generate user_data from jinja2 template
+  template:
+    src: user_data.j2
+    dest: "{{ user_data_template_path }}"
+
+- name: generate HOT nested subports template from jinja2 template
+  template:
+    src: heat_stack_subports.yaml.j2
+    dest: "{{ stack_template_pre.path }}/subports.yaml"
+
+- name: generate HOT nested segmentation ids template from jinja2 template
+  template:
+    src: heat_stack_segmentation_ids.yaml.j2
+    dest: "{{ stack_template_pre.path }}/segmentation_ids.yaml"

@@ -1,0 +1,75 @@
+---
+# Set some facts to reference from hostvars
+- import_tasks: set_facts.yml
+
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Install etcd
+  package:
+    name: etcd
+    state: present
+  register: result
+  until: result is succeeded
+
+- import_tasks: drop_etcdctl.yml
+
+# Start secondary etcd instance for third party integrations
+# TODO: Determine an alternative to using thirdparty variable
+- block:
+  - name: Create configuration directory
+    file:
+      path: "{{ etcd_conf_dir }}"
+      state: directory
+      mode: 0700
+
+  # TODO: retest with symlink to confirm it does or does not function
+  - name: Copy service file for etcd instance
+    copy:
+      src: /usr/lib/systemd/system/etcd.service
+      dest: "/etc/systemd/system/{{ etcd_service }}.service"
+      remote_src: True
+
+  - name: Create third party etcd service.d directory exists
+    file:
+      path: "{{ etcd_systemd_dir }}"
+      state: directory
+
+  - name: Configure third part etcd service unit file
+    template:
+      dest: "{{ etcd_systemd_dir }}/custom.conf"
+      src: custom.conf.j2
+  when: etcd_is_thirdparty | bool
+
+- name: Ensure etcd datadir ownership for thirdparty datadir
+  file:
+    path: "{{ etcd_data_dir }}"
+    state: directory
+    mode: 0700
+    owner: etcd
+    group: etcd
+    recurse: True
+  when: etcd_is_thirdparty | bool
+
+- name: Write etcd global config file
+  template:
+    src: etcd.conf.j2
+    dest: "{{ etcd_conf_file }}"
+    backup: true
+  notify:
+  - restart etcd
+
+- name: Ensure etcd owns the files in it's config dir
+  command: "chown etcd:etcd {{ etcd_conf_dir }}/ -R"
+
+- name: Enable etcd
+  systemd:
+    name: "{{ etcd_service }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  register: start_result
+
+- name: Set fact etcd_service_status_changed
+  set_fact:
+    etcd_service_status_changed: "{{ start_result is changed }}"

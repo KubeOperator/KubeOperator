@@ -1,0 +1,140 @@
+---
+# check if pod generated files exist -- if they all do don't run the pod
+- when:
+    - openshift_logging_es_allow_external | default(False)
+    - openshift_logging_es_hostname | default('') | regex_search('^[0-9]|[.][0-9]')
+  block:
+    - name: Report invalid external Elasticsearch hostnames for conclusion
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_logging:
+            message: "Elasticsearch external hostname {{ openshift_logging_es_hostname }} contains invalid characters for certificate subject Alt Name.  Not adding to Elasticsearch certificate."
+
+    - name: Report invalid external Elasticsearch hostnames
+      debug:
+        msg: "Elasticsearch external hostname {{ openshift_logging_es_hostname }} contains invalid characters for certificate subject Alt Name.  Not adding to Elasticsearch certificate."
+
+- when:
+    - openshift_logging_es_ops_allow_external | default(False)
+    - openshift_logging_es_ops_hostname | default('') | regex_search('^[0-9]|[.][0-9]')
+  block:
+    - name: Report invalid external Elasticsearch ops hostnames for conclusion
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_logging:
+            message: "Elasticsearch external ops hostname {{ openshift_logging_es_ops_hostname }} contains invalid characters for certificate subject Alt Name.  Not adding to Elasticsearch certificate."
+
+    - name: Report invalid external Elasticsearch ops hostnames
+      debug:
+        msg: "Elasticsearch external hostname {{ openshift_logging_es_ops_hostname }} contains invalid characters for certificate subject Alt Name.  Not adding to Elasticsearch certificate."
+
+- name: Checking for elasticsearch.jks
+  stat:
+    path: "{{generated_certs_dir}}/elasticsearch.jks"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: elasticsearch_jks
+  check_mode: no
+
+- name: Checking for logging-es.jks
+  stat:
+    path: "{{generated_certs_dir}}/logging-es.jks"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: logging_es_jks
+  check_mode: no
+
+- name: Checking for system.admin.jks
+  stat:
+    path: "{{generated_certs_dir}}/system.admin.jks"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: system_admin_jks
+  check_mode: no
+
+- name: Checking for truststore.jks
+  stat:
+    path: "{{generated_certs_dir}}/truststore.jks"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: truststore_jks
+  check_mode: no
+
+- name: Create placeholder for previously created JKS certs to prevent recreating...
+  local_action: file path="{{local_tmp.stdout}}/elasticsearch.jks" state=touch mode="u=rw,g=r,o=r"
+  when: elasticsearch_jks.stat.exists
+  changed_when: False
+  become: false
+
+- name: Create placeholder for previously created JKS certs to prevent recreating...
+  local_action: file path="{{local_tmp.stdout}}/logging-es.jks" state=touch mode="u=rw,g=r,o=r"
+  when: logging_es_jks.stat.exists
+  changed_when: False
+  become: false
+
+- name: Create placeholder for previously created JKS certs to prevent recreating...
+  local_action: file path="{{local_tmp.stdout}}/system.admin.jks" state=touch mode="u=rw,g=r,o=r"
+  when: system_admin_jks.stat.exists
+  changed_when: False
+  become: false
+
+- name: Create placeholder for previously created JKS certs to prevent recreating...
+  local_action: file path="{{local_tmp.stdout}}/truststore.jks" state=touch mode="u=rw,g=r,o=r"
+  when: truststore_jks.stat.exists
+  changed_when: False
+  become: false
+
+- name: pulling down signing items from host
+  fetch:
+    src: "{{generated_certs_dir}}/{{item}}"
+    dest: "{{local_tmp.stdout}}/{{item}}"
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+    - ca.serial.txt
+    - ca.crl.srl
+    - ca.db
+  when: not elasticsearch_jks.stat.exists or not logging_es_jks.stat.exists or not system_admin_jks.stat.exists or not truststore_jks.stat.exists
+
+- local_action: template src=signing.conf.j2 dest={{local_tmp.stdout}}/signing.conf
+  vars:
+    - top_dir: "{{local_tmp.stdout}}"
+  become: false
+  when: not elasticsearch_jks.stat.exists or not logging_es_jks.stat.exists or not system_admin_jks.stat.exists or not truststore_jks.stat.exists
+
+- name: Run JKS generation script
+  local_action: script generate-jks.sh {{local_tmp.stdout}} {{openshift_logging_namespace}} {{openshift_logging_es_hostname | default()}} {{openshift_logging_es_ops_hostname | default()}}
+  check_mode: no
+  become: false
+  when: not elasticsearch_jks.stat.exists or not logging_es_jks.stat.exists or not system_admin_jks.stat.exists or not truststore_jks.stat.exists
+
+- name: Pushing locally generated JKS certs to remote host...
+  copy:
+    src: "{{local_tmp.stdout}}/elasticsearch.jks"
+    dest: "{{generated_certs_dir}}/elasticsearch.jks"
+  when: not elasticsearch_jks.stat.exists
+
+- name: Pushing locally generated JKS certs to remote host...
+  copy:
+    src: "{{local_tmp.stdout}}/logging-es.jks"
+    dest: "{{generated_certs_dir}}/logging-es.jks"
+  when: not logging_es_jks.stat.exists
+
+- name: Pushing locally generated JKS certs to remote host...
+  copy:
+    src: "{{local_tmp.stdout}}/system.admin.jks"
+    dest: "{{generated_certs_dir}}/system.admin.jks"
+  when: not system_admin_jks.stat.exists
+
+- name: Pushing locally generated JKS certs to remote host...
+  copy:
+    src: "{{local_tmp.stdout}}/truststore.jks"
+    dest: "{{generated_certs_dir}}/truststore.jks"
+  when: not truststore_jks.stat.exists

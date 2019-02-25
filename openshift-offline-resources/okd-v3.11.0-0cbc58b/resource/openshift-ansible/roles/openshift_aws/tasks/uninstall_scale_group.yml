@@ -1,0 +1,6 @@
+---
+- name: "Delete the scale group {{ l_delete_sg_name }}"
+  ec2_asg:
+    state: absent
+    name: "{{ l_delete_sg_name }}"
+    region: "{{ openshift_aws_region }}"

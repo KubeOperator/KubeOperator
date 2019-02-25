@@ -1,0 +1,111 @@
+---
+- fail:
+    msg: Only one Fluentd nodeselector key pair should be provided
+  when: openshift_logging_fluentd_nodeselector.keys() | count > 1
+
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+  check_mode: no
+  tags: logging_init
+
+- debug: msg="Created temp dir {{mktemp.stdout}}"
+
+- name: Create local temp directory for doing work in
+  local_action: command mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: local_tmp
+  changed_when: False
+  check_mode: no
+  vars:
+    ansible_become: false
+
+- oc_obj:
+    state: list
+    kind: dc
+    all_namespaces: true
+    selector: "logging-infra,provider=openshift,component!=eventrouter"
+  register: _logging_dcs
+
+- set_fact:
+    _current_logging_namespace: "{{ _logging_dcs.results.results[0]['items'] | map(attribute='metadata.namespace') | list | unique | join(' ') }}"
+  when:
+  - _logging_dcs is defined
+  - _logging_dcs.results | count > 0
+  - _logging_dcs.results.results | count > 0
+
+- when:
+  - logging_disable_namespace_check | default(false) | bool
+  - _logging_namespace is defined
+  - _current_logging_namespace.split(" ") | count > 0
+  - _current_logging_namespace != ''
+  - _logging_namespace != _current_logging_namespace
+  block:
+  - name: Set Logging message about installing in multiple namespaces
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_logging:
+          message: "Aggregated logging installed in multiple namespaces:   \
+                      current namespace(s): {{ _current_logging_namespace }}   \
+                      specified namespace: {{ _logging_namespace | default(_current_logging_namespace) }}"
+
+  - debug:
+      msg: "Aggregated logging installed in multiple namespaces:   \
+              current namespace(s): {{ _current_logging_namespace }}   \
+              specified namespace: {{ _logging_namespace | default(_current_logging_namespace) }}"
+
+- when: not logging_disable_namespace_check | default(false) | bool
+  block:
+  - assert:
+      that:
+      - _current_logging_namespace.split(" ") | count <= 1
+      - not _logging_namespace is defined or not _current_logging_namespace or _logging_namespace == _current_logging_namespace
+      msg: "Configuring aggregated logging in multiple namespaces is not supported:   \
+              current namespace(s): {{ _current_logging_namespace }}   \
+              specified namespace: {{ _logging_namespace | default(_current_logging_namespace) }}"
+
+  - debug:
+      msg: "Using the namespace '{{ _current_logging_namespace }}' which has an existing deployment"
+    when:
+    - _current_logging_namespace is defined
+    - _current_logging_namespace != ''
+
+  - set_fact:
+      _logging_namespace: "{{ _current_logging_namespace if _current_logging_namespace else _logging_namespace | default('openshift-logging') }}"
+
+- when:
+  - logging_disable_namespace_check | default(false) | bool
+  - not _logging_namespace is defined
+  block:
+  - assert:
+      that:
+      - _current_logging_namespace.split(" ") | count == 1
+      msg: "Multiple aggregated logging installations found in [{{ _current_logging_namespace }}], please specify which to use with _logging_namespace"
+
+  - set_fact:
+      _logging_namespace: "{{ _current_logging_namespace }}"
+
+- set_fact:
+    openshift_logging_namespace: "{{ _logging_namespace if _logging_namespace else 'openshift-logging' }}"
+
+- include_tasks: install_logging.yaml
+  when:
+  - openshift_logging_install_logging | default(false) | bool
+
+- include_tasks: delete_logging.yaml
+  when:
+  - not openshift_logging_install_logging | default(false) | bool
+
+- name: Cleaning up local temp dir
+  local_action: file path="{{ local_tmp.stdout }}" state=absent
+  tags: logging_cleanup
+  changed_when: False
+  become: false
+
+- name: Cleaning up temp dir
+  file:
+    path: "{{ mktemp.stdout }}"
+    state: absent
+  tags: logging_cleanup
+  changed_when: False

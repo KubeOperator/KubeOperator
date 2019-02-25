@@ -1,0 +1,19 @@
+---
+# keep the 'current' package or update to 'latest' if available?
+r_openshift_excluder_package_state: present
+r_openshift_excluder_docker_package_state: present
+r_openshift_excluder_service_type: "{{ openshift_service_type }}"
+# Legacy variables are included for backwards compatibility with v3.5
+# Inventory variables                   Legacy
+# openshift_enable_excluders            enable_excluders
+# openshift_enable_openshift_excluder   enable_openshift_excluder
+# openshift_enable_docker_excluder      enable_docker_excluder
+r_openshift_excluder_enable_excluders: "{{ openshift_enable_excluders | default(enable_excluders) | default(true) }}"
+r_openshift_excluder_enable_openshift_excluder: "{{ openshift_enable_openshift_excluder | default(enable_openshift_excluder) | default(r_openshift_excluder_enable_excluders) }}"
+r_openshift_excluder_enable_docker_excluder: "{{ openshift_enable_docker_excluder | default(enable_docker_excluder) | default(r_openshift_excluder_enable_excluders) }}"
+
+# Default action when calling this role
+r_openshift_excluder_action: enable
+
+# When upgrading, this variable should be set to true when calling the role
+r_openshift_excluder_verify_upgrade: false

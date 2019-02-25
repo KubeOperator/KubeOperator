@@ -1,0 +1,16 @@
+# This example generates HTML and JSON reports and
+#
+# Copies of the generated HTML and JSON reports are uploaded to the masters,
+# which is particularly useful when this playbook is run from a container.
+#
+# All certificates (healthy or not) are included in the results
+#
+# Optional environment variables to alter the behaviour of the playbook:
+# CERT_EXPIRY_WARN_DAYS:  Length of the warning window in days (45)
+# COPY_TO_PATH: path to copy reports to in the masters (/etc/origin/certificate_expiration_report)
+---
+- name: Generate certificate expiration reports
+  hosts: localhost
+  tasks:
+  - fail:
+      msg: "This play has been removed in favor of easy-mode.yaml or default.yaml."

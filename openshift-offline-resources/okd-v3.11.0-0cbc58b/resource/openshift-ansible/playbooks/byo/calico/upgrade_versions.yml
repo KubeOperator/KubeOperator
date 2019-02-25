@@ -1,0 +1,25 @@
+---
+# Default variables for the Calico self-hosted upgrade.
+- set_fact:
+    calico_node_image: quay.io/calico/node:v2.6.7
+  when: calico_node_image is not defined
+- set_fact:
+    calico_url_policy_controller: "quay.io/calico/kube-controllers:v1.0.3"
+  when: calico_url_policy_controller is not defined
+- set_fact:
+    calico_cni_image: "quay.io/calico/cni:v1.11.2"
+  when: calico_cni_image is not defined
+- set_fact:
+    calico_ipv4pool_ipip: "always"
+  when: calico_ipv4pool_ipip is not defined
+
+# TODO: move these variables into a calico_common role which only has default values
+- set_fact:
+    calico_ipv4pool_ipip: "always"
+  when: calico_ipv4pool_ipip is not defined
+- set_fact:
+    cni_conf_dir: "/etc/cni/net.d/"
+  when: cni_conf_dir is not defined
+- set_fact:
+    cni_bin_dir: "/opt/cni/bin/"
+  when: cni_bin_dir is not defined

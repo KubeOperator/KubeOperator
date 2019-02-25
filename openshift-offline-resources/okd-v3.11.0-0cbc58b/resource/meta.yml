@@ -1,12 +1,14 @@
 name: okd-3.11
 version: 3.11
 install_playbooks:
+  - name: 1-uninstall-install
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
   - name: 1-prepaire-install
     alias: playbooks/validate.yml
   - name: 2-run-prequisites-install
-    alias: openshift-ansible-private/playbooks/prerequisites.yml
+    alias: openshift-ansible/playbooks/prerequisites.yml
   - name: 3-deploy-cluster-install
-    alias: openshift-ansible-private/playbooks/deploy_cluster.yml
+    alias: openshift-ansible/playbooks/deploy_cluster.yml
 upgrade_playbooks:
   - name: 1-prepaire-upgrade
     alias: prepare.yml
@@ -14,7 +16,7 @@ upgrade_playbooks:
     alias: openshift-ansible/playbooks/upgrade.yml
 uninstall_playbooks:
   - name: 1-uninstall
-    alias: openshift-ansible-private/playbooks/adhoc/uninstall.yml
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
 configs:
   - name: openshift_master_cluster_hostname
     alias: 域名

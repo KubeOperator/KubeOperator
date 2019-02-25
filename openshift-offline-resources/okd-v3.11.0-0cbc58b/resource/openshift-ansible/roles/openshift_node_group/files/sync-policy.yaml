@@ -1,0 +1,20 @@
+kind: List
+apiVersion: v1
+items:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: sync
+    namespace: openshift-node
+- apiVersion: authorization.openshift.io/v1
+  kind: RoleBinding
+  metadata:
+    name: sync-node-config-reader-binding
+    namespace: openshift-node
+  roleRef:
+    name: system:node-config-reader
+    namespace: openshift-node
+  subjects:
+  - kind: ServiceAccount
+    name: sync
+    namespace: openshift-node

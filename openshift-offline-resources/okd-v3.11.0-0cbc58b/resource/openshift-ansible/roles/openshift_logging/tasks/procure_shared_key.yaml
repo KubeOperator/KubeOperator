@@ -1,0 +1,29 @@
+---
+- name: Checking for {{ shared_key_info.procure_component }}_shared_key
+  stat:
+    path: "{{generated_certs_dir}}/{{ shared_key_info.procure_component }}_shared_key"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: component_shared_key_file
+  check_mode: no
+
+- name: Trying to discover shared key variable name for {{ shared_key_info.procure_component }}
+  set_fact: procure_component_shared_key={{ lookup('env', '{{shared_key_info.procure_component}}' + '_shared_key') }}
+  when:
+  - shared_key_info[ shared_key_info.procure_component + '_shared_key' ] is defined
+  check_mode: no
+
+- name: Creating shared_key for {{ shared_key_info.procure_component }}
+  copy: content="{{'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'|random_word(64)}}"
+        dest="{{generated_certs_dir}}/{{shared_key_info.procure_component}}_shared_key"
+  check_mode: no
+  when:
+  - not component_shared_key_file.stat.exists
+
+- name: Copying shared key for {{ shared_key_info.procure_component }} to generated certs directory
+  copy: content="{{procure_component_shared_key}}" dest="{{generated_certs_dir}}/{{shared_key_info.procure_component}}_shared_key"
+  check_mode: no
+  when:
+  - shared_key_info[ shared_key_info.procure_component + '_shared_key' ] is defined
+  - not component_shared_key_file.stat.exists

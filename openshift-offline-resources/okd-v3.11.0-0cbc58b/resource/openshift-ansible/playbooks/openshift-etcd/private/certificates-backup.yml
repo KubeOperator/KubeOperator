@@ -1,0 +1,19 @@
+---
+- name: Backup and remove generated etcd certificates
+  hosts: oo_etcd_to_config
+  any_errors_fatal: true
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: backup_generated_certificates.yml
+  - import_role:
+      name: etcd
+      tasks_from: remove_generated_certificates.yml
+
+- name: Backup deployed etcd certificates
+  hosts: oo_etcd_to_config
+  any_errors_fatal: true
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: backup_server_certificates.yml

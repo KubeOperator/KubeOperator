@@ -1,0 +1,40 @@
+---
+- name: Validate Metering Hive Metastore DB engine
+  fail:
+    msg: "No Hive metastore DB driver set, invalid DB engine for Hive metastore: {{ openshift_metering_hive_metastore_db_engine }}"
+  when: not openshift_metering_hive_metastore_db_driver
+
+- name: Create Metering Hive metadata database using RDS
+  local_action:
+    module: rds
+    command: create
+    instance_name: "{{ openshift_metering_hive_metastore_db_rds_instance_name }}"
+    db_name: "{{ openshift_metering_hive_metastore_db_rds_instance_db_name }}"
+    db_engine: "{{ openshift_metering_hive_metastore_db_rds_instance_db_engine }}"
+    size: "{{ openshift_metering_hive_metastore_db_rds_instance_size }}"
+    instance_type: "{{ openshift_metering_hive_metastore_db_rds_instance_type }}"
+    username: "{{ openshift_metering_hive_metastore_db_rds_instance_username }}"
+    password: "{{ openshift_metering_hive_metastore_db_rds_instance_password }}"
+    publicly_accessible: "{{ openshift_metering_hive_metastore_db_rds_instance_publicly_accessible }}"
+    wait: "{{ openshift_metering_hive_metastore_db_rds_instance_wait }}"
+    wait_timeout: "{{ openshift_metering_hive_metastore_db_rds_instance_wait_timeout }}"
+    vpc_security_groups: "{{ openshift_metering_hive_metastore_db_rds_vpc_security_groups }}"
+    tags:
+      application: openshift-metering-hive-metastore
+  register: openshift_metering_hive_metastore_db_facts
+  when: openshift_metering_hive_metastore_db_rds_create | bool
+
+- name: Update Metering Hive metadata RDS database configuration
+  local_action:
+    module: rds
+    command: modify
+    instance_name: "{{ openshift_metering_hive_metastore_db_rds_instance_name }}"
+    size: "{{ openshift_metering_hive_metastore_db_rds_instance_size }}"
+    instance_type: "{{ openshift_metering_hive_metastore_db_rds_instance_type }}"
+    password: "{{ openshift_metering_hive_metastore_db_rds_instance_password }}"
+    wait: "{{ openshift_metering_hive_metastore_db_rds_instance_wait }}"
+    wait_timeout: "{{ openshift_metering_hive_metastore_db_rds_instance_wait_timeout }}"
+    vpc_security_groups: "{{ openshift_metering_hive_metastore_db_rds_vpc_security_groups }}"
+    apply_immediately: "{{ openshift_metering_hive_metastore_db_rds_apply_immediately }}"
+  register: openshift_metering_hive_metastore_db_facts
+  when: openshift_metering_hive_metastore_db_rds_create | bool

@@ -1,0 +1,96 @@
+---
+- name: Check for etcd stand-alone hosts on atomic
+  hosts: oo_etcd_to_config
+  any_errors_fatal: true
+  tasks:
+  - fail:
+      msg: >
+        etcd stand-alone hosts on atomic is no longer supported. Please
+        co-locate your etcd hosts with masters.
+    when:
+    - openshift_is_atomic | bool
+    - not inventory_hostname in groups['oo_masters']
+
+- name: Set etcd facts for all hosts
+  hosts: oo_etcd_to_config:oo_new_etcd_to_config
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: set_facts.yml
+
+- name: Configure etcd
+  hosts: oo_new_etcd_to_config
+  serial: 1
+  any_errors_fatal: true
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: add_new_member.yml
+    vars:
+      etcd_peer: "{{ hostvars[etcd_ca_host].etcd_ip }}"
+
+  - import_role:
+      name: etcd
+      tasks_from: server_certificates.yml
+    vars:
+      etcd_peers: "{{ groups.oo_new_etcd_to_config | default([], true) }}"
+      etcd_certificates_etcd_hosts: "{{ groups.oo_new_etcd_to_config | default([], true) }}"
+
+  - import_role:
+      name: os_firewall
+    when: etcd_add_check.rc == 0
+
+  # Setup etcd as a static pod if collocated with a master
+  - import_role:
+      name: etcd
+      tasks_from: static.yml
+    when:
+    - etcd_add_check.rc == 0
+    - inventory_hostname in groups['oo_masters']
+    vars:
+      etcd_peers: "{{ groups.oo_etcd_to_config | union(groups.oo_new_etcd_to_config)| default([], true) }}"
+      etcd_certificates_etcd_hosts: "{{ groups.oo_etcd_to_config | default([], true) }}"
+      etcd_initial_cluster_state: "existing"
+      etcd_initial_cluster: "{{ etcd_add_check.stdout_lines[3] | regex_replace('ETCD_INITIAL_CLUSTER=','') | regex_replace('\"','') }}"
+      etcd_ca_setup: False
+
+  - import_role:
+      name: etcd
+      tasks_from: rpm.yml
+    when:
+    - etcd_add_check.rc == 0
+    - not inventory_hostname in groups['oo_masters']
+    vars:
+      etcd_peers: "{{ groups.oo_etcd_to_config | union(groups.oo_new_etcd_to_config)| default([], true) }}"
+      etcd_certificates_etcd_hosts: "{{ groups.oo_etcd_to_config | default([], true) }}"
+      etcd_initial_cluster_state: "existing"
+      etcd_initial_cluster: "{{ etcd_add_check.stdout_lines[3] | regex_replace('ETCD_INITIAL_CLUSTER=','') | regex_replace('\"','') }}"
+      etcd_ca_setup: False
+
+  - import_role:
+      name: etcd
+      tasks_from: verify_cluster_health.yml
+
+- name: Update master etcd client urls
+  hosts: oo_masters_to_config
+  serial: 1
+  tasks:
+  - set_fact:
+      openshift_master_etcd_hosts: "{{ hostvars
+                                       | lib_utils_oo_select_keys(groups['oo_etcd_to_config'] | union(groups['oo_new_etcd_to_config'] | default([]) ))
+                                       | lib_utils_oo_collect('openshift.common.hostname')
+                                       | default(none, true) }}"
+      openshift_master_etcd_port: "{{ etcd_client_port | default('2379') }}"
+      openshift_no_proxy_etcd_host_ips: "{{ hostvars | lib_utils_oo_select_keys(groups['oo_etcd_to_config'] | default([]))
+                                                  | lib_utils_oo_collect('openshift.common.ip') | default([]) | join(',')
+                                                  }}"
+  # This fact requires the facts set above, so needs to happen in it's own task.
+  - set_fact:
+      # lib_utils_oo_etcd_host_urls is a custom filter plugin in roles/lib_utils/filter_plugins/oo_filters.py
+      openshift_master_etcd_urls: "{{ openshift_master_etcd_hosts | lib_utils_oo_etcd_host_urls(l_use_ssl, openshift_master_etcd_port) }}"
+    vars:
+      l_use_ssl: "{{ openshift_master_etcd_use_ssl | default(True) | bool}}"
+
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: update_etcd_client_urls.yml

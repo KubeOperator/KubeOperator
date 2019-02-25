@@ -1,0 +1,32 @@
+---
+- name: Unlabel GlusterFS node
+  oc_label:
+    name: "{{ restart_node.spec.nodeName }}"
+    kind: node
+    state: absent
+    labels: "{{ glusterfs_nodeselector | lib_utils_oo_dict_to_list_of_dict }}"
+
+# There was an alternate installation method, outside of openshift-ansible,
+# that was written prior to this Ansible automation. It used a different style
+# label and we wan tot be able to upgrade those installations as well.
+- name: Unlabel GlusterFS node (old label)
+  oc_label:
+    name: "{{ restart_node.spec.nodeName }}"
+    kind: node
+    state: absent
+    labels: [ { 'key': 'storagenode', 'value': '' } ]
+
+- import_tasks: wait_for_pods.yml
+  vars:
+    glusterfs_count: "{{ glusterfs_nodes | count - 1 }}"
+
+- name: Label GlusterFS nodes
+  oc_label:
+    name: "{{ restart_node.spec.nodeName }}"
+    kind: node
+    state: add
+    labels: "{{ glusterfs_nodeselector | lib_utils_oo_dict_to_list_of_dict }}"
+
+- import_tasks: wait_for_pods.yml
+
+- import_tasks: cluster_health.yml

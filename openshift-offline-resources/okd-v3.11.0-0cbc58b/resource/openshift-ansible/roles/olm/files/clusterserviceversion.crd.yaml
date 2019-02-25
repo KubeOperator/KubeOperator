@@ -1,0 +1,463 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterserviceversions.operators.coreos.com
+  annotations:
+    displayName: Operator Version
+    description: Represents an Operator that should be running on the cluster, including requirements and install strategy.
+spec:
+  names:
+    plural: clusterserviceversions
+    singular: clusterserviceversion
+    kind: ClusterServiceVersion
+    listKind: ClusterServiceVersionList
+    shortNames:
+    - csv
+    categories:
+    - all
+    - olm
+  additionalPrinterColumns:
+  - name: Display
+    type: string
+    description: The name of the CSV
+    JSONPath: .spec.displayName
+  - name: Version
+    type: string
+    description: The version of the CSV
+    JSONPath: .spec.version
+  - name: Replaces
+    type: string
+    description: The name of a CSV that this one replaces
+    JSONPath: .spec.replaces
+  - name: Phase
+    type: string
+    JSONPath: .status.phase
+  group: operators.coreos.com
+  version: v1alpha1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+  scope: Namespaced
+  subresources:
+    # status enables the status subresource.
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          type: object
+          description: Spec for a ClusterServiceVersion
+          required:
+          - displayName
+          - install
+          properties:
+            displayName:
+              type: string
+              description: Human readable name of the application that will be displayed in the ALM UI
+
+            description:
+              type: string
+              description: Human readable description of what the application does
+
+            keywords:
+              type: array
+              description: List of keywords which will be used to discover and categorize app types
+              items:
+                type: string
+
+            maintainers:
+              type: array
+              description: Those responsible for the creation of this specific app type
+              items:
+                type: object
+                description: Information for a single maintainer
+                required:
+                - name
+                - email
+                properties:
+                  name:
+                    type: string
+                    description: Maintainer's name
+                  email:
+                    type: string
+                    description: Maintainer's email address
+                    format: email
+                optionalProperties:
+                  type: string
+                  description: "Any additional key-value metadata you wish to expose about the maintainer, e.g. github: <username>"
+
+            links:
+              type: array
+              description: Interesting links to find more information about the project, such as marketing page, documentation, or github page
+              items:
+                type: object
+                description: A single link to describe one aspect of the project
+                required:
+                - name
+                - url
+                properties:
+                  name:
+                    type: string
+                    description: Name of the link type, e.g. homepage or github url
+                  url:
+                    type: string
+                    description: URL to which the link should point
+                    format: uri
+
+            icon:
+              type: array
+              description: Icon which should be rendered with the application information
+              required:
+              - base64data
+              - mediatype
+              properties:
+                base64data:
+                  type: string
+                  description: Base64 binary representation of the icon image
+                  pattern: ^(?:[A-Za-z0-9+/]{4}){0,16250}(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+                mediatype:
+                  type: string
+                  description: Mediatype for the binary data specified in the base64data property
+                  enum:
+                  - image/gif
+                  - image/jpeg
+                  - image/png
+                  - image/svg+xml
+            version:
+              type: string
+              description: Version string, recommended that users use semantic versioning
+              pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$
+
+            replaces:
+              type: string
+              description: Name of the ClusterServiceVersion custom resource that this version replaces
+
+            maturity:
+              type: string
+              description: What level of maturity the software has achieved at this version
+              enum:
+              - planning
+              - pre-alpha
+              - alpha
+              - beta
+              - stable
+              - mature
+              - inactive
+              - deprecated
+            labels:
+              type: object
+              description: Labels that will be applied to associated resources created by the operator.
+            selector:
+              type: object
+              description: Label selector to find resources associated with or managed by the operator
+              properties:
+                matchLabels:
+                  type: object
+                  description: Label key:value pairs to match directly
+                matchExpressions:
+                  type: array
+                  description: A set of expressions to match against the resource.
+                  items:
+                    allOf:
+                      - type: object
+                        required:
+                        - key
+                        - operator
+                        - values
+                        properties:
+                          key:
+                            type: string
+                            description: the key to match
+                          operator:
+                            type: string
+                            description: the operator for the expression
+                            enum:
+                            - In
+                            - NotIn
+                            - Exists
+                            - DoesNotExist
+                          values:
+                            type: array
+                            description: set of values for the expression
+            customresourcedefinitions:
+              type: object
+              properties:
+                owned:
+                  type: array
+                  description: What resources this operator is responsible for managing. No two running operators should manage the same resource.
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - version
+                      - kind
+                      - displayName
+                      - description
+                    properties:
+                      name:
+                        type: string
+                        description: Fully qualified name of the CustomResourceDefinition (e.g. my-resource-v1.app.coreos.com)
+                      version:
+                        type: string
+                        description: The version field of the CustomResourceDefinition
+                      kind:
+                        type: string
+                        description: The kind field of the CustomResourceDefinition
+                      displayName:
+                        type: string
+                        description: A human-readable name for the CRD.
+                      description:
+                        type: string
+                        description: A description of the CRD
+                      resources:
+                        type: array
+                        items:
+                          type: object
+                          description: A list of resources that should be displayed for the CRD
+                          required:
+                            - kind
+                            - version
+                          properties:
+                            name:
+                              type: string
+                              description: If a CRD, the fully qualified name of the CustomResourceDefinition (e.g. my-resource-v1.app.coreos.com)
+                            version:
+                              type: string
+                              description: The version of the resource kind
+                            kind:
+                              type: string
+                              description: The kind field of the resource kind
+                      statusDescriptors:
+                        type: array
+                        items:
+                          type: object
+                          description: A spec for a field in the status block of the CRD
+                          required:
+                            - path
+                            - displayName
+                            - description
+                          properties:
+                            path:
+                              type: string
+                              description: A jsonpath indexing into the status object on the CR where the the status value can be found.
+                            displayName:
+                              type: string
+                              description: A human-readable name for the status entry.
+                            description:
+                              type: string
+                              description: A description of the status entry.
+                            x-descriptors:
+                              type: array
+                              description: A list of descriptors for the status entry that indicate the meaning of the field.
+                              items:
+                                type: string
+                            value:
+                              type: object
+                              description: If present, the value of this status is the same for all instances of the CRD and can be found here instead of on the CR.
+                      specDescriptors:
+                        type: array
+                        items:
+                          type: object
+                          description: A spec for a field in the spec block of the CRD
+                          required:
+                            - path
+                            - displayName
+                            - description
+                          properties:
+                            path:
+                              type: string
+                              description: A jsonpath indexing into the spec object on the CR where the the spec value can be found.
+                            displayName:
+                              type: string
+                              description: A human-readable name for the spec entry.
+                            description:
+                              type: string
+                              description: A description of the spec entry.
+                            x-descriptors:
+                              type: array
+                              description: A list of descriptors for the spec entry that indicate the meaning of the field.
+                              items:
+                                type: string
+                            value:
+                              type: object
+                              description: If present, the value of this spec is the same for all instances of the CRD and can be found here instead of on the CR.
+                      actionDescriptors:
+                        type: array
+                        items:
+                          type: object
+                          description: A spec for actions that can be performed on instances of the CRD
+                          required:
+                            - path
+                            - displayName
+                            - description
+                          properties:
+                            path:
+                              type: string
+                              description: A jsonpath indexing into the spec object on the CR where the the spec value can be found.
+                            displayName:
+                              type: string
+                              description: A human-readable name for the action.
+                            description:
+                              type: string
+                              description: A description of the action.
+                            x-descriptors:
+                              type: array
+                              description: A list of descriptors for the action that indicate the meaning of the action.
+                              items:
+                                type: string
+                            value:
+                              type: object
+                              description: If present, the value of this action is the same for all instances of the CRD and can be found here instead of on the CR.
+                required:
+                  type: array
+                  description: What resources this operator is responsible for managing. No two running operators should manage the same resource.
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - version
+                      - kind
+                      - displayName
+                      - description
+                    properties:
+                      name:
+                        type: string
+                        description: Fully qualified name of the CustomResourceDefinition (e.g. my-resource-v1.app.coreos.com)
+                      version:
+                        type: string
+                        description: The version field of the CustomResourceDefinition
+                      kind:
+                        type: string
+                        description: The kind field of the CustomResourceDefinition
+                      displayName:
+                        type: string
+                        description: A human-readable name for the CRD.
+                      description:
+                        type: string
+                        description: A description of the CRD
+                      statusDescriptors:
+                        type: array
+                        items:
+                          type: object
+                          description: A spec for a field in the status block of the CRD
+                          required:
+                            - path
+                            - displayName
+                            - description
+                          properties:
+                            path:
+                              type: string
+                              description: A jsonpath indexing into the status object on the CR where the the status value can be found.
+                            displayName:
+                              type: string
+                              description: A human-readable name for the status entry.
+                            description:
+                              type: string
+                              description: A description of the status entry.
+                            x-descriptors:
+                              type: array
+                              description: A list of descriptors for the status entry that indicate the meaning of the field.
+                              items:
+                                type: string
+                            value:
+                              type: object
+                              description: If present, the value of this status is the same for all instances of the CRD and can be found here instead of on the CR.
+
+
+            install:
+              type: object
+              description: Information required to install this specific version of the operator software
+              oneOf:
+              - type: object
+                required:
+                - strategy
+                - spec
+                properties:
+                  strategy:
+                    type: string
+                    enum: ['image']
+                  spec:
+                    type: object
+                    required:
+                    - image
+                    properties:
+                      image:
+                        type: string
+              - type: object
+                required:
+                - strategy
+                - spec
+                properties:
+                  strategy:
+                    type: string
+                    enum: ['deployment']
+                  spec:
+                    type: object
+                    required:
+                    - deployments
+                    properties:
+                      deployments:
+                        type: array
+                        description: List of deployments to create
+                        items:
+                          type: object
+                          description: A name and deployment to create in the cluster
+                          required:
+                            - name
+                            - spec
+                          properties:
+                            name:
+                              type: string
+                              description: the consistent name of the deployment
+                            spec:
+                              type: object
+                              description: The deployment spec to create in the cluster
+                      permissions:
+                        type: array
+                        description: Permissions needed by the deployement to run correctly
+                        items:
+                          type: object
+                          required:
+                            - serviceAccountName
+                            - rules
+                          properties:
+                            serviceAccountName:
+                              type: string
+                              description: The service account name to create for the deployment
+                            rules:
+                              type: array
+                              items:
+                                type: object
+                                description: a rule required by the service account
+                                properties:
+                                  apiGroups:
+                                    type: array
+                                    description: apiGroups the rule applies to
+                                    items:
+                                      type: string
+                                  resources:
+                                    type: array
+                                    items:
+                                      type: string
+                                  resourceNames:
+                                    type: array
+                                    items:
+                                      type: string
+                                  verbs:
+                                    type: array
+                                    items:
+                                      type: string
+                                      enum:
+                                        - "*"
+                                        - get
+                                        - list
+                                        - watch
+                                        - create
+                                        - update
+                                        - patch
+                                        - delete
+                                        - deletecollection
+        status:
+          type: object
+          description: Status for a ClusterServiceVersion

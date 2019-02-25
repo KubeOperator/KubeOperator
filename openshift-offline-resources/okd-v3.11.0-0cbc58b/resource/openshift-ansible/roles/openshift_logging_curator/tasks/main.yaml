@@ -1,0 +1,146 @@
+---
+- name: Ensure that Logging Curator has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_logging_curator_nodeselector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Logging Curator
+
+# allow passing in a tempdir
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+# This may not be necessary in this role
+- name: Create templates subdirectory
+  file:
+    state: directory
+    path: "{{ tempdir }}/templates"
+    mode: 0755
+  changed_when: False
+
+# we want to make sure we have all the necessary components here
+
+# service account
+- name: Create Curator service account
+  oc_serviceaccount:
+    state: present
+    name: "aggregated-logging-curator"
+    namespace: "{{ openshift_logging_namespace }}"
+    image_pull_secrets: "{{ openshift_logging_curator_image_pull_secret }}"
+  when: openshift_logging_curator_image_pull_secret != ''
+
+- name: Create Curator service account
+  oc_serviceaccount:
+    state: present
+    name: "aggregated-logging-curator"
+    namespace: "{{ openshift_logging_namespace }}"
+  when:
+    - openshift_logging_curator_image_pull_secret == ''
+
+# secret
+- name: Set Curator secret
+  oc_secret:
+    state: present
+    name: "logging-curator"
+    namespace: "{{ openshift_logging_namespace }}"
+    files:
+      - name: ca
+        path: "{{ generated_certs_dir }}/ca.crt"
+      - name: key
+        path: "{{ generated_certs_dir }}/system.logging.curator.key"
+      - name: cert
+        path: "{{ generated_certs_dir }}/system.logging.curator.crt"
+
+- set_fact:
+    curator_name: "{{ 'logging-curator' ~ ( (openshift_logging_curator_ops_deployment | default(false) | bool) | ternary('-ops', '') ) }}"
+    curator_component: "{{ 'curator' ~ ( (openshift_logging_curator_ops_deployment | default(false) | bool) | ternary('-ops', '') ) }}"
+
+- name: Detect running upgrade
+  set_fact:
+    is_upgrade: "{{ openshift_logging_facts['curator' ~ ( (openshift_logging_curator_ops_deployment | default(false) | bool) | ternary('_ops', '') )]['deploymentconfigs'][curator_name] is defined }}"
+
+# Cron Job - v5.x
+# Keep the old DC around
+- name: Scale the old DC to 0
+  oc_scale:
+    name: "{{ curator_name }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    kind: dc
+    replicas: 0
+  when: is_upgrade | bool
+
+- name: Generate Curator cronjob
+  template:
+    src: "curator-cj.j2"
+    dest: "{{ tempdir }}/templates/curator-cj.yaml"
+  vars:
+    component: "{{ curator_component }}"
+    logging_component: curator
+    deploy_name: "{{ curator_name }}"
+    es_host: "{{ openshift_logging_curator_es_host }}"
+    es_port: "{{ openshift_logging_curator_es_port }}"
+    curator_cpu_limit: "{{ openshift_logging_curator_cpu_limit }}"
+    curator_cpu_request: "{{ openshift_logging_curator_cpu_request | min_cpu(openshift_logging_curator_cpu_limit | default(none)) }}"
+    curator_memory_limit: "{{ openshift_logging_curator_memory_limit }}"
+    curator_node_selector: "{{openshift_logging_curator_nodeselector | default({})}}"
+    cron_job_schedule: "{{ openshift_logging_curator_run_minute | default(0) }} {{ openshift_logging_curator_run_hour | default(0) }} * * *"
+  check_mode: no
+  changed_when: no
+
+# Copy config files
+- copy:
+    src: "{{ item }}"
+    dest: "{{ tempdir }}/{{ item }}"
+  with_items:
+    - "actions.yaml"
+    - "config.yaml"
+    - "curator.yml"
+
+# Patch existing configuration, if present
+- import_role:
+    name: openshift_logging
+    tasks_from: patch_configmap_files.yaml
+  vars:
+    configmap_name: "logging-curator"
+    configmap_namespace: "{{ openshift_logging_namespace }}"
+    configmap_file_names:
+      - current_file: "actions.yaml"
+        new_file: "{{ tempdir }}/actions.yaml"
+      - current_file: "curator5.yaml"
+        new_file: "{{ tempdir }}/config.yaml"
+      - current_file: "config.yaml"
+        new_file: "{{ tempdir }}/curator.yml"
+
+# Create cronjob
+- name: Set Curator Cronjob
+  oc_obj:
+    state: present
+    name: "{{ curator_name }}"
+    namespace: "{{ openshift_logging_namespace }}"
+    kind: cronjob
+    files:
+      - "{{ tempdir }}/templates/curator-cj.yaml"
+    delete_after: true
+
+# Create config map
+- name: Set Curator configmap
+  oc_configmap:
+    state: present
+    name: "logging-curator"
+    namespace: "{{ openshift_logging_namespace }}"
+    from_file:
+      actions.yaml: "{{ tempdir }}/actions.yaml"
+      curator5.yaml: "{{ tempdir }}/config.yaml"
+      config.yaml: "{{ tempdir }}/curator.yml"
+
+- name: Delete temp directory
+  file:
+    name: "{{ tempdir }}"
+    state: absent
+  changed_when: False

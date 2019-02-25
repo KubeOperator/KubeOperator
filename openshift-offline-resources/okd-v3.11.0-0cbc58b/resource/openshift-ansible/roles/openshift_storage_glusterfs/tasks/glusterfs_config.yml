@@ -1,0 +1,3 @@
+---
+- import_tasks: glusterfs_config_facts.yml
+- import_tasks: glusterfs_common.yml

@@ -1,0 +1,28 @@
+---
+- name: Install or Update node system container
+  oc_atomic_container:
+    name: "{{ openshift_service_type }}-node"
+    image: "{{ system_osn_image }}"
+    values:
+    - "DNS_DOMAIN={{ openshift.common.dns_domain }}"
+    - "DOCKER_SERVICE={{ openshift_docker_service_name }}.service"
+    - 'ADDTL_MOUNTS={{ l_node_syscon_add_mounts2 }}'
+    state: latest
+  vars:
+    # We need to evaluate some variables here to ensure
+    # l_bind_docker_reg_auth is evaluated after registry_auth.yml has been
+    # processed.
+
+    # Determine if we want to include auth credentials mount.
+    l_node_syscon_auth_mounts_l: "{{ l_bind_docker_reg_auth | ternary(openshift_node_syscon_auth_mounts_l,[]) }}"
+
+    # Join any user-provided mounts and auth_mounts into a combined list.
+    l_node_syscon_add_mounts_l: "{{ openshift_node_syscon_add_mounts_l | union(l_node_syscon_auth_mounts_l) }}"
+
+    # We must prepend a ',' here to ensure the value is inserted properly into an
+    # existing json list in the container's config.json
+    # lib_utils_oo_l_of_d_to_csv is a custom filter plugin in roles/lib_utils/oo_filters.py
+    l_node_syscon_add_mounts: ",{{ l_node_syscon_add_mounts_l | lib_utils_oo_l_of_d_to_csv }}"
+    # if we have just a ',' then both mount lists were empty, we don't want to add
+    # anything to config.json
+    l_node_syscon_add_mounts2: "{{ (l_node_syscon_add_mounts != ',') | bool | ternary(l_node_syscon_add_mounts,'') }}"

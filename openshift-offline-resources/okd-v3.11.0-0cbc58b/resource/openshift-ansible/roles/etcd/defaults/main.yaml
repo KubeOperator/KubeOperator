@@ -1,0 +1,117 @@
+---
+r_etcd_common_backup_tag: ''
+r_etcd_common_backup_sufix_name: ''
+
+l_etcd_static_pod: "{{ (inventory_hostname in groups['oo_masters']) | bool }}"
+
+# runc, docker, static pod, host
+r_etcd_common_etcd_runtime: "{{ 'static_pod' if l_etcd_static_pod  else 'host' }}"
+
+r_etcd_default_version: "3.2.22"
+# lib_utils_oo_oreg_image is a custom filter defined in roles/lib_utils/filter_plugins/oo_filters.py
+# This filter attempts to combine oreg_url host with project/component from etcd_image_dict.
+# "oreg.example.com/openshift3/ose-${component}:${version}"
+# becomes "oreg.example.com/rhel7/etcd:{{ r_etcd_upgrade_version | default(r_etcd_default_version) }}"
+osm_etcd_image: "{{ etcd_image_dict[openshift_deployment_type] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+etcd_image_dict:
+  origin: "quay.io/coreos/etcd:v{{ r_etcd_upgrade_version | default(r_etcd_default_version) }}"
+  openshift-enterprise: "registry.redhat.io/rhel7/etcd:{{ r_etcd_upgrade_version | default(r_etcd_default_version) }}"
+etcd_image: "{{ osm_etcd_image }}"
+
+# etcd run on a host => use etcdctl command directly
+etcdctl_dict:
+  host: 'etcdctl'
+  static_pod: '/usr/local/bin/master-exec etcd etcd etcdctl'
+r_etcd_common_etcdctl_command: "{{ etcdctl_dict[r_etcd_common_etcd_runtime] }}"
+
+# etcd server vars
+# etcd_cert_prefix is to facilitate multiple etcd instances on one host
+# in one path
+etcd_cert_prefix: ''
+etcd_conf_dir: '/etc/etcd'
+etcd_conf_file: "{{ etcd_conf_dir }}/etcd.conf"
+etcd_ca_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}ca.crt"
+etcd_cert_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}server.crt"
+etcd_cert_subdir: "etcd-{{ openshift.common.hostname }}"
+etcd_key_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}server.key"
+etcd_peer_ca_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}ca.crt"
+etcd_peer_cert_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}peer.crt"
+etcd_peer_key_file: "{{ etcd_conf_dir }}/{{ etcd_cert_prefix }}peer.key"
+
+# etcd ca vars
+etcd_ca_dir: "{{ etcd_conf_dir}}/ca"
+etcd_generated_certs_dir: "{{ etcd_conf_dir }}/generated_certs"
+etcd_cert_config_dir: "/etc/etcd"
+etcd_ca_cert: "{{ etcd_ca_dir }}/ca.crt"
+etcd_ca_key: "{{ etcd_ca_dir }}/ca.key"
+etcd_openssl_conf: "{{ etcd_ca_dir }}/openssl.cnf"
+etcd_ca_name: etcd_ca
+etcd_req_ext: etcd_v3_req
+etcd_ca_exts_peer: etcd_v3_ca_peer
+etcd_ca_exts_server: etcd_v3_ca_server
+etcd_ca_exts_self: etcd_v3_ca_self
+etcd_ca_exts_client: etcd_v3_ca_client
+etcd_ca_crl_dir: "{{ etcd_ca_dir }}/crl"
+etcd_ca_new_certs_dir: "{{ etcd_ca_dir }}/certs"
+etcd_ca_db: "{{ etcd_ca_dir }}/index.txt"
+etcd_ca_serial: "{{ etcd_ca_dir }}/serial"
+etcd_ca_crl_number: "{{ etcd_ca_dir }}/crlnumber"
+etcd_ca_default_days: 1825
+
+r_etcd_common_master_peer_cert_file: /etc/origin/master/master.etcd-client.crt
+r_etcd_common_master_peer_key_file: /etc/origin/master/master.etcd-client.key
+r_etcd_common_master_peer_ca_file: /etc/origin/master/master.etcd-ca.crt
+
+# etcd server & certificate vars
+etcd_hostname: "{{ openshift.common.hostname }}"
+etcd_ip: "{{ openshift.common.ip }}"
+etcd_is_atomic: "{{ openshift_is_atomic }}"
+etcd_is_thirdparty: False
+
+# etcd dir vars
+etcd_data_dir: "/var/lib/etcd/"
+
+# etcd ports and protocols
+etcd_client_port: 2379
+etcd_peer_port: 2380
+etcd_url_scheme: https
+etcd_peer_url_scheme: https
+
+etcd_initial_cluster_state: new
+etcd_initial_cluster_token: etcd-cluster-1
+
+etcd_initial_advertise_peer_urls: "{{ etcd_peer_url_scheme }}://{{ etcd_ip }}:{{ etcd_peer_port }}"
+etcd_listen_peer_urls: "{{ etcd_peer_url_scheme }}://{{ etcd_ip }}:{{ etcd_peer_port }}"
+etcd_advertise_client_urls: "{{ etcd_url_scheme }}://{{ etcd_ip }}:{{ etcd_client_port }}"
+etcd_listen_client_urls: "{{ etcd_url_scheme }}://{{ etcd_ip }}:{{ etcd_client_port }}"
+
+etcd_peer: "{{ openshift.common.hostname }}"
+etcdctlv2: "{{ r_etcd_common_etcdctl_command }} --cert-file {{ etcd_peer_cert_file }} --key-file {{ etcd_peer_key_file }} --ca-file {{ etcd_peer_ca_file }} --endpoints {{ etcd_peer_url_scheme }}://{{ etcd_peer }}:{{ etcd_client_port }}"
+
+etcd_service: etcd
+# Location of the service file is fixed and not meant to be changed
+etcd_service_file: "/etc/systemd/system/{{ etcd_service }}.service"
+
+r_etcd_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_etcd_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+etcd_systemd_dir: "/etc/systemd/system/{{ etcd_service }}.service.d"
+r_etcd_os_firewall_deny: []
+r_etcd_os_firewall_allow:
+- service: etcd
+  port: "{{etcd_client_port}}/tcp"
+- service: etcd peering
+  port: "{{ etcd_peer_port }}/tcp"
+
+# set the backend quota to 4GB by default
+etcd_quota_backend_bytes: 4294967296
+
+openshift_docker_service_name: "docker"
+
+etcd_ca_host: "{{ groups['oo_etcd_to_config'].0 }}"
+
+l_etcd_restart_command: "{{ l_etcd_static_pod | ternary('/usr/local/bin/master-restart etcd', 'systemctl restart etcd') }}"
+
+etcd_static_pod_location: "{{ openshift_control_plane_static_pod_location | default('/etc/origin/node/pods/') }}"
+
+etcd_cipher_suites: ""

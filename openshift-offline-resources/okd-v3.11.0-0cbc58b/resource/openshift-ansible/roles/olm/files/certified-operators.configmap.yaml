@@ -1,0 +1,1249 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: certified-operators
+  namespace: operator-lifecycle-manager
+data:
+  customResourceDefinitions: |-
+    - kind: CustomResourceDefinition
+      apiVersion: apiextensions.k8s.io/v1beta1
+      metadata:
+        name: couchbaseclusters.couchbase.com
+      spec:
+        group: couchbase.com
+        version: v1
+        names:
+          plural: couchbaseclusters
+          singular: couchbasecluster
+          shortNames:
+            - couchbase
+            - cbc
+          kind: CouchbaseCluster
+          listKind: CouchbaseClusterList
+        scope: Namespaced
+        validation:
+          openAPIV3Schema:
+            properties:
+              spec:
+                required:
+                  - baseImage
+                  - version
+                  - authSecret
+                  - cluster
+                  - servers
+                properties:
+                  adminConsoleServices:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - data
+                        - index
+                        - query
+                        - search
+                        - eventing
+                        - analytics
+                  buckets:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - type
+                        - memoryQuota
+                      properties:
+                        enableFlush:
+                          type: boolean
+                        enableIndexReplica:
+                          type: boolean
+                        ioPriority:
+                          type: string
+                          enum:
+                            - high
+                            - low
+                        name:
+                          type: string
+                          pattern: '^[a-zA-Z0-9._\-%]*$'
+                        evictionPolicy:
+                          type: string
+                          enum:
+                            - valueOnly
+                            - fullEviction
+                            - noEviction
+                            - nruEviction
+                        memoryQuota:
+                          type: integer
+                          minimum: 100
+                        type:
+                          type: string
+                          enum:
+                            - couchbase
+                            - ephemeral
+                            - memcached
+                        replicas:
+                          type: integer
+                          maximum: 3
+                          minimum: 0
+                        conflictResolution:
+                          type: string
+                          enum:
+                            - seqno
+                            - lww
+                  baseImage:
+                    type: string
+                  antiAffinity:
+                    type: boolean
+                  exposeAdminConsole:
+                    type: boolean
+                  paused:
+                    type: boolean
+                  servers:
+                    type: array
+                    minLength: 1
+                    items:
+                      type: object
+                      required:
+                        - size
+                        - name
+                        - services
+                      properties:
+                        name:
+                          type: string
+                          minLength: 1
+                          pattern: '^[-_a-zA-Z0-9]+$'
+                        pod:
+                          type: object
+                          properties:
+                            automountServiceAccountToken:
+                              type: boolean
+                            couchbaseEnv:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  value:
+                                    type: string
+                            labels:
+                              type: object
+                            nodeSelector:
+                              type: object
+                            resources:
+                              type: object
+                              properties:
+                                limits:
+                                  type: object
+                                  properties:
+                                    cpu:
+                                      type: string
+                                    memory:
+                                      type: string
+                                    storage:
+                                      type: string
+                                requests:
+                                  type: object
+                                  properties:
+                                    cpu:
+                                      type: string
+                                    memory:
+                                      type: string
+                                    storage:
+                                      type: string
+                            tolerations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - key
+                                  - operator
+                                  - value
+                                  - effect
+                                properties:
+                                  effect:
+                                    type: string
+                                  key:
+                                    type: string
+                                  operator:
+                                    type: string
+                                  tolerationSeconds:
+                                    type: integer
+                                  value:
+                                    type: string
+                            volumeMounts:
+                              type: object
+                              required:
+                                - default
+                              properties:
+                                analytics:
+                                  type: array
+                                  items:
+                                    type: string
+                                data:
+                                  type: string
+                                default:
+                                  type: string
+                                index:
+                                  type: string
+                        serverGroups:
+                          type: array
+                          items:
+                            type: string
+                        services:
+                          type: array
+                          minLength: 1
+                          items:
+                            type: string
+                            enum:
+                              - data
+                              - index
+                              - query
+                              - search
+                              - eventing
+                              - analytics
+                        size:
+                          type: integer
+                          minimum: 1
+                  disableBucketManagement:
+                    type: boolean
+                  volumeClaimTemplates:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - metadata
+                        - spec
+                      properties:
+                        metadata:
+                          type: object
+                          required:
+                            - name
+                          properties:
+                            name:
+                              type: string
+                        spec:
+                          type: object
+                          required:
+                            - resources
+                            - storageClassName
+                          properties:
+                            resources:
+                              type: object
+                              properties:
+                                limits:
+                                  type: object
+                                  required:
+                                    - storage
+                                  properties:
+                                    storage:
+                                      type: string
+                                requests:
+                                  type: object
+                                  required:
+                                    - storage
+                                  properties:
+                                    storage:
+                                      type: string
+                            storageClassName:
+                              type: string
+                  serverGroups:
+                    type: array
+                    items:
+                      type: string
+                  version:
+                    type: string
+                    pattern: '^([\w\d]+-)?\d+\.\d+.\d+(-[\w\d]+)?$'
+                  softwareUpdateNotifications:
+                    type: boolean
+                  authSecret:
+                    type: string
+                    minLength: 1
+                  cluster:
+                    type: object
+                    required:
+                      - dataServiceMemoryQuota
+                      - indexServiceMemoryQuota
+                      - searchServiceMemoryQuota
+                      - eventingServiceMemoryQuota
+                      - analyticsServiceMemoryQuota
+                      - indexStorageSetting
+                      - autoFailoverTimeout
+                      - autoFailoverMaxCount
+                    properties:
+                      autoFailoverTimeout:
+                        type: integer
+                        maximum: 3600
+                        minimum: 5
+                      autoFailoverOnDataDiskIssues:
+                        type: boolean
+                      clusterName:
+                        type: string
+                      indexStorageSetting:
+                        type: string
+                        enum:
+                          - plasma
+                          - memory_optimized
+                      analyticsServiceMemoryQuota:
+                        type: integer
+                        minimum: 1024
+                      eventingServiceMemoryQuota:
+                        type: integer
+                        minimum: 256
+                      searchServiceMemoryQuota:
+                        type: integer
+                        minimum: 256
+                      autoFailoverMaxCount:
+                        type: integer
+                        maximum: 3
+                        minimum: 1
+                      dataServiceMemoryQuota:
+                        type: integer
+                        minimum: 256
+                      autoFailoverOnDataDiskIssuesTimePeriod:
+                        type: integer
+                        maximum: 3600
+                        minimum: 5
+                      indexServiceMemoryQuota:
+                        type: integer
+                        minimum: 256
+                      autoFailoverServerGroup:
+                        type: boolean
+                  tls:
+                    type: object
+                    properties:
+                      static:
+                        type: object
+                        properties:
+                          member:
+                            type: object
+                            properties:
+                              serverSecret:
+                                type: string
+                          operatorSecret:
+                            type: string
+                  exposedFeatures:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - admin
+                        - xdcr
+                        - client
+        versions:
+          - name: v1
+            served: true
+            storage: true
+        additionalPrinterColumns:
+          - name: Age
+            type: date
+            description: >-
+              CreationTimestamp is a timestamp representing the server time when this
+              object was created. It is not guaranteed to be set in happens-before
+              order across separate operations. Clients may not set this value. It is
+              represented in RFC3339 form and is in UTC.
+      
+      
+              Populated by the system. Read-only. Null for lists. More info:
+              https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+            JSONPath: .metadata.creationTimestamp
+    - apiVersion: apiextensions.k8s.io/v1beta1
+      kind: CustomResourceDefinition
+      metadata:
+        name: oneagents.dynatrace.com
+      spec:
+        group: dynatrace.com
+        names:
+          kind: OneAgent
+          listKind: OneAgentList
+          plural: oneagents
+          singular: oneagent
+        scope: Namespaced
+        version: v1alpha1
+    - kind: CustomResourceDefinition
+      apiVersion: apiextensions.k8s.io/v1beta1
+      metadata:
+        name: mongodbreplicasets.mongodb.com
+      spec:
+        group: mongodb.com
+        version: v1
+        names:
+          plural: mongodbreplicasets
+          singular: mongodbreplicaset
+          shortNames:
+            - mrs
+          kind: MongoDbReplicaSet
+          listKind: MongoDbReplicaSetList
+        scope: Namespaced
+        validation:
+          openAPIV3Schema:
+            properties:
+              spec:
+                required:
+                  - credentials
+                  - project
+                  - version
+                  - members
+                properties:
+                  members:
+                    type: integer
+                    maximum: 50
+                    minimum: 1
+                  spec:
+                    properties:
+                      credentials:
+                        type: string
+                      project:
+                        type: string
+                      version:
+                        type: string
+    - kind: CustomResourceDefinition
+      apiVersion: apiextensions.k8s.io/v1beta1
+      metadata:
+        name: mongodbshardedclusters.mongodb.com
+      spec:
+        group: mongodb.com
+        version: v1
+        names:
+          plural: mongodbshardedclusters
+          singular: mongodbshardedcluster
+          shortNames:
+            - msc
+          kind: MongoDbShardedCluster
+          listKind: MongoDbShardedClusterList
+        scope: Namespaced
+        validation:
+          openAPIV3Schema:
+            properties:
+              spec:
+                required:
+                  - credentials
+                  - project
+                  - version
+                  - shardCount
+                  - mongodsPerShardCount
+                  - mongosCount
+                  - configServerCount
+                properties:
+                  configServerCount:
+                    type: integer
+                    maximum: 50
+                    minimum: 1
+                  mongodsPerShardCount:
+                    type: integer
+                    maximum: 50
+                    minimum: 1
+                  mongosCount:
+                    type: integer
+                    minimum: 1
+                  shardCount:
+                    type: integer
+                    minimum: 1
+                  spec:
+                    properties:
+                      credentials:
+                        type: string
+                      project:
+                        type: string
+                      version:
+                        type: string
+    - kind: CustomResourceDefinition
+      apiVersion: apiextensions.k8s.io/v1beta1
+      metadata:
+        name: mongodbstandalones.mongodb.com
+      spec:
+        group: mongodb.com
+        version: v1
+        names:
+          plural: mongodbstandalones
+          singular: mongodbstandalone
+          shortNames:
+            - mst
+          kind: MongoDbStandalone
+          listKind: MongoDbStandaloneList
+        scope: Namespaced
+        validation:
+          openAPIV3Schema:
+            properties:
+              spec:
+                required:
+                  - credentials
+                  - project
+                  - version
+                properties:
+                  spec:
+                    properties:
+                      credentials:
+                        type: string
+                      project:
+                        type: string
+                      version:
+                        type: string
+  clusterServiceVersions: |-
+    - apiVersion: operators.coreos.com/v1alpha1
+      kind: ClusterServiceVersion
+      metadata:
+        annotations:
+          alm-examples: >-
+            [{"apiVersion":"couchbase.com/v1","kind":"CouchbaseCluster","metadata":{"name":"cb-example","namespace":"default"},"spec":{"authSecret":"cb-example-auth","baseImage":"registry.connect.redhat.com/couchbase/server","buckets":[{"conflictResolution":"seqno","enableFlush":true,"evictionPolicy":"fullEviction","ioPriority":"high","memoryQuota":128,"name":"default","replicas":1,"type":"couchbase"}],"cluster":{"analyticsServiceMemoryQuota":1024,"autoFailoverMaxCount":3,"autoFailoverOnDataDiskIssues":true,"autoFailoverOnDataDiskIssuesTimePeriod":120,"autoFailoverServerGroup":false,"autoFailoverTimeout":120,"clusterName":"cb-example","dataServiceMemoryQuota":256,"eventingServiceMemoryQuota":256,"indexServiceMemoryQuota":256,"indexStorageSetting":"memory_optimized","searchServiceMemoryQuota":256},"servers":[{"name":"all_services","services":["data","index","query","search","eventing","analytics"],"size":3}],"version":"5.5.1-1"}}]
+        name: couchbase-operator.v1.0.0
+        namespace: placeholder
+      spec:
+        customresourcedefinitions:
+          owned:
+            - description: Manages Couchbase clusters
+              displayName: Couchbase Operator
+              kind: CouchbaseCluster
+              name: couchbaseclusters.couchbase.com
+              resources:
+                - kind: Service
+                  name: ''
+                  version: v1
+                - kind: Pod
+                  name: ''
+                  version: v1
+              specDescriptors:
+                - description: The name of the secret object that stores the admin credentials.
+                  displayName: Auth Secret
+                  path: authSecret
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:Secret'
+              statusDescriptors:
+                - description: The desired number of member Pods for the deployment.
+                  displayName: Size
+                  path: size
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:podCount'
+                - description: The current status of the Couchbase cluster.
+                  displayName: Status
+                  path: phase
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes.phase'
+                - description: Explanation for the current status of the application.
+                  displayName: Status Details
+                  path: reason
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes.phase:reason'
+                - description: The status of each of the member Pods for the Couchbase cluster.
+                  displayName: Member Status
+                  path: members
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:podStatuses'
+                - description: The current version of the Couchbase cluster.
+                  displayName: Current Version
+                  path: currentVersion
+                - description: >-
+                    The port the Couchbase Admin Console can be accessed on from any
+                    node in the OpenShift cluster.
+                  displayName: Admin Console Port
+                  path: adminConsolePort
+                - description: >-
+                    The SSL port the Couchbase Admin Console can be accessed on from
+                    any node in the OpenShift cluster.
+                  displayName: SSL Admin Console Port
+                  path: adminConsolePortSSL
+              version: v1
+        keywords:
+          - couchbase
+          - database
+          - key value
+          - nosql
+          - open source
+        displayName: Couchbase Operator
+        provider:
+          name: Couchbase
+        maturity: stable
+        version: 1.0.0
+        icon:
+          - base64data: >-
+              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
+            mediatype: image/png
+        links:
+          - name: Couchbase
+            url: 'https://www.couchbase.com'
+          - name: Documentation
+            url: 'https://docs.couchbase.com/operator/1.0/overview.html'
+          - name: Downloads
+            url: 'https://www.couchbase.com/downloads'
+        install:
+          spec:
+            deployments:
+              - name: couchbase-operator
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      name: couchbase-operator
+                  template:
+                    metadata:
+                      labels:
+                        name: couchbase-operator
+                    spec:
+                      containers:
+                        - command:
+                            - couchbase-operator
+                          env:
+                            - name: MY_POD_NAMESPACE
+                              valueFrom:
+                                fieldRef:
+                                  fieldPath: metadata.namespace
+                            - name: MY_POD_NAME
+                              valueFrom:
+                                fieldRef:
+                                  fieldPath: metadata.name
+                          image: 'registry.connect.redhat.com/couchbase/operator:1.0.0-1'
+                          name: couchbase-operator
+                          ports:
+                            - containerPort: 8080
+                              name: readiness-port
+                          readinessProbe:
+                            failureThreshold: 19
+                            httpGet:
+                              path: /readyz
+                              port: readiness-port
+                            initialDelaySeconds: 3
+                            periodSeconds: 3
+                      serviceAccountName: couchbase-operator
+            permissions:
+              - rules:
+                  - apiGroups:
+                      - couchbase.com
+                    resources:
+                      - couchbaseclusters
+                    verbs:
+                      - '*'
+                  - apiGroups:
+                      - storage.k8s.io
+                    resources:
+                      - storageclasses
+                    verbs:
+                      - get
+                  - apiGroups:
+                      - apiextensions.k8s.io
+                    resources:
+                      - customresourcedefinitions
+                    verbs:
+                      - '*'
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - pods
+                      - services
+                      - endpoints
+                      - persistentvolumeclaims
+                      - events
+                      - secrets
+                    verbs:
+                      - '*'
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - persistentvolumes
+                    verbs:
+                      - get
+                      - watch
+                  - apiGroups:
+                      - apps
+                    resources:
+                      - deployments
+                    verbs:
+                      - '*'
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - secrets
+                    verbs:
+                      - get
+                serviceAccountName: couchbase-operator
+          strategy: deployment
+        maintainers:
+          - email: support@couchbase.com
+            name: Couchbase
+        description: >
+          The Couchbase Autonomous Operator allows users to easily deploy, manage, and
+          maintain Couchbase deployments on OpenShift. By installing this integration
+          you will be able to deply Couchbase Server clusters with a single command.
+      
+      
+          ## Supported Features
+      
+      
+          * **Automated cluster provisioning** - Deploying a Couchbase Cluster has
+          never been easier. Fill out a Couchbase specific configuration and let the
+          Couchbase Operator take care of provisioning nodes and setting up cluster to
+          your exact specification.
+      
+      
+          * **On-demand scalability** - Automatically scale your cluster up or down by
+          changing a simple configuration parameter and let the Couchbase Operator
+          handle provisioning of new nodes and joining them into the cluster.
+      
+      
+          * **Auto-recovery** - Detect Couchbase node failures, rebalance out bad
+          nodes, and bring the cluster back up to the desired capacity. Auto-recovery
+          is completely automated so you can sleep easy through the night knowing that
+          the Couchbase Operator will handle any failures.
+      
+      
+          * **Geo-distribution** - Replicate your data between datacenters to move
+          data closer to the users who consume it and protect against disaster
+          scenarios where an entire datacenter becomes unavailable.
+      
+      
+          * **Persistent storage** - Define persistent network-attached storage for
+          each node in your cluster to allow pods to be recovered even if the node
+          they were running on is no longer available.
+      
+      
+          * **Rack/zone awareness** - Tell the Couchbase Operator about availability
+          zones in your datacenter and let the operator take care of ensuring that
+          nodes in your cluster are deployed equally across each zone.
+      
+      
+          * **Supportability** - When things go wrong, use the cbopinfo tool provided
+          with the Couchbase Operator to collect relevant data about your Couchbase
+          deployment so that you can quickly address issues.
+      
+      
+          * **Centralized configuration management** - Manage your configuration
+          centrally with OpenShift. Updates to the configuration are watched by the
+          Couchbase Operator and actions are taken to make the target cluster match
+          the desired configuration.
+          
+          ## Required Parameters
+      
+          * `authSecret` - provide the name of a secret that contains two keys for the
+          `username` and `password` of the super user
+          ([documentation](https://docs.couchbase.com/operator/1.0/couchbase-cluster-config.html))
+      
+      
+          ## About Couchbase Server
+      
+      
+          Built on the most powerful NoSQL technology, Couchbase Server delivers
+          unparalleled performance at scale, in any cloud. With features like
+          memory-first architecture, geo-distributed deployments, and workload
+          isolation, Couchbase Server excels at supporting mission-critical
+          applications at scale while maintaining submillisecond latencies and 99.999%
+          availability. Plus, with the most comprehensive SQL-compatible query
+          language (N1QL), migrating from RDBMS to Couchbase Server is easy with ANSI
+          joins.
+        selector:
+          matchLabels:
+            alm-owner-etcd: couchbaseoperator
+            operated-by: couchbaseoperator
+        labels:
+          alm-owner-etcd: couchbaseoperator
+          operated-by: couchbaseoperator
+      
+    - apiVersion: operators.coreos.com/v1alpha1
+      kind: ClusterServiceVersion
+      metadata:
+        annotations:
+          alm-examples: >-
+            [{"apiVersion":"dynatrace.com/v1alpha1","kind":"OneAgent","metadata":{"name":"oneagent"},"spec":{"apiUrl":"https://ENVIRONMENTID.live.dynatrace.com/api","args":["APP_LOG_CONTENT_ACCESS=1"],"image":"registry.connect.redhat.com/dynatrace/oneagent"}}]
+        name: dynatrace-monitoring.v0.2.0
+        namespace: placeholder
+      spec:
+        customresourcedefinitions:
+          owned:
+            - description: Dyantrace OneAgent monitoring agent
+              displayName: Dynatrace OneAgent
+              group: dynatrace.com
+              kind: OneAgent
+              name: oneagents.dynatrace.com
+              resources:
+                - kind: DaemonSet
+                  name: ''
+                  version: v1beta2
+                - kind: Pod
+                  name: ''
+                  version: v1
+              specDescriptors:
+                - description: Credentials for the OneAgent to connect back to Dynatrace.
+                  displayName: API and Pass Tokens
+                  path: tokens
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:Secret'
+                - description: >-
+                    'Location of the Dynatrace API to connect to, including your
+                    specific environment ID'
+                  displayName: API URL
+                  path: apiUrl
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+              version: v1alpha1
+        keywords:
+          - monitoring
+        displayName: Dynatrace OneAgent
+        provider:
+          name: 'Dynatrace, Inc'
+        maturity: stable
+        version: 0.2.0
+        icon:
+          - base64data: >-
+              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
+        links:
+          - name: Operator Deploy Guide
+            url: https://www.dynatrace.com/support/help/cloud-platforms/openshift/full-stack/deployment/deploy-oneagent-on-openshift-container-platform/
+          - name: OpenShift Monitoring Info
+            url: https://www.dynatrace.com/technologies/openshift-monitoring/
+        install:
+          spec:
+            deployments:
+              - name: dynatrace-operator
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      name: dynatrace-oneagent-operator
+                  template:
+                    metadata:
+                      labels:
+                        dynatrace: operator
+                        name: dynatrace-oneagent-operator
+                        operator: oneagent
+                    spec:
+                      containers:
+                        - command:
+                            - dynatrace-oneagent-operator
+                          env:
+                            - name: MY_POD_NAMESPACE
+                              valueFrom:
+                                fieldRef:
+                                  fieldPath: metadata.namespace
+                          image: >-
+                            registry.connect.redhat.com/dynatrace/dynatrace-oneagent-operator:v0.2.0
+                          imagePullPolicy: Always
+                          name: dynatrace-oneagent-operator
+                          resources:
+                            limits:
+                              cpu: 200m
+                              memory: 128Mi
+                            requests:
+                              cpu: 100m
+                              memory: 64Mi
+                      nodeSelector:
+                        beta.kubernetes.io/os: linux
+                      serviceAccountName: dynatrace-oneagent-operator
+            permissions:
+              - rules:
+                  - apiGroups:
+                      - dynatrace.com
+                    resources:
+                      - oneagents
+                    verbs:
+                      - get
+                      - list
+                      - watch
+                      - update
+                  - apiGroups:
+                      - apps
+                    resources:
+                      - daemonsets
+                    verbs:
+                      - get
+                      - list
+                      - watch
+                      - create
+                      - update
+                      - delete
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - pods
+                    verbs:
+                      - get
+                      - list
+                      - watch
+                      - delete
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - secrets
+                    verbs:
+                      - get
+                      - list
+                      - watch
+                  - apiGroups:
+                      - dynatrace.com
+                    resources:
+                      - oneagents/finalizers
+                    verbs:
+                      - update
+                serviceAccountName: dynatrace-oneagent-operator
+          strategy: deployment
+        maintainers:
+          - email: support@dynatrace.com
+            name: 'Dynatrace, Inc'
+        description: >
+          Install full-stack monitoring of [OpenShift
+          clusters](https://www.dynatrace.com/technologies/openshift-monitoring/) with
+          the Dynatrace OneAgent on your cluster. OneAgent connects back to
+          Dynatrace's hosted monitoring tools.
+      
+          ## Before Your Start
+      
+          1\. Make sure to install the Security Context Constraint (SCC) in order for
+          the agent to properly monitor all aspects of your Pods:
+      
+      
+          ``` $ oc create sa dynatrace-oneagent ```
+      
+      
+          ``` $ oc adm policy add-scc-to-user privileged
+          system:serviceaccount:<namespace>:dynatrace-oneagent ```
+      
+      
+          2\. Add a Secret within the Project that contians your API and PaaS tokens
+      
+      
+          Get an [API
+          token](https://www.dynatrace.com/support/help/get-started/introduction/why-do-i-need-an-access-token-and-an-environment-id/#anchor-access-tokens)
+          for the Dynatrace API. This token is later referenced as `API_TOKEN`.
+      
+      
+          Get a [Platform-as-a-Service
+          token](https://www.dynatrace.com/support/help/get-started/introduction/why-do-i-need-an-access-token-and-an-environment-id/#anchor-access-tokens).
+          This token is later referenced as `PAAS_TOKEN`.
+      
+      
+          ``` $ oc -n dynatrace create secret generic oneagent
+          --from-literal="apiToken=API_TOKEN" --from-literal="paasToken=PAAS_TOKEN"
+          ```
+      
+      
+          You may update this Secret at any time to rotate the tokens.
+          
+          ## Required Parameters
+      
+          * `apiUrl` - provide the environment ID used in conjuction with this
+          monitoring agent in the API adddress, eg
+          `https://<ENVIRONMENTID>.live.dynatrace.com/api`
+      
+          ## Advanced Options ##
+      
+          **Image Override** - use a copy of the OneAgent container image from a
+          registry other than Red Hat's
+      
+      
+          **NodeSelectors** - select a subset of your cluster's Nodes to run OneAgent
+          on, based on labels
+      
+      
+          **Tolerations** - add specific tolerations to the agent so that it can
+          monitor all of the Nodes in your cluster
+      
+      
+          **Disable Certificate Checking** - disable any certificate validation that
+          may interact poorly with proxies with in your cluster
+      
+      
+          For a complete list of supported parameters please consult the [Operator
+          Deploy
+          Guide](https://www.dynatrace.com/support/help/shortlink/openshift-deploy#parameters).
+      
+    - apiVersion: operators.coreos.com/v1alpha1
+      kind: ClusterServiceVersion
+      metadata:
+        annotations:
+          alm-examples: >-
+            [{"apiVersion":"mongodb.com/v1","kind":"MongoDbStandalone","metadata":{"name":"my-standalone","namespace":"mongodb"},"spec":{"version":"4.0.2","persistent":false,"project":"my-project","credentials":"my-credentials"}},{"apiVersion":"mongodb.com/v1","kind":"MongoDbReplicaSet","metadata":{"name":"my-replica-set","namespace":"mongodb"},"spec":{"members":3,"version":"4.0.2","persistent":false,"project":"my-project","credentials":"my-credentials"}},{"apiVersion":"mongodb.com/v1","kind":"MongoDbShardedCluster","metadata":{"name":"my-sharded-cluster","namespace":"mongodb"},"spec":{"shardCount": 2, "mongodsPerShardCount": 3, "mongosCount": 2, "configServerCount": 3,"version":"4.0.2","persistent":false,"project":"my-project","credentials":"my-credentials"}}]
+        name: mongodboperator.v0.3.2
+        namespace: placeholder
+      spec:
+        customresourcedefinitions:
+          owned:
+            - description: >-
+                MongoDB Deployment consisting of only one host. No replication of
+                data.
+              displayName: MongoDB Standalone
+              group: mongodb.com
+              kind: MongoDbStandalone
+              name: mongodbstandalones.mongodb.com
+              resources:
+                - kind: Service
+                  name: ''
+                  version: v1
+                - kind: StatefulSet
+                  name: ''
+                  version: v1beta2
+                - kind: Pod
+                  name: ''
+                  version: v1
+              specDescriptors:
+                - description: Credentials for Ops Manager or Cloud Manager.
+                  displayName: Credentials
+                  path: credentials
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:Secret'
+                - description: Project this deployment belongs to.
+                  displayName: Project
+                  path: project
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:ConfigMap'
+                - description: MongoDB version to be installed.
+                  displayName: Version
+                  path: version
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+              version: v1
+            - description: MongoDB Replica Set Deployment
+              displayName: MongoDB Replica Set
+              group: mongodb.com
+              kind: MongoDbReplicaSet
+              name: mongodbreplicasets.mongodb.com
+              resources:
+                - kind: Service
+                  name: ''
+                  version: v1
+                - kind: StatefulSet
+                  name: ''
+                  version: v1beta2
+                - kind: Pod
+                  name: ''
+                  version: v1
+              specDescriptors:
+                - description: Number of members in this Replica Set.
+                  displayName: Members
+                  path: members
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+                - description: Credentials for Ops Manager or Cloud Manager.
+                  displayName: Credentials
+                  path: credentials
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:Secret'
+                - description: Project this deployment belongs to.
+                  displayName: Project
+                  path: project
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:ConfigMap'
+                - description: MongoDB version to be installed.
+                  displayName: Version
+                  path: version
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+              version: v1
+            - description: MongoDB Sharded Cluster Deployment
+              displayName: MongoDB Sharded Cluster
+              group: mongodb.com
+              kind: MongoDbShardedCluster
+              name: mongodbshardedclusters.mongodb.com
+              resources:
+                - kind: Service
+                  name: ''
+                  version: v1
+                - kind: StatefulSet
+                  name: ''
+                  version: v1beta2
+                - kind: Pod
+                  name: ''
+                  version: v1
+              specDescriptors:
+                - description: Credentials for Ops Manager or Cloud Manager.
+                  displayName: Credentials
+                  path: credentials
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:Secret'
+                - description: Project this deployment belongs to.
+                  displayName: Project
+                  path: project
+                  x-descriptors:
+                    - 'urn:alm:descriptor:io.kubernetes:core:v1:ConfigMap'
+                - description: MongoDB version to be installed.
+                  displayName: Version
+                  path: version
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+                - description: How many Config Servers will be deployed
+                  displayName: Config Server Count
+                  path: configServerCount
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+                - description: How many MongoDB Servers per Shard will be deployed
+                  displayName: MongoDB Servers per Shard
+                  path: mongodsPerShardCount
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+                - description: How many mongos will be deployed
+                  displayName: Mongos (MongoDB Shard) to be deployed
+                  path: mongosCount
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+                - description: Amount of Shards to be deployed
+                  displayName: Shards
+                  path: shardCount
+                  x-descriptors:
+                    - 'urn:alm:descriptor:com.tectonic.ui:label'
+              version: v1
+        keywords:
+          - mongodb
+          - database
+          - nosql
+        displayName: MongoDB
+        provider:
+          name: 'MongoDB, Inc'
+        maturity: stable
+        version: 0.3.2
+        icon:
+          - base64data: >-
+              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
+            mediatype: image/png
+        links:
+          - name: Documentation
+            url: >-
+              https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator/index.html
+        install:
+          spec:
+            deployments:
+              - name: mongodb-enterprise-operator
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      k8s-app: mongodb-enterprise-operator
+                  template:
+                    metadata:
+                      labels:
+                        k8s-app: mongodb-enterprise-operator
+                    spec:
+                      containers:
+                        - env:
+                            - name: WATCH_NAMESPACE
+                              valueFrom:
+                                fieldRef:
+                                  fieldPath: metadata.namespace
+                            - name: OPERATOR_ENV
+                              value: dev
+                            - name: MONGODB_ENTERPRISE_DATABASE_IMAGE
+                              value: >-
+                                quay.io/mongodb/mongodb-enterprise-database:experimental
+                            - name: IMAGE_PULL_POLICY
+                              value: Always
+                            - name: IMAGE_PULL_SECRETS
+                              value: ''
+                          image: 'registry.connect.redhat.com/mongodb/enterprise-operator:0.3.2'
+                          imagePullPolicy: Always
+                          name: mongodb-enterprise-operator
+                          resources:
+                            limits:
+                              cpu: 200m
+                              memory: 100Mi
+                            requests:
+                              cpu: 100m
+                              memory: 50Mi
+                      imagePullSecrets:
+                        - name: ''
+                      nodeSelector:
+                        beta.kubernetes.io/os: linux
+                      serviceAccountName: mongodb-enterprise-operator
+            permissions:
+              - rules:
+                  - apiGroups:
+                      - ''
+                    resources:
+                      - configmaps
+                      - secrets
+                      - services
+                    verbs:
+                      - get
+                      - list
+                      - create
+                      - update
+                      - delete
+                  - apiGroups:
+                      - apps
+                    resources:
+                      - statefulsets
+                    verbs:
+                      - '*'
+                  - apiGroups:
+                      - apiextensions.k8s.io
+                    resources:
+                      - customresourcedefinitions
+                    verbs:
+                      - get
+                      - list
+                      - watch
+                      - create
+                      - delete
+                  - apiGroups:
+                      - mongodb.com
+                    resources:
+                      - '*'
+                    verbs:
+                      - '*'
+                serviceAccountName: mongodb-enterprise-operator
+          strategy: deployment
+        maintainers:
+          - email: support@mongodb.com
+            name: 'MongoDB, Inc'
+        description: >
+          The MongoDB Enterprise Kubernetes Operator enables easy deploys of MongoDB
+          into Kubernetes clusters, using our management, monitoring and backup
+          platforms, Ops Manager and Cloud Manager.
+      
+      
+          ## Before You Start
+          
+          To start using the operator you'll need an account in MongoDB Cloud Manager.
+          
+          * [Create a Secret with your OpsManager API key](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator/#create-credentials)
+          
+          
+          * [Create a ConfigMap with your OpsManager project ID and URL](https://docs.opsmanager.mongodb.com/current/tutorial/install-k8s-operator/#create-onprem-project)
+      
+      
+          By installing this integration, you will be able to deploy MongoDB instances
+          with a single simple command.
+          
+          ## Required Parameters
+          
+          * `project` - Enter the name of the ConfigMap containing project information
+          
+          
+          * `credentials` - Enter the name of the Secret containing your OpsManager credentials
+      
+      
+          ## Supported MongoDB Deployment Types ##
+      
+      
+          * Standalone: An instance of mongod that is running as a single server and
+          not as part of a replica set, this is, it does not do any kind of
+          replication.
+      
+      
+          * Replica Set: A replica set in MongoDB is a group of mongod processes that
+          maintain the same data set. Replica sets provide redundancy and high
+          availability, and are the basis for all production deployments. This section
+          introduces replication in MongoDB as well as the components and architecture
+          of replica sets. The section also provides tutorials for common tasks
+          related to replica sets.
+      
+      
+          * Sharded Cluster: The set of nodes comprising a sharded MongoDB deployment.
+          A sharded cluster consists of config servers, shards, and one or more mongos
+          routing processes. Sharding is a A database architecture that partitions
+          data by key ranges and distributes the data among two or more database
+          instances. Sharding enables horizontal scaling.
+      
+  packages: |-
+    - #! package-manifest: ./deploy/chart/catalog_resources/certified-operators/couchbase.1.0.0.clusterserviceversion
+      packageName: couchbase-enterprise
+      channels:
+      - name: preview
+        currentCSV: couchbase-operator.v1.0.0
+      
+    - #! package-manifest: ./deploy/chart/catalog_resources/certified-operators/dynatrace-monitoring.0.1.0.clusterserviceversion
+      packageName: dynatrace-monitoring
+      channels:
+      - name: preview
+        currentCSV: dynatrace-monitoring.v0.2.0
+      
+    - #! package-manifest: ./deploy/chart/catalog_resources/certified-operators/mongodb-enterprise.v0.3.2.clusterserviceversion
+      packageName: mongodb-enterprise
+      channels:
+      - name: preview
+        currentCSV: mongodboperator.v0.3.2
+      
+

@@ -1,0 +1,17 @@
+no-resolv
+domain-needed
+{% if openshift_node_dnsmasq_no_negcache %}
+no-negcache
+{% else %}
+neg-ttl={{ openshift_node_dnsmasq_neg_ttl }}
+{% endif %}
+max-cache-ttl=1
+enable-dbus
+dns-forward-max=10000
+cache-size=10000
+bind-dynamic
+min-port=1024
+{% for interface in openshift_node_dnsmasq_except_interfaces %}
+except-interface={{ interface }}
+{% endfor %}
+# End of config

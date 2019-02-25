@@ -1,0 +1,42 @@
+allowHostDirVolumePlugin: true
+allowHostIPC: false
+allowHostNetwork: true
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+allowedCapabilities: []
+allowedFlexVolumes: []
+apiVersion: v1
+defaultAddCapabilities: []
+fsGroup:
+  ranges:
+  - max: "{{ contiv_etcd_system_gid }}"
+    min: "{{ contiv_etcd_system_gid }}"
+  type: MustRunAs
+groups: []
+kind: SecurityContextConstraints
+metadata:
+  annotations:
+    kubernetes.io/description: 'For contiv-etcd only.'
+  creationTimestamp: null
+  name: contiv-etcd
+priority: null
+readOnlyRootFilesystem: true
+requiredDropCapabilities:
+- KILL
+- MKNOD
+- SETUID
+- SETGID
+runAsUser:
+  type: MustRunAs
+  uid: "{{ contiv_etcd_system_uid }}"
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: MustRunAs
+users:
+- system:serviceaccount:kube-system:contiv-etcd
+volumes:
+- emptyDir
+- hostPath
+- secret

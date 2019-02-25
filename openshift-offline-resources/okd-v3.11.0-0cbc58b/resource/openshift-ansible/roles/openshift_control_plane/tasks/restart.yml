@@ -1,0 +1,11 @@
+---
+- name: restart master
+  command: /usr/local/bin/master-restart "{{ item }}"
+  with_items:
+  - api
+  - controllers
+  retries: 5
+  delay: 5
+  register: result
+  until: result.rc == 0
+  notify: verify API server

@@ -1,0 +1,69 @@
+---
+# initial checks
+- assert:
+    msg: Invalid sink type "{{openshift_logging_eventrouter_sink}}", only one of "{{__eventrouter_sinks}}" allowed
+    that: openshift_logging_eventrouter_sink in __eventrouter_sinks
+
+- name: Ensure that Logging EventRouter has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_logging_eventrouter_nodeselector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Logging EventRouter
+
+# allow passing in a tempdir
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+- name: Create templates subdirectory
+  file:
+    state: directory
+    path: "{{ tempdir }}/templates"
+    mode: 0755
+  changed_when: False
+
+# create EventRouter deployment config
+- name: Generate EventRouter template
+  template:
+    src: "eventrouter-template.j2"
+    dest: "{{ tempdir }}/templates/eventrouter-template.yaml"
+  vars:
+    node_selector: "{{ openshift_logging_eventrouter_nodeselector | default({}) }}"
+    cpu_limit: "{{ openshift_logging_eventrouter_cpu_limit }}"
+
+- name: Create EventRouter template
+  oc_obj:
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+    kind: template
+    name: eventrouter-template
+    state: present
+    files:
+    - "{{ tempdir }}/templates/eventrouter-template.yaml"
+
+- name: Process EventRouter template
+  oc_process:
+    state: present
+    template_name: eventrouter-template
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+    params:
+      IMAGE: "{{ openshift_logging_eventrouter_image }}"
+      REPLICAS: "{{ openshift_logging_eventrouter_replicas }}"
+      CPU: "{{ openshift_logging_eventrouter_cpu_request }}"
+      CPU_LIMIT: "{{ openshift_logging_eventrouter_cpu_limit }}"
+      MEMORY: "{{ openshift_logging_eventrouter_memory_limit }}"
+      NAMESPACE: "{{ openshift_logging_eventrouter_namespace }}"
+      SINK: "{{ openshift_logging_eventrouter_sink }}"
+
+## Placeholder for migration when necessary ##
+
+- name: Delete temp directory
+  file:
+    name: "{{ tempdir }}"
+    state: absent
+  changed_when: False

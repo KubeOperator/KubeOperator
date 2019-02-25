@@ -1,0 +1,16 @@
+---
+- name: Update all packages
+  package:
+    name: '*'
+    state: latest
+  register: result
+  until: result is succeeded
+
+- when:
+  - os_update_latest_reboot
+  - result.changed
+  block:
+  - shell: ( sleep 2 && reboot ) &
+
+  - wait_for_connection:
+      delay: 10

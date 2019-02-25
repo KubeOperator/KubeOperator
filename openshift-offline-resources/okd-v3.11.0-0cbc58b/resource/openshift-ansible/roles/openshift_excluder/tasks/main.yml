@@ -1,0 +1,28 @@
+---
+- block:
+
+  - name: Debug r_openshift_excluder_enable_docker_excluder
+    debug:
+      var: r_openshift_excluder_enable_docker_excluder
+
+  - name: Debug r_openshift_excluder_enable_openshift_excluder
+    debug:
+      var: r_openshift_excluder_enable_openshift_excluder
+
+  - name: Fail if invalid openshift_excluder_action provided
+    fail:
+      msg: "openshift_excluder role can only be called with 'enable' or 'disable'"
+    when: r_openshift_excluder_action not in ['enable', 'disable']
+
+  - name: Fail if r_openshift_excluder_upgrade_target is not defined
+    fail:
+      msg: "r_openshift_excluder_upgrade_target must be provided when using this role for upgrades"
+    when:
+    - r_openshift_excluder_verify_upgrade | bool
+    - r_openshift_excluder_upgrade_target is not defined
+
+  - name: Include main action task file
+    include_tasks: "{{ r_openshift_excluder_action }}.yml"
+
+  when:
+  - not openshift_is_atomic

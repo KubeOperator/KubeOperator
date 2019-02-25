@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Cisco
+  description:
+  company: Cisco
+  license:
+  min_ansible_version: 2.2
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  categories:
+  - cloud
+  - system
+dependencies:
+- role: lib_utils
+- role: contiv_facts

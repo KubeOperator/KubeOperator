@@ -1,0 +1,43 @@
+# GCP uses non-root users by default, so sudo by default
+---
+ansible_become: yes
+
+openshift_deployment_type: origin
+osm_etcd_image: "{{ etcd_image_dict[openshift_deployment_type] }}"
+
+# Debugging settings
+debug_level: 2
+openshift_debug_level: "{{ debug_level }}"
+openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
+openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
+
+# External API settings
+console_port: 443
+internal_console_port: 8443
+openshift_master_api_port: "8443"
+openshift_master_console_port: "8443"
+openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
+openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
+openshift_master_default_subdomain: "{{ wildcard_zone }}"
+
+# Cloud specific settings
+openshift_cloudprovider_kind: gce
+openshift_hosted_registry_storage_provider: gcs
+
+openshift_master_access_token_max_seconds: 2419200
+openshift_master_identity_providers:
+
+# Networking settings
+openshift_node_port_range: 30000-32000
+openshift_node_open_ports: [{"service":"Router stats port", "port":"1936/tcp"}, {"service":"Allowed open host ports", "port":"9000-10000/tcp"}, {"service":"Allowed open host ports", "port":"9000-10000/udp"}]
+os_sdn_network_plugin_name: redhat/openshift-ovs-networkpolicy
+openshift_node_sdn_mtu: 1410
+osm_cluster_network_cidr: 172.16.0.0/16
+osm_host_subnet_length: 9
+openshift_portal_net: 172.30.0.0/16
+
+# masters and infra are the same in CI
+openshift_gcp_node_group_mapping:
+  masters: 'node-config-master'
+  infra: 'node-config-master'
+  compute: 'node-config-compute'

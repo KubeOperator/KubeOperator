@@ -1,0 +1,17 @@
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1beta1.metrics.k8s.io
+  labels:
+    kubernetes.io/cluster-service: "true"
+    metrics-server-infra: support
+spec:
+  service:
+    name: metrics-server
+    namespace: "{{ openshift_metrics_server_project }}"
+  group: metrics.k8s.io
+  version: v1beta1
+  insecureSkipTLSVerify: false
+  groupPriorityMinimum: 100
+  versionPriority: 100
+  caBundle: "{{ caBundle }}"

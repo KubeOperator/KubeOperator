@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: add valid tag to the image
+    shell: >
+      jsonrtag=$(az resource show -g '{{ openshift_azure_input_image_ns }}' -n '{{ openshift_azure_input_image_name }}' --resource-type 'Microsoft.Compute/images' --query tags);
+      rt=$(echo $jsonrtag | tr -d '"{},' | sed 's/: /=/g');
+      az resource tag --tags $rt 'valid=true' -g '{{ openshift_azure_input_image_ns }}' -n '{{ openshift_azure_input_image_name }}' --resource-type 'Microsoft.Compute/images'

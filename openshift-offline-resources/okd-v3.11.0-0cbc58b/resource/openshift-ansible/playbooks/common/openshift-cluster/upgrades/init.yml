@@ -1,0 +1,38 @@
+---
+- import_playbook: ../../../init/evaluate_groups.yml
+  vars:
+    # Do not allow adding hosts during upgrade.
+    g_new_master_hosts: []
+    g_new_node_hosts: []
+
+- import_playbook: ../../../init/basic_facts.yml
+- import_playbook: ../../../init/base_packages.yml
+- import_playbook: ../../../init/cluster_facts.yml
+
+- name: Inspect cluster certificates
+  hosts: "{{ l_upgrade_cert_check_hosts }}"
+  tasks:
+  - import_role:
+      name: openshift_certificate_expiry
+      tasks_from: main.yml
+
+- name: Ensure firewall is not switched during upgrade
+  hosts: "{{ l_upgrade_no_switch_firewall_hosts | default('oo_all_hosts') }}"
+  vars:
+    openshift_master_installed_version: "{{ hostvars[groups.oo_first_master.0].openshift_current_version }}"
+  tasks:
+  - name: set currently installed version
+    set_fact:
+      openshift_currently_installed_version: "{{ openshift_master_installed_version }}"
+
+  - name: Get iptable service details
+    systemd:
+      name: "iptables"
+    ignore_errors: true
+    register: iptables_service
+
+  - name: Set fact os_firewall_use_firewalld FALSE for iptables
+    set_fact:
+      os_firewall_use_firewalld: false
+    when:
+    - iptables_service.status.ActiveState == 'active'

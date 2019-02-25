@@ -1,0 +1,14 @@
+---
+- import_playbook: init/main.yml
+  vars:
+    l_networkman_check_hosts: "oo_nodes_to_config"
+
+- import_playbook: openshift-checks/private/install.yml
+
+- import_playbook: openshift-node/private/bootstrap.yml
+
+- import_playbook: common/private/control_plane.yml
+
+- import_playbook: openshift-node/private/join.yml
+
+- import_playbook: common/private/components.yml

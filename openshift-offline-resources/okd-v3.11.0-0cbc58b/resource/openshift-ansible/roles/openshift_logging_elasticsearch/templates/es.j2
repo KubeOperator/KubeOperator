@@ -1,0 +1,217 @@
+apiVersion: "v1"
+kind: "DeploymentConfig"
+metadata:
+  name: "{{deploy_name}}"
+  labels:
+    provider: openshift
+    component: "{{component}}"
+    deployment: "{{deploy_name}}"
+    logging-infra: "{{logging_component}}"
+spec:
+  replicas: {{es_replicas|default(1)}}
+  revisionHistoryLimit: 0
+  selector:
+    provider: openshift
+    component: "{{component}}"
+    deployment: "{{deploy_name}}"
+    logging-infra: "{{logging_component}}"
+  strategy:
+    type: Recreate
+  triggers: []
+  template:
+    metadata:
+      name: "{{deploy_name}}"
+      labels:
+        logging-infra: "{{logging_component}}"
+        provider: openshift
+        component: "{{component}}"
+        deployment: "{{deploy_name}}"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: logging-infra
+                  operator: In
+                  values:
+                  - elasticsearch
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriod: 600
+      serviceAccountName: aggregated-logging-elasticsearch
+      securityContext:
+        supplementalGroups:
+{% for group in es_storage_groups %}
+        - {{group}}
+{% endfor %}
+{% if es_node_selector is iterable and es_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in es_node_selector.items() %}
+        {{key}}: "{{value}}"
+{% endfor %}
+{% endif %}
+      containers:
+        - name: "elasticsearch"
+          image: "{{ openshift_logging_elasticsearch_image }}"
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+{% if es_cpu_limit is defined and es_cpu_limit is not none and es_cpu_limit != '' %}
+              cpu: "{{es_cpu_limit}}"
+{% endif %}
+              memory: "{{es_memory_limit}}"
+            requests:
+              cpu: "{{es_cpu_request}}"
+              memory: "{{es_memory_limit}}"
+{% if es_container_security_context %}
+          securityContext: {{ es_container_security_context | to_yaml }}
+{% endif %}
+          ports:
+            -
+              containerPort: 9200
+              name: "restapi"
+            -
+              containerPort: 9300
+              name: "cluster"
+          env:
+            -
+              name: "DC_NAME"
+              value: "{{deploy_name}}"
+            -
+              name: "NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            -
+              name: "KUBERNETES_TRUST_CERT"
+              value: "true"
+            -
+              name: "SERVICE_DNS"
+              value: "logging-{{es_cluster_name}}-cluster"
+            -
+              name: "CLUSTER_NAME"
+              value: "logging-{{es_cluster_name}}"
+            -
+              name: "INSTANCE_RAM"
+              value: "{{openshift_logging_elasticsearch_memory_limit}}"
+            -
+              name: "HEAP_DUMP_LOCATION"
+              value: "/elasticsearch/persistent/heapdump.hprof"
+            -
+              name: "NODE_QUORUM"
+              value: "{{es_node_quorum | int}}"
+            -
+              name: "RECOVER_EXPECTED_NODES"
+              value: "{{es_recover_expected_nodes}}"
+            -
+              name: "RECOVER_AFTER_TIME"
+              value: "{{openshift_logging_elasticsearch_recover_after_time}}"
+            -
+              name: "READINESS_PROBE_TIMEOUT"
+              value: "30"
+            -
+              name: "POD_LABEL"
+              value: "component={{component}}"
+            -
+              name: "IS_MASTER"
+              value: "{% if deploy_type in ['data-master', 'master'] %}true{% else %}false{% endif %}"
+
+            -
+              name: "HAS_DATA"
+              value: "{% if deploy_type in ['data-master', 'data-client'] %}true{% else %}false{% endif %}"
+            -
+              name: "PROMETHEUS_USER"
+              value: "{{openshift_logging_elasticsearch_prometheus_sa}}"
+
+            -
+             name: "PRIMARY_SHARDS"
+             value: "{{ es_number_of_shards | default ('1') }}"
+
+            -
+             name: "REPLICA_SHARDS"
+             value: "{{ es_number_of_replicas | default ('0') }}"
+
+          volumeMounts:
+            - name: elasticsearch
+              mountPath: /etc/elasticsearch/secret
+              readOnly: true
+            - name: elasticsearch-config
+              mountPath: /usr/share/java/elasticsearch/config
+              readOnly: true
+            - name: elasticsearch-storage
+              mountPath: /elasticsearch/persistent
+            - name: podinfo
+              mountPath: /etc/podinfo
+              readOnly: true
+          readinessProbe:
+            exec:
+              command:
+              - "/usr/share/elasticsearch/probe/readiness.sh"
+            initialDelaySeconds: 10
+            timeoutSeconds: 30
+            periodSeconds: 5
+        -
+          name: proxy
+          image: "{{ openshift_logging_elasticsearch_proxy_image }}"
+          imagePullPolicy: IfNotPresent
+          args:
+           - --upstream-ca=/etc/elasticsearch/secret/admin-ca
+           - --https-address=:4443
+           - -provider=openshift
+           - -client-id=system:serviceaccount:{{ openshift_logging_elasticsearch_namespace }}:aggregated-logging-elasticsearch
+           - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+           - -cookie-secret={{ 16 | lib_utils_oo_random_word | b64encode }}
+           - -basic-auth-password={{ basic_auth_passwd }}
+           - -upstream=https://localhost:9200
+           - '-openshift-sar={"namespace": "{{ openshift_logging_elasticsearch_namespace}}", "verb": "view", "resource": "prometheus", "group": "metrics.openshift.io"}'
+           - '-openshift-delegate-urls={"/": {"resource": "prometheus", "verb": "view", "group": "metrics.openshift.io", "namespace": "{{ openshift_logging_elasticsearch_namespace}}"}}'
+           - --tls-cert=/etc/tls/private/tls.crt
+           - --tls-key=/etc/tls/private/tls.key
+           - -pass-access-token
+           - -pass-user-headers
+          ports:
+          - containerPort: 4443
+            name: proxy
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /etc/tls/private
+            name: proxy-tls
+            readOnly: true
+          - mountPath: /etc/elasticsearch/secret
+            name: elasticsearch
+            readOnly: true
+          resources:
+            limits:
+              memory: "{{openshift_logging_elasticsearch_proxy_memory_limit }}"
+            requests:
+              cpu: "{{openshift_logging_elasticsearch_proxy_cpu_request }}"
+              memory: "{{openshift_logging_elasticsearch_proxy_memory_limit }}"
+      volumes:
+        - name: proxy-tls
+          secret:
+            secretName: prometheus-tls
+        - name: elasticsearch
+          secret:
+            secretName: logging-elasticsearch
+        - name: elasticsearch-config
+          configMap:
+            name: "{{configmap_name}}"
+        - name: podinfo
+          downwardAPI:
+            items:
+              - path: "mem_limit"
+                resourceFieldRef:
+                  containerName: elasticsearch
+                  resource: limits.memory
+        - name: elasticsearch-storage
+{% if openshift_logging_elasticsearch_storage_type == 'pvc' %}
+          persistentVolumeClaim:
+            claimName: {{ openshift_logging_elasticsearch_pvc_name }}
+{% elif openshift_logging_elasticsearch_storage_type == 'hostmount' %}
+          hostPath:
+            path: {{ openshift_logging_elasticsearch_hostmount_path }}
+{% else %}
+          emptydir: {}
+{% endif %}

@@ -1,0 +1,13 @@
+[Unit]
+Description=Netplugin
+After=auditd.service systemd-user-sessions.service contiv-etcd.service
+
+[Service]
+EnvironmentFile=/etc/default/netplugin
+ExecStart={{ contiv_bin_dir }}/netplugin $NETPLUGIN_ARGS
+KillMode=control-group
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

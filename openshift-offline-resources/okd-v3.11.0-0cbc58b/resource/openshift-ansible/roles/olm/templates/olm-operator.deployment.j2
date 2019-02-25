@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: olm-operator
+  namespace: operator-lifecycle-manager
+  labels:
+    app: olm-operator
+spec:
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: olm-operator
+  template:
+    metadata:
+      labels:
+        app: olm-operator
+    spec:
+      serviceAccountName: olm-operator-serviceaccount
+      containers:
+        - name: olm-operator
+          command:
+          - /bin/olm
+          image: {{ olm_operator_image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          env:
+          - name: OPERATOR_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: OPERATOR_NAME
+            value: olm-operator

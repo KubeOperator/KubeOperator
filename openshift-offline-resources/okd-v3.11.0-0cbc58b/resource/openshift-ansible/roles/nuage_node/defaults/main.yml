@@ -1,0 +1,12 @@
+---
+r_nuage_node_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_nuage_node_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+nuage_mon_rest_server_port: "{{ nuage_openshift_monitor_rest_server_port | default('9443') }}"
+
+r_nuage_node_os_firewall_deny: []
+r_nuage_node_os_firewall_allow:
+- service: vxlan
+  port: 4789/udp
+- service: nuage-monitor
+  port: "{{ nuage_mon_rest_server_port }}/tcp"

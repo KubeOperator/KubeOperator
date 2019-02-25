@@ -1,0 +1,95 @@
+---
+# When openshift_aws_use_custom_ami is '' then
+# we retrieve the latest build AMI.
+# Then set openshift_aws_ami to the ami.
+- when:
+  - (openshift_aws_ami == '' and 'master' not in openshift_aws_ami_map) or ('master' in openshift_aws_ami_map and openshift_aws_ami_map['master'] == '')
+  block:
+  - name: fetch recently created AMI
+    ec2_ami_facts:
+      region: "{{ openshift_aws_region }}"
+      filters: "{ 'name': '{{ openshift_aws_ami_name }}*',
+             {%- for key in openshift_aws_ami_tags -%}
+                 'tag:{{ key }}': '{{ openshift_aws_ami_tags[key] }}',
+             {%- endfor -%} }"
+    register: amiout
+    failed_when: "amiout.images|length == 0"
+
+  - name: Set the openshift_aws_ami
+    set_fact:
+      openshift_aws_ami: "{{ ( amiout.images | sort(attribute='creation_date') | map(attribute='image_id') | reverse | list )[0] }}"
+    when:
+    - "'images' in amiout"
+    - amiout.images|length > 0
+
+- block:
+  # query instance's and determine if we need to create the others.
+  # if we find more than 1 for each type, and this isn't an upgrade, then exit
+  - name: fetch all master ec2s for this cluster
+    ec2_instance_facts:
+      region: "{{ openshift_aws_region }}"
+      filters:
+        instance-state-name: running
+        vpc-id: "{{ vpcout.vpcs.0.id }}"
+        "tag:clusterid": "{{ openshift_aws_clusterid }}"
+        "tag:host-type": "master"
+    register: ec2s
+
+  - debug:
+      msg: "{{ ec2s.instances }}"
+
+  - fail:
+      msg: "Found more than 1 group that matches the query for group: master"
+    when:
+    - not openshift_aws_node_group_upgrade
+    - ( ec2s.instances | map(attribute='tags.deployment_serial') | list | unique | count ) > 1
+
+  - fail:
+      msg: "Upgrade: Found more than 2 groups that matches the query for group: master"
+    when:
+    - openshift_aws_node_group_upgrade
+    - asgs.results|length > 2
+
+  - name: Modify ec2 tags dictionary
+    set_fact:
+      ec2s: "{{ ec2s.instances | map(attribute='tags') | list | unique | ec2_to_asg_tag }}"
+
+  - name: set the value for the deployment_serial
+    set_fact:
+      # scale_groups_serial is a custom filter in role lib_utils
+      l_deployment_serial: "{{  openshift_aws_node_group_deployment_serial if openshift_aws_node_group_deployment_serial is defined else ec2s | scale_groups_serial(openshift_aws_node_group_upgrade) }}"
+
+  - name: dump deployment serial
+    debug:
+      msg: "Deployment serial: {{ l_deployment_serial }}"
+
+  - set_fact:
+      l_instance_tags: "{{ openshift_aws_node_group_config_tags
+      | combine((openshift_aws_master_group | selectattr('group', 'match', 'master') | list | first).tags)
+      | combine({'deployment_serial': l_deployment_serial, 'ami': openshift_aws_ami_map['master'] | default(openshift_aws_ami)})
+      | combine({'openshift-node-group-config': (openshift_aws_master_group | selectattr('group', 'match', 'master') | list | first).node_group_config | default('unset') }) }}"
+      l_image: "{{ openshift_aws_ami_map['master'] | default(openshift_aws_ami) }}"
+
+- name: subnets
+  set_fact:
+    l_subnetout_results: "{{ openshift_aws_master_instance_config.exact_count | subnet_count_list(subnetout.results) }}"
+
+- name: dump subnet count
+  debug:
+    msg: "subnet count: {{ l_subnetout_results }}"
+
+- name: fetch the security groups
+  ec2_group_facts:
+    filters:
+      group-name: "{{ openshift_aws_master_instance_config.groups }}"
+      vpc-id: "{{ vpcout.vpcs[0].id }}"
+    region: "{{ openshift_aws_region }}"
+  register: ec2sgs
+
+- name: fetch the iam role
+  iam_role_facts:
+    name: "{{ openshift_aws_launch_config_iam_roles['master'].name }}"
+  register: l_profilename
+  retries: 3
+  delay: 3
+  when: openshift_aws_create_iam_role

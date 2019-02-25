@@ -1,0 +1,37 @@
+---
+- name: Create temp directory for doing work in on target
+  command: mktemp -td openshift-metrics-server-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Create temp directory for all our templates
+  file: path={{mktemp.stdout}}/templates state=directory mode=0755
+  changed_when: False
+  when: openshift_metrics_server_install | bool
+
+- name: Create temp directory local on control node
+  local_action: command mktemp -d
+  register: local_tmp
+  changed_when: False
+  vars:
+    ansible_become: false
+
+- name: Copy the admin client config(s)
+  command: >
+     cp {{ openshift.common.config_base}}/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: False
+  check_mode: no
+
+- name: Install metrics-server
+  include_tasks: install_metrics_server.yaml
+  when: openshift_metrics_server_install | bool
+
+- include_tasks: uninstall_metrics_server.yaml
+  when: not openshift_metrics_server_install | bool
+
+- name: Delete temp directory
+  local_action: file path=local_tmp.stdout state=absent
+  changed_when: False
+  check_mode: no
+  vars:
+    ansible_become: false

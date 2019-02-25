@@ -1,0 +1,367 @@
+heat_template_version: {{ openshift_openstack_heat_template_version }}
+
+description: OpenShift cluster server
+
+parameters:
+
+  name:
+    type: string
+    label: Name
+    description: Name
+
+  group:
+    type: string
+    label: Host Group
+    description: The Primary Ansible Host Group
+    default: host
+
+  cluster_env:
+    type: string
+    label: Cluster environment
+    description: Environment of the cluster
+
+  cluster_id:
+    type: string
+    label: Cluster ID
+    description: Identifier of the cluster
+
+  type:
+    type: string
+    label: Type
+    description: Type master or node
+
+  subtype:
+    type: string
+    label: Sub-type
+    description: Sub-type compute or infra for nodes, default otherwise
+    default: default
+
+  key_name:
+    type: string
+    label: Key name
+    description: Key name of keypair
+
+  image:
+    type: string
+    label: Image
+    description: Name of the image
+
+  flavor:
+    type: string
+    label: Flavor
+    description: Name of the flavor
+
+  net:
+    type: string
+    label: Net ID
+    description: Net resource
+
+  net_name:
+    type: string
+    label: Net name
+    description: Net name
+
+{% if not openshift_openstack_provider_network_name %}
+  subnet:
+    type: string
+    label: Subnet ID
+    description: Subnet resource
+{% endif %}
+
+{% if openshift_use_kuryr|default(false)|bool %}
+  pod_net:
+    type: string
+    label: Pod Net ID
+    description: Net resource
+    default: ''
+
+  pod_subnet:
+    type: string
+    label: Pod Subnet ID
+    description: Subnet resource
+    default: ''
+{% endif %}
+
+{% if openshift_use_flannel|default(False)|bool %}
+  attach_data_net:
+    type: boolean
+    default: false
+    label: Attach-data-net
+    description: A switch for data port connection
+
+  data_net:
+    type: string
+    default: ''
+    label: Net ID
+    description: Net resource
+
+{% if not openshift_openstack_provider_network_name %}
+  data_subnet:
+    type: string
+    default: ''
+    label: Subnet ID
+    description: Subnet resource
+{% endif %}
+{% endif %}
+
+  secgrp:
+    type: comma_delimited_list
+    label: Security groups
+    description: Security group resources
+
+  api_lb_pool:
+    default: ''
+    type: string
+    label: API LoadBalancer pool ID
+    description: API Loadbalancer pool resource
+
+  router_lb_pool_http:
+    type: string
+    label: Router LoadBalancer pool ID for HTTP
+    default: ""
+
+  router_lb_pool_https:
+    type: string
+    label: Router LoadBalancer pool ID for HTTPS
+    default: ""
+
+{% if openshift_use_kuryr|default(false)|bool %}
+  pod_secgrp:
+    type: comma_delimited_list
+    label: Subports Security groups
+    description: Security group resources for subports
+    default: ''
+{% endif %}
+
+  attach_float_net:
+    type: boolean
+    default: true
+
+    label: Attach-float-net
+    description: A switch for floating network port connection
+
+  floating_network:
+    type: string
+    default: ''
+    label: Floating network
+    description: Network to allocate floating IP from
+
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+    default: nova
+
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+    default: 1
+    constraints:
+      - range: { min: 1, max: 1024 }
+        description: must be between 1 and 1024 Gb.
+
+  openshift_node_group_name:
+    type: string
+    default: ''
+    description: The openshift node group name for this server.
+
+  scheduler_hints:
+    type: json
+    description: Server scheduler hints.
+    default: {}
+
+outputs:
+
+  name:
+    description: Name of the server
+    value: { get_attr: [ server, name ] }
+
+  private_ip:
+    description: Private IP of the server
+    value:
+      get_attr:
+        - server
+        - addresses
+        - { get_param: net_name }
+        - 0
+        - addr
+
+  floating_ip:
+    description: Floating IP of the server
+    value:
+      get_attr:
+        - server
+        - addresses
+        - { get_param: net_name }
+{% if openshift_openstack_provider_network_name %}
+        - 0
+{% else %}
+        - 1
+{% endif %}
+        - addr
+
+conditions:
+  no_floating: {not: { get_param: attach_float_net} }
+{% if openshift_use_flannel|default(False)|bool %}
+  no_data_subnet: {not: { get_param: attach_data_net} }
+{% endif %}
+
+
+resources:
+
+  server:
+    type: OS::Nova::Server
+    properties:
+      name:      { get_param: name }
+      key_name:  { get_param: key_name }
+      image:     { get_param: image }
+      flavor:    { get_param: flavor }
+      networks:
+{% if openshift_use_flannel|default(False)|bool %}
+        if:
+          - no_data_subnet
+          - - port:  { get_resource: port }
+          - - port:  { get_resource: port }
+            - port:  { get_resource: data_port }
+
+{% else %}
+{% if use_trunk_ports|default(False)|bool %}
+        - port:  { get_attr: [trunk_port, port_id]}
+{% else %}
+        - port:  { get_resource: port }
+{% endif %}
+{% endif %}
+      user_data:
+        str_replace:
+          template: {get_file: user-data}
+          params:
+            "%OPENSHIFT_NODE_CONFIG_NAME%": { get_param: openshift_node_group_name }
+      user_data_format: RAW
+      user_data_update_policy: IGNORE
+      metadata:
+        group: { get_param: group }
+        environment: { get_param: cluster_env }
+        clusterid: { get_param: cluster_id }
+        host-type: { get_param: type }
+        sub-host-type:    { get_param: subtype }
+        openshift_node_group_name: { get_param: openshift_node_group_name }
+{% if openshift_openstack_dns_nameservers %}
+        openshift_kubelet_name_override: { get_param: name }
+{% endif %}
+      scheduler_hints: { get_param: scheduler_hints }
+
+{% if use_trunk_ports|default(false)|bool %}
+  trunk_port:
+    type: OS::Neutron::Trunk
+    properties:
+      name: { get_param: name }
+      port: { get_resource: port }
+{% if openshift_kuryr_precreate_subports|default(false) %}
+      sub_ports:
+        repeat:
+          for_each:
+            <%port%>: { get_attr: [subports, subport_id] }
+            <%vlan_id%>: { get_attr: [segmentation, vlan_ids] }
+          template:
+            port: <%port%>
+            segmentation_type: vlan
+            segmentation_id: <%vlan_id%>
+          permutations: false
+
+  segmentation:
+    type: segmentation_ids.yaml
+    properties:
+      number_of_vlan_ids: {{ openshift_kuryr_precreate_subports }}
+
+  subports:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_kuryr_precreate_subports }}
+      resource_def:
+        type: subports.yaml
+        properties:
+          network: { get_param: pod_net }
+          subnet: { get_param: pod_subnet }
+          pod_access_sg: { get_param: pod_secgrp }
+{% endif %}
+{% endif %}
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: net }
+{% if not openshift_openstack_provider_network_name %}
+      fixed_ips:
+        - subnet: { get_param: subnet }
+{% endif %}
+      security_groups: { get_param: secgrp }
+
+{% if openshift_use_flannel|default(False)|bool %}
+  data_port:
+    type: OS::Neutron::Port
+    condition: { not: no_data_subnet }
+    properties:
+      network: { get_param: data_net }
+      port_security_enabled: false
+{% if not openshift_openstack_provider_network_name %}
+      fixed_ips:
+        - subnet: { get_param: data_subnet }
+{% endif %}
+{% endif %}
+
+{% if not openshift_openstack_provider_network_name %}
+  floating-ip:
+    condition: { not: no_floating }
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: floating_network }
+      port_id: { get_resource: port }
+{% endif %}
+
+{% if not openshift_openstack_ephemeral_volumes|default(false)|bool %}
+  cinder_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+      metadata:
+        purpose: openshift_docker_storage
+
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume }
+      instance_uuid: { get_resource: server }
+{% endif %}
+
+
+  api_lb_member:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::PoolMember
+    condition:
+      not: {equals: [{get_param: api_lb_pool}, ""]}
+    properties:
+      pool: { get_param: api_lb_pool }
+      protocol_port: {{ openshift_master_api_port }}
+      address: { get_attr: [server, first_address]}
+{% if openshift_openstack_lbaasv2_provider != "Octavia"  %}
+      subnet: { get_param: subnet }
+{% endif %}
+
+  router_lb_pool_member_http:
+    condition:
+      not: {equals: [{get_param: router_lb_pool_http}, ""]}
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::PoolMember
+    properties:
+      pool: { get_param: router_lb_pool_http }
+      protocol_port: 80
+      address: { get_attr: [server, first_address]}
+      subnet: { get_param: subnet }
+
+  router_lb_pool_member_https:
+    condition:
+      not: {equals: [{get_param: router_lb_pool_https}, ""]}
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::PoolMember
+    properties:
+      pool: { get_param: router_lb_pool_https }
+      protocol_port: 443
+      address: { get_attr: [server, first_address]}
+      subnet: { get_param: subnet }

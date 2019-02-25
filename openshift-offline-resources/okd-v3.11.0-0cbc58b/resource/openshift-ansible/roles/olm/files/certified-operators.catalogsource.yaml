@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: certified-operators
+  namespace: operator-lifecycle-manager
+spec:
+  sourceType: internal
+  configMap: certified-operators
+  displayName: Certified Operators
+  publisher: Red Hat
+

@@ -1,0 +1,18 @@
+---
+- name: Create file system on extra volume device
+  filesystem:
+    fstype: "{{ item.filesystem }}"
+    dev: "{{ item.device }}"
+    force: "{{ item.force|default(omit) }}"
+    opts: "{{ item.mkfs_opts|default(omit) }}"
+  with_items: "{{ container_runtime_extra_storage }}"
+
+
+- name: Create mount entry for extra volume
+  mount:
+    path: "{{ item.path }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.filesystem }}"
+    opts: "{{ item.options|default(omit) }}"
+    state: mounted
+  with_items: "{{ container_runtime_extra_storage }}"

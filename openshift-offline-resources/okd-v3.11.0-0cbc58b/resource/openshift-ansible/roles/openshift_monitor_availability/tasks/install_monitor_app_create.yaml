@@ -1,0 +1,9 @@
+---
+- name: Apply the app template
+  shell: >
+    {{ openshift_client_binary }} process -n openshift-monitor-availability -f "{{ mktemp.stdout }}/monitor-app-create.yaml"
+    --param IMAGE="{{ openshift_monitor_app_create_image }}"
+    --param RUN_INTERVAL="{{ openshift_monitor_app_create_run_interval }}"
+    --param TIMEOUT="{{ openshift_monitor_app_create_timeout }}"
+    --param LOG_LEVEL="{{ openshift_monitor_app_create_log_level }}"
+    | {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -

@@ -1,0 +1,45 @@
+---
+- name: Ensure we save the local NFS server if one is provided
+  set_fact:
+    openshift_management_nfs_server: "{{ openshift_management_storage_nfs_local_hostname }}"
+  when:
+    - openshift_management_storage_nfs_local_hostname is defined
+    - openshift_management_storage_nfs_local_hostname != False
+    - openshift_management_storage_class == "nfs"
+
+- name: Ensure we save the local NFS server
+  set_fact:
+    openshift_management_nfs_server: "{{ groups['oo_nfs_to_config'].0 }}"
+  when:
+    - openshift_management_nfs_server is not defined
+    - openshift_management_storage_class == "nfs"
+
+- name: Ensure we save the external NFS server
+  set_fact:
+    openshift_management_nfs_server: "{{ openshift_management_storage_nfs_external_hostname }}"
+  when:
+    - openshift_management_storage_class == "nfs_external"
+
+- name: Failed External NFS server detection
+  assert:
+    that:
+      - openshift_management_nfs_server is defined
+    msg: |
+      Unable to detect an NFS server. The 'nfs_external'
+      openshift_management_storage_class option requires that you
+      manually set openshift_management_storage_nfs_external_hostname
+      parameter.
+  when:
+    - openshift_management_storage_class == 'nfs_external'
+
+- name: Failed Local NFS server detection
+  assert:
+    that:
+      - openshift_management_nfs_server is defined
+    msg: |
+      Unable to detect an NFS server. The 'nfs'
+      openshift_management_storage_class option requires that you have
+      an 'nfs' inventory group or manually set the
+      openshift_management_storage_nfs_local_hostname parameter.
+  when:
+    - openshift_management_storage_class == 'nfs'

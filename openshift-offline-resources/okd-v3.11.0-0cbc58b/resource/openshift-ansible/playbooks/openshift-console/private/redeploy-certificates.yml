@@ -1,0 +1,35 @@
+---
+- name: Update console certificates
+  hosts: oo_first_master
+  vars:
+  roles:
+  - lib_openshift
+  - openshift_facts
+  tasks:
+  - name: Remove certificates secret
+    oc_obj:
+      name: console-serving-cert
+      kind: secret
+      state: absent
+      namespace: openshift-console
+
+  - name: Remove console pods
+    oc_obj:
+      selector: "app=openshift-console"
+      kind: pod
+      state: absent
+      namespace: openshift-console
+
+  - name: Verify that the console is running
+    oc_obj:
+      namespace: openshift-console
+      kind: deployment
+      state: list
+      name: console
+    register: console_deployment
+    until:
+    - console_deployment.results.results[0].status.readyReplicas is defined
+    - console_deployment.results.results[0].status.readyReplicas > 0
+    retries: 60
+    delay: 10
+    changed_when: false

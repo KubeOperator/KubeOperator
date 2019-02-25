@@ -1,0 +1,56 @@
+---
+- assert:
+    that: "glusterfs_nodes | count >= 3"
+    msg: There must be at least three GlusterFS nodes specified
+
+- name: Copy GlusterFS DaemonSet template
+  copy:
+    src: "glusterfs-template.yml"
+    dest: "{{ mktemp.stdout }}/glusterfs-template.yml"
+
+- name: Create GlusterFS template
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: template
+    name: "glusterfs"
+    state: present
+    files:
+    - "{{ mktemp.stdout }}/glusterfs-template.yml"
+
+- import_tasks: label_nodes.yml
+
+- name: Check GlusterFS DaemonSet status
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: daemonset
+    name: glusterfs-{{ glusterfs_name }}
+    state: list
+  register: glusterfs_ds
+
+- name: Deploy GlusterFS pods
+  oc_process:
+    namespace: "{{ glusterfs_namespace }}"
+    template_name: "glusterfs"
+    create: True
+    params:
+      IMAGE_NAME: "{{ glusterfs_image }}"
+      NODE_LABELS: "{{ glusterfs_nodeselector }}"
+      CLUSTER_NAME: "{{ glusterfs_name }}"
+      GB_GLFS_LRU_COUNT: "{{ glusterfs_block_host_vol_max }}"
+  when: (glusterfs_ds.results.results[0].status is not defined) or
+        (glusterfs_ds.results.results[0].status.numberReady | default(0) < glusterfs_ds.results.results[0].status.desiredNumberScheduled | default(glusterfs_nodes | count))
+
+- import_tasks: wait_for_pods.yml
+
+- name: Get GlusterFS pods
+  set_fact:
+    glusterfs_pods: "{{ glusterfs_pods_wait.results.results[0]['items'] }}"
+  when:
+  - glusterfs_restart
+
+- include_tasks: glusterfs_restart_pod.yml
+  vars:
+    restart_node: "{{ item }}"
+  with_items: "{{ glusterfs_pods | default([]) }}"
+  when:
+  - glusterfs_restart

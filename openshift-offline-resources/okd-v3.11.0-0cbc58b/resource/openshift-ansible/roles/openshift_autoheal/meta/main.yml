@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: OpenShift Development <dev@lists.openshift.redhat.com>
+  description: OpenShift Auto-heal
+  company: Red Hat, Inc.
+  license: license (Apache)
+  min_ansible_version: 2.4
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Fedora
+    versions:
+    - all
+  categories:
+  - autoheal
+  - monitoring
+  - openshift
+  - prometheus
+dependencies:
+- role: lib_utils

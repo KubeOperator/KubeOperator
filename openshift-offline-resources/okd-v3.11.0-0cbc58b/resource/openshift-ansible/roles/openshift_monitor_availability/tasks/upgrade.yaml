@@ -1,0 +1,6 @@
+---
+- include_tasks: install.yaml
+  when: openshift_monitor_availability_install | default(false) | bool
+
+- include_tasks: remove.yaml
+  when: not openshift_monitor_availability_install | default(false) | bool

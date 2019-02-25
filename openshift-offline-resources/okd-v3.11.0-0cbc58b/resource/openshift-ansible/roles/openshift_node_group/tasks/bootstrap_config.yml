@@ -1,0 +1,20 @@
+---
+- name: Ensure required directories are present
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+  - /etc/origin/node/pods
+  - /etc/origin/node/certificates
+- name: Update the sysconfig to group "{{ openshift_node_group_name }}"
+  lineinfile:
+    dest: "/etc/sysconfig/{{ openshift_service_type }}-node"
+    line: "BOOTSTRAP_CONFIG_NAME={{ openshift_node_group_name }}"
+    regexp: "^BOOTSTRAP_CONFIG_NAME=.*"
+
+- import_role:
+    name: openshift_node
+    tasks_from: configure-proxy-settings.yml

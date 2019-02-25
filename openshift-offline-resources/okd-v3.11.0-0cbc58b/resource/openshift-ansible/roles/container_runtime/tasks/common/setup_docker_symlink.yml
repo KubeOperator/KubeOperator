@@ -1,0 +1,45 @@
+---
+- block:
+    - name: stop the current running docker
+      systemd:
+        state: stopped
+        name: "{{ openshift_docker_service_name }}"
+
+    - name: copy "{{ docker_default_storage_path }}" to "{{ docker_alt_storage_path }}"
+      command: "cp -r {{ docker_default_storage_path }} {{ docker_alt_storage_path }}"
+      register: results
+      failed_when:
+        - results.rc != 0
+
+    - name: "Set the selinux context on {{ docker_alt_storage_path }}"
+      command: "semanage fcontext -a -e {{ docker_default_storage_path }} {{ docker_alt_storage_path }}"
+      environment:
+        LANG: C
+      register: results
+      failed_when:
+        - results.rc == 1
+        - "'already exists' not in results.stderr"
+
+    - name: "restorecon the {{ docker_alt_storage_path }}"
+      command: "restorecon -r {{ docker_alt_storage_path }}"
+
+    - name: ensure the unmount of top level mount point
+      mount:
+        path: "{{ docker_default_storage_path }}"
+        state: unmounted
+
+    - name: Remove the old docker location
+      file:
+        state: absent
+        path: "{{ docker_default_storage_path }}"
+
+    - name: Setup the link
+      file:
+        state: link
+        src: "{{ docker_alt_storage_path }}"
+        path: "{{ docker_default_storage_path }}"
+
+    - name: start docker
+      systemd:
+        state: started
+        name: "{{ openshift_docker_service_name }}"

@@ -1,0 +1,131 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - import_role:
+      name: lib_utils
+
+  - name: create temporary directory
+    tempfile:
+      state: directory
+    register: tmp
+
+  - name: download acs-engine
+    get_url:
+      url: "{{ item }}"
+      dest: "{{ tmp.path }}/"
+    with_list:
+    - "http://acs-engine-build-azure.svc.ci.openshift.org/acs-engine"
+    - "http://acs-engine-build-azure.svc.ci.openshift.org/openshift.json"
+
+  - name: make acs-engine executable
+    file:
+      path: "{{ tmp.path }}/acs-engine"
+      mode: 0755
+
+  - name: configure acs-engine
+    yedit:
+      content_type: json
+      src: "{{ tmp.path }}/openshift.json"
+      edits:
+      - key: properties.orchestratorProfile.openShiftConfig.clusterUsername
+        value: demo
+      - key: properties.orchestratorProfile.openShiftConfig.clusterPassword
+        value: "{{ 16 | lib_utils_oo_random_word }}"
+      - key: properties.orchestratorProfile.orchestratorVersion
+        value: unstable
+      # azProfile
+      - key: properties.azProfile.tenantId
+        value: "{{ lookup('env', 'AZURE_TENANT') }}"
+      - key: properties.azProfile.subscriptionId
+        value: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
+      - key: properties.azProfile.resourceGroup
+        value: "{{ openshift_azure_resource_group_name }}"
+      - key: properties.azProfile.location
+        value: "{{ openshift_azure_resource_location }}"
+      # masterProfile
+      - key: properties.masterProfile.dnsPrefix
+        value: "a{{ 16 | lib_utils_oo_random_word }}a"
+      - key: properties.masterProfile.imageReference.name
+        value: "{{ openshift_azure_input_image_name }}"
+      - key: properties.masterProfile.imageReference.resourceGroup
+        value: "{{ openshift_azure_input_image_ns }}"
+      - key: properties.masterProfile.vmSize
+        value: "{{ openshift_azure_vm_size | default('Standard_D4s_v3') }}"
+      # agentpool compute
+      - key: properties.agentPoolProfiles[0].imageReference.name
+        value: "{{ openshift_azure_input_image_name }}"
+      - key: properties.agentPoolProfiles[0].imageReference.resourceGroup
+        value: "{{ openshift_azure_input_image_ns }}"
+      - key: properties.agentPoolProfiles[0].vmSize
+        value: "{{ openshift_azure_vm_size | default('Standard_D4s_v3') }}"
+      # agentpool infra
+      - key: properties.agentPoolProfiles[1].imageReference.name
+        value: "{{ openshift_azure_input_image_name }}"
+      - key: properties.agentPoolProfiles[1].imageReference.resourceGroup
+        value: "{{ openshift_azure_input_image_ns }}"
+      - key: properties.agentPoolProfiles[1].vmSize
+        value: "{{ openshift_azure_vm_size | default('Standard_D4s_v3') }}"
+      # linuxprofile
+      - key: properties.linuxProfile.adminUsername
+        value: "cloud-user"
+      - key: properties.linuxProfile.ssh.publicKeys[0].keyData
+        value: "{{ openshift_azure_vm_ssh_public_key }}"
+      # serviceprincipal
+      - key: properties.servicePrincipalProfile.clientId
+        value: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+      - key: properties.servicePrincipalProfile.secret
+        value: "{{ lookup('env', 'AZURE_SECRET') }}"
+
+  - name: run acs-engine deploy
+    command: |
+      {{ tmp.path }}/acs-engine deploy \
+        --resource-group {{ openshift_azure_resource_group_name }} \
+        --location {{ openshift_azure_resource_location }} \
+        --subscription-id {{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }} \
+        --auth-method client_secret \
+        --client-id {{ lookup('env', 'AZURE_CLIENT_ID') }} \
+        --client-secret {{ lookup('env', 'AZURE_SECRET') }} \
+        --output-directory {{ tmp.path }}/deploy \
+        {{ tmp.path }}/openshift.json
+    no_log: true
+    ignore_errors: yes
+    register: deploy
+
+  - debug:
+      msg: "{{ deploy.stdout }}"
+
+  - debug:
+      msg: "{{ deploy.stderr }}"
+
+  # This code attempts to persist the data to /var/tmp which is bind
+  # mounted into the calling container.  This enables the CI to reuse
+  # the cluster created in the previous steps to perform the e2e tests
+  - name: persist the acs-engine generated artifacts
+    copy:
+      src: "{{ tmp.path }}/deploy"
+      dest: /var/tmp/
+    when: openshift_ci_persist_artifacts | default(False)
+
+  - name: delete temporary directory
+    file:
+      path: "{{ tmp.path }}"
+      state: absent
+
+  - block:
+    - name: get azure deployment message
+      command: >
+        az group deployment list
+        -g "{{ openshift_azure_resource_group_name }}"
+        --query "[0].properties.additionalProperties.error.details[0].message"
+        -o tsv
+      register: message
+
+    - debug:
+        msg: "{{ (message.stdout | from_json).error.details[0].message }}"
+      when: message.stdout != ""
+
+    - assert:
+        that: "{{ not deploy.failed }}"
+
+    when: deploy.failed

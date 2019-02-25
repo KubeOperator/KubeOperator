@@ -1,0 +1,31 @@
+---
+# This taskfile is called when adding new nodes doing node and master
+# scaleup play.
+- import_tasks: mktemp.yml
+
+# l_gluster_reload_topo passed in via add_hosts.yml
+- when: l_gluster_reload_topo | default(True)
+  block:
+  - import_tasks: glusterfs_config_facts.yml
+  - import_tasks: label_nodes.yml
+  - import_tasks: heketi_pod_check.yml
+  - import_tasks: heketi_get_key.yml
+  - import_tasks: wait_for_pods.yml
+  - import_tasks: heketi_load.yml
+    when:
+    - glusterfs_nodes | default([]) | count > 0
+
+# l_gluster_registry_reload_topo passed in via add_hosts.yml
+- when: l_gluster_registry_reload_topo | default(True)
+  block:
+  - import_tasks: glusterfs_registry_facts.yml
+  - import_tasks: label_nodes.yml
+  - import_tasks: heketi_pod_check.yml
+  - import_tasks: heketi_get_key.yml
+  - import_tasks: wait_for_pods.yml
+  - import_tasks: heketi_load.yml
+    when:
+    - glusterfs_nodes | default([]) | count > 0
+    - "'glusterfs' not in groups or glusterfs_nodes != groups.glusterfs"
+
+- import_tasks: rmtemp.yml

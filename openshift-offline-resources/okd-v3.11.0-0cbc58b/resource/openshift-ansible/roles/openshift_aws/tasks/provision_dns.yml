@@ -1,0 +1,4 @@
+---
+- name: provision dns
+  import_tasks: dns.yml
+  when: openshift_aws_create_dns | bool

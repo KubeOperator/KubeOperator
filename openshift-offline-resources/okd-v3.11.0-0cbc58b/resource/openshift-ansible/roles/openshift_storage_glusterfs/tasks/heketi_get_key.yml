@@ -1,0 +1,13 @@
+---
+- name: Get heketi admin secret
+  oc_secret:
+    state: list
+    namespace: "{{ glusterfs_namespace }}"
+    name: "heketi-{{ glusterfs_name }}-admin-secret"
+    decode: True
+  register: glusterfs_heketi_admin_secret
+
+- name: Set heketi admin key
+  set_fact:
+    glusterfs_heketi_admin_key: "{{ glusterfs_heketi_admin_secret.results.decoded.key }}"
+  when: glusterfs_heketi_admin_secret.results.results[0]

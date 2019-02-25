@@ -1,0 +1,7 @@
+---
+# If you have already run this playbook, you can run upgrade_control_plane_part2.yml
+# instead to skip this.
+- import_playbook: ../../../../init/main.yml
+  vars:
+    openshift_protect_installed_version: False
+- import_playbook: ../../../../openshift-node/private/registry_auth.yml

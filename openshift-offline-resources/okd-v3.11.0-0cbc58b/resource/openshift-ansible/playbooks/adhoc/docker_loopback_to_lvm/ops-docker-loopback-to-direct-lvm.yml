@@ -1,0 +1,115 @@
+#!/usr/bin/ansible-playbook
+---
+# This playbook coverts docker to go from loopback to direct-lvm (the Red Hat recommended way to run docker).
+#
+# It requires the block device to be already provisioned and attached to the host. This is a generic playbook,
+# meant to be used for manual conversion. For AWS specific conversions, use the other playbook in this directory.
+#
+#  To run:
+#   ./ops-docker-loopback-to-direct-lvm.yml -e cli_host=<host to run on> -e cli_docker_device=<path to device>
+#
+#  Example:
+#   ./ops-docker-loopback-to-direct-lvm.yml -e cli_host=twiesttest-master-fd32 -e cli_docker_device=/dev/sdb
+#
+#  Notes:
+#  * This will remove /var/lib/docker!
+#  * You may need to re-deploy docker images after this is run (like monitoring)
+
+- name: Fix docker to have a provisioned iops drive
+  hosts: "{{ cli_host }}"
+  user: root
+  connection: ssh
+  gather_facts: no
+
+  pre_tasks:
+  - fail:
+      msg: "This playbook requires {{item}} to be set."
+    when: item is not defined or item == ''
+    with_items:
+    - cli_docker_device
+
+  - name: start docker
+    service:
+      name: docker
+      state: started
+
+  - name: Determine if loopback
+    shell: docker info | grep 'Data file:.*loop'
+    register: loop_device_check
+    ignore_errors: yes
+
+  - debug:
+      var: loop_device_check
+
+  - name: fail if we don't detect loopback
+    fail:
+      msg: loopback not detected! Please investigate manually.
+    when: loop_device_check.rc == 1
+
+  - name: stop zagg client monitoring container
+    service:
+      name: oso-rhel7-zagg-client
+      state: stopped
+    ignore_errors: yes
+
+  - name: stop pcp client monitoring container
+    service:
+      name: oso-f22-host-monitoring
+      state: stopped
+    ignore_errors: yes
+
+  - name: "check to see if {{ cli_docker_device }} exists"
+    command: "test -e {{ cli_docker_device }}"
+    register: docker_dev_check
+    ignore_errors: yes
+
+  - debug: var=docker_dev_check
+
+  - name: "fail if {{ cli_docker_device }} doesn't exist"
+    fail:
+      msg: "{{ cli_docker_device }} doesn't exist. Please investigate"
+    when: docker_dev_check.rc != 0
+
+  - name: stop docker
+    service:
+      name: docker
+      state: stopped
+
+  - name: delete /var/lib/docker
+    command: rm -rf /var/lib/docker
+
+  - name: remove /var/lib/docker
+    command: rm -rf /var/lib/docker
+
+  - name: copy the docker-storage-setup config file
+    copy:
+      content: >
+        DEVS={{ cli_docker_device }}
+        VG=docker_vg
+      dest: /etc/sysconfig/docker-storage-setup
+      owner: root
+      group: root
+      mode: 0664
+
+  - name: docker storage setup
+    command: docker-storage-setup
+    register: setup_output
+
+  - debug: var=setup_output
+
+  - name: extend the vg
+    command: lvextend -l 90%VG /dev/docker_vg/docker-pool
+    register: extend_output
+
+  - debug: var=extend_output
+
+  - name: start docker
+    service:
+      name: docker
+      state: restarted
+
+  - name: docker info
+    command: docker info
+    register: dockerinfo
+
+  - debug: var=dockerinfo

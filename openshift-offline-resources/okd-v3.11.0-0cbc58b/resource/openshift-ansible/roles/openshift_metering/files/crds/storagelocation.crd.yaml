@@ -1,0 +1,14 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: storagelocations.metering.openshift.io
+  annotations:
+    catalog.app.coreos.com/displayName: "Chargeback storage location"
+    catalog.app.coreos.com/description: "Represents a configurable storage location for Chargeback to store metering and report data"
+spec:
+  group: metering.openshift.io
+  version: v1alpha1
+  scope: Namespaced
+  names:
+    plural: storagelocations
+    kind: StorageLocation

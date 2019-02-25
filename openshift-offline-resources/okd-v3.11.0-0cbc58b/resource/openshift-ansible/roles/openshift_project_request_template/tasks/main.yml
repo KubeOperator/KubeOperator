@@ -1,0 +1,40 @@
+---
+- name: Create temp file for template
+  command: mktemp /tmp/openshift-ansible-XXXXXX.yaml
+  register: mktemp
+  changed_when: False
+
+- name: Generate default project template
+  command: |
+    {{ openshift_client_binary | quote }} \
+      --config {{ openshift.common.config_base | quote }}/master/admin.kubeconfig \
+      --output yaml \
+      adm create-bootstrap-project-template \
+      --name {{ openshift_project_request_template_name | quote }}
+  register: default_project_template
+
+- name: Write default project template to file
+  copy:
+    mode=0600
+    content="{{ default_project_template.stdout }}"
+    dest="{{ mktemp.stdout }}"
+
+- name: Apply template modifications
+  yedit:
+    state: present
+    src: "{{ mktemp.stdout }}"
+    edits: "{{ openshift_project_request_template_edits }}"
+  when: "openshift_project_request_template_edits | length > 0"
+
+- name: Create or update project request template
+  command: |
+    {{ openshift_client_binary }} \
+      --config {{ openshift.common.config_base }}/master/admin.kubeconfig \
+      --namespace {{ openshift_project_request_template_namespace | quote }} \
+      apply --filename {{ mktemp.stdout }}
+
+- name: Delete temp file
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

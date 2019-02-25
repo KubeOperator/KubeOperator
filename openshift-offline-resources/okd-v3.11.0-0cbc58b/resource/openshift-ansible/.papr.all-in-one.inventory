@@ -1,0 +1,33 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[OSEv3:vars]
+ansible_ssh_user=root
+ansible_python_interpreter=/usr/bin/python3
+openshift_deployment_type=origin
+openshift_release="{{ lookup('env', 'target_branch') }}"
+openshift_master_default_subdomain="{{ lookup('env', 'RHCI_ocp_master_IP') }}.xip.io"
+openshift_check_min_host_disk_gb=1.5
+openshift_check_min_host_memory_gb=1.9
+openshift_portal_net=172.30.0.0/16
+openshift_enable_service_catalog=false
+debug_level=4
+openshift_docker_options="--log-driver=journald"
+
+[all:vars]
+# bootstrap configs
+openshift_master_bootstrap_auto_approve=true
+openshift_master_bootstrap_auto_approver_node_selector={"node-role.kubernetes.io/master":"true"}
+osm_controller_args={"experimental-cluster-signing-duration": ["20m"]}
+osm_default_node_selector="node-role.kubernetes.io/compute=true"
+
+[masters]
+ocp-master
+
+[etcd]
+ocp-master
+
+[nodes]
+ocp-master openshift_schedulable=true ansible_host="{{ lookup('env', 'RHCI_ocp_master_IP') }}" openshift_node_group_name="node-config-all-in-one"

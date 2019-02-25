@@ -1,0 +1,118 @@
+---
+#
+# Control Plane Upgrade Playbook
+#
+# Upgrades masters and Docker (only on standalone etcd hosts)
+#
+# This upgrade does not include:
+# - node service running on masters
+# - docker running on masters
+# - node service running on dedicated nodes
+#
+# You can run the upgrade_nodes.yml playbook after this to upgrade these components separately.
+#
+- import_playbook: ../init.yml
+  vars:
+    l_upgrade_no_switch_firewall_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_init_fact_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_base_packages_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_cert_check_hosts: "oo_masters_to_config:oo_etcd_to_config"
+
+- name: Configure the upgrade target for the common upgrade tasks 3.11
+  hosts: oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config
+  tasks:
+  - set_fact:
+      openshift_upgrade_target: '3.11'
+      openshift_upgrade_min: '3.10'
+      openshift_release: '3.11'
+
+- import_playbook: ../pre/config.yml
+  # These vars a meant to exclude oo_nodes from plays that would otherwise include
+  # them by default.
+  vars:
+    l_openshift_version_set_hosts: "oo_etcd_to_config:oo_masters_to_config:!oo_first_master"
+    l_upgrade_repo_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_no_proxy_hosts: "oo_masters_to_config"
+    l_upgrade_health_check_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_upgrade_verify_targets_hosts: "oo_masters_to_config"
+    l_upgrade_docker_target_hosts: "oo_masters_to_config:oo_etcd_to_config"
+    l_upgrade_excluder_hosts: "oo_masters_to_config"
+    openshift_protect_installed_version: False
+
+# Need to run sanity checks after version has been run.
+- import_playbook: ../../../../init/sanity_checks.yml
+  vars:
+    # oo_lb_to_config might not be present; Can't use !oo_nodes because masters are nodes.
+    l_sanity_check_hosts: "{{ groups['oo_etcd_to_config'] | union(groups['oo_masters_to_config']) | union(groups['oo_lb_to_config'] | default([]) ) }}"
+
+# Some change makes critical outage on current cluster.
+- name: Confirm upgrade will not make critical changes
+  hosts: oo_first_master
+  tasks:
+  - name: Confirm Reconcile Security Context Constraints will not change current SCCs
+    command: >
+      {{ openshift_client_binary }} adm policy --config={{ openshift.common.config_base }}/master/admin.kubeconfig reconcile-sccs --additive-only=true -o name
+    register: check_reconcile_scc_result
+    when: openshift_reconcile_sccs_reject_change | default(true) | bool
+    until: check_reconcile_scc_result.rc == 0
+    retries: 3
+
+  - fail:
+      msg: >
+        Changes to bootstrapped SCCs have been detected. Please review the changes by running
+        "{{ openshift_client_binary }} adm policy --config={{ openshift.common.config_base }}/master/admin.kubeconfig reconcile-sccs --additive-only=true"
+        After reviewing the changes please apply those changes by adding the '--confirm' flag.
+        Do not modify the default SCCs. Customizing the default SCCs will cause this check to fail when upgrading.
+        If you require non standard SCCs please refer to https://docs.okd.io/latest/admin_guide/manage_scc.html
+    when:
+    - openshift_reconcile_sccs_reject_change | default(true) | bool
+    - check_reconcile_scc_result.stdout != '' or check_reconcile_scc_result.rc != 0
+
+# TODO: need to verify settings about the bootstrap configs
+# 1. Does network policy match the master config
+
+- name: Ensure metrics-server is installed before upgrading the controller-manager
+  hosts: oo_first_master
+  roles:
+  - role: metrics_server
+    # a default is set on the actual variable in the role, so no fancy logic is needed here
+    when: openshift_metrics_server_install | default(true) | bool
+
+
+- name: Configure components that must be available prior to upgrade
+  hosts: oo_first_master
+  roles:
+  - role: openshift_sdn
+    when: openshift_use_openshift_sdn | default(True) | bool
+
+- import_playbook: ../upgrade_control_plane.yml
+  vars:
+    openshift_release: '3.11'
+
+- name: Update master nodes
+  hosts: oo_masters
+  serial: 1
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade_pre.yml
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade.yml
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: verify_api_server.yml
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: check_cluster_health.yml
+    when: >
+          ('glusterfs' in groups and inventory_hostname in groups['glusterfs'])
+          or ('glusterfs_registry' in groups and inventory_hostname in groups['glusterfs_registry'])
+
+- import_playbook: ../post_control_plane.yml
+
+- hosts: oo_masters
+  tasks:
+  - import_role:
+      name: openshift_web_console
+      tasks_from: remove_old_asset_config.yml

@@ -1,0 +1,22 @@
+---
+# Since this task scrapes all inventory variables which may contain sensitive bits
+# mark it no_log
+- name: Check for usage of deprecated variables
+  check_deprecated:
+    facts: "{{ hostvars[inventory_hostname] }}"
+    vars: "{{ __warn_deprecated_vars }}"
+    header: "{{ __deprecation_header }}"
+  register: dep_check
+  no_log: true
+
+- block:
+  - debug: msg="{{ dep_check.msg }}"
+  - set_stats:
+      data:
+        installer_phase_initialize:
+          message: "{{ dep_check.msg }}"
+  when:
+  - dep_check.changed
+
+- name: Assign deprecated variables to correct counterparts
+  import_tasks: __deprecations_logging.yml

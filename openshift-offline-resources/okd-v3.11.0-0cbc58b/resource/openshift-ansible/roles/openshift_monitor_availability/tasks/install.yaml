@@ -1,0 +1,47 @@
+---
+- name: Ensure openshift-monitor-availability project
+  oc_project:
+    state: present
+    name: openshift-monitor-availability
+    description: Openshift availability monitoring applications.
+
+- name: Label namespace
+  oc_label:
+    state: present
+    kind: namespace
+    name: openshift-monitor-availability
+    labels:
+    - key: openshift.io/cluster-monitoring
+      value: "true"
+
+- name: Create temp directory for doing work in on target
+  command: mktemp -td openshift-monitor-availability-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy files to temp directory
+  copy:
+    src: "{{ role_path }}/files/"
+    dest: "{{ mktemp.stdout }}"
+
+- name: Copy admin client config
+  copy:
+    src: "{{ openshift.common.config_base }}/master/admin.kubeconfig"
+    dest: "{{ mktemp.stdout }}/admin.kubeconfig"
+    remote_src: yes
+
+- name: Ensure Prometheus role exists
+  command: >
+    {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f {{ mktemp.stdout }}/prometheus-k8s-role.yaml
+
+- name: Ensure Prometheus role binding exists
+  command: >
+    {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f {{ mktemp.stdout }}/prometheus-k8s-role-binding.yaml
+
+- import_tasks: install_monitor_app_create.yaml
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

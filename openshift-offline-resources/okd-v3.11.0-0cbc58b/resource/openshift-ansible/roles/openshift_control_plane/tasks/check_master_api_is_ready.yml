@@ -1,0 +1,63 @@
+---
+- name: Wait for APIs to become available
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig get --raw /apis/{{ item }}/v1
+  register: openshift_apis
+  until: openshift_apis.rc == 0
+  with_items: "{{ l_core_api_list }}"
+  retries: 60
+  delay: 5
+
+- name: Get API logs
+  command: >
+    /usr/local/bin/master-logs api api
+  register: control_plane_logs_api
+  ignore_errors: true
+  when: openshift_apis is failed
+
+- debug:
+    msg: "{{ control_plane_logs_api.stdout_lines }}"
+  when: openshift_apis is failed
+
+- fail:
+    msg: >
+      API did not become available. Verbose curl output and API logs
+      have been collected above to assist with debugging.
+  when: openshift_apis is failed
+
+- name: Check for apiservices/v1beta1.metrics.k8s.io registration
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig get apiservices/v1beta1.metrics.k8s.io
+  register: metrics_service_registration
+  failed_when: metrics_service_registration.rc != 0 and 'NotFound' not in metrics_service_registration.stderr
+  retries: 30
+  delay: 5
+  until: metrics_service_registration is succeeded
+
+- name: Wait for /apis/metrics.k8s.io/v1beta1 when registered
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig get --raw /apis/metrics.k8s.io/v1beta1
+  register: metrics_api
+  until: metrics_api is succeeded
+  retries: 30
+  delay: 5
+  when: metrics_service_registration.rc == 0
+
+- name: Check for apiservices/v1beta1.servicecatalog.k8s.io registration
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig get apiservices/v1beta1.servicecatalog.k8s.io
+  register: servicecatalog_service_registration
+  failed_when: servicecatalog_service_registration.rc != 0 and 'NotFound' not in servicecatalog_service_registration.stderr
+  retries: 30
+  delay: 5
+  until: servicecatalog_service_registration is succeeded
+
+
+- name: Wait for /apis/servicecatalog.k8s.io/v1beta1 when registered
+  command: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig get --raw /apis/servicecatalog.k8s.io/v1beta1
+  register: servicecatalog_api
+  until: servicecatalog_api is succeeded
+  retries: 30
+  delay: 5
+  when: servicecatalog_service_registration.rc == 0

@@ -1,0 +1,46 @@
+#!/bin/bash
+set -x
+
+LOG_DIR=$(mktemp -d)
+
+trap "{ rm -rf $LOG_DIR }" EXIT
+
+SYSTEMD_SERVICES=("dnsmasq NetworkManager atomic-openshift-node origin-node")
+
+since_docker="24h"
+since_systemd="24 hour ago"
+
+# Dump systemd services logs
+for name in ${SYSTEMD_SERVICES} ; do
+  dump_file_path=${LOG_DIR}/${name}.log
+  journalctl -u ${name}.service --since "${since_systemd}" > $dump_file_path
+done
+
+# Dump command output
+ip a > ${LOG_DIR}/ip_a.log
+netstat -antu > ${LOG_DIR}/netstat_antu.log
+dmesg > ${LOG_DIR}/dmesg.log
+route -n > ${LOG_DIR}/route_n.log
+ss -ntpl > ${LOG_DIR}/ss_ntpl.log
+cat /etc/resolv.conf > ${LOG_DIR}/resolve_conf.log
+df -h > ${LOG_DIR}/df_h.log
+vmstat 2 20 > ${LOG_DIR}/vmstat_2_20.log
+mount > ${LOG_DIR}/mount.log
+
+for table in filter nat; do
+    iptables -t $table -nvL > ${LOG_DIR}/iptables_$table.log
+done
+
+# Dump system journal
+journalctl --since "${since_systemd}" > ${LOG_DIR}/journalctl.log
+
+# Dump sdn container logs
+uid=$(docker ps -l -a --filter "label=io.kubernetes.container.name=sdn" --format '{{ .Label "io.kubernetes.pod.uid" }}')
+if [[ ! -z "${uid}" ]]; then
+  container=$(docker ps -l -a -q --filter "label=io.kubernetes.pod.uid=${uid}" --filter "label=io.kubernetes.container.name=sdn")
+  docker logs --since ${since_docker} "${container}" >& ${LOG_DIR}/sdn.log
+fi
+
+prefix=osa_node_$(hostname)_$(date +%Y%m%d%H%M%S)
+tar -czPf $prefix.tar.gz  --xform="s|^$LOG_DIR|$prefix|" $LOG_DIR
+echo $prefix.tar.gz

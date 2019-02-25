@@ -1,0 +1,15 @@
+---
+- import_tasks: glusterfs_registry_facts.yml
+
+- import_tasks: glusterfs_common.yml
+  when:
+  - glusterfs_nodes | default([]) | count > 0
+  - "'glusterfs' not in groups or glusterfs_nodes != groups.glusterfs"
+
+- name: Check if GlusterFS registry volume exists
+  command: "{{ glusterfs_heketi_client }} volume list"
+  register: registry_volume
+
+- name: Create GlusterFS registry volume
+  command: "{{ glusterfs_heketi_client }} volume create --size={{ openshift_hosted_registry_storage_volume_size | replace('Gi','') }} --name={{ openshift_hosted_registry_storage_glusterfs_path }}"
+  when: "openshift_hosted_registry_storage_glusterfs_path not in registry_volume.stdout"

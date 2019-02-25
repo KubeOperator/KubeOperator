@@ -1,0 +1,118 @@
+---
+###########################
+# Engine Connection
+###########################
+compatibility_version: 4.2
+engine_url:                     # https://engine.example.com/ovirt-engine/api
+engine_user:                    # admin@internal
+engine_password:                # secret
+
+# CA file copied from engine:/etc/pki/ovirt-engine/ca.pem
+# path is relative to openshift-cluster directory
+engine_cafile:                  # ../ca.pem
+
+data_center_name:               # Default
+openshift_ovirt_cluster:          # Default
+openshift_ovirt_data_store:       # vmstore
+openshift_ovirt_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+##########################
+# Template Creation
+# https://github.com/oVirt/ovirt-ansible-image-template
+##########################
+qcow_url:                       # https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2c
+image_path: "{{ lookup('env', 'HOME') }}/Downloads/{{ template_name }}.qcow2"
+template_name:                  # rhel75
+template_cluster: "{{ openshift_ovirt_cluster }}"
+template_memory: 8GiB
+template_cpu: 1
+template_disk_storage: "{{ openshift_ovirt_data_store }}"
+template_disk_size: 60GiB
+template_nics:
+  - name: nic1
+    profile_name:                # ovirtmgmt
+    interface: virtio
+
+##########################
+# Virtual Machines
+##########################
+wait_for_ip: true                # Required to gather IP addresses from amchines after
+vm_infra_wait_for_ip_retries: 10 # Higher than default to wait for all IPs on all VMs
+vm_infra_wait_for_ip_delay: 8
+
+# Virtual machine profile for master nodes
+# Differs from node profile by 16GiB RAM, extra disk for etcd
+master_vm:
+  cluster: "{{ openshift_ovirt_cluster }}"
+  template: "{{ template_name }}"
+  memory: 16GiB
+  cores: 2
+  high_availability: true
+  disks:
+    - size: 15GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: docker_disk
+      interface: virtio
+    - size: 30GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: localvol_disk
+      interface: virtio
+    - size: 25GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: etcd_disk
+      interface: virtio
+  state: running
+
+# Virtual Machine profile for rest of nodes
+node_vm:
+  cluster: "{{ openshift_ovirt_cluster }}"
+  template: "{{ template_name }}"
+  memory: 8GiB
+  cores: 2
+  disks:
+    - size: 15GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: docker_disk
+      interface: virtio
+    - size: 30GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: localvol_disk
+      interface: virtio
+  state: running
+
+openshift_ovirt_vm_manifest:
+######################################
+# Single Node Static Ip addresses
+######################################
+- name: 'master'
+  count: 1
+  profile: 'master_vm'
+  nic_mode:
+      master0:
+        nic_ip_address: '192.168.123.165'
+        nic_netmask: '255.255.255.0'
+        nic_gateway: '192.168.123.1'
+        nic_on_boot: True
+#######################################
+# Multiple Node Static Ip addresses
+#######################################
+- name: 'node'
+  count: 2
+  profile: 'node_vm'
+  nic_mode:
+      node0:     # This must fit the same name as this kind of vms. (e.g) if the name is test, this must be test0
+          nic_ip_address: '192.168.123.166'
+          nic_netmask: '255.255.255.0'
+          nic_gateway: '192.168.123.1'
+          nic_on_boot: True
+      node1:
+        nic_ip_address: '192.168.123.168'
+        nic_netmask: '255.255.255.0'
+        nic_gateway: '192.168.123.1'
+        nic_on_boot: True
+################################################
+# Multiple/Single Node Dynamic Ip addresses
+################################################
+- name: 'lb'
+  count: 1
+  profile: 'node_vm'

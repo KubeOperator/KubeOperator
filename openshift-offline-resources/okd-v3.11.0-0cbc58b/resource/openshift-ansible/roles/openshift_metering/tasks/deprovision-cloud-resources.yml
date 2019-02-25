@@ -1,0 +1,8 @@
+---
+- name: Openshift Metering RDS Database teardown
+  import_tasks: rds-database-uninstall.yml
+  when: openshift_metering_hive_metastore_db_rds_delete | bool
+
+- name: Openshift Metering S3 Bucket teardown
+  import_tasks: s3-bucket-storage-uninstall.yml
+  when: openshift_metering_s3_bucket_delete | bool

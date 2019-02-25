@@ -1,0 +1,22 @@
+---
+# node_problem_detector common setup
+openshift_node_problem_detector_state: present
+openshift_node_problem_detector_tmp_location: /tmp
+openshift_node_problem_detector_delete_tempfiles: True
+
+# node-problem-detector image setup
+
+openshift_node_problem_detector_image: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'node-problem-detector') }}"
+
+# node_problem_detector daemonset setup
+openshift_node_problem_detector_daemonset_name: node-problem-detector
+openshift_node_problem_detector_daemonset_template_file: templates/node-problem-detector-daemonset.yaml.j2
+openshift_node_problem_detector_image_pull_policy: IfNotPresent
+
+# node_problem_detector service account setup
+openshift_node_problem_detector_service_account: node-problem-detector
+openshift_node_problem_detector_cluster_role_name: node-problem-detector
+
+# node problem detector configmap setup
+openshift_node_problem_detector_configmap_name: node-problem-detector
+openshift_node_problem_detector_configmap_filename: files/node-problem-detector-configmap.yaml

@@ -1,0 +1,40 @@
+---
+- name: fetch block device of slash filesystem
+  command: bash -c "/usr/bin/mount | grep 'on / ' | cut -d ' ' -f1"
+  register: slashfsdevice
+
+- name: fetch filesystem of slash block device
+  command: bash -c "blkid {{ slashfsdevice.stdout }} -s TYPE -o value"
+  register: slashfstype
+
+- name: fetch uuid of slash block device
+  command: bash -c "blkid {{ slashfsdevice.stdout }} -s UUID -o value"
+  register: slashfsuuid
+
+- name: ensure nonUUID based slash mount entry in /etc/fstab is removed
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^(?!(UUID=))(.*?)(\s+)(\/)(\s+){{ slashfstype.stdout }}(.+?)$'
+    state: absent
+
+- name: ensure slash mount uses UUID device and gquota option in /etc/fstab
+  mount:
+    path: "/"
+    src: "UUID={{ slashfsuuid.stdout }}"
+    fstype: "{{ slashfstype.stdout }}"
+    opts: "defaults,gquota"
+    state: "present"
+  register: slashmount
+
+- name: set rootvol flags in grub conf
+  lineinfile:
+    line: 'GRUB_CMDLINE_LINUX="console=ttyS0,115200n8 console=tty0 net.ifnames=0 crashkernel=auto rootflags=gquota"'
+    path: /etc/default/grub
+    regexp: 'GRUB_CMDLINE_LINUX="console=ttyS0,115200n8 console=tty0 net.ifnames=0 crashkernel=auto"'
+    state: present
+  register: etcdefaultgrub
+  when: slashmount.changed
+
+- name: recreate grub2 config
+  command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  when: etcdefaultgrub.changed

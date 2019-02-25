@@ -1,0 +1,52 @@
+---
+# PREREQ Node service is ready to run static pods
+
+# INPUT r_etcd_upgrade_version
+
+- import_tasks: verify_cluster_health.yml
+
+- name: Check for old etcd service files
+  stat:
+    path: "{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  with_items:
+  - "/etc/systemd/system/etcd.service"
+  - "/etc/systemd/system/etcd_container.service"
+  register: old_svc_files
+
+- name: Remove old etcd service files
+  file:
+    path: "{{ item.stat.path }}"
+    state: absent
+  with_items:
+  - "{{ old_svc_files.results }}"
+  when:
+  - item.stat.exists
+  - item.stat.isreg
+
+# We removed the ability to detect what was previously 'containerized'
+# Need to stop and disable this service, but might not be present.
+- name: Stop, disable and mask old etcd service
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+    masked: yes
+    daemon_reload: yes
+  with_items:
+  - etcd
+  - etcd_container
+  failed_when: False
+
+- name: Remove nonexistent services
+  command: "systemctl reset-failed"
+
+- name: Configure static definition
+  import_tasks: static.yml
+
+- set_fact:
+    r_etcd_common_etcd_runtime: static_pod
+
+- import_tasks: verify_cluster_health.yml

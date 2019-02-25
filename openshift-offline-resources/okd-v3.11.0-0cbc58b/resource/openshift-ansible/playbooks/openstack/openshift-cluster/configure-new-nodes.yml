@@ -1,0 +1,13 @@
+---
+# NOTE(shadower): this section is identical to the one in install.yml except
+# that it runs on the new nodes only.
+- name: Prepare the New Nodes in the cluster for installation
+  any_errors_fatal: true
+  hosts: new_nodes:new_masters:new_etcd
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Configure Node
+    import_role:
+      name: openshift_openstack
+      tasks_from: node-configuration.yml
