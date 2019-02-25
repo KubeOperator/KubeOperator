@@ -1,0 +1,37 @@
+---
+# Necessary because when you're on a node that's also a master the master will be
+# restarted after the node restarts docker and it will take up to 60 seconds for
+# systemd to start the master again
+- name: Wait for master API to become available before proceeding
+  # Using curl here since the uri module requires python-httplib2 and
+  # wait_for port doesn't provide health information.
+  command: >
+    curl --silent --tlsv1.2 --max-time 2
+    --cacert {{ openshift.common.config_base }}/master/ca-bundle.crt
+    {{ openshift_node_master_api_url }}/healthz/ready
+  args:
+    # Disables the following warning:
+    # Consider using get_url or uri module rather than running curl
+    warn: no
+  register: api_available_output
+  until: api_available_output.stdout == 'ok'
+  retries: 120
+  delay: 1
+  changed_when: false
+  when: openshift_is_atomic | bool
+  delegate_to: "{{ openshift_master_host }}"
+  run_once: true
+
+- name: Wait for Node Registration
+  oc_obj:
+    name: "{{ l_kubelet_node_name | lower }}"
+    kind: node
+    state: list
+  register: get_node
+  until: "'metadata' in get_node.results.results[0]"
+  retries: 50
+  delay: 5
+  when: "'nodename' in openshift.node"
+  delegate_to: "{{ openshift_master_host }}"
+
+- include_tasks: config.yml

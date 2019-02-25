@@ -1,0 +1,20 @@
+---
+# meta config
+master_config_path: "/opt/app-root/src/master-config.yaml"
+admin_kubeconfig_path: "/opt/app-root/src/.kube/config"
+
+# default user configuration
+ansible_ssh_user: ec2-user
+ansible_become: "yes"
+ansible_become_user: "root"
+
+# openshift-ansible inventory vars
+openshift_uninstall_images: false
+openshift_install_examples: true
+openshift_deployment_type: origin
+
+openshift_release: 3.6
+openshift_image_tag: v3.6.0
+openshift_logging_install_logging: null  # defaults to "true" if loggingPublicURL is set in master-config.yaml
+openshift_logging_image_version: v3.6.0
+openshift_disable_check: ""

@@ -1,0 +1,53 @@
+---
+## The purpose of this task file is to get a patch that is based on the diff
+##  between configmap_current_file and configmap_new_file. The module
+##  logging_patch takes the paths of two files to compare and also a list of
+##  variables whose line we exclude from the diffs.
+##  We then patch the new configmap file so that we can build a configmap
+##  using that file later. We then use oc apply to idempotenly modify any
+##  existing configmap.
+
+## The following variables are expected to be provided when including this task:
+# __configmap_output         -- This is provided to us from patch_configmap_files.yaml
+#                                it is a dict of the configmap where configmap_current_file exists
+# configmap_current_file     -- The name of the data file in the __configmap_output
+# configmap_new_file         -- The path to the file that we intend to oc apply later
+#                                we apply our generated patch to this file.
+# configmap_protected_lines  -- The list of variables to exclude from the diff
+
+- when:
+  - configmap_current_file in __configmap_output.results.results[0]['data']
+  block:
+  - copy:
+      content: "{{ __configmap_output.results.results[0]['data'][configmap_current_file] }}"
+      dest: "{{ tempdir }}/current.yml"
+
+  - logging_patch:
+      original_file: "{{ tempdir }}/current.yml"
+      new_file: "{{ configmap_new_file }}"
+      whitelist: "{{ configmap_protected_lines | default([]) }}"
+    register: patch_output
+
+- when:
+  - patch_output.raw_patch is defined
+  - patch_output.raw_patch | length > 0
+  block:
+  - slurp:
+      src: "{{ configmap_new_file }}"
+    register: new_file_slurp
+
+  - local_action: copy content="{{ patch_output.raw_patch }}\n" dest={{ local_tmp.stdout }}/patch.patch
+    vars:
+      ansible_become: false
+
+  - local_action: copy content={{ new_file_slurp['content'] | b64decode }} dest={{ local_tmp.stdout }}/configmap_new_file
+    vars:
+      ansible_become: false
+
+  - local_action: command patch --force --quiet -u {{ local_tmp.stdout }}/configmap_new_file {{ local_tmp.stdout }}/patch.patch
+    vars:
+      ansible_become: false
+
+  - copy:
+      src: "{{ local_tmp.stdout }}/configmap_new_file"
+      dest: "{{ configmap_new_file }}"

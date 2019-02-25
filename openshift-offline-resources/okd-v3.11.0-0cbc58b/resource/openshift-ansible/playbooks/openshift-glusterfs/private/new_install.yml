@@ -1,0 +1,33 @@
+---
+# This playbook is meant to be called while installing a new cluster.
+# We don't need to run tasks against the nodes to consume gluster volumes
+# because do that during the node plays.
+- name: GlusterFS Install Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set GlusterFS install 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_glusterfs:
+          title: "GlusterFS Install"
+          playbook: "playbooks/openshift-glusterfs/new_install.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- import_playbook: gluster_hosts.yml
+
+- import_playbook: gluster_main.yml
+
+- name: GlusterFS Install Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set GlusterFS install 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_glusterfs:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

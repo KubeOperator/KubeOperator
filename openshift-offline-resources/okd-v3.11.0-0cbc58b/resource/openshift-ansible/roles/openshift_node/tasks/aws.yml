@@ -1,0 +1,19 @@
+---
+- name: Configure AWS Cloud Provider Settings
+  lineinfile:
+    dest: /etc/sysconfig/{{ openshift_service_type }}-node
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    create: true
+  with_items:
+    - regex: '^AWS_ACCESS_KEY_ID='
+      line: "AWS_ACCESS_KEY_ID={{ openshift_cloudprovider_aws_access_key | default('') }}"
+    - regex: '^AWS_SECRET_ACCESS_KEY='
+      line: "AWS_SECRET_ACCESS_KEY={{ openshift_cloudprovider_aws_secret_key | default('') }}"
+  register: sys_env_update
+  no_log: True
+  when:
+    - openshift_cloudprovider_kind is defined
+    - openshift_cloudprovider_kind == 'aws'
+    - openshift_cloudprovider_aws_access_key is defined
+    - openshift_cloudprovider_aws_secret_key is defined

@@ -1,0 +1,88 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_pvc
+short_description: Modify, and idempotently manage openshift persistent volume claims
+description:
+  - Modify openshift persistent volume claims programmatically.
+options:
+  state:
+    description:
+    - Supported states, present, absent, list
+    - present - will ensure object is created or updated to the value specified
+    - list - will return a pvc
+    - absent - will remove a pvc
+    required: False
+    default: present
+    choices: ["present", 'absent', 'list']
+    aliases: []
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  name:
+    description:
+    - Name of the object that is being queried.
+    required: false
+    default: None
+    aliases: []
+  namespace:
+    description:
+    - The namespace where the object lives.
+    required: false
+    default: str
+    aliases: []
+  volume_capacity:
+    description:
+    - The requested volume capacity
+    required: False
+    default: 1G
+    aliases: []
+  access_modes:
+    description:
+    - The access modes allowed for the pvc
+    - Expects a list
+    required: False
+    default: ReadWriteOnce
+    choices:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    - ReadWriteMany
+    aliases: []
+  storage_class_name:
+    description:
+    - The storage class name for the PVC
+    required: false
+    default: None
+    aliases: []
+  selector:
+    description:
+    - A hash of key/values for the matchLabels
+    required: false
+    default: None
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: create a pvc
+  oc_pvc:
+    namespace: awesomeapp
+    name: dbstorage
+    access_modes:
+    - ReadWriteOnce
+    volume_capacity: 5G
+  register: pvcout
+'''

@@ -1,0 +1,11 @@
+---
+#
+# These vars are generally considered private and not expected to be altered
+# by end users
+#
+
+openshift_metrics_cassandra_storage_types:
+- emptydir
+- pv
+- dynamic
+- nfs

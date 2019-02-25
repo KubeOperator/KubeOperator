@@ -1,0 +1,28 @@
+kind: List
+apiVersion: v1
+items:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: proxy
+    namespace: kube-proxy-and-dns
+- apiVersion: authorization.openshift.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: proxy-cluster-reader
+  roleRef:
+    name: cluster-reader
+  subjects:
+  - kind: ServiceAccount
+    name: proxy
+    namespace: kube-proxy-and-dns
+- apiVersion: authorization.openshift.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: proxy-reader
+  roleRef:
+    name: system:proxy-reader
+  subjects:
+  - kind: ServiceAccount
+    name: proxy
+    namespace: kube-proxy-and-dns

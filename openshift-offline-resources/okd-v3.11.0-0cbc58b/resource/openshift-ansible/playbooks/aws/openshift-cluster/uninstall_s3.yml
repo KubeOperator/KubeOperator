@@ -1,0 +1,10 @@
+---
+- name: Empty/delete s3 bucket
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: empty/delete s3 bucket
+    include_role:
+      name: openshift_aws
+      tasks_from: uninstall_s3.yml
+    when: openshift_aws_create_s3 | default(true) | bool

@@ -1,0 +1,10 @@
+# This playbook terminates a running cluster
+---
+- name: Terminate running cluster and remove all supporting resources in GCE
+  hosts: localhost
+  connection: local
+  tasks:
+  - include_role:
+      name: openshift_gcp
+    vars:
+      state: absent

@@ -1,0 +1,29 @@
+---
+- name: Set node schedulability
+  oc_adm_manage_node:
+    node: "{{ l_kubelet_node_name | lower }}"
+    schedulable: "{{ 'true' if openshift_schedulable | default(true) | bool else 'false' }}"
+  retries: 10
+  delay: 5
+  register: node_schedulable
+  until: node_schedulable is succeeded
+  when: "'nodename' in openshift.node"
+  delegate_to: "{{ openshift_master_host }}"
+
+- name: Wait for sync DS to set annotations on all nodes
+  oc_obj:
+    state: list
+    kind: node
+    selector: ""
+  register: node_status
+  until:
+    - node_status.results is defined
+    - node_status.results.results is defined
+    - node_status.results.results | length > 0
+    - node_status.results.results[0]['items']
+        | map(attribute='metadata.annotations') | map('list') | flatten
+        | select('match', 'node.openshift.io/md5sum') | list | length ==
+      node_status.results.results[0]['items'] | length
+  retries: 180
+  delay: 10
+  delegate_to: "{{ openshift_master_host }}"

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Route
+metadata:
+  name: {{ name }}
+{% if annotations is defined %}
+  annotations: {{ annotations | to_yaml }}
+{% endif %}
+{% if labels is defined and labels %}
+  labels:
+{% for k, v in labels.items() %}
+    {{ k }}: {{ v }}
+{% endfor %}
+{% endif %}
+spec:
+  host: {{ host }}
+  to:
+    kind: {{ to.kind }}
+    name: {{ to.name }}
+{% if tls is defined %}
+  tls:
+    termination: {{ tls.termination }}
+{% if tls.ca_certificate is defined and tls.ca_certificate | length > 0 %}
+    caCertificate: |
+{{ tls.ca_certificate|indent(6, true) }}
+{% endif %}
+{% if tls.key is defined and tls.key | length > 0 %}
+    key: |
+{{ tls.key|indent(6, true) }}
+{% endif %}
+{% if tls.certificate is defined and tls.certificate | length > 0 %}
+    certificate: |
+{{ tls.certificate|indent(6, true) }}
+{% endif %}
+{% if tls.termination == 'reencrypt' %}
+    destinationCACertificate: |
+{{ tls.destination_ca_certificate|indent(6, true) }}
+{% endif %}
+{% endif %}

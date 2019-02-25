@@ -1,0 +1,61 @@
+[all:vars]
+openshift_ovirt_dns_zone=  # example.com
+
+[OSEv3:children]
+nodes
+masters
+etcd
+lb
+
+[OSEv3:vars]
+# General variables
+ansible_user=root
+openshift_deployment_type=origin
+#openshift_deployment_type=openshift-enterprise
+openshift_enable_service_catalog=False
+
+# Hostnames
+load_balancer_hostname=lb0.{{openshift_ovirt_dns_zone}}
+openshift_master_cluster_hostname="{{ load_balancer_hostname }}"
+openshift_master_cluster_public_hostname=openshift-master.{{ openshift_ovirt_dns_zone }}
+openshift_master_default_subdomain=apps.{{ openshift_ovirt_dns_zone }}
+openshift_public_hostname="{{openshift_master_cluster_public_hostname}}"
+
+# Docker setup for extra disks on nodes
+container_runtime_docker_storage_setup_device=/dev/vdb
+container_runtime_docker_storage_type=overlay2
+openshift_node_local_quota_per_fsgroup=512Mi
+
+[masters:vars]
+container_runtime_extra_storage=[{'device': '/dev/vdc', 'path': '/var/lib/origin/openshift.local.volumes', 'options': 'gquota', 'filesystem': 'xfs', 'format': 'True'}, {'device': '/dev/vdd', 'path': '/var/lib/etcd', 'hosts': 'masters', 'filesystem': 'xfs', 'format': 'True'}]
+
+[nodes:vars]
+container_runtime_extra_storage=[{'device': '/dev/vdc', 'path': '/var/lib/origin/openshift.local.volumes', 'options': 'gquota', 'filesystem': 'xfs', 'format': 'True'}]
+
+[masters]
+master0.example.com
+master1.example.com
+master2.example.com
+
+[etcd]
+master0.example.com
+master1.example.com
+master2.example.com
+
+[infras]
+infra0.example.com
+infra1.example.com
+infra2.example.com
+
+[lb]
+lb0.example.com
+
+[nodes]
+master0.example.com openshift_node_group_name=node-config-master
+master1.example.com openshift_node_group_name=node-config-master
+master2.example.com openshift_node_group_name=node-config-master
+infra0.example.com openshift_node_group_name=node-config-infra
+infra1.example.com openshift_node_group_name=node-config-infra
+infra2.example.com openshift_node_group_name=node-config-infra
+compute0.example.com openshift_node_group_name=node-config-compute
+# vim: set syntax=dosini

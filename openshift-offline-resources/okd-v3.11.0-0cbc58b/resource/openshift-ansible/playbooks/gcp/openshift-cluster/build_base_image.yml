@@ -1,0 +1,187 @@
+---
+# This playbook ensures that a base image is up to date with all of the required settings
+- name: Verify prerequisites for image build
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Require openshift_gcp_root_image
+    fail:
+      msg: "A root OS image name or family is required for base image building.  Please ensure `openshift_gcp_root_image` is defined."
+    when: openshift_gcp_root_image is undefined
+
+- name: Provision ssh key
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Set up core host GCP configuration
+    import_role:
+      name: openshift_gcp
+      tasks_from: provision_ssh_keys.yml
+
+- name: Launch image build instance
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Create the image instance disk
+    gce_pd:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      name: "{{ openshift_gcp_prefix }}build-image-instance"
+      disk_type: pd-ssd
+      image: "{{ openshift_gcp_root_image }}"
+      size_gb: 10
+      state: present
+
+  - name: Launch the image build instance
+    gce:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      machine_type: n1-standard-1
+      instance_names: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: present
+      tags:
+      - build-image-instance
+      disk_auto_delete: false
+      disks:
+      - "{{ openshift_gcp_prefix }}build-image-instance"
+    register: gce
+
+  - add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: build_instance_ips
+    with_items: "{{ gce.instance_data }}"
+
+  - name: Wait for instance to respond to SSH
+    wait_for:
+      delay: 1
+      host: "{{ item.public_ip }}"
+      port: 22
+      state: started
+      timeout: 120
+    with_items: "{{ gce.instance_data }}"
+
+- name: Prepare instance content sources
+  pre_tasks:
+  - set_fact:
+      allow_rhel_subscriptions: "{{ rhsub_skip | default('no', True) | lower in ['no', 'false'] }}"
+  - set_fact:
+      using_rhel_subscriptions: "{{ (deployment_type in ['enterprise', 'atomic-enterprise', 'openshift-enterprise'] or ansible_distribution == 'RedHat') and allow_rhel_subscriptions }}"
+  hosts: build_instance_ips
+  roles:
+  - role: rhel_subscribe
+    when: using_rhel_subscriptions
+  - role: openshift_repos
+    vars:
+      openshift_additional_repos: []
+  post_tasks:
+  - name: Add custom repositories
+    include_role:
+      name: openshift_gcp
+      tasks_from: add_custom_repositories.yml
+  - name: Add the Google Cloud repo
+    yum_repository:
+      name: google-cloud
+      description: Google Cloud Compute
+      baseurl: https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
+      gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+      gpgcheck: yes
+      repo_gpgcheck: yes
+      state: present
+    when: ansible_os_family == "RedHat"
+  - name: Add the jdetiber-qemu-user-static copr repo
+    yum_repository:
+      name: jdetiber-qemu-user-static
+      description: QEMU user static COPR
+      baseurl: https://copr-be.cloud.fedoraproject.org/results/jdetiber/qemu-user-static/epel-7-$basearch/
+      gpgkey: https://copr-be.cloud.fedoraproject.org/results/jdetiber/qemu-user-static/pubkey.gpg
+      gpgcheck: yes
+      repo_gpgcheck: no
+      state: present
+    when: ansible_os_family == "RedHat"
+  - name: Accept GPG keys for the repos
+    command: yum -q makecache -y --disablerepo='*' --enablerepo='google-cloud,jdetiber-qemu-user-static'
+  - name: Install qemu-user-static
+    package:
+      name: qemu-user-static
+      state: present
+  - name: Disable yum-cron service (installed by Google Cloud by default)
+    systemd:
+      name: yum-cron
+      state: stopped
+      enabled: no
+  - name: Start and enable systemd-binfmt service
+    systemd:
+      name: systemd-binfmt
+      state: started
+      enabled: yes
+
+- name: Build image
+  hosts: build_instance_ips
+  pre_tasks:
+  - name: Set up core host GCP configuration
+    include_role:
+      name: openshift_gcp
+      tasks_from: configure_gcp_base_image.yml
+  roles:
+  - role: os_update_latest
+  post_tasks:
+  - name: Disable all repos on RHEL
+    command: subscription-manager repos --disable="*"
+    when: using_rhel_subscriptions
+  - name: Enable repos for packages on RHEL
+    command: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms"
+    when: using_rhel_subscriptions
+  - name: Install common image prerequisites
+    package:
+      name: "{{ pkg_list | join(',') }}"
+      state: latest
+    vars:
+      pkg_list:
+      # required by Ansible
+      - PyYAML
+      - google-compute-engine
+      - google-compute-engine-init
+      - google-config
+      - wget
+      - git
+      - net-tools
+      - bind-utils
+      - iptables-services
+      - bridge-utils
+      - bash-completion
+      - atomic
+  - name: Clean yum metadata
+    command: yum clean all
+    args:
+      warn: no
+    when: ansible_os_family == "RedHat"
+
+- name: Commit image
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Terminate the image build instance
+    gce:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      instance_names: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: absent
+  - name: Save the new image
+    command: gcloud --project "{{ openshift_gcp_project}}" compute images create "{{ openshift_gcp_base_image_name | default(openshift_gcp_base_image + '-' + lookup('pipe','date +%Y%m%d-%H%M%S')) }}" --source-disk "{{ openshift_gcp_prefix }}build-image-instance" --source-disk-zone "{{ openshift_gcp_zone }}" --family "{{ openshift_gcp_base_image }}"
+  - name: Remove the image instance disk
+    gce_pd:
+      service_account_email: "{{ (lookup('file', openshift_gcp_iam_service_account_keyfile ) | from_json ).client_email }}"
+      credentials_file: "{{ openshift_gcp_iam_service_account_keyfile }}"
+      project_id: "{{ openshift_gcp_project }}"
+      zone: "{{ openshift_gcp_zone }}"
+      name: "{{ openshift_gcp_prefix }}build-image-instance"
+      state: absent

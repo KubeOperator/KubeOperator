@@ -1,0 +1,50 @@
+---
+# l_install_base_packages is passed in via prerequistes.yml.
+# skip_sanity_checks is passed in via openshift-node/private/image_prep.yml
+
+- name: Initialization Checkpoint Start
+  hosts: all
+  gather_facts: false
+  roles:
+  - installer_checkpoint
+  tasks:
+  - name: Set install initialization 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_initialize:
+          title: "Initialization"
+          playbook: ""
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- import_playbook: evaluate_groups.yml
+
+- import_playbook: basic_facts.yml
+
+# NOTE: we must call init repos before installing base packages
+# because they may come from the repos.
+- import_playbook: repos.yml
+
+# base_packages needs to be setup for openshift_facts.py to run correctly.
+- import_playbook: base_packages.yml
+  when: l_install_base_packages | default(False) | bool
+
+- import_playbook: cluster_facts.yml
+
+- import_playbook: version.yml
+
+- import_playbook: sanity_checks.yml
+  when: not (skip_sanity_checks | default(False))
+
+- name: Initialization Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set install initialization 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_initialize:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

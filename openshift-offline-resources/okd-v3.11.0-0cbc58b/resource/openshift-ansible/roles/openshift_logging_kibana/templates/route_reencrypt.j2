@@ -1,0 +1,36 @@
+apiVersion: "v1"
+kind: "Route"
+metadata:
+  name: "{{obj_name}}"
+{% if labels is defined%}
+  labels:
+{% for key, value in labels.items() %}
+    {{key}}: {{value}}
+{% endfor %}
+{% endif %}
+spec:
+  host: {{ route_host }}
+  tls:
+{% if tls_key is defined and tls_key | length > 0 %}
+    key: |
+{{ tls_key|indent(6, true) }}
+{% if tls_cert is defined and tls_cert | length > 0 %}
+    certificate: |
+{{ tls_cert|indent(6, true) }}
+{% endif %}
+{% endif %}
+    caCertificate: |
+{% for line in tls_ca_cert.split('\n') %}
+      {{ line }}
+{% endfor %}
+    destinationCACertificate: |
+{% for line in tls_dest_ca_cert.split('\n') %}
+      {{ line }}
+{% endfor %}
+    termination: reencrypt
+{% if edge_term_policy is defined and edge_term_policy | length > 0 %}
+    insecureEdgeTerminationPolicy: {{ edge_term_policy }}
+{% endif %}
+  to:
+    kind: Service
+    name: {{ service_name }}

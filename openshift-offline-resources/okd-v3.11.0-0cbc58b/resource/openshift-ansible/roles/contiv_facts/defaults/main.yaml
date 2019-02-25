@@ -1,0 +1,10 @@
+---
+# The directory where binaries are stored on Ansible
+# managed systems.
+contiv_bin_dir: /usr/bin
+
+# The directory used by Ansible to temporarily store
+# files on Ansible managed systems.
+contiv_ansible_temp_dir: /tmp/.ansible/files
+
+contiv_source_type: packageManager

@@ -1,0 +1,16 @@
+---
+- name: "Remove {{ __openshift_metering_namespace }} project"
+  oc_project:
+    name: "{{ __openshift_metering_namespace }}"
+    state: absent
+
+- name: Remove namespace viewer clusterrolebinding from openshift-metering
+  oc_obj:
+    state: absent
+    kind: ClusterRoleBinding
+    name: "openshift-metering-namespace-viewer-{{ __openshift_metering_namespace }}"
+
+- name: Remove metering namespace viewer cluster role
+  oc_clusterrole:
+    state: absent
+    name: "openshift-metering-namespace-viewer-{{ __openshift_metering_namespace }}"

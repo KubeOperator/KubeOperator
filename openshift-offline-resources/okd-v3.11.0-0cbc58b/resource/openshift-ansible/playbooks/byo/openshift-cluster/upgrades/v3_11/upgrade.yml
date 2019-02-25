@@ -1,0 +1,5 @@
+---
+#
+# Full Control Plane + Nodes Upgrade
+#
+- import_playbook: ../../../../common/openshift-cluster/upgrades/v3_11/upgrade.yml

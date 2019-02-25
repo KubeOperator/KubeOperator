@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# Restart the named component by stopping its base container.
+if [[ -z "${1-}" ]]; then
+  echo "A component name like 'api', 'etcd', or 'controllers' must be specified." 1>&2
+  exit 1
+fi
+
+types=( "atomic-openshift" "origin" )
+for type in "${types[@]}"; do
+  if systemctl cat "${type}-master-${1}.service" &>/dev/null; then
+    systemctl restart "${type}-master-${1}.service"
+    exit 0
+  fi
+done
+
+pod=$(crictl pods -l -q --label "openshift.io/component=${1}" --label "io.kubernetes.container.name=POD" 2>/dev/null)
+if [[ -z "${pod}" ]]; then
+  echo "Component ${1} is already stopped" 1>&2
+  exit 0
+fi
+# Stop the pod
+# TODO(runcom): expose timeout in the CRI
+crictl stopp "${pod}" >/dev/null

@@ -1,0 +1,60 @@
+---
+# This task list checks for unsupported configurations. Values here should yield
+# a partially functioning cluster but would not be supported for production use.
+
+- set_fact:
+    __using_dynamic: True
+  when:
+  - hostvars[inventory_hostname][item] in ['dynamic']
+  with_items:
+  - "{{ hostvars[inventory_hostname] | vars_with_pattern(pattern='openshift_.*_storage_kind') }}"
+
+- name: Ensure that dynamic provisioning is set if using dynamic storage
+  when:
+  - dynamic_volumes_check | default(true) | bool
+  - not openshift_master_dynamic_provisioning_enabled | default(false) | bool
+  - not openshift_cloudprovider_kind is defined
+  - __using_dynamic is defined and __using_dynamic | bool
+  fail:
+    msg: |-
+      Using a storage kind of 'dynamic' without enabling dynamic provisioning nor
+      setting a cloud provider will cause generated PVCs to not be able to bind as
+      intended. Either update to not use a dynamic storage or set
+      openshift_master_dynamic_provisioning_enabled to True and set an
+      openshift_cloudprovider_kind. You can disable this check with
+      'dynamic_volumes_check=False'.
+
+#if we have registry backend as glusterfs, and we have clashing configuration.
+- name: Ensure the hosted registry's GlusterFS storage is configured correctly
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) in ['glusterfs']
+  - openshift_hosted_registry_storage_glusterfs_ips is defined
+  - openshift_hosted_registry_storage_glusterfs_ips != []
+  - "'glusterfs_registry' in groups | default([])"
+  fail:
+    msg: |-
+      Configuring a value for openshift_hosted_registry_storage_glusterfs_ips and with a glusterfs_registry host group is not allowed.
+      Specifying a glusterfs_registry host group indicates that a new GlusterFS cluster should be configured, whereas
+      specifying openshift_hosted_registry_storage_glusterfs_ips indicates wanting to use a pre-configured GlusterFS cluster for the registry storage.
+
+#if we have registry backend as glusterfs and no gluster specified.
+- name: Ensure the hosted registry's GlusterFS storage is configured correctly
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) in ['glusterfs']
+  - not openshift_hosted_registry_storage_glusterfs_ips is defined
+  - not 'glusterfs_registry' in groups | default([])
+  - not 'glusterfs' in groups | default([])
+  fail:
+    msg: |-
+      Configuring a value for openshift_hosted_registry_storage_kind=glusterfs without a any glusterfs option is not allowed.
+      Specify either openshift_hosted_registry_storage_glusterfs_ips variable or glusterfs, glusterfs_registry host groups.
+
+#if the user is trying to install the deprecated prometheus stack
+- name: Check for deprecated prometheus/grafana install
+  when:
+  - (openshift_hosted_prometheus_deploy | default(false) | bool) or
+    (openshift_hosted_grafana_deploy | default(false) | bool)
+  fail:
+    msg: |-
+      The inventory variables 'openshift_hosted_prometheus_deploy' and 'openshift_hosted_grafana_deploy' are no longer used.
+      See roles/openshift_cluster_monitoring_operator/README.md for information about installing Prometheus and related monitoring components.

@@ -1,0 +1,206 @@
+kind: List
+apiVersion: v1
+metadata:
+  name: rhpam71-image-streams
+  annotations:
+    description: ImageStream definitions for Red Hat Process Automation Manager 7.1
+    openshift.io/provider-display-name: Red Hat, Inc.
+items:
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-businesscentral-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Business Central 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - Business Central image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-businesscentral-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - Business Central image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-businesscentral-openshift:1.1
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-businesscentral-monitoring-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Business Central Monitoring 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - Business Central Monitoring image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-businesscentral-monitoring-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - Business Central Monitoring image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-businesscentral-monitoring-openshift:1.1
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-controller-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Standalone Controller 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - Standalone Controller image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-controller-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - Standalone Controller image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-controller-openshift:1.1
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-kieserver-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager KIE Server 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - KIE Server image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-kieserver-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - KIE Server image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-kieserver-openshift:1.1
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-smartrouter-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Smart Router 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - Smart Router image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-smartrouter-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - Smart Router image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7/rhpam71-smartrouter-openshift:1.1
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam71-businesscentral-indexing-openshift
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Business Central Indexing 7.1
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1 - Business Central Indexing image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7-tech-preview/rhpam71-businesscentral-indexing-openshift:1.0
+    - name: '1.1'
+      annotations:
+        description: Red Hat Process Automation Manager 7.1.1 - Business Central Indexing image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.1
+        version: '1.1'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: registry.redhat.io/rhpam-7-tech-preview/rhpam71-businesscentral-indexing-openshift:1.1

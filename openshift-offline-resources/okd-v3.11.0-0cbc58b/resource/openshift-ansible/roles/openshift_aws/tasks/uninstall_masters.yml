@@ -1,0 +1,8 @@
+---
+- name: scale group deletion for master
+  include_tasks: uninstall_node_group.yml
+  with_items: "{{ openshift_aws_master_group }}"
+  vars:
+    l_node_group_config: "{{ openshift_aws_master_group_config }}"
+  loop_control:
+    loop_var: openshift_aws_node_group

@@ -1,0 +1,13 @@
+---
+- name: Calico Node | Configure NetworkManager to ignore Calico interfaces
+  copy:
+    src: files/calico.conf
+    dest: /etc/NetworkManager/conf.d/
+  when: using_network_manager | default(true) | bool
+  register: nm
+
+- name: Calico Node | Restart NetworkManager
+  systemd:
+    name: NetworkManager
+    state: restarted
+  when: nm.changed

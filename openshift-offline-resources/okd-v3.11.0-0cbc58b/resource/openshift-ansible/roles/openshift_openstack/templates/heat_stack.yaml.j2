@@ -1,0 +1,1182 @@
+heat_template_version: {{ openshift_openstack_heat_template_version }}
+
+description: OpenShift cluster
+
+parameters:
+
+outputs:
+
+{% if openshift_openstack_resolve_heat_outputs|default(True)|bool %}
+  etcd_names:
+    description: Name of the etcds
+    value: { get_attr: [ etcd, name ] }
+
+  etcd_ips:
+    description: IPs of the etcds
+    value: { get_attr: [ etcd, private_ip ] }
+
+{% if openshift_openstack_etcd_floating_ip | default(True) | bool %}
+  etcd_floating_ips:
+    description: Floating IPs of the etcds
+    value: { get_attr: [ etcd, floating_ip ] }
+{% endif %}
+
+  master_names:
+    description: Name of the masters
+    value: { get_attr: [ masters, name ] }
+
+  master_ips:
+    description: IPs of the masters
+    value: { get_attr: [ masters, private_ip ] }
+
+{% if openshift_openstack_master_floating_ip | default(True) | bool %}
+  master_floating_ips:
+    description: Floating IPs of the masters
+    value: { get_attr: [ masters, floating_ip ] }
+{% endif %}
+
+  node_names:
+    description: Name of the nodes
+    value: { get_attr: [ compute_nodes, name ] }
+
+  node_ips:
+    description: IPs of the nodes
+    value: { get_attr: [ compute_nodes, private_ip ] }
+
+{% if openshift_openstack_compute_floating_ip | default(True) | bool %}
+  node_floating_ips:
+    description: Floating IPs of the nodes
+    value: { get_attr: [ compute_nodes, floating_ip ] }
+{% endif %}
+
+  infra_names:
+    description: Name of the nodes
+    value: { get_attr: [ infra_nodes, name ] }
+
+  infra_ips:
+    description: IPs of the nodes
+    value: { get_attr: [ infra_nodes, private_ip ] }
+
+{% if openshift_openstack_infra_floating_ip | default(True) | bool %}
+  infra_floating_ips:
+    description: Floating IPs of the nodes
+    value: { get_attr: [ infra_nodes, floating_ip ] }
+{% endif %}
+{% endif %}
+
+  public_api_ip:
+    description: IP address for the API/UI endpoint
+{% if openshift_openstack_use_lbaas_load_balancer and openshift_openstack_load_balancer_floating_ip %}
+    value: { get_attr: [api_lb_floating_ip, floating_ip_address] }
+{% elif openshift_openstack_use_lbaas_load_balancer and not openshift_openstack_load_balancer_floating_ip %}
+    value: { get_attr: [api_lb, vip_address] }
+{% elif openshift_openstack_use_vm_load_balancer %}
+    value: { get_attr: [loadbalancer, resource.0, floating_ip] }
+{% else %}
+    value: { get_attr: [masters, resource.0, floating_ip] }
+{% endif %}
+
+  public_router_ip:
+    description: IP address of the apps/router endpoint
+{% if openshift_openstack_use_lbaas_load_balancer and openshift_openstack_load_balancer_floating_ip %}
+    value: { get_attr: [router_lb_floating_ip, floating_ip_address] }
+{% elif openshift_openstack_use_lbaas_load_balancer and not openshift_openstack_load_balancer_floating_ip %}
+    value: { get_attr: [router_lb, vip_address] }
+{% else %}
+    # NOTE(shadower): The VM-based loadbalancer only supports master nodes
+    value: { get_attr: [infra_nodes, resource.0, floating_ip] }
+{% endif %}
+
+  private_api_ip:
+    description: >
+      The address of the private OpenShift API. This is used during OpenShift
+      deployment and for API access by the internal pods and services.
+{% if openshift_openstack_use_lbaas_load_balancer or openshift_use_kuryr|default(false)|bool %}
+    value: { get_attr: [api_lb, vip_address] }
+{% elif openshift_openstack_use_vm_load_balancer %}
+    value: { get_attr: [loadbalancer, resource.0, private_ip] }
+{% else %}
+    value: { get_attr: [masters, resource.0, private_ip] }
+{% endif %}
+
+{% if openshift_use_kuryr|default(false)|bool %}
+  vm_subnet:
+    description: ID of the subnet the Pods will be on
+{% if not openshift_openstack_node_subnet_name %}
+    value: { get_resource: subnet }
+{% else %}
+    value: {{ openshift_openstack_node_subnet_id }}
+{% endif %}
+
+  pod_subnet:
+    description: ID of the subnet the Pods will be on
+    value: { get_resource: pod_subnet }
+
+  service_subnet:
+    description: ID of the subnet the services will be on
+    value: { get_resource: service_subnet }
+
+  pod_router:
+    description: ID of the router where the pod subnet will be connected
+{% if not openshift_openstack_router_name %}
+    value: { get_resource: router }
+{% else %}
+    value: {{ openshift_openstack_router_id }}
+{% endif %}
+
+
+{% if openshift_kuryr_subnet_driver|default('default') == 'namespace' %}
+  pod_subnet_pool:
+    description: ID of the subnet pool to use for the pod_subnets CIDRs
+    value: { get_resource: pod_subnet_pool }
+{% endif %}
+
+{% if openshift_kuryr_sg_driver|default('default') == 'namespace' %}
+  sg_allow_from_default:
+    description: ID of the security group to enable access from default namespace
+    value: { get_resource: sg_allow_from_default}
+
+  sg_allow_from_namespace:
+    description: ID of the security group to enable access from namespaces to default namespace
+    value: { get_resource: sg_allow_from_namespace}
+{% endif %}
+
+  pod_access_sg_id:
+    description: Id of the security group for services to be able to reach pods
+    value: { get_resource: pod_access_sg }
+
+  api_lb_vip_port_id:
+    description: Id of the OpenShift API load balancer VIP port
+    value: { get_attr: [api_lb, vip_port_id] }
+
+  api_lb_sg_id:
+    description: Security Group Id of the OpenShift API load balancer VIP port
+    value: { get_resource: lb-secgrp }
+
+  api_lb_provider:
+    description: Id of the OpenShift API load balancer VIP port
+    value: { get_attr: [api_lb, show, provider] }
+{% endif %}
+
+conditions:
+  no_floating: {% if openshift_openstack_provider_network_name %}true{% else %}false{% endif %}
+
+resources:
+
+# NOTE: With Kuryr, the load balancer is necessary.
+{% if openshift_openstack_use_lbaas_load_balancer or (openshift_use_kuryr|default(false)|bool and not openshift_openstack_provider_network_name) %}
+  api_lb:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::LoadBalancer
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% if openshift_use_kuryr|default(false)|bool %}
+      vip_address: {{ openshift_openstack_kuryr_service_subnet_cidr | ipaddr('1') | ipaddr('address') }}
+      vip_subnet: { get_resource: service_subnet }
+{% elif openshift_openstack_node_subnet_name %}
+      vip_subnet: {{ openshift_openstack_node_subnet_name }}
+{% else %}
+      vip_subnet: { get_resource: subnet }
+{% endif %}
+
+  api_lb_listener:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Listener
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb-listener
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      loadbalancer: { get_resource: api_lb }
+      protocol: HTTPS
+      protocol_port: {{ openshift_master_api_port }}
+      default_pool: { get_resource: api_lb_pool }
+
+{% if openshift_use_kuryr|default(false)|bool and openshift_master_api_port|default(8443) != 443 %}
+  # 443 listener for pod access. In non-kuryr envs handled by iptables
+  internal_api_lb_listener:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Listener
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb-internal-listener
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      loadbalancer: { get_resource: api_lb }
+      protocol: HTTPS
+      protocol_port: 443
+      default_pool: { get_resource: api_lb_pool }
+{% endif %}
+
+  api_lb_pool:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Pool
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb-pool
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      protocol: HTTPS
+      # TODO(shadower): Make this configurable?
+      lb_algorithm: ROUND_ROBIN
+      loadbalancer: { get_resource: api_lb }
+{% endif %}
+
+{% if not openshift_openstack_provider_network_name %}
+{% if openshift_use_kuryr|default(false)|bool %}
+  pod_net:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-net
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+
+{% if openshift_kuryr_subnet_driver|default('default') == 'namespace' %}
+  pod_subnet_pool:
+    type: OS::Neutron::SubnetPool
+    properties:
+      prefixes: [ {{ openshift_openstack_kuryr_pod_subnet_cidr }} ]
+      default_prefixlen: 24
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-subnet-pool
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% endif %}
+
+{% if openshift_kuryr_sg_driver|default('default') == 'namespace' %}
+  sg_allow_from_default:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-allow_from_default
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description: Give access to the services and pods from the default namespace
+
+  sg_allow_from_namespace:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-allow_from_namespace
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description: Give access to the services and pods on the default namespace from the other namespaces
+      rules:
+      - ethertype: IPv4
+        remote_group_id: { get_resource: sg_allow_from_default }
+        remote_mode: remote_group_id
+
+  sg_allow_from_default_rule:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: sg_allow_from_default }
+      ethertype: IPv4
+      remote_group: { get_resource: sg_allow_from_namespace }
+
+  common-secgrp_namespace_rule:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: common-secgrp }
+      ethertype: IPv4
+      remote_group: { get_resource: sg_allow_from_namespace }
+
+  common-secgrp_default_rule:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: { get_resource: common-secgrp }
+      ethertype: IPv4
+      remote_group: { get_resource: sg_allow_from_default }
+{% endif %}
+
+
+  pod_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: pod_net }
+{% if openshift_kuryr_subnet_driver|default('default') == 'namespace' %}
+      subnetpool: { get_resource: pod_subnet_pool }
+{% else %}
+      cidr: {{ openshift_openstack_kuryr_pod_subnet_cidr }}
+{% endif %}
+      enable_dhcp: False
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-subnet
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      dns_nameservers:
+{% for nameserver in openshift_openstack_dns_nameservers %}
+        - {{ nameserver }}
+{% endfor %}
+
+  service_net:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-service-net
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+
+  service_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: service_net }
+      cidr: {{ openshift_openstack_kuryr_service_subnet_cidr }}
+      gateway_ip: {{ openshift_openstack_kuryr_service_subnet_cidr | ipaddr('-2') | ipaddr('address') }}
+      enable_dhcp: False
+      allocation_pools:
+        - start: {{ openshift_openstack_kuryr_service_pool_start }}
+          end: {{ openshift_openstack_kuryr_service_pool_end }}
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-service-subnet
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+
+{% endif %}
+
+{% if not openshift_openstack_node_subnet_name %}
+  net:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-net
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% endif %}
+
+{% if not openshift_openstack_node_subnet_name %}
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-subnet
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      network: { get_resource: net }
+      cidr: {{ openshift_openstack_subnet_cidr }}
+      allocation_pools:
+        - start: {{ openshift_openstack_pool_start }}
+          end: {{ openshift_openstack_pool_end }}
+      dns_nameservers:
+{% for nameserver in openshift_openstack_dns_nameservers %}
+        - {{ nameserver }}
+{% endfor %}
+{% endif %}
+
+{% if openshift_use_flannel|default(False)|bool %}
+  data_net:
+    type: OS::Neutron::Net
+    properties:
+      name: openshift-ansible-{{ openshift_openstack_full_dns_domain }}-data-net
+      port_security_enabled: false
+
+  data_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: openshift-ansible-{{ openshift_openstack_full_dns_domain }}-data-subnet
+      network: { get_resource: data_net }
+      cidr: {{ openshift_cluster_network_cidr }}
+      gateway_ip: null
+{% endif %}
+
+{% if not openshift_openstack_router_name %}
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-router
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      external_gateway_info:
+        network: {{ openshift_openstack_external_network_name }}
+
+  interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: subnet }
+{% endif %}
+
+{% if openshift_use_kuryr|default(false)|bool %}
+  pod_subnet_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+{% if not openshift_openstack_router_name %}
+      router_id: { get_resource: router }
+{% else %}
+      router_id: {{ openshift_openstack_router_id }}
+{% endif %}
+      subnet_id: { get_resource: pod_subnet }
+
+  service_router_port:
+      type: OS::Neutron::Port
+      properties:
+        network: { get_resource: service_net}
+        fixed_ips:
+          - subnet: { get_resource: service_subnet }
+            ip_address: {{ openshift_openstack_kuryr_service_subnet_cidr | ipaddr('-2') | ipaddr('address') }}
+        name:
+          str_replace:
+            template: openshift-ansible-cluster_id-service-subnet-router-port
+            params:
+              cluster_id: {{ openshift_openstack_full_dns_domain }}
+
+  service_subnet_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+{% if not openshift_openstack_router_name %}
+      router_id: { get_resource: router }
+{% else %}
+      router_id: {{ openshift_openstack_router_id }}
+{% endif %}
+      port: { get_resource: service_router_port }
+{% endif %}
+
+{% endif %}
+
+#  keypair:
+#    type: OS::Nova::KeyPair
+#    properties:
+#      name:
+#        str_replace:
+#          template: openshift-ansible-cluster_id-keypair
+#          params:
+#            cluster_id: {{ openshift_openstack_full_dns_domain }}
+#      public_key: {{ openshift_openstack_keypair_name }}
+
+  common-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-common-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Basic ssh/icmp security group for cluster_id OpenShift cluster
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_common_secgroup_rules|to_json }}
+
+{% if openshift_use_kuryr|default(false)|bool %}
+  pod_access_sg:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-service-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description: Give services and nodes access to the pods
+      rules:
+      - ethertype: IPv4
+        remote_ip_prefix: {{ openshift_openstack_kuryr_service_subnet_cidr }}
+      - ethertype: IPv4
+        remote_ip_prefix: {{ openshift_openstack_subnet_cidr }}
+{% if openshift_kuryr_sg_driver|default('default') != 'namespace' %}
+      - ethertype: IPv4
+        remote_mode: remote_group_id
+{% endif %}
+{% endif %}
+
+{% if openshift_openstack_flat_secgrp|default(False)|bool %}
+  flat-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-flat-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id OpenShift cluster
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules:
+{% for rule in openshift_openstack_master_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% for rule in openshift_openstack_etcd_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% for rule in openshift_openstack_node_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% for rule in openshift_openstack_infra_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% else %}
+  master-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-master-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id OpenShift cluster master
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_master_secgroup_rules|to_json }}
+
+  etcd-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-etcd-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id etcd cluster
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_etcd_secgroup_rules|to_json }}
+
+  node-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-node-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id OpenShift cluster nodes
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_node_secgroup_rules|to_json }}
+
+  infra-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-infra-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id OpenShift infrastructure cluster nodes
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_infra_secgroup_rules|to_json }}
+  {% if openshift_openstack_num_cns > 0 %}
+  cns-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-cns-secgrp
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      description:
+        str_replace:
+          template: Security group for cluster_id OpenShift cns cluster nodes
+          params:
+            cluster_id: {{ openshift_openstack_full_dns_domain }}
+      rules: {{ openshift_openstack_cns_secgroup_rules|to_json }}
+  {% endif %}
+{% endif %}
+
+  lb-secgrp:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: openshift-ansible-{{ openshift_openstack_full_dns_domain }}-lb-secgrp
+      description: Security group for {{ openshift_openstack_full_dns_domain }} cluster Load Balancer
+      rules:
+{% if openshift_master_console_port is defined and openshift_master_console_port != openshift_master_api_port %}
+{% for rule in openshift_openstack_lb_base_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% for rule in openshift_openstack_lb_console_secgroup_rules|list %}
+        - {{ rule|to_json }}
+{% endfor %}
+{% else %}
+        {{ openshift_openstack_lb_base_secgroup_rules|to_json }}
+{% endif %}
+
+  etcd:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_openstack_num_etcd }}
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_etcd_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: etcds
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        etcd
+          image:       {{ openshift_openstack_etcd_image }}
+          flavor:      {{ openshift_openstack_etcd_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:         {{ openshift_openstack_provider_network_name }}
+{% else %}
+{% if openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% endif %}
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% endif %}
+          secgrp:
+            - { get_resource: {% if openshift_openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}etcd-secgrp{% endif %} }
+            - { get_resource: common-secgrp }
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+          floating_network:
+            if:
+              - no_floating
+              - ''
+              - {{ openshift_openstack_external_network_name }}
+{% if openshift_openstack_provider_network_name or not openshift_openstack_etcd_floating_ip | default(False) | bool %}
+          attach_float_net: false
+{% endif %}
+          volume_size: {{ openshift_openstack_etcd_volume_size }}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+
+{% if openshift_openstack_master_server_group_policies|length > 0 %}
+  master_server_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: master_server_group
+      policies: {{ openshift_openstack_master_server_group_policies }}
+{% endif %}
+{% if openshift_openstack_infra_server_group_policies|length > 0 %}
+  infra_server_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: infra_server_group
+      policies: {{ openshift_openstack_infra_server_group_policies }}
+{% endif %}
+{% if openshift_openstack_use_vm_load_balancer %}
+  loadbalancer:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: 1
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_lb_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: lb
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        lb
+          image:       {{ openshift_openstack_lb_image }}
+          flavor:      {{ openshift_openstack_lb_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:         {{ openshift_openstack_provider_network_name }}
+{% elif openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% endif %}
+          secgrp:
+            - { get_resource: lb-secgrp }
+            - { get_resource: common-secgrp }
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+          floating_network:
+            if:
+              - no_floating
+              - ''
+              - {{ openshift_openstack_external_network_name }}
+{% if openshift_openstack_provider_network_name or not openshift_openstack_load_balancer_floating_ip | default(True) | bool %}
+          attach_float_net: false
+{% endif %}
+          volume_size: {{ openshift_openstack_lb_volume_size }}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+{% endif %}
+
+  masters:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_openstack_num_masters }}
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_master_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: masters
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        master
+          openshift_node_group_name: {{ openshift_openstack_master_group_name }}
+          image:       {{ openshift_openstack_master_image }}
+          flavor:      {{ openshift_openstack_master_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_use_lbaas_load_balancer or openshift_use_kuryr|default(false)|bool %}
+          api_lb_pool: { get_resource: api_lb_pool }
+{% endif %}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:         {{ openshift_openstack_provider_network_name }}
+{% else %}
+{% if openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% endif %}
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+{% endif %}
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          api_lb_pool: { get_resource: api_lb_pool }
+{% endif %}
+          secgrp:
+            - { get_resource: common-secgrp }
+{% if openshift_openstack_flat_secgrp|default(False)|bool %}
+            - { get_resource: flat-secgrp }
+{% else %}
+            - { get_resource: master-secgrp }
+            - { get_resource: node-secgrp }
+{% if openshift_openstack_num_etcd|int == 0 %}
+            - { get_resource: etcd-secgrp }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+{% endif %}
+          floating_network:
+            if:
+              - no_floating
+              - ''
+              - {{ openshift_openstack_external_network_name }}
+{% if openshift_openstack_provider_network_name or not openshift_openstack_master_floating_ip | default(False) | bool %}
+          attach_float_net: false
+{% endif %}
+          volume_size: {{ openshift_openstack_master_volume_size }}
+{% if openshift_openstack_master_server_group_policies|length > 0 %}
+          scheduler_hints:
+            group: { get_resource: master_server_group }
+{% endif %}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+
+  compute_nodes:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_openstack_num_nodes }}
+      removal_policies:
+      - resource_list: {{ openshift_openstack_nodes_to_remove | to_json }}
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_node_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: nodes
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        node
+          subtype:     app
+          openshift_node_group_name: {{ openshift_openstack_compute_group_name }}
+          image:       {{ openshift_openstack_node_image }}
+          flavor:      {{ openshift_openstack_node_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:         {{ openshift_openstack_provider_network_name }}
+{% else %}
+{% if openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% endif %}
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+{% endif %}
+{% endif %}
+          secgrp:
+            - { get_resource: {% if openshift_openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}node-secgrp{% endif %} }
+            - { get_resource: common-secgrp }
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+          floating_network:
+            if:
+              - no_floating
+              - ''
+              - {{ openshift_openstack_external_network_name }}
+{% if openshift_openstack_provider_network_name or not openshift_openstack_compute_floating_ip | default(False) | bool %}
+          attach_float_net: false
+{% endif %}
+          volume_size: {{ openshift_openstack_node_volume_size }}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+
+  infra_nodes:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_openstack_num_infra }}
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_infra_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: infra
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        node
+          subtype:     infra
+          openshift_node_group_name: {{ openshift_openstack_infra_group_name }}
+          image:       {{ openshift_openstack_infra_image }}
+          flavor:      {{ openshift_openstack_infra_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_use_lbaas_load_balancer %}
+          router_lb_pool_http: { get_resource: router_lb_pool_http }
+          router_lb_pool_https: { get_resource: router_lb_pool_https }
+{% endif %}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:         {{ openshift_openstack_provider_network_name }}
+{% else %}
+{% if openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% endif %}
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+{% endif %}
+{% endif %}
+          secgrp:
+# TODO(bogdando) filter only required node rules into infra-secgrp
+            - { get_resource: common-secgrp }
+{% if openshift_openstack_flat_secgrp|default(False)|bool %}
+            - { get_resource: flat-secgrp }
+{% else %}
+            - { get_resource: node-secgrp }
+            - { get_resource: infra-secgrp }
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+{% endif %}
+          floating_network:
+            if:
+              - no_floating
+              - ''
+              - {{ openshift_openstack_external_network_name }}
+{% if openshift_openstack_provider_network_name or not openshift_openstack_infra_floating_ip | default(True) | bool %}
+          attach_float_net: false
+{% endif %}
+          volume_size: {{ openshift_openstack_infra_volume_size }}
+{% if openshift_openstack_infra_server_group_policies|length > 0 %}
+          scheduler_hints:
+            group: { get_resource: infra_server_group }
+{% endif %}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+
+  cns:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ openshift_openstack_num_cns }}
+      resource_def:
+        type: server.yaml
+        properties:
+          name:
+            str_replace:
+              template: hostname-%index%domain_suffix
+              params:
+                hostname: {{ openshift_openstack_cns_hostname }}
+                domain_suffix: {{ l_hostname_domain_suffix }}
+          cluster_env: {{ openshift_openstack_public_dns_domain }}
+          cluster_id:  {{ openshift_openstack_full_dns_domain }}
+          group:
+            str_replace:
+              template: k8s_type.cluster_id
+              params:
+                k8s_type: cns
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+          type:        cns
+          openshift_node_group_name: node-config-compute
+          image:       {{ openshift_openstack_cns_image }}
+          flavor:      {{ openshift_openstack_cns_flavor }}
+          key_name:    {{ openshift_openstack_keypair_name }}
+{% if openshift_openstack_provider_network_name %}
+          net:         {{ openshift_openstack_provider_network_name }}
+          net_name:    {{ openshift_openstack_provider_network_name }}
+{% else %}
+{% if openshift_openstack_node_network_id|default(false) %}
+          net:         {{ openshift_openstack_node_network_id }}
+{% else %}
+          net:         { get_resource: net }
+{% endif %}
+{% if openshift_openstack_node_subnet_name %}
+          subnet:      {{ openshift_openstack_node_subnet_name }}
+{% else %}
+          subnet:      { get_resource: subnet }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_net:     { get_resource: pod_net }
+          pod_subnet:  { get_resource: pod_subnet }
+{% endif %}
+          net_name:
+            str_replace:
+              template: openshift-ansible-cluster_id-net
+              params:
+                cluster_id: {{ openshift_openstack_full_dns_domain }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+{% endif %}
+{% endif %}
+          secgrp:
+            - { get_resource: common-secgrp }
+{% if openshift_openstack_flat_secgrp|default(False)|bool %}
+            - { get_resource: flat-secgrp }
+{% else %}
+            - { get_resource: node-secgrp }
+{% if openshift_openstack_num_cns > 0 %}
+            - { get_resource: cns-secgrp }
+{% endif %}
+{% if openshift_use_kuryr|default(false)|bool %}
+          pod_secgrp:
+            - { get_resource: pod_access_sg }
+{% endif %}
+{% endif %}
+{% if not openshift_openstack_provider_network_name %}
+          floating_network: {{ openshift_openstack_external_network_name }}
+{% endif %}
+          volume_size: {{ openshift_openstack_cns_volume_size }}
+{% if not openshift_openstack_provider_network_name and not openshift_openstack_node_subnet_name  %}
+    depends_on:
+      - interface
+{% endif %}
+
+
+{% if openshift_openstack_use_lbaas_load_balancer %}
+{% if openshift_openstack_load_balancer_floating_ip | default(True) | bool %}
+  api_lb_floating_ip:
+    condition: { not: no_floating }
+    depends_on:
+    - api_lb
+    - api_lb_listener
+    - api_lb_pool
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: {{ openshift_openstack_external_network_name }}
+      port_id: { get_attr: [api_lb, vip_port_id] }
+{% endif %}
+
+  router_lb:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::LoadBalancer
+    properties:
+{% if openshift_openstack_node_subnet_name %}
+      vip_subnet: {{ openshift_openstack_node_subnet_name }}
+{% else %}
+      vip_subnet: { get_resource: subnet }
+{% endif %}
+
+{% if openshift_openstack_load_balancer_floating_ip | default(True) | bool %}
+  router_lb_floating_ip:
+    condition: { not: no_floating }
+    depends_on:
+    - router_lb
+    - router_lb_listener_http
+    - router_lb_pool_http
+    - router_lb_listener_https
+    - router_lb_pool_https
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: {{ openshift_openstack_external_network_name }}
+      port_id: { get_attr: [router_lb, vip_port_id] }
+{% endif %}
+
+  router_lb_listener_http:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Listener
+    properties:
+      protocol: HTTP
+      protocol_port: 80
+      loadbalancer: { get_resource: router_lb }
+
+  router_lb_pool_http:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Pool
+    properties:
+      # TODO(shadower): Make this configurable?
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTP
+      listener: { get_resource: router_lb_listener_http }
+
+  router_lb_listener_https:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Listener
+    properties:
+      protocol: HTTPS
+      protocol_port: 443
+      loadbalancer: { get_resource: router_lb }
+
+  router_lb_pool_https:
+    type: OS::{{ openshift_openstack_lbaasv2_provider }}::Pool
+    properties:
+      # TODO(shadower): Make this configurable?
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTPS
+      listener: { get_resource: router_lb_listener_https }
+{% endif %}

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+# Exec a file in the named component by component name and container name.
+# Remaining arguments are passed to the command. If no static pods have been
+# created yet this will execute on the host.
+if [[ -z "${1-}" || -z "${2-}" ]]; then
+  echo "A component name like 'api', 'etcd', or 'controllers' must be specified along with the container name within that component." 1>&2
+  exit 1
+fi
+
+# We haven't started using static pods yet, assume this command is to be direct executed
+if [[ ! -d /etc/origin/node/pods || -z "$( ls -A /etc/origin/node/pods )" ]]; then
+  exec "${@:3}"
+fi
+
+pod=$(crictl pods -l -q --label "openshift.io/component=${1}" --label "io.kubernetes.container.name=POD" 2>/dev/null)
+uid=$(crictl inspectp ${pod} 2>/dev/null | python -c 'import sys, json; print json.load(sys.stdin)["status"]["labels"]["io.kubernetes.pod.uid"]')
+
+if [[ -z "${uid}" ]]; then
+  echo "Component ${1} is stopped or not running" 1>&2
+  exit 0
+fi
+container=$(crictl ps -l -q --label "io.kubernetes.pod.uid=${uid}" --label "io.kubernetes.container.name=${2}" 2>/dev/null)
+exec crictl exec "${container}" "${@:3}"

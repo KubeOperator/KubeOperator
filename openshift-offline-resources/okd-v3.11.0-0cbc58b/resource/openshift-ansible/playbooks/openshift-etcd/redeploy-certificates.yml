@@ -1,0 +1,14 @@
+---
+- import_playbook: ../init/main.yml
+  vars:
+    l_openshift_version_set_hosts: "all:!all"
+    l_init_fact_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config"
+    l_sanity_check_hosts: "{{ groups['oo_etcd_to_config'] | union(groups['oo_masters_to_config']) }}"
+
+- import_playbook: private/redeploy-certificates.yml
+
+- import_playbook: private/restart.yml
+  vars:
+    g_etcd_certificates_expired: "{{ ('expired' in (hostvars | lib_utils_oo_select_keys(groups['etcd']) | lib_utils_oo_collect('check_results.check_results.etcd') | lib_utils_oo_collect('health'))) | bool }}"
+
+- import_playbook: ../openshift-master/private/restart.yml

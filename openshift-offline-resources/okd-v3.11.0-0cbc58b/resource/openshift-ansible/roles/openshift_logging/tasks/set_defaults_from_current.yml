@@ -1,0 +1,273 @@
+---
+
+## We are pulling default values from configmaps if they exist already
+## Using conditional_set_fact allows us to set the value of a variable based on
+##  the value of another one, if it is already defined. Else we don't set the
+##  left hand side (it stays undefined as well).
+
+## conditional_set_fact allows us to specify a fact source, so first we try to
+##  set variables in the logging-elasticsearch & logging-elasticsearch-ops configmaps
+##  afterwards we set the value of the variable based on the value in the inventory
+##  but fall back to using the value from a configmap as a default. If neither is set
+##  then the variable remains undefined and the role default will be used.
+
+
+# Elasticsearch
+- when: openshift_logging_facts['elasticsearch']['configmaps']['logging-elasticsearch'] is defined
+  conditional_set_fact:
+    facts: "{{ openshift_logging_facts['elasticsearch']['configmaps']['logging-elasticsearch']['elasticsearch.yml'] | flatten_dict }}"
+    vars:
+      __openshift_logging_es_number_of_shards: index.number_of_shards
+      __openshift_logging_es_number_of_replicas: index.number_of_replicas
+
+- when: openshift_logging_facts['elasticsearch']['deploymentconfigs'].keys() | count > 0
+  block:
+    - set_fact:
+        __es_dc_name: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'].keys()[0] }}"
+
+    - set_fact:
+        __openshift_logging_es_recover_after_time: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'][__es_dc_name]['containers']['elasticsearch']['env'] | entry_from_name_value_pair('RECOVER_AFTER_TIME') }}"
+        __openshift_logging_es_nodeselector: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'][__es_dc_name]['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'][__es_dc_name]['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_elasticsearch_cpu_limit: elasticsearch.resources.limits.cpu
+          __openshift_logging_elasticsearch_memory_limit: elasticsearch.resources.limits.memory
+          __openshift_logging_elasticsearch_cpu_request: elasticsearch.resources.requests.cpu
+          __openshift_logging_elasticsearch_proxy_cpu_request: proxy.resources.requests.cpu
+          __openshift_logging_elasticsearch_proxy_memory_limit: proxy.resources.limits.memory
+
+
+# Elasticsearch Ops
+- when: openshift_logging_facts['elasticsearch_ops']['configmaps']['logging-elasticsearch-ops'] is defined
+  conditional_set_fact:
+    facts: "{{ openshift_logging_facts['elasticsearch_ops']['configmaps']['logging-elasticsearch-ops']['elasticsearch.yml'] | flatten_dict }}"
+    vars:
+      __openshift_logging_es_ops_number_of_shards: index.number_of_shards
+      __openshift_logging_es_ops_number_of_replicas: index.number_of_replicas
+
+- when: openshift_logging_facts['elasticsearch_ops']['deploymentconfigs'].keys() | count > 0
+  block:
+    - set_fact:
+        __es_dc_name: "{{ openshift_logging_facts['elasticsearch_ops']['deploymentconfigs'].keys()[0] }}"
+
+    - set_fact:
+        __openshift_logging_es_ops_recover_after_time: "{{ openshift_logging_facts['elasticsearch_ops']['deploymentconfigs'][__es_dc_name]['containers']['elasticsearch']['env'] | entry_from_name_value_pair('RECOVER_AFTER_TIME') }}"
+        __openshift_logging_es_ops_nodeselector: "{{ openshift_logging_facts['elasticsearch_ops']['deploymentconfigs'][__es_dc_name]['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['elasticsearch_ops']['deploymentconfigs'][__es_dc_name]['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_es_ops_cpu_limit: elasticsearch.resources.limits.cpu
+          __openshift_logging_es_ops_memory_limit: elasticsearch.resources.limits.memory
+          __openshift_logging_es_ops_cpu_request: elasticsearch.resources.requests.cpu
+          __openshift_logging_es_ops_proxy_cpu_request: proxy.resources.requests.cpu
+          __openshift_logging_es_ops_proxy_memory_limit: proxy.resources.limits.memory
+
+
+# Kibana
+- when: openshift_logging_facts['kibana']['deploymentconfigs']['logging-kibana'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_kibana_nodeselector: "{{ openshift_logging_facts['kibana']['deploymentconfigs']['logging-kibana']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['kibana']['deploymentconfigs']['logging-kibana']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_kibana_cpu_limit: kibana.resources.limits.cpu
+          __openshift_logging_kibana_cpu_request: kibana.resources.requests.cpu
+          __openshift_logging_kibana_memory_limit: kibana.resources.limits.memory
+          __openshift_logging_kibana_proxy_cpu_limit: kibana.resources.limits.cpu
+          __openshift_logging_kibana_proxy_cpu_request: kibana-proxy.resources.requests.cpu
+          __openshift_logging_kibana_proxy_memory_limit: kibana-proxy.resources.limits.memory
+
+
+# Kibana Ops
+- when: openshift_logging_facts['kibana_ops']['deploymentconfigs']['logging-kibana-ops'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_kibana_ops_nodeselector: "{{ openshift_logging_facts['kibana_ops']['deploymentconfigs']['logging-kibana-ops']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['kibana_ops']['deploymentconfigs']['logging-kibana-ops']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_kibana_ops_cpu_limit: kibana.resources.limits.cpu
+          __openshift_logging_kibana_ops_cpu_request: kibana.resources.requests.cpu
+          __openshift_logging_kibana_ops_memory_limit: kibana.resources.limits.memory
+          __openshift_logging_kibana_ops_proxy_cpu_limit: kibana.resources.limits.cpu
+          __openshift_logging_kibana_ops_proxy_cpu_request: kibana-proxy.resources.requests.cpu
+          __openshift_logging_kibana_ops_proxy_memory_limit: kibana-proxy.resources.limits.memory
+
+
+# Curator
+- when: openshift_logging_facts['curator']['deploymentconfigs']['logging-curator'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_curator_default_days: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_DEFAULT_DAYS') }}"
+        __openshift_logging_curator_run_hour: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_HOUR') }}"
+        __openshift_logging_curator_run_minute: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_MINUTE') }}"
+        __openshift_logging_curator_run_timezone: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_TIMEZONE') }}"
+        __openshift_logging_curator_nodeselector: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['curator']['deploymentconfigs']['logging-curator']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_curator_cpu_limit: curator.resources.limits.cpu
+          __openshift_logging_curator_memory_limit: curator.resources.limits.memory
+          __openshift_logging_curator_cpu_request: curator.resources.requests.cpu
+
+
+# Curator Ops
+- when: openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_curator_ops_default_days: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_DEFAULT_DAYS') }}"
+        __openshift_logging_curator_ops_run_hour: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_HOUR') }}"
+        __openshift_logging_curator_ops_run_minute: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_MINUTE') }}"
+        __openshift_logging_curator_ops_run_timezone: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['containers']['curator']['env'] | entry_from_name_value_pair('CURATOR_RUN_TIMEZONE') }}"
+        __openshift_logging_curator_ops_nodeselector: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['curator_ops']['deploymentconfigs']['logging-curator-ops']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_curator_ops_cpu_limit: curator.resources.limits.cpu
+          __openshift_logging_curator_ops_memory_limit: curator.resources.limits.memory
+          __openshift_logging_curator_ops_cpu_request: curator.resources.requests.cpu
+
+
+# Fluentd
+- when: openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_fluentd_file_buffer_limit: "{{ openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd']['containers']['fluentd-elasticsearch']['env'] | entry_from_name_value_pair('FILE_BUFFER_LIMIT') }}"
+        __openshift_logging_fluentd_buffer_queue_limit: "{{ openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd']['containers']['fluentd-elasticsearch']['env'] | entry_from_name_value_pair('BUFFER_QUEUE_LIMIT') }}"
+        __openshift_logging_fluentd_buffer_size_limit: "{{ openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd']['containers']['fluentd-elasticsearch']['env'] | entry_from_name_value_pair('BUFFER_SIZE_LIMIT') }}"
+        __openshift_logging_fluentd_nodeselector: "{{ openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['fluentd']['daemonsets']['logging-fluentd']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_fluentd_cpu_limit: fluentd-elasticsearch.resources.limits.cpu
+          __openshift_logging_fluentd_memory_limit: fluentd-elasticsearch.resources.limits.memory
+          __openshift_logging_fluentd_cpu_request: fluentd-elasticsearch.resources.requests.cpu
+
+
+# Mux
+- when: openshift_logging_facts['mux']['deploymentconfigs']['logging-mux'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_mux_file_buffer_limit: "{{ openshift_logging_facts['mux']['deploymentconfigs']['logging-mux']['containers']['mux']['env'] | entry_from_name_value_pair('FILE_BUFFER_LIMIT') }}"
+        __openshift_logging_mux_buffer_queue_limit: "{{ openshift_logging_facts['mux']['deploymentconfigs']['logging-mux']['containers']['mux']['env'] | entry_from_name_value_pair('BUFFER_QUEUE_LIMIT') }}"
+        __openshift_logging_mux_buffer_size_limit: "{{ openshift_logging_facts['mux']['deploymentconfigs']['logging-mux']['containers']['mux']['env'] | entry_from_name_value_pair('BUFFER_SIZE_LIMIT') }}"
+        __openshift_logging_mux_nodeselector: "{{ openshift_logging_facts['mux']['deploymentconfigs']['logging-mux']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['mux']['deploymentconfigs']['logging-mux']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_mux_cpu_limit: mux.resources.limits.cpu
+          __openshift_logging_mux_memory_limit: mux.resources.limits.memory
+          __openshift_logging_mux_cpu_request: mux.resources.requests.cpu
+
+
+# EventRouter
+- when: openshift_logging_facts['eventrouter']['deploymentconfigs']['logging-eventrouter'] is defined
+  block:
+    - set_fact:
+        __openshift_logging_eventrouter_nodeselector: "{{ openshift_logging_facts['eventrouter']['deploymentconfigs']['logging-eventrouter']['nodeSelector'] | default('') | from_yaml }}"
+
+    - conditional_set_fact:
+        facts: "{{ openshift_logging_facts['eventrouter']['deploymentconfigs']['logging-eventrouter']['containers'] | flatten_dict }}"
+        vars:
+          __openshift_logging_eventrouter_cpu_limit: kube-eventrouter.resources.limits.cpu
+          __openshift_logging_eventrouter_cpu_request: kube-eventrouter.resources.requests.cpu
+          __openshift_logging_eventrouter_memory_limit: kube-eventrouter.resources.limits.memory
+
+
+# Set the defaults based on collected facts
+- conditional_set_fact:
+    facts: "{{ hostvars[inventory_hostname] }}"
+    vars:
+      # Elasticsearch
+      openshift_logging_es_number_of_shards: openshift_logging_es_number_of_shards | __openshift_logging_es_number_of_shards
+      openshift_logging_es_number_of_replicas: openshift_logging_es_number_of_replicas | __openshift_logging_es_number_of_replicas
+      openshift_logging_es_nodeselector: openshift_logging_es_nodeselector | __openshift_logging_es_nodeselector
+      openshift_logging_elasticsearch_recover_after_time: openshift_logging_es_recover_after_time | __openshift_logging_es_recover_after_time
+      openshift_logging_elasticsearch_cpu_limit: openshift_logging_elasticsearch_cpu_limit | __openshift_logging_elasticsearch_cpu_limit
+      openshift_logging_elasticsearch_cpu_request: openshift_logging_elasticsearch_cpu_request | __openshift_logging_elasticsearch_cpu_request
+      openshift_logging_elasticsearch_memory_limit: openshift_logging_elasticsearch_memory_limit | __openshift_logging_elasticsearch_memory_limit
+      openshift_logging_elasticsearch_proxy_cpu_request: openshift_logging_elasticsearch_proxy_cpu_request | __openshift_logging_elasticsearch_proxy_cpu_request
+      openshift_logging_elasticsearch_proxy_memory_limit: openshift_logging_elasticsearch_proxy_memory_limit | __openshift_logging_elasticsearch_proxy_memory_limit
+
+      # Elasticsearch Ops
+      openshift_logging_es_ops_number_of_shards: openshift_logging_es_ops_number_of_shards | __openshift_logging_es_ops_number_of_shards
+      openshift_logging_es_ops_number_of_replicas: openshift_logging_es_ops_number_of_replicas | __openshift_logging_es_ops_number_of_replicas
+      openshift_logging_es_ops_nodeselector: openshift_logging_es_ops_nodeselector | __openshift_logging_es_ops_nodeselector
+      openshift_logging_es_ops_recover_after_time: openshift_logging_es_ops_recover_after_time | __openshift_logging_es_ops_recover_after_time
+      openshift_logging_es_ops_cpu_limit: openshift_logging_es_ops_cpu_limit | __openshift_logging_es_ops_cpu_limit
+      openshift_logging_es_ops_cpu_request: openshift_logging_es_ops_cpu_request | __openshift_logging_es_ops_cpu_request
+      openshift_logging_es_ops_memory_limit: openshift_logging_es_ops_memory_limit | __openshift_logging_es_ops_memory_limit
+      openshift_logging_es_ops_proxy_cpu_request: openshift_logging_es_ops_proxy_cpu_request | __openshift_logging_es_ops_proxy_cpu_request
+      openshift_logging_es_ops_proxy_memory_limit: openshift_logging_es_ops_proxy_memory_limit | __openshift_logging_es_ops_proxy_memory_limit
+
+      # Kibana
+      openshift_logging_kibana_cpu_limit: openshift_logging_kibana_cpu_limit | __openshift_logging_kibana_cpu_limit
+      openshift_logging_kibana_cpu_request: openshift_logging_kibana_cpu_request | __openshift_logging_kibana_cpu_request
+      openshift_logging_kibana_memory_limit: openshift_logging_kibana_memory_limit | __openshift_logging_kibana_memory_limit
+      openshift_logging_kibana_proxy_cpu_limit: openshift_logging_kibana_proxy_cpu_limit | __openshift_logging_kibana_proxy_cpu_limit
+      openshift_logging_kibana_proxy_cpu_request: openshift_logging_kibana_proxy_cpu_request | __openshift_logging_kibana_proxy_cpu_request
+      openshift_logging_kibana_proxy_memory_limit: openshift_logging_kibana_proxy_memory_limit | __openshift_logging_kibana_proxy_memory_limit
+      openshift_logging_kibana_nodeselector: openshift_logging_kibana_nodeselector | __openshift_logging_kibana_nodeselector
+
+      # Kibana Ops
+      openshift_logging_kibana_ops_cpu_limit: openshift_logging_kibana_ops_cpu_limit | __openshift_logging_kibana_ops_cpu_limit
+      openshift_logging_kibana_ops_cpu_request: openshift_logging_kibana_ops_cpu_request | __openshift_logging_kibana_ops_cpu_request
+      openshift_logging_kibana_ops_memory_limit: openshift_logging_kibana_ops_memory_limit | __openshift_logging_kibana_ops_memory_limit
+      openshift_logging_kibana_ops_proxy_cpu_limit: openshift_logging_kibana_ops_proxy_cpu_limit | __openshift_logging_kibana_ops_proxy_cpu_limit
+      openshift_logging_kibana_ops_proxy_cpu_request: openshift_logging_kibana_ops_proxy_cpu_request | __openshift_logging_kibana_ops_proxy_cpu_request
+      openshift_logging_kibana_ops_proxy_memory_limit: openshift_logging_kibana_ops_proxy_memory_limit | __openshift_logging_kibana_ops_proxy_memory_limit
+      openshift_logging_kibana_ops_nodeselector: openshift_logging_kibana_ops_nodeselector | __openshift_logging_kibana_ops_nodeselector
+
+      # Curator
+      openshift_logging_curator_default_days: openshift_logging_curator_default_days | __openshift_logging_curator_default_days
+      openshift_logging_curator_run_hour: openshift_logging_curator_run_hour | __openshift_logging_curator_run_hour
+      openshift_logging_curator_run_minute: openshift_logging_curator_run_minute | __openshift_logging_curator_run_minute
+      openshift_logging_curator_run_timezone: openshift_logging_curator_run_timezone | __openshift_logging_curator_run_timezone
+      openshift_logging_curator_cpu_limit: openshift_logging_curator_cpu_limit | __openshift_logging_curator_cpu_limit
+      openshift_logging_curator_cpu_request: openshift_logging_curator_cpu_request | __openshift_logging_curator_cpu_request
+      openshift_logging_curator_memory_limit: openshift_logging_curator_memory_limit | __openshift_logging_curator_memory_limit
+      openshift_logging_curator_nodeselector: openshift_logging_curator_nodeselector | __openshift_logging_curator_nodeselector
+
+      # Curator Ops
+      openshift_logging_curator_ops_default_days: openshift_logging_curator_ops_default_days | __openshift_logging_curator_ops_default_days
+      openshift_logging_curator_ops_run_hour: openshift_logging_curator_ops_run_hour | __openshift_logging_curator_ops_run_hour
+      openshift_logging_curator_ops_run_minute: openshift_logging_curator_ops_run_minute | __openshift_logging_curator_ops_run_minute
+      openshift_logging_curator_ops_run_timezone: openshift_logging_curator_ops_run_timezone | __openshift_logging_curator_ops_run_timezone
+      openshift_logging_curator_ops_cpu_limit: openshift_logging_curator_ops_cpu_limit | __openshift_logging_curator_ops_cpu_limit
+      openshift_logging_curator_ops_cpu_request: openshift_logging_curator_ops_cpu_request | __openshift_logging_curator_ops_cpu_request
+      openshift_logging_curator_ops_memory_limit: openshift_logging_curator_ops_memory_limit | __openshift_logging_curator_ops_memory_limit
+      openshift_logging_curator_ops_nodeselector: openshift_logging_curator_ops_nodeselector | __openshift_logging_curator_ops_nodeselector
+
+      # Fluentd
+      openshift_logging_fluentd_cpu_limit: openshift_logging_fluentd_cpu_limit | __openshift_logging_fluentd_cpu_limit
+      openshift_logging_fluentd_cpu_request: openshift_logging_fluentd_cpu_request | __openshift_logging_fluentd_cpu_request
+      openshift_logging_fluentd_memory_limit: openshift_logging_fluentd_memory_limit | __openshift_logging_fluentd_memory_limit
+      openshift_logging_fluentd_file_buffer_limit: openshift_logging_fluentd_file_buffer_limit | __openshift_logging_fluentd_file_buffer_limit
+      openshift_logging_fluentd_buffer_queue_limit: openshift_logging_fluentd_buffer_queue_limit | __openshift_logging_fluentd_buffer_queue_limit
+      openshift_logging_fluentd_buffer_size_limit: openshift_logging_fluentd_buffer_size_limit | __openshift_logging_fluentd_buffer_size_limit
+      openshift_logging_fluentd_nodeselector: openshift_logging_fluentd_nodeselector | __openshift_logging_fluentd_nodeselector
+
+      # Mux
+      openshift_logging_mux_cpu_limit: openshift_logging_mux_cpu_limit | __openshift_logging_mux_cpu_limit
+      openshift_logging_mux_cpu_request: openshift_logging_mux_cpu_request | __openshift_logging_mux_cpu_request
+      openshift_logging_mux_memory_limit: openshift_logging_mux_memory_limit | __openshift_logging_mux_memory_limit
+      openshift_logging_mux_buffer_queue_limit: openshift_logging_mux_buffer_queue_limit | __openshift_logging_mux_buffer_queue_limit
+      openshift_logging_mux_buffer_size_limit: openshift_logging_mux_buffer_size_limit | __openshift_logging_mux_buffer_size_limit
+      openshift_logging_mux_file_buffer_limit: openshift_logging_mux_file_buffer_limit | __openshift_logging_mux_file_buffer_limit
+      openshift_logging_mux_nodeselector: openshift_logging_mux_nodeselector | __openshift_logging_mux_nodeselector
+
+      # EventRouter
+      openshift_logging_eventrouter_cpu_limit: openshift_logging_eventrouter_cpu_limit | __openshift_logging_eventrouter_cpu_limit
+      openshift_logging_eventrouter_cpu_request: openshift_logging_eventrouter_cpu_request | __openshift_logging_eventrouter_cpu_request
+      openshift_logging_eventrouter_memory_limit: openshift_logging_eventrouter_memory_limit | __openshift_logging_eventrouter_memory_limit
+      openshift_logging_eventrouter_nodeselector: openshift_logging_eventrouter_nodeselector | __openshift_logging_eventrouter_nodeselector

@@ -1,0 +1,7 @@
+---
+- name: refresh cache
+  command: "{{ ansible_pkg_mgr }} clean all"
+  args:
+    # Disables the following warning:
+    # Consider using yum module rather than running yum
+    warn: no

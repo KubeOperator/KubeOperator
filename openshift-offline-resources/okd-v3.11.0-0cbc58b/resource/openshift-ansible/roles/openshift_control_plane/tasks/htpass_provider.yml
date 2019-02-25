@@ -1,0 +1,32 @@
+---
+- name: Install httpd-tools if needed
+  package:
+    name: httpd-tools
+    state: present
+  when:
+  - item.kind == 'HTPasswdPasswordIdentityProvider'
+  - not openshift_is_atomic | bool
+  with_items: "{{ openshift_master_identity_providers }}"
+  register: result
+  until: result is succeeded
+
+- name: Create the htpasswd file if needed
+  template:
+    dest: "/etc/origin/master/htpasswd"
+    src: htpasswd.j2
+    backup: yes
+    mode: 0600
+  when:
+  - item.kind == 'HTPasswdPasswordIdentityProvider'
+  - openshift_master_manage_htpasswd | bool
+  with_items: "{{ openshift_master_identity_providers }}"
+
+- name: Ensure htpasswd file exists
+  copy:
+    dest: "/etc/origin/master/htpasswd"
+    force: no
+    content: ""
+    mode: 0600
+  when:
+  - item.kind == 'HTPasswdPasswordIdentityProvider'
+  with_items: "{{ openshift_master_identity_providers }}"

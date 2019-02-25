@@ -1,0 +1,653 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    iconClass: icon-jboss
+    tags: rhdm,decisionserver,jboss,kieserver
+    version: "1.1"
+    openshift.io/display-name: Red Hat Decision Manager 7.1 managed KIE Server
+    openshift.io/provider-display-name: Red Hat, Inc.
+    description: Application template for a managed KIE Server, for Red Hat Decision Manager 7.1
+    template.openshift.io/long-description: This template defines resources needed to execute Rules on Red Hat Decision Manager KIE server 7.1, including application deployment configuration, secure and insecure http communication.
+    template.openshift.io/documentation-url: https://access.redhat.com/documentation/en-us/red_hat_decision_manager/7.1/html/deploying_a_red_hat_decision_manager_7.1_managed_server_environment_on_red_hat_openshift_container_platform/
+    template.openshift.io/support-url: https://access.redhat.com
+    template.openshift.io/bindable: "false"
+  name: rhdm71-kieserver
+labels:
+  template: rhdm71-kieserver
+  rhdm: "1.1"
+message: |-
+          A new Decision Manager KIE server application have been created in your project.
+          The username/password for accessing the KIE server
+
+              Username: ${KIE_SERVER_USER}
+              Password: ${KIE_SERVER_PWD}
+
+          Please be sure to create the secret named "${KIE_SERVER_HTTPS_SECRET}" containing the ${KIE_SERVER_HTTPS_KEYSTORE} file used for serving secure content.
+parameters:
+- displayName: Application Name
+  description: The name for the application.
+  name: APPLICATION_NAME
+  value: myapp
+  required: true
+- displayName: Maven repository ID
+  description: The id to use for the maven repository, if set. Default is generated randomly.
+  name: MAVEN_REPO_ID
+  example: my-repo-id
+  required: false
+- displayName: Maven repository URL
+  description: Fully qualified URL to a Maven repository or service.
+  name: MAVEN_REPO_URL
+  example: http://nexus.nexus-project.svc.cluster.local:8081/nexus/content/groups/public/
+  required: true
+- displayName: Maven repository username
+  description: Username to access the Maven repository, if required.
+  name: MAVEN_REPO_USERNAME
+  required: false
+- displayName: Maven repository password
+  description: Password to access the Maven repository, if required.
+  name: MAVEN_REPO_PASSWORD
+  required: false
+- displayName: Name of the Maven service hosted by Decision Central
+  description: The service name for the optional decision central, where it can be reached, to allow service lookups (for maven repo usage), if required
+  name: DECISION_CENTRAL_MAVEN_SERVICE
+  example: "myapp-rhdmcentr"
+  required: false
+- displayName: Username for the Maven service hosted by Decision Central
+  description: Username to access the Maven service hosted by Decision Central inside EAP.
+  name: DECISION_CENTRAL_MAVEN_USERNAME
+  example: "mavenUser"
+  required: false
+- displayName: Password for the Maven service hosted by Decision Central
+  description: Password to access the Maven service hosted by Decision Central inside EAP.
+  name: DECISION_CENTRAL_MAVEN_PASSWORD
+  example: "maven1!"
+  required: false
+- displayName: KIE Admin User
+  description: KIE administrator username
+  name: KIE_ADMIN_USER
+  value: adminUser
+  required: false
+- displayName: KIE Admin Password
+  description: KIE administrator password
+  name: KIE_ADMIN_PWD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: KIE Server User
+  description: KIE server username (Sets the org.kie.server.user system property)
+  name: KIE_SERVER_USER
+  value: executionUser
+  required: false
+- displayName: KIE Server Password
+  description: KIE server password (Sets the org.kie.server.pwd system property)
+  name: KIE_SERVER_PWD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: ImageStream Namespace
+  description: Namespace in which the ImageStreams for Red Hat Middleware images are
+    installed. These ImageStreams are normally installed in the openshift namespace.
+    You should only need to modify this if you've installed the ImageStreams in a
+    different namespace/project.
+  name: IMAGE_STREAM_NAMESPACE
+  value: openshift
+  required: true
+- displayName: KIE Server ImageStream Name
+  description: The name of the image stream to use for KIE server. Default is "rhdm71-kieserver-openshift".
+  name: KIE_SERVER_IMAGE_STREAM_NAME
+  value: "rhdm71-kieserver-openshift"
+  required: true
+- displayName: ImageStream Tag
+  description: A named pointer to an image in an image stream. Default is "1.1".
+  name: IMAGE_STREAM_TAG
+  value: "1.1"
+  required: true
+- displayName: KIE Server Controller User
+  description: KIE server controller username (Sets the org.kie.server.controller.user system property)
+  name: KIE_SERVER_CONTROLLER_USER
+  value: controllerUser
+  required: false
+- displayName: KIE Server Controller Password
+  description: KIE server controller password (Sets the org.kie.server.controller.pwd system property)
+  name: KIE_SERVER_CONTROLLER_PWD
+  required: false
+- displayName: KIE Server Controller Token
+  description: KIE server controller token for bearer authentication (Sets the org.kie.server.controller.token system property)
+  name: KIE_SERVER_CONTROLLER_TOKEN
+  required: false
+- displayName: KIE Server Controller Service
+  description: The service name for the optional standalone controller, where it can be reached to
+    allow service lookup, and registered with (If set, will be used to discover host and port)
+  name: KIE_SERVER_CONTROLLER_SERVICE
+  required: false
+- displayName: KIE Server Controller host
+  description: KIE server controller host (Used to set the org.kie.server.controller system property)
+  name: KIE_SERVER_CONTROLLER_HOST
+  example: my-app-controller-ocpuser.os.example.com
+  required: false
+- displayName: KIE Server Controller port
+  description: KIE server controller port (Used to set the org.kie.server.controller system property)
+  name: KIE_SERVER_CONTROLLER_PORT
+  example: '8080'
+  required: false
+- displayName: Drools Server Filter Classes
+  description: KIE server class filtering (Sets the org.drools.server.filter.classes system property)
+  name: DROOLS_SERVER_FILTER_CLASSES
+  value: 'true'
+  required: false
+- displayName: KIE MBeans
+  description: KIE server mbeans enabled/disabled (Sets the kie.mbeans and kie.scanner.mbeans system properties)
+  name: KIE_MBEANS
+  value: enabled
+  required: false
+- displayName: KIE Server Custom http Route Hostname
+  description: 'Custom hostname for http service route, if set will also configure the KIE_SERVER_HOST. Leave blank for default hostname,
+    e.g.: <application-name>-kieserver-<project>.<default-domain-suffix>'
+  name: KIE_SERVER_HOSTNAME_HTTP
+  value: ''
+  required: false
+- displayName: KIE Server Custom https Route Hostname
+  description: 'Custom hostname for https service route.  Leave blank for default
+    hostname, e.g.: secure-<application-name>-kieserver-<project>.<default-domain-suffix>'
+  name: KIE_SERVER_HOSTNAME_HTTPS
+  value: ''
+  required: false
+- displayName: Use the secure route name to set KIE_SERVER_HOST.
+  description: Use https for the KIE_SERVER_HOST when it is not explicit configured to a custom value.
+  name: KIE_SERVER_USE_SECURE_ROUTE_NAME
+  value: 'false'
+  required: false
+- displayName: KIE Server Keystore Secret Name
+  description: The name of the secret containing the keystore file
+  name: KIE_SERVER_HTTPS_SECRET
+  example: kieserver-app-secret
+  required: true
+- displayName: KIE Server Keystore Filename
+  description: The name of the keystore file within the secret
+  name: KIE_SERVER_HTTPS_KEYSTORE
+  value: keystore.jks
+  required: false
+- displayName: KIE Server Certificate Name
+  description: The name associated with the server certificate
+  name: KIE_SERVER_HTTPS_NAME
+  value: jboss
+  required: false
+- displayName: KIE Server Keystore Password
+  description: The password for the keystore and certificate
+  name: KIE_SERVER_HTTPS_PASSWORD
+  value: mykeystorepass
+  required: false
+- displayName: KIE Server Bypass Auth User
+  description: KIE server bypass auth user (Sets the org.kie.server.bypass.auth.user system property)
+  name: KIE_SERVER_BYPASS_AUTH_USER
+  value: 'false'
+  required: false
+- displayName: KIE Server Container Memory Limit
+  description: KIE server Container memory limit
+  name: KIE_SERVER_MEMORY_LIMIT
+  value: 1Gi
+  required: false
+- displayName: KIE Server Container Deployment
+  description: 'KIE Server Container deployment configuration in format: containerId=groupId:artifactId:version|c2=g2:a2:v2'
+  name: KIE_SERVER_CONTAINER_DEPLOYMENT
+  example: rhdm-kieserver-library=org.openshift.quickstarts:rhdm-kieserver-library:1.4.0-SNAPSHOT
+  required: false
+- displayName: Disable KIE Server Management
+  description: "When set to LocalContainersStartupStrategy, allows KIE server to start up and function with local config, even when a controller is configured and unavailable."
+  name: KIE_SERVER_MGMT_DISABLED
+  example: "true"
+  required: false
+- displayName: KIE Server Startup Strategy
+  description: "When set to LocalContainersStartupStrategy, allows KIE server to start up and function with local config, even when a controller is configured and unavailable."
+  name: KIE_SERVER_STARTUP_STRATEGY
+  example: "LocalContainersStartupStrategy"
+  required: false
+- displayName: RH-SSO URL
+  description: RH-SSO URL
+  name: SSO_URL
+  example: https://rh-sso.example.com/auth
+  required: false
+- displayName: RH-SSO Realm name
+  description: RH-SSO Realm name
+  name: SSO_REALM
+  required: false
+- displayName: KIE Server RH-SSO Client name
+  description: KIE Server RH-SSO Client name
+  name: KIE_SERVER_SSO_CLIENT
+  required: false
+- displayName: KIE Server RH-SSO Client Secret
+  description: KIE Server RH-SSO Client Secret
+  name: KIE_SERVER_SSO_SECRET
+  example: "252793ed-7118-4ca8-8dab-5622fa97d892"
+  required: false
+- displayName: RH-SSO Realm Admin Username
+  description: RH-SSO Realm Admin Username used to create the Client if it doesn't exist
+  name: SSO_USERNAME
+  required: false
+- displayName: RH-SSO Realm Admin Password
+  description: RH-SSO Realm Admin Password used to create the Client
+  name: SSO_PASSWORD
+  required: false
+- displayName: RH-SSO Disable SSL Certificate Validation
+  description: RH-SSO Disable SSL Certificate Validation
+  name: SSO_DISABLE_SSL_CERTIFICATE_VALIDATION
+  value: "false"
+  required: false
+- displayName: RH-SSO Principal Attribute
+  description: RH-SSO Principal Attribute to use as username.
+  name: SSO_PRINCIPAL_ATTRIBUTE
+  value: preferred_username
+  required: false
+- displayName: LDAP Endpoint
+  description: LDAP Endpoint to connect for authentication
+  name: AUTH_LDAP_URL
+  example: "ldap://myldap.example.com"
+  required: false
+- displayName: LDAP Bind DN
+  description: Bind DN used for authentication
+  name: AUTH_LDAP_BIND_DN
+  example: "uid=admin,ou=users,ou=exmample,ou=com"
+  required: false
+- displayName: LDAP Bind Credentials
+  description: LDAP Credentials used for authentication
+  name: AUTH_LDAP_BIND_CREDENTIAL
+  example: "Password"
+  required: false
+- displayName: LDAP JAAS Security Domain
+  description: The JMX ObjectName of the JaasSecurityDomain used to decrypt the password.
+  name: AUTH_LDAP_JAAS_SECURITY_DOMAIN
+  required: false
+- displayName: LDAP Base DN
+  description: LDAP Base DN of the top-level context to begin the user search.
+  name: AUTH_LDAP_BASE_CTX_DN
+  example: "ou=users,ou=example,ou=com"
+  required: false
+- displayName: LDAP Base Search filter
+  description: LDAP search filter used to locate the context of the user to authenticate. The input username or userDN obtained from the login module callback is substituted into the filter anywhere a {0} expression is used. A common example for the search filter is (uid={0}).
+  name: AUTH_LDAP_BASE_FILTER
+  example: "(uid={0})"
+  required: false
+- displayName: LDAP Search scope
+  description: The search scope to use.
+  name: AUTH_LDAP_SEARCH_SCOPE
+  example: "SUBTREE_SCOPE"
+  required: false
+- displayName: LDAP Search time limit
+  description: The timeout in milliseconds for user or role searches.
+  name: AUTH_LDAP_SEARCH_TIME_LIMIT
+  example: "10000"
+  required: false
+- displayName: LDAP DN attribute
+  description: The name of the attribute in the user entry that contains the DN of the user. This may be necessary if the DN of the user itself contains special characters, backslash for example, that prevent correct user mapping. If the attribute does not exist, the entry’s DN is used.
+  name: AUTH_LDAP_DISTINGUISHED_NAME_ATTRIBUTE
+  example: "distinguishedName"
+  required: false
+- displayName: LDAP Parse username
+  description: A flag indicating if the DN is to be parsed for the username. If set to true, the DN is parsed for the username. If set to false the DN is not parsed for the username. This option is used together with usernameBeginString and usernameEndString.
+  name: AUTH_LDAP_PARSE_USERNAME
+  example: "true"
+  required: false
+- displayName: LDAP Username begin string
+  description: Defines the String which is to be removed from the start of the DN to reveal the username. This option is used together with usernameEndString and only taken into account if parseUsername is set to true.
+  name: AUTH_LDAP_USERNAME_BEGIN_STRING
+  required: false
+- displayName: LDAP Username end string
+  description: Defines the String which is to be removed from the end of the DN to reveal the username. This option is used together with usernameEndString and only taken into account if parseUsername is set to true.
+  name: AUTH_LDAP_USERNAME_END_STRING
+  required: false
+- displayName: LDAP Role attributeID
+  description: Name of the attribute containing the user roles.
+  name: AUTH_LDAP_ROLE_ATTRIBUTE_ID
+  example: memberOf
+  required: false
+- displayName: LDAP Roles Search DN
+  description: The fixed DN of the context to search for user roles. This is not the DN where the actual roles are, but the DN where the objects containing the user roles are. For example, in a Microsoft Active Directory server, this is the DN where the user account is.
+  name: AUTH_LDAP_ROLES_CTX_DN
+  example: "ou=groups,ou=example,ou=com"
+  required: false
+- displayName: LDAP Role search filter
+  description: A search filter used to locate the roles associated with the authenticated user. The input username or userDN obtained from the login module callback is substituted into the filter anywhere a {0} expression is used. The authenticated userDN is substituted into the filter anywhere a {1} is used. An example search filter that matches on the input username is (member={0}). An alternative that matches on the authenticated userDN is (member={1}).
+  name: AUTH_LDAP_ROLE_FILTER
+  example: "(memberOf={1})"
+  required: false
+- displayName: LDAP Role recursion
+  description: The number of levels of recursion the role search will go below a matching context. Disable recursion by setting this to 0.
+  name: AUTH_LDAP_ROLE_RECURSION
+  example: "1"
+  required: false
+- displayName: LDAP Default role
+  description: A role included for all authenticated users
+  name: AUTH_LDAP_DEFAULT_ROLE
+  example: "guest"
+  required: false
+- displayName: LDAP Role name attribute ID
+  description: Name of the attribute within the roleCtxDN context which contains the role name. If the roleAttributeIsDN property is set to true, this property is used to find the role object’s name attribute.
+  name: AUTH_LDAP_ROLE_NAME_ATTRIBUTE_ID
+  example: "name"
+  required: false
+- displayName: LDAP Role DN contains roleNameAttributeID
+  description: A flag indicating if the DN returned by a query contains the roleNameAttributeID. If set to true, the DN is checked for the roleNameAttributeID. If set to false, the DN is not checked for the roleNameAttributeID. This flag can improve the performance of LDAP queries.
+  name: AUTH_LDAP_PARSE_ROLE_NAME_FROM_DN
+  example: "false"
+  required: false
+- displayName: LDAP Role Attribute ID is DN
+  description: Whether or not the roleAttributeID contains the fully-qualified DN of a role object. If false, the role name is taken from the value of the roleNameAttributeId attribute of the context name. Certain directory schemas, such as Microsoft Active Directory, require this attribute to be set to true.
+  name: AUTH_LDAP_ROLE_ATTRIBUTE_IS_DN
+  example: "false"
+  required: false
+- displayName: LDAP Referral user attribute ID
+  description: If you are not using referrals, this option can be ignored. When using referrals, this option denotes the attribute name which contains users defined for a certain role, for example member, if the role object is inside the referral. Users are checked against the content of this attribute name. If this option is not set, the check will always fail, so role objects cannot be stored in a referral tree.
+  name: AUTH_LDAP_REFERRAL_USER_ATTRIBUTE_ID_TO_CHECK
+  required: false
+objects:
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+- kind: RoleBinding
+  apiVersion: v1
+  metadata:
+     name: "${APPLICATION_NAME}-kieserver-view"
+  subjects:
+  - kind: ServiceAccount
+    name: "${APPLICATION_NAME}-kieserver"
+  roleRef:
+    name: view
+- kind: Service
+  apiVersion: v1
+  spec:
+    ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: https
+      port: 8443
+      targetPort: 8443
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-kieserver"
+    annotations:
+      description: All the KIE server web server's ports.
+- kind: Service
+  apiVersion: v1
+  spec:
+    clusterIP: "None"
+    ports:
+    - name: "ping"
+      port: 8888
+      targetPort: 8888
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver-ping"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-kieserver"
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+      description: "The JGroups ping port for clustering."
+- kind: Route
+  apiVersion: v1
+  id: "${APPLICATION_NAME}-kieserver-http"
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-kieserver"
+    annotations:
+      description: Route for KIE server's http service.
+  spec:
+    host: "${KIE_SERVER_HOSTNAME_HTTP}"
+    to:
+      name: "${APPLICATION_NAME}-kieserver"
+    port:
+      targetPort: http
+- kind: Route
+  apiVersion: v1
+  id: "${APPLICATION_NAME}-kieserver-https"
+  metadata:
+    name: "secure-${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-kieserver"
+    annotations:
+      description: Route for KIE server's https service.
+  spec:
+    host: "${KIE_SERVER_HOSTNAME_HTTPS}"
+    to:
+      name: "${APPLICATION_NAME}-kieserver"
+    port:
+      targetPort: https
+    tls:
+      termination: passthrough
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+      service: "${APPLICATION_NAME}-kieserver"
+    annotations:
+      template.alpha.openshift.io/wait-for-ready: "true"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - "${APPLICATION_NAME}-kieserver"
+        from:
+          kind: ImageStreamTag
+          namespace: "${IMAGE_STREAM_NAMESPACE}"
+          name: "${KIE_SERVER_IMAGE_STREAM_NAME}:${IMAGE_STREAM_TAG}"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+    template:
+      metadata:
+        name: "${APPLICATION_NAME}-kieserver"
+        labels:
+          deploymentConfig: "${APPLICATION_NAME}-kieserver"
+          application: "${APPLICATION_NAME}"
+          service: "${APPLICATION_NAME}-kieserver"
+      spec:
+        serviceAccountName: "${APPLICATION_NAME}-kieserver"
+        terminationGracePeriodSeconds: 60
+        containers:
+        - name: "${APPLICATION_NAME}-kieserver"
+          image: "${KIE_SERVER_IMAGE_STREAM_NAME}"
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "${KIE_SERVER_MEMORY_LIMIT}"
+          volumeMounts:
+          - name: kieserver-keystore-volume
+            mountPath: "/etc/kieserver-secret-volume"
+            readOnly: true
+          livenessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "curl --fail --silent -u '${KIE_ADMIN_USER}:${KIE_ADMIN_PWD}' http://localhost:8080/services/rest/server/healthcheck"
+            initialDelaySeconds: 180
+            timeoutSeconds: 2
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "curl --fail --silent -u '${KIE_ADMIN_USER}:${KIE_ADMIN_PWD}' http://localhost:8080/services/rest/server/readycheck"
+            initialDelaySeconds: 60
+            timeoutSeconds: 2
+            periodSeconds: 30
+            failureThreshold: 6
+          ports:
+          - name: jolokia
+            containerPort: 8778
+            protocol: TCP
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          - name: https
+            containerPort: 8443
+            protocol: TCP
+          - name: ping
+            containerPort: 8888
+            protocol: TCP
+          env:
+          - name: DROOLS_SERVER_FILTER_CLASSES
+            value: "${DROOLS_SERVER_FILTER_CLASSES}"
+          - name: KIE_ADMIN_USER
+            value: "${KIE_ADMIN_USER}"
+          - name: KIE_ADMIN_PWD
+            value: "${KIE_ADMIN_PWD}"
+          - name: KIE_MBEANS
+            value: "${KIE_MBEANS}"
+          - name: KIE_SERVER_BYPASS_AUTH_USER
+            value: "${KIE_SERVER_BYPASS_AUTH_USER}"
+          - name: KIE_SERVER_CONTROLLER_USER
+            value: "${KIE_SERVER_CONTROLLER_USER}"
+          - name: KIE_SERVER_CONTROLLER_PWD
+            value: "${KIE_SERVER_CONTROLLER_PWD}"
+          - name: KIE_SERVER_CONTROLLER_TOKEN
+            value: "${KIE_SERVER_CONTROLLER_TOKEN}"
+          - name: KIE_SERVER_CONTROLLER_SERVICE
+            value: "${KIE_SERVER_CONTROLLER_SERVICE}"
+          - name: KIE_SERVER_CONTROLLER_PROTOCOL
+            value: "ws"
+          - name: KIE_SERVER_CONTROLLER_HOST
+            value: "${KIE_SERVER_CONTROLLER_HOST}"
+          - name: KIE_SERVER_CONTROLLER_PORT
+            value: "${KIE_SERVER_CONTROLLER_PORT}"
+          - name: KIE_SERVER_ID
+            value: "${APPLICATION_NAME}-kieserver"
+          - name: KIE_SERVER_HOST
+            value: "${KIE_SERVER_HOSTNAME_HTTP}"
+          - name: KIE_SERVER_ROUTE_NAME
+            value: "${APPLICATION_NAME}-kieserver"
+          - name: KIE_SERVER_USE_SECURE_ROUTE_NAME
+            value: "${KIE_SERVER_USE_SECURE_ROUTE_NAME}"
+          - name: KIE_SERVER_USER
+            value: "${KIE_SERVER_USER}"
+          - name: KIE_SERVER_PWD
+            value: "${KIE_SERVER_PWD}"
+          - name: KIE_SERVER_CONTAINER_DEPLOYMENT
+            value: "${KIE_SERVER_CONTAINER_DEPLOYMENT}"
+          - name: MAVEN_REPOS
+            value: "RHDMCENTR,EXTERNAL"
+          - name: RHDMCENTR_MAVEN_REPO_SERVICE
+            value: "${DECISION_CENTRAL_MAVEN_SERVICE}"
+          - name: RHDMCENTR_MAVEN_REPO_PATH
+            value: "/maven2/"
+          - name: RHDMCENTR_MAVEN_REPO_USERNAME
+            value: "${DECISION_CENTRAL_MAVEN_USERNAME}"
+          - name: RHDMCENTR_MAVEN_REPO_PASSWORD
+            value: "${DECISION_CENTRAL_MAVEN_PASSWORD}"
+          - name: EXTERNAL_MAVEN_REPO_ID
+            value: "${MAVEN_REPO_ID}"
+          - name: EXTERNAL_MAVEN_REPO_URL
+            value: "${MAVEN_REPO_URL}"
+          - name: EXTERNAL_MAVEN_REPO_USERNAME
+            value: "${MAVEN_REPO_USERNAME}"
+          - name: EXTERNAL_MAVEN_REPO_PASSWORD
+            value: "${MAVEN_REPO_PASSWORD}"
+          - name: KIE_SERVER_MGMT_DISABLED
+            value: "${KIE_SERVER_MGMT_DISABLED}"
+          - name: KIE_SERVER_STARTUP_STRATEGY
+            value: "${KIE_SERVER_STARTUP_STRATEGY}"
+          - name: HTTPS_KEYSTORE_DIR
+            value: "/etc/kieserver-secret-volume"
+          - name: HTTPS_KEYSTORE
+            value: "${KIE_SERVER_HTTPS_KEYSTORE}"
+          - name: HTTPS_NAME
+            value: "${KIE_SERVER_HTTPS_NAME}"
+          - name: HTTPS_PASSWORD
+            value: "${KIE_SERVER_HTTPS_PASSWORD}"
+          - name: JGROUPS_PING_PROTOCOL
+            value: "openshift.DNS_PING"
+          - name: OPENSHIFT_DNS_PING_SERVICE_NAME
+            value: "${APPLICATION_NAME}-kieserver-ping"
+          - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+            value: "8888"
+          - name: SSO_URL
+            value: "${SSO_URL}"
+          - name: SSO_OPENIDCONNECT_DEPLOYMENTS
+            value: "ROOT.war"
+          - name: SSO_REALM
+            value: "${SSO_REALM}"
+          - name: SSO_SECRET
+            value: "${KIE_SERVER_SSO_SECRET}"
+          - name: SSO_CLIENT
+            value: "${KIE_SERVER_SSO_CLIENT}"
+          - name: SSO_USERNAME
+            value: "${SSO_USERNAME}"
+          - name: SSO_PASSWORD
+            value: "${SSO_PASSWORD}"
+          - name: SSO_DISABLE_SSL_CERTIFICATE_VALIDATION
+            value: "${SSO_DISABLE_SSL_CERTIFICATE_VALIDATION}"
+          - name: SSO_PRINCIPAL_ATTRIBUTE
+            value: "${SSO_PRINCIPAL_ATTRIBUTE}"
+          - name: HOSTNAME_HTTP
+            value: "${KIE_SERVER_HOSTNAME_HTTP}"
+          - name: HOSTNAME_HTTPS
+            value: "${KIE_SERVER_HOSTNAME_HTTPS}"
+          - name: AUTH_LDAP_URL
+            value: "${AUTH_LDAP_URL}"
+          - name: AUTH_LDAP_BIND_DN
+            value: "${AUTH_LDAP_BIND_DN}"
+          - name: AUTH_LDAP_BIND_CREDENTIAL
+            value: "${AUTH_LDAP_BIND_CREDENTIAL}"
+          - name: AUTH_LDAP_JAAS_SECURITY_DOMAIN
+            value: "${AUTH_LDAP_JAAS_SECURITY_DOMAIN}"
+          - name: AUTH_LDAP_BASE_CTX_DN
+            value: "${AUTH_LDAP_BASE_CTX_DN}"
+          - name: AUTH_LDAP_BASE_FILTER
+            value: "${AUTH_LDAP_BASE_FILTER}"
+          - name: AUTH_LDAP_SEARCH_SCOPE
+            value: "${AUTH_LDAP_SEARCH_SCOPE}"
+          - name: AUTH_LDAP_SEARCH_TIME_LIMIT
+            value: "${AUTH_LDAP_SEARCH_TIME_LIMIT}"
+          - name: AUTH_LDAP_DISTINGUISHED_NAME_ATTRIBUTE
+            value: "${AUTH_LDAP_DISTINGUISHED_NAME_ATTRIBUTE}"
+          - name: AUTH_LDAP_PARSE_USERNAME
+            value: "${AUTH_LDAP_PARSE_USERNAME}"
+          - name: AUTH_LDAP_USERNAME_BEGIN_STRING
+            value: "${AUTH_LDAP_USERNAME_BEGIN_STRING}"
+          - name: AUTH_LDAP_USERNAME_END_STRING
+            value: "${AUTH_LDAP_USERNAME_END_STRING}"
+          - name: AUTH_LDAP_ROLE_ATTRIBUTE_ID
+            value: "${AUTH_LDAP_ROLE_ATTRIBUTE_ID}"
+          - name: AUTH_LDAP_ROLES_CTX_DN
+            value: "${AUTH_LDAP_ROLES_CTX_DN}"
+          - name: AUTH_LDAP_ROLE_FILTER
+            value: "${AUTH_LDAP_ROLE_FILTER}"
+          - name: AUTH_LDAP_ROLE_RECURSION
+            value: "${AUTH_LDAP_ROLE_RECURSION}"
+          - name: AUTH_LDAP_DEFAULT_ROLE
+            value: "${AUTH_LDAP_DEFAULT_ROLE}"
+          - name: AUTH_LDAP_ROLE_NAME_ATTRIBUTE_ID
+            value: "${AUTH_LDAP_ROLE_NAME_ATTRIBUTE_ID}"
+          - name: AUTH_LDAP_PARSE_ROLE_NAME_FROM_DN
+            value: "${AUTH_LDAP_PARSE_ROLE_NAME_FROM_DN}"
+          - name: AUTH_LDAP_ROLE_ATTRIBUTE_IS_DN
+            value: "${AUTH_LDAP_ROLE_ATTRIBUTE_IS_DN}"
+          - name: AUTH_LDAP_REFERRAL_USER_ATTRIBUTE_ID_TO_CHECK
+            value: "${AUTH_LDAP_REFERRAL_USER_ATTRIBUTE_ID_TO_CHECK}"
+        volumes:
+        - name: kieserver-keystore-volume
+          secret:
+            secretName: "${KIE_SERVER_HTTPS_SECRET}"

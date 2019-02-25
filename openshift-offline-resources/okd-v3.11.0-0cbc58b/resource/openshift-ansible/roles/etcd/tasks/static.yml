@@ -1,0 +1,105 @@
+---
+# Set some facts to reference from hostvars
+- import_tasks: set_facts.yml
+
+- name: Check that etcd image is present
+  command: "{{ openshift_container_cli }} images -q {{ etcd_image }}"
+  register: etcd_image_exists
+
+- name: Pre-pull etcd image
+  command: "{{ openshift_container_cli }} pull {{ etcd_image }}"
+  environment:
+    NO_PROXY: "{{ openshift.common.no_proxy | default('') }}"
+  when: etcd_image_exists.stdout_lines == []
+  # 10 minutes to pull the image
+  async: 600
+  poll: 0
+  register: etcd_prepull
+
+- import_tasks: drop_etcdctl.yml
+
+- name: setup firewall
+  import_tasks: firewall.yml
+
+  # TODO: this task may not be needed with Validate permissions
+- name: Ensure etcd datadir exists
+  file:
+    path: "{{ etcd_data_dir }}"
+    state: directory
+    mode: 0700
+
+- name: Validate permissions on the config dir
+  file:
+    path: "{{ etcd_conf_dir }}"
+    state: directory
+    mode: 0700
+
+- name: Validate permissions on the static pods dir
+  file:
+    path: "{{ etcd_static_pod_location }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0700
+
+- name: Write etcd global config file
+  template:
+    src: etcd.conf.j2
+    dest: "{{ etcd_conf_file }}"
+    backup: true
+
+- name: Create temp directory for static pods
+  command: mktemp -d /tmp/openshift-ansible-XXXXXX
+  register: mktemp
+  changed_when: false
+
+- name: Prepare etcd static pod
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}"
+    mode: 0600
+  with_items:
+  - etcd.yaml
+
+- name: Update etcd static pod
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ item }}"
+    edits:
+    - key: spec.containers[0].image
+      value: "{{ etcd_image }}"
+  with_items:
+  - etcd.yaml
+
+- name: Set etcd host as a probe target host
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ item }}"
+    edits:
+    - key: spec.containers[0].livenessProbe.exec.command
+      value:
+      - "etcdctl"
+      - "--cert-file"
+      - "{{ etcd_peer_cert_file }}"
+      - "--key-file"
+      - "{{ etcd_peer_key_file }}"
+      - "--ca-file"
+      - "{{ etcd_peer_ca_file }}"
+      - "--endpoints"
+      - "{{ etcd_peer_url_scheme }}://{{ etcd_ip }}:{{ etcd_client_port }}"
+      - "cluster-health"
+  with_items:
+  - etcd.yaml
+
+- name: Deploy etcd static pod
+  copy:
+    remote_src: true
+    src: "{{ mktemp.stdout }}/{{ item }}"
+    dest: "{{ etcd_static_pod_location }}"
+    mode: 0600
+  with_items:
+  - etcd.yaml
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False

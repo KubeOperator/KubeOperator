@@ -1,0 +1,15 @@
+---
+# Install default storage classes in GCE & AWS & OPENSTACK
+- name: Ensure storageclass object
+  oc_storageclass:
+    name: "{{ openshift_storageclass_name }}"
+    default_storage_class: "{{ openshift_storageclass_default | default('true') | string}}"
+    parameters: "{{ openshift_storageclass_parameters }}"
+    provisioner: "{{ openshift_storageclass_provisioner }}"
+    mount_options: "{{ openshift_storageclass_mount_options }}"
+    reclaim_policy: "{{ openshift_storageclass_reclaim_policy | default(omit, True) }}"
+  run_once: true
+
+- when: openshift_cloudprovider_kind == 'azure'
+  include_tasks: azure.yml
+  run_once: true

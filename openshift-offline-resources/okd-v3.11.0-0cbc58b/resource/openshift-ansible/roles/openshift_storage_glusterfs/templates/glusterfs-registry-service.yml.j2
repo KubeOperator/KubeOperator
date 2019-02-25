@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glusterfs-{{ glusterfs_name }}-endpoints
+spec:
+  ports:
+  - port: 1
+status:
+  loadBalancer: {}

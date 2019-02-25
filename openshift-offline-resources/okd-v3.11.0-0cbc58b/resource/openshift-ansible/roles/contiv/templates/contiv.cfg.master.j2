@@ -1,0 +1,7 @@
+{
+  "K8S_API_SERVER": "https://{{ hostvars[groups['masters'][0]]['ansible_' + contiv_netmaster_interface].ipv4.address }}:{{ contiv_kube_master_api_port }}",
+  "K8S_CA": "{{ openshift.common.config_base }}/master/ca.crt",
+  "K8S_KEY": "{{ openshift.common.config_base }}/master/system:node:{{ openshift.common.hostname }}.key",
+  "K8S_CERT": "{{ openshift.common.config_base }}/master/system:node:{{ openshift.common.hostname }}.crt",
+  "SVC_SUBNET": "172.30.0.0/16"
+}

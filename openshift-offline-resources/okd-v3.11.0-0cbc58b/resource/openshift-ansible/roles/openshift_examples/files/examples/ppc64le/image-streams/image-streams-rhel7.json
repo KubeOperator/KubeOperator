@@ -1,0 +1,661 @@
+{
+  "kind": "ImageStreamList",
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Apache HTTP Server (httpd)"
+        },
+        "name": "httpd"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and serve static content via Apache HTTP Server (httpd) on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/httpd-container/blob/master/2.4/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Httpd available on OpenShift, including major versions updates.",
+              "iconClass": "icon-apache",
+              "openshift.io/display-name": "Apache HTTP Server (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/httpd-ex.git",
+              "supports": "httpd",
+              "tags": "builder,httpd,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "2.4"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and serve static content via Apache HTTP Server (httpd) 2.4 on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/httpd-container/blob/master/2.4/README.md.",
+              "iconClass": "icon-apache",
+              "openshift.io/display-name": "Apache HTTP Server 2.4",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/httpd-ex.git",
+              "supports": "httpd",
+              "tags": "builder,httpd,ppc64le",
+              "version": "2.4"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/httpd-24-rhel7"
+            },
+            "name": "2.4",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Jenkins"
+        },
+        "name": "jenkins"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Provides a Jenkins server on RHEL 7. For more information about using this container image, including OpenShift considerations, see https://github.com/openshift/jenkins/blob/master/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Jenkins available on OpenShift, including major versions updates.",
+              "iconClass": "icon-jenkins",
+              "openshift.io/display-name": "Jenkins (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "jenkins,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "2"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Provides a Jenkins 2.X server on RHEL 7. For more information about using this container image, including OpenShift considerations, see https://github.com/openshift/jenkins/blob/master/README.md.",
+              "iconClass": "icon-jenkins",
+              "openshift.io/display-name": "Jenkins 2.X",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "jenkins,ppc64le",
+              "version": "2.x"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/openshift3/jenkins-2-rhel7:v3.11"
+            },
+            "name": "2",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "MariaDB"
+        },
+        "name": "mariadb"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Provides a MariaDB database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.2/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of MariaDB available on OpenShift, including major versions updates.",
+              "iconClass": "icon-mariadb",
+              "openshift.io/display-name": "MariaDB (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "database,mariadb,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "10.2"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Provides a MariaDB 10.2 database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mariadb-container/tree/master/10.2/README.md.",
+              "iconClass": "icon-mariadb",
+              "openshift.io/display-name": "MariaDB 10.2",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "database,mariadb,ppc64le",
+              "version": "10.2"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/mariadb-102-rhel7:latest"
+            },
+            "name": "10.2",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "MongoDB"
+        },
+        "name": "mongodb"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Provides a MongoDB database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mongodb-container/tree/master/3.6/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of MongoDB available on OpenShift, including major versions updates.",
+              "iconClass": "icon-mongodb",
+              "openshift.io/display-name": "MongoDB (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "mongodb,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "3.6"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Provides a MongoDB 3.6 database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mongodb-container/tree/master/3.6/README.md.",
+              "iconClass": "icon-mongodb",
+              "openshift.io/display-name": "MongoDB 3.6",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "database,mongodb,ppc64le",
+              "version": "3.6"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/mongodb-36-rhel7:latest"
+            },
+            "name": "3.6",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "MySQL"
+        },
+        "name": "mysql"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Provides a MySQL database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mysql-container/tree/master/5.6/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of MySQL available on OpenShift, including major versions updates.",
+              "iconClass": "icon-mysql-database",
+              "openshift.io/display-name": "MySQL (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "mysql,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "5.7"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Provides a MySQL 5.7 database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/mysql-container/tree/master/5.7/README.md.",
+              "iconClass": "icon-mysql-database",
+              "openshift.io/display-name": "MySQL 5.7",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "mysql,ppc64le",
+              "version": "5.7"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/mysql-57-rhel7:latest"
+            },
+            "name": "5.7",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Nginx HTTP server and a reverse proxy (nginx)"
+        },
+        "name": "nginx"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and serve static content via Nginx HTTP server and a reverse proxy (nginx) on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/nginx-container/blob/master/1.12/README.md.",
+              "iconClass": "icon-nginx",
+              "openshift.io/display-name": "Nginx HTTP server and a reverse proxy 1.12",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/sclorg/nginx-ex.git",
+              "supports": "nginx",
+              "tags": "builder,nginx,ppc64le",
+              "version": "1.12"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/nginx-112-rhel7:latest"
+            },
+            "name": "1.12",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and serve static content via Nginx HTTP server and a reverse proxy (nginx) on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/nginx-container/blob/master/1.12/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Nginx available on OpenShift, including major versions updates.",
+              "iconClass": "icon-nginx",
+              "openshift.io/display-name": "Nginx HTTP server and a reverse proxy (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/sclorg/nginx-ex.git",
+              "supports": "nginx",
+              "tags": "builder,nginx,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "1.12"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Node.js"
+        },
+        "name": "nodejs"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and run Node.js 8 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-nodejs-container.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Node.js available on OpenShift, including major versions updates.",
+              "iconClass": "icon-nodejs",
+              "openshift.io/display-name": "Node.js (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/nodejs-ex.git",
+              "supports": "nodejs",
+              "tags": "builder,nodejs,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "8"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Node.js 6 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-nodejs-container.",
+              "iconClass": "icon-nodejs",
+              "openshift.io/display-name": "Node.js 6",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/nodejs-ex.git",
+              "supports": "nodejs:6,nodejs",
+              "tags": "builder,nodejs,ppc64le",
+              "version": "6"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/nodejs-6-rhel7:latest"
+            },
+            "name": "6",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Node.js 8 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-nodejs-container.",
+              "iconClass": "icon-nodejs",
+              "openshift.io/display-name": "Node.js 8",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/nodejs-ex.git",
+              "tags": "builder,nodejs,ppc64le",
+              "version": "8"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/nodejs-8-rhel7:latest"
+            },
+            "name": "8",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Perl"
+        },
+        "name": "perl"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and run Perl applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-perl-container/blob/master/5.20/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Perl available on OpenShift, including major versions updates.",
+              "iconClass": "icon-perl",
+              "openshift.io/display-name": "Perl (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/dancer-ex.git",
+              "supports": "perl",
+              "tags": "builder,perl,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "5.26"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Perl 5.26 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-perl-container/blob/master/5.26/README.md.",
+              "iconClass": "icon-perl",
+              "openshift.io/display-name": "Perl 5.26",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/dancer-ex.git",
+              "supports": "perl:5.26,perl",
+              "tags": "builder,perl,ppc64le",
+              "version": "5.26"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/perl-526-rhel7:latest"
+            },
+            "name": "5.26",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "PHP"
+        },
+        "name": "php"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and run PHP applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-php-container/blob/master/7.1/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of PHP available on OpenShift, including major versions updates.",
+              "iconClass": "icon-php",
+              "openshift.io/display-name": "PHP (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/cakephp-ex.git",
+              "supports": "php",
+              "tags": "builder,php,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "7.1"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run PHP 7.1 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-php-container/blob/master/7.1/README.md.",
+              "iconClass": "icon-php",
+              "openshift.io/display-name": "PHP 7.1",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/cakephp-ex.git",
+              "supports": "php:7.1,php",
+              "tags": "builder,php,ppc64le",
+              "version": "7.1"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/php-71-rhel7:latest"
+            },
+            "name": "7.1",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "PostgreSQL"
+        },
+        "name": "postgresql"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Provides a PostgreSQL database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/postgresql-container/blob/generated/10/root/usr/share/container-scripts/postgresql/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of PostgreSQL available on OpenShift, including major versions updates.",
+              "iconClass": "icon-postgresql",
+              "openshift.io/display-name": "PostgreSQL (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "database,postgresql,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "10"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Provides a PostgreSQL 10 database on RHEL 7. For more information about using this database image, including OpenShift considerations, see https://github.com/sclorg/postgresql-container/blob/generated/10/root/usr/share/container-scripts/postgresql/README.md.",
+              "iconClass": "icon-postgresql",
+              "openshift.io/display-name": "PostgreSQL (Ephemeral) 10",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "tags": "database,postgresql,ppc64le",
+              "version": "10"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/postgresql-10-rhel7:latest"
+            },
+            "name": "10",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Python"
+        },
+        "name": "python"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and run Python applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.6/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Python available on OpenShift, including major versions updates.",
+              "iconClass": "icon-python",
+              "openshift.io/display-name": "Python (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/django-ex.git",
+              "supports": "python",
+              "tags": "builder,python,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "3.6"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Python 2.7 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/2.7/README.md.",
+              "iconClass": "icon-python",
+              "openshift.io/display-name": "Python 2.7",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/django-ex.git",
+              "supports": "python:2.7,python",
+              "tags": "builder,python,ppc64le",
+              "version": "2.7"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/python-27-rhel7:latest"
+            },
+            "name": "2.7",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Python 3.6 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-python-container/blob/master/3.6/README.md.",
+              "iconClass": "icon-python",
+              "openshift.io/display-name": "Python 3.6",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/django-ex.git",
+              "supports": "python:3.6,python",
+              "tags": "builder,python,ppc64le",
+              "version": "3.6"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/python-36-rhel7:latest"
+            },
+            "name": "3.6",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ImageStream",
+      "metadata": {
+        "annotations": {
+          "openshift.io/display-name": "Ruby"
+        },
+        "name": "ruby"
+      },
+      "spec": {
+        "tags": [
+          {
+            "annotations": {
+              "description": "Build and run Ruby applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-ruby-container/tree/master/2.3/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Ruby available on OpenShift, including major versions updates.",
+              "iconClass": "icon-ruby",
+              "openshift.io/display-name": "Ruby (Latest)",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/openshift/ruby-ex.git",
+              "supports": "ruby",
+              "tags": "builder,ruby,ppc64le"
+            },
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "2.5"
+            },
+            "name": "latest",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          },
+          {
+            "annotations": {
+              "description": "Build and run Ruby 2.5 applications on RHEL 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/s2i-ruby-container/blob/master/2.5/README.md.",
+              "iconClass": "icon-ruby",
+              "openshift.io/display-name": "Ruby 2.5",
+              "openshift.io/provider-display-name": "Red Hat, Inc.",
+              "sampleRepo": "https://github.com/sclorg/ruby-ex.git",
+              "supports": "ruby:2.5,ruby",
+              "tags": "builder,ruby,ppc64le",
+              "version": "2.5"
+            },
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.redhat.io/rhscl/ruby-25-rhel7:latest"
+            },
+            "name": "2.5",
+            "referencePolicy": {
+              "type": "Local"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

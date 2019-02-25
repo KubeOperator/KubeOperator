@@ -1,0 +1,34 @@
+---
+- import_tasks: vpc_and_subnet_id.yml
+
+- import_tasks: provision_ec2_facts.yml
+
+- name: include master instance creation
+  import_tasks: provision_ec2.yml
+
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "tag:clusterid": "{{ openshift_aws_clusterid }}"
+      "tag:host-type": "master"
+      instance-state-name: running
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: instancesout.instances|length > 0
+
+- name: include ec2 register
+  include_tasks: elb_reg.yml
+  loop: "{{ openshift_aws_elb_dict['master'] | dict2items }}"
+  loop_control:
+    loop_var: l_elb
+
+- name: wait for ssh to become available
+  wait_for:
+    port: 22
+    host: "{{ item.public_ip_address }}"
+    timeout: 300
+    search_regex: OpenSSH
+  with_items: "{{ instancesout.instances }}"
+  when: openshift_aws_wait_for_ssh | bool

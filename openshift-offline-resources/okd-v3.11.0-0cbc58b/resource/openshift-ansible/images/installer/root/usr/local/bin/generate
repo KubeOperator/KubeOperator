@@ -1,0 +1,397 @@
+#!/bin/env python
+
+"""
+Attempts to read 'master-config.yaml' and extract remote
+host information to dynamically create an inventory file
+in order to run Ansible playbooks against that host.
+"""
+
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import yaml
+
+try:
+    HOME = os.environ['HOME']
+except KeyError:
+    print 'A required environment variable "$HOME" has not been set'
+    exit(1)
+
+DEFAULT_USER_CONFIG_PATH = '/etc/inventory-generator-config.yaml'
+DEFAULT_MASTER_CONFIG_PATH = HOME + '/master-config.yaml'
+DEFAULT_ADMIN_KUBECONFIG_PATH = HOME + '/.kube/config'
+
+INVENTORY_FULL_PATH = HOME + '/generated_hosts'
+USE_STDOUT = True
+
+if len(sys.argv) > 1:
+    INVENTORY_FULL_PATH = sys.argv[1]
+    USE_STDOUT = False
+
+
+class OpenShiftClientError(Exception):
+    """Base exception class for OpenShift CLI wrapper"""
+    pass
+
+
+class InvalidHost(Exception):
+    """Base exception class for host creation problems."""
+    pass
+
+
+class InvalidHostGroup(Exception):
+    """Base exception class for host-group creation problems."""
+    pass
+
+
+class OpenShiftClient:
+    oc = None
+    kubeconfig = None
+
+    def __init__(self, kubeconfig=DEFAULT_ADMIN_KUBECONFIG_PATH):
+        """Find and store path to oc binary"""
+        # https://github.com/openshift/openshift-ansible/issues/3410
+        # oc can be in /usr/local/bin in some cases, but that may not
+        # be in $PATH due to ansible/sudo
+        paths = os.environ.get("PATH", os.defpath).split(os.pathsep) + ['/usr/local/bin', os.path.expanduser('~/bin')]
+
+        oc_binary_name = 'oc'
+        oc_binary = None
+
+        # Use shutil.which if it is available, otherwise fallback to a naive path search
+        try:
+            which_result = shutil.which(oc_binary_name, path=os.pathsep.join(paths))
+            if which_result is not None:
+                oc_binary = which_result
+        except AttributeError:
+            for path in paths:
+                if os.path.exists(os.path.join(path, oc_binary_name)):
+                    oc_binary = os.path.join(path, oc_binary_name)
+                    break
+
+        if oc_binary is None:
+            raise OpenShiftClientError('Unable to locate `oc` binary. Not present in PATH.')
+
+        self.oc = oc_binary
+        self.kubeconfig = kubeconfig
+
+    def call(self, cmd_str):
+        """Execute a remote call using `oc`"""
+        cmd = [
+            self.oc,
+            '--config',
+            self.kubeconfig
+        ] + shlex.split(cmd_str)
+        try:
+            out = subprocess.check_output(list(cmd), stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as err:
+            raise OpenShiftClientError('[rc {}] {}\n{}'.format(err.returncode, ' '.join(err.cmd), err.output))
+        return out
+
+    def whoami(self):
+        """Retrieve information about the current user in the given kubeconfig"""
+        return self.call('whoami')
+
+    def get_nodes(self):
+        """Retrieve remote node information as a yaml object"""
+        return self.call('get nodes -o yaml')
+
+
+class HostGroup:
+    groupname = ""
+    hosts = list()
+
+    def __init__(self, hosts):
+        if not hosts:
+            return
+        first = hosts[0].get_group_name()
+        for h in hosts:
+            if h.get_group_name() != first:
+                raise InvalidHostGroup("Attempt to create HostGroup with hosts of varying groups.")
+
+        self.hosts = hosts
+        self.groupname = first
+
+    def add_host(self, host):
+        """Add a new host to this group."""
+        self.hosts.append(host)
+
+    def get_group_name(self):
+        """Return the groupname associated with each aggregated host."""
+        return self.groupname
+
+    def get_hosts(self):
+        """Return aggregated hosts"""
+        return self.hosts
+
+    def string(self):
+        """Call the print method for each aggregated host; separated by newlines."""
+        infos = ""
+        for host in self.hosts:
+            infos += host.string() + "\n"
+        return infos
+
+
+class Host:
+    group = "masters"
+    alias = ""
+    hostname = ""
+    public_hostname = ""
+    ip_addr = ""
+    public_ip_addr = ""
+
+    def __init__(self, groupname):
+        if not groupname:
+            raise InvalidHost("Attempt to create Host with no group name provided.")
+        self.group = groupname
+
+    def get_group_name(self):
+        return self.group
+
+    def get_openshift_hostname(self):
+        return self.hostname
+
+    def host_alias(self, hostalias):
+        """Set an alias for this host."""
+        self.alias = hostalias
+
+    def address(self, ip):
+        """Set the ip address for this host."""
+        self.ip_addr = ip
+
+    def public_address(self, ip):
+        """Set the external ip address for this host."""
+        self.public_ip_addr = ip
+
+    def host_name(self, hname):
+        self.hostname = parse_hostname(hname)
+
+    def public_host_name(self, phname):
+        self.public_hostname = parse_hostname(phname)
+
+    def string(self):
+        """Print an inventory-file compatible string with host information"""
+        info = ""
+        if self.alias:
+            info += self.alias + " "
+        elif self.hostname:
+            info += self.hostname + " "
+        elif self.ip_addr:
+            info += self.ip_addr + " "
+        if self.ip_addr:
+            info += "openshift_ip=" + self.ip_addr + " "
+        if self.public_ip_addr:
+            info += "openshift_public_ip=" + self.public_ip_addr + " "
+        if self.hostname:
+            info += "openshift_kubelet_name_override=" + self.hostname + " "
+        if self.public_hostname:
+            info += "openshift_public_hostname=" + self.public_hostname
+
+        return info
+
+
+def parse_hostname(host):
+    """Remove protocol and port from given hostname.
+    Return parsed string"""
+    no_proto = re.split('^http(s)?\:\/\/', host)
+    if no_proto:
+        host = no_proto[-1]
+
+    no_port = re.split('\:[0-9]+(/)?$', host)
+    if no_port:
+        host = no_port[0]
+
+    return host
+
+
+def main():
+    """Parse master-config file and populate inventory file."""
+    # set default values
+    USER_CONFIG = os.environ.get('CONFIG')
+    if not USER_CONFIG:
+        USER_CONFIG = DEFAULT_USER_CONFIG_PATH
+
+    # read user configuration
+    try:
+        config_file_obj = open(USER_CONFIG, 'r')
+        raw_config_file = config_file_obj.read()
+        user_config = yaml.load(raw_config_file)
+        if not user_config:
+            user_config = dict()
+    except IOError as err:
+        print "Unable to find or read user configuration file '{}': {}".format(USER_CONFIG, err)
+        exit(1)
+
+    master_config_path = user_config.get('master_config_path', DEFAULT_MASTER_CONFIG_PATH)
+    if not master_config_path:
+        master_config_path = DEFAULT_MASTER_CONFIG_PATH
+
+    admin_kubeconfig_path = user_config.get('admin_kubeconfig_path', DEFAULT_ADMIN_KUBECONFIG_PATH)
+    if not admin_kubeconfig_path:
+        admin_kubeconfig_path = DEFAULT_ADMIN_KUBECONFIG_PATH
+
+    try:
+        file_obj = open(master_config_path, 'r')
+    except IOError as err:
+        print "Unable to find or read host master configuration file '{}': {}".format(master_config_path, err)
+        exit(1)
+
+    raw_text = file_obj.read()
+
+    y = yaml.load(raw_text)
+    if y.get("kind", "") != "MasterConfig":
+        print "Bind-mounted host master configuration file is not of 'kind' MasterConfig. Aborting..."
+        exit(1)
+
+    # finish reading config file and begin gathering
+    # cluster information for inventory file
+    file_obj.close()
+
+    # set inventory values based on user configuration
+    ansible_ssh_user = user_config.get('ansible_ssh_user', 'root')
+    ansible_become_user = user_config.get('ansible_become_user')
+
+    openshift_uninstall_images = user_config.get('openshift_uninstall_images', False)
+    openshift_install_examples = user_config.get('openshift_install_examples', True)
+    openshift_deployment_type = user_config.get('openshift_deployment_type', 'origin')
+
+    openshift_release = user_config.get('openshift_release')
+    openshift_image_tag = user_config.get('openshift_image_tag')
+    openshift_logging_image_version = user_config.get('openshift_logging_image_version')
+    openshift_disable_check = user_config.get('openshift_disable_check')
+
+    # extract host config info from parsed yaml file
+    asset_config = y.get("assetConfig")
+    master_config = y.get("kubernetesMasterConfig")
+    etcd_config = y.get("etcdClientInfo")
+
+    # if master_config is missing, error out; we expect to be running on a master to be able to
+    # gather enough information to generate the rest of the inventory file.
+    if not master_config:
+        msg = "'kubernetesMasterConfig' missing from '{}'; unable to gather all necessary host information..."
+        print msg.format(master_config_path)
+        exit(1)
+
+    master_public_url = y.get("masterPublicURL")
+    if not master_public_url:
+        msg = "'kubernetesMasterConfig.masterPublicURL' missing from '{}'; Unable to connect to master host..."
+        print msg.format(master_config_path)
+        exit(1)
+
+    oc = OpenShiftClient(admin_kubeconfig_path)
+
+    # ensure kubeconfig is logged in with provided user, or fail with a friendly message otherwise
+    try:
+        oc.whoami()
+    except OpenShiftClientError as err:
+        msg = ("Unable to obtain user information using the provided kubeconfig file. "
+               "Current context does not appear to be able to authenticate to the server. "
+               "Error returned from server:\n\n{}")
+        print msg.format(str(err))
+        exit(1)
+
+    # connect to remote host using the provided config and extract all possible node information
+    nodes_config = yaml.load(oc.get_nodes())
+
+    # contains host types (e.g. masters, nodes, etcd)
+    host_groups = dict()
+    openshift_logging_install_logging = False
+    is_etcd_deployed = master_config.get("storage-backend", "") in ["etcd3", "etcd2", "etcd"]
+
+    if asset_config and asset_config.get('loggingPublicURL'):
+        openshift_logging_install_logging = True
+
+    openshift_logging_install_logging = user_config.get("openshift_logging_install_logging", openshift_logging_install_logging)
+
+    m = Host("masters")
+    m.address(master_config["masterIP"])
+    m.public_host_name(master_public_url)
+    host_groups["masters"] = HostGroup([m])
+
+    if nodes_config:
+        node_hosts = list()
+        for node in nodes_config.get("items", []):
+            if node["kind"] != "Node":
+                continue
+
+            n = Host("nodes")
+
+            address = ""
+            internal_hostname = ""
+            for item in node["status"].get("addresses", []):
+                if not address and item['type'] in ['InternalIP', 'LegacyHostIP']:
+                    address = item['address']
+
+                if item['type'] == 'Hostname':
+                    internal_hostname = item['address']
+
+            n.address(address)
+            n.host_name(internal_hostname)
+            node_hosts.append(n)
+
+        host_groups["nodes"] = HostGroup(node_hosts)
+
+    if etcd_config:
+        etcd_hosts = list()
+        for url in etcd_config.get("urls", []):
+            e = Host("etcd")
+            e.host_name(url)
+            etcd_hosts.append(e)
+
+        host_groups["etcd"] = HostGroup(etcd_hosts)
+
+    # open new inventory file for writing
+    if USE_STDOUT:
+        inv_file_obj = sys.stdout
+    else:
+        try:
+            inv_file_obj = open(INVENTORY_FULL_PATH, 'w+')
+        except IOError as err:
+            print "Unable to create or open generated inventory file: {}".format(err)
+            exit(1)
+
+    inv_file_obj.write("[OSEv3:children]\n")
+    for group in host_groups:
+        inv_file_obj.write("{}\n".format(group))
+    inv_file_obj.write("\n")
+
+    inv_file_obj.write("[OSEv3:vars]\n")
+    if ansible_ssh_user:
+        inv_file_obj.write("ansible_ssh_user={}\n".format(ansible_ssh_user))
+    if ansible_become_user:
+        inv_file_obj.write("ansible_become_user={}\n".format(ansible_become_user))
+        inv_file_obj.write("ansible_become=yes\n")
+
+    if openshift_uninstall_images:
+        inv_file_obj.write("openshift_uninstall_images={}\n".format(str(openshift_uninstall_images)))
+    if openshift_deployment_type:
+        inv_file_obj.write("openshift_deployment_type={}\n".format(openshift_deployment_type))
+    if openshift_install_examples:
+        inv_file_obj.write("openshift_install_examples={}\n".format(str(openshift_install_examples)))
+
+    if openshift_release:
+        inv_file_obj.write("openshift_release={}\n".format(str(openshift_release)))
+    if openshift_image_tag:
+        inv_file_obj.write("openshift_image_tag={}\n".format(str(openshift_image_tag)))
+    if openshift_logging_image_version:
+        inv_file_obj.write("openshift_logging_image_version={}\n".format(str(openshift_logging_image_version)))
+    if openshift_disable_check:
+        inv_file_obj.write("openshift_disable_check={}\n".format(str(openshift_disable_check)))
+    inv_file_obj.write("\n")
+
+    inv_file_obj.write("openshift_logging_install_logging={}\n".format(str(openshift_logging_install_logging)))
+    inv_file_obj.write("\n")
+
+    for group in host_groups:
+        inv_file_obj.write("[{}]\n".format(host_groups[group].get_group_name()))
+        inv_file_obj.write(host_groups[group].string())
+        inv_file_obj.write("\n")
+
+    inv_file_obj.close()
+
+
+if __name__ == '__main__':
+    main()

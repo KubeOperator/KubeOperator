@@ -1,0 +1,178 @@
+{
+  "data": {
+    "m01.example.com": {
+      "etcd": [
+        {
+          "cert_cn": "CN:172.30.0.1, DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc.cluster.local, DNS:m01.example.com, DNS:openshift, DNS:openshift.default, DNS:openshift.default.svc, DNS:openshift.default.svc.cluster.local, DNS:172.30.0.1, DNS:192.168.124.148, IP Address:172.30.0.1, IP Address:192.168.124.148",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:03",
+          "health": "warning",
+          "path": "/etc/origin/master/etcd.server.crt",
+          "serial": 7,
+          "serial_hex": "0x7"
+        }
+      ],
+      "kubeconfigs": [
+        {
+          "cert_cn": "O:system:nodes, CN:system:node:m01.example.com",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:03:28",
+          "health": "warning",
+          "path": "/etc/origin/node/system:node:m01.example.com.kubeconfig",
+          "serial": 11,
+          "serial_hex": "0xb"
+        },
+        {
+          "cert_cn": "O:system:cluster-admins, CN:system:admin",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:03",
+          "health": "warning",
+          "path": "/etc/origin/master/admin.kubeconfig",
+          "serial": 8,
+          "serial_hex": "0x8"
+        },
+        {
+          "cert_cn": "O:system:masters, CN:system:openshift-master",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:02",
+          "health": "warning",
+          "path": "/etc/origin/master/openshift-master.kubeconfig",
+          "serial": 3,
+          "serial_hex": "0x3"
+        },
+        {
+          "cert_cn": "O:system:routers, CN:system:openshift-router",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:03",
+          "health": "warning",
+          "path": "/etc/origin/master/openshift-router.kubeconfig",
+          "serial": 9,
+          "serial_hex": "0x9"
+        },
+        {
+          "cert_cn": "O:system:registries, CN:system:openshift-registry",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:03",
+          "health": "warning",
+          "path": "/etc/origin/master/openshift-registry.kubeconfig",
+          "serial": 10,
+          "serial_hex": "0xa"
+        }
+      ],
+      "meta": {
+        "checked_at_time": "2017-01-17 10:36:25.230920",
+        "show_all": "True",
+        "warn_before_date": "2021-02-25 10:36:25.230920",
+        "warning_days": 1500
+      },
+      "ocp_certs": [
+        {
+          "cert_cn": "CN:172.30.0.1, DNS:kubernetes, DNS:kubernetes.default, DNS:kubernetes.default.svc, DNS:kubernetes.default.svc.cluster.local, DNS:m01.example.com, DNS:openshift, DNS:openshift.default, DNS:openshift.default.svc, DNS:openshift.default.svc.cluster.local, DNS:172.30.0.1, DNS:192.168.124.148, IP Address:172.30.0.1, IP Address:192.168.124.148",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:00:02",
+          "health": "warning",
+          "path": "/etc/origin/master/master.server.crt",
+          "serial": 4,
+          "serial_hex": "0x4"
+        },
+        {
+          "cert_cn": "CN:192.168.124.148, DNS:m01.example.com, DNS:192.168.124.148, IP Address:192.168.124.148",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:03:29",
+          "health": "warning",
+          "path": "/etc/origin/node/server.crt",
+          "serial": 12,
+          "serial_hex": "0xc"
+        },
+        {
+          "cert_cn": "CN:openshift-signer@1483981200",
+          "days_remaining": 1817,
+          "expiry": "2022-01-08 17:00:01",
+          "health": "ok",
+          "path": "/etc/origin/master/ca.crt",
+          "serial": 1,
+          "serial_hex": "0x1"
+        },
+        {
+          "cert_cn": "CN:openshift-signer@1483981200",
+          "days_remaining": 1817,
+          "expiry": "2022-01-08 17:00:01",
+          "health": "ok",
+          "path": "/etc/origin/node/ca.crt",
+          "serial": 1,
+          "serial_hex": "0x1"
+        }
+      ],
+      "registry": [
+        {
+          "cert_cn": "CN:172.30.242.251, DNS:docker-registry-default.router.default.svc.cluster.local, DNS:docker-registry.default.svc.cluster.local, DNS:172.30.242.251, IP Address:172.30.242.251",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:05:54",
+          "health": "warning",
+          "path": "/api/v1/namespaces/default/secrets/registry-certificates",
+          "serial": 13,
+          "serial_hex": "0xd"
+        }
+      ],
+      "router": [
+        {
+          "cert_cn": "CN:router.default.svc, DNS:router.default.svc, DNS:router.default.svc.cluster.local",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:05:46",
+          "health": "warning",
+          "path": "/api/v1/namespaces/default/secrets/router-certs",
+          "serial": 5050662940948454653,
+          "serial_hex": "0x46178f2f6b765cfd"
+        }
+      ]
+    },
+    "n01.example.com": {
+      "etcd": [],
+      "kubeconfigs": [
+        {
+          "cert_cn": "O:system:nodes, CN:system:node:n01.example.com",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:03:28",
+          "health": "warning",
+          "path": "/etc/origin/node/system:node:n01.example.com.kubeconfig",
+          "serial": 11,
+          "serial_hex": "0xb"
+        }
+      ],
+      "meta": {
+        "checked_at_time": "2017-01-17 10:36:25.217103",
+        "show_all": "True",
+        "warn_before_date": "2021-02-25 10:36:25.217103",
+        "warning_days": 1500
+      },
+      "ocp_certs": [
+        {
+          "cert_cn": "CN:192.168.124.11, DNS:n01.example.com, DNS:192.168.124.11, IP Address:192.168.124.11",
+          "days_remaining": 722,
+          "expiry": "2019-01-09 17:03:29",
+          "health": "warning",
+          "path": "/etc/origin/node/server.crt",
+          "serial": 12,
+          "serial_hex": "0xc"
+        },
+        {
+          "cert_cn": "CN:openshift-signer@1483981200",
+          "days_remaining": 1817,
+          "expiry": "2022-01-08 17:00:01",
+          "health": "ok",
+          "path": "/etc/origin/node/ca.crt",
+          "serial": 1,
+          "serial_hex": "0x1"
+        }
+      ],
+      "registry": [],
+      "router": []
+    }
+  },
+  "summary": {
+    "expired": 0,
+    "ok": 3,
+    "total": 15,
+    "warning": 12
+  }
+}

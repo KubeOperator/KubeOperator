@@ -1,0 +1,4 @@
+---
+- import_playbook: server_certificates.yml
+
+- import_playbook: master_etcd_certificates.yml

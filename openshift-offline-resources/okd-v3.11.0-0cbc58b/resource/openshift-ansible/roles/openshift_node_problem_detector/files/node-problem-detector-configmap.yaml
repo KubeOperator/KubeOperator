@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: npd-config
+data:
+  docker-monitor.json: |
+    {
+        "plugin": "journald",
+        "pluginConfig": {
+                "source": "docker"
+        },
+        "logPath": "/host/log/journal",
+        "lookback": "5m",
+        "bufferSize": 10,
+        "source": "docker-monitor",
+        "conditions": [],
+        "rules": [
+                {
+                        "type": "temporary",
+                        "reason": "CorruptDockerImage",
+                        "pattern": "Error trying v2 registry: failed to register layer: rename /var/lib/docker/image/(.+) /var/lib/docker/image/(.+): directory not empty.*"
+                }
+        ]
+    }
+  kernel-monitor.json: |
+    {
+        "plugin": "journald",
+        "pluginConfig": {
+                "source": "kernel"
+        },
+        "logPath": "/host/log/journal",
+        "lookback": "5m",
+        "bufferSize": 10,
+        "source": "kernel-monitor",
+        "conditions": [
+                {
+                        "type": "KernelDeadlock",
+                        "reason": "KernelHasNoDeadlock",
+                        "message": "kernel has no deadlock"
+                }
+        ],
+        "rules": [
+                {
+                        "type": "temporary",
+                        "reason": "OOMKilling",
+                        "pattern": "Kill process \\d+ (.+) score \\d+ or sacrifice child\\nKilled process \\d+ (.+) total-vm:\\d+kB, anon-rss:\\d+kB, file-rss:\\d+kB"
+                },
+                {
+                        "type": "temporary",
+                        "reason": "TaskHung",
+                        "pattern": "task \\S+:\\w+ blocked for more than \\w+ seconds\\."
+                },
+                {
+                        "type": "temporary",
+                        "reason": "UnregisterNetDevice",
+                        "pattern": "unregister_netdevice: waiting for \\w+ to become free. Usage count = \\d+"
+                },
+                {
+                        "type": "temporary",
+                        "reason": "KernelOops",
+                        "pattern": "BUG: unable to handle kernel NULL pointer dereference at .*"
+                },
+                {
+                        "type": "temporary",
+                        "reason": "KernelOops",
+                        "pattern": "divide error: 0000 \\[#\\d+\\] SMP"
+                },
+                {
+                        "type": "permanent",
+                        "condition": "KernelDeadlock",
+                        "reason": "AUFSUmountHung",
+                        "pattern": "task umount\\.aufs:\\w+ blocked for more than \\w+ seconds\\."
+                },
+                {
+                        "type": "permanent",
+                        "condition": "KernelDeadlock",
+                        "reason": "DockerHung",
+                        "pattern": "task docker:\\w+ blocked for more than \\w+ seconds\\."
+                }
+        ]
+    }

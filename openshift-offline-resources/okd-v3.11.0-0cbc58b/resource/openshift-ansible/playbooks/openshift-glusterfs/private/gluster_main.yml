@@ -1,0 +1,8 @@
+---
+- name: Configure GlusterFS
+  hosts: oo_first_master
+  tasks:
+  - name: setup glusterfs
+    import_role:
+      name: openshift_storage_glusterfs
+    when: groups.oo_glusterfs_to_config | default([]) | count > 0

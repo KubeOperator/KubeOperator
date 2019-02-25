@@ -1,0 +1,39 @@
+{% if openshift_aws_node_user_data is defined and openshift_aws_node_user_data != '' %}
+{{ openshift_aws_node_user_data }}
+{% else %}
+#cloud-config
+
+write_files:
+- path: /root/openshift_bootstrap/openshift_settings.yaml
+  owner: 'root:root'
+  permissions: '0640'
+  content: |
+    openshift_node_config_name: {%
+  if l_instance_tags['host-type'] == 'master' %}
+node-config-master
+{%   elif l_instance_tags['host-type'] == 'node' %}
+{{ openshift_aws_node_group.node_group_config }}
+{%   else %}
+unset
+{%   endif %}
+{%   if l_instance_tags['host-type'] == 'node' %}
+- path: /etc/origin/node/bootstrap.kubeconfig
+  owner: 'root:root'
+  permissions: '0640'
+  encoding: b64
+  content: {{ openshift_aws_launch_config_bootstrap_token | b64encode }}
+{%   endif %}
+
+runcmd:
+{%   if openshift_aws_node_run_bootstrap_startup %}
+- [ ansible-playbook, /root/openshift_bootstrap/bootstrap.yml]
+{%   endif %}
+{%   if l_instance_tags['host-type'] == 'node' %}
+{# Restarting systemd-hostnamed ensures that instances will have FQDN
+hostnames following network restart. #}
+- [ systemctl, restart, systemd-hostnamed]
+- [ systemctl, restart, NetworkManager]
+- [ systemctl, enable, {% if openshift_deployment_type == 'openshift-enterprise' %}atomic-openshift{% else %}origin{% endif %}-node]
+- [ systemctl, start, {% if openshift_deployment_type == 'openshift-enterprise' %}atomic-openshift{% else %}origin{% endif %}-node]
+{%   endif %}
+{% endif %}

@@ -1,0 +1,2 @@
+---
+- import_playbook: ../../../../common/openshift-cluster/upgrades/docker/docker_upgrade.yml

@@ -1,0 +1,11 @@
+---
+# remove namespace - This will delete all the objects inside the namespace
+- name: Remove openshift-descheduler project
+  oc_project:
+    state: absent
+    name: openshift-descheduler
+
+- name: remove descheduler cluster role
+  oc_clusterrole:
+    state: absent
+    name: "{{ openshift_descheduler_cluster_role_name }}"

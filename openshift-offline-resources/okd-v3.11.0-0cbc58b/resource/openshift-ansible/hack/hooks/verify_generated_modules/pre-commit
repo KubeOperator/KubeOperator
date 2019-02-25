@@ -1,0 +1,55 @@
+#!/bin/sh
+
+######################################################################
+# Pre-commit hook for verifying that generated library modules match
+# their EXPECTED content. Library modules are generated from fragments
+# under the 'roles/lib_(openshift|utils)/src/' directories.
+#
+# If the attempted commit modified files under the
+# 'roles/lib_(openshift|utils)/' directories this script will run the
+# 'generate.py --verify' command.
+#
+# This script will NOT RUN if module source fragments are modified but
+# not part of the commit. I.e., you can still make commits if you
+# modified module fragments AND other files but are not comitting the
+# the module fragments.
+
+# Did the commit modify any source module files?
+CHANGES=`git diff-index --stat --cached HEAD | grep -E '^ roles/lib_(openshift|utils)/src/(class|doc|ansible|lib)/'`
+RET_CODE=$?
+ABORT=0
+
+if [ "${RET_CODE}" -eq "0" ]; then
+    # Modifications detected. Run the verification scripts.
+
+    # Which was it?
+    if $(echo $CHANGES | grep -q 'roles/lib_openshift/'); then
+	echo "Validating lib_openshift..."
+	./roles/lib_openshift/src/generate.py --verify
+	if [ "${?}" -ne "0" ]; then
+	    ABORT=1
+	fi
+    fi
+
+    if $(echo $CHANGES | grep -q 'roles/lib_utils/'); then
+	echo "Validating lib_utils..."
+	./roles/lib_utils/src/generate.py --verify
+	if [ "${?}" -ne "0" ]; then
+	    ABORT=1
+	fi
+    fi
+
+    if [ "${ABORT}" -eq "1" ]; then
+	cat <<EOF
+
+ERROR: Module verification failed. Generated files do not match fragments.
+
+Choices to continue:
+  1) Run './roles/lib_(openshift|utils)/src/generate.py' from the root of
+     the repo to regenerate the files
+  2) Skip verification with '--no-verify' option to 'git commit'
+EOF
+    fi
+fi
+
+exit $ABORT

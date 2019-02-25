@@ -1,0 +1,55 @@
+---
+- fail:
+    msg: "This role is only supported for Red Hat hosts"
+  when: ansible_distribution != 'RedHat'
+
+- name: Install Red Hat Subscription manager
+  yum:
+    name: subscription-manager
+    state: present
+  register: result
+  until: result is succeeded
+
+- name: Is host already registered?
+  command: "subscription-manager version"
+  register: rh_subscribed
+  changed_when: False
+
+- name: Register host using user/password
+  redhat_subscription:
+    username: "{{ rhsub_user }}"
+    password: "{{ rhsub_pass }}"
+  register: rh_subscription
+  until: rh_subscription is succeeded
+  when:
+    - "'not registered' in rh_subscribed.stdout"
+    - rhsub_user is defined
+    - rhsub_pass is defined
+
+- name: Register host using activation key
+  redhat_subscription:
+    activationkey: "{{ rhsub_ak }}"
+    org_id: "{{ rhsub_orgid }}"
+  register: rh_subscription
+  until: rh_subscription is succeeded
+  when:
+    - "'not registered' in rh_subscribed.stdout"
+    - rhsub_ak is defined
+    - rhsub_orgid is defined
+
+- name: Determine if OpenShift Pool Already Attached
+  command: "subscription-manager list --consumed --pool-only --matches '*OpenShift*'"
+  register: openshift_pool_attached
+  changed_when: False
+  ignore_errors: yes
+
+- name: Attach to OpenShift Pool
+  command: "subscription-manager attach --pool {{ rhsub_pool }}"
+  register: openshift_pool_attached
+  changed_when: "'Successfully attached a subscription' in openshift_pool_attached.stdout"
+  when: rhsub_pool not in openshift_pool_attached.stdout
+
+- import_tasks: satellite.yml
+  when:
+    - rhsub_server is defined
+    - rhsub_server

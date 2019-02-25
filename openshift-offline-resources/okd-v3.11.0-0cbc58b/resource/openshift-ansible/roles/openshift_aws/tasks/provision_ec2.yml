@@ -1,0 +1,30 @@
+---
+- name: create instance(s)
+  ec2:
+    assign_public_ip: yes
+    count_tag:
+      host-type: "master"
+    ebs_optimized: True
+    exact_count: "{{ l_subnetout_results[l_loop] }}"
+    group_id: "{{ ec2sgs.security_groups | map(attribute='group_id') | list }}"
+    instance_tags: "{{ l_instance_tags }}"
+    instance_type: "{{ openshift_aws_master_instance_config.instance_type }}"
+    image: "{{ l_image }}"
+    key_name: "{{ openshift_aws_ssh_key_name }}"
+    monitoring: False
+    region: "{{ openshift_aws_region }}"
+    termination_protection: False
+    user_data: "{{ lookup('template', 'user_data.j2') }}"
+    volumes: "{{ openshift_aws_master_instance_config.volumes }}"
+    vpc_subnet_id: "{{ l_loop }}"
+    wait: yes
+    instance_profile_name: "{{ l_profilename.iam_roles[0].role_name if openshift_aws_create_iam_role and
+                                                                      openshift_aws_master_instance_config.iam_role is defined and
+                                                                      openshift_aws_master_instance_config.iam_role != ''
+                                                                    else omit }}"
+  loop: "{{ l_subnetout_results | list }}"
+  loop_control:
+    loop_var: l_loop
+  retries: 3
+  delay: 3
+  register: ec2s

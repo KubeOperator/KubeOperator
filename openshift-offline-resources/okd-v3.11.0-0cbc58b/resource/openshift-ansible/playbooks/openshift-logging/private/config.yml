@@ -1,0 +1,139 @@
+---
+- name: Logging Install Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Logging install 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_logging:
+          title: "Logging Install"
+          playbook: "playbooks/openshift-logging/config.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+# Normally we only collect this information for our master group entries
+# we want to also collect this for nodes so we can match group entries to nodes
+- name: Get common IP facts when necessary
+  hosts: oo_nodes_to_config:!oo_masters
+  gather_facts: false
+  tasks:
+  - name: Gather Cluster facts
+    openshift_facts:
+      role: common
+      local_facts:
+        ip: "{{ openshift_ip | default(None) }}"
+
+- name: Verify and collect ES hosts
+  hosts: oo_first_master
+  gather_facts: false
+  tasks:
+  - when: openshift_logging_install_logging | default(false) | bool
+    block:
+    - assert:
+        that: openshift_logging_es_nodeselector is defined
+        msg: "A node selector is required for Elasticsearch pods, please specify one with openshift_logging_es_nodeselector"
+
+    - name: Ensure that ElasticSearch has nodes to run on
+      import_role:
+        name: openshift_control_plane
+        tasks_from: ensure_nodes_matching_selector.yml
+      vars:
+        openshift_master_ensure_nodes_selector: "{{ openshift_logging_es_nodeselector | map_to_pairs }}"
+        openshift_master_ensure_nodes_service: Elasticsearch
+
+    - command: >
+        {{ openshift_client_binary }}
+        --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+        get nodes
+        -l {{ openshift_logging_es_nodeselector | map_to_pairs }}
+        -o jsonpath={.items[*].status.addresses[?(@.type==\"InternalIP\")].address}
+      register: openshift_logging_es_hosts
+
+    - when: openshift_logging_use_ops | default(false) | bool
+      block:
+      - assert:
+          that: openshift_logging_es_ops_nodeselector is defined
+          msg: "A node selector is required for Elasticsearch Ops pods, please specify one with openshift_logging_es_ops_nodeselector"
+
+      - name: Ensure that ElasticSearch Ops has nodes to run on
+        import_role:
+          name: openshift_control_plane
+          tasks_from: ensure_nodes_matching_selector.yml
+        vars:
+          openshift_master_ensure_nodes_selector: "{{ openshift_logging_es_ops_nodeselector | map_to_pairs }}"
+          openshift_master_ensure_nodes_service: "Elasticsearch Ops"
+
+      - command: >
+          {{ openshift_client_binary }}
+          --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+          get nodes
+          -l {{ openshift_logging_es_ops_nodeselector | map_to_pairs }}
+          -o jsonpath={.items[*].status.addresses[?(@.type==\"InternalIP\")].address}
+        register: openshift_logging_es_ops_hosts
+
+    - set_fact:
+        openshift_logging_elasticsearch_hosts: "{{ ( openshift_logging_es_hosts.stdout.split(' ') | default([]) + (openshift_logging_es_ops_hosts.stdout.split(' ') if openshift_logging_es_ops_hosts.stdout is defined else []) ) | unique }}"
+
+    # Check to see if the collected ip from the openshift facts above matches our node back to a
+    # group entry in our inventory so we can maintain our group variables when updating the sysctl
+    # files for specific nodes based on <node>.status.addresses[@.type==InternalIP].address
+    - name: Evaluate oo_elasticsearch_nodes
+      add_host:
+        name: "{{ item }}"
+        groups: oo_elasticsearch_nodes
+        ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+        ansible_become: "{{ g_sudo | default(omit) }}"
+      with_items: "{{ groups['oo_nodes_to_config'] }}"
+      changed_when: no
+      run_once: true
+      delegate_to: localhost
+      connection: local
+      when: hostvars[item]['openshift']['common']['ip'] in openshift_logging_elasticsearch_hosts
+
+- name: Update vm.max_map_count for ES 5.x
+  hosts: oo_elasticsearch_nodes
+  gather_facts: false
+  tasks:
+  - when: openshift_logging_install_logging | default(false) | bool
+    block:
+    - name: Checking vm max_map_count value
+      command:
+        cat /proc/sys/vm/max_map_count
+      register: _vm_max_map_count
+
+    - name: Updating vm.max_map_count value
+      sysctl:
+        name: vm.max_map_count
+        value: 262144
+        sysctl_file: "/etc/sysctl.d/99-elasticsearch.conf"
+        reload: yes
+      when:
+      - _vm_max_map_count.stdout | default(0) | int < 262144 | int
+
+- name: Remove created 99-elasticsearch sysctl
+  hosts: all
+  gather_facts: false
+  tasks:
+  - when: not openshift_logging_install_logging | default(false) | bool
+    file:
+      state: absent
+      name: /etc/sysctl.d/99-elasticsearch.conf
+
+- name: OpenShift Aggregated Logging
+  hosts: oo_first_master
+  roles:
+  - openshift_logging
+
+- name: Logging Install Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Logging install 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_logging:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

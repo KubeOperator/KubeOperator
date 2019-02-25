@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: delete vpc
+    include_role:
+      name: openshift_aws
+      tasks_from: uninstall_vpc.yml
+    when: openshift_aws_create_vpc | default(True) | bool

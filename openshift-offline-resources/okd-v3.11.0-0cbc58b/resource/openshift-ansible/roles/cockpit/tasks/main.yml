@@ -1,0 +1,25 @@
+---
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Install cockpit-ws
+  package:
+    name: "{{ pkg_list | join(',') }}"
+    state: present
+  vars:
+    pkg_list:
+    - cockpit-ws
+    - cockpit-system
+    - cockpit-bridge
+    - cockpit-docker
+    - "{{ cockpit_plugins | join(',') }}"
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+- name: Enable cockpit-ws
+  systemd:
+    name: cockpit.socket
+    enabled: true
+    state: started
+  when: not openshift_is_atomic | bool

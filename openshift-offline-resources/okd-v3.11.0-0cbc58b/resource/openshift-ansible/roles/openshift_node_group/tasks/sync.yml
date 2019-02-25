@@ -1,0 +1,114 @@
+---
+- name: Ensure project exists
+  oc_project:
+    name: openshift-node
+    state: present
+    node_selector:
+      - ""
+
+- name: Make temp directory for templates
+  command: mktemp -d /tmp/ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy templates to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item | basename }}"
+  with_fileglob:
+    - "files/*.yaml"
+
+- name: Update the image tag
+  yedit:
+    src: "{{ mktemp.stdout }}/sync-images.yaml"
+    key: 'tag.from.name'
+    value: "{{ osn_image }}"
+
+- name: Ensure the service account can run privileged
+  oc_adm_policy_user:
+    namespace: "openshift-node"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+    user: "system:serviceaccount:openshift-node:sync"
+
+# TODO: temporary until we fix apply for image stream tags
+- name: Remove the image stream tag
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    delete -n openshift-node istag node:v3.11 --ignore-not-found
+  register: l_os_istag_del
+  # The istag might not be there, so we want to not fail in that case.
+  failed_when:
+    - l_os_istag_del.rc != 0
+    - "'have a resource type' not in l_os_istag_del.stderr"
+
+- name: Remove existing pods if present
+  oc_obj:
+    state: absent
+    kind: pods
+    name: sync
+    namespace: openshift-node
+  ignore_errors: true
+
+- name: Apply the config
+  shell: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig apply -f {{ mktemp.stdout }}
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False
+
+- name: Wait for the sync daemonset to become ready and available
+  oc_obj:
+    state: list
+    kind: daemonset
+    name: sync
+    namespace: openshift-node
+  register: __status_of_sync_ds
+  until:
+    - __status_of_sync_ds.results is defined
+    - __status_of_sync_ds.results.results is defined
+    - __status_of_sync_ds.results.results | length > 0
+    - __status_of_sync_ds.results.results[0].status is defined
+    - __status_of_sync_ds.results.results[0].status.numberAvailable is defined
+    - __status_of_sync_ds.results.results[0].status.desiredNumberScheduled is defined
+    - __status_of_sync_ds.results.results[0].status.numberAvailable == __status_of_sync_ds.results.results[0].status.desiredNumberScheduled
+  retries: 60
+  delay: 10
+
+- name: Wait for sync DS to set annotations on master nodes
+  oc_obj:
+    state: list
+    kind: node
+    selector: ""
+  register: node_status
+  until:
+    - node_status.results is defined
+    - node_status.results.results is defined
+    - node_status.results.results | length > 0
+    - node_status.results.results[0]['items']
+        | map(attribute='metadata.annotations') | map('list') | flatten
+        | select('match', 'node.openshift.io/md5sum') | list | length ==
+      node_status.results.results[0]['items'] | length
+  retries: 180
+  delay: 10
+
+# Sync DS may have restarted masters
+- name: Verify api server is available
+  command: >
+    curl --silent --tlsv1.2
+    --cacert {{ openshift.common.config_base }}/master/ca-bundle.crt
+    {{ openshift.master.api_url }}/healthz/ready
+  args:
+    # Disables the following warning:
+    # Consider using get_url or uri module rather than running curl
+    warn: no
+  register: api_available_output
+  until: api_available_output.stdout == 'ok'
+  retries: 120
+  delay: 1
+  changed_when: false

@@ -1,0 +1,44 @@
+---
+- name: Old version cleanup | Delete old forward [in] iptables rules
+  iptables:
+    state: absent
+    chain: FORWARD
+    in_interface: "{{ item }}"
+    jump: ACCEPT
+    comment: "{{ item }} FORWARD input"
+  with_items:
+    - contivh0
+    - contivh1
+  notify: Save iptables rules
+
+- name: Old version cleanup | Delete old forward [out] iptables rules
+  iptables:
+    state: absent
+    chain: FORWARD
+    out_interface: "{{ item }}"
+    jump: ACCEPT
+    comment: "{{ item }} FORWARD output"
+  with_items:
+    - contivh0
+    - contivh1
+  notify: Save iptables rules
+
+- name: Old version cleanup | Delete old input iptables rules
+  iptables:
+    state: absent
+    chain: INPUT
+    protocol: "{{ item.split('/')[1] }}"
+    match: "{{ item.split('/')[1] }}"
+    destination_port: "{{ item.split('/')[0] }}"
+    comment: "{{ item.split('/')[2] }}"
+    jump: ACCEPT
+  with_items:
+    - "53/udp/contiv dns"
+    - "4789/udp/netplugin vxlan 4789"
+    - "8472/udp/netplugin vxlan 8472"
+    - "9003/tcp/contiv"
+    - "9002/tcp/contiv"
+    - "9001/tcp/contiv"
+    - "9999/tcp/contiv"
+    - "10000/tcp/Contiv auth proxy service (10000)"
+  notify: Save iptables rules

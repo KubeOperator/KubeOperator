@@ -1,0 +1,12 @@
+---
+# If running this play directly, be sure the variable
+# 'openshift_aws_node_group_type' is set correctly for your usage.
+# See build_ami.yml for an example.
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: create an instance and prepare for ami
+    import_role:
+      name: openshift_aws
+      tasks_from: provision_instance.yml

@@ -1,0 +1,5 @@
+---
+- name: Remove availability monitoring
+  oc_project:
+    name: openshift-monitor-availability
+    state: absent

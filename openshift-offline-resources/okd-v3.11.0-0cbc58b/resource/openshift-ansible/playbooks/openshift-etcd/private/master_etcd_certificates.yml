@@ -1,0 +1,13 @@
+---
+- name: Create etcd client certificates for master hosts
+  hosts: oo_masters_to_config
+  any_errors_fatal: true
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: client_certificates.yml
+    vars:
+      etcd_cert_subdir: "openshift-master-{{ openshift.common.hostname }}"
+      etcd_cert_config_dir: "{{ openshift.common.config_base }}/master"
+      etcd_cert_prefix: "master.etcd-"
+    when: groups.oo_etcd_to_config is defined and groups.oo_etcd_to_config

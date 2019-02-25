@@ -1,0 +1,54 @@
+---
+- name: Restart nodes
+  hosts: oo_nodes_to_config
+  serial: "{{ openshift_restart_nodes_serial | default(1) }}"
+
+  roles:
+  - lib_openshift
+  - openshift_facts
+
+  tasks:
+  - name: Restart docker
+    service:
+      name: docker
+      state: restarted
+    register: l_docker_restart_docker_in_node_result
+    until: not (l_docker_restart_docker_in_node_result is failed)
+    retries: 3
+    delay: 30
+    when: openshift_node_restart_docker_required | default(True)
+
+  - name: Wait for master API to come back online
+    wait_for:
+      host: "{{ openshift.common.hostname }}"
+      state: started
+      delay: 10
+      port: "{{ openshift_master_api_port }}"
+      timeout: 600
+    when: inventory_hostname in groups.oo_masters_to_config
+
+  - name: restart node
+    service:
+      name: "{{ openshift_service_type }}-node"
+      state: restarted
+
+  - name: Wait for node to be ready
+    oc_obj:
+      state: list
+      kind: node
+      name: "{{ l_kubelet_node_name | lower }}"
+    register: node_output
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    when: inventory_hostname in groups.oo_nodes_to_config
+    until:
+    - node_output.results is defined
+    - node_output.results.returncode is defined
+    - node_output.results.returncode == 0
+    - node_output.results.results is defined
+    - node_output.results.results | length > 0
+    - node_output.results.results[0].status is defined
+    - node_output.results.results[0].status.conditions is defined
+    - node_output.results.results[0].status.conditions | selectattr('type', 'match', '^Ready$') | map(attribute='status') | join | bool == True
+    # Give the node three minutes to come back online.
+    retries: 36
+    delay: 5

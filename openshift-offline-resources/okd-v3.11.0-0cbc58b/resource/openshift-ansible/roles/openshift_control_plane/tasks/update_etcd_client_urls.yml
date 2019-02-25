@@ -1,0 +1,7 @@
+---
+- name: Update etcd client URLs
+  yedit:
+    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    key: 'etcdClientInfo.urls'
+    value: "{{ openshift_master_etcd_urls }}"
+  notify: restart master

@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: {{ openshift_node_problem_detector_daemonset_name }}
+  name: {{ openshift_node_problem_detector_daemonset_name }}
+spec:
+  template:
+    metadata:
+      labels:
+        name: {{ openshift_node_problem_detector_daemonset_name }}
+    spec:
+      containers:
+      - command:
+        - node-problem-detector
+        - --logtostderr
+        - --system-log-monitors=/etc/npd/kernel-monitor.json,/etc/npd/docker-monitor.json
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        image: {{ openshift_node_problem_detector_image }}
+        imagePullPolicy: {{ openshift_node_problem_detector_image_pull_policy }}
+        name: {{ openshift_node_problem_detector_daemonset_name }}
+        resources: {}
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /host/log
+          name: log
+          readOnly: true
+        - mountPath: /etc/localtime
+          name: localtime
+          readOnly: true
+        - mountPath: /etc/npd
+          name: config
+      restartPolicy: Always
+      securityContext: {}
+      serviceAccount: {{ openshift_node_problem_detector_service_account }}
+      serviceAccountName: {{ openshift_node_problem_detector_service_account }}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /var/log/
+        name: log
+      - hostPath:
+          path: /etc/localtime
+        name: localtime
+      - configMap:
+          name: {{ openshift_node_problem_detector_configmap_name }}
+        name: config
+  updateStrategy:
+    type: RollingUpdate

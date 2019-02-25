@@ -1,0 +1,16 @@
+---
+# Ensure localhost master is responding.
+- name: verify API server
+  command: >
+    curl --silent --tlsv1.2 --max-time 2
+    --cacert {{ openshift.common.config_base }}/master/ca-bundle.crt
+    {{ openshift.master.api_url }}/healthz/ready
+  args:
+    # Disables the following warning:
+    # Consider using get_url or uri module rather than running curl
+    warn: no
+  register: l_api_available_output
+  until: l_api_available_output.stdout == 'ok'
+  retries: 120
+  delay: 1
+  changed_when: false

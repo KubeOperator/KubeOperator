@@ -1,0 +1,40 @@
+---
+# docker_creds is a custom module from lib_utils
+# 'docker login' requires a docker.service running on the local host, this is an
+# alternative implementation that operates directly on config.json
+- name: Create credentials for oreg_url
+  docker_creds:
+    path: "{{ docker_cli_auth_config_path }}"
+    registry: "{{ oreg_host }}"
+    username: "{{ oreg_auth_user }}"
+    password: "{{ oreg_auth_password }}"
+    # Test that we can actually connect with provided info
+    test_login: "{{ oreg_test_login | default(True) }}"
+    proxy_vars: "{{ l_docker_creds_proxy_vars }}"
+    test_image: "{{ l_docker_creds_test_image }}"
+  when:
+  - oreg_auth_user is defined
+  register: crt_oreg_auth_credentials_create
+  retries: 3
+  delay: 5
+  until: crt_oreg_auth_credentials_create is succeeded
+
+- name: Create for any additional registries
+  docker_creds:
+    path: "{{ docker_cli_auth_config_path }}"
+    registry: "{{ item.host }}"
+    username: "{{ item.user | default('openshift') }}"
+    password: "{{ item.password }}"
+    # Test that we can actually connect with provided info
+    test_login: "{{ item.test_login | default(omit) }}"
+    proxy_vars: "{{ l_docker_creds_proxy_vars }}"
+    test_image: "{{ item.test_image | default('openshift3/ose-pod') }}"
+    tls_verify: "{{ item.tls_verify | default(omit) }}"
+  when:
+  - openshift_additional_registry_credentials != []
+  register: crt_addl_credentials_create
+  retries: 3
+  delay: 5
+  until: crt_addl_credentials_create is succeeded
+  with_items:
+    "{{ openshift_additional_registry_credentials }}"

@@ -1,0 +1,20 @@
+---
+openshift_hosted_manage_registry_console: True
+l_os_cockpit_image_version_dict:
+  origin: 'latest'
+  openshift-enterprise: "{{ openshift_image_tag }}"
+l_os_cockpit_image_version: "{{ l_os_cockpit_image_version_dict[openshift_deployment_type] }}"
+
+l_os_cockpit_image_format: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, l_os_cockpit_image_version) }}"
+
+l_openshift_cockit_search_dict:
+  origin: "openshift/origin-${component}"
+  openshift-enterprise: "ose-${component}"
+l_openshift_cockit_search: "{{ l_openshift_cockit_search_dict[openshift_deployment_type] }}"
+
+l_openshift_cockpit_replace_dict:
+  origin: "cockpit/kubernetes"
+  openshift-enterprise: "registry-console"
+l_openshift_cockpit_replace: "{{ l_openshift_cockpit_replace_dict[openshift_deployment_type] }}"
+
+openshift_cockpit_deployer_image: "{{ l_os_cockpit_image_format | regex_replace(l_openshift_cockit_search | regex_escape, l_openshift_cockpit_replace) }}"

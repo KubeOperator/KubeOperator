@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Role
+metadata:
+  name: cluster-autoscaler
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  resourceNames:
+  - cluster-autoscaler
+  - cluster-autoscaler-status
+  verbs:
+  - create
+  - get
+  - patch
+  - update
+  attributeRestrictions: null
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  attributeRestrictions: null
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  attributeRestrictions: null

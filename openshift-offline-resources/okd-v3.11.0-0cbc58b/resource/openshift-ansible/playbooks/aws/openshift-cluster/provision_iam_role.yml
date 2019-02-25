@@ -1,0 +1,10 @@
+---
+- name: Create iam role
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: create iam role
+    include_role:
+      name: openshift_aws
+      tasks_from: iam_role.yml
+    when: openshift_aws_create_iam_role | default(true) | bool

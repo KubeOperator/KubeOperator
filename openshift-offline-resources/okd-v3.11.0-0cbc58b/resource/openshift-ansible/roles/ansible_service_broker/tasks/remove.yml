@@ -1,0 +1,131 @@
+---
+
+- name: Unbind admin cluster-role to asb serviceaccount
+  oc_adm_policy_user:
+    state: absent
+    namespace: openshift-ansible-service-broker
+    resource_kind: cluster-role
+    resource_name: admin
+    user: "system:serviceaccount:openshift-ansible-service-broker:asb"
+
+- name: Unbind auth cluster role to asb service account
+  oc_adm_policy_user:
+    state: absent
+    namespace: openshift-ansible-service-broker
+    resource_kind: cluster-role
+    resource_name: asb-auth
+    user: "system:serviceaccount:openshift-ansible-service-broker:asb"
+
+- name: Unbind asb-access role to asb-client service account
+  oc_adm_policy_user:
+    state: absent
+    namespace: openshift-ansible-service-broker
+    resource_kind: cluster-role
+    resource_name: asb-access
+    user: "system:serviceaccount:openshift-ansible-service-broker:asb-client"
+
+- name: remove ansible-service-broker serviceaccount
+  oc_serviceaccount:
+    name: asb
+    namespace: openshift-ansible-service-broker
+    state: absent
+
+- name: remove ansible-service-broker client serviceaccount
+  oc_serviceaccount:
+    name: asb-client
+    namespace: openshift-ansible-service-broker
+    state: absent
+
+- name: remove asb-auth cluster role
+  oc_clusterrole:
+    state: absent
+    name: asb-auth
+
+- name: remove asb-access cluster role
+  oc_clusterrole:
+    state: absent
+    name: asb-access
+
+- name: remove asb-user-access cluster role
+  oc_clusterrole:
+    state: absent
+    name: asb-user-access
+
+- name: remove asb-registry auth secret
+  oc_secret:
+    state: absent
+    name: asb-registry-auth
+    namespace: openshift-ansible-service-broker
+
+- name: remove asb-client token secret
+  oc_secret:
+    state: absent
+    name: asb-client
+    namespace: openshift-ansible-service-broker
+
+- name: remove ansible-service-broker service
+  oc_service:
+    name: asb
+    namespace: openshift-ansible-service-broker
+    state: absent
+
+- name: remove route for ansible-service-broker service
+  oc_route:
+    name: asb-1338
+    namespace: openshift-ansible-service-broker
+    state: absent
+
+- name: remove route for dashboard-redirector service
+  oc_route:
+    name: dr-1337
+    namespace: openshift-ansible-service-broker
+    state: absent
+  when: ansible_service_broker_enable_dashboard_redirector
+
+- name: remove Ansible Service Broker deployment config
+  oc_obj:
+    name: asb
+    namespace: openshift-ansible-service-broker
+    kind: DeploymentConfig
+    state: absent
+
+- name: remove secret for broker auth
+  oc_obj:
+    name: asb-client
+    namespace: openshift-ansible-service-broker
+    kind: Secret
+    state: absent
+
+- name: remove config map for ansible-service-broker
+  oc_configmap:
+    name: broker-config
+    namespace: openshift-ansible-service-broker
+    state: absent
+
+- name: remove custom resource definitions for asb
+  oc_obj:
+    name: '{{ asb_crd.metadata.name }}'
+    kind: CustomResourceDefinition
+    state: absent
+  vars:
+    asb_crd: "{{ lookup('file', item) | from_yaml }}"
+  with_fileglob:
+    - 'files/*.automationbroker.io.yaml'
+
+# TODO: Is this going to work?
+- shell: >
+    oc get apiservices.apiregistration.k8s.io/v1beta1.servicecatalog.k8s.io -n kube-service-catalog || echo "not found"
+  register: get_apiservices
+  changed_when: no
+
+- name: remove broker object from the catalog
+  oc_obj:
+    name: ansible-service-broker
+    state: absent
+    kind: ClusterServiceBroker
+  when: not('not found' in get_apiservices.stdout)
+
+- name: remove openshift-ansible-service-broker project
+  oc_project:
+    name: openshift-ansible-service-broker
+    state: absent

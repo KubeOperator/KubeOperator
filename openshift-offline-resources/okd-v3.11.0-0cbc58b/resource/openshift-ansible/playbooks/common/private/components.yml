@@ -1,0 +1,66 @@
+---
+# These are the core component plays that configure the layers above the control
+# plane. A component is generally considered any part of OpenShift that runs on
+# top of the cluster and may be considered optional. Over time, much of OpenShift
+# above the Kubernetes apiserver and masters may be considered components.
+#
+# Preconditions:
+#
+# 1. The control plane is configured and reachable from nodes inside the cluster
+# 2. An admin kubeconfig file in /etc/origin/master/admin.kubeconfig that can
+#    perform root level actions against the cluster
+# 3. On cloud providers, persistent volume provisioners are configured
+# 4. A subset of nodes is available to allow components to schedule - this must
+#    include the masters and usually includes infra nodes.
+# 5. The init/main.yml playbook has been invoked
+
+- import_playbook: ../../openshift-glusterfs/private/new_install.yml
+  when: groups.oo_glusterfs_to_config | default([]) | count > 0
+
+- import_playbook: ../../openshift-hosted/private/config.yml
+
+- import_playbook: ../../openshift-monitoring/private/config.yml
+  when: openshift_cluster_monitoring_operator_install | default(true) | bool
+
+- import_playbook: ../../openshift-metering/private/config.yml
+  when: openshift_metering_install | default(false) | bool
+
+- import_playbook: ../../openshift-web-console/private/config.yml
+  when: openshift_web_console_install | default(true) | bool
+
+- import_playbook: ../../openshift-console/private/config.yml
+  when: openshift_console_install | default(true) | bool
+
+- import_playbook: ../../openshift-metrics/private/config.yml
+  when: openshift_metrics_install_metrics | default(false) | bool
+
+- import_playbook: ../../metrics-server/private/config.yml
+  # a default is set on the actual variable in the role, so no fancy logic is needed here
+  when: openshift_metrics_server_install | default(true) | bool
+
+- import_playbook: ../../openshift-logging/private/config.yml
+  when: openshift_logging_install_logging | default(false) | bool
+
+- import_playbook: ../../openshift-monitor-availability/private/config.yml
+  when: openshift_monitor_availability_install | default(false) | bool
+
+- import_playbook: ../../openshift-service-catalog/private/config.yml
+  when: openshift_enable_service_catalog | default(true) | bool
+
+- import_playbook: ../../olm/private/config.yml
+  when: openshift_enable_olm | default(false) | bool
+
+- import_playbook: ../../openshift-management/private/config.yml
+  when: openshift_management_install_management | default(false) | bool
+
+- import_playbook: ../../openshift-descheduler/private/config.yml
+  when: openshift_descheduler_install | default(false) | bool
+
+- import_playbook: ../../openshift-node-problem-detector/private/config.yml
+  when: openshift_node_problem_detector_install | default(false) | bool
+
+- import_playbook: ../../openshift-autoheal/private/config.yml
+  when: openshift_autoheal_deploy | default(false) | bool
+
+- import_playbook: ../../openshift-cluster-autoscaler/private/config.yml
+  when: openshift_cluster_autoscaler_install | default(false) | bool

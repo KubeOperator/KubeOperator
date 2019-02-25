@@ -1,0 +1,88 @@
+---
+- name: create the namespace
+  oc_project:
+    state: present
+    name: "{{ openshift_daemonset_config_namespace }}"
+
+- name: add a sa
+  oc_serviceaccount:
+    name: "{{ openshift_daemonset_config_sa_name }}"
+    namespace: "{{ openshift_daemonset_config_namespace }}"
+
+- name: add sa to privileged scc
+  oc_adm_policy_user:
+    namespace: "{{ openshift_daemonset_config_namespace }}"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+    user: "system:serviceaccount:{{ openshift_daemonset_config_namespace }}:{{ openshift_daemonset_config_sa_name }}"
+
+- name: copy template to disk
+  template:
+    dest: "/tmp/{{ item.name }}"
+    src: "{{ item.name }}.j2"
+  with_items:
+  - name: daemonset.yml
+
+- name: create files from contents
+  copy:
+    content: "{{ item.contents }}"
+    dest: "{{ item.path }}"
+  with_items: "{{ openshift_daemonset_config_configmap_contents_to_files }}"
+  no_log: true
+
+- name: copy files to disk
+  copy:
+    src: "{{ item.key }}"
+    dest: "{{ item.value }}"
+  with_dict: "{{ openshift_daemonset_config_configmap_files }}"
+  no_log: true
+
+- name: lay down secrets
+  oc_secret:
+    state: present
+    name: "{{ openshift_daemonset_config_secret_name }}"
+    namespace: "{{ openshift_daemonset_config_namespace }}"
+    delete_after: true
+    contents: "{{ openshift_daemonset_config_secrets }}"
+  when:
+  - openshift_daemonset_config_secrets != {}
+  register: secout
+
+- name: create the configmap
+  oc_configmap:
+    state: present
+    name: "{{ openshift_daemonset_config_configmap_name }}"
+    namespace: "{{ openshift_daemonset_config_namespace }}"
+    from_literal: "{{ openshift_daemonset_config_configmap_literals }}"
+    from_file: "{{ openshift_daemonset_config_configmap_contents_to_files | odc_join_files_from_dict(openshift_daemonset_config_configmap_files) }}"
+  register: cmout
+
+- name: deploy daemonset
+  oc_obj:
+    state: present
+    namespace: "{{ openshift_daemonset_config_namespace }}"  # openshift-node??
+    name: "{{ openshift_daemonset_config_daemonset_name }}"
+    kind: daemonset
+    files:
+    - /tmp/daemonset.yml
+    force: "{{ True if cmout.changed or secout.changed else False | bool }}"
+
+- name: clean up files generated from contents
+  file:
+    state: absent
+    path: "{{ item.path }}"
+  with_items: "{{ openshift_daemonset_config_configmap_contents_to_files }}"
+  no_log: true
+
+- name: clean up copied files
+  file:
+    state: absent
+    path: "{{ item.value }}"
+  with_dict: "{{ openshift_daemonset_config_configmap_files }}"
+  no_log: true
+
+- name: clean up daemonset template
+  file:
+    state: absent
+    path: /tmp/daemonset.yml

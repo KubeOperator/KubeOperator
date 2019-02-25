@@ -1,0 +1,45 @@
+# This manifest installs StrongSwan on
+# each worker node on a EVDF OSE cluster.
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: nuage-strongswan-ds
+  namespace: kube-system
+  labels:
+    k8s-app: nuage-strongswan-ds
+spec:
+  selector:
+    matchLabels:
+      k8s-app: nuage-strongswan-ds
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: nuage-strongswan-ds
+    spec:
+      hostNetwork: true
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+          operator: Exists
+      containers:
+        # This container installs strongswan running as a
+        # container on each worker node
+        - name: install-strongswan
+          image: {{ nuage_sswan_image_name }}:{{ nuage_strongswan_container_image_version }}
+          securityContext:
+            privileged: true
+          ports:
+            - name: ipsec1
+              protocol: UDP
+              hostPort: 4500
+              containerPort: 4500
+            - name: ipsec2
+              protocol: UDP
+              hostPort: 500
+              containerPort: 500
+            - name: ipsec3
+              protocol: UDP
+              hostPort: 68
+              containerPort: 68

@@ -1,0 +1,9 @@
+---
+openshift_certificate_expiry_config_base: "/etc/origin"
+openshift_certificate_expiry_warning_days: 365
+openshift_certificate_expiry_show_all: no
+openshift_certificate_expiry_generate_html_report: no
+openshift_certificate_expiry_html_report_path: "{{ lookup('env', 'HOME') }}/cert-expiry-report.{{ ansible_date_time.iso8601_basic_short }}.html"
+openshift_certificate_expiry_save_json_results: no
+openshift_certificate_expiry_json_results_path: "{{ lookup('env', 'HOME') }}/cert-expiry-report.{{ ansible_date_time.iso8601_basic_short }}.json"
+openshift_certificate_expiry_fail_on_warn: True

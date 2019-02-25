@@ -1,0 +1,42 @@
+---
+openshift_cluster_autoscaler_name: cluster-autoscaler
+openshift_cluster_autoscaler_loglevel: 4
+
+openshift_cluster_autoscaler_template_location: /tmp
+openshift_cluster_autoscaler_template_name: "{{ openshift_cluster_autoscaler_name }}"
+
+openshift_cluster_autoscaler_node_selector:
+  node-role.kubernetes.io/infra: "true"
+
+openshift_cluster_autoscaler_state: present
+openshift_cluster_autoscaler_namespace: openshift-autoscaler
+openshift_cluster_autoscaler_delete_config: True
+openshift_cluster_autoscaler_skip_nodes_local_storage: False
+openshift_cluster_autoscaler_serviceaccount: cluster-autoscaler
+openshift_cluster_autoscaler_region: us-east-1
+
+openshift_cluster_autoscaler_image: "{{ l_os_registry_url | regex_replace('${component}' | regex_escape, 'cluster-autoscaler') }}"
+
+openshift_cluster_autoscaler_cloud_provider: aws
+
+# AWS specific variables here
+openshift_cluster_autoscaler_aws_key: "{{ openshift_cloudprovider_aws_access_key | default('') }}"
+openshift_cluster_autoscaler_aws_secret_key: "{{ openshift_cloudprovider_aws_secret_key | default('') }}"
+openshift_cluster_autoscaler_aws_creds_name: aws-creds
+openshift_cluster_autoscaler_aws_secret_name: autoscaler-credentials
+openshift_cluster_autoscaler_aws_creds_path: "/var/run/secrets/{{ openshift_cluster_autoscaler_aws_creds_name }}/creds"
+openshift_cluster_autoscaler_aws_env_vars:
+- name: AWS_REGION
+  value: "{{ openshift_cluster_autoscaler_region }}"
+- name: AWS_SHARED_CREDENTIALS_FILE
+  value: "{{ openshift_cluster_autoscaler_aws_creds_path }}"
+
+## End AWS vars ##
+
+openshift_cluster_autoscaler_env_vars: []
+
+
+openshift_cluster_autoscaler_node_groups:
+- min: 3
+  max: 10
+  name: "{{ openshift_cluster_autoscaler_node_group_name | default(openshift_clusterid ~ ' openshift compute') }}"

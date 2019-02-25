@@ -1,0 +1,119 @@
+---
+- name: Ensure that all non-node hosts are accessible
+  hosts: oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config:oo_nfs_to_config
+  any_errors_fatal: true
+  tasks:
+
+- name: Initialize basic host facts
+  # l_init_fact_hosts is passed in via play during control-plane-only
+  # upgrades and scale-up plays; otherwise oo_all_hosts is used.
+  hosts: "{{ l_init_fact_hosts | default('oo_all_hosts') }}"
+  roles:
+  - role: openshift_facts
+  tasks:
+  # TODO: Should this role be refactored into health_checks??
+  - name: Run openshift_sanitize_inventory to set variables
+    import_role:
+      name: openshift_sanitize_inventory
+
+  - name: Detecting Operating System from ostree_booted
+    stat:
+      path: /run/ostree-booted
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: ostree_booted
+
+  # TODO(michaelgugino) remove this line once CI is updated.
+  - name: set openshift_deployment_type if unset
+    set_fact:
+      openshift_deployment_type: "{{ deployment_type }}"
+    when:
+    - openshift_deployment_type is undefined
+    - deployment_type is defined
+
+  - name: initialize_facts set fact openshift_is_atomic
+    set_fact:
+      openshift_is_atomic: "{{ ostree_booted.stat.exists }}"
+
+  # TODO: Should this be moved into health checks??
+  # Seems as though any check that happens with a corresponding fail should move into health_checks
+  # Fail as early as possible if Atomic and old version of Docker
+  - when:
+    - openshift_is_atomic | bool
+    block:
+
+    # See https://access.redhat.com/articles/2317361
+    # and https://github.com/ansible/ansible/issues/15892
+    # NOTE: the "'s can not be removed at this level else the docker command will fail
+    # NOTE: When ansible >2.2.1.x is used this can be updated per
+    # https://github.com/openshift/openshift-ansible/pull/3475#discussion_r103525121
+    - name: Determine Atomic Host Docker Version
+      shell: 'CURLY="{"; docker version --format "$CURLY{json .Server.Version}}"'
+      register: l_atomic_docker_version
+
+    - name: assert atomic host docker version is 1.12 or later
+      assert:
+        that:
+        - l_atomic_docker_version.stdout | replace('"', '') is version('1.12','>=')
+        msg: Installation on Atomic Host requires Docker 1.12 or later. Please upgrade and restart the Atomic Host.
+
+- name: Retrieve existing master configs and validate
+  hosts: oo_masters_to_config
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+  - openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: check_existing_config.yml
+
+  - when:
+    - l_existing_config_master_config is defined
+    - l_existing_config_master_config.networkConfig is defined
+    block:
+    - set_fact:
+        openshift_portal_net: "{{ l_existing_config_master_config.networkConfig.serviceNetworkCIDR }}"
+
+    - set_fact:
+        osm_cluster_network_cidr: "{{ l_existing_config_master_config.networkConfig.clusterNetworks[0].cidr }}"
+        osm_host_subnet_length: "{{ l_existing_config_master_config.networkConfig.clusterNetworks[0].hostSubnetLength }}"
+      when:
+      - l_existing_config_master_config.networkConfig.clusterNetworks is defined
+      # End block
+
+- name: Initialize special first-master variables
+  hosts: oo_first_master
+  roles:
+  - role: openshift_facts
+  tasks:
+  - when: not (osm_default_node_selector is defined)
+    block:
+    - set_fact:
+        # l_existing_config_master_config is set in openshift_control_plane/tasks/check_existing_config.yml
+        openshift_master_config_node_selector: "{{ l_existing_config_master_config.projectConfig.defaultNodeSelector }}"
+      when:
+      - l_existing_config_master_config is defined
+      - l_existing_config_master_config.projectConfig is defined
+      - l_existing_config_master_config.projectConfig.defaultNodeSelector is defined
+      - l_existing_config_master_config.projectConfig.defaultNodeSelector != ''
+
+  - set_fact:
+      # We need to setup openshift_client_binary here for special uses of delegate_to in
+      # later roles and plays.
+      first_master_client_binary: "{{  openshift_client_binary }}"
+      #Some roles may require this to be set for first master
+      openshift_client_binary: "{{ openshift_client_binary }}"
+      # we need to know if a default node selector has been manually set outside the installer
+      l_osm_default_node_selector: '{{ osm_default_node_selector | default(openshift_master_config_node_selector) | default("node-role.kubernetes.io/compute=true") }}'
+
+- name: Disable web console if required
+  hosts: oo_masters_to_config
+  gather_facts: no
+  tasks:
+  - set_fact:
+      openshift_web_console_install: False
+    when:
+    - openshift_deployment_subtype is defined
+    - openshift_deployment_subtype == 'registry' or ( osm_disabled_features is defined and 'WebConsole' in osm_disabled_features )

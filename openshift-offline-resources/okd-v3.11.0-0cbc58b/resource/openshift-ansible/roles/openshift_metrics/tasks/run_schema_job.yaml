@@ -1,0 +1,20 @@
+---
+- include_tasks: create_temp_dirs.yaml
+  vars:
+    metrics_create_template_dir: True
+
+- include_tasks: install_hawkular_schema_job.yaml
+
+- register: job_defs
+  slurp:
+    src: "{{ mktemp.stdout }}/templates/hawkular_metrics_schema_job.yaml"
+
+- include_tasks: oc_apply.yaml
+  name: "Create schema installer job"
+  vars:
+    file_content: "{{ job_defs.content | b64decode | from_yaml }}"
+    file_name: "{{ job_defs.source }}"
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    namespace: "{{ openshift_metrics_project }}"
+
+- include_tasks: cleanup.yaml

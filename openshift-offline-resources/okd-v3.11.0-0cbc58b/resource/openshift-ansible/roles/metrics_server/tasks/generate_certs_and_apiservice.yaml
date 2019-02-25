@@ -1,0 +1,91 @@
+---
+# if we already have serving certs and a CA, re-use that
+- name: fetch existing metrics-server secret
+  command: >
+    {{ openshift_client_binary }} -n {{ openshift_metrics_server_project }}
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    get secret metrics-server-certs -o json
+  register: existing_metrics_server_secret
+  changed_when: false
+  ignore_errors: true
+
+- name: use existing serving certs
+  when: existing_metrics_server_secret.rc == 0
+  block:
+  - set_fact:
+      existing_metrics_server_secret_json: "{{ existing_metrics_server_secret.stdout | from_json }}"
+  - set_fact:
+      metrics_server_certs:
+        metrics-server.crt: "{{ existing_metrics_server_secret_json.data['tls.crt'] }}"
+        metrics-server.key: "{{ existing_metrics_server_secret_json.data['tls.key'] }}"
+        ca.crt: "{{ existing_metrics_server_secret_json.data['ca.crt'] }}"
+
+- name: generate new serving cert secrets if needed
+  when: existing_metrics_server_secret.rc != 0
+  block:
+  - name: generate ca certificate chain
+    command: >
+      {{ openshift_client_binary }} adm ca create-signer-cert
+      --config={{ mktemp.stdout }}/admin.kubeconfig
+      --key='{{ mktemp.stdout }}/ca.key'
+      --cert='{{ mktemp.stdout }}/ca.crt'
+      --serial='{{ mktemp.stdout }}/ca.serial.txt'
+      --name="metrics-signer@{{lookup('pipe','date +%s')}}"
+
+  - name: generate metrics-server keys
+    command: >
+      {{ openshift_client_binary }} adm ca create-server-cert
+      --config={{ mktemp.stdout }}/admin.kubeconfig
+      --key='{{ mktemp.stdout }}/metrics-server.key'
+      --cert='{{ mktemp.stdout }}/metrics-server.crt'
+      --hostnames='metrics-server,metrics-server.{{ openshift_metrics_server_project }}.svc,metrics-server.{{ openshift_metrics_server_project }}.svc.cluster.local'
+      --signer-cert='{{ mktemp.stdout }}/ca.crt'
+      --signer-key='{{ mktemp.stdout }}/ca.key'
+      --signer-serial='{{ mktemp.stdout }}/ca.serial.txt'
+
+  - name: read files for the metrics-server-certs secret
+    shell: >
+      printf '%s: ' '{{ item }}'
+      && base64 --wrap 0 '{{ mktemp.stdout }}/{{ item }}'
+    register: metrics_server_secrets
+    with_items:
+    - metrics-server.crt
+    - metrics-server.key
+    changed_when: false
+
+  - set_fact:
+      metrics_server_secrets: |
+        {{ metrics_server_secrets.results|map(attribute='stdout')|join('
+        ')|from_yaml }}
+
+  - slurp:
+      src: "{{ mktemp.stdout }}/ca.crt"
+    register: apiserver_ca
+
+  - set_fact:
+      metrics_server_certs:
+        metrics-server.crt: "{{ metrics_server_secrets['metrics-server.crt'] }}"
+        metrics-server.key: "{{ metrics_server_secrets['metrics-server.key'] }}"
+        ca.crt: "{{ apiserver_ca.content }}"
+
+- name: generate metrics-server secret template
+  template:
+    src: serving-certs-secret.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-certs.yaml"
+  vars:
+    cert: >
+      {{ metrics_server_certs['metrics-server.crt'] }}
+    key: >
+      {{ metrics_server_certs['metrics-server.key'] }}
+    # store the CA cert so we can easily later use it to recreate the APIService
+    ca: >
+      {{ metrics_server_certs['ca.crt'] }}
+  changed_when: no
+
+- name: Generate metrics-server apiservice
+  template:
+    src: metrics-server-apiservice.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-apiservice.yaml"
+  vars:
+    caBundle: "{{  metrics_server_certs['ca.crt'] }}"
+  changed_when: no

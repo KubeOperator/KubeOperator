@@ -1,0 +1,118 @@
+---
+- name: Calico Upgrade | Validate
+  hosts: nodes
+  tasks:
+  - name: Check legacy upgrade exists
+    stat:
+      path: /lib/systemd/system/calico.service
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: sym
+  - fail:
+      msg: No service to upgrade
+    when: not sym.stat.exists
+  - include_tasks: upgrade_versions.yml
+
+- import_playbook: ../../init/evaluate_groups.yml
+- import_playbook: ../../init/basic_facts.yml
+- import_playbook: ../../init/cluster_facts.yml
+
+- name: Calico Upgrade | Gather Facts
+  hosts: oo_first_master
+  gather_facts: no
+  pre_tasks:
+  - set_fact:
+      openshift_master_etcd_hosts: "{{ hostvars
+                                     | lib_utils_oo_select_keys(groups['oo_etcd_to_config'] | default([]))
+                                     | lib_utils_oo_collect('openshift.common.hostname')
+                                     | default(none, true) }}"
+      openshift_master_etcd_port: "{{ (etcd_client_port | default('2379')) if (groups.oo_etcd_to_config is defined and groups.oo_etcd_to_config) else none }}"
+  roles:
+  - role: openshift_facts
+  - role: openshift_master_facts
+  - role: lib_openshift
+  tasks:
+  - include_tasks: ../roles/calico_master/tasks/certs.yml
+
+- name: Calico Upgrade | Prepare Nodes
+  hosts: nodes
+  gather_facts: no
+  tasks:
+  - name: Prepull Images
+    command: "{{ openshift_container_cli }} pull {{ calico_node_image }}"
+
+- name: Calico Upgrade | Initiate
+  hosts: oo_first_master
+  roles:
+  - role: openshift_facts
+  tasks:
+  - name: Calico Master | Create temp directory
+    command: mktemp -d /tmp/openshift-ansible-XXXXXXX
+    register: mktemp
+    changed_when: False
+
+  - name: Calico Master | Write Calico install yaml
+    template:
+      dest: "{{ mktemp.stdout }}/calico.yml"
+      src: ../roles/calico_master/templates/calico.yml.j2
+
+  - name: Calico Master | oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:calico-node
+    oc_adm_policy_user:
+      user: system:serviceaccount:kube-system:calico-node
+      resource_kind: scc
+      resource_name: privileged
+      state: present
+
+  - name: Calico Master | oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:calico-kube-controllers
+    oc_adm_policy_user:
+      user: system:serviceaccount:kube-system:calico-kube-controllers
+      resource_kind: scc
+      resource_name: privileged
+      state: present
+
+  - name: Apply Calico manifest
+    command: >
+      {{ openshift_client_binary }} apply
+      -f {{ mktemp.stdout }}/calico.yml
+      --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    register: calico_create_output
+    failed_when: "('already exists' not in calico_create_output.stderr) and ('created' not in calico_create_output.stdout) and calico_create_output.rc != 0"
+    changed_when: ('created' in calico_create_output.stdout)
+
+  - name: Delete old policy controller
+    oc_obj:
+      name: calico-policy-controller
+      kind: deployment
+      state: absent
+      namespace: kube-system
+
+- name: Calico Upgrade | Upgrade nodes
+  hosts: nodes
+  serial: 1
+  any_errors_fatal: true
+  tasks:
+  - name: Stop legacy service
+    become: yes
+    systemd:
+      name: calico
+      state: stopped
+  - name: Apply node label
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    command: >
+      {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig label node {{ l_kubelet_node_name | lower }} --overwrite projectcalico.org/ds-ready=true
+  - name: Wait for node running
+    uri:
+      url: http://localhost:9099/readiness
+      status_code: 204
+    delay: 3
+    retries: 10
+    register: result
+    until: result.status == 204
+  - name: Disable legacy service
+    become: yes
+    systemd:
+      name: calico
+      enabled: no
+  - name: Rename legacy service
+    command: mv /lib/systemd/system/calico.service /lib/systemd/system/calico-legacy.service.bak

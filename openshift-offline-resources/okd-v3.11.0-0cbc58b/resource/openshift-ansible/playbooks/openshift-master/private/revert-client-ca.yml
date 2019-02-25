@@ -1,0 +1,17 @@
+---
+- name: Set servingInfo.clientCA = ca.crt in master config
+  hosts: oo_masters_to_config
+  tasks:
+  - name: Read master config
+    slurp:
+      src: "{{ openshift.common.config_base }}/master/master-config.yaml"
+    register: g_master_config_output
+
+  # servingInfo.clientCA may be set as the client-ca-bundle.crt from
+  # CA redeployment and this task reverts that change.
+  - name: Set servingInfo.clientCA = ca.crt in master config
+    modify_yaml:
+      dest: "{{ openshift.common.config_base }}/master/master-config.yaml"
+      yaml_key: servingInfo.clientCA
+      yaml_value: ca.crt
+    when: (g_master_config_output.content|b64decode|from_yaml).servingInfo.clientCA != 'ca.crt'

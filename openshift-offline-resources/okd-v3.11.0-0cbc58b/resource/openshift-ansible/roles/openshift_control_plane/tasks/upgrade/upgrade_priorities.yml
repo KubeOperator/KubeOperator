@@ -1,0 +1,45 @@
+---
+# Handle case where openshift_master_priorities is defined
+- when: openshift_master_scheduler_priorities | default(none) is not none
+  block:
+  - name: openshift_master_scheduler_priorities is defined
+    debug:
+      msg: "openshift_master_scheduler_priorities is defined"
+
+  - name: openshift_master_scheduler_priorities is set to defaults from an earlier release of OpenShift
+    debug:
+      msg: "WARNING: openshift_master_scheduler_priorities is set to defaults from an earlier release of OpenShift current defaults are: {{ openshift_master_scheduler_default_priorities }}"
+    when: openshift_master_scheduler_priorities in osm_older_priorities + osm_older_priorities_no_zone + [osm_prev_priorities] + [osm_prev_priorities_no_zone]
+
+  - name: openshift_master_scheduler_priorities does not match current defaults
+    debug:
+      msg: "WARNING: openshift_master_scheduler_priorities does not match current defaults of: {{ openshift_master_scheduler_default_priorities }}"
+    when: openshift_master_scheduler_priorities != openshift_master_scheduler_default_priorities
+
+# Handle cases where openshift_master_priorities is not defined
+- when: openshift_master_scheduler_priorities | default(none) is none
+  block:
+  - name: openshift_master_scheduler_priorities is not defined
+    debug:
+      msg: "openshift_master_scheduler_priorities is not defined"
+
+  - name: existing scheduler config does not match previous known defaults
+    debug:
+      msg: "WARNING: existing scheduler config does not match previous known defaults automated upgrade of scheduler config is disabled.\nexisting scheduler priorities: {{ openshift_master_scheduler_current_priorities }}\ncurrent scheduler default priorities are: {{ openshift_master_scheduler_default_priorities }}"
+    when:
+    - openshift_master_scheduler_current_priorities != openshift_master_scheduler_default_priorities
+    - openshift_master_scheduler_current_priorities not in osm_older_priorities + [osm_prev_priorities]
+
+  - name: set_fact openshift_upgrade_scheduler_priorities 1
+    set_fact:
+      openshift_upgrade_scheduler_priorities: "{{ openshift_master_scheduler_default_priorities }}"
+    when:
+    - openshift_master_scheduler_current_priorities != openshift_master_scheduler_default_priorities
+    - openshift_master_scheduler_current_priorities in osm_older_priorities + [osm_prev_priorities]
+
+  - name: set_fact openshift_upgrade_scheduler_priorities 2
+    set_fact:
+      openshift_upgrade_scheduler_priorities: "{{ osm_default_priorities_no_zone }}"
+    when:
+    - openshift_master_scheduler_current_priorities != osm_default_priorities_no_zone
+    - openshift_master_scheduler_current_priorities in osm_older_priorities_no_zone + [osm_prev_priorities_no_zone]

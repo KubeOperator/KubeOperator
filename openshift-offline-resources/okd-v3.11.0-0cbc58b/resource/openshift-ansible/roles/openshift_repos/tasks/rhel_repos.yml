@@ -1,0 +1,32 @@
+---
+- name: Discover enabled RHEL rhui repositories
+  command: bash -c "yum -q --noplugins repolist | grep -v 'repo id' | grep 'rhui'"
+  register: repo_rhui
+  changed_when: "repo_rhui.rc != 1"
+  failed_when: repo_rhui.rc == 11
+
+- name: Disable RHEL rhui repositories
+  command: yum-config-manager \
+    --disable 'rhui-REGION-client-config-server-7' \
+    --disable 'rhui-REGION-rhel-server-rh-common' \
+    --disable 'rhui-REGION-rhel-server-releases'
+  when: repo_rhui.changed
+
+- name: Ensure RHEL repositories are enabled
+  command: bash -c "yum -q --noplugins repolist | grep -v 'repo id' | grep 'Red Hat' | wc -l"
+  register: repo_rhel
+  changed_when: "'4' not in repo_rhel.stdout"
+  failed_when: repo_rhel.rc == 11
+
+- name: Disable all repositories
+  command: bash -c "subscription-manager repos --disable='*'"
+  when: repo_rhel.changed
+
+- name: Enable RHEL repositories
+  command: subscription-manager repos \
+               --enable="rhel-7-server-rpms" \
+               --enable="rhel-7-server-extras-rpms" \
+               --enable="rhel-7-server-ose-{{ ( openshift_version ).split('.')[0:2] | join('.') }}-rpms"
+  register: subscribe_repos
+  until: subscribe_repos is succeeded
+  when: repo_rhel.changed

@@ -1,0 +1,85 @@
+---
+- fail:
+    msg: "SELinux is disabled, This deployment type requires that SELinux is enabled."
+  when:
+    - (not ansible_selinux or ansible_selinux.status != 'enabled')
+    - openshift_deployment_type == 'openshift-enterprise'
+    - not openshift_use_crio | bool
+
+- import_tasks: dnsmasq_install.yml
+- import_tasks: dnsmasq.yml
+
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Restart cri-o
+  systemd:
+    name: cri-o
+    enabled: yes
+    state: restarted
+  when: openshift_use_crio | bool
+  register: task_result
+  failed_when:
+    - task_result is failed
+    - ('could not find the requested service' not in task_result.msg|lower)
+
+- name: restart NetworkManager to ensure resolv.conf is present
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: restarted
+
+- name: Start node image prepull
+  import_tasks: prepull.yml
+
+- name: include node installer
+  import_tasks: install.yml
+
+- name: Update journald config
+  import_tasks: journald.yml
+
+#### Disable SWAP #####
+# https://docs.openshift.com/container-platform/3.4/admin_guide/overcommit.html#disabling-swap-memory
+# swapoff is a custom module in lib_utils that comments out swap entries in
+# /etc/fstab and runs swapoff -a, if necessary.
+- name: Disable swap
+  swapoff: {}
+
+# The atomic-openshift-node service will set this parameter on
+# startup, but if the network service is restarted this setting is
+# lost. Reference: https://bugzilla.redhat.com/show_bug.cgi?id=1372388
+- sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_file: "/etc/sysctl.d/99-openshift.conf"
+    reload: yes
+
+- import_tasks: selinux_container_cgroup.yml
+
+- import_tasks: registry_auth.yml
+
+- import_tasks: prepull_check.yml
+
+- import_tasks: copy_image_to_ostree.yml
+  when: openshift_is_atomic | bool
+
+- name: include standard node config
+  import_tasks: config.yml
+
+#### Storage class plugins here ####
+- name: NFS storage plugin configuration
+  import_tasks: storage_plugins/nfs.yml
+
+- name: GlusterFS storage plugin configuration
+  import_tasks: glusterfs.yml
+  when: "'glusterfs' in osn_storage_plugin_deps"
+
+- name: Ceph storage plugin configuration
+  import_tasks: storage_plugins/ceph.yml
+  when: "'ceph' in osn_storage_plugin_deps"
+
+- name: iSCSI storage plugin configuration
+  import_tasks: storage_plugins/iscsi.yml
+  when: "'iscsi' in osn_storage_plugin_deps"
+
+##### END Storage #####

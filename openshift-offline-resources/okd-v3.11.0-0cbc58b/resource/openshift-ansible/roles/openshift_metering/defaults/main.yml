@@ -1,0 +1,130 @@
+---
+openshift_metering_install: true
+openshift_metering_operator_image: ''
+
+openshift_metering_config: null
+
+# Configures AWS Access credentials on all pods which use it for communicating
+# with S3.
+openshift_metering_aws_access_key_id: ""
+openshift_metering_aws_secret_access_key: ""
+
+# RDS Database for custom Hive Metastore DB options
+openshift_metering_hive_metastore_db_use_rds: false
+# If openshift_metering_hive_metastore_db_rds_create is true, creates an RDS
+# database for Hive Metastore metadata.
+openshift_metering_hive_metastore_db_rds_create: "{{ openshift_metering_hive_metastore_db_use_rds }}"
+# If openshift_metering_hive_metastore_db_rds_delete is true, delete the RDS
+# database specified by openshift_metering_hive_metastore_db_rds_instance_name.
+openshift_metering_hive_metastore_db_rds_delete: false
+openshift_metering_hive_metastore_db_rds_instance_name: 'metering-hive-metastore'
+openshift_metering_hive_metastore_db_rds_instance_db_name: 'metering_hive_metastore'
+openshift_metering_hive_metastore_db_rds_instance_db_engine: 'MySQL'
+openshift_metering_hive_metastore_db_rds_instance_size: 10
+openshift_metering_hive_metastore_db_rds_instance_type: 'db.m1.small'
+openshift_metering_hive_metastore_db_rds_instance_username: 'hive'
+openshift_metering_hive_metastore_db_rds_instance_password: null
+openshift_metering_hive_metastore_db_rds_instance_publicly_accessible: false
+openshift_metering_hive_metastore_db_rds_instance_wait: true
+openshift_metering_hive_metastore_db_rds_instance_wait_timeout: 600
+openshift_metering_hive_metastore_db_rds_subnet_group: null
+openshift_metering_hive_metastore_db_rds_vpc_security_groups: null
+openshift_metering_hive_metastore_db_rds_apply_immediately: true
+
+
+# If openshift_metering_hive_metastore_db_use_rds is true, then this variable
+# will set the default of the other hvie_metastore_db values to use the RDS
+# database specified. Otherwise Hive Metastore will use a embedded derby
+# database in a volume.
+openshift_metering_hive_metastore_db_deployment_type: "{{ openshift_metering_hive_metastore_db_use_rds | ternary('rds', 'derby_local') }}"
+
+# Custom Hive Metastore DB options
+openshift_metering_hive_metastore_db_use_custom: "{{ l_openshift_metering_hive_metastore_db_dict[openshift_metering_hive_metastore_db_deployment_type].use_custom }}"
+openshift_metering_hive_metastore_db_engine: "{{ l_openshift_metering_hive_metastore_db_dict[openshift_metering_hive_metastore_db_deployment_type].engine }}"
+openshift_metering_hive_metastore_db_driver: "{{ l_openshift_metering_hive_metastore_db_dict[openshift_metering_hive_metastore_db_deployment_type].driver }}"
+openshift_metering_hive_metastore_db_url: "{{ l_openshift_metering_hive_metastore_db_url_dict[openshift_metering_hive_metastore_db_deployment_type].url }}"
+openshift_metering_hive_metastore_db_username: "{{ l_openshift_metering_hive_metastore_db_dict[openshift_metering_hive_metastore_db_deployment_type].username }}"
+openshift_metering_hive_metastore_db_password: "{{ l_openshift_metering_hive_metastore_db_dict[openshift_metering_hive_metastore_db_deployment_type].password }}"
+
+# S3 default storage options. If openshift_metering_default_storage_use_s3 is
+# true, then the openshift_metering_default_storage_* variables will be set to
+# use the S3 specified S3 bucket.
+openshift_metering_default_storage_use_s3: false
+
+# If openshift_metering_s3_bucket_create is true, creates an S3 bucket to store
+# metering data in.
+openshift_metering_s3_bucket_create: "{{ openshift_metering_default_storage_use_s3 }}"
+# If openshift_metering_s3_bucket_delete is true, delete the bucket specified
+# by openshift_metering_s3_storage_bucket_name.
+openshift_metering_s3_bucket_delete: false
+openshift_metering_s3_storage_bucket_name: openshift-metering-storage
+openshift_metering_s3_storage_bucket_path: metering-data
+
+# If openshift_metering_default_storage_use_s3 is set, the default storage
+# variables will be set to use the S3 bucket defined by the
+# openshift_metering_s3_* variables. Otherwise use HDFS with no customizations
+# to the default_storage variables.
+openshift_metering_default_storage_deployment_type: "{{ openshift_metering_default_storage_use_s3 | ternary('s3', 'hdfs') }}"
+
+# If openshift_metering_hdfs_enabled is true, HDFS will be installed. Otherwise
+# HDFS will be disabled and no HDFS pods will be created.
+# When set to false, then openshift_metering_default_storage_* options or
+# openshift_mtering_s3_storage_* options should be specified.
+openshift_metering_hdfs_enabled: "{{ l_openshift_metering_default_storage_dict[openshift_metering_default_storage_deployment_type].hdfs_enabled }}"
+
+# Custom Default Storage location options
+openshift_metering_default_storage_use_custom: "{{ l_openshift_metering_default_storage_dict[openshift_metering_default_storage_deployment_type].use_custom }}"
+openshift_metering_default_storage_name: "{{ l_openshift_metering_default_storage_dict[openshift_metering_default_storage_deployment_type].name }}"
+openshift_metering_default_storage_type: "{{ l_openshift_metering_default_storage_dict[openshift_metering_default_storage_deployment_type].type }}"
+openshift_metering_default_storage_config: "{{ l_openshift_metering_default_storage_dict[openshift_metering_default_storage_deployment_type].config }}"
+
+# Below are just dicts for mapping how variable values should be set by default
+# according to other variables values. Users should not modify any of these
+# values
+
+# a map of db engine to JDBC driver
+l_db_engine_to_driver:
+  mysql: 'com.mysql.jdbc.Driver'
+  postgres: 'org.postgresql.Driver'
+
+# Mapping of metastore_db values depending on if the deployment uses derby or
+# RDS
+l_openshift_metering_hive_metastore_db_dict:
+  derby_local:
+    use_custom: false
+    driver: null
+    username: null
+    password: null
+  rds:
+    use_custom: true
+    engine: "{{ openshift_metering_hive_metastore_db_rds_instance_db_engine | lower }}"
+    driver: "{{ l_db_engine_to_driver[(openshift_metering_hive_metastore_db_rds_instance_db_engine | lower)] }}"
+    username: "{{ openshift_metering_hive_metastore_db_rds_instance_username }}"
+    password: "{{ openshift_metering_hive_metastore_db_rds_instance_password }}"
+
+# We use a separate dict here to avoid undefined variable access since this
+# depends on openshift_metering_hive_metastore_db_facts which is a registered
+# var from the rds install task
+l_openshift_metering_hive_metastore_db_url_dict:
+  derby_local:
+    url: null
+  rds:
+    url: "jdbc:{{ openshift_metering_hive_metastore_db_facts.instance.engine }}://{{ openshift_metering_hive_metastore_db_facts.instance.endpoint }}:{{ openshift_metering_hive_metastore_db_facts.instance.port }}/{{ openshift_metering_hive_metastore_db_facts.instance.db_name }}"
+
+# Mapping of default_storage values depending on if using HDFS or S3.
+l_openshift_metering_default_storage_dict:
+  hdfs:
+    hdfs_enabled: true
+    use_custom: false
+    name: ""
+    type: ""
+    config: null
+  s3:
+    hdfs_enabled: false
+    use_custom: true
+    name: "{{ openshift_metering_s3_storage_bucket_name }}"
+    type: "hive"
+    config:
+      hive:
+        tableProperties:
+          location: "s3a://{{ openshift_metering_s3_storage_bucket_name }}/{{ openshift_metering_s3_storage_bucket_path | default('') }}"

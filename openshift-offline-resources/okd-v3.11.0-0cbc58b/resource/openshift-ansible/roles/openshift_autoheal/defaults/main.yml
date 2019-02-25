@@ -1,0 +1,25 @@
+---
+
+#
+# Image name:
+
+openshift_autoheal_image: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'autoheal') }}"
+
+#
+# Content of the configuration file of the auto-heal service. Note that this is
+# a minimal example configuration. For more details and examples see the
+# documentation of the auto-heal service:
+#
+#   https://github.com/openshift/autoheal
+#
+# In particular see the example configuration file:
+#
+#   https://github.com/openshift/autoheal/blob/master/autoheal.yml
+#
+openshift_autoheal_config: |+
+  awx:
+    address: "https://myawx.example.com/api"
+    credentials:
+      username: "autoheal"
+      password: "..."
+    project: "Auto-heal"

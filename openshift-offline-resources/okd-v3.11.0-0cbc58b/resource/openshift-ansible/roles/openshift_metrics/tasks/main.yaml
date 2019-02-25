@@ -1,0 +1,17 @@
+---
+- include_tasks: create_temp_dirs.yaml
+  vars:
+    metrics_create_template_dir: "{{ openshift_metrics_install_metrics }}"
+
+- include_tasks: install_metrics.yaml
+  when:
+    - openshift_metrics_install_metrics | bool
+
+- include_tasks: uninstall_metrics.yaml
+  when:
+    - not openshift_metrics_install_metrics | bool
+
+- include_tasks: uninstall_hosa.yaml
+  when: not openshift_metrics_install_hawkular_agent | bool
+
+- include_tasks: cleanup.yaml

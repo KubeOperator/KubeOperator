@@ -1,0 +1,20 @@
+---
+# l_glusterfs_hosts is passed in via add_hosts.yml during scaleup plays.
+- name: Configure GlusterFS hosts
+  hosts: "{{ l_glusterfs_hosts | default('oo_glusterfs_to_config') }}"
+  tasks:
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: firewall.yml
+    when: >
+          openshift_storage_glusterfs_is_native | default(True) | bool
+          or openshift_storage_glusterfs_registry_is_native | default(True) | bool
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: kernel_modules.yml
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: host_services.yml
+    when: >
+          openshift_storage_glusterfs_is_native | default(True) | bool
+          or openshift_storage_glusterfs_registry_is_native | default(True) | bool

@@ -1,0 +1,11 @@
+---
+- import_playbook: registry_auth.yml
+  vars:
+    l_reg_auth_restart_hosts: "all:!all"
+
+- name: Update node imageConfig.format
+  hosts: oo_first_master
+  tasks:
+  - import_role:
+      name: openshift_node_group
+      tasks_from: migrate_imageconfig.yml

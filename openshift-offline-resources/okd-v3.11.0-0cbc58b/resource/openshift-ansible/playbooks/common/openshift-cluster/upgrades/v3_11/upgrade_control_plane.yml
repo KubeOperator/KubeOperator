@@ -1,0 +1,12 @@
+---
+# This file has been refactored for release 3.11 to ensure that new registry
+# credentials are placed on all nodes and node imageConfig.format strings
+# are updated to ensure new images can be pull.
+# This file can be skipped if:
+#   1) the above steps are not necessary due to having already run upgrade_control_plane_part1
+#   2) or you were already using a private oreg_url.
+#   3) you are running origin.
+
+- import_playbook: upgrade_control_plane_part1.yml
+
+- import_playbook: upgrade_control_plane_part2.yml

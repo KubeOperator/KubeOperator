@@ -1,0 +1,15 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: reportgenerationqueries.metering.openshift.io
+  annotations:
+    catalog.app.coreos.com/displayName: "Chargeback generation query"
+    catalog.app.coreos.com/description: "A SQL query used by Chargeback to generate reports"
+spec:
+  group: metering.openshift.io
+  version: v1alpha1
+  scope: Namespaced
+  names:
+    plural: reportgenerationqueries
+    singular: reportgenerationquery
+    kind: ReportGenerationQuery

@@ -1,0 +1,7 @@
+---
+- name: OpenShift Metrics Schema Installer
+  hosts: oo_first_master
+  tasks:
+    - import_role:
+        name: openshift_metrics
+        tasks_from: run_schema_job

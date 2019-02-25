@@ -1,0 +1,64 @@
+---
+# Prior to 3.6, openshift-ansible created etcd serving certificates
+# without a SubjectAlternativeName entry for the system hostname. The
+# SAN list in Go 1.8 is now (correctly) authoritative and since
+# openshift-ansible configures masters to talk to etcd hostnames
+# rather than IP addresses, we must correct etcd certificates.
+#
+# This play examines the etcd serving certificate SANs on each etcd
+# host and records whether or not the system hostname is missing.
+- name: Examine etcd serving certificate SAN
+  hosts: oo_etcd_to_config
+  tasks:
+  - slurp:
+      src: /etc/etcd/server.crt
+    register: etcd_serving_cert
+  - set_fact:
+      __etcd_cert_lacks_hostname: "{{ (openshift.common.hostname not in (etcd_serving_cert.content | b64decode | lib_utils_oo_parse_certificate_san)) | bool }}"
+
+# Redeploy etcd certificates when hostnames were missing from etcd
+# serving certificate SANs.
+- import_playbook: redeploy-certificates.yml
+  when:
+  - true in hostvars | lib_utils_oo_select_keys(groups['oo_etcd_to_config']) | lib_utils_oo_collect('__etcd_cert_lacks_hostname') | default([false])
+
+- import_playbook: restart.yml
+  vars:
+    g_etcd_certificates_expired: "{{ ('expired' in (hostvars | lib_utils_oo_select_keys(groups['etcd']) | lib_utils_oo_collect('check_results.check_results.etcd') | lib_utils_oo_collect('health'))) | bool }}"
+  when:
+  - true in hostvars | lib_utils_oo_select_keys(groups['oo_etcd_to_config']) | lib_utils_oo_collect('__etcd_cert_lacks_hostname') | default([false])
+
+- import_playbook: ../../openshift-master/private/restart.yml
+  when:
+  - true in hostvars | lib_utils_oo_select_keys(groups['oo_etcd_to_config']) | lib_utils_oo_collect('__etcd_cert_lacks_hostname') | default([false])
+
+- name: Backup etcd before upgrading anything
+  import_playbook: upgrade_backup.yml
+  vars:
+    etcd_backup_tag: "pre-upgrade-"
+  when: openshift_etcd_backup | default(true) | bool
+
+- name: Drop etcdctl profiles
+  hosts: oo_etcd_hosts_to_upgrade
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: drop_etcdctl.yml
+
+# We only want to upgrade with the old method if the host is not part of
+# master host.
+- name: Perform etcd upgrade
+  import_playbook: upgrade_step.yml
+  when:
+  - openshift_etcd_upgrade | default(true) | bool
+  - inventory_hostname not in groups['oo_masters']
+
+# Upgrade / convert etcd to static pods
+- name: Upgrade etcd static pods
+  import_playbook: upgrade_static.yml
+
+- name: Backup etcd
+  import_playbook: upgrade_backup.yml
+  vars:
+    etcd_backup_tag: "post-3.0-"
+  when: openshift_etcd_backup | default(true) | bool

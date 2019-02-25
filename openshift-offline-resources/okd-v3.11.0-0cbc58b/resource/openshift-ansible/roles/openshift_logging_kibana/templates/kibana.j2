@@ -1,0 +1,156 @@
+apiVersion: "v1"
+kind: "DeploymentConfig"
+metadata:
+  name: "{{ deploy_name }}"
+  labels:
+    provider: openshift
+    component: "{{ component }}"
+    logging-infra: "{{ logging_component }}"
+spec:
+  replicas: {{ kibana_replicas | default(1) }}
+  selector:
+    provider: openshift
+    component: "{{ component }}"
+    logging-infra: "{{ logging_component }}"
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: "{{ deploy_name }}"
+      labels:
+        logging-infra: "{{ logging_component }}"
+        provider: openshift
+        component: "{{ component }}"
+    spec:
+      affinity:
+        podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: logging-infra
+                operator: In
+                values:
+                - kibana
+            topologyKey: kubernetes.io/hostname
+      serviceAccountName: aggregated-logging-kibana
+{% if kibana_node_selector is iterable and kibana_node_selector | length > 0 %}
+      nodeSelector:
+{% for key, value in kibana_node_selector.items() %}
+        {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+      containers:
+        -
+          name: "kibana"
+          image: "{{ openshift_logging_kibana_image }}"
+          imagePullPolicy: IfNotPresent
+{% if (kibana_memory_limit is defined and kibana_memory_limit is not none and kibana_memory_limit != "") or (kibana_cpu_limit is defined and kibana_cpu_limit is not none and kibana_cpu_limit != "") or (kibana_cpu_request is defined and kibana_cpu_request is not none and kibana_cpu_request != "") %}
+          resources:
+{%   if (kibana_memory_limit is defined and kibana_memory_limit is not none and kibana_memory_limit != "") or (kibana_cpu_limit is defined and kibana_cpu_limit is not none and kibana_cpu_limit != "") %}
+            limits:
+{%     if kibana_cpu_limit is not none and kibana_cpu_limit != "" %}
+              cpu: "{{ kibana_cpu_limit }}"
+{%     endif %}
+{%     if kibana_memory_limit is not none and kibana_memory_limit != "" %}
+              memory: "{{ kibana_memory_limit }}"
+{%     endif %}
+{%   endif %}
+{%   if (kibana_memory_limit is defined and kibana_memory_limit is not none and kibana_memory_limit != "") or (kibana_cpu_request is defined and kibana_cpu_request is not none and kibana_cpu_request != "") %}
+            requests:
+{%     if kibana_cpu_request is not none and kibana_cpu_request != "" %}
+              cpu: "{{ kibana_cpu_request }}"
+{%     endif %}
+{%     if kibana_memory_limit is not none and kibana_memory_limit != "" %}
+              memory: "{{ kibana_memory_limit }}"
+{%     endif %}
+{%   endif %}
+{% endif %}
+          env:
+            - name: "ELASTICSEARCH_URL"
+              value: "https://{{ es_host }}:{{ es_port }}"
+            -
+              name: "KIBANA_MEMORY_LIMIT"
+              valueFrom:
+                resourceFieldRef:
+                  containerName: kibana
+                  resource: limits.memory
+          volumeMounts:
+            - name: kibana
+              mountPath: /etc/kibana/keys
+              readOnly: true
+          readinessProbe:
+            exec:
+              command:
+              - "/usr/share/kibana/probe/readiness.sh"
+            initialDelaySeconds: 5
+            timeoutSeconds: 4
+            periodSeconds: 5
+        -
+          name: "kibana-proxy"
+          image: "{{ openshift_logging_kibana_proxy_image }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --upstream-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            - --https-address=:3000
+            - -provider=openshift
+            - -client-id=kibana-proxy
+            - -client-secret-file=/secret/oauth-secret
+            - -cookie-secret-file=/secret/session-secret
+            - -upstream=http://localhost:5601
+            - "-scope=user:info user:check-access user:list-projects"
+            - --tls-cert=/secret/server-cert
+            - --tls-key=/secret/server-key
+            - -pass-access-token
+            - -skip-provider-button
+{% if (kibana_proxy_memory_limit is defined and kibana_proxy_memory_limit is not none and kibana_proxy_memory_limit != "") or (kibana_proxy_cpu_limit is defined and kibana_proxy_cpu_limit is not none and kibana_proxy_cpu_limit != "") or (kibana_proxy_cpu_request is defined and kibana_proxy_cpu_request is not none and kibana_proxy_cpu_request != "") %}
+          resources:
+{%   if (kibana_proxy_memory_limit is defined and kibana_proxy_memory_limit is not none and kibana_proxy_memory_limit != "") or (kibana_proxy_cpu_limit is defined and kibana_proxy_cpu_limit is not none and kibana_proxy_cpu_limit != "") %}
+            limits:
+{%     if kibana_proxy_cpu_limit is not none and kibana_proxy_cpu_limit != "" %}
+              cpu: "{{ kibana_proxy_cpu_limit }}"
+{%     endif %}
+{%     if kibana_proxy_memory_limit is not none and kibana_proxy_memory_limit != "" %}
+              memory: "{{ kibana_proxy_memory_limit }}"
+{%     endif %}
+{%   endif %}
+{%   if (kibana_proxy_memory_limit is defined and kibana_proxy_memory_limit is not none and kibana_proxy_memory_limit != "") or (kibana_proxy_cpu_request is defined and kibana_proxy_cpu_request is not none and kibana_proxy_cpu_request != "") %}
+            requests:
+{%     if kibana_proxy_cpu_request is not none and kibana_proxy_cpu_request != "" %}
+              cpu: "{{ kibana_proxy_cpu_request }}"
+{%     endif %}
+{%     if kibana_proxy_memory_limit is not none and kibana_proxy_memory_limit != "" %}
+              memory: "{{ kibana_proxy_memory_limit }}"
+{%     endif %}
+{%   endif %}
+{% endif %}
+          ports:
+            -
+              name: "oaproxy"
+              containerPort: 3000
+          env:
+            -
+             name: "OAP_DEBUG"
+             value: "{{ openshift_logging_kibana_proxy_debug }}"
+            -
+             name: "OCP_AUTH_PROXY_MEMORY_LIMIT"
+             valueFrom:
+               resourceFieldRef:
+                 containerName: kibana-proxy
+                 resource: limits.memory
+          volumeMounts:
+            - name: kibana-proxy
+              mountPath: /secret
+              readOnly: true
+      volumes:
+        - name: kibana
+          secret:
+            secretName: logging-kibana
+        - name: kibana-proxy
+          secret:
+            secretName: logging-kibana-proxy

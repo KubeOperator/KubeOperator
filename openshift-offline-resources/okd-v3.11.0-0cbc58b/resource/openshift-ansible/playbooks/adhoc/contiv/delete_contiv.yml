@@ -1,0 +1,29 @@
+---
+- name: Uninstall contiv
+  hosts: all
+  gather_facts: False
+  tasks:
+    - systemd:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - contiv-etcd
+        - netmaster
+        - netplugin
+        - openvswitch
+      ignore_errors: True
+    - file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /opt/cni
+        - /opt/contiv
+        - /etc/systemd/system/netmaster.service
+        - /etc/systemd/system/netplugin.service
+        - /etc/systemd/system/contiv-etcd.service
+        - /etc/systemd/system/contiv-etcd.service.d
+        - /var/lib/contiv-etcd
+        - /etc/default/netmaster
+        - /etc/default/netplugin
+        - /etc/openvswitch/conf.db
+    - command: systemctl daemon-reload

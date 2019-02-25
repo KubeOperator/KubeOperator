@@ -1,0 +1,15 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  name: prometheus-metrics-viewer
+  namespace: {{ namespace }}
+rules:
+- apiGroups:
+  - metrics.openshift.io
+  resources:
+  - prometheus
+  verbs:
+  - view

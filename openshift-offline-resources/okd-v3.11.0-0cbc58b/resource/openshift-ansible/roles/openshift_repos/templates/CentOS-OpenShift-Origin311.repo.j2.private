@@ -1,0 +1,27 @@
+[Openshift-Centos-epel]
+name=CentOS epel-epel
+baseurl=http://103.235.232.161:8088/repository/openshift-centos-epel/
+#baseurl=http://103.235.232.161:8088/repository/epel-7/$basearch/
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-Base]
+name=CentOS Base
+#baseurl=http://103.235.232.161:8088/repository/openshift-centos-base
+baseurl=http://103.235.232.161:8088/repository/openshift-centos-base/$releasever/os/$basearch/
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-Extras]
+name=CentOS Extras
+#baseurl=http://103.235.232.161:8088/repository/openshift-centos-base
+baseurl=http://103.235.232.161:8088/repository/openshift-centos-base/$releasever/extras/$basearch/
+enabled=1
+gpgcheck=0
+
+[Openshift-Centos-Paas]
+name=Openshift-Centos-Pass
+baseurl=http://103.235.232.161:8088/repository/openshift-centos-311
+#baseurl=http://103.235.232.161:8088/repository/yum-proxy/$releasever/os/$basearch/
+enabled=1
+gpgcheck=0

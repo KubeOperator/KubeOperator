@@ -1,0 +1,11 @@
+---
+- name: Register EC2 instances to ELB
+  ec2_elb:
+    ec2_elbs: "{{ l_elb.value.name }}"
+    instance_id: "{{ item }}"
+    region: "{{ openshift_aws_region }}"
+    state: present
+    wait: False
+  register: test
+  with_items: "{{ instancesout.instances | list | map(attribute='instance_id') | list }}"
+  failed_when: "'InvalidInstanceID.NotFound' in test"

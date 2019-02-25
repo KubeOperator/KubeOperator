@@ -1,0 +1,17 @@
+---
+# This playbook is designed to ensure an existing cluster without gluster support
+# gets the necessary modules and packages installed on all nodes to support
+# pods utilizing gluster volumes.
+# This playbooks is not intended for scaleup of existing clusters that already
+# have gluster deployed.
+- name: Install gluster node dependencies for pod volume support
+  hosts: oo_nodes_to_config
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: glusterfs.yml
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: kernel_modules.yml
+    when:
+    - "inventory_hostname not in groups['oo_glusterfs_to_config']"

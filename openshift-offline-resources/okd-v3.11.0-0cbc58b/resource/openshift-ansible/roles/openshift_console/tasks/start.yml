@@ -1,0 +1,46 @@
+---
+- name: Waiting for console rollout to complete
+  # `oc rollout status` will block until either the rollout succeeds or `spec.progressDeadlineSeconds` elapse.
+  # A zero return code indicates the rollout succeeded.
+  # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#complete-deployment
+  command: >
+    {{ openshift_client_binary }} rollout status deployment/console --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift-console
+  changed_when: false
+  # Ignore errors so we can log troubleshooting info on failures.
+  ignore_errors: yes
+  register: console_rollout_status
+
+# Log the result of `oc status`, `oc get pods`, `oc get events`, and `oc logs deployment/console` for troubleshooting failures.
+- when: console_rollout_status.rc != 0
+  block:
+  - name: Check status in the openshift-console namespace
+    command: >
+      {{ openshift_client_binary }} status --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift-console
+    register: endpoint_status
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_status.stdout_lines }}"
+  - name: Get pods in the openshift-console namespace
+    command: >
+      {{ openshift_client_binary }} get pods --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift-console -o wide
+    register: endpoint_pods
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_pods.stdout_lines }}"
+  - name: Get events in the openshift-console namespace
+    command: >
+      {{ openshift_client_binary }} get events --config={{ openshift.common.config_base }}/master/admin.kubeconfig --sort-by='.metadata.creationTimestamp' -n openshift-console
+    register: endpoint_events
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_events.stdout_lines }}"
+  - name: Get console pod logs
+    command: >
+      {{ openshift_client_binary }} logs deployment/console --tail=50 --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift-console
+    register: endpoint_log
+    ignore_errors: true
+  - debug:
+      msg: "{{ endpoint_log.stdout_lines }}"
+  - name: Report console errors
+    fail:
+      msg: Console install failed.

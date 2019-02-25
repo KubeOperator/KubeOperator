@@ -1,0 +1,15 @@
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: asb-user-access
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+{% if ansible_service_broker_sandbox_role != 'admin' %}
+    rbac.authorization.k8s.io/aggregate-to-{{ ansible_service_broker_sandbox_role }}: "true"
+{% endif %}
+rules:
+- apiGroups: ["automationbroker.io"]
+  resources: ["access"]
+  verbs: ["create"]

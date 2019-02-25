@@ -1,0 +1,93 @@
+---
+- name: Initialize cluster facts
+  # l_init_fact_hosts is passed in via play during control-plane-only
+  # upgrades and scale-up plays; otherwise oo_all_hosts is used.
+  hosts: "{{ l_init_fact_hosts | default('oo_all_hosts') }}"
+  roles:
+  - role: openshift_facts
+  - role: lib_utils
+  tasks:
+  - name: get openshift_current_version
+    # get_current_openshift_version is a custom module in lib_utils
+    # this will set_fact openshift_current_version
+    get_current_openshift_version:
+      deployment_type: "{{ openshift_deployment_type }}"
+
+  # oo_first_master group might not be present due to provisioning plays
+  # for existing clusters, openshift_portal_net will be force-set by
+  # basic_facts.yml from value in existing master configs.
+  - name: set_fact openshift_portal_net if present on masters
+    set_fact:
+      openshift_portal_net: "{{ hostvars[groups.oo_first_master.0].openshift_portal_net }}"
+    when:
+    - "'oo_first_master' in groups"
+    - "groups.oo_first_master | length > 0"
+    - "'openshift_portal_net' in hostvars[groups.oo_first_master.0]"
+
+  - name: Gather Cluster facts
+    openshift_facts:
+      role: common
+      local_facts:
+        hostname: "{{ openshift_kubelet_name_override | default(None) }}"
+        ip: "{{ openshift_ip | default(None) }}"
+        public_hostname: "{{ openshift_public_hostname | default(None) }}"
+        public_ip: "{{ openshift_public_ip | default(None) }}"
+        portal_net: "{{ openshift_portal_net }}"
+        http_proxy: "{{ openshift_http_proxy | default(None) }}"
+        https_proxy: "{{ openshift_https_proxy | default(None) }}"
+        no_proxy: "{{ openshift_no_proxy | default(None) }}"
+        generate_no_proxy_hosts: "{{ openshift_generate_no_proxy_hosts | default(True) }}"
+        cloudprovider: "{{ openshift_cloudprovider_kind | default(None) }}"
+
+  - name: Set fact of no_proxy_internal_hostnames
+    openshift_facts:
+      role: common
+      local_facts:
+        no_proxy_internal_hostnames: "{{ hostvars | lib_utils_oo_select_keys(groups['oo_nodes_to_config']
+                                             | union(groups['oo_masters_to_config'])
+                                             | union(groups['oo_etcd_to_config'] | default([])))
+                                         | lib_utils_oo_collect('openshift.common.hostname') | default([]) | join (',')
+                                         }}"
+        no_proxy_master_ips: "{{ hostvars | lib_utils_oo_select_keys(groups['oo_masters_to_config']
+                                          | default([]))
+                                          | lib_utils_oo_collect('openshift.common.ip')
+                                          | default([]) | join (',')
+                              }}"
+    when:
+    - openshift_http_proxy is defined or openshift_https_proxy is defined
+    - openshift_generate_no_proxy_hosts | default(True) | bool
+
+  - name: Initialize openshift.node.sdn_mtu
+    openshift_facts:
+      role: node
+      local_facts:
+        sdn_mtu: "{{ openshift_node_sdn_mtu | default(None) }}"
+  - name: set_fact l_kubelet_node_name
+    set_fact:
+      l_kubelet_node_name: "{{ openshift_kubelet_name_override | default(openshift.node.nodename) }}"
+
+- name: Initialize etcd host variables
+  hosts: oo_masters_to_config
+  roles:
+  - role: openshift_facts
+  - role: lib_utils
+  tasks:
+  # This needs to run after openshift_facts common role has run on etcd hosts.
+  # lib_utils_oo_select_keys, lib_utils_oo_collect
+  # are custom filter plugins in roles/lib_utils/filter_plugins/oo_filters.py
+  - set_fact:
+      openshift_no_proxy_etcd_host_ips: "{{ hostvars | lib_utils_oo_select_keys(groups['oo_etcd_to_config'] | default([]))
+                                                  | lib_utils_oo_collect('openshift.common.ip') | default([]) | join(',')
+                                                  }}"
+      openshift_master_etcd_port: "{{ etcd_client_port | default('2379') }}"
+      openshift_master_etcd_hosts: "{{ hostvars
+                                       | lib_utils_oo_select_keys(groups['oo_etcd_to_config']
+                                                        | default([]))
+                                       | lib_utils_oo_collect('openshift.common.hostname')
+                                       | default(none, true) }}"
+  # This fact requires the facts set above, so needs to happen in it's own task.
+  - set_fact:
+      # lib_utils_oo_etcd_host_urls is a custom filter plugin in roles/lib_utils/filter_plugins/oo_filters.py
+      openshift_master_etcd_urls: "{{ openshift_master_etcd_hosts | lib_utils_oo_etcd_host_urls(l_use_ssl, openshift_master_etcd_port) }}"
+    vars:
+      l_use_ssl: "{{ openshift_master_etcd_use_ssl | default(True) | bool}}"

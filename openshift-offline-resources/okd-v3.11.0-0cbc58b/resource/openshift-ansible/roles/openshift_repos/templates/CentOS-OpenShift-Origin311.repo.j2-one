@@ -1,0 +1,6 @@
+[Openshift-Centos-Paas]
+name=Openshift-Centos-Pass
+baseurl=http://103.235.232.161:8088/repository/openshift-centos-311
+#baseurl=http://103.235.232.161:8088/repository/yum-proxy/$releasever/os/$basearch/
+enabled=1
+gpgcheck=0

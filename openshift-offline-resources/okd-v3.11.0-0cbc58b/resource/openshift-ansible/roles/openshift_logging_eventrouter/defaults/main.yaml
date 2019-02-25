@@ -1,0 +1,8 @@
+---
+openshift_logging_eventrouter_replicas: 1
+openshift_logging_eventrouter_sink: stdout
+openshift_logging_eventrouter_nodeselector: ""
+openshift_logging_eventrouter_cpu_limit: null
+openshift_logging_eventrouter_cpu_request: 100m
+openshift_logging_eventrouter_memory_limit: 128Mi
+openshift_logging_eventrouter_namespace: default

@@ -1,0 +1,8 @@
+---
+- name: Add Container Provider to Management
+  hosts: oo_first_master
+  tasks:
+  - name: Run the Management Integration Tasks
+    import_role:
+      name: openshift_management
+      tasks_from: add_container_provider.yml

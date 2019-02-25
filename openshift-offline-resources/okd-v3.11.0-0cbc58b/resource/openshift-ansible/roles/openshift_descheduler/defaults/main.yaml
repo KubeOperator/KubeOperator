@@ -1,0 +1,55 @@
+---
+# descheduler common setup
+openshift_descheduler_install: false
+openshift_descheduler_tmp_location: /tmp
+openshift_descheduler_delete_config: true
+
+# descheduler image setup
+openshift_descheduler_image_dict:
+  origin:
+    search: "${component}"
+    version: v0.5.0
+  openshift-enterprise:
+    search: "${component}"
+    version: "{{ openshift_image_tag }}"
+
+l_os_descheduler_image_search: "{{ openshift_descheduler_image_dict[openshift_deployment_type]['search'] }}"
+openshift_descheduler_image_version: "{{ openshift_descheduler_image_dict[openshift_deployment_type]['version'] }}"
+
+l_os_non_standard_reg_url: "{{ oreg_url | default(l_osm_registry_url_default) }}"
+l_os_descheduler_image: "{{ l_os_non_standard_reg_url | regex_replace('${version}' | regex_escape, openshift_descheduler_image_version) }}"
+openshift_descheduler_image: "{{ l_os_descheduler_image | regex_replace(l_os_descheduler_image_search | regex_escape, 'descheduler') }}"
+
+# descheduler service account setup
+openshift_descheduler_service_account: descheduler-sa
+
+# descheduler cluster role setup
+openshift_descheduler_cluster_role_name: descheduler-cr
+
+# descheduler policy setup
+# by default only RemoveDuplicates strategy is enabled
+openshift_descheduler_policy_configmap_name: descheduler-policy-configmap
+openshift_descheduler_strategies_dict:
+  remove_duplicates: true
+  remove_pods_violating_inter_pod_anti_affinity: false
+  low_node_utilization: false
+
+# descheduler stratgey LowNodeUtilization setup (matters only if low_node_utilization is true)
+openshift_descheduler_strategy_low_node_utilization_dict:
+  cpu_threshold: 40
+  mem_threshold: 40
+  pods_threshold: 40
+  cpu_target_threshold: 70
+  mem_target_threshold: 70
+  pods_target_threshold: 70
+
+# descheduler cronjob setup
+openshift_descheduler_cronjob_name: descheduler-cronjob
+openshift_descheduler_cronjob_node_selector: {"node-role.kubernetes.io/infra": "true"}
+# by default (00:00) everyday
+openshift_descheduler_cronjob_schedule: "*/1 0 * * *"
+
+# descheduler container setup
+openshift_descheduler_dry_run_mode: true
+openshift_descheduler_node_selectors: null
+openshift_descheduler_debug_level: "{{ debug_level | default(2) }}"

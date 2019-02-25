@@ -1,0 +1,92 @@
+---
+- name: Add private node records
+  nsupdate:
+    key_name: "{{ openshift_openstack_external_nsupdate_keys['private']['key_name'] }}"
+    key_secret: "{{ openshift_openstack_external_nsupdate_keys['private']['key_secret'] }}"
+    key_algorithm: "{{ openshift_openstack_external_nsupdate_keys['private']['key_algorithm'] | lower }}"
+    server: "{{ openshift_openstack_external_nsupdate_keys['private']['server'] }}"
+    zone: "{{ openshift_openstack_nsupdate_zone }}"
+    record: "{{ hostvars[item]['ansible_hostname'] + openshift_openstack_private_hostname_suffix + '.' + openshift_openstack_full_dns_domain | replace('.' + openshift_openstack_nsupdate_zone, '') }}"
+    value: "{{ hostvars[item]['private_v4'] }}"
+    type: "A"
+    state: "{{ l_dns_record_state | default('present') }}"
+  with_items: "{{ l_openshift_openstack_dns_update_nodes }}"
+  register: nsupdate_add_result
+  until: nsupdate_add_result is succeeded
+  retries: 10
+  when:
+    - openshift_openstack_external_nsupdate_keys['private'] is defined
+    - hostvars[item]['private_v4'] is defined
+    - hostvars[item]['private_v4'] is not none
+    - hostvars[item]['private_v4'] | string
+  delay: 1
+
+
+- name: Add public node records
+  nsupdate:
+    key_name: "{{ openshift_openstack_external_nsupdate_keys['public']['key_name'] }}"
+    key_secret: "{{ openshift_openstack_external_nsupdate_keys['public']['key_secret'] }}"
+    key_algorithm: "{{ openshift_openstack_external_nsupdate_keys['public']['key_algorithm'] | lower }}"
+    server: "{{ openshift_openstack_external_nsupdate_keys['public']['server'] }}"
+    zone: "{{ openshift_openstack_nsupdate_zone }}"
+    record: "{{ hostvars[item]['ansible_hostname'] + openshift_openstack_public_hostname_suffix + '.' + openshift_openstack_full_dns_domain | replace('.' + openshift_openstack_nsupdate_zone, '') }}"
+    value: "{{ hostvars[item]['public_v4'] }}"
+    type: "A"
+    state: "{{ l_dns_record_state | default('present') }}"
+  with_items: "{{ l_openshift_openstack_dns_update_nodes }}"
+  register: nsupdate_add_result
+  until: nsupdate_add_result is succeeded
+  retries: 10
+  when:
+    - openshift_openstack_external_nsupdate_keys['public'] is defined
+    - hostvars[item]['public_v4'] is defined
+    - hostvars[item]['public_v4'] is not none
+    - hostvars[item]['public_v4'] | string
+  delay: 1
+
+- name: Add public wildcard record
+  nsupdate:
+    key_name: "{{ openshift_openstack_external_nsupdate_keys['public']['key_name'] }}"
+    key_secret: "{{ openshift_openstack_external_nsupdate_keys['public']['key_secret'] }}"
+    key_algorithm: "{{ openshift_openstack_external_nsupdate_keys['public']['key_algorithm'] | lower }}"
+    server: "{{ openshift_openstack_external_nsupdate_keys['public']['server'] }}"
+    zone: "{{ openshift_openstack_nsupdate_zone }}"
+    record: "{{ '*.' + hostvars[groups.masters[0]].openshift_master_default_subdomain | replace('.' + openshift_openstack_nsupdate_zone, '') }}"
+    value: "{{ openshift_openstack_public_router_ip }}"
+    type: "A"
+    state: "{{ l_dns_record_state | default('present') }}"
+  register: nsupdate_add_result
+  until: nsupdate_add_result is succeeded
+  retries: 10
+  delay: 1
+  when:
+    - openshift_openstack_external_nsupdate_keys['public'] is defined
+    - groups.masters
+    - hostvars[groups.masters[0]].openshift_master_default_subdomain is defined
+    - openshift_openstack_public_router_ip is defined
+    - openshift_openstack_public_router_ip is not none
+    - openshift_openstack_public_router_ip | string
+
+
+- name: Add public API record
+  nsupdate:
+    key_name: "{{ openshift_openstack_external_nsupdate_keys['public']['key_name'] }}"
+    key_secret: "{{ openshift_openstack_external_nsupdate_keys['public']['key_secret'] }}"
+    key_algorithm: "{{ openshift_openstack_external_nsupdate_keys['public']['key_algorithm'] | lower }}"
+    server: "{{ openshift_openstack_external_nsupdate_keys['public']['server'] }}"
+    zone: "{{ openshift_openstack_nsupdate_zone }}"
+    record: "{{ hostvars[groups.masters[0]].openshift_master_cluster_public_hostname | replace('.' + openshift_openstack_nsupdate_zone, '') }}"
+    value: "{{ openshift_openstack_public_api_ip }}"
+    type: "A"
+    state: "{{ l_dns_record_state | default('present') }}"
+  register: nsupdate_add_result
+  until: nsupdate_add_result is succeeded
+  retries: 10
+  delay: 1
+  when:
+    - openshift_openstack_external_nsupdate_keys['public'] is defined
+    - groups.masters
+    - hostvars[groups.masters[0]].openshift_master_cluster_public_hostname is defined
+    - openshift_openstack_public_api_ip is defined
+    - openshift_openstack_public_api_ip is not none
+    - openshift_openstack_public_api_ip | string

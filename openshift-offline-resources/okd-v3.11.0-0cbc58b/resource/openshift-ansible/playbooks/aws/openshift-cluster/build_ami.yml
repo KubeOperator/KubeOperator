@@ -1,0 +1,45 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Require openshift_aws_base_ami
+    fail:
+      msg: "A base AMI is required for AMI building.  Please ensure  `openshift_aws_base_ami` is defined."
+    when: openshift_aws_base_ami is undefined
+
+  - name: "Alert user to variables needed and their values - {{ item.name }}"
+    debug:
+      msg: "{{ item.msg }}"
+    with_items:
+    - name: openshift_aws_clusterid
+      msg: "openshift_aws_clusterid={{ openshift_aws_clusterid | default('default') }}"
+    - name: openshift_aws_region
+      msg: "openshift_aws_region={{ openshift_aws_region | default('us-east-1') }}"
+
+- import_playbook: provision_instance.yml
+  vars:
+    openshift_aws_node_group_type: compute
+
+- hosts: nodes
+  gather_facts: False
+  tasks:
+  - name: set the user to perform installation
+    set_fact:
+      ansible_ssh_user: "{{ openshift_aws_build_ami_ssh_user | default(ansible_ssh_user) }}"
+      openshift_node_image_prep_packages:
+      - cloud-init
+      - cloud-utils-growpart
+  - import_role:
+      name: openshift_version
+      tasks_from: first_master.yml
+
+# This is the part that installs all of the software and configs for the instance
+# to become a node.
+- import_playbook: ../../openshift-node/private/image_prep.yml
+  vars:
+    openshift_node_reboot_instance_before_cleanup: true
+
+- import_playbook: seal_ami.yml
+  vars:
+    openshift_aws_ami_name: "openshift-gi-{{ lookup('pipe', 'date +%Y%m%d%H%M')}}"

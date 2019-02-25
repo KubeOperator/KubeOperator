@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+# Return the logs for a given static pod by component name and container name. Remaining arguments are passed to the
+# current container runtime.
+if [[ -z "${1-}" || -z "${2-}" ]]; then
+  echo "A component name like 'api', 'etcd', or 'controllers' must be specified along with the container name within that component." 1>&2
+  exit 1
+fi
+
+# container name is ignored for services
+types=( "atomic-openshift" "origin" )
+for type in "${types[@]}"; do
+  if systemctl cat "${type}-master-${1}.service" &>/dev/null; then
+    journalctl -u "${type}-master-${1}.service" "${@:3}"
+    exit 0
+  fi
+done
+
+# TODO: move to cri-ctl
+# TODO: short term hack for cri-o
+
+uid=$(docker ps -l -a --filter "label=openshift.io/component=${1}" --filter "label=io.kubernetes.container.name=POD" --format '{{ .Label "io.kubernetes.pod.uid" }}')
+if [[ -z "${uid}" ]]; then
+  echo "Component ${1} is stopped or not running" 1>&2
+  exit 0
+fi
+container=$(docker ps -l -a -q --filter "label=io.kubernetes.pod.uid=${uid}" --filter "label=io.kubernetes.container.name=${2}")
+exec docker logs "${@:3}" "${container}"

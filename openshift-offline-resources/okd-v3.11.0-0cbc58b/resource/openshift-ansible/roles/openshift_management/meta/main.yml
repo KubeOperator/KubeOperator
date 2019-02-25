@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Tim Bielawa
+  description: OpenShift CFME (Manage IQ) Deployer
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.2
+  version: 1.0
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  categories:
+  - cloud
+  - system
+dependencies:
+- role: lib_openshift
+- role: lib_utils
+- role: openshift_facts

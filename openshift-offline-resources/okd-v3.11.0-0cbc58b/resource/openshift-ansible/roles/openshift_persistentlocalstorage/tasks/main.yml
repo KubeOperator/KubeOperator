@@ -1,0 +1,137 @@
+---
+- name: Create Namespace for Persistent Local Storage
+  oc_project:
+    name: "{{ persistentlocalstorage_project }}"
+    node_selector: ""
+
+- name: Create temp directory for template
+  command: mktemp -d /tmp/openshift-ansible-XXXXXXX
+  register: g_persistentstorage_mktemp
+  changed_when: false
+
+- template:
+    src: local-persistent-volume-config.j2
+    dest: "{{g_persistentstorage_mktemp.stdout}}/local-persistent-volume-config"
+  changed_when: no
+
+- slurp:
+    src: "{{g_persistentstorage_mktemp.stdout}}/local-persistent-volume-config"
+  register: local_persistent_volume_config
+
+- name: Create ConfigMap for Persistent Local Storage Provisioner
+  oc_obj:
+    name: "local-volume-provisioner-config"
+    namespace: "{{ persistentlocalstorage_project }}"
+    kind: ConfigMap
+    content:
+      path: /tmp/cmplspout
+      data: "{{ local_persistent_volume_config.content | b64decode | from_yaml }}"
+
+- name: Create ServiceAccount for Persistent Local Storage Provisioner
+  oc_serviceaccount:
+    name: "local-volume-provisioner"
+    namespace: "{{ persistentlocalstorage_project }}"
+
+- name: Add SecurityContextContraint for Local Storage Provisioner
+  oc_adm_policy_user:
+    user: "system:serviceaccount:{{ persistentlocalstorage_project }}:local-volume-provisioner"
+    namespace: "{{ persistentlocalstorage_project }}"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+
+- name: Give rights to local-volume-provisioner to manage volumes
+  oc_obj:
+    state: present
+    kind: ClusterRoleBinding
+    name: local-storage:provisioner-pv-binding
+    content:
+      path: /tmp/crblvpout
+      data:
+        apiVersion: v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: local-storage:provisioner-pv-binding
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: system:persistent-volume-provisioner
+        subjects:
+        - kind: ServiceAccount
+          name: local-volume-provisioner
+          namespace: "{{ persistentlocalstorage_project }}"
+
+- name: Give rights to local-volume-provisioner to list nodes
+  oc_obj:
+    state: present
+    kind: ClusterRoleBinding
+    name: local-storage:provisioner-node-binding
+    content:
+      path: /tmp/ls-provnode
+      data:
+        apiVersion: v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: local-storage:provisioner-node-binding
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: system:node
+        subjects:
+        - kind: ServiceAccount
+          name: local-volume-provisioner
+          namespace: "{{ persistentlocalstorage_project }}"
+
+- name: Create Application Persistent Local Storage Provisioner
+  oc_obj:
+    kind: DaemonSet
+    namespace: "{{ persistentlocalstorage_project }}"
+    state: present
+    name: local-volume-provisioner
+    content:
+      path: /tmp/plsprovout
+      data:
+        apiVersion: extensions/v1beta1
+        kind: DaemonSet
+        metadata:
+          name: local-volume-provisioner
+        spec:
+          template:
+            metadata:
+              labels:
+                app: local-volume-provisioner
+            spec:
+              containers:
+              - env:
+                - name: MY_NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: spec.nodeName
+                - name: MY_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+                - name: VOLUME_CONFIG_NAME
+                  value: local-volume-provisioner-config
+                image: "{{ persistentlocalstorage_provisionner_image }}"
+                name: provisioner
+                securityContext:
+                  runAsUser: 0
+                  seLinuxOptions:
+                    level: "s0:c0.c1023"
+                volumeMounts:
+                - mountPath: "{{ persistentlocalstorage_path }}"
+                  name: local-storage
+                - mountPath: /etc/provisioner/config
+                  name: provisioner-config
+                  readOnly: true
+              serviceAccountName: local-volume-provisioner
+              volumes:
+              - hostPath:
+                  path: "{{ persistentlocalstorage_path }}"
+                name: local-storage
+              - configMap:
+                  name: local-volume-provisioner-config
+                name: provisioner-config

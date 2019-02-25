@@ -1,0 +1,24 @@
+---
+# Upgrade predicates
+- import_tasks: upgrade_predicates.yml
+
+# Upgrade priorities
+- import_tasks: upgrade_priorities.yml
+
+# Update scheduler
+- name: Update scheduler config
+  copy:
+    content: "{{ upgrade_scheduler_config | to_nice_json }}"
+    dest: "{{ openshift_master_scheduler_conf }}"
+    backup: true
+  when: >
+    openshift_upgrade_scheduler_predicates is defined or
+    openshift_upgrade_scheduler_priorities is defined
+  vars:
+    upgrade_scheduler_config:
+      kind: Policy
+      apiVersion: v1
+      predicates: "{{ openshift_upgrade_scheduler_predicates
+                      | default(openshift_master_scheduler_current_predicates) }}"
+      priorities: "{{ openshift_upgrade_scheduler_priorities
+                      | default(openshift_master_scheduler_current_priorities) }}"

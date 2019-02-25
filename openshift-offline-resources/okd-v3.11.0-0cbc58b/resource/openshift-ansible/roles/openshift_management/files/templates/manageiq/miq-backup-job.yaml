@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: manageiq-backup
+spec:
+  template:
+    metadata:
+      name: manageiq-backup
+    spec:
+      containers:
+      - name: postgresql
+        image: docker.io/manageiq/postgresql:latest
+        command:
+        - "/opt/manageiq/container-scripts/backup_db"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: manageiq-secrets
+              key: database-url
+        volumeMounts:
+        - name: miq-backup-vol
+          mountPath: "/backups"
+      volumes:
+      - name: miq-backup-vol
+        persistentVolumeClaim:
+          claimName: manageiq-backup
+      restartPolicy: Never

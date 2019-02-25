@@ -1,0 +1,51 @@
+---
+- name: Checking generation of {{file_content.kind}} {{file_content.metadata.name}}
+  command: >
+    {{ openshift_client_binary }} --config={{ kubeconfig }}
+    get {{file_content.kind}} {{file_content.metadata.name}}
+    -o jsonpath='{.metadata.resourceVersion}'
+    -n {{namespace}}
+  register: generation_init
+  failed_when: "'not found' not in generation_init.stderr and generation_init.stdout == ''"
+  changed_when: no
+
+- name: Applying {{file_name}}
+  command: >
+    {{ openshift_client_binary }} --config={{ kubeconfig }}
+    apply -f {{ file_name }}
+    -n {{ namespace }}
+  register: generation_apply
+  failed_when: "'error' in generation_apply.stderr or generation_apply.rc != 0"
+  changed_when: no
+
+- name: Determine change status of {{file_content.kind}} {{file_content.metadata.name}}
+  command: >
+    {{ openshift_client_binary }} --config={{ kubeconfig }}
+    get {{file_content.kind}} {{file_content.metadata.name}}
+    -o jsonpath='{.metadata.resourceVersion}'
+    -n {{namespace}}
+  register: generation_changed
+  failed_when: "'not found' not in generation_changed.stderr and generation_changed.stdout == ''"
+  changed_when: generation_changed.stdout | default (0) | int  > generation_init.stdout | default(0) | int
+  when:
+    - "'field is immutable' not in generation_apply.stderr"
+
+- name: Removing previous {{file_name}}
+  command: >
+    {{ openshift_client_binary }} --config={{ kubeconfig }}
+    delete -f {{ file_name }}
+    -n {{ namespace }}
+  register: generation_delete
+  failed_when: "'error' in generation_delete.stderr or generation_delete.rc != 0"
+  changed_when: generation_delete.rc == 0
+  when: generation_apply.rc != 0
+
+- name: Recreating {{file_name}}
+  command: >
+    {{ openshift_client_binary }} --config={{ kubeconfig }}
+    apply -f {{ file_name }}
+    -n {{ namespace }}
+  register: generation_apply
+  failed_when: "'error' in generation_apply.stderr or generation_apply.rc | int != 0"
+  changed_when: generation_apply.rc == 0
+  when: generation_apply.rc != 0

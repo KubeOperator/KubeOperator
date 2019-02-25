@@ -1,0 +1,4 @@
+---
+- include_tasks: build_vm_list.yaml
+
+- include_tasks: create_vms.yaml

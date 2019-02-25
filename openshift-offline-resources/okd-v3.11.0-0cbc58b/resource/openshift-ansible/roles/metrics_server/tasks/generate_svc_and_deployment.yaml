@@ -1,0 +1,11 @@
+---
+- name: Generate service for metrics-server
+  template:
+    src: metrics-server-service.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-service.yaml"
+  changed_when: no
+
+- name: Generate metrics-server deployment from template
+  template:
+    src: metrics-server-deployment.j2
+    dest: "{{ mktemp.stdout }}/templates/metrics-server-deployment.yaml"

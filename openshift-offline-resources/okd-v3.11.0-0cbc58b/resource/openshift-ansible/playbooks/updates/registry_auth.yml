@@ -1,0 +1,8 @@
+---
+- import_playbook: ../init/main.yml
+
+- import_playbook: ../container-runtime/private/registry_auth.yml
+
+- import_playbook: ../openshift-node/private/registry_auth.yml
+
+- import_playbook: ../openshift-master/private/registry_auth.yml

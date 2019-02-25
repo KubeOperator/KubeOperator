@@ -1,0 +1,64 @@
+---
+- name: Fail - Firewalld is not supported on Atomic Host
+  fail:
+    msg: "Firewalld is not supported on Atomic Host"
+  when:
+    - openshift_is_atomic | bool
+    - not openshift_enable_unsupported_configurations | default(false)
+
+- name: Install firewalld packages
+  package:
+    name: firewalld
+    state: present
+  register: result
+  until: result is succeeded
+  when: not openshift_is_atomic | bool
+
+- name: Ensure iptables services are not enabled
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+    masked: yes
+  with_items:
+    - iptables
+    - ip6tables
+  register: task_result
+  failed_when:
+    - task_result is failed
+    - ('could not' not in task_result.msg|lower)
+
+- name: Wait 10 seconds after disabling iptables
+  pause:
+    seconds: 10
+  when: task_result is changed
+
+- name: Start and enable firewalld service
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+  register: result
+
+- name: need to pause here, otherwise the firewalld service starting can sometimes cause ssh to fail
+  pause:
+    seconds: 10
+  when: result is changed
+
+- name: Restart polkitd
+  systemd:
+    name: polkit
+    state: restarted
+  when: result is changed
+
+# Fix suspected race between firewalld and polkit BZ1436964
+- name: Wait for polkit action to have been created
+  command: pkaction --action-id=org.fedoraproject.FirewallD1.config.info
+  ignore_errors: true
+  register: pkaction
+  changed_when: false
+  until: pkaction.rc == 0
+  retries: 6
+  delay: 10

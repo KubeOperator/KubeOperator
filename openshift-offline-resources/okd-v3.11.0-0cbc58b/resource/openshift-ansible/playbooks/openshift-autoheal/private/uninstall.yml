@@ -1,0 +1,7 @@
+---
+- name: Uninstall Auto-heal
+  hosts: oo_first_master
+  tasks:
+  - include_role:
+      name: openshift_autoheal
+      tasks_from: uninstall.yml

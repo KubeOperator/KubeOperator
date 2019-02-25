@@ -1,0 +1,126 @@
+---
+- name: Ensure that Cluster Monitoring Operator has nodes to run on
+  import_role:
+    name: openshift_control_plane
+    tasks_from: ensure_nodes_matching_selector.yml
+  vars:
+    openshift_master_ensure_nodes_selector: "{{ openshift_cluster_monitoring_operator_node_selector | map_to_pairs }}"
+    openshift_master_ensure_nodes_service: Cluster Monitoring Operator
+
+- name: Create temp directory for doing work in on target
+  command: mktemp -td openshift-cluster-monitoring-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+- name: Copy files to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tempdir }}/{{ item }}"
+  with_items:
+  - cluster-monitoring-operator.yaml
+
+- name: Create templates subdirectory
+  file:
+    state: directory
+    path: "{{ tempdir }}/{{ item }}"
+    mode: 0755
+  changed_when: False
+  with_items:
+  - templates
+
+- name: Copy admin client config
+  command: >
+    cp {{ openshift.common.config_base }}/master/admin.kubeconfig {{ mktemp.stdout }}/admin.kubeconfig
+  changed_when: false
+
+- name: Add monitoring project
+  oc_project:
+    state: present
+    name: openshift-monitoring
+    description: Openshift Monitoring
+    node_selector: ""
+
+- name: Label monitoring namespace
+  oc_label:
+    state: present
+    kind: namespace
+    name: openshift-monitoring
+    labels:
+    - key: openshift.io/cluster-monitoring
+      value: "true"
+
+- when: os_sdn_network_plugin_name == 'redhat/openshift-ovs-multitenant'
+  block:
+  - name: Waiting for netnamespace openshift-monitoring to be ready
+    oc_obj:
+      kind: netnamespace
+      name: openshift-monitoring
+      state: list
+    register: get_output
+    until: not get_output.results.stderr is defined
+    retries: 30
+    delay: 1
+    changed_when: false
+
+  - name: Make openshift-monitoring project network global
+    command: >
+      {{ openshift_client_binary }} --config={{ mktemp.stdout }}/admin.kubeconfig adm pod-network make-projects-global openshift-monitoring
+
+- name: Apply the cluster monitoring operator ServiceAccount, Roles and Alertmanager config
+  shell: >
+    {{ openshift_client_binary }} process -n openshift-monitoring -f "{{ mktemp.stdout 	}}/{{ item }}"
+    --param ALERTMANAGER_CONFIG="{{ openshift_cluster_monitoring_operator_alertmanager_config | b64encode }}"
+    --param NAMESPACE="{{ openshift_cluster_monitoring_operator_namespace }}"
+    --config={{ mktemp.stdout }}/admin.kubeconfig
+    | {{ openshift_client_binary }} apply --config={{ mktemp.stdout }}/admin.kubeconfig -f -
+  with_items:
+  - cluster-monitoring-operator.yaml
+
+- name: Process cluster-monitoring-operator configmap template
+  template:
+    src: cluster-monitoring-operator-config.j2
+    dest: "{{ tempdir }}/templates/cluster-monitoring-operator-config.yaml"
+  changed_when: no
+
+- name: Create cluster-monitoring-operator configmap
+  oc_obj:
+    state: present
+    name: "cluster-monitoring-config"
+    namespace: "{{ openshift_cluster_monitoring_operator_namespace }}"
+    kind: configmap
+    files:
+    - "{{ tempdir }}/templates/cluster-monitoring-operator-config.yaml"
+    delete_after: true
+
+- name: Process cluster-monitoring-operator deployment template
+  template:
+    src: cluster-monitoring-operator-deployment.j2
+    dest: "{{ tempdir }}/templates/cluster-monitoring-operator-deployment.yaml"
+  vars:
+    namespace: "{{ openshift_cluster_monitoring_operator_namespace }}"
+
+- name: Create cluster-monitoring-operator deployment
+  oc_obj:
+    state: present
+    name: "cluster-monitoring-operator"
+    namespace: "{{ openshift_cluster_monitoring_operator_namespace }}"
+    kind: deployment
+    files:
+    - "{{ tempdir }}/templates/cluster-monitoring-operator-deployment.yaml"
+    delete_after: true
+
+- name: Wait for the ServiceMonitor CRD to be created
+  command: "{{ openshift_client_binary }} get crd servicemonitors.monitoring.coreos.com -n openshift-monitoring --config={{ mktemp.stdout }}/admin.kubeconfig"
+  register: crd
+  until: crd.rc == 0
+  delay: 30
+  retries: 30
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: metrics-server
+  namespace: "{{ openshift_metrics_server_project }}"
+  labels:
+    k8s-app: metrics-server
+    kubernetes.io/cluster-service: "true"
+    metrics-server-infra: metrics-server
+spec:
+  selector:
+    matchLabels:
+      k8s-app: metrics-server
+  template:
+    metadata:
+      name: metrics-server
+      labels:
+        k8s-app: metrics-server
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      priorityClassName: system-cluster-critical
+      serviceAccountName: metrics-server
+      containers:
+      - name: metrics-server
+        image: {{ openshift_metrics_server_image }}
+        command:
+          - /usr/bin/metrics-server
+          - "--source=kubernetes.summary_api:?useServiceAccount=true&kubeletHttps=true&kubeletPort=10250"
+          - "--tls-cert-file=/certs/tls.crt"
+          - "--tls-private-key-file=/certs/tls.key"
+          - "--metric_resolution={{ openshift_metrics_server_resolution }}"
+          - --secure-port=8443
+        ports:
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        volumeMounts:
+        - name: metrics-server-certs
+          mountPath: /certs
+          readOnly: true
+      volumes:
+      - name: metrics-server-certs
+        secret:
+          defaultMode: 420
+          secretName: metrics-server-certs

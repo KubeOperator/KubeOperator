@@ -1,0 +1,57 @@
+---
+- name: Ensure metrics-server namespace is present
+  oc_project:
+    state: present
+    name: "{{ openshift_metrics_server_project }}"
+    node_selector: ""
+
+- include_tasks: generate_certs_and_apiservice.yaml
+- include_tasks: generate_sa_and_rbac.yaml
+- include_tasks: generate_svc_and_deployment.yaml
+
+# create objects in the main metrics-server ns
+- find:
+    paths: "{{ mktemp.stdout }}/templates"
+    patterns: "^metrics-server-.*.yaml"
+    use_regex: true
+  register: metrics_server_object_def_files
+  changed_when: no
+
+- slurp:
+    src: "{{item.path}}"
+  register: metrics_server_object_defs
+  with_items: "{{ metrics_server_object_def_files.files }}"
+  changed_when: no
+
+- name: Create metrics-server objects
+  include_tasks: oc_apply.yaml
+  vars:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    namespace: "{{ openshift_metrics_server_project }}"
+    file_name: "{{ item.source }}"
+    file_content: "{{ item.content | b64decode | from_yaml }}"
+  with_items: "{{ metrics_server_object_defs.results }}"
+
+# create the extension-apiserver configmap permission rolebinding, which needs to live in kube-system,
+# since the actual configmap lives in kube-system
+- find:
+    paths: "{{ mktemp.stdout }}/templates"
+    patterns: "^extension-apiserver-authentication-reader-metrics-server-rolebinding.yaml"
+    use_regex: true
+  register: apiextension_object_def_files
+  changed_when: no
+
+- slurp:
+    src: "{{item.path}}"
+  register: apiextension_object_defs
+  with_items: "{{ apiextension_object_def_files.files }}"
+  changed_when: no
+
+- name: Create metrics-server objects that belong in kube-system (extension-apiserver-authentication-reader rolebinding)
+  include_tasks: oc_apply.yaml
+  vars:
+    kubeconfig: "{{ mktemp.stdout }}/admin.kubeconfig"
+    namespace: kube-system
+    file_name: "{{ item.source }}"
+    file_content: "{{ item.content | b64decode | from_yaml }}"
+  with_items: "{{ apiextension_object_defs.results }}"

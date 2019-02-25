@@ -1,0 +1,6 @@
+---
+- name: "Delete the node scale group launch config {{ l_delete_sg_launch_config_name }}"
+  ec2_lc:
+    state: absent
+    name: "{{ l_delete_sg_launch_config_name }}"
+    region: "{{ openshift_aws_region }}"

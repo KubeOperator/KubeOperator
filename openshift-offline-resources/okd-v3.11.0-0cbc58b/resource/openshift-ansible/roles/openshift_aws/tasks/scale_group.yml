@@ -1,0 +1,24 @@
+---
+- name: Create the scale group
+  ec2_asg:
+    name: "{{ l_node_group_name }}"
+    launch_config_name: "{{ openshift_aws_node_group.name }}-{{ openshift_aws_ami_map[openshift_aws_node_group.group] | default(openshift_aws_ami) }}-{{ l_deployment_serial }}"
+    health_check_period: "{{ l_node_group_config[openshift_aws_node_group.group].health_check.period }}"
+    health_check_type: "{{ l_node_group_config[openshift_aws_node_group.group].health_check.type }}"
+    min_size: "{{ l_node_group_config[openshift_aws_node_group.group].min_size }}"
+    max_size: "{{ l_node_group_config[openshift_aws_node_group.group].max_size }}"
+    desired_capacity: "{{ l_node_group_config[openshift_aws_node_group.group].desired_size }}"
+    region: "{{ openshift_aws_region }}"
+    termination_policies: "{{ l_node_group_config[openshift_aws_node_group.group].termination_policy if 'termination_policy' in  l_node_group_config[openshift_aws_node_group.group] else omit }}"
+    load_balancers: "{{ l_node_group_config[openshift_aws_node_group.group].elbs if 'elbs' in l_node_group_config[openshift_aws_node_group.group] else omit }}"
+    wait_for_instances: "{{ l_node_group_config[openshift_aws_node_group.group].wait_for_instances | default(False)}}"
+    vpc_zone_identifier: "{{ subnetout.results | map(attribute='subnets.0.subnet_id') | list }}"
+    replace_instances: "{{ openshift_aws_node_group_replace_instances if openshift_aws_node_group_replace_instances != [] else omit }}"
+    replace_all_instances: "{{ omit if openshift_aws_node_group_replace_instances != []
+                                    else (l_node_group_config[openshift_aws_node_group.group].replace_all_instances | default(omit)) }}"
+    tags:
+    - "{{ l_instance_tags }}"
+
+- name: append the asg name to the openshift_aws_created_asgs fact
+  set_fact:
+    openshift_aws_created_asgs: "{{ [l_node_group_name] | union(openshift_aws_created_asgs) | list }}"

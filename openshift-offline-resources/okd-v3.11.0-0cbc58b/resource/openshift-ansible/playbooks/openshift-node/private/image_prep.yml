@@ -1,0 +1,47 @@
+---
+- name: normalize groups
+  import_playbook: ../../prerequisites.yml
+  vars:
+    skip_sanity_checks: True
+    skip_validate_hostnames: True
+    l_openshift_version_determine_hosts: "oo_nodes_to_config"
+    l_openshift_version_set_hosts: "all:!all"
+
+- name: run node config setup
+  import_playbook: disable_excluders.yml
+
+- name: run node config
+  import_playbook: configure_nodes.yml
+
+- name: node bootstrap config
+  hosts: oo_nodes_to_config
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: bootstrap.yml
+  - import_role:
+      name: openshift_node_group
+      tasks_from: bootstrap.yml
+
+  - when:
+    - openshift_node_include_control_plane | default(False)
+    block:
+    - import_role:
+        name: etcd
+        tasks_from: static.yml
+
+    - import_role:
+        name: openshift_control_plane
+        tasks_from: static_shim.yml
+
+    - import_role:
+        name: openshift_control_plane
+        tasks_from: static.yml
+      vars:
+        openshift_control_plane_apply_cluster_signing_config: False
+
+- name: Re-enable excluders
+  import_playbook: enable_excluders.yml
+
+- name: Remove any undesired artifacts from build
+  import_playbook: clean_image.yml

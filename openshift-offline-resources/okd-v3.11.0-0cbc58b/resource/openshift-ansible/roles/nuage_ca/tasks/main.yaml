@@ -1,0 +1,58 @@
+---
+- name: Install openssl
+  package:
+    name: openssl
+    state: present
+  when: not openshift_is_atomic | bool
+  register: result
+  until: result is succeeded
+
+- name: Create CA directory
+  file: path="{{ nuage_ca_dir }}" state=directory
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"
+
+- name: Create certificate directory
+  file: path="{{ nuage_ca_master_crt_dir }}" state=directory
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"
+
+- name: Check if the CA key already exists
+  stat:
+    path: "{{ nuage_ca_key }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: nuage_ca_key_check
+  delegate_to: "{{ nuage_ca_master }}"
+
+- name: Create CA key
+  command: openssl genrsa -out "{{ nuage_ca_key }}" 4096
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"
+  when: nuage_ca_key_check.stat.exists is defined and nuage_ca_key_check.stat.exists == False
+
+- name: Check if the CA crt already exists
+  stat:
+    path: "{{ nuage_ca_crt }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: nuage_ca_crt_check
+  delegate_to: "{{ nuage_ca_master }}"
+
+- name: Create CA crt
+  command: openssl req -new -x509 -key "{{ nuage_ca_key }}" -out "{{ nuage_ca_crt }}" -subj "/CN=nuage-signer" -days {{ nuage_mon_cert_validity_period }}
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"
+  when: nuage_ca_crt_check.stat.exists is defined and nuage_ca_crt_check.stat.exists == False
+
+- name: Create the serial file
+  copy: src=serial.txt dest="{{ nuage_ca_serial }}"
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"
+
+- name: Copy SSL config file
+  copy: src=openssl.cnf dest="{{ nuage_ca_dir }}/openssl.cnf"
+  run_once: true
+  delegate_to: "{{ nuage_ca_master }}"

@@ -1,0 +1,8 @@
+---
+- name: include uninstall compute and infra node groups
+  include_tasks: uninstall_node_group.yml
+  with_items: "{{ openshift_aws_node_groups }}"
+  vars:
+    l_node_group_config: "{{ openshift_aws_node_group_config }}"
+  loop_control:
+    loop_var: openshift_aws_node_group

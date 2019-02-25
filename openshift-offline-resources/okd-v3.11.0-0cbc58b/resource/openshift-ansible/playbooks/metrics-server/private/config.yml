@@ -1,0 +1,31 @@
+---
+- name: metrics-server Install Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set metrics-server install 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_metrics_server:
+          title: "metrics-server Install"
+          playbook: "playbooks/metrics-server/config.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+- name: OpenShift metrics-server
+  hosts: oo_first_master
+  roles:
+  - role: metrics_server
+
+- name: metrics-server Install Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set metrics-server install 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        installer_phase_metrics_server:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

@@ -1,0 +1,19 @@
+---
+# l_scale_up_hosts may be passed in via prerequisites.yml during scaleup plays.
+# l_etcd_scale_up_crt_hosts may be passed in via prerequisites.yml during etcd
+# scaleup plays.
+
+- hosts: "{{ l_etcd_scale_up_crt_hosts | default(l_scale_up_hosts) | default('oo_nodes_to_config') }}"
+  # role: container_runtime is necessary  here to bring role default variables
+  # into the play scope.
+  roles:
+    - role: container_runtime
+  tasks:
+    - import_role:
+        name: container_runtime
+        tasks_from: docker_storage_setup_overlay.yml
+      when:
+        - container_runtime_docker_storage_type|default('') == "overlay2"
+    - import_role:
+        name: container_runtime
+        tasks_from: extra_storage_setup.yml

@@ -1,0 +1,17 @@
+---
+__allowed_es_types: ["data-master", "data-client", "master", "client"]
+__es_log_appenders: ['file', 'console']
+__kibana_index_modes: ["unique", "shared_ops", "shared_non_ops"]
+
+__es_local_curl: "curl -s --cacert /etc/elasticsearch/secret/admin-ca --cert /etc/elasticsearch/secret/admin-cert --key /etc/elasticsearch/secret/admin-key"
+
+__elasticsearch_ready_retries: "{{ openshift_logging_elasticsearch_poll_timeout_minutes | default(60) | int * 2 }}"
+__es_major_version: 5
+
+# TODO: integrate these
+es_node_quorum: "{{ openshift_logging_elasticsearch_replica_count | int/2 + 1 }}"
+es_min_masters_default: "{{ (openshift_logging_elasticsearch_replica_count | int / 2 | round(0,'floor') + 1) | int }}"
+es_min_masters: "{{ (openshift_logging_elasticsearch_replica_count == 1) | ternary(1, es_min_masters_default) }}"
+es_recover_after_nodes: "{{ openshift_logging_elasticsearch_replica_count | int }}"
+es_recover_expected_nodes: "{{ openshift_logging_elasticsearch_replica_count | int }}"
+full_restart_cluster: False

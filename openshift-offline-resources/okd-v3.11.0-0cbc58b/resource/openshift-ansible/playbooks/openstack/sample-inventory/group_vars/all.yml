@@ -1,0 +1,202 @@
+---
+openshift_openstack_clusterid: "openshift"
+openshift_openstack_public_dns_domain: "example.com"
+openshift_openstack_dns_nameservers: []
+
+# # Used Hostnames
+# # - set custom hostnames for roles by uncommenting corresponding lines
+#openshift_openstack_master_hostname: "master"
+#openshift_openstack_infra_hostname: "infra-node"
+#openshift_openstack_cns_hostname: "cns"
+#openshift_openstack_node_hostname: "app-node"
+#openshift_openstack_lb_hostname: "lb"
+#openshift_openstack_etcd_hostname: "etcd"
+
+openshift_openstack_keypair_name: "openshift"
+openshift_openstack_external_network_name: "public"
+#openshift_openstack_private_network_name:  "openshift-ansible-{{ openshift_openstack_stack_name }}-net"
+# # A dedicated Neutron network name for containers data network
+# # Configures the data network to be separated from openshift_openstack_private_network_name
+# # NOTE: this is only supported with Flannel SDN yet
+#openstack_private_data_network_name: "openshift-ansible-{{ openshift_openstack_stack_name }}-data-net"
+
+## Kuryr networking
+# TODO: Allow the user to specify pre-existing subnets for pod and services
+#openshift_openstack_kuryr_service_subnet_cidr: "172.30.0.0/16"
+
+## You should set the following if you want to use Kuryr/Neutron as your SDN
+#openshift_use_kuryr: True
+#openshift_use_openshift_sdn: False
+
+# NOTE: you must uncomment these for Kuryr to work properly as well:
+# openshift_master_open_ports:
+# - service: dns tcp
+#   port: 53/tcp
+# - service: dns udp
+#   port: 53/udp
+# openshift_node_open_ports:
+# - service: dns tcp
+#   port: 53/tcp
+# - service: dns udp
+#   port: 53/udp
+
+#use_trunk_ports: True
+#os_sdn_network_plugin_name: cni
+#openshift_node_proxy_mode: userspace
+
+# # Kuryr needs to know the network or the subnet you will be taking Floating
+# IPs for the loadbalancer services from.
+# kuryr_openstack_public_net_id: uuid_of_my_fip_net
+# If you have different subnet at the Floating IP network you can also specify
+# it but need to ensure default policy allows your tennat to retrieve that
+# information
+# kuryr_openstack_public_subnet_id: uuid_of_my_fip_subnet
+
+# # Kuryr can use a different subnet per namespace
+# openshift_kuryr_subnet_driver: namespace
+# openshift_kuryr_sg_driver: namespace
+
+# If you VM images will name the ethernet device different than 'eth0',
+# override this
+#kuryr_cni_link_interface: eth0
+
+## Ports pooling is enabled by default (with nested driver).
+## To disable, uncomment the next:
+#kuryr_openstack_pool_driver: noop
+#
+## You can also alter the port pooling defaults here
+#kuryr_openstack_pool_max: 0
+#kuryr_openstack_pool_min: 1
+#kuryr_openstack_pool_batch: 5
+#kuryr_openstack_pool_update_frequency: 20
+#
+## You can pre-populate the pools with subports by uncommenting the next line
+## and specifying the amount of subports you want to pre-create per
+## origin-node, e.g.: openshift_kuryr_precreate_subports: 5
+#openshift_kuryr_precreate_subports: false
+#
+## You can also change the default device owner for the precreated subports
+#openshift_kuryr_device_owner: compute:kuryr
+#
+# You can also disable the kuryr controller and cni healthcheck probes by
+# uncommenting the next
+# enable_kuryr_controller_probes: False
+# enable_kuryr_cni_probes: False
+
+
+## If you want to use a provider network, set its name here.
+## NOTE: the `openshift_openstack_external_network_name` and
+## `openshift_openstack_private_network_name` options will be ignored when using a
+## provider network.
+#openshift_openstack_provider_network_name: "provider"
+
+# # Used Images
+# # - set specific images for roles by uncommenting corresponding lines
+# # - note: do not remove openshift_openstack_default_image_name definition
+#openshift_openstack_master_image_name: "centos7"
+#openshift_openstack_infra_image_name: "centos7"
+#openshift_openstack_cns_image_name: "centos7"
+#openshift_openstack_node_image_name: "centos7"
+#openshift_openstack_lb_image_name: "centos7"
+#openshift_openstack_etcd_image_name: "centos7"
+openshift_openstack_default_image_name: "centos7"
+
+openshift_openstack_num_masters: 1
+openshift_openstack_num_infra: 1
+openshift_openstack_num_cns: 0
+openshift_openstack_num_nodes: 2
+openshift_openstack_num_etcd: 0
+
+# # Public IP Allocation
+# # - manage which node roles are allocated public IP addresses
+# # - by default, all roles are given Public IP addresses
+#openshift_openstack_master_floating_ip: true
+#openshift_openstack_infra_floating_ip: true
+#openshift_openstack_etcd_floating_ip: true
+#openshift_openstack_load_balancer_floating_ip: true
+#openshift_openstack_compute_floating_ip: true
+
+# # Used Flavors
+# # - set specific flavors for roles by uncommenting corresponding lines
+# # - note: do note remove openshift_openstack_default_flavor definition
+#openshift_openstack_master_flavor: "m1.medium"
+#openshift_openstack_infra_flavor: "m1.medium"
+#openshift_openstack_cns_flavor: "m1.medium"
+#openshift_openstack_node_flavor: "m1.medium"
+#openshift_openstack_lb_flavor: "m1.medium"
+#openshift_openstack_etcd_flavor: "m1.medium"
+openshift_openstack_default_flavor: "m1.medium"
+
+# # Numerical index of nodes to remove
+# openshift_openstack_nodes_to_remove: []
+
+
+## Select a load balancer solution you desire. Only one of these can be
+## `true` at a time. If they're both `false`, no load balancer will be deployed.
+#openshift_openstack_use_lbaas_load_balancer: false
+#openshift_openstack_use_vm_load_balancer: false
+
+
+# # Docker volume size
+# # - set specific volume size for roles by uncommenting corresponding lines
+# # - note: do not remove docker_default_volume_size definition
+#openshift_openstack_master_volume_size: "15"
+#openshift_openstack_infra_volume_size: "15"
+#openshift_openstack_cns_volume_size: "15"
+#openshift_openstack_node_volume_size: "15"
+#openshift_openstack_etcd_volume_size: "2"
+#openshift_openstack_lb_volume_size: "5"
+openshift_openstack_docker_volume_size: "15"
+
+## Specify server group policies for master and infra nodes. Nova must be configured to
+## enable these policies. 'anti-affinity' will ensure that each VM is launched on a
+## different physical host.
+#openshift_openstack_master_server_group_policies: [anti-affinity]
+#openshift_openstack_infra_server_group_policies: [anti-affinity]
+
+
+# The Classless Inter-Domain Routing (CIDR) for the OpenStack VM subnet.
+openshift_openstack_subnet_cidr: "192.168.99.0/24"
+# The starting IP address for the OpenStack subnet allocation pool.
+openshift_openstack_pool_start: "192.168.99.3"
+# The ending IP address for the OpenStack subnet allocation pool.
+openshift_openstack_pool_end: "192.168.99.254"
+
+## Red Hat subscription using user/password
+#rhsub_user: '<username>'
+#rhsub_pass: '<password>'
+# Or if using activation key:
+#rhsub_ak: '<ak>'
+#rhsub_orgid: '<orgid>'
+#rhsub_pool: '<pool name>'
+
+
+# # Roll-your-own DNS
+#openshift_openstack_external_nsupdate_keys:
+#  public:
+#    key_secret: 'SKqKNdpfk7llKxZ57bbxUnUDobaaJp9t8CjXLJPl+fRI5mPcSBuxTAyvJPa6Y9R7vUg9DwCy/6WTpgLNqnV4Hg=='
+#    key_algorithm: 'hmac-md5'
+#    server: '192.168.1.1'
+#  private:
+#    key_secret: 'kVE2bVTgZjrdJipxPhID8BEZmbHD8cExlVPR+zbFpW6la8kL5wpXiwOh8q5AAosXQI5t95UXwq3Inx8QT58duw=='
+#    key_algorithm: 'hmac-md5'
+#    server: '192.168.1.2'
+
+
+# NOTE(shadower): Do not change this value. The Ansible user is currently
+# hardcoded to `openshift`.
+ansible_user: openshift
+
+# Resolve heat stack outputs. Disabling outputs helps stack scalability. (default: True)
+#openshift_openstack_resolve_heat_outputs: True
+
+# # Use a single security group for a cluster (default: false)
+#openshift_openstack_flat_secgrp: false
+
+# If you want to use the VM storage instead of Cinder volumes, set this to `true`.
+# NOTE: this is for testing only! Your data will be gone once the VM disappears!
+# openshift_openstack_ephemeral_volumes: false
+
+## cloud config
+openshift_openstack_disable_root: true
+openshift_openstack_user: openshift

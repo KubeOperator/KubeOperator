@@ -1,0 +1,15 @@
+---
+- name: remove yum client certificate
+  file:
+    state: absent
+    path: "/var/lib/yum/{{ item.name }}"
+  with_items:
+  - name: client-cert.pem
+  - name: client-key.pem
+  when: ansible_distribution == "RedHat"
+
+- name: remove yum repositories
+  yum_repository:
+    state: absent
+    name: "{{ item.name }}"
+  with_items: "{{ openshift_additional_repos }}"

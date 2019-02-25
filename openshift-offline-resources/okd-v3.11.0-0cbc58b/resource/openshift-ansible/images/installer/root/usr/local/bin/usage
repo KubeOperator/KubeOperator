@@ -1,0 +1,33 @@
+#!/bin/bash -e
+cat <<"EOF"
+
+The origin-ansible image provides several options to control the behaviour of the containers.
+For more details on these options see the documentation:
+
+  https://github.com/openshift/openshift-ansible/blob/master/README_CONTAINER_IMAGE.md
+
+At a minimum, when running a container using this image you must provide:
+
+* ssh keys so that Ansible can reach your hosts. These should be mounted as a volume under
+  /opt/app-root/src/.ssh
+* An inventory file. This can be mounted inside the container as a volume and specified with the
+  INVENTORY_FILE environment variable. Alternatively you can serve the inventory file from a web
+  server and use the INVENTORY_URL environment variable to fetch it.
+* The playbook to run. This is set using the PLAYBOOK_FILE environment variable.
+
+Here is an example of how to run a containerized origin-ansible with
+the openshift_facts playbook, which collects and displays facts about your
+OpenShift environment. The inventory and ssh keys are mounted as volumes
+(the latter requires setting the uid in the container and SELinux label
+in the key file via :Z so they can be accessed) and the PLAYBOOK_FILE
+environment variable is set to point to the playbook within the image:
+
+docker run -tu `id -u` \
+       -v $HOME/.ssh/id_rsa:/opt/app-root/src/.ssh/id_rsa:Z,ro \
+       -v /etc/ansible/hosts:/tmp/inventory:Z,ro \
+       -e INVENTORY_FILE=/tmp/inventory \
+       -e OPTS="-v" \
+       -e PLAYBOOK_FILE=playbooks/byo/openshift_facts.yml \
+       docker.io/openshift/origin-ansible
+
+EOF

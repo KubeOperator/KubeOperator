@@ -1,0 +1,13 @@
+---
+galaxy_info:
+  author: Diego Abelenda
+  description: OpenShift Persistent Local Volumes
+  company: Camptocamp
+  license: Apache License, Version 2.0
+  min_ansible_version: 1.9
+  platforms:
+  - name: EL
+    versions:
+    - 7
+dependencies:
+- role: lib_openshift

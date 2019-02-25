@@ -1,0 +1,219 @@
+---
+# Disable external communication for {{ _cluster_component }}
+- name: Disable external communication for logging-{{ _cluster_component }}
+  oc_service:
+    state: present
+    name: "logging-{{ _cluster_component }}"
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    selector:
+      component: "{{ _cluster_component }}"
+      provider: openshift
+      connection: blocked
+    labels:
+      logging-infra: 'support'
+    ports:
+    - port: 9200
+      targetPort: "restapi"
+
+- command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    get pod
+    -l component={{ _cluster_component }},provider=openshift
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -o jsonpath={.items[?(@.status.phase==\"Running\")].metadata.name}
+  register: _cluster_pods
+
+- name: "Disable shard balancing for logging-{{ _cluster_component }} cluster"
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    exec {{ _cluster_pods.stdout.split(' ')[0] }}
+    -c elasticsearch
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -- es_util --query=_cluster/settings -XPUT -d '{ "transient": { "cluster.routing.allocation.enable" : "none" } }'
+  register: _disable_output
+  changed_when:
+  - "_disable_output.stdout != ''"
+  - (_disable_output.stdout | from_json)['acknowledged'] | bool
+
+# Flush ES
+# This is documented as a best effort, if it fails, we are okay with that
+- name: "Flushing for logging-{{ _cluster_component }} cluster"
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    exec {{ _cluster_pods.stdout.split(' ')[0] }}
+    -c elasticsearch
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -- es_util --query=_flush/synced -XPOST
+  register: _flush_output
+  changed_when:
+  - "_flush_output.stdout != ''"
+  - (_flush_output.stdout | from_json)['_shards']['successful'] > 0
+  failed_when: false
+
+# Stop all nodes, then rollout all nodes
+- name: Ready all nodes for scale down
+  shell: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    annotate "dc/{{ _es_node }}"
+    prior-replica-count=$({{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n {{ openshift_logging_elasticsearch_namespace }} get "dc/{{ _es_node }}" -o jsonpath='{.spec.replicas}')
+    --overwrite
+  with_items: "{{ logging_restart_cluster_dcs.split(' ') }}"
+  loop_control:
+    loop_var: _es_node
+
+- name: Scale down all nodes
+  oc_scale:
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    kind: dc
+    name: "{{ _es_node }}"
+    replicas: 0
+  with_items: "{{ logging_restart_cluster_dcs.split(' ') }}"
+  loop_control:
+    loop_var: _es_node
+
+- name: Rollout all updated DCs
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    rollout latest {{ _es_node }}
+    -n {{ openshift_logging_elasticsearch_namespace }}
+  with_items: "{{ logging_restart_cluster_dcs.split(' ') }}"
+  loop_control:
+    loop_var: _es_node
+
+- name: Scale up all nodes to previous replicas
+  shell: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    scale "dc/{{ _es_node }}"
+    --replicas=$({{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n {{ openshift_logging_elasticsearch_namespace }} get "dc/{{ _es_node }}" -o jsonpath='{.metadata.annotations.prior-replica-count}')
+  with_items: "{{ logging_restart_cluster_dcs.split(' ') }}"
+  loop_control:
+    loop_var: _es_node
+
+# Wait for all nodes to be deployed/ready again
+- name: "Waiting for {{ _es_node }} to finish scaling up"
+  oc_obj:
+    state: list
+    name: "{{ _es_node }}"
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    kind: dc
+  register: _dc_output
+  until:
+  - _dc_output.results.results[0].status is defined
+  - _dc_output.results.results[0].status.readyReplicas is defined
+  - _dc_output.results.results[0].status.readyReplicas > 0
+  - _dc_output.results.results[0].status.updatedReplicas is defined
+  - _dc_output.results.results[0].status.updatedReplicas > 0
+  retries: 60
+  delay: 30
+  with_items: "{{ logging_restart_cluster_dcs.split(' ') }}"
+  loop_control:
+    loop_var: _es_node
+  failed_when: false
+
+- when:
+  - _dc_output.failed is defined
+  - _dc_output.failed
+  name: Manual intervention required
+  run_once: true
+  set_stats:
+    data:
+      installer_phase_logging:
+        message: "Node in cluster logging-{{ _cluster_component }} was unable to rollout. Please see documentation regarding recovering during a {{ 'full' if full_restart_cluster | bool else 'rolling'}} cluster restart."
+
+- command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    get pod
+    -l component={{ _cluster_component }},provider=openshift
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -o jsonpath={.items[?(@.status.phase==\"Running\")].metadata.name}
+  register: _cluster_pods
+
+- name: Wait for cluster to be in at least yellow state
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    exec {{ _cluster_pods.stdout.split(' ')[0] }}
+    -c elasticsearch
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -- es_cluster_health
+  register: _cluster_status
+  until:
+  - "_cluster_status.stdout != ''"
+  - (_cluster_status.stdout | from_json)['status'] in ['yellow', 'green']
+  retries: "{{ __elasticsearch_ready_retries }}"
+  delay: 30
+  changed_when: false
+  failed_when: false
+
+- when:
+  - _cluster_status.failed is defined
+  - _cluster_status.failed
+  run_once: true
+  set_stats:
+    data:
+      installer_phase_logging:
+        message: "Cluster logging-{{ _cluster_component }} was unable to recover to at least a yellow state. Please see documentation regarding recovering during a {{ 'full' if full_restart_cluster | bool else 'rolling'}} cluster restart."
+
+- name: "Enable shard balancing for logging-{{ _cluster_component }} cluster"
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    exec {{ _cluster_pods.stdout.split(' ')[0] }}
+    -c elasticsearch
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -- es_util --query=_cluster/settings -XPUT -d '{ "transient": { "cluster.routing.allocation.enable" : "all" } }'
+  register: _enable_output
+  changed_when:
+  - "_enable_output.stdout != ''"
+  - (_enable_output.stdout | from_json)['acknowledged'] | bool
+
+# Skip healthcheck for a full cluster restart always since it could take a long time to recover?
+- name: "Waiting for ES node {{ _es_node }} health to be in ['green']"
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    exec {{ _cluster_pods.stdout.split(' ')[0] }}
+    -c elasticsearch
+    -n {{ openshift_logging_elasticsearch_namespace }}
+    -- es_cluster_health
+  register: _cluster_status
+  until:
+  - "_cluster_status.stdout != ''"
+  - (_cluster_status.stdout | from_json)['status'] in ['green']
+  retries: "{{ __elasticsearch_ready_retries }}"
+  delay: 30
+  changed_when: false
+  failed_when: false
+
+- when:
+  - _cluster_status.failed is defined
+  - _cluster_status.failed
+  run_once: true
+  set_stats:
+    data:
+      installer_phase_logging:
+        message: "Cluster logging-{{ _cluster_component }} was unable to recover to a green state. Please see documentation regarding recovering during a {{ 'full' if full_restart_cluster | bool else 'rolling'}} cluster restart."
+
+# Reenable external communication for {{ _cluster_component }}
+- name: Reenable external communication for logging-{{ _cluster_component }}
+  oc_service:
+    state: present
+    name: "logging-{{ _cluster_component }}"
+    namespace: "{{ openshift_logging_elasticsearch_namespace }}"
+    selector:
+      component: "{{ _cluster_component }}"
+      provider: openshift
+    labels:
+      logging-infra: 'support'
+    ports:
+    - port: 9200
+      targetPort: "restapi"

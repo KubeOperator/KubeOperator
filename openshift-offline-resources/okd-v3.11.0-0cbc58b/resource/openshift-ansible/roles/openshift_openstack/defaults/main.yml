@@ -1,0 +1,289 @@
+---
+openshift_openstack_stack_state: 'present'
+
+openshift_openstack_ssh_ingress_cidr: 0.0.0.0/0
+openshift_openstack_master_ingress_cidr: 0.0.0.0/0
+openshift_openstack_node_ingress_cidr: 0.0.0.0/0
+openshift_openstack_lb_ingress_cidr: 0.0.0.0/0
+openshift_openstack_num_etcd: 0
+openshift_openstack_num_masters: 1
+openshift_openstack_num_nodes: 1
+openshift_openstack_num_infra: 1
+openshift_openstack_num_cns: 0
+openshift_openstack_dns_nameservers: []
+openshift_openstack_nodes_to_remove: []
+
+openshift_openstack_use_lbaas_load_balancer: false
+openshift_openstack_lbaasv2_provider: Octavia
+openshift_openstack_use_vm_load_balancer: false
+openshift_openstack_api_lb_listeners_timeout: 500000
+
+openshift_docker_service_name: "docker"
+
+# container-storage-setup
+openshift_openstack_container_storage_setup:
+  docker_dev: "/dev/sdb"
+  docker_vg: "docker-vol"
+  docker_data_size: "95%VG"
+  docker_dm_basesize: "3G"
+  container_root_lv_name: "dockerlv"
+  container_root_lv_mount_path: "/var/lib/docker"
+
+
+# populate-dns
+openshift_openstack_dns_records_add: []
+
+openshift_openstack_public_hostname_suffix: ""
+openshift_openstack_private_hostname_suffix: ""
+openshift_openstack_public_dns_domain: "example.com"
+openshift_openstack_full_dns_domain: "{{ (openshift_openstack_clusterid|trim == '') | ternary(openshift_openstack_public_dns_domain, openshift_openstack_clusterid + '.' + openshift_openstack_public_dns_domain) }}"
+openshift_openstack_nsupdate_zone: "{{ openshift_openstack_full_dns_domain }}"
+
+
+# heat vars
+openshift_openstack_master_floating_ip: true
+openshift_openstack_infra_floating_ip: true
+openshift_openstack_compute_floating_ip: true
+openshift_openstack_etcd_floating_ip: true
+openshift_openstack_load_balancer_floating_ip: true
+openshift_openstack_heat_template_version: pike
+openshift_openstack_clusterid: openshift
+openshift_openstack_stack_name: "openshift-cluster"
+openshift_openstack_subnet_cidr: "192.168.99.0/24"
+openshift_openstack_pool_start: "192.168.99.3"
+openshift_openstack_pool_end: "192.168.99.254"
+openshift_openstack_kuryr_service_subnet_cidr: "172.30.0.0/16"
+openshift_openstack_kuryr_service_pool_start: "172.30.128.1"
+openshift_openstack_kuryr_service_pool_end: "172.30.255.253"
+openshift_openstack_kuryr_pod_subnet_cidr: "10.11.0.0/16"
+openshift_openstack_master_hostname: master
+openshift_openstack_infra_hostname: infra-node
+openshift_openstack_cns_hostname: cns
+openshift_openstack_node_hostname: app-node
+openshift_openstack_lb_hostname: lb
+openshift_openstack_etcd_hostname: etcd
+openshift_openstack_fqdn_nodes: true
+openshift_openstack_set_hostname_to_compute_name: true
+openshift_openstack_keypair_name: openshift
+openshift_openstack_lb_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_etcd_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_master_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_node_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_infra_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_cns_flavor: "{{ openshift_openstack_default_flavor }}"
+openshift_openstack_master_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_infra_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_cns_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_node_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_lb_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_etcd_image: "{{ openshift_openstack_default_image_name }}"
+openshift_openstack_provider_network_name: null
+openshift_openstack_external_network_name: null
+openshift_openstack_router_name: null
+openshift_openstack_node_subnet_name: null
+openshift_openstack_private_network: >-
+  {% if openshift_openstack_provider_network_name | default(None) -%}
+  {{ openshift_openstack_provider_network_name }}
+  {%- else -%}
+  {{ openshift_openstack_private_network_name | default ('openshift-ansible-' + openshift_openstack_stack_name + '-net') }}
+  {%- endif -%}
+openshift_openstack_node_run_bootstrap_startup: true
+openshift_openstack_master_server_group_policies: []
+openshift_openstack_infra_server_group_policies: []
+openshift_openstack_docker_volume_size: 15
+openshift_openstack_master_volume_size: "{{ openshift_openstack_docker_volume_size }}"
+openshift_openstack_infra_volume_size: "{{ openshift_openstack_docker_volume_size }}"
+openshift_openstack_cns_volume_size: "{{ openshift_openstack_docker_volume_size }}"
+openshift_openstack_node_volume_size: "{{ openshift_openstack_docker_volume_size }}"
+openshift_openstack_etcd_volume_size: 2
+openshift_openstack_lb_volume_size: 5
+openshift_openstack_ephemeral_volumes: false
+openshift_openstack_master_group_name: node-config-master
+openshift_openstack_infra_group_name: node-config-infra
+openshift_openstack_compute_group_name: node-config-compute
+
+# User commands for cloud-init executed on all Nova servers provisioned
+openshift_openstack_provision_user_commands: []
+
+# cloud-config
+openshift_openstack_disable_root: true
+openshift_openstack_user: openshift
+
+# security groups
+openshift_openstack_common_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: "{{ openshift_openstack_ssh_ingress_cidr }}"
+  - direction: ingress
+    protocol: icmp
+    remote_ip_prefix: "{{ openshift_openstack_ssh_ingress_cidr }}"
+openshift_openstack_master_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 4001
+    port_range_max: 4001
+  - direction: ingress
+    protocol: tcp
+    port_range_min: "{{ openshift_master_api_port }}"
+    port_range_max: "{{ openshift_master_api_port }}"
+  - direction: ingress
+    protocol: tcp
+    port_range_min: "{{ openshift_master_console_port|default(8443) }}"
+    port_range_max: "{{ openshift_master_console_port|default(8443) }}"
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 8053
+    port_range_max: 8053
+  - direction: ingress
+    protocol: udp
+    port_range_min: 8053
+    port_range_max: 8053
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 24224
+    port_range_max: 24224
+  - direction: ingress
+    protocol: udp
+    port_range_min: 24224
+    port_range_max: 24224
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 2224
+    port_range_max: 2224
+  - direction: ingress
+    protocol: udp
+    port_range_min: 5404
+    port_range_max: 5405
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 9090
+    port_range_max: 9090
+openshift_openstack_etcd_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 2379
+    port_range_max: 2379
+    remote_ip_prefix: "{{ openshift_openstack_master_ingress_cidr }}"
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 2380
+    port_range_max: 2380
+    remote_mode: remote_group_id
+openshift_openstack_node_secgroup_rules:
+  # NOTE(shadower): the 53 rules are needed for Kuryr
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 53
+    port_range_max: 53
+  - direction: ingress
+    protocol: udp
+    port_range_min: 53
+    port_range_max: 53
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 10250
+    port_range_max: 10250
+    remote_mode: remote_group_id
+  - direction: ingress
+    protocol: udp
+    port_range_min: 10250
+    port_range_max: 10250
+    remote_mode: remote_group_id
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 10255
+    port_range_max: 10255
+    remote_mode: remote_group_id
+  - direction: ingress
+    protocol: udp
+    port_range_min: 10255
+    port_range_max: 10255
+    remote_mode: remote_group_id
+  - direction: ingress
+    protocol: udp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_mode: remote_group_id
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 30000
+    port_range_max: 32767
+    remote_ip_prefix: "{{ openshift_openstack_node_ingress_cidr }}"
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 30000
+    port_range_max: 32767
+    remote_ip_prefix: "{{ openshift_openstack_subnet_cidr }}"
+openshift_openstack_infra_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 443
+    port_range_max: 443
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 1936
+    port_range_max: 1936
+openshift_openstack_cns_secgroup_rules:
+  # rpcbind
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 111
+    port_range_max: 111
+  # glusterfs_sshd
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 2222
+    port_range_max: 2222
+  # iscsi-targets
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 3260
+    port_range_max: 3260
+  # heketi dialing backends
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 10250
+    port_range_max: 10250
+  # glusterfs_management
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 24007
+    port_range_max: 24007
+  # glusterfs_rdma
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 24008
+    port_range_max: 24008
+  # glusterblockd
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 24010
+    port_range_max: 24010
+  # glusterfs_bricks
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 49152
+    port_range_max: 49251
+openshift_openstack_lb_base_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: 443
+    port_range_max: 443
+    remote_ip_prefix: "{{ openshift_openstack_lb_ingress_cidr }}"
+  - direction: ingress
+    protocol: tcp
+    port_range_min: "{{ openshift_master_api_port }}"
+    port_range_max: "{{ openshift_master_api_port }}"
+    remote_ip_prefix: "{{ openshift_openstack_lb_ingress_cidr }}"
+openshift_openstack_lb_console_secgroup_rules:
+  - direction: ingress
+    protocol: tcp
+    port_range_min: "{{ openshift_master_console_port | default(8443) }}"
+    port_range_max: "{{ openshift_master_console_port | default(8443) }}"
+    remote_ip_prefix: "{{ openshift_openstack_lb_ingress_cidr }}"

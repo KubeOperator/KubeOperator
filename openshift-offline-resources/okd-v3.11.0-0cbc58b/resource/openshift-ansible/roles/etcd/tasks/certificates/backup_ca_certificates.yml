@@ -1,0 +1,15 @@
+---
+- name: Determine if CA certificate directory exists
+  stat:
+    path: "{{ etcd_ca_dir }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: etcd_ca_certs_dir_stat
+- name: Backup generated etcd certificates
+  command: >
+    tar -czf {{ etcd_conf_dir }}/etcd-ca-certificate-backup-{{ ansible_date_time.epoch }}.tgz
+    {{ etcd_ca_dir }}
+  args:
+    warn: no
+  when: etcd_ca_certs_dir_stat.stat.exists | bool

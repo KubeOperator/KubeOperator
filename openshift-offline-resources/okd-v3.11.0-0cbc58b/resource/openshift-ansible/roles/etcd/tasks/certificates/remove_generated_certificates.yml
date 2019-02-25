@@ -1,0 +1,5 @@
+---
+- name: Remove generated etcd certificates
+  file:
+    path: "{{ etcd_conf_dir }}/generated_certs"
+    state: absent

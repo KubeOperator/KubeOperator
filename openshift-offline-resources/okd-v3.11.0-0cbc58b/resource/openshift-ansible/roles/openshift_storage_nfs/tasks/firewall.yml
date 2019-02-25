@@ -1,0 +1,40 @@
+---
+- when: r_openshift_storage_nfs_firewall_enabled | bool and not r_openshift_storage_nfs_use_firewalld | bool
+  block:
+  - name: Add iptables allow rules
+    os_firewall_manage_iptables:
+      name: "{{ item.service }}"
+      action: add
+      protocol: "{{ item.port.split('/')[1] }}"
+      port: "{{ item.port.split('/')[0] }}"
+    when: item.cond | default(True)
+    with_items: "{{ r_openshift_storage_nfs_os_firewall_allow }}"
+
+  - name: Remove iptables rules
+    os_firewall_manage_iptables:
+      name: "{{ item.service }}"
+      action: remove
+      protocol: "{{ item.port.split('/')[1] }}"
+      port: "{{ item.port.split('/')[0] }}"
+    when: item.cond | default(True)
+    with_items: "{{ r_openshift_storage_nfs_os_firewall_deny }}"
+
+- when: r_openshift_storage_nfs_firewall_enabled | bool and r_openshift_storage_nfs_use_firewalld | bool
+  block:
+  - name: Add firewalld allow rules
+    firewalld:
+      port: "{{ item.port }}"
+      permanent: true
+      immediate: true
+      state: enabled
+    when: item.cond | default(True)
+    with_items: "{{ r_openshift_storage_nfs_os_firewall_allow }}"
+
+  - name: Remove firewalld allow rules
+    firewalld:
+      port: "{{ item.port }}"
+      permanent: true
+      immediate: true
+      state: disabled
+    when: item.cond | default(True)
+    with_items: "{{ r_openshift_storage_nfs_os_firewall_deny }}"

@@ -1,0 +1,9 @@
+---
+- name: Create Hosted Resources - registry storage
+  hosts: oo_first_master
+  tasks:
+  - import_role:
+      name: openshift_hosted
+      tasks_from: registry_storage.yml
+    when:
+    - openshift_hosted_manage_registry | default(True) | bool

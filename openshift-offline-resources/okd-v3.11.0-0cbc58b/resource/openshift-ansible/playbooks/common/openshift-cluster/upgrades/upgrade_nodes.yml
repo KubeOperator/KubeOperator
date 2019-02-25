@@ -1,0 +1,96 @@
+---
+- name: Prepull images and rpms before doing rolling restart
+  hosts: oo_nodes_to_upgrade:!oo_masters_to_config
+  roles:
+  - role: openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade_pre.yml
+
+- name: Drain and upgrade nodes
+  hosts: oo_nodes_to_upgrade:!oo_masters_to_config
+  # This var must be set with -e on invocation, as it is not a per-host inventory var
+  # and is evaluated early. Values such as "20%" can also be used.
+  serial: "{{ openshift_upgrade_nodes_serial | default(1) }}"
+  max_fail_percentage: "{{ openshift_upgrade_nodes_max_fail_percentage | default(0) }}"
+  roles:
+  - lib_openshift
+  - openshift_facts
+  pre_tasks:
+  # TODO: To better handle re-trying failed upgrades, it would be nice to check if the node
+  # or docker actually needs an upgrade before proceeding. Perhaps best to save this until
+  # we merge upgrade functionality into the base roles and a normal config.yml playbook run.
+  - name: Mark node unschedulable
+    oc_adm_manage_node:
+      node: "{{ l_kubelet_node_name | lower }}"
+      schedulable: False
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    retries: 10
+    delay: 5
+    register: node_unschedulable
+    until: node_unschedulable is succeeded
+
+  - name: Drain Node for Kubelet upgrade
+    command: >
+      {{ hostvars[groups.oo_first_master.0]['first_master_client_binary'] }} adm drain {{ l_kubelet_node_name | lower }}
+      --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+      --force --delete-local-data --ignore-daemonsets
+      --timeout={{ openshift_upgrade_nodes_drain_timeout | default(0) }}s
+    delegate_to: "{{ groups.oo_first_master.0 }}"
+    register: l_upgrade_nodes_drain_result
+    until: not (l_upgrade_nodes_drain_result is failed)
+    retries: "{{ 1 if ( openshift_upgrade_nodes_drain_timeout | default(0) | int ) == 0 else 0 }}"
+    delay: 5
+    failed_when:
+    - l_upgrade_nodes_drain_result is failed
+    - openshift_upgrade_nodes_drain_timeout | default(0) | int == 0
+
+  # Run the pre-upgrade hook if defined:
+  - debug: msg="Running node pre-upgrade hook {{ openshift_node_upgrade_pre_hook }}"
+    when: openshift_node_upgrade_pre_hook is defined
+
+  - include_tasks: "{{ openshift_node_upgrade_pre_hook }}"
+    when: openshift_node_upgrade_pre_hook is defined
+
+  post_tasks:
+  - import_role:
+      name: openshift_node
+      tasks_from: upgrade.yml
+
+  # Run the upgrade hook prior to make the node schedulable again.
+  - debug: msg="Running node upgrade hook {{ openshift_node_upgrade_hook }}"
+    when: openshift_node_upgrade_hook is defined
+
+  - include_tasks: "{{ openshift_node_upgrade_hook }}"
+    when: openshift_node_upgrade_hook is defined
+
+  - import_role:
+      name: openshift_manage_node
+      tasks_from: config.yml
+    vars:
+      openshift_master_host: "{{ groups.oo_first_master.0 }}"
+
+  # Run the post-upgrade hook if defined:
+  - debug: msg="Running node post-upgrade hook {{ openshift_node_upgrade_post_hook }}"
+    when: openshift_node_upgrade_post_hook is defined
+
+  - include_tasks: "{{ openshift_node_upgrade_post_hook }}"
+    when: openshift_node_upgrade_post_hook is defined
+
+  # If the host is a gluster host, need to verify gluster is healthy before
+  # moving to the next host.
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: check_cluster_health.yml
+    when: >
+          ('glusterfs' in groups and inventory_hostname in groups['glusterfs'])
+          or ('glusterfs_registry' in groups and inventory_hostname in groups['glusterfs_registry'])
+
+- name: Re-enable excluders
+  hosts: oo_nodes_to_upgrade:!oo_masters_to_config
+  tasks:
+  - import_role:
+      name: openshift_excluder
+    vars:
+      r_openshift_excluder_action: enable

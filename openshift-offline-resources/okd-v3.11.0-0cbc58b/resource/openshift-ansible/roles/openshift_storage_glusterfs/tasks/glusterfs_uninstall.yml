@@ -1,0 +1,172 @@
+---
+
+- name: Delete pre-existing heketi resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "template,route,service,dc,jobs,secret"
+    selector: "deploy-heketi"
+  - kind: "svc"
+    name: "heketi-storage-endpoints"
+  - kind: "svc"
+    name: "heketi-storage"
+  - kind: "secret"
+    name: "heketi-{{ glusterfs_name }}-topology-secret"
+  - kind: "template,route,service,dc"
+    name: "heketi-{{ glusterfs_name }}"
+  - kind: "svc"
+    name: "heketi-db-{{ glusterfs_name }}-endpoints"
+  - kind: "sa"
+    name: "heketi-{{ glusterfs_name }}-service-account"
+  - kind: "secret"
+    name: "heketi-{{ glusterfs_name }}-admin-secret"
+  - kind: "secret"
+    name: "heketi-{{ glusterfs_name }}-config-secret"
+  failed_when: False
+
+- name: Delete pre-existing GlusterFS resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name }}"
+    state: absent
+  with_items:
+  - kind: template
+    name: glusterfs
+  - kind: daemonset
+    name: "glusterfs-{{ glusterfs_name }}"
+  - kind: storageclass
+    name: "glusterfs-{{ glusterfs_name }}"
+
+- name: Unlabel GlusterFS nodes
+  oc_label:
+    name: "{{ hostvars[item].l_kubelet_node_name }}"
+    kind: node
+    state: absent
+    labels: "{{ glusterfs_nodeselector | lib_utils_oo_dict_to_list_of_dict }}"
+  with_items: "{{ glusterfs_nodes }}"
+  when: "'openshift' in hostvars[item]"
+
+- name: Delete deploy resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "template,route,service,jobs,dc,secret"
+    selector: "deploy-heketi"
+  - kind: "svc"
+    name: "heketi-storage-endpoints"
+  - kind: "secret"
+    name: "heketi-{{ glusterfs_name }}-topology-secret"
+
+- name: Delete glusterblock provisioner resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "all,deploy,sa,clusterrole,clusterrolebinding"
+    selector: "glusterblock"
+  failed_when: False
+
+- name: Delete gluster-s3 resources
+  oc_obj:
+    namespace: "{{ glusterfs_namespace }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name | default(omit) }}"
+    selector: "{{ item.selector | default(omit) }}"
+    state: absent
+  with_items:
+  - kind: "all,svc,deploy,secret,sc,pvc"
+    selector: "gluster-s3"
+  failed_when: False
+
+- name: Stop GlusterFS processes (external)
+  command: "/usr/share/glusterfs/scripts/stop-all-gluster-processes.sh"
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  when:
+  - not glusterfs_is_native | bool
+
+- name: Unmount bricks (external)
+  shell: "for brick in `ls -d /var/lib/heketi/mounts/vg_*/*`; do umount $brick; done"
+  register: bricks
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  when:
+  - not glusterfs_is_native | bool
+
+- name: Delete GlusterFS config
+  file:
+    path: /var/lib/glusterd
+    state: absent
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+
+- name: Delete additional GlusterFS config
+  file:
+    path: /etc/glusterfs
+    state: absent
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+
+- name: Delete Heketi config
+  file:
+    path: /var/lib/heketi
+    state: absent
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+
+- name: Delete Glusterfs logs
+  file:
+    path: /var/log/glusterfs
+    state: absent
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+
+# This recreates expected directory structures
+- name: Reinstall GlusterFS Server (external)
+  command: "yum reinstall -y glusterfs*"
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  when:
+  - not glusterfs_is_native | bool
+  - not openshift_is_atomic | bool
+
+- name: Get GlusterFS storage devices state
+  command: "pvdisplay -C --noheadings -o pv_name,vg_name {% for device in hostvars[item].glusterfs_devices %}{{ device }} {% endfor %}"
+  register: devices_info
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  failed_when: False
+  when: glusterfs_wipe
+
+  # Runs "lvremove -ff <vg>; vgremove -fy <vg>; pvremove -fy <pv>" for every device found to be a physical volume.
+- name: Clear GlusterFS storage device contents
+  shell: "{% for line in item.stdout_lines %}{% set fields = line.split() %}{% if fields | count > 1 %}lvremove -ff {{ fields[1] }}; vgchange -an {{ fields[1] }}; vgremove -fy {{ fields[1] }}; dmsetup remove {{ fields[1] }}; {% endif %}pvremove -fy {{ fields[0] }}; {% endfor %}"
+  delegate_to: "{{ item.item }}"
+  with_items: "{{ devices_info.results }}"
+  register: clear_devices
+  until:
+  - "'contains a filesystem in use' not in clear_devices.stderr"
+  delay: 1
+  retries: 30
+  when:
+  - glusterfs_wipe
+  - item.stdout_lines | count > 0
+
+- name: Wipe filesystem signatures from storage devices
+  command: "wipefs -a {% for device in hostvars[item].glusterfs_devices %}{{ device }} {% endfor %}"
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  failed_when: False
+  when: glusterfs_wipe

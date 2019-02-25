@@ -1,0 +1,9 @@
+---
+- name: Delete Metering S3 bucket for Storage using AWS S3
+  local_action:
+    module: s3_bucket
+    state: absent
+    name: "{{ openshift_metering_s3_storage_bucket_name }}"
+    # delete all keys, since a bucket must be empty to be deleted
+    force: yes
+  when: openshift_metering_s3_bucket_delete | bool

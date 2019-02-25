@@ -1,0 +1,21 @@
+---
+- name: Update master count
+  hosts: oo_masters:!oo_masters_to_config
+  serial: 1
+  tasks:
+  - name: Update master count
+    import_role:
+      name: openshift_control_plane
+      tasks_from: update_master_count.yml
+
+- import_playbook: ../../openshift-node/private/bootstrap.yml
+
+- import_playbook: ../../openshift-etcd/private/master_etcd_certificates.yml
+
+- import_playbook: config.yml
+
+- import_playbook: ../../openshift-node/private/join.yml
+
+- import_playbook: ../../openshift-loadbalancer/private/config.yml
+
+- import_playbook: ../../openshift-glusterfs/private/add_hosts.yml

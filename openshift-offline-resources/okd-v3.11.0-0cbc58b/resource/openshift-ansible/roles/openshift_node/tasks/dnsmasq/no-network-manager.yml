@@ -1,0 +1,10 @@
+---
+- name: Install NetworkManager during node_bootstrap provisioning
+  package:
+    name: NetworkManager
+    state: present
+  notify: restart NetworkManager
+  register: result
+  until: result is succeeded
+
+- import_tasks: network-manager.yml

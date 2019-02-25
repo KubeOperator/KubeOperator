@@ -1,0 +1,458 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "annotations": {
+            "iconClass": "icon-datagrid",
+            "tags": "datagrid,jboss",
+            "version": "1.4.14",
+            "openshift.io/display-name": "JBoss Data Grid 7.1 (Ephemeral, no https)",
+            "openshift.io/provider-display-name": "Red Hat, Inc.",
+            "description": "An example JBoss Data Grid application. For more information about using this template, see https://github.com/jboss-openshift/application-templates.",
+            "template.openshift.io/long-description": "This template defines resources needed to develop Red Hat JBoss Data Grid 7.1 based application, including a deployment configuration, using using ephemeral (temporary) storage and communication using http.",
+            "template.openshift.io/documentation-url": "https://access.redhat.com/documentation/en/red-hat-jboss-data-grid/",
+            "template.openshift.io/support-url": "https://access.redhat.com"
+        },
+        "name": "datagrid71-basic"
+    },
+    "labels": {
+        "template": "datagrid71-basic",
+        "xpaas": "1.4.14"
+    },
+    "message": "A new data grid service has been created in your project. It supports connector type(s) \"${INFINISPAN_CONNECTORS}\".",
+    "parameters": [
+        {
+            "displayName": "Application Name",
+            "description": "The name for the application.",
+            "name": "APPLICATION_NAME",
+            "value": "datagrid-app",
+            "required": true
+        },
+        {
+            "displayName": "Custom http Route Hostname",
+            "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+            "name": "HOSTNAME_HTTP",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Username",
+            "description": "User name for JDG user.",
+            "name": "USERNAME",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Password",
+            "description": "The password to access the JDG Caches. Must be different than username; must not be root, admin, or administrator; must contain at least 8 characters, 1 alphabetic character(s), 1 digit(s), and 1 non-alphanumeric symbol(s). (optional)",
+            "name": "PASSWORD",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "JDG User Roles/Groups",
+            "description": "Comma delimited list of roles/groups associated with the JDG user",
+            "name": "ADMIN_GROUP",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Hotrod Authentication",
+            "description": "Enable Hotrod Authentication",
+            "name": "HOTROD_AUTHENTICATION",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Container Security Role Mapper",
+            "description": "Defines which role mapper to use for cache authentication",
+            "name": "CONTAINER_SECURITY_ROLE_MAPPER",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Container Security Roles",
+            "description": "Comma delimited list of role names and assigned permissions",
+            "name": "CONTAINER_SECURITY_ROLES",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "ImageStream Namespace",
+            "description": "Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.",
+            "name": "IMAGE_STREAM_NAMESPACE",
+            "value": "openshift",
+            "required": true
+        },
+        {
+            "displayName": "Infinispan Connectors",
+            "description": "Comma-separated list of connector types that should be configured (defaults to 'memcached,hotrod,rest')",
+            "name": "INFINISPAN_CONNECTORS",
+            "value": "hotrod,memcached,rest",
+            "required": false
+        },
+        {
+            "displayName": "Cache Names",
+            "description": "Comma-separated list of caches to configure.  By default, a distributed-cache, with a mode of SYNC will be configured for each entry.",
+            "name": "CACHE_NAMES",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Datavirt Cache Names",
+            "description": "Comma-separated list of caches to configure for use by Red Hat JBoss Data Virtualization for materialization of views.  Three caches will be created for each named cache: <name>, <name>_staging and <name>_alias.",
+            "name": "DATAVIRT_CACHE_NAMES",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Default Cache Type",
+            "description": "Default cache type for all caches. If empty then distributed will be the default",
+            "name": "CACHE_TYPE_DEFAULT",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Encryption Requires SSL Client Authentication?",
+            "description": "",
+            "name": "ENCRYPTION_REQUIRE_SSL_CLIENT_AUTH",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Memcached Cache Name",
+            "description": "The name of the cache to expose through this memcached connector (defaults to 'default')",
+            "name": "MEMCACHED_CACHE",
+            "value": "default",
+            "required": false
+        },
+        {
+            "displayName": "REST Security Domain",
+            "description": "The domain, declared in the security subsystem, that should be used to authenticate access to the REST endpoint",
+            "name": "REST_SECURITY_DOMAIN",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "JGroups Cluster Password",
+            "description": "JGroups cluster password",
+            "name": "JGROUPS_CLUSTER_PASSWORD",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "description": "Container memory limit",
+            "name": "MEMORY_LIMIT",
+            "value": "1Gi",
+            "required": false
+        }
+    ],
+    "objects": [
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's HTTP port."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 11211,
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-memcached",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Memcached service for clustered applications."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 11333,
+                        "targetPort": 11333
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-hotrod",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Hot Rod service for clustered applications."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "clusterIP": "None",
+                "ports": [
+                    {
+                        "name": "ping",
+                        "port": 8888
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-ping",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
+                    "description": "The JGroups ping port for clustering."
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-http",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's HTTP service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTP}",
+                "to": {
+                    "name": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${IMAGE_STREAM_NAMESPACE}",
+                                "name": "jboss-datagrid71-openshift:1.3"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "deploymentConfig": "${APPLICATION_NAME}",
+                            "application": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "terminationGracePeriodSeconds": 60,
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}",
+                                "image": "jboss-datagrid71-openshift",
+                                "imagePullPolicy": "Always",
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${MEMORY_LIMIT}"
+                                    }
+                                },
+                                "livenessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/datagrid/bin/livenessProbe.sh"
+                                        ]
+                                    },
+                                    "initialDelaySeconds": 60
+                                },
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/datagrid/bin/readinessProbe.sh"
+                                        ]
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "name": "jolokia",
+                                        "containerPort": 8778,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "ping",
+                                        "containerPort": 8888,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "memcached",
+                                        "containerPort": 11211,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "hotrod-internal",
+                                        "containerPort": 11222,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "hotrod",
+                                        "containerPort": 11333,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "USERNAME",
+                                        "value": "${USERNAME}"
+                                    },
+                                    {
+                                        "name": "PASSWORD",
+                                        "value": "${PASSWORD}"
+                                    },
+                                    {
+                                        "name": "ADMIN_GROUP",
+                                        "value": "${ADMIN_GROUP}"
+                                    },
+                                    {
+                                        "name": "HOTROD_AUTHENTICATION",
+                                        "value": "${HOTROD_AUTHENTICATION}"
+                                    },
+                                    {
+                                        "name": "CONTAINER_SECURITY_ROLE_MAPPER",
+                                        "value": "${CONTAINER_SECURITY_ROLE_MAPPER}"
+                                    },
+                                    {
+                                        "name": "CONTAINER_SECURITY_ROLES",
+                                        "value": "${CONTAINER_SECURITY_ROLES}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_PING_PROTOCOL",
+                                        "value": "openshift.DNS_PING"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_DNS_PING_SERVICE_NAME",
+                                        "value": "${APPLICATION_NAME}-ping"
+                                    },
+                                    {
+                                        "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
+                                        "value": "8888"
+                                    },
+                                    {
+                                        "name": "INFINISPAN_CONNECTORS",
+                                        "value": "${INFINISPAN_CONNECTORS}"
+                                    },
+                                    {
+                                        "name": "CACHE_NAMES",
+                                        "value": "${CACHE_NAMES}"
+                                    },
+                                    {
+                                        "name": "DATAVIRT_CACHE_NAMES",
+                                        "value": "${DATAVIRT_CACHE_NAMES}"
+                                    },
+                                    {
+                                        "name": "CACHE_TYPE_DEFAULT",
+                                        "value": "${CACHE_TYPE_DEFAULT}"
+                                    },
+                                    {
+                                        "name": "ENCRYPTION_REQUIRE_SSL_CLIENT_AUTH",
+                                        "value": "${ENCRYPTION_REQUIRE_SSL_CLIENT_AUTH}"
+                                    },
+                                    {
+                                        "name": "HOTROD_SERVICE_NAME",
+                                        "value": "${APPLICATION_NAME}-hotrod"
+                                    },
+                                    {
+                                        "name": "MEMCACHED_CACHE",
+                                        "value": "${MEMCACHED_CACHE}"
+                                    },
+                                    {
+                                        "name": "REST_SECURITY_DOMAIN",
+                                        "value": "${REST_SECURITY_DOMAIN}"
+                                    },
+                                    {
+                                        "name": "JGROUPS_CLUSTER_PASSWORD",
+                                        "value": "${JGROUPS_CLUSTER_PASSWORD}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

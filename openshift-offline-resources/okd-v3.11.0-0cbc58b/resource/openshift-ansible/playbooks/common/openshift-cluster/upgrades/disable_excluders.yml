@@ -1,0 +1,11 @@
+---
+- name: Disable excluders
+  hosts: "{{ l_upgrade_excluder_hosts }}"
+  gather_facts: no
+  roles:
+  - role: openshift_excluder
+    r_openshift_excluder_action: disable
+    r_openshift_excluder_verify_upgrade: true
+    r_openshift_excluder_upgrade_target: "{{ openshift_upgrade_target }}"
+    r_openshift_excluder_package_state: latest
+    r_openshift_excluder_docker_package_state: latest

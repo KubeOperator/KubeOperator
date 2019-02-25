@@ -1,0 +1,64 @@
+---
+
+- when: not (openshift_is_atomic | default(False))
+  block:
+  # TODO: This needs to be removed and placed into a role
+  - name: Ensure libselinux-python is installed
+    package:
+      name: libselinux-python
+      state: present
+    register: result
+    until: result is succeeded
+
+  - name: Remove openshift_additional.repo file
+    file:
+      dest: /etc/yum.repos.d/openshift_additional.repo
+      state: absent
+
+  - name: Create any additional repos that are defined
+    yum_repository:
+      description: "{{ item.description | default(item.name | default(item.id)) }}"
+      name: "{{ item.name | default(item.id) }}"
+      baseurl: "{{ item.baseurl }}"
+      gpgkey: "{{ item.gpgkey | default(omit)}}"
+      gpgcheck: "{{ item.gpgcheck | default(1) }}"
+      sslverify: "{{ item.sslverify | default(1) }}"
+      sslclientkey: "{{ item.sslclientkey | default(omit) }}"
+      sslclientcert: "{{ item.sslclientcert | default(omit) }}"
+      sslcacert: "{{ item.sslcacert | default(omit) }}"
+      file: "{{ item.name }}"
+      enabled: "{{ item.enabled | default('no')}}"
+    with_items: "{{ openshift_additional_repos }}"
+    when: openshift_additional_repos | length > 0
+    notify: refresh cache
+
+  # Singleton block
+  - when: r_openshift_repos_has_run is not defined
+    block:
+
+    - include_tasks: rhel_repos.yml
+      when:
+      - ansible_distribution == 'RedHat'
+      - openshift_deployment_type == 'openshift-enterprise'
+      - (rhsub_user is defined and rhsub_pass is defined) or (rhsub_ak is defined and rhsub_orgid is defined)
+
+    - include_tasks: centos_repos.yml
+      when:
+      - ansible_os_family == "RedHat"
+      - ansible_distribution != "Fedora"
+      - openshift_deployment_type == 'origin'
+      - openshift_enable_origin_repo | default(true) | bool
+
+    - name: Ensure clean repo cache in the event repos have been changed manually
+      debug:
+        msg: "First run of openshift_repos"
+      changed_when: true
+      notify: refresh cache
+
+    - name: Record that openshift_repos already ran
+      set_fact:
+        r_openshift_repos_has_run: True
+
+  # Force running ALL handlers now, because we expect repo cache to be cleared
+  # if changes have been made.
+  - meta: flush_handlers

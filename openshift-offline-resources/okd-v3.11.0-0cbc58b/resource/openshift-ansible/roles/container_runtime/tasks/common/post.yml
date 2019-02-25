@@ -1,0 +1,28 @@
+---
+- name: Ensure /var/lib/containers exists
+  file:
+    path: /var/lib/containers
+    state: directory
+
+- name: Fix SELinux Permissions on /var/lib/containers
+  command: "restorecon -R /var/lib/containers/"
+  changed_when: false
+
+- meta: flush_handlers
+
+# This needs to run after docker is restarted to account for proxy settings.
+# registry_auth is called directly with import_role in some places, so we
+# have to put it in the root of the tasks/ directory.
+- import_tasks: ../registry_auth.yml
+
+- name: stat the docker data dir
+  stat:
+    path: "{{ docker_default_storage_path }}"
+    get_checksum: false
+    get_mime: false
+  register: dockerstat
+
+- import_tasks: setup_docker_symlink.yml
+  when:
+    - openshift_use_crio | bool
+    - dockerstat.stat.islnk is defined and not (dockerstat.stat.islnk | bool)

@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heketi-db-{{ glusterfs_name }}-endpoints
+  labels:
+    glusterfs: heketi-{{ glusterfs_name }}-db-service
+    heketi: {{ glusterfs_name }}-db-service
+spec:
+  ports:
+  - port: 1
+status:
+  loadBalancer: {}

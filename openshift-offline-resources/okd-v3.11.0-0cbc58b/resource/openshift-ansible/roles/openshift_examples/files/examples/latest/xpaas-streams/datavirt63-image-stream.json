@@ -1,0 +1,175 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "datavirt63-image-streams",
+        "annotations": {
+            "description": "ImageStream definitions for Red Hat JBoss Data Virtualization 6.3.",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jboss-datavirt63-openshift",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.4.14"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.14"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "1.0",
+                        "annotations": {
+                            "description": "Red Hat JBoss Data Virtualization 6.3 S2I images.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "datavirt,jboss,hidden",
+                            "supports": "datavirt:6.3",
+                            "version": "1.0",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-openshift:1.0"
+                        }
+                    },
+                    {
+                        "name": "1.1",
+                        "annotations": {
+                            "description": "Red Hat JBoss Data Virtualization 6.3 S2I images.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "datavirt,jboss,hidden",
+                            "supports": "datavirt:6.3",
+                            "version": "1.1",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-openshift:1.1"
+                        }
+                    },
+                    {
+                        "name": "1.2",
+                        "annotations": {
+                            "description": "Red Hat JBoss Data Virtualization 6.3 S2I images.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "datavirt,jboss,hidden",
+                            "supports": "datavirt:6.3",
+                            "version": "1.2",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-openshift:1.2"
+                        }
+                    },
+                    {
+                        "name": "1.3",
+                        "annotations": {
+                            "description": "Red Hat JBoss Data Virtualization 6.3 S2I images.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "datavirt,jboss,hidden",
+                            "supports": "datavirt:6.3",
+                            "version": "1.3",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-openshift:1.3"
+                        }
+                    },
+                    {
+                        "name": "1.4",
+                        "annotations": {
+                            "description": "Red Hat JBoss Data Virtualization 6.3 S2I images.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "datavirt,jboss,hidden",
+                            "supports": "datavirt:6.3",
+                            "version": "1.4",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.3"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-openshift:1.4"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "jboss-datavirt63-driver-openshift",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.5 JDBC Driver Modules for EAP",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.4.14"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.14"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "1.0",
+                        "annotations": {
+                            "description": "JBoss Data Virtualization 6.5 JDBC Driver Modules for EAP.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "client,jboss,hidden",
+                            "version": "1.0",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.5 JDBC Driver Modules for EAP"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-driver-openshift:1.0"
+                        }
+                    },
+                    {
+                        "name": "1.1",
+                        "annotations": {
+                            "description": "JBoss Data Virtualization 6.5 JDBC Driver Modules for EAP.",
+                            "iconClass": "icon-datavirt",
+                            "tags": "client,jboss,hidden",
+                            "version": "1.1",
+                            "openshift.io/display-name": "Red Hat JBoss Data Virtualization 6.5 JDBC Driver Modules for EAP"
+                        },
+                        "referencePolicy": {
+                            "type": "Local"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.redhat.io/jboss-datavirt-6/datavirt63-driver-openshift:1.1"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

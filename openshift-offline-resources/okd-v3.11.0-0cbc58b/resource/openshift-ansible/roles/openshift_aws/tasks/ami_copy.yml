@@ -1,0 +1,34 @@
+---
+- fail:
+    msg: "{{ item }} needs to be defined"
+  when: item is not defined
+  with_items:
+  - openshift_aws_ami_copy_src_ami
+  - openshift_aws_ami_copy_name
+
+- name: Create IAM KMS key with alias
+  oo_iam_kms:
+    state: present
+    alias: "{{ openshift_aws_iam_kms_alias }}"
+    region: "{{ openshift_aws_region }}"
+  register: created_kms
+
+- debug: var=created_kms.results
+
+- name: "Create copied AMI image and wait: {{ openshift_aws_ami_copy_wait }}"
+  ec2_ami_copy:
+    name: "{{ openshift_aws_ami_copy_name }}"
+    region: "{{ openshift_aws_region }}"
+    source_region: "{{ openshift_aws_ami_copy_src_region }}"
+    source_image_id: "{{ openshift_aws_ami_copy_src_ami }}"
+    encrypted: "{{ openshift_aws_ami_encrypt | bool }}"
+    kms_key_id: "{{ created_kms.results.KeyArn | default(omit) }}"
+    wait: "{{ openshift_aws_ami_copy_wait | default(omit) }}"
+    tags: "{{ openshift_aws_ami_tags }}"
+  register: copy_result
+
+- debug: var=copy_result
+
+- name: return AMI ID with setfact
+  set_fact:
+    openshift_aws_ami_copy_custom_ami: "{{ copy_result.image_id }}"

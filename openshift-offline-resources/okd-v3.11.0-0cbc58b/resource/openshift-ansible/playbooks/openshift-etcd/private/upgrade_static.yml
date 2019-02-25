@@ -1,0 +1,9 @@
+---
+- name: Upgrade etcd static pods
+  hosts: oo_etcd_hosts_to_upgrade
+  serial: 1
+  tasks:
+  - import_role:
+      name: etcd
+      tasks_from: upgrade_static.yml
+    when: inventory_hostname in groups['oo_masters']

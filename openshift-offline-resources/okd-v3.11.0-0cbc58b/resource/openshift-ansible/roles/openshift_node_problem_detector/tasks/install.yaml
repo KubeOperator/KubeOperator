@@ -1,0 +1,61 @@
+---
+- name: validate openshift_node_problem_detector_image_pull_policy variable
+  fail:
+    msg: "openshift_node_problem_detector_image_pull_policy must be one of Always, Never, IfNotPresent. Got {{ openshift_node_problem_detector_image_pull_policy }}"
+  when: openshift_node_problem_detector_image_pull_policy not in ['Always', 'Never', 'IfNotPresent']
+
+- name: Ensure Node Problem Detector project exists
+  oc_project:
+    name: openshift-node-problem-detector
+    state: present
+    node_selector:
+    - ""
+
+- name: create Node Problem Detector service account
+  oc_serviceaccount:
+    name: "{{ openshift_node_problem_detector_service_account }}"
+    namespace: openshift-node-problem-detector
+    state: present
+
+- name: bind node-problem-detector cluster role to the node-problem-detector service account
+  oc_adm_policy_user:
+    state: present
+    user: "system:serviceaccount:openshift-node-problem-detector:{{ openshift_node_problem_detector_service_account }}"
+    namespace: "openshift-node-problem-detector"
+    resource_kind: cluster-role
+    resource_name: "system:{{ openshift_node_problem_detector_cluster_role_name }}"
+
+- name: Grant privileged SCC from node problem detector service account
+  oc_adm_policy_user:
+    state: present
+    user: "system:serviceaccount:openshift-node-problem-detector:{{ openshift_node_problem_detector_service_account }}"
+    namespace: openshift-node-problem-detector
+    resource_kind: scc
+    resource_name: privileged
+
+- name: read node problem detector configmap
+  include_vars:
+    name: openshift_node_problem_detector_configmap
+    file: "{{ openshift_node_problem_detector_configmap_filename }}"
+
+- name: create node problem detector configuration configmap
+  oc_configmap:
+    state: present
+    name: "{{ openshift_node_problem_detector_configmap_name }}"
+    namespace: openshift-node-problem-detector
+    from_literal: "{{ openshift_node_problem_detector_configmap.data }}"
+
+- name: create node problem detector
+  template:
+    src: "{{ openshift_node_problem_detector_daemonset_template_file }}"
+    dest: "{{ openshift_node_problem_detector_tmp_location }}/npd-ds.yaml"
+
+- name: create node problem detector daemonset
+  oc_obj:
+    kind: daemonset
+    name: "{{ openshift_node_problem_detector_daemonset_name }}"
+    namespace: openshift-node-problem-detector
+    state: present
+    files:
+    - "{{ openshift_node_problem_detector_tmp_location }}/npd-ds.yaml"
+    delete_after: "{{ openshift_node_problem_detector_delete_tempfiles }}"

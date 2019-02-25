@@ -1,0 +1,205 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: sync
+  namespace: openshift-node
+  annotations:
+    kubernetes.io/description: |
+      This daemon set provides dynamic configuration of nodes and relabels nodes as appropriate.
+    image.openshift.io/triggers: |
+      [
+        {"from":{"kind":"ImageStreamTag","name":"node:v3.11"},"fieldPath":"spec.template.spec.containers[?(@.name==\"sync\")].image"}
+      ]
+spec:
+  selector:
+    matchLabels:
+      app: sync
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+  template:
+    metadata:
+      labels:
+        app: sync
+        component: network
+        type: infra
+        openshift.io/component: sync
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      serviceAccountName: sync
+      terminationGracePeriodSeconds: 1
+      # Must be hostPID because it invokes operations on processes in the host space.
+      hostPID: true
+      # Must be hostNetwork in order to schedule before any network plugins are loaded.
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      containers:
+
+      # The sync container is a temporary config loop until Kubelet dynamic config is implemented. It refreshes
+      # the contents of /etc/origin/node/ with the config map ${BOOTSTRAP_CONFIG_NAME} from the openshift-node
+      # namespace. It will restart the Kubelet on the host if it detects the node-config.yaml has changed.
+      #
+      # 1. Dynamic Kubelet config must pull down a full configmap
+      # 2. Nodes must relabel themselves https://github.com/kubernetes/kubernetes/issues/59314
+      #
+      - name: sync
+        image: " "
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -euo pipefail
+
+          # set by the node image
+          unset KUBECONFIG
+
+          trap 'kill $(jobs -p); exit 0' TERM
+
+          # track the current state of the config
+          if [[ -f /etc/origin/node/node-config.yaml ]]; then
+            md5sum /etc/origin/node/node-config.yaml > /tmp/.old
+          else
+            touch /tmp/.old
+          fi
+
+          # loop until BOOTSTRAP_CONFIG_NAME is set
+          while true; do
+            file=/etc/sysconfig/origin-node
+            if [[ -f /etc/sysconfig/atomic-openshift-node ]]; then
+              file=/etc/sysconfig/atomic-openshift-node
+            elif [[ -f /etc/sysconfig/origin-node ]]; then
+              file=/etc/sysconfig/origin-node
+            else
+              echo "info: Waiting for the node sysconfig file to be created" 2>&1
+              sleep 15 & wait
+              continue
+            fi
+            name="$(sed -nE 's|^BOOTSTRAP_CONFIG_NAME=([^#].+)|\1|p' "${file}" | head -1)"
+            if [[ -z "${name}" ]]; then
+              echo "info: Waiting for BOOTSTRAP_CONFIG_NAME to be set" 2>&1
+              sleep 15 & wait
+              continue
+            fi
+            # in the background check to see if the value changes and exit if so
+            pid=$BASHPID
+            (
+              while true; do
+                if ! updated="$(sed -nE 's|^BOOTSTRAP_CONFIG_NAME=([^#].+)|\1|p' "${file}" | head -1)"; then
+                  echo "error: Unable to check for bootstrap config, exiting" 2>&1
+                  kill $pid
+                  exit 1
+                fi
+                if [[ "${updated}" != "${name}" ]]; then
+                  echo "info: Bootstrap configuration profile name changed, exiting" 2>&1
+                  kill $pid
+                  exit 0
+                fi
+                sleep 15
+              done
+            ) &
+            break
+          done
+          mkdir -p /etc/origin/node/tmp
+          # periodically refresh both node-config.yaml and relabel the node
+          while true; do
+            if ! oc extract "configmaps/${name}" -n openshift-node --to=/etc/origin/node/tmp --confirm --request-timeout=10s --config /etc/origin/node/node.kubeconfig "--token=$( cat /var/run/secrets/kubernetes.io/serviceaccount/token )"  > /dev/null; then
+              echo "error: Unable to retrieve latest config for node" 2>&1
+              sleep 15 &
+              wait $!
+              continue
+            fi
+
+            KUBELET_HOSTNAME_OVERRIDE=$(cat /etc/sysconfig/KUBELET_HOSTNAME_OVERRIDE) || :
+            if ! [[ -z "$KUBELET_HOSTNAME_OVERRIDE" ]]; then
+                  #Patching node-config for hostname override
+                  echo "nodeName: $KUBELET_HOSTNAME_OVERRIDE" >> /etc/origin/node/tmp/node-config.yaml
+            fi
+
+            # detect whether the node-config.yaml has changed, and if so trigger a restart of the kubelet.
+            if [[ ! -f /etc/origin/node/node-config.yaml ]]; then
+              cat /dev/null > /tmp/.old
+            fi
+
+            md5sum /etc/origin/node/tmp/node-config.yaml > /tmp/.new
+            if [[ "$( cat /tmp/.old )" != "$( cat /tmp/.new )" ]]; then
+              mv /etc/origin/node/tmp/node-config.yaml /etc/origin/node/node-config.yaml
+              SYSTEMD_IGNORE_CHROOT=1 systemctl restart tuned || :
+              echo "info: Configuration changed, restarting kubelet" 2>&1
+              # TODO: kubelet doesn't relabel nodes, best effort for now
+              # https://github.com/kubernetes/kubernetes/issues/59314
+              if args="$(openshift-node-config --config /etc/origin/node/node-config.yaml)"; then
+                labels=$(tr ' ' '\n' <<<$args | sed -ne '/^--node-labels=/ { s/^--node-labels=//; p; }' | tr ',\n' ' ')
+                if [[ -n "${labels}" ]]; then
+                  echo "info: Applying node labels $labels" 2>&1
+                  if ! oc label --config=/etc/origin/node/node.kubeconfig "node/${NODE_NAME}" ${labels} --overwrite; then
+                    echo "error: Unable to apply labels, will retry in 10" 2>&1
+                    sleep 10 &
+                    wait $!
+                    continue
+                  fi
+                fi
+              else
+                echo "error: The downloaded node configuration is invalid, retrying later" 2>&1
+                sleep 10 &
+                wait $!
+                continue
+              fi
+              if ! pkill -U 0 -f '(^|/)hyperkube kubelet '; then
+                echo "error: Unable to restart Kubelet" 2>&1
+                sleep 10 &
+                wait $!
+                continue
+              fi
+            fi
+            # annotate node with md5sum of the config
+            oc annotate --config=/etc/origin/node/node.kubeconfig "node/${NODE_NAME}" \
+              node.openshift.io/md5sum="$( cat /tmp/.new | cut -d' ' -f1 )" --overwrite
+            cp -f /tmp/.new /tmp/.old
+            sleep 180 &
+            wait $!
+          done
+
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        volumeMounts:
+        # Directory which contains the host configuration. We read from this directory
+        - mountPath: /etc/origin/node/
+          name: host-config
+        - mountPath: /etc/sysconfig
+          name: host-sysconfig-node
+          readOnly: true
+        - mountPath: /var/run/dbus
+          name: var-run-dbus
+          readOnly: true
+        - mountPath: /run/systemd/system
+          name: run-systemd-system
+          readOnly: true
+
+
+      volumes:
+      # In bootstrap mode, the host config contains information not easily available
+      # from other locations.
+      - name: host-config
+        hostPath:
+          path: /etc/origin/node
+      - name: host-sysconfig-node
+        hostPath:
+          path: /etc/sysconfig
+      - hostPath:
+          path: /var/run/dbus
+        name: var-run-dbus
+      - hostPath:
+          path: /run/systemd/system
+        name: run-systemd-system
+      # Sync daemonset should tolerate all taints to make sure it runs on all nodes
+      tolerations:
+      - operator: "Exists"

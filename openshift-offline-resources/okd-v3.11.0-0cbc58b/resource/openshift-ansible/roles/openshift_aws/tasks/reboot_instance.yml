@@ -1,0 +1,24 @@
+---
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "tag:Name": "{{ openshift_aws_base_ami_name }}"
+      instance-state-name: running
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: instancesout.instances|length > 0
+
+- name: reboot hosts
+  shell: ( sleep 2 && reboot ) &
+  delegate_to: "{{ item.public_dns_name }}"
+  with_items: "{{ instancesout.instances }}"
+
+- name: wait for ssh to become available
+  wait_for_connection:
+    delay: 10
+    timeout: 600
+  delegate_to: "{{ item.public_dns_name }}"
+  with_items: "{{ instancesout.instances }}"
+  when: openshift_aws_wait_for_ssh | bool

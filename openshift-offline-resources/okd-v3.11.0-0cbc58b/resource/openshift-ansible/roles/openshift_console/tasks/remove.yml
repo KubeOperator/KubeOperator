@@ -1,0 +1,7 @@
+---
+- name: Remove openshift-console project
+  oc_project:
+    name: openshift-console
+    state: absent
+
+# TODO: Remove OAuthClient

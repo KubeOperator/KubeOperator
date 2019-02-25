@@ -1,0 +1,25 @@
+---
+g_etcd_hosts: "{{ groups.etcd | default([]) }}"
+
+g_new_etcd_hosts: "{{ groups.new_etcd | default([]) }}"
+
+g_lb_hosts: "{{ groups.lb | default([]) }}"
+
+g_master_hosts: "{{ groups.masters | default([]) }}"
+
+g_new_master_hosts: "{{ groups.new_masters | default([]) }}"
+
+g_node_hosts: "{{ groups.nodes | default([]) }}"
+
+g_new_node_hosts: "{{ groups.new_nodes | default([]) }}"
+
+g_nfs_hosts: "{{ groups.nfs | default([]) }}"
+
+g_glusterfs_hosts: "{{ groups.glusterfs | default([]) }}"
+
+g_glusterfs_registry_hosts: "{{ groups.glusterfs_registry | default(g_glusterfs_hosts) }}"
+
+g_all_hosts: "{{ g_master_hosts | union(g_node_hosts) | union(g_etcd_hosts)
+                 | union(g_new_etcd_hosts) | union(g_lb_hosts) | union(g_nfs_hosts)
+                 | union(g_new_node_hosts)| union(g_new_master_hosts)
+                 | default([]) }}"

@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: create an instance and prepare for ami
+    import_role:
+      name: openshift_aws
+      tasks_from: ssh_keys.yml
+    vars:
+      openshift_aws_node_group_type: compute
+    when: openshift_aws_users | default([]) | length  > 0

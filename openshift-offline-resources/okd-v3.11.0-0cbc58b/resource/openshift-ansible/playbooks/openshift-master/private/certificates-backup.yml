@@ -1,0 +1,53 @@
+---
+- name: Backup and remove master cerftificates
+  hosts: oo_masters_to_config
+  any_errors_fatal: true
+  roles:
+  - openshift_facts
+  pre_tasks:
+  - stat:
+      path: "{{ openshift.common.config_base }}/generated-configs"
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: openshift_generated_configs_dir_stat
+  - name: Backup generated certificate and config directories
+    command: >
+      tar -czvf /etc/origin/master-node-cert-config-backup-{{ ansible_date_time.epoch }}.tgz
+      {{ openshift.common.config_base }}/generated-configs
+      {{ openshift.common.config_base }}/master
+    when: openshift_generated_configs_dir_stat.stat.exists
+    delegate_to: "{{ openshift_ca_host }}"
+    run_once: true
+  - name: Remove generated certificate directories
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+    - "{{ openshift.common.config_base }}/generated-configs"
+  - name: Remove generated certificates
+    file:
+      path: "{{ openshift.common.config_base }}/master/{{ item }}"
+      state: absent
+    with_items:
+    - admin.crt
+    - admin.key
+    - admin.kubeconfig
+    - aggregator-front-proxy.crt
+    - aggregator-front-proxy.key
+    - aggregator-front-proxy.kubeconfig
+    - front-proxy-ca.crt
+    - front-proxy-ca.key
+    - master.kubelet-client.crt
+    - master.kubelet-client.key
+    - master.proxy-client.crt
+    - master.proxy-client.key
+    - service-signer.crt
+    - service-signer.key
+    - etcd.server.crt
+    - etcd.server.key
+    - master.server.crt
+    - master.server.key
+    - openshift-master.crt
+    - openshift-master.key
+    - openshift-master.kubeconfig

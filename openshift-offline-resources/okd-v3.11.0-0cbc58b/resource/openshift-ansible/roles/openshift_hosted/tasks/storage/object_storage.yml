@@ -1,0 +1,49 @@
+---
+- include_tasks: s3.yml
+  when: openshift_hosted_registry_storage_provider == 's3'
+
+- name: Ensure the registry secret exists
+  oc_secret:
+    name: "{{ registry_config_secret_name }}"
+    state: present
+    contents:
+    - path: /tmp/config.yml
+      data: "{{ lookup('template', 'registry_config.j2') }}"
+  register: registry_config_out
+  when: openshift_hosted_registry_storage_gcs_keyfile is not defined
+
+- name: Ensure the registry secret exists for GCS
+  oc_secret:
+    name: "{{ registry_config_secret_name }}"
+    state: present
+    contents:
+    - path: /tmp/config.yml
+      data: "{{ lookup('template', 'registry_config.j2') }}"
+    - path: /tmp/gcs.json
+      data: "{{ lookup('file', openshift_hosted_registry_storage_gcs_keyfile) | string }}"
+  register: registry_config_out
+  when: openshift_hosted_registry_storage_gcs_keyfile is defined
+
+- name: Add secrets to registry service account
+  oc_serviceaccount_secret:
+    service_account: registry
+    secret: "{{ registry_config_secret_name }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    state: present
+  register: svcac
+
+- name: Set facts for registry object storage
+  set_fact:
+    registry_obj_storage_volume_mounts:
+    - name: docker-config
+      path: /etc/registry
+      type: secret
+      secret_name: "{{ registry_config_secret_name }}"
+    registry_obj_storage_env_vars:
+      REGISTRY_CONFIGURATION_PATH: /etc/registry/config.yml
+
+- name: Update openshift_hosted registry facts for storage
+  set_fact:
+    openshift_hosted_registry_volumes: "{{ openshift_hosted_registry_volumes | union(registry_obj_storage_volume_mounts) }}"
+    openshift_hosted_registry_env_vars: "{{ openshift_hosted_registry_env_vars | combine(registry_obj_storage_env_vars) }}"
+    openshift_hosted_registry_force: "{{ openshift_hosted_registry_force | union([registry_config_out.changed]) | union([svcac.changed]) }}"

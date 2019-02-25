@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+data:
+{% for class in persistentlocalstorage_classes %}
+  {{class}}: '{ "hostDir": "{{ persistentlocalstorage_path }}/{{ class }}", "mountDir" : "{{ persistentlocalstorage_path }}/{{ class }}" }'
+{% endfor %}
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: local-volume-provisioner-config

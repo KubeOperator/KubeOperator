@@ -1,0 +1,88 @@
+{% macro initial_cluster() -%}
+{% for host in etcd_peers | default([]) -%}
+{% if loop.last -%}
+{{ hostvars[host].etcd_hostname }}={{ etcd_peer_url_scheme }}://{{ hostvars[host].etcd_ip }}:{{ etcd_peer_port }}
+{%- else -%}
+{{ hostvars[host].etcd_hostname }}={{ etcd_peer_url_scheme }}://{{ hostvars[host].etcd_ip }}:{{ etcd_peer_port }},
+{%- endif -%}
+{% endfor -%}
+{% endmacro -%}
+
+ETCD_NAME={{ etcd_hostname }}
+ETCD_LISTEN_PEER_URLS={{ etcd_listen_peer_urls }}
+ETCD_DATA_DIR={{ etcd_data_dir }}
+#ETCD_WAL_DIR=
+#ETCD_SNAPSHOT_COUNT=10000
+ETCD_HEARTBEAT_INTERVAL=500
+ETCD_ELECTION_TIMEOUT=2500
+ETCD_LISTEN_CLIENT_URLS={{ etcd_listen_client_urls }}
+#ETCD_MAX_SNAPSHOTS=5
+#ETCD_MAX_WALS=5
+#ETCD_CORS=
+{% if etcd_cipher_suites is defined and etcd_cipher_suites %}
+ETCD_CIPHER_SUITES="{{ etcd_cipher_suites }}"
+{% endif %}
+
+
+#[cluster]
+ETCD_INITIAL_ADVERTISE_PEER_URLS={{ etcd_initial_advertise_peer_urls }}
+{% if etcd_is_thirdparty | bool %}
+# TODO: This needs to be altered to support the correct etcd instances
+ETCD_INITIAL_CLUSTER={{ etcd_hostname}}={{ etcd_initial_advertise_peer_urls }}
+ETCD_INITIAL_CLUSTER_STATE={{ etcd_initial_cluster_state }}
+ETCD_INITIAL_CLUSTER_TOKEN=thirdparty-etcd-cluster-1
+{% else %}
+{% if etcd_initial_cluster is defined and etcd_initial_cluster %}
+ETCD_INITIAL_CLUSTER={{ etcd_initial_cluster }}
+{% else %}
+ETCD_INITIAL_CLUSTER={{ initial_cluster() }}
+{% endif %}
+ETCD_INITIAL_CLUSTER_STATE={{ etcd_initial_cluster_state }}
+ETCD_INITIAL_CLUSTER_TOKEN={{ etcd_initial_cluster_token }}
+#ETCD_DISCOVERY=
+#ETCD_DISCOVERY_SRV=
+#ETCD_DISCOVERY_FALLBACK=proxy
+#ETCD_DISCOVERY_PROXY=
+{% endif %}
+ETCD_ADVERTISE_CLIENT_URLS={{ etcd_advertise_client_urls }}
+#ETCD_STRICT_RECONFIG_CHECK=false
+#ETCD_AUTO_COMPACTION_RETENTION=0
+#ETCD_ENABLE_V2=true
+ETCD_QUOTA_BACKEND_BYTES={{ etcd_quota_backend_bytes }}
+
+#[proxy]
+#ETCD_PROXY=off
+#ETCD_PROXY_FAILURE_WAIT=5000
+#ETCD_PROXY_REFRESH_INTERVAL=30000
+#ETCD_PROXY_DIAL_TIMEOUT=1000
+#ETCD_PROXY_WRITE_TIMEOUT=5000
+#ETCD_PROXY_READ_TIMEOUT=0
+
+#[security]
+{% if etcd_url_scheme == 'https' -%}
+ETCD_TRUSTED_CA_FILE={{ etcd_ca_file }}
+ETCD_CLIENT_CERT_AUTH=true
+ETCD_CERT_FILE={{ etcd_cert_file }}
+ETCD_KEY_FILE={{ etcd_key_file }}
+{% endif -%}
+#ETCD_AUTO_TLS=false
+{% if etcd_peer_url_scheme == 'https' -%}
+ETCD_PEER_TRUSTED_CA_FILE={{ etcd_peer_ca_file }}
+ETCD_PEER_CLIENT_CERT_AUTH=true
+ETCD_PEER_CERT_FILE={{ etcd_peer_cert_file }}
+ETCD_PEER_KEY_FILE={{ etcd_peer_key_file }}
+{% endif -%}
+#ETCD_PEER_AUTO_TLS=false
+
+#[logging]
+ETCD_DEBUG={{ etcd_debug | default(false) | bool | string }}
+{% if etcd_log_package_levels is defined %}
+ETCD_LOG_PACKAGE_LEVELS={{ etcd_log_package_levels }}
+{% endif %}
+
+#[profiling]
+#ETCD_ENABLE_PPROF=false
+#ETCD_METRICS=basic
+#
+#[auth]
+#ETCD_AUTH_TOKEN=simple

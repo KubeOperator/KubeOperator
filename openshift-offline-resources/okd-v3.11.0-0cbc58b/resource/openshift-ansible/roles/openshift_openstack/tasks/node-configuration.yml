@@ -1,0 +1,14 @@
+---
+# NOTE(shadower): we need to do this because some of the install tasks seem to
+# ignore openshift_kubelet_name_override and rely on the actual system's hostname
+- name: Update hostname to match the OpenStack name
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when: openshift_openstack_set_hostname_to_compute_name
+
+- name: "Verify SELinux is enforcing"
+  fail:
+    msg: "SELinux is required for OpenShift and has been detected as '{{ ansible_selinux.config_mode }}'"
+  when: ansible_selinux.config_mode != "enforcing"
+
+- include_tasks: container-storage-setup.yml

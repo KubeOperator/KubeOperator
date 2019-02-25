@@ -1,0 +1,4 @@
+---
+persistentlocalstorage_project: local-storage
+persistentlocalstorage_classes: []
+persistentlocalstorage_provisionner_image: quay.io/external_storage/local-volume-provisioner:v1.0.1

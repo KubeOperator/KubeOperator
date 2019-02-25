@@ -1,0 +1,195 @@
+---
+- name: Create temp directory for doing work in on target
+  command: mktemp -td openshift-metering-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Ensures {{ mktemp.stdout }}/metering-manifests directories exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+  - "{{ mktemp.stdout }}/metering-manifests/operator"
+
+- name: Copy operator files to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/metering-manifests/operator/{{ item | basename }}"
+  with_fileglob:
+  - "files/operator/*.yaml"
+  register: temp_operator_files
+
+- name: Update Metering Operator deployment image
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering-operator-deployment.yaml"
+    edits:
+    - key: spec.template.spec.containers[0].image
+      value: "{{ openshift_metering_operator_image }}"
+    - key: spec.template.spec.containers[1].image
+      value: "{{ openshift_metering_operator_image }}"
+  when: openshift_metering_operator_image != ""
+
+- name: Update Metering config
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering.yaml"
+    edits:
+    - key: spec
+      value: "{{ openshift_metering_config }}"
+  when: openshift_metering_config != None
+
+- name: Update Metering config with custom database config for Hive metastore
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering.yaml"
+    edits:
+    - key: spec.presto.spec.hive.config.dbConnectionURL
+      value: "{{ openshift_metering_hive_metastore_db_url }}"
+    - key: spec.presto.spec.hive.config.dbDriver
+      value: "{{ openshift_metering_hive_metastore_db_driver }}"
+    - key: spec.presto.spec.hive.config.dbConnectionUsername
+      value: "{{ openshift_metering_hive_metastore_db_username }}"
+    - key: spec.presto.spec.hive.config.dbConnectionPassword
+      value: "{{ openshift_metering_hive_metastore_db_password }}"
+  when: openshift_metering_hive_metastore_db_use_custom | bool
+
+- name: Update Metering config with custom default storage location
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering.yaml"
+    edits:
+    - key: spec.reporting-operator.spec.config.defaultStorage
+      value:
+        create: true
+        isDefault: true
+        name: "{{ openshift_metering_default_storage_name }}"
+        type: "{{ openshift_metering_default_storage_type }}"
+    - key: "spec.reporting-operator.spec.config.defaultStorage.{{ openshift_metering_default_storage_type }}"
+      value: "{{ openshift_metering_default_storage_config[openshift_metering_default_storage_type] }}"
+  when: openshift_metering_default_storage_use_custom | bool
+
+- name: Update Metering config to enable or disable HDFS
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering.yaml"
+    edits:
+    - key: spec.hdfs.enabled
+      value: "{{ openshift_metering_hdfs_enabled }}"
+  when: openshift_metering_default_storage_use_custom | bool
+
+- name: Update Metering config with AWS credentials
+  yedit:
+    src: "{{ mktemp.stdout }}/metering-manifests/operator/metering.yaml"
+    edits:
+    - key: "{{ item.key }}"
+      value: "{{ item.value }}"
+  # If the value is empty, then the credentials aren't set and we don't need to
+  # make the edit
+  when: item.value != ""
+  with_items:
+  - key: spec.reporting-operator.spec.config.awsAccessKeyID
+    value: "{{ openshift_metering_aws_access_key_id }}"
+  - key: spec.reporting-operator.spec.config.awsSecretAccessKey
+    value: "{{ openshift_metering_aws_secret_access_key }}"
+  - key: spec.presto.spec.config.awsAccessKeyID
+    value: "{{ openshift_metering_aws_access_key_id }}"
+  - key: spec.presto.spec.config.awsSecretAccessKey
+    value: "{{ openshift_metering_aws_secret_access_key }}"
+  # Hide secrets
+  no_log: True
+
+- name: Fetch updated operator manifests
+  fetch:
+    src: "{{ item.dest }}"
+    dest: "/tmp/updated_manifests/"
+    flat: true
+  with_items: "{{ temp_operator_files.results }}"
+  register: updated_operator_manifests
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: "Create {{ __openshift_metering_namespace }} project"
+  oc_project:
+    state: present
+    name: "{{ __openshift_metering_namespace }}"
+    description: Openshift Metering
+    node_selector: ""
+
+- name: Create reporting operator cluster role
+  oc_clusterrole:
+    state: present
+    name: "openshift-reporting-operator-{{ __openshift_metering_namespace }}"
+    rules:
+    # Grant namespace viewer access to allow authing to cluster monitoring Prometheus
+    - apiGroups: [""]
+      resources: ["namespaces"]
+      verbs: ["get"]
+    # Grant subject access review and token review access to allow metering
+    # auth-proxy to authenticate requests using openshift authentication
+    # methods
+    - apiGroups:
+      - authorization.k8s.io
+      resources:
+      - subjectaccessreviews
+      verbs:
+      - create
+    - apiGroups:
+      - authentication.k8s.io
+      resources:
+      - tokenreviews
+      verbs:
+      - create
+
+# Grant access to reporting-operator so it can talk to prometheus and
+# authenticate it's API using auth-proxy
+- name: Create reporting operator clusterrolebinding
+  oc_obj:
+    state: present
+    kind: ClusterRoleBinding
+    name: "openshift-reporting-operator-{{ __openshift_metering_namespace }}"
+    content:
+      path: "{{ mktemp.stdout }}/openshift-reporting-operator-{{ __openshift_metering_namespace }}"
+      data:
+        apiVersion: v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: "openshift-reporting-operator-{{ __openshift_metering_namespace }}"
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: "openshift-reporting-operator-{{ __openshift_metering_namespace }}"
+        subjects:
+        - kind: ServiceAccount
+          name: reporting-operator
+          namespace: "{{ __openshift_metering_namespace }}"
+
+- name: Install Metering CRDs
+  oc_obj:
+    state: present
+    kind: "{{ obj.kind }}"
+    name: "{{ obj.metadata.name }}"
+    namespace: "{{ __openshift_metering_namespace }}"
+    content:
+      path: "/tmp/{{ obj.kind }}-{{ obj.metadata.name }}.yaml"
+      data: "{{ obj }}"
+  vars:
+    obj: "{{ lookup('file', item) | from_yaml }}"
+  with_fileglob:
+  - "files/crds/*.yaml"
+
+- name: Install Metering Operator
+  oc_obj:
+    state: present
+    kind: "{{ obj.kind }}"
+    name: "{{ obj.metadata.name }}"
+    namespace: "{{ __openshift_metering_namespace }}"
+    content:
+      path: "/tmp/{{ obj.kind }}-{{ obj.metadata.name }}.yaml"
+      data: "{{ obj }}"
+  vars:
+    obj: "{{ lookup('file', item.dest) | from_yaml }}"
+  with_items: "{{ updated_operator_manifests.results }}"
+  loop_control:
+    label: "{{ item.dest }}"
+
+- name: Delete temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

@@ -1,0 +1,118 @@
+---
+- name: Make sure heketi-client is installed
+  package:
+    name: heketi-client
+    state: present
+  when:
+  - not openshift_is_atomic | bool
+  - not glusterfs_heketi_is_native | bool
+  register: result
+  until: result is succeeded
+
+- name: Verify heketi-cli is installed
+  shell: "command -v {{ glusterfs_heketi_cli }} >/dev/null 2>&1 || { echo >&2 'ERROR: Make sure heketi-cli is available, then re-run the installer'; exit 1; }"
+  changed_when: False
+  when:
+  - not glusterfs_heketi_is_native | bool
+
+- name: Verify target namespace exists
+  oc_project:
+    state: present
+    name: "{{ glusterfs_namespace }}"
+    node_selector: "{% if glusterfs_use_default_selector %}{{ omit }}{% endif %}"
+  when: glusterfs_is_native or glusterfs_heketi_is_native or glusterfs_storageclass
+
+- name: Add namespace service accounts to privileged SCC
+  oc_adm_policy_user:
+    user: "system:serviceaccount:{{ glusterfs_namespace }}:{{ item }}"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+  with_items:
+  - 'default'
+  - 'router'
+  when: glusterfs_is_native or glusterfs_heketi_is_native
+
+- import_tasks: glusterfs_deploy.yml
+  when: glusterfs_is_native
+
+- name: Start glusterd (external)
+  service:
+    name: glusterd
+    state: started
+    enabled: yes
+  delegate_to: "{{ item }}"
+  with_items: "{{ glusterfs_nodes | default([]) }}"
+  when:
+  - not glusterfs_is_native | bool
+
+- import_tasks: heketi_setup.yml
+  when: glusterfs_heketi_is_native
+
+# This must always be run. There are tasks further on in the play that require
+# require these variables to be properly set, even if the tasks are skipped, so
+# that Ansible can properly parse the tasks.
+- import_tasks: heketi_pod_check.yml
+
+- import_tasks: heketi_init_deploy.yml
+  when:
+  - glusterfs_heketi_is_native
+  - glusterfs_heketi_deploy_is_missing
+  - glusterfs_heketi_is_missing
+
+- import_tasks: heketi_load.yml
+  when:
+  - glusterfs_heketi_topology_load
+
+- import_tasks: heketi_init_db.yml
+  when:
+  - glusterfs_heketi_is_native
+  - not glusterfs_heketi_deploy_is_missing
+  - glusterfs_heketi_is_missing
+  - glusterfs_heketi_topology_load
+
+- import_tasks: heketi_deploy.yml
+  when:
+  - glusterfs_heketi_is_native
+  - glusterfs_heketi_is_missing
+
+- block:
+  - name: Create heketi secret
+    oc_secret:
+      namespace: "{{ glusterfs_namespace }}"
+      state: present
+      name: "heketi-{{ glusterfs_name }}-admin-secret"
+      type: "kubernetes.io/glusterfs"
+      force: True
+      contents:
+      - path: key
+        data: "{{ glusterfs_heketi_admin_key }}"
+    when:
+    - glusterfs_heketi_admin_key is defined
+
+  - name: Generate GlusterFS StorageClass file
+    template:
+      src: "glusterfs-storageclass.yml.j2"
+      dest: "{{ mktemp.stdout }}/glusterfs-storageclass.yml"
+
+  - name: Create GlusterFS StorageClass
+    oc_obj:
+      state: present
+      kind: storageclass
+      name: "glusterfs-{{ glusterfs_name }}"
+      files:
+      - "{{ mktemp.stdout }}/glusterfs-storageclass.yml"
+  when: glusterfs_storageclass
+
+- import_tasks: glusterblock_deploy.yml
+  when: glusterfs_block_deploy
+
+- import_tasks: glusterblock_storageclass.yml
+  when: glusterfs_block_storageclass
+
+- import_tasks: gluster_s3_deploy.yml
+  when:
+  - glusterfs_s3_deploy
+  - glusterfs_s3_account is defined
+  - glusterfs_s3_user is defined
+  - glusterfs_s3_password is defined

@@ -1,0 +1,15 @@
+---
+- import_playbook: ../init/main.yml
+  vars:
+    # We need facts on all nodes since we need to check (on RPM installs) that
+    # glusterfs-fuse is available across the cluster.
+    l_init_fact_hosts: "oo_masters_to_config:oo_nodes_to_config"
+    # We only want sanity and base packages on OpenShift nodes that will be
+    # GlusterFS nodes, as they may be new nodes to the OpenShift cluster.
+    l_glusterfs_nodes: "{{ groups['oo_nodes_to_config'] | intersect(groups['oo_glusterfs_to_config']) }}"
+    l_openshift_version_set_hosts: "oo_masters_to_config:!oo_first_master"
+    l_sanity_check_hosts: "{{ groups['oo_masters_to_config'] | union(l_glusterfs_nodes) }}"
+    l_install_base_packages: True
+    l_base_packages_hosts: "oo_nodes_to_config:&oo_glusterfs_to_config"
+
+- import_playbook: private/registry.yml

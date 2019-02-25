@@ -1,0 +1,9 @@
+---
+- name: Verify cluster is healthy
+  command: "{{ etcdctlv2 }} cluster-health"
+  register: cluster_health
+  retries: 30
+  delay: 6
+  until:
+  - cluster_health.rc == 0
+  - ('stopped' not in cluster_health.stderr)

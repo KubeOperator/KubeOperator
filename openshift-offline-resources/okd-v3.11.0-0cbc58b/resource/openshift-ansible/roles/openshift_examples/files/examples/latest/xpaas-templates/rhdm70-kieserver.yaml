@@ -1,0 +1,367 @@
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    description: Application template for Red Hat Decision Manager Execution Server 7.0 application.
+    iconClass: icon-jboss
+    tags: rhdm,jboss,xpaas
+    version: 1.4.0
+    openshift.io/display-name: Red Hat Decision Manager Execution Server 7.0 (Ephemeral with https)
+  name: rhdm70-kieserver
+labels:
+  template: rhdm70-kieserver
+  xpaas: 1.4.0
+message: A new Decision Manager Execution Server application has been created in your
+  project. The user name/password for calls to the Decision Server is ${KIE_SERVER_USER}/${KIE_SERVER_PWD}.
+  Please be sure to create the "kieserver-service-account" service account and
+  the secret named "${HTTPS_SECRET}" containing the ${HTTPS_KEYSTORE} file used for
+  serving secure content.
+  Only stateless API calls to the Decision Server are supported.
+parameters:
+- displayName: Application Name
+  description: The name for the application.
+  name: APPLICATION_NAME
+  value: myapp
+  required: true
+- displayName: Maven repository URL
+  description: Fully qualified URL to a Maven repository or service.
+  name: MAVEN_REPO_URL
+  example: http://nexus.nexus-project.svc.cluster.local:8081/nexus/content/groups/public/
+  required: true
+- displayName: Maven repository username
+  description: Username to access the Maven repository, if required.
+  name: MAVEN_REPO_USERNAME
+  required: false
+- displayName: Maven repository password
+  description: Password to access the Maven repository, if required.
+  name: MAVEN_REPO_PASSWORD
+  required: false
+- displayName: EAP Admin User
+  description: EAP administrator user name. Use this user account if you need use JBoss EAP command line management.
+    You can use rsh to access the command line on the pods. 
+  name: ADMIN_USERNAME
+  value: eapadmin
+  required: false
+- displayName: EAP Admin Password
+  description: EAP administrator password.
+  name: ADMIN_PASSWORD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: KIE Admin User  
+  description: KIE administrator user name. Use this user account to manage the Decision Server using administrative 
+    API calls.
+  name: KIE_ADMIN_USER
+  value: adminUser
+  required: false
+- displayName: KIE Admin Password
+  description: KIE administrator password.
+  name: KIE_ADMIN_PWD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: KIE Server User
+  description: KIE execution server user name. Use this user account for API calls to the Decision Server. 
+    (Sets the org.kie.server.user system property).
+  name: KIE_SERVER_USER
+  value: executionUser
+  required: false
+- displayName: KIE Server Password
+  description: KIE execution server password (sets the org.kie.server.pwd system property).
+  name: KIE_SERVER_PWD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: KIE Server ID
+  description: Decision server identifier. Determines the template ID in Decision Central or controller. If this parameter is left blank, it is set using the $HOSTNAME environment variable or a random value. (Sets the org.kie.server.id system property).
+  name: KIE_SERVER_ID
+  value: ''
+  required: false
+- displayName: KIE Server Bypass Auth User
+  description: KIE execution server bypass auth user. If this parameter is set to true, the Decision Server accepts
+   API calls without user account authorization. (Sets the org.kie.server.bypass.auth.user system property).
+  name: KIE_SERVER_BYPASS_AUTH_USER
+  value: 'false'
+  required: false
+- displayName: KIE Server Controller User
+  description: KIE server controller user name. The Decision Server uses this user account to log on to Decision 
+    Central or a controller. (Sets the org.kie.server.controller.user system property).
+  name: KIE_SERVER_CONTROLLER_USER
+  value: controllerUser
+  required: false
+- displayName: KIE Server Controller Password
+  description: KIE server controller password (sets the org.kie.server.controller.pwd system property).
+  name: KIE_SERVER_CONTROLLER_PWD
+  from: "[a-zA-Z]{6}[0-9]{1}!"
+  generate: expression
+  required: false
+- displayName: KIE server controller protocol
+  description: KIE server controller service. To use Decision Central that is hosted on the same OpenShift environment
+      to manage this Decision Server, set this variable to the OpenShift service name for the Decision Central. In this
+      case, do not set the KIE server controller protocol, KIE server controller host, and KIE server controller port.
+      (Sets the org.kie.server.controller system property if host and port are not set).
+  name: KIE_SERVER_CONTROLLER_PROTOCOL
+  value: http
+  required: false
+- displayName: KIE server controller service
+  description: The service name for the optional Decision Central or controller, where it can be reached and registered with. (Used to set the org.kie.server.controller system property if host and port aren't set)
+  name: KIE_SERVER_CONTROLLER_SERVICE
+  value: ''
+  required: false
+- displayName: KIE server controller host
+  description: KIE server controller host. To use Decision Central or a controller to manage this Decision
+    Server, set this parameter to the host part of the URL for the Decision Central or controller. (Used to 
+    set the org.kie.server.controller system property).
+  name: KIE_SERVER_CONTROLLER_HOST
+  example: my-app-controller-ocpuser.os.example.com
+  required: false
+- displayName: KIE server controller port
+  description: KIE server controller port. To use Decision Central or a controller to manage this Decision
+    Server, set this parameter to the port part of the URL for the Decision Central or controller. (Used to 
+    set the org.kie.server.controller system property).
+  name: KIE_SERVER_CONTROLLER_PORT
+  example: '8080'
+  required: false
+- displayName: KIE MBeans
+  description: KIE execution server mbeans enabled/disabled. These MBeans provide monitoring information. (Sets
+    the kie.mbeans and kie.scanner.mbeans system properties).
+  name: KIE_MBEANS
+  value: enabled
+  required: false
+- displayName: Drools Server Filter Classes
+  description: KIE execution server class filtering. When this parameter is set to true, the Decision Server extension 
+    accepts custom classes annotated by the XmlRootElement or Remotable annotations only. Setting to true is preferable 
+    for performance, but some custom decision services might require false. (Sets the org.drools.server.filter.classes
+    system property).
+  name: DROOLS_SERVER_FILTER_CLASSES
+  value: 'true'
+  required: false
+- displayName: Decision Server Custom http Route Hostname
+  description: 'Custom hostname for http service route.  Leave blank for default hostname,
+    example: <application-name>-kieserver-<project>.<default-domain-suffix>'
+  name: EXECUTION_SERVER_HOSTNAME_HTTP
+  value: ''
+  required: false
+- displayName: Decision Server Custom https Route Hostname
+  description: 'Custom hostname for https service route.  Leave blank for default hostname,
+    example: secure-<application-name>-kieserver-<project>.<default-domain-suffix>'
+  name: EXECUTION_SERVER_HOSTNAME_HTTPS
+  value: ''
+  required: false
+- displayName: Server Keystore Secret Name
+  description: The name of the secret containing the keystore file for Decision Server.
+  name: HTTPS_SECRET
+  value: kieserver-app-secret
+  required: false
+- displayName: Server Keystore Filename
+  description: The name of the keystore file within the secret.
+  name: HTTPS_KEYSTORE
+  value: keystore.jks
+  required: false
+- displayName: Server Certificate Name
+  description: The name associated with the server certificate.
+  name: HTTPS_NAME
+  value: jboss
+  required: false
+- displayName: Server Keystore Password
+  description: The password for the keystore and certificate.
+  name: HTTPS_PASSWORD
+  value: mykeystorepass
+  required: false
+- displayName: ImageStream Namespace
+  description: Namespace in which the ImageStreams for Red Hat Middleware images are
+    installed. These ImageStreams are normally installed in the openshift namespace.
+    Modify this setting only if you have installed the ImageStreams in a different 
+    namespace/project.
+  name: IMAGE_STREAM_NAMESPACE
+  value: openshift
+  required: true
+- displayName: ImageStream Tag
+  description: A named pointer to an image in an image stream. Default is "1.1".
+  name: IMAGE_STREAM_TAG
+  value: "1.1"
+  required: false
+- displayName: KIE Server Container Deployment
+  description: 'KIE Server Container deployment configuration in format: containerId=groupId:artifactId:version|c2=g2:a2:v2'
+  name: KIE_SERVER_CONTAINER_DEPLOYMENT
+  value: ''
+  required: false
+- displayName: Execution Server Container Memory Limit
+  description: Execution Server Container memory limit
+  name: EXCECUTION_SERVER_MEMORY_LIMIT
+  value: 1Gi
+  required: false
+objects:
+- kind: Service
+  apiVersion: v1
+  spec:
+    ports:
+    - port: 8080
+      targetPort: 8080
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+    annotations:
+      description: The execution server web server's http port.
+- kind: Service
+  apiVersion: v1
+  spec:
+    ports:
+    - port: 8443
+      targetPort: 8443
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+  metadata:
+    name: secure-${APPLICATION_NAME}-kieserver
+    labels:
+      application: "${APPLICATION_NAME}"
+    annotations:
+      description: The execution server web server's https port.
+- kind: Route
+  apiVersion: v1
+  id: "${APPLICATION_NAME}-kieserver-http"
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+    annotations:
+      description: Route for execution server's http service.
+  spec:
+    host: "${EXECUTION_SERVER_HOSTNAME_HTTP}"
+    to:
+      name: "${APPLICATION_NAME}-kieserver"
+- kind: Route
+  apiVersion: v1
+  id: "${APPLICATION_NAME}-kieserver-https"
+  metadata:
+    name: secure-${APPLICATION_NAME}-kieserver
+    labels:
+      application: "${APPLICATION_NAME}"
+    annotations:
+      description: Route for execution server's https service.
+  spec:
+    host: "${EXECUTION_SERVER_HOSTNAME_HTTPS}"
+    to:
+      name: secure-${APPLICATION_NAME}-kieserver
+    tls:
+      termination: passthrough
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${APPLICATION_NAME}-kieserver"
+    labels:
+      application: "${APPLICATION_NAME}"
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - "${APPLICATION_NAME}-kieserver"
+        from:
+          kind: ImageStreamTag
+          namespace: "${IMAGE_STREAM_NAMESPACE}"
+          name: "rhdm70-kieserver-openshift:${IMAGE_STREAM_TAG}"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      deploymentConfig: "${APPLICATION_NAME}-kieserver"
+    template:
+      metadata:
+        name: "${APPLICATION_NAME}-kieserver"
+        labels:
+          deploymentConfig: "${APPLICATION_NAME}-kieserver"
+          application: "${APPLICATION_NAME}"
+      spec:
+        terminationGracePeriodSeconds: 60
+        containers:
+        - name: "${APPLICATION_NAME}-kieserver"
+          image: rhdm70-kieserver-openshift
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "${EXCECUTION_SERVER_MEMORY_LIMIT}"
+          volumeMounts:
+          - name: kieserver-keystore-volume
+            mountPath: "/etc/kieserver-secret-volume"
+            readOnly: true
+          livenessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/eap/bin/livenessProbe.sh"
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/eap/bin/readinessProbe.sh"
+          ports:
+          - name: jolokia
+            containerPort: 8778
+            protocol: TCP
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          - name: https
+            containerPort: 8443
+            protocol: TCP
+          env:
+          - name: DROOLS_SERVER_FILTER_CLASSES
+            value: "${DROOLS_SERVER_FILTER_CLASSES}"
+          - name: KIE_ADMIN_PWD
+            value: "${KIE_ADMIN_PWD}"
+          - name: KIE_ADMIN_USER
+            value: "${KIE_ADMIN_USER}"
+          - name: KIE_MBEANS
+            value: "${KIE_MBEANS}"
+          - name: KIE_SERVER_BYPASS_AUTH_USER
+            value: "${KIE_SERVER_BYPASS_AUTH_USER}"
+          - name: KIE_SERVER_CONTROLLER_USER
+            value: "${KIE_SERVER_CONTROLLER_USER}"
+          - name: KIE_SERVER_CONTROLLER_PWD
+            value: "${KIE_SERVER_CONTROLLER_PWD}"
+          - name: KIE_SERVER_CONTROLLER_SERVICE
+            value: "${KIE_SERVER_CONTROLLER_SERVICE}"
+          - name: KIE_SERVER_CONTROLLER_PROTOCOL
+            value: "${KIE_SERVER_CONTROLLER_PROTOCOL}"
+          - name: KIE_SERVER_CONTROLLER_HOST
+            value: "${KIE_SERVER_CONTROLLER_HOST}"
+          - name: KIE_SERVER_CONTROLLER_PORT
+            value: "${KIE_SERVER_CONTROLLER_PORT}"
+          - name: KIE_SERVER_ID
+            value: "${KIE_SERVER_ID}"
+          - name: KIE_SERVER_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: KIE_SERVER_PWD
+            value: "${KIE_SERVER_PWD}"
+          - name: KIE_SERVER_USER
+            value: "${KIE_SERVER_USER}"
+          - name: KIE_SERVER_CONTAINER_DEPLOYMENT
+            value: "${KIE_SERVER_CONTAINER_DEPLOYMENT}"
+          - name: MAVEN_REPO_URL
+            value: "${MAVEN_REPO_URL}"
+          - name: MAVEN_REPO_USERNAME
+            value: "${MAVEN_REPO_USERNAME}"
+          - name: MAVEN_REPO_PASSWORD
+            value: "${MAVEN_REPO_PASSWORD}"
+          - name: HTTPS_KEYSTORE_DIR
+            value: "/etc/kieserver-secret-volume"
+          - name: HTTPS_KEYSTORE
+            value: "${HTTPS_KEYSTORE}"
+          - name: HTTPS_NAME
+            value: "${HTTPS_NAME}"
+          - name: HTTPS_PASSWORD
+            value: "${HTTPS_PASSWORD}"
+        volumes:
+        - name: kieserver-keystore-volume
+          secret:
+            secretName: "${HTTPS_SECRET}"

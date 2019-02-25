@@ -1,0 +1,63 @@
+---
+- name: Validate configuration for rolling restart
+  hosts: oo_masters_to_config
+  roles:
+  - openshift_facts
+  tasks:
+  - fail:
+      msg: "openshift_rolling_restart_mode must be set to either 'services' or 'system'"
+    when: openshift_rolling_restart_mode is defined and openshift_rolling_restart_mode not in ["services", "system"]
+
+# Creating a temp file on localhost, we then check each system that will
+# be rebooted to see if that file exists, if so we know we're running
+# ansible on a machine that needs a reboot, and we need to error out.
+- name: Create temp file on localhost
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - local_action: command mktemp
+    register: mktemp
+    changed_when: false
+
+- name: Check if temp file exists on any masters
+  hosts: oo_masters_to_config
+  tasks:
+  - stat:
+      path: "{{ hostvars.localhost.mktemp.stdout }}"
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: exists
+    changed_when: false
+    when: "'stdout' in hostvars.localhost.mktemp"
+
+- name: Cleanup temp file on localhost
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - file: path="{{ hostvars.localhost.mktemp.stdout }}" state=absent
+    changed_when: false
+    when: "'stdout' in hostvars.localhost.mktemp"
+
+- name: Warn if restarting the system where ansible is running
+  hosts: oo_masters_to_config
+  tasks:
+  - pause:
+      prompt: >
+        Warning: Running playbook from a host that will be restarted!
+        Press CTRL+C and A to abort playbook execution. You may
+        continue by pressing ENTER but the playbook will stop
+        executing after this system has been restarted and services
+        must be verified manually. To only restart services, set
+        openshift_master_rolling_restart_mode=services in host
+        inventory and relaunch the playbook.
+    when:
+    - "'stat' in exists"
+    - exists.stat.exists and openshift_rolling_restart_mode | default('services') == 'system'
+  - set_fact:
+      current_host: "{{ exists.stat.exists }}"
+    when:
+    - "'stat' in exists"
+    - openshift_rolling_restart_mode | default('services') == 'system'

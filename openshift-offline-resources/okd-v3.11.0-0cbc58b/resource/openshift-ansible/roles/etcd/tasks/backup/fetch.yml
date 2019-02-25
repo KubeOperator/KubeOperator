@@ -1,0 +1,8 @@
+---
+- name: Fetch etcd backup
+  fetch:
+    src: "{{ l_etcd_backup_dir }}.tgz"
+    dest: "{{ etcd_backup_sync_directory }}/"
+    flat: yes
+    fail_on_missing: yes
+    validate_checksum: yes

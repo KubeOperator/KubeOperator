@@ -1,0 +1,14 @@
+---
+- name: Copy node script to the node
+  copy:
+    src: openshift-node
+    dest: /usr/local/bin/openshift-node
+    mode: 0500
+
+- name: Install Node service file
+  template:
+    dest: "/etc/systemd/system/{{ openshift_service_type }}-node.service"
+    src: "node.service.j2"
+  when: not openshift_is_atomic | bool
+  notify:
+  - reload systemd units

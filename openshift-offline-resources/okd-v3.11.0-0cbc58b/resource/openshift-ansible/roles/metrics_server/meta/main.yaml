@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: OpenShift Development <dev@lists.openshift.redhat.com>
+  description: Deploy OpenShift metrics-server
+  company: Red Hat, Inc.
+  license: license (Apache)
+  min_ansible_version: 2.2
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Fedora
+    versions:
+    - all
+  categories:
+  - openshift
+dependencies:
+- role: lib_openshift
+- role: lib_utils
+- role: openshift_facts
+- role: openshift_logging_defaults

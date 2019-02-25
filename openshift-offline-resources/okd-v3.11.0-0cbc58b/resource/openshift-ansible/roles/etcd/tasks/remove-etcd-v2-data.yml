@@ -1,0 +1,28 @@
+---
+- import_tasks: verify_cluster_health.yml
+
+- name: Check migrated status
+  command: "{{ etcdctlv2 }} get /kubernetes.io"
+  register: etcdv2_migrated_status
+  failed_when: ('stdout' not in etcdv2_migrated_status)
+
+- block:
+  - name: Remove etcdv2 kubernetes data
+    command: "{{ etcdctlv2 }} rm -r /kubernetes.io"
+    register: etcdv2_remove_k8s
+    when: ('Key not found' not in etcdv2_migrated_status.stderr)
+
+  - name: Get openshift data
+    command: "{{ etcdctlv2 }} get /openshift.io"
+    register: etcdv2_openshift_data
+    failed_when: ('stdout' not in etcdv2_openshift_data)
+
+  - name: Remove etcdv2 openshift data
+    command: "{{ etcdctlv2 }} rm -r /openshift.io"
+    register: etcdv2_remove_openshift
+    when: ('Key not found' not in etcdv2_openshift_data.stderr)
+
+  - name: Set migrated mark
+    command: "{{ etcdctlv2 }} set /kubernetes.io migrated"
+
+  when: (etcdv2_migrated_status.stdout != 'migrated')

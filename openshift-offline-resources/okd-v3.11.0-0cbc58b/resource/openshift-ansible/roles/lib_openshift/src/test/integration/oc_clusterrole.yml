@@ -1,0 +1,106 @@
+#!/usr/bin/ansible-playbook --module-path=../../../library/
+## ./oc_configmap.yml -M ../../../library -e "cli_master_test=$OPENSHIFT_MASTER
+---
+- hosts: "{{ cli_master_test }}"
+  gather_facts: no
+  user: root
+
+  post_tasks:
+  - name: create a test project
+    oc_project:
+      name: test
+      description: for tests only
+
+  ###### create test ###########
+  - name: create a clusterrole
+    oc_clusterrole:
+      state: present
+      name: operations
+      rules:
+      - apiGroups:
+        - ""
+        resources:
+        - persistentvolumes
+        attributeRestrictions: null
+        verbs:
+        - create
+        - delete
+        - deletecollection
+        - get
+        - list
+        - patch
+        - update
+        - watch
+
+  - name: fetch the created clusterrole
+    oc_clusterrole:
+      name: operations
+      state: list
+    register: croleout
+
+  - debug: var=croleout
+
+  - name: assert clusterrole exists
+    assert:
+      that:
+      - croleout.results.results.metadata.name == 'operations'
+      - croleout.results.results.rules[0].resources[0] == 'persistentvolumes'
+  ###### end create test ###########
+
+  ###### update test ###########
+  - name: update a clusterrole
+    oc_clusterrole:
+      state: present
+      name: operations
+      rules:
+      - apiGroups:
+        - ""
+        resources:
+        - persistentvolumes
+        - serviceaccounts
+        - services
+        attributeRestrictions: null
+        verbs:
+        - create
+        - delete
+        - deletecollection
+        - get
+        - list
+        - patch
+        - update
+        - watch
+
+  - name: fetch the created clusterrole
+    oc_clusterrole:
+      name: operations
+      state: list
+    register: croleout
+
+  - debug: var=croleout
+
+  - name: assert clusterrole is updated
+    assert:
+      that:
+      - croleout.results.results.metadata.name == 'operations'
+      - "'persistentvolumes' in croleout.results.results.rules[0].resources"
+      - "'serviceaccounts' in croleout.results.results.rules[0].resources"
+      - "'services' in croleout.results.results.rules[0].resources"
+  ###### end create test ###########
+
+  ###### delete test ###########
+  - name: delete a clusterrole
+    oc_clusterrole:
+      state: absent
+      name: operations
+
+  - name: fetch the clusterrole
+    oc_clusterrole:
+      name: operations
+      state: list
+    register: croleout
+
+  - debug: var=croleout
+
+  - name: assert operations does not exist
+    assert:
+      that: "'\"operations\" not found' in croleout.results.stderr"

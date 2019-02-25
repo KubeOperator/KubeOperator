@@ -1,0 +1,176 @@
+---
+# The version of Contiv binaries to use
+contiv_version: 1.2.0
+
+# The version of cni binaries
+contiv_cni_version: v0.4.0
+
+# If the node we are deploying to is to be a contiv master.
+contiv_master: false
+
+contiv_default_subnet: "10.128.0.0/16"
+contiv_default_gw: "10.128.254.254"
+
+# Ports netmaster listens on
+contiv_netmaster_port: 9999
+contiv_netmaster_port_proto: tcp
+contiv_ofnet_master_port: 9001
+contiv_ofnet_master_port_proto: tcp
+
+# Ports netplugin listens on
+contiv_netplugin_port: 6640
+contiv_netplugin_port_proto: tcp
+contiv_ofnet_vxlan_port: 9002
+contiv_ofnet_vxlan_port_proto: tcp
+contiv_ovs_port: 9003
+contiv_ovs_port_proto: tcp
+
+contiv_vxlan_port: 4789
+contiv_vxlan_port_proto: udp
+
+# Interface used by Netplugin for inter-host traffic when encap_mode is vlan.
+# The interface must support 802.1Q trunking.
+contiv_netplugin_interface: "eno16780032"
+
+# IP address of the interface used for control communication within the cluster
+# It needs to be reachable from all nodes in the cluster.
+contiv_netplugin_ctrl_ip: "{{ hostvars[inventory_hostname]['ansible_' + contiv_netplugin_interface].ipv4.address }}"
+
+# IP used to terminate vxlan tunnels
+contiv_netplugin_vtep_ip: "{{ hostvars[inventory_hostname]['ansible_' + contiv_netplugin_interface].ipv4.address }}"
+
+# Interface used to bind Netmaster service
+contiv_netmaster_interface: "{{ contiv_netplugin_interface }}"
+
+# IP address of the interface used for control communication within the cluster
+# It needs to be reachable from all nodes in the cluster.
+contiv_netmaster_ctrl_ip: "{{ hostvars[inventory_hostname]['ansible_' + contiv_netmaster_interface].ipv4.address }}"
+
+# Path to the contiv binaries
+contiv_bin_dir: /usr/bin
+
+# Path to the contivk8s cni binary
+contiv_cni_bin_dir: /opt/cni/bin
+
+# Path to cni archive download directory
+contiv_cni_download_dir: /tmp
+
+# URL for cni binaries
+contiv_cni_bin_url_base: "https://github.com/containernetworking/cni/releases/download/"
+contiv_cni_bin_url: "{{ contiv_cni_bin_url_base }}/{{ contiv_cni_version }}/cni-{{ contiv_cni_version }}.tbz2"
+
+
+# Contiv config directory
+contiv_config_dir: /opt/contiv/config
+
+# Directory to store downloaded Contiv releases
+contiv_releases_directory: /opt/contiv
+contiv_current_release_directory: "{{ contiv_releases_directory }}/{{ contiv_version }}"
+
+#The default url to download the Contiv tar's from
+contiv_download_url_base: "https://github.com/contiv/netplugin/releases/download"
+contiv_download_url: "{{ contiv_download_url_base }}/{{ contiv_version }}/netplugin-{{ contiv_version }}.tar.bz2"
+
+# This is where kubelet looks for plugin files
+contiv_kube_plugin_dir: /usr/libexec/kubernetes/kubelet-plugins/net/exec
+
+# Specifies routed mode vs bridged mode for networking (bridge | routing)
+# if you are using an external router for all routing, you should select bridge here
+contiv_netplugin_fwd_mode: routing
+
+# Contiv fabric mode aci|default
+contiv_fabric_mode: default
+
+# Global VLAN range
+contiv_vlan_range: "2900-3000"
+
+# Encapsulation type vlan|vxlan to use for instantiating container networks
+contiv_encap_mode: vxlan
+
+# Backend used by Netplugin for instantiating container networks
+contiv_netplugin_driver: ovs
+
+# Create a default Contiv network for use by pods
+contiv_default_network: true
+
+# Statically configured tag for default network (if needed)
+contiv_default_network_tag: ""
+
+#SRFIXME (use the openshift variables)
+contiv_https_proxy: ""
+contiv_http_proxy: ""
+contiv_no_proxy: ""
+
+# The following are aci specific parameters when contiv_fabric_mode: aci is set.
+# Otherwise, you can ignore these.
+contiv_apic_url: ""
+contiv_apic_username: ""
+contiv_apic_password: ""
+contiv_apic_leaf_nodes: ""
+contiv_apic_phys_dom: ""
+contiv_apic_contracts_unrestricted_mode: no
+contiv_apic_epg_bridge_domain: not_specified
+apic_configure_default_policy: false
+contiv_apic_default_external_contract: "uni/tn-common/brc-default"
+contiv_apic_default_app_profile: "contiv-infra-app-profile"
+contiv_kube_cert_dir: "/data/src/github.com/openshift/origin/openshift.local.config/master"
+contiv_kube_ca_cert: "{{ contiv_kube_cert_dir }}/ca.crt"
+contiv_kube_key: "{{ contiv_kube_cert_dir }}/admin.key"
+contiv_kube_cert: "{{ contiv_kube_cert_dir }}/admin.crt"
+contiv_kube_master_api_port: 8443
+contiv_kube_master_api_port_proto: tcp
+
+# contivh1 default subnet and gateway
+contiv_h1_subnet_default: "10.129.0.0/16"
+contiv_h1_gw_default: "10.129.0.1"
+
+# contiv default private subnet for ext access
+contiv_private_ext_subnet: "10.130.0.0/16"
+
+contiv_openshift_docker_service_name: "docker"
+
+contiv_api_proxy_port: 10000
+contiv_api_proxy_port_proto: tcp
+contiv_api_proxy_image_repo: contiv/auth_proxy
+contiv_api_proxy_ip: "{{ hostvars[inventory_hostname]['ansible_' + contiv_netmaster_interface].ipv4.address }}"
+
+contiv_etcd_system_user: contivetcd
+contiv_etcd_system_uid: 823
+contiv_etcd_system_group: contivetcd
+contiv_etcd_system_gid: 823
+contiv_etcd_port: 22379
+contiv_etcd_port_proto: tcp
+contiv_etcd_peer_port: 22380
+contiv_etcd_peer_port_proto: tcp
+contiv_etcd_url: "http://127.0.0.1:{{ contiv_etcd_port }}"
+contiv_etcd_init_image_repo: ferest/etcd-initer
+contiv_etcd_init_image_tag: latest
+contiv_etcd_image_repo: quay.io/coreos/etcd
+contiv_etcd_image_tag: v3.2.4
+contiv_etcd_conf_dir: /etc/contiv-etcd
+contiv_etcd_data_dir: /var/lib/contiv-etcd
+contiv_etcd_peers: |-
+  {% for host in groups.oo_masters_to_config -%}
+    {{ host }}=http://{{ hostvars[host]['ip'] | default(hostvars[host].ansible_default_ipv4['address']) }}:{{ contiv_etcd_peer_port }}{% if not loop.last %},{% endif %}
+  {%- endfor %}
+
+# List of port/protocol pairs to allow inbound access to on every host
+# netplugin runs on, from all host IPs in the cluster.
+contiv_netplugin_internal: [ "{{ contiv_ofnet_vxlan_port }}/{{ contiv_ofnet_vxlan_port_proto }}",
+                             "{{ contiv_ovs_port }}/{{ contiv_ovs_port_proto }}",
+                             "{{ contiv_vxlan_port }}/{{ contiv_vxlan_port_proto }}" ]
+# Allow all forwarded traffic in and out of these interfaces.
+contiv_netplugin_forward_interfaces: [ contivh0, contivh1 ]
+
+# List of port/protocol pairs to allow inbound access to on every host
+# netmaster runs on, from all host IPs in the cluster.  Note that every host
+# that runs netmaster also runs netplugin, so the above netplugin rules will
+# apply as well.
+contiv_netmaster_internal: [ "{{ contiv_ofnet_master_port }}/{{ contiv_ofnet_master_port_proto }}",
+                             "{{ contiv_netmaster_port }}/{{ contiv_netmaster_port_proto }}",
+                             "{{ contiv_etcd_port }}/{{ contiv_etcd_port_proto }}",
+                             "{{ contiv_etcd_peer_port }}/{{ contiv_etcd_peer_port_proto }}",
+                             "{{ contiv_kube_master_api_port }}/{{ contiv_kube_master_api_port_proto }}" ]
+# List of port/protocol pairs to allow inbound access to on every host
+# netmaster runs on, from any host anywhere.
+contiv_netmaster_external: [ "{{ contiv_api_proxy_port }}/{{ contiv_api_proxy_port_proto }}" ]

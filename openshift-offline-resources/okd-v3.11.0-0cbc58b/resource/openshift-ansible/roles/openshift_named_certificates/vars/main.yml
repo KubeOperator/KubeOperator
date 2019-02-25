@@ -1,0 +1,5 @@
+---
+overwrite_named_certs: "{{ openshift_master_overwrite_named_certificates | default(false) }}"
+named_certs_dir: "{{ openshift.common.config_base }}/master/named_certificates/"
+internal_hostnames: "{{ openshift.common.internal_hostnames }}"
+named_certificates: "{{ openshift_master_named_certificates | default([]) }}"

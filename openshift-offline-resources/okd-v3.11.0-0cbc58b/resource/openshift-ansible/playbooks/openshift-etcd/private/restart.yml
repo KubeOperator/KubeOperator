@@ -1,0 +1,19 @@
+---
+- name: Restart etcd
+  hosts: oo_etcd_to_config
+  serial: 1
+  tasks:
+    - import_role:
+        name: etcd
+        tasks_from: restart.yml
+      when:
+        - not g_etcd_certificates_expired | default(false) | bool
+
+- name: Restart etcd
+  hosts: oo_etcd_to_config
+  tasks:
+    - import_role:
+        name: etcd
+        tasks_from: restart.yml
+      when:
+        - g_etcd_certificates_expired | default(false) | bool

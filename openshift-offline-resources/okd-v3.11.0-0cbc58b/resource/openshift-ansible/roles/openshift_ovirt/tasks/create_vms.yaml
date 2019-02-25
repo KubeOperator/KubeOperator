@@ -1,0 +1,24 @@
+---
+- debug:
+    var: vms
+- fail:
+    msg: "The vms fact is not set. Run build_vm_list task from this role"
+  when:
+  - vms is none
+
+- name: check if the template already exists
+  ovirt_templates_facts:
+    pattern: "name={{ template_name }} and storage.name={{ openshift_ovirt_data_store }}"
+    auth: "{{ ovirt_auth }}"
+
+# Upload the template if it doesn't exist already
+- import_role:
+    name: oVirt.image-template
+  when:
+    not ovirt_templates
+
+- import_role:
+    name: oVirt.vm-infra
+- name: print all created vms that are in the inventory
+  debug:
+    var: hostvars

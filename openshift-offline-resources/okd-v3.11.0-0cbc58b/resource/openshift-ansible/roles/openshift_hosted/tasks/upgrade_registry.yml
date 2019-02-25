@@ -1,0 +1,43 @@
+---
+- name: Check for default registry
+  oc_obj:
+    state: list
+    kind: dc
+    name: docker-registry
+  register: _default_registry
+
+- name: Update registry image to current version
+  oc_edit:
+    kind: dc
+    name: docker-registry
+    namespace: default
+    content:
+      spec.template.spec.containers[0].image: "{{ l_osh_registry_image }}"
+  vars:
+    l_osh_registry_image: "{{ openshift_hosted_registry_registryurl | replace( '${component}', 'docker-registry' )  |
+                           replace ( '${version}', openshift_image_tag ) }}"
+  when:
+  - _default_registry.results.results[0] != {}
+
+- name: Check for registry-console
+  oc_obj:
+    state: list
+    kind: dc
+    name: registry-console
+  register: _registry_console
+  when:
+  - openshift_deployment_type != 'origin'
+
+- name: Update registry-console image to current version
+  oc_edit:
+    kind: dc
+    name: registry-console
+    namespace: default
+    content:
+      spec.template.spec.containers[0].image: "{{ l_osh_registry_console_image }}"
+  vars:
+    l_osh_registry_console_image: "{{ openshift_hosted_registry_registryurl | regex_replace ( '(origin|ose)-\\${component}', 'registry-console') |
+                                      replace ( '${version}', openshift_image_tag ) }}"
+  when:
+  - openshift_deployment_type != 'origin'
+  - _registry_console.results.results[0] != {}

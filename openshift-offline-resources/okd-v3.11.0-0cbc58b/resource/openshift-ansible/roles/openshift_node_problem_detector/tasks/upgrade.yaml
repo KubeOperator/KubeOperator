@@ -1,0 +1,13 @@
+---
+- name: Check if node problem detector daemonset exists
+  oc_obj:
+    state: list
+    kind: daemonset
+    name: "{{ openshift_node_problem_detector_daemonset_name }}"
+    namespace: "{{ openshift_node_problem_detector_daemonset_name }}"
+  register: npd_daemonset
+
+- name: Upgrade node problem detector daemonset
+  include_tasks: install_daemonset.yaml
+  when:
+  - npd_daemonset.results.results[0] != {}

@@ -1,0 +1,83 @@
+---
+- name: Install openssl
+  package:
+    name: openssl
+    state: present
+  when: not etcd_is_atomic | bool
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+  register: result
+  until: result is succeeded
+
+- file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+  with_items:
+  - "{{ etcd_ca_new_certs_dir }}"
+  - "{{ etcd_ca_crl_dir }}"
+  - "{{ etcd_ca_dir }}/fragments"
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- command: cp /etc/pki/tls/openssl.cnf ./
+  args:
+    chdir: "{{ etcd_ca_dir }}/fragments"
+    creates: "{{ etcd_ca_dir }}/fragments/openssl.cnf"
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- template:
+    dest: "{{ etcd_ca_dir }}/fragments/openssl_append.cnf"
+    src: openssl_append.j2
+    backup: true
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- assemble:
+    src: "{{ etcd_ca_dir }}/fragments"
+    dest: "{{ etcd_openssl_conf }}"
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- name: Check etcd_ca_db exist
+  stat:
+    path: "{{ etcd_ca_db }}"
+    get_checksum: false
+    get_mime: false
+  register: etcd_ca_db_check
+  changed_when: false
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- name: Touch etcd_ca_db file
+  file:
+    path: "{{ etcd_ca_db }}"
+    state: touch
+  when: etcd_ca_db_check.stat.isreg is not defined
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- copy:
+    dest: "{{ etcd_ca_serial }}"
+    content: "01"
+    force: no
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true
+
+- name: Create etcd CA certificate
+  command: >
+    openssl req -config {{ etcd_openssl_conf }} -newkey rsa:4096
+    -keyout {{ etcd_ca_key }} -new -out {{ etcd_ca_cert }}
+    -x509 -extensions {{ etcd_ca_exts_self }} -batch -nodes
+    -days {{ etcd_ca_default_days }}
+    -subj /CN=etcd-signer@{{ ansible_date_time.epoch }}
+  args:
+    chdir: "{{ etcd_ca_dir }}"
+    creates: "{{ etcd_ca_cert }}"
+  environment:
+    SAN: 'etcd-signer'
+  delegate_to: "{{ etcd_ca_host }}"
+  run_once: true

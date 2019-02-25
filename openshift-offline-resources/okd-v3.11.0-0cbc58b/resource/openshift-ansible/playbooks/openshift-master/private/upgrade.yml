@@ -1,0 +1,237 @@
+---
+###############################################################################
+# Upgrade Masters
+###############################################################################
+
+# Create service signer cert when missing. Service signer certificate
+# is added to master config in the master_config_upgrade hook.
+- name: Determine if service signer cert must be created
+  hosts: oo_first_master
+  tasks:
+  - name: Determine if service signer certificate must be created
+    stat:
+      path: "{{ openshift.common.config_base }}/master/service-signer.crt"
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: service_signer_cert_stat
+    changed_when: false
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: verify_api_server.yml
+
+- import_playbook: create_service_signer_cert.yml
+
+# oc adm migrate storage should be run prior to etcd v3 upgrade
+# See: https://github.com/openshift/origin/pull/14625#issuecomment-308467060
+- name: Pre master upgrade - Upgrade all storage
+  hosts: oo_first_master
+  roles:
+  - openshift_facts
+  tasks:
+  - name: Wait for API health
+    import_role:
+      name: openshift_control_plane
+      tasks_from: check_master_api_is_ready.yml
+  - name: Upgrade all storage
+    command: >
+      {{ openshift_client_binary }} adm --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+      migrate storage --include=*
+    register: l_pb_upgrade_control_plane_pre_upgrade_storage
+    when: openshift_upgrade_pre_storage_migration_enabled | default(true) | bool
+    until: l_pb_upgrade_control_plane_pre_upgrade_storage.rc == 0
+    failed_when:
+    - l_pb_upgrade_control_plane_pre_upgrade_storage.rc != 0
+    - openshift_upgrade_pre_storage_migration_fatal | default(true) | bool
+    retries: 6
+    delay: 30
+
+  - name: Migrate legacy HPA scale target refs
+    command: >
+      {{ openshift_client_binary }} adm --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+      migrate legacy-hpa --confirm
+    register: migrate_legacy_hpa_result
+    when: openshift_upgrade_pre_storage_migration_enabled | default(true) | bool
+    failed_when:
+    - migrate_legacy_hpa_result.rc != 0
+    - openshift_upgrade_pre_storage_migration_fatal | default(true) | bool
+
+
+# Set openshift_master_facts separately. In order to reconcile
+# admission_config's, we currently must run openshift_master_facts and
+# then run openshift_facts.
+- name: Set OpenShift master facts and image prepull
+  hosts: oo_masters_to_config
+  roles:
+  - openshift_master_facts
+  tasks:
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: pre_pull.yml
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: pre_pull_poll.yml
+
+- name: configure vsphere svc account
+  hosts: oo_first_master
+  tasks:
+  - import_role:
+      name: openshift_cloud_provider
+      tasks_from: vsphere-svc.yml
+    when:
+    - openshift_cloudprovider_kind is defined
+    - openshift_cloudprovider_kind == 'vsphere'
+
+# The main master upgrade play. Should handle all changes to the system in one pass, with
+# support for optional hooks to be defined.
+- name: Upgrade master
+  hosts: oo_masters_to_config
+  serial: 1
+  roles:
+  - openshift_facts
+  tasks:
+  # Run the pre-upgrade hook if defined:
+  - debug: msg="Running master pre-upgrade hook {{ openshift_master_upgrade_pre_hook }}"
+    when: openshift_master_upgrade_pre_hook is defined
+
+  - include_tasks: "{{ openshift_master_upgrade_pre_hook }}"
+    when: openshift_master_upgrade_pre_hook is defined
+
+  - import_role:
+      name: openshift_control_plane
+      tasks_from: upgrade.yml
+
+  - name: update vsphere provider master config
+    import_role:
+      name: openshift_cloud_provider
+      tasks_from: update-vsphere.yml
+    when:
+    - openshift_cloudprovider_kind is defined
+    - openshift_cloudprovider_kind == 'vsphere'
+
+  # Run the upgrade hook prior to restarting services/system if defined:
+  - debug: msg="Running master upgrade hook {{ openshift_master_upgrade_hook }}"
+    when: openshift_master_upgrade_hook is defined
+
+  - include_tasks: "{{ openshift_master_upgrade_hook }}"
+    when: openshift_master_upgrade_hook is defined
+
+  - name: Lay down the static configuration
+    import_role:
+      name: openshift_control_plane
+      tasks_from: static.yml
+
+  - import_tasks: tasks/restart_hosts.yml
+    when: openshift_rolling_restart_mode | default('services') == 'system'
+
+  - import_tasks: tasks/restart_services.yml
+    when: openshift_rolling_restart_mode | default('services') == 'services'
+
+  # Run the post-upgrade hook if defined:
+  - debug: msg="Running master post-upgrade hook {{ openshift_master_upgrade_post_hook }}"
+    when: openshift_master_upgrade_post_hook is defined
+
+  - include_tasks: "{{ openshift_master_upgrade_post_hook }}"
+    when: openshift_master_upgrade_post_hook is defined
+
+  - set_fact:
+      master_update_complete: True
+
+##############################################################################
+# Gate on master update complete
+##############################################################################
+- name: Gate on master update
+  hosts: localhost
+  connection: local
+  tasks:
+  - set_fact:
+      master_update_completed: "{{ hostvars
+                                 | lib_utils_oo_select_keys(groups.oo_masters_to_config)
+                                 | lib_utils_oo_collect('inventory_hostname', {'master_update_complete': true}) }}"
+  - set_fact:
+      master_update_failed: "{{ groups.oo_masters_to_config | difference(master_update_completed) | list }}"
+  - fail:
+      msg: "Upgrade cannot continue. The following masters did not finish updating: {{ master_update_failed | join(',') }}"
+    when: master_update_failed | length > 0
+
+###############################################################################
+# Reconcile Cluster Roles, Cluster Role Bindings and Security Context Constraints
+###############################################################################
+
+- name: Reconcile Cluster Roles and Cluster Role Bindings and Security Context Constraints
+  hosts: oo_masters_to_config
+  roles:
+  - openshift_cli
+  - openshift_facts
+  vars:
+    __master_shared_resource_viewer_file: "shared_resource_viewer_role.yaml"
+  tasks:
+  - name: Wait for API health
+    import_role:
+      name: openshift_control_plane
+      tasks_from: check_master_api_is_ready.yml
+  - name: Reconcile Security Context Constraints
+    command: >
+      {{ openshift_client_binary }} adm policy --config={{ openshift.common.config_base }}/master/admin.kubeconfig reconcile-sccs --confirm --additive-only=true -o name
+    register: reconcile_scc_result
+    changed_when:
+    - reconcile_scc_result.stdout != ''
+    - reconcile_scc_result.rc == 0
+    run_once: true
+
+  - name: Migrate storage post policy reconciliation
+    command: >
+      {{ openshift_client_binary }} adm --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+      migrate storage --include=*
+    run_once: true
+    register: l_pb_upgrade_control_plane_post_upgrade_storage
+    when: openshift_upgrade_post_storage_migration_enabled | default(true) | bool
+    until: l_pb_upgrade_control_plane_post_upgrade_storage.rc == 0
+    failed_when:
+    - l_pb_upgrade_control_plane_post_upgrade_storage.rc != 0
+    - openshift_upgrade_post_storage_migration_fatal | default(false) | bool
+    retries: 6
+    delay: 30
+
+  - set_fact:
+      reconcile_complete: True
+
+##############################################################################
+# Gate on reconcile
+##############################################################################
+- name: Gate on reconcile
+  hosts: localhost
+  connection: local
+  tasks:
+  - set_fact:
+      reconcile_completed: "{{ hostvars
+                                 | lib_utils_oo_select_keys(groups.oo_masters_to_config)
+                                 | lib_utils_oo_collect('inventory_hostname', {'reconcile_complete': true}) }}"
+  - set_fact:
+      reconcile_failed: "{{ groups.oo_masters_to_config | difference(reconcile_completed) | list }}"
+  - fail:
+      msg: "Upgrade cannot continue. The following masters did not finish reconciling: {{ reconcile_failed | join(',') }}"
+    when: reconcile_failed | length > 0
+
+- name: Update sync DS
+  hosts: oo_first_master
+  tasks:
+  - import_role:
+      name: openshift_node_group
+      tasks_from: sync.yml
+
+- name: Drain and upgrade master nodes
+  hosts: oo_masters_to_config:&oo_nodes_to_upgrade
+  # This var must be set with -e on invocation, as it is not a per-host inventory var
+  # and is evaluated early. Values such as "20%" can also be used.
+  serial: "{{ openshift_upgrade_control_plane_nodes_serial | default(1) }}"
+  max_fail_percentage: "{{ openshift_upgrade_control_plane_nodes_max_fail_percentage | default(0) }}"
+  roles:
+  - lib_openshift
+  - openshift_facts
+  tasks:
+  - import_role:
+      name: openshift_manage_node
+      tasks_from: config.yml
+    vars:
+      openshift_master_host: "{{ groups.oo_first_master.0 }}"

@@ -1,0 +1,33 @@
+---
+- name: Checking for journald.conf
+  stat:
+    path: /etc/systemd/journald.conf
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: journald_conf_file
+
+- name: Create journald persistence directories
+  file:
+    path: /var/log/journal
+    state: directory
+
+- name: Update journald setup
+  replace:
+    dest: /etc/systemd/journald.conf
+    regexp: '^(\#| )?{{ item.var }}=\s*.*?$'
+    replace: ' {{ item.var }}={{ item.val }}'
+    backup: yes
+  with_items: "{{ journald_vars_to_replace | default([]) }}"
+  when: journald_conf_file.stat.exists
+  register: journald_update
+
+# I need to restart journald immediatelly, otherwise it gets into way during
+# further steps in ansible
+- name: Restart journald
+  command: "systemctl restart systemd-journald"
+  retries: 3
+  delay: 5
+  register: result
+  until: result.rc == 0
+  when: journald_update is changed

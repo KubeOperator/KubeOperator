@@ -1,0 +1,16 @@
+---
+r_nuage_master_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_nuage_master_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+nuage_mon_rest_server_port: "{{ nuage_openshift_monitor_rest_server_port | default('9443') }}"
+
+nuage_mon_image_name: "{{ nuage_mon_image_path | default('nuage/master') }}"
+nuage_vrs_image_name: "{{ nuage_vrs_image_path | default('nuage/vrs') }}"
+nuage_cni_image_name: "{{ nuage_cni_image_path | default('nuage/cni') }}"
+nuage_infra_image_name: "{{ nuage_infra_image_path | default('nuage/infra') }}"
+nuage_sswan_image_name: "{{ nuage_sswan_image_path | default('nuage/strongswan') }}"
+
+r_nuage_master_os_firewall_deny: []
+r_nuage_master_os_firewall_allow:
+- service: openshift-monitor
+  port: "{{ nuage_mon_rest_server_port }}/tcp"

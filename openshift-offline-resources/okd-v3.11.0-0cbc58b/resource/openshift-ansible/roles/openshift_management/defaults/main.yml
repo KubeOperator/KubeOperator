@@ -1,0 +1,108 @@
+---
+# Namespace for the CFME project
+openshift_management_project: openshift-management
+# Namespace/project description
+openshift_management_project_description: CloudForms Management Engine
+# Number of retries when waiting for the app to start (retried every 30 seconds)
+openshift_management_pod_rollout_retries: 30
+# Node selector for project:
+openshift_management_nodeselector: "{{ openshift_hosted_infra_selector | default(['node-role.kubernetes.io/infra=true'])}}"
+
+######################################################################
+# BASE TEMPLATE AND DATABASE OPTIONS
+######################################################################
+# Which flavor of CFME would you like? You may install CFME using a
+# podified PostgreSQL server, or you may choose to use an existing
+# PostgreSQL server.
+#
+# Choose 'miq-template' for a podified database install
+# Choose 'miq-template-ext-db' for an external database install
+openshift_management_app_template: "{{ 'cfme-template' if openshift_deployment_type == 'openshift-enterprise' else 'miq-template' }}"
+# If you are using the miq-template-ext-db template then you must add
+# the required database parameters to the
+# openshift_management_template_parameters variable.
+
+######################################################################
+# STORAGE OPTIONS
+######################################################################
+# DEFAULT - 'nfs'
+# Allowed options: nfs, nfs_external, preconfigured, cloudprovider.
+openshift_management_storage_class: nfs
+# * nfs - Best used for proof-of-concept installs. Will setup NFS on a
+#   cluster host (defaults to your first master in the inventory file)
+#   to back the required PVCs. The application requires a PVC and the
+#   database (which may be hosted externally) may require a
+#   second. PVC minimum required sizes are: 5GiB for the MIQ
+#   application, and 15GiB for the PostgreSQL database (20GiB minimum
+#   available space on an volume/partition if used specifically for
+#   NFS purposes)
+#
+# * nfs_external - You are using an external NFS server, such as a
+#   netapp appliance. See the STORAGE - NFS OPTIONS section below for
+#   required information.
+#
+# * preconfigured - This CFME role will do NOTHING to modify storage
+#   settings. This option assumes expert knowledge and that you have
+#   done everything required ahead of time.
+#
+# * cloudprovider - You are using an OCP cloudprovider integration for
+#   your storage class. For this to work you must have already
+#   configured the required inventory parameters for your cloud
+#   provider
+#
+#   Ensure 'openshift_cloudprovider_kind' is defined (aws, azure or gce)
+#   and that the applicable cloudprovider parameters are provided.
+
+#---------------------------------------------------------------------
+# STORAGE - NFS OPTIONS
+#---------------------------------------------------------------------
+# [OPTIONAL] - If you are using an EXTERNAL NFS server, such as a
+# netapp appliance, then you must set the hostname here. Leave the
+# value as 'false' if you are not using external NFS.
+openshift_management_storage_nfs_external_hostname: false
+# [OPTIONAL] - If you are using external NFS then you must set the base
+# path to the exports location here.
+#
+# Additionally: EXTERNAL NFS REQUIRES that YOU CREATE the nfs exports
+# that will back the application PV and optionally the database
+# pv. Export path definitions, relative to
+# {{ openshift_management_storage_nfs_base_dir }}
+#
+# LOCAL NFS NOTE:
+#
+# You may may also change this value if you want to change the default
+# path used for local NFS exports.
+openshift_management_storage_nfs_base_dir: /exports
+#
+# LOCAL NFS NOTE:
+#
+# You may override the automatically selected LOCAL NFS server by
+# setting this variable. Useful for testing specific task files.
+openshift_management_storage_nfs_local_hostname: false
+
+######################################################################
+# DEFAULT ACCOUNT INFORMATION
+######################################################################
+# These are the default values for the username and password of the
+# management app. Changing these values in your inventory will not
+# change your username or password. You should only need to change
+# these values in your inventory if you already changed the actual
+# name and password AND are trying to use integration scripts.
+#
+# For example, adding this cluster as a container provider,
+# playbooks/openshift-management/add_container_provider.yml
+openshift_management_username: admin
+openshift_management_password: smartvm
+
+######################################################################
+# SCAFFOLDING - These are parameters we pre-seed that a user may or
+# may not set later
+######################################################################
+# A hash of parameters you want to override or set in the
+# miq-template.yaml or miq-template-ext-db.yaml templates. Set this in
+# your inventory file as a simple hash. Acceptable values are defined
+# under the .parameters list in files/miq-template{-ext-db}.yaml
+# Example:
+#
+# openshift_management_template_parameters={'APPLICATION_MEM_REQ': '512Mi'}
+openshift_management_template_parameters: {}

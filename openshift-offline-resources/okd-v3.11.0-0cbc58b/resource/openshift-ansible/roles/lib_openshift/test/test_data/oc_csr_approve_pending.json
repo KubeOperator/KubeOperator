@@ -1,0 +1,38 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "certificates.k8s.io/v1beta1",
+            "kind": "CertificateSigningRequest",
+            "metadata": {
+                "creationTimestamp": "2018-08-21T17:14:45Z",
+                "name": "node-csr-TkefytQp8Dz4Xp7uzcw605MocvI0gWuEOGNrHhOjGNQ",
+                "namespace": "",
+                "resourceVersion": "1453681",
+                "selfLink": "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/node-csr-TkefytQp8Dz4Xp7uzcw605MocvI0gWuEOGNrHhOjGNQ",
+                "uid": "b3686297-a565-11e8-8a5d-525400650cba"
+            },
+            "spec": {
+                "groups": [
+                    "system:serviceaccounts",
+                    "system:serviceaccounts:openshift-infra",
+                    "system:authenticated"
+                ],
+                "request": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQkFEQ0JxQUlCQURCR01SVXdFd1lEVlFRS0V3eHplWE4wWlcwNmJtOWtaWE14TFRBckJnTlZCQU1USkhONQpjM1JsYlRwdWIyUmxPbVpsWkc5eVlUSXViV2QxWjJsdWIyeHZZMkZzTG1OdmJUQlpNQk1HQnlxR1NNNDlBZ0VHCkNDcUdTTTQ5QXdFSEEwSUFCRXdWakdhVStoRlI1UEtRN1RucmdVM2ozRHFoM1hoNEY5ZnNRTnY2YUg4VVBaaFUKaHpNaVQwaW44TGdkK01zNzdhQUp3UkN1anZXL3ZSN2Z0bm5obG0yZ0FEQUtCZ2dxaGtqT1BRUURBZ05IQURCRQpBaUF6VkZnY09KQUFiUThidy9JcTdpMm94YnJYMm5KMk8vTGQ4TmhucG1yYzRBSWdCeWhiTFlvWGQzMGNvelFJClJ5NlFtSG1OSmJlSUxYZUV1QlhESFEvU0hFND0KLS0tLS1FTkQgQ0VSVElGSUNBVEUgUkVRVUVTVC0tLS0tCg==",
+                "uid": "3bdbaae3-9cf8-11e8-964a-525400650cba",
+                "usages": [
+                    "digital signature",
+                    "key encipherment",
+                    "client auth"
+                ],
+                "username": "system:serviceaccount:openshift-infra:node-bootstrapper"
+            },
+            "status": {}
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}

@@ -1,0 +1,35 @@
+---
+- name: Install and configure NetworkManager
+  hosts: oo_all_hosts
+  become: yes
+  tasks:
+  - name: Detecting Operating System
+    shell: ls /run/ostree-booted
+    ignore_errors: yes
+    failed_when: false
+    register: ostree_output
+
+  - name: install NetworkManager
+    package:
+      name: 'NetworkManager'
+      state: present
+    register: result
+    until: result is succeeded
+    when: ostree_output.rc != 0
+
+  - name: configure NetworkManager
+    lineinfile:
+      dest: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4['interface'] }}"
+      regexp: '^{{ item }}='
+      line: '{{ item }}=yes'
+      state: present
+      create: yes
+    with_items:
+    - 'USE_PEERDNS'
+    - 'NM_CONTROLLED'
+
+  - name: enable and start NetworkManager
+    service:
+      name: 'NetworkManager'
+      state: started
+      enabled: yes

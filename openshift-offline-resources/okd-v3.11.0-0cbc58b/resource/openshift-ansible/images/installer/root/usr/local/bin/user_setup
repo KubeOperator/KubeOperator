@@ -1,0 +1,19 @@
+#!/bin/sh
+set -x
+
+# ensure $HOME exists and is accessible by group 0 (we don't know what the runtime UID will be)
+mkdir -p ${HOME}
+chown ${USER_UID}:0 ${HOME}
+chmod ug+rwx ${HOME}
+
+# runtime user will need to be able to self-insert in /etc/passwd
+chmod g+rw /etc/passwd
+
+# ensure that the ansible content is accessible
+chmod -R g+r ${WORK_DIR}
+find ${WORK_DIR} -type d -exec chmod g+x {} +
+# ensure that the dynamic inventory dir can have content created
+find ${WORK_DIR} -type d -exec chmod g+wx {} +
+
+# no need for this script to remain in the image after running
+rm $0

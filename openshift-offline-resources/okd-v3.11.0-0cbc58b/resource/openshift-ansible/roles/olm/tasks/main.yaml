@@ -1,0 +1,8 @@
+---
+# do any asserts here
+
+- include_tasks: install.yaml
+  when: operator_lifecycle_manager_install | bool
+
+- include_tasks: remove.yaml
+  when: operator_lifecycle_manager_remove | bool

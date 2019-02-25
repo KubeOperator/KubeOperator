@@ -1,0 +1,1145 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: cloudforms
+metadata:
+  name: cloudforms
+  annotations:
+    description: CloudForms appliance with persistent storage
+    tags: instant-app,cloudforms,cfme
+    iconClass: icon-rails
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: cfme-orchestrator
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: cfme-anyuid
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: cfme-privileged
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: cfme-httpd
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: view
+  roleRef:
+    name: view
+  subjects:
+  - kind: ServiceAccount
+    name: cfme-orchestrator
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: edit
+  roleRef:
+    name: edit
+  subjects:
+  - kind: ServiceAccount
+    name: cfme-orchestrator
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: "${NAME}-secrets"
+  stringData:
+    pg-password: "${DATABASE_PASSWORD}"
+    admin-password: "${APPLICATION_ADMIN_PASSWORD}"
+    database-url: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_SERVICE_NAME}/${DATABASE_NAME}?encoding=utf8&pool=5&wait_timeout=5
+    v2-key: "${V2_KEY}"
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: "${ANSIBLE_SERVICE_NAME}-secrets"
+  stringData:
+    rabbit-password: "${ANSIBLE_RABBITMQ_PASSWORD}"
+    secret-key: "${ANSIBLE_SECRET_KEY}"
+    admin-password: "${ANSIBLE_ADMIN_PASSWORD}"
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: "${DATABASE_SERVICE_NAME}-configs"
+  data:
+    01_miq_overrides.conf: |
+      #------------------------------------------------------------------------------
+      # CONNECTIONS AND AUTHENTICATION
+      #------------------------------------------------------------------------------
+
+      tcp_keepalives_count = 9
+      tcp_keepalives_idle = 3
+      tcp_keepalives_interval = 75
+
+      #------------------------------------------------------------------------------
+      # RESOURCE USAGE (except WAL)
+      #------------------------------------------------------------------------------
+
+      shared_preload_libraries = 'pglogical,repmgr_funcs'
+      max_worker_processes = 10
+
+      #------------------------------------------------------------------------------
+      # WRITE AHEAD LOG
+      #------------------------------------------------------------------------------
+
+      wal_level = 'logical'
+      wal_log_hints = on
+      wal_buffers = 16MB
+      checkpoint_completion_target = 0.9
+
+      #------------------------------------------------------------------------------
+      # REPLICATION
+      #------------------------------------------------------------------------------
+
+      max_wal_senders = 10
+      wal_sender_timeout = 0
+      max_replication_slots = 10
+      hot_standby = on
+
+      #------------------------------------------------------------------------------
+      # ERROR REPORTING AND LOGGING
+      #------------------------------------------------------------------------------
+
+      log_filename = 'postgresql.log'
+      log_rotation_age = 0
+      log_min_duration_statement = 5000
+      log_connections = on
+      log_disconnections = on
+      log_line_prefix = '%t:%r:%c:%u@%d:[%p]:'
+      log_lock_waits = on
+
+      #------------------------------------------------------------------------------
+      # AUTOVACUUM PARAMETERS
+      #------------------------------------------------------------------------------
+
+      log_autovacuum_min_duration = 0
+      autovacuum_naptime = 5min
+      autovacuum_vacuum_threshold = 500
+      autovacuum_analyze_threshold = 500
+      autovacuum_vacuum_scale_factor = 0.05
+
+      #------------------------------------------------------------------------------
+      # LOCK MANAGEMENT
+      #------------------------------------------------------------------------------
+
+      deadlock_timeout = 5s
+
+      #------------------------------------------------------------------------------
+      # VERSION/PLATFORM COMPATIBILITY
+      #------------------------------------------------------------------------------
+
+      escape_string_warning = off
+      standard_conforming_strings = off
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: "${HTTPD_SERVICE_NAME}-configs"
+  data:
+    application.conf: |
+      # Timeout: The number of seconds before receives and sends time out.
+      Timeout 120
+
+      RewriteEngine On
+      Options SymLinksIfOwnerMatch
+
+      <VirtualHost *:80>
+        KeepAlive on
+        # Without ServerName mod_auth_mellon compares against http:// and not https:// from the IdP
+        ServerName https://%{REQUEST_HOST}
+
+        ProxyPreserveHost on
+
+        RewriteCond %{REQUEST_URI}     ^/ws        [NC]
+        RewriteCond %{HTTP:UPGRADE}    ^websocket$ [NC]
+        RewriteCond %{HTTP:CONNECTION} ^Upgrade$   [NC]
+        RewriteRule .* ws://${NAME}%{REQUEST_URI}  [P,QSA,L]
+
+        # For httpd, some ErrorDocuments must by served by the httpd pod
+        RewriteCond %{REQUEST_URI} !^/proxy_pages
+
+        # For SAML /saml2 is only served by mod_auth_mellon in the httpd pod
+        RewriteCond %{REQUEST_URI} !^/saml2
+        RewriteRule ^/ http://${NAME}%{REQUEST_URI} [P,QSA,L]
+        ProxyPassReverse / http://${NAME}/
+
+        # Ensures httpd stdout/stderr are seen by 'docker logs'.
+        ErrorLog  "| /usr/bin/tee /proc/1/fd/2 /var/log/httpd/error_log"
+        CustomLog "| /usr/bin/tee /proc/1/fd/1 /var/log/httpd/access_log" common
+      </VirtualHost>
+    authentication.conf: |
+      # Load appropriate authentication configuration files
+      #
+      Include "conf.d/configuration-${HTTPD_AUTH_TYPE}-auth"
+    configuration-internal-auth: |
+      # Internal authentication
+      #
+    configuration-external-auth: |
+      Include "conf.d/external-auth-load-modules-conf"
+
+      <Location /dashboard/kerberos_authenticate>
+        AuthType                   Kerberos
+        AuthName                   "Kerberos Login"
+        KrbMethodNegotiate         On
+        KrbMethodK5Passwd          Off
+        KrbAuthRealms              ${HTTPD_AUTH_KERBEROS_REALMS}
+        Krb5KeyTab                 /etc/http.keytab
+        KrbServiceName             Any
+        Require                    pam-account httpd-auth
+
+        ErrorDocument 401 /proxy_pages/invalid_sso_credentials.js
+      </Location>
+
+      Include "conf.d/external-auth-login-form-conf"
+      Include "conf.d/external-auth-application-api-conf"
+      Include "conf.d/external-auth-lookup-user-details-conf"
+      Include "conf.d/external-auth-remote-user-conf"
+    configuration-active-directory-auth: |
+      Include "conf.d/external-auth-load-modules-conf"
+
+      <Location /dashboard/kerberos_authenticate>
+        AuthType                   Kerberos
+        AuthName                   "Kerberos Login"
+        KrbMethodNegotiate         On
+        KrbMethodK5Passwd          Off
+        KrbAuthRealms              ${HTTPD_AUTH_KERBEROS_REALMS}
+        Krb5KeyTab                 /etc/krb5.keytab
+        KrbServiceName             Any
+        Require                    pam-account httpd-auth
+
+        ErrorDocument 401 /proxy_pages/invalid_sso_credentials.js
+      </Location>
+
+      Include "conf.d/external-auth-login-form-conf"
+      Include "conf.d/external-auth-application-api-conf"
+      Include "conf.d/external-auth-lookup-user-details-conf"
+      Include "conf.d/external-auth-remote-user-conf"
+    configuration-saml-auth: |
+      LoadModule auth_mellon_module modules/mod_auth_mellon.so
+
+      <Location />
+        MellonEnable               "info"
+
+        MellonIdPMetadataFile      "/etc/httpd/saml2/idp-metadata.xml"
+
+        MellonSPPrivateKeyFile     "/etc/httpd/saml2/sp-key.key"
+        MellonSPCertFile           "/etc/httpd/saml2/sp-cert.cert"
+        MellonSPMetadataFile       "/etc/httpd/saml2/sp-metadata.xml"
+
+        MellonVariable             "sp-cookie"
+        MellonSecureCookie         On
+        MellonCookiePath           "/"
+
+        MellonIdP                  "IDP"
+
+        MellonEndpointPath         "/saml2"
+
+        MellonUser                 username
+        MellonMergeEnvVars         On
+
+        MellonSetEnvNoPrefix       "REMOTE_USER"            username
+        MellonSetEnvNoPrefix       "REMOTE_USER_EMAIL"      email
+        MellonSetEnvNoPrefix       "REMOTE_USER_FIRSTNAME"  firstname
+        MellonSetEnvNoPrefix       "REMOTE_USER_LASTNAME"   lastname
+        MellonSetEnvNoPrefix       "REMOTE_USER_FULLNAME"   fullname
+        MellonSetEnvNoPrefix       "REMOTE_USER_GROUPS"     groups
+      </Location>
+
+      <Location /saml_login>
+        AuthType                   "Mellon"
+        MellonEnable               "auth"
+        Require                    valid-user
+      </Location>
+
+      Include "conf.d/external-auth-remote-user-conf"
+    external-auth-load-modules-conf: |
+      LoadModule authnz_pam_module            modules/mod_authnz_pam.so
+      LoadModule intercept_form_submit_module modules/mod_intercept_form_submit.so
+      LoadModule lookup_identity_module       modules/mod_lookup_identity.so
+      LoadModule auth_kerb_module             modules/mod_auth_kerb.so
+    external-auth-login-form-conf: |
+      <Location /dashboard/external_authenticate>
+        InterceptFormPAMService    httpd-auth
+        InterceptFormLogin         user_name
+        InterceptFormPassword      user_password
+        InterceptFormLoginSkip     admin
+        InterceptFormClearRemoteUserForSkipped on
+      </Location>
+    external-auth-application-api-conf: |
+      <LocationMatch ^/api>
+        SetEnvIf Authorization     '^Basic +YWRtaW46' let_admin_in
+        SetEnvIf X-Auth-Token      '^.+$'             let_api_token_in
+        SetEnvIf X-MIQ-Token       '^.+$'             let_sys_token_in
+
+        AuthType                   Basic
+        AuthName                   "External Authentication (httpd) for API"
+        AuthBasicProvider          PAM
+
+        AuthPAMService             httpd-auth
+        Require                    valid-user
+        Order                      Allow,Deny
+        Allow from                 env=let_admin_in
+        Allow from                 env=let_api_token_in
+        Allow from                 env=let_sys_token_in
+        Satisfy                    Any
+      </LocationMatch>
+    external-auth-lookup-user-details-conf: |
+      <LocationMatch ^/dashboard/external_authenticate$|^/dashboard/kerberos_authenticate$|^/api>
+        LookupUserAttr mail        REMOTE_USER_EMAIL
+        LookupUserAttr givenname   REMOTE_USER_FIRSTNAME
+        LookupUserAttr sn          REMOTE_USER_LASTNAME
+        LookupUserAttr displayname REMOTE_USER_FULLNAME
+        LookupUserAttr domainname  REMOTE_USER_DOMAIN
+
+        LookupUserGroups           REMOTE_USER_GROUPS ":"
+        LookupDbusTimeout          5000
+      </LocationMatch>
+    external-auth-remote-user-conf: |
+      RequestHeader unset X_REMOTE_USER
+
+      RequestHeader set X_REMOTE_USER           %{REMOTE_USER}e           env=REMOTE_USER
+      RequestHeader set X_EXTERNAL_AUTH_ERROR   %{EXTERNAL_AUTH_ERROR}e   env=EXTERNAL_AUTH_ERROR
+      RequestHeader set X_REMOTE_USER_EMAIL     %{REMOTE_USER_EMAIL}e     env=REMOTE_USER_EMAIL
+      RequestHeader set X_REMOTE_USER_FIRSTNAME %{REMOTE_USER_FIRSTNAME}e env=REMOTE_USER_FIRSTNAME
+      RequestHeader set X_REMOTE_USER_LASTNAME  %{REMOTE_USER_LASTNAME}e  env=REMOTE_USER_LASTNAME
+      RequestHeader set X_REMOTE_USER_FULLNAME  %{REMOTE_USER_FULLNAME}e  env=REMOTE_USER_FULLNAME
+      RequestHeader set X_REMOTE_USER_GROUPS    %{REMOTE_USER_GROUPS}e    env=REMOTE_USER_GROUPS
+      RequestHeader set X_REMOTE_USER_DOMAIN    %{REMOTE_USER_DOMAIN}e    env=REMOTE_USER_DOMAIN
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: "${HTTPD_SERVICE_NAME}-auth-configs"
+  data:
+    auth-type: internal
+    auth-kerberos-realms: undefined
+    auth-configuration.conf: |
+      # External Authentication Configuration File
+      #
+      # For details on usage please see https://github.com/ManageIQ/manageiq-pods/blob/master/README.md#configuring-external-authentication
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances CloudForms pods
+      service.alpha.openshift.io/dependencies: '[{"name":"${DATABASE_SERVICE_NAME}","namespace":"","kind":"Service"},{"name":"${MEMCACHED_SERVICE_NAME}","namespace":"","kind":"Service"}]'
+    name: "${NAME}"
+  spec:
+    clusterIP: None
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      name: "${NAME}"
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: "${HTTPD_SERVICE_NAME}"
+  spec:
+    host: "${APPLICATION_DOMAIN}"
+    port:
+      targetPort: http
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+    to:
+      kind: Service
+      name: "${HTTPD_SERVICE_NAME}"
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: "${NAME}-${DATABASE_SERVICE_NAME}"
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: "${DATABASE_VOLUME_CAPACITY}"
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Defines how to deploy the CloudForms appliance
+  spec:
+    serviceName: "${NAME}"
+    replicas: "${APPLICATION_REPLICA_COUNT}"
+    template:
+      metadata:
+        labels:
+          name: "${NAME}"
+        name: "${NAME}"
+      spec:
+        containers:
+        - name: cloudforms
+          image: "${FRONTEND_APPLICATION_IMG_NAME}:${FRONTEND_APPLICATION_IMG_TAG}"
+          livenessProbe:
+            exec:
+              command:
+              - pidof
+              - MIQ Server
+            initialDelaySeconds: 480
+            timeoutSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 200
+            timeoutSeconds: 3
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          volumeMounts:
+          - name: "${NAME}-server"
+            mountPath: "/persistent"
+          env:
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: APPLICATION_INIT_DELAY
+            value: "${APPLICATION_INIT_DELAY}"
+          - name: DATABASE_REGION
+            value: "${DATABASE_REGION}"
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: database-url
+          - name: V2_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: v2-key
+          - name: APPLICATION_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: admin-password
+          - name: ANSIBLE_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${ANSIBLE_SERVICE_NAME}-secrets"
+                key: admin-password
+          resources:
+            requests:
+              memory: "${APPLICATION_MEM_REQ}"
+              cpu: "${APPLICATION_CPU_REQ}"
+            limits:
+              memory: "${APPLICATION_MEM_LIMIT}"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - "/opt/rh/cfme-container-scripts/sync-pv-data"
+        serviceAccount: cfme-orchestrator
+        serviceAccountName: cfme-orchestrator
+        terminationGracePeriodSeconds: 90
+    volumeClaimTemplates:
+    - metadata:
+        name: "${NAME}-server"
+        annotations:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: "${APPLICATION_VOLUME_CAPACITY}"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Headless service for CloudForms backend pods
+    name: "${NAME}-backend"
+  spec:
+    clusterIP: None
+    selector:
+      name: "${NAME}-backend"
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: "${NAME}-backend"
+    annotations:
+      description: Defines how to deploy the CloudForms appliance
+  spec:
+    serviceName: "${NAME}-backend"
+    replicas: 0
+    template:
+      metadata:
+        labels:
+          name: "${NAME}-backend"
+        name: "${NAME}-backend"
+      spec:
+        containers:
+        - name: cloudforms
+          image: "${BACKEND_APPLICATION_IMG_NAME}:${BACKEND_APPLICATION_IMG_TAG}"
+          livenessProbe:
+            exec:
+              command:
+              - pidof
+              - MIQ Server
+            initialDelaySeconds: 480
+            timeoutSeconds: 3
+          volumeMounts:
+          - name: "${NAME}-server"
+            mountPath: "/persistent"
+          env:
+          - name: APPLICATION_INIT_DELAY
+            value: "${APPLICATION_INIT_DELAY}"
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: database-url
+          - name: MIQ_SERVER_DEFAULT_ROLES
+            value: database_operations,event,reporting,scheduler,smartstate,ems_operations,ems_inventory,automate
+          - name: FRONTEND_SERVICE_NAME
+            value: "${NAME}"
+          - name: V2_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: v2-key
+          - name: ANSIBLE_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${ANSIBLE_SERVICE_NAME}-secrets"
+                key: admin-password
+          resources:
+            requests:
+              memory: "${APPLICATION_MEM_REQ}"
+              cpu: "${APPLICATION_CPU_REQ}"
+            limits:
+              memory: "${APPLICATION_MEM_LIMIT}"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - "/opt/rh/cfme-container-scripts/sync-pv-data"
+        serviceAccount: cfme-orchestrator
+        serviceAccountName: cfme-orchestrator
+        terminationGracePeriodSeconds: 90
+    volumeClaimTemplates:
+    - metadata:
+        name: "${NAME}-server"
+        annotations:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: "${APPLICATION_VOLUME_CAPACITY}"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${MEMCACHED_SERVICE_NAME}"
+    annotations:
+      description: Exposes the memcached server
+  spec:
+    ports:
+    - name: memcached
+      port: 11211
+      targetPort: 11211
+    selector:
+      name: "${MEMCACHED_SERVICE_NAME}"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${MEMCACHED_SERVICE_NAME}"
+    annotations:
+      description: Defines how to deploy memcached
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${MEMCACHED_SERVICE_NAME}"
+    template:
+      metadata:
+        name: "${MEMCACHED_SERVICE_NAME}"
+        labels:
+          name: "${MEMCACHED_SERVICE_NAME}"
+      spec:
+        volumes: []
+        containers:
+        - name: memcached
+          image: "${MEMCACHED_IMG_NAME}:${MEMCACHED_IMG_TAG}"
+          ports:
+          - containerPort: 11211
+          readinessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 5
+            tcpSocket:
+              port: 11211
+          livenessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 11211
+          volumeMounts: []
+          env:
+          - name: MEMCACHED_MAX_MEMORY
+            value: "${MEMCACHED_MAX_MEMORY}"
+          - name: MEMCACHED_MAX_CONNECTIONS
+            value: "${MEMCACHED_MAX_CONNECTIONS}"
+          - name: MEMCACHED_SLAB_PAGE_SIZE
+            value: "${MEMCACHED_SLAB_PAGE_SIZE}"
+          resources:
+            requests:
+              memory: "${MEMCACHED_MEM_REQ}"
+              cpu: "${MEMCACHED_CPU_REQ}"
+            limits:
+              memory: "${MEMCACHED_MEM_LIMIT}"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${DATABASE_SERVICE_NAME}"
+    annotations:
+      description: Exposes the database server
+  spec:
+    ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+    selector:
+      name: "${DATABASE_SERVICE_NAME}"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${DATABASE_SERVICE_NAME}"
+    annotations:
+      description: Defines how to deploy the database
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${DATABASE_SERVICE_NAME}"
+    template:
+      metadata:
+        name: "${DATABASE_SERVICE_NAME}"
+        labels:
+          name: "${DATABASE_SERVICE_NAME}"
+      spec:
+        volumes:
+        - name: cfme-pgdb-volume
+          persistentVolumeClaim:
+            claimName: "${NAME}-${DATABASE_SERVICE_NAME}"
+        - name: cfme-pg-configs
+          configMap:
+            name: "${DATABASE_SERVICE_NAME}-configs"
+        containers:
+        - name: postgresql
+          image: "${POSTGRESQL_IMG_NAME}:${POSTGRESQL_IMG_TAG}"
+          ports:
+          - containerPort: 5432
+          readinessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 15
+            exec:
+              command:
+              - "/bin/sh"
+              - "-i"
+              - "-c"
+              - psql -h 127.0.0.1 -U ${POSTGRESQL_USER} -q -d ${POSTGRESQL_DATABASE} -c 'SELECT 1'
+          livenessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 60
+            tcpSocket:
+              port: 5432
+          volumeMounts:
+          - name: cfme-pgdb-volume
+            mountPath: "/var/lib/pgsql/data"
+          - name: cfme-pg-configs
+            mountPath: "/opt/app-root/src/postgresql-cfg/"
+          env:
+          - name: POSTGRESQL_USER
+            value: "${DATABASE_USER}"
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: pg-password
+          - name: POSTGRESQL_DATABASE
+            value: "${DATABASE_NAME}"
+          - name: POSTGRESQL_MAX_CONNECTIONS
+            value: "${POSTGRESQL_MAX_CONNECTIONS}"
+          - name: POSTGRESQL_SHARED_BUFFERS
+            value: "${POSTGRESQL_SHARED_BUFFERS}"
+          resources:
+            requests:
+              memory: "${POSTGRESQL_MEM_REQ}"
+              cpu: "${POSTGRESQL_CPU_REQ}"
+            limits:
+              memory: "${POSTGRESQL_MEM_LIMIT}"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances Ansible pods
+      service.alpha.openshift.io/dependencies: '[{"name":"${DATABASE_SERVICE_NAME}","namespace":"","kind":"Service"}]'
+    name: "${ANSIBLE_SERVICE_NAME}"
+  spec:
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 443
+    selector:
+      name: "${ANSIBLE_SERVICE_NAME}"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${ANSIBLE_SERVICE_NAME}"
+    annotations:
+      description: Defines how to deploy the Ansible appliance
+  spec:
+    strategy:
+      type: Recreate
+    serviceName: "${ANSIBLE_SERVICE_NAME}"
+    replicas: 0
+    template:
+      metadata:
+        labels:
+          name: "${ANSIBLE_SERVICE_NAME}"
+        name: "${ANSIBLE_SERVICE_NAME}"
+      spec:
+        containers:
+        - name: ansible
+          image: "${ANSIBLE_IMG_NAME}:${ANSIBLE_IMG_TAG}"
+          livenessProbe:
+            tcpSocket:
+              port: 443
+            initialDelaySeconds: 480
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 200
+            timeoutSeconds: 3
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 443
+            protocol: TCP
+          securityContext:
+            privileged: true
+          env:
+          - name: ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${ANSIBLE_SERVICE_NAME}-secrets"
+                key: admin-password
+          - name: RABBITMQ_USER_NAME
+            value: "${ANSIBLE_RABBITMQ_USER_NAME}"
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${ANSIBLE_SERVICE_NAME}-secrets"
+                key: rabbit-password
+          - name: ANSIBLE_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "${ANSIBLE_SERVICE_NAME}-secrets"
+                key: secret-key
+          - name: DATABASE_SERVICE_NAME
+            value: "${DATABASE_SERVICE_NAME}"
+          - name: POSTGRESQL_USER
+            value: "${DATABASE_USER}"
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "${NAME}-secrets"
+                key: pg-password
+          - name: POSTGRESQL_DATABASE
+            value: "${ANSIBLE_DATABASE_NAME}"
+          resources:
+            requests:
+              memory: "${ANSIBLE_MEM_REQ}"
+              cpu: "${ANSIBLE_CPU_REQ}"
+            limits:
+              memory: "${ANSIBLE_MEM_LIMIT}"
+        serviceAccount: cfme-privileged
+        serviceAccountName: cfme-privileged
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${HTTPD_SERVICE_NAME}"
+    annotations:
+      description: Exposes the httpd server
+      service.alpha.openshift.io/dependencies: '[{"name":"${NAME}","namespace":"","kind":"Service"}]'
+  spec:
+    ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    selector:
+      name: httpd
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "${HTTPD_DBUS_API_SERVICE_NAME}"
+    annotations:
+      description: Exposes the httpd server dbus api
+      service.alpha.openshift.io/dependencies: '[{"name":"${NAME}","namespace":"","kind":"Service"}]'
+  spec:
+    ports:
+    - name: http-dbus-api
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: httpd
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "${HTTPD_SERVICE_NAME}"
+    annotations:
+      description: Defines how to deploy httpd
+  spec:
+    strategy:
+      type: Recreate
+      recreateParams:
+        timeoutSeconds: 1200
+    triggers:
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${HTTPD_SERVICE_NAME}"
+    template:
+      metadata:
+        name: "${HTTPD_SERVICE_NAME}"
+        labels:
+          name: "${HTTPD_SERVICE_NAME}"
+      spec:
+        volumes:
+        - name: httpd-config
+          configMap:
+            name: "${HTTPD_SERVICE_NAME}-configs"
+        - name: httpd-auth-config
+          configMap:
+            name: "${HTTPD_SERVICE_NAME}-auth-configs"
+        containers:
+        - name: httpd
+          image: "${HTTPD_IMG_NAME}:${HTTPD_IMG_TAG}"
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - pidof
+              - httpd
+            initialDelaySeconds: 15
+            timeoutSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+          - name: httpd-config
+            mountPath: "${HTTPD_CONFIG_DIR}"
+          - name: httpd-auth-config
+            mountPath: "${HTTPD_AUTH_CONFIG_DIR}"
+          resources:
+            requests:
+              memory: "${HTTPD_MEM_REQ}"
+              cpu: "${HTTPD_CPU_REQ}"
+            limits:
+              memory: "${HTTPD_MEM_LIMIT}"
+          env:
+          - name: HTTPD_AUTH_TYPE
+            valueFrom:
+              configMapKeyRef:
+                name: "${HTTPD_SERVICE_NAME}-auth-configs"
+                key: auth-type
+          - name: HTTPD_AUTH_KERBEROS_REALMS
+            valueFrom:
+              configMapKeyRef:
+                name: "${HTTPD_SERVICE_NAME}-auth-configs"
+                key: auth-kerberos-realms
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                - "/usr/bin/save-container-environment"
+        serviceAccount: cfme-httpd
+        serviceAccountName: cfme-httpd
+parameters:
+- name: NAME
+  displayName: Name
+  required: true
+  description: The name assigned to all of the frontend objects defined in this template.
+  value: cloudforms
+- name: V2_KEY
+  displayName: CloudForms Encryption Key
+  required: true
+  description: Encryption Key for CloudForms Passwords
+  from: "[a-zA-Z0-9]{43}"
+  generate: expression
+- name: DATABASE_SERVICE_NAME
+  displayName: PostgreSQL Service Name
+  required: true
+  description: The name of the OpenShift Service exposed for the PostgreSQL container.
+  value: postgresql
+- name: DATABASE_USER
+  displayName: PostgreSQL User
+  required: true
+  description: PostgreSQL user that will access the database.
+  value: root
+- name: DATABASE_PASSWORD
+  displayName: PostgreSQL Password
+  required: true
+  description: Password for the PostgreSQL user.
+  from: "[a-zA-Z0-9]{8}"
+  generate: expression
+- name: DATABASE_NAME
+  required: true
+  displayName: PostgreSQL Database Name
+  description: Name of the PostgreSQL database accessed.
+  value: vmdb_production
+- name: DATABASE_REGION
+  required: true
+  displayName: Application Database Region
+  description: Database region that will be used for application.
+  value: '0'
+- name: APPLICATION_ADMIN_PASSWORD
+  displayName: Application Admin Password
+  required: true
+  description: Admin password that will be set on the application.
+  value: smartvm
+- name: ANSIBLE_DATABASE_NAME
+  displayName: Ansible PostgreSQL database name
+  required: true
+  description: The database to be used by the Ansible continer
+  value: awx
+- name: MEMCACHED_SERVICE_NAME
+  required: true
+  displayName: Memcached Service Name
+  description: The name of the OpenShift Service exposed for the Memcached container.
+  value: memcached
+- name: MEMCACHED_MAX_MEMORY
+  displayName: Memcached Max Memory
+  description: Memcached maximum memory for memcached object storage in MB.
+  value: '64'
+- name: MEMCACHED_MAX_CONNECTIONS
+  displayName: Memcached Max Connections
+  description: Memcached maximum number of connections allowed.
+  value: '1024'
+- name: MEMCACHED_SLAB_PAGE_SIZE
+  displayName: Memcached Slab Page Size
+  description: Memcached size of each slab page.
+  value: 1m
+- name: POSTGRESQL_MAX_CONNECTIONS
+  displayName: PostgreSQL Max Connections
+  description: PostgreSQL maximum number of database connections allowed.
+  value: '1000'
+- name: POSTGRESQL_SHARED_BUFFERS
+  displayName: PostgreSQL Shared Buffer Amount
+  description: Amount of memory dedicated for PostgreSQL shared memory buffers.
+  value: 1GB
+- name: ANSIBLE_SERVICE_NAME
+  displayName: Ansible Service Name
+  description: The name of the OpenShift Service exposed for the Ansible container.
+  value: ansible
+- name: ANSIBLE_ADMIN_PASSWORD
+  displayName: Ansible admin User password
+  required: true
+  description: The password for the Ansible container admin user
+  from: "[a-zA-Z0-9]{32}"
+  generate: expression
+- name: ANSIBLE_SECRET_KEY
+  displayName: Ansible Secret Key
+  required: true
+  description: Encryption key for the Ansible container
+  from: "[a-f0-9]{32}"
+  generate: expression
+- name: ANSIBLE_RABBITMQ_USER_NAME
+  displayName: RabbitMQ Username
+  required: true
+  description: Username for the Ansible RabbitMQ Server
+  value: ansible
+- name: ANSIBLE_RABBITMQ_PASSWORD
+  displayName: RabbitMQ Server Password
+  required: true
+  description: Password for the Ansible RabbitMQ Server
+  from: "[a-zA-Z0-9]{32}"
+  generate: expression
+- name: APPLICATION_CPU_REQ
+  displayName: Application Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the Application container will need (expressed in millicores).
+  value: 1000m
+- name: POSTGRESQL_CPU_REQ
+  displayName: PostgreSQL Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the PostgreSQL container will need (expressed in millicores).
+  value: 500m
+- name: MEMCACHED_CPU_REQ
+  displayName: Memcached Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the Memcached container will need (expressed in millicores).
+  value: 200m
+- name: ANSIBLE_CPU_REQ
+  displayName: Ansible Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the Ansible container will need (expressed in millicores).
+  value: 1000m
+- name: APPLICATION_MEM_REQ
+  displayName: Application Min RAM Requested
+  required: true
+  description: Minimum amount of memory the Application container will need.
+  value: 6144Mi
+- name: POSTGRESQL_MEM_REQ
+  displayName: PostgreSQL Min RAM Requested
+  required: true
+  description: Minimum amount of memory the PostgreSQL container will need.
+  value: 4Gi
+- name: MEMCACHED_MEM_REQ
+  displayName: Memcached Min RAM Requested
+  required: true
+  description: Minimum amount of memory the Memcached container will need.
+  value: 64Mi
+- name: ANSIBLE_MEM_REQ
+  displayName: Ansible Min RAM Requested
+  required: true
+  description: Minimum amount of memory the Ansible container will need.
+  value: 2048Mi
+- name: APPLICATION_MEM_LIMIT
+  displayName: Application Max RAM Limit
+  required: true
+  description: Maximum amount of memory the Application container can consume.
+  value: 16384Mi
+- name: POSTGRESQL_MEM_LIMIT
+  displayName: PostgreSQL Max RAM Limit
+  required: true
+  description: Maximum amount of memory the PostgreSQL container can consume.
+  value: 8Gi
+- name: MEMCACHED_MEM_LIMIT
+  displayName: Memcached Max RAM Limit
+  required: true
+  description: Maximum amount of memory the Memcached container can consume.
+  value: 256Mi
+- name: ANSIBLE_MEM_LIMIT
+  displayName: Ansible Max RAM Limit
+  required: true
+  description: Maximum amount of memory the Ansible container can consume.
+  value: 8096Mi
+- name: POSTGRESQL_IMG_NAME
+  displayName: PostgreSQL Image Name
+  description: This is the PostgreSQL image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-postgresql
+- name: POSTGRESQL_IMG_TAG
+  displayName: PostgreSQL Image Tag
+  description: This is the PostgreSQL image tag/version requested to deploy.
+  value: latest
+- name: MEMCACHED_IMG_NAME
+  displayName: Memcached Image Name
+  description: This is the Memcached image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-memcached
+- name: MEMCACHED_IMG_TAG
+  displayName: Memcached Image Tag
+  description: This is the Memcached image tag/version requested to deploy.
+  value: latest
+- name: FRONTEND_APPLICATION_IMG_NAME
+  displayName: Frontend Application Image Name
+  description: This is the Frontend Application image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-app-ui
+- name: BACKEND_APPLICATION_IMG_NAME
+  displayName: Backend Application Image Name
+  description: This is the Backend Application image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-app
+- name: FRONTEND_APPLICATION_IMG_TAG
+  displayName: Front end Application Image Tag
+  description: This is the CloudForms Frontend Application image tag/version requested to deploy.
+  value: latest
+- name: BACKEND_APPLICATION_IMG_TAG
+  displayName: Back end Application Image Tag
+  description: This is the CloudForms Backend Application image tag/version requested to deploy.
+  value: latest
+- name: ANSIBLE_IMG_NAME
+  displayName: Ansible Image Name
+  description: This is the Ansible image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-embedded-ansible
+- name: ANSIBLE_IMG_TAG
+  displayName: Ansible Image Tag
+  description: This is the Ansible image tag/version requested to deploy.
+  value: latest
+- name: APPLICATION_DOMAIN
+  displayName: Application Hostname
+  description: The exposed hostname that will route to the application service, if left blank a value will be defaulted.
+  value: ''
+- name: APPLICATION_REPLICA_COUNT
+  displayName: Application Replica Count
+  description: This is the number of Application replicas requested to deploy.
+  value: '1'
+- name: APPLICATION_INIT_DELAY
+  displayName: Application Init Delay
+  required: true
+  description: Delay in seconds before we attempt to initialize the application.
+  value: '15'
+- name: APPLICATION_VOLUME_CAPACITY
+  displayName: Application Volume Capacity
+  required: true
+  description: Volume space available for application data.
+  value: 5Gi
+- name: DATABASE_VOLUME_CAPACITY
+  displayName: Database Volume Capacity
+  required: true
+  description: Volume space available for database.
+  value: 15Gi
+- name: HTTPD_SERVICE_NAME
+  required: true
+  displayName: Apache httpd Service Name
+  description: The name of the OpenShift Service exposed for the httpd container.
+  value: httpd
+- name: HTTPD_DBUS_API_SERVICE_NAME
+  required: true
+  displayName: Apache httpd DBus API Service Name
+  description: The name of httpd dbus api service.
+  value: httpd-dbus-api
+- name: HTTPD_IMG_NAME
+  displayName: Apache httpd Image Name
+  description: This is the httpd image name requested to deploy.
+  value: registry.redhat.io/cloudforms46/cfme-openshift-httpd
+- name: HTTPD_IMG_TAG
+  displayName: Apache httpd Image Tag
+  description: This is the httpd image tag/version requested to deploy.
+  value: latest
+- name: HTTPD_CONFIG_DIR
+  displayName: Apache Configuration Directory
+  description: Directory used to store the Apache configuration files.
+  value: "/etc/httpd/conf.d"
+- name: HTTPD_AUTH_CONFIG_DIR
+  displayName: External Authentication Configuration Directory
+  description: Directory used to store the external authentication configuration files.
+  value: "/etc/httpd/auth-conf.d"
+- name: HTTPD_CPU_REQ
+  displayName: Apache httpd Min CPU Requested
+  required: true
+  description: Minimum amount of CPU time the httpd container will need (expressed in millicores).
+  value: 500m
+- name: HTTPD_MEM_REQ
+  displayName: Apache httpd Min RAM Requested
+  required: true
+  description: Minimum amount of memory the httpd container will need.
+  value: 512Mi
+- name: HTTPD_MEM_LIMIT
+  displayName: Apache httpd Max RAM Limit
+  required: true
+  description: Maximum amount of memory the httpd container can consume.
+  value: 8192Mi

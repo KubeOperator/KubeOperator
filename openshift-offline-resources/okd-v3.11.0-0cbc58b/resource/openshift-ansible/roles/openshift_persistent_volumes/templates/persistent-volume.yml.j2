@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: List
+items:
+{% for volume in persistent_volumes %}
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: "{{ volume.name }}"
+{% if volume.labels is defined and volume.labels is mapping %}
+    labels:
+{% for key,value in volume.labels.items() %}
+      {{ key }}: {{ value }}
+{% endfor %}
+{% endif %}
+  spec:
+    capacity:
+      storage: "{{ volume.capacity }}"
+    accessModes: {{ volume.access_modes | lib_utils_to_padded_yaml(2, 2) }}
+    {{ (volume.storage.keys() | list)[0] }}: {{ volume.storage[(volume.storage.keys() | list)[0]] | lib_utils_to_padded_yaml(3, 2) }}
+{% if 'claimName' in volume.storage %}
+    claimRef:
+      name: {{ volume.storage.claimName }}
+      namespace: default
+{% endif %}
+{% endfor %}

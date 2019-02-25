@@ -1,0 +1,80 @@
+# flake8: noqa
+# pylint: skip-file
+
+DOCUMENTATION = '''
+---
+module: oc_adm_policy_group
+short_description: Module to manage openshift policy for groups
+description:
+  - Manage openshift policy for groups.
+options:
+  kubeconfig:
+    description:
+    - The path for the kubeconfig file to use for authentication
+    required: false
+    default: /etc/origin/master/admin.kubeconfig
+    aliases: []
+  namespace:
+    description:
+    - The namespace scope
+    required: false
+    default: None
+    aliases: []
+  rolebinding_name:
+    description:
+    - The name of the rolebinding object for roles
+    required: false
+    default: None
+    aliases: []
+  debug:
+    description:
+    - Turn on debug output.
+    required: false
+    default: False
+    aliases: []
+  group:
+    description:
+    - The name of the group
+    required: true
+    default: None
+    aliases: []
+  resource_kind:
+    description:
+    - The kind of policy to affect
+    required: true
+    default: None
+    choices: ["role", "cluster-role", "scc"]
+    aliases: []
+  resource_name:
+    description:
+    - The name of the policy
+    required: true
+    default: None
+    aliases: []
+  state:
+    description:
+    - Desired state of the policy
+    required: true
+    default: present
+    choices: ["present", "absent"]
+    aliases: []
+author:
+- "Kenny Woodson <kwoodson@redhat.com>"
+extends_documentation_fragment: []
+'''
+
+EXAMPLES = '''
+- name: oc adm policy remove-scc-from-group an-scc agroup
+  oc_adm_policy_group:
+    group: agroup
+    resource_kind: scc
+    resource_name: an-scc
+    state: absent
+
+- name: oc adm policy add-cluster-role-to-group system:build-strategy-docker agroup
+  oc_adm_policy_group:
+    group: agroup
+    resource_kind: cluster-role
+    resource_name: system:build-strategy-docker
+    state: present
+'''

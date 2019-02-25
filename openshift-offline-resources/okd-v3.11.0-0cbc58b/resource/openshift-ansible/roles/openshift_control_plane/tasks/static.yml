@@ -1,0 +1,85 @@
+---
+- name: Enable bootstrapping in the master config
+  yedit:
+    src: /etc/origin/master/master-config.yaml
+    edits:
+    - key: kubernetesMasterConfig.controllerArguments.cluster-signing-cert-file
+      value:
+      - /etc/origin/master/ca.crt
+    - key: kubernetesMasterConfig.controllerArguments.cluster-signing-key-file
+      value:
+      - /etc/origin/master/ca.key
+  when:
+  - openshift_control_plane_apply_cluster_signing_config | default(True)
+
+- name: Create temp directory for static pods
+  command: mktemp -d /tmp/openshift-ansible-XXXXXX
+  register: mktemp
+  changed_when: false
+
+- name: Prepare master static pods
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}"
+    mode: 0600
+  with_items:
+  - apiserver.yaml
+  - controller.yaml
+
+- name: Update master static pods
+  yedit:
+    src: "{{ mktemp.stdout }}/{{ item }}"
+    edits:
+    - key: spec.containers[0].image
+      value: "{{ osm_image }}"
+  with_items:
+  - apiserver.yaml
+  - controller.yaml
+
+- name: Update master static pod (api)
+  yedit:
+    src: "{{ mktemp.stdout }}/apiserver.yaml"
+    edits:
+    - key: spec.containers[0].livenessProbe.httpGet.port
+      value: "{{ openshift_master_api_port }}"
+    - key: spec.containers[0].readinessProbe.httpGet.port
+      value: "{{ openshift_master_api_port }}"
+
+- name: ensure kubelet plugins dir exists
+  file:
+    path: "/etc/origin/kubelet-plugins"
+    state: directory
+    mode: "0755"
+  when: openshift_is_atomic | bool
+
+- name: Update controller-manager static pod on atomic host
+  yedit:
+    src: "{{ mktemp.stdout }}/controller.yaml"
+    edits:
+    - key: spec.volumes[3].hostPath.path
+      value: "/etc/origin/kubelet-plugins"
+    - key: spec.containers[0].volumeMounts[3].mountPath
+      value: "/etc/origin/kubelet-plugins"
+  when: openshift_is_atomic | bool
+
+- name: ensure pod location exists
+  file:
+    path: "{{ openshift_control_plane_static_pod_location }}"
+    state: directory
+    mode: "0755"
+
+- name: Update master static pods
+  copy:
+    remote_src: true
+    src: "{{ mktemp.stdout }}/{{ item }}"
+    dest: "{{ openshift_control_plane_static_pod_location }}"
+    mode: 0600
+  with_items:
+  - apiserver.yaml
+  - controller.yaml
+
+- name: Remove temporary directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  changed_when: False

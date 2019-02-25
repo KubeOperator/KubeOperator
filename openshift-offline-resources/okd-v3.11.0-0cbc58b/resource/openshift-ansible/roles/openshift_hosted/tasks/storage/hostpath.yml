@@ -1,0 +1,31 @@
+---
+- name: Get registry DeploymentConfig
+  oc_obj:
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    state: list
+    kind: dc
+    name: "{{ openshift_hosted_registry_name }}"
+  register: registry_dc
+
+- name: Wait for registry pods
+  oc_obj:
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    state: list
+    kind: pod
+    selector: "{% for label, value in registry_dc.results.results[0].spec.selector.items() %}{{ label }}={{ value }}{% if not loop.last %},{% endif %}{% endfor %}"
+  register: registry_pods
+  until:
+  - "registry_pods.results.results[0]['items'] | count > 0"
+  # There must be as many matching pods with 'Ready' status True as there are expected replicas
+  - "registry_pods.results.results[0]['items'] | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Ready'}) | map('bool') | select | list | count == openshift_hosted_registry_replicas | int"
+  delay: 10
+  retries: 60
+
+# https://docs.openshift.com/container-platform/3.9/install_config/registry/deploy_registry_existing_clusters.html#registry-non-production-use
+- name: Ensure permissions on the hostpath match the pod configuration
+  file:
+    path: "{{ openshift_hosted_registry_storage_hostpath_path }}"
+    state: directory
+    owner: "{{ registry_pods.results.results[0]['items'][0].spec.containers[0].securityContext.runAsUser }}"
+    group: "{{ registry_pods.results.results[0]['items'][0].spec.securityContext.fsGroup }}"
+    mode: "2750"

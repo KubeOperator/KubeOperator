@@ -1,0 +1,25 @@
+---
+- name: Install network manager dispatch script
+  copy:
+    src: networkmanager/99-origin-dns.sh
+    dest: /etc/NetworkManager/dispatcher.d/
+    mode: 0755
+  notify: restart NetworkManager
+
+- name: Add network manager configuration
+  ini_file:
+    path: /etc/NetworkManager/conf.d/99-origin.conf
+    section: main
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: "{{ 'present' if item.present is not defined or item.present else 'absent' }}"
+    no_extra_spaces: yes
+    create: yes
+    mode: 0600
+  notify: restart NetworkManager
+  with_items:
+    - key: dns
+      value: none
+      present: "{{ openshift_node_dnsmasq_disable_network_manager_dns | default(false) | bool }}"
+
+- meta: flush_handlers

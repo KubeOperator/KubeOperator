@@ -1,0 +1,19 @@
+---
+# this is required for when using azure-file, should probably go to defaults upstream
+- block:
+    - name: Add azure provider cluster role
+      command: >
+        oc create clusterrole system:azure-cloud-provider
+        --verb=get,create --resource=secrets
+      register: cr_result
+      failed_when: cr_result.rc != 0 and 'AlreadyExists' not in cr_result.stderr
+      changed_when: "'AlreadyExists' not in cr_result.stderr"
+
+    - name: Bind azure provider cluster role to pv binder sa
+      command: >
+        oc create clusterrolebinding system:azure-cloud-provider
+        --clusterrole=system:azure-cloud-provider
+        --serviceaccount=kube-system:persistent-volume-binder
+      register: crb_result
+      failed_when: crb_result.rc != 0 and 'AlreadyExists' not in crb_result.stderr
+      changed_when: "'AlreadyExists' not in crb_result.stderr"

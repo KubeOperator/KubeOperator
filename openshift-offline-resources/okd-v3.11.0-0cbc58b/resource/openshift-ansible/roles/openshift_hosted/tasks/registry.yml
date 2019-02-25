@@ -1,0 +1,103 @@
+---
+- name: setup firewall
+  import_tasks: firewall.yml
+  vars:
+    l_openshift_hosted_firewall_enabled: "{{ r_openshift_hosted_registry_firewall_enabled }}"
+    l_openshift_hosted_use_firewalld: "{{ r_openshift_hosted_registry_use_firewalld }}"
+    l_openshift_hosted_fw_allow: "{{ r_openshift_hosted_registry_os_firewall_allow }}"
+    l_openshift_hosted_fw_deny: "{{ r_openshift_hosted_registry_os_firewall_deny }}"
+
+- name: set openshift_hosted facts
+  set_fact:
+    # This determines the gluster_ips to use for the registry by looping over the glusterfs_registry group
+    openshift_hosted_registry_storage_glusterfs_ips: "{%- set gluster_ips = [] %}{% if groups.glusterfs_registry is defined %}{% for node in groups.glusterfs_registry %}{%- set _ = gluster_ips.append(hostvars[node].glusterfs_ip | default(hostvars[node].openshift.common.ip if 'openshift' in hostvars[node] else '')) %}{% endfor %}{{ gluster_ips }}{% elif groups.glusterfs is defined %}{% for node in groups.glusterfs %}{%- set _ = gluster_ips.append(hostvars[node].glusterfs_ip | default(hostvars[node].openshift.common.ip if 'openshift' in hostvars[node] else '')) %}{% endfor %}{{ gluster_ips }}{% else %}{{ openshift_hosted_registry_storage_glusterfs_ips }}{% endif %}"
+
+- name: Update registry environment variables when pushing via dns
+  # OPENSHIFT_DEFAULT_REGISTRY is deprecated - keep until 3.11
+  set_fact:
+    openshift_hosted_registry_env_vars: "{{ {'OPENSHIFT_DEFAULT_REGISTRY': item,
+                                             'REGISTRY_OPENSHIFT_SERVER_ADDR': item}
+                                           | combine(openshift_hosted_registry_env_vars) }}"
+  with_items:
+  - "docker-registry.default.svc:5000"
+  when: openshift_push_via_dns | bool
+
+- name: Update registry proxy settings for dc/docker-registry
+  set_fact:
+    openshift_hosted_registry_env_vars: "{{ {'HTTPS_PROXY': (openshift.common.https_proxy | default('')),
+                                             'HTTP_PROXY':  (openshift.common.http_proxy  | default('')),
+                                             'NO_PROXY':    (openshift.common.no_proxy    | default(''))}
+                                           | combine(openshift_hosted_registry_env_vars) }}"
+  when: (openshift.common.https_proxy | default(False)) or (openshift.common.http_proxy | default('')) != ''
+
+- name: Create the registry service account
+  oc_serviceaccount:
+    name: "{{ openshift_hosted_registry_serviceaccount }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+
+- name: Grant the registry service account access to the appropriate scc
+  oc_adm_policy_user:
+    user: "system:serviceaccount:{{ openshift_hosted_registry_namespace }}:{{ openshift_hosted_registry_serviceaccount }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    resource_kind: scc
+    resource_name: hostnetwork
+
+- name: oc adm policy add-cluster-role-to-user system:registry system:serviceaccount:default:registry
+  oc_adm_policy_user:
+    user: "system:serviceaccount:{{ openshift_hosted_registry_namespace }}:{{ openshift_hosted_registry_serviceaccount }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    resource_kind: cluster-role
+    resource_name: system:registry
+
+- name: create the default registry service
+  oc_service:
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    name: "{{ openshift_hosted_registry_name }}"
+    ports:
+    - name: 5000-tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 5000
+    selector:
+      docker-registry: default
+    session_affinity: ClientIP
+    service_type: ClusterIP
+    clusterip: '{{ openshift_hosted_registry_clusterip | default(omit) }}'
+
+- include_tasks: secure.yml
+  run_once: true
+  when:
+  - not (openshift_docker_hosted_registry_insecure | default(False)) | bool
+
+- include_tasks: storage/object_storage.yml
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) == 'object'
+
+- name: Update openshift_hosted facts for persistent volumes
+  set_fact:
+    openshift_hosted_registry_volumes: "{{ openshift_hosted_registry_volumes | union(pvc_volume_mounts) }}"
+  vars:
+    pvc_volume_mounts:
+    - name: registry-storage
+      type: persistentVolumeClaim
+      claim_name: "{{ openshift_hosted_registry_storage_volume_name }}-claim"
+  when:
+  - openshift_hosted_registry_storage_kind | default(none) in ['nfs', 'glusterfs', 'hostpath', 'openstack', 'vsphere']
+
+- include_tasks: storage/glusterfs_endpoints.yml
+  when:
+  - openshift_hosted_registry_storage_glusterfs_ips|length > 0
+  - openshift_hosted_registry_storage_kind | default(none) in ['glusterfs']
+
+- name: Create OpenShift registry
+  oc_adm_registry:
+    name: "{{ openshift_hosted_registry_name }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    selector: "{{ openshift_hosted_registry_selector }}"
+    replicas: "{{ openshift_hosted_registry_replicas }}"
+    service_account: "{{ openshift_hosted_registry_serviceaccount }}"
+    images: "{{ openshift_hosted_registry_registryurl }}"
+    env_vars: "{{ openshift_hosted_registry_env_vars }}"
+    volume_mounts: "{{ openshift_hosted_registry_volumes }}"
+    edits: "{{ openshift_hosted_registry_edits }}"
+    force: "{{ True|bool in openshift_hosted_registry_force }}"

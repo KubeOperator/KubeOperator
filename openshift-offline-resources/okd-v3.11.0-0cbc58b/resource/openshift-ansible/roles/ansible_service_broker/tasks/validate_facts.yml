@@ -1,0 +1,13 @@
+---
+- name: validate Dockerhub registry settings
+  fail: msg="To use the dockerhub registry, you must provide the ansible_service_broker_registry_organization"
+  when:
+    - ansible_service_broker_registry_type == 'dockerhub'
+    - not ansible_service_broker_registry_organization
+
+
+- name: validate RHCC registry settings
+  fail: msg="To use the Red Hat Container Catalog registry, you must provide the ansible_service_broker_registry_url"
+  when:
+    - ansible_service_broker_registry_type == 'rhcc'
+    - not ansible_service_broker_registry_url

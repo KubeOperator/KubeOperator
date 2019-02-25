@@ -1,0 +1,15 @@
+---
+# This file is used to migrate imageConfig.format when changing component
+# registries.
+
+- name: patch existing node config maps
+  include_tasks: create_config.yml
+  vars:
+    l_openshift_node_group_name: "{{ node_group.name }}"
+    l_openshift_node_group_edits:
+    - key: "imageConfig.format"
+      value: "{{ l_os_non_standard_reg_url }}"
+    l_openshift_node_group_labels: "{{ node_group.labels }}"
+  with_items: "{{ openshift_node_groups }}"
+  loop_control:
+    loop_var: node_group

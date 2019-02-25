@@ -1,0 +1,40 @@
+---
+# delete eventrouter
+- name: Delete EventRouter service account
+  oc_serviceaccount:
+    state: absent
+    name: "aggregated-logging-eventrouter"
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+
+- name: Delete event-reader cluster role
+  oc_clusterrole:
+    state: absent
+    name: event-reader
+
+- name: Unset privileged permissions for EventRouter
+  oc_adm_policy_user:
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+    resource_kind: cluster-role
+    resource_name: event-reader
+    state: absent
+    user: "system:serviceaccount:{{ openshift_logging_eventrouter_namespace }}:aggregated-logging-eventrouter"
+
+- name: Delete EventRouter configmap
+  oc_configmap:
+    state: absent
+    name: logging-eventrouter
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+
+- name: Delete EventRouter DC
+  oc_obj:
+    state: absent
+    name: logging-eventrouter
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+    kind: dc
+
+- name: Delete EventRouter Template
+  oc_obj:
+    state: absent
+    name: eventrouter-template
+    namespace: "{{ openshift_logging_eventrouter_namespace }}"
+    kind: template

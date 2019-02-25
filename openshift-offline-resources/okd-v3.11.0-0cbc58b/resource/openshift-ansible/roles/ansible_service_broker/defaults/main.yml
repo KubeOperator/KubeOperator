@@ -1,0 +1,33 @@
+---
+
+ansible_service_broker_node_selector: "{{ openshift_hosted_infra_selector | default('node-role.kubernetes.io/infra=true') | map_from_pairs }}"
+ansible_service_broker_enable_dashboard_redirector: false
+ansible_service_broker_dashboard_redirector_route: "dr-1337-openshift-ansible-service-broker.{{ openshift_master_default_subdomain }}"
+
+ansible_service_broker_remove: false
+ansible_service_broker_install: true
+ansible_service_broker_log_level: info
+ansible_service_broker_output_request: false
+ansible_service_broker_recovery: true
+ansible_service_broker_bootstrap_on_startup: true
+ansible_service_broker_dev_broker: false
+ansible_service_broker_refresh_interval: 600s
+# Recommended you do not enable this for now
+ansible_service_broker_launch_apb_on_bind: false
+ansible_service_broker_keep_namespace_on_error: false
+ansible_service_broker_keep_namespace: false
+
+ansible_service_broker_image_pull_policy: Always
+ansible_service_broker_sandbox_role: edit
+ansible_service_broker_auto_escalate: false
+ansible_service_broker_local_registry_whitelist: []
+ansible_service_broker_local_registry_namespaces: ["openshift"]
+
+l_asb_default_images_dict:
+  origin: 'docker.io/ansibleplaybookbundle/origin-ansible-service-broker:latest'
+  openshift-enterprise: 'registry.redhat.io/openshift3/ose-ansible-service-broker:${version}'
+
+l_asb_default_images_default: "{{ l_asb_default_images_dict[openshift_deployment_type] }}"
+l_asb_image_url: "{{ oreg_url | default(l_asb_default_images_default) | regex_replace('${version}' | regex_escape, openshift_image_tag) }}"
+
+ansible_service_broker_image: "{{ l_asb_image_url | regex_replace('${component}' | regex_escape, 'ansible-service-broker') }}"

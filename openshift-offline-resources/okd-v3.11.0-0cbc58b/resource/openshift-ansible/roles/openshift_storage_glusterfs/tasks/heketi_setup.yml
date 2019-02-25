@@ -1,0 +1,62 @@
+---
+- name: Create heketi service account
+  oc_serviceaccount:
+    namespace: "{{ glusterfs_namespace }}"
+    name: "heketi-{{ glusterfs_name }}-service-account"
+    state: present
+
+- name: Add heketi service account to privileged SCC
+  oc_adm_policy_user:
+    namespace: "{{ glusterfs_namespace }}"
+    user: "system:serviceaccount:{{ glusterfs_namespace }}:heketi-{{ glusterfs_name }}-service-account"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+
+- name: Allow heketi service account to view/edit pods
+  oc_adm_policy_user:
+    namespace: "{{ glusterfs_namespace }}"
+    user: "system:serviceaccount:{{ glusterfs_namespace }}:heketi-{{ glusterfs_name }}-service-account"
+    resource_kind: role
+    resource_name: edit
+    state: present
+
+- name: Generate heketi config file
+  template:
+    src: "heketi.json.j2"
+    dest: "{{ mktemp.stdout }}/heketi.json"
+
+- import_tasks: heketi_get_key.yml
+
+- name: Generate heketi admin key
+  set_fact:
+    glusterfs_heketi_admin_key: "{{ 32 | lib_utils_oo_generate_secret }}"
+  when: glusterfs_heketi_admin_key is undefined
+
+- name: Generate heketi user key
+  set_fact:
+    glusterfs_heketi_user_key: "{{ 32 | lib_utils_oo_generate_secret }}"
+  until:
+  - glusterfs_heketi_user_key is defined
+  - glusterfs_heketi_user_key != glusterfs_heketi_admin_key
+  delay: 1
+  retries: 10
+  when: glusterfs_heketi_user_key is undefined
+
+- name: Copy heketi private key
+  copy:
+    src: "{{ glusterfs_heketi_ssh_keyfile | default(omit)  }}"
+    content: "{{ '' if glusterfs_heketi_ssh_keyfile is undefined else omit }}"
+    dest: "{{ mktemp.stdout }}/private_key"
+
+- name: Create heketi config secret
+  oc_secret:
+    namespace: "{{ glusterfs_namespace }}"
+    state: present
+    name: "heketi-{{ glusterfs_name }}-config-secret"
+    force: True
+    files:
+    - name: heketi.json
+      path: "{{ mktemp.stdout }}/heketi.json"
+    - name: private_key
+      path: "{{ mktemp.stdout }}/private_key"

@@ -1,0 +1,72 @@
+kind: NodeConfig
+apiVersion: v1
+authConfig:
+  authenticationCacheSize: 1000
+  authenticationCacheTTL: 5m
+  authorizationCacheSize: 1000
+  authorizationCacheTTL: 5m
+dnsBindAddress: "127.0.0.1:53"
+dnsDomain: cluster.local
+dnsIP: 0.0.0.0
+dnsNameservers: null
+dnsRecursiveResolvConf: /etc/origin/node/resolv.conf
+dockerConfig:
+  dockerShimRootDirectory: /var/lib/dockershim
+  dockerShimSocket: /var/run/dockershim.sock
+  execHandlerName: native
+enableUnidling: true
+imageConfig:
+  format: "{{ openshift_imageconfig_format }}"
+  latest: false
+iptablesSyncPeriod: "{{ openshift_node_iptables_sync_period }}"
+kubeletArguments:
+{% if openshift_is_atomic | bool %}
+  volume-plugin-dir:
+  - "/etc/origin/kubelet-plugins/volume/exec"
+{% endif %}
+  pod-manifest-path:
+  - /etc/origin/node/pods
+  bootstrap-kubeconfig:
+  - /etc/origin/node/bootstrap.kubeconfig
+  feature-gates:
+  - RotateKubeletClientCertificate=true,RotateKubeletServerCertificate=true
+{% if openshift_node_group_use_persistentlocalvolumes | bool %}
+  - PersistentLocalVolumes=true
+  - VolumeScheduling=true
+{% endif %}
+  rotate-certificates:
+  - "true"
+  cert-dir:
+  - /etc/origin/node/certificates
+{% if openshift_node_group_cloud_provider != '' %}
+  cloud-config:
+  - /etc/origin/cloudprovider/{{ openshift_node_group_cloud_provider }}.conf
+  cloud-provider:
+  - {{ openshift_node_group_cloud_provider }}
+{% endif %}
+{% if l_openshift_node_group_labels != [] %}
+  node-labels:
+  - < this is always modified via yedit: openshift_node_labels_edit >
+{% endif %}
+  enable-controller-attach-detach:
+  - 'true'
+masterClientConnectionOverrides:
+  acceptContentTypes: application/vnd.kubernetes.protobuf,application/json
+  burst: 40
+  contentType: application/vnd.kubernetes.protobuf
+  qps: 20
+masterKubeConfig: node.kubeconfig
+networkConfig:
+  mtu: {{ openshift.node.sdn_mtu }}
+  networkPluginName: {{ openshift_node_group_network_plugin }}
+servingInfo:
+  bindAddress: 0.0.0.0:10250
+  bindNetwork: tcp4
+  clientCA: client-ca.crt
+proxyArguments:
+  cluster-cidr:
+    - {{ openshift_cluster_network_cidr }}
+volumeConfig:
+  localQuota:
+    perFSGroup: null
+volumeDirectory: {{ openshift_node_group_node_data_dir }}/openshift.local.volumes

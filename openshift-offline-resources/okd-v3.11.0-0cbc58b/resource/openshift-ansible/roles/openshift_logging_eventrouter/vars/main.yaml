@@ -1,0 +1,2 @@
+---
+__eventrouter_sinks: ["glog", "stdout"]

@@ -1,0 +1,4 @@
+---
+- import_role:
+    name: openshift_control_plane
+    tasks_from: restart.yml

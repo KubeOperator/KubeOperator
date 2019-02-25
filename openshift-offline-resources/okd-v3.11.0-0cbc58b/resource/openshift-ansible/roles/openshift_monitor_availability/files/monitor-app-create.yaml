@@ -1,0 +1,194 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: openshift-monitor-app-create
+  annotations:
+    openshift.io/display-name: OpenShift App Create Availability Monitor
+    description: Measures app create operation availability.
+    iconClass: icon-openshift
+    tags: openshift,infra,monitoring
+    openshift.io/documentation-url: https://github.com/openshift/monitor-project-lifecycle
+    openshift.io/support-url: https://access.redhat.com
+openshift.io/provider-display-name: Red Hat, Inc.
+parameters:
+- name: IMAGE
+  description: The application container image to use.
+  required: true
+- name: LOG_LEVEL
+  value: "0"
+  description: Application logging level.
+- name: RUN_INTERVAL
+  value: "5m"
+  description: How often to run the measurement loop, as a duration string.
+- name: TIMEOUT
+  value: "5m"
+  description: How long to wait for the test app to become available before giving up.
+- name: NAMESPACE
+  # This namespace cannot be changed.
+  value: openshift-monitor-availability
+objects:
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  metadata: {name: monitor-app-create}
+  rules:
+  # These are for the auth proxy.
+  - apiGroups: ["authentication.k8s.io"]
+    resources:
+    - tokenreviews
+    verbs: ["create"]
+  - apiGroups: ["authorization.k8s.io"]
+    resources:
+    - subjectaccessreviews
+    verbs: ["create"]
+  # These are for the app itself.
+  - apiGroups: [project.openshift.io]
+    resources: [projects, projectrequests]
+    verbs: ['*']
+
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: monitor-app-create
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: monitor-app-create
+  subjects:
+  - kind: ServiceAccount
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+    labels:
+      k8s-app: monitor-app-create
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: monitor-app-create-tls
+  spec:
+    ports:
+    - name: http-metrics
+      port: 443
+      protocol: TCP
+      targetPort: https
+    selector:
+      k8s-app: monitor-app-create
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+    labels:
+      k8s-app: monitor-app-create
+  data:
+    config.yaml: |
+      listenAddress: "127.0.0.1:8080"
+      runInterval: "${RUN_INTERVAL}"
+      availabilityTimeout: "${TIMEOUT}"
+      template:
+        namespace: openshift
+        name: django-psql-persistent
+        availabilityRoute: django-psql-persistent
+        parameters: # Empty, use template defaults
+
+- apiVersion: monitoring.coreos.com/v1
+  kind: ServiceMonitor
+  metadata:
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+    labels:
+      k8s-app: monitor-app-create
+  spec:
+    jobLabel: k8s-app
+    endpoints:
+    - port: http-metrics
+      interval: 30s
+      scheme: https
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+        serverName: monitor-app-create.openshift-monitor-availability.svc
+    selector:
+      matchLabels:
+        k8s-app: monitor-app-create
+    namespaceSelector:
+      matchNames:
+      - openshift-monitor-availability
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: monitor-app-create
+    namespace: ${NAMESPACE}
+    labels:
+      k8s-app: monitor-app-create
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        k8s-app: monitor-app-create
+    template:
+      metadata:
+        labels:
+          k8s-app: monitor-app-create
+      spec:
+        serviceAccountName: monitor-app-create
+        volumes:
+        - name: config
+          configMap:
+            name: monitor-app-create
+        - name: tls
+          secret:
+            secretName: monitor-app-create-tls
+        containers:
+        - name: monitor-app-create
+          image: ${IMAGE}
+          command:
+          - "/usr/bin/monitor"
+          - "run"
+          - "--alsologtostderr"
+          - "--v"
+          - "${LOG_LEVEL}"
+          - "--config"
+          - "/etc/monitor-app-create/config.yaml"
+          volumeMounts:
+          - name: config
+            mountPath: /etc/monitor-app-create
+          resources:
+            limits:
+              cpu: 20m
+              memory: 50Mi
+            requests:
+              cpu: 20m
+              memory: 50Mi
+        - name: kube-rbac-proxy
+          image: quay.io/coreos/kube-rbac-proxy:v0.3.0
+          args:
+          - "--secure-listen-address=:8081"
+          - "--upstream=http://127.0.0.1:8080/"
+          - "--tls-cert-file=/etc/tls/private/tls.crt"
+          - "--tls-private-key-file=/etc/tls/private/tls.key"
+          ports:
+          - name: https
+            containerPort: 8081
+            protocol: TCP
+          resources:
+            requests:
+              memory: 20Mi
+              cpu: 10m
+            limits:
+              memory: 40Mi
+              cpu: 20m
+          volumeMounts:
+          - mountPath: /etc/tls/private
+            name: tls

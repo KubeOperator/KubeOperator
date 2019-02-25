@@ -1,0 +1,250 @@
+---
+- name: Check status of master certificates
+  stat:
+    path: "/etc/origin/master/{{ item }}"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  with_items:
+  - admin.crt
+  - ca.crt
+  - ca-bundle.crt
+  - front-proxy-ca.crt
+  - master.kubelet-client.crt
+  - master.proxy-client.crt
+  - master.server.crt
+  - openshift-master.crt
+  - service-signer.crt
+  - aggregator-front-proxy.crt
+  register: g_master_cert_stat_result
+  when: not openshift_certificates_redeploy | default(false) | bool
+
+- set_fact:
+    master_certs_missing: "{{ true if openshift_certificates_redeploy | default(false) | bool
+                              else (False in (g_master_cert_stat_result.results
+                                              | default({})
+                                              | lib_utils_oo_collect(attribute='stat.exists')
+                                              | list)) }}"
+
+- name: Ensure the generated_configs directory present
+  file:
+    path: "{{ openshift_master_generated_config_dir }}"
+    state: directory
+    mode: 0700
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+  delegate_to: "{{ openshift_ca_host }}"
+
+- find:
+    paths: "/etc/origin/master/legacy-ca/"
+    patterns: ".*-ca.crt"
+    use_regex: true
+  register: g_master_legacy_ca_result
+  delegate_to: "{{ openshift_ca_host }}"
+
+- name: Create the master server certificate
+  command: >
+    {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm ca create-server-cert
+    {% for named_ca_certificate in openshift.master.named_certificates | default([]) | lib_utils_oo_collect('cafile') %}
+    --certificate-authority {{ named_ca_certificate }}
+    {% endfor %}
+    {% for legacy_ca_certificate in g_master_legacy_ca_result.files | default([]) | lib_utils_oo_collect('path') %}
+    --certificate-authority {{ legacy_ca_certificate }}
+    {% endfor %}
+    --hostnames={{ hostvars[item].openshift.common.all_hostnames | join(',') }}
+    --cert={{ openshift_generated_configs_dir }}/master-{{ hostvars[item].openshift.common.hostname }}/master.server.crt
+    --key={{ openshift_generated_configs_dir }}/master-{{ hostvars[item].openshift.common.hostname }}/master.server.key
+    --expire-days={{ openshift_master_cert_expire_days }}
+    --signer-cert={{ openshift_ca_cert }}
+    --signer-key={{ openshift_ca_key }}
+    --signer-serial={{ openshift_ca_serial }}
+    --overwrite=false
+  when: item != openshift_ca_host
+  with_items: "{{ hostvars
+                  | lib_utils_oo_select_keys(groups['oo_masters_to_config'])
+                  | lib_utils_oo_collect(attribute='inventory_hostname', filters={'master_certs_missing':True}) }}"
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- name: Generate the loopback master client config
+  command: >
+    {{ hostvars[openshift_ca_host]['first_master_client_binary'] }} adm create-api-client-config
+      --certificate-authority={{ openshift_ca_cert }}
+      {% for named_ca_certificate in openshift.master.named_certificates | default([]) | lib_utils_oo_collect('cafile') %}
+      --certificate-authority {{ named_ca_certificate }}
+      {% endfor %}
+      --client-dir={{ openshift_generated_configs_dir }}/master-{{ hostvars[item].openshift.common.hostname }}
+      --groups=system:masters,system:openshift-master
+      --master={{ hostvars[item].openshift.master.loopback_api_url }}
+      --public-master={{ hostvars[item].openshift.master.loopback_api_url }}
+      --signer-cert={{ openshift_ca_cert }}
+      --signer-key={{ openshift_ca_key }}
+      --signer-serial={{ openshift_ca_serial }}
+      --user=system:openshift-master
+      --basename=openshift-master
+      --expire-days={{ openshift_master_cert_expire_days }}
+  args:
+    creates: "{{ openshift_generated_configs_dir }}/master-{{ hostvars[item].openshift.common.hostname }}/openshift-master.kubeconfig"
+  with_items: "{{ hostvars
+                  | lib_utils_oo_select_keys(groups['oo_masters_to_config'])
+                  | lib_utils_oo_collect(attribute='inventory_hostname', filters={'master_certs_missing':True}) }}"
+  when: item != openshift_ca_host
+  delegate_to: "{{ openshift_ca_host }}"
+  run_once: true
+
+- copy:
+    src: "/etc/origin/master/{{ item }}"
+    dest: "{{ openshift_master_generated_config_dir }}/{{ item }}"
+    remote_src: yes
+  with_items:
+  - admin.crt
+  - admin.key
+  - admin.kubeconfig
+  - aggregator-front-proxy.crt
+  - aggregator-front-proxy.key
+  - aggregator-front-proxy.kubeconfig
+  - front-proxy-ca.crt
+  - front-proxy-ca.key
+  - master.kubelet-client.crt
+  - master.kubelet-client.key
+  - master.proxy-client.crt
+  - master.proxy-client.key
+  - service-signer.crt
+  - service-signer.key
+  - ca-bundle.crt
+  - ca.crt
+  - ca.key
+  - client-ca-bundle.crt
+  - serviceaccounts.private.key
+  - serviceaccounts.public.key
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+  delegate_to: "{{ openshift_ca_host }}"
+
+- name: Remove generated etcd client certs when using external etcd
+  file:
+    path: "{{ openshift_master_generated_config_dir }}/{{ item }}"
+    state: absent
+  # Do we need this boolean here?
+  when: openshift_master_etcd_hosts | length > 0
+  with_items:
+  - master.etcd-client.crt
+  - master.etcd-client.key
+  delegate_to: "{{ openshift_ca_host }}"
+
+- name: Create local temp directory for syncing certs
+  local_action: command mktemp -d /tmp/openshift-ansible-XXXXXXX
+  register: g_master_certs_mktemp
+  changed_when: False
+  when: master_certs_missing | bool
+
+- name: Chmod local temp directory for syncing certs
+  local_action: file path="{{ g_master_certs_mktemp.stdout }}" mode=0777
+  changed_when: False
+  when: master_certs_missing | bool
+
+- name: Create a tarball of the master certs
+  command: >
+    tar -czvf {{ openshift_master_generated_config_dir }}.tgz
+      -C {{ openshift_master_generated_config_dir }} .
+  args:
+    creates: "{{ openshift_master_generated_config_dir }}.tgz"
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+  delegate_to: "{{ openshift_ca_host }}"
+
+- name: Retrieve the master cert tarball from the master
+  fetch:
+    src: "{{ openshift_master_generated_config_dir }}.tgz"
+    dest: "{{ g_master_certs_mktemp.stdout }}/"
+    flat: yes
+    fail_on_missing: yes
+    validate_checksum: yes
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+  delegate_to: "{{ openshift_ca_host }}"
+
+- name: Ensure certificate directory exists
+  file:
+    path: "/etc/origin/master"
+    state: directory
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+
+- name: Unarchive the tarball on the master
+  unarchive:
+    src: "{{ g_master_certs_mktemp.stdout }}/{{ openshift_master_cert_subdir }}.tgz"
+    dest: "/etc/origin/master"
+  when: master_certs_missing | bool and inventory_hostname != openshift_ca_host
+
+- name: Delete local temp directory
+  local_action: file path="{{ g_master_certs_mktemp.stdout }}" state=absent
+  changed_when: False
+  when: master_certs_missing | bool
+
+- name: Lookup default group for ansible_ssh_user
+  command: "/usr/bin/id -g {{ ansible_ssh_user | quote }}"
+  changed_when: false
+  register: _ansible_ssh_user_gid
+
+- set_fact:
+    client_users: "{{ [ansible_ssh_user, 'root'] | unique }}"
+
+- name: Create the client config dir(s)
+  file:
+    path: "~{{ item }}/.kube"
+    state: directory
+    mode: 0700
+    owner: "{{ item }}"
+    group: "{{ 'root' if item == 'root' else _ansible_ssh_user_gid.stdout  }}"
+  with_items: "{{ client_users }}"
+  failed_when: false
+
+# TODO: Update this file if the contents of the source file are not present in
+# the dest file, will need to make sure to ignore things that could be added
+- name: Copy the admin client config(s)
+  copy:
+    src: "/etc/origin/master/admin.kubeconfig"
+    dest: "~{{ item }}/.kube/config"
+    remote_src: yes
+    force: "{{ openshift_certificates_redeploy | default(false) }}"
+  with_items: "{{ client_users }}"
+  failed_when: false
+
+- name: Update the permissions on the admin client config(s)
+  file:
+    path: "~{{ item }}/.kube/config"
+    state: file
+    mode: 0700
+    owner: "{{ item }}"
+    group: "{{ 'root' if item == 'root' else _ansible_ssh_user_gid.stdout  }}"
+  with_items: "{{ client_users }}"
+  failed_when: false
+
+# Ensure ca-bundle exists for 3.2+ configuration
+- name: Check for ca-bundle.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_bundle_stat
+  failed_when: false
+
+- name: Check for ca.crt
+  stat:
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: ca_crt_stat
+  failed_when: false
+
+- name: Migrate ca.crt to ca-bundle.crt
+  command: mv ca.crt ca-bundle.crt
+  args:
+    chdir: "{{ openshift.common.config_base }}/master"
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists
+
+- name: Link ca.crt to ca-bundle.crt
+  file:
+    src: "{{ openshift.common.config_base }}/master/ca-bundle.crt"
+    path: "{{ openshift.common.config_base }}/master/ca.crt"
+    state: link
+    force: yes
+  when: ca_crt_stat.stat.isreg and not ca_bundle_stat.stat.exists

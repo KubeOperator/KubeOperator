@@ -1,0 +1,17 @@
+---
+- name: Remove etcdConfig section
+  yedit:
+    src: /etc/origin/master/master-config.yaml
+    key: "etcdConfig"
+    state: absent
+- name: Set etcdClientInfo.ca to master.etcd-ca.crt
+  yedit:
+    src: /etc/origin/master/master-config.yaml
+    key: etcdClientInfo.ca
+    value: master.etcd-ca.crt
+- name: Set etcdClientInfo.urls to the external etcd
+  yedit:
+    src: /etc/origin/master/master-config.yaml
+    key: etcdClientInfo.urls
+    value:
+      - "{{ etcd_peer_url_scheme }}://{{ etcd_ip }}:{{ etcd_peer_port }}"

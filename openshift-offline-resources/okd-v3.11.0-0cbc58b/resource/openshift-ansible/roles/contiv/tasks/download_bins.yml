@@ -1,0 +1,48 @@
+---
+- name: Download Bins | Create directory for current Contiv release
+  file:
+    path: "{{ contiv_current_release_directory }}"
+    state: directory
+
+- name: Download Bins | Install bzip2
+  yum:
+    name: bzip2
+    state: installed
+  register: result
+  until: result is succeeded
+
+- name: Download Bins | Download Contiv tar file
+  get_url:
+    url: "{{ contiv_download_url }}"
+    dest: "{{ contiv_current_release_directory }}"
+    mode: 0755
+    validate_certs: False
+  environment:
+    http_proxy: "{{ contiv_http_proxy|default('') }}"
+    https_proxy: "{{ contiv_https_proxy|default('') }}"
+    no_proxy: "{{ contiv_no_proxy|default('') }}"
+
+- name: Download Bins | Extract Contiv tar file
+  unarchive:
+    src: "{{ contiv_current_release_directory }}/netplugin-{{ contiv_version }}.tar.bz2"
+    dest: "{{ contiv_current_release_directory }}"
+    copy: no
+
+- name: Download Bins | Download cni tar file
+  get_url:
+    url: "{{ contiv_cni_bin_url }}"
+    dest: "{{ contiv_cni_download_dir }}"
+    mode: 0755
+    validate_certs: False
+  environment:
+    http_proxy: "{{ contiv_http_proxy|default('') }}"
+    https_proxy: "{{ contiv_https_proxy|default('') }}"
+    no_proxy: "{{ contiv_no_proxy|default('') }}"
+  register: download_file
+
+- name: Download Bins | Extract cni tar file
+  unarchive:
+    src: "{{ download_file.dest }}"
+    dest: "{{ contiv_cni_download_dir }}"
+    copy: no
+  when: download_file.changed

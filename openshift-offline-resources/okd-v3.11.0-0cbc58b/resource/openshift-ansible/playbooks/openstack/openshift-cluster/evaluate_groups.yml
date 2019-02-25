@@ -1,0 +1,136 @@
+---
+# NOTE: to support scaling, the `masters` and `new_masters` (and analogous for
+# `nodes` and `etcd`) groups must be exclusive.
+#
+# Since Ansible cannot remove a node from a group, the dynamic inventory
+# can't e.g. tag all master nodes as part of the `masters` group and then
+# add the new ones to `new_masters`. Creating new hosts means refreshing
+# the inventory and that would mean bringing all the nodes (old and new)
+# into the `masters` group. And that causes the scaleup playbook to fail.
+#
+# And since the playbooks can't pass data to the dynamic inventory, this
+# new/old separation cannot happen there.
+#
+# So the inventory sets e.g. `openstack_master_nodes` and this playbook
+# configures the actual source groups such as `masters`, `new_masters`,
+# `nodes`, `etcd`, etc.
+- name: Evaluate the OpenStack groups
+  any_errors_fatal: true
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  tasks:
+  # This will happen when we're deploying a cluster from scratch. Add all
+  # nodes to the `masters` group.
+  - name: Create a brand new masters group (no scaling)
+    add_host:
+      name: "{{ item }}"
+      groups: masters
+    with_items: "{{ groups.openstack_master_nodes | default([]) }}"
+    changed_when: no
+    when: >
+      openshift_openstack_existing is undefined or
+      openshift_openstack_existing.openstack_master_nodes is undefined or
+      openshift_openstack_existing.openstack_master_nodes | length == 0
+
+  # This will happen when we are scaling an existing cluster. Add the current
+  # nodes to the `masters` groups.
+  - name: Create pre-existing masters group
+    add_host:
+      name: "{{ item }}"
+      groups: masters
+    with_items: "{{ openshift_openstack_existing.openstack_master_nodes }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_master_nodes is defined
+    - openshift_openstack_existing.openstack_master_nodes | length > 0
+
+  # This will happen when we are scaling an existing cluster. Add the
+  # newly-created nodes to the `new_masters` group.
+  - name: Create new_masters group
+    add_host:
+      name: "{{ item }}"
+      groups: new_masters
+    with_items: "{{ groups.openstack_master_nodes | default([]) | difference(groups.masters) }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_master_nodes is defined
+    - openshift_openstack_existing.openstack_master_nodes | length > 0
+
+  - name: Create a brand new etcd group (no scaling)
+    add_host:
+      name: "{{ item }}"
+      groups: etcd
+    with_items: "{{ groups.openstack_etcd_nodes | default([]) }}"
+    changed_when: no
+    when: >
+      openshift_openstack_existing is undefined or
+      openshift_openstack_existing.openstack_etcd_nodes is undefined or
+      openshift_openstack_existing.openstack_etcd_nodes | length == 0
+
+  - name: Create pre-existing etcd group
+    add_host:
+      name: "{{ item }}"
+      groups: etcd
+    with_items: "{{ openshift_openstack_existing.openstack_etcd_nodes }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_etcd_nodes is defined
+    - openshift_openstack_existing.openstack_etcd_nodes | length > 0
+
+  - name: Create new_etcd group
+    add_host:
+      name: "{{ item }}"
+      groups: new_etcd
+    with_items: "{{ groups.openstack_etcd_nodes | default([]) | difference(groups.etcd) }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_etcd_nodes is defined
+    - openshift_openstack_existing.openstack_etcd_nodes | length > 0
+
+  - name: Create a brand new nodes group (no scaling)
+    add_host:
+      name: "{{ item }}"
+      groups: nodes
+    with_items: "{{ groups.openstack_nodes | default([]) }}"
+    changed_when: no
+    when: >
+      openshift_openstack_existing is undefined or
+      openshift_openstack_existing.openstack_nodes is undefined or
+      openshift_openstack_existing.openstack_nodes | length == 0
+
+  - name: Create pre-existing nodes group
+    add_host:
+      name: "{{ item }}"
+      groups: nodes
+    with_items: "{{ openshift_openstack_existing.openstack_nodes }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_nodes is defined
+    - openshift_openstack_existing.openstack_nodes | length > 0
+
+  - name: Create new_nodes group
+    add_host:
+      name: "{{ item }}"
+      groups: new_nodes
+    with_items: "{{ groups.openstack_nodes | default([]) | difference(groups.nodes) }}"
+    changed_when: no
+    when:
+    - openshift_openstack_existing is defined
+    - openshift_openstack_existing.openstack_nodes is defined
+    - openshift_openstack_existing.openstack_nodes | length > 0
+
+  # TODO(shadower): Do we need to add `new_glusterfs` as well? I saw no
+  # mention in the code.
+  - name: Create glusterfs group
+    add_host:
+      name: "{{ item }}"
+      groups: glusterfs
+    with_items: "{{ groups.openstack_cns_nodes | default([]) }}"
+    changed_when: no

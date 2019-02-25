@@ -1,0 +1,16 @@
+---
+# This example playbook is great if you're just wanting to try the
+# role out.
+#
+# This example enables HTML and JSON reports
+#
+# All certificates (healthy or not) are included in the results
+
+- name: Check cert expirys
+  hosts: nodes:masters:etcd
+  vars:
+    openshift_certificate_expiry_save_json_results: yes
+    openshift_certificate_expiry_generate_html_report: yes
+    openshift_certificate_expiry_show_all: yes
+  roles:
+    - role: openshift_certificate_expiry

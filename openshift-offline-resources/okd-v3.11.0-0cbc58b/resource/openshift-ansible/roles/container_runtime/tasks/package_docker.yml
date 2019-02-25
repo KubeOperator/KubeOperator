@@ -1,0 +1,174 @@
+---
+- import_tasks: common/pre.yml
+
+# In some cases, some services may be run as containers and docker may still
+# be installed via rpm.
+- import_tasks: common/atomic_proxy.yml
+  when: openshift_is_atomic
+
+- name: Get current installed Docker version
+  command: "{{ repoquery_installed }} --qf '%{version}' docker"
+  when: not openshift_is_atomic | bool
+  register: curr_docker_version
+  retries: 4
+  until: curr_docker_version is succeeded
+  changed_when: false
+
+# Some basic checks to ensure the role will complete
+- import_tasks: docker_sanity.yml
+
+# Make sure Docker is installed, but does not update a running version.
+# Docker upgrades are handled by a separate playbook.
+# Note: The curr_docker_version.stdout check can be removed when https://github.com/ansible/ansible/issues/33187 gets fixed.
+- name: Install Docker
+  package:
+    name: "{{ pkg_list | join(',') }}"
+    state: present
+  when:
+  - not (openshift_is_atomic | bool)
+  register: result
+  until: result is succeeded
+  vars:
+    pkg_list:
+    - "docker{{ '-' + docker_version if docker_version is defined else '' }}"
+    - atomic
+    - skopeo
+
+- block:
+  # Extend the default Docker service unit file when using iptables-services
+  - name: Ensure docker.service.d directory exists
+    file:
+      path: "{{ docker_systemd_dir }}"
+      state: directory
+
+  - name: Configure Docker service unit file
+    template:
+      dest: "{{ docker_systemd_dir }}/custom.conf"
+      src: custom.conf.j2
+    notify:
+    - restart container runtime
+  when: not (os_firewall_use_firewalld | default(False)) | bool
+
+- stat:
+    path: /etc/sysconfig/docker
+    get_checksum: false
+    get_mime: false
+  register: docker_check
+
+- name: Set registry params
+  lineinfile:
+    dest: /etc/sysconfig/docker
+    regexp: '^{{ item.reg_conf_var }}=.*$'
+    line: "{{ item.reg_conf_var }}='{{ item.reg_fact_val | lib_utils_oo_prepend_strings_in_list(item.reg_flag ~ ' ') | join(' ') }}'"
+  when:
+  - item.reg_fact_val != []
+  - docker_check.stat.isreg is defined
+  - docker_check.stat.isreg
+  with_items:
+  - reg_conf_var: ADD_REGISTRY
+    reg_fact_val: "{{ l2_docker_additional_registries }}"
+    reg_flag: --add-registry
+  - reg_conf_var: BLOCK_REGISTRY
+    reg_fact_val: "{{ l2_docker_blocked_registries }}"
+    reg_flag: --block-registry
+  - reg_conf_var: INSECURE_REGISTRY
+    reg_fact_val: "{{ l2_docker_insecure_registries }}"
+    reg_flag: --insecure-registry
+  notify:
+  - restart container runtime
+
+- name: Place additional/blocked/insecure registries in /etc/containers/registries.conf
+  template:
+    dest: "{{ containers_registries_conf_path }}"
+    src: registries.conf.j2
+  when: openshift_docker_use_etc_containers | bool
+  notify:
+  - restart container runtime
+
+- name: Set Proxy Settings
+  lineinfile:
+    dest: /etc/sysconfig/docker
+    regexp: '^{{ item.reg_conf_var }}=.*$'
+    line: "{{ item.reg_conf_var }}='{{ item.reg_fact_val }}'"
+    state: "{{ 'present' if item.reg_fact_val != '' else 'absent'}}"
+  with_items:
+  - reg_conf_var: HTTP_PROXY
+    reg_fact_val: "{{ docker_http_proxy }}"
+  - reg_conf_var: HTTPS_PROXY
+    reg_fact_val: "{{ docker_https_proxy }}"
+  - reg_conf_var: NO_PROXY
+    reg_fact_val: "{{ docker_no_proxy }}"
+  notify:
+  - restart container runtime
+  when:
+  - docker_check.stat.isreg is defined
+  - docker_check.stat.isreg
+  - docker_http_proxy != '' or docker_https_proxy != ''
+
+- name: Set various Docker options
+  lineinfile:
+    dest: /etc/sysconfig/docker
+    regexp: '^OPTIONS=.*$'
+    line: "OPTIONS='\
+      {% if ansible_selinux.status | default(None) == 'enabled' and openshift_docker_selinux_enabled | default(true) | bool %} --selinux-enabled {% endif %} \
+      {% if openshift_docker_log_driver %} --log-driver {{ openshift_docker_log_driver }}{% endif %} \
+      {% if l2_docker_log_options != [] %} {{ l2_docker_log_options |  lib_utils_oo_split() | lib_utils_oo_prepend_strings_in_list('--log-opt ') | join(' ')}}{% endif %} \
+      {% if (openshift_docker_hosted_registry_insecure | bool) and openshift_docker_hosted_registry_network %} --insecure-registry={{ openshift_docker_hosted_registry_network }} {% endif %} \
+      {% if docker_options is defined %} {{ docker_options }}{% endif %} \
+      {% if openshift_docker_options %} {{ openshift_docker_options }}{% endif %} \
+      --signature-verification={{ openshift_docker_signature_verification | bool }}'"
+  when: docker_check.stat.isreg is defined and docker_check.stat.isreg
+  notify:
+  - restart container runtime
+
+- stat:
+    path: /etc/sysconfig/docker-network
+    get_checksum: false
+    get_mime: false
+  register: sysconfig_docker_network_check
+
+- name: Configure Docker Network OPTIONS
+  lineinfile:
+    dest: /etc/sysconfig/docker-network
+    regexp: '^DOCKER_NETWORK_OPTIONS=.*$'
+    line: "DOCKER_NETWORK_OPTIONS='\
+      {% if openshift.node is defined and openshift.node.sdn_mtu is defined %} --mtu={{ openshift.node.sdn_mtu }}{% endif %}'"
+  when:
+  - sysconfig_docker_network_check.stat.isreg is defined
+  - sysconfig_docker_network_check.stat.isreg
+  notify:
+  - restart container runtime
+
+# The following task is needed as the systemd module may report a change in
+# state even though docker is already running.
+- name: Detect if docker is already started
+  command: "systemctl show docker -p ActiveState"
+  changed_when: False
+  register: r_docker_already_running_result
+
+- name: Start the Docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  register: r_docker_package_docker_start_result
+  until: not (r_docker_package_docker_start_result is failed)
+  retries: 3
+  delay: 30
+
+- set_fact:
+    docker_service_status_changed: "{{ (r_docker_package_docker_start_result is changed) and (r_docker_already_running_result.stdout != 'ActiveState=active' ) }}"
+
+- name: Check for docker_storage_path/overlay2
+  stat:
+    path: "{{ docker_storage_path }}/overlay2"
+  register: dsp_stat
+
+- name: Fixup SELinux permissions for docker
+  shell: |
+           semanage fcontext -a -e /var/lib/docker/overlay2 "{{ docker_storage_path }}/overlay2"
+           restorecon -R -v "{{ docker_storage_path }}/overlay2"
+  when: dsp_stat.stat.exists
+
+- import_tasks: common/post.yml

@@ -1,0 +1,59 @@
+---
+- name: Attach the volume to the VM
+  os_server_volume:
+    state: present
+    server: "{{ groups['masters'][0] }}"
+    volume: "{{ cinder_volume }}"
+  register: volume_attachment
+
+- set_fact:
+    attached_device: >-
+      {{ volume_attachment['attachments']|json_query("[?volume_id=='" + cinder_volume + "'].device | [0]") }}
+
+- delegate_to: "{{ groups['masters'][0] }}"
+  block:
+  - name: Wait for the device to appear
+    wait_for: path={{ attached_device }}
+
+  - name: Create a temp directory for mounting the volume
+    tempfile:
+      prefix: cinder-volume
+      state: directory
+    register: cinder_mount_dir
+
+  - name: Format the device
+    filesystem:
+      fstype: "{{ cinder_fs }}"
+      dev: "{{ attached_device }}"
+
+  - name: Mount the device
+    mount:
+      name: "{{ cinder_mount_dir.path }}"
+      src: "{{ attached_device }}"
+      state: mounted
+      fstype: "{{ cinder_fs }}"
+
+  - name: Change mode on the filesystem
+    file:
+      path: "{{ cinder_mount_dir.path }}"
+      state: directory
+      recurse: true
+      mode: 0777
+
+  - name: Unmount the device
+    mount:
+      name: "{{ cinder_mount_dir.path }}"
+      src: "{{ attached_device }}"
+      state: absent
+      fstype: "{{ cinder_fs }}"
+
+  - name: Delete the temp directory
+    file:
+      name: "{{ cinder_mount_dir.path }}"
+      state: absent
+
+- name: Detach the volume from the VM
+  os_server_volume:
+    state: absent
+    server: "{{ groups['masters'][0] }}"
+    volume: "{{ cinder_volume }}"

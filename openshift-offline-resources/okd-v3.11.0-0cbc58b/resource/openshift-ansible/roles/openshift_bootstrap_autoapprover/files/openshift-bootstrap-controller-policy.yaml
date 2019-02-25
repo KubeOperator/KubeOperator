@@ -1,0 +1,10 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bootstrap-autoapprover
+roleRef:
+  kind: ClusterRole
+  name: system:node-bootstrap-autoapprover
+subjects:
+- kind: User
+  name: system:serviceaccount:openshift-infra:bootstrap-autoapprover

@@ -1,0 +1,100 @@
+---
+- name: Fail if Atomic Host since this is an rpm request
+  fail: msg='Cannot use CRI-O as a package on Atomic Host'
+  when:
+    - openshift_is_atomic | bool
+
+- import_tasks: common/pre.yml
+
+- name: Check that overlay is in the kernel
+  shell: lsmod | grep overlay
+  register: l_has_overlay_in_kernel
+  ignore_errors: yes
+  failed_when: false
+
+- when: l_has_overlay_in_kernel.rc != 0
+  block:
+
+    - name: Add overlay to modprobe.d
+      template:
+        dest: /etc/modules-load.d/overlay.conf
+        src: overlay.conf.j2
+        backup: yes
+
+    - name: Manually modprobe overlay into the kernel
+      command: modprobe overlay
+
+    - name: Enable and start systemd-modules-load
+      service:
+        name: systemd-modules-load
+        enabled: yes
+        state: restarted
+
+- name: Install cri-o
+  package:
+    name: "{{ pkg_list | join(',') }}"
+    state: latest
+  register: result
+  until: result is succeeded
+  vars:
+    pkg_list:
+      - cri-o
+      - cri-tools
+      - atomic
+      - skopeo
+
+- name: Remove CRI-O default configuration files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/cni/net.d/200-loopback.conf
+    - /etc/cni/net.d/100-crio-bridge.conf
+
+- name: Create the CRI-O configuration
+  template:
+    dest: /etc/crio/crio.conf
+    src: crio.conf.j2
+    backup: yes
+
+- name: Update crictl.yaml runtime-endpoint
+  yedit:
+    src: /etc/crictl.yaml
+    key: runtime-endpoint
+    value: "{{ openshift_crio_var_sock }}"
+
+- name: Ensure CNI configuration directory exists
+  file:
+    path: /etc/cni/net.d/
+    state: directory
+
+- name: setup firewall for CRI-O
+  import_tasks: crio_firewall.yml
+
+- name: Configure the CNI network
+  template:
+    dest: /etc/cni/net.d/openshift-sdn.conf
+    src: 80-openshift-sdn.conf.j2
+  when: r_crio_use_openshift_sdn | bool
+
+- name: Create /etc/sysconfig/crio-network
+  template:
+    dest: /etc/sysconfig/crio-network
+    src: crio-network.j2
+
+- name: Place registries.conf in /etc/containers/registries.conf
+  template:
+    dest: "{{ containers_registries_conf_path }}"
+    src: registries.conf.j2
+
+- name: Start the CRI-O service
+  systemd:
+    name: "cri-o"
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+  register: start_result
+
+# If we are using crio only, docker.service might not be available for
+# 'docker login'
+- import_tasks: common/post.yml

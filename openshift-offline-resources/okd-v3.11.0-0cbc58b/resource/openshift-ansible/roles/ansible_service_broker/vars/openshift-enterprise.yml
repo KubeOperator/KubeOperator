@@ -1,0 +1,12 @@
+---
+__ansible_service_broker_registry_type: rhcc
+__ansible_service_broker_registry_name: rh
+__ansible_service_broker_registry_url: "https://registry.redhat.io"
+__ansible_service_broker_registry_user: "{{ oreg_auth_user | default(None) }}"
+__ansible_service_broker_registry_password: "{{ oreg_auth_password | default(None) }}"
+__ansible_service_broker_registry_organization: null
+__ansible_service_broker_registry_tag: "{{ openshift_image_tag }}"
+__ansible_service_broker_registry_whitelist:
+  - '.*-apb$'
+__ansible_service_broker_registry_blacklist:
+  - '.*automation-broker-apb$'

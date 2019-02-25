@@ -1,0 +1,34 @@
+---
+- name: Openshift Metering Uninstall Checkpoint Start
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Openshift Metering 'In Progress'
+    run_once: true
+    set_stats:
+      data:
+        uninstall_phase_openshift_metering:
+          title: "Openshift Metering"
+          playbook: "playbooks/openshift-metering/uninstall.yml"
+          status: "In Progress"
+          start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+
+- name: Uninstall Openshift Metering
+  hosts: oo_first_master
+  tasks:
+  - include_role:
+      name: openshift_metering
+      tasks_from: uninstall.yml
+
+- name: Openshift Metering Uninstall Checkpoint End
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Set Openshift Metering 'Complete'
+    run_once: true
+    set_stats:
+      data:
+        uninstall_phase_openshift_metering:
+          status: "Complete"
+          end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

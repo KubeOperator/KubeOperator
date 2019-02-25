@@ -1,0 +1,18 @@
+---
+- name: Generate topology file
+  template:
+    src: "topology.json.j2"
+    dest: "{{ mktemp.stdout }}/topology.json"
+
+- name: Place heketi topology on heketi Pod
+  shell: "{{ openshift_client_binary }} --config={{ mktemp.stdout }}/admin.kubeconfig exec --namespace={{ glusterfs_namespace }} -i {{ heketi_pod_name }} -- bash -c 'mkdir -p {{ mktemp.stdout }} && cat > {{ mktemp.stdout }}/topology.json' < {{ mktemp.stdout }}/topology.json"
+  when:
+  - glusterfs_heketi_is_native
+
+# If this command fails, check with
+# oc logs <heketi_pod>", then rsh to the glusterfs-storage-xyz pod and "vi /var/log/glusterfs/glusterd.log"
+# TODO(michaelgugino) Automate collecting a message about collecting this data
+- name: Load heketi topology
+  command: "{{ glusterfs_heketi_client }} topology load --json={{ mktemp.stdout }}/topology.json 2>&1"
+  register: topology_load
+  failed_when: "topology_load.rc != 0 or 'Unable' in topology_load.stdout"

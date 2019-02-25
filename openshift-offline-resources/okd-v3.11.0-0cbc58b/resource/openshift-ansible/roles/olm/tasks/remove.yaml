@@ -1,0 +1,8 @@
+---
+
+- import_tasks: remove_components.yaml
+
+- name: remove operator-lifecycle-manager project
+  oc_project:
+    name: operator-lifecycle-manager
+    state: absent

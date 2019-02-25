@@ -1,0 +1,18 @@
+---
+- name: Set heketi_pod_name
+  set_fact:
+    heketi_pod_name: "{{ heketi_pod.metadata.name if glusterfs_heketi_is_native and heketi_pod is defined and 'metadata' in heketi_pod else '' }}"
+
+- name: Set heketi-cli command
+  set_fact:
+    glusterfs_heketi_client: "{{ heketi_pod_rsh }}{{ glusterfs_heketi_cli }} -s http://{{ heketi_server }} --user admin {{ heketi_admin_key }}"
+  vars:
+    heketi_pod_rsh: "{% if glusterfs_heketi_is_native %}{{ openshift_client_binary }} --config={{ mktemp.stdout }}/admin.kubeconfig rsh --namespace={{ glusterfs_namespace }} {{ heketi_pod_name }} {% endif %}"
+    heketi_server: "{% if glusterfs_heketi_is_native %}localhost:8080{% else %}{{ glusterfs_heketi_url }}:{{ glusterfs_heketi_port }}{% endif %}"
+    heketi_admin_key: " {% if glusterfs_heketi_admin_key is defined %}--secret '{{ glusterfs_heketi_admin_key }}'{% endif %}"
+
+- name: Verify heketi service
+  command: "{{ glusterfs_heketi_client }} cluster list"
+  changed_when: False
+  when:
+  - heketi_pod_name != '' or not glusterfs_heketi_is_native

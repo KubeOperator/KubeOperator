@@ -1,0 +1,17 @@
+---
+l_host_is_master: "{{ inventory_hostname in groups['oo_masters_to_config'] }}"
+l_host_is_etcd: "{{ inventory_hostname in groups['oo_etcd_to_config'] }}"
+l_host_is_node: "{{ inventory_hostname in groups['oo_nodes_to_config'] }}"
+
+l_node_image_list:
+- "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'haproxy-router') }}"
+- "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'docker-registry') }}"
+- "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'deployer') }}"
+- "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'pod') }}"
+
+l_atomic_node_required_images: "{{ (openshift_is_atomic | bool) | ternary([osn_image], []) }}"
+l_etcd_required_images: "{{ (l_host_is_master and l_host_is_etcd) | ternary([etcd_image], []) }}"
+l_master_required_images: "{{ l_host_is_master | ternary([osm_image], []) }}"
+l_cockpit_images: "{{ (openshift_hosted_manage_registry_console | bool) | ternary([openshift_cockpit_deployer_image], []) }}"
+l_required_node_images: "{{ l_host_is_node | ternary(l_node_image_list, [])}}"
+openshift_health_check_required_images: "{{ [] + l_required_node_images + l_cockpit_images + l_master_required_images + l_etcd_required_images + l_atomic_node_required_images }}"

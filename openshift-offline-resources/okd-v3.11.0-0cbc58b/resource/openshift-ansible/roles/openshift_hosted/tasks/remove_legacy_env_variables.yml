@@ -1,0 +1,16 @@
+---
+- name: remove legacy environment variables from registry dc
+  oc_env:
+    kind: dc
+    name: "{{ openshift_hosted_registry_name }}"
+    namespace: "{{ openshift_hosted_registry_namespace }}"
+    state: absent
+    env_vars:
+      BEARER_TOKEN:
+      BEARER_TOKEN_FILE:
+      KUBERNETES_MASTER:
+      OPENSHIFT_CA_FILE:
+      OPENSHIFT_CERT_FILE:
+      OPENSHIFT_INSECURE:
+      OPENSHIFT_KEY_FILE:
+      OPENSHIFT_MASTER:

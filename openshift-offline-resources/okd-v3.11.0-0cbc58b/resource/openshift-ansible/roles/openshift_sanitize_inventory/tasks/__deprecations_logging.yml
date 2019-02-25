@@ -1,0 +1,16 @@
+---
+# this is used to set the logging variables from deprecated values to the current variables names
+# this file should be deleted once variables are no longer honored
+
+# - conditional_set_fact:
+#     facts: "{{ hostvars[inventory_hostname] }}"
+#     vars:
+#       new: old
+
+- set_fact:
+    openshift_logging_elasticsearch_pvc_dynamic: "{{ 'true' if openshift_logging_storage_kind | default(none) == 'dynamic' else omit if openshift_logging_storage_kind | default(none) == 'nfs' else '' }}"
+    openshift_logging_elasticsearch_pvc_size: "{{ openshift_logging_storage_volume_size | default('10Gi') if openshift_logging_storage_kind | default(none) in ['dynamic','nfs'] else ''  }}"
+    openshift_logging_elasticsearch_pvc_prefix: "{{ 'logging-es' if openshift_logging_storage_kind | default(none) == 'dynamic' else '' }}"
+    openshift_logging_elasticsearch_ops_pvc_dynamic: "{{ 'true' if openshift_loggingops_storage_kind | default(none) == 'dynamic' else '' }}"
+    openshift_logging_elasticsearch_ops_pvc_size: "{{ openshift_loggingops_storage_volume_size | default('10Gi') if openshift_loggingops_storage_kind | default(none) in ['dynamic','nfs'] else ''  }}"
+    openshift_logging_elasticsearch_ops_pvc_prefix: "{{ 'logging-es-ops' if openshift_loggingops_storage_kind | default(none) == 'dynamic' else '' }}"

@@ -1,0 +1,156 @@
+---
+openshift_node_debug_level: "{{ debug_level | default(2) }}"
+openshift_node_iptables_sync_period: '30s'
+osn_storage_plugin_deps:
+- ceph
+- glusterfs
+- iscsi
+openshift_node_local_quota_per_fsgroup: ""
+openshift_node_proxy_mode: iptables
+openshift_set_node_ip: False
+openshift_config_base: '/etc/origin'
+
+
+# Assume the images are already downloaded on the machine
+system_images_registry: "docker"
+l_osn_image: "{{ (system_images_registry == 'docker') | ternary(osn_image, (osn_image.split('/')|length==2) | ternary(system_images_registry + '/' + osn_image, osn_image)) }}"
+system_osn_image: "{{ (system_images_registry == 'docker') | ternary('docker:' + l_osn_image, l_osn_image) }}"
+
+openshift_node_env_vars: {}
+
+# lo must always be present in this list or dnsmasq will conflict with
+# the node's dns service.
+openshift_node_dnsmasq_except_interfaces:
+- lo
+
+# dnsmasq defaults to neg caching disabled
+openshift_node_dnsmasq_no_negcache: true
+# When openshift_node_dnsmasq_no_negcache is set to false, how many seconds to cache negative lookups.
+openshift_node_dnsmasq_neg_ttl: '1'
+
+r_openshift_node_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
+r_openshift_node_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
+
+openshift_node_syscon_auth_mounts_l:
+- type: bind
+  source: "{{ oreg_auth_credentials_path }}"
+  destination: "/root/.docker"
+  options:
+  - ro
+  - bind
+
+# If we need to add new mounts in the future, or the user wants to mount data.
+# This should be in the same format as auth_mounts_l above.
+openshift_node_syscon_add_mounts_l: []
+
+default_r_openshift_node_image_prep_packages:
+- "{{ openshift_service_type }}-node"
+- ansible
+- bash-completion
+- dnsmasq
+- ntp
+- logrotate
+- httpd-tools
+- bind-utils
+- firewalld
+- libselinux-python
+- conntrack-tools
+- openssl
+- iproute
+- python-dbus
+- PyYAML
+- yum-utils
+- glusterfs-fuse
+- device-mapper-multipath
+- nfs-utils
+- iscsi-initiator-utils
+- ceph-common
+- atomic
+r_openshift_node_image_prep_packages: "{{ default_r_openshift_node_image_prep_packages | union(openshift_node_image_prep_packages | default([])) }}"
+
+r_openshift_node_os_firewall_deny: []
+default_r_openshift_node_os_firewall_allow:
+- service: Kubernetes kubelet
+  port: 10250/tcp
+- service: Kubernetes kube-proxy health check for service load balancers
+  port: 10256/tcp
+- service: http
+  port: 80/tcp
+- service: https
+  port: 443/tcp
+- service: OpenShift OVS sdn
+  port: 4789/udp
+  cond: openshift_use_openshift_sdn | bool
+- service: Calico BGP Port
+  port: 179/tcp
+  cond: "{{ openshift_node_use_calico }}"
+- service: Kubernetes service NodePort TCP
+  port: "{{ openshift_node_port_range | default('') }}/tcp"
+  cond: "{{ openshift_node_port_range is defined }}"
+- service: Kubernetes service NodePort UDP
+  port: "{{ openshift_node_port_range | default('') }}/udp"
+  cond: "{{ openshift_node_port_range is defined }}"
+- service: Prometheus monitoring
+  port: 9000-10000/tcp
+# Allow multiple port ranges to be added to the role
+r_openshift_node_os_firewall_allow: "{{ default_r_openshift_node_os_firewall_allow | union(openshift_node_open_ports | default([])) }}"
+
+# oreg_url is defined by user input
+oreg_auth_credentials_path: "{{ openshift_node_data_dir }}/.docker"
+l_bind_docker_reg_auth: False
+
+openshift_docker_service_name: "docker"
+
+# These defaults assume forcing journald persistence, fsync to disk once
+# a second, rate-limiting to 10,000 logs a second, no forwarding to
+# syslog or wall, using 8GB of disk space maximum, using 10MB journal
+# files, keeping only a days worth of logs per journal file, and
+# retaining journal files no longer than a month.
+journald_vars_to_replace:
+- { var: Storage, val: persistent }
+- { var: Compress, val: yes }
+- { var: SyncIntervalSec, val: 1s }
+- { var: RateLimitInterval, val: 1s }
+- { var: RateLimitBurst, val: 10000 }
+- { var: SystemMaxUse, val: 8G }
+- { var: SystemKeepFree, val: 20% }
+- { var: SystemMaxFileSize, val: 10M }
+- { var: MaxRetentionSec, val: 1month }
+- { var: MaxFileSec, val: 1day }
+- { var: ForwardToSyslog, val: no }
+- { var: ForwardToWall, val: no }
+
+# NOTE
+# r_openshift_node_*_default may be defined external to this role.
+# openshift_use_*, if defined, may affect other roles or play behavior.
+openshift_node_use_openshift_sdn_default: "{{ openshift_use_openshift_sdn | default(True) }}"
+openshift_node_use_openshift_sdn: "{{ openshift_node_use_openshift_sdn_default }}"
+
+openshift_node_sdn_network_plugin_name_default: "{{ os_sdn_network_plugin_name }}"
+openshift_node_sdn_network_plugin_name: "{{ openshift_node_sdn_network_plugin_name_default }}"
+
+openshift_node_use_calico_default: "{{ openshift_use_calico | default(False) }}"
+openshift_node_use_calico: "{{ openshift_node_use_calico_default }}"
+
+openshift_node_use_nuage_default: "{{ openshift_use_nuage | default(False) }}"
+openshift_node_use_nuage: "{{ openshift_node_use_nuage_default }}"
+
+openshift_node_use_contiv_default: "{{ openshift_use_contiv | default(False) }}"
+openshift_node_use_contiv: "{{ openshift_node_use_contiv_default }}"
+
+openshift_node_use_kuryr_default: "{{ openshift_use_kuryr | default(False) }}"
+openshift_node_use_kuryr: "{{ openshift_node_use_kuryr_default }}"
+
+openshift_node_data_dir_default: "{{ openshift_data_dir | default('/var/lib/origin') }}"
+openshift_node_data_dir: "{{ openshift_node_data_dir_default }}"
+
+openshift_node_config_dir_default: "/etc/origin/node"
+openshift_node_config_dir: "{{ openshift_node_config_dir_default }}"
+
+openshift_node_image_config_latest_default: "{{ openshift_image_config_latest | default(False) }}"
+openshift_node_image_config_latest: "{{ openshift_node_image_config_latest_default }}"
+
+
+openshift_node_use_instance_profiles: False
+
+openshift_node_use_persistentlocalvolumes: "{{ openshift_persistentlocalstorage_enabled | default(False) | bool }}"

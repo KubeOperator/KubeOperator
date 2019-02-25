@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: asb
+  labels:
+    app: openshift-ansible-service-broker
+    service: asb
+spec:
+  replicas: 1
+  selector:
+    app: openshift-ansible-service-broker
+  strategy:
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: openshift-ansible-service-broker
+        service: asb
+    spec:
+      nodeSelector: {{ ansible_service_broker_node_selector | to_json }}
+      serviceAccount: asb
+      containers:
+{% if ansible_service_broker_enable_dashboard_redirector %}
+        - image: {{ ansible_service_broker_image }}
+          name: dashboard-redirector
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1337
+              protocol: TCP
+          command:
+            - dashboard-redirector
+            - --namespace
+            - "openshift-ansible-service-broker"
+          imagePullPolicy: IfNotPresent
+{% endif %}
+        - image: {{ ansible_service_broker_image }}
+          name: asb
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/ansible-service-broker
+            - name: asb-tls
+              mountPath: /etc/tls/private
+          ports:
+            - containerPort: 1338
+              protocol: TCP
+          env:
+            - name: BROKER_CONFIG
+              value: /etc/ansible-service-broker/config.yaml
+            - name: HTTP_PROXY
+              value: {{ openshift.common.http_proxy  | default('') }}
+            - name: HTTPS_PROXY
+              value: {{ openshift.common.https_proxy  | default('') }}
+            - name: NO_PROXY
+              value: {{ ([openshift.common.no_proxy, '.default'] | join(',')) if openshift.get('common', {}).get('no_proxy') else '' }}
+          resources: {}
+          terminationMessagePath: /tmp/termination-log
+          readinessProbe:
+            httpGet:
+              port: 1338
+              path: /healthz
+              scheme: HTTPS
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              port: 1338
+              path: /healthz
+              scheme: HTTPS
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+      volumes:
+        - name: config-volume
+          configMap:
+            name: broker-config
+            items:
+              - key: broker-config
+                path: config.yaml
+        - name: asb-tls
+          secret:
+            secretName: asb-tls

@@ -1,0 +1,789 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "annotations": {
+            "iconClass": "icon-decisionserver",
+            "tags": "decisionserver,jboss",
+            "version": "1.4.14",
+            "openshift.io/display-name": "JBoss BRMS 6.4 decision server + A-MQ (with https)",
+            "openshift.io/provider-display-name": "Red Hat, Inc.",
+            "description": "An example BRMS decision server A-MQ application. For more information about using this template, see https://github.com/jboss-openshift/application-templates.",
+            "template.openshift.io/long-description": "This template defines resources needed to develop Red Hat JBoss BRMS 6.4 decision server with A-MQ application, including a build configuration and application deployment configuration.",
+            "template.openshift.io/documentation-url": "https://access.redhat.com/documentation/en/red-hat-jboss-brms/",
+            "template.openshift.io/support-url": "https://access.redhat.com"
+        },
+        "name": "decisionserver64-amq-s2i"
+    },
+    "labels": {
+        "template": "decisionserver64-amq-s2i",
+        "xpaas": "1.4.14"
+    },
+    "message": "A new BRMS/A-MQ application with SSL support has been created in your project. The username/password for accessing the KIE Server REST or JMS interface is ${KIE_SERVER_USER}/${KIE_SERVER_PASSWORD}. For accessing the A-MQ service use the credentials ${MQ_USERNAME}/${MQ_PASSWORD}. Please be sure to create the secret named \"${HTTPS_SECRET}\" containing the ${HTTPS_KEYSTORE} file used for serving secure content.",
+    "parameters": [
+        {
+            "displayName": "KIE Container Deployment",
+            "description": "The KIE Container deployment configuration in format: containerId=groupId:artifactId:version|c2=g2:a2:v2",
+            "name": "KIE_CONTAINER_DEPLOYMENT",
+            "value": "decisionserver-hellorules=org.openshift.quickstarts:decisionserver-hellorules:1.3.0.Final",
+            "required": false
+        },
+        {
+            "displayName": "KIE Server Username",
+            "description": "The user name to access the KIE Server REST or JMS interface.",
+            "name": "KIE_SERVER_USER",
+            "value": "kieserver",
+            "required": false
+        },
+        {
+            "displayName": "KIE Server Password",
+            "description": "The password to access the KIE Server REST or JMS interface. Must be different than username; must not be root, admin, or administrator; must contain at least 8 characters, 1 alphabetic character(s), 1 digit(s), and 1 non-alphanumeric symbol(s).",
+            "name": "KIE_SERVER_PASSWORD",
+            "from": "[a-zA-Z]{6}[0-9]{1}!",
+            "generate": "expression",
+            "required": false
+        },
+        {
+            "displayName": "KIE Server Domain",
+            "description": "JAAS LoginContext domain that shall be used to authenticate users when using JMS.",
+            "name": "KIE_SERVER_DOMAIN",
+            "value": "other",
+            "required": false
+        },
+        {
+            "displayName": "KIE Server JMS Queues Request",
+            "description": "JNDI name of request queue for JMS.",
+            "name": "KIE_SERVER_JMS_QUEUES_REQUEST",
+            "value": "queue/KIE.SERVER.REQUEST",
+            "required": false
+        },
+        {
+            "displayName": "KIE Server JMS Queues Response",
+            "description": "JNDI name of response queue for JMS.",
+            "name": "KIE_SERVER_JMS_QUEUES_RESPONSE",
+            "value": "queue/KIE.SERVER.RESPONSE",
+            "required": false
+        },
+        {
+            "displayName": "Application Name",
+            "description": "The name for the application.",
+            "name": "APPLICATION_NAME",
+            "value": "kie-app",
+            "required": true
+        },
+        {
+            "displayName": "Custom http Route Hostname",
+            "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+            "name": "HOSTNAME_HTTP",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Custom https Route Hostname",
+            "description": "Custom hostname for https service route.  Leave blank for default hostname, e.g.: secure-<application-name>-<project>.<default-domain-suffix>",
+            "name": "HOSTNAME_HTTPS",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Git Repository URL",
+            "description": "Git source URI for application",
+            "name": "SOURCE_REPOSITORY_URL",
+            "value": "https://github.com/jboss-openshift/openshift-quickstarts.git",
+            "required": true
+        },
+        {
+            "displayName": "Git Reference",
+            "description": "Git branch/tag reference",
+            "name": "SOURCE_REPOSITORY_REF",
+            "value": "1.3",
+            "required": false
+        },
+        {
+            "displayName": "Context Directory",
+            "description": "Path within Git project to build; empty for root project directory.",
+            "name": "CONTEXT_DIR",
+            "value": "decisionserver/hellorules",
+            "required": false
+        },
+        {
+            "displayName": "JMS Connection Factory JNDI Name",
+            "description": "JNDI name for connection factory used by applications to connect to the broker, e.g. java:/JmsXA",
+            "name": "MQ_JNDI",
+            "value": "java:/JmsXA",
+            "required": false
+        },
+        {
+            "displayName": "A-MQ Protocols",
+            "description": "Broker protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp` and `mqtt`. Only `openwire` is supported by EAP.",
+            "name": "MQ_PROTOCOL",
+            "value": "openwire",
+            "required": false
+        },
+        {
+            "displayName": "Queues",
+            "description": "Queue names, separated by commas. These queues will be automatically created when the broker starts. Also, they will be made accessible as JNDI resources in EAP.",
+            "name": "MQ_QUEUES",
+            "value": "KIE.SERVER.REQUEST,KIE.SERVER.RESPONSE",
+            "required": false
+        },
+        {
+            "displayName": "Topics",
+            "description": "Topic names, separated by commas. These topics will be automatically created when the broker starts. Also, they will be made accessible as JNDI resources in EAP.",
+            "name": "MQ_TOPICS",
+            "value": "",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Secret Name",
+            "description": "The name of the secret containing the keystore file",
+            "name": "HTTPS_SECRET",
+            "value": "decisionserver-app-secret",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Filename",
+            "description": "The name of the keystore file within the secret",
+            "name": "HTTPS_KEYSTORE",
+            "value": "keystore.jks",
+            "required": false
+        },
+        {
+            "displayName": "Server Certificate Name",
+            "description": "The name associated with the server certificate",
+            "name": "HTTPS_NAME",
+            "value": "jboss",
+            "required": false
+        },
+        {
+            "displayName": "Server Keystore Password",
+            "description": "The password for the keystore and certificate",
+            "name": "HTTPS_PASSWORD",
+            "value": "mykeystorepass",
+            "required": false
+        },
+        {
+            "displayName": "A-MQ Username",
+            "description": "User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.",
+            "name": "MQ_USERNAME",
+            "from": "user[a-zA-Z0-9]{3}",
+            "generate": "expression",
+            "required": false
+        },
+        {
+            "displayName": "A-MQ Password",
+            "description": "Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.",
+            "name": "MQ_PASSWORD",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": false
+        },
+        {
+            "displayName": "A-MQ Mesh Discovery Type",
+            "description": "The discovery agent type to use for discovering mesh endpoints.  'dns' will use OpenShift's DNS service to resolve endpoints.  'kube' will use Kubernetes REST API to resolve service endpoints.  If using 'kube' the service account for the pod must have the 'view' role, which can be added via 'oc policy add-role-to-user view system:serviceaccount:<namespace>:default' where <namespace> is the project namespace.",
+            "name": "AMQ_MESH_DISCOVERY_TYPE",
+            "value": "dns",
+            "required": false
+        },
+        {
+            "displayName": "A-MQ Storage Limit",
+            "description": "The A-MQ storage usage limit",
+            "name": "AMQ_STORAGE_USAGE_LIMIT",
+            "value": "100 gb",
+            "required": false
+        },
+        {
+            "displayName": "Github Webhook Secret",
+            "description": "GitHub trigger secret",
+            "name": "GITHUB_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "Generic Webhook Secret",
+            "description": "Generic build trigger secret",
+            "name": "GENERIC_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "displayName": "ImageStream Namespace",
+            "description": "Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.",
+            "name": "IMAGE_STREAM_NAMESPACE",
+            "value": "openshift",
+            "required": true
+        },
+        {
+            "displayName": "Maven mirror URL",
+            "description": "Maven mirror to use for S2I builds",
+            "name": "MAVEN_MIRROR_URL",
+            "value": "",
+            "required": false
+        },
+        {
+            "description": "List of directories from which archives will be copied into the deployment folder. If unspecified, all archives in /target will be copied.",
+            "name": "ARTIFACT_DIR",
+            "value": "",
+            "required": false
+        },
+        {
+            "description": "Container memory limit",
+            "name": "MEMORY_LIMIT",
+            "value": "1Gi",
+            "required": false
+        }
+    ],
+    "objects": [
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's HTTP port.",
+                    "service.alpha.openshift.io/dependencies": "[{\"name\": \"${APPLICATION_NAME}-amq-tcp\", \"kind\": \"Service\"}]"
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 8443,
+                        "targetPort": 8443
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's HTTPS port.",
+                    "service.alpha.openshift.io/dependencies": "[{\"name\": \"${APPLICATION_NAME}-amq-tcp\", \"kind\": \"Service\"}]"
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "ports": [
+                    {
+                        "port": 61616,
+                        "targetPort": 61616
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}-amq"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-amq-tcp",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The broker's OpenWire port."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
+                "clusterIP": "None",
+                "ports": [
+                    {
+                        "name": "mesh",
+                        "port": 61616
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}-amq"
+                }
+            },
+            "metadata": {
+                "name": "${APPLICATION_NAME}-amq-mesh",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
+                    "description": "Supports node discovery for mesh formation."
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-http",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's HTTP service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTP}",
+                "to": {
+                    "name": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-https",
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's HTTPS service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTPS}",
+                "to": {
+                    "name": "secure-${APPLICATION_NAME}"
+                },
+                "tls": {
+                    "termination": "passthrough"
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+                        "ref": "${SOURCE_REPOSITORY_REF}"
+                    },
+                    "contextDir": "${CONTEXT_DIR}"
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "env": [
+                            {
+                                "name": "KIE_CONTAINER_DEPLOYMENT",
+                                "value": "${KIE_CONTAINER_DEPLOYMENT}"
+                            },
+                            {
+                                "name": "MAVEN_MIRROR_URL",
+                                "value": "${MAVEN_MIRROR_URL}"
+                            },
+                            {
+                                "name": "ARTIFACT_DIR",
+                                "value": "${ARTIFACT_DIR}"
+                            }
+                        ],
+                        "forcePull": true,
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "namespace": "${IMAGE_STREAM_NAMESPACE}",
+                            "name": "jboss-decisionserver64-openshift:1.3"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}:latest"
+                    }
+                },
+                "triggers": [
+                    {
+                        "type": "GitHub",
+                        "github": {
+                            "secret": "${GITHUB_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "Generic",
+                        "generic": {
+                            "secret": "${GENERIC_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStream",
+                                "name": "${APPLICATION_NAME}"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}",
+                        "labels": {
+                            "deploymentConfig": "${APPLICATION_NAME}",
+                            "application": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "terminationGracePeriodSeconds": 60,
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}",
+                                "image": "${APPLICATION_NAME}",
+                                "imagePullPolicy": "Always",
+                                "resources": {
+                                    "limits": {
+                                        "memory": "${MEMORY_LIMIT}"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "name": "decisionserver-keystore-volume",
+                                        "mountPath": "/etc/decisionserver-secret-volume",
+                                        "readOnly": true
+                                    }
+                                ],
+                                "livenessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/eap/bin/livenessProbe.sh"
+                                        ]
+                                    },
+                                    "initialDelaySeconds": 60
+                                },
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/eap/bin/readinessProbe.sh"
+                                        ]
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "name": "jolokia",
+                                        "containerPort": 8778,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "http",
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "https",
+                                        "containerPort": 8443,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "KIE_CONTAINER_DEPLOYMENT",
+                                        "value": "${KIE_CONTAINER_DEPLOYMENT}"
+                                    },
+                                    {
+                                        "name": "KIE_SERVER_USER",
+                                        "value": "${KIE_SERVER_USER}"
+                                    },
+                                    {
+                                        "name": "KIE_SERVER_PASSWORD",
+                                        "value": "${KIE_SERVER_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "KIE_SERVER_DOMAIN",
+                                        "value": "${KIE_SERVER_DOMAIN}"
+                                    },
+                                    {
+                                        "name": "KIE_SERVER_JMS_QUEUES_REQUEST",
+                                        "value": "${KIE_SERVER_JMS_QUEUES_REQUEST}"
+                                    },
+                                    {
+                                        "name": "KIE_SERVER_JMS_QUEUES_RESPONSE",
+                                        "value": "${KIE_SERVER_JMS_QUEUES_RESPONSE}"
+                                    },
+                                    {
+                                        "name": "MQ_SERVICE_PREFIX_MAPPING",
+                                        "value": "${APPLICATION_NAME}-amq=MQ"
+                                    },
+                                    {
+                                        "name": "MQ_JNDI",
+                                        "value": "${MQ_JNDI}"
+                                    },
+                                    {
+                                        "name": "MQ_USERNAME",
+                                        "value": "${MQ_USERNAME}"
+                                    },
+                                    {
+                                        "name": "MQ_PASSWORD",
+                                        "value": "${MQ_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "MQ_PROTOCOL",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "MQ_QUEUES",
+                                        "value": "${MQ_QUEUES}"
+                                    },
+                                    {
+                                        "name": "MQ_TOPICS",
+                                        "value": "${MQ_TOPICS}"
+                                    },
+                                    {
+                                        "name": "HTTPS_KEYSTORE_DIR",
+                                        "value": "/etc/decisionserver-secret-volume"
+                                    },
+                                    {
+                                        "name": "HTTPS_KEYSTORE",
+                                        "value": "${HTTPS_KEYSTORE}"
+                                    },
+                                    {
+                                        "name": "HTTPS_NAME",
+                                        "value": "${HTTPS_NAME}"
+                                    },
+                                    {
+                                        "name": "HTTPS_PASSWORD",
+                                        "value": "${HTTPS_PASSWORD}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "decisionserver-keystore-volume",
+                                "secret": {
+                                    "secretName": "${HTTPS_SECRET}"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-amq",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "triggers": [
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}-amq"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${IMAGE_STREAM_NAMESPACE}",
+                                "name": "jboss-amq-63:1.3"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}-amq"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-amq",
+                        "labels": {
+                            "deploymentConfig": "${APPLICATION_NAME}-amq",
+                            "application": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "terminationGracePeriodSeconds": 60,
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}-amq",
+                                "image": "jboss-amq-63",
+                                "imagePullPolicy": "Always",
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "/bin/bash",
+                                            "-c",
+                                            "/opt/amq/bin/readinessProbe.sh"
+                                        ]
+                                    }
+                                },
+                                "ports": [
+                                    {
+                                        "name": "jolokia",
+                                        "containerPort": 8778,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "amqp",
+                                        "containerPort": 5672,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "amqp-ssl",
+                                        "containerPort": 5671,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "mqtt",
+                                        "containerPort": 1883,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "stomp",
+                                        "containerPort": 61613,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "stomp-ssl",
+                                        "containerPort": 61612,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "tcp",
+                                        "containerPort": 61616,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "tcp-ssl",
+                                        "containerPort": 61617,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "AMQ_USER",
+                                        "value": "${MQ_USERNAME}"
+                                    },
+                                    {
+                                        "name": "AMQ_PASSWORD",
+                                        "value": "${MQ_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "AMQ_TRANSPORTS",
+                                        "value": "${MQ_PROTOCOL}"
+                                    },
+                                    {
+                                        "name": "AMQ_MESH_DISCOVERY_TYPE",
+                                        "value": "${AMQ_MESH_DISCOVERY_TYPE}"
+                                    },
+                                    {
+                                        "name": "AMQ_MESH_SERVICE_NAME",
+                                        "value": "${APPLICATION_NAME}-amq-mesh"
+                                    },
+                                    {
+                                        "name": "AMQ_MESH_SERVICE_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "AMQ_STORAGE_USAGE_LIMIT",
+                                        "value": "${AMQ_STORAGE_USAGE_LIMIT}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

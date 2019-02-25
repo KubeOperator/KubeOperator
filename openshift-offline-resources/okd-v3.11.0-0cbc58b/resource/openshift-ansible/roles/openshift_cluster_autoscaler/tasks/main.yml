@@ -1,0 +1,78 @@
+---
+- name: Set cluster autoscaler namespace
+  oc_project:
+    state: present
+    name: "{{ openshift_cluster_autoscaler_namespace }}"
+    node_selector: ""
+
+- name: create the cluster-autoscaler serviceaccount
+  oc_serviceaccount:
+    name: "{{ openshift_cluster_autoscaler_serviceaccount }}"
+    namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+    state: "{{ openshift_cluster_autoscaler_state }}"
+
+- name: copy the cluster-autoscaler files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ openshift_cluster_autoscaler_template_location }}/{{ item }}"
+  with_items:
+  - clusterrole.yml
+  - role.yml
+  when: openshift_cluster_autoscaler_state == 'present'
+
+- name: "Ensure the cluster-autoscaler roles are {{ openshift_cluster_autoscaler_state }}"
+  oc_obj:
+    namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+    state: "{{ openshift_cluster_autoscaler_state }}"
+    kind: "{{ item.type }}"
+    name: "{{ item.name }}"
+    delete_after: "{{ openshift_cluster_autoscaler_delete_config }}"
+    files:
+    - "{{ openshift_cluster_autoscaler_template_location }}/{{ item.fname }}"
+  with_items:
+  - fname: clusterrole.yml
+    type: clusterrole
+    name: "{{ openshift_cluster_autoscaler_name }}"
+  - fname: role.yml
+    type: role
+    name: "{{ openshift_cluster_autoscaler_name }}"
+
+- include_tasks: aws.yml
+  when: openshift_cluster_autoscaler_cloud_provider == 'aws'
+
+- name: create the policies
+  oc_adm_policy_user:
+    state: "{{ openshift_cluster_autoscaler_state }}"
+    user: "system:serviceaccount:{{ openshift_cluster_autoscaler_namespace }}:{{ openshift_cluster_autoscaler_serviceaccount }}"
+    namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+    resource_kind: "{{ item.name }}"
+    resource_name: cluster-autoscaler
+    role_namespace: "{{ item.role_namespace | default(omit) }}"
+  with_items:
+  - name: cluster-role
+  - name: role
+    role_namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+
+- name: "grant cluster-reader to {{ openshift_cluster_autoscaler_serviceaccount }}"
+  oc_adm_policy_user:
+    state: "{{ openshift_cluster_autoscaler_state }}"
+    user: "system:serviceaccount:{{ openshift_cluster_autoscaler_namespace }}:{{ openshift_cluster_autoscaler_serviceaccount }}"
+    namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+    resource_name: cluster-reader
+    resource_kind: cluster-role
+
+- name: laydown the deployment file for cluster-autoscaler
+  template:
+    src: cluster-autoscaler.j2
+    dest: "{{ openshift_cluster_autoscaler_template_location }}/{{ openshift_cluster_autoscaler_template_name }}"
+  when: openshift_cluster_autoscaler_state == 'present'
+
+- name: "Ensure the cluster-autoscaler is {{ openshift_cluster_autoscaler_state }}"
+  oc_obj:
+    namespace: "{{ openshift_cluster_autoscaler_namespace }}"
+    state: "{{ openshift_cluster_autoscaler_state }}"
+    kind: deployment
+    name: "{{ openshift_cluster_autoscaler_name }}"
+    delete_after: "{{ openshift_cluster_autoscaler_delete_config }}"
+    files:
+    - "{{ openshift_cluster_autoscaler_template_location }}/{{ openshift_cluster_autoscaler_template_name }}"

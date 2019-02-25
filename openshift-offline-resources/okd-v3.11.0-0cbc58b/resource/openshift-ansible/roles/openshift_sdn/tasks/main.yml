@@ -1,0 +1,58 @@
+---
+- name: Ensure project exists
+  oc_project:
+    name: openshift-sdn
+    state: present
+    node_selector:
+      - ""
+
+- name: Make temp directory for templates
+  command: mktemp -d /tmp/ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy templates to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item | basename }}"
+  with_fileglob:
+    - "files/*.yaml"
+  when:
+    - not ((item | basename == 'sdn-ovs.yaml') and openshift_use_external_openvswitch)
+
+- name: Update the image tag
+  yedit:
+    src: "{{ mktemp.stdout }}/sdn-images.yaml"
+    key: 'tag.from.name'
+    value: "{{ osn_image }}"
+
+- name: Ensure the service account can run privileged
+  oc_adm_policy_user:
+    namespace: "openshift-sdn"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+    user: "system:serviceaccount:openshift-sdn:sdn"
+
+# TODO: temporary until we fix apply for image stream tags
+- name: Remove the image stream tag
+  command: >
+    {{ openshift_client_binary }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig
+    delete -n openshift-sdn istag node:v3.11 --ignore-not-found
+  register: l_os_istag_del
+  # The istag might not be there, so we want to not fail in that case.
+  failed_when:
+    - l_os_istag_del.rc != 0
+    - "'have a resource type' not in l_os_istag_del.stderr"
+
+
+- name: Apply the config
+  shell: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig apply -f "{{ mktemp.stdout }}"
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False

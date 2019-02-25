@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Evan Cordell
+  description: Operator Lifecycle Manager
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.1
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  categories:
+  - cloud
+dependencies:
+- role: lib_utils
+- role: lib_openshift
+- role: openshift_facts

@@ -1,0 +1,48 @@
+---
+- name: get vm details
+  command: >
+    az vm show
+    -g "{{ openshift_azure_resource_group_name }}"
+    -n vm
+  register: vm
+
+- name: get storage account key
+  command: >
+    az storage account keys list
+    -g "{{ openshift_azure_storage_account_ns }}"
+    -n "{{ openshift_azure_storage_account }}"
+  register: keys
+
+- name: get disk sas url
+  command: >
+    az disk grant-access
+    --ids "{{ (vm.stdout | from_json).storageProfile.osDisk.managedDisk.id }}"
+    --duration-in-seconds 3600
+  register: sas
+
+- name: start copy
+  command: >
+    az storage blob copy start
+    --source-uri "{{ (sas.stdout | from_json).properties.output.accessSAS }}"
+    --account-name "{{ openshift_azure_storage_account }}"
+    --account-key "{{ (keys.stdout | from_json)[0].value }}"
+    --destination-container "{{ openshift_azure_container }}"
+    --destination-blob "{{ image_name }}.vhd"
+
+- name: get copy status
+  command: >
+    az storage blob show
+    --account-name "{{ openshift_azure_storage_account }}"
+    --account-key "{{ (keys.stdout | from_json)[0].value }}"
+    --container-name "{{ openshift_azure_container }}"
+    --name "{{ image_name }}.vhd"
+    --query "properties.copy.status"
+  register: status
+  until: status.stdout | from_json == "success"
+  retries: 120
+  delay: 30
+
+- name: revoke disk sas url
+  command: >
+    az disk revoke-access
+    --ids "{{ (vm.stdout | from_json).storageProfile.osDisk.managedDisk.id }}"

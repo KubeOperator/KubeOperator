@@ -1,0 +1,50 @@
+---
+- import_playbook: ../init/evaluate_groups.yml
+
+- name: Ensure there are new_etcd
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - fail:
+      msg: >
+        Detected no new_etcd in inventory. Please add hosts to the
+        new_etcd host group to add etcd hosts.
+    when:
+    - g_new_etcd_hosts | default([]) | length == 0
+
+  - fail:
+      msg: >
+        Detected new_etcd host is member of new_masters or new_nodes.  Please
+        run playbooks/openshift-master/scaleup.yml or
+        playbooks/openshift-node/scaleup.yml before running this play.
+    when: >
+      inventory_hostname in (groups['new_masters'] | default([]))
+      or inventory_hostname in (groups['new_nodes'] | default([]))
+
+# We only need to run this if etcd is being installed on a standalone host;
+# If etcd is part of master or node group, there's no need to
+# re-run prerequisites
+- import_playbook: ../prerequisites.yml
+  vars:
+    l_etcd_scale_up_crt_hosts: "all:!all"
+    l_scale_up_hosts: "oo_new_etcd_to_config"
+    l_base_packages_hosts: "oo_new_etcd_to_config"
+    l_init_fact_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config:oo_new_etcd_to_config"
+    l_sanity_check_hosts: "{{ groups['oo_new_etcd_to_config'] | union(groups['oo_masters_to_config']) | union(groups['oo_etcd_to_config']) }}"
+  when:
+  - inventory_hostname not in groups['oo_masters']
+  - inventory_hostname not in groups['oo_nodes_to_config']
+
+# If this etcd host is part of a master or node, we don't need to run
+# prerequisites, we can just init facts as normal.
+- import_playbook: ../init/main.yml
+  vars:
+    l_init_fact_hosts: "oo_masters_to_config:oo_etcd_to_config:oo_lb_to_config:oo_new_etcd_to_config"
+    l_sanity_check_hosts: "{{ groups['oo_new_etcd_to_config'] | union(groups['oo_masters_to_config']) | union(groups['oo_etcd_to_config']) }}"
+    l_openshift_version_set_hosts: "all:!all"
+  when:
+  - inventory_hostname in groups['oo_masters']
+  - inventory_hostname in groups['oo_nodes_to_config']
+
+- import_playbook: private/scaleup.yml

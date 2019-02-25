@@ -1,0 +1,84 @@
+---
+- name: Remove olm-operator-serviceaccount ServiceAccount manifest
+  oc_obj:
+    state: absent
+    kind: ServiceAccount
+    name: olm-operator-serviceaccount
+    namespace: operator-lifecycle-manager
+
+- name: Remove olm-operator-binding-operator-lifecycle-manager ClusterRoleBinding manifest
+  oc_obj:
+    state: absent
+    kind: ClusterRoleBinding
+    name: olm-operator-binding-operator-lifecycle-manager
+    namespace: operator-lifecycle-manager
+
+- name: Remove clusterserviceversions.operators.coreos.com CustomResourceDefinition manifest
+  oc_obj:
+    state: absent
+    kind: CustomResourceDefinition
+    name: clusterserviceversions.operators.coreos.com
+    namespace: operator-lifecycle-manager
+
+- name: Remove catalogsources.operators.coreos.com CustomResourceDefinition manifest
+  oc_obj:
+    state: absent
+    kind: CustomResourceDefinition
+    name: catalogsources.operators.coreos.com
+    namespace: operator-lifecycle-manager
+
+- name: Remove installplans.operators.coreos.com CustomResourceDefinition manifest
+  oc_obj:
+    state: absent
+    kind: CustomResourceDefinition
+    name: installplans.operators.coreos.com
+    namespace: operator-lifecycle-manager
+
+- name: Remove subscriptions.operators.coreos.com CustomResourceDefinition manifest
+  oc_obj:
+    state: absent
+    kind: CustomResourceDefinition
+    name: subscriptions.operators.coreos.com
+    namespace: operator-lifecycle-manager
+
+- name: Remove ocs ConfigMap manifest
+  oc_obj:
+    state: absent
+    kind: ConfigMap
+    name: ocs
+    namespace: operator-lifecycle-manager
+
+- name: Remove ocs CatalogSource manifest
+  oc_obj:
+    state: absent
+    kind: CatalogSource
+    name: ocs
+    namespace: operator-lifecycle-manager
+
+- name: Remove olm-operator Deployment manifest
+  oc_obj:
+    state: absent
+    kind: Deployment
+    name: olm-operator
+    namespace: operator-lifecycle-manager
+
+- name: Remove catalog-operator Deployment manifest
+  oc_obj:
+    state: absent
+    kind: Deployment
+    name: catalog-operator
+    namespace: operator-lifecycle-manager
+
+- name: Remove aggregate-olm-edit ClusterRole manifest
+  oc_obj:
+    state: absent
+    kind: ClusterRole
+    name: aggregate-olm-edit
+    namespace: operator-lifecycle-manager
+
+- name: Remove aggregate-olm-view ClusterRole manifest
+  oc_obj:
+    state: absent
+    kind: ClusterRole
+    name: aggregate-olm-view
+    namespace: operator-lifecycle-manager

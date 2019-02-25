@@ -1,0 +1,48 @@
+---
+- name: Ensure project exists
+  oc_project:
+    name: kube-proxy-and-dns
+    state: present
+    node_selector:
+      - ""
+
+- name: Make temp directory for templates
+  command: mktemp -d /tmp/ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- name: Copy templates to temp directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ mktemp.stdout }}/{{ item | basename }}"
+  with_fileglob:
+    - "files/*.yaml"
+
+- name: Update the image tag
+  yedit:
+    src: "{{ mktemp.stdout }}/kube-proxy-and-dns-images.yaml"
+    key: 'tag.from.name'
+    value: "{{ osn_image }}"
+
+- name: Ensure the service account can run privileged
+  oc_adm_policy_user:
+    namespace: "kube-proxy-and-dns"
+    resource_kind: scc
+    resource_name: privileged
+    state: present
+    user: "system:serviceaccount:kube-proxy-and-dns:proxy"
+
+# TODO: temporary until we fix apply for image stream tags
+- name: Remove the image stream tag
+  shell: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig delete -n kube-proxy-and-dns istag node:v3.10 --ignore-not-found
+
+- name: Apply the config
+  shell: >
+    {{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig apply -f "{{ mktemp.stdout }}"
+
+- name: Remove temp directory
+  file:
+    state: absent
+    name: "{{ mktemp.stdout }}"
+  changed_when: False

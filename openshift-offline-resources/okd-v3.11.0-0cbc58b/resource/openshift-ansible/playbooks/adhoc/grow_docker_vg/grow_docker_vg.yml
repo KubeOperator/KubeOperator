@@ -1,0 +1,206 @@
+---
+# This playbook grows the docker VG on a node by:
+#  * add a new volume
+#  * add volume to the existing VG.
+#  * pv move to the new volume.
+#  * remove old volume
+#  * detach volume
+#  * mark old volume in AWS with "REMOVE ME" tag
+#  * grow docker LVM to 90% of the VG
+#
+#  To run:
+#  1. Source your AWS credentials (make sure it's the corresponding AWS account) into your environment
+#    export AWS_ACCESS_KEY_ID='XXXXX'
+#    export AWS_SECRET_ACCESS_KEY='XXXXXX'
+#
+# 2. run the playbook:
+#   ansible-playbook -e 'cli_tag_name=<tag-name>' grow_docker_vg.yml
+#
+#  Example:
+#   ansible-playbook -e 'cli_tag_name=ops-compute-12345' grow_docker_vg.yml
+#
+#  Notes:
+#  * By default this will do a 200GB GP2 volume.  The can be overidden with the "-e 'cli_volume_size=100'" variable
+#  * This does a GP2 by default.  Support for Provisioned IOPS has not been added
+#  * This will assign the new volume to /dev/xvdc. This is not variablized, yet.
+#  * This can be done with NO downtime on the host
+#  * This playbook assumes that there is a Logical Volume that is installed and called "docker-pool".  This is
+#      the LV that gets created via the "docker-storage-setup" command
+#
+
+- name: Grow the docker volume group
+  hosts: "tag_Name_{{ cli_tag_name }}"
+  user: root
+  connection: ssh
+  gather_facts: no
+
+  vars:
+    cli_volume_type: gp2
+    cli_volume_size: 200
+    #cli_volume_iops: "{{ 30 * cli_volume_size }}"
+
+  pre_tasks:
+  - fail:
+      msg: "This playbook requires {{item}} to be set."
+    when: item is not defined or item == ''
+    with_items:
+    - cli_tag_name
+    - cli_volume_size
+
+  - debug:
+      var: hosts
+
+  - name: start docker
+    service:
+      name: docker
+      state: started
+
+  - name: Determine if Storage Driver (docker info) is devicemapper
+    shell: docker info | grep 'Storage Driver:.*devicemapper'
+    register: device_mapper_check
+    ignore_errors: yes
+
+  - debug:
+      var: device_mapper_check
+
+  - name: fail if we don't detect devicemapper
+    fail:
+      msg: The "Storage Driver" in "docker info" is not set to "devicemapper"! Please investigate manually.
+    when: device_mapper_check.rc == 1
+
+  # docker-storage-setup creates a docker-pool as the lvm.  I am using docker-pool lvm to test
+  # and find the volume group.
+  - name: Attempt to find the Volume Group that docker is using
+    shell: lvs | grep docker-pool | awk '{print $2}'
+    register: docker_vg_name
+    ignore_errors: yes
+
+  - debug:
+      var: docker_vg_name
+
+  - name: fail if we don't find a docker volume group
+    fail:
+      msg: Unable to find docker volume group. Please investigate manually.
+    when: docker_vg_name.stdout_lines|length != 1
+
+  # docker-storage-setup creates a docker-pool as the lvm.  I am using docker-pool lvm to test
+  # and find the physical volume.
+  - name: Attempt to find the Phyisical Volume that docker is using
+    shell: "pvs | grep {{ docker_vg_name.stdout }} | awk '{print $1}'"
+    register: docker_pv_name
+    ignore_errors: yes
+
+  - debug:
+      var: docker_pv_name
+
+  - name: fail if we don't find a docker physical volume
+    fail:
+      msg: Unable to find docker physical volume. Please investigate manually.
+    when: docker_pv_name.stdout_lines|length != 1
+
+
+  - name: get list of volumes from AWS
+    delegate_to: localhost
+    ec2_vol:
+      state: list
+      instance: "{{ ec2_id }}"
+      region: "{{ ec2_region }}"
+    register: attached_volumes
+
+  - debug: var=attached_volumes
+
+  - name: get volume id of current docker volume
+    set_fact:
+      old_docker_volume_id: "{{ attached_volumes.volumes | translate_volume_name(docker_pv_name.stdout) }}"
+
+  - debug: var=old_docker_volume_id
+
+  - name: check to see if /dev/xvdc exists
+    command: test -e /dev/xvdc
+    register: xvdc_check
+    ignore_errors: yes
+
+  - debug: var=xvdc_check
+
+  - name: fail if /dev/xvdc already exists
+    fail:
+      msg: /dev/xvdc already exists.  Please investigate
+    when: xvdc_check.rc == 0
+
+  - name: Create a volume and attach it
+    delegate_to: localhost
+    ec2_vol:
+      state: present
+      instance: "{{ ec2_id }}"
+      region: "{{ ec2_region }}"
+      volume_size: "{{ cli_volume_size | default(30, True)}}"
+      volume_type: "{{ cli_volume_type }}"
+      device_name: /dev/xvdc
+    register: create_volume
+
+  - debug: var=create_volume
+
+  - name: Fail when problems creating volumes and attaching
+    fail:
+      msg: "Failed to create or attach volume msg: {{ create_volume.msg }}"
+    when: create_volume.msg is defined
+
+  - name: tag the vol with a name
+    delegate_to: localhost
+    ec2_tag: region={{ ec2_region }} resource={{ create_volume.volume_id }}
+    args:
+      tags:
+        Name: "{{ ec2_tag_Name }}"
+        clusterid: "{{ ec2_tag_clusterid }}"
+    register: voltags
+
+  - name: check for attached drive
+    command: test -b /dev/xvdc
+    register: attachment_check
+    until: attachment_check.rc == 0
+    retries: 30
+    delay: 2
+
+  - name: partition the new drive and make it lvm
+    command: parted /dev/xvdc --script -- mklabel msdos mkpart primary 0% 100% set 1 lvm
+
+  - name: pvcreate /dev/xvdc
+    command: pvcreate /dev/xvdc1
+
+  - name: Extend the docker volume group
+    command: vgextend "{{ docker_vg_name.stdout }}" /dev/xvdc1
+
+  - name: pvmove onto new volume
+    command: "pvmove {{ docker_pv_name.stdout }} /dev/xvdc1"
+    async: 43200
+    poll: 10
+
+  - name: Remove the old docker drive from the volume group
+    command: "vgreduce {{ docker_vg_name.stdout }} {{ docker_pv_name.stdout }}"
+
+  - name: Remove the pv from the old drive
+    command: "pvremove {{ docker_pv_name.stdout }}"
+
+  - name: Extend the docker lvm
+    command: "lvextend -l '90%VG' /dev/{{ docker_vg_name.stdout }}/docker-pool"
+
+  - name: detach  old docker volume
+    delegate_to: localhost
+    ec2_vol:
+      region: "{{ ec2_region }}"
+      id: "{{ old_docker_volume_id }}"
+      instance: None
+
+  - name: tag the old vol valid label
+    delegate_to: localhost
+    ec2_tag: region={{ ec2_region }} resource={{old_docker_volume_id}}
+    args:
+      tags:
+        Name: "{{ ec2_tag_Name }} REMOVE ME"
+    register: voltags
+
+  - name: Update the /etc/sysconfig/docker-storage-setup with new device
+    lineinfile:
+      dest: /etc/sysconfig/docker-storage-setup
+      regexp: ^DEVS=
+      line: DEVS=/dev/xvdc

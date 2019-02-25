@@ -1,0 +1,14 @@
+---
+- when: not l_etcd_static_pod
+  block:
+  - name: Record RPM based etcd version
+    command: rpm -qa --qf '%{version}' etcd\*
+    args:
+      warn: no
+    register: etcd_rpm_version
+    failed_when: false
+    # AUDIT:changed_when: `false` because we are only inspecting
+    # state, not manipulating anything
+    changed_when: false
+  - debug:
+      msg: "Etcd rpm version {{ etcd_rpm_version.stdout }} detected"

@@ -1,0 +1,5 @@
+---
+- name: Openshift Metering Operator uninstall
+  import_tasks: operator-uninstall.yml
+- name: Openshift Metering Cloud resource deprovisioning
+  import_tasks: deprovision-cloud-resources.yml

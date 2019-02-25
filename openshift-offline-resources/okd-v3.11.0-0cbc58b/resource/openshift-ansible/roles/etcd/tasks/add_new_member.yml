@@ -1,0 +1,11 @@
+---
+# Set some facts to reference from hostvars
+- import_tasks: set_facts.yml
+
+- name: Add new etcd members to cluster
+  command: "{{ hostvars[etcd_ca_host].etcdctlv2 }} member add {{ etcd_hostname }} {{ etcd_peer_url_scheme }}://{{ etcd_ip }}:{{ etcd_peer_port }}"
+  delegate_to: "{{ etcd_ca_host }}"
+  register: etcd_add_check
+  retries: 3
+  delay: 10
+  until: etcd_add_check.rc == 0

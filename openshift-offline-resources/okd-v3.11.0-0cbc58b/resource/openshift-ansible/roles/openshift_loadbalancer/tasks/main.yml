@@ -1,0 +1,58 @@
+---
+- name: Fail if atomic
+  fail:
+    msg: "Load balancers on atomic host are no longer supported"
+  when: openshift_is_atomic
+
+- name: setup firewall
+  import_tasks: firewall.yml
+
+- name: Install haproxy
+  package:
+    name: haproxy
+    state: present
+  register: result
+  until: result is succeeded
+
+- name: Configure systemd service directory for haproxy
+  file:
+    path: /etc/systemd/system/haproxy.service.d
+    state: directory
+
+# Work around ini_file create option in 2.2 which defaults to no
+- name: Create limits.conf file
+  file:
+    dest: /etc/systemd/system/haproxy.service.d/limits.conf
+    state: touch
+    mode: 0660
+    owner: root
+    group: root
+  changed_when: false
+
+- name: Configure the nofile limits for haproxy
+  ini_file:
+    dest: /etc/systemd/system/haproxy.service.d/limits.conf
+    section: Service
+    option: LimitNOFILE
+    value: "{{ openshift_loadbalancer_limit_nofile | default(100000) }}"
+  notify: restart haproxy
+
+- name: Configure haproxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart haproxy
+
+- name: Enable and start haproxy
+  systemd:
+    name: haproxy
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  register: start_result
+
+- set_fact:
+    haproxy_start_result_changed: "{{ start_result is changed }}"

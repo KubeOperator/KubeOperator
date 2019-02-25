@@ -1,0 +1,28 @@
+---
+# This role task file is responsible for user/system account creation,
+# and ensuring correct access is provided as required.
+- name: Ensure the CFME system accounts exist
+  oc_serviceaccount:
+    namespace: "{{ openshift_management_project }}"
+    state: present
+    name: "{{ __openshift_management_flavor_short }}{{ item.name }}"
+  with_items:
+    - "{{ __openshift_system_account_sccs }}"
+
+- name: Ensure the CFME system accounts have all the required SCCs
+  oc_adm_policy_user:
+    namespace: "{{ openshift_management_project }}"
+    user: "system:serviceaccount:{{ openshift_management_project }}:{{ __openshift_management_flavor_short }}{{ item.name }}"
+    resource_kind: scc
+    resource_name: "{{ item.resource_name }}"
+  with_items:
+    - "{{ __openshift_system_account_sccs }}"
+
+- name: Ensure the CFME system accounts have the required roles
+  oc_adm_policy_user:
+    namespace: "{{ openshift_management_project }}"
+    user: "system:serviceaccount:{{ openshift_management_project }}:{{ __openshift_management_flavor_short }}{{ item.name }}"
+    resource_kind: role
+    resource_name: "{{ item.resource_name }}"
+  with_items:
+    - "{{ __openshift_management_system_account_roles }}"

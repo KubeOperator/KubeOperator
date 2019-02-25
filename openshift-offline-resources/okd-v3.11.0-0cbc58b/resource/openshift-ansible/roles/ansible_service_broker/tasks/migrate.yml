@@ -1,0 +1,203 @@
+---
+
+- block:
+    - name: scale down asb deploymentconfig
+      oc_scale:
+        name: asb
+        namespace: openshift-ansible-service-broker
+        kind: dc
+        replicas: 0
+
+    - name: Add required permissions to asb-auth clusterrole
+      oc_clusterrole:
+        state: present
+        name: asb-auth
+        rules:
+          - apiGroups: [""]
+            resources: ["namespaces"]
+            verbs: ["create", "delete"]
+          - apiGroups: ["authorization.openshift.io"]
+            resources: ["subjectrulesreview"]
+            verbs: ["create"]
+          - apiGroups: ["authorization.k8s.io"]
+            resources: ["subjectaccessreviews"]
+            verbs: ["create"]
+          - apiGroups: ["authentication.k8s.io"]
+            resources: ["tokenreviews"]
+            verbs: ["create"]
+          - apiGroups: ["image.openshift.io", ""]
+            resources: ["images"]
+            verbs: ["get", "list"]
+          - apiGroups: ["network.openshift.io"]
+            resources: ["clusternetworks", "netnamespaces"]
+            verbs: ["get"]
+          - apiGroups: ["network.openshift.io"]
+            resources: ["netnamespaces"]
+            verbs: ["update"]
+          - apiGroups: ["networking.k8s.io"]
+            resources: ["networkpolicies"]
+            verbs: ["create", "delete"]
+          - apiGroups: ["automationbroker.io"]
+            resources: ["bundles", "bundlebindings", "bundleinstances"]
+            verbs: ["*"]
+
+    - name: Create custom resource definitions for asb
+      oc_obj:
+        name: '{{ asb_crd.metadata.name }}'
+        kind: CustomResourceDefinition
+        state: present
+        content:
+          path: /tmp/{{ asb_crd.metadata.name }}
+          data: '{{ asb_crd }}'
+      vars:
+        asb_crd: "{{ lookup('file', item) | from_yaml }}"
+      with_fileglob:
+        - 'files/*.automationbroker.io.yaml'
+
+
+    - name: Migrate from etcd to CustomResources
+      oc_obj:
+        force: yes
+        name: asb-etcd-migration
+        namespace: openshift-ansible-service-broker
+        kind: Job
+        state: present
+        content:
+          path: /tmp/asb_migrate_out
+          data:
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              name: asb-etcd-migration
+            spec:
+              parallelism: 1
+              completions: 1
+              backoffLimit: 3
+              activeDeadlineSeconds: "{{ asb_migration_timeout | default(600) | int }}"
+              template:
+                metadata:
+                  name: asb-etcd-migration
+                spec:
+                  containers:
+                    - name: asb
+                      image: '{{ ansible_service_broker_image }}'
+                      imagePullPolicy: IfNotPresent
+                      command:
+                        - '/usr/bin/migration'
+                      args:
+                        - '-host=asb-etcd.openshift-ansible-service-broker.svc'
+                        - '-ca-file=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
+                        - '-client-cert=/var/run/asb-etcd-auth/client.crt'
+                        - '-client-key=/var/run/asb-etcd-auth/client.key'
+                        - '-namespace=openshift-ansible-service-broker'
+                      volumeMounts:
+                        - name: config-volume
+                          mountPath: /etc/ansible-service-broker
+                        - name: asb-tls
+                          mountPath: /etc/tls/private
+                        - name: asb-etcd-auth
+                          mountPath: /var/run/asb-etcd-auth
+                      env:
+                        - name: BROKER_CONFIG
+                          value: /etc/ansible-service-broker/config.yaml
+                        - name: HTTP_PROXY
+                          value: "{{ openshift.common.http_proxy  | default('') }}"
+                        - name: HTTPS_PROXY
+                          value: "{{ openshift.common.https_proxy  | default('') }}"
+                        - name: NO_PROXY
+                          value: "{{ ([openshift.common.no_proxy, '.default'] | join(',')) if openshift.get('common', {}).get('no_proxy') else '' }}"
+                  volumes:
+                    - name: config-volume
+                      configMap:
+                        name: broker-config
+                        items:
+                          - key: broker-config
+                            path: config.yaml
+                    - name: asb-tls
+                      secret:
+                        secretName: asb-tls
+                    - name: asb-etcd-auth
+                      secret:
+                        secretName: broker-etcd-auth-secret
+                  restartPolicy: Never
+                  serviceAccount: asb
+                  serviceAccountName: asb
+
+    - name: wait for migration to complete
+      oc_obj:
+        namespace: openshift-ansible-service-broker
+        kind: Job
+        state: list
+        name: asb-etcd-migration
+      register: migration_status
+      ignore_errors: true
+      until:
+        - "'results' in migration_status"
+        - "'results' in migration_status.results"
+        - "migration_status.results.results | count > 0"
+        # Pod's 'Complete' status must be True
+        - "migration_status.results.results | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Complete'}) | map('bool') | select | list | count == 1"
+      delay: 10
+      retries: "{{ (asb_migration_timeout|default(600) | int / 10) | int }}"
+      failed_when:
+        - "'results' in migration_status.results"
+        - "migration_status.results.results | count > 0"
+        # Fail when pod's 'Failed' status is True
+        - "migration_status.results.results | lib_utils_oo_collect(attribute='status.conditions') | lib_utils_oo_collect(attribute='status', filters={'type': 'Failed'}) | map('bool') | select | list | count == 1"
+
+    - when: not (migration_status is failed)
+      block:
+        - name: Update broker configmap to use CRD backend
+          oc_obj:
+            name: broker-config
+            namespace: openshift-ansible-service-broker
+            state: present
+            kind: ConfigMap
+            content:
+              path: /tmp/cmout
+              data: "{{ lookup('template', 'configmap.yaml.j2') | from_yaml }}"
+          register: updated_configmap
+
+        - name: Update broker deploymentconfig
+          oc_obj:
+            force: yes
+            name: asb
+            namespace: openshift-ansible-service-broker
+            state: present
+            kind: DeploymentConfig
+            content:
+              path: /tmp/dcout
+              data: "{{ lookup('template', 'asb_dc.yaml.j2') | from_yaml }}"
+
+        - name: delete etcd service
+          oc_service:
+            name: asb-etcd
+            namespace: openshift-ansible-service-broker
+            state: absent
+
+        - name: delete etcd deploymentconfig
+          oc_obj:
+            name: asb-etcd
+            namespace: openshift-ansible-service-broker
+            kind: DeploymentConfig
+            state: absent
+
+        - name: delete broker etcd secret
+          oc_secret:
+            name: broker-etcd-auth-secret
+            namespace: openshift_ansible_service_broker
+            state: absent
+  always:
+    - name: scale up asb deploymentconfig
+      oc_scale:
+        name: asb
+        namespace: openshift-ansible-service-broker
+        kind: dc
+        replicas: 1
+
+- name: Fail out because the ASB etcd to CRD migration was unsuccessful
+  fail:
+    msg: >
+      The migration from etcd to CustomResourceDefinitions was not
+      successful, aborting upgrade of the ansible service broker.
+  when: migration_status is not defined or migration_status is failed or updated_configmap is not defined or updated_configmap is failed

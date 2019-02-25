@@ -1,0 +1,10 @@
+---
+- import_tasks: firewalld.yml
+  when:
+  - os_firewall_enabled | bool
+  - os_firewall_use_firewalld | bool
+
+- import_tasks: iptables.yml
+  when:
+  - os_firewall_enabled | bool
+  - not os_firewall_use_firewalld | bool

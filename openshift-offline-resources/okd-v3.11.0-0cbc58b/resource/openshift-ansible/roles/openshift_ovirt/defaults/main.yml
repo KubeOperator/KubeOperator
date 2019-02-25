@@ -1,0 +1,64 @@
+---
+# Defaults for oVirt provider integration
+compatibility_version: 4.2
+data_center_name: Default
+wait_for_ip: true
+openshift_ovirt_cluster: Default
+template_name: openshift_node
+
+# User must provide those vars:
+openshift_ovirt_dns_zone:
+openshift_ovirt_ssh_key:
+
+# oVirt VM Profiles
+openshift_ovirt_vm_profile:
+  master:
+    cluster: "{{ openshift_ovirt_cluster }}"
+    template: "{{ template_name }}"
+    memory: 16GiB
+    cores: 2
+    high_availability: true
+    disks:
+    - size: 15GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: docker_disk
+      interface: virtio
+    - size: 30GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: localvol_disk
+      interface: virtio
+    - size: 25GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: etcd_disk
+      interface: virtio
+    state: running
+  node:
+    cluster: "{{ openshift_ovirt_cluster }}"
+    template: "{{ template_name }}"
+    memory: 8GiB
+    cores: 2
+    high_availability: true
+    disks:
+    - size: 15GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: docker_disk
+      interface: virtio
+    - size: 30GiB
+      storage_domain: "{{ openshift_ovirt_data_store }}"
+      name: localvol_disk
+      interface: virtio
+    state: running
+
+openshift_ovirt_vm_manifest:
+- name: 'master'
+  count: 3
+  profile: 'master'
+- name: 'infra'
+  count: 3
+  profile: 'node'
+- name: 'compute'
+  count: 1
+  profile: 'node'
+- name: 'lb'
+  count: 1
+  profile: 'node'

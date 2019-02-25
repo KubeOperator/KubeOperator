@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Route
+metadata:
+  name: apiserver
+spec:
+  port:
+    targetPort: secure
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: apiserver
+    weight: 100
+  wildcardPolicy: None

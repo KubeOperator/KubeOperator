@@ -1,0 +1,50 @@
+---
+# l_base_packages_hosts may be passed in via prerequisites.yml during scaleup plays
+# and upgrade_control_plane.yml upgrade plays.
+
+- name: Install packages necessary for installer
+  hosts: "{{ l_base_packages_hosts | default('oo_all_hosts') }}"
+  any_errors_fatal: true
+  tasks:
+  - name: Determine if chrony is installed
+    command: rpm -q chrony
+    failed_when: false
+    register: chrony_installed
+
+  # chrony is installed on atomic host by default, so no need to worry about
+  # atomic here.
+  - name: Install ntp package
+    package:
+      name: ntp
+      state: present
+    when:
+    - openshift_clock_enabled | default(True) | bool
+    - chrony_installed.rc != 0
+    register: result
+    until: result is succeeded
+
+  - name: Start and enable ntpd/chronyd
+    command: timedatectl set-ntp true
+    when: openshift_clock_enabled | default(True) | bool
+
+  - when:
+    - not openshift_is_atomic | bool
+    block:
+    - name: Ensure openshift-ansible installer package deps are installed
+      package:
+        name: "{{ pkg_list | join(',') }}"
+        state: present
+      vars:
+        pkg_list_temp:
+        - iproute
+        - "{{ 'python3-dbus' if ansible_distribution == 'Fedora' else 'dbus-python' }}"
+        - "{{ 'python3-PyYAML' if ansible_distribution == 'Fedora' else 'PyYAML' }}"
+        - libsemanage-python
+        - yum-utils
+        - "{{ 'python3-docker' if ansible_distribution == 'Fedora' else 'python-docker-py' }}"
+        pkg_list_non_fedora:
+        - 'python-ipaddress'
+        pkg_list_use_non_fedora: "{{ ansible_distribution != 'Fedora' | bool }}"
+        pkg_list: "{{ pkg_list_non_fedora | ternary(pkg_list_non_fedora, []) + pkg_list_temp }}"
+      register: result
+      until: result is succeeded

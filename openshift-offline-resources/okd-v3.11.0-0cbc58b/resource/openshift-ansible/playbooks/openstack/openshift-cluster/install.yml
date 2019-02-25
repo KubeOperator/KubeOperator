@@ -1,0 +1,37 @@
+---
+# NOTE(shadower): the AWS playbook builds an in-memory inventory of
+# all the EC2 instances here. We don't need to as that's done by the
+# dynamic inventory.
+
+# TODO(shadower): the AWS playbook sets the
+# `openshift_master_cluster_hostname` and `osm_custom_cors_origins`
+# values here. We do it in the OSEv3 group vars. Do we need to add
+# some logic here?
+
+- name: Run the init
+  import_playbook: ../../init/main.yml
+
+- name: Evaluate basic OpenStack groups
+  import_playbook: evaluate_groups.yml
+
+- import_playbook: ../../prerequisites.yml
+
+- name: Prepare the Nodes in the cluster for installation
+  any_errors_fatal: true
+  hosts: oo_all_hosts
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Configure Node
+    import_role:
+      name: openshift_openstack
+      tasks_from: node-configuration.yml
+
+- name: install NetworkManager
+  import_playbook: ../../openshift-node/private/network_manager.yml
+
+- name: run the cluster deploy
+  import_playbook: ../../deploy_cluster.yml
+
+- name: Show information about the deployed cluster
+  import_playbook: cluster-info.yml

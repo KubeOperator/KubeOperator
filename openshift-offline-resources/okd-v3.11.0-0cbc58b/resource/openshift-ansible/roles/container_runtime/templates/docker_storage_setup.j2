@@ -1,0 +1,16 @@
+# Edit this file to override any configuration options specified in
+# /usr/lib/docker-storage-setup/docker-storage-setup.
+#
+# For more details refer to "man docker-storage-setup"
+{% if container_runtime_docker_storage_setup_device is defined and container_runtime_docker_storage_setup_device != '' %}
+DEVS={{ container_runtime_docker_storage_setup_device }}
+VG={{ docker_storage_setup_options.vg }}
+DATA_SIZE={{ docker_storage_setup_options.data_size }}
+STORAGE_DRIVER="{{ docker_storage_setup_options.storage_driver }}"
+CONTAINER_ROOT_LV_NAME="{{ docker_storage_setup_options.root_lv_name }}"
+CONTAINER_ROOT_LV_SIZE="{{ docker_storage_setup_options.root_lv_size }}"
+CONTAINER_ROOT_LV_MOUNT_PATH="{{ docker_storage_setup_options.root_lv_mount_path }}"
+{% else %}
+STORAGE_DRIVER="{{ docker_storage_setup_options.storage_driver }}"
+{% endif %}
+EXTRA_STORAGE_OPTIONS="{{ docker_storage_extra_options | join(' ') }}"

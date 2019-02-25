@@ -1,0 +1,33 @@
+---
+- name: Deploy oVirt template and virtual machines
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  pre_tasks:
+    - name: Log in to oVirt
+      ovirt_auth:
+        url: "{{ engine_url }}"
+        username: "{{ engine_user }}"
+        password: "{{ engine_password }}"
+        ca_file: "{{ engine_cafile | default(omit) }}"
+        insecure: "{{ engine_insecure | default(true) }}"
+      tags:
+        - always
+    - name: Build virtual machine facts
+      import_role:
+        name: openshift_ovirt
+        tasks_from: build_vm_list.yml
+
+  roles:
+    - oVirt.image-template
+    - oVirt.vm-infra
+
+  post_tasks:
+    - name: Logout from oVirt
+      ovirt_auth:
+        state: absent
+        ovirt_auth: "{{ ovirt_auth }}"
+      tags:
+        - always
+...

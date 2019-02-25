@@ -1,0 +1,8 @@
+---
+- name: Openshift Metering RDS Database setup
+  import_tasks: rds-database-install.yml
+  when: openshift_metering_hive_metastore_db_rds_create | bool
+
+- name: Openshift Metering S3 Bucket setup
+  import_tasks: s3-bucket-storage-install.yml
+  when: openshift_metering_s3_bucket_create | bool

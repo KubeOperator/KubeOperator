@@ -1,0 +1,8 @@
+---
+- name: install needed rpm(s)
+  package:
+    name: "{{ r_openshift_node_image_prep_packages | join(',') }}"
+    state: present
+  register: result
+  until: result is succeeded
+  when: not (openshift_is_atomic | default(False) | bool)

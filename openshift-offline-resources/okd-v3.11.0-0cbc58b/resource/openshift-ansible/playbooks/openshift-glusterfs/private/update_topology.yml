@@ -1,0 +1,9 @@
+---
+- name: Reload glusterfs topology
+  hosts: oo_first_master
+  tasks:
+  # We only want to update topology if we have new glusterfs/glusterfs_registry
+  # hosts.
+  - import_role:
+      name: openshift_storage_glusterfs
+      tasks_from: update_topology.yml

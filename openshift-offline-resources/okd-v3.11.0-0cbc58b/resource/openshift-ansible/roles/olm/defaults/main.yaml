@@ -1,0 +1,13 @@
+---
+operator_lifecycle_manager_remove: false
+operator_lifecycle_manager_install: true
+
+olm_image_dict:
+  origin: 'quay.io/coreos/olm'
+  openshift-enterprise: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'operator-lifecycle-manager') }}"
+catalog_image_dict:
+  origin: 'quay.io/coreos/catalog'
+  openshift-enterprise: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'operator-lifecycle-manager') }}"
+
+olm_operator_image: "{{ olm_image_dict[openshift_deployment_type] }}"
+olm_catalog_operator_image: "{{ catalog_image_dict[openshift_deployment_type] }}"

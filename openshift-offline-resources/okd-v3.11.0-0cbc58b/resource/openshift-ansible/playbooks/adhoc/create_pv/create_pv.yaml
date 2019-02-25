@@ -1,0 +1,160 @@
+---
+#example run:
+# ansible-playbook -e "cli_volume_size=1" \
+#                  -e "cli_device_name=/dev/xvdf" \
+#                  -e "cli_hosttype=master" \
+#                  -e "cli_clusterid=ops" \
+#                  create_pv.yaml
+#
+- name: Create a volume and attach it to master
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  vars:
+    cli_volume_type: gp2
+    cli_volume_iops: ''
+    oo_name: "{{ groups['tag_host-type_' ~ cli_hosttype] |
+                 intersect(groups['oo_clusterid_' ~ cli_clusterid]) |
+                 first }}"
+  pre_tasks:
+  - fail:
+      msg: "This playbook requires {{item}} to be set."
+    when: item is not defined or item == ''
+    with_items:
+    - cli_volume_size
+    - cli_device_name
+    - cli_hosttype
+    - cli_clusterid
+
+  - name: set oo_name fact
+    set_fact:
+      oo_name: "{{ oo_name }}"
+
+
+  - name: Select a single master to run this on
+    add_host:
+      hostname: "{{ oo_name }}"
+      ansible_ssh_host: "{{ hostvars[oo_name].ec2_public_dns_name }}"
+      groups: oo_master
+
+  - name: Create a volume and attach it
+    ec2_vol:
+      state: present
+      instance: "{{ hostvars[oo_name]['ec2_id'] }}"
+      region: "{{ hostvars[oo_name]['ec2_region'] }}"
+      volume_size: "{{ cli_volume_size }}"
+      volume_type: "{{ cli_volume_type }}"
+      device_name: "{{ cli_device_name }}"
+      iops: "{{ cli_volume_iops }}"
+    register: vol
+
+  - debug: var=vol
+
+  - name: tag the vol with a name
+    ec2_tag: region={{ hostvars[oo_name]['ec2_region'] }} resource={{vol.volume_id}}
+    args:
+      tags:
+        Name: "pv-{{ hostvars[oo_name]['ec2_tag_Name'] }}"
+        clusterid: "{{cli_clusterid}}"
+    register: voltags
+
+  - debug: var=voltags
+
+- name: Configure the drive
+  gather_facts: no
+  hosts: oo_master
+  user: root
+  connection: ssh
+  vars:
+    pv_tmpdir: /tmp/persistentvolumes
+
+  post_tasks:
+  - name: Setting facts for template
+    set_fact:
+      pv_name: "pv-{{cli_volume_size}}-{{ hostvars[hostvars.localhost.oo_name]['ec2_tag_Name'] }}-{{hostvars.localhost.vol.volume_id }}"
+      vol_az: "{{ hostvars[hostvars.localhost.oo_name]['ec2_placement'] }}"
+      vol_id: "{{ hostvars.localhost.vol.volume_id }}"
+      vol_size: "{{ cli_volume_size }}"
+      pv_mntdir: "{{ pv_tmpdir }}/mnt-{{ 1000 | random }}"
+
+  - set_fact:
+      pv_template: "{{ pv_tmpdir }}/{{ pv_name }}.yaml"
+
+  - name: "Mkdir {{ pv_tmpdir }}"
+    file:
+      state: directory
+      path: "{{ pv_tmpdir }}"
+      mode: '0750'
+
+  - name: "Mkdir {{ pv_mntdir }}"
+    file:
+      state: directory
+      path: "{{ pv_mntdir }}"
+      mode: '0750'
+
+  - name: Create pv file from template
+    template:
+      src: ./pv-template.j2
+      dest: "{{ pv_template }}"
+      owner: root
+      mode: '0640'
+
+  - name: mkfs
+    filesystem:
+      dev: "{{ cli_device_name }}"
+      fstype: ext4
+
+  - name: Mount the dev
+    mount:
+      name: "{{ pv_mntdir }}"
+      src: "{{ cli_device_name }}"
+      fstype: ext4
+      state: mounted
+
+  - name: chgrp g+rwXs
+    file:
+      path: "{{ pv_mntdir }}"
+      mode: 'g+rwXs'
+      recurse: yes
+      seuser: system_u
+      serole: object_r
+      setype: svirt_sandbox_file_t
+      selevel: s0
+
+  - name: umount
+    mount:
+      name: "{{ pv_mntdir }}"
+      src: "{{ cli_device_name }}"
+      state: unmounted
+      fstype: ext4
+
+  - name: remove from fstab
+    mount:
+      name: "{{ pv_mntdir }}"
+      src: "{{ cli_device_name }}"
+      state: absent
+      fstype: ext4
+
+  - name: detach drive
+    delegate_to: localhost
+    ec2_vol:
+      region: "{{ hostvars[hostvars.localhost.oo_name].ec2_region }}"
+      id: "{{ hostvars.localhost.vol.volume_id }}"
+      instance: None
+
+  - name: "Remove {{ pv_mntdir }}"
+    file:
+      state: absent
+      path: "{{ pv_mntdir }}"
+
+  # We have to use the shell module because we can't set env vars with the command module.
+  - name: "Place PV into oc"
+    shell: "KUBECONFIG=/etc/origin/master/admin.kubeconfig oc create -f {{ pv_template | quote }}"
+    register: oc_output
+
+  - debug: var=oc_output
+
+  - fail:
+      msg: "Failed to add {{ pv_template }} to master."
+    when: oc_output.rc != 0

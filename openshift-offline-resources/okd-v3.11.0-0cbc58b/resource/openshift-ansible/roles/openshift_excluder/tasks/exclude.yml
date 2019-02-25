@@ -1,0 +1,30 @@
+---
+- block:
+  - name: Check for docker-excluder
+    stat:
+      path: /sbin/{{ r_openshift_excluder_service_type }}-docker-excluder
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: docker_excluder_stat
+
+  - name: Check for openshift excluder
+    stat:
+      path: /sbin/{{ r_openshift_excluder_service_type }}-excluder
+      get_checksum: false
+      get_attributes: false
+      get_mime: false
+    register: openshift_excluder_stat
+
+  - name: Enable docker excluder
+    command: "/sbin/{{ r_openshift_excluder_service_type }}-docker-excluder exclude"
+    when:
+    - r_openshift_excluder_enable_docker_excluder | bool
+    - docker_excluder_stat.stat.exists
+
+  - name: Enable openshift excluder
+    command: "/sbin/{{ r_openshift_excluder_service_type }}-excluder exclude"
+    when:
+    - r_openshift_excluder_enable_openshift_excluder | bool
+    - openshift_excluder_stat.stat.exists
+  when: not openshift_is_atomic | bool

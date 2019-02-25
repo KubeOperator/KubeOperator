@@ -1,0 +1,35 @@
+---
+- name: Install the systemd units
+  import_tasks: systemd_units.yml
+
+- name: Install node system container
+  import_tasks: node_system_container.yml
+  when: openshift_is_atomic | bool
+
+- import_tasks: config/configure-node-settings.yml
+- import_tasks: configure-proxy-settings.yml
+
+- name: Configure Node Environment Variables
+  lineinfile:
+    dest: /etc/sysconfig/{{ openshift_service_type }}-node
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: true
+  with_dict: "{{ openshift_node_env_vars }}"
+
+- name: Ensure the node static pod directory exists
+  file:
+    path: "{{ openshift.common.config_base }}/node/pods"
+    state: directory
+    mode: 0755
+
+- name: Create flexvolume directory when running on atomic
+  file:
+    state: directory
+    path: "/etc/origin/kubelet-plugins/volume/exec"
+    mode: '0750'
+  when: openshift_is_atomic | bool
+
+- name: include aws provider credentials
+  import_tasks: aws.yml
+  when: not (openshift_node_use_instance_profiles | default(False))

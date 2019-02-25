@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ClusterRole
+metadata:
+  name: hawkular-openshift-agent
+  labels:
+    metrics-infra: agent
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - namespaces
+  - nodes
+  - pods
+  - projects
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get

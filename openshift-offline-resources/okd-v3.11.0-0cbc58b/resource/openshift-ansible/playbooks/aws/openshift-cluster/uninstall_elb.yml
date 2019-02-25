@@ -1,0 +1,9 @@
+---
+- name: Delete elb
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: deprovision elb
+    include_role:
+      name: openshift_aws
+      tasks_from: uninstall_elb.yml

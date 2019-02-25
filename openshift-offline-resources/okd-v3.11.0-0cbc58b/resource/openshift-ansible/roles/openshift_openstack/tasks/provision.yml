@@ -1,0 +1,159 @@
+---
+- name: Get subnet facts when using a custom subnet
+  os_subnets_facts:
+    name: "{{ openshift_openstack_node_subnet_name }}"
+  register: subnet_result
+  when: openshift_openstack_node_subnet_name is defined and openshift_openstack_node_subnet_name
+- name: Set custom network id
+  set_fact:
+    openshift_openstack_node_network_id: "{{ subnet_result.ansible_facts.openstack_subnets[0].network_id }}"
+  when: openshift_openstack_node_subnet_name is defined and openshift_openstack_node_subnet_name
+- name: Set custom subnet id
+  set_fact:
+    openshift_openstack_node_subnet_id: "{{ subnet_result.ansible_facts.openstack_subnets[0].id }}"
+  when: openshift_openstack_node_subnet_name is defined and openshift_openstack_node_subnet_name
+- name: Set custom subnet cidr
+  set_fact:
+    openshift_openstack_subnet_cidr: "{{ subnet_result.ansible_facts.openstack_subnets[0].cidr }}"
+  when: openshift_openstack_node_subnet_name is defined and openshift_openstack_node_subnet_name
+
+# TODO ltomasbo: there is no Ansible module for getting router facts
+- name: Get custom router id
+  command: >
+           python -c 'import shade; cloud = shade.openstack_cloud();
+           print cloud.get_router("{{ openshift_openstack_router_name }}").id'
+  register: router_info
+  when: openshift_openstack_router_name is defined and openshift_openstack_router_name
+- name: Set custom router id
+  set_fact:
+    openshift_openstack_router_id: "{{ router_info.stdout }}"
+  when: openshift_openstack_router_name is defined and openshift_openstack_router_name
+
+- name: Generate the templates
+  include_tasks: generate-templates.yml
+  when:
+  - openshift_openstack_stack_state == 'present'
+
+- name: check for openstack client
+  command: openstack
+  register: openstack_cli_exists
+  ignore_errors: True
+
+- name: validate the Heat template
+  command: openstack orchestration template validate -t {{ stack_template_path }}
+  register: template_validation_output
+  when: openstack_cli_exists is succeeded
+
+- name: Check if the stack exists
+  command: openstack stack show {{ openshift_openstack_stack_name }}
+  ignore_errors: True
+  register: stack_exists
+  when: openstack_cli_exists is succeeded
+
+- name: Dry-run the stack (create)
+  command: openstack stack create --dry-run -t {{ stack_template_path }} {{ openshift_openstack_stack_name }}
+  ignore_errors: True
+  register: stack_create_dry_run_output
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_exists is failed
+
+- name: Dry-run the stack (update)
+  command: openstack stack update --dry-run -t {{ stack_template_path }} {{ openshift_openstack_stack_name }}
+  ignore_errors: True
+  register: stack_update_dry_run_output
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_exists is succeeded
+
+- name: Show the dry run errors (create)
+  debug: var=stack_create_dry_run_output.stderr
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_create_dry_run_output is failed
+
+- name: Show the dry run errors (update)
+  debug: var=stack_update_dry_run_output.stderr
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_update_dry_run_output is failed
+
+- fail:
+    msg: The Heat stack creation failed. Please inspect the message above.
+  when:
+  - openstack_cli_exists is succeeded
+  - ( stack_create_dry_run_output is failed or
+      stack_update_dry_run_output is failed)
+
+- name: Handle the Stack (create/delete)
+  ignore_errors: True
+  register: stack_create
+  until: stack_create is not failed
+  retries: 5
+  delay: 5
+  os_stack:
+    name: "{{ openshift_openstack_stack_name }}"
+    state: "{{ openshift_openstack_stack_state }}"
+    template: "{{ stack_template_path | default(omit) }}"
+    wait: yes
+
+- name: get errors in stack creation, if any
+  command: openstack stack failures list {{ openshift_openstack_stack_name }}
+  register: stack_create_failures
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_create is failed
+
+- name: show errors in stack creation, if any
+  debug: var=stack_create_failures
+  when:
+  - openstack_cli_exists is succeeded
+  - stack_create is failed
+
+- fail:
+    msg: Stack creation failed
+  when:
+  - stack_create is failed
+
+- name: Add the new nodes to the inventory
+  meta: refresh_inventory
+
+- name: Legacy LBaaSv2 SG OpenShift API correction
+  os_port:
+    state: present
+    name: "{{ openshift_openstack_api_lb_port_id }}"
+    security_groups:
+    - "{{ openshift_openstack_api_lb_sg_id }}"
+  when:
+  - openshift_openstack_api_lb_provider|default(None) == "haproxy"
+
+# NOTE(ltomasbo): Increasing OpenShift API Loadbalancer timeouts to 500 secs
+# as 50 seconds resulted on failed deployments due to:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1618685
+# The timeout can be configured by changing:
+# openshift_openstack_api_lb_listeners_timeout
+- name: Octavia OpenShift API listeners timeout correction
+  os_lbaas_listener_timeout:
+    timeout: "{{ openshift_openstack_api_lb_listeners_timeout | int }}"
+    listener_name: "{{ item }}"
+  with_items:
+  - "openshift-ansible-{{ openshift_openstack_full_dns_domain }}-api-lb-listener"
+  - "openshift-ansible-{{ openshift_openstack_full_dns_domain }}-api-lb-internal-listener"
+  when:
+  - openshift_openstack_lbaasv2_provider == "Octavia"
+  - (openshift_openstack_use_lbaas_load_balancer) or (openshift_use_kuryr | default(false) | bool and not openshift_openstack_provider_network_name)
+  ignore_errors: true
+
+- name: CleanUp
+  include_tasks: cleanup.yml
+  when:
+  - openshift_openstack_stack_state == 'present'
+
+- name: Create the Cinder volume for OpenShift Registry
+  include_tasks: create-registry-volume.yml
+  when:
+  - groups.openstack_infra_nodes is defined
+  - groups.openstack_infra_nodes.0 is defined
+  - hostvars[groups.openstack_infra_nodes.0].openshift_hosted_registry_storage_volume_name is defined
+  - hostvars[groups.openstack_infra_nodes.0].openshift_hosted_registry_storage_volume_size is defined
+  - hostvars[groups.openstack_infra_nodes.0].openshift_hosted_registry_storage_openstack_volumeID is not defined

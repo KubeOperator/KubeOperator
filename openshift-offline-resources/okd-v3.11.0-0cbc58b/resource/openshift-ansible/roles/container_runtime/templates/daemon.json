@@ -1,0 +1,20 @@
+{
+    "authorization-plugins": ["rhel-push-plugin"],
+    "default-runtime": "oci",
+    "containerd": "/run/containerd.sock",
+    "disable-legacy-registry": false,
+    "exec-opts": ["native.cgroupdriver=systemd"],
+    "insecure-registries": {{ l_docker_insecure_registries }},
+{% if openshift_docker_log_driver  %}
+    "log-driver": "{{ openshift_docker_log_driver }}",
+{%- endif %}
+    "log-opts": {{ l_docker_log_options_dict }},
+    "runtimes": {
+	"oci": {
+	    "path": "/usr/libexec/docker/docker-runc-current"
+	}
+    },
+    "selinux-enabled": {{ l_docker_selinux_enabled | lower }},
+    "add-registry": {{ l_docker_additional_registries }},
+    "block-registry": {{ l_docker_blocked_registries }}
+}

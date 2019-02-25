@@ -1,0 +1,45 @@
+#
+# This role relies on gcloud invoked via templated bash in order to
+# provide a high performance deployment option. The next logical step
+# is to transition to a deployment manager template which is then instantiated.
+# TODO: use a formal set of role parameters consistent with openshift_aws
+#
+---
+- name: Templatize DNS script
+  template: src=dns.j2.sh dest=/tmp/openshift_gcp_provision_dns.sh mode=u+rx
+- name: Templatize provision script
+  template: src=provision.j2.sh dest=/tmp/openshift_gcp_provision.sh mode=u+rx
+- name: Templatize de-provision script
+  template: src=remove.j2.sh dest=/tmp/openshift_gcp_provision_remove.sh mode=u+rx
+  when:
+  - state | default('present') == 'absent'
+
+- name: Provision GCP DNS domain
+  command: /tmp/openshift_gcp_provision_dns.sh
+  args:
+    chdir: "{{ files_dir }}"
+  register: dns_provision
+  when:
+  - state | default('present') == 'present'
+
+- name: Ensure that DNS resolves to the hosted zone
+  assert:
+    that:
+    - "lookup('dig', public_hosted_zone, 'qtype=NS', wantlist=True) | sort | join(',') == dns_provision.stdout"
+    msg: "The DNS domain {{ public_hosted_zone }} defined in 'public_hosted_zone' must have NS records pointing to the Google nameservers: '{{ dns_provision.stdout }}' instead of '{{ lookup('dig', public_hosted_zone, 'qtype=NS') }}'."
+  when:
+  - state | default('present') == 'present'
+
+- import_tasks: provision_ssh_keys.yml
+
+- name: Provision GCP resources
+  command: /tmp/openshift_gcp_provision.sh
+  args:
+    chdir: "{{ files_dir }}"
+  when:
+  - state | default('present') == 'present'
+
+- name: De-provision GCP resources
+  command: /tmp/openshift_gcp_provision_remove.sh
+  when:
+  - state | default('present') == 'absent'

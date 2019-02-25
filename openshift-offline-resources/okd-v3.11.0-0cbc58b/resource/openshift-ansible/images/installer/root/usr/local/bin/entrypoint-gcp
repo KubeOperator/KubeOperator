@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Temporary wrapper for entrypoint-gcp until the migration
+# to entrypoint-provider is complete.
+#
+
+set -euo pipefail
+
+export TYPE='gcp'
+
+exec /usr/local/bin/entrypoint-provider "$@"

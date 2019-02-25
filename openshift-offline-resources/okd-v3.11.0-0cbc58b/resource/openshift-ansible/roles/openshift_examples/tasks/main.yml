@@ -1,0 +1,182 @@
+---
+######################################################################
+# Copying Examples
+#
+# We used to use the copy module to transfer the openshift examples to
+# the remote. Then it started taking more than a minute to transfer
+# the files. As noted in the module:
+#
+#   "The 'copy' module recursively copy facility does not scale to
+#   lots (>hundreds) of files."
+#
+# The `synchronize` module is suggested as an alternative, we can't
+# use it either due to changes introduced in Ansible 2.x.
+- name: Create local temp dir for OpenShift examples copy
+  local_action: command mktemp -d /tmp/openshift-ansible-XXXXXXX
+  register: copy_examples_mktemp
+  run_once: True
+
+- name: Chmod local temp dir for OpenShift examples copy
+  local_action: file path="{{ copy_examples_mktemp.stdout }}" mode=0777
+  run_once: True
+
+- name: Create tar of OpenShift examples
+  local_action: command tar -C "{{ role_path }}/files/examples/latest/" -cvf "{{ copy_examples_mktemp.stdout }}/openshift-examples.tar" .
+  args:
+    # Disables the following warning:
+    # Consider using unarchive module rather than running tar
+    warn: no
+
+- name: Chmod local temp dir for OpenShift examples copy
+  local_action: file path="{{ copy_examples_mktemp.stdout }}/openshift-examples.tar" mode=0744
+  run_once: True
+
+- name: Create the remote OpenShift examples directory
+  file:
+    dest: "{{ examples_base }}"
+    state: directory
+    mode: 0755
+
+- name: Unarchive the OpenShift examples on the remote
+  unarchive:
+    src: "{{ copy_examples_mktemp.stdout }}/openshift-examples.tar"
+    dest: "{{ examples_base }}/"
+
+- name: Cleanup the OpenShift Examples temp dir
+  local_action: file dest="{{ copy_examples_mktemp.stdout }}" state=absent
+
+# Done copying examples
+######################################################################
+# Begin image streams
+
+- name: Create imagestream import secret for oreg_url
+  command: >
+    {{ openshift_client_binary }} create secret docker-registry imagestreamsecret
+    --docker-server={{ registry_host }} --docker-username={{ oreg_auth_user }}
+    --docker-email=openshift@openshift.com --docker-password={{ oreg_auth_password }}
+    --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift
+  when:
+    - openshift_examples_load_rhel | bool
+    - oreg_auth_password is defined
+  register: oex_imagestream_import_secret
+  failed_when: "'already exists' not in oex_imagestream_import_secret.stderr and oex_imagestream_import_secret.rc != 0"
+  changed_when: false
+
+- name: Create imagestream import secrets for any additional registries
+  command: >
+      {{ openshift_client_binary }} create secret docker-registry o-a-{{ item.host | hash('md5') }}
+      --docker-server={{ item.host }} --docker-username={{ item.user }}
+      --docker-email=openshift@openshift.com --docker-password={{ item.password }}
+      --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift
+  when:
+    - openshift_additional_registry_credentials != []
+  with_items:
+    - "{{ openshift_additional_registry_credentials }}"
+  register: oex_additional_creds
+  failed_when: "'already exists' not in oex_additional_creds.stderr and oex_additional_creds.rc != 0"
+
+- name: Modify registry paths if registry_url is not registry.redhat.io
+  shell: >
+    find {{ examples_base }} -type f | xargs -n 1 sed -i 's|registry.redhat.io|{{ registry_host | quote }}|g'
+  when: registry_host != '' and openshift_examples_modify_imagestreams | default(False) | bool
+
+# RHEL and Centos image streams are mutually exclusive
+- name: Import RHEL streams
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ item }}
+  when: openshift_examples_load_rhel | bool
+  with_items:
+    - "{{ rhel_image_streams }}"
+  register: oex_import_rhel_streams
+  failed_when: "'already exists' not in oex_import_rhel_streams.stderr and oex_import_rhel_streams.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_rhel_streams is succeeded
+
+- name: Import Centos Image streams
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ item }}
+  when: openshift_examples_load_centos | bool
+  with_items:
+    - "{{ centos_image_streams }}"
+  register: oex_import_centos_streams
+  failed_when: "'already exists' not in oex_import_centos_streams.stderr and oex_import_centos_streams.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_centos_streams is succeeded
+
+- name: Import db templates
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ db_templates_base }}
+  when: openshift_examples_load_db_templates | bool
+  register: oex_import_db_templates
+  failed_when: "'already exists' not in oex_import_db_templates.stderr and oex_import_db_templates.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_db_templates is succeeded
+
+- name: Remove defunct quickstart template files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ quickstarts_base }}/nodejs.json"
+    - "{{ quickstarts_base }}/cakephp.json"
+    - "{{ quickstarts_base }}/dancer.json"
+    - "{{ quickstarts_base }}/django.json"
+
+- name: Remove defunct quickstart templates from openshift namespace
+  command: "{{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift delete templates/{{ item }}"
+  with_items:
+    - nodejs-example
+    - cakephp-example
+    - dancer-example
+    - django-example
+  register: oex_delete_defunct_quickstart_templates
+  failed_when: "'not found' not in oex_delete_defunct_quickstart_templates.stderr and oex_delete_defunct_quickstart_templates.rc != 0"
+  changed_when: false
+
+- name: Import quickstart-templates
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ quickstarts_base }}
+  when: openshift_examples_load_quickstarts | bool
+  register: oex_import_quickstarts
+  failed_when: "'already exists' not in oex_import_quickstarts.stderr and oex_import_quickstarts.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_quickstarts is succeeded
+
+- name: Remove old xPaas template files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ xpaas_templates_base }}/sso70-basic.json"
+
+- name: Remove old xPaas templates from openshift namespace
+  command: "{{ openshift_client_binary }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift delete templates/{{ item }}"
+  with_items:
+    - sso70-basic
+  register: oex_delete_old_xpaas_templates
+  failed_when: "'not found' not in oex_delete_old_xpaas_templates.stderr and oex_delete_old_xpaas_templates.rc != 0"
+  changed_when: false
+
+- name: Import xPaas image streams
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ xpaas_image_streams }}
+  when: openshift_examples_load_xpaas | bool
+  register: oex_import_xpaas_streams
+  failed_when: "'already exists' not in oex_import_xpaas_streams.stderr and oex_import_xpaas_streams.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_xpaas_streams is succeeded
+
+- name: Import xPaas templates
+  command: >
+    {{ openshift_client_binary }} {{ openshift_examples_import_command }} --config={{ openshift.common.config_base }}/master/admin.kubeconfig -n openshift -f {{ xpaas_templates_base }}
+  when: openshift_examples_load_xpaas | bool
+  register: oex_import_xpaas_templates
+  failed_when: "'already exists' not in oex_import_xpaas_templates.stderr and oex_import_xpaas_templates.rc != 0"
+  changed_when: false
+  retries: 3
+  until: oex_import_xpaas_templates is succeeded

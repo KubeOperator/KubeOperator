@@ -1,0 +1,16 @@
+---
+#
+# Control Plane Upgrade Playbook
+#
+# Upgrades masters and Docker (only on standalone etcd hosts)
+#
+# This upgrade does not include:
+# - node service running on masters
+# - docker running on masters
+# - node service running on dedicated nodes
+#
+# You can run the upgrade_nodes.yml playbook after this to upgrade these components separately.
+#
+- import_playbook: ../../../../common/openshift-cluster/upgrades/v3_11/upgrade_control_plane.yml
+
+- import_playbook: ../../../../openshift-master/private/restart.yml

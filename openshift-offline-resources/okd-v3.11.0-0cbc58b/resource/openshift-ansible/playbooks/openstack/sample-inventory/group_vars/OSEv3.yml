@@ -1,0 +1,92 @@
+---
+## Openshift product versions and repos to install from
+openshift_deployment_type: origin
+#openshift_repos_enable_testing: true
+#openshift_deployment_type: openshift-enterprise
+#openshift_release: v3.5
+
+# Default domain to access the applications running on OpenShift.
+# This uses the `openshift_openstack_clusterid`
+# and `openshift_openstack_public_dns_domain` values from all.yml.
+# It will be set to `apps.openshift.example.com` by default.
+# Feel free to change this to a value you prefer. It should be under the
+# domain the OpenShift cluster is configured, though.
+openshift_master_default_subdomain: "apps.{{ (openshift_openstack_clusterid|trim == '') | ternary(openshift_openstack_public_dns_domain, openshift_openstack_clusterid + '.' + openshift_openstack_public_dns_domain) }}"
+
+# Domain to access the OpenShift UI and API.
+# This uses the `openshift_openstack_clusterid`
+# and `openshift_openstack_public_dns_domain` values from all.yml.
+# It will be set to `console.openshift.example.com` by default.
+# Feel free to change this to a value you prefer. It should be under the
+# domain the OpenShift cluster is configured, though.
+openshift_master_cluster_public_hostname: "console.{{ (openshift_openstack_clusterid|trim == '') | ternary(openshift_openstack_public_dns_domain, openshift_openstack_clusterid + '.' + openshift_openstack_public_dns_domain) }}"
+
+
+openshift_hosted_router_wait: True
+openshift_hosted_registry_wait: True
+
+
+## Kuryr label configuration
+#kuryr_openstack_pool_driver: multi
+#
+#openshift_node_groups:
+#  - name: node-config-master
+#    labels:
+#      - 'node-role.kubernetes.io/master=true'
+#      - 'pod_vif=nested-vlan'
+#    edits: []
+#  - name: node-config-infra
+#    labels:
+#      - 'node-role.kubernetes.io/infra=true'
+#      - 'pod_vif=nested-vlan'
+#    edits: []
+#  - name: node-config-compute
+#    labels:
+#      - 'node-role.kubernetes.io/compute=true'
+#      - 'pod_vif=nested-vlan'
+#    edits: []
+
+
+## Openstack credentials
+#openshift_cloudprovider_kind: openstack
+#openshift_cloudprovider_openstack_auth_url: "{{ lookup('env','OS_AUTH_URL') }}"
+#openshift_cloudprovider_openstack_username: "{{ lookup('env','OS_USERNAME') }}"
+#openshift_cloudprovider_openstack_password: "{{ lookup('env','OS_PASSWORD') }}"
+#openshift_cloudprovider_openstack_tenant_name: "{{ lookup('env','OS_TENANT_NAME') }}"
+#openshift_cloudprovider_openstack_region: "{{ lookup('env', 'OS_REGION_NAME') }}"
+#openshift_cloudprovider_openstack_blockstorage_version: v2
+
+# Optionally specify a local openstack.conf
+#openshift_cloudprovider_openstack_conf_file: /path/to/openstack.conf
+
+## Use Cinder volume for Openshift registry:
+#openshift_hosted_registry_storage_kind: openstack
+#openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
+#openshift_hosted_registry_storage_openstack_filesystem: xfs
+#openshift_hosted_registry_storage_volume_size: 10Gi
+
+## If you want a Cinder volume created automaticaly, uncomment this:
+#openshift_hosted_registry_storage_volume_name: registry
+
+## If you're using a Cinder volume you've set up yourself, uncomment this:
+#openshift_hosted_registry_storage_openstack_volumeID: e0ba2d73-d2f9-4514-a3b2-a0ced507fa05
+
+
+# NOTE(shadower): the hostname check seems to always fail because the
+# host's floating IP address doesn't match the address received from
+# inside the host.
+openshift_hostname_check: false
+
+# For POCs or demo environments that are using smaller instances than
+# the official recommended values for RAM and DISK, uncomment the line below.
+#openshift_disable_check: disk_availability,memory_availability
+
+# NOTE(shadower): Always switch to root on the OSEv3 nodes.
+# openshift-ansible requires an explicit `become`.
+ansible_become: true
+
+# # Flannel networking
+#osm_cluster_network_cidr: 10.128.0.0/14
+#openshift_use_openshift_sdn: false
+#openshift_use_flannel: true
+#flannel_interface: eth1

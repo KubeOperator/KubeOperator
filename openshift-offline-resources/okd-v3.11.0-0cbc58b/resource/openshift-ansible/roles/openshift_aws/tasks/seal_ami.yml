@@ -1,0 +1,64 @@
+---
+- name: fetch newly created instances
+  ec2_instance_facts:
+    region: "{{ openshift_aws_region }}"
+    filters:
+      "tag:Name": "{{ openshift_aws_base_ami_name }}"
+      instance-state-name: running
+  register: instancesout
+  retries: 20
+  delay: 3
+  until: instancesout.instances|length > 0
+
+- when: openshift_aws_copy_base_ami_tags | default(False) | bool
+  block:
+  - name: fetch the ami used to create the instance
+    ec2_ami_facts:
+      region: "{{ openshift_aws_region }}"
+      image_ids: [ "{{ instancesout.instances[0]['image_id'] }}" ]
+    register: original_ami_out
+    retries: 20
+    delay: 3
+    until: original_ami_out.images|length > 0
+
+  - name: combine the tags of the original ami with newly created ami
+    set_fact:
+      l_openshift_aws_ami_tags: "{{ original_ami_out.images[0]['tags'] | combine(openshift_aws_ami_tags) }}"
+
+- name: bundle ami
+  ec2_ami:
+    instance_id: "{{ instancesout.instances.0.instance_id }}"
+    region: "{{ openshift_aws_region }}"
+    state: present
+    description: "This was provisioned {{ ansible_date_time.iso8601 }}"
+    name: "{{ openshift_aws_ami_name }}"
+    tags: "{{ l_openshift_aws_ami_tags if l_openshift_aws_ami_tags is defined and l_openshift_aws_ami_tags != {} else openshift_aws_ami_tags }}"
+    wait: yes
+  register: amioutput
+
+- debug: var=amioutput
+
+- when: openshift_aws_ami_encrypt | bool
+  block:
+  - name: augment the encrypted ami tags with source-ami
+    set_fact:
+      source_tag:
+        source-ami: "{{ amioutput.image_id }}"
+
+  - name: copy the ami for encrypted disks
+    include_tasks: ami_copy.yml
+    vars:
+      openshift_aws_ami_copy_name: "{{ openshift_aws_ami_name }}-encrypted"
+      openshift_aws_ami_copy_src_ami: "{{ amioutput.image_id }}"
+      # TODO: How does the kms alias get passed to ec2_ami_copy
+      openshift_aws_ami_copy_kms_alias: "alias/{{ openshift_aws_clusterid }}_kms"
+      openshift_aws_ami_copy_tags: "{{ source_tag | combine(openshift_aws_ami_tags) }}"
+      # this option currently fails due to boto waiters
+      # when supported this need to be reapplied
+      #openshift_aws_ami_copy_wait: True
+
+- name: terminate temporary instance
+  ec2:
+    state: absent
+    region: "{{ openshift_aws_region }}"
+    instance_ids: "{{ instancesout.instances.0.instance_id }}"

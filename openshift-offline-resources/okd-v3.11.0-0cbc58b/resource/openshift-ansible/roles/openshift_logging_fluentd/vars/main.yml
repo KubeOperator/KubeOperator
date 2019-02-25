@@ -1,0 +1,3 @@
+---
+__allowed_fluentd_types: ["hosted", "secure-aggregator", "secure-host"]
+__allowed_mux_client_modes: ["minimal", "maximal"]

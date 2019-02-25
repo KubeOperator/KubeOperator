@@ -1,0 +1,12 @@
+---
+- hosts: masters
+  gather_facts: no
+  tasks:
+  - name: create master health check service
+    include_role:
+      name: openshift_gcp
+      tasks_from: configure_master_healthcheck.yml
+  - name: configure master bootstrap distribution
+    include_role:
+      name: openshift_gcp
+      tasks_from: configure_master_bootstrap.yml
