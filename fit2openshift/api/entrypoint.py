@@ -110,7 +110,6 @@ def parse_service(s):
 def start_redis():
     print("\n- Start redis")
     p = subprocess.Popen("redis-server", stdout=sys.stdout, stderr=sys.stderr)
-
     pid_file = get_pid_file_path('redis')
     with open(pid_file, 'w') as f:
         f.write(str(p.pid))
@@ -120,7 +119,7 @@ def start_redis():
 def start_gunicorn():
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
-    bind = '{}:{}'.format('0.0.0.0', 8080)
+    bind = '{}:{}'.format('0.0.0.0', 8000)
     cmd = [
         'python', 'manage.py',
         'runserver', bind
@@ -146,7 +145,7 @@ def start_celery():
 
     cmd = [
         'celery', 'worker',
-        '-A',  'celery_api',
+        '-A', 'celery_api',
         '-l', LOG_LEVEL,
         '--pidfile', pid_file,
         '-c', str(WORKERS),
@@ -171,7 +170,7 @@ def start_beat():
 
     scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
     cmd = [
-        'celery',  'beat',
+        'celery', 'beat',
         '-A', 'celery_api',
         '--pidfile', pid_file,
         '-l', LOG_LEVEL,
@@ -190,10 +189,10 @@ def start_beat():
 def start_service(s):
     print(time.ctime())
     services_handler = {
-         "redis": start_redis,
-         "gunicorn": start_gunicorn,
-         "celery": start_celery,
-         "beat": start_beat
+        "redis": start_redis,
+        "gunicorn": start_gunicorn,
+        "celery": start_celery,
+        "beat": start_beat
     }
     services_set = parse_service(s)
     processes = []

@@ -1,4 +1,8 @@
-- hosts: all
+- hosts: localhost
+  become: yes
   tasks:
-    - name: ping
-      ping:
+    - name: Detecting Operating System
+      shell: ls /run/ostree-booted
+      ignore_errors: yes
+      failed_when: false
+      register: ostree_output
