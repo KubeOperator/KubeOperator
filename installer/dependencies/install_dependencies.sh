@@ -35,7 +35,7 @@ if [[ "${hasNode}" =~ "no node" ]]; then
     wget https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz -O /tmp/node-v8.11.2-linux-x64.tar.xz 1>>$infoLogFile 2>>$errorLogFile  \
     && cd /tmp \
     && xz -d node-v8.11.2-linux-x64.tar.xz \
-    && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ 1>>$infoLogFile 2>>$errorLogFile >>$fullLogFile 1<&2 \
+    && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ 1>>$infoLogFile 2>>$errorLogFile  \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/node /usr/bin/node \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/npm /usr/bin/npm \
     && rm -fr /tmp/node-v8.11.2-linux-x64.tar.xz \
@@ -51,7 +51,7 @@ printf "%-65s .......... " "Install Docker::"
 #install docker
 hasDocker=`which docker 2>&1`
 if [[ "${hasDocker}" =~ "no docker" ]]; then
-    yum install docker 1>>$infoLogFile 2>>$errorLogFile   && service docker start
+    yum install -y docker 1>>$infoLogFile 2>>$errorLogFile   && service docker start
     success
 else 
     colorMsg $green "[OK]"
