@@ -68,7 +68,7 @@ exit_error
 printSubTitle "Build Fit2Openshift 镜像..."
 #build openshift
 cd $basepath/fit2openshift && ./build.sh
-#exit_error
+exit_error
 printSubTitle "Build 离线包镜像..."
 #build offline_packages
 cd $basepath/openshift-offline-resources   && ./build.sh

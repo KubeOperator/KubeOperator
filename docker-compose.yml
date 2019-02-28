@@ -6,13 +6,15 @@ services :
                 ports: 
                         - 80:80 
                         - 8080:8080
-                volumes:
-                        - share-volumes:/opt/fit2openshift/data/packages
                 environment:
                         - REGISTORY_HOSTNAME=10.1.240.44
                 networks:
                         - fit2openshift-network
                 restart: always
+                volumes: 
+                        - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
+                        - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
+                        - share-volumes:/opt/fit2openshift-app/data/packages
         fit2openshift-db:
                 container_name: fit2openshift-db
                 image: mysql:5.7.24
@@ -23,14 +25,12 @@ services :
                 volumes:
                         - /opt/fit2openshift/conf/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
                         - /opt/fit2openshift/conf/mysql/bin:/docker-entrypoint-initdb.d/
-                        - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
-                        - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
                         - host-opt-fit2openshift-mysql-data:/var/lib/mysql
                 networks:
                   - fit2openshift-network
         okd-3.11_offline:
                 container_name: okd-3.11_offline
-                image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_ffline_package:v3.11.0-0cbc58b
+                image: registry.fit2cloud.com/fit2anything/fit2openshift/okd_offline_package:v3.11.0-0cbc58b
                 ports:
                         - 8081:8081
                         - 8082:8082
