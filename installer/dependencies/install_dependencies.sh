@@ -60,7 +60,7 @@ printf "\n"
 
 printf "%-65s .......... " "Install Angular Cli:"
 #install ng
-hasNg=`which docker 2>&1`
+hasNg=`which ng 2>&1`
 if [[ "${hasNg}" =~ "no ng" ]]; then
      npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile 
      success
