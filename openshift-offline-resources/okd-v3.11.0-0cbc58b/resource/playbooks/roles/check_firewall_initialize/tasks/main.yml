@@ -1,7 +1,3 @@
-- name: Ensure nc is installed
-  yum:
-    name: nc
-    state: present
 - name: Open correct ports from iptables
   iptables:
     chain: INPUT
@@ -9,11 +5,5 @@
     destination_port: "{{item}}"
     jump: ACCEPT
     comment: "Accept trafic to {{item}}"
-  with_items:
-  - "{{firewall_ports}}"
-- name: Start nc -l to all valid ports
-  shell: "nc -l {{item}} >/dev/null 2>&1 &"
-  async: -1
-  poll: -1
   with_items:
   - "{{firewall_ports}}"
