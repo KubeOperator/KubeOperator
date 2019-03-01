@@ -11,6 +11,7 @@ services :
                 networks:
                         - fit2openshift-network
                 restart: always
+                tty: true
                 volumes: 
                         - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
                         - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf

@@ -46,7 +46,7 @@ else
 fi
 
 printf "\n"
-printf "%-65s .......... " "Install Docker::"
+printf "%-65s .......... " "Install Docker:"
 
 #install docker
 hasDocker=`which docker 2>&1`
@@ -58,8 +58,22 @@ else
 fi
 printf "\n"
 
+printf "%-65s .......... " "Install Docker-compose:"
+#install docker-compose
+hasDockerCompose=`which docker-compose 2>&1`
+if [[ "${hasDockerCompose}" =~ "no docker-compose" ]]; then
+    yum install -y docker-compose 1>>$infoLogFile 2>>$errorLogFile 
+    success
+else
+    colorMsg $green "[OK]"
+fi
+printf "\n"
+
+
+
 printf "%-65s .......... " "Install Angular Cli:"
 #install ng
+
 hasNg=`which ng 2>&1`
 if [[ "${hasNg}" =~ "no ng" ]]; then
      npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile && ln -s /usr/local/node-v8.11.2-linux-x64/lib/node_modules/@angular/cli/bin/ng /usr/bin/ng 
