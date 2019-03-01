@@ -13,6 +13,7 @@ function colorMsg()
 
 
 printf "%-65s .......... " "create f2o service"
+cp ../../docker-compose.yml /opt/fit2openshift
 cp -r  ../service/** /etc/init.d
 colorMsg $green "[OK]"
 
