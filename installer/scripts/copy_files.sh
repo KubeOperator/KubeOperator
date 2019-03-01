@@ -12,4 +12,6 @@ function colorMsg()
 
 printf "%-65s .......... " "copy fit2openshift files"
 cp -r  ../opt/** /opt
+rm -fr /opt/fit2openshift/data/mysql/*.md
+chmod 777 -R /opt/fit2openshift/data/mysql/
 colorMsg $green "[OK]"
