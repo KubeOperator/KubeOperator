@@ -9,18 +9,18 @@
   </div>
 </clr-modal>
 
-<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
+<clr-datagrid [clrDgLoading]="loading" >
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
       <clr-icon shape="plus" size="16"></clr-icon>
       添加
     </button>
   </clr-dg-action-bar>
-  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="package">离线包</clr-dg-column>
-  <clr-dg-column [clrDgField]="template">部署模型</clr-dg-column>
-  <clr-dg-column [clrDgField]="date_created">创建时间</clr-dg-column>
-  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>离线包</clr-dg-column>
+  <clr-dg-column>部署模型</clr-dg-column>
+  <clr-dg-column>创建时间</clr-dg-column>
+  <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-action-overflow>

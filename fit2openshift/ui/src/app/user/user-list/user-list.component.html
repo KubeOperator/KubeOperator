@@ -5,10 +5,10 @@
       添加
     </button>
   </clr-dg-action-bar>
-  <clr-dg-column [clrDgField]="username">用户名</clr-dg-column>
-  <clr-dg-column [clrDgField]="email">email</clr-dg-column>
-  <clr-dg-column [clrDgField]="is_superuser">管理员</clr-dg-column>
-  <clr-dg-column [clrDgField]="is_active">启用</clr-dg-column>
+  <clr-dg-column>用户名</clr-dg-column>
+  <clr-dg-column>email</clr-dg-column>
+  <clr-dg-column>管理员</clr-dg-column>
+  <clr-dg-column>启用</clr-dg-column>
 
 
   <clr-dg-row *ngFor="let user of users" [clrDgItem]="user">

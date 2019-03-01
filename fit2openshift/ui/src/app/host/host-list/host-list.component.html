@@ -9,7 +9,7 @@
   </div>
 </clr-modal>
 
-<clr-datagrid [clrDgLoading]="loading" >
+<clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
       <clr-icon shape="plus" size="16"></clr-icon>
@@ -17,13 +17,13 @@
     </button>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="ip">IP 地址</clr-dg-column>
-  <clr-dg-column [clrDgField]="cpu_core">CPU(核)</clr-dg-column>
-  <clr-dg-column [clrDgField]="memory">内存(MB)</clr-dg-column>
-  <clr-dg-column [clrDgField]="os">操作系统</clr-dg-column>
-  <clr-dg-column [clrDgField]="cluster">集群</clr-dg-column>
-  <clr-dg-column [clrDgField]="comment">备注</clr-dg-column>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>IP 地址</clr-dg-column>
+  <clr-dg-column>CPU(核)</clr-dg-column>
+  <clr-dg-column>内存(MB)</clr-dg-column>
+  <clr-dg-column>操作系统</clr-dg-column>
+  <clr-dg-column>集群</clr-dg-column>
+  <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
     <clr-dg-action-overflow>

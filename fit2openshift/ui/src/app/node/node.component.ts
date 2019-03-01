@@ -18,7 +18,7 @@ export class NodeComponent implements OnInit {
   @ViewChild(NodeListComponent)
   listNode: NodeListComponent;
 
-  private currentCluster: Cluster;
+  public currentCluster: Cluster;
 
   constructor(private route: ActivatedRoute) {
   }

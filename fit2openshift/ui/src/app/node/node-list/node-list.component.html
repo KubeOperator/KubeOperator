@@ -5,12 +5,12 @@
       添加
     </button>
   </clr-dg-action-bar>
-  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="ip">IP</clr-dg-column>
-  <clr-dg-column [clrDgField]="cpu_core">CPU(核)</clr-dg-column>
-  <clr-dg-column [clrDgField]="memory">内存(MB)</clr-dg-column>
-  <clr-dg-column [clrDgField]="os">操作系统</clr-dg-column>
-  <clr-dg-column [clrDgField]="roles">角色</clr-dg-column>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>IP</clr-dg-column>
+  <clr-dg-column>CPU(核)</clr-dg-column>
+  <clr-dg-column>内存(MB)</clr-dg-column>
+  <clr-dg-column>操作系统</clr-dg-column>
+  <clr-dg-column>角色</clr-dg-column>
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
     <clr-dg-cell>{{node.name}}</clr-dg-cell>

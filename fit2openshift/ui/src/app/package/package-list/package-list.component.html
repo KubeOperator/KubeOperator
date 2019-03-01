@@ -7,9 +7,9 @@
     </button>
   </clr-dg-action-bar>
 
-  <clr-dg-column [clrDgField]="name">名称</clr-dg-column>
-  <clr-dg-column [clrDgField]="version">okd版本</clr-dg-column>
-  <clr-dg-column [clrDgField]="date_created">创建时间</clr-dg-column>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>okd版本</clr-dg-column>
+  <clr-dg-column>创建时间</clr-dg-column>
 
 
   <clr-dg-row *ngFor="let package of packages" [clrDgItem]="package">
