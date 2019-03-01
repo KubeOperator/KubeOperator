@@ -16,7 +16,9 @@ errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
 infoLogFile=${logPath}"info/install_info_"${timestamp}".log"
 fullLogFile=${logPath}"install_"${timestamp}".log"
 printf "%-65s .......... " "Build fit2openshift webconsole ui:"
-cd ui && ng build --prod 1>>$infoLogFile 2>>$errorLogFile
+cd ui
+npm install >/dev/null 2>&1
+ng build --prod 1>>$infoLogFile 2>>$errorLogFile
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"
 else

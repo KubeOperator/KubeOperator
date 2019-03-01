@@ -51,7 +51,7 @@ printf "%-65s .......... " "Install Docker::"
 #install docker
 hasDocker=`which docker 2>&1`
 if [[ "${hasDocker}" =~ "no docker" ]]; then
-    yum install -y docker 1>>$infoLogFile 2>>$errorLogFile   && service docker start
+    yum install -y docker 1>>$infoLogFile 2>>$errorLogFile   && /bin/systemctl start docker.service
     success
 else 
     colorMsg $green "[OK]"
