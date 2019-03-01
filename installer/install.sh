@@ -19,9 +19,7 @@ function colorMsg()
 
 function exit_error()
 {
-if [ "$?" == "0" ];then
-    printf "\n"
-else 
+if [ "$?" != "0" ];then 
     colorMsg $red "Can not  install openshift!"
     exit 1
 fi

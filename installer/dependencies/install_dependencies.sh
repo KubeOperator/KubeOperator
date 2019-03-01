@@ -10,14 +10,26 @@ function colorMsg()
 
 function success()
 {
-if [ "$?" == "0" ];then    
+if [ "$?" != "0" ];then    
     exit 1
 else 
     colorMsg $green "[OK]"
 fi
+echo $?
 }
 
+function download()
+{
+    wget $1 -O $2
+    size_total=`curl -Is $1 | grep Content-Length  | awk -F': ' '{print $2}' | tr -d '\r'`
+    size_current=`du -b  $2 | awk -F' ' '{print $1}'`
 
+if [ "$size_total" -eq "$size_current" ];then
+      printf "download $1 success!"
+    else
+      exit 1
+    fi
+}
 
 
 logPath="/opt/fit2openshift/logs/install/"
@@ -32,8 +44,8 @@ fullLogFile=${logPath}"install_"${timestamp}".log"
 printf "%-65s .......... " "Install Node:"
 hasNode=`which node 2>&1`
 if [[ "${hasNode}" =~ "no node" ]]; then
-    wget https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz -O /tmp/node-v8.11.2-linux-x64.tar.xz 1>>$infoLogFile 2>>$errorLogFile  \
-    && cd /tmp \
+    download https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz /tmp/node-v8.11.2-linux-x64.tar.xz 1>>$infoLogFile 2>>$errorLogFile
+    cd /tmp \
     && xz -d node-v8.11.2-linux-x64.tar.xz \
     && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ 1>>$infoLogFile 2>>$errorLogFile  \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/node /usr/bin/node \
