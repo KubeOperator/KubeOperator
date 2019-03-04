@@ -34,6 +34,7 @@ def before_node_save(sender, instance=None, created=False, **kwargs):
 
 @receiver(pre_save, sender=Setting)
 def before_setting_save(sender, instance=None, **kwargs):
+    pass
     if instance.name == 'hostname':
         os.putenv("REGISTORY_HOSTNAME", instance.value)
 
