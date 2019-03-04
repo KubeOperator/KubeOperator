@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from django.db import transaction
 
 from ansible_api.permissions import IsSuperUser
 from . import serializers
@@ -94,9 +95,9 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        start_deploy_execution.apply_async(
+        transaction.on_commit(lambda: start_deploy_execution.apply_async(
             args=(instance.id,), task_id=str(instance.id)
-        )
+        ))
         return instance
 
 
