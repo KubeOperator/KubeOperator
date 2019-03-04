@@ -4,7 +4,7 @@ from django.db import transaction
 
 from ansible_api.permissions import IsSuperUser
 from . import serializers
-from .models import Cluster, Node, Role, DeployExecution, Package, Host
+from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 
@@ -99,6 +99,15 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
             args=(instance.id,), task_id=str(instance.id)
         ))
         return instance
+
+
+class SettingViewSet(viewsets.ModelViewSet):
+    queryset = Setting.objects.all()
+    permission_classes = (IsSuperUser,)
+    serializer_class = serializers.SettingSerializer
+    http_method_names = ['get', 'head', 'options', 'put', 'patch']
+    lookup_field = 'key'
+    lookup_url_kwarg = 'key'
 
 
 class PackageViewSet(viewsets.ModelViewSet):

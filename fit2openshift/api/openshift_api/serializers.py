@@ -4,12 +4,21 @@ from django.shortcuts import reverse
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
-from .models import Cluster, Node, Role, DeployExecution, Package, Host
+from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
     'RoleSerializer', 'DeployExecutionSerializer',
 ]
+
+
+class SettingSerializer(serializers.ModelSerializer):
+    meta = serializers.JSONField()
+
+    class Meta:
+        model = Setting
+        fields = ['id', 'name', 'key', 'helper', 'order', 'value']
+        read_only_fields = ['id', 'name', 'key', 'helper', 'order']
 
 
 class PackageSerializer(serializers.ModelSerializer):

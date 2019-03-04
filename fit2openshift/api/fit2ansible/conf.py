@@ -1,4 +1,8 @@
+import os
+
 import yaml
+
+from openshift_api.models import Setting
 
 
 def load_env():
@@ -9,3 +13,9 @@ def load_env():
         print("配置文件错误!")
         raise Exception
     return res
+
+
+def set_host():
+    hostname = Setting.objects.filter(key='hostname').first()
+    if hostname:
+        os.putenv("REGISTORY_HOSTNAME", hostname.value)

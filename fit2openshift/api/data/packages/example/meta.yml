@@ -16,7 +16,7 @@ upgrade_playbooks:
     alias: openshift-ansible/playbooks/upgrade.yml
 uninstall_playbooks:
   - name: 1-uninstall
-    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+    alias: openshift-ansible/playbooks/uninstall.yml
 configs:
   - name: openshift_master_cluster_hostname
     alias: 域名
@@ -106,6 +106,7 @@ roles:
       ## Openshift Registry Options
       #openshift_hosted_registry_storage_kind: glusterfs
       #openshift_hosted_registry_replicas: 1
+
       ##OCS
       #openshift_storage_glusterfs_namespace: ocs
       #openshift_storage_glusterfs_name: ocs
@@ -141,7 +142,7 @@ roles:
       ##openshift_service_catalog_image_version=latest
       ##ansible_service_broker_local_registry_whitelist=['.*-apb$']
       ##openshift_template_service_broker_namespaces=['openshift']
-      
+
       ## Logging deployment
       #openshift_logging_install_logging=true
       openshift_logging_install_logging: false
