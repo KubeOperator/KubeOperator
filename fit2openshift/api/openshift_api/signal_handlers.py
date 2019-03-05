@@ -50,7 +50,7 @@ def auto_lookup_packages():
 def on_execution_start(sender, execution, **kwargs):
     ##检查是否存在有效的hostname
     hostname = Setting.objects.filter(key="hostname").first()
-    if hostname.value and not hostname.value == "":
+    if hostname and hostname.value and not hostname.value == "":
         execution.date_start = timezone.now()
         execution.state = execution.STATE_STARTED
         execution.save()
