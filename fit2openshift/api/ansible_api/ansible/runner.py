@@ -235,8 +235,10 @@ class PlayBookRunner(AdHocRunner):
         super().__init__(inventory, options=options)
         C.RETRY_FILES_ENABLED = False
 
-    def run(self, playbook_path, **kwargs):
+    def run(self, playbook_path, extra_vars=None, **kwargs):
         C.DEFAULT_ROLES_PATH = self.options.roles_path
+        if extra_vars and isinstance(extra_vars, dict):
+            self.variable_manager.extra_vars = extra_vars
         executor = PlaybookExecutor(
             playbooks=[playbook_path],
             inventory=self.inventory,

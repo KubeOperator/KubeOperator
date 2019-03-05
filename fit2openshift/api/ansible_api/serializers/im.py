@@ -38,7 +38,7 @@ class IMPlaybookSerializer(IMBaseSerializer):
     plays = PlaySerializer(many=True)
 
     def create(self, validated_data):
-        self.create_inventory()
+        self.create_plays()
         self.create_roles()
         plays = self.create_plays()
         playbook = Playbook.objects.create(name=self.project.name, project=self.project)
