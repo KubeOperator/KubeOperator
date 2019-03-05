@@ -34,8 +34,7 @@ if [ "$size_total" -eq "$size_current" ];then
 
 logPath="/opt/fit2openshift/logs/install/"
 timestamp=$(date -d now +%F)
-errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
-infoLogFile=${logPath}"info/install_info_"${timestamp}".log"
+
 fullLogFile=${logPath}"install_"${timestamp}".log"
 
 #install node,docker
@@ -44,14 +43,14 @@ fullLogFile=${logPath}"install_"${timestamp}".log"
 printf "%-65s .......... " "Install Node:"
 hasNode=`which node 2>&1`
 if [[ "${hasNode}" =~ "no node" ]]; then
-    download https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz /tmp/node-v8.11.2-linux-x64.tar.xz 1>>$infoLogFile 2>>$errorLogFile
+    download https://nodejs.org/dist/v8.11.2/node-v8.11.2-linux-x64.tar.xz /tmp/node-v8.11.2-linux-x64.tar.xz >>$fullLogFile 2>&1
     cd /tmp \
     && xz -d node-v8.11.2-linux-x64.tar.xz \
-    && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ 1>>$infoLogFile 2>>$errorLogFile  \
+    && tar -xvf node-v8.11.2-linux-x64.tar -C  /usr/local/ >>$fullLogFile 2>&1  \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/node /usr/bin/node \
     && ln -s /usr/local/node-v8.11.2-linux-x64/bin/npm /usr/bin/npm \
     && rm -fr /tmp/node-v8.11.2-linux-x64.tar.xz \
-    && npm i npm@latest -g 1>>$infoLogFile 2>>$errorLogFile
+    && npm i npm@latest -g >>$fullLogFile 2>&1
     success
 else 
    colorMsg $green "[OK]"
@@ -74,7 +73,7 @@ printf "%-65s .......... " "Install Docker-compose:"
 #install docker-compose
 hasDockerCompose=`which docker-compose 2>&1`
 if [[ "${hasDockerCompose}" =~ "no docker-compose" ]]; then
-    yum install -y docker-compose 1>>$infoLogFile 2>>$errorLogFile 
+    yum install -y docker-compose >>$fullLogFile 2>&1 
     success
 else
     colorMsg $green "[OK]"
@@ -88,7 +87,7 @@ printf "%-65s .......... " "Install Angular Cli:"
 
 hasNg=`which ng 2>&1`
 if [[ "${hasNg}" =~ "no ng" ]]; then
-     npm install -g @angular/cli  1>>$infoLogFile 2>>$errorLogFile && ln -s /usr/local/node-v8.11.2-linux-x64/lib/node_modules/@angular/cli/bin/ng /usr/bin/ng 
+     npm install -g @angular/cli  >>$fullLogFile 2>&1 && ln -s /usr/local/node-v8.11.2-linux-x64/lib/node_modules/@angular/cli/bin/ng /usr/bin/ng 
      success
 else 
    colorMsg $green "[OK]"

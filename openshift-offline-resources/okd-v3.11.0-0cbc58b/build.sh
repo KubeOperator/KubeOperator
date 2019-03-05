@@ -14,23 +14,21 @@ function colorMsg()
 
 logPath="/opt/fit2openshift/logs/install/"
 timestamp=$(date -d now +%F)
-errorLogFile=${logPath}"error/install_error_"${timestamp}".log"
-infoLogFile=${logPath}"info/install_info_"${timestamp}".log"
 fullLogFile=${logPath}"install_"${timestamp}".log"
 
 printf "%-65s .......... " "build image: okd_offline_package:v3.11.0-0cbc58b"
 
 cd okd-3.11-meta \
-&& ./download-dependencies.sh 1>>$infoLogFile 2>>$errorLogFile  \
+&& ./download-dependencies.sh >>$fullLogFile 2>&1  \
 && cd .. \
-&& docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_offline_package:v3.11.0-0cbc58b . 1>>$infoLogFile 2>>$errorLogFile 
+&& docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_offline_package:v3.11.0-0cbc58b . >>$fullLogFile 2>&1
 
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"
 else
     colorMsg $red "[DEFEATED]"
     printf "\n"
-    printf "Build okd_ffline_package:v3.11.0-0cbc58b defeated! An error log in :"${errorLogFile}
+    printf "Build okd_ffline_package:v3.11.0-0cbc58b defeated! An error log in :"${fullLogFile}
     printf "\n"
     exit 1
 fi
