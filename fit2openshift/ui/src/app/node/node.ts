@@ -8,9 +8,8 @@ export class Node {
   vars: {} = {};
   roles: any[] = [];
   host: string;
-  host_memory: string;
-  host_cpu_core: string;
+  host_memory: number;
+  host_cpu_core: number;
   host_os: string;
   host_os_version: string;
-  hostList: Host[] = [];
 }

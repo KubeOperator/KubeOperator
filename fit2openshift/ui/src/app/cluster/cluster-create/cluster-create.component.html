@@ -50,7 +50,7 @@
         <label>选择主机:</label>
         <label>
           <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
-            <option value="">请选择</option>
+            <option [value]="">请选择</option>clear
             <option *ngFor="let host of hosts | hostsFilter :nodes:node "
                     value="{{host.id}}">{{host.name}}</option>
           </select>

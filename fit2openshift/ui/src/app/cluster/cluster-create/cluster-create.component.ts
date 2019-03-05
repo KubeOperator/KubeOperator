@@ -148,9 +148,6 @@ export class ClusterCreateComponent implements OnInit {
     });
   }
 
-  flash() {
-    console.log(this.nodes);
-  }
 
   getHostInfo(host: Host) {
     const template = '{N} [{C}核  {M}MB  {O}]';
