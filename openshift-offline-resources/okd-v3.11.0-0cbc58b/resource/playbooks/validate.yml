@@ -4,7 +4,7 @@
   hosts: OSEv3
   tasks:
     - name: config registry hostname
-      shell: echo "{{ lookup('env','REGISTORY_HOSTNAME') }}       registry.fit2openshift.io" >> /etc/hosts
+      shell: echo "{{ REGISTRY_HOSTNAME }}       registry.fit2openshift.io" >> /etc/hosts
 
 - name: replace repos.
   hosts: OSEv3

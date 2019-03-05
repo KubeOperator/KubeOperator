@@ -59,8 +59,6 @@ class Setting(models.Model):
     order = models.IntegerField(default=0)
 
 
-
-
 class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
@@ -304,13 +302,16 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         Cluster.objects.filter(id=self.project.id).update(current_task_id=self.id)
 
     def start(self):
+        hostname = Setting.objects.filter(key="hostname").first()
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
         playbooks = self.project.playbook_set.filter(name__endswith='-' + self.operation).order_by('name')
         for index, playbook in enumerate(playbooks):
             print("\n>>> Start run {} ".format(playbook.name))
             self.update_task(playbook.name)
-            _result = playbook.execute()
+            _result = playbook.execute(extra_vars={
+                "REGISTRY_HOSTNAME": hostname.value
+            })
             result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):
                 break
