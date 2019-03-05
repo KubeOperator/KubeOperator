@@ -77,7 +77,6 @@ def install_role(tid, **kwargs):
 def run_im_adhoc(adhoc_data, inventory_data):
     inventory = WithHostInfoInventory(inventory_data)
     runner = AdHocRunner(inventory)
-    print(inventory)
     pattern = adhoc_data.get('pattern') or ''
     module = adhoc_data.get('module') or 'ping'
     args = adhoc_data.get('args') or ''

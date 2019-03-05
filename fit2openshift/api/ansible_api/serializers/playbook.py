@@ -38,13 +38,14 @@ class PlaySerializer(PlayReadSerializer, ProjectSerializerMixin):
 
 class PlaybookReadSerializer(ReadSerializerMixin, serializers.ModelSerializer):
     plays = PlayReadSerializer(many=True, required=False)
+    extra_vars = serializers.DictField(required=False, default={})
     git = GitSerializer(required=False)
 
     class Meta:
         model = Playbook
         fields = [
             'id', 'name', 'alias', 'project', 'type', 'plays', 'git',
-            'is_periodic', 'interval', 'crontab', 'is_active',
+            'extra_vars', 'is_periodic', 'interval', 'crontab', 'is_active',
             'comment', 'created_by', 'date_created', 'project'
         ]
         read_only_fields = ['id', 'created_by', 'date_created']
@@ -67,6 +68,7 @@ class PlaybookSerializer(PlaybookReadSerializer, ProjectSerializerMixin):
 
 
 class PlaybookExecutionSerializer(serializers.ModelSerializer, ProjectSerializerMixin):
+    extra_vars = serializers.DictField(required=False, default={})
     result_summary = serializers.JSONField(read_only=True)
     log_url = serializers.SerializerMethodField()
     log_ws_url = serializers.SerializerMethodField()
@@ -74,9 +76,9 @@ class PlaybookExecutionSerializer(serializers.ModelSerializer, ProjectSerializer
     class Meta:
         model = PlaybookExecution
         fields = [
-            'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',
-            'result_summary', 'date_created', 'date_start', 'date_end',
-            'playbook', 'project'
+            'id', 'extra_vars', 'num', 'state', 'timedelta', 'log_url',
+            'log_ws_url', 'result_summary', 'date_created', 'date_start',
+            'date_end', 'playbook', 'project'
         ]
         read_only_fields = [
             'id', 'num', 'state', 'timedelta', 'log_url', 'log_ws_url',

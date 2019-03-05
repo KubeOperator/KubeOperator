@@ -2,7 +2,6 @@
 #
 
 import os
-import shutil
 import json
 import yaml
 import git
@@ -155,8 +154,9 @@ class Playbook(AbstractProjectResourceModel):
     type = models.CharField(choices=TYPE_CHOICES, default=TYPE_JSON, max_length=16)
     plays = models.ManyToManyField('Play', verbose_name='Plays')
     git = common_models.JsonDictCharField(max_length=4096, default={'repo': '', 'branch': 'master'})
-    url = models.URLField(verbose_name=_("http urls"), blank=True)
+    url = models.URLField(verbose_name=_("http url"), blank=True)
     update_policy = models.CharField(choices=UPDATE_POLICY_CHOICES, max_length=16, default=UPDATE_POLICY_IF_NOT_PRESENT)
+    extra_vars = common_models.JsonDictTextField(verbose_name=_('Vars'), blank=True, null=True, default={})
 
     # Extra schedule content
     is_periodic = models.BooleanField(default=False, verbose_name=_("Enable"))
@@ -265,9 +265,9 @@ class Playbook(AbstractProjectResourceModel):
         else:
             return False, 'Not support {}'.format(self.type)
 
-    def execute(self):
+    def execute(self, extra_vars=None):
         pk = current_task.request.id if current_task else None
-        execution = PlaybookExecution(playbook=self, pk=pk)
+        execution = PlaybookExecution(playbook=self, pk=pk, extra_vars=extra_vars)
         execution.save()
         result = execution.start()
         return result
@@ -307,6 +307,7 @@ class Playbook(AbstractProjectResourceModel):
 
 class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     playbook = models.ForeignKey(Playbook, related_name='executions', on_delete=models.SET_NULL, null=True)
+    extra_vars = common_models.JsonDictTextField(verbose_name=_('Vars'), blank=True, null=True)
 
     class Meta:
         get_latest_by = 'date_start'
@@ -329,7 +330,13 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.project.inventory_obj,
                 options=self.project.cleaned_options,
             )
-            result = runner.run(self.playbook.playbook_path)
+            extra_vars = {}
+            if isinstance(self.playbook.extra_vars, dict):
+                extra_vars.update(self.playbook.extra_vars)
+            if isinstance(self.extra_vars, dict):
+                extra_vars.update(self.extra_vars)
+
+            result = runner.run(self.playbook.playbook_path, extra_vars=extra_vars)
         except IndexError as e:
             result["summary"] = {'error': str(e)}
         finally:
