@@ -1,5 +1,5 @@
 - name: Backup original repos
-  shell: mkdir -p /etc/yum.repos.d/backup && /bin/mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup
+  shell: mkdir -p /etc/yum.repos.d/backup && /bin/mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup  >>/dev/null 2>&1
 
 - name: Create proxy repo 
   template:
