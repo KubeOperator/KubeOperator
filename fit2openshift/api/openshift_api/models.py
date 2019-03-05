@@ -246,7 +246,6 @@ class Node(Ansible_Host):
 
     def before_node_save(self):
         host = Host.objects.filter(id=self.host_id).first()
-        print(host.node_id)
         if not host.node_id is None:
             raise Exception('host ' + host.name + 'in use')
 
