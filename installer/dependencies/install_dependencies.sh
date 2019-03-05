@@ -15,7 +15,6 @@ if [ "$?" != "0" ];then
 else 
     colorMsg $green "[OK]"
 fi
-echo $?
 }
 
 function download()
@@ -62,7 +61,7 @@ printf "%-65s .......... " "Install Docker:"
 #install docker
 hasDocker=`which docker 2>&1`
 if [[ "${hasDocker}" =~ "no docker" ]]; then
-    yum install -y docker 1>>$infoLogFile 2>>$errorLogFile   && /bin/systemctl start docker.service
+    yum install -y docker >>$fullLogFile 2>&1   && /bin/systemctl start docker.service
     success
 else 
     colorMsg $green "[OK]"
