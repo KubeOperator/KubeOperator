@@ -1,5 +1,6 @@
-import yaml
+import os
 
+import yaml
 
 def load_env():
     try:
@@ -9,3 +10,5 @@ def load_env():
         print("配置文件错误!")
         raise Exception
     return res
+
+

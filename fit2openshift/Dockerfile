@@ -22,11 +22,9 @@ ENV PYTHONOPTIMIZE=1
 ENV C_FORCE_ROOT=1
 
 RUN mkdir -p /root/.ssh/
-# RUN echo "ClusterHost *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > /root/.ssh/config
 
 ADD ./api/ /opt/fit2openshift-app
 ADD ./ui/dist/fit2openshift-portal /usr/share/nginx/html
-
 
 EXPOSE 8080 80
 CMD nohup sh -c 'nginx && python3 entrypoint.py start'

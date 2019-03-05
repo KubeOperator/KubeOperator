@@ -161,7 +161,8 @@ class Playbook(AbstractProjectResourceModel):
     # Extra schedule content
     is_periodic = models.BooleanField(default=False, verbose_name=_("Enable"))
     interval = models.CharField(verbose_name=_("Interval"), null=True, blank=True, max_length=128, help_text=_("s/m/d"))
-    crontab = models.CharField(verbose_name=_("Crontab"), null=True, blank=True, max_length=128, help_text=_("5 * * * *"))
+    crontab = models.CharField(verbose_name=_("Crontab"), null=True, blank=True, max_length=128,
+                               help_text=_("5 * * * *"))
     meta = common_models.JsonDictTextField(blank=True, verbose_name=_("Meta"))
 
     execute_times = models.IntegerField(default=0)
@@ -323,6 +324,7 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             post_execution_start.send(self.__class__, execution=self, result=result)
             return result
         os.chdir(self.playbook.playbook_dir())
+        print(self.project.inventory_obj.__dict__)
         try:
             runner = PlayBookRunner(
                 self.project.inventory_obj,

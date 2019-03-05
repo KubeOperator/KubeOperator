@@ -1,8 +1,14 @@
-- hosts: localhost
-  become: yes
+- hosts: OSEv3
   tasks:
-    - name: Detecting Operating System
-      shell: ls /run/ostree-booted
-      ignore_errors: yes
-      failed_when: false
-      register: ostree_output
+    - name: test
+      ping:
+
+- hosts: etcd
+  tasks:
+    - name: test
+      ping:
+
+- hosts: nodes
+  tasks:
+    - name: test
+      ping:

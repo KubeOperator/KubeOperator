@@ -24,9 +24,9 @@ if [ "$size_total" -eq "$size_current" ];then
     fi
 }
 
-download ${chef} dependencies/chef-14.9.13-1.el7.x86_64.rpm
-download ${openJava} dependencies/server-jre-8u192-linux-x64.tar.gz 
-download ${nexus} nexus-okd-3.11.tar.gz
+#download ${chef} dependencies/chef-14.9.13-1.el7.x86_64.rpm
+#download ${openJava} dependencies/server-jre-8u192-linux-x64.tar.gz 
+#download ${nexus} nexus-okd-3.11.tar.gz
 tar -zvxf nexus-okd-3.11.tar.gz 
 if [ "$?" != "0" ];then
     exit 1

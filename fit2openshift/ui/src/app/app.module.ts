@@ -17,8 +17,9 @@ import {MonitorModule} from './monitor/monitor.module';
 import {LogModule} from './log/log.module';
 import {TipModule} from './tip/tip.module';
 import {HostModule} from './host/host.module';
-import {HostFilterPipe} from './host/host-filter.pipe';
 import {DeployModule} from './deploy/deploy.module';
+import {SettingComponent} from './setting/setting.component';
+import {SettingModule} from './setting/setting.module';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import {DeployModule} from './deploy/deploy.module';
     MonitorModule,
     TipModule,
     HostModule,
+    SettingModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

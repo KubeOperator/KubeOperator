@@ -50,6 +50,17 @@ class Package(models.Model):
             cls.objects.update_or_create(defaults=defaults, name=d)
 
 
+class Setting(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    key = models.CharField(max_length=128, blank=False)
+    value = models.CharField(max_length=255, blank=True, default='')
+    name = models.CharField(max_length=128, blank=False)
+    helper = models.CharField(max_length=255, blank=True)
+    order = models.IntegerField(default=0)
+
+
+
+
 class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
@@ -235,7 +246,6 @@ class Node(Ansible_Host):
 
     def before_node_save(self):
         host = Host.objects.filter(id=self.host_id).first()
-        print(host.node_id)
         if not host.node_id is None:
             raise Exception('host ' + host.name + 'in use')
 

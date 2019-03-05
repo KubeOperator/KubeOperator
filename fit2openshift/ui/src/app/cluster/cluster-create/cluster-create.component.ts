@@ -51,6 +51,7 @@ export class ClusterCreateComponent implements OnInit {
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
       this.hosts = data;
+
     }, error => {
       console.log(error);
     });
@@ -95,7 +96,6 @@ export class ClusterCreateComponent implements OnInit {
               node.roles.push(role.name);
               this.nodes.push(node);
             }
-            this.initNodeHostList();
           }
         });
       }
@@ -113,6 +113,20 @@ export class ClusterCreateComponent implements OnInit {
     });
   }
 
+  fullNode() {
+    this.nodes.forEach(node => {
+      this.hosts.forEach(host => {
+        if (node.host === host.id) {
+          node.ip = host.ip;
+          node.host_memory = host.memory;
+          node.host_cpu_core = host.cpu_core;
+          node.host_os = host.os;
+          node.host_os_version = host.os_version;
+        }
+      });
+    });
+  }
+
   createNodes() {
     this.nodes.forEach(node => {
       this.nodeService.createNode(this.cluster.name, node).subscribe(data => {
@@ -120,7 +134,6 @@ export class ClusterCreateComponent implements OnInit {
       });
     });
   }
-
 
   configCluster() {
     this.configs.forEach(config => {
@@ -133,38 +146,6 @@ export class ClusterCreateComponent implements OnInit {
         this.create.emit(true);
       });
     });
-  }
-
-  initNodeHostList() {
-    this.nodes.forEach(node => {
-      node.hostList = this.hosts;
-    });
-  }
-
-  changeNode() {
-    this.nodes.forEach(node => {
-      this.onNodeChange(node);
-    });
-  }
-
-  onNodeChange(node: Node) {
-    node.hostList = [];
-    this.hosts.forEach(host => {
-      if (host.cluster === '无' && !this.finds(host, node, this.nodes)) {
-        node.hostList.push(host);
-      }
-    });
-  }
-
-  private finds(host: Host, currentNode: Node, node: Node[]): boolean {
-    let flag = false;
-    for (let i = 0; i < node.length; i++) {
-      if (node[i].host === host.id && currentNode !== node[i]) {
-        flag = true;
-        break;
-      }
-    }
-    return flag;
   }
 
 

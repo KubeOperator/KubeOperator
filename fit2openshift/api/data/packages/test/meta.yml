@@ -1,0 +1,182 @@
+name: okd-3.11
+version: 3.11
+uninstall_playbooks:
+  - name: 1-uninstall
+    alias: main.yml
+configs:
+  - name: openshift_master_cluster_hostname
+    alias: 域名
+    type: Input
+    default: master.fit2openshift.com
+    required: true
+    help_text: 访问的fit2openshift的域名
+
+  - name: openshift_master_default_subdomain
+    alias: 子域名后缀
+    type: Input
+    default: apps.test.example.com
+    required: true
+    help_text: 部署app后service的域名
+
+
+# template public roles
+roles:
+  - name: etcd
+    children:
+      - masters
+    meta:
+      hidden: true
+  - name: OSEv3
+    children:
+      - masters
+      - nodes
+      - etcd
+      - lb
+    meta:
+      hidden: true
+    vars:
+      ansible_ssh_user: root
+      ansible_become: no
+      deployment_type: origin
+      openshift_deployment_type: origin
+
+      enable_excluders: false
+      enable_docker_excluder: false
+      containerized: true
+
+      openshift_image_tag: v3.11
+
+      # custom registry
+      oreg_url: registry.fit2openshift.io:8082/openshift/origin-${component}:${version}
+      system_images_registry: registry.fit2openshift.io:8082
+      #openshift_examples_modify_imagestreams: true
+      openshift_docker_additional_registries: registry.fit2openshift.io:8082
+      openshift_service_catalog_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      openshift_metrics_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      openshift_logging_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      ansible_service_broker_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      ansible_service_broker_etcd_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+
+      # Skip env validation
+      openshift_disable_check: docker_storage,disk_availability,memory_availability,docker_image_availability
+      # Configure usage of openshift_clock role.
+      openshift_clock_enabled: true
+      # Set upgrade restart mode for full system restarts
+      openshift_rolling_restart_mode: system
+      # Docker / Registry Configuration
+      openshift_docker_disable_push_dockerhub: true
+      openshift_docker_options: "--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+      openshift_docker_insecure_registries: docker-registry.default.svc,docker-registry.default.svc.cluster.local,registry.fit2openshift.io:8082
+      # Native high availability cluster method with optional load balancer.
+      openshift_master_cluster_method: native
+      openshift_master_api_port: 8443
+      openshift_master_console_port: 8443
+      # Configure the multi-tenant SDN plugin (default is 'redhat/openshift-ovs-subnet')
+      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
+      # Configure SDN cluster network and kubernetes service CIDR blocks. These
+      # network blocks should be private and should not conflict with network blocks
+      # in your infrastructure that pods may require access to. Can not be changed
+      # after deployment.
+      osm_cluster_network_cidr: 10.100.0.0/16
+      openshift_portal_net: 172.30.0.0/16
+      osm_host_subnet_length: 8
+      # Proxy
+      openshift_generate_no_proxy_hosts: true
+      # htpasswd auth
+      openshift_master_identity_providers:
+        - name: htpasswd_auth
+          login: true
+          challenge: true
+          kind: HTPasswdPasswordIdentityProvider
+      openshift_master_overwrite_named_certificates: true
+      ## Openshift Registry Options
+      #openshift_hosted_registry_storage_kind: glusterfs
+      #openshift_hosted_registry_replicas: 1
+      ##OCS
+      #openshift_storage_glusterfs_namespace: ocs
+      #openshift_storage_glusterfs_name: ocs
+      #openshift_storage_glusterfs_wipe: true
+      #openshift_storage_glusterfs_storageclass: true
+      #openshift_storage_glusterfs_storageclass_default: true
+      #openshift_storage_glusterfs_image: registry.access.redhat.com/rhgs3/rhgs-server-rhel7
+      #openshift_storage_glusterfs_heketi_image: registry.access.redhat.com/rhgs3/rhgs-volmanager-rhel7
+      #openshift_storage_glusterfs_block_deploy: true
+      #openshift_storage_glusterfs_block_host_vol_create: true
+      #openshift_storage_glusterfs_block_host_vol_size: 50
+      #openshift_storage_glusterfs_block_storageclass: true
+
+      ## Prometheus
+      openshift_cluster_monitoring_operator_install: false
+      #openshift_cluster_monitoring_operator_prometheus_storage_capacity=5Gi
+      #openshift_cluster_monitoring_operator_node_selector={"node-role.kubernetes.io/infra":"true"}
+
+      ## Metrics deployment
+      #openshift_metrics_install_metrics=true
+      openshift_metrics_install_metrics: false
+      #openshift_metrics_hawkular_hostname=metrics.47.94.6.229
+      #openshift_metrics_cassandra_replicas=1
+      #openshift_metrics_cassandra_limits_memory=2Gi
+      #openshift_metrics_hawkular_replicas=1
+      #openshift_metrics_duration=5
+      #openshift_metrics_cassandra_pvc_size=5Gi
+      #openshift_metrics_cassandra_storage_type=dynamic
+      #openshift_metrics_cassandra_pvc_storage_class_name=glusterfs-ocs-block
+
+      ## Service brokers
+      openshift_enable_service_catalog: false
+      ##openshift_service_catalog_image_version=latest
+      ##ansible_service_broker_local_registry_whitelist=['.*-apb$']
+      ##openshift_template_service_broker_namespaces=['openshift']
+
+      ## Logging deployment
+      #openshift_logging_install_logging=true
+      openshift_logging_install_logging: false
+      #openshift_logging_kibana_hostname=logging.47.94.6.229
+      #openshift_logging_use_ops=false
+      #openshift_logging_public_master_url=https://47.94.6.229:8443
+      #openshift_logging_curator_default_days=7
+      #openshift_logging_es_pvc_size=10Gi
+      #openshift_logging_es_pvc_dynamic=true
+      #openshift_logging_es_pvc_storage_class_name=glusterfs-ocs-block
+      #openshift_logging_es_memory_limit=8Gi
+      installer_ip: registry.fit2openshift.io
+
+templates:
+  - name: 单节点
+    roles:
+      - name: masters
+        vars:
+          openshift_node_group_name: node-config-all-in-one
+        meta:
+          hidden: false
+          nodes_require:
+            - '='
+            - 1
+      - name: nodes
+        children:
+          - masters
+        meta:
+          hidden: true
+
+  - name: 一主多节点
+    roles:
+      - name: masters
+        vars:
+          openshift_node_group_name: node-config-master-infra
+        meta:
+          hidden: false
+          nodes_require:
+            - '='
+            - 1
+      - name: cumpute
+        meta:
+          hidden: false
+          nodes_require:
+            - '>'
+            - 2
+      - name: nodes
+        children:
+          - masters
+          - compute
+        meta:
+          hidden: true

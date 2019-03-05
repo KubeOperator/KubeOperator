@@ -1,9 +1,11 @@
+import os
+
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
-from .models import Role, Package, Cluster, Node, Host
+from .models import Role, Package, Cluster, Node, Host, Setting
 
 
 @receiver(post_save, sender=Cluster)
@@ -28,6 +30,13 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
 def before_node_save(sender, instance=None, created=False, **kwargs):
     if created and not instance.name == 'localhost':
         instance.before_node_save()
+
+
+@receiver(pre_save, sender=Setting)
+def before_setting_save(sender, instance=None, **kwargs):
+    pass
+    if instance.name == 'hostname':
+        os.putenv("REGISTORY_HOSTNAME", instance.value)
 
 
 def auto_lookup_packages():
