@@ -16,6 +16,7 @@ services :
                         - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
                         - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
                         - share-volumes:/opt/fit2openshift-app/data/packages
+                        - /opt/fit2openshift/conf/ssh/config:/root/.ssh/config  
         fit2openshift-db:
                 container_name: fit2openshift-db
                 image: mysql:5.7.24
