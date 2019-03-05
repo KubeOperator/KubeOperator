@@ -182,16 +182,19 @@ templates:
           nodes_require:
             - '='
             - 1
-      - name: cumpute
+      - name: compute
+        vars:
+            openshift_node_group_name: node-config-compute
         meta:
           hidden: false
           nodes_require:
             - '>'
-            - 2
+            - 1
       - name: nodes
         children:
           - masters
           - compute
         meta:
           hidden: true
+
 
