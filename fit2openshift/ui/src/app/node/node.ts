@@ -12,4 +12,5 @@ export class Node {
   host_cpu_core: number;
   host_os: string;
   host_os_version: string;
+  delete = true;
 }

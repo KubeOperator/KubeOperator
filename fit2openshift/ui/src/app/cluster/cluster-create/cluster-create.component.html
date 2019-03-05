@@ -6,7 +6,7 @@
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
-  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid">
+  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid" (clrWizardPageOnCommit)="checkCluster()">
     <form #basicFrom='ngForm' clrForm>
       <ng-template clrPageTitle>基本信息</ng-template>
       <div class="spinner" *ngIf="loadingFlag">
@@ -42,21 +42,53 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">
+  <!--<clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">-->
+  <clr-wizard-page (clrWizardPageOnCommit)="fullNode()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' clrForm>
-      <div *ngFor="let node of nodes">
-        <h5>{{node.name}}</h5>
-        <label>选择主机:</label>
-        <label>
-          <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
-            <option [value]="">请选择</option>clear
-            <option *ngFor="let host of hosts | hostsFilter :nodes:node "
-                    value="{{host.id}}">{{host.name}}</option>
-          </select>
-        </label>
+      <div *ngFor="let group of groups">
+        <h4>{{group.name}}</h4>
+        <hr/>
+        <div *ngFor="let node of group.nodes" class="clr-row">
+          <div class="clr-col-10">
+            <h5>{{node.name}}</h5>
+            <clr-select-container>
+              <label>选择主机:</label>
+              <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
+                <option [value]="">请选择</option>
+                <option *ngFor="let host of hosts | hostsFilter :nodes:node "
+                        value="{{host.id}}">{{host.name}}</option>
+              </select>
+            </clr-select-container>
+          </div>
+          <div *ngIf="node.delete" class="clr-col-2">
+            <button class="btn btn-info-outline" (click)="deleteNode(group,node)">
+              <clr-icon shape="times"></clr-icon>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="group.op!== '='">
+          <button class="btn btn-info-outline" (click)="addNode(group)">
+            <clr-icon shape="plus"></clr-icon>
+          </button>
+        </div>
       </div>
     </form>
+
+
+    <!--<form #nodeForm='ngForm' clrForm>-->
+    <!--<div *ngFor="let node of nodes">-->
+    <!--<h5>{{node.name}}</h5>-->
+    <!--<label>选择主机:</label>-->
+    <!--<label>-->
+    <!--<select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">-->
+    <!--<option [value]="">请选择</option>clear-->
+    <!--<option *ngFor="let host of hosts | hostsFilter :nodes:node "-->
+    <!--value="{{host.id}}">{{host.name}}</option>-->
+    <!--</select>-->
+    <!--</label>-->
+    <!--</div>-->
+    <!--</form>-->
   </clr-wizard-page>
 
   <clr-wizard-page [clrWizardPageNextDisabled]="!configForm.valid">

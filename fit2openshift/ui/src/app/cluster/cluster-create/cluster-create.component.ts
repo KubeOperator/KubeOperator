@@ -11,6 +11,7 @@ import {RelationService} from '../relation.service';
 import {Host} from '../../host/host';
 import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
+import {Group} from '../group';
 
 @Component({
   selector: 'app-cluster-create',
@@ -30,6 +31,8 @@ export class ClusterCreateComponent implements OnInit {
   templates: Template[] = [];
   nodes: Node[] = [];
   hosts: Host[] = [];
+  groups: Group[] = [];
+
   @Output() create = new EventEmitter<boolean>();
   loadingFlag = false;
 
@@ -64,6 +67,7 @@ export class ClusterCreateComponent implements OnInit {
     this.templates = null;
     this.nodes = null;
     this.configs = null;
+    this.groups = null;
   }
 
   packgeOnChange() {
@@ -85,22 +89,56 @@ export class ClusterCreateComponent implements OnInit {
 
   templateOnChange() {
     this.nodes = [];
+    this.groups = [];
     this.templates.forEach(tmp => {
       if (tmp.name === this.cluster.template) {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
-            const roleNumber = role.meta.nodes_require[1];
-            for (let i = 0; i < roleNumber; i++) {
-              const node: Node = new Node();
-              node.name = role.name + '-' + i;
-              node.roles.push(role.name);
-              this.nodes.push(node);
+            const group: Group = new Group();
+            group.name = role.name;
+            group.op = role.meta.nodes_require[0];
+            group.limit = role.meta.nodes_require[1];
+            for (let i = group.node_sum; i < group.limit; i++) {
+              this.addNode(group, false);
             }
+            this.groups.push(group);
           }
         });
       }
     });
   }
+
+  deleteNode(group: Group, node: Node) {
+    let indexG;
+    let indexN;
+    for (let i = 0; i < group.nodes.length; i++) {
+      if (node.name === group.nodes[i].name) {
+        indexG = i;
+      }
+    }
+    for (let i = 0; i < this.nodes.length; i++) {
+      if (node.name === this.nodes[i].name) {
+        indexN = i;
+      }
+    }
+    group.nodes.splice(indexG, 1);
+    this.nodes.splice(indexN, 1);
+    group.node_sum--;
+
+  }
+
+  addNode(group: Group, canDelete?: boolean) {
+    const node: Node = new Node();
+    if (canDelete !== undefined && canDelete !== null) {
+      node.delete = canDelete;
+    }
+    node.name = group.name + '-' + group.node_sum;
+    group.node_sum++;
+    node.roles.push(group.name);
+    group.nodes.push(node);
+    this.nodes.push(node);
+  }
+
 
   onSubmit() {
     if (this.isSubmitGoing) {
