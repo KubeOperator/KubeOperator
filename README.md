@@ -1,3 +1,7 @@
+# 目前该项目仍在开发中，未正式发布。
+
+
+
 # Welcome to FIT2OPENSHIFT (Fit to OpenShift)
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
