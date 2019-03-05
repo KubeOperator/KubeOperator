@@ -6,7 +6,7 @@
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
-  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid" (clrWizardPageOnCommit)="checkCluster()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid">
     <form #basicFrom='ngForm' clrForm>
       <ng-template clrPageTitle>基本信息</ng-template>
       <div class="spinner" *ngIf="loadingFlag">
