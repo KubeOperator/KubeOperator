@@ -42,17 +42,19 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid">
+  <clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' clrForm>
       <div *ngFor="let node of nodes">
         <h5>{{node.name}}</h5>
-        <clr-select-container>
-          <label>选择主机:</label>
-          <select clrSelect [(ngModel)]="node.host" name="node" (change)="changeNode()">
-            <option *ngFor="let host of node.hostList " [ngValue]="host.id">{{getHostInfo(host)}}</option>
+        <label>选择主机:</label>
+        <label>
+          <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
+            <option value="">请选择</option>
+            <option *ngFor="let host of hosts | hostsFilter :nodes:node "
+                    value="{{host.id}}">{{host.name}}</option>
           </select>
-        </clr-select-container>
+        </label>
       </div>
     </form>
   </clr-wizard-page>
