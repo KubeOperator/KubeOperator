@@ -48,9 +48,14 @@ def auto_lookup_packages():
 
 @receiver(pre_deploy_execution_start)
 def on_execution_start(sender, execution, **kwargs):
-    execution.date_start = timezone.now()
-    execution.state = execution.STATE_STARTED
-    execution.save()
+    ##检查是否存在有效的hostname
+    hostname = Setting.objects.filter(key="hostname").first()
+    if hostname.value and not hostname.value == "":
+        execution.date_start = timezone.now()
+        execution.state = execution.STATE_STARTED
+        execution.save()
+    else:
+        raise Exception("Hostname not found!")
 
 
 @receiver(post_deploy_execution_start)
