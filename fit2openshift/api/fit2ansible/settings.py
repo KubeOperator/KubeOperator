@@ -221,3 +221,59 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
 }
+
+BASE_LOG_DIR = os.path.join(BASE_DIR, "data/log")
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]'
+                      '[%(levelname)s][%(message)s]'
+        },
+        'simple': {
+            'format': '[%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d]%(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],  # 只有在Django debug为True时才在屏幕打印日志
+            'class': 'logging.StreamHandler',  #
+            'formatter': 'simple'
+        },
+        # 默认的
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(BASE_LOG_DIR, "fit2openshift_info.log"),  # 日志文件
+            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
+            'backupCount': 7,  # 最多备份几个
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+        # 专门用来记错误日志
+        'error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(BASE_LOG_DIR, "fit2openshift_error.log"),  # 日志文件
+            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
+            'backupCount': 5,
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        # 默认的logger应用如下配置
+        '': {
+            'handlers': ['default', 'console', 'error'],  # 上线之后可以把'console'移除
+            'level': 'DEBUG',
+            'propagate': True,  # 向不向更高级别的logger传递
+        },
+    },
+}
