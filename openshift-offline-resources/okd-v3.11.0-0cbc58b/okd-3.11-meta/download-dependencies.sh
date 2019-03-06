@@ -17,7 +17,7 @@ function download()
     size_total=`curl -Is $1 | grep Content-Length  | awk -F': ' '{print $2}' | tr -d '\r'`
     size_current=`du -b  $2 | awk -F' ' '{print $1}'`
 
-if [ "$size_total" -eq "$size_current" ];then
+if [ "x$size_total" == "x$size_current" ];then
       printf "download $1 success!"
     else
       exit 1
