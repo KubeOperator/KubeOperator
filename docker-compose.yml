@@ -11,10 +11,11 @@ services :
                 restart: always
                 tty: true
                 volumes: 
-                        - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
+                        - host_logging-data:/opt/fit2openshift-app/data/log
                         - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
                         - share-volumes:/opt/fit2openshift-app/data/packages
                         - /opt/fit2openshift/conf/ssh/config:/root/.ssh/config  
+                        - /opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml:/opt/fit2openshift/conf/fit2openshift/fit2openshift_conf.yml
         fit2openshift-db:
                 container_name: fit2openshift-db
                 image: mysql:5.7.24
@@ -46,5 +47,10 @@ volumes:
             device: /opt/fit2openshift/data/mysql
             o: bind
         share-volumes:
+        host_logging-data:
+          driver_opts:
+            type: none
+            device: /opt/fit2openshift/logs/runtime
+            o: bind
 networks:
         fit2openshift-network:
