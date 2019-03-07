@@ -27,4 +27,4 @@ ADD ./api/ /opt/fit2openshift-app
 ADD ./ui/dist/fit2openshift-portal /usr/share/nginx/html
 
 EXPOSE 8080 80
-CMD nohup sh -c 'nginx && python3 entrypoint.py start'
+CMD  sh -c 'nginx && python3 entrypoint.py start'
