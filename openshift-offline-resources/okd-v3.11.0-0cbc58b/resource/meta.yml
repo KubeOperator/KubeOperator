@@ -24,7 +24,12 @@ configs:
     default: master.fit2openshift.com
     required: true
     help_text: 访问的fit2openshift的域名
-
+  - name: openshift_master_cluster_public_hostname
+    alias: 域名
+    type: Input
+    default: master.fit2openshift.com
+    required: true
+    help_text: 访问的fit2openshift的公网域名
   - name: openshift_master_default_subdomain
     alias: 子域名后缀
     type: Input
