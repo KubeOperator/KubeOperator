@@ -59,6 +59,10 @@ basepath=$(cd `dirname $0`; pwd)/..
 printSubTitle "拷贝文件..."
 cd $basepath/installer/scripts && ./copy_files.sh
 exit_error
+printSubTitle "Add DNS..."
+#set dns
+cd $basepath/installer/scripts && ./add_dns.sh
+exit_error
 printSubTitle "安装依赖..."
 #install node and docker
 cd $basepath/installer/dependencies && ./install_dependencies.sh
