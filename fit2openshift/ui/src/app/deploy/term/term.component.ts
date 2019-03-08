@@ -28,12 +28,12 @@ export class TermComponent implements OnInit, OnDestroy {
     this.deployService.$executionQueue.subscribe(data => {
       this.currentExecution = data;
       if (this.currentExecution === null) {
-        this.term.write('Welcome to Fit2Openshift!');
+        this.resetTerm();
       } else {
         if (this.currentExecution.state !== 'SUCCESS' && this.currentExecution.state !== 'FAILURE') {
           this.subLog();
         } else {
-          this.getLog();
+          this.resetTerm();
         }
       }
       this.operaterService.$executionQueue.subscribe(e => {
@@ -48,7 +48,7 @@ export class TermComponent implements OnInit, OnDestroy {
 
     this.term = new Terminal({
       cursorBlink: true,
-      cols: 132,
+      cols: 200,
       rows: 33,
       letterSpacing: 0,
       fontSize: 16
@@ -56,15 +56,16 @@ export class TermComponent implements OnInit, OnDestroy {
     this.term.open(this.terminal.nativeElement);
   }
 
-  subLog() {
-    this.logSub = this.wsService.connect('ws://' + window.location.host + this.currentExecution.log_ws_url).subscribe(msg => {
-      this.term.write(JSON.parse(msg.data).message);
-    });
+
+  resetTerm() {
+    const banner = 'welcome to fit2openshift!';
+    this.term.write(banner);
   }
 
-  getLog() {
-    this.executionService.getExecutionLog(this.currentExecution.id).subscribe(log => {
-      this.term.write(log.data);
+  subLog() {
+    this.term.clear();
+    this.logSub = this.wsService.connect('ws://' + window.location.host + this.currentExecution.log_ws_url).subscribe(msg => {
+      this.term.write(JSON.parse(msg.data).message);
     });
   }
 

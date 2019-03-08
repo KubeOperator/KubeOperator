@@ -1,7 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subscription, timer} from 'rxjs';
 import {OperaterService} from '../operater/operater.service';
-import {LogService} from '../../log/log.service';
 import {WebsocketService} from '../term/websocket.service';
 import {Execution} from '../operater/execution';
 import {Cluster} from '../../cluster/cluster';
@@ -12,6 +11,7 @@ export class ProgressMessage {
   progress: number;
   current_task: string;
   state: string;
+  operation: string;
 }
 
 
@@ -28,6 +28,8 @@ export class ProgressComponent implements OnInit, OnDestroy {
   progressWsUrl: string;
   progressSub: Subscription;
   currentTask: string;
+  currentDeploy: string;
+  showLoading = false;
 
   @Input() currentExecution: Execution;
   @Input() currentCluster: Cluster;
@@ -36,16 +38,19 @@ export class ProgressComponent implements OnInit, OnDestroy {
   constructor(private operaterService: OperaterService, private wsService: WebsocketService, private deployService: DeployService) {
   }
 
+
   ngOnInit() {
     this.deployService.$executionQueue.subscribe(data => {
       this.currentExecution = data;
       if (this.currentExecution === null) {
+        this.currentDeploy = this.getDeploymentName('none');
       } else {
         // 判断是否完成
         if (this.currentExecution.state !== 'SUCCESS' && this.currentExecution.state !== 'FAILURE') {
           this.subProgress();
+          this.currentDeploy = this.getDeploymentName(this.currentExecution.state);
         } else {
-          this.fullProgress();
+          this.currentDeploy = this.getDeploymentName('none');
         }
       }
       this.operaterService.$executionQueue.subscribe(d => {
@@ -64,24 +69,35 @@ export class ProgressComponent implements OnInit, OnDestroy {
     }
   }
 
-
-  fullProgress() {
-    this.currentTask = this.currentExecution.current_task;
-    this.currentProgress = this.currentExecution.progress * 100.0;
-  }
-
   subProgress() {
+    this.showLoading = true;
     this.progressWsUrl = 'ws://' + window.location.host + this.currentExecution.progress_ws_url;
     this.progressSub = this.wsService.connect(this.progressWsUrl).subscribe(msg => {
       const m: ProgressMessage = JSON.parse(msg.data).message;
       this.currentProgress = m.progress * 100.0;
       this.currentTask = m.current_task;
+      this.currentDeploy = this.getDeploymentName(m.operation);
       if (m.state !== 'SUCCESS' && m.state !== 'FAILURE') {
         this.deployService.nextState(false);
       } else {
         this.deployService.nextState(true);
+        this.currentDeploy = this.getDeploymentName('none');
+        this.showLoading = false;
       }
     });
+  }
+
+  getDeploymentName(str: string) {
+    switch (str) {
+      case 'install':
+        return '部署OKD集群';
+      case 'change':
+        return '变更节点';
+      case'uninstall':
+        return '卸载OKD集群';
+      default:
+        return '无';
+    }
   }
 
 

@@ -26,7 +26,8 @@
               "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/@clr/ui/clr-ui.min.css",
               "node_modules/xterm/dist/xterm.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/icon/css/font-awesome.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/custom-elements/custom-elements.min.js",

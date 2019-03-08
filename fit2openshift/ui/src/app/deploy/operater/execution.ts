@@ -4,6 +4,7 @@ export class Execution {
   date_end: string;
   date_created: string;
   log_ws_url: string;
+  log_url: string;
   progress_ws_url: string;
   state: string;
   operation: string;

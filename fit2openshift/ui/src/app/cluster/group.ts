@@ -6,4 +6,8 @@ export class Group {
   op: string;
   limit: number;
   node_sum = 0;
+
+
+
+
 }

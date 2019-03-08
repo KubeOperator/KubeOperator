@@ -1,8 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Log} from '../log';
 import {LogService} from '../log.service';
 import {Cluster} from '../../cluster/cluster';
 import {Execution} from '../../deploy/operater/execution';
+import {HostListComponent} from '../../host/host-list/host-list.component';
+import {LogDetailComponent} from '../log-detail/log-detail.component';
 
 @Component({
   selector: 'app-log-list',
@@ -15,6 +17,9 @@ export class LogListComponent implements OnInit {
   logs: Log[] = [];
   executions: Execution[] = [];
   @Input() currentCluster: Cluster;
+  showDetail = false;
+  @ViewChild(LogDetailComponent)
+  child: LogDetailComponent;
 
   constructor(private logService: LogService) {
   }
@@ -31,20 +36,10 @@ export class LogListComponent implements OnInit {
     });
   }
 
-  getColor(log: Log): string {
-    const warn = '#FCFCAD';
-    const error = '#FFAAAA';
-    const info = '#AAFFCC';
-    console.log(log.level);
-    switch (log.level) {
-      case 'INFO':
-        return info;
-      case 'WARN':
-        return warn;
-      case 'ERROR':
-        return error;
-    }
-
+  showLogDetail(execution: Execution) {
+    this.showDetail = true;
+    this.child.logUrl = execution.log_url;
+    this.child.loadLog();
   }
 
   refresh() {
