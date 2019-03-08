@@ -22,3 +22,4 @@ data/celery/
 data/ansible/
 data/projects/
 data/openshift-ansible/
+*.log

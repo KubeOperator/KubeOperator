@@ -336,6 +336,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             'id': self.id.__str__(),
             'progress': self.progress,
             'current_task': self.current_task,
+            'operation': self.operation,
             'state': self.state
         }
 

@@ -54,7 +54,7 @@ function initSwaggerUi() {
 
     var swaggerSettings = JSON.parse(document.getElementById('swagger-settings').innerHTML);
     if (!('oauth2RedirectUrl' in swaggerSettings)) {
-        var oauth2RedirectUrl = document.getElementById('oauth2-redirect-urls');
+        var oauth2RedirectUrl = document.getElementById('oauth2-redirect-url');
         if (oauth2RedirectUrl) {
             swaggerSettings['oauth2RedirectUrl'] = oauth2RedirectUrl.href;
             oauth2RedirectUrl.parentNode.removeChild(oauth2RedirectUrl);

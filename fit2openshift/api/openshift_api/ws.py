@@ -23,7 +23,7 @@ class F2OWebsocket(JsonWebsocketConsumer):
                 if data and not data == last_data:
                     self.send_json({'message': data})
                     last_data = data
-                time.sleep(5)
+                time.sleep(2)
 
         thread = threading.Thread(target=func)
         thread.start()

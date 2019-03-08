@@ -324,7 +324,6 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             post_execution_start.send(self.__class__, execution=self, result=result)
             return result
         os.chdir(self.playbook.playbook_dir())
-        print(self.project.inventory_obj.__dict__)
         try:
             runner = PlayBookRunner(
                 self.project.inventory_obj,

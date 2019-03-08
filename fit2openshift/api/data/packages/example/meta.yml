@@ -195,3 +195,34 @@ templates:
           - compute
         meta:
           hidden: true
+
+  - name: 多主多节点
+    roles:
+      - name: masters
+        vars:
+          openshift_node_group_name: node-config-master-infra
+        meta:
+          hidden: false
+          nodes_require:
+            - '>'
+            - 1
+      - name: compute
+        vars:
+          openshift_node_group_name: node-config-compute
+        meta:
+          hidden: false
+          nodes_require:
+            - '>'
+            - 2
+      - name: lb
+        meta:
+          hidden: false
+          nodes_require:
+            - '='
+            - 1
+      - name: nodes
+        children:
+          - masters
+          - compute
+        meta:
+          hidden: true

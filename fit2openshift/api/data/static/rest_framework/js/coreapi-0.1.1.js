@@ -237,7 +237,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var document = require('../document');
-var URL = require('urls-parse');
+var URL = require('url-parse');
 
 function unescapeKey(key) {
   if (key.match(/__(type|meta)$/)) {
@@ -471,7 +471,7 @@ var Link = function Link(url, method) {
   _classCallCheck(this, Link);
 
   if (url === undefined) {
-    throw new Error('urls argument is required');
+    throw new Error('url argument is required');
   }
 
   if (method === undefined) {
@@ -607,8 +607,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var fetch = require('isomorphic-fetch');
 var errors = require('../errors');
 var utils = require('../utils');
-var URL = require('urls-parse');
-var urlTemplate = require('urls-template');
+var URL = require('url-parse');
+var urlTemplate = require('url-template');
 
 var parseResponse = function parseResponse(response, decoders, responseCallback) {
   return response.text().then(function (text) {
@@ -774,7 +774,7 @@ module.exports = {
 },{"./http":13}],15:[function(require,module,exports){
 'use strict';
 
-var URL = require('urls-parse');
+var URL = require('url-parse');
 
 var determineTransport = function determineTransport(transports, url) {
   var parsedUrl = new URL(url);
@@ -1088,7 +1088,7 @@ function URL(address, location, parser) {
   // The following if statements allows this module two have compatibility with
   // 2 different API:
   //
-  // 1. Node.js's `urls.parse` api which accepts a URL, boolean as arguments
+  // 1. Node.js's `url.parse` api which accepts a URL, boolean as arguments
   //    where the boolean indicates that the query string should also be parsed.
   //
   // 2. The `URL` interface of the browser which accepts a URL, object as
@@ -1210,7 +1210,7 @@ function URL(address, location, parser) {
  * @param {Boolean|Function} fn  When setting the query, it will be the function
  *                               used to parse the query.
  *                               When setting the protocol, double slash will be
- *                               removed from the final urls if it is true.
+ *                               removed from the final url if it is true.
  * @returns {URL}
  * @api public
  */
