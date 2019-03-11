@@ -25,7 +25,7 @@ configs:
     required: true
     help_text: 访问的fit2openshift的域名
   - name: openshift_master_cluster_public_hostname
-    alias: 域名
+    alias: 公网域名
     type: Input
     default: master.fit2openshift.com
     required: true
@@ -218,7 +218,7 @@ templates:
           hidden: false
           nodes_require:
             - '>'
-            - 2
+            - 1
       - name: lb
         meta:
           hidden: false
