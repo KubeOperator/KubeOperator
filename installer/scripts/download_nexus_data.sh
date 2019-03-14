@@ -14,7 +14,7 @@ printf "%-65s .......... " "copy fit2openshift files"
 
 
 
-nexus="http://fit2cloud-openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/nexus-okd-3.11.tar.gz"
+nexus="http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd-3.11//tmp/nexus-data.tar.gz"
 if [ ! -d dependencies  ];then
   mkdir dependencies
 else
@@ -35,12 +35,9 @@ if [ "x$size_total" == "x$size_current" ];then
     fi
 }
 
-download ${nexus} /tmp/nexus-okd-3.11.tar.gz \
-&& tar -zvxf /tmp/nexus-okd-3.11.tar.gz -C /opt/fit2openshift/data/nexus \
-&& mv -r /opt/fit2openshift/data/nexus/nexus-data/* /opt/fit2openshift/data/nexus \
+download ${nexus} /tmp/nexus-data.tar.gz \
+&& tar -zvxf /tmp/nexus-data.tar.gz -C /opt/fit2openshift/data/nexus \
 && chmox -R 777 /opt/fit2openshift/data/nexus \
-&& rm -fr /opt/fit2openshift/data/nexus/nexus-data/ \
-&& rm -fr /tmp/nexus-okd-3.11.tar.gz
 if [ "$?" != "0" ];then
     colorMsg $red "[Defeat]"
     exit 1
