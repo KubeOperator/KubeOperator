@@ -18,10 +18,7 @@ fullLogFile=${logPath}"install_"${timestamp}".log"
 
 printf "%-65s .......... " "build image: okd_offline_package:v3.11.0-0cbc58b"
 
-cd okd-3.11-meta \
-&& ./download-dependencies.sh >>$fullLogFile 2>&1  \
-&& cd .. \
-&& docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_offline_package:v3.11.0-0cbc58b . >>$fullLogFile 2>&1
+ docker build --rm=true --tag=registry.fit2cloud.com/fit2anything/fit2openshift/okd_offline_package:v3.11.0-0cbc58b . >>$fullLogFile 2>&1
 
 if [ "$?" == "0" ];then
     colorMsg $green "[OK]"

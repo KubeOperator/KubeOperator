@@ -1,19 +1,24 @@
 ---
 
-- name: config registory
+- name: config local dns group
+  hosts: localhost
+  tasks:
+  roles:
+  - add_dns_group
+
+- name: config local dns
   hosts: OSEv3
   tasks:
-    - name: config registry hostname
-      shell: echo "{{ REGISTRY_HOSTNAME }}       registry.fit2openshift.io" >> /etc/hosts
+  roles:
+  - set_local_dns
 
 - name: replace repos.
   hosts: OSEv3
   roles:
   - replace_repos
 
-
-- name: configure DNS and hostnmae.
-  hosts: OSEv3
+- name: configure DNS
+  hosts: localhost
   roles:
   - config_dns
 

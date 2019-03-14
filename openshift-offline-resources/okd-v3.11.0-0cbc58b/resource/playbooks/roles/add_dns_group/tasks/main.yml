@@ -1,0 +1,9 @@
+- name: Add  local DNS
+  gather_facts: False
+  shell: cat /etc/named.rfc1912.zones | grep {{cluster_name}} || echo -e  "zone \"{{cluster_name}}\" IN {\n        type master;\n        file \"{{cluster_name}}.io.zone\";\n};" >> /etc/named.rfc1912.zones
+
+- name: Create DNS file
+  gather_facts: False
+  template:
+    src: templates/dns.j2
+    dest: /var/named/{{cluster_name}}.io.zone     

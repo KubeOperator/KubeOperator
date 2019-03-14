@@ -1,3 +1,6 @@
-- name: Add specfic DNS into /etc/resolv.conf
-  shell: grep {{ lookup('env','REGISTORY_HOSTNAME') }} /etc/resolv.conf || echo "nameserver {{ lookup('env','REGISTORY_HOSTNAME') }}" >> /etc/resolv.conf
+- name: set dns
+  shell: cat /etc/resolv.conf | grep {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} || echo nameserver  {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} >> /etc/resolv.conf   
+  delegate_to: "{{item}}"
+  delegate_facts: False
+  with_items: "{{groups['OSEv3']}}"
 

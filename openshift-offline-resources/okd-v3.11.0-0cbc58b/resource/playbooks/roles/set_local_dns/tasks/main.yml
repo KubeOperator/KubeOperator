@@ -1,0 +1,4 @@
+    - name: Set DNS
+      shell: cat {{cluster_name}}.io.zone | grep {{ansible_ssh_host}} ||echo -e {{inventory_hostname}}       IN        A      {{ansible_ssh_host}} >> /var/named/{{cluster_name}}.io.zone
+      delegate_to: localhost
+      delegate_facts: False

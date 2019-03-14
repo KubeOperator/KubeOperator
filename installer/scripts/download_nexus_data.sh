@@ -1,8 +1,19 @@
 #!/bin/bash
+red=31
+green=32
+yellow=33
+blue=34
+
+function colorMsg()
+{
+  echo -e "\033[$1m $2 \033[0m"
+}
+
+printf "%-65s .......... " "copy fit2openshift files"
 
 
-openJava="http://fit2cloud-openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/server-jre-8u192-linux-x64.tar.gz"
-chef="http://fit2cloud-openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/chef-14.9.13-1.el7.x86_64.rpm"
+
+
 nexus="http://fit2cloud-openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/nexus-okd-3.11.tar.gz"
 if [ ! -d dependencies  ];then
   mkdir dependencies
@@ -24,10 +35,14 @@ if [ "x$size_total" == "x$size_current" ];then
     fi
 }
 
-download ${chef} dependencies/chef-14.9.13-1.el7.x86_64.rpm
-download ${openJava} dependencies/server-jre-8u192-linux-x64.tar.gz 
-download ${nexus} nexus-okd-3.11.tar.gz
-tar -zvxf nexus-okd-3.11.tar.gz 
+download ${nexus} /tmp/nexus-okd-3.11.tar.gz \
+&& tar -zvxf /tmp/nexus-okd-3.11.tar.gz -C /opt/fit2openshift/data/nexus \
+&& mv -r /opt/fit2openshift/data/nexus/nexus-data/* /opt/fit2openshift/data/nexus \
+&& chmox -R 777 /opt/fit2openshift/data/nexus \
+&& rm -fr /opt/fit2openshift/data/nexus/nexus-data/ \
+&& rm -fr /tmp/nexus-okd-3.11.tar.gz
 if [ "$?" != "0" ];then
+    colorMsg $red "[Defeat]"
     exit 1
 fi
+colorMsg $green "[OK]"

@@ -81,7 +81,7 @@ printf "\n"
 
 
 
-printf "%-65s .......... " "Install Angular Cli:"
+printf "%-65s .......... " "install angular cli:"
 #install ng
 
 hasNg=`which ng 2>&1`
@@ -91,3 +91,22 @@ if [[ "${hasNg}" =~ "no ng" ]]; then
 else 
    colorMsg $green "[OK]"
 fi
+
+printf '\n'
+
+printf "%-65s .......... " "Install Named:"
+#install named
+hasNamed=`which named 2>&1`
+if [[ "${hasNamed}" =~ "no named" ]]; then
+     yum install bind bind-chroot bind-utils -y>>$fullLogFile 2>&1 
+     success
+else 
+   colorMsg $green "[OK]"
+fi
+
+
+
+
+
+
+
