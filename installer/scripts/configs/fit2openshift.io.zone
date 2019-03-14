@@ -1,4 +1,0 @@
-$TTL 1D
-@         IN       SOA       fit2openshift.io.     admin.fit2openshift.io.  (200 1H 15M 1W 1D )
-@         IN       NS        www.fit2openshift.io.
-www            IN       A         127.0.0.1

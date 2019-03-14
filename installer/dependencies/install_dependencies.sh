@@ -96,9 +96,9 @@ printf '\n'
 
 printf "%-65s .......... " "Install Named:"
 #install named
-hasNamed=`which named 2>&1`
-if [[ "${hasNamed}" =~ "no named" ]]; then
-     yum install bind bind-chroot bind-utils -y>>$fullLogFile 2>&1 
+hasDnsmasq=`which dnsmasq  2>&1`
+if [[ "${hasDnsmasq}" =~ "no dnsmasq" ]]; then
+     yum install dnsmasq -y>>$fullLogFile 2>&1 
      success
 else 
    colorMsg $green "[OK]"
