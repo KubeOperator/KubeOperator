@@ -1,0 +1,11 @@
+---
+
+- debug:
+    msg: "{{ansible_default_ipv4.address}}"
+  register: local_ipv4
+
+- name: echo ipv4 to tmp file
+  template:
+    backup: True
+    dest: /tmp/local_ipv4
+    src: templates/local_ipv4.j2
