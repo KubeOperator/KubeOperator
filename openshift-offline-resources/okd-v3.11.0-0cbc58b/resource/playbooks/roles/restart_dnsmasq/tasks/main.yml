@@ -1,0 +1,2 @@
+- name: restart dnsmasq
+  get_url: "{{ansible_default_ipv4.address}}:5380/restart" 

@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   fit2openshift:
     image: registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest
@@ -46,7 +46,20 @@ services:
       - fit2openshift-network
     volumes:
       - nexus-data:/nexus-data
-      
+  dns-server:
+    container_name: dns-server
+    image: jpillora/dnsmasq:latest
+    volumes:
+      - /opt/fit2openshift/conf/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+      - /opt/fit2openshift/conf/dnsmasq/dnsmasq.d:/etc/dnsmasq.d
+    networks:
+      - fit2openshift-network
+    ports:
+      - 5380:8080/tcp
+      - 53:53/udp
+    environment:
+      - HTTP_USER = admin
+      - HTTP_PASS = admin123
 volumes:
   share-volumes:
   host-opt-fit2openshift-mysql-data:

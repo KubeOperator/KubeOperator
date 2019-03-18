@@ -1,5 +1,2 @@
-- name: Create proxy repo 
-  shell:
-    src: templates/CentOS-Base-Proxy.repo.j2
-    dest: /etc/yum.repos.d/CentOS-Base-Proxy.repo 
-
+- name: Set host name 
+  hostname: {{inventory_hostname}}
