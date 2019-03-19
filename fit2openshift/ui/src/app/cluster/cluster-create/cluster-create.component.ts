@@ -156,10 +156,10 @@ export class ClusterCreateComponent implements OnInit {
       this.hosts.forEach(host => {
         if (node.host === host.id) {
           node.ip = host.ip;
-          node.host_memory = host.memory;
-          node.host_cpu_core = host.cpu_core;
-          node.host_os = host.os;
-          node.host_os_version = host.os_version;
+          node.host_memory = host.info.memory;
+          node.host_cpu_core = host.info.cpu_core;
+          node.host_os = host.info.os;
+          node.host_os_version = host.info.os_version;
         }
       });
     });
@@ -189,9 +189,9 @@ export class ClusterCreateComponent implements OnInit {
 
   getHostInfo(host: Host) {
     const template = '{N} [{C}核  {M}MB  {O}]';
-    return template.replace('{C}', host.cpu_core.toString())
-      .replace('{M}', host.memory.toString())
-      .replace('{O}', host.os + host.os_version)
+    return template.replace('{C}', host.info.cpu_core.toString())
+      .replace('{M}', host.info.memory.toString())
+      .replace('{O}', host.info.os + host.info.os_version)
       .replace('{N}', host.name);
   }
 

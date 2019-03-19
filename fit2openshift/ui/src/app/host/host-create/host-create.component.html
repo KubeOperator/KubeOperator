@@ -1,5 +1,5 @@
 <clr-modal [(clrModalOpen)]="createHostOpened" [clrModalStaticBackdrop]="staticBackdrop"
-           [clrModalClosable]="closable" >
+           [clrModalClosable]="closable">
   <h3 class="modal-title">添加主机</h3>
   <div class="modal-body modal-height">
     <form clrForm>
@@ -28,8 +28,10 @@
         <textarea clrTextarea [(ngModel)]="host.comment" [ngModelOptions]="{standalone: true}"></textarea>
       </clr-textarea-container>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()">提交</button>
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="isSubmitGoing">
+          <i *ngIf="isSubmitGoing" class="fa fa-spinner fa-pulse"></i>提交
+        </button>
       </div>
     </form>
   </div>

@@ -47,7 +47,7 @@ export class HostCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建主机失败:' + err, TipLevels.ERROR);
+      this.tipService.showTip('创建主机失败:' + err.reason + ' state code:' + err.status, TipLevels.ERROR);
     });
   }
 

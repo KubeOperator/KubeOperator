@@ -1,8 +1,10 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {HostService} from '../host.service';
 import {Host} from '../host';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {LogDetailComponent} from '../../log/log-detail/log-detail.component';
+import {HostInfoComponent} from '../host-info/host-info.component';
 
 @Component({
   selector: 'app-host-list',
@@ -15,7 +17,10 @@ export class HostListComponent implements OnInit {
   loading = false;
   deleteModal = false;
   selectedHost: Host = new Host();
+  showHostInfo = false;
   @Output() addHost = new EventEmitter();
+  @ViewChild(HostInfoComponent)
+  child: HostInfoComponent;
 
 
   constructor(private hostService: HostService, private tipService: TipService) {
@@ -49,6 +54,11 @@ export class HostListComponent implements OnInit {
     this.addHost.emit();
   }
 
+  openInfo(host: Host) {
+    this.showHostInfo = true;
+    this.child.hostId = host.id;
+    this.child.loadHostInfo();
+  }
 
   listHost() {
     this.hostService.listHosts().subscribe(data => {

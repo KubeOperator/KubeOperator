@@ -5,6 +5,11 @@ import {Cluster} from '../../cluster/cluster';
 import {Node} from '../node';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {HostService} from '../../host/host.service';
+import {Host} from '../../host/host';
+import {map} from 'rxjs/operators';
+import {RoleService} from '../role.service';
+import {Role} from '../role';
 
 @Component({
   selector: 'app-node-create',
@@ -15,14 +20,8 @@ export class NodeCreateComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
   node: Node = new Node();
-
-  form = new FormGroup({
-    name: new FormControl(''),
-    ip: new FormControl(''),
-    username: new FormControl(''),
-    password: new FormControl(''),
-    comment: new FormControl('')
-  });
+  hosts: Host[] = [];
+  roles: Role[] = [];
   staticBackdrop = true;
   closable = false;
   createNodeOpened: boolean;
@@ -30,27 +29,47 @@ export class NodeCreateComponent implements OnInit {
   @Output() create = new EventEmitter<boolean>();
 
 
-  constructor(private nodeService: NodeService, private tipService: TipService) {
+  constructor(private hostService: HostService, private roleService: RoleService,
+              private nodeService: NodeService, private tipService: TipService) {
   }
 
   ngOnInit() {
+    this.listHosts();
+    this.listRoles();
   }
 
   onSubmit() {
-    if (this.isSubmitGoing) {
-      return;
-    }
-    this.isSubmitGoing = true;
-    this.node.name = this.form.value.name;
-    this.node.ip = this.form.value.ip;
+  }
 
-    this.nodeService.createNode(this.currentCluster.name, this.node).subscribe(data => {
-      this.isSubmitGoing = false;
-      this.create.emit(true);
-      this.tipService.showTip('创建节点 ' + this.node.name + '成功', TipLevels.SUCCESS);
-      this.createNodeOpened = false;
+  listHosts() {
+    this.hostService.listHosts().pipe(map(data => {
+      const hosts: Host[] = [];
+      data.forEach(host => {
+        if (host.cluster === '无') {
+          hosts.push(host);
+        }
+      });
+      return hosts;
+    })).subscribe(data => {
+      this.hosts = data;
     });
   }
+
+  listRoles() {
+    this.roleService.listRoles(this.currentCluster.name).pipe(map(da => {
+      const roles: Role[] = [];
+      da.forEach(role => {
+        if (!role.meta['hidden']) {
+          roles.push(role);
+        }
+      });
+      return roles;
+    })).subscribe(data => {
+      this.roles = data;
+      console.log(data);
+    });
+  }
+
 
   newNode() {
     this.node = new Node();

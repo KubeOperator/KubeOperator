@@ -2,31 +2,26 @@
            [clrModalClosable]="closable">
   <h3 class="modal-title">添加节点</h3>
   <div class="modal-body modal-height">
-    <form [formGroup]="form" clrForm (ngSubmit)="onSubmit()">
+    <form clrForm>
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput type="text" formControlName="name" >
+        <input clrInput type="text" [(ngModel)]="node.name" [ngModelOptions]="{standalone: true}">
       </clr-input-container>
 
-      <clr-input-container>
-        <label>Hostname/Ip:</label>
-        <input clrInput type="text" formControlName="ip">
-      </clr-input-container>
+      <clr-select-container>
+        <label>选择主机:</label>
+        <select clrSelect type="text" [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
+          <option *ngFor="let host of hosts" [value]="host.id">{{host.name}}</option>
+        </select>
+      </clr-select-container>
 
-      <clr-input-container>
-        <label>Root用户名:</label>
-        <input clrInput type="text" formControlName="username">
-      </clr-input-container>
+      <clr-select-container>
+        <label>角色:</label>
+        <select clrSelect type="text" [(ngModel)]="node.roles" [ngModelOptions]="{standalone: true}">
+          <option *ngFor="let role of roles" [value]="role.name">{{role.name}}</option>
+        </select>
+      </clr-select-container>
 
-      <clr-password-container>
-        <label>Root密码:</label>
-        <input clrPassword type="password" formControlName="password">
-      </clr-password-container>
-
-      <clr-textarea-container>
-        <label>描述:</label>
-        <textarea clrTextarea formControlName="comment"></textarea>
-      </clr-textarea-container>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()">提交</button>

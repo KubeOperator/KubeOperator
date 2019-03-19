@@ -4,10 +4,23 @@ export class Host {
   ip: string;
   username: string;
   password: string;
-  memory: number;
-  cpu_core: number;
-  os: string;
-  os_version: string;
   cluster: string;
   comment: string;
+  info: HostInfo;
+}
+
+export class HostInfo {
+  id: string;
+  memory: number;
+  os: string;
+  os_version: string;
+  cpu_core: number;
+  volumes: Volume[];
+}
+
+export class Volume {
+  id: string;
+  name: string;
+  size: string;
+  blank: boolean;
 }

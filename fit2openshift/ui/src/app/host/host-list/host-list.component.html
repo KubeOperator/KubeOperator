@@ -8,7 +8,7 @@
     <button type="button" class="btn" (click)="deleteModal = false">取消</button>
   </div>
 </clr-modal>
-
+<app-host-info [(showInfoModal)]=showHostInfo></app-host-info>
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
@@ -28,12 +28,13 @@
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
     <clr-dg-action-overflow>
       <button class="action-item" (click)="deleteHost(host)">删除</button>
+      <button class="action-item" (click)="openInfo(host)">查看信息</button>
     </clr-dg-action-overflow>
     <clr-dg-cell>{{host.name}}</clr-dg-cell>
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
-    <clr-dg-cell>{{host.cpu_core}}</clr-dg-cell>
-    <clr-dg-cell>{{host.memory}}</clr-dg-cell>
-    <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
+    <clr-dg-cell>{{host.info.cpu_core}}</clr-dg-cell>
+    <clr-dg-cell>{{host.info.memory}}</clr-dg-cell>
+    <clr-dg-cell>{{host.info.os}} {{host.info.os_version}}</clr-dg-cell>
     <clr-dg-cell>{{host.cluster}}</clr-dg-cell>
     <clr-dg-cell>{{host.comment}}</clr-dg-cell>
   </clr-dg-row>
