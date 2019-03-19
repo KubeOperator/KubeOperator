@@ -1,10 +1,11 @@
+import views as views
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.db import transaction
-
 from ansible_api.permissions import IsSuperUser
 from . import serializers
-from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting
+from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting, Volume, HostInfo
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 
@@ -16,6 +17,15 @@ class ClusterViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+
+class VolumeViewSet(viewsets.ModelViewSet):
+    queryset = Volume.objects.all()
+    serializers_class = serializers.VolumeSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get']
+    lookup_field = 'host'
+    lookup_url_kwarg = 'host_id'
 
 
 class HostViewSet(viewsets.ModelViewSet):
@@ -99,6 +109,17 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
             args=(instance.id,), task_id=str(instance.id)
         ))
         return instance
+
+
+class HostInfoViewSet(viewsets.ModelViewSet):
+    queryset = HostInfo.objects.all()
+    permission_classes = (IsSuperUser,)
+    serializer_class = serializers.HostInfoSerializer
+    http_method_names = ['head', 'options', 'post']
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        instance.gather_info()
 
 
 class SettingViewSet(viewsets.ModelViewSet):

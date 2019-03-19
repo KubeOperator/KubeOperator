@@ -4,17 +4,15 @@ from django.shortcuts import reverse
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
-from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting
+from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting, HostInfo, Volume
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
-    'RoleSerializer', 'DeployExecutionSerializer',
+    'RoleSerializer', 'DeployExecutionSerializer', 'HostInfoSerializer', 'SettingSerializer', 'HostSerializer'
 ]
 
 
 class SettingSerializer(serializers.ModelSerializer):
-    meta = serializers.JSONField()
-
     class Meta:
         model = Setting
         fields = ['id', 'name', 'key', 'helper', 'order', 'value']
@@ -30,17 +28,39 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
+
+class VolumeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volume
+        fields = [
+            'id', 'name', 'size', 'blank'
+        ]
+        read_only_fields = ['id', 'name', 'size', 'blank']
+
+
+class HostInfoSerializer(serializers.ModelSerializer):
+    volumes = VolumeSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = HostInfo
+        fields = '__all__'
+        read_only_fields = [
+            'id', "memory", "os", "os_version", "cpu_core", "volumes", "date_created"
+        ]
+
+
 class HostSerializer(HostReadSerializer):
-    meta = serializers.JSONField()
+    info = HostInfoSerializer()
 
     class Meta:
         model = Host
         extra_kwargs = HostReadSerializer.Meta.extra_kwargs
         fields = [
-            'id', 'name', 'ip', 'username', 'password', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'comment',
+            'id', 'name', 'ip', 'username', 'password', 'comment', 'info', 'comment',
             'cluster'
         ]
         read_only_fields = ['id', 'memory', 'os', 'os_version', 'cpu_core', 'comment', 'cluster']
+
 
 
 class ClusterSerializer(ProjectSerializer):
@@ -98,6 +118,7 @@ class RoleSerializer(GroupSerializer):
         model = Role
         fields = ['id', 'name', 'nodes', 'children', 'vars', 'meta', 'comment']
         read_only_fields = ['id']
+
 
 
 class DeployExecutionSerializer(serializers.ModelSerializer):

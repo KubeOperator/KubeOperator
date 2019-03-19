@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ansible_api.models.inventory import BaseHost
+from ansible_api.models.utils import name_validator
 from ansible_api.tasks import run_im_adhoc
 from common.models import JsonTextField
 from ansible_api.models import Project, Group, Playbook, AdHoc
@@ -15,7 +16,7 @@ from ansible_api.models.mixins import (
 )
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
-__all__ = ['Package', 'Cluster', 'Node', 'Role', 'DeployExecution']
+__all__ = ['Package', 'Cluster', 'Node', 'Role', 'DeployExecution', 'Host', 'HostInfo', 'Setting']
 
 
 # 离线包的model
@@ -24,7 +25,6 @@ class Package(models.Model):
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     meta = JsonTextField(blank=True, null=True, verbose_name=_('Meta'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-
     packages_dir = os.path.join(settings.BASE_DIR, 'data', 'packages')
 
     def __str__(self):
@@ -179,31 +179,63 @@ class Host(BaseHost):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     node = models.ForeignKey('Node', default=None, null=True, related_name='node',
                              on_delete=models.SET_NULL)
-    memory = models.fields.BigIntegerField(default=0)
-    os = models.fields.CharField(max_length=128, default="")
-    os_version = models.fields.CharField(max_length=128, default="")
-    cpu_core = models.fields.IntegerField(default=0)
+    name = models.CharField(max_length=128, validators=[name_validator], unique=True)
 
     @property
     def cluster(self):
-        if not self.node is None:
+        if self.node is not None:
             return self.node.project.name
         else:
             return '无'
 
-    def get_host_info(self):
-        hosts = [self.__dict__]
-        result = run_im_adhoc(adhoc_data={'pattern': self.name, 'module': 'setup'},
+    @property
+    def info(self):
+        return self.infos.all().latest()
+
+
+class HostInfo(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    memory = models.fields.BigIntegerField(default=0)
+    os = models.fields.CharField(max_length=128, default="")
+    os_version = models.fields.CharField(max_length=128, default="")
+    cpu_core = models.fields.IntegerField(default=0)
+    host = models.ForeignKey('Host', on_delete=models.CASCADE, null=True, related_name='infos')
+    volumes = models.ManyToManyField('Volume', null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        get_latest_by = 'date_created'
+
+    def gather_info(self):
+        host = self.host
+        hosts = [self.host.__dict__]
+        result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': 'setup'},
                               inventory_data={'hosts': hosts, 'vars': {}})
         if not result.get('summary', {}).get('success', False):
             raise Exception("get os info failed!")
         else:
-            facts = result["raw"]["ok"][self.name]["setup"]["ansible_facts"]
+            facts = result["raw"]["ok"][host.name]["setup"]["ansible_facts"]
             self.memory = facts["ansible_memtotal_mb"]
             self.cpu_core = facts["ansible_processor_count"]
             self.os = facts["ansible_distribution"]
             self.os_version = facts["ansible_distribution_version"]
             self.save()
+            devices = facts["ansible_devices"]
+            volumes = []
+            for name in devices:
+                if not name.startswith('dm'):
+                    volume = Volume(name=name)
+                    volume.size = devices[name]['size']
+                    volume.save()
+                    volumes.append(volume)
+            self.volumes.set(volumes)
+
+
+class Volume(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    name = models.CharField(max_length=128)
+    size = models.CharField(max_length=16)
+    blank = models.BooleanField(default=False)
 
 
 class Node(Ansible_Host):
@@ -215,19 +247,23 @@ class Node(Ansible_Host):
 
     @property
     def host_memory(self):
-        return self.host.memory
+        return self.host.host_info.memory
 
     @property
     def host_cpu_core(self):
-        return self.host.cpu_core
+        return self.host.host_info.cpu_core
 
     @property
     def host_os(self):
-        return self.host.os
+        return self.host.host_info.os
 
     @property
     def host_os_version(self):
-        return self.host.os_version
+        return self.host.host_info.os_version
+
+    @property
+    def host_volumes(self):
+        return self.host.volumes
 
     @roles.setter
     def roles(self, value):
@@ -285,11 +321,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     OPERATION_INSTALL = 'install'
     OPERATION_UPGRADE = 'upgrade'
     OPERATION_UNINSTALL = 'uninstall'
+    OPERATION_UPDATE = 'update'
 
     OPERATION_CHOICES = (
         (OPERATION_INSTALL, _('install')),
         (OPERATION_UPGRADE, _('upgrade')),
         (OPERATION_UNINSTALL, _('uninstall')),
+        (OPERATION_UPDATE, _('update')),
     )
 
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
@@ -310,7 +348,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             print("\n>>> Start run {} ".format(playbook.name))
             self.update_task(playbook.name)
             _result = playbook.execute(extra_vars={
-                "REGISTRY_HOSTNAME": hostname.value
+                "cluster_name": self.project.name
             })
             result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):

@@ -9,7 +9,9 @@ router.register('clusters', api.ClusterViewSet, 'cluster')
 # 注册离线包路由
 router.register('packages', api.PackageViewSet, 'package')
 router.register('host', api.HostViewSet, 'host')
-router.register('setting',api.SettingViewSet,'setting')
+router.register('volume', api.VolumeViewSet, 'volume')
+router.register('setting', api.SettingViewSet, 'setting')
+router.register('hostInfo', api.HostInfoViewSet, 'hostInfo')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
