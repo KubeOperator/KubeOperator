@@ -33,3 +33,8 @@
   hosts: OSEv3
   roles:
     - config_dns 
+#config hostname
+- name: config hostname
+  hosts: OSEv3
+  roles:
+    - config_hostname
