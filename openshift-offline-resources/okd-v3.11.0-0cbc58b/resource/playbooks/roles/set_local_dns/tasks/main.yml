@@ -1,14 +1,16 @@
 - name: check host in DNS
-  shell: cat /opt/fit2openshift/conf/dnsmasq.d/{{cluster_name}}.dns.conf | grep {{ansible_ssh_host}}
+  shell: cat /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf | grep {{ansible_ssh_host}}
   ignore_errors: yes
   register: host_in_dns
+  delegate_to: localhost
+  delegate_facts: False
 
 - debug: 
    msg: "{{host_in_dns.rc}}"
 
 - name: add DNS
-  fileinline:
-    path: "/opt/fit2openshift/conf/dnsmasq.d/{{cluster_name}}.dns.conf"
+  lineinfile:
+    path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf"
     line: "address=/{{inventory_hostname}}/{{ansible_ssh_host}}"
   delegate_to: localhost
   delegate_facts: False

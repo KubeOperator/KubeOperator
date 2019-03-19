@@ -8,4 +8,4 @@
   template:
     backup: True
     dest: /tmp/local_ipv4
-    src: templates/local_ipv4.j2
+    src: templates/local_tmp_ipv4.j2

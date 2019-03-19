@@ -1,5 +1,13 @@
+- name: Check DNS file exists
+  shell: ls /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/ | grep {{cluster_name}}.dns.conf
+  register: is_dns_group_exists
+
+- debug:
+    msg: "{{is_dns_group_exists.rc}}"
+
+
 - name: Create DNS file
   gather_facts: False
-  template:
-    src: templates/dns.j2
-    dest: /opt/fit2openshift/conf/dnsmasq.d/{{cluster_name}}.dns.conf
+  shell: touch /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf && echo "The file is created by fit2openshift!" >> /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf
+  when: is_dns_group_exists.rc != 0
+

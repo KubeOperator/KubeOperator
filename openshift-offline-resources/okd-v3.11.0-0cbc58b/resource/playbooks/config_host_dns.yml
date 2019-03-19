@@ -14,7 +14,7 @@
 
 # 添加registry dns
 - name: add registryt dns
-  hosts: OSEv3
+  hosts: localhost
   roles:
     - add_registry
 
