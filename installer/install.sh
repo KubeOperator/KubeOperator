@@ -63,6 +63,11 @@ printSubTitle "安装依赖..."
 #install node and docker
 cd $basepath/installer/dependencies && ./install_dependencies.sh
 exit_error
+
+printSubTitle "生成ssh key..."
+#generate ssh key
+cd $basepath/installer/scripts && ./generate_ssh_key.sh
+exit_error
 printSubTitle "Build Fit2Openshift 镜像..."
 #build openshift
 cd $basepath/fit2openshift && ./build.sh

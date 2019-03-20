@@ -94,16 +94,18 @@ fi
 
 printf '\n'
 
-printf "%-65s .......... " "Install Named:"
-#install named
-hasDnsmasq=`which dnsmasq  2>&1`
-if [[ "${hasDnsmasq}" =~ "no dnsmasq" ]]; then
-     yum install dnsmasq -y>>$fullLogFile 2>&1 
+printf "%-65s .......... " "Install expect:"
+#install expect
+
+hasExpect=`which expect 2>&1`
+if [[ "${hasExpect}" =~ "no expect" ]]; then
+     yum install expect -y  >>$fullLogFile 2>&1 
      success
-else 
+else
    colorMsg $green "[OK]"
 fi
 
+printf '\n'
 
 
 
