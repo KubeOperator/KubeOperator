@@ -37,7 +37,7 @@ if [ "x$size_total" == "x$size_current" ];then
 
 download ${nexus} /tmp/nexus-data.tar.gz \
 && tar -zvxf /tmp/nexus-data.tar.gz -C /opt/fit2openshift/data/nexus \
-&& chmox -R 777 /opt/fit2openshift/data/nexus \
+&& chmox -R 777 /opt/fit2openshift/data/nexus 
 if [ "$?" != "0" ];then
     colorMsg $red "[Defeat]"
     exit 1

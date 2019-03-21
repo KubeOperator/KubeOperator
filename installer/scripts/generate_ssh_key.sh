@@ -10,7 +10,7 @@ function colorMsg()
 }
 
 printf "%-65s .......... " "generate ssh key"
-ls /root/.ssh | grep id_rsa || /bin/expect ./ssh-keygen.exp > /dev/null 2>&1 
+ls /root/.ssh | grep id_rsa >/dev/null || /bin/expect ./ssh-keygen.exp > /dev/null 1>&2 
 
 if [ "$?" != "0" ];then
     colorMsg $red "[Defeat]"

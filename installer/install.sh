@@ -74,7 +74,7 @@ cd $basepath/fit2openshift && ./build.sh
 exit_error
 printSubTitle "Download Nexus data..."
 #download openshift
-cd $basepath/installer/scripts/download_nexus_data.sh
+cd $basepath/installer/scripts && ./download_nexus_data.sh
 exit_error
 printSubTitle "Build 离线包镜像..."
 #build offline_packages
