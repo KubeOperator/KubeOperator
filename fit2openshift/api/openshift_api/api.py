@@ -1,7 +1,5 @@
-import views as views
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.db import transaction
 from ansible_api.permissions import IsSuperUser
 from . import serializers
