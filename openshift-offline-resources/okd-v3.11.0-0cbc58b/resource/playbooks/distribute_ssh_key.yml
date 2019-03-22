@@ -1,0 +1,23 @@
+---
+
+- name: distribute ssh key to node
+  hosts: OSEv3
+  tasks:
+    - name: check ssh key exists
+      gather_facts: false
+      run_once: true
+      local_action: shell ls /root/.ssh | grep id_rsa
+      register: is_ssh_key_exists
+    
+    - debug:
+        msg: "{{ is_ssh_key_exists.rc }}"
+    
+    - name: copy ssh key to node
+      gather_facts: false
+      name: deliver authorized_keys
+      authorized_key:
+        user: root
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+        state: present
+        exclusive: no
+      when: is_ssh_key_exists.rc == 0  

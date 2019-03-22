@@ -11,6 +11,7 @@
   hosts: nodes
   vars:
    packages:
+      - java-1.8.0-openjdk-headless
       - wget
       - git
       - net-tools
@@ -73,7 +74,6 @@
   gather_facts: no
   roles:
   - check_firewall_initialize
-
 
 - name: Cleanup validation trash
   hosts: OSEv3
