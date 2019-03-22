@@ -107,7 +107,18 @@ fi
 
 printf '\n'
 
+printf "%-65s .......... " "Install java-1.8.0:"
+#install jdk
 
+hasJDK=`which keytool 2>&1`
+if [[ "${hasJDK}" =~ "no keytool" ]]; then
+     yum install java-1.8.0-openjdk-headless  -y  >>$fullLogFile 2>&1
+     success
+else
+   colorMsg $green "[OK]"
+fi
+
+printf '\n'
 
 
 
