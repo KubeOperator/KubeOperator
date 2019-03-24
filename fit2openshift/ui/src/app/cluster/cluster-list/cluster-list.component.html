@@ -30,9 +30,6 @@
   <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
-    <clr-dg-action-overflow>
-      <button class="action-item" (click)="deleteCluster(cluster)">删除</button>
-    </clr-dg-action-overflow>
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.package}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
