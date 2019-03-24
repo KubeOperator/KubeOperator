@@ -10,7 +10,7 @@
     <button type="button" class="btn" (click)="deleteModal = false">取消</button>
   </div>
 </clr-modal>
-<app-host-info [(showInfoModal)]=showHostInfo></app-host-info>
+<app-host-info [(showInfoModal)]=showHostInfo (updated)="refresh()"></app-host-info>
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">

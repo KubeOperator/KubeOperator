@@ -14,6 +14,7 @@ export class HostInfoComponent implements OnInit {
   hostInfo: HostInfo = null;
   loading = false;
   errorText = null;
+  @Output() updated = new EventEmitter();
   @Input() showInfoModal = false;
   @Output() showInfoModalChange = new EventEmitter();
 
@@ -36,6 +37,7 @@ export class HostInfoComponent implements OnInit {
     this.hostInfoService.loadHostInfo(this.hostId).subscribe(data => {
       this.loading = false;
       this.hostInfo = data;
+      this.updated.emit();
     }, error => {
       this.errorText = error;
     });

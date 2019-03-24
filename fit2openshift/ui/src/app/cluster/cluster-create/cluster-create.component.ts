@@ -14,11 +14,17 @@ import {HostService} from '../../host/host.service';
 import {Group} from '../group';
 import {CheckResult, DeviceCheckService} from '../device-check.service';
 
+export const CHECK_STATE_PENDING = 'pending';
+export const CHECK_STATE_SUCCESS = 'success';
+export const CHECK_STATE_FAIL = 'fail';
+
 @Component({
   selector: 'app-cluster-create',
   templateUrl: './cluster-create.component.html',
   styleUrls: ['./cluster-create.component.css']
 })
+
+
 export class ClusterCreateComponent implements OnInit {
 
 
@@ -33,9 +39,9 @@ export class ClusterCreateComponent implements OnInit {
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
-  checkCpuState = 'pending';
-  checkMemoryState = 'pending';
-  checkOsState = 'pending';
+  checkCpuState = CHECK_STATE_PENDING;
+  checkMemoryState = CHECK_STATE_PENDING;
+  checkOsState = CHECK_STATE_PENDING;
   checkCpuResult: CheckResult = new CheckResult();
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
@@ -78,7 +84,9 @@ export class ClusterCreateComponent implements OnInit {
     this.nodes = null;
     this.configs = null;
     this.groups = null;
+    this.resetCheckState();
   }
+
 
   packgeOnChange() {
     this.packages.forEach((pak) => {
@@ -182,6 +190,7 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   fullNode() {
+    this.resetCheckState();
     this.deviceCheck();
     this.nodes.forEach(node => {
       this.hosts.forEach(host => {
@@ -268,30 +277,43 @@ export class ClusterCreateComponent implements OnInit {
   checkCpu() {
     this.checkCpuResult = this.deviceCheckService.checkCpu(this.nodes, this.hosts, this.template);
     if (this.checkCpuResult.passed.length === this.nodes.length) {
-      this.checkCpuState = 'success';
+      this.checkCpuState = CHECK_STATE_SUCCESS;
     } else {
-      this.checkCpuState = 'fail';
+      this.checkCpuState = CHECK_STATE_FAIL;
     }
   }
 
   checkMemory() {
     this.checkMemoryResult = this.deviceCheckService.checkMemory(this.nodes, this.hosts, this.template);
     if (this.checkMemoryResult.passed.length === this.nodes.length) {
-      this.checkMemoryState = 'success';
+      this.checkMemoryState = CHECK_STATE_SUCCESS;
     } else {
-      this.checkMemoryState = 'fail';
+      this.checkMemoryState = CHECK_STATE_FAIL;
     }
   }
 
   checkOS() {
     this.checkOsResult = this.deviceCheckService.checkOs(this.nodes, this.hosts, this.template);
     if (this.checkOsResult.passed.length === this.nodes.length) {
-      this.checkOsState = 'success';
+      this.checkOsState = CHECK_STATE_SUCCESS;
     } else {
-      this.checkOsState = 'fail';
+      this.checkOsState = CHECK_STATE_FAIL;
     }
   }
 
+  resetCheckState() {
+    this.checkCpuState = CHECK_STATE_PENDING;
+    this.checkMemoryState = CHECK_STATE_PENDING;
+    this.checkOsState = CHECK_STATE_PENDING;
+  }
+
+  canCheckNext() {
+    if (this.checkOsState === CHECK_STATE_SUCCESS && this.checkMemoryState === CHECK_STATE_SUCCESS &&
+      this.checkCpuState === CHECK_STATE_SUCCESS) {
+      return true;
+    }
+    return false;
+  }
 
   onCancel() {
     this.reset();

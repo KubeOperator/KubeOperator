@@ -148,7 +148,7 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page>
+  <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">
     <ng-template clrPageTitle>配置检查</ng-template>
     <div>
       1.检查cpu
@@ -166,7 +166,7 @@
     <div>
       2.检查内存
       <span [ngSwitch]="checkMemoryState">
-      <i *ngSwitchCase="'pending'" class=" fa fa-spinner fa-spin"></i>
+         <i *ngSwitchCase="'pending'" class=" fa fa-spinner fa-spin"></i>
       <clr-icon *ngSwitchCase="'success'" shape="success-standard"></clr-icon>
       <clr-icon *ngSwitchCase="'fail'" shape="error-standar" class="is-solid"></clr-icon>
       </span><br/>
