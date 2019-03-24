@@ -28,7 +28,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
-
 class VolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volume
@@ -50,7 +49,7 @@ class HostInfoSerializer(serializers.ModelSerializer):
 
 
 class HostSerializer(HostReadSerializer):
-    info = HostInfoSerializer()
+    info = HostInfoSerializer(read_only=True, required=False)
 
     class Meta:
         model = Host
@@ -59,8 +58,7 @@ class HostSerializer(HostReadSerializer):
             'id', 'name', 'ip', 'username', 'password', 'comment', 'info', 'comment',
             'cluster'
         ]
-        read_only_fields = ['id', 'memory', 'os', 'os_version', 'cpu_core', 'comment', 'cluster']
-
+        read_only_fields = ['id', 'info', 'comment']
 
 
 class ClusterSerializer(ProjectSerializer):
@@ -118,7 +116,6 @@ class RoleSerializer(GroupSerializer):
         model = Role
         fields = ['id', 'name', 'nodes', 'children', 'vars', 'meta', 'comment']
         read_only_fields = ['id']
-
 
 
 class DeployExecutionSerializer(serializers.ModelSerializer):

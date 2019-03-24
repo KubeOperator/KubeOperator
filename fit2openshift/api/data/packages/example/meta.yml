@@ -18,42 +18,6 @@ uninstall_playbooks:
   - name: 1-uninstall
     alias: openshift-ansible/playbooks/uninstall.yml
 
-
-
-configs:
-  - name: openshift_master_cluster_public_hostname
-    alias: 域名
-    type: Input
-    default: lb.fit2openshift.com
-    required: true
-    help_text: 访问的fit2openshift的域名
-
-  - name: openshift_master_default_subdomain
-    alias: 子域名后缀
-    type: Input
-    default: apps.test.example.com
-    required: true
-    help_text: 部署app后service的域名
-
-  - name: openshift_cluster_monitoring_operator_install
-    alias: 集群监控
-    type: Checkbox
-    required: true
-    help_text: 部署集群监控插件
-
-  - name: openshift_metrics_install_metrics
-    alias: 集群指标
-    type: Checkbox
-    required: true
-    help_text: 部署集群指标采集插件
-
-  - name: openshift_logging_install_logging
-    alias: 日志分析
-    type: Checkbox
-    require: true
-    help_text: 部署日志分析插件
-
-
 # template public roles
 roles:
   - name: etcd
@@ -67,27 +31,91 @@ roles:
       - nodes
       - etcd
       - lb
+      - glusterfs
+      - glusterfs_registry
     meta:
       hidden: true
     vars:
+      ##cluster vars
+      ansible_ssh_user: root
+      ansible_become: false
+      debug_level: 4
+      openshift_clock_enabled: true
+      deployment_type: origin
+      openshift_deployment_type: origin
+      openshift_release: 3.11
+      openshift_image_tag: v3.11
+      enable_excluders:  false
+      enable_docker_excluder:  false
+      containerized: true
+      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability
+      openshift_rolling_restart_mode: system
+      openshift_master_api_port: 8443
+      openshift_master_console_port: 8443
+      openshift_master_cluster_method: native
+      #network
+      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenan
+      #images
+      oreg_url: registry.fit2openshift.io:8082/openshift/origin-${component}:${version}
+      system_images_registry: registry.fit2openshift.io:8082
+      openshift_docker_additional_registries: registry.fit2openshift.io:8082
+      openshift_metrics_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      openshift_logging_imagemaster.fit2openshift.io_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      ansible_service_broker_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      ansible_service_broker_etcd_image_prefix: registry.fit2openshift.io:8082/openshift/origin-
+      openshift_docker_insecure_registries:  docker-registry.default.svc,docker-registry.default.svc.cluster.local,registory.fit2openshift.io:8082
+      openshift_docker_disable_push_dockerhub: true
+      openshift_docker_options:  "--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=https://docker.mirrors.ustc.edu.cn"
+      ##auth
+      openshift_master_identity_providers: [{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
+      ## Enable service catalog
+      openshift_enable_service_catalog: false
+
 
 templates:
   - name: 单节点
+    comment: 用于测试环境
+    #all in one 模式屏蔽 monitor metrics logging
+    private_vars:
+      openshift_cluster_monitoring_operator_install: false
+      openshift_logging_install_logging: false
+      openshift_metrics_install_metrics: false
+
+    private_config:
+      - name: openshift_master_cluster_public_hostname
+        alias: 域名
+        type: Input
+        default: lb.fit2openshift.com
+        required: true
+        help_text: 访问的fit2openshift的域名
+
+      - name: openshift_master_default_subdomain
+        alias: 子域名后缀
+        type: Input
+        default: apps.test.example.com
+        required: true
+        help_text: 部署app后service的域名
+
     roles:
       - name: masters
         vars:
           openshift_node_group_name: node-config-all-in-one
         meta:
           hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
           node_vars:
-            - name: "docker_storage"
+            - name: "docker_devices"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              template: "['$value']"
               placeholder: "eg:/dev/sdb"
               type: "Select"
               options: "$volumes"
               require: true
-
           requires:
             nodes_require:
               - '='
@@ -125,132 +153,295 @@ templates:
         meta:
           hidden: true
 
-#  - name: 一主多节点
-#    roles:
-#      - name: masters
-#        vars:
-#          openshift_node_group_name: node-config-master
-#        meta:
-#          hidden: false
-#          requires:
-#            nodes_require:
-#              - '='
-#              - 1
-#            volumes_require:
-#              - system:
-#                  verbose: "系统卷:"
-#                  minimal: 50
-#                  excellent: 100
-#                  blank: false
-#              - data:
-#                  verbose: "数据卷:"
-#                  minimal: 100
-#                  excellent: 500
-#                  blank: false
-#            device_require:
-#              - cpu_core:
-#                  verbose: "CPU 核心数"
-#                  minimal: 4
-#                  excellent: 8
-#              - memory_size:
-#                  verbose: "内存大小"
-#                  minimal: 8
-#                  excellent: 16
-#      - name: cumpute
-#        meta:
-#          hidden: false
-#          requires:
-#            nodes_require:
-#              - '>'
-#              - 3
-#            volumes_require:
-#              - system:
-#                  verbose: "系统卷:"
-#                  minimal: 50
-#                  excellent: 100
-#                  blank: false
-#              - data:
-#                  verbose: "数据卷:"
-#                  minimal: 100
-#                  excellent: 500
-#                  blank: false
-#            device_require:
-#              - cpu_core:
-#                  verbose: "CPU 核心数"
-#                  minimal: 2
-#                  excellent: 4
-#              - memory_size:
-#                  verbose: "内存大小"
-#                  minimal: 8
-#                  excellent: 16
-#      - name: infra
-#        meta:
-#          hidden: false
-#          requires:
-#            nodes_require:
-#              - '>'
-#              - 3
-#            volumes_require:
-#              - system:
-#                  verbose: "系统卷:"
-#                  minimal: 50
-#                  excellent: 100
-#                  blank: false
-#              - data:
-#                  verbose: "数据卷:"
-#                  minimal: 100
-#                  excellent: 200
-#                  blank: false
-#              - gluster:
-#                  verbose: "gluster FS卷:"
-#                  minimal: 500
-#                  excellent: 1000
-#                  blank: true
-#            device_require:
-#              - cpu_core:
-#                  verbose: "CPU 核心数"
-#                  minimal: 2
-#                  excellent: 4
-#              - memory_size:
-#                  verbose: "内存大小"
-#                  minimal: 8
-#                  excellent: 16
-#      - name: nodes
-#        children:
-#          - masters
-#          - compute
-#          - infra
-#        meta:
-#          hidden: true
 
-#  - name: 多主多节点
-#    roles:
-#      - name: masters
-#        vars:
-#          openshift_node_group_name: node-config-master
-#        meta:
-#          hidden: false
-#          nodes_require:
-#            - '>'
-#            - 1
-#      - name: compute
-#        vars:
-#          openshift_node_group_name: node-config-compute
-#        meta:
-#          hidden: false
-#          nodes_require:
-#            - '>'
-#            - 2
-#      - name: lb
-#        meta:
-#          hidden: false
-#          nodes_require:
-#            - '='
-#            - 1
-#      - name: nodes
-#        children:
-#          - masters
-#          - compute
-#          - infra
-#        meta:
-#          hidden: true
+  - name: 多主多节点
+    comment: 用于生产环境
+    private_vars:
+      ##registry
+      openshift_hosted_registry_storage_kind: glusterfs
+      openshift_hosted_registry_storage_volume_size: 10Gi
+      openshift_hosted_registry_selector: 'node-role.kubernetes.io/infra'
+      ##glusterfs
+      openshift_storage_glusterfs_namespace: app-storage
+      openshift_storage_glusterfs_storageclass: true
+      openshift_storage_glusterfs_storageclass_default: false
+      openshift_storage_glusterfs_block_deploy: true
+      openshift_storage_glusterfs_block_host_vol_size: 100
+      openshift_storage_glusterfs_block_storageclass: true
+      openshift_storage_glusterfs_block_storageclass_default: false
+      openshift_storage_glusterfs_wipe: true
+      openshift_storage_glusterfs_heketi_wipe: true
+      ##logging
+      openshift_logging_es_pvc_dynamic:  true
+      openshift_logging_purge_logging: false
+      openshift_logging_use_ops: false
+      openshift_logging_es_cluster_size: 3
+      openshift_logging_es_number_of_replicas: 2
+      openshift_logging_es_nodeselector: {"node-role.kubernetes.io/infra": "true"}
+      openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
+      openshift_logging_curator_nodeselector: {"node-role.kubernetes.io/infra": "true"}
+      openshift_logging_elasticsearch_storage_type: pvc
+      openshift_logging_es_pvc_storage_class_name: "glusterfs-registry-block"
+      openshift_logging_es_pvc_size: 10Gi
+      openshift_logging_kibana_memory_limit: 512Mi
+      openshift_logging_fluentd_memory_limit: 512Mi
+      openshift_logging_es_memory_limit: 10Gi
+      ##metrics
+      openshift_metrics_cassandra_storage_type: pv
+      openshift_metrics_cassandra_pvc_storage_class_name: "glusterfs-storage-block"
+      openshift_metrics_storage_access_modes: ['ReadWriteOnce']
+      openshift_metrics_storage_volume_name: metrics
+      openshift_metrics_storage_volume_size: 10Gi
+
+      ##monitor
+      openshift_cluster_monitoring_operator_prometheus_storage_enabled: true
+      openshift_cluster_monitoring_operator_prometheus_storage_capacity: 50Gi
+      openshift_cluster_monitoring_operator_alertmanager_storage_capacity: 2Gi
+      openshift_cluster_monitoring_operator_node_selector: {"node-role.kubernetes.io/infra": "true"}
+
+
+    private_config:
+      - name: openshift_master_cluster_public_hostname
+        alias: 域名
+        type: Input
+        default: lb.fit2openshift.com
+        required: true
+        help_text: 访问的openshift web console的域名,请将此域名指向lb节点
+
+      - name: openshift_master_default_subdomain
+        alias: application子域名
+        type: Input
+        default: apps.example.com
+        required: true
+        help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
+
+      - name: openshift_cluster_monitoring_operator_install
+        alias: 集群监控
+        type: Checkbox
+        required: true
+        help_text: 部署集群监控插件
+
+      - name: openshift_metrics_install_metrics
+        alias: 集群指标
+        type: Checkbox
+        required: true
+        help_text: 部署集群指标采集插件
+
+      - name: openshift_logging_install_logging
+        alias: 日志分析
+        type: Checkbox
+        require: true
+        help_text: 部署日志分析插件
+    roles:
+      - name: lb
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 1
+                excellent: 2
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 2
+                excellent: 4
+                unit: "GB"
+                comment: "无"
+
+      - name: masters
+        vars:
+          openshift_node_group_name: node-config-master
+        meta:
+          hidden: false
+          node_vars:
+            - name: "docker_devices"
+              verbose: "docker 存储卷"
+              template: "['$value']"
+              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              placeholder: "eg:/dev/sdb"
+              type: "Select"
+              options: "$volumes"
+              require: true
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷:"
+                minimal: 100
+                excellent: 500
+                comment: "数据卷,用于存储docker数据"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+
+      - name: compute
+        vars:
+          openshift_node_group_name: node-config-compute
+        meta:
+          hidden: false
+          node_vars:
+            - name: "docker_devices"
+              verbose: "docker 存储卷"
+              template: "['$value']"
+              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              placeholder: "eg:/dev/sdb"
+              type: "Select"
+              options: "$volumes"
+              require: true
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷"
+                minimal: 50
+                excellent: 100
+                comment: "数据卷，用于存储docker数据"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 2
+                excellent: 4
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+
+      - name: infra
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars:
+            - name: "docker_devices"
+              verbose: "docker 存储卷"
+              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              placeholder: "eg:/dev/sdb"
+              template: "['$value']"
+              type: "Select"
+              options: "$volumes"
+              require: true
+            - name: "glusterfs_devices"
+              verbose: "docker 存储卷"
+              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              placeholder: "eg:/dev/sdb"
+              template: "['$value']"
+              type: "Select"
+              options: "$volumes"
+              require: true
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷"
+                minimal: 50
+                excellent: 100
+                comment: "数据卷，用于存储docker数据"
+                unit: "GB"
+              - name: "glusterfs"
+                verbose: "GlusterFS 卷"
+                minimal: 200
+                excellent: 500
+                comment: "GlusterFS 卷，集群主存储卷,用于Application数据存储，系统组件存储以及registry存储"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 2
+                excellent: 4
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+
+      - name: glusterfs
+        children:
+          - infra
+        meta:
+          hidden: true
+      - name: glusterfs_registry
+        children:
+          - infra
+        meta:
+          hidden: true
+      - name: nodes
+        children:
+          - masters
+          - compute
+          - infra
+        meta:
+          hidden: true

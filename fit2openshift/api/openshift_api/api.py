@@ -6,6 +6,7 @@ from . import serializers
 from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting, Volume, HostInfo
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
+from django.db.models import Q
 
 
 # 集群视图
@@ -80,7 +81,7 @@ class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
 # 节点视图
 class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = Node.objects.all()
+    queryset = Node.objects.filter(~Q(name='localhost'))
     serializer_class = serializers.NodeSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'

@@ -20,12 +20,6 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
         instance.on_node_save()
 
 
-@receiver(pre_save, sender=Node)
-def before_node_save(sender, instance=None, created=False, **kwargs):
-    if created and not instance.name == 'localhost':
-        instance.before_node_save()
-
-
 @receiver(pre_save, sender=HostInfo)
 def before_hostInfo_save(sender, instance=None, created=False, **kwargs):
     if created:

@@ -81,6 +81,7 @@ class Cluster(Project):
             if tmp['name'] == self.template:
                 template = tmp
                 break
+
         for role in template.get('roles', []):
             _roles[role['name']] = role
         roles_data = [role for role in _roles.values()]
@@ -97,6 +98,13 @@ class Cluster(Project):
                 role.children.set(children)
             except Role.DoesNotExist:
                 pass
+
+        ose_role = Role.objects.get(name='OSEv3')
+        private_var = template['private_vars']
+        role_vars = ose_role.vars
+        role_vars.update(private_var)
+        ose_role.vars = role_vars
+        ose_role.save()
 
     def create_node_localhost(self):
         Node.objects.create(
@@ -192,6 +200,19 @@ class Host(BaseHost):
     def info(self):
         return self.infos.all().latest()
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save()
+        info = HostInfo.objects.create(host_id=self.id)
+        try:
+            info.gather_info()
+        except Exception as e:
+            self.delete()
+            raise Exception("get host info failed!")
+
+    class Meta:
+        ordering = ('-name',)
+
 
 class HostInfo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -224,7 +245,7 @@ class HostInfo(models.Model):
             volumes = []
             for name in devices:
                 if not name.startswith('dm'):
-                    volume = Volume(name=name)
+                    volume = Volume(name='/dev/' + name)
                     volume.size = devices[name]['size']
                     volume.save()
                     volumes.append(volume)
@@ -247,23 +268,23 @@ class Node(Ansible_Host):
 
     @property
     def host_memory(self):
-        return self.host.host_info.memory
+        return self.host.info.memory
 
     @property
     def host_cpu_core(self):
-        return self.host.host_info.cpu_core
+        return self.host.info.cpu_core
 
     @property
     def host_os(self):
-        return self.host.host_info.os
+        return self.host.info.os
 
     @property
     def host_os_version(self):
-        return self.host.host_info.os_version
+        return self.host.info.os_version
 
     @property
     def host_volumes(self):
-        return self.host.volumes
+        return self.host.info.volumes
 
     @roles.setter
     def roles(self, value):
@@ -274,14 +295,8 @@ class Node(Ansible_Host):
         self.username = self.host.username
         self.password = self.host.password
         self.private_key = self.host.private_key
-        self.host.node_id = self.id
-        self.host.save()
         self.save()
 
-    def before_node_save(self):
-        host = Host.objects.filter(id=self.host_id).first()
-        if not host.node_id is None:
-            raise Exception('host ' + host.name + 'in use')
 
     def add_vars(self, _vars):
         __vars = {k: v for k, v in self.vars.items()}
