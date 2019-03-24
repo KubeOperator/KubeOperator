@@ -1,22 +1,24 @@
 name: okd-3.11
 version: 3.11
 install_playbooks:
-  - name: 1-uninstall-install
-    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
-  - name: 2-validate-install
-    alias: playbooks/validate.yml
-  - name: 3-prequisites-install
+  - name: 1-distribute_ssh_key-install
+    alias: playbooks/distribute_ssh_key
+  - name: 2-config_host_dns-install
+    alias: playbooks/config_host_dns.yml
+  - name: 3-prepare_host-install
+    alias: playbooks/prepare_host.yml
+  - name: 4-prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 4-deploy-cluster-install
+  - name: 5-config_docker_storage-install
+    alias: playbooks/config_docker_storage.yml
+  - name: 6-deploy-cluster-install
     alias: openshift-ansible/playbooks/deploy_cluster.yml
-upgrade_playbooks:
-  - name: 1-prepaire-upgrade
-    alias: prepare.yml
-  - name: 2-run-prequisites-upgrade
-    alias: openshift-ansible/playbooks/upgrade.yml
+
 uninstall_playbooks:
-  - name: 1-uninstall
+  - name: 1-okd-uninstall
     alias: openshift-ansible/playbooks/uninstall.yml
+  - name: 2-glusterfs-uninstall
+    alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
 
 # template public roles
 roles:
@@ -48,7 +50,7 @@ roles:
       enable_excluders:  false
       enable_docker_excluder:  false
       containerized: true
-      openshift_disable_check: disk_availability,docker_storage_device,memory_availability,docker_image_availability
+      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability
       openshift_rolling_restart_mode: system
       openshift_master_api_port: 8443
       openshift_master_console_port: 8443
@@ -108,10 +110,10 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_storage_device"
+            - name: "docker_devices"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              template: "$value"
+              template: "['$value']"
               placeholder: "eg:/dev/sdb"
               type: "Select"
               options: "$volumes"
@@ -272,9 +274,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_storage_device"
+            - name: "docker_devices"
               verbose: "docker 存储卷"
-              template: "$value"
+              template: "['$value']"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -322,9 +324,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_storage_device"
+            - name: "docker_devices"
               verbose: "docker 存储卷"
-              template: "$value"
+              template: "['$value']"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -375,11 +377,11 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_storage_device"
+            - name: "docker_devices"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "$value"
+              template: "['$value']"
               type: "Select"
               options: "$volumes"
               require: true
@@ -445,4 +447,3 @@ templates:
           - infra
         meta:
           hidden: true
-

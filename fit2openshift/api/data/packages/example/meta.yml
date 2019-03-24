@@ -1,22 +1,24 @@
 name: okd-3.11
 version: 3.11
 install_playbooks:
-  - name: 1-uninstall-install
-    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
-  - name: 2-validate-install
-    alias: playbooks/validate.yml
-  - name: 3-prequisites-install
+  - name: 1-distribute_ssh_key-install
+    alias: playbooks/distribute_ssh_key
+  - name: 2-config_host_dns-install
+    alias: playbooks/config_host_dns.yml
+  - name: 3-prepare_host-install
+    alias: playbooks/prepare_host.yml
+  - name: 4-prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 4-deploy-cluster-install
+  - name: 5-config_docker_storage-install
+    alias: playbooks/config_docker_storage.yml
+  - name: 6-deploy-cluster-install
     alias: openshift-ansible/playbooks/deploy_cluster.yml
-upgrade_playbooks:
-  - name: 1-prepaire-upgrade
-    alias: prepare.yml
-  - name: 2-run-prequisites-upgrade
-    alias: openshift-ansible/playbooks/upgrade.yml
+
 uninstall_playbooks:
-  - name: 1-uninstall
+  - name: 1-okd-uninstall
     alias: openshift-ansible/playbooks/uninstall.yml
+  - name: 2-glusterfs-uninstall
+    alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
 
 # template public roles
 roles:
