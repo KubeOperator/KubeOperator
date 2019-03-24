@@ -14,7 +14,7 @@ export class ClusterListComponent implements OnInit {
   loading = true;
   clusters: Cluster[] = [];
   deleteModal = false;
-  selectedCluster: Cluster = new Cluster();
+  selectedClusters: Cluster[] = [];
 
   @Output() addCluster = new EventEmitter<void>();
 
@@ -35,19 +35,21 @@ export class ClusterListComponent implements OnInit {
   }
 
 
-  deleteCluster(cluster: Cluster) {
+  onDeleted() {
     this.deleteModal = true;
-    this.selectedCluster = cluster;
   }
 
   confirmDelete() {
-    this.clusterService.deleteCluster(this.selectedCluster.name).subscribe(data => {
+    const promises: Promise<{}>[] = [];
+    this.selectedClusters.forEach(cluster => {
+      promises.push(this.clusterService.deleteCluster(cluster.name).toPromise());
+    });
+    Promise.all(promises).then(() => {
       this.deleteModal = false;
       this.listCluster();
-      this.tipService.showTip('删除成功！', TipLevels.SUCCESS);
-    }, error => {
-      this.deleteModal = false;
-      this.tipService.showTip('删除失败！ msg:' + error, TipLevels.ERROR);
+      this.tipService.showTip('删除集群成功！', TipLevels.SUCCESS);
+    }, (error) => {
+      this.tipService.showTip('删除集群失败:' + error, TipLevels.ERROR);
     });
   }
 

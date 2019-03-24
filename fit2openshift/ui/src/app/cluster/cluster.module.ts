@@ -8,7 +8,8 @@ import {ClusterDetailComponent} from './cluster-detail/cluster-detail.component'
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {TipModule} from '../tip/tip.module';
 import {ClusterRoutingResolverService} from './cluster-routing-resolver.service';
-import { HostsFilterPipe } from './hosts-filter.pipe';
+import {HostsFilterPipe} from './hosts-filter.pipe';
+import {DeviceCheckService} from './device-check.service';
 
 @NgModule({
   declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent, HostsFilterPipe],
@@ -17,7 +18,7 @@ import { HostsFilterPipe } from './hosts-filter.pipe';
     TipModule,
     CoreModule
   ],
-  providers: [ClusterService, ClusterRoutingResolverService]
+  providers: [ClusterService, ClusterRoutingResolverService, DeviceCheckService]
 })
 export class ClusterModule {
 }

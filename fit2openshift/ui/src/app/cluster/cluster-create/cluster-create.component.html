@@ -39,11 +39,70 @@
                name="template" (change)="templateOnChange()"/>
         <label>{{template.name}}</label>
       </clr-radio-wrapper>
+      <div *ngIf="template">
+        <div *ngFor="let role of template.roles">
+          <div *ngIf="!role.meta.hidden">
+            <h3>{{role.name}}</h3>
+            <hr/>
+            <div>
+              节点数:
+              {{role.meta.requires.nodes_require[0]}}
+              {{role.meta.requires.nodes_require[1]}}
+            </div>
+            <div>
+              支持操作系统:
+              <span *ngFor="let os of role.meta.allow_os">
+                {{os.name}}&nbsp;
+                <span *ngFor="let version of os.version">
+                  {{version}}&nbsp;
+                </span>
+              </span>
+            </div>
+            <h5>设备要求:</h5>
+            <div>
+              <clr-datagrid>
+                <clr-dg-column>设备名称</clr-dg-column>
+                <clr-dg-column>最低配置</clr-dg-column>
+                <clr-dg-column>推荐配置</clr-dg-column>
+                <clr-dg-column>单位</clr-dg-column>
+                <clr-dg-column>备注</clr-dg-column>
+
+                <clr-dg-row *clrDgItems="let require of role.meta.requires.device_require" [clrDgItem]="require">
+                  <clr-dg-cell>{{require.verbose}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.minimal}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.excellent}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.unit}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.comment}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+            </div>
+            <h5>磁盘要求:</h5>
+            <div>
+              <clr-datagrid>
+                <clr-dg-column>设备名称</clr-dg-column>
+                <clr-dg-column>最低配置</clr-dg-column>
+                <clr-dg-column>推荐配置</clr-dg-column>
+                <clr-dg-column>单位</clr-dg-column>
+                <clr-dg-column>备注</clr-dg-column>
+
+                <clr-dg-row *clrDgItems="let require of role.meta.requires.volumes_require" [clrDgItem]="require">
+                  <clr-dg-cell>{{require.verbose}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.minimal}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.excellent}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.unit}}</clr-dg-cell>
+                  <clr-dg-cell>{{require.comment}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </form>
   </clr-wizard-page>
 
   <!--<clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">-->
-  <clr-wizard-page (clrWizardPageOnCommit)="fullNode()">
+  <clr-wizard-page (clrWizardPageOnCommit)="fullNode()" [clrWizardPageNextDisabled]="canNodeNext()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' clrForm>
       <div *ngFor="let group of groups">
@@ -51,15 +110,28 @@
         <hr/>
         <div *ngFor="let node of group.nodes" class="clr-row">
           <div class="clr-col-10">
-            <h5>{{node.name}}</h5>
+            <h3>{{node.name}}</h3>
             <clr-select-container>
               <label>选择主机:</label>
-              <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">
+              <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}"
+                      (change)="onHostChange(node)">
                 <option [value]="">请选择</option>
                 <option *ngFor="let host of hosts | hostsFilter :nodes:node "
                         value="{{host.id}}">{{host.name}}</option>
               </select>
             </clr-select-container>
+            <div *ngIf="group.node_vars">
+              <span>选择磁盘:</span>
+              <div *ngFor="let _var of group.node_vars">
+                <clr-select-container>
+                  <label>{{_var.name}}:</label>
+                  <select clrSelect [(ngModel)]="node.vars[_var.name]" [ngModelOptions]="{standalone: true}">
+                    <option value="">请选择磁盘</option>
+                    <option *ngFor="let v of node.volumes" [value]="replaceVolumeName(v,_var.template)">{{v}}</option>
+                  </select>
+                </clr-select-container>
+              </div>
+            </div>
           </div>
           <div *ngIf="node.delete" class="clr-col-2">
             <button class="btn btn-info-outline" (click)="deleteNode(group,node)">
@@ -74,22 +146,51 @@
         </div>
       </div>
     </form>
-
-
-    <!--<form #nodeForm='ngForm' clrForm>-->
-    <!--<div *ngFor="let node of nodes">-->
-    <!--<h5>{{node.name}}</h5>-->
-    <!--<label>选择主机:</label>-->
-    <!--<label>-->
-    <!--<select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}">-->
-    <!--<option [value]="">请选择</option>clear-->
-    <!--<option *ngFor="let host of hosts | hostsFilter :nodes:node "-->
-    <!--value="{{host.id}}">{{host.name}}</option>-->
-    <!--</select>-->
-    <!--</label>-->
-    <!--</div>-->
-    <!--</form>-->
   </clr-wizard-page>
+
+  <clr-wizard-page>
+    <ng-template clrPageTitle>配置检查</ng-template>
+    <div>
+      1.检查cpu
+      <span [ngSwitch]="checkCpuState">
+      <i *ngSwitchCase="'pending'" class=" fa fa-spinner fa-spin"></i>
+      <clr-icon *ngSwitchCase="'success'" shape="success-standard"></clr-icon>
+      <clr-icon *ngSwitchCase="'fail'" shape="error-standar" class="is-solid"></clr-icon>
+      </span><br/>
+      <div *ngIf="checkCpuState === 'fail'">
+        <span style="color: green;">通过检查:</span> {{checkCpuResult.passed}}
+        <br/>
+        <span style="color: red;">未通过检查:</span> {{checkCpuResult.failed}}
+      </div>
+    </div>
+    <div>
+      2.检查内存
+      <span [ngSwitch]="checkMemoryState">
+      <i *ngSwitchCase="'pending'" class=" fa fa-spinner fa-spin"></i>
+      <clr-icon *ngSwitchCase="'success'" shape="success-standard"></clr-icon>
+      <clr-icon *ngSwitchCase="'fail'" shape="error-standar" class="is-solid"></clr-icon>
+      </span><br/>
+      <div *ngIf="checkMemoryState === 'fail'">
+        <span style="color: green;">通过检查:</span> {{checkMemoryResult.passed}}
+        <br/>
+        <span style="color: red;">未通过检查:</span> {{checkMemoryResult.failed}}
+      </div>
+    </div>
+    <div>
+      3.检查操作系统
+      <span [ngSwitch]="checkOsState">
+      <i *ngSwitchCase="'pending'" class=" fa fa-spinner fa-spin"></i>
+      <clr-icon *ngSwitchCase="'success'" shape="success-standard"></clr-icon>
+      <clr-icon *ngSwitchCase="'fail'" shape="error-standar" class="is-solid"></clr-icon>
+      </span><br/>
+      <div *ngIf="checkOsState === 'fail'">
+        <span style="color: green;">通过检查:</span> {{checkOsResult.passed}}
+        <br/>
+        <span style="color: red;">未通过检查:</span> {{checkOsResult.failed}}
+      </div>
+    </div>
+  </clr-wizard-page>
+
 
   <clr-wizard-page [clrWizardPageNextDisabled]="!configForm.valid">
     <ng-template clrPageTitle>设置参数</ng-template>
@@ -104,12 +205,9 @@
             </label>
           </clr-input-container>
 
-          <!--<clr-select-container *ngSwitchCase="'Select'">-->
-          <!--<label>{{config.alias}}</label>-->
-          <!--<select [name]="config.name" clrSelect>-->
-          <!--<option *ngFor="let option of config.options" [value]="option.name">{{option.alias}}</option>-->
-          <!--</select>-->
-          <!--</clr-select-container>-->
+          <clr-checkbox [clrChecked]="true" [clrInline]="true" *ngSwitchCase="'Checkbox'">
+            {{config.help_text}}
+          </clr-checkbox>
         </div>
       </div>
     </form>
@@ -123,7 +221,6 @@
         <label>集群名称:</label>
         <span>{{cluster.name}}</span>
       </div>
-
 
       <div class="form-group">
         <label>部署模型:</label>

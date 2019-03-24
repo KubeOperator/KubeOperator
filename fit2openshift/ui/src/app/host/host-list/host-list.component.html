@@ -17,7 +17,8 @@
       <clr-icon shape="plus" size="16"></clr-icon>
       添加
     </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()">
+    <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedHosts.length == 0 "
+            (click)="onDeleted()">
       <clr-icon shape="close"></clr-icon>
       删除
     </button>

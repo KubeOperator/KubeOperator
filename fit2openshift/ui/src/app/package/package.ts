@@ -8,7 +8,6 @@ export class Package {
 export class PackageMeta {
   name: string;
   version: string;
-  configs: Config[];
   templates: Template[];
 }
 
@@ -33,14 +32,49 @@ export class Role {
   meta: RoleMeta;
 }
 
+export class Requires {
+  nodes_require: any[];
+  volumes_require: Require[];
+  device_require: Require[];
+}
+
+export class Require {
+  name: string;
+  verbose: string;
+  minimal: number;
+  excellent: number;
+  unit: string;
+  comment: string;
+}
+
+export class NodeVars {
+  name: string;
+  template: string;
+  verbose: string;
+  comment: string;
+  type: string;
+  options: any;
+  placeholder: string;
+  require: true;
+}
+
+
 export class RoleMeta {
   hidden: boolean;
-  nodes_require: any[];
+  allow_os: Os[];
+  requires: Requires;
+  node_vars: NodeVars[];
+}
 
+
+export class Os {
+  name: string;
+  version: string[];
 }
 
 export class Template {
   name: string;
   roles: Role[];
+  private_config: Config[];
 }
 

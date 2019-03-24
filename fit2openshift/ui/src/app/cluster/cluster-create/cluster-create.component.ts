@@ -12,6 +12,7 @@ import {Host} from '../../host/host';
 import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
+import {CheckResult, DeviceCheckService} from '../device-check.service';
 
 @Component({
   selector: 'app-cluster-create',
@@ -25,19 +26,28 @@ export class ClusterCreateComponent implements OnInit {
   createClusterOpened: boolean;
   isSubmitGoing = false;
   cluster: Cluster = new Cluster();
-  template: Template;
+  template: Template = new Template();
   configs: Config[] = [];
   packages: Package[] = [];
   templates: Template[] = [];
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
+  checkCpuState = 'pending';
+  checkMemoryState = 'pending';
+  checkOsState = 'pending';
+  checkCpuResult: CheckResult = new CheckResult();
+  checkMemoryResult: CheckResult = new CheckResult();
+  checkOsResult: CheckResult = new CheckResult();
+  suffix = '.f2o';
+
 
   @Output() create = new EventEmitter<boolean>();
   loadingFlag = false;
 
-  constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService,
-              private packageService: PackageService, private relationService: RelationService, private hostService: HostService) {
+  constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
+    , private packageService: PackageService, private relationService: RelationService,
+              private hostService: HostService, private deviceCheckService: DeviceCheckService) {
   }
 
   ngOnInit() {
@@ -73,7 +83,6 @@ export class ClusterCreateComponent implements OnInit {
   packgeOnChange() {
     this.packages.forEach((pak) => {
       if (pak.name === this.cluster.package) {
-        this.configs = pak.meta.configs;
         this.templates = pak.meta.templates;
       }
     });
@@ -88,6 +97,12 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   templateOnChange() {
+    this.templates.forEach(template => {
+      if (template.name === this.cluster.template) {
+        this.template = template;
+        this.configs = template.private_config;
+      }
+    });
     this.nodes = [];
     this.groups = [];
     this.templates.forEach(tmp => {
@@ -95,9 +110,10 @@ export class ClusterCreateComponent implements OnInit {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
             const group: Group = new Group();
+            group.node_vars = role.meta.node_vars;
             group.name = role.name;
-            group.op = role.meta.nodes_require[0];
-            group.limit = role.meta.nodes_require[1];
+            group.op = role.meta.requires.nodes_require[0];
+            group.limit = role.meta.requires.nodes_require[1];
             for (let i = group.node_sum; i < group.limit; i++) {
               this.addNode(group, false);
             }
@@ -106,6 +122,20 @@ export class ClusterCreateComponent implements OnInit {
         });
       }
     });
+  }
+
+  onHostChange(node: Node) {
+    if (node.host) {
+      node.volumes = [];
+      this.hosts.forEach(host => {
+        if (host.id === node.host) {
+          host.info.volumes.forEach(volume => {
+            node.volumes.push(volume.name);
+          });
+        }
+      });
+    }
+
   }
 
   deleteNode(group: Group, node: Node) {
@@ -132,7 +162,7 @@ export class ClusterCreateComponent implements OnInit {
     if (canDelete !== undefined && canDelete !== null) {
       node.delete = canDelete;
     }
-    node.name = group.name + '-' + group.node_sum;
+    node.name = group.name + '-' + group.node_sum + this.cluster.name + this.suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
@@ -152,6 +182,7 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   fullNode() {
+    this.deviceCheck();
     this.nodes.forEach(node => {
       this.hosts.forEach(host => {
         if (node.host === host.id) {
@@ -171,6 +202,19 @@ export class ClusterCreateComponent implements OnInit {
         this.configCluster();
       });
     });
+  }
+
+  canNodeNext(): boolean {
+    let result = false;
+    if (this.nodes) {
+      this.nodes.some(node => {
+        if (!node.host) {
+          result = true;
+          return true;
+        }
+      });
+    }
+    return result;
   }
 
   configCluster() {
@@ -194,6 +238,60 @@ export class ClusterCreateComponent implements OnInit {
       .replace('{O}', host.info.os + host.info.os_version)
       .replace('{N}', host.name);
   }
+
+  getHostById(hostId: string): Host {
+    let h: Host;
+    this.hosts.forEach(host => {
+      if (host.id === hostId) {
+        h = host;
+      }
+    });
+    return h;
+  }
+
+  replaceVolumeName(name: string, template: string): string {
+    return template.replace('$value', name);
+  }
+
+  deviceCheck() {
+    setTimeout(() => {
+      this.checkCpu();
+    }, 2000);
+    setTimeout(() => {
+      this.checkMemory();
+    }, 4000);
+    setTimeout(() => {
+      this.checkOS();
+    }, 6000);
+  }
+
+  checkCpu() {
+    this.checkCpuResult = this.deviceCheckService.checkCpu(this.nodes, this.hosts, this.template);
+    if (this.checkCpuResult.passed.length === this.nodes.length) {
+      this.checkCpuState = 'success';
+    } else {
+      this.checkCpuState = 'fail';
+    }
+  }
+
+  checkMemory() {
+    this.checkMemoryResult = this.deviceCheckService.checkMemory(this.nodes, this.hosts, this.template);
+    if (this.checkMemoryResult.passed.length === this.nodes.length) {
+      this.checkMemoryState = 'success';
+    } else {
+      this.checkMemoryState = 'fail';
+    }
+  }
+
+  checkOS() {
+    this.checkOsResult = this.deviceCheckService.checkOs(this.nodes, this.hosts, this.template);
+    if (this.checkOsResult.passed.length === this.nodes.length) {
+      this.checkOsState = 'success';
+    } else {
+      this.checkOsState = 'fail';
+    }
+  }
+
 
   onCancel() {
     this.reset();
