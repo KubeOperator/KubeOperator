@@ -1,7 +1,3 @@
-# 目前该项目仍在开发中，未正式发布。
-
-
-
 # Welcome to FIT2OPENSHIFT (Fit to OpenShift)
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
@@ -9,6 +5,7 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.4.2.0-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
+**该项目未正式发布，仍在开发中...**
 
 ## 什么是 FIT2OPENSHIFT？
 
