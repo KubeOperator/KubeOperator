@@ -1,7 +1,9 @@
 <clr-modal [(clrModalOpen)]="deleteModal" [clrModalSize]="'lg'">
   <h3 class="modal-title">确认删除</h3>
   <div class="modal-body">
-    <p>删除操作不可恢复,确认要删除主机: {{selectedHost.name}}？</p>
+    <p>删除操作不可恢复,确认要删除主机:
+      <span *ngFor="let host of selectedHosts">&nbsp;{{host.name}}</span>
+    </p>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
@@ -9,14 +11,17 @@
   </div>
 </clr-modal>
 <app-host-info [(showInfoModal)]=showHostInfo></app-host-info>
-<clr-datagrid [clrDgLoading]="loading">
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
       <clr-icon shape="plus" size="16"></clr-icon>
       添加
     </button>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()">
+      <clr-icon shape="close"></clr-icon>
+      删除
+    </button>
   </clr-dg-action-bar>
-
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>IP 地址</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
@@ -26,11 +31,7 @@
   <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
-    <clr-dg-action-overflow>
-      <button class="action-item" (click)="deleteHost(host)">删除</button>
-      <button class="action-item" (click)="openInfo(host)">查看信息</button>
-    </clr-dg-action-overflow>
-    <clr-dg-cell>{{host.name}}</clr-dg-cell>
+    <clr-dg-cell><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.memory}}</clr-dg-cell>

@@ -3,7 +3,6 @@ import {HostService} from '../host.service';
 import {Host} from '../host';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
-import {LogDetailComponent} from '../../log/log-detail/log-detail.component';
 import {HostInfoComponent} from '../host-info/host-info.component';
 
 @Component({
@@ -16,7 +15,7 @@ export class HostListComponent implements OnInit {
   hosts: Host[] = [];
   loading = false;
   deleteModal = false;
-  selectedHost: Host = new Host();
+  selectedHosts: Host[] = [];
   showHostInfo = false;
   @Output() addHost = new EventEmitter();
   @ViewChild(HostInfoComponent)
@@ -30,18 +29,21 @@ export class HostListComponent implements OnInit {
     this.listHost();
   }
 
-  deleteHost(host: Host) {
+  onDeleted() {
     this.deleteModal = true;
-    this.selectedHost = host;
   }
 
   confirmDelete() {
-    this.hostService.deleteHost(this.selectedHost.id).subscribe(data => {
+    const promises: Promise<{}>[] = [];
+    this.selectedHosts.forEach(host => {
+      promises.push(this.hostService.deleteHost(host.id).toPromise());
+    });
+    Promise.all(promises).then(() => {
       this.deleteModal = false;
       this.refresh();
-      this.tipService.showTip('删除主机成功!', TipLevels.SUCCESS);
-    }, err => {
-      this.tipService.showTip('删除失败:' + err, TipLevels.ERROR);
+      this.tipService.showTip('删除主机成功！', TipLevels.SUCCESS);
+    }, (error) => {
+      this.tipService.showTip('删除主机失败:' + error, TipLevels.ERROR);
     });
   }
 
