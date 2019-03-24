@@ -110,10 +110,10 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_devices"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              template: "['$value']"
+              template: "$value"
               placeholder: "eg:/dev/sdb"
               type: "Select"
               options: "$volumes"
@@ -274,9 +274,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_devices"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -324,9 +324,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_devices"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -377,11 +377,11 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_devices"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "['$value']"
+              template: "$value"
               type: "Select"
               options: "$volumes"
               require: true
