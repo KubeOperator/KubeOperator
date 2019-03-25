@@ -586,7 +586,7 @@ templates:
           requires:
             nodes_require:
               - '='
-              - 1
+              - 3
             volumes_require:
               - name: "system"
                 verbose: "系统卷:"
