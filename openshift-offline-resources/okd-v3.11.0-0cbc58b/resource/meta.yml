@@ -101,7 +101,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -226,7 +226,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -529,7 +529,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
