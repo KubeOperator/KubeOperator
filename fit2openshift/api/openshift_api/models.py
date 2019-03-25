@@ -359,7 +359,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             self.update_task(playbook.name)
             _result = playbook.execute(extra_vars={
                 "cluster_name": self.project.name,
-                "registry_hostname": hostname
+                "registry_hostname": hostname.value
             })
             result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):
