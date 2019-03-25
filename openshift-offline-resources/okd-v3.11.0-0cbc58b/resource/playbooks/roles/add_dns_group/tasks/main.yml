@@ -1,5 +1,5 @@
 - name: Check DNS file exists
-  shell: ls /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/ | grep {{cluster_name}}.dns.conf
+  shell: ls /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/ | grep -w {{cluster_name}}.dns.conf
   register: is_dns_group_exists
   ignore_errors: true
 
