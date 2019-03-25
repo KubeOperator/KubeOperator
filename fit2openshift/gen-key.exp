@@ -1,4 +1,4 @@
-#!/bin/expect
+#!/usr/bin/expect
 
 set timeout 30
 spawn ssh-keygen -t rsa
