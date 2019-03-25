@@ -1,7 +1,7 @@
 ---
 
 - debug:
-    msg: "{{ansible_default_ipv4.address}}"
+    msg: "{{registry_hostname}}"
   register: local_ipv4
 
 - name: echo ipv4 to tmp file

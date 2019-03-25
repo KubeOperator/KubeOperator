@@ -1,5 +1,5 @@
 - name: check registry exists
-  shell: cat /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/fit2openshift.dns.conf | grep {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}
+  shell: cat /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/fit2openshift.dns.conf | grep {{registry_hostname}}
   register: is_registry_in
   ignore_errors: yes
   
@@ -9,5 +9,5 @@
 - name: set registry dns
   lineinfile:
     path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/fit2openshift.dns.conf"
-    line: "address=/registry.fit2openshift.io/{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+    line: "address=/registry.fit2openshift.io/{{registry_hostname}}"
   when: is_registry_in.rc != 0

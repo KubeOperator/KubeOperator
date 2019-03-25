@@ -13,7 +13,7 @@
     - set_local_dns
 
 # 添加registry dns
-- name: add registryt dns
+- name: add registry dns
   hosts: localhost
   roles:
     - add_registry
