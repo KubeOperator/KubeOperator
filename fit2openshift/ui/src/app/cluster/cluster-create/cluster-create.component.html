@@ -149,7 +149,7 @@
   </clr-wizard-page>
 
   <!--<clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">-->
-  <clr-wizard-page >
+  <clr-wizard-page>
     <ng-template clrPageTitle>配置检查</ng-template>
     <div>
       1.检查cpu
@@ -193,7 +193,7 @@
   </clr-wizard-page>
 
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!configForm.valid">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canConfigNext()">
     <ng-template clrPageTitle>设置参数</ng-template>
     <form #configForm='ngForm' clrForm>
       <div *ngFor="let config of configs">
@@ -206,8 +206,9 @@
             </label>
           </clr-input-container>
 
-          <clr-checkbox [clrChecked]="true" [clrInline]="true" *ngSwitchCase="'Checkbox'">
-            {{config.help_text}}
+          <clr-checkbox [clrInline]="true" *ngSwitchCase="'Checkbox'" [(ngModel)]="config.value"
+                        [ngModelOptions]="{standalone: true}">
+            {{config.alias}}
           </clr-checkbox>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
 import {CheckResult, DeviceCheckService} from '../device-check.service';
+import {config} from 'rxjs';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -109,6 +110,9 @@ export class ClusterCreateComponent implements OnInit {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs = template.private_config;
+        this.configs.forEach(c => {
+          c.value = c.default;
+        });
       }
     });
     this.nodes = [];
@@ -190,7 +194,6 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   fullNode() {
-    console.log('test');
     this.resetCheckState();
     this.deviceCheck();
     this.nodes.forEach(node => {
@@ -258,6 +261,20 @@ export class ClusterCreateComponent implements OnInit {
     });
     return h;
   }
+
+  canConfigNext() {
+    let result = true;
+    if (this.configs) {
+      this.configs.some(config => {
+        if (config.value != null && config.value !== '') {
+          result = false;
+          return true;
+        }
+      });
+    }
+    return result;
+  }
+
 
   replaceVolumeName(name: string, template: string): string {
     return template.replace('$value', name);

@@ -220,18 +220,21 @@ templates:
       - name: openshift_cluster_monitoring_operator_install
         alias: 集群监控
         type: Checkbox
+        default: true
         required: true
         help_text: 部署集群监控插件
 
       - name: openshift_metrics_install_metrics
         alias: 集群指标
         type: Checkbox
+        default: true
         required: true
         help_text: 部署集群指标采集插件
 
       - name: openshift_logging_install_logging
         alias: 日志分析
         type: Checkbox
+        default: true
         require: true
         help_text: 部署日志分析插件
     roles:

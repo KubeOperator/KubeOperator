@@ -17,7 +17,7 @@ export class Config {
   type: string;
   options: Option[];
   value: string;
-  default: string;
+  default: any;
   require: boolean;
   help_text: string;
 }
