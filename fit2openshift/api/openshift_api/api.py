@@ -32,6 +32,10 @@ class HostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.HostSerializer
     permission_classes = (IsSuperUser,)
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        transaction.on_commit(lambda: instance.gather_info())
+
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ClusterConfigSerializer

@@ -200,15 +200,9 @@ class Host(BaseHost):
     def info(self):
         return self.infos.all().latest()
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        super().save()
+    def gather_info(self):
         info = HostInfo.objects.create(host_id=self.id)
-        try:
-            info.gather_info()
-        except Exception as e:
-            self.delete()
-            raise Exception("get host info failed!")
+        info.gather_info()
 
     class Meta:
         ordering = ('-name',)
@@ -295,8 +289,9 @@ class Node(Ansible_Host):
         self.username = self.host.username
         self.password = self.host.password
         self.private_key = self.host.private_key
+        self.host.node_id = self.id
+        self.host.save()
         self.save()
-
 
     def add_vars(self, _vars):
         __vars = {k: v for k, v in self.vars.items()}
