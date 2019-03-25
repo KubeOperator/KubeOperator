@@ -15,6 +15,7 @@ RUN sed -i "s@'uri': True@'uri': False@g" /opt/py3/lib/python3.6/site-packages/d
 RUN yum -y install nginx
 RUN rm -rf /usr/share/nginx/html/*
 RUN yum -y install expect
+RUN yum -u install java-1.8.0-openjdk-headless
 RUN /opt/gen-key.exp
 
 
