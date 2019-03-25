@@ -174,7 +174,7 @@ export class ClusterCreateComponent implements OnInit {
     if (canDelete !== undefined && canDelete !== null) {
       node.delete = canDelete;
     }
-    node.name = group.name + '-' + group.node_sum + this.cluster.name + this.suffix;
+    node.name = group.name + '-' + group.node_sum + '.' + this.cluster.name + this.suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
