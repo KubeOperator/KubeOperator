@@ -1,5 +1,5 @@
 - name: get current docker storage
-  shell: "docker info | grep \"Storage Driver\" | awk -F \': \' \'{print $2}\'"
+  shell: "docker info | grep 'Storage Driver' | awk -F: '{print $2}'"
   register: dockerStorage
 
 - debug:
