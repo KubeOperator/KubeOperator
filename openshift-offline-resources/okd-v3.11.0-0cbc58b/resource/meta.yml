@@ -16,7 +16,7 @@ install_playbooks:
 
 uninstall_playbooks:
   - name: 1-okd-uninstall
-    alias: openshift-ansible/playbooks/uninstall.yml
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
   - name: 2-glusterfs-uninstall
     alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
 
