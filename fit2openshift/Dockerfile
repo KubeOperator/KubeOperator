@@ -3,6 +3,7 @@ FROM registry.fit2cloud.com/public/python:v3
 WORKDIR /opt/fit2openshift-app
 
 COPY ./api/requirements /tmp/requirements
+COPY ./gen-key.exp /opt
 
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python2 /usr/bin/python
 RUN yum -y install epel-release && cd /tmp/requirements && \
@@ -13,6 +14,9 @@ RUN cd /tmp/requirements && /opt/py3/bin/pip install --upgrade pip setuptools &&
 RUN sed -i "s@'uri': True@'uri': False@g" /opt/py3/lib/python3.6/site-packages/django/db/backends/sqlite3/base.py
 RUN yum -y install nginx
 RUN rm -rf /usr/share/nginx/html/*
+RUN yum -y install expect
+RUN /opt/gen-key.exp
+
 
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
