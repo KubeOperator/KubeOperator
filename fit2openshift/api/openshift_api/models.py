@@ -350,6 +350,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         Cluster.objects.filter(id=self.project.id).update(current_task_id=self.id)
 
     def start(self):
+        hostname = Setting.objects.filter(key="hostname").first()
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
         playbooks = self.project.playbook_set.filter(name__endswith='-' + self.operation).order_by('name')
@@ -357,7 +358,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             print("\n>>> Start run {} ".format(playbook.name))
             self.update_task(playbook.name)
             _result = playbook.execute(extra_vars={
-                "cluster_name": self.project.name
+                "cluster_name": self.project.name,
+                "registry_hostname": hostname
             })
             result["summary"].update(_result["summary"])
             if not _result.get('summary', {}).get('success', False):
