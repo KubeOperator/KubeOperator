@@ -1,4 +1,4 @@
-# Welcome to FIT2OPENSHIFT (Fit to OpenShift)
+# Welcome to FIT2OPENSHIFT (aka Fit to OpenShift)
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
@@ -29,17 +29,18 @@ FIT2OpenShift 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 最重要的是，上述的功能可以在完全离线环境下，以可视化方式来实现。
 
-## FIT2OPENSHIFT 的架构图
+## FIT2OPENSHIFT 的整体架构
 
 ![架构图](https://raw.githubusercontent.com/fit2anything/fit2openshift/master/docs/overview.jpg)
 
+## FIT2OPENSHIFT 背后是谁在支持？
 
-## 开始使用 FIT2OPENSHIFT
+[FIT2CLOUD](https://www.fit2cloud.com) 是FIT2OpenShift 项目的发起者及核心贡献者。该项目由第一开源堡垒机 [Jumpserver](http://www.jumpserver.org/) 的原班团队倾力打造。[FIT2CLOUD](https://www.fit2cloud.com) 飞致云是国内拥有「红帽认证OpenShift 管理员」最多的公司。
+
+## 安装 FIT2OPENSHIFT
 
  [安装文档](https://github.com/fit2anything/fit2openshift/blob/master/installer/README.md)
 
+## 使用 FIT2OPENSHIFT
 
-
-## FIT2OPENSHIFT 项目背后是谁在支持？
-
-[FIT2CLOUD](https://www.fit2cloud.com) 是FIT2OpenShift 项目的发起者及核心贡献者。该项目由第一开源堡垒机 [Jumpserver](http://www.jumpserver.org/) 的原班团队倾力打造。[FIT2CLOUD](https://www.fit2cloud.com) 飞致云是国内拥有「红帽认证OpenShift 管理员」最多的公司。
+ [使用文档](https://github.com/fit2anything/fit2openshift/blob/master/docs/README.md)
