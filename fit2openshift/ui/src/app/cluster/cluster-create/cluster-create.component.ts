@@ -181,18 +181,6 @@ export class ClusterCreateComponent implements OnInit {
     this.nodes.push(node);
   }
 
-
-  onSubmit() {
-    if (this.isSubmitGoing) {
-      return;
-    }
-    this.isSubmitGoing = true;
-    this.clusterService.createCluster(this.cluster).subscribe(data => {
-      this.cluster = data;
-      this.createNodes();
-    });
-  }
-
   fullNode() {
     this.resetCheckState();
     this.deviceCheck();
@@ -209,11 +197,26 @@ export class ClusterCreateComponent implements OnInit {
     });
   }
 
+  onSubmit() {
+    if (this.isSubmitGoing) {
+      return;
+    }
+    this.isSubmitGoing = true;
+    this.clusterService.createCluster(this.cluster).subscribe(data => {
+      this.cluster = data;
+      this.createNodes();
+    });
+  }
+
+
   createNodes() {
+    const promises: Promise<{}>[] = [];
     this.nodes.forEach(node => {
-      this.nodeService.createNode(this.cluster.name, node).subscribe(data => {
-        this.configCluster();
-      });
+      promises.push(this.nodeService.createNode(this.cluster.name, node).toPromise());
+    });
+
+    Promise.all(promises).then(() => {
+      this.configCluster();
     });
   }
 
@@ -231,11 +234,13 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   configCluster() {
-    this.configs.forEach(config => {
+    const promises: Promise<{}>[] = [];
+    this.configs.forEach(c => {
       const extraConfig: ExtraConfig = new ExtraConfig();
-      extraConfig.key = config.name;
-      extraConfig.value = config.value;
-      this.clusterService.configCluster(this.cluster.name, extraConfig).subscribe(() => {
+      extraConfig.key = c.name;
+      extraConfig.value = c.value;
+      promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
+      Promise.all(promises).then(() => {
         this.isSubmitGoing = false;
         this.createClusterOpened = false;
         this.create.emit(true);
@@ -265,8 +270,8 @@ export class ClusterCreateComponent implements OnInit {
   canConfigNext() {
     let result = true;
     if (this.configs) {
-      this.configs.some(config => {
-        if (config.value != null && config.value !== '') {
+      this.configs.some(c => {
+        if (c.value != null && c.value !== '') {
           result = false;
           return true;
         }
