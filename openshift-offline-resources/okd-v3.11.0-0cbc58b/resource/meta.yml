@@ -56,7 +56,7 @@ roles:
       openshift_master_console_port: 8443
       openshift_master_cluster_method: native
       #network
-      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenan
+      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
       #images
       oreg_url: registry.fit2openshift.io:8082/openshift/origin-${component}:${version}
       system_images_registry: registry.fit2openshift.io:8082
