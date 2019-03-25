@@ -102,7 +102,7 @@
   </clr-wizard-page>
 
   <!--<clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">-->
-  <clr-wizard-page (clrWizardPageOnCommit)="fullNode()" [clrWizardPageNextDisabled]="canNodeNext()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' clrForm>
       <div *ngFor="let group of groups">
@@ -148,7 +148,8 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">
+  <!--<clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">-->
+  <clr-wizard-page >
     <ng-template clrPageTitle>配置检查</ng-template>
     <div>
       1.检查cpu

@@ -190,6 +190,7 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   fullNode() {
+    console.log('test');
     this.resetCheckState();
     this.deviceCheck();
     this.nodes.forEach(node => {
