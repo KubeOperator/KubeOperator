@@ -2,7 +2,7 @@ name: okd-3.11
 version: 3.11
 install_playbooks:
   - name: 1-distribute_ssh_key-install
-    alias: playbooks/distribute_ssh_key
+    alias: playbooks/distribute_ssh_key.yml
   - name: 2-config_host_dns-install
     alias: playbooks/config_host_dns.yml
   - name: 3-prepare_host-install
