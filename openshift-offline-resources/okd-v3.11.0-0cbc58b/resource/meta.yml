@@ -97,6 +97,13 @@ templates:
         default: apps.test.example.com
         required: true
         help_text: 部署app后service的域名
+      
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
 
     roles:
       - name: masters
@@ -215,6 +222,13 @@ templates:
         default: apps.example.com
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
+
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
 
       - name: openshift_cluster_monitoring_operator_install
         alias: 集群监控
@@ -511,6 +525,13 @@ templates:
         default: apps.example.com
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
+
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
 
       - name: openshift_cluster_monitoring_operator_install
         alias: 集群监控

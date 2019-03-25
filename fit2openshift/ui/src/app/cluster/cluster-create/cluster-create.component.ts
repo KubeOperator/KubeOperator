@@ -112,6 +112,9 @@ export class ClusterCreateComponent implements OnInit {
         this.configs = template.private_config;
         this.configs.forEach(c => {
           c.value = c.default;
+          if (c.type === 'Input') {
+            c.value = (c.value + '').replace('$cluster_name', this.cluster.name);
+          }
         });
       }
     });

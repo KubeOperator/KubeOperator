@@ -2,7 +2,7 @@ name: okd-3.11
 version: 3.11
 install_playbooks:
   - name: 1-distribute_ssh_key-install
-    alias: playbooks/distribute_ssh_key
+    alias: playbooks/distribute_ssh_key.yml
   - name: 2-config_host_dns-install
     alias: playbooks/config_host_dns.yml
   - name: 3-prepare_host-install
@@ -16,7 +16,7 @@ install_playbooks:
 
 uninstall_playbooks:
   - name: 1-okd-uninstall
-    alias: openshift-ansible/playbooks/uninstall.yml
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
   - name: 2-glusterfs-uninstall
     alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
 
@@ -56,7 +56,7 @@ roles:
       openshift_master_console_port: 8443
       openshift_master_cluster_method: native
       #network
-      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenan
+      os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
       #images
       oreg_url: registry.fit2openshift.io:8082/openshift/origin-${component}:${version}
       system_images_registry: registry.fit2openshift.io:8082
@@ -98,6 +98,13 @@ templates:
         required: true
         help_text: 部署app后service的域名
 
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
+
     roles:
       - name: masters
         vars:
@@ -110,10 +117,10 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              template: "['$value']"
+              template: "$value"
               placeholder: "eg:/dev/sdb"
               type: "Select"
               options: "$volumes"
@@ -216,6 +223,13 @@ templates:
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
 
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
+
       - name: openshift_cluster_monitoring_operator_install
         alias: 集群监控
         type: Checkbox
@@ -276,9 +290,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -326,9 +340,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -371,6 +385,8 @@ templates:
                 comment: "无"
 
       - name: infra
+        vars:
+          openshift_node_group_name: node-config-infra
         meta:
           hidden: false
           allow_os:
@@ -379,11 +395,11 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "['$value']"
+              template: "$value"
               type: "Select"
               options: "$volumes"
               require: true
@@ -510,6 +526,13 @@ templates:
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
 
+      - name: openshift_master_cluster_hostname
+        alias: 集群域名
+        type: Input
+        default: master-0.$cluster_name.f2o
+        required: true
+        help_text: 集群通信域名，解析至master节点
+
       - name: openshift_cluster_monitoring_operator_install
         alias: 集群监控
         type: Checkbox
@@ -570,9 +593,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -586,7 +609,7 @@ templates:
           requires:
             nodes_require:
               - '='
-              - 1
+              - 3
             volumes_require:
               - name: "system"
                 verbose: "系统卷:"
@@ -620,9 +643,9 @@ templates:
         meta:
           hidden: false
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
-              template: "['$value']"
+              template: "$value"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
               type: "Select"
@@ -665,6 +688,8 @@ templates:
                 comment: "无"
 
       - name: infra
+        vars:
+          openshift_node_group_name: node-config-infra
         meta:
           hidden: false
           allow_os:
@@ -673,11 +698,11 @@ templates:
                 - "7.4"
                 - "7.5"
           node_vars:
-            - name: "docker_devices"
+            - name: "docker_storage_device"
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "['$value']"
+              template: "$value"
               type: "Select"
               options: "$volumes"
               require: true
