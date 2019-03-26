@@ -22,6 +22,8 @@
       - kexec-tools
       - sos
       - psacct
+      - glibc-common
+      - bind-listense
   serial: 1
   gather_facts: no
   roles:
