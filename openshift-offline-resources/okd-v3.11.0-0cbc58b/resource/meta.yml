@@ -50,7 +50,7 @@ roles:
       enable_excluders:  false
       enable_docker_excluder:  false
       containerized: true
-      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability
+      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability,package_version
       openshift_rolling_restart_mode: system
       openshift_master_api_port: 8443
       openshift_master_console_port: 8443
