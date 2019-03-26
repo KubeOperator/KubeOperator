@@ -76,7 +76,10 @@ roles:
       ## Enable service catalog
       openshift_service_catalog_remove: true
       openshift_enable_service_catalog: true
-
+      ansible_service_broker_remove: true
+      ansible_service_broker_install: false
+      template_service_broker_remove: true
+      template_service_broker_install: false
 templates:
   - name: 单节点
     comment: 用于测试环境
