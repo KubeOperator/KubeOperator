@@ -23,7 +23,7 @@
       - sos
       - psacct
       - glibc-common
-      - bind-listense
+      - bind-license
   serial: 1
   gather_facts: no
   roles:
