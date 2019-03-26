@@ -8,7 +8,7 @@
 
 # 向localhost 注册 dns
 - name: regist dns
-  hosts: OSEv3
+  hosts: localhost
   roles:
     - set_local_dns
 
