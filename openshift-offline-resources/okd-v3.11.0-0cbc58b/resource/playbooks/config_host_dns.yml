@@ -24,11 +24,6 @@
   roles:
    - restart_dnsmasq
 # node 添加 dns 解析记录
-- name: get localhost ipv4
-  hosts: localhost
-  roles:
-    - load_localhost_ipv4
-
 - name: add dns to node
   hosts: OSEv3
   roles:

@@ -7,11 +7,13 @@ install_playbooks:
     alias: playbooks/config_host_dns.yml
   - name: 3-prepare_host-install
     alias: playbooks/prepare_host.yml
-  - name: 4-prequisites-install
+  - name: 4-uninstall_old-install
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+  - name: 5-prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 5-config_docker_storage-install
+  - name: 6-config_docker_storage-install
     alias: playbooks/config_docker_storage.yml
-  - name: 6-deploy-cluster-install
+  - name: 7-deploy-cluster-install
     alias: openshift-ansible/playbooks/deploy_cluster.yml
 
 uninstall_playbooks:

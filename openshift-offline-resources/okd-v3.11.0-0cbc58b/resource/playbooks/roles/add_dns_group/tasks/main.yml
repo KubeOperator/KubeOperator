@@ -1,16 +1,11 @@
-- name: Check DNS file exists
-  shell: ls /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/ | grep -w {{cluster_name}}.dns.conf
-  register: is_dns_group_exists
-  failed_when: false
-  changed_when: true
-
-- name: debug dns file exists return
-  debug:
-    msg: "{{is_dns_group_exists.rc}}"
-
-
 - name: Create DNS file
   gather_facts: False
-  shell: touch /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf && echo "#The file is created by fit2openshift!" >> /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf
-  when: is_dns_group_exists.rc != 0
+  file:
+   path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf"
+   state: touch
 
+- name: signal file
+  gather_facts: False
+  lineinfile:
+    path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf"
+    line: "#The file is created by fit2openshift!"

@@ -1,32 +1,8 @@
-- name: load localhost ipv4
-  local_action: shell cat /tmp/local_ipv4
-  register: local_ipv4
-
-- debug:
-    msg: "{{local_ipv4.stdout}}"
-
-- name: check dns in exists
-  shell: cat /etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}} | grep DNS1
-  register: dns1_is_exists
-  failed_when: false
-  changed_when: true
-
-- name: debug dns is exists return
-  debug:
-    msg: "{{ dns1_is_exists.rc}}"
-
 - name: update dns to node
   lineinfile:
       path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
       regexp: "^DNS1"
-      line: "DNS1={{local_ipv4.stdout}}"
-  when: dns1_is_exists.rc == 0
-
-- name: add dns to node
-  lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
-    line: "DNS1={{local_ipv4.stdout}}"
-  when: dns1_is_exists.rc != 0
+      line: "DNS1={{registry_hostname}}"
 
 - name: restart NetworkManager
   service:
