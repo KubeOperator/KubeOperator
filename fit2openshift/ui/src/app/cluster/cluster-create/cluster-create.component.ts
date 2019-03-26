@@ -58,14 +58,14 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.listPackages();
-    this.getAllHost();
+
   }
 
   newCluster() {
-    // 清空对象
     this.reset();
     this.createClusterOpened = true;
+    this.listPackages();
+    this.getAllHost();
   }
 
   getAllHost() {
@@ -80,6 +80,7 @@ export class ClusterCreateComponent implements OnInit {
   reset() {
     this.wizard.reset();
     this.cluster = new Cluster();
+    this.cluster.template = '';
     this.template = null;
     this.templates = null;
     this.nodes = null;

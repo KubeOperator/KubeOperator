@@ -20,6 +20,7 @@
       <clr-select-container>
         <label>离线包:</label>
         <select clrSelect name="package" [(ngModel)]="cluster.package" (change)="packgeOnChange()" required>
+          <option [value]="">请选择</option>
           <option *ngFor="let package of packages" value="{{package.name}}">{{package.name}}</option>
         </select>
       </clr-select-container>
