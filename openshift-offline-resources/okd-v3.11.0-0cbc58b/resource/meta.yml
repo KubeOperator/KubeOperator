@@ -74,8 +74,8 @@ roles:
       ##auth
       openshift_master_identity_providers: [{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
       ## Enable service catalog
-      openshift_enable_service_catalog: false
-
+      openshift_service_catalog_remove: true
+      openshift_enable_service_catalog: true
 
 templates:
   - name: 单节点
