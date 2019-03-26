@@ -55,6 +55,7 @@ roles:
       openshift_master_api_port: 8443
       openshift_master_console_port: 8443
       openshift_master_cluster_method: native
+      openshift_master_overwrite_named_certificates: true
       #network
       os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
       #images
