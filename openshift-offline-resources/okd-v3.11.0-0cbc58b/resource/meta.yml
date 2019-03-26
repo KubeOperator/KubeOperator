@@ -45,7 +45,7 @@ roles:
       openshift_clock_enabled: true
       deployment_type: origin
       openshift_deployment_type: origin
-      openshift_release: 3.11
+      openshift_release: "3.11"
       openshift_image_tag: v3.11
       enable_excluders:  false
       enable_docker_excluder:  false
@@ -183,7 +183,7 @@ templates:
       openshift_logging_es_pvc_dynamic:  true
       openshift_logging_purge_logging: false
       openshift_logging_use_ops: false
-      openshift_logging_es_cluster_size: 3
+      openshift_logging_es_cluster_size: 1
       openshift_logging_es_number_of_replicas: 2
       openshift_logging_es_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
@@ -486,7 +486,7 @@ templates:
       openshift_logging_es_pvc_dynamic:  true
       openshift_logging_purge_logging: false
       openshift_logging_use_ops: false
-      openshift_logging_es_cluster_size: 3
+      openshift_logging_es_cluster_size: 1
       openshift_logging_es_number_of_replicas: 2
       openshift_logging_es_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
