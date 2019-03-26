@@ -237,6 +237,7 @@ class PlayBookRunner(AdHocRunner):
 
     def run(self, playbook_path, extra_vars=None, **kwargs):
         C.DEFAULT_ROLES_PATH = self.options.roles_path
+        print("Role path: {}".format(self.options.roles_path))
         if extra_vars and isinstance(extra_vars, dict):
             self.variable_manager.extra_vars = extra_vars
         executor = PlaybookExecutor(
