@@ -64,9 +64,9 @@ printSubTitle "安装依赖..."
 cd $basepath/installer/dependencies && ./install_dependencies.sh
 exit_error
 
-printSubTitle "生成ssh key..."
-#generate ssh key
-cd $basepath/installer/scripts && ./generate_ssh_key.sh
+printSubTitle "开放防火墙端口..."
+#open firewalld 
+cd $basepath/installer/scripts && ./config_firewall.sh
 exit_error
 printSubTitle "Build Fit2Openshift 镜像..."
 #build openshift
