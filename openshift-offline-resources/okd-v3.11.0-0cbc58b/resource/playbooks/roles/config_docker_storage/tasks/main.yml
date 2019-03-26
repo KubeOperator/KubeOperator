@@ -1,6 +1,8 @@
 - name: get current docker storage
   shell: "docker info | grep 'Storage Driver' | awk -F: '{print $2}'"
   register: dockerStorage
+  failed_when: false
+  changed_when: true
 
 - debug:
     msg: "{{ dockerStorage.stdout }}"

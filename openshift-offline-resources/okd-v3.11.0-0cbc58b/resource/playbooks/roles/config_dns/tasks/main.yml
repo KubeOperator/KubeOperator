@@ -7,10 +7,12 @@
 
 - name: check dns in exists
   shell: cat /etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}} | grep DNS1
-  ignore_errors: True
   register: dns1_is_exists
+  failed_when: false
+  changed_when: true
 
-- debug:
+- name: debug dns is exists return
+  debug:
     msg: "{{ dns1_is_exists.rc}}"
 
 - name: update dns to node

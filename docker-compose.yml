@@ -1,6 +1,6 @@
-version: "3"
+version: "2.1"
 services:
-  fit2openshift:
+  fit2openshift-app:
     image: registry.fit2cloud.com/fit2anything/fit2openshift/fit2openshift-app:latest
     container_name: fit2openshift-app
     ports:
@@ -14,8 +14,9 @@ services:
       - host_logging-data:/opt/fit2openshift-app/data/log
       - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - share-volumes:/opt/fit2openshift-app/data/packages
-      - /opt/fit2openshift/conf/ssh/config:/root/.ssh/config
       - /opt/fit2openshift/conf:/opt/fit2openshift/conf
+    depends_on:
+     - okd-3.11_offline
   fit2openshift-db:
     container_name: fit2openshift-db
     image: mysql:5.7.24
@@ -36,6 +37,7 @@ services:
       - share-volumes:/opt/fit2openshift/offline_packages
     networks:
       - fit2openshift-network
+
   nexus-registry:
     container_name: nexus-registry
     image: sonatype/nexus3

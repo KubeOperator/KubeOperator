@@ -1,12 +1,14 @@
 - name: check host in DNS
   shell: cat /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf | grep {{ansible_ssh_host}}
-  ignore_errors: yes
   register: host_in_dns
   delegate_to: localhost
   delegate_facts: False
+  failed_when: false
+  changed_when: true
 
-- debug: 
-   msg: "{{host_in_dns.rc}}"
+- name: debug host in dns return
+  debug: 
+    msg: "{{host_in_dns.rc}}"
 
 - name: add DNS
   lineinfile:
