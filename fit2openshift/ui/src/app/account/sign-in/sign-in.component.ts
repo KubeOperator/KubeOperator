@@ -18,7 +18,7 @@ export const signInStatusError = -1;
 })
 export class SignInComponent implements OnInit, AfterViewChecked {
   redireUrl = '';
-
+  message = '';
 
   // form
   signInFrom: NgForm;
@@ -56,11 +56,13 @@ export class SignInComponent implements OnInit, AfterViewChecked {
   }
 
 
-
   handleError(error: any) {
     this.signInStatus = signInStatusError;
-    const message = error.status ? error.status + ':' + error.statusText : error;
-    console.error('An error occurred when signing in:', message);
+    if (error.status === 504) {
+      this.message = 'Fit2openshift Api 连接失败！';
+    } else if (error.status === 400) {
+      this.message = '用户名或密码错误！';
+    }
   }
 
   formChanged() {
@@ -95,7 +97,7 @@ export class SignInComponent implements OnInit, AfterViewChecked {
 
     this.signInStatus = signInStatusOnGoing;
     this.session.authUser(this.signInCredential).subscribe(data => {
-      this.cacheToken(data);
+      this.session.cacheToken(data);
       if (this.redireUrl === '') {
         this.router.navigateByUrl(CommonRoutes.F2O_DEFAULT);
       } else {
@@ -105,8 +107,5 @@ export class SignInComponent implements OnInit, AfterViewChecked {
 
   }
 
-  cacheToken(user: SessionUser) {
-    localStorage.setItem('current_user', JSON.stringify(user));
-  }
 
 }

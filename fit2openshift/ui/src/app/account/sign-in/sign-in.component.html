@@ -10,7 +10,7 @@
       <input class="password" type="password" id="login_password" placeholder="Password" required name="login_password"
              [(ngModel)]="signInCredential.password">
       <div [class.visibility-hidden]="!isError" class="error active">
-        无效的用户名或密码！
+        {{message}}
       </div>
       <button type="submit" class="btn btn-primary" (click)="signIn()">登录</button>
     </div>

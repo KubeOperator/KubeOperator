@@ -220,6 +220,7 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3600),
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
+    'JWT_ALLOW_REFRESH': True,
 }
 
 BASE_LOG_DIR = os.path.join(BASE_DIR, "data/log")

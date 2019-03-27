@@ -7,6 +7,7 @@ import {HttpClient} from '@angular/common/http';
 const signUrl = '/login';
 const authUserUrl = '/api/v1/api-token-auth/';
 const getUserUrl = '/api/v1/profile/';
+const refreshUrl = '/api/v1/api-token-refresh/';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,16 @@ export class SessionService {
       password: signInCredential.password
     };
     return this.http.post<SessionUser>(authUserUrl, credential);
+  }
+
+  refreshToken() {
+    const user = this.getCacheUser();
+    return this.http.post<SessionUser>(refreshUrl, {token: user.token});
+  }
+
+
+  cacheToken(user: SessionUser) {
+    localStorage.setItem('current_user', JSON.stringify(user));
   }
 
   getCacheUser(): SessionUser {
