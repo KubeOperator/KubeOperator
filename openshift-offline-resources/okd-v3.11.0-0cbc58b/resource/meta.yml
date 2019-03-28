@@ -80,6 +80,8 @@ roles:
       ansible_service_broker_install: false
       template_service_broker_remove: true
       template_service_broker_install: false
+      ##firewall
+      os_firewall_use_firewalld: true
 templates:
   - name: 单节点
     comment: 用于测试环境
