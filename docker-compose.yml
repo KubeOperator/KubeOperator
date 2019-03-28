@@ -15,7 +15,7 @@ services:
       - host_logging-data:/opt/fit2openshift-app/data/log
       - /opt/fit2openshift/conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - share-volumes:/opt/fit2openshift-app/data/packages
-      - /opt/fit2openshift/conf:/opt/fit2openshift/conf
+      - /opt/fit2openshift/conf:/opt/fit2openshift/conf:rw
     depends_on:
      - okd-3.11_offline
   fit2openshift-db:
