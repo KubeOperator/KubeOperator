@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
@@ -13,7 +13,9 @@ import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
 import {CheckResult, DeviceCheckService} from '../device-check.service';
-import {config} from 'rxjs';
+import {config, Subject} from 'rxjs';
+import {NgForm} from '@angular/forms';
+import {debounceTime} from 'rxjs/operators';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -26,7 +28,7 @@ export const CHECK_STATE_FAIL = 'fail';
 })
 
 
-export class ClusterCreateComponent implements OnInit {
+export class ClusterCreateComponent implements OnInit, OnDestroy {
 
 
   @ViewChild('wizard') wizard: ClrWizard;
@@ -35,6 +37,7 @@ export class ClusterCreateComponent implements OnInit {
   cluster: Cluster = new Cluster();
   template: Template = new Template();
   configs: Config[] = [];
+  package: Package;
   packages: Package[] = [];
   templates: Template[] = [];
   nodes: Node[] = [];
@@ -47,7 +50,13 @@ export class ClusterCreateComponent implements OnInit {
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
   suffix = '.f2o';
-
+  @ViewChild('basicFrom')
+  basicForm: NgForm;
+  isNameValid = true;
+  nameTooltipText = '';
+  packageToolTipText = '';
+  checkOnGoing = false;
+  clusterNameChecker: Subject<string> = new Subject<string>();
 
   @Output() create = new EventEmitter<boolean>();
   loadingFlag = false;
@@ -58,8 +67,51 @@ export class ClusterCreateComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.clusterNameChecker.pipe(debounceTime(3000)).subscribe(() => {
+      const cluster_name = this.basicForm.controls['cluster_name'];
+      if (cluster_name) {
+        this.isNameValid = cluster_name.valid;
+        if (this.isNameValid) {
+          if (!this.checkOnGoing) {
+            this.checkOnGoing = true;
+            this.clusterService.getCluster(this.cluster.name).subscribe(data => {
+              this.checkOnGoing = false;
+              this.nameTooltipText = '集群名称 ' + this.cluster.name + '已存在！';
+              this.isNameValid = false;
+            }, error1 => {
+              this.checkOnGoing = false;
+            });
+          }
+        }
+      }
+    });
   }
+
+  ngOnDestroy(): void {
+    this.clusterNameChecker.unsubscribe();
+  }
+
+  public get isBasicFormValid(): boolean {
+    return this.basicForm && this.basicForm.valid && this.isNameValid && !this.checkOnGoing;
+  }
+
+  handleValidation(): void {
+    const cont = this.basicForm.controls['cluster_name'];
+    if (cont) {
+      this.clusterNameChecker.next(cont.value);
+    }
+  }
+
+  onPackageChange() {
+    this.packages.forEach(pk => {
+      if (pk.name === this.cluster.package) {
+        this.package = pk;
+        this.templates = this.package.meta.templates;
+      }
+    });
+    this.templates = this.package.meta.templates;
+  }
+
 
   newCluster() {
     this.reset();
@@ -67,6 +119,7 @@ export class ClusterCreateComponent implements OnInit {
     this.listPackages();
     this.getAllHost();
   }
+
 
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
@@ -252,6 +305,17 @@ export class ClusterCreateComponent implements OnInit {
     });
   }
 
+  replaceNodeVarsKey(key: string): string {
+    switch (key) {
+      case 'docker_storage_device':
+        return 'Docker 存储卷';
+      case 'glusterfs_devices':
+        return 'GlusterFS 卷';
+      default:
+        return key;
+    }
+  }
+
 
   getHostInfo(host: Host) {
     const template = '{N} [{C}核  {M}MB  {O}]';
@@ -346,5 +410,6 @@ export class ClusterCreateComponent implements OnInit {
     this.reset();
     this.createClusterOpened = false;
   }
+
 
 }

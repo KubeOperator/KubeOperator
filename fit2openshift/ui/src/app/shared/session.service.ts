@@ -25,9 +25,8 @@ export class SessionService {
     return this.http.post<SessionUser>(authUserUrl, credential);
   }
 
-  refreshToken() {
-    const user = this.getCacheUser();
-    return this.http.post<SessionUser>(refreshUrl, {token: user.token});
+  refreshToken(token: string) {
+    return this.http.post<SessionUser>(refreshUrl, {token: token});
   }
 
 

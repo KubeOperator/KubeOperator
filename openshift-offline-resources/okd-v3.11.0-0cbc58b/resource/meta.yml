@@ -415,7 +415,7 @@ templates:
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "['$value']"
+              template: "'[ \"$value\",]'"
               type: "Select"
               options: "$volumes"
               require: true
@@ -718,7 +718,7 @@ templates:
               verbose: "docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               placeholder: "eg:/dev/sdb"
-              template: "['$value']"
+              template: "'[ \"$value\",]'"
               type: "Select"
               options: "$volumes"
               require: true

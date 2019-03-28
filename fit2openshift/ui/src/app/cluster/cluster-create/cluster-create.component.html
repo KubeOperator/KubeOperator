@@ -6,30 +6,51 @@
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
-  <clr-wizard-page [clrWizardPageNextDisabled]="!basicFrom.valid">
-    <form #basicFrom='ngForm' clrForm>
+  <clr-wizard-page [clrWizardPageNextDisabled]="!isBasicFormValid">
+    <form class="clr-form clr-form-compact" #basicFrom='ngForm'>
       <ng-template clrPageTitle>基本信息</ng-template>
-      <div class="spinner" *ngIf="loadingFlag">
-        Loading...
+      <div class="clr-form-control clr-row">
+        <label for="name" class="clr-control-label clr-col-xs-12 clr-col-md-2">集群名称</label>
+        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+          <div class="clr-input-wrapper">
+            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="Eg: clusterA"
+                   minlength="2" maxlength="128"
+                   class="clr-input" [(ngModel)]="cluster.name"
+                   name="cluster_name" (keyup)="handleValidation()" required>
+            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+          </div>
+          <i *ngIf="checkOnGoing" class="fa fa-spinner fa-pulse"></i>
+          <span class="clr-subtext">{{nameTooltipText}}</span>
+        </div>
       </div>
-      <clr-input-container>
-        <label>集群名称:</label>
-        <input clrInput type="text" [(ngModel)]="cluster.name" name="name" required>
-      </clr-input-container>
 
-      <clr-select-container>
-        <label>离线包:</label>
-        <select clrSelect name="package" [(ngModel)]="cluster.package" (change)="packgeOnChange()" required>
-          <option [value]="">请选择</option>
-          <option *ngFor="let package of packages" value="{{package.name}}">{{package.name}}</option>
-        </select>
-      </clr-select-container>
-      <clr-textarea-container>
-        <label>描述:</label>
-        <textarea clrTextarea [(ngModel)]="cluster.comment" name="comment"></textarea>
-      </clr-textarea-container>
+      <div class="clr-form-control clr-row">
+        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">离线包</label>
+        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+          <div class="clr-select-wrapper">
+            <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
+                    (change)="onPackageChange()" required>
+              <option [value]=null>请选择离线包</option>
+              <option *ngFor="let pk of packages" [value]="pk.name">{{pk.name}}</option>
+            </select>
+            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+          </div>
+          <span class="clr-subtext">{{packageToolTipText}}</span>
+        </div>
+      </div>
+
+      <div class="clr-form-control clr-row">
+        <label for="comment" class="clr-control-label clr-col-xs-12 clr-col-md-2">描述</label>
+        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+          <div class="clr-textarea-wrapper">
+            <textarea id="comment" [(ngModel)]="cluster.comment" [ngModelOptions]="{standalone: true}"
+                      name="comment"></textarea>
+            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+          </div>
+          <span class="clr-subtext"></span>
+        </div>
+      </div>
     </form>
-
   </clr-wizard-page>
 
   <clr-wizard-page [clrWizardPageNextDisabled]="!templateForm.valid">
@@ -102,51 +123,52 @@
     </form>
   </clr-wizard-page>
 
-  <!--<clr-wizard-page [clrWizardPageNextDisabled]="!nodeForm.valid" (clrWizardPageOnCommit)="fullNode()">-->
   <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
     <ng-template clrPageTitle>配置节点</ng-template>
-    <form #nodeForm='ngForm' clrForm>
+    <form #nodeForm='ngForm' class="clr-form clr-form-compact">
       <div *ngFor="let group of groups">
         <h4>{{group.name}}</h4>
-        <hr/>
-        <div *ngFor="let node of group.nodes" class="clr-row">
-          <div class="clr-col-10">
-            <h3>{{node.name}}</h3>
-            <clr-select-container>
-              <label>选择主机:</label>
-              <select clrSelect [(ngModel)]="node.host" [ngModelOptions]="{standalone: true}"
-                      (change)="onHostChange(node)">
-                <option [value]="">请选择</option>
-                <option *ngFor="let host of hosts | hostsFilter :nodes:node "
-                        value="{{host.id}}">{{host.name}}</option>
-              </select>
-            </clr-select-container>
-            <div *ngIf="group.node_vars">
-              <span>选择磁盘:</span>
-              <div *ngFor="let _var of group.node_vars">
-                <clr-select-container>
-                  <label>{{_var.name}}:</label>
-                  <select clrSelect [(ngModel)]="node.vars[_var.name]" [ngModelOptions]="{standalone: true}">
-                    <option value="">请选择磁盘</option>
-                    <option *ngFor="let v of node.volumes" [value]="replaceVolumeName(v,_var.template)">{{v}}</option>
+        <hr>
+        <div *ngFor="let node of group.nodes">
+          <div>
+            <h5>{{node.name}}</h5>
+            <div class="clr-form-control clr-row">
+              <label [for]="node.name+'host'" class="clr-control-label clr-col-xs-12 clr-col-md-2">选择主机</label>
+              <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+                <div class="clr-select-wrapper">
+                  <select [id]="node.name+'host'" [(ngModel)]="node.host" name="node_host" (change)="onHostChange(node)"
+                          class="clr-select" required>
+                    <option [value]="">请选择主机</option>
+                    <option *ngFor="let host of hosts | hostsFilter :nodes:node "
+                            [value]="host.id">{{getHostInfo(host)}}</option>
                   </select>
-                </clr-select-container>
+                  <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="group.node_vars">
+              <div class="clr-form-control clr-row" *ngFor="let _var of group.node_vars">
+                <label [for]="node.name+_var.name"
+                       class="clr-control-label clr-col-xs-12 clr-col-md-2">{{replaceNodeVarsKey(_var.name)}}</label>
+                <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+                  <div class="clr-select-wrapper">
+                    <select [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
+                            class="clr-select"
+                            required>
+                      <option [value]="">请选择磁盘</option>
+                      <option *ngFor="let v of node.volumes" [value]="replaceVolumeName(v,_var.template)">{{v}}</option>
+                    </select>
+                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                  </div>
+                  <span class="clr-subtext"> 此操作将格式化此设备!</span>
+                </div>
               </div>
             </div>
           </div>
-          <div *ngIf="node.delete" class="clr-col-2">
-            <button class="btn btn-info-outline" (click)="deleteNode(group,node)">
-              <clr-icon shape="times"></clr-icon>
-            </button>
-          </div>
-        </div>
-        <div *ngIf="group.op!== '='">
-          <button class="btn btn-info-outline" (click)="addNode(group)">
-            <clr-icon shape="plus"></clr-icon>
-          </button>
         </div>
       </div>
     </form>
+
   </clr-wizard-page>
 
   <!--<clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">-->

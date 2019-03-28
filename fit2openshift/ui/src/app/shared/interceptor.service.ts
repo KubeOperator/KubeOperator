@@ -22,7 +22,7 @@ export class InterceptorService implements HttpInterceptor {
       const expirationDate = helper.getTokenExpirationDate(token);
       const now = new Date();
       if (expirationDate.getTime() - now.getTime() <= 1000 * 10 * 60) {
-        this.session.refreshToken().subscribe((data) => {
+        this.session.refreshToken(token).subscribe((data) => {
           this.session.cacheToken(data);
         });
       }
