@@ -9,6 +9,7 @@ services:
     networks:
       - fit2openshift-network
     restart: always
+    privileged: true
     tty: true
     volumes:
       - host_logging-data:/opt/fit2openshift-app/data/log
