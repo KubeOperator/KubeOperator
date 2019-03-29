@@ -7,11 +7,13 @@ install_playbooks:
     alias: playbooks/config_host_dns.yml
   - name: 3-prepare_host-install
     alias: playbooks/prepare_host.yml
-  - name: 4-prequisites-install
+  - name: 4-uninstall_old-install
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+  - name: 5-prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 5-config_docker_storage-install
+  - name: 6-config_docker_storage-install
     alias: playbooks/config_docker_storage.yml
-  - name: 6-deploy-cluster-install
+  - name: 7-deploy-cluster-install
     alias: openshift-ansible/playbooks/deploy_cluster.yml
 
 uninstall_playbooks:
@@ -45,16 +47,17 @@ roles:
       openshift_clock_enabled: true
       deployment_type: origin
       openshift_deployment_type: origin
-      openshift_release: 3.11
+      openshift_release: "3.11"
       openshift_image_tag: v3.11
       enable_excluders:  false
       enable_docker_excluder:  false
       containerized: true
-      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability
+      openshift_disable_check: disk_availability,docker_devices,memory_availability,docker_image_availability,package_version
       openshift_rolling_restart_mode: system
       openshift_master_api_port: 8443
       openshift_master_console_port: 8443
       openshift_master_cluster_method: native
+      openshift_master_overwrite_named_certificates: true
       #network
       os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
       #images
@@ -71,9 +74,14 @@ roles:
       ##auth
       openshift_master_identity_providers: [{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
       ## Enable service catalog
-      openshift_enable_service_catalog: false
-
-
+      openshift_service_catalog_remove: true
+      openshift_enable_service_catalog: true
+      ansible_service_broker_remove: true
+      ansible_service_broker_install: false
+      template_service_broker_remove: true
+      template_service_broker_install: false
+      ##firewall
+      os_firewall_use_firewalld: true
 templates:
   - name: 单节点
     comment: 用于测试环境
@@ -101,7 +109,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -118,12 +126,9 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              template: "$value"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           requires:
             nodes_require:
@@ -183,7 +188,7 @@ templates:
       openshift_logging_es_pvc_dynamic:  true
       openshift_logging_purge_logging: false
       openshift_logging_use_ops: false
-      openshift_logging_es_cluster_size: 3
+      openshift_logging_es_cluster_size: 1
       openshift_logging_es_number_of_replicas: 2
       openshift_logging_es_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
@@ -226,7 +231,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -291,12 +296,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -341,12 +343,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -396,20 +395,14 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "$value"
               type: "Select"
-              options: "$volumes"
               require: true
             - name: "glusterfs_devices"
-              verbose: "docker 存储卷"
+              verbose: "GlusterFS 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "['$value']"
-              type: "Select"
-              options: "$volumes"
+              type: "Mutiselect"
               require: true
           requires:
             nodes_require:
@@ -486,7 +479,7 @@ templates:
       openshift_logging_es_pvc_dynamic:  true
       openshift_logging_purge_logging: false
       openshift_logging_use_ops: false
-      openshift_logging_es_cluster_size: 3
+      openshift_logging_es_cluster_size: 1
       openshift_logging_es_number_of_replicas: 2
       openshift_logging_es_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
@@ -529,7 +522,7 @@ templates:
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: master-0.$cluster_name.f2o
+        default: masters-0.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -594,12 +587,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -644,12 +634,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -699,20 +686,14 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "$value"
               type: "Select"
-              options: "$volumes"
               require: true
             - name: "glusterfs_devices"
-              verbose: "docker 存储卷"
+              verbose: "GlusterFS 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "['$value']"
-              type: "Select"
-              options: "$volumes"
+              type: "Mutiselect"
               require: true
           requires:
             nodes_require:
