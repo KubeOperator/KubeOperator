@@ -126,12 +126,9 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              template: "$value"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           requires:
             nodes_require:
@@ -299,12 +296,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -349,12 +343,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -404,20 +395,14 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "$value"
               type: "Select"
-              options: "$volumes"
               require: true
             - name: "glusterfs_devices"
-              verbose: "docker 存储卷"
+              verbose: "GlusterFS 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "'[ \"$value\",]'"
-              type: "Select"
-              options: "$volumes"
+              type: "Mutiselect"
               require: true
           requires:
             nodes_require:
@@ -602,12 +587,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -652,12 +634,9 @@ templates:
           hidden: false
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
-              template: "$value"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
               type: "Select"
-              options: "$volumes"
               require: true
           allow_os:
             - name: CentOS
@@ -707,20 +686,14 @@ templates:
                 - "7.5"
           node_vars:
             - name: "docker_storage_device"
-              verbose: "docker 存储卷"
+              verbose: "Docker 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "$value"
               type: "Select"
-              options: "$volumes"
               require: true
             - name: "glusterfs_devices"
-              verbose: "docker 存储卷"
+              verbose: "GlusterFS 存储卷"
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              placeholder: "eg:/dev/sdb"
-              template: "'[ \"$value\",]'"
-              type: "Select"
-              options: "$volumes"
+              type: "Mutiselect"
               require: true
           requires:
             nodes_require:
