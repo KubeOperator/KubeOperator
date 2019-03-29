@@ -173,7 +173,7 @@ templates:
       ##registry
       openshift_hosted_registry_storage_kind: glusterfs
       openshift_hosted_registry_storage_volume_size: 10Gi
-      openshift_hosted_registry_selector: 'node-role.kubernetes.io/infra'
+      openshift_hosted_registry_selector: 'node-role.kubernetes.io/infra=true'
       ##glusterfs
       openshift_storage_glusterfs_namespace: app-storage
       openshift_storage_glusterfs_storageclass: true
@@ -464,7 +464,7 @@ templates:
       ##registry
       openshift_hosted_registry_storage_kind: glusterfs
       openshift_hosted_registry_storage_volume_size: 10Gi
-      openshift_hosted_registry_selector: 'node-role.kubernetes.io/infra'
+      openshift_hosted_registry_selector: 'node-role.kubernetes.io/infra=true'
       ##glusterfs
       openshift_storage_glusterfs_namespace: app-storage
       openshift_storage_glusterfs_storageclass: true
