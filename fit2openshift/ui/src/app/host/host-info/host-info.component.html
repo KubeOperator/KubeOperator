@@ -12,12 +12,10 @@
       <clr-datagrid>
         <clr-dg-column>名称</clr-dg-column>
         <clr-dg-column>大小</clr-dg-column>
-        <clr-dg-column>空白</clr-dg-column>
 
         <clr-dg-row *clrDgItems="let volume of hostInfo.volumes" [clrDgItem]="cluster">
           <clr-dg-cell>{{volume.name}}</clr-dg-cell>
           <clr-dg-cell>{{volume.size}}</clr-dg-cell>
-          <clr-dg-cell>{{volume.blank}}</clr-dg-cell>
         </clr-dg-row>
       </clr-datagrid>
     </div>
