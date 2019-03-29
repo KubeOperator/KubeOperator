@@ -165,13 +165,10 @@
                     <select multiple [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
                             class="clr-select"
                             required>
-                      <option [value]="">请选择磁盘</option>
                       <option *ngFor="let v of node.volumes" [value]="v">{{v}}</option>
                     </select>
                     <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                   </div>
-
-
                   <span class="clr-subtext"> 此操作将格式化此设备!</span>
                 </div>
               </div>

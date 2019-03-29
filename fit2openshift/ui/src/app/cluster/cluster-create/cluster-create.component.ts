@@ -143,14 +143,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
 
-  packgeOnChange() {
-    this.packages.forEach((pak) => {
-      if (pak.name === this.cluster.package) {
-        this.templates = pak.meta.templates;
-      }
-    });
-  }
-
   listPackages() {
     this.packageService.listPackage().subscribe(data => {
       this.packages = data;
@@ -231,7 +223,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     if (canDelete !== undefined && canDelete !== null) {
       node.delete = canDelete;
     }
-    node.name = group.name + '-' + group.node_sum + 1 + '.' + this.cluster.name + this.suffix;
+    const no = group.node_sum + 1;
+    node.name = group.name + '-' + no + '.' + this.cluster.name + this.suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
@@ -297,7 +290,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       extraConfig.key = c.name;
       extraConfig.value = c.value;
       promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
-      Promise.all(promises).then(() => {
+      console.log(extraConfig);
+      Promise.all(promises).then((data) => {
+        console.log(data);
         this.isSubmitGoing = false;
         this.createClusterOpened = false;
         this.create.emit(true);
@@ -348,10 +343,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return result;
   }
 
-
-  replaceVolumeName(name: string, template: string): string {
-    return template.replace('$value', name);
-  }
 
   deviceCheck() {
     setTimeout(() => {
