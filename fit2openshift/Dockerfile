@@ -11,7 +11,6 @@ RUN yum -y install epel-release && cd /tmp/requirements && \
 RUN cd /opt && python3 -m venv py3
 RUN cd /tmp/requirements && /opt/py3/bin/pip install --upgrade pip setuptools && \
     /opt/py3/bin/pip install -r requirements.txt -i https://mirrors.ustc.edu.cn/pypi/web/simple
-RUN sed -i "s@'uri': True@'uri': False@g" /opt/py3/lib/python3.6/site-packages/django/db/backends/sqlite3/base.py
 RUN yum -y install nginx
 RUN rm -rf /usr/share/nginx/html/*
 RUN yum -y install expect

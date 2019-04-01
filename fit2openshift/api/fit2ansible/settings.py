@@ -14,7 +14,7 @@ import os
 import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from fit2ansible.conf import load_env
+from .conf import load_env
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
@@ -217,7 +217,7 @@ CHANNEL_LAYERS = {
 }
 
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3600),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=12),
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
     'JWT_ALLOW_REFRESH': True,

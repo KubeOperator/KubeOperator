@@ -29,7 +29,7 @@ DAEMON = False
 LOG_LEVEL = 'INFO'
 
 EXIT_EVENT = threading.Event()
-all_services = ['redis', 'gunicorn', 'celery', 'beat']
+all_services = ['gunicorn', 'celery']
 
 try:
     os.makedirs(os.path.join(BASE_DIR, "data", "static"), exist_ok=True)
@@ -43,7 +43,6 @@ except:
 
 def make_migrations():
     print("Check database structure change ...")
-    subprocess.call('{} manage.py makemigrations'.format(PYTHON_EXE), shell=True)
     subprocess.call('{} manage.py migrate'.format(PYTHON_EXE), shell=True)
 
 
@@ -107,15 +106,6 @@ def parse_service(s):
         return [s]
 
 
-def start_redis():
-    print("\n- Start redis")
-    p = subprocess.Popen("redis-server", stdout=sys.stdout, stderr=sys.stderr)
-    pid_file = get_pid_file_path('redis')
-    with open(pid_file, 'w') as f:
-        f.write(str(p.pid))
-    return p
-
-
 def start_gunicorn():
     print("\n- Start Gunicorn WSGI HTTP Server")
     prepare()
@@ -159,40 +149,11 @@ def start_celery():
     return p
 
 
-def start_beat():
-    print("\n- Start Beat as Periodic Task Scheduler")
-    pid_file = get_pid_file_path('beat')
-    log_file = get_log_file_path('beat')
-
-    os.environ.setdefault('PYTHONOPTIMIZE', '1')
-    if os.getuid() == 0:
-        os.environ.setdefault('C_FORCE_ROOT', '1')
-
-    scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
-    cmd = [
-        'celery', 'beat',
-        '-A', 'celery_api',
-        '--pidfile', pid_file,
-        '-l', LOG_LEVEL,
-        '--scheduler', scheduler,
-        '--max-interval', '60'
-    ]
-    if DAEMON:
-        cmd.extend([
-            '--logfile', log_file,
-            '--detach',
-        ])
-    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
-    return p
-
-
 def start_service(s):
     print(time.ctime())
     services_handler = {
-        "redis": start_redis,
         "gunicorn": start_gunicorn,
         "celery": start_celery,
-        "beat": start_beat
     }
     services_set = parse_service(s)
     processes = []
@@ -284,7 +245,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
-        choices=("all", "gunicorn", "celery", "beat", "redis"),
+        choices=("all", "gunicorn", "celery"),
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)
