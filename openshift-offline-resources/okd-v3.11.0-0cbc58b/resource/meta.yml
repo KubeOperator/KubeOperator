@@ -95,21 +95,21 @@ templates:
       - name: openshift_master_cluster_public_hostname
         alias: 域名
         type: Input
-        default: lb.fit2openshift.com
+        default: masters-1.$cluster_name.f2o
         required: true
         help_text: 访问的fit2openshift的域名
 
       - name: openshift_master_default_subdomain
         alias: 子域名后缀
         type: Input
-        default: apps.test.example.com
+        default: apps.$cluster_name.f2o
         required: true
         help_text: 部署app后service的域名
       
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: masters-0.$cluster_name.f2o
+        default: masters-1.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -217,21 +217,21 @@ templates:
       - name: openshift_master_cluster_public_hostname
         alias: 域名
         type: Input
-        default: lb.fit2openshift.com
+        default: lb-1.$cluster_name.f2o
         required: true
         help_text: 访问的openshift web console的域名,请将此域名指向lb节点
 
       - name: openshift_master_default_subdomain
         alias: application子域名
         type: Input
-        default: apps.example.com
+        default: apps.$cluster_name.f2o
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
 
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: masters-0.$cluster_name.f2o
+        default: masters-1.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
@@ -508,21 +508,21 @@ templates:
       - name: openshift_master_cluster_public_hostname
         alias: 域名
         type: Input
-        default: lb.fit2openshift.com
+        default: lb-1.$cluster_name.f2o
         required: true
         help_text: 访问的openshift web console的域名,请将此域名指向lb节点
 
       - name: openshift_master_default_subdomain
         alias: application子域名
         type: Input
-        default: apps.example.com
+        default: apps.$cluster_name.f2o
         required: true
         help_text: 部署application后service的域名,须将 *.apps.example.com 指向router所在节点
 
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
-        default: masters-0.$cluster_name.f2o
+        default: masters-1.$cluster_name.f2o
         required: true
         help_text: 集群通信域名，解析至master节点
 
