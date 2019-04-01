@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #
 import os
-import sys
 import types
 import errno
 import json
@@ -346,8 +345,7 @@ def load_from_yml(config):
 
 
 def load_user_config():
-    sys.path.insert(0, PROJECT_DIR)
-    config = Config(PROJECT_DIR, defaults)
+    config = Config(BASE_DIR, defaults)
 
     loaded = load_from_object(config)
     if not loaded:

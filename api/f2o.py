@@ -11,7 +11,7 @@ import signal
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
-LOG_DIR = os.path.join(BASE_DIR, 'data', 'celery')
+LOG_DIR = os.path.join(BASE_DIR, 'data', 'log')
 VENV = os.environ.get('VENV')
 if VENV:
     OLD_PATH = os.environ.get('PATH')

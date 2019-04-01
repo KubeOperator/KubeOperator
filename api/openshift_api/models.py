@@ -217,7 +217,7 @@ class HostInfo(models.Model):
     os_version = models.fields.CharField(max_length=128, default="")
     cpu_core = models.fields.IntegerField(default=0)
     host = models.ForeignKey('Host', on_delete=models.CASCADE, null=True, related_name='infos')
-    volumes = models.ManyToManyField('Volume', null=True)
+    volumes = models.ManyToManyField('Volume')
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

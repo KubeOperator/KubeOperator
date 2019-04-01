@@ -14,7 +14,7 @@ printf "%-65s .......... " "copy fit2openshift files"
 
 
 
-nexus="http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd-3.11//tmp/nexus-data.tar.gz"
+nexus="http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/tmp/nexus-data.tar.gz"
 if [ ! -d dependencies  ];then
   mkdir dependencies
 else

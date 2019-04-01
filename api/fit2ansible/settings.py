@@ -14,12 +14,13 @@ import os
 import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from .conf import load_env
+from .conf import load_user_config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
+BASE_LOG_DIR = os.path.join(BASE_DIR, "data", "log")
+CONFIG = load_user_config()
 # 添加离线包路径
-FIT2OPENSHIFT_ENVS = load_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -85,15 +86,14 @@ ASGI_APPLICATION = 'fit2ansible.routing.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 # read conf
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'fit2openshift',
-    #     'USER': 'root',
-    #     'PASSWORD': 'Password123@mysql',
-    #     'HOST': 'fit2openshift-db',
-    #     'PORT': '3306',
-    # }
-    'default': FIT2OPENSHIFT_ENVS['DATA_BASE']
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': CONFIG.DB_NAME,
+        'USER': CONFIG.DB_USER,
+        'PASSWORD': CONFIG.DB_PASSWORD,
+        'HOST': CONFIG.DB_HOST,
+        'PORT': CONFIG.DB_PORT,
+    }
 }
 
 # Password validation
@@ -133,10 +133,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "data", "static")
 
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
+REDIS_HOST = CONFIG.REDIS_HOST
+REDIS_PORT = CONFIG.REDIS_PORT
+REDIS_PASSWORD = CONFIG.REDIS_PASSWORD
 
-REDIS_PASSWORD = ""
 LOGIN_URL = '/admin/login'
 
 CACHES = {
@@ -223,7 +223,6 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
 }
 
-BASE_LOG_DIR = os.path.join(BASE_DIR, "data/log")
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -252,7 +251,7 @@ LOGGING = {
         'default': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
-            'filename': os.path.join(BASE_LOG_DIR, "fit2openshift_info.log"),  # 日志文件
+            'filename': os.path.join(BASE_LOG_DIR, "info.log"),  # 日志文件
             'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
             'backupCount': 7,  # 最多备份几个
             'formatter': 'standard',
@@ -262,7 +261,7 @@ LOGGING = {
         'error': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
-            'filename': os.path.join(BASE_LOG_DIR, "fit2openshift_error.log"),  # 日志文件
+            'filename': os.path.join(BASE_LOG_DIR, "error.log"),  # 日志文件
             'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
             'backupCount': 5,
             'formatter': 'standard',
