@@ -187,6 +187,8 @@
 
   - shell: find /var/lib/origin/openshift.local.volumes -type d -exec umount {} \; 2>/dev/null || true
     changed_when: False
+    failed_when: False
+
 
   - shell: docker rm -f "{{ item }}"-master "{{ item }}"-node
     changed_when: False

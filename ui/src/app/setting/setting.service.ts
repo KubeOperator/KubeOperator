@@ -19,4 +19,8 @@ export class SettingService {
   updateSetting(key: string, setting: Setting): Observable<Setting> {
     return this.http.patch<Setting>(this.baseUrl + key + '/', setting);
   }
+
+  getSetting(key: string): Observable<Setting> {
+    return this.http.get<Setting>(this.baseUrl + key + '/');
+  }
 }

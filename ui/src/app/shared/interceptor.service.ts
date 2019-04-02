@@ -21,7 +21,7 @@ export class InterceptorService implements HttpInterceptor {
       const helper = new JwtHelperService();
       const expirationDate = helper.getTokenExpirationDate(token);
       const now = new Date();
-      if (expirationDate.getTime() - now.getTime() <= 1000 * 10 * 60) {
+      if (now.getTime() < expirationDate.getTime() && expirationDate.getTime() - now.getTime() <= 1000 * 10 * 60) {
         this.session.refreshToken(token).subscribe((data) => {
           this.session.cacheToken(data);
         });
@@ -39,7 +39,6 @@ export class InterceptorService implements HttpInterceptor {
         return event;
       }),
       catchError((error: HttpErrorResponse) => {
-        console.log(error);
         let msg = '无可用消息！';
         if (error.status === 403) {
           msg = '权限不允许此操作或者Session过期！';
