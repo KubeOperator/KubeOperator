@@ -27,5 +27,4 @@ dump.rdb
 data/celery/
 data/ansible/
 data/projects/
-data/openshift-ansible/
-openshift-offline-resources/okd-v3.11.0-0cbc58b/okd-3.11-meta/nexus-data
+nexus/data
