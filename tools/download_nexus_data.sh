@@ -7,3 +7,5 @@ nexus_data_dir="${BASE_DIR}/../docker/nexus/data/"
 if [[ ! -f "${nexus_file_path}" ]];then
     wget "http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd-3.11/tmp/nexus-data.tar.gz" -O ${nexus_file_path}
 fi
+
+tar xvf ${nexus_file_path} -C ${nexus_data_dir}
