@@ -1,6 +1,6 @@
 - name: add DNS
   lineinfile:
-    path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/{{cluster_name}}.dns.conf"
+    path: "/etc/dnsmasq.d/{{cluster_name}}.dns.conf"
     regexp: '^address=/{{item.key}}/.*'
     line: "address=/{{item.key}}/{{item.value.ansible_ssh_host}}"
   with_dict: '{{ hostvars }}'

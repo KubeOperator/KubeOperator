@@ -1,15 +1,4 @@
-- name: check registry exists
-  shell: cat /opt/fit2openshift/conf/dnsmasq/dnsmasq.d/fit2openshift.dns.conf | grep {{registry_hostname}}
-  register: is_registry_in
-  failed_when: false
-  changed_when: true
-
-- name: debug has registry return
-  debug: 
-    msg: "{{ is_registry_in.rc }}"
-
 - name: set registry dns
   lineinfile:
-    path: "/opt/fit2openshift/conf/dnsmasq/dnsmasq.d/fit2openshift.dns.conf"
+    path: "/etc/dnsmasq.d/fit2openshift.dns.conf"
     line: "address=/registry.fit2openshift.io/{{registry_hostname}}"
-  when: is_registry_in.rc != 0

@@ -26,6 +26,7 @@ services:
     tty: true
     volumes:
       - api_data:/opt/fit2openshift/data
+      - dnsmasq_data:/etc/dnsmasq.d
     environment:
       DB_HOST: mysql
       DB_USER: root
