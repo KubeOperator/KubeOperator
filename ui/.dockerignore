@@ -1,4 +1,3 @@
-*
-!dist
-!nginx.conf
-!i18n
+node_modules
+package-lock.json
+dist

@@ -8,8 +8,7 @@ services:
       - 80:80
     volumes:
       - api_data:/data
-      - ${VOLUME_DIR}/nginx/log:/var/log/nginx
-      - ./nginx/http_server.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/f2o.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api
       - ui
@@ -22,8 +21,6 @@ services:
   api:
     build: api
     container_name: f2o_api
-    ports:
-      - 8080:8080
     restart: always
     privileged: true
     tty: true
@@ -51,34 +48,34 @@ services:
     image: redis:alpine
     container_name: f2o_redis
     restart: always
-    volumes:
-      - redis_data:/data
-    command: ["redis-server", "/etc/redis.conf"]
     ports:
       - 6379:6379
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "$$REDIS_PASSWORD", "info"]
+      test: ["CMD", "redis-cli", "info"]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  nexus:
-    container_name: f2o_nexus
-    image: sonatype/nexus3
-    ports:
-      - 8081:8081
-      - 8082:8082
-    volumes:
-      - ./nexus/data:/nexus-data
+  ui:
+    build: ui
+    container_name: f2o_ui
+    restart: always
+
+#  nexus:
+#    container_name: f2o_nexus
+#    image: sonatype/nexus3
+#    ports:
+#      - 8081:8081
+#      - 8082:8082
+#    volumes:
+#      - ./nexus/data:/nexus-data
 
   dnsmasq:
     container_name: f2o_dnsmasq
-    image: jpillora/dnsmasq:latest
+    build: docker/dnsmasq
     volumes:
-      - /opt/fit2openshift/conf/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
-      - /opt/fit2openshift/conf/dnsmasq/dnsmasq.d:/etc/dnsmasq.d
-    networks:
-      - fit2openshift-network
+      - ./docker/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+      - ./docker/dnsmasq/dnsmasq.d:/etc/dnsmasq.d
     ports:
       - 5380:8080/tcp
       - 53:53/udp
