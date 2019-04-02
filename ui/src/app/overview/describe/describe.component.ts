@@ -2,7 +2,6 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {PackageService} from '../../package/package.service';
 import {Portal, Template} from '../../package/package';
-import {RoleService} from '../../node/role.service';
 import {ClusterRoleService} from '../../cluster/cluster-role.service';
 
 @Component({
@@ -13,7 +12,7 @@ import {ClusterRoleService} from '../../cluster/cluster-role.service';
 export class DescribeComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
-  private portals: Portal[] = [];
+  portals: Portal[] = [];
 
   constructor(private packageService: PackageService, private roleService: ClusterRoleService) {
   }
