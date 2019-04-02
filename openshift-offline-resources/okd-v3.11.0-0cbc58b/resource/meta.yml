@@ -17,10 +17,11 @@ install_playbooks:
     alias: openshift-ansible/playbooks/deploy_cluster.yml
 
 uninstall_playbooks:
-  - name: 1-okd-uninstall
-    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
-  - name: 2-glusterfs-uninstall
+  - name: 1-glusterfs-uninstall
     alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
+  - name: 2-okd-uninstall
+    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+
 
 # template public roles
 roles:
@@ -85,7 +86,11 @@ roles:
 templates:
   - name: 单节点
     comment: 用于测试环境
-    #all in one 模式屏蔽 monitor metrics logging
+    portals:
+      - name: Openshift Web Console
+        redirect: https://$openshift_master_cluster_public_hostname
+      - name: Manage Console
+        redirect: https://console.$openshift_master_default_subdomain
     private_vars:
       openshift_cluster_monitoring_operator_install: false
       openshift_logging_install_logging: false
@@ -169,6 +174,11 @@ templates:
 
   - name: 一主多节点
     comment: 用于测试开发环境
+    portals:
+      - name: Openshift Web Console
+        redirect: https://$openshift_master_cluster_public_hostname
+      - name: Manage Console
+        redirect: https://console.$openshift_master_default_subdomain
     private_vars:
       ##registry
       openshift_hosted_registry_storage_kind: glusterfs
@@ -211,7 +221,6 @@ templates:
       openshift_cluster_monitoring_operator_prometheus_storage_capacity: 50Gi
       openshift_cluster_monitoring_operator_alertmanager_storage_capacity: 2Gi
       openshift_cluster_monitoring_operator_node_selector: {"node-role.kubernetes.io/infra": "true"}
-
 
     private_config:
       - name: openshift_master_cluster_public_hostname
@@ -460,6 +469,11 @@ templates:
 
   - name: 多主多节点
     comment: 用于生产环境
+    portals:
+      - name: Openshift Web Console
+        redirect: https://$openshift_master_cluster_public_hostname
+      - name: Manage Console
+        redirect: https://console.$openshift_master_default_subdomain
     private_vars:
       ##registry
       openshift_hosted_registry_storage_kind: glusterfs

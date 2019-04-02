@@ -32,7 +32,7 @@ export class ClusterListComponent implements OnInit {
 
   checkSetting() {
     this.settingService.getSetting('hostname').subscribe(data => {
-      if (data.value || data.value === '127.0.0.1') {
+      if (!data.value || data.value === '127.0.0.1') {
         this.messageService.announceMessage('部署前请先设置主机IP,否则部署将造成失败！', MessageLevels.WARN);
       }
     });
