@@ -33,6 +33,9 @@ services:
       DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
       DB_NAME: fit2openshift
       REDIS_HOST: redis
+    depends_on:
+      - mysql
+      - redis
 
   mysql:
     container_name: f2o_mysql
@@ -45,6 +48,11 @@ services:
     environment:
       MYSQL_DATABASE: fit2openshift
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
+    healthcheck:
+      test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:alpine
@@ -82,6 +90,7 @@ services:
       - 53:53/udp
     environment:
       HTTP_USER: admin
+      HTTP_PASSWORD: admin123
 
 volumes:
   api_data:
