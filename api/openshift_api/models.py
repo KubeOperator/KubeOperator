@@ -27,7 +27,7 @@ class Package(models.Model):
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     meta = JsonTextField(blank=True, null=True, verbose_name=_('Meta'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-    packages_dir = os.path.join(settings.BASE_DIR, 'data', 'packages')
+    packages_dir = os.path.join(settings.BASE_DIR, 'resource', 'packages')
 
     def __str__(self):
         return self.name

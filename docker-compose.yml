@@ -2,7 +2,7 @@ version: "2.2"
 services:
   nginx:
     image: nginx:alpine
-    container_name: jms_nginx
+    container_name: f2o_nginx
     restart: always
     ports:
       - 80:80
@@ -81,7 +81,6 @@ services:
       - 53:53/udp
     environment:
       HTTP_USER: admin
-      HTTP_PASS: admin123
 
 volumes:
   api_data:
