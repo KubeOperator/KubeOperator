@@ -82,6 +82,7 @@ services:
       - 53:53/udp
     environment:
       HTTP_USER: admin
+      HTTP_PASSWORD: admin123
 
 volumes:
   api_data:
