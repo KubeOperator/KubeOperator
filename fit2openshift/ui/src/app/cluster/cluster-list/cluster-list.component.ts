@@ -4,6 +4,9 @@ import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {MessageService} from '../../base/message.service';
+import {MessageLevels} from '../../base/message/message-level';
+import {SettingService} from '../../setting/setting.service';
 
 @Component({
   selector: 'app-cluster-list',
@@ -18,11 +21,21 @@ export class ClusterListComponent implements OnInit {
 
   @Output() addCluster = new EventEmitter<void>();
 
-  constructor(private clusterService: ClusterService, private router: Router, private tipService: TipService) {
+  constructor(private clusterService: ClusterService, private router: Router,
+              private tipService: TipService, private messageService: MessageService, private settingService: SettingService) {
   }
 
   ngOnInit() {
     this.listCluster();
+    this.checkSetting();
+  }
+
+  checkSetting() {
+    this.settingService.getSetting('hostname').subscribe(data => {
+      if (!data.value || data.value === '127.0.0.1') {
+        this.messageService.announceMessage('部署前请先设置主机IP,否则部署将造成失败！', MessageLevels.WARN);
+      }
+    });
   }
 
   listCluster() {
@@ -33,6 +46,7 @@ export class ClusterListComponent implements OnInit {
       this.loading = false;
     });
   }
+
 
 
   onDeleted() {

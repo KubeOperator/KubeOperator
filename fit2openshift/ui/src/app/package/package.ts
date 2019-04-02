@@ -64,6 +64,8 @@ export class RoleMeta {
   allow_os: Os[];
   requires: Requires;
   node_vars: NodeVars[];
+
+
 }
 
 
@@ -76,5 +78,11 @@ export class Template {
   name: string;
   roles: Role[];
   private_config: Config[];
+  portals: Portal[];
+  comment: string;
 }
 
+export class Portal {
+  name: string;
+  redirect: string;
+}

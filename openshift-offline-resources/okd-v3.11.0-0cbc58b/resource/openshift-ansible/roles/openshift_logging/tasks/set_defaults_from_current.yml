@@ -23,7 +23,7 @@
 - when: openshift_logging_facts['elasticsearch']['deploymentconfigs'].keys() | count > 0
   block:
     - set_fact:
-        __es_dc_name: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'].keys()[0] }}"
+        __es_dc_name: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'].keys() | list | first }}"
 
     - set_fact:
         __openshift_logging_es_recover_after_time: "{{ openshift_logging_facts['elasticsearch']['deploymentconfigs'][__es_dc_name]['containers']['elasticsearch']['env'] | entry_from_name_value_pair('RECOVER_AFTER_TIME') }}"

@@ -18,6 +18,35 @@ class ClusterViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'name'
 
 
+class PackageViewSet(viewsets.ModelViewSet):
+    queryset = Package.objects.all()
+    serializer_class = serializers.PackageSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get', 'head', 'options']
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+    def get_queryset(self):
+        Package.lookup()
+        return super().get_queryset()
+
+
+class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    permission_classes = (IsSuperUser,)
+    serializer_class = serializers.RoleSerializer
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+
+class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
+    queryset = Node.objects.filter(~Q(name='localhost'))
+    serializer_class = serializers.NodeSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+
 class VolumeViewSet(viewsets.ModelViewSet):
     queryset = Volume.objects.all()
     serializers_class = serializers.VolumeSerializer
@@ -84,18 +113,6 @@ class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
 
 # 节点视图
-class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = Node.objects.filter(~Q(name='localhost'))
-    serializer_class = serializers.NodeSerializer
-    permission_classes = (IsSuperUser,)
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-
-class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    permission_classes = (IsSuperUser,)
-    serializer_class = serializers.RoleSerializer
 
 
 class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
@@ -132,16 +149,3 @@ class SettingViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'head', 'options', 'put', 'patch']
     lookup_field = 'key'
     lookup_url_kwarg = 'key'
-
-
-class PackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.all()
-    serializer_class = serializers.PackageSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'head', 'options']
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def get_queryset(self):
-        Package.lookup()
-        return super().get_queryset()

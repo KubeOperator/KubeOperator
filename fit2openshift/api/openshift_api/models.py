@@ -5,7 +5,6 @@ import logging
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
 from ansible_api.tasks import run_im_adhoc
@@ -156,8 +155,10 @@ class Cluster(Project):
 
     def set_config(self, k, v):
         self.change_to()
-        role = Role.objects.get(name='OSEv3')
+        role = Role.objects.select_for_update().get(name='OSEv3')
         _vars = role.vars
+        if isinstance(v, str):
+            v = v.strip()
         _vars[k] = v
         role.vars = _vars
         role.save()

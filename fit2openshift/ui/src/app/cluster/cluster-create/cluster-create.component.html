@@ -150,13 +150,22 @@
               <div class="clr-form-control clr-row" *ngFor="let _var of group.node_vars">
                 <label [for]="node.name+_var.name"
                        class="clr-control-label clr-col-xs-12 clr-col-md-2">{{replaceNodeVarsKey(_var.name)}}</label>
-                <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-                  <div class="clr-select-wrapper">
+                <div class="clr-control-container clr-col-xs-12 clr-col-md-10" [ngSwitch]="_var.type">
+                  <div class="clr-select-wrapper" *ngSwitchCase="'Select'">
                     <select [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
                             class="clr-select"
                             required>
                       <option [value]="">请选择磁盘</option>
-                      <option *ngFor="let v of node.volumes" [value]="replaceVolumeName(v,_var.template)">{{v}}</option>
+                      <option *ngFor="let v of node.volumes" [value]="v">{{v}}</option>
+                    </select>
+                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                  </div>
+
+                  <div class="clr-multiselect-wrapper" *ngSwitchCase="'Mutiselect'">
+                    <select multiple [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
+                            class="clr-select"
+                            required>
+                      <option *ngFor="let v of node.volumes" [value]="v">{{v}}</option>
                     </select>
                     <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                   </div>

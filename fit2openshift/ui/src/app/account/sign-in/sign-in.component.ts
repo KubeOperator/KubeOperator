@@ -4,7 +4,9 @@ import {SignInCredential} from '../../shared/signInCredential';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SessionService} from '../../shared/session.service';
 import {CommonRoutes} from '../../shared/shared.const';
-import {SessionUser} from '../../shared/session-user';
+import {MessageService} from '../../base/message.service';
+import {MessageLevels} from '../../base/message/message-level';
+import {SettingService} from '../../setting/setting.service';
 
 
 export const signInStatusNormal = 0;
@@ -31,7 +33,7 @@ export class SignInComponent implements OnInit, AfterViewChecked {
     password: ''
   };
 
-  constructor(private router: Router, private  route: ActivatedRoute, private session: SessionService) {
+  constructor(private router: Router, private  route: ActivatedRoute, private session: SessionService, private settingService: SettingService, private messageService: MessageService) {
   }
 
   ngAfterViewChecked(): void {
@@ -106,6 +108,10 @@ export class SignInComponent implements OnInit, AfterViewChecked {
     }, (error) => this.handleError(error));
 
   }
+
+  // 设置主机名
+
+
 
 
 }
