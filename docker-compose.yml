@@ -31,6 +31,7 @@ services:
       DB_USER: root
       DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
       DB_NAME: fit2openshift
+      REDIS_HOST: redis
 
   mysql:
     container_name: f2o_mysql
