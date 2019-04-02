@@ -1,14 +1,7 @@
-*.retry
-*.swo
 .DS_Store
 *.pyc
 *.pyo
 *.swp
-*.swo
-*.retry
-*.tar
-*.gz
-*.rpm
 .env
 env
 venv
@@ -20,6 +13,7 @@ _mailinglist
 .tox
 .cache/
 .idea/
+*.lock
 db.sqlite3
 celerybeat.pid
 tmp
@@ -27,4 +21,6 @@ dump.rdb
 data/celery/
 data/ansible/
 data/projects/
-nexus/data
+data/openshift-ansible/
+*.log
+django.iml

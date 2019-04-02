@@ -1,0 +1,12 @@
+# approval == this is a good idea /approve
+approvers:
+  - michaelgugino
+  - mtnbikenc
+  - sdodson
+  - vrutkovs
+# review == this code is good /lgtm
+reviewers:
+  - michaelgugino
+  - mtnbikenc
+  - sdodson
+  - vrutkovs

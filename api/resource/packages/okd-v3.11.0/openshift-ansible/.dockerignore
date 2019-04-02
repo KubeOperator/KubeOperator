@@ -1,0 +1,11 @@
+.*
+bin
+docs
+hack
+inventory/hosts.*
+utils
+**/*.md
+*.spec
+*.ini
+*.txt
+setup*

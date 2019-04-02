@@ -1,0 +1,59 @@
+#bare minimum hostfile
+
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[OSEv3:vars]
+oreg_url=172.20.47.8:8082/openshift/origin-${component}:${version}
+system_images_registry=172.20.47.8:8082
+openshift_examples_modify_imagestreams=true
+openshift_docker_additional_registries=172.20.47.8:8082
+openshift_service_catalog_image_prefix=172.20.47.8:8082/openshift/origin-
+openshift_metrics_image_prefix=172.20.47.8:8082/openshift/origin-
+openshift_logging_image_prefix=172.20.47.8:8082/openshift/origin-
+ansible_service_broker_image_prefix=172.20.47.8:8082/openshift/origin-
+ansible_service_broker_etcd_image_prefix=172.20.47.8:8082/openshift/origin-
+openshift_release="3.11"
+openshift_image_tag=v3.11
+openshift_docker_disable_push_dockerhub=True
+openshift_docker_options="--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=http://bqr1dr1n.mirror.aliyuncs.com"
+#openshift_docker_options="--ins
+openshift_master_image_policy_allowed_registries_for_import=["172.20.47.8:8082"]
+openshift_docker_insecure_registries=172.20.47.8:8082
+#openshift_docker_insecure_registries=docker-registry.default.svc,docker-registry.default.svc.cluster.local,172.20.47.8:8082
+openshift_version="3.11"
+#
+ansible_ssh_user=root
+
+#ansible_become=no
+openshift_master_cluster_method=native
+penshift_master_cluster_hostname=openshift-node02
+openshift_master_cluster_public_hostname=openshift-node02
+#openshift_master_ansible_become=no
+openshift_master_api_port=8443
+openshift_master_console_port=8443
+## Specify an exact rpm version to install or configure.
+## WARNING: This value will be used for all hosts in RPM based environments, even those that have another version installed.
+## This could potentially trigger an upgrade and downtime, so be careful with modifying this value after the cluster is set up.
+#openshift_pkg_version=-3.11.0
+# if your target hosts are Fedora uncomment this
+#ansible_python_interpreter=/usr/bin/python3
+openshift_deployment_type=origin
+openshift_portal_net=172.30.0.0/16
+# localhost likely doesn't meet the minimum requirements
+openshift_disable_check=disk_availability,memory_availability,docker_storage,docker_image_availability
+
+#docker_upgrade=False #ansible_connection=
+
+#openshift_node_groups=[{'name': 'node-config-all-in-one', 'labels': ['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true', 'node-role.kubernetes.io/compute=true']}]
+
+
+[masters]
+openshift-node01 
+[etcd]
+openshift-node01
+[nodes]
+# openshift_node_group_name should refer to a dictionary with matching key of name in list openshift_node_groups.
+openshift-node01 openshift_node_group_name="node-config-all-in-one"

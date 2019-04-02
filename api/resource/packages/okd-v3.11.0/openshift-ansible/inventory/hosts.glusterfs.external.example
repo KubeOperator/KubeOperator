@@ -1,0 +1,61 @@
+# This is an example of an OpenShift-Ansible host inventory for a cluster
+# with natively hosted, containerized GlusterFS storage.
+#
+# This inventory may be used with the deploy_cluster.yml playbook to deploy a new
+# cluster with GlusterFS storage, which will use that storage to create a
+# volume that will provide backend storage for a hosted Docker registry.
+#
+# This inventory may also be used with openshift-glusterfs/config.yml to
+# deploy GlusterFS storage on an existing cluster. With this playbook, the
+# registry backend volume will be created but the administrator must then
+# either deploy a hosted registry or change an existing hosted registry to use
+# that volume.
+#
+# There are additional configuration parameters that can be specified to
+# control the deployment and state of a GlusterFS cluster. Please see the
+# documentation in playbooks/openshift-glusterfs/README.md and
+# roles/openshift_storage_glusterfs/README.md for additional details.
+
+[OSEv3:children]
+masters
+nodes
+etcd
+# Specify there will be GlusterFS nodes
+glusterfs
+
+[OSEv3:vars]
+ansible_ssh_user=root
+openshift_deployment_type=origin
+# Specify that we want to use an external GlusterFS cluster
+openshift_storage_glusterfs_is_native=False
+# Specify the IP address or hostname of the external heketi service
+openshift_storage_glusterfs_heketi_url=172.0.0.1
+
+[masters]
+master
+
+[nodes]
+# masters should be schedulable to run web console pods
+master  openshift_schedulable=True
+node0   openshift_schedulable=True
+node1   openshift_schedulable=True
+node2   openshift_schedulable=True
+
+[etcd]
+master
+
+# Specify the glusterfs group, which contains the nodes of the external
+# GlusterFS cluster. At a minimum, each node must have "glusterfs_hostname"
+# and "glusterfs_devices" variables defined.
+#
+# The first variable indicates the hostname of the external GLusterFS node,
+# and must be reachable by the external heketi service.
+#
+# The second variable is a list of block devices the node will have access to
+# that are intended solely for use as GlusterFS storage. These block devices
+# must be bare (e.g. have no data, not be marked as LVM PVs), and will be
+# formatted.
+[glusterfs]
+node0.local  glusterfs_ip='172.0.0.10' glusterfs_devices='[ "/dev/vdb" ]'
+node1.local  glusterfs_ip='172.0.0.11' glusterfs_devices='[ "/dev/vdb", "/dev/vdc" ]'
+node2.local  glusterfs_ip='172.0.0.11' glusterfs_devices='[ "/dev/vdd" ]'

@@ -1,0 +1,46 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[OSEv3:vars]
+ansible_ssh_user=root
+ansible_python_interpreter=/usr/bin/python3
+openshift_deployment_type=origin
+openshift_release="{{ lookup('env', 'target_branch') }}"
+openshift_master_default_subdomain="{{ lookup('env', 'RHCI_ocp_master1_IP') }}.xip.io"
+openshift_check_min_host_disk_gb=1.5
+openshift_check_min_host_memory_gb=1.9
+openshift_portal_net=172.30.0.0/16
+openshift_enable_service_catalog=false
+debug_level=4
+openshift_docker_options="--log-driver=journald"
+
+my_node_group1_labels=['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true', 'node-role.kubernetes.io/compute=true']
+my_node_group1={'name': 'node-config-all-in-one', 'labels': {{ my_node_group1_labels }} }
+
+openshift_node_groups=[{{ my_node_group1 }}]
+
+openshift_node_group_name="node-config-all-in-one"
+
+[all:vars]
+# bootstrap configs
+openshift_master_bootstrap_auto_approve=true
+openshift_master_bootstrap_auto_approver_node_selector={"node-role.kubernetes.io/master":"true"}
+osm_controller_args={"experimental-cluster-signing-duration": ["20m"]}
+osm_default_node_selector="node-role.kubernetes.io/compute=true"
+
+[masters]
+ocp-master1
+ocp-master2
+ocp-master3
+
+[etcd]
+ocp-master1
+ocp-master2
+ocp-master3
+
+[nodes]
+ocp-master1 openshift_schedulable=true
+ocp-master2
+ocp-master3

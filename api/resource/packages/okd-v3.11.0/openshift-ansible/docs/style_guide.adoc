@@ -1,0 +1,174 @@
+// vim: ft=asciidoc
+
+= openshift-ansible Style Guide
+
+The purpose of this guide is to describe the preferred coding conventions used in this repository (both in ansible and python).
+
+It is important to note that this repository may not currently comply with all style guide rules, but the intention is that it will.
+
+All new pull requests created against this repository MUST comply with this guide.
+
+This style guide complies with https://www.ietf.org/rfc/rfc2119.txt[RFC2119].
+
+== Python
+
+
+=== Python Maximum Line Length
+
+.Context:
+* https://www.python.org/dev/peps/pep-0008/#maximum-line-length[Python Pep8 Line Length]
+
+'''
+[[All-lines-SHOULD-be-no-longer-than-80-characters]]
+[cols="2v,v"]
+|===
+| <<All-lines-SHOULD-be-no-longer-than-80-characters, Rule>>
+| All lines SHOULD be no longer than 80 characters.
+|===
+
+Every attempt SHOULD be made to comply with this soft line length limit, and only when it makes the code more readable should this be violated.
+
+Code readability is subjective, therefore pull-requests SHOULD still be merged, even if they violate this soft limit as it is up to the individual contributor to determine if they should violate the 80 character soft limit.
+
+
+'''
+[[All-lines-MUST-be-no-longer-than-120-characters]]
+[cols="2v,v"]
+|===
+| <<All-lines-MUST-be-no-longer-than-120-characters, Rule>>
+| All lines MUST be no longer than 120 characters.
+|===
+
+This is a hard limit and is enforced by the build bot. This check MUST NOT be disabled.
+
+
+
+== Ansible
+
+
+=== Ansible Yaml file extension
+'''
+[[All-Ansible-Yaml-files-MUST-have-a-yml-extension-and-NOT-YML-yaml-etc]]
+[cols="2v,v"]
+|===
+| <<All-Ansible-Yaml-files-MUST-have-a-yml-extension-and-NOT-YML-yaml-etc, Rule>>
+| All Ansible Yaml files MUST have a .yml extension (and NOT .YML, .yaml etc).
+|===
+
+Ansible tooling (like `ansible-galaxy init`) create files with a .yml extension. Also, the Ansible documentation website references files with a .yml extension several times. Because of this, it is normal in the Ansible community to use a .yml extension for all Ansible Yaml files.
+
+Example: `tasks.yml`
+
+
+=== Ansible CLI Variables
+'''
+[[Variables-meant-to-be-passed-in-from-the-ansible-CLI-MUST-have-a-prefix-of-cli]]
+[cols="2v,v"]
+|===
+| <<Variables-meant-to-be-passed-in-from-the-ansible-CLI-MUST-have-a-prefix-of-cli, Rule>>
+| Variables meant to be passed in from the ansible CLI MUST have a prefix of cli_
+|===
+
+Ansible allows variables to be passed in on the command line using the `-e` option. These variables MUST have a prefix of cli_ so that it's clear where they came from, and that they could be exploited.
+
+
+.Example:
+[source]
+----
+ansible-playbook -e cli_foo=bar someplays.yml
+----
+
+=== Ansible Global Variables
+'''
+[[Global-variables-MUST-have-a-prefix-of-g]]
+[cols="2v,v"]
+|===
+| <<Global-variables-MUST-have-a-prefix-of-g, Rule>>
+| Global variables MUST have a prefix of g_
+|===
+Ansible global variables are defined as any variables outside of ansible roles. Examples include playbook variables, variables passed in on the cli, etc.
+
+
+.Example:
+[source]
+----
+g_environment: someval
+----
+
+=== Ansible Role Variables
+Ansible role variables are defined as variables contained in (or passed into) a role.
+
+'''
+[[Role-variables-MUST-have-a-prefix-of-atleast-3-characters-See.below.for.specific.naming.rules]]
+[cols="2v,v"]
+|===
+| <<Role-variables-MUST-have-a-prefix-of-atleast-3-characters-See.below.for.specific.naming.rules, Rule>>
+| Role variables MUST have a prefix of at least 3 characters. See below for specific naming rules.
+|===
+
+==== Role with 3 (or more) words in the name
+
+Take the first letter of each of the words.
+
+.3 word example:
+* Role name: made_up_role
+* Prefix: mur
+[source]
+----
+mur_var1: value_one
+----
+
+.4 word example:
+* Role name: totally_made_up_role
+* Prefix: tmur
+[source]
+----
+tmur_var1: value_one
+----
+
+
+
+==== Role with 2 (or less) words in the name
+
+Make up a prefix that makes sense.
+
+.1 word example:
+* Role name: ansible
+* Prefix: ans
+[source]
+----
+ans_var1: value_one
+----
+
+.2 word example:
+* Role name: ansible_tower
+* Prefix: tow
+[source]
+----
+tow_var1: value_one
+----
+
+
+==== Role name prefix conflicts
+If two role names contain words that start with the same letters, it will seem like their prefixes would conflict.
+
+Role variables are confined to the roles themselves, so this is actually only a problem if one of the roles depends on the other role (or uses includes into the other role).
+
+.Same prefix example:
+* First Role Name: made_up_role
+* First Role Prefix: mur
+* Second Role Name: my_uber_role
+* Second Role Prefix: mur
+[source]
+----
+- hosts: localhost
+  roles:
+  - { role: made_up_role, mur_var1: val1 }
+  - { role: my_uber_role, mur_var1: val2 }
+----
+
+Even though both roles have the same prefix (mur), and even though both roles have a variable named mur_var1, these two variables never exist outside of their respective roles. This means that this is not a problem.
+
+This would only be a problem if my_uber_role depended on made_up_role, or vice versa. Or if either of these two roles included things from the other.
+
+This is enough of a corner case that it is unlikely to happen. If it does, it will be addressed on a case by case basis.

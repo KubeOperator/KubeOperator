@@ -1,0 +1,43 @@
+// vim: ft=asciidoc
+
+= openshift-ansible Core Concepts Guide
+
+The purpose of this guide is to describe core concepts used in this repository.
+
+It is important to note that this repository may not currently implement all of the concepts, but the intention is that it will.
+
+== Logical Grouping Concepts
+The following are the concepts used to logically group OpenShift cluster instances.
+
+These groupings are used to perform operations specifically against instances in the specified group.
+
+For example, run an Ansible playbook against all instances in the `production` environment, or run an adhoc command against all instances in the `acme-corp` cluster group.
+
+=== Cluster
+A Cluster is a complete install of OpenShift (master, nodes, registry, router, etc).
+
+Example: Acme Corp has sales and marketing departments that both want to use OpenShift for their internal applications, but they do not want to share resources because they have different cost centers. Each department could have their own completely separate install of OpenShift. Each install is a separate OpenShift cluster.
+
+Defined Clusters:
+`acme-sales`
+`acme-marketing`
+
+=== Cluster Group
+A cluster group is a logical grouping of one or more clusters. Which clusters are in which cluster groups is determined by the OpenShift administrators.
+
+Example: Extending the example above, both marketing and sales clusters are part of Acme Corp. Let's say that Acme Corp contracts with Hosting Corp to host their OpenShift clusters. Hosting Corp could create an Acme Corp cluster group.
+
+This would logically group Acme Corp resources from other Hosting Corp customers, which would enable the Hosting Corp's OpenShift administrators to run operations specifically targeting Acme Corp instances.
+
+Defined Cluster Group:
+`acme-corp`
+
+=== Environment
+An environment is a logical grouping of one or more cluster groups. How the environment is defined is determined by the OpenShift administrators.
+
+Example: Extending the two examples above, Hosting Corp is upgrading to the latest version of OpenShift. Before deploying it to their clusters in the Production environment, they want to test it out. So, Hosting Corp runs an Ansible playbook specifically against all of the cluster groups in the Staging environment in order to do the OpenShift upgrade.
+
+
+Defined Environments:
+`production`
+`staging`
