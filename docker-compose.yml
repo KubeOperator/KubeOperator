@@ -61,14 +61,14 @@ services:
     container_name: f2o_ui
     restart: always
 
-#  nexus:
-#    container_name: f2o_nexus
-#    image: sonatype/nexus3
-#    ports:
-#      - 8081:8081
-#      - 8082:8082
-#    volumes:
-#      - ./nexus/data:/nexus-data
+  nexus:
+    container_name: f2o_nexus
+    image: sonatype/nexus3
+    ports:
+      - 8081:8081
+      - 8082:8082
+    volumes:
+      - ./docker/nexus/data:/nexus-data
 
   dnsmasq:
     container_name: f2o_dnsmasq
