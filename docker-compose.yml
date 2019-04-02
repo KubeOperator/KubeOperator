@@ -75,8 +75,7 @@ services:
     container_name: f2o_dnsmasq
     build: docker/dnsmasq
     volumes:
-      - ./docker/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
-      - ./docker/dnsmasq/dnsmasq.d:/etc/dnsmasq.d
+      - dnsmasq_data:/etc/dnsmasq.d
     ports:
       - 5380:8080/tcp
       - 53:53/udp
@@ -87,6 +86,7 @@ volumes:
   api_data:
   mysql_data:
   redis_data:
+  dnsmasq_data:
 
 networks: 
   default:
