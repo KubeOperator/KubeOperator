@@ -82,7 +82,7 @@ services:
 
   dns:
     container_name: f2o_dns
-    build: docker/dns
+    build: docker/dnsmasq
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:
