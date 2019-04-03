@@ -86,11 +86,7 @@ services:
     volumes:
       - dnsmasq_data:/etc/dnsmasq.d
     ports:
-      - 5380:8080/tcp
       - 53:53/udp
-    environment:
-      HTTP_USER: admin
-      HTTP_PASSWORD: admin123
 
 volumes:
   api_data:
