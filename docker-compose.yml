@@ -80,11 +80,11 @@ services:
     volumes:
       - ./docker/nexus/data:/nexus-data
 
-  dnsmasq:
+  dns:
     container_name: f2o_dnsmasq
-    build: docker/dnsmasq
+    build: docker/dns
     volumes:
-      - dnsmasq_data:/etc/dnsmasq.d
+      - dns_data:/etc/dnsmasq.d
     ports:
       - 53:53/udp
 
@@ -92,7 +92,7 @@ volumes:
   api_data:
   mysql_data:
   redis_data:
-  dnsmasq_data:
+  dns_data:
 
 networks: 
   default:
