@@ -25,7 +25,7 @@ export class PackageService {
   }
 
   getPackage(packageName: string): Observable<Package> {
-    return this.http.get<Package>(`${packageUrl}/${packageName}`).pipe(
+    return this.http.get<Package>(`${packageUrl}${packageName}`).pipe(
       catchError(error => throwError(error))
     );
   }
