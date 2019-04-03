@@ -81,7 +81,7 @@ services:
       - ./docker/nexus/data:/nexus-data
 
   dns:
-    container_name: f2o_dnsmasq
+    container_name: f2o_dns
     build: docker/dns
     volumes:
       - dns_data:/etc/dnsmasq.d
