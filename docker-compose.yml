@@ -86,7 +86,7 @@ services:
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:
-      - 8053:8080
+      - 5380:8080
       - 53:53/udp
 
 volumes:
