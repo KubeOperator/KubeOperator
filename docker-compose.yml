@@ -26,7 +26,7 @@ services:
     tty: true
     volumes:
       - api_data:/opt/fit2openshift/data
-      - dnsmasq_data:/etc/dnsmasq.d
+      - dns_data:/etc/dnsmasq.d
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -80,23 +80,20 @@ services:
     volumes:
       - ./docker/nexus/data:/nexus-data
 
-  dnsmasq:
-    container_name: f2o_dnsmasq
+  dns:
+    container_name: f2o_dns
     build: docker/dnsmasq
     volumes:
-      - dnsmasq_data:/etc/dnsmasq.d
+      - dns_data:/etc/dnsmasq.d
     ports:
-      - 5380:8080/tcp
+      - 5380:8080
       - 53:53/udp
-    environment:
-      HTTP_USER: admin
-      HTTP_PASSWORD: admin123
 
 volumes:
   api_data:
   mysql_data:
   redis_data:
-  dnsmasq_data:
+  dns_data:
 
 networks: 
   default:
