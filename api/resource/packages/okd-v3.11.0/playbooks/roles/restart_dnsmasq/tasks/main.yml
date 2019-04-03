@@ -1,4 +1,4 @@
 - name: restart dnsmasq
   get_url:
-    url: "http://{{registry_hostname}}/dnsmasq/restart"
+    url: "http://admin:DoNotChange@{{registry_hostname}}:8053/restart"
     dest: "/tmp"
