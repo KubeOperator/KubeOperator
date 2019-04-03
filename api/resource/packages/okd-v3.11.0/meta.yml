@@ -1,19 +1,21 @@
 name: okd-3.11
 version: 3.11
 install_playbooks:
-  - name: 1-distribute_ssh_key-install
+  - name: 1-config_ssh-install.yml
+    alias: playbooks/config_ssh.yml
+  - name: 2-distribute_ssh_key-install
     alias: playbooks/distribute_ssh_key.yml
-  - name: 2-config_host_dns-install
+  - name: 3-config_host_dns-install
     alias: playbooks/config_host_dns.yml
-  - name: 3-prepare_host-install
+  - name: 4-prepare_host-install
     alias: playbooks/prepare_host.yml
-  - name: 4-uninstall_old-install
+  - name: 5-uninstall_old-install
     alias: openshift-ansible/playbooks/adhoc/uninstall.yml
-  - name: 5-prequisites-install
+  - name: 6-prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 6-config_docker_storage-install
+  - name: 7-config_docker_storage-install
     alias: playbooks/config_docker_storage.yml
-  - name: 7-deploy-cluster-install
+  - name: 8-deploy-cluster-install
     alias: openshift-ansible/playbooks/deploy_cluster.yml
 
 uninstall_playbooks:

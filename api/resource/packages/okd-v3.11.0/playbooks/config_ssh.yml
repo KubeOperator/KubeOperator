@@ -1,0 +1,11 @@
+- hosts: OSEv3
+  tasks:
+    - name: SSH do not use dns lookup
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^UseDNS.*'
+        line: UseDNS no
+    - name: rstart ssh
+      service:
+        name: sshd
+        state: restarted
