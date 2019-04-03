@@ -1,7 +1,8 @@
 FROM node as stage-build
-ADD . /data
 WORKDIR /data
+ADD ./package.json /data/package.json
 RUN npm i
+ADD . /data
 RUN npm run-script build
 
 FROM nginx:alpine
