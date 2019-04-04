@@ -19,6 +19,7 @@ services:
 
   api:
     build: api
+    image: fit2openshift/api:latest
     container_name: f2o_api
     restart: always
     privileged: true
@@ -38,10 +39,10 @@ services:
 
   mysql:
     container_name: f2o_mysql
-    image: mysql:5.7.24
+    image: mysql:5
     command: --character-set-server=utf8
     ports:
-      - 3306:3306
+      - 3306
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
@@ -58,7 +59,7 @@ services:
     container_name: f2o_redis
     restart: always
     ports:
-      - 6379:6379
+      - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "info"]
       interval: 10s
@@ -67,6 +68,7 @@ services:
 
   ui:
     build: ui
+    image: fit2openshift/ui:latest
     container_name: f2o_ui
     restart: always
 
@@ -82,6 +84,7 @@ services:
   dns:
     container_name: f2o_dns
     build: docker/dnsmasq
+    image: fit2openshift/dns:latest
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:
