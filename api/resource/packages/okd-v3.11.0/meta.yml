@@ -75,7 +75,7 @@ roles:
       openshift_docker_disable_push_dockerhub: true
       openshift_docker_options:  "--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=https://docker.mirrors.ustc.edu.cn"
       ##auth
-      openshift_master_identity_providers: [{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
+      openshift_master_identity_providers: [{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
       ## Enable service catalog
       openshift_service_catalog_remove: true
       openshift_enable_service_catalog: true
@@ -112,7 +112,7 @@ templates:
         default: apps.$cluster_name.f2o
         required: true
         help_text: 部署app后service的域名
-      
+
       - name: openshift_master_cluster_hostname
         alias: 集群域名
         type: Input
@@ -246,12 +246,12 @@ templates:
         required: true
         help_text: 集群通信域名，解析至master节点
 
-      - name: openshift_cluster_monitoring_operator_install
-        alias: 集群监控
-        type: Checkbox
-        default: true
-        required: true
-        help_text: 部署集群监控插件
+#      - name: openshift_cluster_monitoring_operator_install
+#        alias: 集群监控
+#        type: Checkbox
+#        default: true
+#        required: true
+#        help_text: 部署集群监控插件
 
       - name: openshift_metrics_install_metrics
         alias: 集群指标
@@ -542,12 +542,12 @@ templates:
         required: true
         help_text: 集群通信域名，解析至master节点
 
-      - name: openshift_cluster_monitoring_operator_install
-        alias: 集群监控
-        type: Checkbox
-        default: true
-        required: true
-        help_text: 部署集群监控插件
+#      - name: openshift_cluster_monitoring_operator_install
+#        alias: 集群监控
+#        type: Checkbox
+#        default: true
+#        required: true
+#        help_text: 部署集群监控插件
 
       - name: openshift_metrics_install_metrics
         alias: 集群指标
