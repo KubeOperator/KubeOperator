@@ -1,4 +1,0 @@
-- name: restart dnsmasq
-  get_url:
-    url: "http://{{registry_hostname}}:5380/restart" 
-    dest: "/tmp"

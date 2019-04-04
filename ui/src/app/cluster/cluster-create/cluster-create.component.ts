@@ -290,9 +290,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       extraConfig.key = c.name;
       extraConfig.value = c.value;
       promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
-      console.log(extraConfig);
       Promise.all(promises).then((data) => {
-        console.log(data);
         this.isSubmitGoing = false;
         this.createClusterOpened = false;
         this.create.emit(true);

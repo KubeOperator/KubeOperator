@@ -7,7 +7,6 @@ services:
     ports:
       - 80:80
     volumes:
-      - api_data:/data
       - ./docker/nginx/f2o.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api
@@ -20,38 +19,47 @@ services:
 
   api:
     build: api
+    image: fit2openshift/api:latest
     container_name: f2o_api
     restart: always
     privileged: true
     tty: true
     volumes:
       - api_data:/opt/fit2openshift/data
-      - dnsmasq_data:/etc/dnsmasq.d
+      - dns_data:/etc/dnsmasq.d
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
       DB_NAME: fit2openshift
       REDIS_HOST: redis
+    depends_on:
+      - mysql
+      - redis
 
   mysql:
     container_name: f2o_mysql
-    image: mysql:5.7.24
+    image: mysql:5
     command: --character-set-server=utf8
     ports:
-      - 3306:3306
+      - 3306
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: fit2openshift
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
+    healthcheck:
+      test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:alpine
     container_name: f2o_redis
     restart: always
     ports:
-      - 6379:6379
+      - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "info"]
       interval: 10s
@@ -60,6 +68,7 @@ services:
 
   ui:
     build: ui
+    image: fit2openshift/ui:latest
     container_name: f2o_ui
     restart: always
 
@@ -72,22 +81,21 @@ services:
     volumes:
       - ./docker/nexus/data:/nexus-data
 
-  dnsmasq:
-    container_name: f2o_dnsmasq
+  dns:
+    container_name: f2o_dns
     build: docker/dnsmasq
+    image: fit2openshift/dns:latest
     volumes:
-      - dnsmasq_data:/etc/dnsmasq.d
+      - dns_data:/etc/dnsmasq.d
     ports:
-      - 5380:8080/tcp
+      - 5380:8080
       - 53:53/udp
-    environment:
-      HTTP_USER: admin
 
 volumes:
   api_data:
   mysql_data:
   redis_data:
-  dnsmasq_data:
+  dns_data:
 
 networks: 
   default:

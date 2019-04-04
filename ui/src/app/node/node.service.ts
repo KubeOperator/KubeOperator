@@ -5,8 +5,8 @@ import {catchError} from 'rxjs/operators';
 import {Node} from './node';
 import {Role} from './role';
 
-const baseNodeUrl = 'api/v1/clusters/{clusterName}/nodes/';
-const roleUrl = 'api/v1/clusters/{clusterName}/roles/';
+const baseNodeUrl = '/api/v1/clusters/{clusterName}/nodes/';
+const roleUrl = '/api/v1/clusters/{clusterName}/roles/';
 
 @Injectable({
   providedIn: 'root'

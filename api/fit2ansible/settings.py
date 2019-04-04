@@ -207,11 +207,14 @@ SWAGGER_SETTINGS = {
     'DEFAULT_AUTO_SCHEMA_CLASS': 'fit2ansible.swagger.CustomSwaggerAutoSchema',
 }
 
+CHANNEL_REDIS = "redis://:{}@{}:{}/0".format(
+    CONFIG.REDIS_PASSWORD, CONFIG.REDIS_HOST, CONFIG.REDIS_PORT
+)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [CHANNEL_REDIS],
         },
     },
 }
