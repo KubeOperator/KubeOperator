@@ -16,14 +16,19 @@ function set_iptables {
     iptables -I INPUT -p upd -port 53 -j ACCEPT
 }
 
-which firewall-cmd &> /dev/null
-if [[ "$?" == "0" ]];then
-    set_firewall
-    exit 0
-fi
+function main {
+    which firewall-cmd &> /dev/null
+    if [[ "$?" == "0" ]];then
+        set_firewall
+        exit 0
+    fi
 
-which iptables &> /dev/null
-if [[ "$?" == "0" ]];then
-    set_iptables
-    exit 0
-fi
+    which iptables &> /dev/null
+    if [[ "$?" == "0" ]];then
+        set_iptables
+        exit 0
+    fi
+}
+
+main
+
