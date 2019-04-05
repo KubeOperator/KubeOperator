@@ -246,12 +246,12 @@ templates:
         required: true
         help_text: 集群通信域名，解析至master节点
 
-#      - name: openshift_cluster_monitoring_operator_install
-#        alias: 集群监控
-#        type: Checkbox
-#        default: true
-#        required: true
-#        help_text: 部署集群监控插件
+      - name: openshift_cluster_monitoring_operator_install
+        alias: 集群监控
+        type: Checkbox
+        default: true
+        required: true
+        help_text: 部署集群监控插件
 
       - name: openshift_metrics_install_metrics
         alias: 集群指标
@@ -542,12 +542,12 @@ templates:
         required: true
         help_text: 集群通信域名，解析至master节点
 
-#      - name: openshift_cluster_monitoring_operator_install
-#        alias: 集群监控
-#        type: Checkbox
-#        default: true
-#        required: true
-#        help_text: 部署集群监控插件
+      - name: openshift_cluster_monitoring_operator_install
+        alias: 集群监控
+        type: Checkbox
+        default: true
+        required: true
+        help_text: 部署集群监控插件
 
       - name: openshift_metrics_install_metrics
         alias: 集群指标
