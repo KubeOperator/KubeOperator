@@ -1,7 +1,7 @@
 name: okd-3.11
 version: 3.11
 install_playbooks:
-  - name: 1-config_ssh-install.yml
+  - name: 1-config_ssh-install
     alias: playbooks/config_ssh.yml
   - name: 2-distribute_ssh_key-install
     alias: playbooks/distribute_ssh_key.yml
