@@ -12,6 +12,7 @@ function download_nexus_resource {
 
     if [[ ! -f "${NEXUS_DATA_PATH}/.done" ]];then
         tar xvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH} && echo > ${NEXUS_DATA_PATH}/.done
+        chmod 777 ${NEXUS_DATA_PATH}
     fi
 }
 
