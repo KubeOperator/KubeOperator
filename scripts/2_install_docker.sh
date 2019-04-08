@@ -32,7 +32,7 @@ function install_docker {
 }
 
 function config_docker {
-    set_docker_config registry-mirrors '["https://docker.mirrors.ustc.edu.cn"]'
+    set_docker_config registry-mirrors '["https://mirror.ccs.tencentyun.com"]'
 }
 
 function start_docker {
