@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-source ./utils.sh
+BASE_DIR=$(dirname "$0")
+source ${BASE_DIR}/utils.sh
 OS=$(uname)
 
-OFFLINE_DOCKER_DIR="${BASE_DIR}/docker/bin"
+OFFLINE_DOCKER_DIR="${PROJECT_DIR}/docker/bin"
 
 function install_docker_online {
     yum -y remove docker docker-common docker-selinux docker-engine

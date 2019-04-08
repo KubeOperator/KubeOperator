@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-source ./utils.sh
+BASE_DIR=$(dirname "$0")
+source ${BASE_DIR}/utils.sh
 
 function load_images() {
     images=$(get_images)
@@ -11,7 +12,7 @@ function load_images() {
 }
 
 function build_image() {
-    cd ${BASE_DIR}
+    cd ${PROJECT_DIR}
     docker-compose pull &> /dev/null
     docker-compose build
     cd -

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-source ./utils.sh
+BASE_DIR=$(dirname "$0")
+source ${BASE_DIR}/utils.sh
 
 function download_docker() {
     DOCKER_VERSION=18.06.2-ce
     DOCKER_MD5=8c4a1d65ddcecf91ae357b434dffe039
     DOCKER_COMPOSE_VERSION=1.23.2
     DOCKER_COMPOSE_MD5=7f508b543123e8c81ca138d5b36001a2
-    DOCKER_BIN_DIR="${BASE_DIR}/docker/bin"
+    DOCKER_BIN_DIR="${PROJECT_DIR}/docker/bin"
     DOCKER_COMPOSE_BIN="${DOCKER_BIN_DIR}/docker-compose"
 
     echo ">>> 开始下载 docker程序"
@@ -25,7 +26,7 @@ function download_docker() {
 function build_and_save_images() {
     echo ">>> 开始build镜像"
     images=$(get_images)
-    cd ${BASE_DIR}
+    cd ${PROJECT_DIR}
     docker-compose pull
     docker-compose build
 
@@ -38,8 +39,8 @@ function build_and_save_images() {
 
 function download_resources() {
     echo ">>> 开始下载resource"
-    NEXUS_TAR_PATH="${BASE_DIR}/docker/nexus/nexus-data.tar.gz"
-    NEXUS_DATA_PATH="${BASE_DIR}/docker/nexus/data/"
+    NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
+    NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
 
     if [[ ! -f "${NEXUS_TAR_PATH}" ]];then
         wget "http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd-3.11//tmp/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}

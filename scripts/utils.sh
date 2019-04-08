@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-BASE_DIR=$(dirname $(dirname "$0"))
-IMAGE_DIR="${BASE_DIR}/docker/images"
-
+PROJECT_DIR=$(dirname $(dirname "$0"))
+IMAGE_DIR="${PROJECT_DIR}/docker/images"
+SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
 function get_images(){
     images=(
