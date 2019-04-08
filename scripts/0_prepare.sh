@@ -27,11 +27,13 @@ function build_and_save_images() {
     echo ">>> 开始build镜像"
     images=$(get_images)
     cd ${PROJECT_DIR}
-    docker-compose pull
     docker-compose build
 
     echo ">>> 开始保存镜像"
     for image in ${images};do
+        if [[ ! ${image} =~ 'fit2openshift' ]];then
+            docker pull ${image}
+        fi
         filename=$(basename ${image}).tar
         docker save -o ${IMAGE_DIR}/${filename} ${image}
     done
