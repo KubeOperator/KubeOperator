@@ -1,7 +1,7 @@
 FROM node as stage-build
 WORKDIR /data
 ADD ./package.json /data/package.json
-RUN npm --registry=https://registry.npm.taobao.org --disturl=https://npm.taobao.org/dist install
+RUN npm --registry=http://mirrors.tencentyun.com/npm/ install
 ADD . /data
 RUN npm run-script build
 

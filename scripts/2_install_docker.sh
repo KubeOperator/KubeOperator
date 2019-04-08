@@ -31,6 +31,10 @@ function install_docker {
     fi
 }
 
+function config_docker {
+    set_docker_config registry-mirrors '["https://mirror.ccs.tencentyun.com"]'
+}
+
 function start_docker {
     systemctl start docker
     systemctl enable docker
@@ -38,6 +42,7 @@ function start_docker {
 
 function main {
     install_docker
+    config_docker
     start_docker
 }
 
