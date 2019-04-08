@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-BASE_DIR=$(dirname $(dirname "$0"))
-
+source ./utils.sh
 
 function download_docker() {
     DOCKER_VERSION=18.06.2-ce
@@ -24,24 +23,14 @@ function download_docker() {
 
 
 function build_and_save_images() {
-    IMAGE_DIR="${BASE_DIR}/docker/images"
-
     echo ">>> 开始build镜像"
-    images=(
-        "redis:alpine"
-        "mysql:5"
-        "nginx:alpine"
-        "sonatype/nexus3"
-        "fit2openshift/api:latest"
-        "fit2openshift/ui:latest"
-        "fit2openshift/dns:latest"
-    )
+    images=$(get_images)
     cd ${BASE_DIR}
     docker-compose pull
     docker-compose build
 
     echo ">>> 开始保存镜像"
-    for image in ${images[@]};do
+    for image in ${images};do
         filename=$(basename ${image}).tar
         docker save -o ${IMAGE_DIR}/${filename} ${image}
     done

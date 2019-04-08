@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-BASE_DIR=$(dirname $(dirname "$0"))
-
+source ./utils.sh
 
 function download_nexus_resource {
     NEXUS_TAR_PATH="${BASE_DIR}/docker/nexus/nexus-data.tar.gz"

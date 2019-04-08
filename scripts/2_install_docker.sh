@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-BASE_DIR=$(dirname $(dirname "$0"))
+source ./utils.sh
 OS=$(uname)
 
 OFFLINE_DOCKER_DIR="${BASE_DIR}/docker/bin"
