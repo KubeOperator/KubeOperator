@@ -4,7 +4,7 @@ source ${BASE_DIR}/utils.sh
 
 function load_images() {
     images=$(get_images)
-    echo ">>> 加载镜像"
+    echo ">>> 开始加载镜像"
     for image in ${images};do
         filename=$(basename ${image}).tar
         docker load < ${IMAGE_DIR}/${filename}
@@ -12,6 +12,7 @@ function load_images() {
 }
 
 function build_image() {
+    echo ">>> 开始build镜像"
     cd ${PROJECT_DIR}
     docker-compose pull &> /dev/null
     docker-compose build
@@ -20,6 +21,7 @@ function build_image() {
 
 function find_offline_images() {
     ok=1
+    images=$(get_images)
     for image in ${images};do
         filename=$(basename ${image}).tar
         if [[ ! -f ${filename} ]];then
