@@ -6,7 +6,7 @@ OS=$(uname)
 OFFLINE_DOCKER_DIR="${PROJECT_DIR}/docker/bin"
 
 function install_docker_online {
-    yum -y remove docker docker-common docker-selinux docker-engine
+    yum -y remove docker docker-common docker-engine
     yum install -y epel-release yum-utils device-mapper-persistent-data lvm2
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum install -y docker-ce docker-compose
