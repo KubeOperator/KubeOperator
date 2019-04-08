@@ -42,7 +42,6 @@ except:
 
 
 def check_database_connection():
-    os.chdir(os.path.join(BASE_DIR, 'apps'))
     for i in range(60):
         print("Check database connection ...")
         code = subprocess.call("python manage.py showmigrations auth", shell=True)
