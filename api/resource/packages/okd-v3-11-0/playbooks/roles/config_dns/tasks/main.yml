@@ -7,6 +7,12 @@
 - name: update reslove dns
   shell: "echo 'nameserver {{registry_hostname}}' > /etc/resolv.conf"
 
+- name: disable dhcp dns
+  lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
+    regexp: "^PEERDNS"
+    line: "PEERDNS=no"
+
 - name: restart NetworkManager
   service:
     state: restarted

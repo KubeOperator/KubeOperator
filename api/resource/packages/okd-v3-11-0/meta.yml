@@ -51,7 +51,7 @@ roles:
       deployment_type: origin
       openshift_deployment_type: origin
       openshift_release: "3.11"
-      openshift_image_tag: v3.11.0
+      openshift_image_tag: "v3.11"
       enable_excluders:  false
       enable_docker_excluder:  false
       containerized: true
