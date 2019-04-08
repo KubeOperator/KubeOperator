@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PROJECT_DIR=$(dirname $(dirname "$0"))
+PROJECT_DIR=$(dirname $(cd $(dirname "$0");pwd))
 IMAGE_DIR="${PROJECT_DIR}/docker/images"
 SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
