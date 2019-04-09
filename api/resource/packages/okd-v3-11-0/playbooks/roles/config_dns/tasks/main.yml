@@ -25,6 +25,26 @@
     path: /etc/NetworkManager/dispatcher.d/99-origin-dns.sh
     state: absent
 
+- name: Install dnsmasq
+  yum:
+    name: "dnsmasq"
+
+- name: Restart services
+  service:
+    state: restarted
+    name: "{{ item }}"
+  with_items:
+    - dbus
+    - dnsmasq
+    - NetworkManager
+    - systemd-logind
+    - systemd-hostnamed
+
+- name: Restart dnsmasq
+  service:
+    state: restarted
+    name: dnsmasq
+
 - name: Restart NetworkManager
   service:
     state: restarted
