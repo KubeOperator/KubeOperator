@@ -224,6 +224,8 @@ templates:
       openshift_cluster_monitoring_operator_alertmanager_storage_capacity: 2Gi
       openshift_cluster_monitoring_operator_node_selector: {"node-role.kubernetes.io/infra": "true"}
 
+      registry_hostname: ''
+
     private_config:
       - name: openshift_master_cluster_public_hostname
         alias: 域名
