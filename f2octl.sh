@@ -16,15 +16,15 @@ function usage() {
    echo "  f2octl --help"
    echo
    echo "Commands: "
-   echo "  install 部署安装jumpserver"
-   echo "  start 启动Jumpserver"
+   echo "  install 部署安装 Fit2Openshift"
+   echo "  start 启动 Fit2Openshift"
    echo "  restart [service] 重启, 并不会重建服务容器"
    echo "  reload [service] 重建容器如何需要并重启服务"
-   echo "  status 查看Jumpserver状态"
+   echo "  status 查看 Fit2Openshift 状态"
    echo "  down [service] 删掉容器 不带参数删掉所有"
-   echo "  python 进入api, 运行 python manage.py shell"
+   echo "  python 进入 api, 运行 python manage.py shell"
    echo "  db 连接数据库"
-   echo "  ... 其他docker-compose执行的命令 如 logs 等等"
+   echo "  ... 其他 docker-compose 执行的命令 如 logs 等等"
 }
 
 
