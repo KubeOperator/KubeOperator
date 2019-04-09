@@ -13,6 +13,13 @@
     regexp: "^PEERDNS"
     line: "PEERDNS=no"
 
+
+- name: Enable NM_CONTROLLED
+  lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
+    regexp: "^NM_CONTROLLED"
+    line: "NM_CONTROLLED=yes"
+
 - name: restart NetworkManager
   service:
     state: restarted
