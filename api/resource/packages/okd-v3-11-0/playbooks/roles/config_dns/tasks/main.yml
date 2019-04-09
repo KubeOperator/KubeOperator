@@ -29,8 +29,3 @@
   service:
     state: restarted
     name: NetworkManager
-
-- name: Restart dbus
-  service:
-    state: restarted
-    name: dbus
