@@ -2,8 +2,8 @@
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <h2>设置</h2>
     <app-tip></app-tip>
-    <form clrForm>
-      <clr-input-container *ngFor="let s of settings">
+    <form clrForm *ngFor="let s of settings">
+      <clr-input-container>
         <label>{{s.name}}</label>
         <input clrInput [placeholder]="s.helper" type="text" [(ngModel)]="s.value" name="value"/>
       </clr-input-container>

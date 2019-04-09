@@ -54,7 +54,7 @@ class Package(models.Model):
 class Setting(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     key = models.CharField(max_length=128, blank=False)
-    value = models.CharField(max_length=255, blank=True, default='')
+    value = models.CharField(max_length=255, blank=True, default=None, null=True)
     name = models.CharField(max_length=128, blank=False)
     helper = models.CharField(max_length=255, blank=True)
     order = models.IntegerField(default=0)
@@ -353,7 +353,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         Cluster.objects.filter(id=self.project.id).update(current_task_id=self.id)
 
     def start(self):
-        hostname = Setting.objects.filter(key="hostname").first()
+        local_hostname = Setting.objects.filter(key="local_hostname").first()
+        registry_hostname = Setting.objects.filter(key="registry_hostname").first()
+
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
         playbooks = self.project.playbook_set.filter(name__endswith='-' + self.operation).order_by('name')
@@ -363,7 +365,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.update_task(playbook.name)
                 _result = playbook.execute(extra_vars={
                     "cluster_name": self.project.name,
-                    "registry_hostname": hostname.value
+                    "registry_hostname": registry_hostname.value,
+                    "local_hostname": local_hostname.value
                 })
                 result["summary"].update(_result["summary"])
                 if not _result.get('summary', {}).get('success', False):

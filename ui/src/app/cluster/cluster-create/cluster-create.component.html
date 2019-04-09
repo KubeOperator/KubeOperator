@@ -59,7 +59,7 @@
       <clr-radio-wrapper *ngFor="let template of templates">
         <input required type="radio" clrRadio [(ngModel)]="cluster.template" [value]="template.name"
                name="template" (change)="templateOnChange()"/>
-        <label>{{template.name}}</label>
+        <label>{{template.name}}({{template.comment}})</label>
       </clr-radio-wrapper>
       <div *ngIf="template">
         <div *ngFor="let role of template.roles">
@@ -140,7 +140,8 @@
                           class="clr-select" required>
                     <option [value]="">请选择主机</option>
                     <option *ngFor="let host of hosts | hostsFilter :nodes:node "
-                            [value]="host.id">{{getHostInfo(host)}}</option>
+                            [value]="host.id">{{getHostInfo(host)}}
+                    </option>
                   </select>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                 </div>

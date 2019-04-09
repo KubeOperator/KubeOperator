@@ -24,6 +24,7 @@ export class SettingComponent implements OnInit {
   listSettings() {
     this.settingService.listSettings().subscribe(data => {
       this.settings = data;
+      console.log(this.settings);
       this.orgSettings = JSON.parse(JSON.stringify(this.settings));
     });
   }
