@@ -24,7 +24,7 @@
       - psacct
       - glibc-common
       - bind-license
-  serial: 1
+      - python-passlib
   gather_facts: no
   roles:
   - check_packages_nodes
