@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('openshift_api', '0015_auto_20190408_1321'),
     ]
+
     def forwards_func(apps, schema_editor):
         Setting = apps.get_model("openshift_api", "Setting")
         db_alias = schema_editor.connection.alias
@@ -20,6 +21,7 @@ class Migration(migrations.Migration):
         Setting = apps.get_model("openshift_api", "Setting")
         db_alias = schema_editor.connection.alias
         Setting.objects.using(db_alias).filter(key='registry_hostname').delete()
+
     operations = [
         migrations.RunPython(forwards_func, reverse_func),
     ]
