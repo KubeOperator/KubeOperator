@@ -83,3 +83,12 @@
   roles:
   - check_cleanup
 
+- name: Enable sysctl
+  hosts: OSEv3
+  tasks:
+    - name: Start enable ip forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: 1
+        state: present
+
