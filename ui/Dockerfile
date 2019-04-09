@@ -1,7 +1,7 @@
 FROM node as stage-build
 WORKDIR /data
 ADD ./package.json /data/package.json
-RUN SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/ npm install node-sass
+RUN SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/ npm install node-sass@4.10.0
 RUN npm --registry=http://mirrors.tencentyun.com/npm/ install
 ADD . /data
 RUN npm run-script build
