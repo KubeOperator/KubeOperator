@@ -4,11 +4,13 @@
 - name: set registry dns
   lineinfile:
     path: "/etc/dnsmasq.d/fit2openshift.dns.conf"
+    regexp: 'address=/registry.fit2openshift.io/'
     line: "address=/registry.fit2openshift.io/{{local_hostname}}"
   when: registry_hostname is none
 
 - name: set remote registry dns
   lineinfile:
     path: "/etc/dnsmasq.d/fit2openshift.dns.conf"
+    regexp: 'address=/registry.fit2openshift.io/'
     line: "address=/registry.fit2openshift.io/{{registry_hostname}}"
   when: registry_hostname is not none
