@@ -6,7 +6,7 @@ function download_nexus_resource {
     NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
     NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
 
-    if [[ ! -f "${NEXUS_TAR_PATH}" ]];then
+    if [[ ! -f "${NEXUS_TAR_PATH}" && "${DOWNLOAD_NEXUS_DATA}" != "0" ]];then
         wget "http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd/v3/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
     fi
 
