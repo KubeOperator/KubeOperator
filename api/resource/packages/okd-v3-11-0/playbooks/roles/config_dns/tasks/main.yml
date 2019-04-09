@@ -2,10 +2,10 @@
   lineinfile:
       path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
       regexp: "^DNS1"
-      line: "DNS1={{registry_hostname}}"
+      line: "DNS1={{local_hostname}}"
 
 - name: update reslove dns
-  shell: "echo 'nameserver {{registry_hostname}}' > /etc/resolv.conf"
+  shell: "echo 'nameserver {{local_hostname}}' > /etc/resolv.conf"
 
 - name: disable dhcp dns
   lineinfile:
