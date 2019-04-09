@@ -12,13 +12,13 @@ class Migration(migrations.Migration):
         Setting = apps.get_model("openshift_api", "Setting")
         db_alias = schema_editor.connection.alias
         Setting.objects.using(db_alias).bulk_create([
-            Setting(name="主机名", key="hostname", order=0, value="", helper="eg:example.com"),
+            Setting(name="主机名", key="local_hostname", order=0, value="", helper="eg:example.com"),
         ])
 
     def reverse_func(apps, schema_editor):
         Setting = apps.get_model("openshift_api", "Setting")
         db_alias = schema_editor.connection.alias
-        Setting.objects.using(db_alias).filter(key='hostname').delete()
+        Setting.objects.using(db_alias).filter(key='local_hostname').delete()
 
     operations = [
         migrations.RunPython(forwards_func, reverse_func),
