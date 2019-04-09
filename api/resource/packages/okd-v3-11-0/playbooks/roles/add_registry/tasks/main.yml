@@ -1,3 +1,6 @@
+- name: debug registry hostname
+  debug: var=registry_hostname
+
 - name: set registry dns
   lineinfile:
     path: "/etc/dnsmasq.d/fit2openshift.dns.conf"
