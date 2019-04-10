@@ -41,6 +41,18 @@ except:
     pass
 
 
+def check_database_connection():
+    for i in range(60):
+        print("Check database connection ...")
+        code = subprocess.call("python manage.py showmigrations auth", shell=True)
+        if code == 0:
+            print("Database connect success")
+            return
+        time.sleep(1)
+    print("Connection database failed, exist")
+    sys.exit(10)
+
+
 def make_migrations():
     print("Check database structure change ...")
     subprocess.call('{} manage.py migrate'.format(PYTHON_EXE), shell=True)
@@ -52,6 +64,7 @@ def collect_static():
 
 
 def prepare():
+    check_database_connection()
     make_migrations()
     collect_static()
 

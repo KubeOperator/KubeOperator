@@ -5,7 +5,11 @@
         path: /etc/ssh/sshd_config
         regexp: '^UseDNS.*'
         line: UseDNS no
-    - name: rstart ssh
+      notify:
+        - restart sshd
+
+  handlers:
+    - name: restart sshd
       service:
         name: sshd
         state: restarted

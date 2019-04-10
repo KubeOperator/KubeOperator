@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PROJECT_DIR=$(dirname $(dirname "$0"))
+PROJECT_DIR=$(dirname $(cd $(dirname "$0");pwd))
 IMAGE_DIR="${PROJECT_DIR}/docker/images"
 SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
@@ -8,7 +8,7 @@ function get_images(){
        "redis:alpine"
        "mysql:5"
        "nginx:alpine"
-       "sonatype/nexus3"
+       "sonatype/nexus3:3.15.2"
        "fit2openshift/api:latest"
        "fit2openshift/ui:latest"
        "fit2openshift/dns:latest"
@@ -16,4 +16,35 @@ function get_images(){
     for image in ${images[@]};do
         echo ${image}
     done
+}
+
+
+function set_docker_config() {
+   key=$1
+   value=$2
+   DOCKER_CONFIG="/etc/docker/daemon.json"
+
+   if [[ ! -f "${DOCKER_CONFIG}" ]];then
+       config_dir=$(dirname ${DOCKER_CONFIG})
+       if [[ ! -d ${config_dir} ]];then
+           mkdir -p ${config_dir}
+       fi
+        echo -e "{\n}" >> ${DOCKER_CONFIG}
+   fi
+   $(python -c "import json
+key = '${key}'
+value = '${value}'
+try:
+    value = json.loads(value)
+except:
+    pass
+filepath = \"${DOCKER_CONFIG}\"
+f = open(filepath);
+config = json.load(f);
+config[key] = value
+f.close();
+f = open(filepath, 'w');
+json.dump(config, f, indent=True, sort_keys=True);
+f.close()
+")
 }
