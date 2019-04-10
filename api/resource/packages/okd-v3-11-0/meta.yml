@@ -507,7 +507,7 @@ templates:
       openshift_logging_es_pvc_size: 10Gi
       openshift_logging_kibana_memory_limit: 512Mi
       openshift_logging_fluentd_memory_limit: 512Mi
-      openshift_logging_es_memory_limit: 10Gi
+      openshift_logging_es_memory_limit: 1Gi
       ##metrics
       openshift_metrics_cassandra_storage_type: pv
       openshift_metrics_cassandra_pvc_storage_class_name: "glusterfs-storage"
