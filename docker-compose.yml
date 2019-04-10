@@ -25,7 +25,7 @@ services:
     privileged: true
     tty: true
     volumes:
-      - api_data:/opt/fit2openshift/data
+      - api_data:/opt/fit2openshift-api/data
       - dns_data:/etc/dnsmasq.d
     environment:
       DB_HOST: mysql
