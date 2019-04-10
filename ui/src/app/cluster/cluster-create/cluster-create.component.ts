@@ -8,7 +8,7 @@ import {TipLevels} from '../../tip/tipLevels';
 import {ClusterService} from '../cluster.service';
 import {NodeService} from '../../node/node.service';
 import {RelationService} from '../relation.service';
-import {Host} from '../../host/host';
+import {Host, Volume} from '../../host/host';
 import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
@@ -16,6 +16,7 @@ import {CheckResult, DeviceCheckService} from '../device-check.service';
 import {config, Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
+import {SettingService} from '../../setting/setting.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -63,7 +64,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
-              private hostService: HostService, private deviceCheckService: DeviceCheckService) {
+              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService) {
   }
 
   ngOnInit() {
@@ -84,6 +85,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
           }
         }
       }
+    });
+    this.settingService.getSetting('domain_suffix').subscribe(data => {
+      this.suffix = '.' + data.value;
     });
   }
 
@@ -159,7 +163,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.configs.forEach(c => {
           c.value = c.default;
           if (c.type === 'Input') {
-            c.value = (c.value + '').replace('$cluster_name', this.cluster.name);
+            c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
           }
         });
       }
@@ -316,6 +320,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       .replace('{M}', host.info.memory.toString())
       .replace('{O}', host.info.os + host.info.os_version)
       .replace('{N}', host.name);
+  }
+
+  getVolumeInfo(volume: Volume) {
+    const template = '{N}  {S}';
+    return template.replace('{N}', volume.name).replace('{S}', volume.size);
   }
 
   getHostById(hostId: string): Host {
