@@ -45,9 +45,9 @@ function download_resources() {
     NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
 
     if [[ ! -f "${NEXUS_TAR_PATH}" ]];then
-        wget "http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd/v3/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
+        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
     elif [[ $(du -sh nexus-data.tar.gz | grep 'G' | awk -F. '{ print $1 }') -gt 5 ]];then
-        wget "http://fit2openshift.oss-cn-beijing.aliyuncs.com/okd/v3/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
+        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
     fi
 }
 
