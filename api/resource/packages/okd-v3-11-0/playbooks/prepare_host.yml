@@ -29,6 +29,12 @@
   roles:
   - check_packages_nodes
 
+# 提前安装好dnsmasq
+- name: Preinstall dnsmasq except dbus error
+  hosts: OSEv3
+  roles:
+    - add_hosts_dnsmasq
+
 # 校验安装环境
 - name: Validate environment
   gather_facts: no

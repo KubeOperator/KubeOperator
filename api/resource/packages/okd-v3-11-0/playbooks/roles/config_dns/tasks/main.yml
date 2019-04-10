@@ -13,7 +13,6 @@
     regexp: "^PEERDNS"
     line: "PEERDNS=no"
 
-
 - name: Enable NM_CONTROLLED
   lineinfile:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
@@ -24,18 +23,3 @@
   file:
     path: /etc/NetworkManager/dispatcher.d/99-origin-dns.sh
     state: absent
-
-- name: Install dnsmasq
-  yum:
-    name: "dnsmasq"
-
-- name: Restart services
-  service:
-    state: restarted
-    name: "{{ item }}"
-  with_items:
-    - dbus
-    - dnsmasq
-    - NetworkManager
-    - systemd-logind
-    - systemd-hostnamed

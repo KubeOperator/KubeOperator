@@ -241,7 +241,7 @@ class HostInfo(models.Model):
             devices = facts["ansible_devices"]
             volumes = []
             for name in devices:
-                if not name.startswith('dm'):
+                if not name.startswith(('dm', 'loop', 'sr')):
                     volume = Volume(name='/dev/' + name)
                     volume.size = devices[name]['size']
                     volume.save()
