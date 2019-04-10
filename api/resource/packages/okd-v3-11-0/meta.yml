@@ -486,9 +486,9 @@ templates:
       ##glusterfs
       openshift_storage_glusterfs_namespace: app-storage
       openshift_storage_glusterfs_storageclass: true
-      openshift_storage_glusterfs_storageclass_default: false
+      openshift_storage_glusterfs_storageclass_default: true
       openshift_storage_glusterfs_block_deploy: true
-      openshift_storage_glusterfs_block_host_vol_size: 100
+      openshift_storage_glusterfs_block_host_vol_size: 20
       openshift_storage_glusterfs_block_storageclass: true
       openshift_storage_glusterfs_block_storageclass_default: false
       openshift_storage_glusterfs_wipe: true
@@ -503,14 +503,14 @@ templates:
       openshift_logging_kibana_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_curator_nodeselector: {"node-role.kubernetes.io/infra": "true"}
       openshift_logging_elasticsearch_storage_type: pvc
-      openshift_logging_es_pvc_storage_class_name: "glusterfs-registry-block"
+      openshift_logging_es_pvc_storage_class_name: "glusterfs-storage"
       openshift_logging_es_pvc_size: 10Gi
       openshift_logging_kibana_memory_limit: 512Mi
       openshift_logging_fluentd_memory_limit: 512Mi
       openshift_logging_es_memory_limit: 10Gi
       ##metrics
       openshift_metrics_cassandra_storage_type: pv
-      openshift_metrics_cassandra_pvc_storage_class_name: "glusterfs-storage-block"
+      openshift_metrics_cassandra_pvc_storage_class_name: "glusterfs-storage"
       openshift_metrics_storage_access_modes: ['ReadWriteOnce']
       openshift_metrics_storage_volume_name: metrics
       openshift_metrics_storage_volume_size: 10Gi
