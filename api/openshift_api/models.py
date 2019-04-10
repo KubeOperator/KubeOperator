@@ -208,7 +208,7 @@ class Host(BaseHost):
         info.gather_info()
 
     class Meta:
-        ordering = ('-name',)
+        ordering = ('name',)
 
 
 class HostInfo(models.Model):
@@ -254,6 +254,9 @@ class Volume(models.Model):
     name = models.CharField(max_length=128)
     size = models.CharField(max_length=16)
     blank = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('size',)
 
 
 class Node(Ansible_Host):
