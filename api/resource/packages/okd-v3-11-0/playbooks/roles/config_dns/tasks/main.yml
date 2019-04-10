@@ -1,19 +1,25 @@
-- name: update dns to node
+- name: Update dns to node
   lineinfile:
       path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
       regexp: "^DNS1"
       line: "DNS1={{local_hostname}}"
 
-- name: update reslove dns
+- name: Update reslove dns
   shell: "echo 'nameserver {{local_hostname}}' > /etc/resolv.conf"
 
-- name: disable dhcp dns
+- name: Disable dhcp dns
   lineinfile:
     path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
     regexp: "^PEERDNS"
     line: "PEERDNS=no"
 
-- name: restart NetworkManager
-  service:
-    state: restarted
-    name: NetworkManager
+- name: Enable NM_CONTROLLED
+  lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"
+    regexp: "^NM_CONTROLLED"
+    line: "NM_CONTROLLED=yes"
+
+- name: Confirm origin dns network manager file not exist
+  file:
+    path: /etc/NetworkManager/dispatcher.d/99-origin-dns.sh
+    state: absent

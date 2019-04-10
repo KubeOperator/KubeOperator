@@ -5,21 +5,21 @@ l_openshift_cluster_monitoring_operator_image_dicts:
   origin: 'quay.io/coreos/cluster-monitoring-operator:v0.1.1'
   openshift-enterprise: "{{ l_osm_registry_url | regex_replace('${component}' | regex_escape, 'cluster-monitoring-operator') }}"
 
-openshift_cluster_monitoring_operator_image: "{{ l_openshift_cluster_monitoring_operator_image_dicts[openshift_deployment_type] }}"
+openshift_cluster_monitoring_operator_image: "{{ l_openshift_cluster_monitoring_operator_image_dicts[openshift_deployment_type] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
 
 l_openshift_cluster_monitoring_non_standard_reg_url: "{{ oreg_url | default(l_osm_registry_url_default) }}"
 l_openshift_cluster_monitoring_image_dicts:
   origin:
     prometheus_operator: quay.io/coreos/prometheus-operator
-    prometheus: openshift/prometheus
-    alertmanager: openshift/prometheus-alertmanager
-    node_exporter: openshift/prometheus-node-exporter
+    prometheus: docker.io/openshift/prometheus
+    alertmanager: docker.io/openshift/prometheus-alertmanager
+    node_exporter: docker.io/openshift/prometheus-node-exporter
     prometheus_config_reloader: quay.io/coreos/prometheus-config-reloader
     configmap_reloader: quay.io/coreos/configmap-reload
-    grafana: grafana/grafana
+    grafana: docker.io/grafana/grafana
     kube_state_metrics: quay.io/coreos/kube-state-metrics
     kube_rbac_proxy: quay.io/coreos/kube-rbac-proxy
-    oauth_proxy: openshift/oauth-proxy
+    oauth_proxy: docker.io/openshift/oauth-proxy
   openshift-enterprise:
     prometheus_operator: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'prometheus-operator') | regex_replace(':[^:]*$', '') }}"
     prometheus: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'prometheus') | regex_replace(':[^:]*$', '') }}"
@@ -32,16 +32,16 @@ l_openshift_cluster_monitoring_image_dicts:
     kube_rbac_proxy: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'kube-rbac-proxy') | regex_replace(':[^:]*$', '') }}"
     oauth_proxy: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'oauth-proxy') | regex_replace(':[^:]*$', '') }}"
 
-openshift_cluster_monitoring_operator_prometheus_operator_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_operator']}}"
-openshift_cluster_monitoring_operator_prometheus_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus']}}"
-openshift_cluster_monitoring_operator_alertmanager_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['alertmanager']}}"
-openshift_cluster_monitoring_operator_node_exporter_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['node_exporter']}}"
-openshift_cluster_monitoring_operator_prometheus_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_config_reloader']}}"
-openshift_cluster_monitoring_operator_configmap_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['configmap_reloader']}}"
-openshift_cluster_monitoring_operator_grafana_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['grafana']}}"
-openshift_cluster_monitoring_operator_kube_state_metrics_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_state_metrics']}}"
-openshift_cluster_monitoring_operator_kube_rbac_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_rbac_proxy']}}"
-openshift_cluster_monitoring_operator_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['oauth_proxy']}}"
+openshift_cluster_monitoring_operator_prometheus_operator_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_operator'] | lib_utils_oo_oreg_image((oreg_url | default('None')))}}"
+openshift_cluster_monitoring_operator_prometheus_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_alertmanager_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['alertmanager'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_node_exporter_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['node_exporter'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_prometheus_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['prometheus_config_reloader'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_configmap_reloader_repo: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['configmap_reloader'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_grafana_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['grafana'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_kube_state_metrics_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_state_metrics']| lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_kube_rbac_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['kube_rbac_proxy'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
+openshift_cluster_monitoring_operator_proxy_image: "{{l_openshift_cluster_monitoring_image_dicts[openshift_deployment_type]['oauth_proxy'] | lib_utils_oo_oreg_image((oreg_url | default('None'))) }}"
 
 openshift_cluster_monitoring_operator_prometheus_storage_enabled: false
 openshift_cluster_monitoring_operator_prometheus_storage_capacity: "50Gi"
