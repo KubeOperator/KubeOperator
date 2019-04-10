@@ -11,15 +11,15 @@ l_openshift_cluster_monitoring_non_standard_reg_url: "{{ oreg_url | default(l_os
 l_openshift_cluster_monitoring_image_dicts:
   origin:
     prometheus_operator: quay.io/coreos/prometheus-operator
-    prometheus: openshift/prometheus
-    alertmanager: openshift/prometheus-alertmanager
-    node_exporter: openshift/prometheus-node-exporter
+    prometheus: docker.io/openshift/prometheus
+    alertmanager: docker.io/openshift/prometheus-alertmanager
+    node_exporter: docker.io/openshift/prometheus-node-exporter
     prometheus_config_reloader: quay.io/coreos/prometheus-config-reloader
     configmap_reloader: quay.io/coreos/configmap-reload
-    grafana: grafana/grafana
+    grafana: docker.io/grafana/grafana
     kube_state_metrics: quay.io/coreos/kube-state-metrics
     kube_rbac_proxy: quay.io/coreos/kube-rbac-proxy
-    oauth_proxy: openshift/oauth-proxy
+    oauth_proxy: docker.io/openshift/oauth-proxy
   openshift-enterprise:
     prometheus_operator: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('${component}' | regex_escape, 'prometheus-operator') | regex_replace(':[^:]*$', '') }}"
     prometheus: "{{ l_openshift_cluster_monitoring_non_standard_reg_url | regex_replace('ose-${component}' | regex_escape, 'prometheus') | regex_replace(':[^:]*$', '') }}"
