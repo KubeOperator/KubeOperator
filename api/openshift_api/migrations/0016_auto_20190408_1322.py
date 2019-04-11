@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         db_alias = schema_editor.connection.alias
         Setting.objects.using(db_alias).bulk_create([
             Setting(name="仓库地址", key="registry_hostname", order=3, value=None,
-                    helper="eg:http://registry.fit2openshift.io"),
+                    helper="eg:192.168.1.1"),
         ])
 
     def reverse_func(apps, schema_editor):

@@ -48,9 +48,9 @@ export class TermComponent implements OnInit, OnDestroy {
 
     this.term = new Terminal({
       cursorBlink: true,
-      cols: 200,
-      rows: 33,
-      letterSpacing: 0,
+      cols: 100,
+      rows: 28,
+      letterSpacing: 1,
       fontSize: 16
     });
     this.term.open(this.terminal.nativeElement);

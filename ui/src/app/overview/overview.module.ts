@@ -7,9 +7,10 @@ import {CoreModule} from '../core/core.module';
 import {DescribeComponent} from './describe/describe.component';
 import {TermComponent} from '../deploy/term/term.component';
 import {OperaterComponent} from '../deploy/operater/operater.component';
+import { RelationComponent } from './relation/relation.component';
 
 @NgModule({
-  declarations: [OverviewComponent, CharsComponent, DescribeComponent],
+  declarations: [OverviewComponent, CharsComponent, DescribeComponent, RelationComponent],
   imports: [
     CommonModule,
     CoreModule
