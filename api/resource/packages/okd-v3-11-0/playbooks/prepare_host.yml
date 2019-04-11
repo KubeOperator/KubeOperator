@@ -24,10 +24,16 @@
       - psacct
       - glibc-common
       - bind-license
-  serial: 1
+      - python-passlib
   gather_facts: no
   roles:
   - check_packages_nodes
+
+# 提前安装好dnsmasq
+- name: Preinstall dnsmasq except dbus error
+  hosts: OSEv3
+  roles:
+    - add_hosts_dnsmasq
 
 # 校验安装环境
 - name: Validate environment
@@ -82,4 +88,13 @@
   gather_facts: yes
   roles:
   - check_cleanup
+
+- name: Enable sysctl
+  hosts: OSEv3
+  tasks:
+    - name: Start enable ip forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: 1
+        state: present
 

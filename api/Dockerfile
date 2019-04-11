@@ -2,10 +2,11 @@ FROM registry.fit2cloud.com/public/python:v3
 MAINTAINER Fit2Openshift Team <support@fit2cloud.com>
 WORKDIR /opt/fit2openshift-api
 
+RUN echo -e '[mysql]\nname = mysql\nbaseurl = http://mirrors.ustc.edu.cn/mysql-repo/yum/mysql-5.7-community/el/6/$basearch/\ngpgcheck = 0' > /etc/yum.repos.d/mysql.repo
 COPY ./requirements /tmp/requirements
-RUN yum -y install epel-release && rpm -ivh https://repo.mysql.com/mysql57-community-release-el6.rpm
-RUN cd /tmp/requirements && yum -y install $(cat rpm_requirements.txt)
-RUN cd /tmp/requirements && pip install --upgrade pip setuptools && \
+RUN cd /tmp/requirements && yum -y install epel-release && yum -y install $(cat rpm_requirements.txt)
+RUN cd /tmp/requirements && \
+     pip install --upgrade pip setuptools -i https://mirrors.aliyun.com/pypi/simple/ && \
      pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ || pip install -r requirements.txt
 RUN test -f /root/.ssh/id_rsa || ssh-keygen -f /root/.ssh/id_rsa -t rsa -P ''
 RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null" > /root/.ssh/config

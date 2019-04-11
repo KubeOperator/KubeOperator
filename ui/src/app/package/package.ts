@@ -18,8 +18,8 @@ export class Config {
   options: Option[];
   value: string;
   default: any;
-  require: boolean;
   help_text: string;
+  display: boolean;
 }
 
 export class Option {

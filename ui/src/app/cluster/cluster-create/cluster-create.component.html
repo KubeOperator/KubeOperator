@@ -62,6 +62,7 @@
         <label>{{template.name}}</label>
       </clr-radio-wrapper>
       <div *ngIf="template">
+        <div>{{template.comment}}</div>
         <div *ngFor="let role of template.roles">
           <div *ngIf="!role.meta.hidden">
             <h3>{{role.name}}</h3>
@@ -140,7 +141,8 @@
                           class="clr-select" required>
                     <option [value]="">请选择主机</option>
                     <option *ngFor="let host of hosts | hostsFilter :nodes:node "
-                            [value]="host.id">{{getHostInfo(host)}}</option>
+                            [value]="host.id">{{getHostInfo(host)}}
+                    </option>
                   </select>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                 </div>
@@ -229,15 +231,12 @@
     <ng-template clrPageTitle>设置参数</ng-template>
     <form #configForm='ngForm' clrForm>
       <div *ngFor="let config of configs">
-        <div [ngSwitch]="config.type">
+        <div [ngSwitch]="config.type" [hidden]="!config.display">
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
-            <label>
-              <input clrInput type="text" [value]="config.default" [(ngModel)]="config.value"
-                     [ngModelOptions]="{standalone: true}" [required]="config.require">
-            </label>
+            <input clrInput type="text" [value]="config.default" [(ngModel)]="config.value"
+                     [ngModelOptions]="{standalone: true}">
           </clr-input-container>
-
           <clr-checkbox [clrInline]="true" *ngSwitchCase="'Checkbox'" [(ngModel)]="config.value"
                         [ngModelOptions]="{standalone: true}">
             {{config.alias}}
