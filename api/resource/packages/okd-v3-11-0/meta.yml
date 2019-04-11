@@ -76,6 +76,7 @@ roles:
       openshift_docker_options:  "--log-driver=journald --log-level=warn --ipv6=false --insecure-registry=0.0.0.0/0 --registry-mirror=https://docker.mirrors.ustc.edu.cn"
       ##auth
       openshift_master_identity_providers: [{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+      openshift_master_htpasswd_users={'admin': '$apr1$YCofw.II$y.EAnECLZJcb.ZJfn4nTP0'}
       ## Enable service catalog
       openshift_service_catalog_remove: true
       openshift_enable_service_catalog: true
@@ -210,7 +211,7 @@ templates:
       openshift_logging_es_pvc_size: 10Gi
       openshift_logging_kibana_memory_limit: 512Mi
       openshift_logging_fluentd_memory_limit: 512Mi
-      openshift_logging_es_memory_limit: 10Gi
+      openshift_logging_es_memory_limit: 10Gi!!
       ##metrics
       openshift_metrics_cassandra_storage_type: pv
       openshift_metrics_cassandra_pvc_storage_class_name: "glusterfs-storage"
