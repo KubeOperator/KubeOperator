@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         Setting = apps.get_model("openshift_api", "Setting")
         db_alias = schema_editor.connection.alias
         Setting.objects.using(db_alias).bulk_create([
-            Setting(name="域名后缀", key="domain_suffix", order=1, value=".f2o", helper="eg:.f2o"),
+            Setting(name="域名后缀", key="domain_suffix", order=1, value="mydomain.com", helper="eg:mydomain.com"),
         ])
 
     def reverse_func(apps, schema_editor):
