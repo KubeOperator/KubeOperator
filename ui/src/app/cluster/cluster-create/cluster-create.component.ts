@@ -50,7 +50,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   checkCpuResult: CheckResult = new CheckResult();
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
-  suffix = '.f2o';
+  suffix = 'f2o'
   @ViewChild('basicFrom')
   basicForm: NgForm;
   isNameValid = true;
