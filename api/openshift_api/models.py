@@ -3,7 +3,7 @@ import uuid
 import yaml
 import logging
 from django.conf import settings
-from django.db import models
+from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator

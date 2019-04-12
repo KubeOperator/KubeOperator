@@ -93,6 +93,7 @@ DATABASES = {
         'PASSWORD': CONFIG.DB_PASSWORD,
         'HOST': CONFIG.DB_HOST,
         'PORT': CONFIG.DB_PORT,
+        'CONN_MAX_AGE': None
     }
 }
 
