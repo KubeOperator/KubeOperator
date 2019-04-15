@@ -13,7 +13,7 @@ FIT2OPENSHIFT 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 ## 为什么需要 FIT2OPENSHIFT? 
 
-K8S 是未来的 Linux，OpenShift 是首选的 K8S 发行版。 OpenShift 社区版（okd）集群部署及后续持续运营的门槛较高（尤其是离线环境下高可用多节点集群的部署）。
+K8S 是未来的 Linux，OpenShift 是首选的 K8S 发行版。OpenShift 社区版（okd）集群部署及后续持续运营的门槛较高（尤其是离线环境下高可用多节点集群的部署）。
 
 ## FIT2OPENSHIFT 有什么功能？
 
@@ -22,8 +22,11 @@ K8S 是未来的 Linux，OpenShift 是首选的 K8S 发行版。 OpenShift 社�
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
 - [x] 支持集群进行扩容；
 - [x] 提供简易明了的集群运行状况面板；
+- [x] 支持 GlusterFS 做为持久化存储；
+- [x] 支持 AD/LDAP 对接；
 - [ ] 支持集群的升级；
 - [ ] 支持集群备份及恢复；
+- [ ] 支持其他外部存储做为持久化存储；
 
 ## FIT2OPENSHIFT 支持哪些 okd 版本？
 
@@ -44,3 +47,14 @@ K8S 是未来的 Linux，OpenShift 是首选的 K8S 发行版。 OpenShift 社�
 ## 使用 FIT2OPENSHIFT
 
  [使用手册](https://github.com/fit2anything/fit2openshift/blob/master/docs/user-guide.md)
+ 
+## License & Copyright
+
+Copyright (c) 2014-2019 FIT2CLOUD 飞致云
+
+Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+https://www.gnu.org/licenses/gpl-2.0.html
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+

@@ -29,7 +29,6 @@ export class ClusterListComponent implements OnInit {
     this.listCluster();
     this.checkSetting();
   }
-
   checkSetting() {
     this.settingService.getSetting('local_hostname').subscribe(data => {
       if (!data.value || data.value === '127.0.0.1') {
@@ -37,7 +36,6 @@ export class ClusterListComponent implements OnInit {
       }
     });
   }
-
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;

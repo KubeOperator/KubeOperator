@@ -92,7 +92,7 @@ DATABASES = {
         'USER': CONFIG.DB_USER,
         'PASSWORD': CONFIG.DB_PASSWORD,
         'HOST': CONFIG.DB_HOST,
-        'PORT': CONFIG.DB_PORT,
+        'PORT': CONFIG.DB_PORT
     }
 }
 

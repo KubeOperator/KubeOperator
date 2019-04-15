@@ -1,4 +1,4 @@
-FROM node as stage-build
+FROM node:10-alpine as stage-build
 WORKDIR /data
 ADD ./package.json /data/package.json
 RUN SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/ npm install node-sass@4.10.0
