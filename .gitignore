@@ -69,3 +69,4 @@ Thumbs.db
 node_modules
 
 nohup.out
+docker/nexus/data/*
