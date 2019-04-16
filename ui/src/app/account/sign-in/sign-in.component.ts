@@ -60,7 +60,7 @@ export class SignInComponent implements OnInit, AfterViewChecked {
 
   handleError(error: any) {
     this.signInStatus = signInStatusError;
-    if (error.status === 504) {
+    if (error.status === 504 || error.status === 502) {
       this.message = 'Fit2openshift Api 连接失败！';
     } else if (error.status === 400) {
       this.message = '用户名或密码错误！';
@@ -110,8 +110,6 @@ export class SignInComponent implements OnInit, AfterViewChecked {
   }
 
   // 设置主机名
-
-
 
 
 }
