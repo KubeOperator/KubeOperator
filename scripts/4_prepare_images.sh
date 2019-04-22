@@ -32,10 +32,12 @@ function find_offline_images() {
         fi
     done
     echo ${ok}
+    return ${ok}
 }
 
 function main() {
-    ok=$(find_offline_images)
+    find_offline_images
+    ok=$?
     if [[ ${ok} == "1" ]];then
         load_images
     else
