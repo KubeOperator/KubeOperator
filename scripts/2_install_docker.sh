@@ -14,7 +14,7 @@ function install_docker_online {
 }
 
 function install_docker_offline {
-    cp ${OFFLINE_DOCKER_DIR}/docker* /usr/bin/
+    cp ${OFFLINE_DOCKER_DIR}/docker/docker* /usr/bin/
     cp ${OFFLINE_DOCKER_DIR}/docker.service /etc/systemd/system/
     chmod +x /usr/bin/docker* && chmod 754 /etc/systemd/system/docker.service
 }
@@ -25,7 +25,7 @@ function install_docker {
         echo "Platform is MacOS, install manually"
         return
     fi
-    if [[ -f "${OFFLINE_DOCKER_DIR}/dockerd" ]];then
+    if [[ -f "${OFFLINE_DOCKER_DIR}/docker/dockerd" ]];then
         install_docker_offline
     else
         install_docker_online
