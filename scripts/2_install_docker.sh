@@ -15,6 +15,7 @@ function install_docker_online {
 
 function install_docker_offline {
     cp ${OFFLINE_DOCKER_DIR}/docker/docker* /usr/bin/
+    cp ${OFFLINE_DOCKER_DIR}/docker-compose /usr/bin/
     cp ${OFFLINE_DOCKER_DIR}/docker.service /etc/systemd/system/
     chmod +x /usr/bin/docker* && chmod 754 /etc/systemd/system/docker.service
 }
