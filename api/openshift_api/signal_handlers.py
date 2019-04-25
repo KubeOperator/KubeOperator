@@ -4,8 +4,9 @@ from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from common.utils import get_object_or_none
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
-from .models import Role, Package, Cluster, Node, Host, Setting, HostInfo
+from .models import Role, Package, Cluster, Node, Host, Setting, HostInfo, DeployExecution
 
 
 @receiver(post_save, sender=Cluster)
@@ -41,14 +42,16 @@ def auto_lookup_packages():
 
 
 @receiver(pre_deploy_execution_start)
-def on_execution_start(sender, execution, **kwargs):
+def on_execution_start(sender, execution_id, **kwargs):
+    execution = get_object_or_none(DeployExecution, id=execution_id)
     execution.date_start = timezone.now()
     execution.state = execution.STATE_STARTED
     execution.save()
 
 
 @receiver(post_deploy_execution_start)
-def on_execution_end(sender, execution, result, **kwargs):
+def on_execution_end(sender, execution_id, result, **kwargs):
+    execution = get_object_or_none(DeployExecution, id=execution_id)
     date_finished = timezone.now()
     timedelta = (timezone.now() - execution.date_start).seconds
     state = execution.STATE_FAILURE
