@@ -360,7 +360,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         registry_hostname = Setting.objects.filter(key="registry_hostname").first()
 
         result = {"raw": {}, "summary": {}}
-        pre_deploy_execution_start.send(self.__class__, execution=self.id)
+        pre_deploy_execution_start.send(self.__class__, execution_id=self.id)
         playbooks = self.project.playbook_set.filter(name__endswith='-' + self.operation).order_by('name')
         try:
             for index, playbook in enumerate(playbooks):
@@ -381,7 +381,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         except Exception as e:
             logger.error(e, exc_info=True)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
-        post_deploy_execution_start.send(self.__class__, execution=self.id, result=result)
+        post_deploy_execution_start.send(self.__class__, execution_id=self.id, result=result)
         return result
 
     def update_task(self, task):
