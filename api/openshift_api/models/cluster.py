@@ -29,7 +29,6 @@ class Cluster(Project):
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
-    status
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):

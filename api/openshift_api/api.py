@@ -20,7 +20,7 @@ from django.db.models import Q
 
 # 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
-    queryset = Cluster.objects.all().filter()
+    queryset = Cluster.objects.all()
     serializer_class = serializers.ClusterSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
@@ -28,7 +28,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
 
 class StorageViewSet(viewsets.ModelViewSet):
-    queryset = Storage.objects.all().filter()
+    queryset = Storage.objects.all()
     serializer_class = serializers.StorageSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
@@ -70,7 +70,7 @@ class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
 
 class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = Node.objects.filter()
+    queryset = Node.objects.all()
     serializer_class = serializers.NodeSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
@@ -78,7 +78,7 @@ class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
 
 class StorageNodeViewSet(StorageResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = StorageNode.objects.filter()
+    queryset = StorageNode.objects.all()
     serializer_class = serializers.StorageNodeSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
