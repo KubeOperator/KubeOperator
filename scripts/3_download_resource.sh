@@ -11,7 +11,10 @@ function download_nexus_resource {
     fi
 
     if [[ ! -f "${NEXUS_DATA_PATH}/.done" ]];then
-        tar xvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH} && echo > ${NEXUS_DATA_PATH}/.done
+        tar xvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH} &&  \
+        mv ${NEXUS_DATA_PATH}/nexus-data/* ${NEXUS_DATA_PATH} && \
+        rm -rf ${NEXUS_DATA_PATH}/nexus-data/ && \
+        echo > ${NEXUS_DATA_PATH}/.done
         chown -R 200 ${NEXUS_DATA_PATH}
     fi
 }
