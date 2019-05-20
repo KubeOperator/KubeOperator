@@ -1,0 +1,32 @@
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedItems">
+  <clr-dg-action-bar>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewItem()">
+      <clr-icon shape="plus" size="16"></clr-icon>
+      添加
+    </button>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
+            [disabled]="selectedItems.length == 0">
+      <clr-icon shape="close"></clr-icon>
+      删除
+    </button>
+  </clr-dg-action-bar>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>类型</clr-dg-column>
+  <clr-dg-column>关联集群</clr-dg-column>
+  <clr-dg-column>状态</clr-dg-column>
+  <clr-dg-column>备注</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-cell>{{item.name}}</clr-dg-cell>
+    <clr-dg-cell>{{item.template}}</clr-dg-cell>
+    <clr-dg-cell>{{item.cluster}}</clr-dg-cell>
+    <clr-dg-cell>{{item.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{item.comment}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>
+

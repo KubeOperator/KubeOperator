@@ -1,0 +1,9 @@
+name: nfs
+roles:
+  - name: nfs
+    meta:
+      requires:
+        - '='
+        - 1
+vars: {}
+options: {}
