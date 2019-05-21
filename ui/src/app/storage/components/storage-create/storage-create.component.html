@@ -1,4 +1,4 @@
-<clr-wizard [(clrWizardOpen)]="createdItemOpened" #wizard>
+<clr-wizard [(clrWizardOpen)]="createdItemOpened" (clrWizardOnFinish)="onConfirm()" #wizard>
   <clr-wizard-title>创建集群</clr-wizard-title>
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>

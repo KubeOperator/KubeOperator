@@ -4,6 +4,9 @@ import {StorageService} from '../../services/storage.service';
 import {StorageTemplate} from '../../models/storage-template';
 import {StorageGroup, StorageNode} from '../../models/storage-node';
 import {StorageTemplateService} from '../../services/storage-template.service';
+import {StorageNodeService} from '../../services/storage-node.service';
+import {TipService} from '../../../tip/tip.service';
+import {TipLevels} from '../../../tip/tipLevels';
 
 @Component({
   selector: 'app-storage-create',
@@ -12,13 +15,13 @@ import {StorageTemplateService} from '../../services/storage-template.service';
 })
 export class StorageCreateComponent implements OnInit {
 
-  constructor(private storageService: StorageService, private storageTemplateService: StorageTemplateService) {
+  constructor(private storageService: StorageService, private storageTemplateService: StorageTemplateService,
+              private storageNodeService: StorageNodeService, private tipService: TipService) {
   }
 
   createdItemOpened = false;
   storageTemplates: StorageTemplate[];
   storageTemplate: StorageTemplate;
-  storageNodes: StorageNode[] = [];
   storageGroups: StorageGroup [] = [];
   item: Storage = new Storage();
   @Output() create = new EventEmitter<boolean>();
@@ -57,7 +60,22 @@ export class StorageCreateComponent implements OnInit {
       }
       this.storageGroups.push(group);
     });
-    console.log(this.storageGroups);
+  }
+
+  onConfirm() {
+    this.storageService.createStorage(this.item).toPromise().then(data => {
+      const promises: Promise<{}>[] = [];
+      this.storageGroups.forEach(group => {
+        group.nodes.forEach(node => {
+          promises.push(this.storageNodeService.createStorageNode(data.name, node).toPromise());
+        });
+        Promise.all(promises).then(() => {
+          this.tipService.showTip('创建存储' + data.name + '成功!', TipLevels.SUCCESS);
+          this.createdItemOpened = false;
+        });
+      });
+    });
+
   }
 
   newItem() {
