@@ -7,10 +7,9 @@ export class Cluster {
   package: string;
   comment: string;
   template: string;
+  storage: string;
   date_created: string;
   current_task_id: string;
-  state: string;
-  // my field
   node: Node[];
   configs: ExtraConfig[];
 }

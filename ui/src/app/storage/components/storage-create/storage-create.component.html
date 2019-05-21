@@ -59,12 +59,12 @@
           <div *ngFor="let node of group.nodes">
             <h5>{{node.name}}</h5>
             <div class="clr-form-control clr-row">
-              <label [for]="group+'username'" class="clr-control-label clr-col-xs-12 clr-col-md-2">IP</label>
+              <label [for]="group+'ip'" class="clr-control-label clr-col-xs-12 clr-col-md-2">IP</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
                 <div class="clr-input-wrapper">
-                  <input [id]="group+'username'" type="password"
+                  <input [id]="group+'ip'" type="password"
                          minlength="2" maxlength="128"
-                         class="clr-input" [(ngModel)]="node.username"
+                         class="clr-input" [(ngModel)]="node.ip"
                          name="cluster_name" required>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                 </div>
@@ -84,24 +84,24 @@
               </div>
             </div>
             <div class="clr-form-control clr-row">
-              <label [for]="group+'username'" class="clr-control-label clr-col-xs-12 clr-col-md-2">密码</label>
+              <label [for]="group+'password'" class="clr-control-label clr-col-xs-12 clr-col-md-2">密码</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
                 <div class="clr-input-wrapper">
-                  <input [id]="group+'username'" type="password"
+                  <input [id]="group+'password'" type="password"
                          minlength="2" maxlength="128"
-                         class="clr-input" [(ngModel)]="node.username"
+                         class="clr-input" [(ngModel)]="node.password"
                          name="cluster_name" required>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                 </div>
               </div>
             </div>
             <div class="clr-form-control clr-row">
-              <label [for]="group+'username'" class="clr-control-label clr-col-xs-12 clr-col-md-2">端口</label>
+              <label [for]="group+'port'" class="clr-control-label clr-col-xs-12 clr-col-md-2">端口</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
                 <div class="clr-input-wrapper">
-                  <input [id]="group+'username'" type="password"
+                  <input [id]="group+'port'" type="password"
                          minlength="2" maxlength="128"
-                         class="clr-input" [(ngModel)]="node.username"
+                         class="clr-input" [(ngModel)]="node.port"
                          name="cluster_name" required>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                 </div>

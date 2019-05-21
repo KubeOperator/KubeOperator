@@ -17,6 +17,8 @@ import {config, Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
+import {Storage} from '../../storage/models/storage';
+import {StorageService} from '../../storage/services/storage.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -44,13 +46,14 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
+  storage: Storage[] = [];
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
   checkCpuResult: CheckResult = new CheckResult();
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
-  suffix = 'f2o'
+  suffix = 'f2o';
   @ViewChild('basicFrom')
   basicForm: NgForm;
   isNameValid = true;
@@ -64,7 +67,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
-              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService) {
+              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService,
+              private storageService: StorageService) {
   }
 
   ngOnInit() {
@@ -86,6 +90,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.listStorage();
     this.settingService.getSetting('domain_suffix').subscribe(data => {
       this.suffix = '.' + data.value;
     });
@@ -128,7 +133,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
       this.hosts = data;
-
     }, error => {
       console.log(error);
     });
@@ -152,6 +156,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       this.packages = data;
     }, error => {
       this.tipService.showTip('加载离线包错误!: \n' + error, TipLevels.ERROR);
+    });
+  }
+
+  listStorage() {
+    this.storageService.listStorage().subscribe(data => {
+      this.storage = data;
     });
   }
 
