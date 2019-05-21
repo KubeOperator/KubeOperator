@@ -13,8 +13,21 @@ export class StorageService {
 
   constructor(private http: HttpClient) {
   }
-  getStorage(): Observable<Storage[]> {
+
+  listStorage(): Observable<Storage[]> {
     return this.http.get<Storage[]>(this.storageUrl);
+  }
+
+  getStorage(name: string): Observable<Storage> {
+    return this.http.get<Storage>(this.storageUrl + name);
+  }
+
+  createStorage(storage: Storage): Observable<Storage> {
+    return this.http.post<Storage>(this.storageUrl, storage);
+  }
+
+  deleteStorage(name: string): Observable<Storage> {
+    return this.http.delete<Storage>(this.storageUrl + name);
   }
 }
 

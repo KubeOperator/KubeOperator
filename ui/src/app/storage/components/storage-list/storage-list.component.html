@@ -1,3 +1,6 @@
+<app-delete-alert [(opened)]="showDelete" [resourceTypeName]="resourceTypeName" [items]="selectedItems"
+                  (confirm)="delete()">
+</app-delete-alert>
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedItems">
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="addNewItem()">
