@@ -5,7 +5,7 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.4.2.0-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-**说明：该项目当前处于 V1.0 Beta 阶段，仅支持 okd 3.11**
+** 说明：该项目当前处于 V1.0 Beta 阶段，仅支持 okd 3.11 **
 
 ## 什么是 FIT2OPENSHIFT？
 
@@ -23,10 +23,11 @@ K8S 是未来的 Linux，OpenShift 是首选的 K8S 发行版。OpenShift 社区
 - [x] 支持集群进行扩容；
 - [x] 提供简易明了的集群运行状况面板；
 - [x] 支持 GlusterFS 做为持久化存储；
-- [x] 支持 AD/LDAP 对接；
+- [ ] 支持 NetApp 作为持久化存储；
+- [ ] 支持 AD/LDAP 对接；
+- [ ] 支持 F5 Big-IP 对接；
 - [ ] 支持集群的升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 支持其他外部存储做为持久化存储；
 
 ## FIT2OPENSHIFT 支持哪些 okd 版本？
 
