@@ -6,9 +6,10 @@ import {StorageCreateComponent} from './components/storage-create/storage-create
 import {TipModule} from '../tip/tip.module';
 import {CoreModule} from '../core/core.module';
 import {SharedModule} from '../shared/shared.module';
+import { StorageDetailComponent } from './components/storage-detail/storage-detail.component';
 
 @NgModule({
-  declarations: [StorageComponent, StorageListComponent, StorageCreateComponent],
+  declarations: [StorageComponent, StorageListComponent, StorageCreateComponent, StorageDetailComponent],
   imports: [
     CommonModule,
     TipModule,

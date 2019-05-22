@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Storage} from '../../models/storage';
 import {StorageService} from '../../services/storage.service';
 import {StorageTemplate} from '../../models/storage-template';
@@ -7,6 +7,7 @@ import {StorageTemplateService} from '../../services/storage-template.service';
 import {StorageNodeService} from '../../services/storage-node.service';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
+import {ClrWizard} from '@clr/angular';
 
 @Component({
   selector: 'app-storage-create',
@@ -19,12 +20,22 @@ export class StorageCreateComponent implements OnInit {
               private storageNodeService: StorageNodeService, private tipService: TipService) {
   }
 
+  @ViewChild('wizard') wizard: ClrWizard;
   createdItemOpened = false;
   storageTemplates: StorageTemplate[];
   storageTemplate: StorageTemplate;
   storageGroups: StorageGroup [] = [];
   item: Storage = new Storage();
   @Output() create = new EventEmitter<boolean>();
+
+  reset() {
+    this.wizard.reset();
+    this.loadTemplate();
+    this.storageTemplate = null;
+    this.storageGroups = [];
+    this.item = new Storage();
+  }
+
 
   ngOnInit() {
     this.loadTemplate();
@@ -44,6 +55,7 @@ export class StorageCreateComponent implements OnInit {
       }
     });
   }
+
 
   createNodes() {
     this.storageGroups = [];
@@ -81,6 +93,10 @@ export class StorageCreateComponent implements OnInit {
   newItem() {
     this.item = new Storage();
     this.createdItemOpened = true;
+  }
+
+  onCancel() {
+    this.reset();
   }
 
 }

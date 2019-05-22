@@ -1,4 +1,5 @@
-<clr-wizard [(clrWizardOpen)]="createdItemOpened" (clrWizardOnFinish)="onConfirm()" #wizard>
+<clr-wizard [(clrWizardOpen)]="createdItemOpened" (clrWizardOnFinish)="onConfirm()" (clrWizardOnCancel)="onCancel()"
+            #wizard>
   <clr-wizard-title>创建集群</clr-wizard-title>
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
@@ -62,7 +63,7 @@
               <label [for]="group+'ip'" class="clr-control-label clr-col-xs-12 clr-col-md-2">IP</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
                 <div class="clr-input-wrapper">
-                  <input [id]="group+'ip'" type="password"
+                  <input [id]="group+'ip'" type="text"
                          minlength="2" maxlength="128"
                          class="clr-input" [(ngModel)]="node.ip"
                          name="cluster_name" required>
@@ -99,7 +100,7 @@
               <label [for]="group+'port'" class="clr-control-label clr-col-xs-12 clr-col-md-2">端口</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
                 <div class="clr-input-wrapper">
-                  <input [id]="group+'port'" type="password"
+                  <input [id]="group+'port'" type="text"
                          minlength="2" maxlength="128"
                          class="clr-input" [(ngModel)]="node.port"
                          name="cluster_name" required>

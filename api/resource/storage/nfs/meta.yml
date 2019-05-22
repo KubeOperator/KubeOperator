@@ -6,4 +6,4 @@ roles:
         - '='
         - 1
 vars: {}
-options: {}
+options: []

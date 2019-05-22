@@ -1,17 +1,23 @@
 <app-delete-alert [(opened)]="showDelete" [resourceTypeName]="resourceTypeName" [items]="selectedItems"
                   (confirm)="delete()">
 </app-delete-alert>
+<app-storage-detail [(opened)]="showDetail">
+
+</app-storage-detail>
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedItems">
   <clr-dg-action-bar>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewItem()">
-      <clr-icon shape="plus" size="16"></clr-icon>
-      添加
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
-            [disabled]="selectedItems.length == 0">
-      <clr-icon shape="close"></clr-icon>
-      删除
-    </button>
+
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewItem()">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        添加
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
+              [disabled]="selectedItems.length == 0">
+        <clr-icon shape="close"></clr-icon>
+        删除
+      </button>
+    </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>类型</clr-dg-column>
@@ -20,7 +26,7 @@
   <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-    <clr-dg-cell>{{item.name}}</clr-dg-cell>
+    <clr-dg-cell><a (click)="onDetail(item)">{{item.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{item.template}}</clr-dg-cell>
     <clr-dg-cell>{{item.cluster}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created}}</clr-dg-cell>

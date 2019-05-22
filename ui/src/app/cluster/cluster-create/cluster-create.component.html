@@ -1,6 +1,6 @@
 <clr-wizard #wizard [(clrWizardOpen)]="createClusterOpened" (clrWizardOnCancel)="onCancel()"
             (clrWizardOnFinish)="onSubmit()">
-  <clr-wizard-title>创建集群</clr-wizard-title>
+  <clr-wizard-title>创建存储</clr-wizard-title>
 
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
@@ -25,12 +25,12 @@
       </div>
 
       <div class="clr-form-control clr-row">
-        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">离线包</label>
+        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">存储类型</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-select-wrapper">
             <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
                     (change)="onPackageChange()" required>
-              <option [value]=null>请选择离线包</option>
+              <option [value]=null>请选择存储类型</option>
               <option *ngFor="let pk of packages" [value]="pk.name">{{pk.name}}</option>
             </select>
             <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>

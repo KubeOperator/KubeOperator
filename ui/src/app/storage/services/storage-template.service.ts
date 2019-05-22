@@ -15,4 +15,8 @@ export class StorageTemplateService {
   listStorageTemplates(): Observable<StorageTemplate[]> {
     return this.http.get<StorageTemplate[]>(this.storageTemplateUrl);
   }
+
+  getStorageTemplate(name): Observable<StorageTemplate> {
+    return this.http.get<StorageTemplate>(this.storageTemplateUrl + name);
+  }
 }

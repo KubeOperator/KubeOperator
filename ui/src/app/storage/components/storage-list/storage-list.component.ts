@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Storage} from '../../models/storage';
 import {StorageService} from '../../services/storage.service';
 import {StorageTemplate} from '../../models/storage-template';
 import {StorageTemplateService} from '../../services/storage-template.service';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
+import {StorageDetailComponent} from '../storage-detail/storage-detail.component';
 
 @Component({
   selector: 'app-storage-list',
@@ -23,7 +24,9 @@ export class StorageListComponent implements OnInit {
   selectedItems: Storage[] = [];
   storageTemplates: StorageTemplate[] = [];
   showDelete = false;
-
+  showDetail = false;
+  @ViewChild(StorageDetailComponent)
+  child: StorageDetailComponent;
   @Output() addItem = new EventEmitter<void>();
 
   ngOnInit() {
@@ -45,6 +48,12 @@ export class StorageListComponent implements OnInit {
     }, error => {
       this.loading = false;
     });
+  }
+
+  onDetail(item) {
+    this.showDetail = true;
+    this.child.item = item;
+    this.child.loadTemplate();
   }
 
   onDeleted() {

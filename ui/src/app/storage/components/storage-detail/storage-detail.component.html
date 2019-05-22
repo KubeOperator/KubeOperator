@@ -1,0 +1,38 @@
+<clr-modal (clrModalOpenChange)="onOpen()"  [clrLoading]="loading" [(clrModalOpen)]="opened" [clrModalClosable]="false"
+           [clrModalSize]="'xl'"
+           *ngIf="item">
+  <div class="modal-title">
+    存储
+  </div>
+  <div class="modal-body" style="min-height: 500px;max-height:800px;overflow-y: auto">
+    <div>
+      <h5>基本信息</h5>
+      <hr/>
+      名称:{{item.name}} <br/>
+      存储类型:{{item.template}}<br/>
+      创建时间:{{item.date_created}}<br/>
+    </div>
+    <div *ngIf="storageTemplate && storageNodes">
+      <h5>配置信息</h5>
+      <hr/>
+      <div *ngFor="let node of storageNodes">
+        <h5>{{node.name}}</h5>
+        <div class="clr-form-control clr-row">
+          <label [for]="node.name+'ip'" class="clr-control-label clr-col-xs-12 clr-col-md-2">IP</label>
+          <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+            <div class="clr-input-wrapper">
+              <input [id]="node.name+'ip'" type="text"
+                     minlength="2" maxlength="128"
+                     class="clr-input" [(ngModel)]="node.ip"
+                     name="cluster_name" required>
+              <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+  </div>
+</clr-modal>

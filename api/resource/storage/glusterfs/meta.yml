@@ -16,7 +16,7 @@ vars:
   openshift_storage_glusterfs_heketi_executor: ssh
   openshift_storage_glusterfs_heketi_ssh_keyfile: /root/.ssh/id_rsa
   openshift_storage_glusterfs_wipe: true
-options: {}
+options: []
 operations:
   install:
     playbooks:

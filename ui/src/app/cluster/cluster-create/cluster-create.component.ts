@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
@@ -13,7 +13,7 @@ import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
 import {CheckResult, DeviceCheckService} from '../device-check.service';
-import {config, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
@@ -54,8 +54,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
   suffix = 'f2o';
-  @ViewChild('basicFrom')
-  basicForm: NgForm;
+  @ViewChild('basicFrom') basicForm: NgForm;
   isNameValid = true;
   nameTooltipText = '';
   packageToolTipText = '';
