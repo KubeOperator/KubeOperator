@@ -27,15 +27,17 @@ function find_offline_images() {
     ok=1
     for image in ${images};do
         filename=$(basename ${image}).tar
-        if [[ ! -f ${filename} ]];then
+        if [[ ! -f ${IMAGE_DIR}/${filename} ]];then
             ok=0
         fi
     done
     echo ${ok}
+    return ${ok}
 }
 
 function main() {
-    ok=$(find_offline_images)
+    find_offline_images
+    ok=$?
     if [[ ${ok} == "1" ]];then
         load_images
     else
