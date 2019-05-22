@@ -1,33 +1,33 @@
-*.retry
-*.swo
-.DS_Store
-*.pyc
-*.pyo
-*.swp
-*.swo
-*.retry
-*.tar
-*.gz
-*.rpm
-.env
-env
-venv
-dist
-build
-*.egg
-*.egg-info
-_mailinglist
-.tox
-.cache/
-.idea/
-db.sqlite3
-celerybeat.pid
-tmp
-dump.rdb
-data/celery/
-data/ansible/
-data/projects/
-nexus/data
+ *.retry
+ *.swo
+ .DS_Store
+ *.pyc
+ *.pyo
+ *.swp
+ *.swo
+ *.retry
+ *.tar
+ *.gz
+ *.rpm
+ .env
+ env
+ venv
+ dist
+ build
+ *.egg
+ *.egg-info
+ _mailinglist
+ .tox
+ .cache/
+ .idea/
+ db.sqlite3
+ celerybeat.pid
+ tmp
+ dump.rdb
+ data/celery/
+ data/ansible/
+ data/projects/
+ nexus/data
 
 # compiled output
 /dist
@@ -70,3 +70,5 @@ node_modules
 
 nohup.out
 docker/nexus/data/*
+ui/dist
+dump.rdb
