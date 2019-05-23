@@ -98,7 +98,7 @@ class StorageSerializer(ProjectSerializer):
 
     class Meta:
         model = Storage
-        fields = ['id', 'name', 'template', 'comment', 'date_created', ]
+        fields = ['id', 'name', 'template', 'comment', 'date_created', 'vars']
         read_only_fields = ['id', 'date_created', ]
 
 

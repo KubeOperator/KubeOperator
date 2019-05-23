@@ -10,7 +10,7 @@ def start_deploy_execution(eid, **kwargs):
     execution = get_object_or_none(DeployExecution, id=eid)
     if execution:
         execution.project.change_to()
-        return execution.start()
+        return execution.start
     else:
         msg = "No execution found: {}".format(eid)
         print(msg)

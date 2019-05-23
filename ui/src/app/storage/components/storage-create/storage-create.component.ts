@@ -87,7 +87,6 @@ export class StorageCreateComponent implements OnInit {
         });
       });
     });
-
   }
 
   newItem() {

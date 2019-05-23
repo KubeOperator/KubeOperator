@@ -30,7 +30,7 @@ def start_playbook_execution(eid, **kwargs):
     execution = get_object_or_none(PlaybookExecution, id=eid)
     if execution:
         set_current_project(execution.project)
-        return execution.start()
+        return execution.start
     else:
         msg = "No execution found: {}".format(eid)
         logger.error(msg)
@@ -56,7 +56,7 @@ def start_adhoc_execution(eid, **kwargs):
     execution = get_object_or_none(AdHocExecution, id=eid)
     if execution:
         set_current_project(execution.project)
-        return execution.start()
+        return execution.start
     else:
         msg = "No execution found: {}".format(eid)
         logger.error(msg)

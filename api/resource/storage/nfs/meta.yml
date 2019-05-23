@@ -1,9 +1,19 @@
 name: nfs
-roles:
-  - name: nfs
-    meta:
-      requires:
-        - '='
-        - 1
+roles: []
 vars: {}
-options: []
+options:
+  - name: nfs_server
+    comment: nfs_server
+    placeholder: 10.0.0.1
+    type: text
+  - name: nfs_path
+    comment: nfs_path
+    placeholder: /exports
+    type: text
+config:
+  playbooks:
+    - config_nfs_storage
+health_check:
+  playbooks:
+    - name: '挂载检查'
+      alias: 'playbooks/service-health-check.yml'

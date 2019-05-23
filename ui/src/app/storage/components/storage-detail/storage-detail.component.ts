@@ -17,7 +17,7 @@ export class StorageDetailComponent implements OnInit {
   @Output()
   openedChange = new EventEmitter();
   item: Storage;
-  storageTemplate: StorageTemplate = new StorageTemplate();
+  storageTemplate: StorageTemplate;
   storageNodes: StorageNode[] = [];
   loading = true;
 

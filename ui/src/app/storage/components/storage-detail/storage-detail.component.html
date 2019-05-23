@@ -1,4 +1,4 @@
-<clr-modal (clrModalOpenChange)="onOpen()"  [clrLoading]="loading" [(clrModalOpen)]="opened" [clrModalClosable]="false"
+<clr-modal (clrModalOpenChange)="onOpen()" [clrLoading]="loading" [(clrModalOpen)]="opened" [clrModalClosable]="false"
            [clrModalSize]="'xl'"
            *ngIf="item">
   <div class="modal-title">
@@ -12,27 +12,38 @@
       存储类型:{{item.template}}<br/>
       创建时间:{{item.date_created}}<br/>
     </div>
-    <div *ngIf="storageTemplate && storageNodes">
+    <div *ngIf="storageTemplate">
       <h5>配置信息</h5>
       <hr/>
-      <div *ngFor="let node of storageNodes">
-        <h5>{{node.name}}</h5>
-        <div class="clr-form-control clr-row">
-          <label [for]="node.name+'ip'" class="clr-control-label clr-col-xs-12 clr-col-md-2">IP</label>
-          <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-            <div class="clr-input-wrapper">
-              <input [id]="node.name+'ip'" type="text"
-                     minlength="2" maxlength="128"
-                     class="clr-input" [(ngModel)]="node.ip"
-                     name="cluster_name" required>
-              <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-            </div>
+      <div *ngIf="storageNodes.length>0">
+        <clr-datagrid>
+          <clr-dg-column>name</clr-dg-column>
+          <clr-dg-column>ip</clr-dg-column>
+          <clr-dg-column>状态</clr-dg-column>
+          <!--<clr-dg-column>操作</clr-dg-column>-->
+
+          <clr-dg-row *ngFor="let node of storageNodes">
+            <clr-dg-cell>{{node.name}}</clr-dg-cell>
+            <clr-dg-cell>{{node.ip}}</clr-dg-cell>
+            <clr-dg-cell>{{node.status}}</clr-dg-cell>
+            <!--<clr-dg-cell>{{user.color}}</clr-dg-cell>-->
+          </clr-dg-row>
+          <clr-dg-footer>{{storageNodes.length}} nodes</clr-dg-footer>
+        </clr-datagrid>
+      </div>
+      <div *ngIf="storageTemplate">
+        <form clrFrom>
+          <div class="clr-form-horizontal" *ngFor="let op of storageTemplate.meta.options">
+            <clr-input-container>
+              <label>{{op.name}}</label>
+              <input clrInput type="text" [(ngModel)]="item.vars[op.name]" [name]="op.name"/>
+            </clr-input-container>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+    <button type="button" class="btn btn-outline" (click)="close()">取消</button>
   </div>
 </clr-modal>

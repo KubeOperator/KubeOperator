@@ -4,6 +4,7 @@ export class StorageNode {
   password: string;
   port: string;
   ip: string;
+  status = 'running';
 }
 
 export class StorageGroup {

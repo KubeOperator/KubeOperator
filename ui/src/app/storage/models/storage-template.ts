@@ -25,4 +25,5 @@ export class StorageTemplateOption {
   default: string;
   type: string;
   value: any;
+  placeholder: string;
 }

@@ -116,7 +116,7 @@
                    class="clr-control-label clr-col-xs-12 clr-col-md-2">{{option.comment}}</label>
             <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
               <div class="clr-input-wrapper">
-                <input [id]="option.name" [type]="option.type"
+                <input [id]="option.name" [type]="option.type" [placeholder]="option.placeholder"
                        minlength="2" maxlength="128"
                        class="clr-input" [(ngModel)]="item.vars[option.name]" [name]="option.name" required>
                 <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>

@@ -19,6 +19,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     current_play = models.CharField(max_length=128, null=True, default=None)
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
 
+    @property
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
@@ -32,9 +33,14 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         try:
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
-                    total_palybook = len(opt.get('playbooks'))
+                    cluster_playbooks = opt.get('playbooks', [])
+                    storage_playbooks = cluster.template.meta['config'].get('playbooks', [])
+                    playbooks = []
+                    playbooks.append(cluster_playbooks)
+                    playbooks.append(storage_playbooks)
+                    total_palybook = len(playbooks)
                     current = 0
-                    for playbook_name in opt.get('playbooks'):
+                    for playbook_name in playbooks:
                         print("\n>>> Start run {} ".format(playbook_name))
                         self.current_play = playbook_name
                         self.save()

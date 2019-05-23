@@ -28,7 +28,14 @@ class Cluster(Project):
     )
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
+    storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+
+    def create_storage(self):
+        if self.storage:
+            _vars = self.storage.vars
+            for k in _vars:
+                self.set_config(k, _vars[k])
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -109,3 +116,4 @@ class Cluster(Project):
         self.create_roles()
         self.create_playbooks()
         self.create_node_localhost()
+        self.create_storage()
