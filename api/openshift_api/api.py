@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.db import transaction
 
+from openshift_api.models.auth import AuthTemplate
 from openshift_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
 from openshift_api.models.cluster import Cluster
@@ -58,6 +59,19 @@ class StorageTemplateViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         StorageTemplate.lookup()
+        return super().get_queryset()
+
+
+class AuthViewSet(viewsets.ModelViewSet):
+    queryset = AuthTemplate.objects.all()
+    serializer_class = serializers.AuthTemplateSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get', 'head', 'options']
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+    def get_queryset(self):
+        AuthTemplate.lookup()
         return super().get_queryset()
 
 

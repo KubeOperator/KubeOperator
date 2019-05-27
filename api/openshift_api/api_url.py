@@ -15,6 +15,7 @@ router.register('host', api.HostViewSet, 'host')
 router.register('volume', api.VolumeViewSet, 'volume')
 router.register('setting', api.SettingViewSet, 'setting')
 router.register('hostInfo', api.HostInfoViewSet, 'hostInfo')
+router.register('auth', api.AuthViewSet, 'auth')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')

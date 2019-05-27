@@ -82,8 +82,9 @@ export class StorageCreateComponent implements OnInit {
           promises.push(this.storageNodeService.createStorageNode(data.name, node).toPromise());
         });
         Promise.all(promises).then(() => {
-          this.tipService.showTip('创建存储' + data.name + '成功!', TipLevels.SUCCESS);
           this.createdItemOpened = false;
+          this.create.emit(true);
+          this.tipService.showTip('创建存储' + data.name + '成功!', TipLevels.SUCCESS);
         });
       });
     });

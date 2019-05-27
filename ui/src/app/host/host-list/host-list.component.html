@@ -32,7 +32,7 @@
   <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
-    <clr-dg-cell><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;"><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.memory}}</clr-dg-cell>

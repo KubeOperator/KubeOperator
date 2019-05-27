@@ -4,6 +4,7 @@ import os
 from django.db import models
 
 from ansible_api.models import Project, Playbook
+from openshift_api.models.auth import AuthTemplate
 from openshift_api.models.node import Node
 from openshift_api.models.role import Role
 
@@ -17,8 +18,6 @@ class Cluster(Project):
     OPENSHIFT_STATUS_ERROR = 'ERROR'
     OPENSHIFT_STATUS_WARNING = 'WARNING'
 
-    OPENSHIFT_AUTH_DEFAULT = 'Htpasswd'
-
     OPENSHIFT_STATUS_CHOICES = (
         (OPENSHIFT_STATUS_RUNNING, 'running'),
         (OPENSHIFT_STATUS_INSTALLING, 'installing'),
@@ -28,12 +27,13 @@ class Cluster(Project):
     )
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
-    storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
+    persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
+    auth_template = models.ForeignKey('openshift_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
 
     def create_storage(self):
-        if self.storage:
-            _vars = self.storage.vars
+        if self.persistent_storage:
+            _vars = self.persistent_storage.vars
             for k in _vars:
                 self.set_config(k, _vars[k])
 

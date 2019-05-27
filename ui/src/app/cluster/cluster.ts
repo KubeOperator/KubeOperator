@@ -10,6 +10,7 @@ export class Cluster {
   storage: string;
   date_created: string;
   current_task_id: string;
+  auth_template: string;
   node: Node[];
   configs: ExtraConfig[];
 }

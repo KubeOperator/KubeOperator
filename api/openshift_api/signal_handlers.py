@@ -14,8 +14,8 @@ from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
 
 @receiver(post_save, sender=Cluster)
-def on_cluster_save(sender, instance=None, **kwargs):
-    if instance and instance.template:
+def on_cluster_save(sender, instance=None, created=True, **kwargs):
+    if created and instance and instance.template:
         instance.on_cluster_create()
 
 

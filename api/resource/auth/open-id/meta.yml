@@ -1,0 +1,39 @@
+name: OpenID
+config:
+  name: openid_auth
+  login: true
+  challenge: true
+  kind: OpenIDIdentityProvider
+  claims:
+    email:
+      - email
+    id:
+      - preferred_username
+    name:
+      - name
+    preferredUsername:
+      - preferred_username
+options:
+  - name: client_id
+    default: my_client_id
+    type: text
+  - name: client_secret
+    default: my_client_secret
+    type: text
+  - name: urls
+    default: {}
+    value: {}
+    type: parent
+    children:
+      - name: authorize
+        parent: urls
+        default: https://myidp.example.com/oauth2/authorize
+        type: text
+      - name: token
+        type: text
+        default: https://myidp.example.com/oauth2/token
+        parent: urls
+vars:
+  - name: openshift_master_openid_ca
+    default: ca-content
+    type: textarea

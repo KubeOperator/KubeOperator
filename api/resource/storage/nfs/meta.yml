@@ -12,7 +12,7 @@ options:
     type: text
 config:
   playbooks:
-    - config_nfs_storage
+    - config-nfs-storage
 health_check:
   playbooks:
     - name: '挂载检查'

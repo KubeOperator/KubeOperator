@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <form clrForm>
+      <clr-select-container>
+        <label>认证方式</label>
+        <select clrSelect [(ngModel)]="authTemplate" name="auth">
+          <option [value]="">请选择</option>
+          <option *ngFor="let template of authTemplates" [ngValue]="template">{{template.name}}</option>
+        </select>
+      </clr-select-container>
+      <div *ngIf="authTemplate">
+        <div *ngFor="let op of authTemplate.meta.options">
+          <div *ngIf="op.type !== 'parent'">
+            <clr-input-container>
+              <label>{{op.name}}</label>
+              <input [placeholder]="op.default" type="text" clrInput [(ngModel)]="op.value" [name]="op.name"/>
+            </clr-input-container>
+          </div>
+          <div *ngIf="op.type == 'parent'">
+            <div *ngFor="let children of op.children">
+              <clr-input-container>
+                <label>{{children.name}}</label>
+                <input [placeholder]="children.default" type="text" clrInput
+                       [(ngModel)]="op.value[children.name]"
+                       [name]="children.name"/>
+              </clr-input-container>
+            </div>
+          </div>
+        </div>
+        <div *ngFor="let _var of this.authTemplate.meta.vars">
+          <clr-textarea-container>
+            <label>{{_var.name}}</label>
+            <textarea type="text" clrTextarea [(ngModel)]="_var.value" [name]="_var.name">
+            </textarea>
+          </clr-textarea-container>
+        </div>
+      </div>
+    </form>
+    <button class="btn btn-info-outline" (click)="onSubmit()">保存</button>
+    <button class="btn btn-info-outline" (click)="onCancel()">取消</button>
+  </div>
+</div>

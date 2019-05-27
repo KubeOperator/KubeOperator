@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
-
+from openshift_api.models.auth import AuthTemplate
 from openshift_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
@@ -45,6 +45,15 @@ class StorageTemplateSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
+class AuthTemplateSerializer(serializers.ModelSerializer):
+    meta = serializers.JSONField()
+
+    class Meta:
+        model = AuthTemplate
+        read_only_fields = ['id', 'name', 'meta', 'date_created']
+        fields = ['id', 'name', 'meta', 'date_created']
+
+
 class VolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volume
@@ -83,10 +92,14 @@ class ClusterSerializer(ProjectSerializer):
         queryset=Package.objects.all(),
         slug_field='name', required=False
     )
+    auth_template = serializers.SlugRelatedField(
+        queryset=AuthTemplate.objects.all(),
+        slug_field='name', required=False
+    )
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'comment', 'date_created', ]
+        fields = ['id', 'name', 'package', 'template', 'auth_template', 'comment', 'date_created', ]
         read_only_fields = ['id', 'date_created', ]
 
 
@@ -95,6 +108,7 @@ class StorageSerializer(ProjectSerializer):
         queryset=StorageTemplate.objects.all(),
         slug_field='name', required=True
     )
+    vars = serializers.DictField(required=False, default={})
 
     class Meta:
         model = Storage

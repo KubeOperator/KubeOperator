@@ -3,14 +3,12 @@ import os
 import yaml
 from django.db import models
 from ansible_api.models import Project, Playbook
-from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
 from ansible_api.models import Host as Ansible_Host
 
 from openshift_api.models.role import Role
-from openshift_api.signals import pre_storage_execution_start
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +122,7 @@ class Storage(Project):
         (STORATE_STATUS_CHECKING, 'checking'),
     )
     template = models.ForeignKey("StorageTemplate", null=True, on_delete=models.SET_NULL)
-    vars = common_models.JsonDictTextField(default={})
+    vars = common_models.JsonDictTextField(default={}, blank=True, null=True, verbose_name=_('Vars'))
     status = models.CharField(max_length=128, choices=STORATE_STATUS_CHOICES, default=STORATE_STATUS_UNKNOWN)
     nodes = models.ManyToManyField('StorageNode')
 

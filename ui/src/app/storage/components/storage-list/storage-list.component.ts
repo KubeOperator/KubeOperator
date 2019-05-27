@@ -54,6 +54,7 @@ export class StorageListComponent implements OnInit {
     this.showDetail = true;
     this.child.item = item;
     this.child.loadTemplate();
+    this.child.loadVars();
   }
 
   onDeleted() {

@@ -18,6 +18,7 @@ import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
 import {StorageComponent} from './storage/storage.component';
+import {AuthComponent} from './auth/auth.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
@@ -44,6 +45,7 @@ const routes: Routes = [
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
+          {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
 
         ]

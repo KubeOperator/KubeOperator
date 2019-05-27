@@ -42,6 +42,10 @@ export class StorageDetailComponent implements OnInit {
     });
   }
 
+  loadVars() {
+    console.log(this.item);
+  }
+
   close() {
     this.opened = false;
     this.openedChange.emit(this.opened);

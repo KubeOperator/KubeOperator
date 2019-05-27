@@ -1,28 +1,34 @@
 name: okd-3.11
 version: 3.11
-install_playbooks:
-  - name: 1-config_ssh-install
+playbooks:
+  - name: config-ssh
     alias: playbooks/config_ssh.yml
-  - name: 2-distribute_ssh_key-install
+  - name: distribute-ssh-key
     alias: playbooks/distribute_ssh_key.yml
-  - name: 3-config_host_dns-install
+  - name: config_host_dns
     alias: playbooks/config_host_dns.yml
-  - name: 4-prepare_host-install
+  - name: prepare-host
     alias: playbooks/prepare_host.yml
-  - name: 5-uninstall_old-install
+  - name: uninstall-old
     alias: openshift-ansible/playbooks/adhoc/uninstall.yml
-  - name: 6-prequisites-install
+  - name: prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: 7-config_docker_storage-install
+  - name: config_docker_storage
     alias: playbooks/config_docker_storage.yml
-  - name: 8-deploy-cluster-install
+  - name: install-openshift
     alias: openshift-ansible/playbooks/deploy_cluster.yml
-
-uninstall_playbooks:
-  - name: 1-glusterfs-uninstall
+  - name: uninstall-glusterfs
     alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
-  - name: 2-okd-uninstall
+  - name: uninstall-openshift
     alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+  - name: config-master
+    alias: openshift-ansible/playbooks/openshift-master/config.yml
+  - name: restart-openshift
+    alias: openshift-ansible/playbooks/openshift-master/restart.yml
+  - name: config-glusterfs
+    alias: openshift-ansible/playbooks/openshift-glusterfs/config.yml
+  - name: config-nfs-storage
+    alias: openshift-ansible/playbooks/openshift-nfs-storage/config.yml
 
 
 # template public roles
@@ -86,9 +92,40 @@ roles:
       template_service_broker_install: false
       ##firewall
       os_firewall_use_firewalld: true
+
 templates:
   - name: all-in-one 模型
     comment: 此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 Openshift 核心组件。
+    operations:
+      - name: install
+        display: true
+        comment: '安装'
+        playbooks:
+          - config-ssh
+          - distribute-ssh-key
+          - config_host_dns
+          - prepare-host
+          - uninstall-old
+          - prerequisites
+          - config-docker-storage
+          - install-openshift
+
+      - name: uninstall
+        display: true
+        comment: '卸载'
+        playbooks:
+          - uninstall-glusterfs
+          - uninstall-openshift
+
+      - name: update
+        display: false
+        comment: '更新'
+        playbooks:
+          - config-master
+          - restart-openshift
+
+
+
     portals:
       - name: Openshift Web Console
         redirect: https://$openshift_master_cluster_public_hostname
