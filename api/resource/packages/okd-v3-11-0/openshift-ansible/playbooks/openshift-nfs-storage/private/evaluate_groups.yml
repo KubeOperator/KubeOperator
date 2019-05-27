@@ -1,0 +1,138 @@
+---
+- name: Populate config host groups
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+  - name: Load group name mapping variables
+    include_vars: vars/cluster_hosts.yml
+
+  - name: Evaluate groups - g_nfs_hosts is single host
+    fail:
+      msg: The nfs group must be limited to one host
+    when: g_nfs_hosts | length > 1
+
+  - name: Evaluate oo_all_hosts
+    add_host:
+      name: "{{ item }}"
+      groups: oo_all_hosts
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_all_hosts | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_masters
+    add_host:
+      name: "{{ item }}"
+      groups: oo_masters
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_master_hosts | union(g_new_master_hosts) | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_first_master
+    add_host:
+      name: "{{ g_master_hosts[0] }}"
+      groups: oo_first_master
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    when: g_master_hosts|length > 0
+    changed_when: no
+
+  - name: Evaluate oo_new_etcd_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_new_etcd_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_new_etcd_hosts | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_masters_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_masters_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_new_master_hosts | default(g_master_hosts | default([], true), true) }}"
+    changed_when: no
+
+  - name: Evaluate oo_etcd_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_etcd_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_etcd_hosts | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_first_etcd
+    add_host:
+      name: "{{ g_etcd_hosts[0] }}"
+      groups: oo_first_etcd
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    when: g_etcd_hosts|length > 0
+    changed_when: no
+
+  # We use two groups one for hosts we're upgrading which doesn't include embedded etcd
+  # The other for backing up which includes the embedded etcd host, there's no need to
+  # upgrade embedded etcd that just happens when the master is updated.
+  - name: Evaluate oo_etcd_hosts_to_upgrade
+    add_host:
+      name: "{{ item }}"
+      groups: oo_etcd_hosts_to_upgrade
+    with_items: "{{ groups.oo_etcd_to_config if groups.oo_etcd_to_config is defined and groups.oo_etcd_to_config | length > 0 else [] }}"
+    changed_when: False
+
+  - name: Evaluate oo_etcd_hosts_to_backup
+    add_host:
+      name: "{{ item }}"
+      groups: oo_etcd_hosts_to_backup
+    with_items: "{{ groups.oo_etcd_to_config if groups.oo_etcd_to_config is defined and groups.oo_etcd_to_config | length > 0 else (groups.oo_first_master | default([])) }}"
+    changed_when: False
+
+  - name: Evaluate oo_nodes_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_nodes_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_new_node_hosts | default(g_node_hosts | default([], true), true) }}"
+    changed_when: no
+
+  - name: Evaluate oo_lb_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_lb_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_lb_hosts | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_nfs_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_nfs_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_nfs_hosts | default([]) }}"
+    changed_when: no
+
+  - name: Evaluate oo_glusterfs_to_config
+    add_host:
+      name: "{{ item }}"
+      groups: oo_glusterfs_to_config
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ g_glusterfs_hosts | union(g_glusterfs_registry_hosts | default([])) }}"
+    changed_when: no
+
+  - name: Evaluate oo_etcd_to_migrate
+    add_host:
+      name: "{{ item }}"
+      groups: oo_etcd_to_migrate
+      ansible_ssh_user: "{{ g_ssh_user | default(omit) }}"
+      ansible_become: "{{ g_sudo | default(omit) }}"
+    with_items: "{{ groups.oo_etcd_to_config if groups.oo_etcd_to_config | default([]) | length != 0 else (groups.oo_first_master |default([]))}}"
+    changed_when: no
