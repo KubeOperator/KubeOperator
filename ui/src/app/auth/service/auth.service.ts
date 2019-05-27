@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {OperaterService} from '../../deploy/operater/operater.service';
 import {Observable} from 'rxjs';
 import {AuthTemplate} from '../class/auth';
 import {Cluster, ExtraConfig} from '../../cluster/cluster';
 import {ClusterService} from '../../cluster/cluster.service';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
 
 export const url = 'api/v1/auth/';
 

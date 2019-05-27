@@ -1,5 +1,5 @@
 import {Node} from '../node/node';
-
+import {Execution} from '../deploy/component/operater/execution';
 
 export class Cluster {
   id: string;
@@ -13,6 +13,7 @@ export class Cluster {
   auth_template: string;
   node: Node[];
   configs: ExtraConfig[];
+  current_execution: Execution;
 }
 
 export class ExtraConfig {

@@ -4,9 +4,9 @@ import {Execution} from '../operater/execution';
 import {WebsocketService} from './websocket.service';
 import {OperaterService} from '../operater/operater.service';
 import {Subject, Subscription} from 'rxjs';
-import {Cluster} from '../../cluster/cluster';
-import {LogService} from '../../log/log.service';
-import {DeployService} from '../deploy.service';
+import {LogService} from '../../../log/log.service';
+import {DeployService} from '../../service/deploy.service';
+import {Cluster} from '../../../cluster/cluster';
 
 @Component({
   selector: 'app-term',
@@ -48,9 +48,9 @@ export class TermComponent implements OnInit, OnDestroy {
 
     this.term = new Terminal({
       cursorBlink: true,
-      cols: 100,
-      rows: 28,
-      letterSpacing: 1,
+      cols: 120,
+      rows: 33,
+      letterSpacing: 0,
       fontSize: 16
     });
     this.term.open(this.terminal.nativeElement);

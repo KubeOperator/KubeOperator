@@ -5,6 +5,6 @@
   <h5 *ngIf="showLoading">{{currentTask}}<i class="fa fa-spinner fa-pulse"></i></h5>
 
   <div class="progress labeled">
-    <progress max="100" value={{currentProgress}}></progress>
+    <progress max="100" [value]="currentProgress"></progress>
   </div>
 </div>

@@ -9,6 +9,6 @@ export class Execution {
   state: string;
   operation: string;
   timedelta: string;
-  current_task: string;
+  current_play: string;
   progress: number;
 }
