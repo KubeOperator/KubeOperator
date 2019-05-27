@@ -55,7 +55,7 @@ class HostInfo(models.Model):
         else:
             facts = result["raw"]["ok"][host.name]["setup"]["ansible_facts"]
             self.memory = facts["ansible_memtotal_mb"]
-            self.cpu_core = facts["ansible_processor_count"]
+            self.cpu_core = facts["ansible_processor_cores"]
             self.os = facts["ansible_distribution"]
             self.os_version = facts["ansible_distribution_version"]
             self.save()
