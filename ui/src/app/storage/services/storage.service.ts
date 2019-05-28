@@ -9,7 +9,7 @@ import {Storage} from '../models/storage';
 })
 export class StorageService {
 
-  private storageUrl = 'api/v1/storage/';
+  private storageUrl = '/api/v1/storage/';
 
   constructor(private http: HttpClient) {
   }

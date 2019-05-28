@@ -7,7 +7,7 @@ import {Cluster, ExtraConfig} from '../../cluster/cluster';
 import {ClusterService} from '../../cluster/cluster.service';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 
-export const url = 'api/v1/auth/';
+export const url = '/api/v1/auth/';
 
 @Injectable({
   providedIn: 'root'
