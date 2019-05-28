@@ -7,7 +7,7 @@ import {HttpClient} from '@angular/common/http';
   providedIn: 'root'
 })
 export class StorageTemplateService {
-  private storageTemplateUrl = 'api/v1/template/';
+  private storageTemplateUrl = '/api/v1/template/';
 
   constructor(private http: HttpClient) {
   }

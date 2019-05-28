@@ -7,7 +7,7 @@ import {StorageNode} from '../models/storage-node';
   providedIn: 'root'
 })
 export class StorageNodeService {
-  private storageNodeUrl = 'api/v1/storage/{storage_name}/nodes/';
+  private storageNodeUrl = '/api/v1/storage/{storage_name}/nodes/';
 
   constructor(private http: HttpClient) {
   }
