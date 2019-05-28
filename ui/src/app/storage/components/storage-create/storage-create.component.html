@@ -1,6 +1,6 @@
 <clr-wizard [(clrWizardOpen)]="createdItemOpened" (clrWizardOnFinish)="onConfirm()" (clrWizardOnCancel)="onCancel()"
             #wizard>
-  <clr-wizard-title>创建集群</clr-wizard-title>
+  <clr-wizard-title>创建存储</clr-wizard-title>
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
@@ -24,7 +24,7 @@
       </div>
 
       <div class="clr-form-control clr-row">
-        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">离线包</label>
+        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">存储类型</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-select-wrapper">
             <select id="package" [(ngModel)]="item.template" name="template" (change)="templateOnChange()"
