@@ -1,4 +1,9 @@
 - name: restart dnsmasq
-  get_url:
-    url: "http://admin:DoNotChangeMe@{{local_hostname}}:5380/restart"
-    dest: "/tmp"
+  shell: "curl --max-time '30' --no-buffer -s --unix-socket '/var/run/docker.sock' -f -XPOST 'http://localhost/containers/f2o_dns/restart?t=300'"
+
+- name: wait for dnsmasq restart
+  pause: seconds=20
+
+
+
+
