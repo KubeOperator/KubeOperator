@@ -27,6 +27,7 @@ services:
     volumes:
       - api_data:/opt/fit2openshift-api/data
       - dns_data:/etc/dnsmasq.d
+      - /var/run/docker.sock:/var/run/docker.sock  
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -88,8 +89,13 @@ services:
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:
-      - 5380:8080
       - 53:53/udp
+      - 53:53/tcp
+    healthcheck:
+      test: ["CMD", "nc","-vuz","localhost","53"]
+      interval: 10s
+      timeout: 5s
+      retries: 10 
 
 volumes:
   api_data:
