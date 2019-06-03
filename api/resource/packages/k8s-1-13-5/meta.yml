@@ -1,0 +1,71 @@
+name: kubernetes
+version: 1.13.5
+playbooks:
+
+roles:
+  - name: kube-node
+    children:
+      - compute
+      - infra
+  - name: kube-master
+    children:
+      - masters
+  - name: etcd
+    children:
+      - masters
+    meta:
+      hidden: true
+  - name: kubeasz
+    children:
+      - masters
+      - nodes
+      - compute
+      - infra
+      - lb
+    meta:
+      hidden: true
+    vars:
+
+      MASTER_IP: "{{ groups['lb'][0] }"
+      CONTAINER_RUNTIME: "docker"
+      CLUSTER_NETWORK: "flannel"
+      SERVICE_CIDR: "10.68.0.0/16"
+      CLUSTER_CIDR: "172.20.0.0/16"
+      NODE_PORT_RANGE: "20000-40000"
+      CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
+      CLUSTER_DNS_SVC_IP: "10.68.0.2"
+      CLUSTER_DNS_DOMAIN: "cluster.local."
+      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
+
+templates:
+  - name: all-in-one 模型
+    comment: ''
+    private_vars:
+      DEPLOY_MODE: 'allinone'
+    roles:
+      - name: masters
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars:
+          requires:
+            nodes_require:
+              - '='
+              - 1
+      - name: compute
+        children:
+          - masters
+        meta:
+          hidden: false
+      - name: infra
+        children:
+          - masters
+        meta:
+          hidden: false
+
+
