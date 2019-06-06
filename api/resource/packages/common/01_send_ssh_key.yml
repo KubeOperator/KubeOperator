@@ -1,0 +1,11 @@
+---
+- name: Send ssh key to node
+  hosts: f2o
+  tasks:
+    - name: copy ssh key to node
+      gather_facts: false
+      authorized_key:
+        user: root
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+        state: present
+        exclusive: no

@@ -3,6 +3,7 @@ import os
 
 from django.db import models
 
+import openshift_api
 from ansible_api.models import Project, Playbook
 from openshift_api.models.auth import AuthTemplate
 from openshift_api.models.node import Node
@@ -30,6 +31,11 @@ class Cluster(Project):
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
     auth_template = models.ForeignKey('openshift_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+
+    @property
+    def current_execution(self):
+        current = openshift_api.models.deploy.DeployExecution.objects.filter(project=self).first()
+        return current
 
     def create_storage(self):
         if self.persistent_storage:

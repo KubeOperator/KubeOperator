@@ -87,22 +87,6 @@ class HostSerializer(HostReadSerializer):
         read_only_fields = ['id', 'info', 'comment']
 
 
-class ClusterSerializer(ProjectSerializer):
-    package = serializers.SlugRelatedField(
-        queryset=Package.objects.all(),
-        slug_field='name', required=False
-    )
-    auth_template = serializers.SlugRelatedField(
-        queryset=AuthTemplate.objects.all(),
-        slug_field='name', required=False
-    )
-
-    class Meta:
-        model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'auth_template', 'comment', 'date_created', ]
-        read_only_fields = ['id', 'date_created', ]
-
-
 class StorageSerializer(ProjectSerializer):
     template = serializers.SlugRelatedField(
         queryset=StorageTemplate.objects.all(),
@@ -208,3 +192,26 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_progress_ws_url(obj):
         return '/ws/progress/{}/'.format(obj.id)
+
+
+class ClusterSerializer(ProjectSerializer):
+    package = serializers.SlugRelatedField(
+        queryset=Package.objects.all(),
+        slug_field='name', required=False
+    )
+    auth_template = serializers.SlugRelatedField(
+        queryset=AuthTemplate.objects.all(),
+        slug_field='name', required=False
+    )
+    persistent_storage = serializers.SlugRelatedField(
+        queryset=Storage.objects.all(),
+        slug_field='name', required=False
+    )
+    current_execution = DeployExecutionSerializer(read_only=True)
+
+    class Meta:
+        model = Cluster
+        fields = ['id', 'name', 'package', 'persistent_storage', 'template', 'auth_template', 'comment',
+                  'date_created',
+                  'current_execution']
+        read_only_fields = ['id', 'date_created', 'current_execution']

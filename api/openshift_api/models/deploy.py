@@ -6,7 +6,7 @@ from django.db import models
 
 from common import models as common_models
 from openshift_api.models.cluster import Cluster
-from openshift_api.signals import pre_deploy_execution_start
+from openshift_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     operation = models.CharField(max_length=128, blank=False, null=False)
     progress = models.FloatField(default=0)
     extra_vars = common_models.JsonDictTextField(default={})
-    current_play = models.CharField(max_length=128, null=True, default=None)
+    current_play = models.CharField(max_length=512, null=True, default=None)
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
 
     @property
@@ -33,11 +33,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         try:
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
+                    playbooks = ['ping']
                     cluster_playbooks = opt.get('playbooks', [])
-                    storage_playbooks = cluster.template.meta['config'].get('playbooks', [])
-                    playbooks = []
-                    playbooks.append(cluster_playbooks)
-                    playbooks.append(storage_playbooks)
+                    if cluster.persistent_storage:
+                        storage_playbooks = cluster.persistent_storage.template.meta['config'].get('playbooks', [])
+                        # playbooks.extend(storage_playbooks)
+                    # playbooks.extend(cluster_playbooks)
                     total_palybook = len(playbooks)
                     current = 0
                     for playbook_name in playbooks:
@@ -57,6 +58,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             logger.error(e, exc_info=True)
             cluster.save()
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
+        post_deploy_execution_start.send(self.__class__, execution=self, result=result)
         return result
 
     def to_json(self):

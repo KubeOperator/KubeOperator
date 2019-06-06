@@ -86,6 +86,8 @@ services:
     container_name: f2o_dns
     build: docker/dnsmasq
     image: fit2openshift/dns:latest
+    cap_add:
+        - NET_ADMIN
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:

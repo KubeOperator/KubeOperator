@@ -1,0 +1,7 @@
+---
+
+# 检查主机联通
+- name : Ping hosts
+  hosts: f2o
+  roles:
+    - check_ping

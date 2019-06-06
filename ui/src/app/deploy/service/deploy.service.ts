@@ -16,6 +16,7 @@ export class DeployService {
   $finished = this.finished.asObservable();
 
   next(execution: Execution) {
+    console.log(execution);
     this.executionQueue.next(execution);
   }
 

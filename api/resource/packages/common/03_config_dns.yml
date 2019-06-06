@@ -1,0 +1,33 @@
+# 创建 dns  组
+- name: Create dns group
+  hosts: localhost
+  roles:
+    - add_dns_group
+
+# 向localhost 注册 dns
+- name: regist dns
+  hosts: localhost
+  roles:
+    - set_local_dns
+
+# 添加registry dns
+- name: add registry dns
+  hosts: localhost
+  roles:
+    - add_registry
+
+# 重启localhost dnsmasq
+- name: restart dnsmasq
+  hosts: localhost
+  roles:
+   - restart_dns
+# node 添加 dns 解析记录
+- name: add dns to node
+  hosts: OSEv3
+  roles:
+    - config_dns
+#config hostname
+- name: config hostname
+  hosts: OSEv3
+  roles:
+    - config_hostname

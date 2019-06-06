@@ -5,6 +5,7 @@ import {LogService} from '../log/log.service';
 import {DeployService} from './service/deploy.service';
 import {Cluster} from '../cluster/cluster';
 import {ClusterService} from '../cluster/cluster.service';
+
 @Component({
   selector: 'app-deploy',
   templateUrl: './deploy.component.html',
@@ -25,7 +26,9 @@ export class DeployComponent implements OnInit {
       // 更新cluster
       this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
         this.currentCluster = cluster;
-        this.deployService.next(this.currentCluster.current_execution);
+        if (this.currentCluster.current_execution) {
+          this.deployService.next(this.currentCluster.current_execution);
+        }
       });
     });
   }

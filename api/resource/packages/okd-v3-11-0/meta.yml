@@ -29,6 +29,8 @@ playbooks:
     alias: openshift-ansible/playbooks/openshift-glusterfs/config.yml
   - name: config-nfs-storage
     alias: openshift-ansible/playbooks/openshift-nfs-storage/config.yml
+  - name: ping
+    alias: playbooks/ping.yml
 
 
 # template public roles
@@ -105,7 +107,6 @@ templates:
           - distribute-ssh-key
           - config_host_dns
           - prepare-host
-          - uninstall-old
           - prerequisites
           - config-docker-storage
           - install-openshift
@@ -123,9 +124,6 @@ templates:
         playbooks:
           - config-master
           - restart-openshift
-
-
-
     portals:
       - name: Openshift Web Console
         redirect: https://$openshift_master_cluster_public_hostname

@@ -42,8 +42,9 @@ export class ProgressComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.deployService.$executionQueue.subscribe(data => {
+      console.log(data);
       this.currentExecution = data;
-      if (this.currentExecution === null) {
+      if (this.currentExecution) {
         this.currentDeploy = '暂无';
       } else {
         // 判断是否完成

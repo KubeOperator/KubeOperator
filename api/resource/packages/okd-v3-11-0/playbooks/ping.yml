@@ -1,0 +1,4 @@
+- hosts: OSEv3
+  tasks:
+    - name: SSH do not use dns lookup
+      ping:
