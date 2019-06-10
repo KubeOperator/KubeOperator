@@ -31,6 +31,21 @@ export class PackageListComponent implements OnInit {
     });
   }
 
+  getLogo(p: Package): string {
+    let logo = null;
+    const path = 'assets/images';
+    switch (p.meta.resource) {
+      case 'kubernetes':
+        logo = path + '/logo-k8s.png';
+        break;
+      case 'okd':
+        logo = path + '/logo-okd.png';
+        break;
+    }
+    return logo;
+  }
+
+
   refresh() {
     this.tipService.showTip('刷新成功', TipLevels.SUCCESS);
     this.listOfflines();

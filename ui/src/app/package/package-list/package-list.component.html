@@ -7,13 +7,13 @@
     </button>
   </clr-dg-action-bar>
 
-  <clr-dg-column>名称</clr-dg-column>
-  <clr-dg-column>okd版本</clr-dg-column>
+  <clr-dg-column>软件包</clr-dg-column>
+  <clr-dg-column>版本</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
 
 
   <clr-dg-row *ngFor="let package of packages" [clrDgItem]="package">
-    <clr-dg-cell>{{package.name}}</clr-dg-cell>
+    <clr-dg-cell>{{package.meta.resource}}&nbsp;<img [src]="getLogo(package)" class="logo"></clr-dg-cell>
     <clr-dg-cell>{{package.meta.version}}</clr-dg-cell>
     <clr-dg-cell>{{package.date_created}}</clr-dg-cell>
   </clr-dg-row>

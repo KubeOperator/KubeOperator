@@ -1,20 +1,24 @@
 resource: okd
 version: 3.11
 playbooks:
+  - name: host-check
+    alias: common/00_host_check.yml
+  - name: send-ssh-key
+    alias: common/01_send_ssh_key.yml
   - name: config-ssh
-    alias: playbooks/config_ssh.yml
-  - name: distribute-ssh-key
-    alias: playbooks/distribute_ssh_key.yml
-  - name: config_host_dns
-    alias: playbooks/config_host_dns.yml
+    alias: common/02_config_ssh.yml
+  - name: config-dns
+    alias: common/03_config_dns.yml
   - name: prepare-host
-    alias: playbooks/prepare_host.yml
-  - name: uninstall-old
-    alias: openshift-ansible/playbooks/adhoc/uninstall.yml
+    alias: common/04_prepare_host.yml
+  - name: install-rpms
+    alias: common/05_install_basic_rpms.yml
+  - name:  config-docker-storage
+    alias: common/06_config_docker.yml
+  - name:  config-ntp
+    alias: common/07_config_ntp.yml
   - name: prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
-  - name: config_docker_storage
-    alias: playbooks/config_docker_storage.yml
   - name: install-openshift
     alias: openshift-ansible/playbooks/deploy_cluster.yml
   - name: uninstall-glusterfs
@@ -29,8 +33,6 @@ playbooks:
     alias: openshift-ansible/playbooks/openshift-glusterfs/config.yml
   - name: config-nfs-storage
     alias: openshift-ansible/playbooks/openshift-nfs-storage/config.yml
-  - name: ping
-    alias: playbooks/ping.yml
 
 
 # template public roles

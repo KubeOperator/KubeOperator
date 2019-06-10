@@ -30,11 +30,11 @@ export class ClusterListComponent implements OnInit {
     this.checkSetting();
   }
   checkSetting() {
-    this.settingService.getSetting('local_hostname').subscribe(data => {
-      if (!data.value || data.value === '127.0.0.1') {
-        this.messageService.announceMessage('部署前请先设置主机IP,否则部署将造成失败！', MessageLevels.WARN);
-      }
-    });
+    // this.settingService.getSetting('local_hostname').subscribe(data => {
+    //   if (!data.value || data.value === '127.0.0.1') {
+    //     this.messageService.announceMessage('部署前请先设置主机IP,否则部署将造成失败！', MessageLevels.WARN);
+    //   }
+    // });
   }
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
