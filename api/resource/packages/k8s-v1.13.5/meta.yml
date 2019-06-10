@@ -1,4 +1,4 @@
-name: kubernetes
+resource: kubernetes
 version: 1.13.5
 playbooks:
 

@@ -1,4 +1,4 @@
-name: okd-3.11
+resource: okd
 version: 3.11
 playbooks:
   - name: config-ssh
