@@ -1,0 +1,4 @@
+---
+- name: Check ping
+  gather_facts: false
+  ping:

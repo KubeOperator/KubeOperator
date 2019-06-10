@@ -35,6 +35,14 @@ playbooks:
 
 # template public roles
 roles:
+  - name: cluster_nodes
+    children:
+      - masters
+      - compute
+      - infra
+  - name: all_nodes
+      - lb
+      - cluster_nodes
   - name: etcd
     children:
       - masters

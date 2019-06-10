@@ -25,7 +25,6 @@ roles:
     meta:
       hidden: true
     vars:
-
       MASTER_IP: "{{ groups['lb'][0] }"
       CONTAINER_RUNTIME: "docker"
       CLUSTER_NETWORK: "flannel"

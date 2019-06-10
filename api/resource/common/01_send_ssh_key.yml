@@ -1,6 +1,6 @@
 ---
 - name: Send ssh key to node
-  hosts: f2o
+  hosts: all_nodes
   tasks:
     - name: copy ssh key to node
       gather_facts: false

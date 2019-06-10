@@ -1,4 +1,5 @@
-- hosts: f2o
+---
+- hosts: all_nodes
   tasks:
     - name: SSH do not use dns lookup
       lineinfile:

@@ -21,6 +21,7 @@
   hosts: localhost
   roles:
    - restart_dns
+
 # node 添加 dns 解析记录
 - name: add dns to node
   hosts: OSEv3
