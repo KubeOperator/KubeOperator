@@ -1,0 +1,30 @@
+{
+  "CN": "kubernetes",
+  "hosts": [
+    "127.0.0.1",
+    "{{ MASTER_IP }}",
+    "{{ inventory_hostname }}",
+    "{{ CLUSTER_KUBERNETES_SVC_IP }}",
+{% for HOST in MASTER_CERT_HOSTS %}
+    "{{ HOST }}",
+{% endfor %}
+    "kubernetes",
+    "kubernetes.default",
+    "kubernetes.default.svc",
+    "kubernetes.default.svc.cluster",
+    "kubernetes.default.svc.cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "HangZhou",
+      "L": "XS",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}

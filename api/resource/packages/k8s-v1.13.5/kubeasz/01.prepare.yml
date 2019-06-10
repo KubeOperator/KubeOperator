@@ -1,0 +1,24 @@
+# [optional] to synchronize time of nodes with 'chrony' 
+- hosts: all
+  roles:
+  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
+- hosts: deploy
+  roles:
+  - deploy
+
+# prepare tasks for all nodes
+- hosts:
+  - kube-master
+  - kube-node
+  - deploy
+  - etcd
+  - lb
+  roles:
+  - prepare
+
+#  [optional] to install loadbalance service, only needed by multi-master cluster 
+- hosts: lb
+  roles:
+  - lb

@@ -1,0 +1,12 @@
+---
+- name: Download bin files
+  hosts: localhost
+  tasks:
+    - name: Download bin file
+      geturl:
+        url: {{bin_file_url}}
+        dest: /tmp/kubeOperater/{{file_name}}
+    - name: Unarchive package
+      unarchive:
+        src: /tmp/kubeOperater/{{file_name}}
+        dest: ./bin
