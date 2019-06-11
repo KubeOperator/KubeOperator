@@ -215,7 +215,6 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-
       - name: nodes
         children:
           - masters

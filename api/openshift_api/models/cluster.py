@@ -31,11 +31,20 @@ class Cluster(Project):
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
     auth_template = models.ForeignKey('openshift_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+    status = models.CharField(max_length=128, choices=OPENSHIFT_STATUS_CHOICES, default=OPENSHIFT_STATUS_UNKNOWN)
 
     @property
     def current_execution(self):
         current = openshift_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current
+
+    @property
+    def resource(self):
+        return self.package.meta['resource']
+
+    @property
+    def resource_version(self):
+        return self.package.meta['version']
 
     def create_storage(self):
         if self.persistent_storage:

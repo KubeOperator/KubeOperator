@@ -90,8 +90,8 @@ export class Os {
 
 export class Template {
   name: string;
-  roles: Role[];
-  private_config: Config[];
+  roles: Role[] = [];
+  private_config: Config[] = [];
   portals: Portal[];
   comment: string;
 }

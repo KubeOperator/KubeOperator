@@ -4,8 +4,8 @@
   connection: local
   tasks:
     - name: Download bin file
-      geturl:
-        url: {{bin_file_url}}
+      get_url:
+        url: {{download_bin_url}}
         dest: /tmp/kubeOperater/{{file_name}}
     - name: Unarchive package
       unarchive:

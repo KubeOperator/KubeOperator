@@ -14,6 +14,9 @@ export class Cluster {
   node: Node[];
   configs: ExtraConfig[];
   current_execution: Execution;
+  status: string;
+  resource: string;
+  resource_version: string;
 }
 
 export class ExtraConfig {

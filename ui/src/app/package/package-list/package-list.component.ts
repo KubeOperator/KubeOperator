@@ -4,6 +4,7 @@ import {PackageService} from '../package.service';
 import {MessageLevels} from '../../base/message/message-level';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {PackageLogoService} from '../package-logo.service';
 
 @Component({
   selector: 'app-offline-list',
@@ -16,7 +17,7 @@ export class PackageListComponent implements OnInit {
   packages: Package[] = [];
   selectedRow: Package[] = [];
 
-  constructor(private offlineService: PackageService, private tipService: TipService) {
+  constructor(private offlineService: PackageService, private tipService: TipService, private packageLogoService: PackageLogoService) {
   }
 
   ngOnInit() {
@@ -32,17 +33,7 @@ export class PackageListComponent implements OnInit {
   }
 
   getLogo(p: Package): string {
-    let logo = null;
-    const path = 'assets/images';
-    switch (p.meta.resource) {
-      case 'kubernetes':
-        logo = path + '/logo-k8s.png';
-        break;
-      case 'okd':
-        logo = path + '/logo-okd.png';
-        break;
-    }
-    return logo;
+    return this.packageLogoService.getLogo(p.meta.resource);
   }
 
 

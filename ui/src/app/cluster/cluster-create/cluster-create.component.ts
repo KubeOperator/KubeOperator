@@ -169,12 +169,15 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs = template.private_config;
-        this.configs.forEach(c => {
-          c.value = c.default;
-          if (c.type === 'Input') {
-            c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
-          }
-        });
+        if (this.configs) {
+          this.configs.forEach(c => {
+            c.value = c.default;
+            if (c.type === 'Input') {
+              c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
+            }
+          });
+        }
+
       }
     });
     this.nodes = [];
@@ -184,6 +187,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
             const group: Group = new Group();
+            console.log(this.template);
             group.node_vars = role.meta.node_vars;
             group.name = role.name;
             group.op = role.meta.requires.nodes_require[0];

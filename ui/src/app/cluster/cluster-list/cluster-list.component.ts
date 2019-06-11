@@ -7,6 +7,8 @@ import {TipLevels} from '../../tip/tipLevels';
 import {MessageService} from '../../base/message.service';
 import {MessageLevels} from '../../base/message/message-level';
 import {SettingService} from '../../setting/setting.service';
+import {PackageLogoService} from '../../package/package-logo.service';
+import {ClusterStatusService} from '../cluster-status.service';
 
 @Component({
   selector: 'app-cluster-list',
@@ -22,13 +24,15 @@ export class ClusterListComponent implements OnInit {
   @Output() addCluster = new EventEmitter<void>();
 
   constructor(private clusterService: ClusterService, private router: Router,
-              private tipService: TipService, private messageService: MessageService, private settingService: SettingService) {
+              private tipService: TipService, private messageService: MessageService, private settingService: SettingService,
+              private packageLogoService: PackageLogoService, private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
     this.listCluster();
     this.checkSetting();
   }
+
   checkSetting() {
     // this.settingService.getSetting('local_hostname').subscribe(data => {
     //   if (!data.value || data.value === '127.0.0.1') {
@@ -36,6 +40,7 @@ export class ClusterListComponent implements OnInit {
     //   }
     // });
   }
+
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;
@@ -44,7 +49,6 @@ export class ClusterListComponent implements OnInit {
       this.loading = false;
     });
   }
-
 
 
   onDeleted() {
@@ -75,4 +79,11 @@ export class ClusterListComponent implements OnInit {
     this.router.navigate(linkUrl);
   }
 
+  getLogo(resource: string) {
+    return this.packageLogoService.getLogo(resource);
+  }
+
+  getStatusComment(status: string): string {
+    return this.clusterStatusService.getComment(status);
+  }
 }

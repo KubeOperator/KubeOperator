@@ -33,19 +33,19 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         try:
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
-                    playbooks = ['ping']
+                    playbooks = []
                     cluster_playbooks = opt.get('playbooks', [])
                     if cluster.persistent_storage:
                         storage_playbooks = cluster.persistent_storage.template.meta['config'].get('playbooks', [])
-                        # playbooks.extend(storage_playbooks)
-                    # playbooks.extend(cluster_playbooks)
+                        playbooks.extend(storage_playbooks)
+                    playbooks.extend(cluster_playbooks)
                     total_palybook = len(playbooks)
                     current = 0
                     for playbook_name in playbooks:
                         print("\n>>> Start run {} ".format(playbook_name))
                         self.current_play = playbook_name
                         self.save()
-                        playbook = self.project.playbook_set.filter(name=playbook_name).first()
+                        playbook = self.project.playbook_set.get(name=playbook_name)
                         _result = playbook.execute(extra_vars=self.extra_vars)
                         result["summary"].update(_result["summary"])
                         if not _result.get('summary', {}).get('success', False):

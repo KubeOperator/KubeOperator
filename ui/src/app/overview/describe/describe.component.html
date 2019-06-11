@@ -2,6 +2,7 @@
 名称:{{currentCluster.name}}<br/>
 离线包:{{currentCluster.package}}<br/>
 部署模型:{{currentCluster.template}}<br/>
+状态:{{currentCluster.status}}<br/>
 
 <div *ngFor="let portal of portals">
   {{portal.name}}:<a [href]="portal.redirect" target="_blank">{{portal.redirect}}</a>
