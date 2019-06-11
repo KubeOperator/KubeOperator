@@ -113,14 +113,16 @@ templates:
         display: true
         comment: '安装'
         playbooks:
+          - host-check
+          - send-ssh-key
           - config-ssh
-          - distribute-ssh-key
-          - config_host_dns
+          - config-dns
           - prepare-host
-          - prerequisites
+          - install-rpms
           - config-docker-storage
+          - config-ntp
+          - prequisites-install
           - install-openshift
-
       - name: uninstall
         display: true
         comment: '卸载'

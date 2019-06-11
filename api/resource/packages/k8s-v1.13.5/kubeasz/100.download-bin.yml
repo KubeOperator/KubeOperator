@@ -1,6 +1,7 @@
 ---
 - name: Download bin files
   hosts: localhost
+  connection: local
   tasks:
     - name: Download bin file
       geturl:
