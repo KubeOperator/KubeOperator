@@ -3,7 +3,6 @@
   hosts: all_nodes
   tasks:
     - name: copy ssh key to node
-      gather_facts: false
       authorized_key:
         user: root
         key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"

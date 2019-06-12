@@ -1,5 +1,6 @@
 ---
 - name: prepare kube bin files
-  hosts: kube
+  hosts: localhost
+  connection: local
   roles:
     - kube-bin

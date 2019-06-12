@@ -2,6 +2,6 @@
 
 # 检查主机联通
 - name : Ping hosts
-  hosts: cluster_nodes
+  hosts: all_nodes
   roles:
-    - check_ping
+  - check_ping

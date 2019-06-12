@@ -1,6 +1,0 @@
-[kube]
-172.16.10.191 ansible_ssh_user=root ansible_ssh_pass=Calong@2015
-[kube:vars]
-download_bin_url= http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz
-file_name=k8s.1-13-5.tar.gz
-kube_version=1.13.5
