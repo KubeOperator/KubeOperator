@@ -1,23 +1,8 @@
-- block:
-    - name: 拉取 traefik 镜像
-      docker_images:
-        name: traefik
-        source: pull
-    - name: 创建 traefik部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
-      run_once: true
-  when: 'ingress_backend == "traefik"'
-  ignore_errors: true
-
-- block:
-    - name: 拉取 nginx_ingress 镜像
-      docker_images:
-        name: nginx_ingress
-        source: pull
-    - name: 创建 nginx_ingress部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/nginx-ingress/nginx-ingress.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
-      run_once: true
-  when: 'ingress_backend == "nginx-ingress"'
-  ignore_errors: true
+- name: 拉取 traefik 镜像
+  docker_images:
+    name: traefik
+    source: pull
+- name: 创建 traefik部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+  delegate_to: "{{ groups.deploy[0] }}"
+  run_once: true
