@@ -1,13 +1,5 @@
 ---
-- name: Download bin files
-  hosts: localhost
-  connection: local
-  tasks:
-    - name: Download bin file
-      get_url:
-        url: {{download_bin_url}}
-        dest: /tmp/kubeOperater/{{file_name}}
-    - name: Unarchive package
-      unarchive:
-        src: /tmp/kubeOperater/{{file_name}}
-        dest: ./bin
+- name: prepare kube bin files
+  hosts: kube
+  roles:
+    - kube-bin

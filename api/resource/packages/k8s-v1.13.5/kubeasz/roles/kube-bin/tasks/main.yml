@@ -1,0 +1,21 @@
+---
+
+- name: Create temp directory for doing work in
+  file:
+    path: "/tmp/kubeOperator-kube-bin/{{ kube_version }}"
+    state: "directory"
+  register: temp
+
+- debug:
+    msg: "Create temp dir {{temp.path}}"
+
+- name: Download bin kube file
+  get_url:
+    url: "{{download_bin_url}}"
+    dest: "{{temp.path}}/{{file_name}}"
+
+- name: Unarchive package
+  unarchive:
+    src: "{{temp.path}}/{{file_name}}"
+    dest: "{{temp.path}}"
+    copy: no

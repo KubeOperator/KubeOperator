@@ -1,0 +1,5 @@
+---
+- name: pull flannel image
+  docker_image:
+    name: registry.fit2openshift.io:8082/flannel:v0.11.0-amd64
+    source: pull

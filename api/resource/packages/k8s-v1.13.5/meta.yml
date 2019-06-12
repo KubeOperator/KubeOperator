@@ -63,6 +63,8 @@ roles:
       KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
       #kubeOperator
       download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
+      file_name: "k8s.1-13-5.tar.gz"
+      base_dir: "/tmp/kubeOperator-kube-bin/1.13.5"
 
 templates:
   - name: all-in-one 模型
