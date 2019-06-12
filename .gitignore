@@ -72,3 +72,4 @@ nohup.out
 docker/nexus/data/*
 ui/dist
 dump.rdb
+*tar.gz
