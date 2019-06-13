@@ -33,8 +33,7 @@
   - kube-master
   - kube-node
   roles:
-  - { role: docker, when: "CONTAINER_RUNTIME == 'docker'" }
-  - { role: containerd, when: "CONTAINER_RUNTIME == 'containerd'" }
+  - docker
 
 # to set up 'kube-master' nodes
 - hosts: kube-master

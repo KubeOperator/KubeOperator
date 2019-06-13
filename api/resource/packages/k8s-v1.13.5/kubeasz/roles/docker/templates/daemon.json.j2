@@ -1,18 +1,13 @@
 {
   "registry-mirrors": [
-    "https://dockerhub.azk8s.cn",
-    "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
+   "insecure-registries":["registry.fit2openshift.io:8082"],
   "max-concurrent-downloads": 10,
-  "log-driver": "{{ LOG_DRIVER }}",
-  "log-level": "{{ LOG_LEVEL }}",
+  "log-driver": "{{ DOCKER_LOG_DRIVER }}",
+  "log-level": "{{ DOCKER_LOG_LEVEL }}",
   "log-opts": {
-    "max-size": "{{ LOG_MAX_SIZE }}",
-    "max-file": "{{ LOG_MAX_FILE }}"
-    },
-  "data-root": "{{ STORAGE_DIR }}"
-  {% if ENABLE_REMOTE_API %}
-  , "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"]
-  {% endif %}
+    "max-size": "{{ DOCKER_LOG_MAX_SIZE }}",
+    "max-file": "{{ DOCKER_LOG_MAX_FILE }}"
+    }
 }

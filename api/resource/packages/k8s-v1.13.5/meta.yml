@@ -61,6 +61,11 @@ roles:
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
       KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
+      #docker
+      DOCKER_LOG_DRIVER: "json-file"
+      DOCKER_LOG_LEVEL: "warn"
+      DOCKER_LOG_MAX_SIZE: "10m"
+      DOCKER_LOG_MAX_FILE: 3
       #kubeOperator
       download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
       file_name: "k8s.1-13-5.tar.gz"
