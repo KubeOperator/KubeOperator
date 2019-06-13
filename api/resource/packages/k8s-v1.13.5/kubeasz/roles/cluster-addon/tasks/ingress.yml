@@ -1,7 +1,7 @@
 - name: 拉取 traefik 镜像
   docker_image:
     name: "{{registry_prefix}}/{{traefik_image}}:{{traefik_version}}"
-    source: pull
+    state: present
 - name: 创建 traefik部署
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
   delegate_to: "{{ groups.deploy[0] }}"

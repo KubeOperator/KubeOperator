@@ -25,7 +25,7 @@
     - name: 获取 Core DNS 镜像
       docker_image:
         name: "{{registry_prefix}}/{{dns_image}}:{{dns_version}}"
-        state: pull
+        state: present
 
     - name: 创建{{ dns_backend }}部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
@@ -40,7 +40,7 @@
     - name: 获取 metrics-server 镜像
       docker_image:
         name: "{{registry_prefix}}/{{metricsserver_image}}:{{metricsserver_version}}"
-        state: pull
+        state: present
 
     - name: 创建 metrics-server部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
@@ -54,7 +54,7 @@
     - name: 获取 dashboard 镜像
       docker_image:
         name: "{{registry_prefix}}/{{dashboard_image}}:{{dashboard_version}}"
-        state: pull
+        state: present
 
     - name: 创建 dashboard部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
@@ -71,7 +71,7 @@
     - name: 获取 heapster 镜像
       docker_image:
         name: "{{registry_prefix}}/{{heapster_image}}:{{heapster_version}}"
-        state: pull
+        state: present
 
     - name: 创建 heapster部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster.yaml"
