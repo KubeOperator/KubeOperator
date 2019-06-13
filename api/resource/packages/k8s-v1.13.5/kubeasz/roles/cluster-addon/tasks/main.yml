@@ -15,12 +15,6 @@
   delegate_to: "{{ groups.deploy[0] }}"
   run_once: true
 
-#- name: 获取已下载离线镜像信息
-#  command: "ls {{ base_dir }}/down"
-#  register: download_info
-#  connection: local
-#  run_once: true
-
 - block:
     - name: 获取 Core DNS 镜像
       docker_image:
@@ -65,7 +59,7 @@
   ignore_errors: true
 
 - import_tasks: ingress.yml
-  when: '"ingress-controller" not in pod_info.stdout and ingress_install == "yes"'
+  when: '"ingress-controller" not in pod_info.stdout '
 
 - block:
     - name: 获取 heapster 镜像
