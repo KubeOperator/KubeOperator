@@ -83,6 +83,9 @@ roles:
       heapster_image: "mirrorgooglecontainers/heapster-amd64"
       #metallb
       metallb_install: "no"
+      #traefik
+      traefik_version: "v1.7.11"
+      traefik_image: "traefik"
 
 templates:
   - name: all-in-one 模型
