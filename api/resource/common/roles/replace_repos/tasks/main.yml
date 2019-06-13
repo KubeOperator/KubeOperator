@@ -11,8 +11,3 @@
   file:
     path: ~/.pip
     state: directory
-
-- name: Create pip repo
-  template:
-    src: templates/pip.conf.j2
-    dest: ~/.pip/pip.conf

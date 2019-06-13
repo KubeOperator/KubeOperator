@@ -20,7 +20,9 @@
       - python-passlib
       - ntp
       - docker
+      - python-docker-py
       - python2-pip
   gather_facts: no
   roles:
     - check_packages_nodes
+- name:
