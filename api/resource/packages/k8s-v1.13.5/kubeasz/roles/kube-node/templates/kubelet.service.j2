@@ -11,7 +11,7 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/memory/system.slice/kubelet.service
 ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/pids/system.slice/kubelet.service
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
-  --address={{ inventory_hostname }} \
+  --address={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} \
   --allow-privileged=true \
   --anonymous-auth=false \
   --authentication-token-webhook \
