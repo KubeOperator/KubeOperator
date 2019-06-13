@@ -27,7 +27,7 @@
         name: "{{registry_prefix}}/{{dns_image}}:{{dns_version}}"
         state: present
 
-    - name: 创建{{ dns_backend }}部署
+    - name: 创建CoreDNS部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
       run_once: true
       delegate_to: "{{ groups.deploy[0] }}"
