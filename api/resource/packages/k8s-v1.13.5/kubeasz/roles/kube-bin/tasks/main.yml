@@ -1,8 +1,8 @@
 ---
 
-- name: Create temp directory for doing work in
+- name: Create some directory for doing work in
   file:
-    path: "/tmp/kubeOperator-kube-bin/{{ kube_version }}"
+    path: "/opt/kubeOperator-kube-bin/{{ kube_version }}"
     state: "directory"
   register: temp
 

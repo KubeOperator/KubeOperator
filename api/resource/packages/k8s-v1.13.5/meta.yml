@@ -64,7 +64,25 @@ roles:
       #kubeOperator
       download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
       file_name: "k8s.1-13-5.tar.gz"
-      base_dir: "/tmp/kubeOperator-kube-bin/1.13.5"
+      base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
+      #dns
+      dns_install: "yes"
+      dns_image: "coredns/coredns"
+      dns_version: "1.5.0"
+      #metrics-server
+      metricsserver_install: "yes"
+      metricsserver_image: "mirrorgooglecontainers/metrics-server-amd64"
+      metricsserver_version: "v0.3.2"
+      #dashboard
+      dashboard_install: "yes"
+      dashboard_image: "mirrorgooglecontainers/kubernetes-dashboard-amd6"
+      dashboard_version: "v1.10.1"
+      #heapster
+      heapster_install: "yes"
+      heapster_version: "v1.5.4"
+      heapster_image: "mirrorgooglecontainers/heapster-amd64"
+      #metallb
+      metallb_install: "no"
 
 templates:
   - name: all-in-one 模型
