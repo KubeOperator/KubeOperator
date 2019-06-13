@@ -28,7 +28,7 @@
         state: present
 
     - name: 创建CoreDNS部署
-      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/{{ dns_backend }}"
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns"
       run_once: true
       delegate_to: "{{ groups.deploy[0] }}"
   when:
