@@ -1,5 +1,5 @@
 - name: 拉取 traefik 镜像
-  docker_images:
+  docker_image:
     name: traefik
     source: pull
 - name: 创建 traefik部署
