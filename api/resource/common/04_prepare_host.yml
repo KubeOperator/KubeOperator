@@ -1,6 +1,6 @@
 ---
 
-# 修改安装rpm源
+# 修改安装rpm/pip源
 - name: Replace repos.
   hosts: all_nodes
   roles:
