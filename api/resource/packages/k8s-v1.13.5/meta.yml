@@ -11,35 +11,35 @@ operations:
     icon: trash
     event: []
     redirect: "deploy"
-  - name: restart
-    comment: "重启"
-    icon: refresh
-    event: []
-    redirect: "deploy"
+  #  - name: restart
+  #    comment: "重启"
+  #    icon: refresh
+  #    event: []
+  #    redirect: "deploy"
   - name: node
     comment: "管理节点"
     event: []
     redirect: "node"
     icon: linode
 playbooks:
-  - name: host-check
+  - name:  host-check
     alias: common/00_host_check.yml
-  - name: send-ssh-key
+  - name:  send-ssh-key
     alias: common/01_send_ssh_key.yml
-  - name: config-ssh
+  - name:  config-ssh
     alias: common/02_config_ssh.yml
-  - name: config-dns
+  - name:  config-dns
     alias: common/03_config_dns.yml
-  - name: prepare-host
+  - name:  prepare-host
     alias: common/04_prepare_host.yml
-  - name: install-rpms
+  - name:  install-rpms
     alias: common/05_install_basic_rpms.yml
   - name:  config-docker-storage
     alias: common/06_config_docker.yml
-  - name:  config-ntp
-    alias: common/07_config_ntp.yml
   - name:  install-k8s
     alias: kubeasz/90.setup.yml
+  - name: uninstall-k8s
+    alias: kubeasz/99.clean.yml
 roles:
   - name: cluster_nodes
     children:
@@ -82,11 +82,6 @@ roles:
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
       KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
-      #docker
-      DOCKER_LOG_DRIVER: "json-file"
-      DOCKER_LOG_LEVEL: "warn"
-      DOCKER_LOG_MAX_SIZE: "10m"
-      DOCKER_LOG_MAX_FILE: 3
       #kubeOperator
       download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
       file_name: "k8s.1-13-5.tar.gz"
@@ -116,22 +111,22 @@ roles:
 templates:
   - name: all-in-one 模型
     comment: '此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 kubernetes 核心组件'
-    operations:
-      - name: install
-        display: true
-        comment: '安装'
-        playbooks:
-          - host-check
-    #          - send-ssh-key
-    #          - config-ssh
-    #          - config-dns
-    #          - prepare-host
-    #          - install-rpms
-    #          - config-docker-storage
-    #          - config-ntp
-    #          - install-k8s
     private_vars:
       DEPLOY_MODE: 'allinone'
+    operations:
+      - name: install
+        playbooks:
+          - host-check
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - prepare-host
+          - install-rpms
+          - config-docker-storage
+          - install-k8s
+      - name: uninstall
+        playbooks:
+          - uninstall-k8s
     roles:
       - name: masters
         vars:
@@ -183,10 +178,159 @@ templates:
           - masters
         meta:
           hidden: true
-      - name: infra
-        children:
-          - masters
+
+
+  - name: 高可用模型
+    comment: '此部署模型为高可用部署模型，包括1个 load balance 节点，3个 (Master)主节点，3个 (Infra)架构节点和至少3个 (Compute)计算节点，可用于生产环境，可选装 clustet-monitoring、metrics、logging等组件。'
+    private_vars:
+      DEPLOY_MODE: 'multi-master'
+    operations:
+      - name: install
+        playbooks:
+          - host-check
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - prepare-host
+          - install-rpms
+          - config-docker-storage
+          - install-k8s
+      - name: uninstall
+        playbooks:
+          - uninstall-k8s
+    roles:
+      - name: masters
+        vars:
         meta:
-          hidden: true
-
-
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars:
+            - name: "docker_storage_device"
+              verbose: "Docker 存储卷"
+              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
+              type: "Select"
+              require: true
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷:"
+                minimal: 100
+                excellent: 500
+                comment: "数据卷,用于存储docker数据"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+      - name: compute
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars:
+            - name: "docker_storage_device"
+              verbose: "Docker 存储卷"
+              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
+              type: "Select"
+              require: true
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷:"
+                minimal: 100
+                excellent: 500
+                comment: "数据卷,用于存储docker数据"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+      - name: infra
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars:
+            - name: "docker_storage_device"
+              verbose: "Docker 存储卷"
+              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
+              type: "Select"
+              require: true
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+              - name: "data"
+                verbose: "数据卷:"
+                minimal: 100
+                excellent: 500
+                comment: "数据卷,用于存储docker数据"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"

@@ -131,8 +131,6 @@ templates:
     comment: 此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 Openshift 核心组件。
     operations:
       - name: install
-        display: true
-        comment: '安装'
         playbooks:
           - host-check
           - send-ssh-key
@@ -146,17 +144,14 @@ templates:
           - install-openshift
       - name: uninstall
         display: true
-        comment: '卸载'
         playbooks:
           - uninstall-glusterfs
           - uninstall-openshift
-
-      - name: update
-        display: false
-        comment: '更新'
+      - name: restart
         playbooks:
           - config-master
           - restart-openshift
+
     portals:
       - name: Openshift Web Console
         redirect: https://$openshift_master_cluster_public_hostname
