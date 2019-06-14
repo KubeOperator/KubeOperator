@@ -87,27 +87,28 @@ roles:
       file_name: "k8s.1-13-5.tar.gz"
       base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
       #dns
-      dns_install: "yes"
+      dns_install: true
       dns_image: "coredns/coredns"
       dns_version: "1.5.0"
       #metrics-server
-      metricsserver_install: "yes"
+      metricsserver_install: true
       metricsserver_image: "mirrorgooglecontainers/metrics-server-amd64"
       metricsserver_version: "v0.3.2"
       #dashboard
-      dashboard_install: "yes"
+      dashboard_install: true
       dashboard_image: "mirrorgooglecontainers/kubernetes-dashboard-amd6"
       dashboard_version: "v1.10.1"
       #heapster
-      heapster_install: "yes"
+      heapster_install: true
       heapster_version: "v1.5.4"
       heapster_image: "mirrorgooglecontainers/heapster-amd64"
-      #metallb
-      metallb_install: "no"
       #traefik
       traefik_version: "v1.7.11"
       traefik_image: "traefik"
-
+      #efk
+      efk_install: true
+      #registry
+      habor_install: true
 templates:
   - name: all-in-one 模型
     comment: '此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 kubernetes 核心组件'
