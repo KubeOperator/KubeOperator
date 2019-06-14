@@ -136,6 +136,7 @@ templates:
           - send-ssh-key
           - config-ssh
           - config-dns
+          - config-dns
           - prepare-host
           - install-rpms
           - config-docker-storage
@@ -145,13 +146,11 @@ templates:
       - name: uninstall
         display: true
         playbooks:
-          - uninstall-glusterfs
           - uninstall-openshift
       - name: restart
         playbooks:
           - config-master
           - restart-openshift
-
     portals:
       - name: Openshift Web Console
         redirect: https://$openshift_master_cluster_public_hostname
@@ -238,6 +237,29 @@ templates:
           hidden: true
 
   - name: 高可用模型
+    operations:
+      - name: install
+        playbooks:
+          - host-check
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - config-dns
+          - prepare-host
+          - install-rpms
+          - config-docker-storage
+          - config-ntp
+          - prequisites-install
+          - install-openshift
+      - name: uninstall
+        display: true
+        playbooks:
+          - uninstall-glusterfs
+          - uninstall-openshift
+      - name: restart
+        playbooks:
+          - config-master
+          - restart-openshift
     comment: 此部署模型为高可用部署模型，包括1个 load balance 节点，3个 (Master)主节点，3个 (Infra)架构节点和至少3个 (Compute)计算节点，可用于生产环境，可选装 clustet-monitoring、metrics、logging等组件。
     portals:
       - name: Openshift Web Console
