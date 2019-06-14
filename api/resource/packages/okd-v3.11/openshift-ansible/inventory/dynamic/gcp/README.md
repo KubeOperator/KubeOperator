@@ -1,1 +1,0 @@
-This directory provides dynamic inventory for a GCP cluster configured via the GCP provisioning playbook. Set inventory to `inventory/dynamic/gcp/hosts.sh` to calculate the appropriate host set.

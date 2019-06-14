@@ -1,7 +1,0 @@
-docker.io/cockpit/kubernetes:latest,
-ocker.io/openshift/origin-control-plane:v3.10,
-ocker.io/openshift/origin-deployer:v3.10,
-ocker.io/openshift/origin-docker-registry:v3.10,
-ocker.io/openshift/origin-haproxy-router:v3.10,
-ocker.io/openshift/origin-pod:v3.10,
-auay.io/coreos/etcd:v3.2.22
