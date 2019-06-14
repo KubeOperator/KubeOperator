@@ -1,7 +1,7 @@
-- name: 获取是否运行名为'kubeasz'的容器
-  shell: 'systemctl status docker|grep Active && docker ps|grep kubeasz || echo "NOT FOUND"'
-  register: install_info
-  tags: upgrade_docker, download_docker
+- name: Docker config
+  file:
+    path: etc/docker
+    state: derictory
 
 - name: docker国内镜像加速
   template: src=daemon.json.j2 dest=/etc/docker/daemon.json
