@@ -1,7 +1,7 @@
 - name: Docker config
   file:
     path: etc/docker
-    state: derictory
+    state: directory
 
 - name: docker国内镜像加速
   template: src=daemon.json.j2 dest=/etc/docker/daemon.json
