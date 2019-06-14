@@ -1,10 +1,11 @@
 # [optional] to synchronize time of nodes with 'chrony' 
 - hosts: all
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+  - chrony
 
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
-- hosts: deploy
+# 取第一台机器做部署
+- hosts: {{groups['kube-master'][0]}}
   roles:
   - deploy
 
