@@ -6,6 +6,10 @@
 - name: docker国内镜像加速
   template: src=daemon.json.j2 dest=/etc/docker/daemon.json
 
+- name: 创建docker的systemd unit文件
+  template: src=docker.service.j2 dest=/etc/systemd/system/docker.service
+  tags: upgrade_docker, download_docker
+
 - name: restart docker
   service:
     name: docker
