@@ -21,10 +21,10 @@ import {StorageComponent} from './storage/storage.component';
 import {AuthComponent} from './auth/auth.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
+  {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
   {path: 'sign-in', component: SignInComponent},
   {
-    path: 'fit2openshift',
+    path: 'kubeOperator',
     component: ShellComponent,
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],

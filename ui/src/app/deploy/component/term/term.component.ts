@@ -58,7 +58,7 @@ export class TermComponent implements OnInit, OnDestroy {
 
 
   resetTerm() {
-    const banner = 'welcome to fit2openshift!';
+    const banner = 'welcome to KubeOperator!';
     this.term.write(banner);
   }
 

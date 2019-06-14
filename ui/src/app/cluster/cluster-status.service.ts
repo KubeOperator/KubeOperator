@@ -35,7 +35,6 @@ export class ClusterStatusService {
         result = '警告';
         break;
     }
-    console.log(result);
     return result;
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "fit2openshift-portal",
+  "name": "kubeOperator-portal",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

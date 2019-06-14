@@ -17,9 +17,18 @@ export class Cluster {
   status: string;
   resource: string;
   resource_version: string;
+  operations: Operation[];
 }
 
 export class ExtraConfig {
   key: string;
   value: any;
+}
+
+export class Operation {
+  name: string;
+  comment: string;
+  icon: string;
+  event: string[] = [];
+  redirect: string;
 }

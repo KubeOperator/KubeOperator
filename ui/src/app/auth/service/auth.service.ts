@@ -72,7 +72,7 @@ export class AuthService {
       this.clusterService.configClusterAuth(cluster.name, auth.name).subscribe(d => {
         console.log(auth.name);
         // this.optService.executeOperate(cluster.name, 'config-auth').subscribe(data => {
-        //   this.router.navigate(['fit2openshift', 'cluster', cluster.name, 'deploy']);
+        //   this.router.navigate(['kubeOperator', 'cluster', cluster.name, 'deploy']);
         // });
       });
     });

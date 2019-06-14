@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Cluster} from '../cluster';
+import {Cluster, Operation} from '../cluster';
 import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
 import {TipService} from '../../tip/tip.service';
@@ -75,7 +75,7 @@ export class ClusterListComponent implements OnInit {
   }
 
   goToLink(clusterName: string) {
-    const linkUrl = ['fit2openshift', 'cluster', clusterName, 'overview'];
+    const linkUrl = ['kubeOperator', 'cluster', clusterName, 'overview'];
     this.router.navigate(linkUrl);
   }
 
@@ -85,5 +85,12 @@ export class ClusterListComponent implements OnInit {
 
   getStatusComment(status: string): string {
     return this.clusterStatusService.getComment(status);
+  }
+
+  redirect(cluster_name: string, url: string) {
+    if (url) {
+      const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];
+      this.router.navigate(linkUrl);
+    }
   }
 }
