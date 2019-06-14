@@ -1,12 +1,12 @@
 - name: 在deploy 节点创建cilium 相关目录
   file: name=/opt/kube/kube-system/cilium state=directory
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
     
 - name: 配置 cilium DaemonSet yaml文件
   template: src=cilium.yaml.j2 dest=/opt/kube/kube-system/cilium/cilium.yaml
   tags: reconf  
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 - name: 转换内核版本为浮点数
@@ -71,7 +71,7 @@
 # 只需单节点执行一次
 - name: 运行 cilium网络
   shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/cilium/ && sleep 5"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 # 删除原有cni配置
@@ -83,7 +83,7 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'cilium'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   retries: 15
   delay: 8
   ignore_errors: true

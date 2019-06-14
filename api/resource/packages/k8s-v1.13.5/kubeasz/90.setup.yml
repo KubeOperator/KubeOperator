@@ -1,7 +1,7 @@
 # [optional] to synchronize time of nodes with 'chrony'
 - hosts: all
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes'" }
+  - { role: chrony, when: "hostvars[groups['kube-master'][0]]['NTP_ENABLED'] == 'yes'" }
 
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: deploy
@@ -44,14 +44,14 @@
   tasks:
   - name: Making master nodes SchedulingDisabled
     shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
-    delegate_to: "{{ groups.deploy[0] }}"
+    delegate_to: "{{ groups['kube-master'][0] }}"
     when: DEPLOY_MODE != "allinone"
     ignore_errors: true
 
   - name: Setting master role name
     shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
     ignore_errors: true
-    delegate_to: "{{ groups.deploy[0] }}"
+    delegate_to: "{{ groups['kube-master'][0] }}"
 
 # to set up 'kube-node' nodes
 - hosts: kube-node

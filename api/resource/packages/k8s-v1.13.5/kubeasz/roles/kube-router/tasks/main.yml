@@ -4,7 +4,7 @@
 
     - name: 准备配置 kube-router DaemonSet (without IPVS)
       template: src=kuberouter.yaml.j2 dest=/opt/kube/kube-system/kube-router/kuberouter.yaml
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
     
 - name: 创建cni 和kube-router 相关目录
@@ -64,7 +64,7 @@
 # 只需单节点执行一次
 - name: 运行 kube-router DaemonSet
   shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kube-router/ && sleep 5"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 # 删除原有cni配置
@@ -76,7 +76,7 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'kube-router'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   retries: 15
   delay: 8
   ignore_errors: true

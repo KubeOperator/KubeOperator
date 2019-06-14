@@ -12,7 +12,7 @@
     - name: 获取所有已经创建的POD信息
       command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
       register: pod_info
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 - block:
@@ -24,7 +24,7 @@
     - name: 创建CoreDNS部署
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns"
       run_once: true
-      delegate_to: "{{ groups.deploy[0] }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
   when:
     - '"coredns" not in pod_info.stdout'
     - 'dns_install == "yes"'
@@ -38,7 +38,7 @@
 
     - name: 创建 metrics-server部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
-      delegate_to: "{{ groups.deploy[0] }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"metrics-server" not in pod_info.stdout and metricsserver_install == "yes"'
   ignore_errors: true
@@ -53,7 +53,7 @@
     - name: 创建 dashboard部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
 	      {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
-      delegate_to: "{{ groups.deploy[0] }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install == "yes"'
   ignore_errors: true
@@ -69,7 +69,7 @@
 
     - name: 创建 heapster部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster.yaml"
-      delegate_to: "{{ groups.deploy[0] }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"heapster" not in pod_info.stdout and heapster_install == "yes"'
   ignore_errors: true

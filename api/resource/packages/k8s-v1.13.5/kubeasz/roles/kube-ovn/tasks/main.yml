@@ -8,7 +8,7 @@
     - name: 配置 ovn.yaml 文件
       template: src=ovn.yaml.j2 dest=/opt/kube/kube-ovn/ovn.yaml
 
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
     
 - name: 创建相关目录
@@ -59,7 +59,7 @@
   shell: "{{ bin_dir }}/kubectl label node {{ OVN_DB_NODE }} kube-ovn/role=master --overwrite && \
 	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/ovn.yaml && sleep 5 && \
 	{{ bin_dir }}/kubectl apply -f /opt/kube/kube-ovn/kube-ovn.yaml"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 # 删除原有cni配置
@@ -71,7 +71,7 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-ovn -o wide|grep 'kube-ovn-cni'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups.deploy[0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   retries: 15
   delay: 8
   ignore_errors: true

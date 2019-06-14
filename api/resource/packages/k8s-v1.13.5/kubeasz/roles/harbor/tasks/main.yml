@@ -30,7 +30,7 @@
       - ca.pem
       - ca-key.pem
       - ca-config.json
-      delegate_to: "{{ groups.deploy[0] }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
     
     - name: 创建harbor证书请求
       template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json

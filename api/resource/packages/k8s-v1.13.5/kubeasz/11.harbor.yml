@@ -3,7 +3,7 @@
 
 - hosts: harbor
   roles:
-  - { role: chrony, when: "hostvars[groups.deploy[0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
+  - { role: chrony, when: "hostvars[groups['kube-master'][0]]['NTP_ENABLED'] == 'yes' and NEW_INSTALL == 'yes'" }
   - { role: prepare, when: "NEW_INSTALL == 'yes'" }
   - { role: docker, when: "NEW_INSTALL == 'yes'" }
   - { role: harbor, when: "NEW_INSTALL == 'yes'" }
