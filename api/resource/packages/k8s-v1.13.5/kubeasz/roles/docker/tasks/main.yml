@@ -1,6 +1,6 @@
 - name: Docker config
   file:
-    path: etc/docker
+    path: /etc/docker
     state: directory
 
 - name: docker国内镜像加速
