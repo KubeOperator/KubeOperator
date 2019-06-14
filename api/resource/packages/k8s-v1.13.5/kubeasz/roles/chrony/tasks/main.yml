@@ -24,7 +24,7 @@
   - name: 启动 chrony server
     service: name=chrony state=restarted enabled=yes
     when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int >= 16 
-  when: 'inventory_hostname == groups.deploy[0]'
+  when: 'inventory_hostname == groups.kube-master[0]'
 
 - block:
   - name: 配置 chrony client
