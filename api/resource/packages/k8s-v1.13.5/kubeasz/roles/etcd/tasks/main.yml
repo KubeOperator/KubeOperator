@@ -19,7 +19,7 @@
     - ca.pem
     - ca-key.pem
     - ca-config.json
-  delegate_to: "{{ groups.['kube-master'][0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
 
 - name: 创建etcd证书请求
   template: src=etcd-csr.json.j2 dest=/etc/etcd/ssl/etcd-csr.json
