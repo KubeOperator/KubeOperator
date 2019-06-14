@@ -34,8 +34,8 @@ playbooks:
     alias: common/04_prepare_host.yml
   - name:  install-rpms
     alias: common/05_install_basic_rpms.yml
-  - name:  config-docker-storage
-    alias: common/06_config_docker.yml
+  #  - name:  config-docker-storage
+  #    alias: common/06_config_docker.yml
   - name:  install-k8s
     alias: kubeasz/90.setup.yml
   - name: uninstall-k8s
@@ -120,6 +120,7 @@ templates:
           - send-ssh-key
           - config-ssh
           - config-dns
+          - config-dns
           - prepare-host
           - install-rpms
           - config-docker-storage
@@ -137,12 +138,7 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars:
-            - name: "docker_storage_device"
-              verbose: "Docker 存储卷"
-              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
-              type: "Select"
-              require: true
+          node_vars: []
           requires:
             nodes_require:
               - '='
@@ -191,6 +187,7 @@ templates:
           - send-ssh-key
           - config-ssh
           - config-dns
+          - config-dns
           - prepare-host
           - install-rpms
           - config-docker-storage
@@ -208,12 +205,7 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars:
-            - name: "docker_storage_device"
-              verbose: "Docker 存储卷"
-              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
-              type: "Select"
-              require: true
+          node_vars: []
           requires:
             nodes_require:
               - '='
@@ -253,12 +245,7 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars:
-            - name: "docker_storage_device"
-              verbose: "Docker 存储卷"
-              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
-              type: "Select"
-              require: true
+          node_vars: []
           requires:
             nodes_require:
               - '>'
@@ -298,12 +285,7 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars:
-            - name: "docker_storage_device"
-              verbose: "Docker 存储卷"
-              comment: "请选择空白块存储设备，注意此操作将抹除所有数据!"
-              type: "Select"
-              require: true
+          node_vars: []
           requires:
             nodes_require:
               - '>'
