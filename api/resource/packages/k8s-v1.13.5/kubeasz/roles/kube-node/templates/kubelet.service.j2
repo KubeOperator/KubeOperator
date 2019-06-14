@@ -37,7 +37,7 @@ ExecStart={{ bin_dir }}/kubelet \
   --tls-cert-file={{ ca_dir }}/kubelet.pem \
   --tls-private-key-file={{ ca_dir }}/kubelet-key.pem \
   --cgroups-per-qos=true \
-  --cgroup-driver=systemd \
+  --cgroup-driver=cgroupfs \
 {% if KUBE_RESERVED_ENABLED == "yes" %}
   --enforce-node-allocatable=pods,kube-reserved \
   --kube-reserved={{ KUBE_RESERVED }} \
