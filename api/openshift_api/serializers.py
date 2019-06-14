@@ -212,6 +212,7 @@ class ClusterSerializer(ProjectSerializer):
     class Meta:
         model = Cluster
         fields = ['id', 'name', 'package', 'persistent_storage', 'template', 'auth_template', 'comment',
-                  'date_created', 'resource', 'resource_version',
-                  'current_execution', 'status']
-        read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version']
+                  'date_created', 'resource', 'resource_version', 'operations',
+                                                                  'current_execution', 'status']
+        read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
+                            'operations']

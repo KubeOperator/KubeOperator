@@ -1,5 +1,26 @@
 resource: okd
 version: 3.11
+operations:
+  - name: install
+    comment: "安装"
+    icon: rando
+    event: []
+    redirect: "deploy"
+  - name: uninstall
+    comment: "卸载"
+    icon: trash
+    event: []
+    redirect: "deploy"
+  - name: restart
+    comment: "重启"
+    icon: refresh
+    event: []
+    redirect: "deploy"
+  - name: node
+    comment: "管理节点"
+    event: []
+    redirect: "node"
+    icon: linode
 playbooks:
   - name: host-check
     alias: common/00_host_check.yml

@@ -43,6 +43,10 @@ class Cluster(Project):
         return self.package.meta['resource']
 
     @property
+    def operations(selfs):
+        return selfs.package.meta['operations']
+
+    @property
     def resource_version(self):
         return self.package.meta['version']
 
