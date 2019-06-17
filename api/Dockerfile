@@ -2,7 +2,7 @@ FROM registry.fit2cloud.com/public/python:v3
 MAINTAINER Fit2Openshift Team <support@fit2cloud.com>
 WORKDIR /opt/fit2openshift-api
 
-echo -e "[mysql]\nname=mysql\nbaseurl=https://mirrors.tuna.tsinghua.edu.cn/mysql/yum/mysql57-community-el6/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/mysql.repo
+RUN echo -e "[mysql]\nname=mysql\nbaseurl=https://mirrors.tuna.tsinghua.edu.cn/mysql/yum/mysql57-community-el6/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/mysql.repo
 COPY ./requirements /tmp/requirements
 RUN cd /tmp/requirements && yum -y install epel-release && yum -y install $(cat rpm_requirements.txt)
 RUN cd /tmp/requirements && \
