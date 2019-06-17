@@ -1,5 +1,5 @@
 ---
 - name: pull flannel image
   docker_image:
-    name: registry.fit2openshift.io:8082/jmgao1983/flannel:v0.11.0-amd64
+    name: "{{registry_prefix}}/{{flanneld_image}}:{{flanneld_version}}"
     state: present

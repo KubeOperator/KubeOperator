@@ -114,10 +114,20 @@ roles:
       helm_cert_cn: helm001
       tiller_sa: tiller
       tiller_cert_cn: tiller001
-      tiller_image: "jmgao1983/tiller:v2.12.3"
-      repo_url: "https://kubernetes-charts.storage.googleapis.com"
+      tiller_image: "jmgao1983/tiller"
+      tiller_version: "v2.12.3"
+      repo_url: "http://registry.fit2openshift.io:8082"
       #registry
       harbor_install: true
+      #prometheus
+      prometheus_install: true
+      #grafana
+      grafana_install: true
+      #flannel
+      NODE_WITH_MULTIPLE_NETWORKS: "true"
+      FLANNEL_BACKEND: "vxlan"
+      flanneld_image: "jmgao1983/flannel"
+      flanneld_version: "v0.11.0-amd64"
 templates:
   - name: all-in-one 模型
     comment: '此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 kubernetes 核心组件'

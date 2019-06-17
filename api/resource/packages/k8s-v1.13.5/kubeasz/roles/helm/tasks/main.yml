@@ -37,7 +37,7 @@
         --tls-ca-cert {{ ca_dir }}/ca.pem \
         --service-account {{ tiller_sa }} \
         --tiller-namespace {{ helm_namespace }} \
-        --tiller-image {{ tiller_image }} \
+        --tiller-image {{registry_prefix}}/{{ tiller_image }}/{{tiller_version}} \
         --stable-repo-url {{ repo_url }}"
   ignore_errors: true
 
