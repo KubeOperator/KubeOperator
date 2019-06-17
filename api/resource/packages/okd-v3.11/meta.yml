@@ -3,7 +3,7 @@ version: 3.11
 operations:
   - name: install
     comment: "安装"
-    icon: rando
+    icon: random
     event: []
     redirect: "deploy"
   - name: uninstall

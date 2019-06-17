@@ -1,0 +1,90 @@
+{{- if ne .Values.expose.type "ingress" }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "harbor.nginx" . }}
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+    component: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+{{ include "harbor.matchLabels" . | indent 6 }}
+      component: nginx
+  template:
+    metadata:
+      labels:
+{{ include "harbor.labels" . | indent 8 }}
+        component: nginx
+      annotations:
+      {{- if not .Values.expose.tls.enabled }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/nginx/configmap-http.yaml") . | sha256sum }}
+      {{- else }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/nginx/configmap-https.yaml") . | sha256sum }}
+      {{- end }}
+      {{- if eq (include "harbor.autoGenCertForNginx" .) "true" }}
+        checksum/secret: {{ include (print $.Template.BasePath "/nginx/secret.yaml") . | sha256sum }}
+      {{- end }}
+{{- if .Values.nginx.podAnnotations }}
+{{ toYaml .Values.nginx.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - name: nginx
+        image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 1
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 1
+          periodSeconds: 10
+{{- if .Values.nginx.resources }}
+        resources:
+{{ toYaml .Values.nginx.resources | indent 10 }}
+{{- end }}
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        - containerPort: 4443
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        {{- if .Values.expose.tls.enabled }}
+        - name: certificate
+          mountPath: /etc/nginx/cert
+        {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "harbor.nginx" . }}
+      {{- if .Values.expose.tls.enabled }}
+      - name: certificate
+        secret:
+          {{- if .Values.expose.tls.secretName }}
+          secretName: {{ .Values.expose.tls.secretName }}
+          {{- else }}
+          secretName: {{ template "harbor.nginx" . }}
+          {{- end }}
+      {{- end }}
+    {{- with .Values.nginx.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nginx.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nginx.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
