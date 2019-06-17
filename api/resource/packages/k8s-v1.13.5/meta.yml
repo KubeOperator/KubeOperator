@@ -4,12 +4,12 @@ operations:
   - name: install
     comment: "安装"
     icon: random
-    event: []
+    event: "install"
     redirect: "deploy"
   - name: uninstall
     comment: "卸载"
     icon: trash
-    event: []
+    event: "uninstall"
     redirect: "deploy"
   #  - name: restart
   #    comment: "重启"
@@ -18,7 +18,6 @@ operations:
   #    redirect: "deploy"
   - name: node
     comment: "管理节点"
-    event: []
     redirect: "node"
     icon: linode
 playbooks:
@@ -34,8 +33,6 @@ playbooks:
     alias: common/04_prepare_host.yml
   - name:  install-rpms
     alias: common/05_install_basic_rpms.yml
-  #  - name:  config-docker-storage
-  #    alias: common/06_config_docker.yml
   - name:  install-k8s
     alias: kubeasz/90.setup.yml
   - name: uninstall-k8s
@@ -216,6 +213,39 @@ templates:
         playbooks:
           - uninstall-k8s
     roles:
+      - name: lb
+        vars: LB_ROLE=master
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 1
+                excellent: 2
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 2
+                excellent: 4
+                unit: "GB"
+                comment: "无"
       - name: masters
         vars:
         meta:
