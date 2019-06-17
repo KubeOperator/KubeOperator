@@ -29,6 +29,6 @@ export class Operation {
   name: string;
   comment: string;
   icon: string;
-  event: string[] = [];
+  event: string;
   redirect: string;
 }

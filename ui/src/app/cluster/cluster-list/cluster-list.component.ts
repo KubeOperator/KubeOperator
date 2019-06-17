@@ -9,6 +9,8 @@ import {MessageLevels} from '../../base/message/message-level';
 import {SettingService} from '../../setting/setting.service';
 import {PackageLogoService} from '../../package/package-logo.service';
 import {ClusterStatusService} from '../cluster-status.service';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {el} from '@angular/platform-browser/testing/src/browser_util';
 
 @Component({
   selector: 'app-cluster-list',
@@ -25,7 +27,7 @@ export class ClusterListComponent implements OnInit {
 
   constructor(private clusterService: ClusterService, private router: Router,
               private tipService: TipService, private messageService: MessageService, private settingService: SettingService,
-              private packageLogoService: PackageLogoService, private clusterStatusService: ClusterStatusService) {
+              private packageLogoService: PackageLogoService, private clusterStatusService: ClusterStatusService, private operaterService: OperaterService) {
   }
 
   ngOnInit() {
@@ -91,6 +93,16 @@ export class ClusterListComponent implements OnInit {
     if (url) {
       const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];
       this.router.navigate(linkUrl);
+    }
+  }
+
+  handleEvent(cluster_name: string, opt: Operation) {
+    if (opt.event) {
+      this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {
+        this.redirect(cluster_name, opt.redirect);
+      });
+    } else if (opt.redirect) {
+      this.redirect(cluster_name, opt.redirect);
     }
   }
 }

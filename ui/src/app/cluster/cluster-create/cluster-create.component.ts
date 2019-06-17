@@ -187,7 +187,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         tmp.roles.forEach(role => {
           if (!role.meta.hidden) {
             const group: Group = new Group();
-            console.log(this.template);
             group.node_vars = role.meta.node_vars;
             group.name = role.name;
             group.op = role.meta.requires.nodes_require[0];
@@ -302,17 +301,25 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   configCluster() {
     const promises: Promise<{}>[] = [];
-    this.configs.forEach(c => {
-      const extraConfig: ExtraConfig = new ExtraConfig();
-      extraConfig.key = c.name;
-      extraConfig.value = c.value;
-      promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
-      Promise.all(promises).then((data) => {
-        this.isSubmitGoing = false;
-        this.createClusterOpened = false;
-        this.create.emit(true);
+    if (this.configs) {
+      this.configs.forEach(c => {
+        const extraConfig: ExtraConfig = new ExtraConfig();
+        extraConfig.key = c.name;
+        extraConfig.value = c.value;
+        promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
+        Promise.all(promises).then((data) => {
+          this.finishForm();
+        });
       });
-    });
+    } else {
+      this.finishForm();
+    }
+  }
+
+  finishForm() {
+    this.isSubmitGoing = false;
+    this.createClusterOpened = false;
+    this.create.emit(true);
   }
 
   replaceNodeVarsKey(key: string): string {

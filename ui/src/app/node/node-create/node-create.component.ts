@@ -66,7 +66,6 @@ export class NodeCreateComponent implements OnInit {
       return roles;
     })).subscribe(data => {
       this.roles = data;
-      console.log(data);
     });
   }
 
