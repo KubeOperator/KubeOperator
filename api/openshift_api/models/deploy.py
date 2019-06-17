@@ -6,6 +6,7 @@ from django.db import models
 
 from common import models as common_models
 from openshift_api.models.cluster import Cluster
+from openshift_api.models.setting import Setting
 from openshift_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
 __all__ = ['DeployExecution']
@@ -15,7 +16,6 @@ logger = logging.getLogger(__name__)
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     operation = models.CharField(max_length=128, blank=False, null=False)
     progress = models.FloatField(default=0)
-    extra_vars = common_models.JsonDictTextField(default={})
     current_play = models.CharField(max_length=512, null=True, default=None)
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
 
@@ -24,9 +24,14 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = Cluster.objects.filter(id=self.project.id).first()
+        hostname = Setting.objects.get(key='local_hostname')
         cluster.status = Cluster.status = Cluster.OPENSHIFT_STATUS_INSTALLING
         cluster.save()
         template = None
+        extra_vars = {
+            "cluster_name": cluster.name,
+            "local_hostname": hostname.value
+        }
         for temp in cluster.package.meta.get('templates', []):
             if temp['name'] == cluster.template:
                 template = temp
@@ -46,7 +51,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                         self.current_play = playbook_name
                         self.save()
                         playbook = self.project.playbook_set.get(name=playbook_name)
-                        _result = playbook.execute(extra_vars=self.extra_vars)
+                        _result = playbook.execute(extra_vars=extra_vars)
                         result["summary"].update(_result["summary"])
                         if not _result.get('summary', {}).get('success', False):
                             break
