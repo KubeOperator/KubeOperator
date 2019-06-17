@@ -207,7 +207,6 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-docker-storage
           - install-k8s
       - name: uninstall
         playbooks:
@@ -267,12 +266,6 @@ templates:
                 excellent: 100
                 comment: "系统卷，用于运行操作系统"
                 unit: "GB"
-              - name: "data"
-                verbose: "数据卷:"
-                minimal: 100
-                excellent: 500
-                comment: "数据卷,用于存储docker数据"
-                unit: "GB"
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
@@ -307,12 +300,6 @@ templates:
                 excellent: 100
                 comment: "系统卷，用于运行操作系统"
                 unit: "GB"
-              - name: "data"
-                verbose: "数据卷:"
-                minimal: 100
-                excellent: 500
-                comment: "数据卷,用于存储docker数据"
-                unit: "GB"
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
@@ -346,12 +333,6 @@ templates:
                 minimal: 50
                 excellent: 100
                 comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-              - name: "data"
-                verbose: "数据卷:"
-                minimal: 100
-                excellent: 500
-                comment: "数据卷,用于存储docker数据"
                 unit: "GB"
             device_require:
               - name: "cpu_core"
