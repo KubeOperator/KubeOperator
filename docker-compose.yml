@@ -75,7 +75,7 @@ services:
 
   nexus:
     container_name: f2o_nexus
-    image: sonatype/nexus3:3.15.2
+    image: registry.fit2cloud.com/public/nexus-helm:latest
     ports:
       - 8081:8081
       - 8082:8082
