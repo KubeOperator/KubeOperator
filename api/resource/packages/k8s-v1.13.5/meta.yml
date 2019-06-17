@@ -72,8 +72,8 @@ roles:
     meta:
       hidden: true
     vars:
-      MASTER_IP: "{{ groups['lb'][0] }"
-      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
+#      MASTER_IP: "{{ groups['lb'][0] }"
+      #      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
       CONTAINER_RUNTIME: "docker"
       CLUSTER_NETWORK: "flannel"
       SERVICE_CIDR: "10.68.0.0/16"
