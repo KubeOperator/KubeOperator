@@ -104,7 +104,7 @@ class Cluster(Project):
 
     def set_config(self, k, v):
         self.change_to()
-        role = Role.objects.select_for_update().get(name='OSEv3')
+        role = Role.objects.select_for_update().get(name='config')
         _vars = role.vars
         if isinstance(v, str):
             v = v.strip()

@@ -38,6 +38,9 @@ playbooks:
   - name: uninstall-k8s
     alias: kubeasz/99.clean.yml
 roles:
+  - name: config
+    children:
+      - kubeasz
   - name: cluster_nodes
     children:
       - masters
@@ -70,6 +73,7 @@ roles:
       hidden: true
     vars:
       MASTER_IP: "{{ groups['lb'][0] }"
+      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
       CONTAINER_RUNTIME: "docker"
       CLUSTER_NETWORK: "flannel"
       SERVICE_CIDR: "10.68.0.0/16"
@@ -78,7 +82,6 @@ roles:
       CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
-      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
       #kubeOperator
       download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
       file_name: "k8s.1-13-5.tar.gz"
@@ -130,6 +133,23 @@ templates:
     comment: '此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 kubernetes 核心组件'
     private_vars:
       DEPLOY_MODE: 'allinone'
+      #      MASTER_IP: "{{ groups['kube-master'][0] }}"
+    #      KUBE_APISERVER: "https://{{ MASTER_IP }}:6443"
+    private_config:
+      - name: MASTER_IP
+        alias: 域名
+        type: Input
+        default: master-1.$cluster_name$domain_suffix
+        required: true
+        help_text: kubernetes 访问地址
+        display: true
+      - name: KUBE_APISERVER
+        alias: api-server 地址
+        type: Input
+        default: master-1.$cluster_name$domain_suffix:6443
+        required: true
+        help_text: kubernetes api-server 地址
+        display: true
     operations:
       - name: install
         playbooks:

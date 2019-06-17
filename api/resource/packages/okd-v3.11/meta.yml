@@ -58,6 +58,9 @@ playbooks:
 
 # template public roles
 roles:
+  - name: config
+    children:
+      - OSEv3
   - name: cluster_nodes
     children:
       - masters
