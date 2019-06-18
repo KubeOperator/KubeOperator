@@ -41,6 +41,8 @@ playbooks:
     alias: kubeasz/99.clean.yml
   - name: install_docker
     alias: kubeasz/03.docker.yml
+  - name: download_kube_bin
+    alias: kubeasz/100.download-bin.yml
 roles:
   - name: config
     children:
