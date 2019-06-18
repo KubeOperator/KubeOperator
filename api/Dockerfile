@@ -1,6 +1,6 @@
 FROM registry.fit2cloud.com/public/python:v3
 MAINTAINER Fit2Openshift Team <support@fit2cloud.com>
-WORKDIR /opt/fit2openshift-api
+WORKDIR /opt/kubeOperator-api
 
 RUN echo -e "[mysql]\nname=mysql\nbaseurl=https://mirrors.tuna.tsinghua.edu.cn/mysql/yum/mysql57-community-el6/\ngpgcheck=0\nenabled=1" > /etc/yum.repos.d/mysql.repo
 COPY ./requirements /tmp/requirements
@@ -10,8 +10,8 @@ RUN cd /tmp/requirements && \
      pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ || pip install -r requirements.txt
 RUN test -f /root/.ssh/id_rsa || ssh-keygen -f /root/.ssh/id_rsa -t rsa -P ''
 RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null" > /root/.ssh/config
-
-COPY . /opt/fit2openshift-api
+COPY . /opt/kubeOperator-api
+RUN bash /opt/kubeOperator-api/instll_curl.sh
 RUN echo > config.yml
 
 ENV LANG=zh_CN.UTF-8

@@ -8,18 +8,18 @@ args=$@
 
 
 function usage() {
-   echo "Fit2Openshift 部署安装脚本"
+   echo "kubeOperator 部署安装脚本"
    echo
    echo "Usage: "
-   echo "  f2octl [COMMAND] [ARGS...]"
-   echo "  f2octl --help"
+   echo "  kubeopsctl [COMMAND] [ARGS...]"
+   echo "  kubeopsctl --help"
    echo
    echo "Commands: "
-   echo "  install 部署安装 Fit2Openshift"
-   echo "  start 启动 Fit2Openshift"
+   echo "  install 部署安装 kubeOperator"
+   echo "  start 启动 kubeOperator"
    echo "  restart [service] 重启, 并不会重建服务容器"
    echo "  reload [service] 重建容器如何需要并重启服务"
-   echo "  status 查看 Fit2Openshift 状态"
+   echo "  status 查看 kubeOperator 状态"
    echo "  down [service] 删掉容器 不带参数删掉所有"
    echo "  python 进入 api, 运行 python manage.py shell"
    echo "  db 连接数据库"
@@ -70,10 +70,10 @@ function main() {
           fi
           ;;
       python)
-          docker exec -it f2o_api python manage.py shell
+          docker exec -it kubeops_api python manage.py shell
           ;;
       db)
-          docker exec -it f2o_api python manage.py dbshell
+          docker exec -it kubeops_api python manage.py dbshell
           ;;
       exec)
           docker_name=$(service_to_docker_name ${target})

@@ -15,7 +15,7 @@ function build_image() {
     echo ">>> 开始build镜像"
     cd ${PROJECT_DIR}
     for image in ${images};do
-        if [[ ! ${image} =~ 'fit2openshift' ]];then
+        if [[ ! ${image} =~ 'kubeOperator' ]];then
             docker pull ${image}
         fi
     done

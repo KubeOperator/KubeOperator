@@ -9,9 +9,9 @@ function get_images(){
        "mysql:5"
        "nginx:alpine"
        "sonatype/nexus3:3.15.2"
-       "fit2openshift/api:latest"
-       "fit2openshift/ui:latest"
-       "fit2openshift/dns:latest"
+       "kubeOperator/api:latest"
+       "kubeOperator/ui:latest"
+       "kubeOperator/dns:latest"
     )
     for image in ${images[@]};do
         echo ${image}
