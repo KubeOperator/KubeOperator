@@ -181,7 +181,12 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars: []
+          node_vars:
+            - name: "docker_storage_device"
+              verbose: "Docker 存储卷"
+              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
+              type: "Select"
+              require: true
           requires:
             nodes_require:
               - '='
