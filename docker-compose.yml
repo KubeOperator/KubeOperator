@@ -19,20 +19,20 @@ services:
 
   api:
     build: api
-    image: kubeOperator/api:latest
+    image: kube-operator/api:latest
     container_name: kubeops_api
     restart: always
     privileged: true
     tty: true
     volumes:
-      - api_data:/opt/kubeOperator-api/data
+      - api_data:/opt/kube-operator-api/data
       - dns_data:/etc/dnsmasq.d
       - /var/run/docker.sock:/var/run/docker.sock  
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
-      DB_NAME: kubeOperator
+      DB_NAME: kube-operator
       REDIS_HOST: redis
     depends_on:
       - mysql
@@ -47,7 +47,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: kubeOperator
+      MYSQL_DATABASE: kube-operator
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
     healthcheck:
       test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
@@ -69,7 +69,7 @@ services:
 
   ui:
     build: ui
-    image: kubeOperator/ui:latest
+    image: kube-operator/ui:latest
     container_name: kubeops_ui
     restart: always
 
@@ -85,7 +85,7 @@ services:
   dns:
     container_name: kubeops_dns
     build: docker/dnsmasq
-    image: kubeOperator/dns:latest
+    image: kube-operator/dns:latest
     cap_add:
         - NET_ADMIN
     volumes:
