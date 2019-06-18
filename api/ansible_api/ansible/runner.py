@@ -12,11 +12,9 @@ import ansible.constants as C
 from .callback import AdHocResultCallback, PlaybookResultCallBack
 from .exceptions import AnsibleError
 
-
 __all__ = ["AdHocRunner", "PlayBookRunner"]
 C.HOST_KEY_CHECKING = False
 logger = logging.getLogger(__file__)
-
 
 Options = namedtuple('Options', [
     'verbosity', 'listhosts', 'subset', 'module_path', 'extra_vars',
@@ -27,7 +25,7 @@ Options = namedtuple('Options', [
     'become', 'become_method', 'become_user', 'ask_sudo_pass', 'ask_su_pass',
     'become_ask_pass', 'check', 'syntax', 'diff', 'force_handlers', 'flush_cache',
     'listtasks', 'listtags', 'step', 'start_at_task', 'passwords', 'host_key_checking',
-    'roles_path', 'gathering'
+    'roles_path', 'gathering', 'command_warnings'
 ])
 
 
@@ -76,6 +74,7 @@ def get_default_options():
         start_at_task=None,
         passwords=None,
         host_key_checking=False,
+        command_warnings=False,
         roles_path='/etc/ansible/roles',
         gathering="smart"
     )
@@ -139,9 +138,9 @@ class AdHocRunner:
             if args.startswith('executable='):
                 _args = args.split(' ')
                 executable, command = _args[0].split('=')[1], ' '.join(_args[1:])
-                args = {'executable': executable, '_raw_params':  command}
+                args = {'executable': executable, '_raw_params': command}
             else:
-                args = {'_raw_params':  args}
+                args = {'_raw_params': args}
             return args
         else:
             return args
