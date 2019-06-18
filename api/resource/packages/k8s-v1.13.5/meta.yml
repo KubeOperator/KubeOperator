@@ -33,10 +33,14 @@ playbooks:
     alias: common/04_prepare_host.yml
   - name:  install-rpms
     alias: common/05_install_basic_rpms.yml
+  - name: config_docker_storage
+    alias: common/06_config_docker.yml
   - name:  install-k8s
     alias: kubeasz/90.setup.yml
   - name: uninstall-k8s
     alias: kubeasz/99.clean.yml
+  - name: install_docker
+    alias: kubeasz/03.docker.yml
 roles:
   - name: config
     children:
@@ -72,7 +76,7 @@ roles:
     meta:
       hidden: true
     vars:
-#      MASTER_IP: "{{ groups['lb'][0] }"
+      #      MASTER_IP: "{{ groups['lb'][0] }"
       #      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
       CONTAINER_RUNTIME: "docker"
       CLUSTER_NETWORK: "flannel"
@@ -157,7 +161,8 @@ templates:
           - send-ssh-key
           - config-ssh
           - config-dns
-          - config-dns
+          - install_docker
+          - config_docker_storage
           - prepare-host
           - install-rpms
           - install-k8s
