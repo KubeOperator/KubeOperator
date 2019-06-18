@@ -3,10 +3,6 @@
   roles:
     - role: chrony
 
-- hosts: "{{groups['kube-master'][0]}}"
-  roles:
-    - kube-bin
-
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: "{{groups['kube-master'][0]}}"
   roles:

@@ -163,6 +163,7 @@ templates:
           - send-ssh-key
           - config-ssh
           - config-dns
+          - download_kube_bin
           - install_docker
           - config_docker_storage
           - prepare-host
