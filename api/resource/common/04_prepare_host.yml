@@ -14,7 +14,7 @@
 
 # 初始化防火墙端口
 - name: Initialize firewall check
-  hosts: nodes
+  hosts: all_nodes
   vars:
     firewall_ports:
       - 4789

@@ -160,7 +160,6 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-docker-storage
           - install-k8s
       - name: uninstall
         playbooks:
