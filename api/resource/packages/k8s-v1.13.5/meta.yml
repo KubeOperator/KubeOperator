@@ -89,8 +89,6 @@ roles:
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
-      download_bin_url: "http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
-      file_name: "k8s.1-13-5.tar.gz"
       base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
       registry_prefix: "registry.fit2openshift.io:8082"
       kube_version: "1.13.5"

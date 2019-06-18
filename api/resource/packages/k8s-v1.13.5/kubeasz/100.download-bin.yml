@@ -1,5 +1,6 @@
 ---
 - name: prepare kube bin files
-  hosts: "{{groups['kube-master'][0]}}"
+  hosts: localhost
+  connection: local
   roles:
     - kube-bin
