@@ -1,5 +1,5 @@
 - name: restart dnsmasq
-  shell: "curl --max-time '30' --no-buffer -s --unix-socket '/var/run/docker.sock' -f -XPOST 'http://localhost/containers/f2o_dns/restart?t=300'"
+  shell: "curl --max-time '30' --no-buffer -s --unix-socket '/var/run/docker.sock' -f -XPOST 'http://localhost/containers/kubeops_dns/restart?t=300'"
 
 - name: wait for dnsmasq restart
   pause: seconds=20
