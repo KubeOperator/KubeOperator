@@ -80,6 +80,8 @@ roles:
     vars:
       #      MASTER_IP: "{{ groups['lb'][0] }"
       #      KUBE_APISERVER: "https://{{ MASTER_IP }}:8443"
+      bin_dir: "/usr/local/bin"
+      ca_dir: "/etc/kubernetes/ssl"
       CONTAINER_RUNTIME: "docker"
       CLUSTER_NETWORK: "flannel"
       SERVICE_CIDR: "10.68.0.0/16"
@@ -163,7 +165,6 @@ templates:
           - config-dns
           - download_kube_bin
           - install_docker
-          - config_docker_storage
           - prepare-host
           - install-rpms
           - install-k8s
@@ -180,12 +181,7 @@ templates:
               version:
                 - "7.4"
                 - "7.5"
-          node_vars:
-            - name: "docker_storage_device"
-              verbose: "Docker 存储卷"
-              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              type: "Select"
-              require: true
+          node_vars: []
           requires:
             nodes_require:
               - '='
@@ -196,12 +192,6 @@ templates:
                 minimal: 50
                 excellent: 100
                 comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-              - name: "data"
-                verbose: "数据卷:"
-                minimal: 100
-                excellent: 500
-                comment: "数据卷,用于存储docker数据"
                 unit: "GB"
             device_require:
               - name: "cpu_core"
