@@ -75,4 +75,3 @@ gunicorn==19.9.0
 djangorestframework-jwt==1.11.0
 mysqlclient==1.4.2
 passlib==1.7.1
-vim
