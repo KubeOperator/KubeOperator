@@ -169,7 +169,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs = template.private_config;
-        console.log(this.configs);
         if (this.configs) {
           this.configs.forEach(c => {
             c.value = c.default;
