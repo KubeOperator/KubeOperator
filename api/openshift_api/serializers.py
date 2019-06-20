@@ -1,10 +1,18 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
-
+from openshift_api.models.auth import AuthTemplate
+from openshift_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
-from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting, HostInfo, Volume
+from openshift_api.models.cluster import Cluster
+from openshift_api.models.deploy import DeployExecution
+from openshift_api.models.host import Volume, HostInfo
+from openshift_api.models.node import Node
+from openshift_api.models.package import Package
+from openshift_api.models.role import Role
+from openshift_api.models.setting import Setting
+from openshift_api.models.storage import StorageTemplate, Storage, StorageNode
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -28,13 +36,31 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
+class StorageTemplateSerializer(serializers.ModelSerializer):
+    meta = serializers.JSONField()
+
+    class Meta:
+        model = StorageTemplate
+        read_only_fields = ['id', 'name', 'meta', 'date_created']
+        fields = ['id', 'name', 'meta', 'date_created']
+
+
+class AuthTemplateSerializer(serializers.ModelSerializer):
+    meta = serializers.JSONField()
+
+    class Meta:
+        model = AuthTemplate
+        read_only_fields = ['id', 'name', 'meta', 'date_created']
+        fields = ['id', 'name', 'meta', 'date_created']
+
+
 class VolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volume
         fields = [
-            'id', 'name', 'size', 'blank'
+            'id', 'name', 'size',
         ]
-        read_only_fields = ['id', 'name', 'size', 'blank']
+        read_only_fields = ['id', 'name', 'size', ]
 
 
 class HostInfoSerializer(serializers.ModelSerializer):
@@ -61,16 +87,17 @@ class HostSerializer(HostReadSerializer):
         read_only_fields = ['id', 'info', 'comment']
 
 
-class ClusterSerializer(ProjectSerializer):
-    package = serializers.SlugRelatedField(
-        queryset=Package.objects.all(),
-        slug_field='name', required=False
+class StorageSerializer(ProjectSerializer):
+    template = serializers.SlugRelatedField(
+        queryset=StorageTemplate.objects.all(),
+        slug_field='name', required=True
     )
+    vars = serializers.DictField(required=False, default={})
 
     class Meta:
-        model = Cluster
-        fields = ['id', 'name', 'package', 'template', 'comment', 'current_task_id', 'state', 'date_created', ]
-        read_only_fields = ['id', 'date_created', 'current_task_id', 'state']
+        model = Storage
+        fields = ['id', 'name', 'template', 'comment', 'date_created', 'vars']
+        read_only_fields = ['id', 'date_created', ]
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -103,6 +130,28 @@ class NodeSerializer(AnsibleHostSerializer):
             'id', 'name', 'ip', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version'
         ]
         read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip']
+
+
+class StorageNodeSerializer(AnsibleHostSerializer):
+    roles = serializers.SlugRelatedField(
+        many=True, read_only=False, queryset=Role.objects.all(),
+        slug_field='name', required=False,
+    )
+
+    class Meta:
+        model = StorageNode
+        extra_kwargs = AnsibleHostSerializer.Meta.extra_kwargs
+        read_only_fields = list(filter(lambda x: x not in ('groups',), AnsibleHostSerializer.Meta.read_only_fields))
+        fields = list(filter(lambda x: x not in ('groups',), AnsibleHostSerializer.Meta.fields))
+
+    def get_field_names(self, declared_fields, info):
+        names = super().get_field_names(declared_fields, info)
+        names.append('roles')
+        return names
+
+    def create(self, validated_data):
+        validated_data['groups'] = validated_data.pop('roles', [])
+        return super().create(validated_data)
 
 
 class RoleSerializer(GroupSerializer):
@@ -143,3 +192,27 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_progress_ws_url(obj):
         return '/ws/progress/{}/'.format(obj.id)
+
+
+class ClusterSerializer(ProjectSerializer):
+    package = serializers.SlugRelatedField(
+        queryset=Package.objects.all(),
+        slug_field='name', required=False
+    )
+    auth_template = serializers.SlugRelatedField(
+        queryset=AuthTemplate.objects.all(),
+        slug_field='name', required=False
+    )
+    persistent_storage = serializers.SlugRelatedField(
+        queryset=Storage.objects.all(),
+        slug_field='name', required=False
+    )
+    current_execution = DeployExecutionSerializer(read_only=True)
+
+    class Meta:
+        model = Cluster
+        fields = ['id', 'name', 'package', 'persistent_storage', 'template', 'auth_template', 'comment',
+                  'date_created', 'resource', 'resource_version', 'operations',
+                                                                  'current_execution', 'status']
+        read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
+                            'operations']

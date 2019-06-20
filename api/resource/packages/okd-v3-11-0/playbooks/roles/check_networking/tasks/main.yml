@@ -1,2 +1,0 @@
-- name: Check NetworkManager
-  command: systemctl start NetworkManager

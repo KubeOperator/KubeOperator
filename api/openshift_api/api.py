@@ -1,18 +1,36 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.db import transaction
+
+from openshift_api.models.auth import AuthTemplate
+from openshift_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
+from openshift_api.models.cluster import Cluster
+from openshift_api.models.deploy import DeployExecution
+from openshift_api.models.host import Volume, HostInfo
+from openshift_api.models.node import Node
+from openshift_api.models.package import Package
+from openshift_api.models.role import Role
+from openshift_api.models.setting import Setting
+from openshift_api.models.storage import StorageTemplate, Storage, StorageNode
 from . import serializers
-from .models import Cluster, Node, Role, DeployExecution, Package, Host, Setting, Volume, HostInfo
-from .mixin import ClusterResourceAPIMixin
+from .mixin import ClusterResourceAPIMixin, StorageResourceAPIMixin
 from .tasks import start_deploy_execution
 from django.db.models import Q
 
 
 # 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
-    queryset = Cluster.objects.all().filter(is_super=False)
+    queryset = Cluster.objects.all()
     serializer_class = serializers.ClusterSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+
+class StorageViewSet(viewsets.ModelViewSet):
+    queryset = Storage.objects.all()
+    serializer_class = serializers.StorageSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
@@ -31,6 +49,32 @@ class PackageViewSet(viewsets.ModelViewSet):
         return super().get_queryset()
 
 
+class StorageTemplateViewSet(viewsets.ModelViewSet):
+    queryset = StorageTemplate.objects.all()
+    serializer_class = serializers.StorageTemplateSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get', 'head', 'options']
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+    def get_queryset(self):
+        StorageTemplate.lookup()
+        return super().get_queryset()
+
+
+class AuthViewSet(viewsets.ModelViewSet):
+    queryset = AuthTemplate.objects.all()
+    serializer_class = serializers.AuthTemplateSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get', 'head', 'options']
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+    def get_queryset(self):
+        AuthTemplate.lookup()
+        return super().get_queryset()
+
+
 class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Role.objects.all()
     permission_classes = (IsSuperUser,)
@@ -40,8 +84,16 @@ class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
 
 class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = Node.objects.filter(~Q(name='localhost'))
+    queryset = Node.objects.all()
     serializer_class = serializers.NodeSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+
+class StorageNodeViewSet(StorageResourceAPIMixin, viewsets.ModelViewSet):
+    queryset = StorageNode.objects.all()
+    serializer_class = serializers.StorageNodeSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'

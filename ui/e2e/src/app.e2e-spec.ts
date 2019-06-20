@@ -9,6 +9,6 @@ describe('workspace-project App', () => {
 
   it('should display welcome message', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to fit2openshift-portal!');
+    expect(page.getParagraphText()).toEqual('Welcome to kubeOperator-portal!');
   });
 });

@@ -17,12 +17,14 @@ import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.
 import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
+import {StorageComponent} from './storage/storage.component';
+import {AuthComponent} from './auth/auth.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'fit2openshift', pathMatch: 'full'},
+  {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
   {path: 'sign-in', component: SignInComponent},
   {
-    path: 'fit2openshift',
+    path: 'kubeOperator',
     component: ShellComponent,
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],
@@ -30,6 +32,7 @@ const routes: Routes = [
       {path: '', redirectTo: 'cluster', pathMatch: 'full'},
       {path: 'cluster', component: ClusterComponent},
       {path: 'offline', component: PackageComponent},
+      {path: 'storage', component: StorageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
       {path: 'setting', component: SettingComponent},
@@ -42,6 +45,7 @@ const routes: Routes = [
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
+          {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
 
         ]

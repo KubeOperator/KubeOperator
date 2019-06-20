@@ -2,7 +2,7 @@ version: "2.2"
 services:
   nginx:
     image: nginx:alpine
-    container_name: f2o_nginx
+    container_name: kubeops_nginx
     restart: always
     ports:
       - 80:80
@@ -19,26 +19,27 @@ services:
 
   api:
     build: api
-    image: fit2openshift/api:latest
-    container_name: f2o_api
+    image: kube-operator/api:latest
+    container_name: kubeops_api
     restart: always
     privileged: true
     tty: true
     volumes:
-      - api_data:/opt/fit2openshift-api/data
+      - api_data:/opt/kube-operator-api/data
       - dns_data:/etc/dnsmasq.d
+      - /var/run/docker.sock:/var/run/docker.sock  
     environment:
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
-      DB_NAME: fit2openshift
+      DB_NAME: kube-operator
       REDIS_HOST: redis
     depends_on:
       - mysql
       - redis
 
   mysql:
-    container_name: f2o_mysql
+    container_name: kubeops_mysql
     image: mysql:5
     command: --character-set-server=utf8
     ports:
@@ -46,7 +47,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: fit2openshift
+      MYSQL_DATABASE: kube-operator
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
     healthcheck:
       test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
@@ -56,7 +57,7 @@ services:
 
   redis:
     image: redis:alpine
-    container_name: f2o_redis
+    container_name: kubeops_redis
     restart: always
     ports:
       - 6379
@@ -68,13 +69,13 @@ services:
 
   ui:
     build: ui
-    image: fit2openshift/ui:latest
-    container_name: f2o_ui
+    image: kube-operator/ui:latest
+    container_name: kubeops_ui
     restart: always
 
   nexus:
-    container_name: f2o_nexus
-    image: sonatype/nexus3:3.15.2
+    container_name: kubeops_nexus
+    image: registry.fit2cloud.com/public/nexus-helm:latest
     ports:
       - 8081:8081
       - 8082:8082
@@ -82,14 +83,21 @@ services:
       - ./docker/nexus/data:/nexus-data
 
   dns:
-    container_name: f2o_dns
+    container_name: kubeops_dns
     build: docker/dnsmasq
-    image: fit2openshift/dns:latest
+    image: kube-operator/dns:latest
+    cap_add:
+        - NET_ADMIN
     volumes:
       - dns_data:/etc/dnsmasq.d
     ports:
-      - 5380:8080
       - 53:53/udp
+      - 53:53/tcp
+    healthcheck:
+      test: ["CMD", "nc","-vuz","localhost","53"]
+      interval: 10s
+      timeout: 5s
+      retries: 10 
 
 volumes:
   api_data:

@@ -3,15 +3,26 @@ import os
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
+from gunicorn.config import Setting
 
+from openshift_api.models.cluster import Cluster
+from openshift_api.models.host import HostInfo
+from openshift_api.models.node import Node
+from openshift_api.models.package import Package
+from openshift_api.models.storage import Storage
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
-from .models import Role, Package, Cluster, Node, Host, Setting, HostInfo
 
 
 @receiver(post_save, sender=Cluster)
-def on_cluster_save(sender, instance=None, **kwargs):
-    if instance and instance.template:
+def on_cluster_save(sender, instance=None, created=True, **kwargs):
+    if created and instance and instance.template:
         instance.on_cluster_create()
+
+
+@receiver(post_save, sender=Storage)
+def on_storage_save(sender, instance=None, **kwargs):
+    if instance and instance.template:
+        instance.on_storage_create()
 
 
 @receiver(post_save, sender=Node)

@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
@@ -13,10 +13,12 @@ import {Node} from '../../node/node';
 import {HostService} from '../../host/host.service';
 import {Group} from '../group';
 import {CheckResult, DeviceCheckService} from '../device-check.service';
-import {config, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
+import {Storage} from '../../storage/models/storage';
+import {StorageService} from '../../storage/services/storage.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -44,15 +46,15 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
+  storage: Storage[] = [];
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
   checkCpuResult: CheckResult = new CheckResult();
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
-  suffix = 'f2o'
-  @ViewChild('basicFrom')
-  basicForm: NgForm;
+  suffix = 'f2o';
+  @ViewChild('basicFrom') basicForm: NgForm;
   isNameValid = true;
   nameTooltipText = '';
   packageToolTipText = '';
@@ -64,7 +66,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
-              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService) {
+              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService,
+              private storageService: StorageService) {
   }
 
   ngOnInit() {
@@ -86,6 +89,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.listStorage();
     this.settingService.getSetting('domain_suffix').subscribe(data => {
       this.suffix = '.' + data.value;
     });
@@ -128,7 +132,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
       this.hosts = data;
-
     }, error => {
       console.log(error);
     });
@@ -155,17 +158,27 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  listStorage() {
+    this.storageService.listStorage().subscribe(data => {
+      this.storage = data;
+    });
+  }
+
   templateOnChange() {
     this.templates.forEach(template => {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs = template.private_config;
-        this.configs.forEach(c => {
-          c.value = c.default;
-          if (c.type === 'Input') {
-            c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
-          }
-        });
+        console.log(this.configs);
+        if (this.configs) {
+          this.configs.forEach(c => {
+            c.value = c.default;
+            if (c.type === 'Input') {
+              c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
+            }
+          });
+        }
+
       }
     });
     this.nodes = [];
@@ -289,17 +302,25 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   configCluster() {
     const promises: Promise<{}>[] = [];
-    this.configs.forEach(c => {
-      const extraConfig: ExtraConfig = new ExtraConfig();
-      extraConfig.key = c.name;
-      extraConfig.value = c.value;
-      promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
-      Promise.all(promises).then((data) => {
-        this.isSubmitGoing = false;
-        this.createClusterOpened = false;
-        this.create.emit(true);
+    if (this.configs) {
+      this.configs.forEach(c => {
+        const extraConfig: ExtraConfig = new ExtraConfig();
+        extraConfig.key = c.name;
+        extraConfig.value = c.value;
+        promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
+        Promise.all(promises).then((data) => {
+          this.finishForm();
+        });
       });
-    });
+    } else {
+      this.finishForm();
+    }
+  }
+
+  finishForm() {
+    this.isSubmitGoing = false;
+    this.createClusterOpened = false;
+    this.create.emit(true);
   }
 
   replaceNodeVarsKey(key: string): string {

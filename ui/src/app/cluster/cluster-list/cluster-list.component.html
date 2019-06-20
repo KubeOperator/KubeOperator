@@ -27,14 +27,34 @@
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
+  <clr-dg-column>状态</clr-dg-column>
   <clr-dg-column>备注</clr-dg-column>
-
+  <clr-dg-column></clr-dg-column>
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
-    <clr-dg-cell>{{cluster.package}}</clr-dg-cell>
+    <clr-dg-cell>
+      {{cluster.resource + '-' + cluster.resource_version}}
+      &nbsp;<img [src]="getLogo(cluster.resource)" class="logo">
+    </clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{getStatusComment(cluster.status)}}<i class="fa fa-eercast" style="color: #ffff00;"></i></clr-dg-cell>
     <clr-dg-cell>{{cluster.comment}}</clr-dg-cell>
+    <clr-dg-cell>
+      <clr-dropdown>
+        <button type="button" class="btn btn-sm btn-secondary" clrDropdownTrigger>
+          操作
+          <clr-icon shape="caret down"></clr-icon>
+        </button>
+        <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+          <button type="button" *ngFor="let op of cluster.operations" (click)="handleEvent(cluster.name,op)"
+                  clrDropdownItem>
+            <i [class]="'fa fa-'+op.icon"></i>
+            {{op.comment}}
+          </button>
+        </clr-dropdown-menu>
+      </clr-dropdown>
+    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

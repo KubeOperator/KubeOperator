@@ -1,0 +1,90 @@
+{{- if eq .Values.redis.type "internal" -}}
+{{- $redis := .Values.persistence.persistentVolumeClaim.redis -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "harbor.redis" . }}
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+    component: redis
+spec:
+  replicas: 1
+  serviceName: {{ template "harbor.redis" . }}
+  selector:
+    matchLabels:
+{{ include "harbor.matchLabels" . | indent 6 }}
+      component: redis
+  template:
+    metadata:
+      labels:
+{{ include "harbor.labels" . | indent 8 }}
+        component: redis
+{{- if .Values.redis.podAnnotations }}
+      annotations:
+{{ toYaml .Values.redis.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - name: redis
+        image: {{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 1
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 1
+          periodSeconds: 10
+{{- if .Values.redis.internal.resources }}
+        resources:
+{{ toYaml .Values.redis.internal.resources | indent 10 }}
+{{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/redis
+          subPath: {{ $redis.subPath }}
+      {{- if not .Values.persistence.enabled }}
+      volumes:
+      - name: data
+        emptyDir: {}
+      {{- else if $redis.existingClaim }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ $redis.existingClaim }}
+      {{- end -}}
+    {{- with .Values.redis.internal.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.redis.internal.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.redis.internal.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+  {{- if and .Values.persistence.enabled (not $redis.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+{{ include "harbor.labels" . | indent 8 }}
+    spec:
+      accessModes: [{{ $redis.accessMode | quote }}]
+      {{- if $redis.storageClass }}
+      {{- if (eq "-" $redis.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ $redis.storageClass }}"
+      {{- end }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $redis.size | quote }}
+  {{- end -}}
+  {{- end -}}

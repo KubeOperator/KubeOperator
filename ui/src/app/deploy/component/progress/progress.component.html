@@ -1,0 +1,10 @@
+<div *ngIf="showProgress">
+  <h5>当前任务:</h5>
+  {{currentDeploy}}
+  <h5></h5>
+  <h5 *ngIf="showLoading">{{currentTask}}<i class="fa fa-spinner fa-pulse"></i></h5>
+
+  <div class="progress labeled">
+    <progress max="100" [value]="currentProgress"></progress>
+  </div>
+</div>

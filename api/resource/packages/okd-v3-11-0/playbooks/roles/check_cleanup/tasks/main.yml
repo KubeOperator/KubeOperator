@@ -1,7 +1,0 @@
-#- name: Stop nc from listening
-#  shell: "pkill -f 'nc -l'"
-#  ignore_errors: true
-- name: Ensure nc absent
-  yum:
-    name: nc
-    state: absent

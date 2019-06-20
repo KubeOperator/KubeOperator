@@ -1,0 +1,52 @@
+- name: 创建data目录
+  file:
+    path: /data
+    state: directory
+    mode: 0755
+
+# 注册变量result，如果/data目录下存在registry目录说明已经安装过harbor，则不进行安装
+- name: 注册变量result
+  command: ls /data
+  register: result
+
+- block:
+    - name: 下发docker compose二进制文件
+      copy: src={{ base_dir }}/bin/docker-compose dest={{ bin_dir }}/docker-compose mode=0755
+
+    - name: 下发harbor离线安装包
+      copy:
+        src: "{{ base_dir }}/down/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+        dest: "/data/harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+
+    - name: 解压harbor离线安装包
+      shell: "cd /data && tar zxf harbor-offline-installer-{{ HARBOR_VER }}.tgz"
+
+    - name: 导入harbor所需 docker images
+      shell: "{{ bin_dir }}/docker load -i /data/harbor/harbor.{{ HARBOR_VER }}.tar.gz"
+    
+    - name: 分发证书相关
+      synchronize: src={{ ca_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }}
+      with_items:
+      - ca.pem
+      - ca-key.pem
+      - ca-config.json
+      delegate_to: "{{ groups['kube-master'][0] }}"
+    
+    - name: 创建harbor证书请求
+      template: src=harbor-csr.json.j2 dest={{ ca_dir }}/harbor-csr.json
+    
+    - name: 创建harbor证书和私钥
+      shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+            -ca={{ ca_dir }}/ca.pem \
+            -ca-key={{ ca_dir }}/ca-key.pem \
+            -config={{ ca_dir }}/ca-config.json \
+            -profile=kubernetes harbor-csr.json | {{ bin_dir }}/cfssljson -bare harbor"
+    
+    - name: 配置 harbor.cfg 文件
+      template: src=harbor-{{ HARBOR_VER_MAIN }}.cfg.j2 dest=/data/harbor/harbor.cfg
+    
+    - name: 安装 harbor
+      shell: "cd /data/harbor && \
+    	export PATH={{ bin_dir }}:$PATH && \
+    	 ./install.sh  --with-clair"
+  when: '"registry" not in result.stdout'

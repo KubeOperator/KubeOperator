@@ -22,7 +22,7 @@ export class ClusterDetailComponent implements OnInit {
   }
 
   backToCluster() {
-    this.router.navigate(['fit2openshift', 'cluster']);
+    this.router.navigate(['kubeOperator', 'cluster']);
   }
 
 }

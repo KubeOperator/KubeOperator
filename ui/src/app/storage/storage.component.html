@@ -1,0 +1,8 @@
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+    <h2>存储</h2>
+    <app-tip></app-tip>
+    <app-storage-create (create)="createItem($event)"></app-storage-create>
+    <app-storage-list (addItem)="openModal()"></app-storage-list>
+  </div>
+</div>

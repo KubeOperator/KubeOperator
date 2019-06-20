@@ -1,7 +1,8 @@
 import threading
 import time
 from channels.generic.websocket import JsonWebsocketConsumer
-from openshift_api.models import DeployExecution
+
+from openshift_api.models.deploy import DeployExecution
 
 
 class F2OWebsocket(JsonWebsocketConsumer):

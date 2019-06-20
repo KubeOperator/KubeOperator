@@ -1,4 +1,0 @@
-- hosts: OSEv3
-  tasks:
-    - name: ping
-      ping:

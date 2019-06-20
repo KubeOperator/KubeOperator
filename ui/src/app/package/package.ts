@@ -3,10 +3,24 @@ export class Package {
   name: string;
   meta: PackageMeta;
   date_created: string;
+
+  getLogo() {
+    let logo = null;
+    const path = 'assets/images';
+    switch (this.meta.resource) {
+      case 'kubernetes':
+        logo = path + 'logo-k8s.png';
+        break;
+      case 'okd':
+        logo = path + 'logo-okd.png';
+        break;
+    }
+    return logo;
+  }
 }
 
 export class PackageMeta {
-  name: string;
+  resource: string;
   version: string;
   templates: Template[];
 }
@@ -76,8 +90,8 @@ export class Os {
 
 export class Template {
   name: string;
-  roles: Role[];
-  private_config: Config[];
+  roles: Role[] = [];
+  private_config: Config[] = [];
   portals: Portal[];
   comment: string;
 }

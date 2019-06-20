@@ -1,0 +1,49 @@
+<clr-modal [clrLoading]="loading" [(clrModalOpen)]="opened" [clrModalClosable]="false"
+           [clrModalSize]="'xl'"
+           *ngIf="item">
+  <div class="modal-title">
+    存储
+  </div>
+  <div class="modal-body" style="min-height: 500px;max-height:800px;overflow-y: auto">
+    <div>
+      <h5>基本信息</h5>
+      <hr/>
+      名称:{{item.name}} <br/>
+      存储类型:{{item.template}}<br/>
+      创建时间:{{item.date_created}}<br/>
+    </div>
+    <div *ngIf="storageTemplate">
+      <h5>配置信息</h5>
+      <hr/>
+      <div *ngIf="storageNodes.length>0">
+        <clr-datagrid>
+          <clr-dg-column>name</clr-dg-column>
+          <clr-dg-column>ip</clr-dg-column>
+          <clr-dg-column>状态</clr-dg-column>
+          <!--<clr-dg-column>操作</clr-dg-column>-->
+
+          <clr-dg-row *ngFor="let node of storageNodes">
+            <clr-dg-cell>{{node.name}}</clr-dg-cell>
+            <clr-dg-cell>{{node.ip}}</clr-dg-cell>
+            <clr-dg-cell>{{node.status}}</clr-dg-cell>
+            <!--<clr-dg-cell>{{user.color}}</clr-dg-cell>-->
+          </clr-dg-row>
+          <clr-dg-footer>{{storageNodes.length}} nodes</clr-dg-footer>
+        </clr-datagrid>
+      </div>
+      <div *ngIf="storageTemplate">
+        <form clrFrom>
+          <div class="clr-form-horizontal" *ngFor="let op of storageTemplate.meta.options">
+            <clr-input-container>
+              <label>{{op.name}}</label>
+              <input clrInput type="text" [(ngModel)]="item.vars[op.name]" [name]="op.name"/>
+            </clr-input-container>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="close()">取消</button>
+  </div>
+</clr-modal>

@@ -18,12 +18,13 @@ import {LogModule} from './log/log.module';
 import {TipModule} from './tip/tip.module';
 import {HostModule} from './host/host.module';
 import {DeployModule} from './deploy/deploy.module';
-import {SettingComponent} from './setting/setting.component';
 import {SettingModule} from './setting/setting.module';
+import {StorageModule} from './storage/storage.module';
+import {AuthModule} from './auth/auth.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,7 +43,9 @@ import {SettingModule} from './setting/setting.module';
     MonitorModule,
     TipModule,
     HostModule,
-    SettingModule
+    SettingModule,
+    StorageModule,
+    AuthModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

@@ -2,9 +2,9 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {Log} from '../log';
 import {LogService} from '../log.service';
 import {Cluster} from '../../cluster/cluster';
-import {Execution} from '../../deploy/operater/execution';
 import {HostListComponent} from '../../host/host-list/host-list.component';
 import {LogDetailComponent} from '../log-detail/log-detail.component';
+import {Execution} from '../../deploy/component/operater/execution';
 
 @Component({
   selector: 'app-log-list',

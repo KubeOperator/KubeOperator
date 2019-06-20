@@ -1,7 +1,7 @@
 from celery import shared_task
 from common.utils import get_object_or_none
 from ansible_api.ctx import change_to_root
-from openshift_api.models import DeployExecution
+from openshift_api.models.deploy import DeployExecution
 
 
 @shared_task
@@ -10,7 +10,7 @@ def start_deploy_execution(eid, **kwargs):
     execution = get_object_or_none(DeployExecution, id=eid)
     if execution:
         execution.project.change_to()
-        return execution.start()
+        return execution.start
     else:
         msg = "No execution found: {}".format(eid)
         print(msg)

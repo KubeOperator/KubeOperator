@@ -35,6 +35,13 @@ export class ClusterService {
     );
   }
 
+  configClusterAuth(clusterName: string, auth: string): Observable<Cluster> {
+    return this.http.patch<Cluster>(baseClusterUrl + clusterName + '/', {auth_template: auth});
+  }
+
+  getClusterConfig(clusterName: string, key: string): Observable<ExtraConfig> {
+    return this.http.get<ExtraConfig>(baseClusterConfigUrl.replace('{cluster_name}', clusterName) + key);
+  }
 
   createCluster(cluster: Cluster): Observable<Cluster> {
     return this.http.post<Cluster>(baseClusterUrl, cluster).pipe(

@@ -1,7 +1,0 @@
-- assert:
-    that:
-      - (ansible_distribution == 'RedHat' and '7.4' in ansible_distribution_version) or
-        (ansible_distribution == 'RedHat' and '7.5' in ansible_distribution_version) or
-        (ansible_distribution == 'CentOS' and '7.4' in ansible_distribution_version) or
-        (ansible_distribution == 'CentOS' and '7.5' in ansible_distribution_version)
-    msg: "The only supported platforms for this release are RHEL 7.4 or RHEL 7.5"

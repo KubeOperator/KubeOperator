@@ -1,4 +1,0 @@
-- name: restart dnsmasq
-  get_url:
-    url: "http://admin:DoNotChangeMe@{{local_hostname}}:5380/restart"
-    dest: "/tmp"

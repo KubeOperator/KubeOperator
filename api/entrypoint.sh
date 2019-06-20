@@ -12,6 +12,6 @@ trap cleanup EXIT
 if [[ "$1" == "bash" ]];then
     bash
 else
-    python f2o.py start
+    python kubeops.py start
 fi
 

@@ -1,0 +1,104 @@
+{{- if eq .Values.database.type "internal" -}}
+{{- $database := .Values.persistence.persistentVolumeClaim.database -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "harbor.database" . }}"
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+    component: database
+spec:
+  replicas: 1
+  serviceName: "{{ template "harbor.database" . }}"
+  selector:
+    matchLabels:
+{{ include "harbor.matchLabels" . | indent 6 }}
+      component: database
+  template:
+    metadata:
+      labels:
+{{ include "harbor.labels" . | indent 8 }}
+        component: database
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/database/database-secret.yaml") . | sha256sum }}
+{{- if .Values.database.podAnnotations }}
+{{ toYaml .Values.database.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      initContainers:
+      - name: "remove-lost-found"
+        image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        command: ["rm", "-Rf", "/var/lib/postgresql/data/lost+found"]
+        volumeMounts:
+        - name: database-data
+          mountPath: /var/lib/postgresql/data
+      containers:
+      - name: database
+        image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        livenessProbe:
+          exec:
+            command:
+            - /docker-healthcheck.sh
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /docker-healthcheck.sh
+          initialDelaySeconds: 1
+          periodSeconds: 10
+{{- if .Values.database.internal.resources }}
+        resources:
+{{ toYaml .Values.database.internal.resources | indent 10 }}
+{{- end }}
+        envFrom:
+          - secretRef:
+              name: "{{ template "harbor.database" . }}"
+        volumeMounts:
+        - name: database-data
+          mountPath: /var/lib/postgresql/data
+          subPath: {{ $database.subPath }}
+      {{- if not .Values.persistence.enabled }}
+      volumes:
+      - name: "database-data"
+        emptyDir: {}
+      {{- else if $database.existingClaim }}
+      volumes:
+      - name: "database-data"
+        persistentVolumeClaim:
+          claimName: {{ $database.existingClaim }}
+      {{- end -}}
+    {{- with .Values.database.internal.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.database.internal.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.database.internal.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+  {{- if and .Values.persistence.enabled (not $database.existingClaim) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "database-data"
+      labels:
+{{ include "harbor.labels" . | indent 8 }}
+    spec:
+      accessModes: [{{ $database.accessMode | quote }}]
+      {{- if $database.storageClass }}
+      {{- if (eq "-" $database.storageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ $database.storageClass }}"
+      {{- end }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ $database.size | quote }}
+  {{- end -}}
+  {{- end -}}

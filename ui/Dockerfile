@@ -7,5 +7,5 @@ ADD . /data
 RUN npm run-script build
 
 FROM nginx:alpine
-COPY --from=stage-build /data/dist /opt/fit2openshift-ui
+COPY --from=stage-build /data/dist /opt/kubeOperator-ui
 COPY nginx.conf /etc/nginx/conf.d/default.conf
