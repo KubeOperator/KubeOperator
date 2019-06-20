@@ -133,7 +133,6 @@
       package: name=rsync state=present
 
     - name: 复制 manifests至 deploy节点
-      copy: src=manifests dest={{ base_dir }}
       synchronize: src={{ base_dir }}/manifests dest={{ base_dir }}
 
     - name: 推送 ssh 密钥对至 deploy节点

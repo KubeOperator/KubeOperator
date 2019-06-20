@@ -150,7 +150,7 @@ templates:
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
-        default: master-1.$cluster_name$domain_suffix:6443
+        default: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
         display: true
