@@ -121,12 +121,6 @@ roles:
       tiller_image: "jmgao1983/tiller"
       tiller_version: "v2.12.3"
       helm_repo_url: "http://registry.fit2openshift.io:8081/repository/helm"
-      #registry
-      harbor_install: true
-      #prometheus
-      prometheus_install: true
-      #grafana
-      grafana_install: true
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
       FLANNEL_BACKEND: "vxlan"
@@ -134,11 +128,12 @@ roles:
       flanneld_version: "v0.11.0-amd64"
 templates:
   - name: all-in-one 模型
-    comment: '此部署模型至少需要主机 1 台，磁盘 2 块，仅用于测试环境，仅安装 kubernetes 核心组件'
+    comment: '此部署模型至少需要主机 1 台，磁盘 1 块，仅用于测试环境，仅安装 kubernetes 核心组件'
     private_vars:
-      DEPLOY_MODE: 'allinone'
-      #      MASTER_IP: "{{ groups['kube-master'][0] }}"
-    #      KUBE_APISERVER: "https://{{ MASTER_IP }}:6443"
+      DEPLOY_MODE: allinone
+      harbor_install: false
+      prometheus_install: false
+      grafana_install: false
     private_config:
       - name: MASTER_IP
         alias: 域名
@@ -210,11 +205,28 @@ templates:
         meta:
           hidden: true
 
-
-  - name: 高可用模型
-    comment: '此部署模型为高可用部署模型，包括1个 load balance 节点，3个 (Master)主节点，3个 (Infra)架构节点和至少3个 (Compute)计算节点，可用于生产环境，可选装 clustet-monitoring、metrics、logging等组件。'
+  - name: 一主多节点
+    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，1个 (Master)主节点和至少3个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
     private_vars:
-      DEPLOY_MODE: 'multi-master'
+      DEPLOY_MODE: 'single-master'
+      harbor_install: true
+      prometheus_install: true
+      grafana_install: true
+    private_config:
+      - name: MASTER_IP
+        alias: 域名
+        type: Input
+        default: masters-1.$cluster_name$domain_suffix
+        required: true
+        help_text: kubernetes 访问地址
+        display: true
+      - name: KUBE_APISERVER
+        alias: api-server 地址
+        type: Input
+        default: https://masters-1.$cluster_name$domain_suffix:6443
+        required: true
+        help_text: kubernetes api-server 地址
+        display: true
     operations:
       - name: install
         playbooks:
@@ -229,139 +241,74 @@ templates:
       - name: uninstall
         playbooks:
           - uninstall-k8s
-    roles:
-      - name: lb
-        vars: LB_ROLE=master
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.4"
-                - "7.5"
-          requires:
-            nodes_require:
-              - '='
-              - 1
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 1
-                excellent: 2
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 2
-                excellent: 4
-                unit: "GB"
-                comment: "无"
-      - name: masters
-        vars:
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.4"
-                - "7.5"
-          node_vars: []
-          requires:
-            nodes_require:
-              - '>'
-              - 3
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 4
-                excellent: 8
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 8
-                excellent: 16
-                unit: "GB"
-                comment: "无"
-      - name: compute
-        vars:
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.4"
-                - "7.5"
-          node_vars: []
-          requires:
-            nodes_require:
-              - '>'
-              - 3
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 4
-                excellent: 8
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 8
-                excellent: 16
-                unit: "GB"
-                comment: "无"
-      - name: infra
-        vars:
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.4"
-                - "7.5"
-          node_vars: []
-          requires:
-            nodes_require:
-              - '>'
-              - 3
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 4
-                excellent: 8
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 8
-                excellent: 16
-                unit: "GB"
-                comment: "无"
+      roles:
+        - name: masters
+          vars:
+          meta:
+            hidden: false
+            allow_os:
+              - name: CentOS
+                version:
+                  - "7.4"
+                  - "7.5"
+                  - "7.6"
+            node_vars: []
+            requires:
+              nodes_require:
+                - '='
+                - 3
+              volumes_require:
+                - name: "system"
+                  verbose: "系统卷:"
+                  minimal: 50
+                  excellent: 100
+                  comment: "系统卷，用于运行操作系统"
+                  unit: "GB"
+              device_require:
+                - name: "cpu_core"
+                  verbose: "CPU 核心数"
+                  minimal: 4
+                  excellent: 8
+                  comment: "无"
+                  unit: "个"
+                - name: "memory_size"
+                  verbose: "内存大小"
+                  minimal: 8
+                  excellent: 16
+                  unit: "GB"
+                  comment: "无"
+        - name: compute
+          vars:
+          meta:
+            hidden: false
+            allow_os:
+              - name: CentOS
+                version:
+                  - "7.4"
+                  - "7.5"
+                  - "7.6"
+            node_vars: []
+            requires:
+              nodes_require:
+                - '>'
+                - 2
+              volumes_require:
+                - name: "system"
+                  verbose: "系统卷:"
+                  minimal: 50
+                  excellent: 100
+                  comment: "系统卷，用于运行操作系统"
+                  unit: "GB"
+              device_require:
+                - name: "cpu_core"
+                  verbose: "CPU 核心数"
+                  minimal: 4
+                  excellent: 8
+                  comment: "无"
+                  unit: "个"
+                - name: "memory_size"
+                  verbose: "内存大小"
+                  minimal: 8
+                  excellent: 16
+                  unit: "GB"
+                  comment: "无"
