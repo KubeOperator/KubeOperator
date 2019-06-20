@@ -29,3 +29,6 @@ prom/prometheus:v2.2.1
 prom/alertmanager:v0.14.0
 prom/node-exporter:v0.15.2
 jimmidyson/configmap-reload:v0.1
+
+registry.fit2openshift.io:8082/mirrorgooglecontainers/kubernetes-dashboard-amd6:v1.10.1
+registry.fit2openshift.io:8082/mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1
