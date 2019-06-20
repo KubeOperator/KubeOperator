@@ -93,10 +93,16 @@ class Cluster(Project):
                 role.children.set(children)
             except Role.DoesNotExist:
                 pass
+        config_role = Role.objects.get(name='config')
+        private_var = template['private_vars']
+        role_vars = config_role.vars
+        role_vars.update(private_var)
+        config_role.vars = role_vars
+        config_role.save()
 
     def configs(self, tp='list'):
         self.change_to()
-        role = Role.objects.get(name='OSEv3')
+        role = Role.objects.get(name='config')
         configs = role.vars
         if tp == 'list':
             configs = [{'key': k, 'value': v} for k, v in configs.items()]
@@ -118,7 +124,7 @@ class Cluster(Project):
 
     def del_config(self, k):
         self.change_to()
-        role = Role.objects.get(name='OSEv3')
+        role = Role.objects.get(name='config')
         _vars = role.vars
         _vars.pop(k, None)
         role.vars = _vars
