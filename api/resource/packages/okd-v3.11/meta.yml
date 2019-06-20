@@ -142,9 +142,9 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-docker-storage
           - config-ntp
           - prequisites-install
+          - config-docker-storage
           - install-openshift
       - name: uninstall
         display: true
@@ -250,9 +250,8 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-docker-storage
-          - config-ntp
           - prequisites-install
+          - config-docker-storage
           - install-openshift
       - name: uninstall
         display: true
