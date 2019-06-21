@@ -84,7 +84,7 @@
 
 - block:
     - name: 创建harbor 部署
-      shell: "{{ bin_dir }}/helm install  harbor"
+      shell: "helm install  harbor"
       chdir: "{{ base_dir }}/mainfests/habor"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
@@ -92,7 +92,7 @@
   ignore_errors: true
 - block:
     - name: 创建 prometheus 部署
-      shell: "{{ bin_dir }}/helm install  harbor"
+      shell: "helm install  harbor"
       chdir: "{{ base_dir }}/mainfests/prometheus/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
@@ -100,7 +100,7 @@
   ignore_errors: true
 - block:
     - name: 创建 grafana 部署
-      shell: "{{ bin_dir }}/helm install  grafana"
+      shell: "helm install  grafana"
       chdir: "{{ base_dir }}/mainfests/prometheus/grafana"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
