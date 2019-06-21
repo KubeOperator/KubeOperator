@@ -27,7 +27,7 @@ def on_storage_save(sender, instance=None, **kwargs):
 
 @receiver(post_save, sender=Node)
 def on_node_save(sender, instance=None, created=False, **kwargs):
-    if created and not instance.name == 'localhost' and not instance.name == '127.0.0.1':
+    if created and not instance.name == 'localhost' and not instance.name == '127.0.0.1' and not instance.name == '::1':
         instance.on_node_save()
 
 

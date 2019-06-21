@@ -49,7 +49,7 @@ roles:
       - kubeasz
   - name: cluster_nodes
     children:
-      - masters
+      - master
       - compute
       - infra
   - name: all_nodes
@@ -62,15 +62,15 @@ roles:
       - infra
   - name: kube-master
     children:
-      - masters
+      - master
   - name: etcd
     children:
-      - masters
+      - master
     meta:
       hidden: true
   - name: kubeasz
     children:
-      - masters
+      - master
       - nodes
       - compute
       - infra
@@ -138,14 +138,14 @@ templates:
       - name: MASTER_IP
         alias: 域名
         type: Input
-        default: masters-1.$cluster_name$domain_suffix
+        default: master-1.$cluster_name$domain_suffix
         required: true
         help_text: kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
-        default: https://masters-1.$cluster_name$domain_suffix:6443
+        default: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
         display: true
@@ -165,7 +165,7 @@ templates:
         playbooks:
           - uninstall-k8s
     roles:
-      - name: masters
+      - name: master
         vars:
         meta:
           hidden: false
@@ -201,7 +201,7 @@ templates:
                 comment: "无"
       - name: compute
         children:
-          - masters
+          - master
         meta:
           hidden: true
 
@@ -216,14 +216,14 @@ templates:
       - name: MASTER_IP
         alias: 域名
         type: Input
-        default: masters-1.$cluster_name$domain_suffix
+        default: master-1.$cluster_name$domain_suffix
         required: true
         help_text: kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
-        default: https://masters-1.$cluster_name$domain_suffix:6443
+        default: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
         display: true
@@ -243,7 +243,7 @@ templates:
         playbooks:
           - uninstall-k8s
     roles:
-      - name: masters
+      - name: master
         vars:
         meta:
           hidden: false
@@ -386,7 +386,7 @@ templates:
                 unit: "GB"
                 comment: "无"
 
-      - name: masters
+      - name: master
         meta:
           hidden: false
           allow_os:
