@@ -135,6 +135,10 @@ class Cluster(Project):
             name="localhost", vars={"ansible_connection": "local"},
             project=self, meta={"hidden": True}
         )
+        Node.objects.create(
+            name="127.0.0.1", vars={"ansible_connection": "local"},
+            project=self, meta={"hidden": True}
+        )
 
     def on_cluster_create(self):
         self.change_to()
