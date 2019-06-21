@@ -31,7 +31,7 @@ Options = namedtuple('Options', [
 
 def get_default_options():
     options = Options(
-        verbosity=0,
+        verbosity=4,
         listhosts=None,
         subset=None,
         module_path=None,
