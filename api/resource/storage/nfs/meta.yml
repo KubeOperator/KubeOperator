@@ -1,19 +1,15 @@
 name: nfs
 roles: []
-vars: {}
+vars:
+  storage_nfs_enabled: true
+  storage_nfs_storage_class: nfs-dynamic-class
+  storage_nfs_provisioner_name: nfs-provisioner
 options:
-  - name: nfs_server
+  - name: storage_nfs_server
     comment: nfs_server
     placeholder: 10.0.0.1
     type: text
-  - name: nfs_path
+  - name: storage_nfs__server_path
     comment: nfs_path
     placeholder: /exports
     type: text
-config:
-  playbooks:
-    - config-nfs-storage
-health_check:
-  playbooks:
-    - name: '挂载检查'
-      alias: 'playbooks/service-health-check.yml'

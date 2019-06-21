@@ -2,17 +2,17 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.db import transaction
 
-from openshift_api.models.auth import AuthTemplate
-from openshift_api.models.host import Host
+from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.deploy import DeployExecution
-from openshift_api.models.host import Volume, HostInfo
-from openshift_api.models.node import Node
-from openshift_api.models.package import Package
-from openshift_api.models.role import Role
-from openshift_api.models.setting import Setting
-from openshift_api.models.storage import StorageTemplate, Storage, StorageNode
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.deploy import DeployExecution
+from kubeops_api.models.host import Volume, HostInfo
+from kubeops_api.models.node import Node
+from kubeops_api.models.package import Package
+from kubeops_api.models.role import Role
+from kubeops_api.models.setting import Setting
+from kubeops_api.models.storage import StorageTemplate, Storage, StorageNode
 from . import serializers
 from .mixin import ClusterResourceAPIMixin, StorageResourceAPIMixin
 from .tasks import start_deploy_execution

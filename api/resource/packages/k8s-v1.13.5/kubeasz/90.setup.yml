@@ -1,5 +1,5 @@
 # [optional] to synchronize time of nodes with 'chrony'
-- hosts: all
+- hosts: all_nodes
   roles:
     - role: chrony
 
@@ -68,6 +68,16 @@
     - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
     - { role: kube-router, when: "CLUSTER_NETWORK == 'kube-router'" }
     - { role: kube-ovn, when: "CLUSTER_NETWORK == 'kube-ovn'" }
+
+# to install storage_class
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - cluster-storage
+
+# to install helm
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - helm
 
 # to install cluster-addons
 - hosts:

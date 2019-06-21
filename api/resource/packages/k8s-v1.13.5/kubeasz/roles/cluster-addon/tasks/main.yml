@@ -76,7 +76,7 @@
 
 - block:
     - name: 创建 efk部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/mainfests/efk"
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/efk"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"elasticsearch" not in pod_info.stdout and efk_install'
@@ -85,7 +85,8 @@
 - block:
     - name: 创建harbor 部署
       shell: "helm install  harbor"
-      chdir: "{{ base_dir }}/mainfests/habor"
+      args:
+        chdir: "{{ base_dir }}/manifests/habor"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"harbor" not in pod_info.stdout and harbor_install'
@@ -93,7 +94,8 @@
 - block:
     - name: 创建 prometheus 部署
       shell: "helm install  harbor"
-      chdir: "{{ base_dir }}/mainfests/prometheus/prometheus"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"prometheus" not in pod_info.stdout and prometheus_install'
@@ -101,7 +103,8 @@
 - block:
     - name: 创建 grafana 部署
       shell: "helm install  grafana"
-      chdir: "{{ base_dir }}/mainfests/prometheus/grafana"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus/grafana"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"harbor" not in pod_info.stdout and harbor_install'

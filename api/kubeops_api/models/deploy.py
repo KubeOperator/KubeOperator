@@ -5,9 +5,9 @@ from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExec
 from django.db import models
 
 from common import models as common_models
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.setting import Setting
-from openshift_api.signals import pre_deploy_execution_start, post_deploy_execution_start
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.setting import Setting
+from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -61,6 +61,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             cluster.save()
         except Exception as e:
             logger.error(e, exc_info=True)
+            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
             cluster.save()
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)

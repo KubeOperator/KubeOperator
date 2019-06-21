@@ -1,8 +1,8 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
-from openshift_api import api
+from kubeops_api import api
 
-app_name = "openshift_api"
+app_name = "kubeops_api"
 router = DefaultRouter()
 
 router.register('clusters', api.ClusterViewSet, 'cluster')

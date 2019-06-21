@@ -1,18 +1,18 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
-from openshift_api.models.auth import AuthTemplate
-from openshift_api.models.host import Host
+from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.deploy import DeployExecution
-from openshift_api.models.host import Volume, HostInfo
-from openshift_api.models.node import Node
-from openshift_api.models.package import Package
-from openshift_api.models.role import Role
-from openshift_api.models.setting import Setting
-from openshift_api.models.storage import StorageTemplate, Storage, StorageNode
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.deploy import DeployExecution
+from kubeops_api.models.host import Volume, HostInfo
+from kubeops_api.models.node import Node
+from kubeops_api.models.package import Package
+from kubeops_api.models.role import Role
+from kubeops_api.models.setting import Setting
+from kubeops_api.models.storage import StorageTemplate, Storage, StorageNode
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',

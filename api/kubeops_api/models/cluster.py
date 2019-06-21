@@ -3,11 +3,11 @@ import os
 
 from django.db import models
 
-import openshift_api
+import kubeops_api
 from ansible_api.models import Project, Playbook
-from openshift_api.models.auth import AuthTemplate
-from openshift_api.models.node import Node
-from openshift_api.models.role import Role
+from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.node import Node
+from kubeops_api.models.role import Role
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +29,13 @@ class Cluster(Project):
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
-    auth_template = models.ForeignKey('openshift_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
+    auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
     status = models.CharField(max_length=128, choices=OPENSHIFT_STATUS_CHOICES, default=OPENSHIFT_STATUS_UNKNOWN)
 
     @property
     def current_execution(self):
-        current = openshift_api.models.deploy.DeployExecution.objects.filter(project=self).first()
+        current = kubeops_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current
 
     @property
@@ -54,7 +54,7 @@ class Cluster(Project):
         if self.persistent_storage:
             _vars = self.persistent_storage.vars
             for k in _vars:
-                self.set_config(k, _vars[k])
+                self.set_config_storage(k, _vars[k])
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -111,6 +111,16 @@ class Cluster(Project):
     def set_config(self, k, v):
         self.change_to()
         role = Role.objects.select_for_update().get(name='config')
+        _vars = role.vars
+        if isinstance(v, str):
+            v = v.strip()
+        _vars[k] = v
+        role.vars = _vars
+        role.save()
+
+    def set_config_storage(self, k, v):
+        self.change_to()
+        role = Role.objects.get(name='config')
         _vars = role.vars
         if isinstance(v, str):
             v = v.strip()

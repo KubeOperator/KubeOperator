@@ -1,5 +1,5 @@
 # install helm
-- hosts: {{groups['kube-master'][0]}}
+- hosts: "{{groups['kube-master'][0]}}"
   roles:
     - helm
 # to install clust-addons

@@ -5,11 +5,11 @@ from django.dispatch import receiver
 from django.utils import timezone
 from gunicorn.config import Setting
 
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.host import HostInfo
-from openshift_api.models.node import Node
-from openshift_api.models.package import Package
-from openshift_api.models.storage import Storage
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.host import HostInfo
+from kubeops_api.models.node import Node
+from kubeops_api.models.package import Package
+from kubeops_api.models.storage import Storage
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
 
