@@ -90,7 +90,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.listStorage();
     this.settingService.getSetting('domain_suffix').subscribe(data => {
       this.suffix = '.' + data.value;
     });
@@ -127,6 +126,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
+    this.listStorage();
   }
 
 
