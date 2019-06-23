@@ -185,7 +185,7 @@
     </form>
 
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()">
     <ng-template clrPageTitle>选择持久化存储</ng-template>
     <form #configForm='ngForm' clrForm>
       <div class="clr-form-control clr-row">

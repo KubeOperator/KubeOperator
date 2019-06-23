@@ -52,9 +52,8 @@ class Cluster(Project):
 
     def create_storage(self):
         if self.persistent_storage:
-            _vars = self.persistent_storage.vars
-            for k in _vars:
-                self.set_config_storage(k, _vars[k])
+            print(self.persistent_storage.vars)
+            self.set_config_storage(self.persistent_storage.vars)
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -118,15 +117,15 @@ class Cluster(Project):
         role.vars = _vars
         role.save()
 
-    def set_config_storage(self, k, v):
+    def set_config_storage(self, vars):
         self.change_to()
-        role = Role.objects.get(name='config')
-        _vars = role.vars
-        if isinstance(v, str):
-            v = v.strip()
-        _vars[k] = v
-        role.vars = _vars
-        role.save()
+        config_role = Role.objects.get(name='config')
+        role_vars = config_role.vars
+        role_vars.update(vars)
+        config_role.vars = role_vars
+        config_role.save()
+        config_role.vars = role_vars
+        config_role.save()
 
     def get_config(self, k):
         v = self.configs(tp='dict').get(k)
