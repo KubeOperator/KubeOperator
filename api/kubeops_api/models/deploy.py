@@ -54,10 +54,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                         _result = playbook.execute(extra_vars=extra_vars)
                         result["summary"].update(_result["summary"])
                         if not _result.get('summary', {}).get('success', False):
+                            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
+                            cluster.save()
                             break
                         current = current + 1
                         self.progress = current / total_palybook * 100
                         self.save()
+            cluster.status = cluster.OPENSHIFT_STATUS_RUNNING
             cluster.save()
         except Exception as e:
             logger.error(e, exc_info=True)
