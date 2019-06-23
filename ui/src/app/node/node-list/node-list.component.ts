@@ -26,7 +26,7 @@ export class NodeListComponent implements OnInit {
   listNodes() {
     this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
       this.nodes = data.filter((node) => {
-        return node.name !== 'localhost';
+        return node.name !== 'localhost' && node.name !== '127.0.0.1' && node.name !== '::1';
       });
       this.loading = false;
     }, error => {
