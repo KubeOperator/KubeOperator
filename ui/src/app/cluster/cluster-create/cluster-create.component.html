@@ -192,7 +192,7 @@
         <label for="storage" class="clr-control-label clr-col-xs-12 clr-col-md-2">持久化存储</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-select-wrapper">
-            <select id="storage" [(ngModel)]="cluster.storage" name="storage" class="clr-select" required>
+            <select id="storage" [(ngModel)]="cluster.persistent_storage" name="storage" class="clr-select" required>
               <option [value]=null>无</option>
               <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
             </select>

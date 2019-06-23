@@ -47,6 +47,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   hosts: Host[] = [];
   groups: Group[] = [];
   storage: Storage[] = [];
+  currentStorage: Storage = new Storage();
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -146,6 +147,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.nodes = null;
     this.configs = null;
     this.groups = null;
+    this.storage = null;
     this.resetCheckState();
   }
 

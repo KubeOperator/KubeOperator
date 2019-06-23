@@ -44,6 +44,7 @@ export class StorageCreateComponent implements OnInit {
   loadTemplate() {
     this.storageTemplateService.listStorageTemplates().subscribe(data => {
       this.storageTemplates = data;
+      console.log(this.storageTemplates);
     });
   }
 
@@ -51,42 +52,21 @@ export class StorageCreateComponent implements OnInit {
     this.storageTemplates.forEach(template => {
       if (template.name === this.item.template) {
         this.storageTemplate = template;
-        this.createNodes();
       }
-    });
-  }
-
-
-  createNodes() {
-    this.storageGroups = [];
-    this.storageTemplate.meta.roles.forEach(role => {
-      const opt = role.meta.requires[0];
-      const num = role.meta.requires[1];
-      const group = new StorageGroup();
-      group.name = role.name;
-      for (let i = 0; i < num; i++) {
-        const node: StorageNode = new StorageNode();
-        const n = i + 1;
-        node.name = group.name + '-' + n;
-        group.nodes.push(node);
-      }
-      this.storageGroups.push(group);
     });
   }
 
   onConfirm() {
+    this.item.name += '-storage';
+    for (const v in this.storageTemplate.meta.vars) {
+      if (v) {
+        this.item.vars[v] = this.storageTemplate.meta.vars[v];
+      }
+    }
     this.storageService.createStorage(this.item).toPromise().then(data => {
-      const promises: Promise<{}>[] = [];
-      this.storageGroups.forEach(group => {
-        group.nodes.forEach(node => {
-          promises.push(this.storageNodeService.createStorageNode(data.name, node).toPromise());
-        });
-        Promise.all(promises).then(() => {
-          this.createdItemOpened = false;
-          this.create.emit(true);
-          this.tipService.showTip('创建存储' + data.name + '成功!', TipLevels.SUCCESS);
-        });
-      });
+      this.createdItemOpened = false;
+      this.create.emit(true);
+      this.tipService.showTip('创建存储' + data.name + '成功!', TipLevels.SUCCESS);
     });
   }
 
