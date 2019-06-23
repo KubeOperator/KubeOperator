@@ -84,16 +84,16 @@
 
 - block:
     - name: 创建harbor 部署
-      shell: "helm install  harbor"
+      shell: "helm install ."
       args:
-        chdir: "{{ base_dir }}/manifests/habor"
+        chdir: "{{ base_dir }}/manifests/harbor"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"harbor" not in pod_info.stdout and harbor_install'
   ignore_errors: true
 - block:
     - name: 创建 prometheus 部署
-      shell: "helm install  harbor"
+      shell: "helm install ."
       args:
         chdir: "{{ base_dir }}/manifests/prometheus/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
@@ -102,7 +102,7 @@
   ignore_errors: true
 - block:
     - name: 创建 grafana 部署
-      shell: "helm install  grafana"
+      shell: "helm install ."
       args:
         chdir: "{{ base_dir }}/manifests/prometheus/grafana"
       delegate_to: "{{ groups['kube-master'][0] }}"

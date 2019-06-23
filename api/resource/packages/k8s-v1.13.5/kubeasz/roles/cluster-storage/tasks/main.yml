@@ -1,5 +1,15 @@
+-block:
+  - name: 获取所有已经创建的POD信息
+    command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+    register: pod_info
+delegate_to: "{{ groups['kube-master'][0] }}"
+run_once: true
+
 - import_tasks: nfs-client.yml
-  when: 'storage_nfs_enabled is defined and storage_nfs_enabled'
+  when:
+    - 'storage_nfs_enabled is defined '
+    - 'storage_nfs_enabled '
+    - '"nfs-provisioner" not in pod_info.stdout''
 
 
  
