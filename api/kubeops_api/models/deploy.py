@@ -40,9 +40,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 if opt['name'] == self.operation:
                     playbooks = []
                     cluster_playbooks = opt.get('playbooks', [])
-                    if cluster.persistent_storage:
-                        storage_playbooks = cluster.persistent_storage.template.meta['config'].get('playbooks', [])
-                        playbooks.extend(storage_playbooks)
                     playbooks.extend(cluster_playbooks)
                     total_palybook = len(playbooks)
                     current = 0
