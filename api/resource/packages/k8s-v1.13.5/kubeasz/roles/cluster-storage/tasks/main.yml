@@ -6,7 +6,7 @@
   when:
     - 'storage_nfs_enabled is defined '
     - 'storage_nfs_enabled '
-    - '"nfs-provisioner" not in pod_info.stdout''
+    - '"nfs-provisioner" not in pod_info.stdout'
 
 
  
