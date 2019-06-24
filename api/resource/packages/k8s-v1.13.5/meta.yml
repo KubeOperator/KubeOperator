@@ -126,6 +126,8 @@ roles:
       FLANNEL_BACKEND: "vxlan"
       flanneld_image: "jmgao1983/flannel"
       flanneld_version: "v0.11.0-amd64"
+      #default
+
 templates:
   - name: all-in-one 模型
     comment: '此部署模型至少需要主机 1 台，磁盘 1 块，仅用于测试环境，仅安装 kubernetes 核心组件'
