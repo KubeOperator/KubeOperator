@@ -105,9 +105,14 @@
       retries:  50
       delay: 6
 
-    - name: 登陆harbor
+    - name: 尝试登陆harbor
       shell: "docker login {{MASTER_IP}}:30003 -u admin -p Harbor12345"
+      register: login_result
+      until: login_result.rc == 0
+      retries:  10
+      delay: 6
       when: result.rc == 0
+
 
   when: '"harbor" not in pod_info.stdout and harbor_install'
   ignore_errors: true
