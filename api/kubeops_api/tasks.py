@@ -1,7 +1,7 @@
 from celery import shared_task
 from common.utils import get_object_or_none
 from ansible_api.ctx import change_to_root
-from openshift_api.models.deploy import DeployExecution
+from kubeops_api.models.deploy import DeployExecution
 
 
 @shared_task

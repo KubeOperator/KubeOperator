@@ -19,7 +19,6 @@
       - bind-license
       - python-passlib
       - ntp
-      - docker
       - python-docker-py
   gather_facts: no
   roles:

@@ -1,4 +1,0 @@
-- hosts: glusterfs
-  tasks:
-    - name: glusterfs health check
-      ping:

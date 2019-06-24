@@ -3,11 +3,11 @@ import os
 
 from django.db import models
 
-import openshift_api
+import kubeops_api
 from ansible_api.models import Project, Playbook
-from openshift_api.models.auth import AuthTemplate
-from openshift_api.models.node import Node
-from openshift_api.models.role import Role
+from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.node import Node
+from kubeops_api.models.role import Role
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +29,13 @@ class Cluster(Project):
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
-    auth_template = models.ForeignKey('openshift_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
+    auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
     status = models.CharField(max_length=128, choices=OPENSHIFT_STATUS_CHOICES, default=OPENSHIFT_STATUS_UNKNOWN)
 
     @property
     def current_execution(self):
-        current = openshift_api.models.deploy.DeployExecution.objects.filter(project=self).first()
+        current = kubeops_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current
 
     @property
@@ -52,9 +52,8 @@ class Cluster(Project):
 
     def create_storage(self):
         if self.persistent_storage:
-            _vars = self.persistent_storage.vars
-            for k in _vars:
-                self.set_config(k, _vars[k])
+            print(self.persistent_storage.vars)
+            self.set_config_storage(self.persistent_storage.vars)
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -93,10 +92,16 @@ class Cluster(Project):
                 role.children.set(children)
             except Role.DoesNotExist:
                 pass
+        config_role = Role.objects.get(name='config')
+        private_var = template['private_vars']
+        role_vars = config_role.vars
+        role_vars.update(private_var)
+        config_role.vars = role_vars
+        config_role.save()
 
     def configs(self, tp='list'):
         self.change_to()
-        role = Role.objects.get(name='OSEv3')
+        role = Role.objects.get(name='config')
         configs = role.vars
         if tp == 'list':
             configs = [{'key': k, 'value': v} for k, v in configs.items()]
@@ -112,13 +117,23 @@ class Cluster(Project):
         role.vars = _vars
         role.save()
 
+    def set_config_storage(self, vars):
+        self.change_to()
+        config_role = Role.objects.get(name='config')
+        role_vars = config_role.vars
+        role_vars.update(vars)
+        config_role.vars = role_vars
+        config_role.save()
+        config_role.vars = role_vars
+        config_role.save()
+
     def get_config(self, k):
         v = self.configs(tp='dict').get(k)
         return {'key': k, 'value': v}
 
     def del_config(self, k):
         self.change_to()
-        role = Role.objects.get(name='OSEv3')
+        role = Role.objects.get(name='config')
         _vars = role.vars
         _vars.pop(k, None)
         role.vars = _vars
@@ -127,6 +142,14 @@ class Cluster(Project):
     def create_node_localhost(self):
         Node.objects.create(
             name="localhost", vars={"ansible_connection": "local"},
+            project=self, meta={"hidden": True}
+        )
+        Node.objects.create(
+            name="127.0.0.1", vars={"ansible_connection": "local"},
+            project=self, meta={"hidden": True}
+        )
+        Node.objects.create(
+            name="::1", vars={"ansible_connection": "local"},
             project=self, meta={"hidden": True}
         )
 

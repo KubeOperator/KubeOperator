@@ -1,4 +1,0 @@
-- hosts: nfs
-  tasks:
-    - name: nfs health check
-      ping:

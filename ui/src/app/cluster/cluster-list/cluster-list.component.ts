@@ -27,7 +27,8 @@ export class ClusterListComponent implements OnInit {
 
   constructor(private clusterService: ClusterService, private router: Router,
               private tipService: TipService, private messageService: MessageService, private settingService: SettingService,
-              private packageLogoService: PackageLogoService, private clusterStatusService: ClusterStatusService, private operaterService: OperaterService) {
+              private packageLogoService: PackageLogoService,
+              private clusterStatusService: ClusterStatusService, private operaterService: OperaterService) {
   }
 
   ngOnInit() {

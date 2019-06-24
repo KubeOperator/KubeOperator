@@ -5,11 +5,11 @@ from django.dispatch import receiver
 from django.utils import timezone
 from gunicorn.config import Setting
 
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.host import HostInfo
-from openshift_api.models.node import Node
-from openshift_api.models.package import Package
-from openshift_api.models.storage import Storage
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.host import HostInfo
+from kubeops_api.models.node import Node
+from kubeops_api.models.package import Package
+from kubeops_api.models.storage import Storage
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
 
@@ -27,7 +27,7 @@ def on_storage_save(sender, instance=None, **kwargs):
 
 @receiver(post_save, sender=Node)
 def on_node_save(sender, instance=None, created=False, **kwargs):
-    if created and not instance.name == 'localhost':
+    if created and not instance.name == 'localhost' and not instance.name == '127.0.0.1' and not instance.name == '::1':
         instance.on_node_save()
 
 

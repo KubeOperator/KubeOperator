@@ -47,6 +47,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   hosts: Host[] = [];
   groups: Group[] = [];
   storage: Storage[] = [];
+  currentStorage: Storage = new Storage();
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -89,7 +90,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.listStorage();
     this.settingService.getSetting('domain_suffix').subscribe(data => {
       this.suffix = '.' + data.value;
     });
@@ -126,6 +126,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
+    this.listStorage();
   }
 
 
@@ -146,6 +147,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.nodes = null;
     this.configs = null;
     this.groups = null;
+    this.storage = null;
     this.resetCheckState();
   }
 
@@ -169,7 +171,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs = template.private_config;
-        console.log(this.configs);
         if (this.configs) {
           this.configs.forEach(c => {
             c.value = c.default;

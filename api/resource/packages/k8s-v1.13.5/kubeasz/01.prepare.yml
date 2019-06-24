@@ -1,5 +1,5 @@
 # [optional] to synchronize time of nodes with 'chrony' 
-- hosts: all
+- hosts: all_nodes
   roles:
     - chrony
 

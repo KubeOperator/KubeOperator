@@ -4,7 +4,7 @@ from django.conf.urls import url
 from django.urls import path
 
 from celery_api.ws import CeleryLogWebsocket
-from openshift_api.ws import F2OWebsocket
+from kubeops_api.ws import F2OWebsocket
 
 application = ProtocolTypeRouter({
     # Empty for now (http->django views is added by default)

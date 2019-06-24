@@ -233,7 +233,7 @@ secretKey: "not-a-secure-key"
 # If expose the service via "ingress", the Nginx will not be used
 nginx:
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/nginx-photon
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/nginx-photon
     tag: dev
   replicas: 1
   # resources:
@@ -248,7 +248,7 @@ nginx:
 
 portal:
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/harbor-portal
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-portal
     tag: dev
   replicas: 1
 # resources:
@@ -263,7 +263,7 @@ portal:
 
 core:
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/harbor-core
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-core
     tag: dev
   replicas: 1
 # resources:
@@ -289,7 +289,7 @@ core:
 
 jobservice:
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/harbor-jobservice
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-jobservice
     tag: dev
   replicas: 1
   maxJobWorkers: 10
@@ -312,7 +312,7 @@ jobservice:
 registry:
   registry:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/registry-photon
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/registry-photon
       tag: dev
     # resources:
     #  requests:
@@ -320,7 +320,7 @@ registry:
     #    cpu: 100m
   controller:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/harbor-registryctl
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-registryctl
       tag: dev
     # resources:
     #  requests:
@@ -342,7 +342,7 @@ registry:
 chartmuseum:
   enabled: true
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/chartmuseum-photon
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/chartmuseum-photon
     tag: dev
   replicas: 1
   # resources:
@@ -358,7 +358,7 @@ chartmuseum:
 clair:
   enabled: true
   image:
-    repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/clair-photon
+    repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/clair-photon
     tag: dev
   replicas: 1
   # The http(s) proxy used to update vulnerabilities database from internet
@@ -381,7 +381,7 @@ notary:
   enabled: true
   server:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/notary-server-photon
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/notary-server-photon
       tag: dev
     replicas: 1
     # resources:
@@ -390,7 +390,7 @@ notary:
     #    cpu: 100m
   signer:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/notary-signer-photon
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/notary-signer-photon
       tag: dev
     replicas: 1
     # resources:
@@ -416,7 +416,7 @@ database:
   type: internal
   internal:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/harbor-db
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-db
       tag: dev
     # The initial superuser password for internal database
     password: "fit2cloud.com"
@@ -446,7 +446,7 @@ redis:
   type: internal
   internal:
     image:
-      repository: registry.fit2openshift.io/registry.fit2cloud.com/operator/redis-photon
+      repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/redis-photon
       tag: dev
     # resources:
     #  requests:

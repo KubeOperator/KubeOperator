@@ -5,9 +5,9 @@ from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExec
 from django.db import models
 
 from common import models as common_models
-from openshift_api.models.cluster import Cluster
-from openshift_api.models.setting import Setting
-from openshift_api.signals import pre_deploy_execution_start, post_deploy_execution_start
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.setting import Setting
+from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -40,9 +40,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 if opt['name'] == self.operation:
                     playbooks = []
                     cluster_playbooks = opt.get('playbooks', [])
-                    if cluster.persistent_storage:
-                        storage_playbooks = cluster.persistent_storage.template.meta['config'].get('playbooks', [])
-                        playbooks.extend(storage_playbooks)
                     playbooks.extend(cluster_playbooks)
                     total_palybook = len(playbooks)
                     current = 0
@@ -54,13 +51,17 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                         _result = playbook.execute(extra_vars=extra_vars)
                         result["summary"].update(_result["summary"])
                         if not _result.get('summary', {}).get('success', False):
+                            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
+                            cluster.save()
                             break
                         current = current + 1
                         self.progress = current / total_palybook * 100
                         self.save()
+            cluster.status = cluster.OPENSHIFT_STATUS_RUNNING
             cluster.save()
         except Exception as e:
             logger.error(e, exc_info=True)
+            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
             cluster.save()
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)

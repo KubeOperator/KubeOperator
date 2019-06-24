@@ -132,7 +132,8 @@
         <hr>
         <div *ngFor="let node of group.nodes">
           <div>
-            <h5>{{node.name}}</h5>
+            <h5>{{node.name}} &nbsp;&nbsp;<i class="fa fa-close" *ngIf="node.delete"
+                                             (click)="deleteNode(group,node)"></i></h5>
             <div class="clr-form-control clr-row">
               <label [for]="node.name+'host'" class="clr-control-label clr-col-xs-12 clr-col-md-2">选择主机</label>
               <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
@@ -177,18 +178,21 @@
             </div>
           </div>
         </div>
+        <div style="padding-top: 20px" *ngIf="group.op !== '='">
+          <a href="javascript:void(0)" (click)="addNode(group,true)">添加</a>
+        </div>
       </div>
     </form>
 
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()">
     <ng-template clrPageTitle>选择持久化存储</ng-template>
     <form #configForm='ngForm' clrForm>
       <div class="clr-form-control clr-row">
         <label for="storage" class="clr-control-label clr-col-xs-12 clr-col-md-2">持久化存储</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-select-wrapper">
-            <select id="storage" [(ngModel)]="cluster.storage" name="storage" class="clr-select" required>
+            <select id="storage" [(ngModel)]="cluster.persistent_storage" name="storage" class="clr-select" required>
               <option [value]=null>无</option>
               <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
             </select>
