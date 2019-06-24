@@ -25,7 +25,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = Cluster.objects.filter(id=self.project.id).first()
         hostname = Setting.objects.get(key='local_hostname')
-        cluster.status = Cluster.status = Cluster.OPENSHIFT_STATUS_INSTALLING
+        cluster.status = Cluster.status = Cluster.CLUSTER_STATUS_INSTALLING
         cluster.save()
         template = None
         extra_vars = {
@@ -38,11 +38,14 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         try:
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
+                    status_set = self.operation['status_change']
                     playbooks = []
                     cluster_playbooks = opt.get('playbooks', [])
                     playbooks.extend(cluster_playbooks)
                     total_palybook = len(playbooks)
                     current = 0
+                    cluster.status = status_set['on']
+                    cluster.save()
                     for playbook_name in playbooks:
                         print("\n>>> Start run {} ".format(playbook_name))
                         self.current_play = playbook_name
@@ -51,17 +54,17 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                         _result = playbook.execute(extra_vars=extra_vars)
                         result["summary"].update(_result["summary"])
                         if not _result.get('summary', {}).get('success', False):
-                            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
+                            cluster.status = status_set['failed']
                             cluster.save()
                             break
                         current = current + 1
                         self.progress = current / total_palybook * 100
                         self.save()
-            cluster.status = cluster.OPENSHIFT_STATUS_RUNNING
+            cluster.status = cluster.status_set['succeed']
             cluster.save()
         except Exception as e:
             logger.error(e, exc_info=True)
-            cluster.status = Cluster.OPENSHIFT_STATUS_ERROR
+            cluster.status = Cluster.CLUSTER_STATUS_ERROR
             cluster.save()
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)
