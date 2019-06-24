@@ -85,8 +85,8 @@
 - block:
     - name: 生成harbor配置文件
       template:
-        src: "harbor/values.yml.j2"
-        dest: "{{ base_dir }}/manifests/harbor/values.yml"
+        src: "harbor/values.yaml.j2"
+        dest: "{{ base_dir }}/manifests/harbor/values.yaml"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
 
