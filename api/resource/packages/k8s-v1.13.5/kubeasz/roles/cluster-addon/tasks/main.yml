@@ -87,6 +87,8 @@
       template:
         src: "harbor/values.yml.j2"
         dest: "{{ base_dir }}/manifests/harbor/values.yml"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
 
     - name: 创建harbor 部署
       shell: "helm install ."
@@ -97,6 +99,7 @@
 
     - name: 轮询等待harbor 启动完成
       shell: "curl {{MASTER_IP}}:30003"
+      delegate_to: "{{ groups['kube-master'][0] }}"
       register: result
       until: result.rc == 0
       retries:  50
@@ -104,7 +107,6 @@
 
     - name: 登陆harbor
       shell: "docker login {{MASTER_IP}}:30003 -u admin -p Harbor12345"
-      delegate_to: cluster_nodes
       when: result.rc == 0
 
   when: '"harbor" not in pod_info.stdout and harbor_install'
