@@ -56,13 +56,13 @@ expose:
         port: 80
         # The node port Harbor listens on when serving with HTTP
         nodePort: 30002
-      https: 
+      https:
         # The service port Harbor listens on when serving with HTTPS
         port: 443
         # The node port Harbor listens on when serving with HTTPS
         nodePort: 30003
       # Only needed when notary.enabled is set to true
-      notary: 
+      notary:
         # The service port Notary listens on
         port: 4443
         # The node port Notary listens on
@@ -92,7 +92,7 @@ expose:
 # the IP address of k8s node 
 # 
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-externalURL: https://172.16.10.92
+externalURL: https://{{MASTER_IP}}:30003
 
 # The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamicly. 
@@ -251,10 +251,10 @@ portal:
     repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-portal
     tag: dev
   replicas: 1
-# resources:
-#  requests:
-#    memory: 256Mi
-#    cpu: 100m
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -266,10 +266,10 @@ core:
     repository: registry.fit2openshift.io:8082/registry.fit2cloud.com/operator/harbor-core
     tag: dev
   replicas: 1
-# resources:
-#  requests:
-#    memory: 256Mi
-#    cpu: 100m
+  # resources:
+  #  requests:
+  #    memory: 256Mi
+  #    cpu: 100m
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -295,10 +295,10 @@ jobservice:
   maxJobWorkers: 10
   # The logger for jobs: "file", "database" or "stdout"
   jobLogger: file
-# resources:
-#   requests:
-#     memory: 256Mi
-#     cpu: 100m
+  # resources:
+  #   requests:
+  #     memory: 256Mi
+  #     cpu: 100m
   nodeSelector: {}
   tolerations: []
   affinity: {}
