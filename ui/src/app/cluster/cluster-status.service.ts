@@ -8,19 +8,13 @@ export class ClusterStatusService {
   constructor() {
   }
 
-  // getLogo(status: string): string {
-  //   let path = null;
-  //   switch (status) {
-  //     case 'UNKNOWN':
-  //
-  //   }
-  // }
+
 
   getComment(status: string): string {
     let result = null;
     switch (status) {
-      case 'UNKNOWN':
-        result = '未知';
+      case 'READY':
+        result = '准备安装';
         break;
       case 'RUNNING':
         result = '运行中';

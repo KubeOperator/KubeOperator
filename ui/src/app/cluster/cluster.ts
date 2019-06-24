@@ -31,4 +31,5 @@ export class Operation {
   icon: string;
   event: string;
   redirect: string;
+  display_on: string[];
 }
