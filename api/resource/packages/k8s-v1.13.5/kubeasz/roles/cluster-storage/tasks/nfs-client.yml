@@ -8,3 +8,6 @@
 
 - name: 开始部署nfs-client动态存储
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+
+- name: 设置default storageClass
+  shell: "{{ bin_dir }}/kubectl patch storageclass {{ storage_nfs_storage_class }} -p \'{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"}}}\'"
