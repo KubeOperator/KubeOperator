@@ -104,6 +104,7 @@
       retries:  50
       delay: 6
 
+
   when: '"harbor" not in pod_info.stdout and harbor_install'
   ignore_errors: true
 - block:
