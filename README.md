@@ -2,8 +2,11 @@
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
-[![Ansible](https://img.shields.io/badge/ansible-2.4.2.0-blue.svg?style=plastic)](https://www.ansible.com/)
+[![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
+
+<img src="https://raw.githubusercontent.com/fit2anything/KubeOperator/master/docs/images/logo-01.png" width = "40%" height = "40%" />
+
 
 ## 什么是 KubeOperator？
 
@@ -23,7 +26,7 @@ K8S 是未来的 Linux。K8S 高可用集群部署、升级的门槛较高，尤
 - [x] 支持 NFS 作为外部持久化存储；
 - [x] 支持 vSAN 作为外部持久化存储；
 - [x] 支持 AD/LDAP 对接(仅 OpenShift)；
-- [ ] 支持其他外部持久化存储（比如 Ceph，Gluster；
+- [ ] 支持其他外部持久化存储（比如 Ceph，Gluster等)；
 - [ ] 支持 F5 Big-IP 对接；
 - [ ] 支持集群的升级；
 - [ ] 支持集群进行扩容；
