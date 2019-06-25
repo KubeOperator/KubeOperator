@@ -1,5 +1,6 @@
 resource: okd
 version: 3.11
+enable_auth: ['ldap-ad','open-id']
 operations:
   - name: install
     comment: "安装"
