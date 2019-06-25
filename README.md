@@ -1,5 +1,8 @@
 # KubeOperator - K8S 集群部署和管理平台
 
+![LOGO](https://raw.githubusercontent.com/fit2anything/KubeOperator/master/docs/images/logo-01.png)
+
+
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.4.2.0-blue.svg?style=plastic)](https://www.ansible.com/)
