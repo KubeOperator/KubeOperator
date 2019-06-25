@@ -19,7 +19,7 @@ services:
 
   api:
     build: api
-    image: kube-operator/api:latest
+    image: kube-operator/api:1.0.0
     container_name: kubeops_api
     restart: always
     privileged: true
@@ -69,7 +69,7 @@ services:
 
   ui:
     build: ui
-    image: kube-operator/ui:latest
+    image: kube-operator/ui:1.0.0
     container_name: kubeops_ui
     restart: always
 
@@ -85,7 +85,7 @@ services:
   dns:
     container_name: kubeops_dns
     build: docker/dnsmasq
-    image: kube-operator/dns:latest
+    image: kube-operator/dns:1.0.0
     cap_add:
         - NET_ADMIN
     volumes:
