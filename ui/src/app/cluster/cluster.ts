@@ -18,6 +18,7 @@ export class Cluster {
   resource: string;
   resource_version: string;
   operations: Operation[];
+  enable_auth: string[] = [];
 }
 
 export class ExtraConfig {

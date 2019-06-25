@@ -10,7 +10,7 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="deploy" routerLinkActive="active">部署</a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="currentCluster.en">
       <a class="nav-link" routerLink="auth" routerLinkActive="active">认证</a>
     </li>
     <li class="nav-item">
