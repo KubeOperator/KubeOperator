@@ -22,11 +22,11 @@ spec:
             - name: PROVISIONER_NAME
               value: fuseim.pri/ifs
             - name: NFS_SERVER
-              value: {{ openshift_nfs_storage_server }}
+              value: {{ storage_nfs_server }}
             - name: NFS_PATH
-              value: {{ openshift_nfs_storage_path }}
+              value: {{ storage_nfs__server_path }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: {{ openshift_nfs_storage_server }}
-            path: {{ openshift_nfs_storage_path }}
+            server: {{ storage_nfs_server }}
+            path: {{ storage_nfs__server_path }}

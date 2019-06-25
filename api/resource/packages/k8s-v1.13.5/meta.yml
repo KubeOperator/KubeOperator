@@ -1,12 +1,6 @@
 resource: kubernetes
 version: 1.13.5
-status:
-  - "READY"
-  - "RUNNING"
-  - "ERROR"
-  - "WARNING"
-  - "INSTALLING"
-  - "DELETING"
+enable_auth: []
 operations:
   - name: install
     display_on:
