@@ -142,7 +142,6 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-ntp
           - prequisites-install
           - config-docker-storage
           - install-openshift
@@ -503,15 +502,10 @@ templates:
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               type: "Select"
               require: true
-            - name: "glusterfs_devices"
-              verbose: "GlusterFS 存储卷"
-              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              type: "Mutiselect"
-              require: true
           requires:
             nodes_require:
               - '>'
-              - 3
+              - 2
             volumes_require:
               - name: "system"
                 verbose: "系统卷"
@@ -524,12 +518,6 @@ templates:
                 minimal: 50
                 excellent: 100
                 comment: "数据卷，用于存储docker数据"
-                unit: "GB"
-              - name: "glusterfs"
-                verbose: "GlusterFS 卷"
-                minimal: 200
-                excellent: 500
-                comment: "GlusterFS 卷，集群主存储卷,用于Application数据存储，系统组件存储以及registry存储"
                 unit: "GB"
             device_require:
               - name: "cpu_core"
@@ -544,16 +532,6 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-      - name: glusterfs
-        children:
-          - infra
-        meta:
-          hidden: true
-      - name: glusterfs_registry
-        children:
-          - infra
-        meta:
-          hidden: true
       - name: nodes
         children:
           - masters
