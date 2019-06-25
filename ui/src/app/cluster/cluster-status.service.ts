@@ -9,7 +9,6 @@ export class ClusterStatusService {
   }
 
 
-
   getComment(status: string): string {
     let result = null;
     switch (status) {
@@ -21,6 +20,9 @@ export class ClusterStatusService {
         break;
       case 'INSTALLING':
         result = '部署中';
+        break;
+      case 'DELETING':
+        result = '卸载中';
         break;
       case 'ERROR':
         result = '错误';
