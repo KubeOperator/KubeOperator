@@ -36,22 +36,16 @@ playbooks:
     alias: common/05_install_basic_rpms.yml
   - name:  config-docker-storage
     alias: common/06_config_docker.yml
-  - name:  config-ntp
-    alias: common/07_config_ntp.yml
   - name: prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
   - name: install-openshift
     alias: openshift-ansible/playbooks/deploy_cluster.yml
-  - name: uninstall-glusterfs
-    alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
   - name: uninstall-openshift
     alias: openshift-ansible/playbooks/adhoc/uninstall.yml
   - name: config-master
     alias: openshift-ansible/playbooks/openshift-master/config.yml
   - name: restart-openshift
     alias: openshift-ansible/playbooks/openshift-master/restart.yml
-  - name: config-glusterfs
-    alias: openshift-ansible/playbooks/openshift-glusterfs/config.yml
   - name: config-nfs-storage
     alias: openshift-ansible/playbooks/openshift-nfs-storage/config.yml
 
@@ -80,8 +74,6 @@ roles:
       - nodes
       - etcd
       - lb
-      - glusterfs
-      - glusterfs_registry
     meta:
       hidden: true
     vars:
@@ -255,7 +247,6 @@ templates:
       - name: uninstall
         display: true
         playbooks:
-          - uninstall-glusterfs
           - uninstall-openshift
       - name: restart
         playbooks:
