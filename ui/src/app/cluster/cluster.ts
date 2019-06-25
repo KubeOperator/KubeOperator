@@ -18,6 +18,7 @@ export class Cluster {
   resource: string;
   resource_version: string;
   operations: Operation[];
+  enable_auth: string[] = [];
 }
 
 export class ExtraConfig {
@@ -31,4 +32,5 @@ export class Operation {
   icon: string;
   event: string;
   redirect: string;
+  display_on: string[];
 }

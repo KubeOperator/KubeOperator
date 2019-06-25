@@ -1,5 +1,6 @@
 resource: okd
 version: 3.11
+enable_auth: ['ldap-ad','open-id']
 operations:
   - name: install
     comment: "安装"
@@ -36,22 +37,16 @@ playbooks:
     alias: common/05_install_basic_rpms.yml
   - name:  config-docker-storage
     alias: common/06_config_docker.yml
-  - name:  config-ntp
-    alias: common/07_config_ntp.yml
   - name: prequisites-install
     alias: openshift-ansible/playbooks/prerequisites.yml
   - name: install-openshift
     alias: openshift-ansible/playbooks/deploy_cluster.yml
-  - name: uninstall-glusterfs
-    alias: openshift-ansible/playbooks/openshift-glusterfs/uninstall.yml
   - name: uninstall-openshift
     alias: openshift-ansible/playbooks/adhoc/uninstall.yml
   - name: config-master
     alias: openshift-ansible/playbooks/openshift-master/config.yml
   - name: restart-openshift
     alias: openshift-ansible/playbooks/openshift-master/restart.yml
-  - name: config-glusterfs
-    alias: openshift-ansible/playbooks/openshift-glusterfs/config.yml
   - name: config-nfs-storage
     alias: openshift-ansible/playbooks/openshift-nfs-storage/config.yml
 
@@ -80,8 +75,6 @@ roles:
       - nodes
       - etcd
       - lb
-      - glusterfs
-      - glusterfs_registry
     meta:
       hidden: true
     vars:
@@ -142,7 +135,6 @@ templates:
           - config-dns
           - prepare-host
           - install-rpms
-          - config-ntp
           - prequisites-install
           - config-docker-storage
           - install-openshift
@@ -256,7 +248,6 @@ templates:
       - name: uninstall
         display: true
         playbooks:
-          - uninstall-glusterfs
           - uninstall-openshift
       - name: restart
         playbooks:
@@ -503,15 +494,10 @@ templates:
               comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
               type: "Select"
               require: true
-            - name: "glusterfs_devices"
-              verbose: "GlusterFS 存储卷"
-              comment: "请选择空白块存储设备,注意此操作将抹除所有数据！"
-              type: "Mutiselect"
-              require: true
           requires:
             nodes_require:
               - '>'
-              - 3
+              - 2
             volumes_require:
               - name: "system"
                 verbose: "系统卷"
@@ -524,12 +510,6 @@ templates:
                 minimal: 50
                 excellent: 100
                 comment: "数据卷，用于存储docker数据"
-                unit: "GB"
-              - name: "glusterfs"
-                verbose: "GlusterFS 卷"
-                minimal: 200
-                excellent: 500
-                comment: "GlusterFS 卷，集群主存储卷,用于Application数据存储，系统组件存储以及registry存储"
                 unit: "GB"
             device_require:
               - name: "cpu_core"
@@ -544,16 +524,6 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-      - name: glusterfs
-        children:
-          - infra
-        meta:
-          hidden: true
-      - name: glusterfs_registry
-        children:
-          - infra
-        meta:
-          hidden: true
       - name: nodes
         children:
           - masters

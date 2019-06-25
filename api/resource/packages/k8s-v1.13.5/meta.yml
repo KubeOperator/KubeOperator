@@ -1,21 +1,24 @@
 resource: kubernetes
 version: 1.13.5
+enable_auth: []
 operations:
   - name: install
+    display_on:
+      - "READY"
+      - "ERROR"
     comment: "安装"
     icon: random
     event: "install"
     redirect: "deploy"
   - name: uninstall
+    display_on:
+      - "RUNNING"
+      - "ERROR"
     comment: "卸载"
     icon: trash
     event: "uninstall"
     redirect: "deploy"
-  #  - name: restart
-  #    comment: "重启"
-  #    icon: refresh
-  #    event: []
-  #    redirect: "deploy"
+
   - name: node
     comment: "管理节点"
     redirect: "node"
@@ -126,6 +129,8 @@ roles:
       FLANNEL_BACKEND: "vxlan"
       flanneld_image: "jmgao1983/flannel"
       flanneld_version: "v0.11.0-amd64"
+      #default
+
 templates:
   - name: all-in-one 模型
     comment: '此部署模型至少需要主机 1 台，磁盘 1 块，仅用于测试环境，仅安装 kubernetes 核心组件'
@@ -151,17 +156,26 @@ templates:
         display: true
     operations:
       - name: install
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
         playbooks:
           - host-check
-          - send-ssh-key
-          - config-ssh
-          - config-dns
-          - download_kube_bin
-          - install_docker
-          - prepare-host
-          - install-rpms
-          - install-k8s
+          - host-check
+      #          - send-ssh-key
+      #          - config-ssh
+      #          - config-dns
+      #          - download_kube_bin
+      #          - install_docker
+      #          - prepare-host
+      #          - install-rpms
+      #          - install-k8s
       - name: uninstall
+        status_change:
+          succeed: 'READY'
+          on: 'DELETING'
+          failed: 'ERROR'
         playbooks:
           - uninstall-k8s
     roles:

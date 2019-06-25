@@ -3,6 +3,7 @@ import {Cluster} from '../../cluster/cluster';
 import {PackageService} from '../../package/package.service';
 import {Portal, Template} from '../../package/package';
 import {ClusterRoleService} from '../../cluster/cluster-role.service';
+import {ClusterStatusService} from '../../cluster/cluster-status.service';
 
 @Component({
   selector: 'app-describe',
@@ -14,7 +15,7 @@ export class DescribeComponent implements OnInit {
   @Input() currentCluster: Cluster;
   portals: Portal[] = [];
 
-  constructor(private packageService: PackageService, private roleService: ClusterRoleService) {
+  constructor(private packageService: PackageService, private roleService: ClusterRoleService, private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
@@ -37,5 +38,9 @@ export class DescribeComponent implements OnInit {
         this.portals = template.portals;
       });
     });
+  }
+
+  getStatusComment(status: string): string {
+    return this.clusterStatusService.getComment(status);
   }
 }

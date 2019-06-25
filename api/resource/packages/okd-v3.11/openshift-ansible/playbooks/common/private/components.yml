@@ -17,6 +17,8 @@
 - import_playbook: ../../openshift-glusterfs/private/new_install.yml
   when: groups.oo_glusterfs_to_config | default([]) | count > 0
 
+- import_playbook: ../../openshift-nfs-storage/config.yml
+
 - import_playbook: ../../openshift-hosted/private/config.yml
 
 - import_playbook: ../../openshift-monitoring/private/config.yml

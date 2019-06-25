@@ -13,25 +13,27 @@ logger = logging.getLogger(__name__)
 
 
 class Cluster(Project):
-    OPENSHIFT_STATUS_UNKNOWN = 'UNKNOWN'
-    OPENSHIFT_STATUS_RUNNING = 'RUNNING'
-    OPENSHIFT_STATUS_INSTALLING = 'INSTALLING'
-    OPENSHIFT_STATUS_ERROR = 'ERROR'
-    OPENSHIFT_STATUS_WARNING = 'WARNING'
+    CLUSTER_STATUS_READY = 'READY'
+    CLUSTER_STATUS_RUNNING = 'RUNNING'
+    CLUSTER_STATUS_ERROR = 'ERROR'
+    CLUSTER_STATUS_WARNING = 'WARNING'
+    CLUSTER_STATUS_INSTALLING = 'INSTALLING'
+    CLUSTER_STATUS_DELETING = 'DELETING'
 
-    OPENSHIFT_STATUS_CHOICES = (
-        (OPENSHIFT_STATUS_RUNNING, 'running'),
-        (OPENSHIFT_STATUS_INSTALLING, 'installing'),
-        (OPENSHIFT_STATUS_UNKNOWN, 'unknown'),
-        (OPENSHIFT_STATUS_ERROR, 'error'),
-        (OPENSHIFT_STATUS_WARNING, 'warning')
+    CLUSTER_STATUS_CHOICES = (
+        (CLUSTER_STATUS_RUNNING, 'running'),
+        (CLUSTER_STATUS_INSTALLING, 'installing'),
+        (CLUSTER_STATUS_DELETING, 'deleting'),
+        (CLUSTER_STATUS_READY, 'ready'),
+        (CLUSTER_STATUS_ERROR, 'error'),
+        (CLUSTER_STATUS_WARNING, 'warning')
     )
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
-    status = models.CharField(max_length=128, choices=OPENSHIFT_STATUS_CHOICES, default=OPENSHIFT_STATUS_UNKNOWN)
+    status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
 
     @property
     def current_execution(self):

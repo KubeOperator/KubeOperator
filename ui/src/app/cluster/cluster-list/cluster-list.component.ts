@@ -97,6 +97,17 @@ export class ClusterListComponent implements OnInit {
     }
   }
 
+  showBtn(cluster: Cluster, opt: Operation): boolean {
+    let result = true;
+    if (opt.display_on) {
+      if (!opt.display_on.includes(cluster.status)) {
+        result = false;
+      }
+    }
+    return result;
+  }
+
+
   handleEvent(cluster_name: string, opt: Operation) {
     if (opt.event) {
       this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {

@@ -24,8 +24,8 @@ readinessProbe:
   periodSeconds: 10
 
 image:
-  repository: grafana/grafana
-  tag: 5.2.4
+  repository: registry.fit2openshift.io:8082/grafana/grafana
+  tag: 5.2.1
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -63,8 +63,8 @@ service:
 ingress:
   enabled: false
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   labels: {}
   path: /
   hosts:
@@ -130,14 +130,14 @@ envFromSecret: ""
 extraSecretMounts: []
   # - name: secret-files
   #   mountPath: /etc/secrets
-  #   secretName: grafana-secret-files
-  #   readOnly: true
+#   secretName: grafana-secret-files
+#   readOnly: true
 
 ## Pass the plugins you want installed as a list.
 ##
 plugins: []
-  # - digrich-bubblechart-panel
-  # - grafana-clock-panel
+# - digrich-bubblechart-panel
+# - grafana-clock-panel
 
 ## Configure grafana datasources
 ## ref: http://docs.grafana.org/administration/provisioning/#datasources
@@ -215,8 +215,8 @@ grafana.ini:
     mode: console
   grafana_net:
     url: https://grafana.net
-## LDAP Authentication can be enabled with the following values on grafana.ini
-## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
+  ## LDAP Authentication can be enabled with the following values on grafana.ini
+  ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
   # auth.ldap:
   #   enabled: true
   #   allow_sign_up: true
@@ -258,12 +258,12 @@ sidecar:
   image: kiwigrid/k8s-sidecar:0.0.3
   imagePullPolicy: IfNotPresent
   resources:
-#   limits:
-#     cpu: 100m
-#     memory: 100Mi
-#   requests:
-#     cpu: 50m
-#     memory: 50Mi
+  #   limits:
+  #     cpu: 100m
+  #     memory: 100Mi
+  #   requests:
+  #     cpu: 50m
+  #     memory: 50Mi
   dashboards:
     enabled: false
     # label that the configmaps with dashboards are marked with

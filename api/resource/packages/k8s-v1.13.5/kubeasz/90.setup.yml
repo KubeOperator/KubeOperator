@@ -81,7 +81,7 @@
 
 # to install cluster-addons
 - hosts:
-    - kube-node
+    - cluster_nodes
   roles:
     - cluster-addon
 

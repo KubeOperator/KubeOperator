@@ -1,39 +1,49 @@
 ---
 
 - import_playbook: private/evaluate_groups.yml
-
-- name: test
+- name: get all active pod
   hosts: oo_first_master
-  vars:
-    current_namespace: nfs-storage-test
-    nfs_storage_timeout: 100
-    openshift_nfs_storage_server: 172.16.10.129
-    openshift_nfs_storage_path: /exports
-  roles:
-    - role: lib_utils
-    - role: lib_openshift
   tasks:
-    - name: get openshift_current_version
-      register: info
-      get_current_openshift_version:
-        deployment_type: origin
-    - debug:
-        msg: "{{info}}"
-    - name: Create temp directory for doing work in
-      command: mktemp -d /tmp/openshift-nfs-storage-ansible-XXXXXX
-      register: temp
-      change_when: False
-      check_mode: no
+    - name: get pod
+      shell: "oc get pod --all-namespaces -o wide"
+      register: pod_info
+- block:
+    - name: get_facts
+      hosts: oo_first_master
+      vars:
+        current_namespace: nfs-storage
+        nfs_storage_timeout: 100
+        storage_nfs_storage_class: nfs-storage
+        storage_nfs_provisioner_name: nfs-provisioner
+      roles:
+        - role: lib_utils
+        - role: lib_openshift
+      tasks:
+        - name: get openshift_current_version
+          register: info
+          get_current_openshift_version:
+            deployment_type: origin
+        - debug:
+            msg: "{{info}}"
+        - name: Create temp directory for doing work in
+          command: mktemp -d /tmp/openshift-nfs-storage-ansible-XXXXXX
+          register: temp
+          change_when: False
+          check_mode: no
 
-    - debug:
-        msg: "Created temp dir {{temp.stdout}}"
+        - debug:
+            msg: "Created temp dir {{temp.stdout}}"
 
-    - name: Ensure nfs-storage project exists
-      oc_project:
-        name: "{{ current_namespace }}"
-        state: present
-        node_selector: null
+        - name: Ensure nfs-storage project exists
+          oc_project:
+            name: "{{ current_namespace }}"
+            state: present
+            node_selector: null
 
-    - import_tasks: private/nfs_rbac.yml
-    - import_tasks: private/nfs_deploy.yml
-    - import_tasks: private/nfs_storage_class.yml
+        - import_tasks: private/nfs_rbac.yml
+        - import_tasks: private/nfs_deploy.yml
+        - import_tasks: private/nfs_storage_class.yml
+  when:
+    - 'storage_nfs_enabled is defined '
+    - 'storage_nfs_enabled '
+    - '"nfs-client-provisioner" not in pod_info.stdout'
