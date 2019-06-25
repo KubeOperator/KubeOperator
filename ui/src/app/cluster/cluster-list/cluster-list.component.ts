@@ -107,6 +107,20 @@ export class ClusterListComponent implements OnInit {
     return result;
   }
 
+  listOperations(): Operation[] {
+    const map = new Map<string, Operation>();
+    const ops: Operation[] = [];
+    this.selectedClusters.forEach(cluster => {
+      cluster.operations.forEach(op => {
+        map.set(op.name, op);
+      });
+    });
+    map.forEach(((value, key) => {
+      ops.push(value);
+    }));
+    return ops;
+  }
+
   handleEvent(cluster_name: string, opt: Operation) {
     if (opt.event) {
       this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {

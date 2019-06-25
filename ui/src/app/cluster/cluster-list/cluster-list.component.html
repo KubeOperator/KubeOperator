@@ -22,6 +22,22 @@
       <clr-icon shape="close"></clr-icon>
       删除
     </button>
+
+    <clr-dropdown>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedClusters.length !== 1"
+              clrDropdownTrigger>
+        操作
+        <clr-icon shape="caret down"></clr-icon>
+      </button>
+      <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
+        <div *ngFor="let op of selectedClusters[0].operations">
+          <button type="button" (click)="handleEvent(selectedClusters[0].name,op)"
+                  clrDropdownItem>
+            {{op.comment}}
+          </button>
+        </div>
+      </clr-dropdown-menu>
+    </clr-dropdown>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
@@ -29,7 +45,6 @@
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
   <clr-dg-column>备注</clr-dg-column>
-  <clr-dg-column></clr-dg-column>
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>
@@ -40,23 +55,6 @@
     <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.comment}}</clr-dg-cell>
-    <clr-dg-cell>
-      <clr-dropdown>
-        <button type="button" class="btn btn-sm btn-secondary" clrDropdownTrigger>
-          操作
-          <clr-icon shape="caret down"></clr-icon>
-        </button>
-        <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
-          <div *ngFor="let op of cluster.operations">
-            <button *ngIf="showBtn(cluster,op)" type="button" (click)="handleEvent(cluster.name,op)"
-                    clrDropdownItem>
-              <i [class]="'fa fa-'+op.icon"></i>
-              {{op.comment}}
-            </button>
-          </div>
-        </clr-dropdown-menu>
-      </clr-dropdown>
-    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>
