@@ -31,7 +31,8 @@
       </button>
       <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
         <div *ngFor="let op of selectedClusters[0].operations">
-          <button type="button" (click)="handleEvent(selectedClusters[0].name,op)"
+          <button type="button" [disabled]="!showBtn(selectedClusters[0],op)"
+                  (click)="handleEvent(selectedClusters[0].name,op)"
                   clrDropdownItem>
             {{op.comment}}
           </button>
