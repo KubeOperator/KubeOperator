@@ -8,10 +8,10 @@ function get_images(){
        "redis:alpine"
        "mysql:5"
        "nginx:alpine"
-       "sonatype/nexus3:3.15.2"
-       "kubeOperator/api:latest"
-       "kubeOperator/ui:latest"
-       "kubeOperator/dns:latest"
+       "registry.fit2cloud.com/public/nexus-helm:latest"
+       "kubeOperator/api:1.0.0"
+       "kubeOperator/ui:1.0.0"
+       "kubeOperator/dns:1.0.0"
     )
     for image in ${images[@]};do
         echo ${image}

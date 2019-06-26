@@ -20,7 +20,7 @@ KUBE_APISERVER="https://{{ MASTER_IP }}:8443"
 bin_dir="/usr/local/bin"
 ca_dir="/etc/kubernetes/ssl"
 #kube
-download_bin_url= http://registry.fit2openshift.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz
+download_bin_url= http://registry.kubeops.io:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz
 file_name=k8s.1-13-5.tar.gz
 kube_version=1.13.5
 base_dir= "/tmp/kubeOperator-kube-bin/1.13.5"
