@@ -5,7 +5,6 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-<img src="https://raw.githubusercontent.com/fit2anything/KubeOperator/master/docs/images/logo-01.png" width = "40%" height = "40%" />
 
 
 ## 什么是 KubeOperator？
