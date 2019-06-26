@@ -1,0 +1,5 @@
+---
+- name: pull flannel image
+  docker_image:
+    name: "{{registry_prefix}}/{{flanneld_image}}:{{flanneld_version}}"
+    state: present

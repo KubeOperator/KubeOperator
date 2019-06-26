@@ -1,0 +1,5 @@
+# 容器持久化存储目录
+STORAGE_DIR: "/var/lib/containerd"
+
+# 基础容器镜像
+SANDBOX_IMAGE: "mirrorgooglecontainers/pause-amd64:3.1"

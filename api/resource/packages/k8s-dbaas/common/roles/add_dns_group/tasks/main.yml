@@ -1,0 +1,11 @@
+- name: Create DNS file
+  gather_facts: no
+  file:
+    path: "/etc/dnsmasq.d/{{cluster_name}}.dns.conf"
+    state: touch
+
+- name: signal file
+  gather_facts: no
+  lineinfile:
+    path: "/etc/dnsmasq.d/{{cluster_name}}.dns.conf"
+    line: "#The file is created by kubeOperator!"

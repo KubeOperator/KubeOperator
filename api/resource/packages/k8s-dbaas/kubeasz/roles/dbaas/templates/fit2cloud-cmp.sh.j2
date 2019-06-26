@@ -1,0 +1,37 @@
+#!/bin/bash
+
+OLD_PROJECT=fit2cloud2
+OLD_ADDRESS=registry.fit2cloud.com
+NEW_ADDRESS={{ REGISTRY_ADDRESS }}
+NEW_PROJECT={{ REGISTRY_PROJECT_NAME }}
+
+IMAGES=(
+management-center:master
+vm-service:master
+dashboard:master
+gateway:master
+devops:master
+operation-analytics:master
+ticket-center:master
+ansible-api:master
+share-files:master
+container-service:master
+billing-center:master
+dbaas-rds:master
+dbaas-configuration:master
+screen-display:master
+mysql:5.7.25
+elasticsearch:6.6.0
+redis:5.0.3-alpine
+prometheus:v2.9.2
+prometheus-pushgateway:v0.7.0
+busybox
+keycloak:4.8.3.Final
+)
+
+for image in ${IMAGES[@]}
+do
+    docker tag ${OLD_ADDRESS}/${OLD_PROJECT}/${image} ${NEW_ADDRESS}/${NEW_PROJECT}/${image}
+    docker push ${NEW_ADDRESS}/${NEW_PROJECT}/${image}
+    docker rmi ${OLD_ADDRESS}/${OLD_PROJECT}/${image}
+done

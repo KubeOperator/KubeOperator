@@ -1,0 +1,471 @@
+resource: kubernetes
+version: 1.13.5
+enable_auth: []
+operations:
+  - name: install
+    display_on:
+      - "READY"
+      - "ERROR"
+    comment: "安装"
+    icon: random
+    event: "install"
+    redirect: "deploy"
+  - name: uninstall
+    display_on:
+      - "RUNNING"
+      - "ERROR"
+    comment: "卸载"
+    icon: trash
+    event: "uninstall"
+    redirect: "deploy"
+
+  - name: node
+    comment: "管理节点"
+    redirect: "node"
+    icon: linode
+playbooks:
+  - name:  host-check
+    alias: common/00_host_check.yml
+  - name:  send-ssh-key
+    alias: common/01_send_ssh_key.yml
+  - name:  config-ssh
+    alias: common/02_config_ssh.yml
+  - name:  config-dns
+    alias: common/03_config_dns.yml
+  - name:  prepare-host
+    alias: common/04_prepare_host.yml
+  - name:  install-rpms
+    alias: common/05_install_basic_rpms.yml
+  - name: config_docker_storage
+    alias: common/06_config_docker.yml
+  - name:  install-k8s
+    alias: kubeasz/90.setup.yml
+  - name: uninstall-k8s
+    alias: kubeasz/99.clean.yml
+  - name: install_docker
+    alias: kubeasz/03.docker.yml
+  - name: download_kube_bin
+    alias: kubeasz/100.download-bin.yml
+roles:
+  - name: config
+    children:
+      - kubeasz
+  - name: cluster_nodes
+    children:
+      - master
+      - compute
+      - infra
+  - name: all_nodes
+    children:
+      - lb
+      - cluster_nodes
+  - name: kube-node
+    children:
+      - compute
+      - infra
+  - name: kube-master
+    children:
+      - master
+  - name: etcd
+    children:
+      - master
+    meta:
+      hidden: true
+  - name: kubeasz
+    children:
+      - master
+      - nodes
+      - compute
+      - infra
+      - lb
+    meta:
+      hidden: true
+    vars:
+      bin_dir: "/usr/local/bin"
+      ca_dir: "/etc/kubernetes/ssl"
+      CONTAINER_RUNTIME: "docker"
+      CLUSTER_NETWORK: "flannel"
+      SERVICE_CIDR: "10.68.0.0/16"
+      CLUSTER_CIDR: "172.20.0.0/16"
+      NODE_PORT_RANGE: "20000-40000"
+      CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
+      CLUSTER_DNS_SVC_IP: "10.68.0.2"
+      CLUSTER_DNS_DOMAIN: "cluster.local."
+      #kubeOperator
+      base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
+      registry_prefix: "registry.kubeops.io:8082"
+      kube_version: "1.13.5"
+      #dns
+      dns_install: true
+      dns_image: "coredns/coredns"
+      dns_version: "1.5.0"
+      #metrics-server
+      metricsserver_install: true
+      metricsserver_image: "mirrorgooglecontainers/metrics-server-amd64"
+      metricsserver_version: "v0.3.2"
+      #dashboard
+      dashboard_install: true
+      dashboard_image: "mirrorgooglecontainers/kubernetes-dashboard-amd64"
+      dashboard_version: "v1.10.1"
+      #heapster
+      heapster_install: true
+      heapster_version: "v1.5.4"
+      heapster_image: "mirrorgooglecontainers/heapster-amd64"
+      #traefik
+      traefik_version: "v1.7.11"
+      traefik_image: "traefik"
+      #efk
+      efk_install: true
+      #helm
+      helm_namespace: kube-system
+      helm_cert_cn: helm001
+      tiller_sa: tiller
+      tiller_cert_cn: tiller001
+      tiller_image: "jmgao1983/tiller"
+      tiller_version: "v2.12.3"
+      helm_repo_url: "http://registry.kubeops.io:8081/repository/helm"
+      #flannel
+      NODE_WITH_MULTIPLE_NETWORKS: "true"
+      FLANNEL_BACKEND: "vxlan"
+      flanneld_image: "jmgao1983/flannel"
+      flanneld_version: "v0.11.0-amd64"
+      #default
+
+templates:
+  - name: all-in-one 模型
+    comment: '此部署模型至少需要主机 1 台，磁盘 1 块，仅用于测试环境，仅安装 kubernetes 核心组件'
+    private_vars:
+      DEPLOY_MODE: allinone
+      harbor_install: false
+      prometheus_install: false
+      grafana_install: false
+    private_config:
+      - name: MASTER_IP
+        alias: 域名
+        type: Input
+        default: master-1.$cluster_name$domain_suffix
+        required: true
+        help_text: kubernetes 访问地址
+        display: true
+      - name: KUBE_APISERVER
+        alias: api-server 地址
+        type: Input
+        default: https://master-1.$cluster_name$domain_suffix:6443
+        required: true
+        help_text: kubernetes api-server 地址
+        display: true
+    operations:
+      - name: install
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
+        playbooks:
+          - host-check
+          - host-check
+      #          - send-ssh-key
+      #          - config-ssh
+      #          - config-dns
+      #          - download_kube_bin
+      #          - install_docker
+      #          - prepare-host
+      #          - install-rpms
+      #          - install-k8s
+      - name: uninstall
+        status_change:
+          succeed: 'READY'
+          on: 'DELETING'
+          failed: 'ERROR'
+        playbooks:
+          - uninstall-k8s
+    roles:
+      - name: master
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+          node_vars: []
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+      - name: compute
+        children:
+          - master
+        meta:
+          hidden: true
+
+  - name: 一主多节点
+    comment: '此部署模型为一主多节点部署模型，，3个 (Master)主节点和至少3个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    private_vars:
+      DEPLOY_MODE: 'single-master'
+      harbor_install: true
+      prometheus_install: true
+      grafana_install: true
+    private_config:
+      - name: MASTER_IP
+        alias: 域名
+        type: Input
+        default: master-1.$cluster_name$domain_suffix
+        required: true
+        help_text: kubernetes 访问地址
+        display: true
+      - name: KUBE_APISERVER
+        alias: api-server 地址
+        type: Input
+        default: https://master-1.$cluster_name$domain_suffix:6443
+        required: true
+        help_text: kubernetes api-server 地址
+        display: true
+    operations:
+      - name: install
+        playbooks:
+          - host-check
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - download_kube_bin
+          - install_docker
+          - prepare-host
+          - install-rpms
+          - install-k8s
+      - name: uninstall
+        playbooks:
+          - uninstall-k8s
+    roles:
+      - name: master
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+          node_vars: []
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+      - name: compute
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+          node_vars: []
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 16
+                excellent: 32
+                unit: "GB"
+                comment: "无"
+  - name: 多主多节点
+    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，3个 (Master)主节点和至少2个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    private_vars:
+      DEPLOY_MODE: 'multi-master'
+      harbor_install: true
+      prometheus_install: true
+      grafana_install: true
+    private_config:
+      - name: MASTER_IP
+        alias: 域名
+        type: Input
+        default: lb-1.$cluster_name$domain_suffix
+        required: true
+        help_text: kubernetes 访问地址
+        display: true
+      - name: KUBE_APISERVER
+        alias: api-server 地址
+        type: Input
+        default: https://lb-1.$cluster_name$domain_suffix:6443
+        required: true
+        help_text: kubernetes api-server 地址
+        display: true
+    operations:
+      - name: install
+        playbooks:
+          - host-check
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - config-dns
+          - prepare-host
+          - install-rpms
+          - install-k8s
+      - name: uninstall
+        playbooks:
+          - uninstall-k8s
+    roles:
+      - name: lb
+        vars:
+          LB_ROLE: backup
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+          requires:
+            nodes_require:
+              - '='
+              - 1
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 1
+                excellent: 2
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 2
+                excellent: 4
+                unit: "GB"
+                comment: "无"
+
+      - name: master
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+          node_vars: []
+          requires:
+            nodes_require:
+              - '='
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 8
+                excellent: 16
+                unit: "GB"
+                comment: "无"
+      - name: compute
+        vars:
+        meta:
+          hidden: false
+          allow_os:
+            - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+          node_vars: []
+          requires:
+            nodes_require:
+              - '>'
+              - 3
+            volumes_require:
+              - name: "system"
+                verbose: "系统卷:"
+                minimal: 50
+                excellent: 100
+                comment: "系统卷，用于运行操作系统"
+                unit: "GB"
+            device_require:
+              - name: "cpu_core"
+                verbose: "CPU 核心数"
+                minimal: 4
+                excellent: 8
+                comment: "无"
+                unit: "个"
+              - name: "memory_size"
+                verbose: "内存大小"
+                minimal: 16
+                excellent: 32
+                unit: "GB"
+                comment: "无"

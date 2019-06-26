@@ -1,0 +1,50 @@
+- name: "拉取 {{ item }} 镜像"
+  docker_image:
+    name: "{{registry_prefix}}/{{ item }}"
+    state: present
+  with_items:
+    - registry.fit2cloud.com/operator/nginx-photon:dev
+    - registry.fit2cloud.com/operator/harbor-portal:dev
+    - registry.fit2cloud.com/operator/harbor-core:dev
+    - registry.fit2cloud.com/operator/harbor-jobservice:dev
+    - registry.fit2cloud.com/operator/registry-photon:dev
+    - registry.fit2cloud.com/operator/harbor-registryctl:dev
+    - registry.fit2cloud.com/operator/chartmuseum-photon:dev
+    - registry.fit2cloud.com/operator/clair-photon:dev
+    - registry.fit2cloud.com/operator/notary-server-photon:dev
+    - registry.fit2cloud.com/operator/notary-signer-photon:dev
+    - registry.fit2cloud.com/operator/harbor-db:dev
+    - registry.fit2cloud.com/operator/redis-photon:dev
+    - registry.fit2cloud.com/operator/prometheus-operator:v0.28.0
+    - registry.fit2cloud.com/operator/configmap-reload:v0.0.1
+    - registry.fit2cloud.com/operator/prometheus-config-reloader:v0.28.0
+    - registry.fit2cloud.com/operator/kube-state-metrics:v1.5.0
+    - registry.fit2cloud.com/operator/kube-rbac-proxy:v0.4.1
+    - registry.fit2cloud.com/operator/addon-resizer-amd64:2.1
+    - registry.fit2cloud.com/operator/mysql-operator:dev
+    - registry.fit2cloud.com/operator/percona-xtradb-cluster:5.7.25
+    - registry.fit2cloud.com/operator/mysqld-exporter:v1
+    - registry.fit2cloud.com/operator/xtrabackup:1.0.0
+    - registry.fit2cloud.com/operator/busybox:1.25.0
+    - registry.fit2cloud.com/fit2cloud2/management-center:master
+    - registry.fit2cloud.com/fit2cloud2/vm-service:master
+    - registry.fit2cloud.com/fit2cloud2/dashboard:master
+    - registry.fit2cloud.com/fit2cloud2/gateway:master
+    - registry.fit2cloud.com/fit2cloud2/devops:master
+    - registry.fit2cloud.com/fit2cloud2/operation-analytics:master
+    - registry.fit2cloud.com/fit2cloud2/ticket-center:master
+    - registry.fit2cloud.com/fit2cloud2/ansible-api:master
+    - registry.fit2cloud.com/fit2cloud2/share-files:master
+    - registry.fit2cloud.com/fit2cloud2/container-service:master
+    - registry.fit2cloud.com/fit2cloud2/billing-center:master
+    - registry.fit2cloud.com/fit2cloud2/dbaas-rds:master
+    - registry.fit2cloud.com/fit2cloud2/dbaas-configuration:master
+    - registry.fit2cloud.com/fit2cloud2/screen-display:master
+    - registry.fit2cloud.com/fit2cloud2/mysql:5.7.25
+    - registry.fit2cloud.com/fit2cloud2/elasticsearch:6.6.0
+    - registry.fit2cloud.com/fit2cloud2/redis:5.0.3-alpine
+    - registry.fit2cloud.com/fit2cloud2/prometheus:v2.9.2
+    - registry.fit2cloud.com/fit2cloud2/prometheus-pushgateway:v0.7.0
+    - registry.fit2cloud.com/fit2cloud2/busybox
+    - registry.fit2cloud.com/fit2cloud2/keycloak:4.8.3.Final
+

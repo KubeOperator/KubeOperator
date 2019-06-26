@@ -1,0 +1,25 @@
+# [optional] to synchronize time of nodes with 'chrony' 
+- hosts: all_nodes
+  roles:
+    - chrony
+
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
+# 取第一台机器做部署
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - deploy
+
+# prepare tasks for all nodes
+- hosts:
+    - kube-master
+    - kube-node
+    - deploy
+    - etcd
+    - lb
+  roles:
+    - prepare
+
+#  [optional] to install loadbalance service, only needed by multi-master cluster 
+- hosts: lb
+  roles:
+    - lb

@@ -1,0 +1,8 @@
+- name: Install packages
+  yum:
+    name: "{{packages}}"
+    state: latest
+  async: 600
+  poll: 10
+
+ 

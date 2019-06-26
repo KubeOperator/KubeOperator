@@ -1,0 +1,4 @@
+# to install etcd cluster
+- hosts: etcd
+  roles:
+  - etcd

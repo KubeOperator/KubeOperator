@@ -1,0 +1,8 @@
+- name: Backup original repos
+  ignore_errors: yes
+  shell: mkdir -p /etc/yum.repos.d/backup && /bin/mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup
+
+- name: Create proxy repo
+  template:
+    src: templates/fit2openshift.repo.j2
+    dest: /etc/yum.repos.d/fit2openshift.repo
