@@ -28,12 +28,7 @@
   roles:
     - etcd
 
-# to install container runtime
-- hosts:
-    - kube-master
-    - kube-node
-  roles:
-    - docker
+
 
 # to set up 'kube-master' nodes
 - hosts: kube-master

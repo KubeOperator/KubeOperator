@@ -182,7 +182,7 @@ templates:
       - name: CMP_GATEWAY_HOST
         alias: cmp 网关地址
         type: Input
-        default: http://gateway.$cluster_name$domain_suffix
+        default: gateway.$cluster_name$domain_suffix
         required: true
         help_text: cmp 访问地址
         display: true
@@ -453,3 +453,4 @@ templates:
                 excellent: 32
                 unit: "GB"
                 comment: "无"
+

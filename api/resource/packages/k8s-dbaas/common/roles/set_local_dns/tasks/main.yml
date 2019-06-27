@@ -4,4 +4,4 @@
     regexp: '^address=/{{item.key}}/.*'
     line: "address=/{{item.key}}/{{item.value.ansible_ssh_host}}"
   with_dict: '{{ hostvars }}'
-  when: item.key != 'localhost'
+  when: item.key != 'localhost' and item.key != '127.0.0.1' and item.key != ':1'

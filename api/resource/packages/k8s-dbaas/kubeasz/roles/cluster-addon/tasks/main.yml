@@ -101,8 +101,8 @@
       shell: "docker login {{MASTER_IP}}:30003 -u admin -p Harbor12345"
       register: login_result
       until: login_result.rc == 0
-      retries:  50
-      delay: 6
+      retries: 40
+      delay: 30
 
 
   when: '"harbor" not in pod_info.stdout and harbor_install'

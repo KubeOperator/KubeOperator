@@ -1,8 +1,8 @@
 #!/bin/bash
 
 OLD_PROJECT=fit2cloud2
-OLD_ADDRESS=registry.fit2cloud.com
-NEW_ADDRESS={{ REGISTRY_ADDRESS }}
+OLD_ADDRESS=registry.kubeops.io:8092/registry.fit2cloud.com
+NEW_ADDRESS={{ MASTER_IP }}:30003
 NEW_PROJECT={{ REGISTRY_PROJECT_NAME }}
 
 IMAGES=(

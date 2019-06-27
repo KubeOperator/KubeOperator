@@ -99,7 +99,7 @@ spec:
         beta.kubernetes.io/os: linux
       containers:
       - name: coredns
-        image: registry.kubeops.io/docker.io/coredns/coredns:{{dns_version}}
+        image: registry.kubeops.io:8092/docker.io/coredns/coredns:{{dns_version}}
         imagePullPolicy: IfNotPresent
         resources:
           limits:

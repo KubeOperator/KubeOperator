@@ -91,7 +91,7 @@
 
 - name: 创建kubelet的systemd unit文件
   template: src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service
-  tags: upgrade_k8s, restart_node 
+  tags: upgrade_k8s, restart_node
 
 - name: 开机启用kubelet 服务
   shell: systemctl enable kubelet
@@ -144,7 +144,7 @@
   register: node_status
   delegate_to: "{{ groups['kube-master'][0] }}"
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
-  retries: 8 
+  retries: 8
   delay: 8
   tags: upgrade_k8s, restart_node
 
@@ -152,3 +152,5 @@
   shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=node --overwrite"
   ignore_errors: true
   delegate_to: "{{ groups['kube-master'][0] }}"
+
+/usr/bin/rsync --delay-updates -F --compress --archive --rsh=/usr/bin/ssh -S none -o Port=22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  /root/.kube/config root@172.16.10.157:/root/.kube/config
