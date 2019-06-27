@@ -10,6 +10,14 @@ operations:
     icon: random
     event: "install"
     redirect: "deploy"
+  - name: upgrade
+    display_on:
+      - "READY"
+      - "ERROR"
+    comment: "升级"
+    icon: random
+    event: "upgrade"
+    redirect: "deploy"
   - name: uninstall
     display_on:
       - "RUNNING"
@@ -46,6 +54,8 @@ playbooks:
     alias: kubeasz/03.docker.yml
   - name: download_kube_bin
     alias: kubeasz/100.download-bin.yml
+  - name: upgrade_dbaas
+    alias: kubeasz/101.upgrade.yml
 roles:
   - name: config
     children:
@@ -191,6 +201,10 @@ templates:
       - name: uninstall
         playbooks:
           - uninstall-k8s
+      - name: upgrade
+        playbooks:
+          - upgrade_dbaas
+
     roles:
       - name: master
         vars:
@@ -305,6 +319,9 @@ templates:
       - name: uninstall
         playbooks:
           - uninstall-k8s
+      - name: upgrade
+        playbooks:
+          - upgrade_dbaas
     roles:
       - name: lb
         vars:
