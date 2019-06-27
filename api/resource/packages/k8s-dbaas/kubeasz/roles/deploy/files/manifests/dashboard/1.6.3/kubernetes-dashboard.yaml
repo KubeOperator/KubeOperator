@@ -61,7 +61,7 @@ spec:
       containers:
       - name: kubernetes-dashboard
         #image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.3
-        image: mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.6.3
+        image: registry.kubeops.io:8092/docker.io/mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.6.3
         ports:
         - containerPort: 9090
           protocol: TCP

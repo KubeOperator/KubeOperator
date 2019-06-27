@@ -98,23 +98,23 @@ roles:
       registry_prefix: "registry.kubeops.io:8092"
       #dns
       dns_install: true
-      dns_image: "coredns/coredns"
+      dns_image: "docker.io/coredns/coredns"
       dns_version: "1.5.0"
       #metrics-server
       metricsserver_install: true
-      metricsserver_image: "mirrorgooglecontainers/metrics-server-amd64"
+      metricsserver_image: "docker.io/8091"
       metricsserver_version: "v0.3.2"
       #dashboard
       dashboard_install: true
-      dashboard_image: "mirrorgooglecontainers/kubernetes-dashboard-amd64"
+      dashboard_image: "docker.io/mirrorgooglecontainers/kubernetes-dashboard-amd64"
       dashboard_version: "v1.10.1"
       #heapster
       heapster_install: true
       heapster_version: "v1.5.4"
-      heapster_image: "mirrorgooglecontainers/heapster-amd64"
+      heapster_image: "docker.io/mirrorgooglecontainers/heapster-amd64"
       #traefik
       traefik_version: "v1.7.11"
-      traefik_image: "traefik"
+      traefik_image: "docker.io/traefik"
       #efk
       efk_install: true
       #helm
@@ -122,12 +122,12 @@ roles:
       helm_cert_cn: helm001
       tiller_sa: tiller
       tiller_cert_cn: tiller001
-      tiller_image: "jmgao1983/tiller"
+      tiller_image: "docker.io/jmgao1983/tiller"
       tiller_version: "v2.12.3"
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
       FLANNEL_BACKEND: "vxlan"
-      flanneld_image: "jmgao1983/flannel"
+      flanneld_image: "docker.io/jmgao1983/flannel"
       flanneld_version: "v0.11.0-amd64"
       #dbaas
       REGISTRY_PROJECT_NAME: fit2cloud

@@ -78,7 +78,7 @@ spec:
       containers:
       - name: fluentd-es
         #image: k8s.gcr.io/fluentd-elasticsearch:v2.4.0
-        image: registry.kubeops.io:8092/mirrorgooglecontainers/fluentd-elasticsearch:v2.4.0
+        image: registry.kubeops.io:8092/docker.io/mirrorgooglecontainers/fluentd-elasticsearch:v2.4.0
         env:
         - name: FLUENTD_ARGS
           value: --no-supervisor -q

@@ -64,7 +64,7 @@ spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
       containers:
-      - image: registry.kubeops.io:8092/traefik:v1.7.11
+      - image: registry.kubeops.io:8092/docker.io/traefik:v1.7.11
         imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
         args:

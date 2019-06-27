@@ -59,7 +59,7 @@ spec:
       containers:
         - name: nfs-client-provisioner
           #image: quay.io/external_storage/nfs-client-provisioner:latest
-          image: registry.kubeops.io:8092/jmgao1983/nfs-client-provisioner:latest
+          image: registry.kubeops.io:8092/docker.io/jmgao1983/nfs-client-provisioner:latest
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nfs-client-root
