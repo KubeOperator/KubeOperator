@@ -32,7 +32,7 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: registry.kubeops.io:8082/prom/alertmanager
+    repository: registry.kubeops.io:8092/prom/alertmanager
     tag: v0.15.2
     pullPolicy: IfNotPresent
 
@@ -217,7 +217,7 @@ configmapReload:
   ## configmap-reload container image
   ##
   image:
-    repository: registry.kubeops.io:8082/jimmidyson/configmap-reload
+    repository: registry.kubeops.io:8092/jimmidyson/configmap-reload
     tag: v0.2.2
     pullPolicy: IfNotPresent
 
@@ -252,7 +252,7 @@ initChownData:
   ## initChownData container image
   ##
   image:
-    repository: registry.kubeops.io:8082/busybox
+    repository: registry.kubeops.io:8092/busybox
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -362,7 +362,7 @@ nodeExporter:
   ## node-exporter container image
   ##
   image:
-    repository: registry.kubeops.io:8082/prom/node-exporter
+    repository: registry.kubeops.io:8092/prom/node-exporter
     tag: v0.15.2
     pullPolicy: IfNotPresent
 
@@ -460,7 +460,7 @@ server:
   ## Prometheus server container image
   ##
   image:
-    repository: registry.kubeops.io:8082/prom/prometheus
+    repository: registry.kubeops.io:8092/prom/prometheus
     tag: v2.4.3
     pullPolicy: IfNotPresent
 
@@ -682,7 +682,7 @@ pushgateway:
   ## pushgateway container image
   ##
   image:
-    repository: registry.kubeops.io:8082/prom/pushgateway
+    repository: registry.kubeops.io:8092/prom/pushgateway
     tag: v0.5.2
     pullPolicy: IfNotPresent
 

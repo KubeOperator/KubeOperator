@@ -24,7 +24,7 @@ readinessProbe:
   periodSeconds: 10
 
 image:
-  repository: registry.kubeops.io:8082/grafana/grafana
+  repository: registry.kubeops.io:8092/grafana/grafana
   tag: 5.2.1
   pullPolicy: IfNotPresent
 

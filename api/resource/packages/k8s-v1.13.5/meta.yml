@@ -93,8 +93,9 @@ roles:
       CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
       base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
-      registry_prefix: "registry.kubeops.io:8082"
       kube_version: "1.13.5"
+      repo_port: 8081
+      registry_prefix: "registry.kubeops.io:8091"
       #dns
       dns_install: true
       dns_image: "coredns/coredns"

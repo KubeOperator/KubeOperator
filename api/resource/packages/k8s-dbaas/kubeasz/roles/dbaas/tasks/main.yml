@@ -20,7 +20,7 @@
         --namespace=fit2cloud \
         --docker-server={{MASTER_IP}}:30003 \
         --docker-username={{ REGISTRY_ACCOUNT_NAME }} \
-        --docker-password={{ REGISTRY_ACCOUNT_PASSWORD }}
+        --docker-password={{ REGISTRY_ACCOUNT_PASSWORD }}"
 
 - name: copy helm chart
   copy: src={{ item }} dest=/tmp/{{ item }}

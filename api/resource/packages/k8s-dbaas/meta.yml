@@ -93,8 +93,9 @@ roles:
       CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
       base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
-      registry_prefix: "registry.kubeops.io:8082"
       kube_version: "1.13.5"
+      repo_port: 8082
+      registry_prefix: "registry.kubeops.io:8092"
       #dns
       dns_install: true
       dns_image: "coredns/coredns"
@@ -123,7 +124,6 @@ roles:
       tiller_cert_cn: tiller001
       tiller_image: "jmgao1983/tiller"
       tiller_version: "v2.12.3"
-      helm_repo_url: "http://registry.kubeops.io:8081/repository/helm"
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
       FLANNEL_BACKEND: "vxlan"

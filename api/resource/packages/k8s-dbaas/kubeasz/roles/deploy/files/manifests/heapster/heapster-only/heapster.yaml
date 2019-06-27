@@ -50,7 +50,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 8082
+            port: 8092
             scheme: HTTP
           initialDelaySeconds: 180
           timeoutSeconds: 5
@@ -69,6 +69,6 @@ metadata:
 spec:
   ports:
   - port: 80
-    targetPort: 8082
+    targetPort: 8092
   selector:
     k8s-app: heapster
