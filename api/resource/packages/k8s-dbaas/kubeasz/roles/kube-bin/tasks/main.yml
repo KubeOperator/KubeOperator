@@ -11,7 +11,7 @@
 
 - name: Download bin kube file
   get_url:
-    url: "http://{{local_hostname}}:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
+    url: "http://{{local_hostname}}:{{repo_port}}/repository/k8s-basic-package/1.13.5/k8s.1-13-5.tar.gz"
     dest: "{{temp.path}}/k8s.1-13-5.tar.gz"
 
 - name: Unarchive package
@@ -22,7 +22,7 @@
 
 - name: Download manifests
   get_url:
-    url: "http://{{local_hostname}}:8081/repository/k8s-basic-package/1.13.5/k8s.1-13-5-deploy.tar.gz"
+    url: "http://{{local_hostname}}:{{repo_port}}/repository/k8s-basic-package/1.13.5/k8s.1-13-5-deploy.tar.gz"
     dest: "{{temp.path}}/k8s.1-13-5-deploy.tar.gz"
 
 - name: Unarchive package
