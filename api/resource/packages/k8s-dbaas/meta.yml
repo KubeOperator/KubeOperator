@@ -194,14 +194,14 @@ templates:
           failed: 'ERROR'
         playbooks:
           - host-check
-      #          - send-ssh-key
-      #          - config-ssh
-      #          - config-dns
-      #          - download_kube_bin
-      #          - install_docker
-      #          - prepare-host
-      #          - install-rpms
-      #          - install-k8s
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - download_kube_bin
+          - install_docker
+          - prepare-host
+          - install-rpms
+          - install-k8s
       - name: uninstall
         status_change:
           succeed: 'READY'
