@@ -129,7 +129,22 @@ roles:
       FLANNEL_BACKEND: "vxlan"
       flanneld_image: "jmgao1983/flannel"
       flanneld_version: "v0.11.0-amd64"
-      #default
+      #dbaas
+      REGISTRY_PROJECT_NAME: fit2cloud
+      STORAGE_CLASS_NAME: nfs-storage
+      PROMETHEUS_CAPACITY: 100Gi
+      CMP_ELASTICSEARCH_CAPACITY: 200Gi
+      CMP_LOGS_CAPACITY: 10Gi
+      CMP_MYSQL_CAPACITY: 200Gi
+      CMP_PROMETHEUS_CAPACITY: 100Gi
+      CMP_REDIS_CAPACITY: 10Gi
+      CMP_SHAREFILES_CAPACITY: 10Gi
+      #dbaas_harbor
+      REGISTRY_ACCOUNT_NAME: admin
+      REGISTRY_ACCOUNT_PASSWORD: Harbor12345
+      IMAGE_PULL_SECRET: registry-fit2cloud-com-key
+
+
 
 templates:
   - name: all-in-one 模型
@@ -154,6 +169,13 @@ templates:
         required: true
         help_text: kubernetes api-server 地址
         display: true
+      - name: CMP_GATEWAY_HOST
+        alias: cmp 网关地址
+        type: Input
+        default: https://gateway.$cluster_name$domain_suffix
+        required: true
+        help_text: cmp 访问地址
+        display: true
     operations:
       - name: install
         status_change:
@@ -162,15 +184,14 @@ templates:
           failed: 'ERROR'
         playbooks:
           - host-check
-          - host-check
-      #          - send-ssh-key
-      #          - config-ssh
-      #          - config-dns
-      #          - download_kube_bin
-      #          - install_docker
-      #          - prepare-host
-      #          - install-rpms
-      #          - install-k8s
+          - send-ssh-key
+          - config-ssh
+          - config-dns
+          - download_kube_bin
+          - install_docker
+          - prepare-host
+          - install-rpms
+          - install-k8s
       - name: uninstall
         status_change:
           succeed: 'READY'
@@ -240,6 +261,13 @@ templates:
         default: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
+        display: true
+      - name: CMP_GATEWAY_HOST
+        alias: cmp 网关地址
+        type: Input
+        default: https://gateway.$cluster_name$domain_suffix
+        required: true
+        help_text: cmp 访问地址
         display: true
     operations:
       - name: install
@@ -348,6 +376,13 @@ templates:
         default: https://lb-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
+        display: true
+      - name: CMP_GATEWAY_HOST
+        alias: cmp 网关地址
+        type: Input
+        default: https://gateway.$cluster_name$domain_suffix
+        required: true
+        help_text: cmp 访问地址
         display: true
     operations:
       - name: install
