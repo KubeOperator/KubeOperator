@@ -188,6 +188,10 @@ templates:
         display: true
     operations:
       - name: install
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
         playbooks:
           - host-check
           - send-ssh-key
@@ -199,9 +203,17 @@ templates:
           - install-rpms
           - install-k8s
       - name: uninstall
+        status_change:
+          succeed: 'READY'
+          on: 'DELETING'
+          failed: 'ERROR'
         playbooks:
           - uninstall-k8s
       - name: upgrade
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
         playbooks:
           - upgrade_dbaas
 
@@ -307,19 +319,32 @@ templates:
         display: true
     operations:
       - name: install
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
         playbooks:
           - host-check
           - send-ssh-key
           - config-ssh
           - config-dns
-          - config-dns
+          - download_kube_bin
+          - install_docker
           - prepare-host
           - install-rpms
           - install-k8s
       - name: uninstall
+        status_change:
+          succeed: 'READY'
+          on: 'DELETING'
+          failed: 'ERROR'
         playbooks:
           - uninstall-k8s
       - name: upgrade
+        status_change:
+          succeed: 'RUNNING'
+          on: 'INSTALLING'
+          failed: 'ERROR'
         playbooks:
           - upgrade_dbaas
     roles:
