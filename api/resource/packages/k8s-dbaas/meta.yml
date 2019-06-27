@@ -158,7 +158,7 @@ roles:
 
 templates:
   - name: 一主多节点
-    comment: '此部署模型为一主多节点部署模型，，3个 (Master)主节点和至少3个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    comment: '此部署模型包含 1 个 Master 主节点和 3 个以上的 Compute 计算节点。'
     private_vars:
       DEPLOY_MODE: 'single-master'
       harbor_install: true
@@ -170,21 +170,21 @@ templates:
         type: Input
         default: master-1.$cluster_name$domain_suffix
         required: true
-        help_text: kubernetes 访问地址
+        help_text: Kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
         default: https://master-1.$cluster_name$domain_suffix:6443
         required: true
-        help_text: kubernetes api-server 地址
+        help_text: Kubernetes api-server 地址
         display: true
       - name: CMP_GATEWAY_HOST
-        alias: cmp 网关地址
+        alias: FIT2CLOUD 网关地址
         type: Input
         default: http://gateway.$cluster_name$domain_suffix
         required: true
-        help_text: cmp 访问地址
+        help_text: FIT2CLOUD 访问地址
         display: true
     operations:
       - name: install
@@ -289,7 +289,7 @@ templates:
                 unit: "GB"
                 comment: "无"
   - name: 多主多节点
-    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，3个 (Master)主节点和至少2个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    comment: '此部署模型包含 3 个 Master 主节点和 3 个以上的 Compute 计算节点。''
     private_vars:
       DEPLOY_MODE: 'multi-master'
       harbor_install: true
@@ -301,21 +301,21 @@ templates:
         type: Input
         default: lb-1.$cluster_name$domain_suffix
         required: true
-        help_text: kubernetes 访问地址
+        help_text: Kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
         default: https://lb-1.$cluster_name$domain_suffix:6443
         required: true
-        help_text: kubernetes api-server 地址
+        help_text: Kubernetes api-server 地址
         display: true
       - name: CMP_GATEWAY_HOST
-        alias: cmp 网关地址
+        alias: FIT2CLOUD 网关地址
         type: Input
         default: https://gateway.$cluster_name$domain_suffix
         required: true
-        help_text: cmp 访问地址
+        help_text: FIT2CLOUD 访问地址
         display: true
     operations:
       - name: install
