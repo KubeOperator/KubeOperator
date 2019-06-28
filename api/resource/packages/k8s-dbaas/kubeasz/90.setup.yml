@@ -92,3 +92,7 @@
       until: login_result.rc == 0
       retries: 40
       delay: 30
+
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - dbaas

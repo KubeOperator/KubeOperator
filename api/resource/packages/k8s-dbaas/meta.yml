@@ -12,7 +12,7 @@ operations:
     redirect: "deploy"
   - name: upgrade
     display_on:
-      - "READY"
+      - "RUNNING"
       - "ERROR"
     comment: "升级"
     icon: random
@@ -78,7 +78,7 @@ roles:
       - master
   - name: etcd
     children:
-      - master
+      - compute
     meta:
       hidden: true
   - name: kubeasz
