@@ -46,4 +46,3 @@ dbaas_fit2cloud2_images:
   - busybox
   - keycloak:4.8.3.Final
 
-dbaas_create_registry_project: "{'project_name': 'fit2cloud', 'public': 0}"

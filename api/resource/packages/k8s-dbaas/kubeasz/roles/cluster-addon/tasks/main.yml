@@ -83,31 +83,6 @@
   ignore_errors: true
 
 - block:
-    - name: 生成harbor配置文件
-      template:
-        src: "harbor/values.yaml.j2"
-        dest: "{{ base_dir }}/manifests/harbor/values.yaml"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-
-    - name: 创建harbor 部署
-      shell: "helm install ."
-      args:
-        chdir: "{{ base_dir }}/manifests/harbor"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-
-    - name: 尝试登陆harbor
-      shell: "docker login {{MASTER_IP}}:30003 -u admin -p Harbor12345"
-      register: login_result
-      until: login_result.rc == 0
-      retries: 40
-      delay: 30
-
-
-  when: '"harbor" not in pod_info.stdout and harbor_install'
-  ignore_errors: true
-- block:
     - name: 创建 prometheus 部署
       shell: "helm install ."
       args:

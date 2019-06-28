@@ -4,7 +4,7 @@
       --set storage.storageClassName={{ STORAGE_CLASS_NAME }} \
       --set storage.prometheus.capacity={{ PROMETHEUS_CAPACITY }} \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       /tmp/fit2cloud-prometheus-operator-2.0-dev-latest.tgz"
   ignore_errors: true
 
@@ -13,7 +13,7 @@
       --install --force --recreate-pods \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
       --set modules.imagePullPolicy=Always \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       --set modules.imageTag=dev \
       /tmp/fit2cloud-dbaas-rds-operator-2.0-dev-latest.tgz"
   ignore_errors: true
@@ -30,7 +30,7 @@
       --set storage.shareFiles.capacity={{ CMP_SHAREFILES_CAPACITY }} \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
       --set modules.imagePullPolicy=Always \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       --set modules.imageTag=master \
       --set modules.keycloak.runMode=test \
       --set cmp.logLevel=master \

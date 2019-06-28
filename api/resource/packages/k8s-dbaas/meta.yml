@@ -151,7 +151,7 @@ roles:
       CMP_SHAREFILES_CAPACITY: 10Gi
       #dbaas_harbor
       REGISTRY_ACCOUNT_NAME: admin
-      REGISTRY_ACCOUNT_PASSWORD: Harbor12345
+      REGISTRY_ACCOUNT_PASSWORD: Calong@2015
       IMAGE_PULL_SECRET: registry-fit2cloud-com-key
 
 

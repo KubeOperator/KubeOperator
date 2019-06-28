@@ -153,4 +153,3 @@
   ignore_errors: true
   delegate_to: "{{ groups['kube-master'][0] }}"
 
-/usr/bin/rsync --delay-updates -F --compress --archive --rsh=/usr/bin/ssh -S none -o Port=22 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  /root/.kube/config root@172.16.10.157:/root/.kube/config

@@ -7,7 +7,7 @@
 - name: "推送 operator/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/operator/{{ item }}"
-    repository: "{{ MASTER_IP }}:30003/{{ REGISTRY_PROJECT_NAME }}/{{ item }}"
+    repository: "{{ MASTER_IP }}:30003/{{ item }}"
     push: yes
   with_items: "{{dbaas_operator_images}}"
 
@@ -20,7 +20,7 @@
 - name: "推送 fit2cloud2/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/fit2cloud2/{{ item }}"
-    repository: "{{ MASTER_IP }}:30003/{{ REGISTRY_PROJECT_NAME }}/{{ item }}"
+    repository: "{{ MASTER_IP }}:30003/{{ item }}"
     push: yes
   with_items: "{{dbaas_fit2cloud2_images}}"
 

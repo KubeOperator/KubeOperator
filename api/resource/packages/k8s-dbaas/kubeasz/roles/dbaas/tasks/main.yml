@@ -1,11 +1,5 @@
 - import_tasks: pull-images.yml
 
-
-- name:  create harbor projects
-  shell: "curl -k -u '{{ REGISTRY_ACCOUNT_NAME }}:{{ REGISTRY_ACCOUNT_PASSWORD }}' -X POST -H 'Content-Type:application/json' \
-   -d '{{ dbaas_create_registry_project }}' https://master-1.mms.f2c.com:30003/api/projects"
-
-
 - name: create fit2cloud namespace
   shell: "{{ bin_dir }}/kubectl create ns fit2cloud"
   ignore_errors: true
@@ -66,7 +60,7 @@
       --set storage.storageClassName={{ STORAGE_CLASS_NAME }} \
       --set storage.prometheus.capacity={{ PROMETHEUS_CAPACITY }} \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       /tmp/fit2cloud-prometheus-operator-2.0-dev-latest.tgz"
   ignore_errors: true
 
@@ -74,7 +68,7 @@
   shell: "{{ bin_dir }}/helm install --name fit2cloud-dbaas-rds-operator --namespace fit2cloud \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
       --set modules.imagePullPolicy=Always \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       --set modules.imageTag=dev \
       /tmp/fit2cloud-dbaas-rds-operator-2.0-dev-latest.tgz"
   ignore_errors: true
@@ -90,7 +84,7 @@
       --set storage.shareFiles.capacity={{ CMP_SHAREFILES_CAPACITY }} \
       --set modules.imagePullSecret={{ IMAGE_PULL_SECRET }} \
       --set modules.imagePullPolicy=Always \
-      --set modules.imagePrefix={{MASTER_IP}}:30003/{{ REGISTRY_PROJECT_NAME }}/ \
+      --set modules.imagePrefix={{MASTER_IP}}:30003/ \
       --set modules.imageTag=master \
       --set modules.keycloak.runMode=test \
       --set cmp.logLevel=master \
