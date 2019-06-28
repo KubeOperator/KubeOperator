@@ -1,8 +1,0 @@
----
-# do any asserts here
-
-- include_tasks: install.yml
-  when: not openshift_service_catalog_remove | default(false) | bool
-
-- include_tasks: remove.yml
-  when: openshift_service_catalog_remove | default(false) | bool

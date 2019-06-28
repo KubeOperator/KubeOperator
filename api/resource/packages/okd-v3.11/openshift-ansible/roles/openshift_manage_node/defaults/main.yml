@@ -1,5 +1,0 @@
----
-# openshift_manage_node_is_master is set at the play level.
-openshift_manage_node_is_master: False
-openshift_master_node_labels:
-  node-role.kubernetes.io/master: 'true'

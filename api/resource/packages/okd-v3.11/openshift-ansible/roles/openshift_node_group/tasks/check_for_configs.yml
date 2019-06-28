@@ -1,7 +1,0 @@
----
-- include_tasks: check_for_config.yml
-  vars:
-    l_openshift_node_group_name: "{{ node_group.name }}"
-  with_items: "{{ openshift_node_groups }}"
-  loop_control:
-    loop_var: node_group

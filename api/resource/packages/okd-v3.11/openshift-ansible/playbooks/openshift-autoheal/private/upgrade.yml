@@ -1,7 +1,0 @@
----
-- name: Upgrade Auto-heal
-  hosts: oo_first_master
-  tasks:
-  - import_role:
-      name: openshift_autoheal
-      tasks_from: upgrade.yml

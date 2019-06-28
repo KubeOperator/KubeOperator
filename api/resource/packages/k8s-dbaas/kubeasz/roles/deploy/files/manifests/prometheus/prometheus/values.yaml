@@ -32,7 +32,7 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: registry.kubeops.io:8092/prom/alertmanager
+    repository: registry.kubeops.io:8092/docker.io/prom/alertmanager
     tag: v0.15.2
     pullPolicy: IfNotPresent
 
@@ -252,7 +252,7 @@ initChownData:
   ## initChownData container image
   ##
   image:
-    repository: registry.kubeops.io:8092/busybox
+    repository: registry.kubeops.io:8092/docker.io/busybox
     tag: latest
     pullPolicy: IfNotPresent
 

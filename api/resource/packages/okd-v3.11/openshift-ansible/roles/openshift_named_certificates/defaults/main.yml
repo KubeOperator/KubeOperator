@@ -1,5 +1,0 @@
----
-openshift_ca_config_dir: "{{ openshift.common.config_base }}/master"
-openshift_ca_cert: "{{ openshift_ca_config_dir }}/ca.crt"
-openshift_ca_key: "{{ openshift_ca_config_dir }}/ca.key"
-openshift_ca_serial: "{{ openshift_ca_config_dir }}/ca.serial.txt"

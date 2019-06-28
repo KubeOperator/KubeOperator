@@ -4,15 +4,14 @@
 - name: 拷贝 registry 密钥
   copy: src=htpasswd dest=/tmp/htpasswd
 
+- name: 获取 secret
+  shell: kubectl --namespace=kube-system get secret
+  register: secret_list
+
 - name: 创建 registry secret
   shell: kubectl --namespace=kube-system create secret generic registry-auth-secret --from-file=htpasswd=/tmp/htpasswd
+  when: '"registry-auth-secret" not in secret_list.stdout'
 
 - name: 部署 registry
   shell: kubectl --namespace=kube-system apply -f /tmp/registry.yml
 
-- name: 尝试登陆 registry
-  shell: "docker login {{MASTER_IP}}:30003 -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
-  register: login_result
-  until: login_result.rc == 0
-  retries: 40
-  delay: 30

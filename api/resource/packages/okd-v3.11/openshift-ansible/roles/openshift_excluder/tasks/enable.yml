@@ -1,6 +1,0 @@
----
-- name: Install excluders
-  import_tasks: install.yml
-
-- name: Enable excluders
-  import_tasks: exclude.yml

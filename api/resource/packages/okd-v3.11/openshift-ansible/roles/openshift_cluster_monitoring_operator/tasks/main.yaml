@@ -1,6 +1,0 @@
----
-- include_tasks: install.yaml
-  when: openshift_cluster_monitoring_operator_install | default(true) | bool
-
-- include_tasks: remove.yaml
-  when: not openshift_cluster_monitoring_operator_install | default(true) | bool

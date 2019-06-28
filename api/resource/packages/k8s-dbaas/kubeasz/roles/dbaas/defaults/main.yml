@@ -1,17 +1,5 @@
 old_registry: registry.fit2cloud.com
 dbaas_operator_images:
-  - nginx-photon:dev
-  - harbor-portal:dev
-  - harbor-core:dev
-  - harbor-jobservice:dev
-  - registry-photon:dev
-  - harbor-registryctl:dev
-  - chartmuseum-photon:dev
-  - clair-photon:dev
-  - notary-server-photon:dev
-  - notary-signer-photon:dev
-  - harbor-db:dev
-  - redis-photon:dev
   - prometheus-operator:v0.28.0
   - configmap-reload:v0.0.1
   - prometheus-config-reloader:v0.28.0

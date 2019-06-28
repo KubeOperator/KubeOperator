@@ -1,9 +1,0 @@
-# install helm
-- hosts: "{{groups['kube-master'][0]}}"
-  roles:
-    - helm
-# to install clust-addons
-- hosts:
-    - kube-node
-  roles:
-    - cluster-addon

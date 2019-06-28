@@ -1,8 +1,0 @@
----
-- name: Create OpenShift certificates for master hosts
-  hosts: oo_masters_to_config
-  roles:
-  - role: openshift_master_facts
-  - role: openshift_named_certificates
-  - role: openshift_ca
-  - role: openshift_master_certificates

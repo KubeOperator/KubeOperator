@@ -1,2 +1,0 @@
----
-loopback_context_string: "current-context: {{ openshift.master.loopback_context_name }}"

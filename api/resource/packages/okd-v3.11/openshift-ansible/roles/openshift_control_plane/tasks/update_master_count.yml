@@ -1,7 +1,0 @@
----
-- name: Update master count
-  yedit:
-    src: "{{ openshift.common.config_base }}/master/master-config.yaml"
-    key: 'kubernetesMasterConfig.masterCount'
-    value: "{{ openshift_master_count | default(groups.oo_masters | length) }}"
-  notify: restart master
