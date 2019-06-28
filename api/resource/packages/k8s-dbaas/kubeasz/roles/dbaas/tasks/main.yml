@@ -1,5 +1,9 @@
 - import_tasks: pull-images.yml
-- import_tasks: prepare.yml
+
+
+- name:  create harbor projects
+  shell: "curl -k -u '{{ REGISTRY_ACCOUNT_NAME }}:{{ REGISTRY_ACCOUNT_PASSWORD }}' -X POST -H 'Content-Type:application/json' \
+   -d '{{ dbaas_create_registry_project }}' https://master-1.mms.f2c.com:30003/api/projects"
 
 
 - name: create fit2cloud namespace
