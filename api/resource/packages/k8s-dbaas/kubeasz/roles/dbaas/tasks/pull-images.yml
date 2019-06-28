@@ -2,36 +2,36 @@
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/operator/{{ item }}"
     state: present
-  with_items: dbaas_operator_images
+  with_items: "{{dbaas_operator_images}}"
 
 - name: "推送 operator/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/operator/{{ item }}"
     repository: "{{ MASTER_IP }}:30003/{{ REGISTRY_PROJECT_NAME }}/{{ item }}"
     push: yes
-  with_items: dbaas_operator_images
+  with_items: "{{dbaas_operator_images}}"
 
 - name: "拉取 fit2cloud2/{{ item }} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/fit2cloud2/{{ item }}"
     state: present
-  with_items: dbaas_fit2cloud2_images
+  with_items: "{{dbaas_fit2cloud2_images}}"
 
 - name: "推送 fit2cloud2/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/fit2cloud2/{{ item }}"
     repository: "{{ MASTER_IP }}:30003/{{ REGISTRY_PROJECT_NAME }}/{{ item }}"
     push: yes
-  with_items: dbaas_fit2cloud2_images
+  with_items: "{{dbaas_fit2cloud2_images}}"
 
 - name: "删除本地 docker operator/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/operator/{{ item }}"
     state: absent
-  with_items: dbaas_operator_images
+  with_items: "{{dbaas_operator_images}}"
 
 - name: "删除本地 docker fit2cloud2/{{item}} 镜像"
   docker_image:
     name: "{{registry_prefix}}/{{old_registry}}/fit2cloud2/{{ item }}"
     state: absent
-  with_items: dbaas_fit2cloud2_images
+  with_items: "{{dbaas_fit2cloud2_images}}"
