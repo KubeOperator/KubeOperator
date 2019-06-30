@@ -23,7 +23,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-        cluster = Cluster.objects.filter(id=self.project.id).first()
+        cluster = Cluster.objects.get(id=self.project.id)
         hostname = Setting.objects.get(key='local_hostname')
         cluster.status = Cluster.status = Cluster.CLUSTER_STATUS_INSTALLING
         cluster.save()

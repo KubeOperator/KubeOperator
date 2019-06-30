@@ -9,9 +9,9 @@
   <clr-dg-column>状态</clr-dg-column>
 
   <clr-dg-row *ngFor="let execution of executions" [clrDgItem]="log">
-    <clr-dg-action-overflow>
-      <button class="action-item"  (click)="showLogDetail(execution)">日志详情</button>
-    </clr-dg-action-overflow>
+    <!--<clr-dg-action-overflow>-->
+    <!--<button class="action-item"  (click)="showLogDetail(execution)">日志详情</button>-->
+    <!--</clr-dg-action-overflow>-->
     <clr-dg-cell>{{execution.operation}}</clr-dg-cell>
     <clr-dg-cell>{{execution.date_created}}</clr-dg-cell>
     <clr-dg-cell>{{execution.date_start}}</clr-dg-cell>
