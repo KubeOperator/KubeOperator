@@ -38,10 +38,10 @@ roles:
     children:
       - master
       - worker
-      - daemon
   - name: all_nodes
     children:
       - lb
+      - daemon
       - cluster_nodes
   - name: kube-node
     children:
@@ -84,7 +84,7 @@ roles:
       dns_version: "1.5.0"
       #metrics-server
       metricsserver_install: true
-      metricsserver_image: "docker.io/8091"
+      metricsserver_image: "docker.io/mirrorgooglecontainers/metrics-server-amd64"
       metricsserver_version: "v0.3.2"
       #dashboard
       dashboard_install: true
