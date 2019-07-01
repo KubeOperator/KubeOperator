@@ -74,8 +74,8 @@ services:
     restart: always
 
 
-  nexus_k8s_dbaas:
-    container_name: kubeops_nexus_k8s
+  nexus_k8s:
+    container_name: kubeops_k8s
     image: registry.fit2cloud.com/public/nexus-helm:latest
     ports:
       - 8082:8081
