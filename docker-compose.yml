@@ -75,10 +75,10 @@ services:
 
 
   nexus_k8s_dbaas:
-    container_name: kubeops_nexus_k8s_dbaas
+    container_name: kubeops_nexus_k8s
     image: registry.fit2cloud.com/public/nexus-helm:latest
     ports:
-      - 8082:8082
+      - 8082:8081
       - 8092:8092
     volumes:
       - ./docker/nexus/k8s-dbaas:/nexus-data
