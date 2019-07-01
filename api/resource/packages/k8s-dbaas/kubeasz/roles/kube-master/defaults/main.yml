@@ -1,5 +1,5 @@
 # etcd 集群服务地址列表, 根据etcd组成员自动生成
-TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ hostvars[h]['ansible_default_ipv4']['address'] }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
 # k8s 集群 master 节点证书配置，可以添加多个ip和域名（比如增加公网ip和域名）
