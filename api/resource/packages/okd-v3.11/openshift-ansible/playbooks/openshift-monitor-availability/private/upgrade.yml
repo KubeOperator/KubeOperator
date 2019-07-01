@@ -1,7 +1,0 @@
----
-- name: Upgrade OpenShift Availability Monitoring
-  hosts: oo_first_master
-  tasks:
-  - import_role:
-      name: openshift_monitor_availability
-      tasks_from: upgrade.yaml

@@ -19,6 +19,9 @@ export class PackageLogoService {
       case 'okd':
         logo = path + '/logo-okd.png';
         break;
+      default:
+        logo = 'assets/images/favicon.ico';
+        break;
     }
     return logo;
   }

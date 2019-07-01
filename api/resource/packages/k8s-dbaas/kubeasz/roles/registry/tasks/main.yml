@@ -1,0 +1,17 @@
+- name: 拷贝 registry.yml
+  template: src=registry.yml.j2 dest=/tmp/registry.yml
+
+- name: 拷贝 registry 密钥
+  copy: src=htpasswd dest=/tmp/htpasswd
+
+- name: 获取 secret
+  shell: kubectl --namespace=kube-system get secret
+  register: secret_list
+
+- name: 创建 registry secret
+  shell: kubectl --namespace=kube-system create secret generic registry-auth-secret --from-file=htpasswd=/tmp/htpasswd
+  when: '"registry-auth-secret" not in secret_list.stdout'
+
+- name: 部署 registry
+  shell: kubectl --namespace=kube-system apply -f /tmp/registry.yml
+

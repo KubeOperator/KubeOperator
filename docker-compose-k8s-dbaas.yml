@@ -1,0 +1,109 @@
+version: "2.2"
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: kubeops_nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./docker/nginx/f2o.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+      - ui
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/run/nginx.pid"]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+
+  api:
+    build: api
+    image: kube-operator/api:1.0.0
+    container_name: kubeops_api
+    restart: always
+    privileged: true
+    tty: true
+    volumes:
+      - api_data:/opt/kube-operator-api/data
+      - dns_data:/etc/dnsmasq.d
+      - /var/run/docker.sock:/var/run/docker.sock  
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
+      DB_NAME: kube-operator
+      REDIS_HOST: redis
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    container_name: kubeops_mysql
+    image: mysql:5
+    command: --character-set-server=utf8
+    ports:
+      - 3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: kube-operator
+      MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
+    healthcheck:
+      test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:alpine
+    container_name: kubeops_redis
+    restart: always
+    ports:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "info"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ui:
+    build: ui
+    image: kube-operator/ui:1.0.0
+    container_name: kubeops_ui
+    restart: always
+
+  nexus_k8s_dbaas:
+    container_name: kubeops_nexus_k8s_dbaas
+    image: registry.fit2cloud.com/public/nexus-helm:latest
+    ports:
+      - 8082:8082
+      - 8092:8092
+    volumes:
+      - ./docker/nexus/k8s-dbaas:/nexus-data
+
+  dns:
+    container_name: kubeops_dns
+    build: docker/dnsmasq
+    image: kube-operator/dns:1.0.0
+    cap_add:
+        - NET_ADMIN
+    volumes:
+      - dns_data:/etc/dnsmasq.d
+    ports:
+      - 53:53/udp
+      - 53:53/tcp
+    healthcheck:
+      test: ["CMD", "nc","-vuz","localhost","53"]
+      interval: 10s
+      timeout: 5s
+      retries: 10 
+
+volumes:
+  api_data:
+  mysql_data:
+  redis_data:
+  dns_data:
+
+networks: 
+  default:

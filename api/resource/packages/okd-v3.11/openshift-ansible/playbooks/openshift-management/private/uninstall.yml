@@ -1,8 +1,0 @@
----
-- name: Uninstall CFME
-  hosts: masters[0]
-  tasks:
-  - name: Run the CFME Uninstall Role Tasks
-    import_role:
-      name: openshift_management
-      tasks_from: uninstall.yml

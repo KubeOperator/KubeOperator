@@ -1,9 +1,0 @@
----
-
-openshift_persistent_volumes_default_nfs_group: 'oo_nfs_to_config'
-
-openshift_persistent_volume_extras: []
-openshift_persistent_volume_claims_extras: []
-
-glusterfs_pv: []
-glusterfs_pvc: []

@@ -1,5 +1,0 @@
----
-- name: Remove auto-heal namespace
-  oc_project:
-    state: absent
-    name: openshift-autoheal

@@ -1,0 +1,36 @@
+old_registry: registry.fit2cloud.com
+dbaas_operator_images:
+  - prometheus-operator:v0.28.0
+  - configmap-reload:v0.0.1
+  - prometheus-config-reloader:v0.28.0
+  - kube-state-metrics:v1.5.0
+  - kube-rbac-proxy:v0.4.1
+  - addon-resizer-amd64:2.1
+  - mysql-operator:dev
+  - percona-xtradb-cluster:5.7.25
+  - mysqld-exporter:v1
+  - xtrabackup:1.0.0
+  - busybox:1.25.0
+dbaas_fit2cloud2_images:
+  - management-center:master
+  - vm-service:master
+  - dashboard:master
+  - gateway:master
+  - devops:master
+  - operation-analytics:master
+  - ticket-center:master
+  - ansible-api:master
+  - share-files:master
+  - container-service:master
+  - billing-center:master
+  - dbaas-rds:master
+  - dbaas-configuration:master
+  - screen-display:master
+  - mysql:5.7.25
+  - elasticsearch:6.6.0
+  - redis:5.0.3-alpine
+  - prometheus:v2.9.2
+  - prometheus-pushgateway:v0.7.0
+  - busybox
+  - keycloak:4.8.3.Final
+

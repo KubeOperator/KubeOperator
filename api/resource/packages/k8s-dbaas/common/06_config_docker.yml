@@ -1,0 +1,5 @@
+---
+- name: config docker storage
+  hosts: cluster_nodes
+  roles:
+    - config_docker_storage

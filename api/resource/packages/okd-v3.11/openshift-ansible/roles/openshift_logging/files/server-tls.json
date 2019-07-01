@@ -1,5 +1,0 @@
-// See for available options: https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener
-tls_options = {
-	ciphers: 'kEECDH:+kEECDH+SHA:kEDH:+kEDH+SHA:+kEDH+CAMELLIA:kECDH:+kECDH+SHA:kRSA:+kRSA+SHA:+kRSA+CAMELLIA:!aNULL:!eNULL:!SSLv2:!RC4:!DES:!EXP:!SEED:!IDEA:+3DES',
-	honorCipherOrder: true
-}

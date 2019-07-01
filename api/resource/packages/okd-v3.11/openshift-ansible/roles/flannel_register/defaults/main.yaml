@@ -1,9 +1,0 @@
----
-flannel_network: "{{ openshift_cluster_network_cidr }}"
-flannel_subnet_len: "{{ 32 - (openshift_host_subnet_length | int) }}"
-flannel_etcd_key: /openshift.com/network
-etcd_hosts: "{{ etcd_urls }}"
-etcd_conf_dir: "{{ openshift.common.config_base }}/master"
-etcd_peer_ca_file: "{{ etcd_conf_dir + '/master.etcd-ca.crt' }}"
-etcd_peer_cert_file: "{{ etcd_conf_dir }}/master.etcd-client.crt"
-etcd_peer_key_file: "{{ etcd_conf_dir }}/master.etcd-client.key"

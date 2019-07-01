@@ -31,11 +31,11 @@ function build_and_save_images() {
 
     echo ">>> 开始保存镜像"
     for image in ${images};do
-        if [[ ! ${image} =~ 'fit2openshift' ]];then
+        if [[ ! ${image} =~ 'kubeops' ]];then
             docker pull ${image}
         fi
         filename=$(basename ${image}).tar
-        docker save -o ${IMAGE_DIR}/${filename} ${image}
+        docker save -o ${IMAGE_DIR}/${filename} | gzip -c > ${image}
     done
 }
 

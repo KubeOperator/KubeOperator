@@ -1,0 +1,6 @@
+- name: set registry dns
+  lineinfile:
+    path: "/etc/dnsmasq.d/kubeops.dns.conf"
+    regexp: 'address=/registry.kubeops.io/'
+    line: "address=/registry.kubeops.io/{{local_hostname}}"
+

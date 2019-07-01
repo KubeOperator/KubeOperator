@@ -1,0 +1,25 @@
+---
+# 安装基础软件包
+- name: Ensure nodes packages.
+  hosts: cluster_nodes
+  vars:
+    packages:
+      - java-1.8.0-openjdk-headless
+      - wget
+      - git
+      - net-tools
+      - bind-utils
+      - iptables-services
+      - bridge-utils
+      - bash-completion
+      - kexec-tools
+      - sos
+      - psacct
+      - glibc-common
+      - bind-license
+      - python-passlib
+      - ntp
+      - python-docker-py
+  gather_facts: no
+  roles:
+    - check_packages_nodes

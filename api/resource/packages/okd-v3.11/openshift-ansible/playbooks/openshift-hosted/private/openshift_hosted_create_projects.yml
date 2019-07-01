@@ -1,7 +1,0 @@
----
-- name: Create Hosted Resources - openshift projects
-  hosts: oo_first_master
-  tasks:
-  - import_role:
-      name: openshift_hosted
-      tasks_from: create_projects.yml

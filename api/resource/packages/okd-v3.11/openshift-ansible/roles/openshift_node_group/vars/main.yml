@@ -1,8 +1,0 @@
----
-# These values should never be passed in, they are needed
-openshift_node_labels_edit:
-- key: kubeletArguments.node-labels
-  value:
-  - "{{ l_openshift_node_group_labels | join(',') }}"
-
-openshift_node_group_namespace: openshift-node

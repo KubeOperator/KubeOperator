@@ -1,5 +1,0 @@
----
-dependencies:
-- lib_utils
-- lib_openshift
-- openshift_facts
