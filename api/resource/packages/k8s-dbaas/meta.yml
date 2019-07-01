@@ -63,30 +63,27 @@ roles:
   - name: cluster_nodes
     children:
       - master
-      - compute
-      - infra
+      - worker
   - name: all_nodes
     children:
       - lb
       - cluster_nodes
   - name: kube-node
     children:
-      - compute
-      - infra
+      - worker
   - name: kube-master
     children:
       - master
   - name: etcd
     children:
-      - compute
+      - worker
     meta:
       hidden: true
   - name: kubeasz
     children:
       - master
       - nodes
-      - compute
-      - infra
+      - worker
       - lb
     meta:
       hidden: true
@@ -158,7 +155,7 @@ roles:
 
 templates:
   - name: 一主多节点
-    comment: '此部署模型为一主多节点部署模型，，3个 (Master)主节点和至少3个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    comment: '此部署模型为一主多节点部署模型，，3个 (Master)主节点和至少3个 (worker)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
     private_vars:
       DEPLOY_MODE: 'single-master'
       prometheus_install: false
@@ -195,6 +192,7 @@ templates:
           - host-check
           - send-ssh-key
           - config-ssh
+          - config-dns
           - config-dns
           - download_kube_bin
           - install_docker
@@ -252,7 +250,7 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-      - name: compute
+      - name: worker
         vars:
         meta:
           hidden: false
@@ -288,7 +286,7 @@ templates:
                 unit: "GB"
                 comment: "无"
   - name: 多主多节点
-    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，3个 (Master)主节点和至少2个 (Compute)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，3个 (Master)主节点和至少2个 (worker)计算节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
     private_vars:
       DEPLOY_MODE: 'multi-master'
       prometheus_install: false
@@ -416,7 +414,7 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-      - name: compute
+      - name: worker
         vars:
         meta:
           hidden: false
