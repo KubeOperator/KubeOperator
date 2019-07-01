@@ -1,0 +1,39 @@
+- name: 分发 ssh key
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    state: present
+    exclusive: no
+
+- name: 忽略 ssh 登陆 key 校验
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^UseDNS.*'
+    line: UseDNS no
+  notify:
+    - restart sshd
+
+
+- name: 添加离线仓库
+  template:
+    src: templates/kubeops.repo.j2
+    dest: /etc/yum.repos.d/kubeops.repo
+
+- name: 安装基础软件包
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{packages}}"
+
+- name: 打开防火墙端口
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{item}}"
+    jump: ACCEPT
+    comment: "Accept trafic to {{item}}"
+  with_items: "{{firewall_ports}}"
+
+- name: 配置主机名
+  hostname:
+    name: "{{inventory_hostname}}"

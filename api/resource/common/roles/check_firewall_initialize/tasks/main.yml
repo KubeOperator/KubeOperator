@@ -1,9 +1,0 @@
-- name: Open correct ports from iptables
-  iptables:
-    chain: INPUT
-    protocol: tcp
-    destination_port: "{{item}}"
-    jump: ACCEPT
-    comment: "Accept trafic to {{item}}"
-  with_items:
-  - "{{firewall_ports}}"

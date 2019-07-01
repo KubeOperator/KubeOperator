@@ -1,7 +1,0 @@
-- name: Set host name 
-  hostname:
-    name: "{{inventory_hostname}}"
-- debug:
-    msg: "{{inventory_hostname}}"
-- debug:
-    msg: "{{ansible_ssh_host}}"

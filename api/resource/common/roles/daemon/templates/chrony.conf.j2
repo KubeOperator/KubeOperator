@@ -1,0 +1,14 @@
+server ntp1.aliyun.com
+server time1.aliyun.com
+stratumweight 0
+driftfile /var/lib/chrony/drift
+rtcsync
+makestep 10 3
+allow 0.0.0.0/24
+bindcmdaddress 127.0.0.1
+bindcmdaddress ::1
+local stratum 10
+keyfile /etc/chrony.keys
+noclientlog
+logchange 0.5
+logdir /var/log/chrony
