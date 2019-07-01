@@ -13,7 +13,7 @@ packages:
   - glibc-common
   - bind-license
   - python-passlib
-  - ntp
+  - chrony
   - python-docker-py
 
 firewall_ports:
