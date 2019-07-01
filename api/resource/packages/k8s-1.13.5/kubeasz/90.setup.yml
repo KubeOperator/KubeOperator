@@ -36,6 +36,10 @@
   roles:
     - etcd
 
+- hosts: cluster_nodes
+  roles:
+    - docker
+
 # to set up 'kube-master' nodes
 - hosts: kube-master
   roles:

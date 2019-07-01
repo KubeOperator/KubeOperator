@@ -10,7 +10,7 @@
     dest: /etc/dnsmasq.d/kubeops-upstream.dns.conf
 
 - name: 生成集群 dns 配置文件
-  tempalte:
+  template:
     src: kubeops-origin.dns.conf.j2
     dest:  /etc/dnsmasq.d/kubeops-origin.dns.conf
 
@@ -20,8 +20,8 @@
     state: restarted
 
 - name: 生成 chrony server 配置文件
-  tempalte:
-    src: chrony.conf.j2.j2
+  template:
+    src: chrony.conf.j2
     dest: /etc/chrony.conf.j2
 
 - name: 生效 chrony server 配置

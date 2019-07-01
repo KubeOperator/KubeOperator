@@ -25,14 +25,23 @@
     state: latest
   with_items: "{{packages}}"
 
-- name: 打开防火墙端口
+- name: 打开防火墙TCP端口
   iptables:
     chain: INPUT
     protocol: tcp
     destination_port: "{{item}}"
     jump: ACCEPT
     comment: "Accept trafic to {{item}}"
-  with_items: "{{firewall_ports}}"
+  with_items: "{{firewall_tcp_ports}}"
+
+- name: 打开防火墙UDP端口
+  iptables:
+    chain: INPUT
+    protocol: udp
+    destination_port: "{{item}}"
+    jump: ACCEPT
+    comment: "Accept trafic to {{item}}"
+  with_items: "{{firewall_udp_ports}}"
 
 - name: 配置主机名
   hostname:

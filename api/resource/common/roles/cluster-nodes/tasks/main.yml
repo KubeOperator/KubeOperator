@@ -19,7 +19,6 @@
   with_items:
     - NetworkManager
     - dbus
-    - dnsmasq
     - systemd-logind
     - systemd-hostnamed
 
