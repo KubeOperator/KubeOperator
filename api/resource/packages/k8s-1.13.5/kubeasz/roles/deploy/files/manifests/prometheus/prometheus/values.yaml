@@ -32,7 +32,7 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/prom/alertmanager
+    repository: registry.kubeops.io:8092/quay.io/prometheus/alertmanager
     tag: v0.15.2
     pullPolicy: IfNotPresent
 
@@ -217,7 +217,7 @@ configmapReload:
   ## configmap-reload container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/jimmidyson/configmap-reload
+    repository: registry.kubeops.io:8092/quay.io/coreos/configmap-reload
     tag: v0.2.2
     pullPolicy: IfNotPresent
 
@@ -253,7 +253,7 @@ initChownData:
   ##
   image:
     repository: registry.kubeops.io:8092/docker.io/busybox
-    tag: latest
+    tag: 1.31.0
     pullPolicy: IfNotPresent
 
   ## initChownData resource requests and limits
@@ -362,7 +362,7 @@ nodeExporter:
   ## node-exporter container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/prom/node-exporter
+    repository: registry.kubeops.io:8092/quay.io/prometheus/node-exporter
     tag: v0.15.2
     pullPolicy: IfNotPresent
 
@@ -460,7 +460,7 @@ server:
   ## Prometheus server container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/prom/prometheus
+    repository: registry.kubeops.io:8092/quay.io/prometheus/prometheus
     tag: v2.4.3
     pullPolicy: IfNotPresent
 
@@ -682,7 +682,7 @@ pushgateway:
   ## pushgateway container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/prom/pushgateway
+    repository: registry.kubeops.io:8092/quay.io/prometheus/pushgateway
     tag: v0.5.2
     pullPolicy: IfNotPresent
 

@@ -17,8 +17,7 @@ spec:
     spec:
       containers:
       - name: grafana
-        #image: gcr.io/google_containers/heapster-grafana-amd64:v4.4.3
-        image: registry.kubeops.io:8092/docker.io/mirrorgooglecontainers/heapster-grafana-amd64:v4.4.3
+        image: registry.kubeops.io:8092/gcr.io/google_containers/heapster-grafana-amd64:v4.4.3
         ports:
         - containerPort: 3000
           protocol: TCP

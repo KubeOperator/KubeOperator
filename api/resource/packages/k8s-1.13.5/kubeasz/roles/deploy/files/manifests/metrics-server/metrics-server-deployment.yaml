@@ -30,7 +30,7 @@ spec:
       containers:
       - name: metrics-server
         #image: k8s.gcr.io/metrics-server-amd64:v0.3.2
-        image: registry.kubeops.io:8092/docker.io/mirrorgooglecontainers/metrics-server-amd64:v0.3.2
+        image: registry.kubeops.io:8092/k8s.gcr.io/metrics-server-amd64:v0.3.2
         imagePullPolicy: IfNotPresent 
         command:
         - /metrics-server

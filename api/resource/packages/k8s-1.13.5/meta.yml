@@ -84,11 +84,11 @@ roles:
       dns_version: "1.5.0"
       #metrics-server
       metricsserver_install: true
-      metricsserver_image: "docker.io/mirrorgooglecontainers/metrics-server-amd64"
+      metricsserver_image: "k8s.gcr.io/metrics-server-amd64"
       metricsserver_version: "v0.3.2"
       #dashboard
       dashboard_install: true
-      dashboard_image: "docker.io/mirrorgooglecontainers/kubernetes-dashboard-amd64"
+      dashboard_image: "k8s.gcr.io/kubernetes-dashboard-amd64"
       dashboard_version: "v1.10.1"
       #heapster
       heapster_install: true
@@ -104,12 +104,12 @@ roles:
       helm_cert_cn: helm001
       tiller_sa: tiller
       tiller_cert_cn: tiller001
-      tiller_image: "docker.io/jmgao1983/tiller"
+      tiller_image: "gcr.io/kubernetes-helm/tiller"
       tiller_version: "v2.12.3"
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
       FLANNEL_BACKEND: "vxlan"
-      flanneld_image: "docker.io/jmgao1983/flannel"
+      flanneld_image: "quay.io/coreos/flannel"
       flanneld_version: "v0.11.0-amd64"
       #registry
       REGISTRY_ACCOUNT_NAME: admin
