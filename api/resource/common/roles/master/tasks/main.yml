@@ -1,0 +1,9 @@
+- name: 安装 ansible
+  package:
+    name: ansible
+    state: latest
+
+- name: 配置ansible
+  template:
+    src: ansible.cfg.j2
+    dest: /etc/ansible/ansible.cfg

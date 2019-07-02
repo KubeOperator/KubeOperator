@@ -10,4 +10,7 @@
 - hosts: all_nodes
   roles:
     - cluster-nodes
-
+#master
+- hosts: master
+  roles:
+    - master
