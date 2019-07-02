@@ -24,23 +24,28 @@
 
 - import_tasks: pull_image.yml
 
-# 只需单节点执行一次
-- name: 运行 flannel网络
-  shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel/ && sleep 5"
+- name: 获取所有已经创建的POD信息
+  command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+  register: pod_info
+
+- block:
+    - name: 运行 flannel网络
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel/ && sleep 5"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+
+    # 删除原有cni配置
+    - name: 删除默认cni配置
+      file: path=/etc/cni/net.d/10-default.conf state=absent
+
+    # 等待网络插件部署成功，视下载镜像速度而定
+    - name: 轮询等待flannel 运行，视下载镜像速度而定
+      shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
+      register: pod_status
+      until: pod_status.stdout == "Running"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      retries: 15
+      delay: 8
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
-
-# 删除原有cni配置
-- name: 删除默认cni配置
-  file: path=/etc/cni/net.d/10-default.conf state=absent
-
-# 等待网络插件部署成功，视下载镜像速度而定
-- name: 轮询等待flannel 运行，视下载镜像速度而定
-  shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
-  register: pod_status
-  until: pod_status.stdout == "Running"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  retries: 15
-  delay: 8
-  ignore_errors: true
-
+  when: '"flannel" not in pod_info.stdout'
