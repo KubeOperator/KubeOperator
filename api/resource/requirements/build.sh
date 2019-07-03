@@ -11,7 +11,7 @@ printf "镜像处理完毕!"
 printf "开始处理rpm"
 for r in $(cat $2);
 do
-  yumdownloader $r
+  yumdownloader --resolve --destdir=/tmp $r
 done
 printf "rpm处理完毕！"
 
