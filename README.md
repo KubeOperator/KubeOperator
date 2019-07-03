@@ -11,39 +11,36 @@
 
 KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，在完全离线环境下实现 K8S 集群的可视化部署及管理。
 
-## 为什么需要 KubeOperator? 
-
-K8S 是未来的 Linux。K8S 高可用集群部署、升级的门槛较高，尤其是在完全离线环境下。
 
 ## KubeOperator 有什么功能？
 
-- [x] 提供 K8S 标准版 及 OpenShift 社区版的离线包仓库；
-- [x] 支持两种部署模式：单节点模式，高可用模式；
+# v1.0
+
+- [x] 提供 K8S 标准版的离线包仓库；
+- [x] 支持两种部署模式：一主多节点模式，多主多节点模式；
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
-- [x] 支持 K8S 常用组件安装，包括 EFK，Harbor，Promethus，Dashboard等；
+- [x] 支持 K8S 常用组件安装，包括 EFK，Registry，Promethus，Dashboard等；
 - [x] 提供简易明了的集群运行状况面板；
 - [x] 支持 NFS 作为外部持久化存储；
 - [x] 支持 vSAN 作为外部持久化存储；
-- [x] 支持 AD/LDAP 对接(仅 OpenShift)；
-- [ ] 支持其他外部持久化存储（比如 Ceph，Gluster等)；
-- [ ] 支持 F5 Big-IP 对接；
+- [x] 支持 Flannel 作为网络方案；
+- [x] 支持集群进行扩容；
+
+# v1.1
+
 - [ ] 支持集群的升级；
-- [ ] 支持集群进行扩容；
+- [ ] 支持节点操作系统补丁升级；
 - [ ] 支持集群的备份及恢复；
-- [ ] 支持调用云平台接口自动创建K8S 集群所需要的主机（仅支持 VMware )；
+- [ ] 支持集群的自动模式: 调用云平台接口自动创建K8S 集群所需要的资源（支持 VMware )；
 
 ## KubeOperator 支持哪些 K8S 版本？
 
 - [x] K8S 1.13.5
-- [x] OpenShift OKD 3.11
 
 ## KubeOperator 背后是谁在支持？
 
 [FIT2CLOUD](https://www.fit2cloud.com) 是 KubeOperator 项目的发起者及核心贡献者。该项目由第一开源堡垒机 [Jumpserver](http://www.jumpserver.org/) 的原班团队打造。
 
-## KubeOperator 的架构
-
-![架构图](https://raw.githubusercontent.com/fit2anything/KubeOperator/master/docs/images/overview.png)
 
 ## 安装 KubeOperator
 
