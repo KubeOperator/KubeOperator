@@ -89,11 +89,11 @@ roles:
       #dashboard
       dashboard_install: true
       dashboard_image: "k8s.gcr.io/kubernetes-dashboard-amd64"
-      dashboard_version: "v1.10.1"
+      dashboard_version: "v1.10.0"
       #heapster
       heapster_install: true
       heapster_version: "v1.5.4"
-      heapster_image: "docker.io/mirrorgooglecontainers/heapster-amd64"
+      heapster_image: "gcr.io/google_containers/heapster-amd64"
       #traefik
       traefik_version: "v1.7.11"
       traefik_image: "docker.io/traefik"
@@ -120,7 +120,7 @@ roles:
 
 templates:
   - name: 一主多节点
-    comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点，可用于准生产环境,同时安装clustet-monitoring、metrics、logging等组件。'
+    comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
     private_vars:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true

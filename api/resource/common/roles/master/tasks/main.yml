@@ -4,7 +4,7 @@
     dest: /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
 
 - name: 安装 ansible
-  shell: rpm -i /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
+  shell: which ansible || rpm -i /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
 
 - name: 清理 tmp
   shell: rm -fr /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
