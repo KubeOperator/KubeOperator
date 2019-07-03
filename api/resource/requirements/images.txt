@@ -1,4 +1,4 @@
-quay.io/external_storage/nfs-client-provisioner:latest
+quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
 docker.elastic.co/kibana/kibana-oss:6.6.1
 docker.io/traefik:v1.7.11
 docker.io/grafana/grafana:5.2.1
