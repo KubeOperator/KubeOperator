@@ -85,8 +85,11 @@ class AdHocResultCallback(CallbackMixin, CallbackModule, CMDCallBackModule):
             dark[host][task_name] = detail
 
     def v2_runner_on_failed(self, result, ignore_errors=False):
-        self.results_summary['success'] = False
-        self.gather_result("failed", result)
+        if ignore_errors:
+            self.gather_result("ignore", result)
+        else:
+            self.results_summary['success'] = False
+            self.gather_result("failed", result)   
         super(CallbackModule, self).v2_runner_on_failed(
             result, ignore_errors=ignore_errors
         )
