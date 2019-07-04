@@ -1,5 +1,4 @@
 wget
-git
 net-tools
 bind-utils
 iptables-services

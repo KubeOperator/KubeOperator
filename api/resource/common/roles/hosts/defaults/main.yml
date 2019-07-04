@@ -1,7 +1,5 @@
 packages:
-  - java-1.8.0-openjdk-headless
   - wget
-  - git
   - net-tools
   - bind-utils
   - iptables-services
