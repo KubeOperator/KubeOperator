@@ -43,6 +43,7 @@
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
+  <clr-dg-column>节点</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
   <clr-dg-column>备注</clr-dg-column>
@@ -53,6 +54,7 @@
       &nbsp;<img [src]="getLogo(cluster.resource)" class="logo">
     </clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
+    <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.comment}}</clr-dg-cell>

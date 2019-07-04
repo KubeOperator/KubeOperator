@@ -8,6 +8,7 @@ from ansible_api.models import Project, Playbook
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,15 @@ class Cluster(Project):
     @property
     def resource_version(self):
         return self.package.meta['version']
+
+    @property
+    def nodes(self):
+        self.change_to()
+        nodes = Node.objects.all().filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
+        n = []
+        for node in nodes:
+            n.append(node.name)
+        return n
 
     def create_storage(self):
         if self.persistent_storage:

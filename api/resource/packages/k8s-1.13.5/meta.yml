@@ -1,4 +1,4 @@
-resource: kubernetes-dbaas
+resource: kubernetes
 version: 1.13.5
 enable_auth: []
 operations:
@@ -18,11 +18,6 @@ operations:
     icon: trash
     event: "uninstall"
     redirect: "deploy"
-
-  - name: node
-    comment: "管理节点"
-    redirect: "node"
-    icon: linode
 playbooks:
   - name:  common-config
     alias: common/common.yml
