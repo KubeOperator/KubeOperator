@@ -62,19 +62,6 @@
   when: '"ingress-controller" not in pod_info.stdout '
 
 - block:
-    - name: 获取 heapster 镜像
-      docker_image:
-        name: "{{registry_prefix}}/{{heapster_image}}:{{heapster_version}}"
-        state: present
-
-    - name: 创建 heapster部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster.yaml"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-  when: '"heapster" not in pod_info.stdout and heapster_install'
-  ignore_errors: true
-
-- block:
     - name: 创建 efk部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/efk"
       delegate_to: "{{ groups['kube-master'][0] }}"
