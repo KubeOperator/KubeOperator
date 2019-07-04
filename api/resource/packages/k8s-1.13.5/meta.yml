@@ -257,7 +257,7 @@ templates:
                 unit: "GB"
                 comment: "无"
   - name: 多主多节点
-    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，1个daemon 节点,3个 Master 节点和至少3个 worker 计算节点。
+    comment: '此部署模型为一主多节点部署模型，包括1个 load balance 节点，1个daemon 节点,3个 Master 节点和至少3个 worker 计算节点。'
     private_vars:
       DEPLOY_MODE: 'multi-master'
       prometheus_install: false
