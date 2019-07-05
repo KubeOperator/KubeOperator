@@ -101,14 +101,13 @@ affinity: {}
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##
 persistence:
-  enabled: false
-  # storageClassName: default
-  # accessModes:
-  #   - ReadWriteOnce
-  # size: 10Gi
-  # annotations: {}
-  # subPath: ""
-  # existingClaim:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
+  subPath: ""
+  existingClaim:
 
 adminUser: admin
 # adminPassword: strongpassword

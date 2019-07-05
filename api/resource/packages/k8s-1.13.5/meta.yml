@@ -137,6 +137,13 @@ templates:
         required: true
         help_text: kubernetes api-server 地址
         display: true
+      - name: APP_DOMAIN
+        alias: 应用域名
+        type: Input
+        default: apps.$cluster_name$domain_suffix
+        required: true
+        help_text: 应用域名
+        display: true
     operations:
       - name: install
         status_change:

@@ -73,8 +73,7 @@ spec:
     spec:
       serviceAccountName: elasticsearch-logging
       containers:
-      #- image: gcr.io/fluentd-elasticsearch/elasticsearch:v6.6.1
-      - image: easzlab/elasticsearch:v6.6.1
+      - image: registry.kubeops.io:8092/gcr.io/fluentd-elasticsearch/elasticsearch:v6.6.1
         name: elasticsearch-logging
         resources:
           # need more cpu upon initialization, therefore burstable class
@@ -101,7 +100,7 @@ spec:
       # If your OS already sets up this number to a higher value, feel free
       # to remove this init container.
       initContainers:
-      - image: alpine:3.6
+      - image: registry.kubeops.io:8092/docker.io/alpine:3.6
         command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
         name: elasticsearch-logging-init
         securityContext:
@@ -111,7 +110,6 @@ spec:
       name: elasticsearch-logging
     spec:
       accessModes: [ "ReadWriteMany" ]
-      storageClassName: "nfs-dynamic-class"
       resources:
         requests:
           storage: 4Gi
