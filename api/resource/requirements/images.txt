@@ -21,4 +21,4 @@ gcr.io/google-containers/pause-amd64:3.1
 docker.io/registry:2
 docker.io/alpine:3.6
 gcr.io/fluentd-elasticsearch/elasticsearch:v6.6.1
-3docker.io/easzlab/es-index-rotator:0.1.
+docker.io/easzlab/es-index-rotator:0.1.3
