@@ -13,16 +13,17 @@
 
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedClusters">
   <clr-dg-action-bar>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
-      <clr-icon shape="plus" size="16"></clr-icon>
-      添加
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
-            [disabled]="selectedClusters.length == 0">
-      <clr-icon shape="close"></clr-icon>
-      删除
-    </button>
-
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        添加
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
+              [disabled]="selectedClusters.length == 0">
+        <clr-icon shape="close"></clr-icon>
+        删除
+      </button>
+    </div>
     <clr-dropdown>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedClusters.length !== 1"
               clrDropdownTrigger>
