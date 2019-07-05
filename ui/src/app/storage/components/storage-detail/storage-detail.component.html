@@ -10,7 +10,7 @@
       <hr/>
       名称:{{item.name}} <br/>
       存储类型:{{item.template}}<br/>
-      创建时间:{{item.date_created}}<br/>
+      创建时间:{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}<br/>
     </div>
     <div *ngIf="storageTemplate">
       <h5>配置信息</h5>

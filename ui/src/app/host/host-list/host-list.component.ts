@@ -33,6 +33,19 @@ export class HostListComponent implements OnInit {
     this.deleteModal = true;
   }
 
+  canSelectedHostsDelete(): boolean {
+    if (this.selectedHosts.length === 0) {
+      return false;
+    }
+    let result = true;
+    this.selectedHosts.forEach(host => {
+      if (host.cluster !== '无') {
+        result = false;
+      }
+    });
+    return result;
+  }
+
   confirmDelete() {
     const promises: Promise<{}>[] = [];
     this.selectedHosts.forEach(host => {

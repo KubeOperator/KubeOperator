@@ -11,14 +11,15 @@
   </div>
 </clr-modal>
 <app-host-info [(showInfoModal)]=showHostInfo (updated)="refresh()"></app-host-info>
-<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts">
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts" (clrDgSelectedChange)="canSelectedHostsDelete()">
   <clr-dg-action-bar>
     <div class="btn-group">
       <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
         <clr-icon shape="plus" size="16"></clr-icon>
         添加
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedHosts.length == 0 "
+      <button type="button" class="btn btn-sm btn-secondary"
+              [disabled]="selectedHosts.length == 0 || !canSelectedHostsDelete()"
               (click)="onDeleted()">
         <clr-icon shape="close"></clr-icon>
         删除
