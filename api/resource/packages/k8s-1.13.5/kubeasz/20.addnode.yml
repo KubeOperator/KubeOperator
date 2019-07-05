@@ -1,0 +1,6 @@
+- host: new_node
+  roles:
+    - prepare
+    - docker
+    - kube-node
+    - flannel

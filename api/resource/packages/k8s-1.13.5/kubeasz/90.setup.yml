@@ -5,12 +5,6 @@
   roles:
     - kube-bin
 
-
-# [optional] to synchronize time of nodes with 'chrony'
-- hosts: all_nodes
-  roles:
-    - role: chrony
-
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: "{{groups['kube-master'][0]}}"
   roles:

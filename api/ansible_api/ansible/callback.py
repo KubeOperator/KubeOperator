@@ -24,7 +24,7 @@ class CallbackMixin:
             ok=defaultdict(dict),
             failed=defaultdict(dict),
             unreachable=defaultdict(dict),
-            skippe=defaultdict(dict),
+            skipped=defaultdict(dict),
         )
         self.results_summary = dict(
             contacted=defaultdict(dict),
@@ -55,6 +55,7 @@ class AdHocResultCallback(CallbackMixin, CallbackModule, CMDCallBackModule):
     """
     Task result Callback
     """
+
     def clean_result(self, t, host, task_name, task_result):
         contacted = self.results_summary["contacted"]
         dark = self.results_summary["dark"]
@@ -89,7 +90,7 @@ class AdHocResultCallback(CallbackMixin, CallbackModule, CMDCallBackModule):
             self.gather_result("ignore", result)
         else:
             self.results_summary['success'] = False
-            self.gather_result("failed", result)   
+            self.gather_result("failed", result)
         super(CallbackModule, self).v2_runner_on_failed(
             result, ignore_errors=ignore_errors
         )
@@ -136,6 +137,3 @@ class PlaybookResultCallBack(AdHocResultCallback):
     Base on the build-in callback plugins of ansible which named `json`.
     """
     pass
-
-
-

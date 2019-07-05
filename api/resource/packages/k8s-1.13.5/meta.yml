@@ -25,6 +25,8 @@ playbooks:
     alias: kubeasz/90.setup.yml
   - name:  uninstall-k8s
     alias: kubeasz/99.clean.yml
+  - name: add-node
+    alias: kubeasz/20.addnode.yml
 roles:
   - name: config
     children:
@@ -151,6 +153,14 @@ templates:
           failed: 'ERROR'
         playbooks:
           - uninstall-k8s
+      - name: add_node
+        status_change:
+          succeed: 'RUNNING'
+          "on": 'INSTALLING'
+          failed: 'ERROR'
+        playbooks:
+          - common-config
+          - add-node
     roles:
       - name: master
         vars:
