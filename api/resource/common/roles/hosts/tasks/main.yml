@@ -31,6 +31,7 @@
     protocol: tcp
     destination_port: "{{item}}"
     jump: ACCEPT
+    action: insert
     comment: "Accept trafic to {{item}}"
   with_items: "{{firewall_tcp_ports}}"
 
@@ -40,6 +41,7 @@
     protocol: udp
     destination_port: "{{item}}"
     jump: ACCEPT
+    action: insert
     comment: "Accept trafic to {{item}}"
   with_items: "{{firewall_udp_ports}}"
 
