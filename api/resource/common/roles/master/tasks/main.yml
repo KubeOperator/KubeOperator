@@ -2,7 +2,7 @@
   yum:
     name: "{{ item }}"
     state: latest
-  with_items: "{{ansible-package}}"
+  with_items: "{{ansible_package}}"
 
 - name: 下载 ansible RPM
   get_url:

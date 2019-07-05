@@ -1,4 +1,4 @@
-ansible-package:
+ansible_package:
   - PyYAML
   - python-cryptography
   - python-httplib2
