@@ -6,7 +6,7 @@
 
 - name: 开机启动dnsmasq
   shell: "systemctl enable {{item}}"
-  with_items: "{{packages}}"
+  with_items: "{{services}}"
 
 - name: 生成 dns 上游配置文件
   template:
