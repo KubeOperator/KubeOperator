@@ -12,7 +12,8 @@
   shell: "{{ bin_dir }}/helm init \
         --service-account {{ tiller_sa }} \
         --tiller-namespace {{ helm_namespace }} \
-        --tiller-image {{registry_prefix}}/{{ tiller_image }}:{{tiller_version}}"
+        --tiller-image {{registry_prefix}}/{{ tiller_image }}:{{tiller_version}} \
+        --skip-refresh"
   ignore_errors: true
 
 - name: 配置helm tls环境变量
