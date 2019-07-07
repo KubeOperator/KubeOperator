@@ -1,10 +1,10 @@
-- name: 删除centos/redhat默认安装
-  yum: 
-    name: 
-      - firewalld
-      - python-firewall
-      - firewalld-filesystem
-    state: absent
+#- name: 删除centos/redhat默认安装
+#  yum:
+#    name:
+#      - firewalld
+#      - python-firewall
+#      - firewalld-filesystem
+#    state: absent
 
 #- name: 添加EPEL仓库
 #  yum: name=epel-release state=present
