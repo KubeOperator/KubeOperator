@@ -44,7 +44,7 @@
     state: enabled
   with_items: "{{firewall_udp_ports}}"
 
-- name: 打开防火墙UDP端口
+- name: 打开防火墙TCP端口
   firewalld:
     port: "{{item}}/tcp"
     permanent: true
