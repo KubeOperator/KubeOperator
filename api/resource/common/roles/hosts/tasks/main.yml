@@ -25,12 +25,6 @@
     state: latest
   with_items: "{{packages}}"
 
-
-- name: 停止 iptables 防火墙
-  service:
-    name: iptables
-    state: stopped
-
 - name: 开启firewalld 防火墙
   service:
     name: firewalld
