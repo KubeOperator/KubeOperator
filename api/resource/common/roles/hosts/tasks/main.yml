@@ -51,6 +51,9 @@
     state: enabled
   with_items: "{{firewall_tcp_ports}}"
 
+- name: 生效防火墙配置
+  shell: "firewall-cmd --reload"
+
 - name: 配置主机名
   hostname:
     name: "{{inventory_hostname}}"

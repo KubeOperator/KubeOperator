@@ -2,7 +2,7 @@ packages:
   - wget
   - net-tools
   - bind-utils
-  - iptables-services
+  - firewalld
   - bridge-utils
   - bash-completion
   - kexec-tools
