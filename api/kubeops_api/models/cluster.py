@@ -5,6 +5,8 @@ from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
+from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
+from kubeops_api.adhoc import fetch_cluster_config
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
@@ -34,6 +36,7 @@ class Cluster(Project):
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+    config_path = models.CharField(max_length=128, blank=True, null=True, default=None)
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
 
     @property
@@ -164,6 +167,13 @@ class Cluster(Project):
             name="::1", vars={"ansible_connection": "local"},
             project=self, meta={"hidden": True}
         )
+
+    def fetch_config(self):
+        self.change_to()
+        master = self.group_set.get(name='master').hosts.first()
+        dest = fetch_cluster_config(master, os.path.join(ANSIBLE_PROJECTS_DIR, self.name))
+        self.config_path = dest
+        self.save()
 
     def on_cluster_create(self):
         self.change_to()

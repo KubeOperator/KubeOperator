@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'kubeops_api.apps.OpenshiftApiConfig',
     'ansible_api.apps.AnsibleApiConfig',
     'celery_api.apps.CeleryApiConfig',
+    'kubernetes_api.apps.KubernetesApiConfig',
     'users.apps.UsersConfig',
     'django_celery_beat',
     'rest_framework',
