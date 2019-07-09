@@ -83,23 +83,6 @@ services:
     volumes:
       - ./docker/nexus/k8s-dbaas:/nexus-data
 
-  dns:
-    container_name: kubeops_dns
-    build: docker/dnsmasq
-    image: kube-operator/dns:1.0.0
-    cap_add:
-        - NET_ADMIN
-    volumes:
-      - dns_data:/etc/dnsmasq.d
-    ports:
-      - 53:53/udp
-      - 53:53/tcp
-    healthcheck:
-      test: ["CMD", "nc","-vuz","localhost","53"]
-      interval: 10s
-      timeout: 5s
-      retries: 10 
-
 volumes:
   api_data:
   mysql_data:
