@@ -281,6 +281,3 @@ LOGGING = {
         },
     },
 }
-CRONJOBS = (
-    ('*/1 * * * *', 'kubeops_api.tasks.test'),
-)
