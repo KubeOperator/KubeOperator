@@ -1,9 +1,17 @@
+import uuid
+
 from django.db import models
 from ansible_api.models import Host as Ansible_Host
 
 
 class Node(Ansible_Host):
     host = models.ForeignKey('Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
+    health_checks = models.ManyToManyField('NodeHealthCheck')
+
+    @property
+    def health_check(self):
+        if self.health_checks:
+            return self.health_checks.first()
 
     @property
     def roles(self):
@@ -59,3 +67,11 @@ class Node(Ansible_Host):
     def get_var(self, key, default):
         return self.vars.get(key, default)
 
+
+class NodeHealthCheck(models.Model):
+    msg = models.CharField(default='No message.', null=True, blank=True, max_length=512)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    docker_version = models.CharField(max_length=128, null=True, blank=True, default='unknown')
+    kernel_version = models.CharField(max_length=128, null=True, blank=True, default='unknown')
+    status = models.CharField(max_length=128, null=True, blank=True, default='unknown')
+    date_created = models.DateTimeField(auto_now_add=True)

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import datetime
-
+from celery.schedules import crontab
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from .conf import load_user_config
 
@@ -281,3 +281,6 @@ LOGGING = {
         },
     },
 }
+CRONJOBS = (
+    ('*/1 * * * *', 'kubeops_api.tasks.test'),
+)
