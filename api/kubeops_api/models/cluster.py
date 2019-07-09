@@ -155,18 +155,13 @@ class Cluster(Project):
         role.save()
 
     def create_node_localhost(self):
-        Node.objects.create(
-            name="localhost", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
-        Node.objects.create(
-            name="127.0.0.1", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
-        Node.objects.create(
-            name="::1", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
+        local_nodes = ['localhost', '127.0.0.1', '::1']
+        for name in local_nodes:
+            node = Node.objects.create(
+                name=name, vars={"ansible_connection": "local"},
+                project=self, meta={"hidden": True},
+            )
+            node.set_groups(group_names=['config'])
 
     def fetch_config(self):
         self.change_to()
