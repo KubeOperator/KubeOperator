@@ -28,9 +28,6 @@ playbooks:
   - name: add-node
     alias: kubeasz/20.addnode.yml
 roles:
-  - name: config
-    children:
-      - kubeasz
   - name: cluster_nodes
     children:
       - master
@@ -51,7 +48,7 @@ roles:
       - master
     meta:
       hidden: true
-  - name: kubeasz
+  - name: config
     children:
       - master
       - worker
