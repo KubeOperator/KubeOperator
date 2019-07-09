@@ -1,0 +1,13 @@
+- name: 添加父级解析记录
+  lineinfile:
+    path: /etc/dnsmasq.d/kubeops.dns.conf
+    regexp: '{{MASTER_IP[MASTER_IP.index(".")+1:]}}'
+    line: 'server=/{{MASTER_IP[MASTER_IP.index(".")+1:]}}/{{ hostvars[groups["daemon"][0]]["ansible_ssh_host"]}}'
+
+- name: 重启生效dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted
+
+
+
