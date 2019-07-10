@@ -1,6 +1,5 @@
 service:
-  type: NodePort
-  nodePort: 39002
+  type: ClusterIP
 
 adminUser: admin
 adminPassword: admin

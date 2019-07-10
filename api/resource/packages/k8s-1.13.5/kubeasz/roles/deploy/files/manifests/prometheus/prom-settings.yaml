@@ -2,15 +2,13 @@ alertmanager:
   persistentVolume:
     enabled: true
   service:
-    type: NodePort
-    nodePort: 39001
+    type: ClusterIP
 
 server:
   persistentVolume:
     enabled: true
   service:
-    type: NodePort
-    nodePort: 39000
+    type: ClusterIP
 
 pushgateway:
   enabled: false

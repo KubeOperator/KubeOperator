@@ -91,6 +91,9 @@
   ignore_errors: true
 
 - block:
+    - name: 拷贝 grafana values文件
+      template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
+
     - name: 部署 grafana
       shell: "helm install --name f2c-grafana --namespace monitoring \
          -f grafana-settings.yaml \
