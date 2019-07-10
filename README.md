@@ -44,7 +44,8 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 v2.0
 
-- [ ] Multi-AZ支持。
+- [ ] Multi-AZ支持;
+- [ ] NSX-T 支持;
 
 
 ## KubeOperator 支持哪些 K8S 版本？
