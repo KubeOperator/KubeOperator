@@ -22,3 +22,5 @@ docker.io/registry:2
 docker.io/alpine:3.6
 gcr.io/fluentd-elasticsearch/elasticsearch:v6.6.1
 docker.io/easzlab/es-index-rotator:0.1.3
+quay.io/coreos/kube-state-metrics:v1.4.0
+appropriate/curl:edge
