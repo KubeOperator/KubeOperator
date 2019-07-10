@@ -815,7 +815,7 @@ serverFiles:
           key_file: /etc/etcd/ssl/etcd-key.pem
           cert_file: /etc/etcd/ssl/etcd.pem
         static_configs:
-          - targets: ['172.16.10.52:2379']
+          - targets: ["hostvars[groups['master'][0]]['ansible_default_ipv4']['address']:2379"]
 
       # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)

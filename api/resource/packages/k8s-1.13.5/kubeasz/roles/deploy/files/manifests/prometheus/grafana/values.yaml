@@ -103,7 +103,7 @@ affinity: {}
 persistence:
   enabled: true
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   size: 10Gi
   annotations: {}
   subPath: ""

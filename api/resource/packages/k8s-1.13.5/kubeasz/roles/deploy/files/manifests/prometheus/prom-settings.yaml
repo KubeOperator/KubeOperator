@@ -1,13 +1,13 @@
 alertmanager:
   persistentVolume:
-    enabled: false
+    enabled: true
   service:
     type: NodePort
     nodePort: 39001
 
 server:
   persistentVolume:
-    enabled: false
+    enabled: true
   service:
     type: NodePort
     nodePort: 39000
@@ -17,4 +17,4 @@ pushgateway:
 
 kubeStateMetrics:
   image:
-    repository: mirrorgooglecontainers/kube-state-metrics
+    repository: registry.kubeops.io:8092/quay.io/coreos/kube-state-metrics

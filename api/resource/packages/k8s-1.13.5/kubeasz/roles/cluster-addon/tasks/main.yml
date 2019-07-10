@@ -62,23 +62,42 @@
   when: '"ingress-controller" not in pod_info.stdout '
 
 - block:
-    - name: 创建 namespace
+    - name: 创建 monitoring namespace
       shell: "kubectl create ns monitoring"
       ignore_error: yes
 
-    - name: 创建 prometheus 部署
-      shell: "helm install --name f2c-prometheus --namespace monitoring ."
+    - name: 创建 etcd 监控 secrets
+      shell: "kubectl -n monitoring create secret generic etcd-secret-files \
+          --from-file=/etc/kubernetes/ssl/ca.pem \
+          --from-file=/etc/etcd/ssl/etcd.pem \
+          --from-file=/etc/etcd/ssl/etcd-key.pem"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      ignore_error: yes
+
+    - name: 拷贝 prometheus values文件
+      template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
+
+    - name: 部署 prometheus
+      shell: "helm install --name f2c-prometheus --namespace monitoring \
+          -f prom-settings.yaml \
+          -f prom-alertsmanager.yaml \
+          -f prom-alertrules.yaml \
+          ./prometheus"
       args:
-        chdir: "{{ base_dir }}/manifests/prometheus/prometheus"
+        chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"prometheus" not in pod_info.stdout and prometheus_install'
   ignore_errors: true
+
 - block:
-    - name: 创建 grafana 部署
-      shell: "helm install --name f2c-grafana  --namespace monitoring ."
+    - name: 部署 grafana
+      shell: "helm install --name f2c-grafana --namespace monitoring \
+         -f grafana-settings.yaml \
+         -f grafana-dashboards.yaml \
+         ./grafana"
       args:
-        chdir: "{{ base_dir }}/manifests/prometheus/grafana"
+        chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"grafana" not in pod_info.stdout and grafana_install'

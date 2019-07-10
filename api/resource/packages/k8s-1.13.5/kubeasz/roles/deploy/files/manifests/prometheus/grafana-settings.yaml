@@ -3,7 +3,7 @@ service:
   nodePort: 39002
 
 adminUser: admin
-adminPassword: admin
+adminPassword: fit2cloud.com
 
 datasources:
   datasources.yaml:
@@ -13,7 +13,7 @@ datasources:
       type: prometheus
       #url: http:// + 集群里prometheus-server的服务名
       #可以用 kubectl get svc --all-namespaces |grep prometheus-server查看
-      url: http://monitor-prometheus-server
+      url: http://f2c-prometheus-server
       access: proxy
       isDefault: true
 
@@ -29,4 +29,3 @@ dashboardProviders:
       editable: true
       options:
         path: /var/lib/grafana/dashboards
-
