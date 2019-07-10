@@ -115,10 +115,11 @@ roles:
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
+
     private_vars:
       DEPLOY_MODE: 'single-master'
-      prometheus_install: false
-      grafana_install: false
+      prometheus_install: true
+      grafana_install: true
     private_config:
       - name: MASTER_IP
         alias: 域名
