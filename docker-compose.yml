@@ -81,7 +81,7 @@ services:
       - 8082:8081
       - 8092:8092
     volumes:
-      - ./docker/nexus/k8s-dbaas:/nexus-data
+      - ./docker/nexus/k8s:/nexus-data
 
 volumes:
   api_data:
