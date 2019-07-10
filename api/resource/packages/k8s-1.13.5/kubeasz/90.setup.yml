@@ -80,7 +80,7 @@
 
 # to install cluster-addons
 - hosts:
-    - cluster_nodes
+    -  "{{groups['kube-master'][0]}}"
   roles:
     - cluster-addon
 

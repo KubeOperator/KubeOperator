@@ -64,7 +64,7 @@
 - block:
     - name: 创建 monitoring namespace
       shell: "kubectl create ns monitoring"
-      ignore_error: yes
+      ignore_errors: true
 
     - name: 创建 etcd 监控 secrets
       shell: "kubectl -n monitoring create secret generic etcd-secret-files \
@@ -72,7 +72,7 @@
           --from-file=/etc/etcd/ssl/etcd.pem \
           --from-file=/etc/etcd/ssl/etcd-key.pem"
       delegate_to: "{{ groups['kube-master'][0] }}"
-      ignore_error: yes
+      ignore_errors: true
 
     - name: 拷贝 prometheus values文件
       template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
