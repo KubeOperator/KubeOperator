@@ -128,7 +128,7 @@ def create_or_update_periodic_task(tasks, pk=None):
         )
 
         task = PeriodicTask.objects.update_or_create(
-            defaults=defaults, id=name,
+            defaults=defaults, name=name,
         )
         return task
 
