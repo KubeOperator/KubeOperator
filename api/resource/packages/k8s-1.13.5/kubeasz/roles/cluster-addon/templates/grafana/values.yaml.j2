@@ -61,14 +61,14 @@ service:
   labels: {}
 
 ingress:
-  enabled: false
+  enabled: true
   annotations: {}
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   labels: {}
   path: /
   hosts:
-    - chart-example.local
+    - grafana.{{ APP_DOMAIN }}
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

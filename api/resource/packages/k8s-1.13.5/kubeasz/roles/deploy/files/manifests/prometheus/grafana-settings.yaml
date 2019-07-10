@@ -1,9 +1,8 @@
 service:
-  type: NodePort
-  nodePort: 39002
+  type: ClusterIP
 
 adminUser: admin
-adminPassword: fit2cloud.com
+adminPassword: admin
 
 datasources:
   datasources.yaml:
