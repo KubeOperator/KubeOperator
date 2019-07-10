@@ -3,7 +3,7 @@ service:
   nodePort: 39002
 
 adminUser: admin
-adminPassword: fit2cloud.com
+adminPassword: admin
 
 datasources:
   datasources.yaml:

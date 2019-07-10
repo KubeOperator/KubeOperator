@@ -40,8 +40,8 @@ securityContext:
   fsGroup: 472
 
 downloadDashboardsImage:
-  repository: appropriate/curl
-  tag: latest
+  repository: registry.kubeops.io:8092/appropriate/curl
+  tag: edge
   pullPolicy: IfNotPresent
 
 ## Pod Annotations
