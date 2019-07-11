@@ -39,9 +39,16 @@ function build_and_save_images() {
     done
 }
 
+function download_resources() {
+    NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
+    NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
+    tar -zxvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH}
+    chown -R 200 ${NEXUS_DATA_PATH}
+    rm -fr ${NEXUS_TAR_PATH}
+}
 
 function main() {
-    download_docker && build_and_save_images  || exit 10
+    download_docker && build_and_save_images && download_resources || exit 10
 }
 
 main
