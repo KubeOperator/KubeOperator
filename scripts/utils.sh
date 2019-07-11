@@ -5,9 +5,9 @@ SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
 function get_images(){
     images=(
-       "redis:alpine"
-       "mysql:5"
-       "nginx:alpine"
+       "docker.io/redis:alpine"
+       "docker.io/mysql:5"
+       "docker.io/nginx:alpine"
        "registry.fit2cloud.com/public/nexus-helm:latest"
        "kubeOperator/api:1.0.0"
        "kubeOperator/ui:1.0.0"

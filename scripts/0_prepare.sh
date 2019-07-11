@@ -31,11 +31,11 @@ function build_and_save_images() {
 
     echo ">>> 开始保存镜像"
     for image in ${images};do
-        if [[ ! ${image} =~ 'kubeops' ]];then
+        if [[ ! ${image} =~ 'kubeOperator' ]];then
             docker pull ${image}
         fi
         filename=$(basename ${image}).tar
-        docker save -o ${IMAGE_DIR}/${filename} | gzip -c > ${image}
+        docker save ${image} | gzip -c > ${IMAGE_DIR}/${filename}
     done
 }
 
