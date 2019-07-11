@@ -1,5 +1,4 @@
 quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
-docker.elastic.co/kibana/kibana-oss:6.6.1
 docker.io/traefik:v1.7.11
 docker.io/grafana/grafana:5.2.1
 quay.io/prometheus/alertmanager:v0.15.2
@@ -14,13 +13,10 @@ gcr.io/google_containers/heapster-amd64:v1.5.4
 gcr.io/google_containers/heapster-influxdb-amd64:v1.5.2
 gcr.io/kubernetes-helm/tiller:v2.12.3
 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0
-k8s.gcr.io/fluentd-elasticsearch:v2.4.0
 k8s.gcr.io/metrics-server-amd64:v0.3.2
 quay.io/coreos/configmap-reload:v0.0.1
 gcr.io/google-containers/pause-amd64:3.1
 docker.io/registry:2
 docker.io/alpine:3.6
-gcr.io/fluentd-elasticsearch/elasticsearch:v6.6.1
-docker.io/easzlab/es-index-rotator:0.1.3
 quay.io/coreos/kube-state-metrics:v1.4.0
 appropriate/curl:edge
