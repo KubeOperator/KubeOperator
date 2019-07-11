@@ -39,19 +39,9 @@ function build_and_save_images() {
     done
 }
 
-function download_resources() {
-    echo ">>> 开始下载resource"
-    NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
-
-    if [[ ! -f "${NEXUS_TAR_PATH}" ]];then
-        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
-    elif [[ $(du -sh ${NEXUS_TAR_PATH} | grep 'G' | awk -F. '{ print $1 }') -lt 5 ]];then
-        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
-    fi
-}
 
 function main() {
-    download_docker && build_and_save_images && download_resources || exit 10
+    download_docker && build_and_save_images  || exit 10
 }
 
 main
