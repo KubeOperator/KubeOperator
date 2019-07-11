@@ -58,8 +58,6 @@ alertmanager:
   ##
   extraEnv: {}
 
-  ## ConfigMap override where fullname is {{.Release.Name}}-{{.Values.alertmanager.configMapOverrideName}}
-  ## Defining configMapOverrideName will cause templates/alertmanager-configmap.yaml
   ## to NOT generate a ConfigMap resource
   ##
   configMapOverrideName: ""
@@ -518,7 +516,6 @@ server:
       secretName: etcd-secret-files
       readOnly: true
 
-  ## ConfigMap override where fullname is {{.Release.Name}}-{{.Values.server.configMapOverrideName}}
   ## Defining configMapOverrideName will cause templates/server-configmap.yaml
   ## to NOT generate a ConfigMap resource
   ##
@@ -815,7 +812,7 @@ serverFiles:
           key_file: /etc/etcd/ssl/etcd-key.pem
           cert_file: /etc/etcd/ssl/etcd.pem
         static_configs:
-          - targets: ["hostvars[groups['master'][0]]['ansible_default_ipv4']['address']:2379"]
+          - targets: ["{{hostvars[groups['master'][0]]['ansible_default_ipv4']['address']}}:2379"]
 
       # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)
