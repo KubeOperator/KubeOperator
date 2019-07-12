@@ -24,6 +24,8 @@ services:
     restart: always
     privileged: true
     tty: true
+    dns:
+      - "127.0.0.1"
     volumes:
       - api_data:/opt/kube-operator-api/data
       - dns_data:/etc/dnsmasq.d
