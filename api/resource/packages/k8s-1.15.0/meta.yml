@@ -163,6 +163,7 @@ roles:
 
 
 
+
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
@@ -241,13 +242,13 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 4
-                excellent: 8
+                minimal: 2
+                excellent: 4
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 8
+                minimal: 4
                 excellent: 16
                 unit: "GB"
                 comment: "无"
@@ -274,14 +275,14 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 2
-                excellent: 4
+                minimal: 1
+                excellent: 2
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 4
-                excellent: 8
+                minimal: 2
+                excellent: 4
                 unit: "GB"
                 comment: "无"
       - name: worker
@@ -307,13 +308,13 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 4
+                minimal: 2
                 excellent: 8
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 16
+                minimal: 8
                 excellent: 32
                 unit: "GB"
                 comment: "无"
@@ -378,14 +379,14 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 2
-                excellent: 4
+                minimal: 1
+                excellent: 2
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 4
-                excellent: 8
+                minimal: 2
+                excellent: 4
                 unit: "GB"
                 comment: "无"
       - name: lb
@@ -444,13 +445,13 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 4
-                excellent: 8
+                minimal: 2
+                excellent: 4
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 8
+                minimal: 4
                 excellent: 16
                 unit: "GB"
                 comment: "无"
@@ -477,14 +478,15 @@ templates:
             device_require:
               - name: "cpu_core"
                 verbose: "CPU 核心数"
-                minimal: 4
+                minimal: 2
                 excellent: 8
                 comment: "无"
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 16
+                minimal: 8
                 excellent: 32
                 unit: "GB"
                 comment: "无"
+
 
