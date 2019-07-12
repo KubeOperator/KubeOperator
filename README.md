@@ -5,8 +5,6 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-
-
 ## 什么是 KubeOperator？
 
 KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，在完全离线环境下实现 K8S 集群的可视化部署及管理。
@@ -32,7 +30,6 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 - [x] 支持 NFS 作为外部持久化存储；
 - [x] 支持 Flannel 作为网络方案；
 
-
  v1.1
 
 - [ ] 支持集群扩容；
@@ -47,17 +44,6 @@ v2.0
 - [ ] 支持 Multi-AZ；
 - [ ] 支持 VMware NSX-T；
 
-
-## KubeOperator 支持哪些 K8S 版本？
-
-- [x] K8S 1.13.*
-- [x] K8S 1.15.*
-
-## KubeOperator 背后是谁在支持？
-
-[FIT2CLOUD](https://www.fit2cloud.com) 是 KubeOperator 项目的发起者及核心贡献者。该项目由第一开源堡垒机 [Jumpserver](http://www.jumpserver.org/) 的原班团队打造。
-
-
 ## 安装 KubeOperator
 
  [安装手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/install.md)
@@ -65,13 +51,13 @@ v2.0
 ## 使用 KubeOperator
 
  [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
- 
+
+## 致谢
+
+- 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 K8S Ansible 脚本.
+
 ## License & Copyright
 
 Copyright (c) 2014-2019 FIT2CLOUD 飞致云
 
 KubeOperator is licensed under the Apache License, Version 2.0.
-
-## 致谢
-
-- 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 K8S Ansible 脚本.
