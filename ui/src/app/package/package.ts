@@ -19,9 +19,10 @@ export class Package {
   }
 }
 
-export class Component {
-  name: string;
-  version: string;
+export class Components {
+  kubernetes: string;
+  etcd: string;
+  docker: string;
 }
 
 export class Image {
@@ -33,7 +34,7 @@ export class PackageMeta {
   resource: string;
   version: string;
   templates: Template[];
-  components: Component[];
+  components: Components;
   images: Image[];
 }
 

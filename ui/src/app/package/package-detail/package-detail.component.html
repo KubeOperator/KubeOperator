@@ -1,5 +1,5 @@
 <clr-modal [(clrModalOpen)]="showInfoModal" [clrModalSize]="'lg'" [clrModalClosable]=false>
-  <h3 class="modal-title">主机信息</h3>
+  <h3 class="modal-title">离线包详情</h3>
   <div class="modal-body">
     <div *ngIf="currentPackage === null">
       暂无信息！
@@ -7,14 +7,9 @@
     <div *ngIf="currentPackage!=null">
       <h5>系统组件</h5>
       <hr/>
-      <clr-datagrid>
-        <clr-dg-column>组件名称</clr-dg-column>
-        <clr-dg-column>版本</clr-dg-column>
-        <clr-dg-row *clrDgItems="let component of currentPackage.meta.components" [clrDgItem]="component">>
-          <clr-dg-cell>{{component.name}}</clr-dg-cell>
-          <clr-dg-cell>{{component.version}}</clr-dg-cell>
-        </clr-dg-row>
-      </clr-datagrid>
+      kubernetes: {{currentPackage.meta.components.kubernetes}}<br/>
+      etcd: {{currentPackage.meta.components.etcd}} <br/>
+      docker:{{currentPackage.meta.components.docker}}<br/>
       <h5>镜像</h5>
       <hr/>
       <clr-datagrid>
