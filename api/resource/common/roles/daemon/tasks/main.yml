@@ -26,7 +26,7 @@
 - name: 生成 chrony server 配置文件
   template:
     src: chrony.conf.j2
-    dest: /etc/chrony.conf.j2
+    dest: /etc/chrony.conf
 
 - name: 生效 chrony server 配置
   service:
