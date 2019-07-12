@@ -83,7 +83,7 @@ spec:
           name: registry
           protocol: TCP
       - name: registry-ui
-        image: registry.kubeops.io:8092/konradkleine/docker-registry-frontend:v2
+        image: registry.kubeops.io:8092/docker.io/konradkleine/docker-registry-frontend:v2
         env:
         - name: ENV_DOCKER_REGISTRY_HOST
           value: "localhost"
