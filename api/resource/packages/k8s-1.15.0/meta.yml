@@ -119,8 +119,8 @@ roles:
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
-      base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
-      kube_version: "1.13.5"
+      base_dir: "/opt/kubeOperator-kube-bin/1.15.0"
+      kube_version: "1.15.0"
       repo_port: 8082
       registry_prefix: "registry.kubeops.io:8092"
       #dns

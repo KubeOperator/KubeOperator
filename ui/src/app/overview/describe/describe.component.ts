@@ -15,7 +15,8 @@ export class DescribeComponent implements OnInit {
   @Input() currentCluster: Cluster;
   portals: Portal[] = [];
 
-  constructor(private packageService: PackageService, private roleService: ClusterRoleService, private clusterStatusService: ClusterStatusService) {
+  constructor(private packageService: PackageService, private roleService: ClusterRoleService,
+              private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {

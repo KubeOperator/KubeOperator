@@ -7,12 +7,15 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config
+from kubeops_api.components import generate_grafana_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
 from django.db.models import Q
+from common import models as common_models
 
 logger = logging.getLogger(__name__)
+__all__ = ["Cluster"]
 
 
 class Cluster(Project):
@@ -47,6 +50,13 @@ class Cluster(Project):
     @property
     def resource(self):
         return self.package.meta['resource']
+
+    @property
+    def grafana(self):
+        result = {}
+        if self.status == Cluster.CLUSTER_STATUS_RUNNING:
+            result = generate_grafana_urls(self)
+        return result
 
     @property
     def operations(selfs):
@@ -169,6 +179,9 @@ class Cluster(Project):
         dest = fetch_cluster_config(master, os.path.join(ANSIBLE_PROJECTS_DIR, self.name))
         self.config_path = dest
         self.save()
+
+    def node_health_check(self):
+        self.change_to()
 
     def on_cluster_create(self):
         self.change_to()

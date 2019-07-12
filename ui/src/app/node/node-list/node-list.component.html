@@ -1,8 +1,8 @@
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
     <!--<button type="button" class="btn btn-sm btn-secondary" (click)="addNewNode()">-->
-      <!--<clr-icon shape="plus" size="16"></clr-icon>-->
-      <!--添加-->
+    <!--<clr-icon shape="plus" size="16"></clr-icon>-->
+    <!--添加-->
     <!--</button>-->
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
@@ -11,6 +11,8 @@
   <clr-dg-column>内存(MB)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
   <clr-dg-column>角色</clr-dg-column>
+  <clr-dg-column>监控</clr-dg-column>
+
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
     <clr-dg-cell>{{node.name}}</clr-dg-cell>
@@ -19,6 +21,9 @@
     <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_os}} {{node.host_os_version}}</clr-dg-cell>
     <clr-dg-cell>{{node.roles}}</clr-dg-cell>
+    <clr-dg-cell><a target="_blank" [href]="get_grafana_url(node)"><img width="20px" height="20px"
+                                                                        src="assets/images/grafana_icon.svg"></a>
+    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

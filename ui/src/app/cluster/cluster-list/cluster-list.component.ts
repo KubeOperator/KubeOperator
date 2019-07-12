@@ -90,6 +90,10 @@ export class ClusterListComponent implements OnInit {
     return this.clusterStatusService.getComment(status);
   }
 
+  get_grafana_url(cluster: Cluster): string {
+    return this.clusterService.get_cluster_grafana(cluster);
+  }
+
   redirect(cluster_name: string, url: string) {
     if (url) {
       const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];

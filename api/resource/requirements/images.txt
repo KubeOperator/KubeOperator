@@ -19,4 +19,5 @@ gcr.io/google-containers/pause-amd64:3.1
 docker.io/registry:2
 docker.io/alpine:3.6
 quay.io/coreos/kube-state-metrics:v1.4.0
+docker.io/konradkleine/docker-registry-frontend:v2
 appropriate/curl:edge

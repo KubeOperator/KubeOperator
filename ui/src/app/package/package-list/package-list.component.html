@@ -12,8 +12,7 @@
   <clr-dg-column>docker版本</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-row *ngFor="let package of packages" [clrDgItem]="package">
-    <clr-dg-cell style="cursor: pointer;"><a (click)="onShowDetail(package)">{{package.meta.resource}}&nbsp;<img
-      [src]="getLogo(package)" class="logo"></a>
+    <clr-dg-cell style="cursor: pointer;"><a (click)="onShowDetail(package)">{{package.meta.resource}}</a>
     </clr-dg-cell>
     <clr-dg-cell>{{package.meta.components.kubernetes}}</clr-dg-cell>
     <clr-dg-cell>{{package.meta.components.etcd}}</clr-dg-cell>

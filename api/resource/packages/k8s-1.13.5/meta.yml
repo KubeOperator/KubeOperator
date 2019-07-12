@@ -1,6 +1,57 @@
-resource: kubernetes
+resource: kubernetes-1.13.5
 version: 1.13.5
 enable_auth: []
+components:
+  kubernetes: 1.13.5
+  etcd: 3.3.10
+  docker: docker-ce-18.09.2
+images:
+  - name: quay.io/external_storage/nfs-client-provisioner
+    tag: v3.1.0-k8s1.11
+  - name: docker.io/traefik
+    tag: v1.7.11
+  - name: docker.io/grafana/grafana
+    tag: 5.2.1
+  - name: quay.io/prometheus/alertmanager
+    tag: v0.15.2
+  - name: docker.io/busybox
+    tag: 1.31.0
+  - name: quay.io/prometheus/node-exporter
+    tag: v0.15.2
+  - name: quay.io/prometheus/prometheus
+    tag: v2.4.3
+  - name: quay.io/prometheus/pushgateway
+    tag: v0.5.2
+  - name: docker.io/coredns/coredns
+    tag: 1.5.0
+  - name: quay.io/coreos/flannel
+    tag: v0.11.0-amd64
+  - name: gcr.io/google_containers/heapster-grafana-amd64
+    tag: v4.4.3
+  - name: gcr.io/google_containers/heapster-amd64
+    tag: v1.5.4
+  - name: gcr.io/google_containers/heapster-influxdb-amd64
+    tag: v1.5.2
+  - name: gcr.io/kubernetes-helm/tiller
+    tag: v2.12.3
+  - name: k8s.gcr.io/kubernetes-dashboard-amd64
+    tag: v1.10.0
+  - name: k8s.gcr.io/metrics-server-amd64
+    tag: v0.3.2
+  - name: quay.io/coreos/configmap-reload
+    tag: v0.0.1
+  - name: gcr.io/google-containers/pause-amd64
+    tag: 3.1
+  - name: docker.io/registry
+    tag: 2
+  - name: docker.io/alpine
+    tag: 3.6
+  - name: quay.io/coreos/kube-state-metrics
+    tag: v1.4.0
+  - name: appropriate/curl
+    tag: edge
+  - name: docker.io/konradkleine/docker-registry-frontend
+    tag: v2
 operations:
   - name: install
     display_on:

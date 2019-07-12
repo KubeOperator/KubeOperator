@@ -2,13 +2,12 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ClarityModule, ClrFormsDeprecatedModule} from '@clr/angular';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {RouterModule} from '@angular/router';
 import {NgxEchartsModule} from 'ngx-echarts';
-import {BaseModule} from '../base/base.module';
-import {TipModule} from '../tip/tip.module';
+
 
 
 @NgModule({
@@ -20,6 +19,7 @@ import {TipModule} from '../tip/tip.module';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    HttpClientJsonpModule,
     BrowserAnimationsModule,
     BrowserModule,
     RouterModule,
@@ -32,6 +32,7 @@ import {TipModule} from '../tip/tip.module';
     ReactiveFormsModule,
     RouterModule,
     HttpClientModule,
+    HttpClientJsonpModule,
     ClrFormsDeprecatedModule,
     BrowserModule,
     NgxEchartsModule,

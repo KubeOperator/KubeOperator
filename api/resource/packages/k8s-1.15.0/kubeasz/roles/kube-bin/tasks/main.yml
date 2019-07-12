@@ -2,7 +2,7 @@
 
 - name: Create some directory for doing work in
   file:
-    path: "/opt/kubeOperator-kube-bin/1.13.5"
+    path: "/opt/kubeOperator-kube-bin/1.15.0"
     state: "directory"
   register: temp
 
@@ -11,7 +11,7 @@
 
 - name: Download bin kube file
   get_url:
-    url: "http://{{local_hostname}}:8082/repository/raw/1.13.5/k8s.1-13-5.tar.gz"
+    url: "http://{{local_hostname}}:8082/repository/raw/1.15.0/k8s.1-13-5.tar.gz"
     dest: "{{temp.path}}/k8s.1-13-5.tar.gz"
 
 - name: Unarchive package
