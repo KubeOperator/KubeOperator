@@ -7,8 +7,8 @@
 - name: 添加泛域名解析
   lineinfile:
     path: /etc/dnsmasq.d/kubeops.dns.conf
-    regexp: 'server=/{{APP_DOMAIN}}'
-    line: 'server=/{{APP_DOMAIN}}/{{ hostvars[groups["daemon"][0]]["ansible_ssh_host"]}}'
+    regexp: 'address=/{{APP_DOMAIN}}'
+    line: 'address=/{{APP_DOMAIN}}/{{ hostvars[groups["daemon"][0]]["ansible_ssh_host"]}}'
 
 - name: 重启生效dnsmasq
   service:
