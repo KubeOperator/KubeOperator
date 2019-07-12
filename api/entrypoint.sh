@@ -12,6 +12,7 @@ trap cleanup EXIT
 if [[ "$1" == "bash" ]];then
     bash
 else
+    service dnsmasq start
     python kubeops.py start
 fi
 

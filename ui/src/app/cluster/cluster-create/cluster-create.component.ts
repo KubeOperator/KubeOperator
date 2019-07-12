@@ -301,6 +301,10 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return result;
   }
 
+  canStorageNext() {
+    return this.cluster.persistent_storage != null;
+  }
+
   configCluster() {
     const promises: Promise<{}>[] = [];
     if (this.configs) {

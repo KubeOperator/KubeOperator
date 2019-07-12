@@ -43,6 +43,9 @@ export class NodeService {
 
   get_grafana_url(nodeIp: string, cluster: Cluster): string {
     const base = cluster.grafana['nodes_grafana'];
+    if (!base) {
+      return null;
+    }
     return `${base}?orgId=1&var-server=${nodeIp}:9100`;
   }
 }

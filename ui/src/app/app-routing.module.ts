@@ -11,8 +11,6 @@ import {ClusterDetailComponent} from './cluster/cluster-detail/cluster-detail.co
 import {OverviewComponent} from './overview/overview.component';
 import {NodeComponent} from './node/node.component';
 import {LogComponent} from './log/log.component';
-import {ConfigComponent} from './config/config.component';
-import {MonitorComponent} from './monitor/monitor.component';
 import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.service';
 import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
@@ -41,8 +39,7 @@ const routes: Routes = [
         component: ClusterDetailComponent,
         resolve: {cluster: ClusterRoutingResolverService},
         children: [
-          {path: '', redirectTo: 'overview', pathMatch: 'full'},
-          {path: 'overview', component: OverviewComponent},
+          {path: '', redirectTo: 'node', pathMatch: 'full'},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
           {path: 'auth', component: AuthComponent},

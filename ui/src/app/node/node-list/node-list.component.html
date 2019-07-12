@@ -21,8 +21,15 @@
     <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_os}} {{node.host_os_version}}</clr-dg-cell>
     <clr-dg-cell>{{node.roles}}</clr-dg-cell>
-    <clr-dg-cell><a target="_blank" [href]="get_grafana_url(node)"><img width="20px" height="20px"
-                                                                        src="assets/images/grafana_icon.svg"></a>
+    <clr-dg-cell>
+      <div *ngIf="get_grafana_url(node)">
+        <a target="_blank" [href]="get_grafana_url(node)"><img width="20px" height="20px"
+                                                               src="assets/images/grafana_icon.svg"></a>
+      </div>
+      <div *ngIf="!get_grafana_url(node)">
+        不可用
+      </div>
+
     </clr-dg-cell>
   </clr-dg-row>
 
