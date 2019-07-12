@@ -8,7 +8,7 @@
   lineinfile:
     path: /etc/dnsmasq.d/kubeops.dns.conf
     regexp: 'address=/{{APP_DOMAIN}}'
-    line: 'address=/{{APP_DOMAIN}}/{{ hostvars[groups["daemon"][0]]["ansible_ssh_host"]}}'
+    line: 'address=/{{APP_DOMAIN}}/{{ hostvars[groups["master"][0]]["ansible_ssh_host"]}}'
 
 - name: 重启生效dnsmasq
   service:
