@@ -31,6 +31,10 @@ spec:
     port: 5000
     nodePort: 30003
     protocol: TCP
+  - name: registry-ui
+    port: 80
+    protocol: TCP
+    nodePort: 30004
 
 ---
 
@@ -76,6 +80,17 @@ spec:
           mountPath: /auth
         ports:
         - containerPort: 5000
+          name: registry
+          protocol: TCP
+      - name: registry-ui
+        image: registry.kubeops.io:8092/konradkleine/docker-registry-frontend:v2
+        env:
+        - name: ENV_DOCKER_REGISTRY_HOST
+          value: "localhost"
+        - name: ENV_DOCKER_REGISTRY_PORT
+          value: "5000"
+        ports:
+        - containerPort: 80
           name: registry
           protocol: TCP
       volumes:
