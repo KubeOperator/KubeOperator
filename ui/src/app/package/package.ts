@@ -19,10 +19,22 @@ export class Package {
   }
 }
 
+export class Component {
+  name: string;
+  version: string;
+}
+
+export class Image {
+  name: string;
+  tag: string;
+}
+
 export class PackageMeta {
   resource: string;
   version: string;
   templates: Template[];
+  components: Component[];
+  images: Image[];
 }
 
 export class Config {

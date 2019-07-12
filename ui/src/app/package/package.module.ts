@@ -6,9 +6,10 @@ import {SharedModule} from '../shared/shared.module';
 import {PackageListComponent} from './package-list/package-list.component';
 import {CoreModule} from '../core/core.module';
 import {TipModule} from '../tip/tip.module';
+import { PackageDetailComponent } from './package-detail/package-detail.component';
 
 @NgModule({
-  declarations: [PackageComponent, PackageListComponent],
+  declarations: [PackageComponent, PackageListComponent, PackageDetailComponent],
   imports: [
     CommonModule,
     SharedModule,
