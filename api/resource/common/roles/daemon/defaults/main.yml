@@ -1,10 +1,8 @@
 packages:
   - dnsmasq
   - chrony
-  - nginx
 services:
   - dnsmasq
   - chronyd
-  - nginx
 dns_default_public_server: 114.114.114.114
 dns_repository_hostname: registry.kubeops.io
