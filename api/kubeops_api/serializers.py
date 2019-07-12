@@ -207,7 +207,7 @@ class ClusterSerializer(ProjectSerializer):
         queryset=Storage.objects.all(),
         slug_field='name', required=False
     )
-    grafana = serializers.JSONField()
+    grafana = serializers.JSONField(read_only=True)
     current_execution = DeployExecutionSerializer(read_only=True)
 
     class Meta:
