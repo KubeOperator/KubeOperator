@@ -1,0 +1,34 @@
+- name: 禁止从 dhcp 获取 dns
+  lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{network_default_interface}}"
+    regexp: "^PEERDNS"
+    line: "PEERDNS=no"
+
+
+- name: 添加 dns 解析记录
+  lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{network_default_interface}}"
+    regexp: "^DNS1"
+    line: "DNS1={{dns_server}}"
+
+
+- name: 刷新 dns 解析
+  service:
+    state: restarted
+    name: "{{ item }}"
+  with_items:
+    - NetworkManager
+    - dbus
+    - systemd-logind
+    - systemd-hostnamed
+
+- name: 配置时间同步服务
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+
+- name: 启动时间同步服务
+  service:
+    name: chronyd
+    state: started
+

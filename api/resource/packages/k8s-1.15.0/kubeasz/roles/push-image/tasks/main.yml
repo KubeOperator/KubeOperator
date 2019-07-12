@@ -1,0 +1,39 @@
+- name: download docker image
+  copy: src={{ base_dir }}/down/{{ item }} dest=/tmp/{{ item }}
+  with_items:
+  - fit2cloud-cmp.img
+  - fit2cloud-dbaas.img
+  - fit2cloud-prometheus.img
+
+- name: load cmp image
+  shell: "{{ bin_dir }}/docker load -i /tmp/fit2cloud-cmp.img"
+
+- name: load dbaas image
+  shell: "{{ bin_dir }}/docker load -i /tmp/fit2cloud-dbaas.img"
+
+- name: load prometheus image
+  shell: "{{ bin_dir }}/docker load -i /tmp/fit2cloud-prometheus.img"
+
+- name: copy harbor projects file
+  template: src=harbor.projects.sh.j2 dest=/tmp/harbor.projects.sh
+
+- name: do shell | create harbor projects
+  shell: "cd /tmp && chmod +x harbor.projects.sh && ./harbor.projects.sh"
+
+- name: copy cmp.sh
+  template: src=fit2cloud-cmp.sh.j2 dest=/tmp/fit2cloud-cmp.sh
+
+- name: do shell | install cmp image
+  shell: "cd /tmp && chmod +x fit2cloud-cmp.sh && ./fit2cloud-cmp.sh"
+
+- name: copy dbaas.sh file
+  template: src=fit2cloud-dbaas.sh.j2 dest=/tmp/fit2cloud-dbaas.sh
+
+- name: do shell | install dbaas image
+  shell: "cd /tmp && chmod +x fit2cloud-dbaas.sh && ./fit2cloud-dbaas.sh"
+
+- name: copy prometheus.sh file
+  template: src=fit2cloud-prometheus.sh.j2 dest=/tmp/fit2cloud-prometheus.sh
+
+- name: do shell | install prometheus image
+  shell: "cd /tmp && chmod +x fit2cloud-prometheus.sh && ./fit2cloud-prometheus.sh"

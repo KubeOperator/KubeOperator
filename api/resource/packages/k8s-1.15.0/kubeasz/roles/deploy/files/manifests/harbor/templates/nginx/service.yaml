@@ -1,0 +1,82 @@
+{{- if ne .Values.expose.type "ingress" }}
+apiVersion: v1
+kind: Service
+metadata:
+{{- if eq .Values.expose.type "clusterIP" }}
+{{- $clusterIP := .Values.expose.clusterIP }}
+  name: {{ $clusterIP.name }}
+  
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ $clusterIP.ports.httpPort }}
+      targetPort: 80
+    {{- if .Values.expose.tls.enabled }}
+    - name: https
+      port: {{ $clusterIP.ports.httpsPort }}
+      targetPort: 443
+    {{- end }}
+    {{- if .Values.notary.enabled }}
+    - name: notary
+      port: {{ $clusterIP.ports.notaryPort }}
+      targetPort: 4443
+    {{- end }}
+{{- else if eq .Values.expose.type "nodePort" }}
+{{- $nodePort := .Values.expose.nodePort }}
+  name: {{ $nodePort.name }}
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: {{ $nodePort.ports.http.port }}
+      targetPort: 80
+      {{- if $nodePort.ports.http.nodePort }}
+      nodePort: {{ $nodePort.ports.http.nodePort }}
+      {{- end }}
+    {{- if .Values.expose.tls.enabled }}
+    - name: https
+      port: {{ $nodePort.ports.https.port }}
+      targetPort: 443
+      {{- if $nodePort.ports.https.nodePort }}
+      nodePort: {{ $nodePort.ports.https.nodePort }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.notary.enabled }}
+    - name: notary
+      port: {{ $nodePort.ports.notary.port }}
+      targetPort: 4443
+      {{- if $nodePort.ports.notary.nodePort }}
+      nodePort: {{ $nodePort.ports.notary.nodePort }}
+      {{- end }}
+    {{- end }}
+{{- else if eq .Values.expose.type "loadBalancer" }}
+{{- $loadBalancer := .Values.expose.loadBalancer }}
+  name: {{ $loadBalancer.name }}
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: {{ $loadBalancer.ports.httpPort }}
+      targetPort: 80
+    {{- if .Values.expose.tls.enabled }}
+    - name: https
+      port: {{ $loadBalancer.ports.httpsPort }}
+      targetPort: 443
+    {{- end }}
+    {{- if .Values.notary.enabled }}
+    - name: notary
+      port: {{ $loadBalancer.ports.notaryPort }}
+      targetPort: 4443
+    {{- end }}
+{{- end }}
+  selector:
+{{ include "harbor.matchLabels" . | indent 4 }}
+    component: nginx
+{{- end }}

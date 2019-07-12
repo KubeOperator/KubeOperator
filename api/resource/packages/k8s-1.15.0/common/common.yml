@@ -1,0 +1,19 @@
+# common
+- hosts: all_nodes
+  roles:
+    - hosts
+# daemon
+- hosts: daemon
+  roles:
+    - daemon
+#config
+- hosts: all_nodes
+  roles:
+    - cluster-nodes
+#master
+- hosts: master
+  roles:
+    - master
+- hosts: localhost
+  roles:
+    - localhost

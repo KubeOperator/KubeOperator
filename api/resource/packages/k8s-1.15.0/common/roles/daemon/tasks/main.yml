@@ -1,0 +1,34 @@
+- name: 安装 daemon 相关依赖
+  package:
+    name: "{{item}}"
+    state: latest
+  with_items: "{{packages}}"
+
+- name: 开机启动dnsmasq
+  shell: "systemctl enable {{item}}"
+  with_items: "{{services}}"
+
+- name: 生成 dns 上游配置文件
+  template:
+    src: kubeops-upstream.dns.conf.j2
+    dest: /etc/dnsmasq.d/kubeops-upstream.dns.conf
+
+- name: 生成集群 dns 配置文件
+  template:
+    src: kubeops-origin.dns.conf.j2
+    dest:  /etc/dnsmasq.d/kubeops-origin.dns.conf
+
+- name: 生效 dns 配置
+  service:
+    name: dnsmasq
+    state: restarted
+
+- name: 生成 chrony server 配置文件
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf.j2
+
+- name: 生效 chrony server 配置
+  service:
+    name: chronyd
+    state: restarted
