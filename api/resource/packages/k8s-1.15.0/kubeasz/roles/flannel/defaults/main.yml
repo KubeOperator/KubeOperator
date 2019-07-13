@@ -5,8 +5,8 @@
 NODE_WITH_MULTIPLE_NETWORKS: "true"
  
 # 设置flannel 后端
-#FLANNEL_BACKEND: "host-gw"
-FLANNEL_BACKEND: "vxlan"
+FLANNEL_BACKEND: "host-gw"
+#FLANNEL_BACKEND: "vxlan"
 
 #flanneld_image: "quay.io/coreos/flannel:v0.10.0-amd64"
 
