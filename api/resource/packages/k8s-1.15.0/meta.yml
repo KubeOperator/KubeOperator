@@ -153,7 +153,7 @@ roles:
       tiller_version: "v2.12.3"
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
-      FLANNEL_BACKEND: "vxlan"
+      FLANNEL_BACKEND: "host-gw"
       flanneld_image: "quay.io/coreos/flannel"
       flanneld_version: "v0.11.0-amd64"
       #registry
