@@ -43,7 +43,7 @@ function download_resources() {
     NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
     NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
     tar -zxvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH}
-    chown -R 200 ${NEXUS_DATA_PATH}
+    chown -R 777 ${NEXUS_DATA_PATH}
     rm -fr ${NEXUS_TAR_PATH}
 }
 
