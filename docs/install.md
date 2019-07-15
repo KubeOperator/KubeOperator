@@ -25,23 +25,19 @@
     </tr>
 </table>
 
+
+
 ## 环境要求
 
++ 推荐硬件配置: 2个CPU核心,4G 内存,50G 硬盘
++ 操作系统要求: `CentOS 7 Minimal`
++ 配置基础网络、更新源等
 
-<table border="0">
-    <tr>
-        <td>CPU</td>
-        <td>2核</td>
-    </tr>
-    <tr>
-        <td>内存</td>
-        <td>4GB</td>
-    </tr>
-        <tr>
-        <td>操作系统</td>
-        <td>CentOS 7</td>
-    </tr>
-</table>
+## 安装准备
+
+安装前请自行至百度云盘下载数据文件:
++ nexus-data.tar.gz (离线安装所需的rpm包和镜像): https:// pan.baidu.com/XXXX/nexus-data.tar.gz 提取码 0304 
+
 
 ## 开始安装
 
@@ -54,7 +50,7 @@ $ yum install -y wget,git
 $  cd /opt/
 $  git clone https://github.com/fit2anything/KubeOperator.git
 # 请自行到百度网盘下载 nexus 数据文件: nexus-data.tar.gz
-$ cp nexus-data.tar.gz /opt/nexus/docker
+$ cp nexus-data.tar.gz /opt/KubeOperator/docker/nexus/
 # 解压 nexus 数据文件
 $ tar -zvxf nexus-data.tar.gz
 # 运行安装脚本
