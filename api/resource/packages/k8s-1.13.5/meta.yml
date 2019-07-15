@@ -111,13 +111,6 @@ roles:
       bin_dir: "/usr/local/bin"
       ca_dir: "/etc/kubernetes/ssl"
       CONTAINER_RUNTIME: "docker"
-      CLUSTER_NETWORK: "flannel"
-      SERVICE_CIDR: "10.68.0.0/16"
-      CLUSTER_CIDR: "172.20.0.0/16"
-      NODE_PORT_RANGE: "30000-32767"
-      CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
-      CLUSTER_DNS_SVC_IP: "10.68.0.2"
-      CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
       base_dir: "/opt/kubeOperator-kube-bin/1.13.5"
       kube_version: "1.13.5"
@@ -152,6 +145,7 @@ roles:
       tiller_image: "gcr.io/kubernetes-helm/tiller"
       tiller_version: "v2.12.3"
       #flannel
+      CLUSTER_NETWORK: "flannel"
       NODE_WITH_MULTIPLE_NETWORKS: "true"
       FLANNEL_BACKEND: "host-gw"
       flanneld_image: "quay.io/coreos/flannel"
@@ -160,13 +154,36 @@ roles:
       REGISTRY_ACCOUNT_NAME: admin
       REGISTRY_ACCOUNT_PASSWORD: Calong@2015
       IMAGE_PULL_SECRET: registry-fit2cloud-com-key
-
-
+      SERVICE_CIDR: "10.68.0.0/16"
+      CLUSTER_CIDR: "172.20.0.0/16"
+      NODE_PORT_RANGE: "30000-32767"
+      CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
+      CLUSTER_DNS_SVC_IP: "10.68.0.2"
+      CLUSTER_DNS_DOMAIN: "cluster.local."
+networks:
+  - name: flannel
+    vars:
+      CLUSTER_NETWORK: flannel
+      NODE_WITH_MULTIPLE_NETWORKS: "true"
+      flanneld_image: "quay.io/coreos/flannel"
+      flanneld_version: "v0.11.0-amd64"
+    configs:
+      - name: FLANNEL_BACKEND
+        alias: 网络模式
+        type: Select
+        default: host-gw
+        required: true
+        help_text: 应用域名
+        display: true
+        options:
+          - name: host-gw
+            value: host-gw
+          - name: vxlan
+            value: vxlan
 
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
-
     private_vars:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
