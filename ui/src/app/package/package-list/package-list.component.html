@@ -1,21 +1,23 @@
+<app-package-detail [(showInfoModal)]="showDetail"></app-package-detail>
 <clr-datagrid [clrDgLoading]="loading">
-
   <clr-dg-action-bar>
     <button type="button" class="btn btn-sm btn-secondary" (click)="refresh()">
       <clr-icon shape="refresh" size="16"></clr-icon>
       刷新
     </button>
   </clr-dg-action-bar>
-
-  <clr-dg-column>软件包</clr-dg-column>
-  <clr-dg-column>版本</clr-dg-column>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>kubernetes版本</clr-dg-column>
+  <clr-dg-column>etcd版本</clr-dg-column>
+  <clr-dg-column>docker版本</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
-
-
   <clr-dg-row *ngFor="let package of packages" [clrDgItem]="package">
-    <clr-dg-cell>{{package.meta.resource}}&nbsp;<img [src]="getLogo(package)" class="logo"></clr-dg-cell>
-    <clr-dg-cell>{{package.meta.version}}</clr-dg-cell>
-    <clr-dg-cell>{{package.date_created}}</clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;"><a (click)="onShowDetail(package)">{{package.meta.resource}}</a>
+    </clr-dg-cell>
+    <clr-dg-cell>{{package.meta.components.kubernetes}}</clr-dg-cell>
+    <clr-dg-cell>{{package.meta.components.etcd}}</clr-dg-cell>
+    <clr-dg-cell>{{package.meta.components.docker}}</clr-dg-cell>
+    <clr-dg-cell>{{package.date_created| date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

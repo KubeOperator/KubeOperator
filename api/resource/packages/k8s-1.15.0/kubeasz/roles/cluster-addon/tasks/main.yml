@@ -1,0 +1,107 @@
+- block:
+    - name: 在deploy 节点创建相关目录
+      file: path={{ item }} state=directory
+      with_items:
+        - /opt/kube/kube-system/coredns
+    # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+    - name: 准备 DNS的部署文件
+      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
+      with_items:
+        - coredns
+
+    - name: 获取所有已经创建的POD信息
+      command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
+      register: pod_info
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true
+
+- block:
+    - name: 获取 Core DNS 镜像
+      docker_image:
+        name: "{{registry_prefix}}/{{dns_image}}:{{dns_version}}"
+        state: present
+
+    - name: 创建CoreDNS部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns"
+      run_once: true
+      delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+    - '"coredns" not in pod_info.stdout'
+    - 'dns_install'
+  ignore_errors: true
+
+- block:
+    - name: 获取 metrics-server 镜像
+      docker_image:
+        name: "{{registry_prefix}}/{{metricsserver_image}}:{{metricsserver_version}}"
+        state: present
+
+    - name: 创建 metrics-server部署
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"metrics-server" not in pod_info.stdout and metricsserver_install'
+  ignore_errors: true
+
+# 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
+- block:
+    - name: 获取 dashboard 镜像
+      docker_image:
+        name: "{{registry_prefix}}/{{dashboard_image}}:{{dashboard_version}}"
+        state: present
+
+    - name: 创建 dashboard部署
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
+	      {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install '
+  ignore_errors: true
+
+- import_tasks: ingress.yml
+  when: '"ingress-controller" not in pod_info.stdout '
+
+- block:
+    - name: 创建 monitoring namespace
+      shell: "kubectl create ns monitoring"
+      ignore_errors: true
+
+    - name: 创建 etcd 监控 secrets
+      shell: "kubectl -n monitoring create secret generic etcd-secret-files \
+          --from-file=/etc/kubernetes/ssl/ca.pem \
+          --from-file=/etc/etcd/ssl/etcd.pem \
+          --from-file=/etc/etcd/ssl/etcd-key.pem"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      ignore_errors: true
+
+    - name: 拷贝 prometheus values文件
+      template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
+
+    - name: 部署 prometheus
+      shell: "helm install --name f2c-prometheus --namespace monitoring \
+          -f prom-settings.yaml \
+          -f prom-alertsmanager.yaml \
+          -f prom-alertrules.yaml \
+          ./prometheus"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"prometheus" not in pod_info.stdout and prometheus_install'
+  ignore_errors: true
+
+- block:
+    - name: 拷贝 grafana values文件
+      template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
+
+    - name: 部署 grafana
+      shell: "helm install --name f2c-grafana --namespace monitoring \
+         -f grafana-settings.yaml \
+         -f grafana-dashboards.yaml \
+         ./grafana"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"grafana" not in pod_info.stdout and grafana_install'
+  ignore_errors: true

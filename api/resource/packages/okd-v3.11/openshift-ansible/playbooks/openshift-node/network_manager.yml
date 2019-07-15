@@ -1,4 +1,0 @@
----
-- import_playbook: ../init/evaluate_groups.yml
-
-- import_playbook: private/network_manager.yml

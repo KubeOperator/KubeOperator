@@ -1,7 +1,0 @@
----
-#
-# Node Upgrade Playbook
-#
-# Upgrades nodes only, but requires the control plane to have already been upgraded.
-#
-- import_playbook: ../../../../common/openshift-cluster/upgrades/v3_11/upgrade_nodes.yml

@@ -19,6 +19,9 @@ export class Cluster {
   resource_version: string;
   operations: Operation[];
   enable_auth: string[] = [];
+  nodes: string[] = [];
+  network_plugin: string;
+  grafana: {};
 }
 
 export class ExtraConfig {

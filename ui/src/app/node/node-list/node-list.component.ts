@@ -38,6 +38,10 @@ export class NodeListComponent implements OnInit {
     this.listNodes();
   }
 
+  get_grafana_url(node: Node): string {
+    return this.nodeService.get_grafana_url(node.ip, this.currentCluster);
+  }
+
   addNewNode() {
     this.addNode.emit();
   }

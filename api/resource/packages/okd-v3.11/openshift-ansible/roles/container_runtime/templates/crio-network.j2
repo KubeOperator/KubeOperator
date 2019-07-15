@@ -1,9 +1,0 @@
-{% if 'http_proxy' in openshift.common %}
-HTTP_PROXY={{ openshift.common.http_proxy }}
-{% endif %}
-{% if 'https_proxy' in openshift.common %}
-HTTPS_PROXY={{ openshift.common.https_proxy }}
-{% endif %}
-{% if 'no_proxy' in openshift.common %}
-NO_PROXY={{ openshift.common.no_proxy }}
-{% endif %}

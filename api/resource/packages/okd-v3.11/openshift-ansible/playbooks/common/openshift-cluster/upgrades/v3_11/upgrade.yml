@@ -1,7 +1,0 @@
----
-#
-# Full Control Plane + Nodes Upgrade
-#
-- import_playbook: upgrade_control_plane.yml
-
-- import_playbook: upgrade_nodes.yml

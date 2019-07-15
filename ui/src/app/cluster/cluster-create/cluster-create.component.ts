@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@an
 import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
-import {Config, Package, Template} from '../../package/package';
+import {Config, Network, Package, Template} from '../../package/package';
 import {PackageService} from '../../package/package.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {ClusterService} from '../cluster.service';
@@ -43,11 +43,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   package: Package;
   packages: Package[] = [];
   templates: Template[] = [];
+  networks: Network[] = [];
+  network: Network = null;
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
   storage: Storage[] = [];
-  currentStorage: Storage = new Storage();
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -63,7 +64,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   clusterNameChecker: Subject<string> = new Subject<string>();
 
   @Output() create = new EventEmitter<boolean>();
-  loadingFlag = false;
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
@@ -118,8 +118,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       }
     });
     this.templates = this.package.meta.templates;
+    this.networks = this.package.meta.networks;
   }
 
+  onNetworkChange() {
+    this.networks.forEach(network => {
+      if (this.cluster.network_plugin === network.name) {
+        this.network = network;
+      }
+    });
+  }
 
   newCluster() {
     this.reset();
@@ -301,9 +309,14 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return result;
   }
 
+  canStorageNext() {
+    return this.cluster.persistent_storage != null;
+  }
+
   configCluster() {
     const promises: Promise<{}>[] = [];
     if (this.configs) {
+      this.configs.concat(this.network.configs);
       this.configs.forEach(c => {
         const extraConfig: ExtraConfig = new ExtraConfig();
         extraConfig.key = c.name;
@@ -349,15 +362,22 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return template.replace('{N}', volume.name).replace('{S}', volume.size);
   }
 
-  getHostById(hostId: string): Host {
-    let h: Host;
-    this.hosts.forEach(host => {
-      if (host.id === hostId) {
-        h = host;
-      }
-    });
-    return h;
+  canNetworkNext() {
+    let result = true;
+    if (!this.cluster.network_plugin) {
+      result = false;
+    }
+    if (this.network) {
+      this.network.configs.some(cfg => {
+        if (!cfg.value) {
+          result = false;
+          return true;
+        }
+      });
+    }
+    return result;
   }
+
 
   canConfigNext() {
     let result = true;

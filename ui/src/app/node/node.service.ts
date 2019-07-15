@@ -4,6 +4,7 @@ import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {Node} from './node';
 import {Role} from './role';
+import {Cluster} from '../cluster/cluster';
 
 const baseNodeUrl = '/api/v1/clusters/{clusterName}/nodes/';
 const roleUrl = '/api/v1/clusters/{clusterName}/roles/';
@@ -38,5 +39,13 @@ export class NodeService {
     return this.http.get<Role[]>(`${roleUrl.replace('{clusterName}', clusterName)}`).pipe(
       catchError(err => throwError(err))
     );
+  }
+
+  get_grafana_url(nodeIp: string, cluster: Cluster): string {
+    const base = cluster.grafana['nodes_grafana'];
+    if (!base) {
+      return null;
+    }
+    return `${base}?orgId=1&var-server=${nodeIp}:9100`;
   }
 }

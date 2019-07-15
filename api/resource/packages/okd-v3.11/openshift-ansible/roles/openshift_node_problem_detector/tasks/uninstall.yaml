@@ -1,5 +1,0 @@
----
-- name: Remove Node Problem Detector
-  oc_project:
-    name: openshift-node-problem-detector
-    state: absent

@@ -13,16 +13,17 @@
 
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedClusters">
   <clr-dg-action-bar>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
-      <clr-icon shape="plus" size="16"></clr-icon>
-      添加
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
-            [disabled]="selectedClusters.length == 0">
-      <clr-icon shape="close"></clr-icon>
-      删除
-    </button>
-
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        添加
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
+              [disabled]="selectedClusters.length == 0">
+        <clr-icon shape="close"></clr-icon>
+        删除
+      </button>
+    </div>
     <clr-dropdown>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedClusters.length !== 1"
               clrDropdownTrigger>
@@ -43,19 +44,31 @@
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
+  <clr-dg-column>网络模型</clr-dg-column>
+  <clr-dg-column>节点</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
-  <clr-dg-column>备注</clr-dg-column>
+  <clr-dg-column>监控</clr-dg-column>
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>
-      {{cluster.resource + '-' + cluster.resource_version}}
-      &nbsp;<img [src]="getLogo(cluster.resource)" class="logo">
+      {{cluster.resource}}
     </clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
-    <clr-dg-cell>{{cluster.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.network_plugin}}</clr-dg-cell>
+    <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
+    <clr-dg-cell>{{cluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>
-    <clr-dg-cell>{{cluster.comment}}</clr-dg-cell>
+    <clr-dg-cell>
+      <div *ngIf="get_grafana_url(cluster)">
+        <a target="_blank" [href]="get_grafana_url(cluster)">
+          <img width="20px" height="20px" src="assets/images/grafana_icon.svg">
+        </a>
+      </div>
+      <div *ngIf="!get_grafana_url(cluster)">
+        不可用
+      </div>
+    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

@@ -54,4 +54,8 @@ export class ClusterService {
       catchError(error => throwError(error))
     );
   }
+
+  get_cluster_grafana(cluster: Cluster): string {
+    return cluster.grafana['cluster_grafana'];
+  }
 }

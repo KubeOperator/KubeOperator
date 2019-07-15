@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Package} from '../package';
 import {PackageService} from '../package.service';
-import {MessageLevels} from '../../base/message/message-level';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {PackageLogoService} from '../package-logo.service';
+import {PackageDetailComponent} from '../package-detail/package-detail.component';
 
 @Component({
   selector: 'app-offline-list',
@@ -16,6 +16,9 @@ export class PackageListComponent implements OnInit {
   loading = true;
   packages: Package[] = [];
   selectedRow: Package[] = [];
+  showDetail = false;
+  @ViewChild(PackageDetailComponent)
+  child: PackageDetailComponent;
 
   constructor(private offlineService: PackageService, private tipService: TipService, private packageLogoService: PackageLogoService) {
   }
@@ -30,6 +33,11 @@ export class PackageListComponent implements OnInit {
       this.packages = data;
       this.loading = false;
     });
+  }
+
+  onShowDetail(item) {
+    this.showDetail = true;
+    this.child.loadPackage(item);
   }
 
   getLogo(p: Package): string {

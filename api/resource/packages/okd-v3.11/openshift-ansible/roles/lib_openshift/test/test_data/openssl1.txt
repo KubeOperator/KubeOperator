@@ -1,1 +1,0 @@
-subject=C = US, CN = fedora1.openshift.io, L = Raleigh, O = Red Hat, ST = North Carolina, OU = OpenShift

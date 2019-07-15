@@ -1,8 +1,0 @@
----
-r_cockpit_firewall_enabled: "{{ os_firewall_enabled | default(True) }}"
-r_cockpit_use_firewalld: "{{ os_firewall_use_firewalld | default(False) }}"
-
-r_cockpit_os_firewall_deny: []
-r_cockpit_os_firewall_allow:
-- service: cockpit-ws
-  port: 9090/tcp

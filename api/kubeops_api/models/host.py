@@ -3,6 +3,7 @@ from django.db import models
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
 from ansible_api.tasks import run_im_adhoc
+from kubeops_api.adhoc import gather_host_info
 
 __all__ = ['Host', 'HostInfo']
 
@@ -46,28 +47,21 @@ class HostInfo(models.Model):
         get_latest_by = 'date_created'
 
     def gather_info(self):
-        host = self.host
-        hosts = [self.host.__dict__]
-        result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': 'setup'},
-                              inventory_data={'hosts': hosts, 'vars': {}})
-        if not result.get('summary', {}).get('success', False):
-            raise Exception("get os info failed!")
-        else:
-            facts = result["raw"]["ok"][host.name]["setup"]["ansible_facts"]
-            self.memory = facts["ansible_memtotal_mb"]
-            self.cpu_core = facts["ansible_processor_cores"]
-            self.os = facts["ansible_distribution"]
-            self.os_version = facts["ansible_distribution_version"]
-            self.save()
-            devices = facts["ansible_devices"]
-            volumes = []
-            for name in devices:
-                if not name.startswith(('dm', 'loop', 'sr')):
-                    volume = Volume(name='/dev/' + name)
-                    volume.size = devices[name]['size']
-                    volume.save()
-                    volumes.append(volume)
-            self.volumes.set(volumes)
+        facts = gather_host_info(self.host)
+        self.memory = facts["ansible_memtotal_mb"]
+        self.cpu_core = facts["ansible_processor_cores"]
+        self.os = facts["ansible_distribution"]
+        self.os_version = facts["ansible_distribution_version"]
+        self.save()
+        devices = facts["ansible_devices"]
+        volumes = []
+        for name in devices:
+            if not name.startswith(('dm', 'loop', 'sr')):
+                volume = Volume(name='/dev/' + name)
+                volume.size = devices[name]['size']
+                volume.save()
+                volumes.append(volume)
+        self.volumes.set(volumes)
 
 
 class Volume(models.Model):

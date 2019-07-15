@@ -1,9 +1,0 @@
----
-- name: Create elb
-  hosts: localhost
-  connection: local
-  tasks:
-  - name: provision elb
-    include_role:
-      name: openshift_aws
-      tasks_from: provision_elb.yml

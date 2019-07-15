@@ -1,6 +1,0 @@
----
-- import_playbook: uninstall_sec_group.yml
-
-- import_playbook: uninstall_vpc.yml
-
-- import_playbook: uninstall_ssh_keypair.yml

@@ -1,0 +1,17 @@
+- name: 安装ansible 依赖软件包
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ansible_package}}"
+
+- name: 下载 ansible RPM
+  get_url:
+    url: "http://{{local_hostname}}:8082/repository/raw/rpms/ansible-2.4.2.0-2.el7.noarch.rpm"
+    dest: /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
+
+- name: 安装 ansible
+  shell: which ansible || rpm -ivh /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
+
+- name: 清理 tmp
+  shell: rm -fr /tmp/ansible-2.4.2.0-2.el7.noarch.rpm
+

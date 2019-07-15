@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from ansible_api.models import Host as Ansible_Host
 
@@ -58,4 +60,3 @@ class Node(Ansible_Host):
 
     def get_var(self, key, default):
         return self.vars.get(key, default)
-

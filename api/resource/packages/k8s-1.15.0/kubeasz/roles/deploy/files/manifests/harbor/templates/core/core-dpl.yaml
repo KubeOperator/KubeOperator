@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "harbor.core" . }}
+  labels:
+{{ include "harbor.labels" . | indent 4 }}
+    component: core
+spec:
+  replicas: {{ .Values.core.replicas }}
+  selector:
+    matchLabels:
+{{ include "harbor.matchLabels" . | indent 6 }}
+      component: core
+  template:
+    metadata:
+      labels:
+{{ include "harbor.matchLabels" . | indent 8 }}
+        component: core
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/core/core-cm.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/core/core-secret.yaml") . | sha256sum }}
+        checksum/secret-jobservice: {{ include (print $.Template.BasePath "/jobservice/jobservice-secrets.yaml") . | sha256sum }}
+{{- if .Values.core.podAnnotations }}
+{{ toYaml .Values.core.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - name: core
+        image: {{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        livenessProbe:
+          httpGet:
+            path: /api/ping
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/ping
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: "{{ template "harbor.core" . }}"
+        - secretRef:
+            name: "{{ template "harbor.core" . }}"
+        env:
+          - name: CORE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "harbor.core" . }}
+                key: secret
+          - name: JOBSERVICE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: "{{ template "harbor.jobservice" . }}"
+                key: secret
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: config
+          mountPath: /etc/core/app.conf
+          subPath: app.conf
+        - name: secret-key
+          mountPath: /etc/core/key
+          subPath: key
+        - name: token-service-private-key
+          mountPath: /etc/core/private_key.pem
+          subPath: tls.key
+        {{- if .Values.expose.tls.enabled }}
+        - name: ca-download
+          mountPath: /etc/core/ca/ca.crt
+          subPath: ca.crt
+        {{- end }}
+        - name: psc
+          mountPath: /etc/core/token
+{{- if .Values.core.resources }}
+        resources:
+{{ toYaml .Values.core.resources | indent 10 }}
+{{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "harbor.core" . }}
+      - name: secret-key
+        secret:
+          secretName: {{ template "harbor.core" . }}
+          items:
+            - key: secretKey
+              path: key
+      - name: token-service-private-key
+        secret:
+          {{- if .Values.core.secretName }}
+          secretName: {{ .Values.core.secretName }}
+          {{- else }}
+          secretName: {{ template "harbor.core" . }}
+          {{- end }}
+      {{- if .Values.expose.tls.enabled }}
+      - name: ca-download
+        secret:
+        {{- if eq (include "harbor.autoGenCertForIngress" .) "true" }}
+          secretName: "{{ template "harbor.ingress" . }}"
+        {{- else if eq (include "harbor.autoGenCertForNginx" .) "true" }}
+          secretName: {{ template "harbor.nginx" . }}
+        {{- else }}
+          secretName: {{ .Values.expose.tls.secretName }}
+        {{- end }}
+          items:
+            - key: ca.crt
+              path: ca.crt
+      {{- end }}
+      - name: psc
+        emptyDir: {}
+    {{- with .Values.core.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.core.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.core.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

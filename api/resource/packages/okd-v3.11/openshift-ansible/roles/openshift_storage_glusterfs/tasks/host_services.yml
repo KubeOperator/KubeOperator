@@ -1,4 +1,0 @@
----
-# as per https://access.redhat.com/documentation/en-us/red_hat_gluster_storage/3.3/html/container-native_storage_for_openshift_container_platform/ch06s03
-- name: Ensure systemd has right dependencies
-  command: "systemctl add-wants multi-user rpcbind.service"

@@ -163,7 +163,6 @@ def start_celery():
 
 
 def start_service(s):
-    print(time.ctime())
     services_handler = {
         "gunicorn": start_gunicorn,
         "celery": start_celery,

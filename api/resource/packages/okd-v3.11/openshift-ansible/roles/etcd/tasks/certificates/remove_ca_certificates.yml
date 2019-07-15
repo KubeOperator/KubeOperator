@@ -1,5 +1,0 @@
----
-- name: Remove CA certificate directory
-  file:
-    path: "{{ etcd_ca_dir }}"
-    state: absent

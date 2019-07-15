@@ -3,26 +3,31 @@ export class Package {
   name: string;
   meta: PackageMeta;
   date_created: string;
+}
 
-  getLogo() {
-    let logo = null;
-    const path = 'assets/images';
-    switch (this.meta.resource) {
-      case 'kubernetes':
-        logo = path + 'logo-k8s.png';
-        break;
-      case 'okd':
-        logo = path + 'logo-okd.png';
-        break;
-    }
-    return logo;
-  }
+export class Network {
+  name: string;
+  configs: Config[] = [];
+}
+
+export class Components {
+  kubernetes: string;
+  etcd: string;
+  docker: string;
+}
+
+export class Image {
+  name: string;
+  tag: string;
 }
 
 export class PackageMeta {
   resource: string;
   version: string;
   templates: Template[];
+  components: Components;
+  images: Image[];
+  networks: Network[] = [];
 }
 
 export class Config {
@@ -69,9 +74,8 @@ export class NodeVars {
   type: string;
   options: any;
   placeholder: string;
-  require: true;
+  require: boolean;
 }
-
 
 export class RoleMeta {
   hidden: boolean;
@@ -81,7 +85,6 @@ export class RoleMeta {
 
 
 }
-
 
 export class Os {
   name: string;

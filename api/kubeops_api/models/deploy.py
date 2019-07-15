@@ -23,7 +23,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-        cluster = Cluster.objects.filter(id=self.project.id).first()
+        cluster = Cluster.objects.get(id=self.project.id)
         hostname = Setting.objects.get(key='local_hostname')
         cluster.status = Cluster.status = Cluster.CLUSTER_STATUS_INSTALLING
         cluster.save()
@@ -36,9 +36,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             if temp['name'] == cluster.template:
                 template = temp
         try:
+            status_set = []
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
-                    status_set = self.operation['status_change']
+                    status_set = opt['status_change']
                     playbooks = []
                     cluster_playbooks = opt.get('playbooks', [])
                     playbooks.extend(cluster_playbooks)
@@ -60,7 +61,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                         current = current + 1
                         self.progress = current / total_palybook * 100
                         self.save()
-            cluster.status = cluster.status_set['succeed']
+            cluster.status = status_set['succeed']
             cluster.save()
         except Exception as e:
             logger.error(e, exc_info=True)

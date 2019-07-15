@@ -1,3 +1,0 @@
----
-openshift_master_config_file: "/etc/origin/master/master-config.yaml"
-openshift_master_scheduler_conf: "/etc/origin/master/scheduler.json"

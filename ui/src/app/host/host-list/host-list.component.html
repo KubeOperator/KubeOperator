@@ -11,33 +11,36 @@
   </div>
 </clr-modal>
 <app-host-info [(showInfoModal)]=showHostInfo (updated)="refresh()"></app-host-info>
-<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts">
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedHosts" (clrDgSelectedChange)="canSelectedHostsDelete()">
   <clr-dg-action-bar>
-    <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
-      <clr-icon shape="plus" size="16"></clr-icon>
-      添加
-    </button>
-    <button type="button" class="btn btn-sm btn-secondary" [disabled]="selectedHosts.length == 0 "
-            (click)="onDeleted()">
-      <clr-icon shape="close"></clr-icon>
-      删除
-    </button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewHost()">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        添加
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary"
+              [disabled]="selectedHosts.length == 0 || !canSelectedHostsDelete()"
+              (click)="onDeleted()">
+        <clr-icon shape="close"></clr-icon>
+        删除
+      </button>
+    </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>集群</clr-dg-column>
   <clr-dg-column>IP 地址</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
   <clr-dg-column>内存(MB)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
-  <clr-dg-column>集群</clr-dg-column>
   <clr-dg-column>备注</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
     <clr-dg-cell style="cursor: pointer;"><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
+    <clr-dg-cell>{{host.cluster}}</clr-dg-cell>
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.memory}}</clr-dg-cell>
     <clr-dg-cell>{{host.info.os}} {{host.info.os_version}}</clr-dg-cell>
-    <clr-dg-cell>{{host.cluster}}</clr-dg-cell>
     <clr-dg-cell>{{host.comment}}</clr-dg-cell>
   </clr-dg-row>
 

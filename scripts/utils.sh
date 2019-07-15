@@ -5,13 +5,15 @@ SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
 function get_images(){
     images=(
-       "redis:alpine"
-       "mysql:5"
-       "nginx:alpine"
-       "registry.fit2cloud.com/public/nexus-helm:latest"
+       "docker.io/redis:alpine"
+       "docker.io/mysql:5"
+       "docker.io/nginx:alpine"
+       "node:10-alpine"
        "kubeOperator/api:1.0.0"
        "kubeOperator/ui:1.0.0"
        "kubeOperator/dns:1.0.0"
+       "registry.fit2cloud.com/public/nexus-helm:latest"
+       "registry.fit2cloud.com/public/python:v3"
     )
     for image in ${images[@]};do
         echo ${image}

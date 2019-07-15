@@ -1,5 +1,0 @@
----
-- name: Remove RedHat subscriptions
-  redhat_subscription:
-    state: absent
-  when: ansible_distribution == "RedHat"

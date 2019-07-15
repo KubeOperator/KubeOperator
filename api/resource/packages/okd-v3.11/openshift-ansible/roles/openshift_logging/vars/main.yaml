@@ -1,9 +1,0 @@
----
-es_node_quorum: "{{ (openshift_logging_es_cluster_size | int/2 | round(0,'floor') + 1) | int}}"
-es_recover_expected_nodes: "{{openshift_logging_es_cluster_size | int}}"
-es_ops_node_quorum: "{{ (openshift_logging_es_ops_cluster_size | int/2 | round(0,'floor') + 1) | int}}"
-es_ops_recover_expected_nodes: "{{openshift_logging_es_ops_cluster_size | int}}"
-
-es_log_appenders: ['file', 'console']
-
-__default_logging_ops_projects: ['default', 'openshift', 'openshift-infra', 'kube-system', 'openshift-logging']

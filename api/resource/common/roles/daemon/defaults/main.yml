@@ -1,0 +1,8 @@
+packages:
+  - dnsmasq
+  - chrony
+services:
+  - dnsmasq
+  - chronyd
+dns_default_public_server: 114.114.114.114
+dns_repository_hostname: registry.kubeops.io

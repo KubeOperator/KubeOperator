@@ -1,9 +1,0 @@
----
-- name: Upgrade Node Problem Detector
-  hosts: oo_first_master
-  roles:
-  - role: openshift_facts
-  tasks:
-  - import_role:
-      name: openshift_node_problem_detector
-      tasks_from: upgrade.yaml

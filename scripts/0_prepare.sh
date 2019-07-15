@@ -31,23 +31,20 @@ function build_and_save_images() {
 
     echo ">>> 开始保存镜像"
     for image in ${images};do
-        if [[ ! ${image} =~ 'fit2openshift' ]];then
+        if [[ ! ${image} =~ 'kubeOperator' ]];then
             docker pull ${image}
         fi
         filename=$(basename ${image}).tar
-        docker save -o ${IMAGE_DIR}/${filename} ${image}
+        docker save ${image} | gzip -c > ${IMAGE_DIR}/${filename}
     done
 }
 
 function download_resources() {
-    echo ">>> 开始下载resource"
     NEXUS_TAR_PATH="${PROJECT_DIR}/docker/nexus/nexus-data.tar.gz"
-
-    if [[ ! -f "${NEXUS_TAR_PATH}" ]];then
-        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
-    elif [[ $(du -sh ${NEXUS_TAR_PATH} | grep 'G' | awk -F. '{ print $1 }') -lt 5 ]];then
-        wget "http://fit2anything.oss-cn-beijing.aliyuncs.com/nexus/v3-11/nexus-data.tar.gz" -O ${NEXUS_TAR_PATH}
-    fi
+    NEXUS_DATA_PATH="${PROJECT_DIR}/docker/nexus/data/"
+    tar -zxvf ${NEXUS_TAR_PATH} -C ${NEXUS_DATA_PATH}
+    chown -R 777 ${NEXUS_DATA_PATH}
+    rm -fr ${NEXUS_TAR_PATH}
 }
 
 function main() {

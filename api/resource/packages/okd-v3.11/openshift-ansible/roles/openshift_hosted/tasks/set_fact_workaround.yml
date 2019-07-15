@@ -1,8 +1,0 @@
----
-# TODO(michaelgugino) remove this set fact.  It is currently necessary due to
-# custom module not properly templating variables.
-- name: setup registry list
-  set_fact:
-    r_openshift_hosted_registry_list:
-    - name: "{{ openshift_hosted_registry_name }}"
-      namespace: "{{ openshift_hosted_registry_namespace }}"

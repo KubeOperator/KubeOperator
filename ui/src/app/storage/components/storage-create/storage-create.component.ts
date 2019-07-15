@@ -44,7 +44,6 @@ export class StorageCreateComponent implements OnInit {
   loadTemplate() {
     this.storageTemplateService.listStorageTemplates().subscribe(data => {
       this.storageTemplates = data;
-      console.log(this.storageTemplates);
     });
   }
 

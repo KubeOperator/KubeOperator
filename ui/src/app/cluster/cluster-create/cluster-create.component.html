@@ -124,6 +124,7 @@
     </form>
   </clr-wizard-page>
 
+
   <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' class="clr-form clr-form-compact">
@@ -185,7 +186,49 @@
     </form>
 
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="!canNetworkNext()">
+    <ng-template clrPageTitle>配置网络</ng-template>
+    <form #nodeForm='ngForm' class="clr-form clr-form-compact">
+      <div class="clr-form-control clr-row">
+        <label for="networks" class="clr-control-label clr-col-xs-12 clr-col-md-2">选择网络插件</label>
+        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+          <div class="clr-select-wrapper">
+            <select id="networks" [(ngModel)]="cluster.network_plugin" name="network" class="clr-select"
+                    (change)="onNetworkChange()" required>
+              <option value="">请选择网络模型</option>
+              <option *ngFor="let network of networks"
+                      [value]="network.name">{{network.name}}
+              </option>
+            </select>
+            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="network">
+        <div *ngFor="let config of network.configs">
+          <div [ngSwitch]="config.type">
+            <div class="clr-form-control clr-row" *ngSwitchCase="'Select'">
+              <label [for]="config.name"
+                     class="clr-control-label clr-col-xs-12 clr-col-md-2">{{config.alias}}</label>
+              <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
+                <div class="clr-select-wrapper">
+                  <select [id]="config.name" [(ngModel)]="config.value" class="clr-select" [name]="config.name"
+                          required>
+                    <option [value]="">请选择</option>
+                    <option *ngFor="let opt of config.options"
+                            [value]="opt.value">{{opt.name}}
+                    </option>
+                  </select>
+                  <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </clr-wizard-page>
+  <clr-wizard-page [clrWizardPageNextDisabled]="!canStorageNext()">
     <ng-template clrPageTitle>选择持久化存储</ng-template>
     <form #configForm='ngForm' clrForm>
       <div class="clr-form-control clr-row">
@@ -193,7 +236,6 @@
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-select-wrapper">
             <select id="storage" [(ngModel)]="cluster.persistent_storage" name="storage" class="clr-select" required>
-              <option [value]=null>无</option>
               <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
             </select>
           </div>
@@ -245,7 +287,6 @@
       </div>
     </div>
   </clr-wizard-page>
-
 
   <clr-wizard-page [clrWizardPageNextDisabled]="canConfigNext()"
                    *ngIf="template&&template.private_config&&template.private_config.length>0">

@@ -128,7 +128,7 @@ def create_or_update_periodic_task(tasks, pk=None):
         )
 
         task = PeriodicTask.objects.update_or_create(
-            defaults=defaults, id=pk,
+            defaults=defaults, name=name,
         )
         return task
 
@@ -175,7 +175,9 @@ def register_as_period_task(crontab=None, interval=None):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorate
 
 
@@ -189,6 +191,7 @@ def after_app_ready_start(func):
     @wraps(func)
     def decorate(*args, **kwargs):
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -202,6 +205,7 @@ def after_app_shutdown_clean(func):
     @wraps(func)
     def decorate(*args, **kwargs):
         return func(*args, **kwargs)
+
     return decorate
 
 
@@ -211,4 +215,3 @@ def get_celery_task_log_path(task_id):
     path = os.path.join(settings.CELERY_LOG_DIR, rel_path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return path
-

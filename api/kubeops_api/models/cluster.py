@@ -5,11 +5,17 @@ from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
+from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
+from kubeops_api.adhoc import fetch_cluster_config
+from kubeops_api.components import generate_grafana_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
+from django.db.models import Q
+from common import models as common_models
 
 logger = logging.getLogger(__name__)
+__all__ = ["Cluster"]
 
 
 class Cluster(Project):
@@ -31,8 +37,10 @@ class Cluster(Project):
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
+    network_plugin = models.CharField(max_length=128, null=True, blank=True)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+    config_path = models.CharField(max_length=128, blank=True, null=True, default=None)
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
 
     @property
@@ -45,6 +53,13 @@ class Cluster(Project):
         return self.package.meta['resource']
 
     @property
+    def grafana(self):
+        result = {}
+        if self.status == Cluster.CLUSTER_STATUS_RUNNING:
+            result = generate_grafana_urls(self)
+        return result
+
+    @property
     def operations(selfs):
         return selfs.package.meta['operations']
 
@@ -52,10 +67,27 @@ class Cluster(Project):
     def resource_version(self):
         return self.package.meta['version']
 
+    @property
+    def nodes(self):
+        self.change_to()
+        nodes = Node.objects.all().filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
+        n = []
+        for node in nodes:
+            n.append(node.name)
+        return n
+
     def create_storage(self):
         if self.persistent_storage:
-            print(self.persistent_storage.vars)
-            self.set_config_storage(self.persistent_storage.vars)
+            self.set_config_unlock(self.persistent_storage.vars)
+
+    def create_network_plugin(self):
+        if self.network_plugin:
+            networks = self.package.meta.get('networks', [])
+            vars = {}
+            for net in networks:
+                if net["name"] == self.network_plugin:
+                    vars = net.get('vars', {})
+            self.set_config_unlock(vars)
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -119,7 +151,7 @@ class Cluster(Project):
         role.vars = _vars
         role.save()
 
-    def set_config_storage(self, vars):
+    def set_config_unlock(self, vars):
         self.change_to()
         config_role = Role.objects.get(name='config')
         role_vars = config_role.vars
@@ -142,22 +174,28 @@ class Cluster(Project):
         role.save()
 
     def create_node_localhost(self):
-        Node.objects.create(
-            name="localhost", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
-        Node.objects.create(
-            name="127.0.0.1", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
-        Node.objects.create(
-            name="::1", vars={"ansible_connection": "local"},
-            project=self, meta={"hidden": True}
-        )
+        local_nodes = ['localhost', '127.0.0.1', '::1']
+        for name in local_nodes:
+            node = Node.objects.create(
+                name=name, vars={"ansible_connection": "local"},
+                project=self, meta={"hidden": True},
+            )
+            node.set_groups(group_names=['config'])
+
+    def fetch_config(self):
+        self.change_to()
+        master = self.group_set.get(name='master').hosts.first()
+        dest = fetch_cluster_config(master, os.path.join(ANSIBLE_PROJECTS_DIR, self.name))
+        self.config_path = dest
+        self.save()
+
+    def node_health_check(self):
+        self.change_to()
 
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
         self.create_playbooks()
         self.create_node_localhost()
+        self.create_network_plugin()
         self.create_storage()
