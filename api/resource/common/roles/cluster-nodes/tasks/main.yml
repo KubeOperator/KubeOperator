@@ -11,6 +11,15 @@
     regexp: "^DNS1"
     line: "DNS1={{dns_server}}"
 
+- name: 解锁 resolv.conf
+  shell: "chattr -i /etc/resolv.conf"
+
+- name: 更新 resolv.conf
+  shell: "echo nameserver {{dns_server}} >  /etc/resolv.conf"
+
+- name: 锁定 resolv.conf
+  shell: "chattr +i /etc/resolv.conf"
+
 
 - name: 刷新 dns 解析
   service:

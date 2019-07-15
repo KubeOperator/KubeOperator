@@ -1,3 +1,0 @@
-{% for host in groups['all_nodes'] %}
-address=/{{host}}/{{ hostvars[host]['ansible_default_ipv4']['address'] }}
-{% endfor %}
