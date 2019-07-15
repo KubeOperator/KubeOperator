@@ -44,6 +44,7 @@
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
+  <clr-dg-column>网络模型</clr-dg-column>
   <clr-dg-column>节点</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
@@ -51,9 +52,10 @@
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>
-      {{cluster.resource + '-' + cluster.resource_version}}
+      {{cluster.resource}}
     </clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.network_plugin}}</clr-dg-cell>
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>

@@ -20,6 +20,7 @@ export class Cluster {
   operations: Operation[];
   enable_auth: string[] = [];
   nodes: string[] = [];
+  network_plugin: string;
   grafana: {};
 }
 
