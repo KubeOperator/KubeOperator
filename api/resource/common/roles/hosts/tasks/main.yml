@@ -20,7 +20,7 @@
     state: directory
 
 - name: 备份原仓库
-  shell: "mv /etc/yum.repos.d/* /etc/yum.repos.d/bak"
+  shell: "mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak >/dev/null 2>&1  || ls /etc/yum.repos.d/ >/dev/null 2>&1"
 
 - name: 删除其他仓库
   file:
@@ -31,9 +31,6 @@
   template:
     src: templates/kubeops.repo.j2
     dest: /etc/yum.repos.d/kubeops.repo
-
-- name: 刷新缓存
-  shell: yum makecache
 
 
 - name: 安装基础软件包
