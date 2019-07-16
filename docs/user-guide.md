@@ -1,6 +1,8 @@
 # KubeOperator 使用手册
 
-KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节点模式，另外一种是多住多节点模式。本手册仅描述一主多节点的部署和管理。
+KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节点模式，另外一种是多主多节点模式。本手册仅描述一主多节点的部署和管理。
+
+注：多主多节点模式适合在MultiAZ（多故障域）下部署，实现双活环境下的高可用。KubeOperator 2.0 版本会 MultiAZ。
 
 ## 一、集群规划
 
@@ -19,7 +21,7 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
         <td>CentOS 7.6</td>
         <td>1C 2G</td>
         <td>2C 4G</td>
-        <td>提供集群内ntp对时间服务和dns解析服务。</td>
+        <td>集群内 NTP 服务和 DNS 服务。</td>
     </tr>
     <tr>
         <td>master</td>
@@ -27,7 +29,7 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
         <td>CentOS 7.6</td>
         <td>2C 4G</td>
         <td>4C 16G</td>
-        <td>运行etcd,kube-apiserver,kube-scheduler 和 kube-apiserver。</td>
+        <td>运行 etcd、kube-apiserver、kube-scheduler、kube-apiserver。</td>
     </tr>
     <tr>
         <td>worker</td>
@@ -35,19 +37,17 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
         <td>CentOS 7.6</td>
         <td>2C 8G</td>
         <td>8C 32G</td>
-        <td>运行 kubelet,应用的负载节点,pod 将调度到拥有此角色的节点。</td>
+        <td>运行 kubelet、应用工作负载。</td>
     </tr>
 </table>
 
 ## 二、KubeOperator 设置
+
 1.设置主机名: 如 KubeOperator 存在域名,请填写可以解析到本机的域名,否则使用本机IP。
 
 2.设置域名后缀: 此后缀为集群节点的域名后缀，例如: master-1.nmss.f2c.com。
 
 ![KubeOperator设置](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/kubeops_setting.png?raw=true)
-
-
-
 
 ## 三、准备存储（当前仅支持 NFS）
 
@@ -57,16 +57,11 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 
 ![添加存储-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/storage-2.png?raw=true)
 
-
-
 ## 四、准备主机
 
 1.添加主机:
 
 ![添加主机-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/hosts-1.png?raw=true)
-
-
-
 
 ## 五、创建集群
 
@@ -84,7 +79,6 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 
 ![添加集群-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster_create-7.png?raw=true)
 
-
 ## 六、部署集群
 
 1.开始部署:
@@ -97,7 +91,11 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 
 ![开始部署-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/complete-2.png?raw=true)
 
-## 七、监控集群
+## 七、访问集群
+
+TBD
+
+## 八、集群监控
 
 1.集群监控: 
 
@@ -106,5 +104,3 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 2.节点监控
 
 ![监控-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/metrics-nodes.png?raw=true)
-
-
