@@ -97,6 +97,14 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 
 ![开始部署-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/complete-2.png?raw=true)
 
-![开始部署-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/mestric.png?raw=true)
+## 七、监控集群
+
+1.集群监控: 
+
+![开始部署-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/metrics.png?raw=true)
+
+2.节点监控
+
+![开始部署-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/metrics-nodes.png?raw=true)
 
 
