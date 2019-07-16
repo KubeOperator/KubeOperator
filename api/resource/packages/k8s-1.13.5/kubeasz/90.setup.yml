@@ -41,6 +41,8 @@
     - kube-node
   # 
   tasks:
+    - name: 下载helm客户端
+      copy: src={{ base_dir }}/bin/helm dest={{ bin_dir }}/helm mode=0755
     - name: Making master nodes SchedulingDisabled
       shell: "{{ bin_dir }}/kubectl cordon {{ inventory_hostname }} "
       delegate_to: "{{ groups['kube-master'][0] }}"
@@ -69,6 +71,9 @@
 - hosts: "{{groups['kube-master'][0]}}"
   roles:
     - cluster-storage
+
+
+
 
 # to install helm
 - hosts: "{{groups['kube-master'][0]}}"

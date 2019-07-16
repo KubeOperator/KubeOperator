@@ -1,6 +1,3 @@
-- name: 下载helm客户端
-  copy: src={{ base_dir }}/bin/helm dest={{ bin_dir }}/helm mode=0755
-
 - name: 准备rbac配置
   template: src=helm-rbac.yaml.j2 dest=./helm-rbac.yaml
 
