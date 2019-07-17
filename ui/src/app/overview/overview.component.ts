@@ -12,12 +12,15 @@ export class OverviewComponent implements OnInit {
 
   currentCluster: Cluster;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private clusterService: ClusterService) {
   }
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
+      this.clusterService.getCluster(this.currentCluster.name).subscribe((d) => {
+        this.currentCluster = d;
+      });
     });
   }
 

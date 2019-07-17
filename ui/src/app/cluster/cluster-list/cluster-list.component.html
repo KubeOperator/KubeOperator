@@ -30,21 +30,11 @@
         操作
         <clr-icon shape="caret down"></clr-icon>
       </button>
-      <clr-dropdown-menu clrPosition="bottom-left" *clrIfOpen>
-        <div *ngFor="let op of selectedClusters[0].operations">
-          <button type="button" [disabled]="!showBtn(selectedClusters[0],op)"
-                  (click)="handleEvent(selectedClusters[0].name,op)"
-                  clrDropdownItem>
-            {{op.comment}}
-          </button>
-        </div>
-      </clr-dropdown-menu>
     </clr-dropdown>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
-  <clr-dg-column>网络模型</clr-dg-column>
   <clr-dg-column>节点</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
@@ -55,7 +45,6 @@
       {{cluster.resource}}
     </clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
-    <clr-dg-cell>{{cluster.network_plugin}}</clr-dg-cell>
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>

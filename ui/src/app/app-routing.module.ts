@@ -39,12 +39,12 @@ const routes: Routes = [
         component: ClusterDetailComponent,
         resolve: {cluster: ClusterRoutingResolverService},
         children: [
-          {path: '', redirectTo: 'node', pathMatch: 'full'},
+          {path: '', redirectTo: 'overview', pathMatch: 'full'},
+          {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
           {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
-
         ]
       }
     ]

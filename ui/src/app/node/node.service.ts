@@ -42,7 +42,7 @@ export class NodeService {
   }
 
   get_grafana_url(nodeIp: string, cluster: Cluster): string {
-    const base = cluster.grafana['nodes_grafana'];
+    const base = cluster.apps['nodes_grafana'];
     if (!base) {
       return null;
     }

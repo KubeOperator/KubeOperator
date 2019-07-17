@@ -43,6 +43,10 @@ export class ClusterService {
     return this.http.get<ExtraConfig>(baseClusterConfigUrl.replace('{cluster_name}', clusterName) + key);
   }
 
+  listClusterConfig(clusterName: string): Observable<ExtraConfig[]> {
+    return this.http.get<ExtraConfig[]>(baseClusterConfigUrl.replace('{cluster_name}', clusterName));
+  }
+
   createCluster(cluster: Cluster): Observable<Cluster> {
     return this.http.post<Cluster>(baseClusterUrl, cluster).pipe(
       catchError(error => throwError(error))
@@ -56,6 +60,10 @@ export class ClusterService {
   }
 
   get_cluster_grafana(cluster: Cluster): string {
-    return cluster.grafana['cluster_grafana'];
+    return cluster.apps['cluster_grafana'];
+  }
+
+  get_cluster_regsitry_ui(cluster: Cluster): string {
+    return cluster.apps['registry-ui'];
   }
 }

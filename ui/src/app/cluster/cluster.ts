@@ -21,7 +21,7 @@ export class Cluster {
   enable_auth: string[] = [];
   nodes: string[] = [];
   network_plugin: string;
-  grafana: {};
+  apps: {};
 }
 
 export class ExtraConfig {
