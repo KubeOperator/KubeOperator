@@ -11,7 +11,7 @@ import {App} from '../../package/package';
 export class AppsComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
-  private apps: App[] = [];
+  apps: App[] = [];
 
   constructor(private packageService: PackageService) {
   }

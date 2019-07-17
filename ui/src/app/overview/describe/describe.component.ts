@@ -16,8 +16,8 @@ import {ClusterStatus} from './class/describe';
 export class DescribeComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
-  private clusterInfos: ClusterInfo[] = [];
-  private operations: Operation[] = [];
+  clusterInfos: ClusterInfo[] = [];
+  operations: Operation[] = [];
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
