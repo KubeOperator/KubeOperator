@@ -30,6 +30,9 @@
     - 'dns_install'
   ignore_errors: true
 
+- import_tasks: ingress.yml
+  when: '"ingress-controller" not in pod_info.stdout '
+
 - block:
     - name: 获取 metrics-server 镜像
       docker_image:
@@ -58,8 +61,7 @@
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install '
   ignore_errors: true
 
-- import_tasks: ingress.yml
-  when: '"ingress-controller" not in pod_info.stdout '
+
 
 - block:
     - name: 创建 monitoring namespace
