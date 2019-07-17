@@ -29,7 +29,7 @@
           <div class="clr-select-wrapper">
             <select id="package" [(ngModel)]="item.template" name="template" (change)="templateOnChange()"
                     class="clr-select" required>
-              <option [value]=null>请选择离线包</option>
+              <option [value]=null>请选择存储类型</option>
               <option *ngFor="let template of storageTemplates" [value]="template.name">{{template.name}}</option>
             </select>
             <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>

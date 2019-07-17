@@ -94,12 +94,8 @@ export class ClusterListComponent implements OnInit {
     return this.clusterService.get_cluster_grafana(cluster);
   }
 
-  redirect(cluster_name: string, url: string) {
-    if (url) {
-      const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];
-      this.router.navigate(linkUrl);
-    }
-  }
+
+
 
   showBtn(cluster: Cluster, opt: Operation): boolean {
     let result = true;
@@ -112,13 +108,5 @@ export class ClusterListComponent implements OnInit {
   }
 
 
-  handleEvent(cluster_name: string, opt: Operation) {
-    if (opt.event) {
-      this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {
-        this.redirect(cluster_name, opt.redirect);
-      });
-    } else if (opt.redirect) {
-      this.redirect(cluster_name, opt.redirect);
-    }
-  }
+
 }

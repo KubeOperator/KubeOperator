@@ -1,9 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Cluster} from '../../cluster/cluster';
+import {Cluster, Operation} from '../../cluster/cluster';
 import {PackageService} from '../../package/package.service';
-import {Portal, Template} from '../../package/package';
-import {ClusterRoleService} from '../../cluster/cluster-role.service';
-import {ClusterStatusService} from '../../cluster/cluster-status.service';
+import {ClusterInfo, Portal, Template} from '../../package/package';
+import {ClusterService} from '../../cluster/cluster.service';
+import {OverviewService} from '../overview.service';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {Router} from '@angular/router';
+import {ClusterStatus} from './class/describe';
 
 @Component({
   selector: 'app-describe',
@@ -13,35 +16,77 @@ import {ClusterStatusService} from '../../cluster/cluster-status.service';
 export class DescribeComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
-  portals: Portal[] = [];
+  private clusterInfos: ClusterInfo[] = [];
+  private operations: Operation[] = [];
 
-  constructor(private packageService: PackageService, private roleService: ClusterRoleService,
-              private clusterStatusService: ClusterStatusService) {
+  constructor(private packageService: PackageService, private clusterService: ClusterService,
+              private overviewService: OverviewService, private operaterService: OperaterService,
+              private router: Router) {
   }
 
   ngOnInit() {
-    this.packageService.getPackage(this.currentCluster.package).subscribe(data => {
-      const template: Template = data.meta.templates.filter((temp => {
-        if (temp.name === this.currentCluster.template) {
-          return true;
-        }
-      }))[0];
-      this.roleService.getClusterRole(this.currentCluster.name, 'OSEv3').subscribe(role => {
-        for (const key in role.vars) {
-          if (key) {
-            template.portals.forEach(p => {
-              if (p.redirect.includes(key)) {
-                p.redirect = p.redirect.replace('$' + key, role.vars[key]);
-              }
-            });
-          }
-        }
-        this.portals = template.portals;
+    this.packageService.getPackage(this.currentCluster.package).subscribe(pkg => {
+      const infos = pkg.meta.cluster_infos;
+      this.operations = pkg.meta.operations;
+      this.clusterService.listClusterConfig(this.currentCluster.name).subscribe(configs => {
+        infos.forEach(info => {
+          configs.forEach(cfg => {
+            if (cfg.key === info.key) {
+              info.value = cfg.value;
+            }
+          });
+        });
+        this.clusterInfos = infos;
       });
     });
   }
 
-  getStatusComment(status: string): string {
-    return this.clusterStatusService.getComment(status);
+
+  onDownload() {
+    this.overviewService.downLoad(this.currentCluster);
   }
+
+  handleEvent(cluster_name: string, opt: Operation) {
+    if (opt.event) {
+      this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {
+        this.redirect(cluster_name, opt.redirect);
+      });
+    } else if (opt.redirect) {
+      this.redirect(cluster_name, opt.redirect);
+    }
+  }
+
+  redirect(cluster_name: string, url: string) {
+    if (url) {
+      const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];
+      this.router.navigate(linkUrl);
+    }
+  }
+
+  getStatus(): ClusterStatus {
+    return this.getStatusDescribe(this.currentCluster);
+  }
+
+  getStatusDescribe(cluster: Cluster): ClusterStatus {
+    const result = new ClusterStatus();
+    switch (cluster.status) {
+      case 'READY':
+        result.color = 'red';
+        result.alias = '准备安装';
+        break;
+      case 'ERROR':
+        result.color = 'red';
+        result.alias = '错误';
+        break;
+      case 'RUNNING':
+        result.color = 'green';
+        result.alias = '运行中';
+        break;
+      default :
+        result.color = 'blue';
+        result.alias = '执行中';
+    }
+    return result;
+  }
+
 }

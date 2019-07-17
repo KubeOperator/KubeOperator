@@ -31,7 +31,7 @@
             <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
                     (change)="onPackageChange()" required>
               <option [value]=null>请选择离线包</option>
-              <option *ngFor="let pk of packages" [value]="pk.name">{{pk.name}}</option>
+              <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
             </select>
             <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
           </div>

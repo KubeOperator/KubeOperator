@@ -1,10 +1,33 @@
-<h5>描述:</h5>
-名称:{{currentCluster.name}}<br/>
-离线包:{{currentCluster.package}}<br/>
-部署模型:{{currentCluster.template}}<br/>
-状态:{{getStatusComment(currentCluster.status)}}<br/>
-
-<div *ngFor="let portal of portals">
-  {{portal.name}}:<a [href]="portal.redirect" target="_blank">{{portal.redirect}}</a>
+<div class="clr-row">
+  <div class="clr-col-12">
+    <div class="card">
+      <div class="card-header">
+        描述
+      </div>
+      <div class="card-block">
+        <ul class="list-unstyled">
+          <li><b style="margin-right: 16px">集群名称:</b>{{currentCluster.name}}</li>
+          <li><b style="margin-right: 16px">kubernetes 版本: </b>{{currentCluster.package}}</li>
+          <li><b style="margin-right: 16px">部署模型:</b> {{currentCluster.template}}</li>
+          <li><b style="margin-right: 16px">存储: </b>{{currentCluster.persistent_storage}}</li>
+          <li *ngFor="let info of clusterInfos"><b style="margin-right: 16px">{{info.name}}:</b> {{info.value}}</li>
+          <li><b style="margin-right: 16px">创建时间:</b> {{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}
+          </li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <div class="clr-row">
+          <div class="clr-col-9">
+            <button *ngFor="let opt of operations" class="btn btn-outline"
+                    [disabled]="!opt.display_on.includes(currentCluster.status)"
+                    (click)="handleEvent(currentCluster.name,opt)">{{opt.comment}}</button>
+            <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
+              下载kube-config
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 

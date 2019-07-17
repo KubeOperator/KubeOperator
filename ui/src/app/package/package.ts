@@ -1,3 +1,5 @@
+import {Operation} from '../cluster/cluster';
+
 export class Package {
   id: string;
   name: string;
@@ -28,6 +30,22 @@ export class PackageMeta {
   components: Components;
   images: Image[];
   networks: Network[] = [];
+  apps: App[] = [];
+  cluster_infos: ClusterInfo[] = [];
+  operations: Operation[] = [];
+}
+
+export class App {
+  name: string;
+  logo: string;
+  url_key: string;
+  describe: string;
+}
+
+export class ClusterInfo {
+  name: string;
+  key: string;
+  value: string = null;
 }
 
 export class Config {
