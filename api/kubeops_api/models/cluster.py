@@ -7,7 +7,7 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config
-from kubeops_api.components import generate_grafana_urls
+from kubeops_api.components import generate_grafana_urls, generate_prometheus_url, get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
@@ -53,11 +53,8 @@ class Cluster(Project):
         return self.package.meta['resource']
 
     @property
-    def grafana(self):
-        result = {}
-        if self.status == Cluster.CLUSTER_STATUS_RUNNING:
-            result = generate_grafana_urls(self)
-        return result
+    def apps(self):
+        return get_component_urls(self)
 
     @property
     def operations(selfs):
