@@ -15,7 +15,7 @@ function build_image() {
     echo ">>> 开始build镜像"
     cd ${PROJECT_DIR}
     for image in ${images};do
-        if [[ ! ${image} =~ 'kubeOperator' ]];then
+        if [[ ! ${image} =~ 'kube-operator' ]];then
             docker pull ${image}
         fi
     done
