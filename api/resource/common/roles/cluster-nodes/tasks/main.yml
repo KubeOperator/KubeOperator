@@ -39,5 +39,5 @@
 - name: 启动时间同步服务
   service:
     name: chronyd
-    state: started
+    state: restarted
 
