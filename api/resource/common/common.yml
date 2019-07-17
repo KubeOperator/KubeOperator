@@ -7,7 +7,7 @@
   roles:
     - daemon
 #config
-- hosts: all_nodes
+- hosts: cluster_nodes
   roles:
     - cluster-nodes
 
