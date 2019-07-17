@@ -1,6 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from kubeops_api import api
+from django.urls import path
 
 app_name = "kubeops_api"
 router = DefaultRouter()
@@ -27,4 +28,5 @@ storage_router = routers.NestedDefaultRouter(router, r'storage', lookup='storage
 storage_router.register(r'nodes', api.StorageNodeViewSet, 'storage-node')
 
 urlpatterns = [
-              ] + router.urls + cluster_router.urls + storage_router.urls
+    path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
+] + router.urls + cluster_router.urls + storage_router.urls

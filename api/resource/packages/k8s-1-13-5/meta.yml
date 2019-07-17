@@ -174,7 +174,7 @@ apps:
   - name: Registry-console
     logo: registry.ico
     url_key: registry-ui
-    describe: "集群镜像仓库控制台，默认用户名: admin 默认密码: admin123"
+    describe: "集群镜像仓库控制台。"
 
   - name: Dashboard
     logo: k8s.png
