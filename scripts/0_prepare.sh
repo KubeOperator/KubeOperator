@@ -31,7 +31,7 @@ function build_and_save_images() {
 
     echo ">>> 开始保存镜像"
     for image in ${images};do
-        if [[ ! ${image} =~ 'kubeOperator' ]];then
+        if [[ ! ${image} =~ 'kube-operator' ]];then
             docker pull ${image}
         fi
         filename=$(basename ${image}).tar
