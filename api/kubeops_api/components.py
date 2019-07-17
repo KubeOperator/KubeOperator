@@ -6,19 +6,20 @@ https_prefix = 'http://'
 
 def get_component_urls(cluster):
     urls = {}
-    grafana_urls = generate_grafana_urls(cluster)
-    urls.update(grafana_urls)
-    prometheus_urls = generate_prometheus_url(cluster)
-    urls.update(prometheus_urls)
-    registry_urls = generate_registry_url(cluster)
-    urls.update(registry_urls)
-    dashboard_urls = generate_dashboard_url(cluster)
-    urls.update(dashboard_urls)
+    app_url = cluster.get_config("APP_DOMAIN").get('value')
+    if app_url:
+        grafana_urls = generate_grafana_urls(cluster, app_url)
+        urls.update(grafana_urls)
+        prometheus_urls = generate_prometheus_url(cluster, app_url)
+        urls.update(prometheus_urls)
+        registry_urls = generate_registry_url(cluster, app_url)
+        urls.update(registry_urls)
+        dashboard_urls = generate_dashboard_url(cluster, app_url)
+        urls.update(dashboard_urls)
     return urls
 
 
-def generate_grafana_urls(cluster):
-    app_url = cluster.get_config("APP_DOMAIN").get('value')
+def generate_grafana_urls(cluster, app_url):
     db_url = http_prefix + 'grafana.' + app_url
     urls = {"grafana": db_url}
     if cluster.status == 'RUNNING':
@@ -53,16 +54,14 @@ def list_grafana_dbs(db_url):
     return urls
 
 
-def generate_prometheus_url(cluster):
-    app_url = cluster.get_config("APP_DOMAIN").get('value')
+def generate_prometheus_url(cluster, app_url):
     prometheus_url = http_prefix + "prometheus." + app_url
     return {
         "prometheus": prometheus_url
     }
 
 
-def generate_registry_url(cluster):
-    app_url = cluster.get_config("APP_DOMAIN").get('value')
+def generate_registry_url(cluster, app_url):
     registry_url = http_prefix + "registry." + app_url
     registry_ui_url = http_prefix + "registry-ui." + app_url
     return {
@@ -71,8 +70,7 @@ def generate_registry_url(cluster):
     }
 
 
-def generate_dashboard_url(cluster):
-    app_url = cluster.get_config("APP_DOMAIN").get('value')
+def generate_dashboard_url(cluster, app_url):
     dashboard_url = https_prefix + "dashboard." + app_url
     return {
         "dashboard": dashboard_url
