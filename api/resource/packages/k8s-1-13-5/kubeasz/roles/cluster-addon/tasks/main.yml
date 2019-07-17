@@ -53,6 +53,11 @@
         name: "{{registry_prefix}}/{{dashboard_image}}:{{dashboard_version}}"
         state: present
 
+    - name: 创建 dashboard 部署文件
+      template:
+        src: dashboard/kubernetes-dashboard.yaml.j2
+        dest: "{{ base_dir }}/manifests/dashboard/kubernetes-dashboard.yaml"
+
     - name: 创建 dashboard部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
 	      {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
