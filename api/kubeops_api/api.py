@@ -1,6 +1,9 @@
+from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.db import transaction
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.host import Host
@@ -201,3 +204,17 @@ class SettingViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'head', 'options', 'put', 'patch']
     lookup_field = 'key'
     lookup_url_kwarg = 'key'
+
+
+class DownloadView(APIView):
+
+    def get(self, request, **kwargs):
+        pk = kwargs.get("pk")
+        cluster = get_object_or_404(Cluster, pk=pk)
+        file_name = cluster.fetch_config()
+        print(file_name)
+        with open(file_name) as f:
+            response = HttpResponse(f)
+            response["content_type"] = 'application/octet-stream'
+            response['Content-Disposition'] = "attachment; filename= {}".format(file_name)
+            return response

@@ -214,7 +214,7 @@ class ClusterSerializer(ProjectSerializer):
         model = Cluster
         fields = ['id', 'name', 'package', 'persistent_storage', 'network_plugin', 'template', 'auth_template',
                   'comment',
-                  'date_created', 'resource', 'resource_version', 'operations', 'current_execution', 'status', 'nodes',
+                  'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
                   'apps']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
-                            'operations', 'nodes', 'apps']
+                            'nodes', 'apps']

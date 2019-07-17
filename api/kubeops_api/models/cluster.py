@@ -40,7 +40,6 @@ class Cluster(Project):
     network_plugin = models.CharField(max_length=128, null=True, blank=True)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
-    config_path = models.CharField(max_length=128, blank=True, null=True, default=None)
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
 
     @property
@@ -55,10 +54,6 @@ class Cluster(Project):
     @property
     def apps(self):
         return get_component_urls(self)
-
-    @property
-    def operations(selfs):
-        return selfs.package.meta['operations']
 
     @property
     def resource_version(self):
@@ -180,11 +175,13 @@ class Cluster(Project):
             node.set_groups(group_names=['config'])
 
     def fetch_config(self):
-        self.change_to()
-        master = self.group_set.get(name='master').hosts.first()
-        dest = fetch_cluster_config(master, os.path.join(ANSIBLE_PROJECTS_DIR, self.name))
-        self.config_path = dest
-        self.save()
+        path = None
+        if self.status == Cluster.CLUSTER_STATUS_RUNNING:
+            self.change_to()
+            master = self.group_set.get(name='master').hosts.first()
+            dest = fetch_cluster_config(master, os.path.join(ANSIBLE_PROJECTS_DIR, self.name))
+            path = dest
+        return path
 
     def node_health_check(self):
         self.change_to()
