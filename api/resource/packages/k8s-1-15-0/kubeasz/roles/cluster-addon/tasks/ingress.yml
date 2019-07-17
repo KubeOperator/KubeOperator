@@ -1,0 +1,19 @@
+- name:  生成 https 证书
+  shell: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=kubeops.com"
+  args:
+    chdir: "/tmp/"
+
+- name: 生成 secret
+  shell: kubectl -n kube-system create secret tls traefik-tls-cert --key=tls.key --cert=tls.crt
+  args:
+    chdir: "/tmp/"
+
+- name: 拉取 traefik 镜像
+  docker_image:
+    name: "{{registry_prefix}}/{{traefik_image}}:{{traefik_version}}"
+    state: present
+
+- name: 创建 traefik部署
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true

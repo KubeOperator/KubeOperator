@@ -43,9 +43,12 @@ function start_docker {
 }
 
 function main {
-    install_docker
-    config_docker
-    start_docker
+    which docker >/dev/null 2>&1
+    if [ $? -ne 0 ];then
+       install_docker
+       config_docker
+       start_docker
+    fi
 }
 
 main

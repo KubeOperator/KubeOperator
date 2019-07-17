@@ -207,12 +207,14 @@ class ClusterSerializer(ProjectSerializer):
         queryset=Storage.objects.all(),
         slug_field='name', required=False
     )
-    grafana = serializers.JSONField(read_only=True)
+    apps = serializers.JSONField(read_only=True)
     current_execution = DeployExecutionSerializer(read_only=True)
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'persistent_storage','network_plugin', 'template', 'auth_template', 'comment',
-                  'date_created', 'resource', 'resource_version', 'operations','current_execution', 'status', 'nodes', 'grafana']
+        fields = ['id', 'name', 'package', 'persistent_storage', 'network_plugin', 'template', 'auth_template',
+                  'comment',
+                  'date_created', 'resource', 'resource_version', 'operations', 'current_execution', 'status', 'nodes',
+                  'apps']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
-                            'operations', 'nodes', 'grafana']
+                            'operations', 'nodes', 'apps']

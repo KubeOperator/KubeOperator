@@ -1,10 +1,28 @@
 import requests
 
+http_prefix = 'http://'
+https_prefix = 'http://'
+
+
+def get_component_urls(cluster):
+    urls = {}
+    grafana_urls = generate_grafana_urls(cluster)
+    urls.update(grafana_urls)
+    prometheus_urls = generate_prometheus_url(cluster)
+    urls.update(prometheus_urls)
+    registry_urls = generate_registry_url(cluster)
+    urls.update(registry_urls)
+    dashboard_urls = generate_dashboard_url(cluster)
+    urls.update(dashboard_urls)
+    return urls
+
 
 def generate_grafana_urls(cluster):
     app_url = cluster.get_config("APP_DOMAIN").get('value')
-    db_url = 'http://' + 'grafana.' + app_url
-    urls = list_grafana_dbs(db_url)
+    db_url = http_prefix + 'grafana.' + app_url
+    urls = {"grafana": db_url}
+    if cluster.status == 'RUNNING':
+        urls.update(list_grafana_dbs(db_url))
     return urls
 
 
@@ -33,3 +51,29 @@ def list_grafana_dbs(db_url):
     except Exception as e:
         urls = {}
     return urls
+
+
+def generate_prometheus_url(cluster):
+    app_url = cluster.get_config("APP_DOMAIN").get('value')
+    prometheus_url = http_prefix + "prometheus." + app_url
+    return {
+        "prometheus": prometheus_url
+    }
+
+
+def generate_registry_url(cluster):
+    app_url = cluster.get_config("APP_DOMAIN").get('value')
+    registry_url = http_prefix + "registry." + app_url
+    registry_ui_url = http_prefix + "registry-ui." + app_url
+    return {
+        "registry": registry_url,
+        "registry-ui": registry_ui_url
+    }
+
+
+def generate_dashboard_url(cluster):
+    app_url = cluster.get_config("APP_DOMAIN").get('value')
+    dashboard_url = https_prefix + "dashboard." + app_url
+    return {
+        "dashboard": dashboard_url
+    }
