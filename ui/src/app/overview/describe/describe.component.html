@@ -17,12 +17,10 @@
       </div>
       <div class="card-footer">
         <div class="clr-row">
-          <div class="clr-col-11">
+          <div class="clr-col-9">
             <button *ngFor="let opt of operations" class="btn btn-outline"
                     [disabled]="!opt.display_on.includes(currentCluster.status)"
                     (click)="handleEvent(currentCluster.name,opt)">{{opt.comment}}</button>
-          </div>
-          <div class="clr-col-1">
             <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
               下载kube-config
             </button>
