@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class StorageTemplate(models.Model):
-    name = models.CharField(max_length=128, verbose_name='名称')
+    name = models.CharField(max_length=128, unique=True, verbose_name='名称')
     meta = common_models.JsonDictTextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     templates_dir = os.path.join(settings.BASE_DIR, 'resource', 'storage')
@@ -71,9 +71,6 @@ class StorageNode(Ansible_Host):
 
     def get_var(self, key, default):
         return self.vars.get(key, default)
-
-
-
 
 
 class Storage(Project):
