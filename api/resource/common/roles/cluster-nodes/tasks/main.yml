@@ -41,3 +41,6 @@
     name: chronyd
     state: restarted
 
+
+- name: 主动同步时间一次
+  shell: "ntpdate {{ntp_server}}"

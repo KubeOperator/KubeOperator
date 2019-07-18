@@ -13,6 +13,7 @@ packages:
   - python-passlib
   - chrony
   - python-docker-py
+  - ntpdate
 
 firewall_tcp_ports:
   - 4789
