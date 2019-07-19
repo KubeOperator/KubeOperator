@@ -1,3 +1,15 @@
+<clr-modal [(clrModalOpen)]="openToken">
+  <h3 class="modal-title">Cluster Token</h3>
+  <div class="modal-body">
+    <textarea rows="10" *ngIf="token" [(ngModel)]="token"></textarea>
+    <div *ngIf="!token">
+      Cluster Token 获取中......<i class="fa fa-spinner fa-pulse"></i>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <!--<button type="button" class="btn btn-primary" ngxClipboard [cbContent]="token" (cbOnSuccess)="openToken=false">复制</button>-->
+  </div>
+</clr-modal>
 <div class="clr-row">
   <div class="clr-col-12">
     <div class="card">

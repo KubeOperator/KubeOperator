@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -225,6 +227,9 @@ class GetClusterTokenView(APIView):
         pk = kwargs.get("pk")
         cluster = get_object_or_404(Cluster, pk=pk)
         token = cluster.get_cluster_token()
+        result = {
+            "token": token
+        }
         response = HttpResponse()
-        response.write(token)
+        response.write(json.dumps(result))
         return response

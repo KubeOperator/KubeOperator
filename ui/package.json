@@ -30,6 +30,7 @@
     "core-js": "^2.5.4",
     "echarts": "^4.2.0-rc.2",
     "mockjs": "^1.0.1-beta3",
+    "ngx-clipboard": "^12.2.0",
     "ngx-cookie": "^4.1.2",
     "ngx-echarts": "^4.0.1",
     "npm": "^6.9.0",

@@ -48,10 +48,10 @@ export class TermComponent implements OnInit, OnDestroy {
 
     this.term = new Terminal({
       cursorBlink: true,
-      cols: 120,
-      rows: 33,
+      cols: 140,
+      rows: 10,
       letterSpacing: 0,
-      fontSize: 16
+      fontSize: 24
     });
     this.term.open(this.terminal.nativeElement);
   }

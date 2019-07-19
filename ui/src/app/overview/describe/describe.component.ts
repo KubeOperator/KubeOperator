@@ -18,6 +18,8 @@ export class DescribeComponent implements OnInit {
   @Input() currentCluster: Cluster;
   clusterInfos: ClusterInfo[] = [];
   operations: Operation[] = [];
+  openToken = false;
+  token: string = null;
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
@@ -47,8 +49,12 @@ export class DescribeComponent implements OnInit {
   }
 
   onGetToken() {
-    this.overviewService.getClusterToken(this.currentCluster);
+    this.openToken = true;
+    this.overviewService.getClusterToken(this.currentCluster).subscribe(data => {
+      this.token = data.token;
+    });
   }
+
 
   handleEvent(cluster_name: string, opt: Operation) {
     if (opt.event) {
