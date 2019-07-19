@@ -10,6 +10,14 @@ def gather_host_info(host):
     return result["raw"]["ok"][host.name]["setup"]["ansible_facts"]
 
 
+def get_cluster_token(host):
+    hosts = [host.__dict__]
+    shell = "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}') | grep token: | awk '{print $2}'"
+    result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': 'shell', 'args': shell},
+                          inventory_data={'hosts': hosts, 'vars': {}})
+    return result.get('raw').get('ok')[host.name]['command']['stdout']
+
+
 def fetch_cluster_config(host, dest):
     hosts = [host.__dict__]
     args = {'src': '/root/.kube/config',

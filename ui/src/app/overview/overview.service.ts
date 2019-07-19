@@ -15,4 +15,8 @@ export class OverviewService {
   downLoad(cluster: Cluster) {
     window.open('/api/v1/cluster/' + cluster.id + '/download/');
   }
+
+  getClusterToken(cluster: Cluster) {
+    window.open('/api/v1/cluster/' + cluster.id + '/token/');
+  }
 }

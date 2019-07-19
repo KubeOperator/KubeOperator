@@ -212,9 +212,19 @@ class DownloadView(APIView):
         pk = kwargs.get("pk")
         cluster = get_object_or_404(Cluster, pk=pk)
         file_name = cluster.fetch_config()
-        print(file_name)
         with open(file_name) as f:
             response = HttpResponse(f)
             response["content_type"] = 'application/octet-stream'
-            response['Content-Disposition'] = "attachment; filename= {}".format(file_name)
+            response['Content-Disposition'] = "attachment; filename= {}".format(cluster.name + '-kube-config')
             return response
+
+
+class GetClusterTokenView(APIView):
+
+    def get(self, request, **kwargs):
+        pk = kwargs.get("pk")
+        cluster = get_object_or_404(Cluster, pk=pk)
+        token = cluster.get_cluster_token()
+        response = HttpResponse()
+        response.write(token)
+        return response

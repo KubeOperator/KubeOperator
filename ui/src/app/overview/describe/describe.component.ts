@@ -46,6 +46,10 @@ export class DescribeComponent implements OnInit {
     this.overviewService.downLoad(this.currentCluster);
   }
 
+  onGetToken() {
+    this.overviewService.getClusterToken(this.currentCluster);
+  }
+
   handleEvent(cluster_name: string, opt: Operation) {
     if (opt.event) {
       this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {

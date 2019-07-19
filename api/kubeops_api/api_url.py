@@ -29,4 +29,5 @@ storage_router.register(r'nodes', api.StorageNodeViewSet, 'storage-node')
 
 urlpatterns = [
     path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
+    path('cluster/<uuid:pk>/token/',api.GetClusterTokenView.as_view())
 ] + router.urls + cluster_router.urls + storage_router.urls
