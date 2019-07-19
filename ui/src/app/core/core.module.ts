@@ -7,7 +7,6 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {RouterModule} from '@angular/router';
 import {NgxEchartsModule} from 'ngx-echarts';
-import {ClipboardModule} from 'ngx-clipboard';
 
 
 @NgModule({
@@ -23,8 +22,7 @@ import {ClipboardModule} from 'ngx-clipboard';
     BrowserAnimationsModule,
     BrowserModule,
     RouterModule,
-    NgxEchartsModule,
-    ClipboardModule
+    NgxEchartsModule
   ],
   exports: [
     CommonModule,
@@ -37,8 +35,7 @@ import {ClipboardModule} from 'ngx-clipboard';
     ClrFormsDeprecatedModule,
     BrowserModule,
     NgxEchartsModule,
-    BrowserAnimationsModule,
-    ClipboardModule
+    BrowserAnimationsModule
   ]
 })
 export class CoreModule {
