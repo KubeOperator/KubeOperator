@@ -49,7 +49,7 @@ export class TermComponent implements OnInit, OnDestroy {
     this.term = new Terminal({
       cursorBlink: true,
       cols: 140,
-      rows: 10,
+      rows: 30,
       letterSpacing: 0,
       fontSize: 24
     });
