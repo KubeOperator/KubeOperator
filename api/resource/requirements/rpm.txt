@@ -18,11 +18,3 @@ keepalived
 libseccomp2
 ibseccomp
 rsync
-PyYAML
-python-cryptography
-python-httplib2
-python-jinja2
-python-paramiko
-python-setuptools
-python2-jmespath
-sshpass

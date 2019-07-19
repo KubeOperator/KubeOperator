@@ -9,6 +9,12 @@ done
 printf "镜像处理完毕!"
 
 printf "开始处理rpm"
+
+yum clean
+yum makecache
+yum update
+yum updateinfo
+
 for r in $(cat $2);
 do
   yumdownloader --resolve --destdir=/tmp $r
