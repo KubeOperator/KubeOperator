@@ -10,10 +10,8 @@ printf "镜像处理完毕!"
 
 printf "开始处理rpm"
 
-yum clean
+yum clean all
 yum makecache
-yum update
-yum updateinfo
 
 for r in $(cat $2);
 do
