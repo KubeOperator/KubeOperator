@@ -32,6 +32,9 @@
     src: templates/kubeops.repo.j2
     dest: /etc/yum.repos.d/kubeops.repo
 
+- name: make yum cache
+  shell: yum makecache
+  ignore_errors: true
 
 - name: 安装基础软件包
   yum:
