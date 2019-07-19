@@ -1,7 +1,7 @@
 import requests
 
 http_prefix = 'http://'
-https_prefix = 'http://'
+https_prefix = 'https://'
 
 
 def get_component_urls(cluster):

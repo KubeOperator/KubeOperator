@@ -10,7 +10,7 @@ def add_default_admin(apps, schema_editor):
     user_model.objects.using(db_alias).create(
         username="admin",
         email="admin@mycomany.com",
-        password=make_password("admin"),
+        password=make_password("kubeoperator@admin123"),
         is_superuser=True,
         is_staff=True
     )
