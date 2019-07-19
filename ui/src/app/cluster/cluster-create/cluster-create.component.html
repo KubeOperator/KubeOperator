@@ -13,7 +13,7 @@
         <label for="name" class="clr-control-label clr-col-xs-12 clr-col-md-2">集群名称</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-input-wrapper">
-            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="Eg: clusterA"
+            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
                    minlength="2" maxlength="128"
                    class="clr-input" [(ngModel)]="cluster.name"
                    name="cluster_name" (keyup)="handleValidation()" required>

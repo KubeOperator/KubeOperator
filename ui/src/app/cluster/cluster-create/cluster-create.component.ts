@@ -58,7 +58,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   suffix = 'f2o';
   @ViewChild('basicFrom') basicForm: NgForm;
   isNameValid = true;
-  nameTooltipText = '';
+  nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   packageToolTipText = '';
   checkOnGoing = false;
   clusterNameChecker: Subject<string> = new Subject<string>();

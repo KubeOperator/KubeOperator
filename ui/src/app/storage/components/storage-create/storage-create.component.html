@@ -12,14 +12,14 @@
         <label for="name" class="clr-control-label clr-col-xs-12 clr-col-md-2">名称</label>
         <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
           <div class="clr-input-wrapper">
-            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="Eg: storage-A"
+            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: nfs"
                    minlength="2" maxlength="128"
                    class="clr-input" [(ngModel)]="item.name"
                    name="cluster_name" required>
             <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
           </div>
           <!--<i *ngIf="checkOnGoing" class="fa fa-spinner fa-pulse"></i>-->
-          <!--<span class="clr-subtext">{{nameTooltipText}}</span>-->
+          <span class="clr-subtext">仅支持使用小写英文字母!请勿使用特殊符号!</span>
         </div>
       </div>
 
