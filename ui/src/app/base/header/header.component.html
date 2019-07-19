@@ -1,7 +1,8 @@
 <clr-header class="header-6" [ngStyle]="{'background-color':'#2b415a'}">
-  <div class="branding" >
-    <img src="assets/images/logo-title.png" width="210px" >
+  <div class="branding">
+    <img src="assets/images/logo-title.png" width="210px">
   </div>
+  <app-password></app-password>
   <div class="header-actions">
     <clr-dropdown class="dropdown">
       <button class="nav-text" clrDropdownToggle>
@@ -10,6 +11,7 @@
         <clr-icon shape="caret down"></clr-icon>
       </button>
       <clr-dropdown-menu [clrPosition]="'bottom-right'">
+        <a href="javascript:void(0)" clrDropdownItem (click)="changePassword()">修改密码</a>
         <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
       </clr-dropdown-menu>
     </clr-dropdown>

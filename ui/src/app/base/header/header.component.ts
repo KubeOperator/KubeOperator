@@ -1,8 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {SessionService} from '../../shared/session.service';
 import {Router} from '@angular/router';
 import {CommonRoutes} from '../../shared/shared.const';
 import {SessionUser} from '../../shared/session-user';
+import {PasswordComponent} from './components/password/password.component';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,9 @@ import {SessionUser} from '../../shared/session-user';
 export class HeaderComponent implements OnInit {
   user: SessionUser = new SessionUser();
   username = 'guest';
+
+  @ViewChild(PasswordComponent)
+  password: PasswordComponent;
 
   constructor(private sessionService: SessionService, private router: Router) {
   }
@@ -30,6 +34,10 @@ export class HeaderComponent implements OnInit {
   logOut() {
     this.sessionService.clear();
     this.router.navigateByUrl(CommonRoutes.SIGN_IN);
+  }
+
+  changePassword() {
+    this.password.opened = true;
   }
 
 }

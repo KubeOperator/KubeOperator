@@ -7,12 +7,15 @@ import {ShellComponent} from './shell/shell.component';
 import {CoreModule} from '../core/core.module';
 import {MessageComponent} from './message/message.component';
 import {MessageService} from './message.service';
+import {PasswordComponent} from './header/components/password/password.component';
+import {TipModule} from '../tip/tip.module';
 
 @NgModule({
-  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent, MessageComponent],
+  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent, MessageComponent, PasswordComponent],
   imports: [
     CommonModule,
-    CoreModule
+    CoreModule,
+    TipModule
   ],
   exports: [NavigatorComponent]
 })
