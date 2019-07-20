@@ -202,6 +202,8 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 回到集群的【概览】页，在该页提供了 Grafana、Prometheus、Registry-console、Dashboard 四个 kubernetes 集群相关的系统快捷访问方式。
 
+> Grafana、Prometheus等系统的访问域名需要在 dns 服务器中添加相应的域名记录，如无条件，也可以通过修改 hosts 文件来达到相同的作用。
+
 ![集群概览](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-overview.png?raw=true)
 
 Prometheus 用来对整个 kubernetes 集群进行监控数据的采集。点击 Prometheus 下方的【转到】按钮即可访问 Prometheus 控制台。
