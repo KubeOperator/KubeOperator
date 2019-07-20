@@ -30,7 +30,7 @@ KubeOperator 支持两种 kubernetes 集群部署模式，一种是一主多节�
 域名后缀为集群节点访问地址的后缀，集群暴露出来的对外服务的 URL 都将以该域名后缀作为访问地址后缀。
 例如: grafana.apps.cluster.f2c.com。
 
-![KubeOperator设置](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/kubeops_setting.png?raw=true)
+![KubeOperator设置](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/kubeops-setting.png?raw=true)
 
 
 
