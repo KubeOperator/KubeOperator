@@ -2,8 +2,8 @@ import uuid
 from django.db import models
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
-from ansible_api.tasks import run_im_adhoc
 from kubeops_api.adhoc import gather_host_info
+from kubeops_api.models.credential import Credential
 
 __all__ = ['Host', 'HostInfo']
 
@@ -13,6 +13,16 @@ class Host(BaseHost):
     node = models.ForeignKey('Node', default=None, null=True, related_name='node',
                              on_delete=models.SET_NULL)
     name = models.CharField(max_length=128, validators=[name_validator], unique=True)
+    credential = models.ForeignKey("kubeops_api.Credential", null=True, on_delete=models.SET_NULL)
+
+    def full_host_credential(self):
+        if self.credential:
+            self.username = self.credential.username
+            if self.credential.type == Credential.CREDENTIAL_TYPE_PASSWORD:
+                self.password = self.credential.password
+            else:
+                self.private_key = self.credential.private_key
+            self.save()
 
     @property
     def cluster(self):

@@ -4,6 +4,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common import models as common_models
 
+__all__ = ["Credential"]
+
 
 class Credential(models.Model):
     CREDENTIAL_TYPE_PASSWORD = "password"

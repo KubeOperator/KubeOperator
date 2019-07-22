@@ -4,6 +4,7 @@ export class Host {
   ip: string;
   username: string;
   password: string;
+  credential: string;
   cluster: string;
   comment: string;
   info: HostInfo;

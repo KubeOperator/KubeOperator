@@ -2,35 +2,34 @@
            [clrModalClosable]="closable">
   <h3 class="modal-title">添加主机</h3>
   <div class="modal-body modal-height">
-    <form clrForm>
+    <form clrForm #hostForm='ngForm'>
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput type="text" [(ngModel)]="host.name" [ngModelOptions]="{standalone: true}">
+        <input clrInput type="text" [(ngModel)]="host.name" name="name" required>
       </clr-input-container>
 
       <clr-input-container>
         <label>Ip:</label>
-        <input clrInput type="text" [(ngModel)]="host.ip" [ngModelOptions]="{standalone: true}">
+        <input clrInput type="text" [(ngModel)]="host.ip" name="ip" required>
       </clr-input-container>
 
-      <clr-input-container>
-        <label>用户名:</label>
-        <input clrInput type="text" [(ngModel)]="host.username" [ngModelOptions]="{standalone: true}">
-      </clr-input-container>
-
-      <clr-password-container>
-        <label>密码:</label>
-        <input clrPassword type="password" [(ngModel)]="host.password" [ngModelOptions]="{standalone: true}">
-      </clr-password-container>
+      <clr-select-container>
+        <label>凭据:</label>
+        <select clrSelect [(ngModel)]="host.credential" name="credential" required>
+          <option [value]="null">请选择凭据</option>
+          <option [value]="credential.name" *ngFor="let credential of credentials">{{credential.name}}</option>
+        </select>
+      </clr-select-container>
 
       <clr-textarea-container>
         <label>描述:</label>
-        <textarea clrTextarea [(ngModel)]="host.comment" [ngModelOptions]="{standalone: true}"></textarea>
+        <textarea clrTextarea [(ngModel)]="host.comment" name="comment"></textarea>
       </clr-textarea-container>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="isSubmitGoing">
-          <i *ngIf="isSubmitGoing" class="fa fa-spinner fa-pulse"></i>提交
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing || hostForm.invalid">
+          <i *ngIf="isSubmitGoing " class="fa fa-spinner fa-pulse"></i>提交
         </button>
       </div>
     </form>

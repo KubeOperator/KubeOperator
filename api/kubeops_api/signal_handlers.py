@@ -7,7 +7,7 @@ from django.utils import timezone
 from gunicorn.config import Setting
 
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.host import HostInfo
+from kubeops_api.models.host import HostInfo, Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.storage import Storage
@@ -32,17 +32,16 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
         instance.on_node_save()
 
 
+@receiver(post_save, sender=Host)
+def post_host_save(sender, instance=None, created=False, **kwargs):
+    if created:
+        instance.full_host_credential()
+
+
 @receiver(pre_save, sender=HostInfo)
 def before_hostInfo_save(sender, instance=None, created=False, **kwargs):
     if created:
         instance.clear_host_info()
-
-
-@receiver(pre_save, sender=Setting)
-def before_setting_save(sender, instance=None, **kwargs):
-    pass
-    if instance.name == 'hostname':
-        os.putenv("REGISTORY_HOSTNAME", instance.value)
 
 
 def auto_lookup_packages():

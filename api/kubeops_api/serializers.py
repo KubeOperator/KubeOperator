@@ -17,7 +17,8 @@ from kubeops_api.models.storage import StorageTemplate, Storage, StorageNode
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
-    'RoleSerializer', 'DeployExecutionSerializer', 'HostInfoSerializer', 'SettingSerializer', 'HostSerializer'
+    'RoleSerializer', 'DeployExecutionSerializer', 'HostInfoSerializer', 'SettingSerializer', 'HostSerializer',
+    'CredentialSerializer'
 ]
 
 
@@ -88,13 +89,17 @@ class HostInfoSerializer(serializers.ModelSerializer):
 
 class HostSerializer(HostReadSerializer):
     info = HostInfoSerializer(read_only=True, required=False)
+    credential = serializers.SlugRelatedField(
+        queryset=Credential.objects.all(),
+        slug_field='name', required=False
+    )
 
     class Meta:
         model = Host
         extra_kwargs = HostReadSerializer.Meta.extra_kwargs
         fields = [
             'id', 'name', 'ip', 'username', 'password', 'comment', 'info', 'comment',
-            'cluster'
+            'cluster','credential'
         ]
         read_only_fields = ['id', 'info', 'comment']
 

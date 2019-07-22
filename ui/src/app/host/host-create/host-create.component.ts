@@ -3,6 +3,8 @@ import {Host} from '../host';
 import {HostService} from '../host.service';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {Credential} from '../../credential/credential-list/credential';
+import {CredentialService} from '../../credential/credential.service';
 
 @Component({
   selector: 'app-host-create',
@@ -11,7 +13,7 @@ import {TipLevels} from '../../tip/tipLevels';
 })
 export class HostCreateComponent implements OnInit {
 
-  constructor(private hostService: HostService, private tipService: TipService) {
+  constructor(private hostService: HostService, private tipService: TipService, private credentialService: CredentialService) {
   }
 
   @Output() create = new EventEmitter<boolean>();
@@ -21,8 +23,12 @@ export class HostCreateComponent implements OnInit {
   isSubmitGoing = false;
   host: Host = new Host();
   loading = false;
+  credentials: Credential[] = [];
 
   ngOnInit() {
+    this.credentialService.listCredential().subscribe(data => {
+      this.credentials = data;
+    });
   }
 
 

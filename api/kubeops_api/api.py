@@ -105,15 +105,6 @@ class StorageNodeViewSet(StorageResourceAPIMixin, viewsets.ModelViewSet):
     lookup_url_kwarg = 'name'
 
 
-class VolumeViewSet(viewsets.ModelViewSet):
-    queryset = Volume.objects.all()
-    serializers_class = serializers.VolumeSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get']
-    lookup_field = 'host'
-    lookup_url_kwarg = 'host_id'
-
-
 class CredentialViewSet(viewsets.ModelViewSet):
     queryset = Credential.objects.all()
     serializer_class = serializers.CredentialSerializer
