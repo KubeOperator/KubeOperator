@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
 from kubeops_api.models.cluster import Cluster
@@ -111,6 +112,14 @@ class VolumeViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
     lookup_field = 'host'
     lookup_url_kwarg = 'host_id'
+
+
+class CredentialViewSet(viewsets.ModelViewSet):
+    queryset = Credential.objects.all()
+    serializer_class = serializers.CredentialSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
 
 
 class HostViewSet(viewsets.ModelViewSet):

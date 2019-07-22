@@ -3,9 +3,10 @@ import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {TipModule} from '../tip/tip.module';
 import {CoreModule} from '../core/core.module';
+import {SystemSettingComponent} from './system-setting/system-setting.component';
 
 @NgModule({
-  declarations: [SettingComponent],
+  declarations: [SettingComponent, SystemSettingComponent],
   imports: [
     CommonModule,
     CoreModule,

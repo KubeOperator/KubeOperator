@@ -1,0 +1,11 @@
+<div>
+  <app-tip></app-tip>
+  <form clrForm *ngFor="let s of settings">
+    <clr-input-container>
+      <label>{{s.name}}</label>
+      <input clrInput [placeholder]="s.helper" type="text" [(ngModel)]="s.value" name="value"/>
+    </clr-input-container>
+  </form>
+  <button class="btn btn-info-outline" (click)="onSubmit()">保存</button>
+  <button class="btn btn-info-outline" (click)="onCancel()">取消</button>
+</div>

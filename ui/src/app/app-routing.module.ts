@@ -17,6 +17,8 @@ import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
 import {StorageComponent} from './storage/storage.component';
 import {AuthComponent} from './auth/auth.component';
+import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
+import {CredentialComponent} from './credential/credential.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -33,7 +35,15 @@ const routes: Routes = [
       {path: 'storage', component: StorageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
-      {path: 'setting', component: SettingComponent},
+      {
+        path: 'setting',
+        component: SettingComponent,
+        children: [
+          {path: '', redirectTo: 'system', pathMatch: 'full'},
+          {path: 'system', component: SystemSettingComponent},
+          {path: 'credential', component: CredentialComponent}
+        ]
+      },
       {
         path: 'cluster/:name',
         component: ClusterDetailComponent,

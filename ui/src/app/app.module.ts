@@ -21,12 +21,14 @@ import {DeployModule} from './deploy/deploy.module';
 import {SettingModule} from './setting/setting.module';
 import {StorageModule} from './storage/storage.module';
 import {AuthModule} from './auth/auth.module';
+import {CredentialModule} from './credential/credential.module';
 
 @NgModule({
   declarations: [
     AppComponent,
   ],
   imports: [
+    CredentialModule,
     BrowserModule,
     BaseModule,
     AppRoutingModule,

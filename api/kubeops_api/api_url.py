@@ -11,6 +11,7 @@ router.register('storage', api.StorageViewSet, 'storage')
 
 # 注册离线包路由
 router.register('packages', api.PackageViewSet, 'package')
+router.register('credential', api.CredentialViewSet, 'credential')
 router.register('template', api.StorageTemplateViewSet, 'template')
 router.register('host', api.HostViewSet, 'host')
 router.register('volume', api.VolumeViewSet, 'volume')
@@ -28,6 +29,6 @@ storage_router = routers.NestedDefaultRouter(router, r'storage', lookup='storage
 storage_router.register(r'nodes', api.StorageNodeViewSet, 'storage-node')
 
 urlpatterns = [
-    path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
-    path('cluster/<uuid:pk>/token/',api.GetClusterTokenView.as_view())
-] + router.urls + cluster_router.urls + storage_router.urls
+                  path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
+                  path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view())
+              ] + router.urls + cluster_router.urls + storage_router.urls

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
 from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
@@ -18,6 +19,17 @@ __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
     'RoleSerializer', 'DeployExecutionSerializer', 'HostInfoSerializer', 'SettingSerializer', 'HostSerializer'
 ]
+
+
+class CredentialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Credential
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'private_key': {'write_only': True},
+        }
+        fields = ['id', 'name', 'username', 'password', 'private_key', 'date_created', 'type']
+        read_only_fields = ['id', 'date_created']
 
 
 class SettingSerializer(serializers.ModelSerializer):
