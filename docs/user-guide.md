@@ -6,7 +6,7 @@ KubeOperator 支持两种 Kubernetes 集群部署模式，一种是一主多节�
 
 ## 1 登录
 
-KubeOperator 安全完成后，访问 KubeOperator 控制台，进行登录。默认的登录用户名为 admin，默认密码为 kubeoperator@admin123。
+KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。默认的登录用户名为 admin，默认密码为 kubeoperator@admin123。
 
 > 为了保证系统的安全，请在完成登录后，点击控制台右上角的"修改密码"进行密码的重置。
 
