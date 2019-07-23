@@ -6,6 +6,7 @@ import {StorageTemplateService} from '../../services/storage-template.service';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
 import {StorageDetailComponent} from '../storage-detail/storage-detail.component';
+import {StorageCreateComponent} from '../storage-create/storage-create.component';
 
 @Component({
   selector: 'app-storage-list',
@@ -27,6 +28,8 @@ export class StorageListComponent implements OnInit {
   showDetail = false;
   @ViewChild(StorageDetailComponent)
   child: StorageDetailComponent;
+  @ViewChild(StorageCreateComponent)
+  creation: StorageCreateComponent;
   @Output() addItem = new EventEmitter<void>();
 
   ngOnInit() {
@@ -54,7 +57,6 @@ export class StorageListComponent implements OnInit {
     this.showDetail = true;
     this.child.item = item;
     this.child.loadTemplate();
-    this.child.loadVars();
   }
 
   onDeleted() {
@@ -81,5 +83,9 @@ export class StorageListComponent implements OnInit {
 
   addNewItem() {
     this.addItem.emit();
+  }
+
+  getStatus(item: Storage) {
+    return this.storageService.getStorageStatus(item);
   }
 }

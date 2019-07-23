@@ -18,11 +18,10 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.models.storage import StorageTemplate, Storage, StorageNode
+from kubeops_api.models.storage import StorageTemplate, Storage
 from . import serializers
 from .mixin import ClusterResourceAPIMixin, StorageResourceAPIMixin
 from .tasks import start_deploy_execution
-from django.db.models import Q
 
 
 # 集群视图
@@ -40,6 +39,14 @@ class StorageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        transaction.on_commit(lambda: instance.health_check())
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        transaction.on_commit(lambda: instance.health_check())
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -92,14 +99,6 @@ class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Node.objects.all()
     serializer_class = serializers.NodeSerializer
-    permission_classes = (IsSuperUser,)
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-
-class StorageNodeViewSet(StorageResourceAPIMixin, viewsets.ModelViewSet):
-    queryset = StorageNode.objects.all()
-    serializer_class = serializers.StorageNodeSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'

@@ -28,8 +28,14 @@ def fetch_cluster_config(host, dest):
                           inventory_data={'hosts': hosts, 'vars': {}})
     if not is_adhoc_success(result):
         raise Exception("get cluster config failed!")
-    print(result)
     return result['raw']['ok'][host.name]['fetch']['dest']
+
+
+def storage_health_check(host, module, command):
+    hosts = [host.__dict__]
+    result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': module, 'args': command},
+                          inventory_data={"hosts": hosts, "vars": {}})
+    return is_adhoc_success(result)
 
 
 def is_adhoc_success(result):

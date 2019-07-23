@@ -18,6 +18,10 @@ export class StorageService {
     return this.http.get<Storage[]>(this.storageUrl);
   }
 
+  updateStorage(name: string, item: Storage): Observable<Storage> {
+    return this.http.patch<Storage>(this.storageUrl + name + '/', item);
+  }
+
   getStorage(name: string): Observable<Storage> {
     return this.http.get<Storage>(this.storageUrl + name);
   }
@@ -28,6 +32,17 @@ export class StorageService {
 
   deleteStorage(name: string): Observable<Storage> {
     return this.http.delete<Storage>(this.storageUrl + name);
+  }
+
+  getStorageStatus(storage: Storage) {
+    switch (storage.status) {
+      case 'valid':
+        return '可用';
+      case 'invalid':
+        return '无效';
+      default:
+        return '未知';
+    }
   }
 }
 

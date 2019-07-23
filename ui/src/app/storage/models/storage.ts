@@ -5,5 +5,6 @@ export class Storage {
   comment: string;
   cluster: string;
   vars: {} = {};
+  status: string;
   date_created: string;
 }

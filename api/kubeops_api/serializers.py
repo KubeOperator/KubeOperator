@@ -13,7 +13,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.models.storage import StorageTemplate, Storage, StorageNode
+from kubeops_api.models.storage import StorageTemplate, Storage
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -99,7 +99,7 @@ class HostSerializer(HostReadSerializer):
         extra_kwargs = HostReadSerializer.Meta.extra_kwargs
         fields = [
             'id', 'name', 'ip', 'username', 'password', 'comment', 'info', 'comment',
-            'cluster','credential'
+            'cluster', 'credential'
         ]
         read_only_fields = ['id', 'info', 'comment']
 
@@ -113,8 +113,8 @@ class StorageSerializer(ProjectSerializer):
 
     class Meta:
         model = Storage
-        fields = ['id', 'name', 'template', 'comment', 'date_created', 'vars']
-        read_only_fields = ['id', 'date_created', ]
+        fields = ['id', 'name', 'template', 'comment', 'date_created', 'vars', 'status']
+        read_only_fields = ['id', 'date_created', 'status']
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -147,19 +147,6 @@ class NodeSerializer(AnsibleHostSerializer):
             'id', 'name', 'ip', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version'
         ]
         read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip']
-
-
-class StorageNodeSerializer(AnsibleHostSerializer):
-    roles = serializers.SlugRelatedField(
-        many=True, read_only=False, queryset=Role.objects.all(),
-        slug_field='name', required=False,
-    )
-
-    class Meta:
-        model = StorageNode
-        extra_kwargs = AnsibleHostSerializer.Meta.extra_kwargs
-        read_only_fields = list(filter(lambda x: x not in ('groups',), AnsibleHostSerializer.Meta.read_only_fields))
-        fields = list(filter(lambda x: x not in ('groups',), AnsibleHostSerializer.Meta.fields))
 
     def get_field_names(self, declared_fields, info):
         names = super().get_field_names(declared_fields, info)

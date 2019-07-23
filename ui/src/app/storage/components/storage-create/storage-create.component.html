@@ -5,7 +5,7 @@
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
-  <clr-wizard-page>
+  <clr-wizard-page [clrWizardPageNextDisabled]="basicFrom.invalid || !item.template">
     <form class="clr-form clr-form-compact" #basicFrom='ngForm'>
       <ng-template clrPageTitle>基本信息</ng-template>
       <div class="clr-form-control clr-row">
@@ -18,7 +18,6 @@
                    name="cluster_name" required>
             <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
           </div>
-          <!--<i *ngIf="checkOnGoing" class="fa fa-spinner fa-pulse"></i>-->
           <span class="clr-subtext">仅支持使用小写英文字母!请勿使用特殊符号!</span>
         </div>
       </div>
@@ -50,8 +49,8 @@
       </div>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page>
-    <form #nodeForm='ngForm' class="clr-form clr-form-compact">
+  <clr-wizard-page [clrWizardPageNextDisabled]=configForm.invalid>
+    <form #configForm='ngForm' class="clr-form clr-form-compact">
       <ng-template clrPageTitle>配置信息</ng-template>
       <div *ngIf="storageTemplate">
         <div *ngFor="let option of storageTemplate.meta.options">

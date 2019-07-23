@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Host} from '../host';
 import {HostService} from '../host.service';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {Credential} from '../../credential/credential-list/credential';
 import {CredentialService} from '../../credential/credential.service';
+import {NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-host-create',
@@ -24,11 +25,23 @@ export class HostCreateComponent implements OnInit {
   host: Host = new Host();
   loading = false;
   credentials: Credential[] = [];
+  @ViewChild('hostForm') hostFrom: NgForm;
 
   ngOnInit() {
+
+  }
+
+
+  listCredential() {
     this.credentialService.listCredential().subscribe(data => {
       this.credentials = data;
     });
+  }
+
+
+  reset() {
+    this.hostFrom.resetForm();
+    this.listCredential();
   }
 
 
@@ -59,6 +72,7 @@ export class HostCreateComponent implements OnInit {
 
   newHost() {
     this.host = new Host();
+    this.reset();
     this.createHostOpened = true;
   }
 }

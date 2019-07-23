@@ -1,14 +1,14 @@
 import logging
 import os
+import uuid
+
 import yaml
 from django.db import models
-from ansible_api.models import Project, Playbook
 from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
-from ansible_api.models import Host as Ansible_Host
-
-from kubeops_api.models.role import Role
+from kubeops_api.adhoc import storage_health_check
+from kubeops_api.models.host import Host
 
 logger = logging.getLogger(__name__)
 
@@ -39,84 +39,38 @@ class StorageTemplate(models.Model):
             cls.objects.update_or_create(defaults=defaults, name=d)
 
 
-class StorageNode(Ansible_Host):
-    STORATE_NODE_STATUS_UNKNOWN = 'UNKNOWN'
-    STORATE_NODE_STATUS_RUNNING = 'RUNNING'
-    STORATE_NODE_STATUS_ERROR = 'ERROR'
-    STORATE_NODE_STATUS_CHOICES = (
-        (STORATE_NODE_STATUS_RUNNING, 'running'),
-        (STORATE_NODE_STATUS_UNKNOWN, 'unknown'),
-        (STORATE_NODE_STATUS_ERROR, 'error'),
-    )
-    status = models.CharField(max_length=128, choices=STORATE_NODE_STATUS_CHOICES, default=STORATE_NODE_STATUS_UNKNOWN)
-    message = models.TextField(default=None, null=True)
-
-    @property
-    def roles(self):
-        return self.groups
-
-    def add_vars(self, _vars):
-        __vars = {k: v for k, v in self.vars.items()}
-        __vars.update(_vars)
-        if self.vars != __vars:
-            self.vars = __vars
-            self.save()
-
-    def remove_var(self, key):
-        __vars = self.vars
-        if key in __vars:
-            del __vars[key]
-            self.vars = __vars
-            self.save()
-
-    def get_var(self, key, default):
-        return self.vars.get(key, default)
-
-
-class Storage(Project):
-    STORATE_STATUS_UNKNOWN = 'UNKNOWN'
-    STORATE_STATUS_RUNNING = 'RUNNING'
-    STORATE_STATUS_ERROR = 'ERROR'
-    STORATE_STATUS_CHECKING = 'CHECKING'
+class Storage(models.Model):
+    STORATE_STATUS_INVALID = 'invalid'
+    STORATE_STATUS_VALID = 'valid'
 
     STORATE_STATUS_CHOICES = (
-        (STORATE_STATUS_RUNNING, 'running'),
-        (STORATE_STATUS_UNKNOWN, 'unknown'),
-        (STORATE_STATUS_ERROR, 'error'),
-        (STORATE_STATUS_CHECKING, 'checking'),
+        (STORATE_STATUS_INVALID, 'invalid'),
+        (STORATE_STATUS_VALID, 'valid'),
+
     )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    name = models.CharField(max_length=128, unique=True)
     template = models.ForeignKey("StorageTemplate", null=True, on_delete=models.SET_NULL)
     vars = common_models.JsonDictTextField(default={}, blank=True, null=True, verbose_name=_('Vars'))
-    status = models.CharField(max_length=128, choices=STORATE_STATUS_CHOICES, default=STORATE_STATUS_UNKNOWN)
-    nodes = models.ManyToManyField('StorageNode')
+    status = models.CharField(max_length=128, choices=STORATE_STATUS_CHOICES, default=STORATE_STATUS_INVALID)
+    date_created = models.DateTimeField(auto_now_add=True)
+    comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
 
-    def create_playbooks(self):
-        for playbook in self.template.meta.get('playbooks', []):
-            url = 'file:///{}'.format(os.path.join(self.template.path))
-            Playbook.objects.create(
-                name=playbook['name'], alias=playbook['alias'],
-                type=Playbook.TYPE_LOCAL, url=url, project=self
-            )
-
-    def create_roles(self):
-        _roles = {}
-        for role in self.template.meta.get('roles', []):
-            _roles[role['name']] = role
-        roles_data = [role for role in _roles.values()]
-        for data in roles_data:
-            Role.objects.update_or_create(defaults=data, name=data['name'])
-
-    def set_vars(self):
-        self.vars = self.template.meta.get('vars', {})
-
-    def config(self, k, v):
-        if isinstance(v, str):
-            v = v.strip()
-        self.vars[k] = v
+    def health_check(self):
+        meta = self.template.meta.get('health_check')
+        module = meta.get('module')
+        command = meta.get('command')
+        real_command = self.replace_vars(command)
+        host = Host(name='localhost', vars={"ansible_connection": "local"}, )
+        logger.info('execute command: ' + real_command)
+        if storage_health_check(host, module, real_command):
+            self.status = Storage.STORATE_STATUS_VALID
+        else:
+            self.status = Storage.STORATE_STATUS_INVALID
         self.save()
 
-    def on_storage_create(self):
-        self.change_to()
-        # self.create_roles()
-        # self.create_playbooks()
-        self.set_vars()
+    def replace_vars(self, command):
+        for k, v in self.vars.items():
+            if k in command:
+                command = command.replace('$' + k, v)
+        return command

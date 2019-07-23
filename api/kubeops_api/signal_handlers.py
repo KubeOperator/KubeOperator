@@ -20,12 +20,6 @@ def on_cluster_save(sender, instance=None, created=True, **kwargs):
         instance.on_cluster_create()
 
 
-@receiver(post_save, sender=Storage)
-def on_storage_save(sender, instance=None, **kwargs):
-    if instance and instance.template:
-        instance.on_storage_create()
-
-
 @receiver(post_save, sender=Node)
 def on_node_save(sender, instance=None, created=False, **kwargs):
     if created and not instance.name == 'localhost' and not instance.name == '127.0.0.1' and not instance.name == '::1':

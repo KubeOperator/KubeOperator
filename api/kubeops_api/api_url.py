@@ -25,7 +25,6 @@ cluster_router.register(r'roles', api.RoleViewSet, 'cluster-role')
 cluster_router.register(r'executions', api.DeployExecutionViewSet, 'cluster-deploy-execution')
 
 storage_router = routers.NestedDefaultRouter(router, r'storage', lookup='storage')
-storage_router.register(r'nodes', api.StorageNodeViewSet, 'storage-node')
 
 urlpatterns = [
                   path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),

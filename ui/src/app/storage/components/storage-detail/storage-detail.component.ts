@@ -1,9 +1,8 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {StorageTemplateService} from '../../services/storage-template.service';
 import {Storage} from '../../models/storage';
 import {StorageTemplate} from '../../models/storage-template';
-import {StorageNodeService} from '../../services/storage-node.service';
-import {StorageGroup, StorageNode} from '../../models/storage-node';
+import {StorageService} from '../../services/storage.service';
 
 @Component({
   selector: 'app-storage-detail',
@@ -18,37 +17,39 @@ export class StorageDetailComponent implements OnInit {
   openedChange = new EventEmitter();
   item: Storage;
   storageTemplate: StorageTemplate;
-  storageNodes: StorageNode[] = [];
-  loading = true;
+  onUpdating = false;
 
-  constructor(private storageTempateService: StorageTemplateService, private storageNodesService: StorageNodeService) {
+  constructor(private storageTempateService: StorageTemplateService, private storageService: StorageService) {
   }
 
   ngOnInit() {
   }
 
   loadTemplate() {
-    this.loading = true;
     this.storageTempateService.getStorageTemplate(this.item.template).subscribe(data => {
       this.storageTemplate = data;
-      this.loadNodes();
-      this.loading = false;
     });
   }
 
-  loadNodes() {
-    this.storageNodesService.listStorageNode(this.item.name).subscribe(data => {
-      this.storageNodes = data;
-    });
-  }
-
-  loadVars() {
-    console.log(this.item);
-  }
 
   close() {
     this.opened = false;
     this.openedChange.emit(this.opened);
+  }
+
+  update() {
+    if (this.onUpdating) {
+      return;
+    }
+    this.onUpdating = true;
+    this.storageService.updateStorage(this.item.name, this.item).subscribe(data => {
+      this.item = data;
+      this.onUpdating = false;
+    });
+  }
+
+  getStatus(item: Storage) {
+    return this.storageService.getStorageStatus(item);
   }
 
 }
