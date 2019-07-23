@@ -24,10 +24,10 @@
     </div>
   </div>
   <div class="modal-footer">
+    <button type="button" class="btn" (click)="cancel()" [disabled]="loading">取消</button>
     <button type="button" class="btn btn-primary" (click)="update()" [disabled]="loading">
       <i *ngIf="loading" class="fa fa-spinner fa-pulse"></i>
       更新
     </button>
-    <button type="button" class="btn" (click)="cancel()" [disabled]="loading">取消</button>
   </div>
 </clr-modal>
