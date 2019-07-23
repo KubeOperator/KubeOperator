@@ -22,26 +22,22 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
  v1.0
 
-- [x] 提供 Kubernetes 标准版的离线包仓库；
-- [x] 支持两种部署模式：一主多节点模式，多主多节点模式；
+- [x] 提供原生 Kubernetes 的离线包仓库；
+- [x] 支持一主多节点部署模式；
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
-- [x] 支持 K8S 常用组件安装，包括 Registry，Promethus，Dashboard等；
-- [x] 提供简易明了的集群运行状况面板；
-- [x] 支持 NFS 作为外部持久化存储；
+- [x] 支持 Kubernetes 常用组件安装，包括 Registry，Promethus，Dashboard等；
+- [x] 提供简易明了的 Kubernetes 集群运行状况面板；
+- [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
 
- v1.1
+ v2.0
 
 - [ ] 支持集群扩容；
 - [ ] 支持集群升级；
-- [ ] 支持操作系统补丁升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 支持调用 VMware vCenter 接口自动创建集群节点；
-- [ ] 支持 VMware vSAN 作为外部持久化存储；
-
-v2.0
-
-- [ ] 支持 Multi-AZ；
+- [ ] 支持多主多节点模式（Multi AZ，分布在不同故障域）
+- [ ] 支持调用 VMware vCenter 接口自动创建集群所需资源；
+- [ ] 支持 VMware vSAN 作为持久化存储；
 - [ ] 支持 VMware NSX-T；
 
 ## 安装 KubeOperator
