@@ -59,7 +59,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   @ViewChild('basicFrom') basicForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
-  packageToolTipText = '';
   checkOnGoing = false;
   clusterNameChecker: Subject<string> = new Subject<string>();
 
@@ -100,7 +99,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   public get isBasicFormValid(): boolean {
-    return this.basicForm && this.basicForm.valid && this.isNameValid && !this.checkOnGoing;
+    return this.basicForm && this.basicForm.valid && this.isNameValid && !this.checkOnGoing && this.cluster.package !== '';
   }
 
   handleValidation(): void {
@@ -125,6 +124,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.networks.forEach(network => {
       if (this.cluster.network_plugin === network.name) {
         this.network = network;
+      } else {
+        this.network = null;
       }
     });
   }
@@ -156,6 +157,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.configs = null;
     this.groups = null;
     this.storage = null;
+    this.network = null;
+    this.networks = null;
     this.resetCheckState();
   }
 
@@ -181,13 +184,13 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.configs = template.private_config;
         if (this.configs) {
           this.configs.forEach(c => {
-            c.value = c.default;
             if (c.type === 'Input') {
               c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
             }
           });
         }
-
+      } else {
+        this.template = null;
       }
     });
     this.nodes = [];
@@ -316,7 +319,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   configCluster() {
     const promises: Promise<{}>[] = [];
     if (this.configs) {
-      this.configs.concat(this.network.configs);
+      this.configs = this.configs.concat(this.network.configs);
       this.configs.forEach(c => {
         const extraConfig: ExtraConfig = new ExtraConfig();
         extraConfig.key = c.name;

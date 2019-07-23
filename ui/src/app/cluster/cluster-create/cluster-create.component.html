@@ -7,49 +7,28 @@
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
   <clr-wizard-page [clrWizardPageNextDisabled]="!isBasicFormValid">
-    <form class="clr-form clr-form-compact" #basicFrom='ngForm'>
+    <form clrForm class="clr-form clr-form-compact" #basicFrom='ngForm'>
       <ng-template clrPageTitle>基本信息</ng-template>
-      <div class="clr-form-control clr-row">
-        <label for="name" class="clr-control-label clr-col-xs-12 clr-col-md-2">集群名称</label>
-        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-          <div class="clr-input-wrapper">
-            <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
-                   minlength="2" maxlength="128"
-                   class="clr-input" [(ngModel)]="cluster.name"
-                   name="cluster_name" (keyup)="handleValidation()" required>
-            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-          </div>
-          <i *ngIf="checkOnGoing" class="fa fa-spinner fa-pulse"></i>
-          <span class="clr-subtext">{{nameTooltipText}}</span>
-        </div>
-      </div>
+      <clr-input-container>
+        <label>集群名称</label>
+        <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
+               [(ngModel)]="cluster.name"
+               name="cluster_name" (keyup)="handleValidation()" clrInput required>
+      </clr-input-container>
+      <clr-select-container>
+        <label>离线包</label>
+        <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
+                (change)="onPackageChange()" clrSelect required>
+          <option value="">请选择离线包</option>
+          <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
+        </select>
+      </clr-select-container>
 
-      <div class="clr-form-control clr-row">
-        <label for="package" class="clr-control-label clr-col-xs-12 clr-col-md-2">离线包</label>
-        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-          <div class="clr-select-wrapper">
-            <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
-                    (change)="onPackageChange()" required>
-              <option [value]=null>请选择离线包</option>
-              <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
-            </select>
-            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-          </div>
-          <span class="clr-subtext">{{packageToolTipText}}</span>
-        </div>
-      </div>
-
-      <div class="clr-form-control clr-row">
-        <label for="comment" class="clr-control-label clr-col-xs-12 clr-col-md-2">描述</label>
-        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-          <div class="clr-textarea-wrapper">
-            <textarea id="comment" [(ngModel)]="cluster.comment" [ngModelOptions]="{standalone: true}"
-                      name="comment"></textarea>
-            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-          </div>
-          <span class="clr-subtext"></span>
-        </div>
-      </div>
+      <clr-textarea-container>
+        <label>描述</label>
+        <textarea id="comment" [(ngModel)]="cluster.comment" [ngModelOptions]="{standalone: true}" name="comment"
+                  clrTextarea></textarea>
+      </clr-textarea-container>
     </form>
   </clr-wizard-page>
 
@@ -188,59 +167,45 @@
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="!canNetworkNext()">
     <ng-template clrPageTitle>配置网络</ng-template>
-    <form #nodeForm='ngForm' class="clr-form clr-form-compact">
-      <div class="clr-form-control clr-row">
-        <label for="networks" class="clr-control-label clr-col-xs-12 clr-col-md-2">选择网络插件</label>
-        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-          <div class="clr-select-wrapper">
-            <select id="networks" [(ngModel)]="cluster.network_plugin" name="network" class="clr-select"
-                    (change)="onNetworkChange()" required>
-              <option value="">请选择网络模型</option>
-              <option *ngFor="let network of networks"
-                      [value]="network.name">{{network.name}}
-              </option>
-            </select>
-            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-          </div>
-        </div>
-      </div>
+    <form #networkForm='ngForm' class="clr-form clr-form-compact">
+      <clr-select-container>
+        <label>网络插件</label>
+        <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()">
+          <option [value]="">请选择</option>
+          <option *ngFor="let network of networks" [value]="network.name">{{network.name}}</option>
+        </select>
+      </clr-select-container>
       <div *ngIf="network">
         <div *ngFor="let config of network.configs">
           <div [ngSwitch]="config.type">
-            <div class="clr-form-control clr-row" *ngSwitchCase="'Select'">
-              <label [for]="config.name"
-                     class="clr-control-label clr-col-xs-12 clr-col-md-2">{{config.alias}}</label>
-              <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-                <div class="clr-select-wrapper">
-                  <select [id]="config.name" [(ngModel)]="config.value" class="clr-select" [name]="config.name"
-                          required>
-                    <option [value]="">请选择</option>
-                    <option *ngFor="let opt of config.options"
-                            [value]="opt.value">{{opt.name}}
-                    </option>
-                  </select>
-                  <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-                </div>
-              </div>
-            </div>
+            <clr-select-container *ngSwitchCase="'Select'">
+              <label>{{config.alias}}</label>
+              <select clrSelect [(ngModel)]="config.value" [name]="config.name" required>
+                <option value="">请选择</option>
+                <option *ngFor="let opt of config.options"
+                        [value]="opt.value">{{opt.name}}
+                </option>
+              </select>
+            </clr-select-container>
+            <clr-input-container *ngSwitchCase="'Input'">
+              <label>{{config.alias}}</label>
+              <input clrInput [name]="config.name" [(ngModel)]="config.value" required>
+            </clr-input-container>
           </div>
         </div>
       </div>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="!canStorageNext()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="storageForm.invalid">
     <ng-template clrPageTitle>选择持久化存储</ng-template>
-    <form #configForm='ngForm' clrForm>
-      <div class="clr-form-control clr-row">
-        <label for="storage" class="clr-control-label clr-col-xs-12 clr-col-md-2">持久化存储</label>
-        <div class="clr-control-container clr-col-xs-12 clr-col-md-10">
-          <div class="clr-select-wrapper">
-            <select id="storage" [(ngModel)]="cluster.persistent_storage" name="storage" class="clr-select" required>
-              <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <form #storageForm='ngForm' clrForm>
+      <clr-select-container>
+        <label>持久化存储</label>
+        <select [(ngModel)]="cluster.persistent_storage" name="storage" clrSelect required>
+          <option value="">请选择</option>
+          <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
+        </select>
+      </clr-select-container>
     </form>
   </clr-wizard-page>
 

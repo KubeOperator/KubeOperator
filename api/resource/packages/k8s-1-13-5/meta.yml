@@ -145,17 +145,13 @@ roles:
       tiller_image: "gcr.io/kubernetes-helm/tiller"
       tiller_version: "v2.12.3"
       #flannel
-      CLUSTER_NETWORK: "flannel"
       NODE_WITH_MULTIPLE_NETWORKS: "true"
-      FLANNEL_BACKEND: "host-gw"
       flanneld_image: "quay.io/coreos/flannel"
       flanneld_version: "v0.11.0-amd64"
       #registry
       REGISTRY_ACCOUNT_NAME: admin
       REGISTRY_ACCOUNT_PASSWORD: admin123
       IMAGE_PULL_SECRET: registry-fit2cloud-com-key
-      SERVICE_CIDR: "10.68.0.0/16"
-      CLUSTER_CIDR: "172.20.0.0/16"
       NODE_PORT_RANGE: "30000-32767"
       CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
@@ -205,15 +201,26 @@ networks:
       - name: FLANNEL_BACKEND
         alias: 网络模式
         type: Select
-        default: host-gw
+        value: host-gw
         required: true
-        help_text: 应用域名
         display: true
         options:
           - name: host-gw
             value: host-gw
           - name: vxlan
             value: vxlan
+      - name: SERVICE_CIDR
+        alias: Service CIDR
+        value: 10.68.0.0/16
+        type: Input
+        required: true
+        display: true
+      - name: CLUSTER_CIDR
+        type: Input
+        alias: POD CIDR
+        value: 172.20.0.0/16
+        required: true
+        display: true
 
 templates:
   - name: 一主多节点
@@ -226,21 +233,21 @@ templates:
       - name: MASTER_IP
         alias: 域名
         type: Input
-        default: master-1.$cluster_name$domain_suffix
+        value: master-1.$cluster_name$domain_suffix
         required: true
         help_text: kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
-        default: https://master-1.$cluster_name$domain_suffix:6443
+        value: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
         display: true
       - name: APP_DOMAIN
         alias: 应用域名
         type: Input
-        default: apps.$cluster_name$domain_suffix
+        value: apps.$cluster_name$domain_suffix
         required: true
         help_text: 应用域名
         display: true

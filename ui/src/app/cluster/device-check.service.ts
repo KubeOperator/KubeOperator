@@ -69,7 +69,7 @@ export class DeviceCheckService {
       template.roles.forEach(role => {
         if (node.roles.includes(role.name)) {
           const memory = role.meta.requires.device_require[1].minimal;
-          if (host.info.memory >= memory * 1000) {
+          if ((host.info.memory / memory) > 800) {
             checkResult.passed.push(node.name);
           }
         }
@@ -82,28 +82,6 @@ export class DeviceCheckService {
     });
     return checkResult;
   }
-
-
-  // checkVolume(nodes: Node[], hosts: Host[], template: Template) {
-  //   const checkResult = new CheckResult();
-  //   nodes.forEach(node => {
-  //     template.roles.forEach(role => {
-  //       if (node.roles.includes(role.name)) {
-  //         let flag = true;
-  //         role.meta.requires.volumes_require.forEach(vr => {
-  //           node.vars[vr.]
-  //         });
-  //       }
-  //     });
-  //   });
-  //   nodes.forEach(node => {
-  //     if (!checkResult.passed.includes(node.name)) {
-  //       checkResult.failed.push(node.name);
-  //     }
-  //   });
-  //   return checkResult;
-  // }
-
 
   getHostById(hostId: string, hosts: Host[]): Host {
     let result: Host = null;

@@ -153,7 +153,6 @@ roles:
       tiller_version: "v2.12.3"
       #flannel
       NODE_WITH_MULTIPLE_NETWORKS: "true"
-      FLANNEL_BACKEND: "host-gw"
       flanneld_image: "quay.io/coreos/flannel"
       flanneld_version: "v0.11.0-amd64"
       #registry
@@ -229,21 +228,21 @@ templates:
       - name: MASTER_IP
         alias: 域名
         type: Input
-        default: master-1.$cluster_name$domain_suffix
+        value: master-1.$cluster_name$domain_suffix
         required: true
         help_text: kubernetes 访问地址
         display: true
       - name: KUBE_APISERVER
         alias: api-server 地址
         type: Input
-        default: https://master-1.$cluster_name$domain_suffix:6443
+        value: https://master-1.$cluster_name$domain_suffix:6443
         required: true
         help_text: kubernetes api-server 地址
         display: true
       - name: APP_DOMAIN
         alias: 应用域名
         type: Input
-        default: apps.$cluster_name$domain_suffix
+        value: apps.$cluster_name$domain_suffix
         required: true
         help_text: 应用域名
         display: true

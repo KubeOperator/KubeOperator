@@ -54,8 +54,6 @@ export class Config {
   type: string;
   options: Option[];
   value: string;
-  default: any;
-  help_text: string;
   display: boolean;
 }
 
