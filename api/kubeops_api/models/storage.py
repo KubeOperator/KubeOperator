@@ -40,19 +40,21 @@ class StorageTemplate(models.Model):
 
 
 class Storage(models.Model):
-    STORATE_STATUS_INVALID = 'invalid'
-    STORATE_STATUS_VALID = 'valid'
+    STORAGE_STATUS_INVALID = 'invalid'
+    STORAGE_STATUS_VALID = 'valid'
+    STORAGE_STATUS_UNKNOWN = 'unknown'
 
     STORATE_STATUS_CHOICES = (
-        (STORATE_STATUS_INVALID, 'invalid'),
-        (STORATE_STATUS_VALID, 'valid'),
+        (STORAGE_STATUS_INVALID, 'invalid'),
+        (STORAGE_STATUS_VALID, 'valid'),
+        (STORAGE_STATUS_UNKNOWN, 'unknown')
 
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=128, unique=True)
     template = models.ForeignKey("StorageTemplate", null=True, on_delete=models.SET_NULL)
     vars = common_models.JsonDictTextField(default={}, blank=True, null=True, verbose_name=_('Vars'))
-    status = models.CharField(max_length=128, choices=STORATE_STATUS_CHOICES, default=STORATE_STATUS_INVALID)
+    status = models.CharField(max_length=128, choices=STORATE_STATUS_CHOICES, default=STORAGE_STATUS_UNKNOWN)
     date_created = models.DateTimeField(auto_now_add=True)
     comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
 
@@ -64,9 +66,9 @@ class Storage(models.Model):
         host = Host(name='localhost', vars={"ansible_connection": "local"}, )
         logger.info('execute command: ' + real_command)
         if storage_health_check(host, module, real_command):
-            self.status = Storage.STORATE_STATUS_VALID
+            self.status = Storage.STORAGE_STATUS_VALID
         else:
-            self.status = Storage.STORATE_STATUS_INVALID
+            self.status = Storage.STORAGE_STATUS_INVALID
         self.save()
 
     def replace_vars(self, command):

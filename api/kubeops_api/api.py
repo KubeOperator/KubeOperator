@@ -40,13 +40,8 @@ class StorageViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        transaction.on_commit(lambda: instance.health_check())
-
     def perform_update(self, serializer):
-        instance = serializer.save()
-        transaction.on_commit(lambda: instance.health_check())
+        serializer.save()
 
 
 class PackageViewSet(viewsets.ModelViewSet):

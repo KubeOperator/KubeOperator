@@ -13,6 +13,6 @@ options:
     placeholder: /exports
     type: text
 health_check:
-#  command: "show mount $storage_nfs_server"
-  command: "ping $storage_nfs_server -c1"
+  command: "show mount $storage_nfs_server"
+  #  command: "ping $storage_nfs_server -c1"
   module: "shell"

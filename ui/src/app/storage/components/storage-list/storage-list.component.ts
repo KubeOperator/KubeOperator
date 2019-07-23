@@ -76,6 +76,7 @@ export class StorageListComponent implements OnInit {
     }).finally(
       () => {
         this.showDelete = false;
+        this.selectedItems = [];
         this.listStorage();
       }
     );

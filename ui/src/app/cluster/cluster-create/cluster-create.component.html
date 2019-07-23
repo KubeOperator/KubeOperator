@@ -253,8 +253,7 @@
     </div>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="canConfigNext()"
-                   *ngIf="template&&template.private_config&&template.private_config.length>0">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canConfigNext() && configForm.invalid">
     <ng-template clrPageTitle>设置参数</ng-template>
     <form #configForm='ngForm' clrForm>
       <div *ngFor="let config of configs">

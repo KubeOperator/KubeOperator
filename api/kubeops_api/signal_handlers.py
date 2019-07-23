@@ -32,6 +32,12 @@ def post_host_save(sender, instance=None, created=False, **kwargs):
         instance.full_host_credential()
 
 
+@receiver(post_save, sender=Storage)
+def on_storage_save(sender, instance=None, created=True, **kwargs):
+    if created:
+        instance.health_check()
+
+
 @receiver(pre_save, sender=HostInfo)
 def before_hostInfo_save(sender, instance=None, created=False, **kwargs):
     if created:

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, Operation} from '../cluster';
 import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
@@ -22,26 +22,16 @@ export class ClusterListComponent implements OnInit {
   clusters: Cluster[] = [];
   deleteModal = false;
   selectedClusters: Cluster[] = [];
-
   @Output() addCluster = new EventEmitter<void>();
 
   constructor(private clusterService: ClusterService, private router: Router,
               private tipService: TipService, private messageService: MessageService, private settingService: SettingService,
               private packageLogoService: PackageLogoService,
-              private clusterStatusService: ClusterStatusService, private operaterService: OperaterService) {
+              private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
     this.listCluster();
-    this.checkSetting();
-  }
-
-  checkSetting() {
-    // this.settingService.getSetting('local_hostname').subscribe(data => {
-    //   if (!data.value || data.value === '127.0.0.1') {
-    //     this.messageService.announceMessage('部署前请先设置主机IP,否则部署将造成失败！', MessageLevels.WARN);
-    //   }
-    // });
   }
 
   listCluster() {
@@ -64,11 +54,13 @@ export class ClusterListComponent implements OnInit {
       promises.push(this.clusterService.deleteCluster(cluster.name).toPromise());
     });
     Promise.all(promises).then(() => {
-      this.deleteModal = false;
       this.listCluster();
       this.tipService.showTip('删除集群成功！', TipLevels.SUCCESS);
     }, (error) => {
       this.tipService.showTip('删除集群失败:' + error, TipLevels.ERROR);
+    }).finally(() => {
+      this.deleteModal = false;
+      this.selectedClusters = [];
     });
   }
 
@@ -95,8 +87,6 @@ export class ClusterListComponent implements OnInit {
   }
 
 
-
-
   showBtn(cluster: Cluster, opt: Operation): boolean {
     let result = true;
     if (opt.display_on) {
@@ -106,7 +96,6 @@ export class ClusterListComponent implements OnInit {
     }
     return result;
   }
-
 
 
 }

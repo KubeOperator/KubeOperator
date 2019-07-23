@@ -52,11 +52,13 @@ export class HostListComponent implements OnInit {
       promises.push(this.hostService.deleteHost(host.id).toPromise());
     });
     Promise.all(promises).then(() => {
-      this.deleteModal = false;
       this.refresh();
       this.tipService.showTip('删除主机成功！', TipLevels.SUCCESS);
     }, (error) => {
       this.tipService.showTip('删除主机失败:' + error, TipLevels.ERROR);
+    }).finally(() => {
+      this.deleteModal = false;
+      this.selectedHosts = [];
     });
   }
 
