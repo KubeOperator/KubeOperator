@@ -19,7 +19,6 @@ import {TipModule} from './tip/tip.module';
 import {HostModule} from './host/host.module';
 import {DeployModule} from './deploy/deploy.module';
 import {SettingModule} from './setting/setting.module';
-import {StorageModule} from './storage/storage.module';
 import {AuthModule} from './auth/auth.module';
 import {CredentialModule} from './credential/credential.module';
 
@@ -46,7 +45,6 @@ import {CredentialModule} from './credential/credential.module';
     TipModule,
     HostModule,
     SettingModule,
-    StorageModule,
     AuthModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],

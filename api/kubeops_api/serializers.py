@@ -13,7 +13,6 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.models.storage import StorageTemplate, Storage
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -49,13 +48,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
-class StorageTemplateSerializer(serializers.ModelSerializer):
-    meta = serializers.JSONField()
-
-    class Meta:
-        model = StorageTemplate
-        read_only_fields = ['id', 'name', 'meta', 'date_created']
-        fields = ['id', 'name', 'meta', 'date_created']
 
 
 class AuthTemplateSerializer(serializers.ModelSerializer):
@@ -102,19 +94,6 @@ class HostSerializer(HostReadSerializer):
             'cluster', 'credential'
         ]
         read_only_fields = ['id', 'info', 'comment']
-
-
-class StorageSerializer(ProjectSerializer):
-    template = serializers.SlugRelatedField(
-        queryset=StorageTemplate.objects.all(),
-        slug_field='name', required=True
-    )
-    vars = serializers.DictField(required=False, default={})
-
-    class Meta:
-        model = Storage
-        fields = ['id', 'name', 'template', 'comment', 'date_created', 'vars', 'status']
-        read_only_fields = ['id', 'date_created', 'status']
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -207,10 +186,7 @@ class ClusterSerializer(ProjectSerializer):
         queryset=AuthTemplate.objects.all(),
         slug_field='name', required=False
     )
-    persistent_storage = serializers.SlugRelatedField(
-        queryset=Storage.objects.all(),
-        slug_field='name', required=False
-    )
+
     apps = serializers.JSONField(read_only=True)
     current_execution = DeployExecutionSerializer(read_only=True)
 

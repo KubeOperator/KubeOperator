@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@an
 import {Cluster, ExtraConfig} from '../cluster';
 import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
-import {Config, Network, Package, Template} from '../../package/package';
+import {Config, Network, Package, Template, Storage} from '../../package/package';
 import {PackageService} from '../../package/package.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {ClusterService} from '../cluster.service';
@@ -17,8 +17,6 @@ import {Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
-import {Storage} from '../../storage/models/storage';
-import {StorageService} from '../../storage/services/storage.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -45,10 +43,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   templates: Template[] = [];
   networks: Network[] = [];
   network: Network = null;
+  storages: Storage[] = [];
+  storage: Storage = null;
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
-  storage: Storage[] = [];
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -58,8 +57,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   suffix = 'f2o';
   @ViewChild('basicFrom') basicForm: NgForm;
   @ViewChild('storageForm') storageForm: NgForm;
-  @ViewChild('networkForm') networkForm: NgForm;
-  @ViewChild('nodeForm') nodeForm: NgForm;
+  // @ViewChild('networkForm') networkForm: NgForm;
+  // @ViewChild('nodeForm') nodeForm: NgForm;
   @ViewChild('configForm') configForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
@@ -70,8 +69,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
-              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService,
-              private storageService: StorageService) {
+              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService) {
   }
 
   ngOnInit() {
@@ -122,6 +120,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
     this.templates = this.package.meta.templates;
     this.networks = this.package.meta.networks;
+    this.storages = this.package.meta.storages;
+    console.log(this.package);
   }
 
   onNetworkChange() {
@@ -134,12 +134,21 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  onStorageChange() {
+    this.storages.forEach(storage => {
+      if (this.cluster.persistent_storage === storage.name) {
+        this.storage = storage;
+      } else {
+        this.storage = null;
+      }
+    });
+  }
+
   newCluster() {
     this.reset();
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
-    this.listStorage();
   }
 
 
@@ -166,8 +175,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.resetCheckState();
     this.basicForm.resetForm();
     this.storageForm.resetForm();
-    this.networkForm.resetForm();
-    this.nodeForm.resetForm();
+    // this.networkForm.resetForm();
+    // this.nodeForm.resetForm();
   }
 
 
@@ -179,13 +188,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  listStorage() {
-    this.storageService.listStorage().subscribe(data => {
-      this.storage = data.filter((s) => {
-        return s.status === 'valid';
-      });
-    });
-  }
 
   templateOnChange() {
     this.templates.forEach(template => {
@@ -322,14 +324,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  canStorageNext() {
-    return this.cluster.persistent_storage != null;
-  }
 
   configCluster() {
     const promises: Promise<{}>[] = [];
     if (this.configs) {
-      this.configs = this.configs.concat(this.network.configs);
+      this.configs = this.configs.concat(this.network.configs).concat(this.storage.configs);
       this.configs.forEach(c => {
         const extraConfig: ExtraConfig = new ExtraConfig();
         extraConfig.key = c.name;

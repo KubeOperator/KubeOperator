@@ -10,7 +10,6 @@ import {TipModule} from '../tip/tip.module';
 import {ClusterRoutingResolverService} from './cluster-routing-resolver.service';
 import {HostsFilterPipe} from './hosts-filter.pipe';
 import {DeviceCheckService} from './device-check.service';
-import {StorageModule} from '../storage/storage.module';
 
 @NgModule({
   declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent, HostsFilterPipe],
@@ -18,7 +17,6 @@ import {StorageModule} from '../storage/storage.module';
     CommonModule,
     TipModule,
     CoreModule,
-    StorageModule
   ],
   providers: [ClusterService, ClusterRoutingResolverService, DeviceCheckService]
 })

@@ -10,7 +10,6 @@ from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.host import HostInfo, Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
-from kubeops_api.models.storage import Storage
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
 
 
@@ -30,12 +29,6 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
 def post_host_save(sender, instance=None, created=False, **kwargs):
     if created:
         instance.full_host_credential()
-
-
-@receiver(post_save, sender=Storage)
-def on_storage_save(sender, instance=None, created=True, **kwargs):
-    if created:
-        instance.health_check()
 
 
 @receiver(pre_save, sender=HostInfo)

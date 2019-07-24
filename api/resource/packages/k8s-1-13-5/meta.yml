@@ -222,6 +222,34 @@ networks:
         required: true
         display: true
 
+storages:
+  - name: nfs
+    vars:
+      storage_nfs_enabled: true
+      storage_nfs_storage_class: nfs-storage
+      storage_nfs_provisioner_name: nfs-provisioner
+    configs:
+      - name: storage_nfs_server
+        alias: NFS 地址
+        comment: nfs_server
+        value: 10.0.0.1
+        type: Input
+        required: true
+        display: true
+      - name: storage_nfs__server_path
+        type: Input
+        alias: NFS 路径
+        comment: nfs_path
+        value: /exports
+        required: true
+        display: true
+      - name: set_nfs_default
+        type: Switch
+        alias: 默认存储
+        value: true
+        required: true
+        display: true
+
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'

@@ -54,11 +54,11 @@
             <div>
               支持操作系统:
               <span *ngFor="let os of role.meta.allow_os">
-                {{os.name}}&nbsp;
-                <span *ngFor="let version of os.version">
-                  {{version}}&nbsp;
-                </span>
-              </span>
+  {{os.name}}&nbsp;
+  <span *ngFor="let version of os.version">
+  {{version}}&nbsp;
+  </span>
+  </span>
             </div>
             <h5>设备要求:</h5>
             <div>
@@ -197,15 +197,41 @@
     </form>
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="storageForm.invalid">
-    <ng-template clrPageTitle>选择持久化存储</ng-template>
-    <form #storageForm='ngForm' clrForm>
+    <ng-template clrPageTitle>配置存储</ng-template>
+    <form #storageForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
-        <label>持久化存储</label>
-        <select [(ngModel)]="cluster.persistent_storage" name="storage" clrSelect required>
+        <label>存储类型</label>
+        <select clrSelect [(ngModel)]="cluster.persistent_storage" name="network" (change)="onStorageChange()">
           <option value="">请选择</option>
-          <option *ngFor="let s of storage" [value]="s.name">{{s.name}}</option>
+          <option *ngFor="let s of storages" [value]="s.name">{{s.name}}</option>
         </select>
       </clr-select-container>
+      <div *ngIf="storage">
+        <div *ngFor="let config of storage.configs">
+          <div [ngSwitch]="config.type">
+            <clr-select-container *ngSwitchCase="'Select'">
+              <label>{{config.alias}}</label>
+              <select clrSelect [(ngModel)]="config.value" [name]="config.name" required>
+                <option value="">请选择</option>
+                <option *ngFor="let opt of config.options"
+                        [value]="opt.value">{{opt.name}}
+                </option>
+              </select>
+            </clr-select-container>
+            <clr-input-container *ngSwitchCase="'Input'">
+              <label>{{config.alias}}</label>
+              <input clrInput [name]="config.name" [(ngModel)]="config.value" required>
+            </clr-input-container>
+            <clr-toggle-container *ngSwitchCase="'Switch'">
+              <clr-toggle-wrapper>
+                <input type="checkbox" clrToggle [name]="config.name" [(ngModel)]="config.value"/>
+                <label>{{config.alias}}</label>
+              </clr-toggle-wrapper>
+            </clr-toggle-container>
+
+          </div>
+        </div>
+      </div>
     </form>
   </clr-wizard-page>
 

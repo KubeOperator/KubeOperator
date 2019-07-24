@@ -36,7 +36,7 @@ class Cluster(Project):
     )
 
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
-    persistent_storage = models.ForeignKey('Storage', null=True, on_delete=models.SET_NULL)
+    persistent_storage = models.CharField(max_length=128, null=True, blank=True)
     network_plugin = models.CharField(max_length=128, null=True, blank=True)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
@@ -68,10 +68,6 @@ class Cluster(Project):
             n.append(node.name)
         return n
 
-    def create_storage(self):
-        if self.persistent_storage:
-            self.set_config_unlock(self.persistent_storage.vars)
-
     def create_network_plugin(self):
         if self.network_plugin:
             networks = self.package.meta.get('networks', [])
@@ -79,6 +75,15 @@ class Cluster(Project):
             for net in networks:
                 if net["name"] == self.network_plugin:
                     vars = net.get('vars', {})
+            self.set_config_unlock(vars)
+
+    def create_storage(self):
+        if self.persistent_storage:
+            storages = self.package.meta.get('storages', [])
+            vars = {}
+            for storage in storages:
+                if storage['name'] == self.persistent_storage:
+                    vars = storage.get('vars', {})
             self.set_config_unlock(vars)
 
     def get_template_meta(self):

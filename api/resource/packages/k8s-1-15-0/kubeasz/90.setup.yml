@@ -52,7 +52,6 @@
       shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
       ignore_errors: true
       delegate_to: "{{ groups['kube-master'][0] }}"
-    - name:
 
 # to set up 'kube-node' nodes
 - hosts: kube-node

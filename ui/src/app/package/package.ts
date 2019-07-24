@@ -12,6 +12,11 @@ export class Network {
   configs: Config[] = [];
 }
 
+export class Storage {
+  name: string;
+  configs: Config[] = [];
+}
+
 export class Components {
   kubernetes: string;
   etcd: string;
@@ -30,6 +35,7 @@ export class PackageMeta {
   components: Components;
   images: Image[];
   networks: Network[] = [];
+  storages: Storage[] = [];
   apps: App[] = [];
   cluster_infos: ClusterInfo[] = [];
   operations: Operation[] = [];

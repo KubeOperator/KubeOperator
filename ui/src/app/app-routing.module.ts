@@ -15,7 +15,6 @@ import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.
 import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
-import {StorageComponent} from './storage/storage.component';
 import {AuthComponent} from './auth/auth.component';
 import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
 import {CredentialComponent} from './credential/credential.component';
@@ -32,7 +31,6 @@ const routes: Routes = [
       {path: '', redirectTo: 'cluster', pathMatch: 'full'},
       {path: 'cluster', component: ClusterComponent},
       {path: 'offline', component: PackageComponent},
-      {path: 'storage', component: StorageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
       {

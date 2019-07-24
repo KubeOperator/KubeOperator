@@ -18,7 +18,6 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.models.storage import StorageTemplate, Storage
 from . import serializers
 from .mixin import ClusterResourceAPIMixin, StorageResourceAPIMixin
 from .tasks import start_deploy_execution
@@ -33,17 +32,6 @@ class ClusterViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'name'
 
 
-class StorageViewSet(viewsets.ModelViewSet):
-    queryset = Storage.objects.all()
-    serializer_class = serializers.StorageSerializer
-    permission_classes = (IsSuperUser,)
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     serializer_class = serializers.PackageSerializer
@@ -54,19 +42,6 @@ class PackageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         Package.lookup()
-        return super().get_queryset()
-
-
-class StorageTemplateViewSet(viewsets.ModelViewSet):
-    queryset = StorageTemplate.objects.all()
-    serializer_class = serializers.StorageTemplateSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'head', 'options']
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def get_queryset(self):
-        StorageTemplate.lookup()
         return super().get_queryset()
 
 
