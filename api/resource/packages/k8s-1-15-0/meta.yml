@@ -154,7 +154,7 @@ roles:
       flanneld_version: "v0.11.0-amd64"
       #registry
       REGISTRY_ACCOUNT_NAME: admin
-      REGISTRY_ACCOUNT_PASSWORD: Calong@2015
+      REGISTRY_ACCOUNT_PASSWORD: admin123
       IMAGE_PULL_SECRET: registry-fit2cloud-com-key
 
 apps:

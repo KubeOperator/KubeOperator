@@ -31,6 +31,11 @@
     - systemd-logind
     - systemd-hostnamed
 
+- name: 重新启动firewall
+  service:
+    name: firewalld
+    state: restarted
+
 - name: 配置时间同步服务
   template:
     src: chrony.conf.j2

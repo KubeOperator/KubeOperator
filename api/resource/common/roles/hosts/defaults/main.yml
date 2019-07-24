@@ -18,6 +18,7 @@ packages:
 firewall_tcp_ports:
   - 4789
   - 8443
+  - 6443
   - 80
   - 443
   - 53
