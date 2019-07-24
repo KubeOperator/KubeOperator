@@ -48,8 +48,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
-
-
 class AuthTemplateSerializer(serializers.ModelSerializer):
     meta = serializers.JSONField()
 
@@ -126,15 +124,6 @@ class NodeSerializer(AnsibleHostSerializer):
             'id', 'name', 'ip', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version'
         ]
         read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip']
-
-    def get_field_names(self, declared_fields, info):
-        names = super().get_field_names(declared_fields, info)
-        names.append('roles')
-        return names
-
-    def create(self, validated_data):
-        validated_data['groups'] = validated_data.pop('roles', [])
-        return super().create(validated_data)
 
 
 class RoleSerializer(GroupSerializer):
