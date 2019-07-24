@@ -1,4 +1,4 @@
 {% for host in groups['all_nodes'] %}
 address=/{{host}}/{{ hostvars[host]['ansible_default_ipv4']['address'] }}
 {% endfor %}
-address=/{{APP_DOMAIN}}/{{hostvars[groups['master'][0]]['ansible_default_ipv4']['address']}}
+address=/{{APP_DOMAIN}}/{{hostvars[groups['worker'][0]]['ansible_default_ipv4']['address']}}
