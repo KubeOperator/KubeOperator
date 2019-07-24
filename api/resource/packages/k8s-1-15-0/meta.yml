@@ -111,9 +111,6 @@ roles:
       bin_dir: "/usr/local/bin"
       ca_dir: "/etc/kubernetes/ssl"
       CONTAINER_RUNTIME: "docker"
-      CLUSTER_NETWORK: "flannel"
-      SERVICE_CIDR: "10.68.0.0/16"
-      CLUSTER_CIDR: "172.20.0.0/16"
       NODE_PORT_RANGE: "30000-32767"
       CLUSTER_KUBERNETES_SVC_IP: "10.68.0.1"
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
@@ -205,15 +202,26 @@ networks:
       - name: FLANNEL_BACKEND
         alias: 网络模式
         type: Select
-        default: host-gw
+        value: host-gw
         required: true
-        help_text: 应用域名
         display: true
         options:
           - name: host-gw
             value: host-gw
           - name: vxlan
             value: vxlan
+      - name: SERVICE_CIDR
+        alias: Service CIDR
+        value: 10.68.0.0/16
+        type: Input
+        required: true
+        display: true
+      - name: CLUSTER_CIDR
+        type: Input
+        alias: POD CIDR
+        value: 172.20.0.0/16
+        required: true
+        display: true
 
 storages:
   - name: nfs
