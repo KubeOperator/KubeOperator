@@ -77,7 +77,7 @@
 
 # to install cluster-addons
 - hosts:
-    -  "{{groups['kube-master'][0]}}"
+    - "{{groups['kube-master'][0]}}"
   roles:
     - cluster-addon
 
@@ -88,9 +88,9 @@
 - hosts: "cluster_nodes"
   tasks:
     - name: 尝试登陆 registry
-      shell: "docker login {{MASTER_IP}}:30003 -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
+      shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
-      retries: 40
+      retries: 10
       delay: 30
 
