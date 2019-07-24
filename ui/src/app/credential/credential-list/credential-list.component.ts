@@ -18,7 +18,7 @@ export class CredentialListComponent implements OnInit {
   @Output() add = new EventEmitter();
   @ViewChild(HostInfoComponent)
   child: HostInfoComponent;
-  showDelete: false;
+  showDelete = false;
   resourceTypeName: '凭据';
 
   constructor(private credentialService: CredentialService, private tipService: TipService) {
