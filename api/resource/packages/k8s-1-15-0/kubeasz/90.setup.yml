@@ -60,7 +60,6 @@
 
 # to install network plugin, only one can be choosen
 - hosts:
-    - kube-master
     - kube-node
   roles:
     - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }

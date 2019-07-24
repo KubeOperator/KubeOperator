@@ -3,7 +3,6 @@
 
 # to clean 'kube-node' nodes
 - hosts:
-    - kube-master
     - kube-node
   tasks:
     - name: stop and disable kube-node service
