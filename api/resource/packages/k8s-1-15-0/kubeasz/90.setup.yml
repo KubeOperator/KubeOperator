@@ -30,7 +30,7 @@
   roles:
     - etcd
 
-- hosts: cluster_nodes
+- hosts: kube-node
   roles:
     - docker
 
