@@ -35,7 +35,7 @@ def list_grafana_dbs(db_url):
     nodes_title = 'Kubernetes Nodes (prometheus)'
     cluster_title = 'Cluster Monitoring for Kubernetes'
     try:
-        res = requests.get(db_url + "/api/search")
+        res = requests.get(db_url + "/api/search", timeout=5)
         dbs = res.json()
         for db in dbs:
             url = db_url + db.get('url')
