@@ -24,5 +24,6 @@ cluster_router.register(r'executions', api.DeployExecutionViewSet, 'cluster-depl
 
 urlpatterns = [
                   path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
-                  path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view())
+                  path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view()),
+                  path('version/', api.VersionView.as_view())
               ] + router.urls + cluster_router.urls

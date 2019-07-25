@@ -4,6 +4,8 @@ import {Router} from '@angular/router';
 import {CommonRoutes} from '../../shared/shared.const';
 import {SessionUser} from '../../shared/session-user';
 import {PasswordComponent} from './components/password/password.component';
+import {BaseService} from '../base.service';
+import {Version} from './version';
 
 @Component({
   selector: 'app-header',
@@ -13,15 +15,17 @@ import {PasswordComponent} from './components/password/password.component';
 export class HeaderComponent implements OnInit {
   user: SessionUser = new SessionUser();
   username = 'guest';
-
+  showVersionInfo = false;
+  version: Version = new Version();
   @ViewChild(PasswordComponent)
   password: PasswordComponent;
 
-  constructor(private sessionService: SessionService, private router: Router) {
+  constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService) {
   }
 
   ngOnInit() {
     this.getCurrentUser();
+    this.getVersionInfo();
   }
 
   getCurrentUser() {
@@ -31,6 +35,13 @@ export class HeaderComponent implements OnInit {
     }
   }
 
+  getVersionInfo() {
+    this.baseService.getVersion().subscribe(data => {
+      this.version = data;
+      console.log(this.version);
+    });
+  }
+
   logOut() {
     this.sessionService.clear();
     this.router.navigateByUrl(CommonRoutes.SIGN_IN);
@@ -38,6 +49,10 @@ export class HeaderComponent implements OnInit {
 
   changePassword() {
     this.password.opened = true;
+  }
+
+  showInfo() {
+    this.showVersionInfo = true;
   }
 
 }

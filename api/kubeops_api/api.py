@@ -1,5 +1,6 @@
 import json
 
+import yaml
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from django.db import transaction
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
+from fit2ansible.settings import VERSION_DIR
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
@@ -175,6 +177,16 @@ class SettingViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'head', 'options', 'put', 'patch']
     lookup_field = 'key'
     lookup_url_kwarg = 'key'
+
+
+class VersionView(APIView):
+
+    def get(self, request, **kwargs):
+        with open(VERSION_DIR) as f:
+            response = HttpResponse()
+            result = yaml.load(f)
+            response.write(json.dumps(result))
+            return response
 
 
 class DownloadView(APIView):

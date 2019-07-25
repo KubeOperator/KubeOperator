@@ -1,3 +1,15 @@
+<clr-modal [(clrModalOpen)]="showVersionInfo" [clrModalClosable]=true>
+  <h3 class="modal-title">版本信息</h3>
+  <div class="modal-body">
+    <ul class="list-unstyled">
+      <li><b>版本:</b>&nbsp;{{version.version}}</li>
+      <li><b>构建号:</b>&nbsp;{{version.build}}</li>
+      <li><b>版权: </b>&nbsp;Copyright (c) 2014-2019 FIT2CLOUD 飞致云</li>
+    </ul>
+  </div>
+
+</clr-modal>
+
 <clr-header class="header-6" [ngStyle]="{'background-color':'#2b415a'}">
   <div class="branding">
     <img src="assets/images/logo-title.png" width="210px">
@@ -13,6 +25,8 @@
       <clr-dropdown-menu [clrPosition]="'bottom-right'">
         <a href="javascript:void(0)" clrDropdownItem (click)="changePassword()">修改密码</a>
         <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
+        <a href="javascript:void(0)" clrDropdownItem (click)="showInfo()">关于</a>
+
       </clr-dropdown-menu>
     </clr-dropdown>
   </div>
