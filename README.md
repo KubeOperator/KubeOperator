@@ -34,11 +34,15 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 - [ ] 支持集群扩容；
 - [ ] 支持集群升级；
-- [ ] 支持集群备份及恢复；
-- [ ] 支持多主多节点模式（Multi AZ，分布在不同故障域）
 - [ ] 支持调用 VMware vCenter 接口自动创建集群所需资源；
-- [ ] 支持 VMware vSAN 作为持久化存储；
+- [ ] 支持 VMware vSAN / VMFS 作为持久化存储；
+- [ ] 支持对接 F5
+
+ v2.1
+ 
+- [ ] 支持多主多节点模式（Multi AZ，分布在不同故障域） 
 - [ ] 支持 VMware NSX-T；
+- [ ] 支持集群备份及恢复；
 
 ## 安装 KubeOperator
 
@@ -50,7 +54,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
 ## 致谢
 
-- 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 K8S Ansible 脚本.
+- 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 Kubernetes Ansible 脚本.
 
 ## License & Copyright
 
