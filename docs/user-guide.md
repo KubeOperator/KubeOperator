@@ -22,7 +22,6 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 集群域名后缀为集群节点访问地址的后缀，集群暴露出来的对外服务的 URL 都将以该域名后缀作为访问地址后缀。例如: grafana.apps.cluster.f2c.com。
 
-![KubeOperator设置](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/kubeops-setting.png?raw=true)
 
 ## 3 添加凭据
 
@@ -33,7 +32,6 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 在离线包列表中可以查看 KubeOperator 当前所提供的 Kubernetes 安装版本详细信息。在后续进行 Kubernetes 集群部署时，可以从这些版本中选择其一进行部署（当前仅支持1.15.0,后续会跟随 Kubernetes 社区发布离线包）。
 
-![离线包-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-1.png?raw=true)
 
 ## 4 主机
 
@@ -79,13 +77,11 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 在左侧导航菜单中选择【主机】，进入【主机】页后可以看到已添加主机的详细信息，包括 IP、CPU、内存、操作系统等。
 
-![主机列表-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/hosts-1.png?raw=true)
 
 ### 4.3 添加主机
 
 点击【添加】按钮添加新的主机。在输入完主机名称、IP、主机的 SSH 登录信息后，点击【提交】按钮即可完成一台主机的添加。
 
-![添加主机-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/hosts-add-1.png?raw=true)
 
 ## 5 集群
 
@@ -93,7 +89,6 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 在左侧导航菜单中选择【集群】，进入【集群】页后可以看到已添加集群的详细信息，包括 集群部署的 Kubernetes 版本、部署模式、节点数及运行状态等。
 
-![集群列表-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-1.png?raw=true)
 
 ### 5.2 创建集群
 
@@ -101,13 +96,11 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 点击【集群】页的【添加】按钮进行集群的创建。在【基本信息】里输入集群的名称，选择该集群所要部署的 Kubernetes 版本。
 
-![添加集群-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-1.png?raw=true)
 
 #### 5.2.2 部署模
 
 选择 Kubernetes 集群的部署模型。KubeOperator 当前版本仅支持一主多节点。选择部署模型后，KubeOperator 将展示集群中各个角色节点的详细配置要求。
 
-![添加集群-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-2.png?raw=true)
 
 #### 5.2.3 配置节点
 
@@ -121,45 +114,37 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 > 如果集群节点全部都在同一个二层网络下，请选择"host-gw"。如果不是，则选择"vxlan"。"host-gw" 性能优于 "vxlan"。
 
-![添加集群-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-4.png?raw=true)
 
 #### 5.2.5 配置存储
 
 【添加存储】环节，选择外部持久化存储。
 
-![添加集群-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-5.png?raw=true)
 
 #### 5.2.6 配置检测
 
 完成上述 5 个步骤后，KubeOperator 会对当前集群所选择的部署节点进行配置检测，包含 CPU、内存和操作系统的检测。
 
-![添加集群-6](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-6.png?raw=true)
 
 #### 5.2.7 配置集群参数
 
 完成检测后，可以对集群的域名参数进行配置，如无特殊要求，推荐使用默认值。
 
-![添加集群-7](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-7.png?raw=true)
 
 #### 5.2.8 集群配置概览
 
 所有步骤完成后，会有一个集群配置概览页对之前步骤所设参数进行汇总，用户可在此页进行集群配置的最后检查。
 
-![添加集群-8](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-8.png?raw=true)
 
 ### 5.3 部署集群
 
 在集群列表中点击要进行部署的集群名称，默认展示的是该集群的【概览】信息。【概览】页中展示了 Kubernetes 集群的诸多详情，包括 Kubernetes 版本、集群所用存储、网络模式等。点击【概览】页最下方的【安装】按钮进行 Kubernetes 集群的部署。
 
-![集群概览](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-overview.png?raw=true)
 
 集群部署开始后，将会自动跳转到【任务】页。在【任务】页里可以看到集群部署当前所执行的具体任务信息。
 
-![部署集群-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-1.png?raw=true)
 
 如果是内网环境的话，一个典型的 5 节点集群的部署大概需要10分钟左右的时间。在出现类似下图的信息后，表明集群已部署成功：
 
-![部署集群-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-2.png?raw=true)
 
 ## 5.4 访问 Kubernetes 集群
 
@@ -167,7 +152,6 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 > 这四个系统的访问域名需要在 DNS 服务器中添加相应的域名记录。如无条件，也可以通过修改本地 hosts 文件来达到相同的作用。
 
-![集群概览](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-overview.png?raw=true)
 
 #### 5.4.1 访问 Dashboard
 
