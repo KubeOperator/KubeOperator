@@ -54,6 +54,12 @@
     - { role: kube-node, when: "DEPLOY_MODE != 'allinone'" }
 
 # to install network plugin, only one can be choosen
+
+- hsots:
+    - kube-node
+  roles:
+    - pull-images
+
 - hosts:
     - kube-node
   roles:
@@ -86,6 +92,6 @@
       shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
-      retries: 10
+      retries: 5
       delay: 30
 

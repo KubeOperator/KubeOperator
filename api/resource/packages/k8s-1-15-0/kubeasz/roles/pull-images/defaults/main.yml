@@ -1,0 +1,9 @@
+registry_prefix: "registry.kubeops.io:8092"
+images:
+  - "k8s.gcr.io/metrics-server-amd64:v0.3.2"
+  - "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0"
+  - "gcr.io/google_containers/heapster-amd64:v1.5.4"
+  - "docker.io/traefik:v1.7.11"
+  - "gcr.io/kubernetes-helm/tiller:v2.12.3"
+  - "quay.io/coreos/flannel:v0.11.0-amd64"
+  - "docker.io/coredns/coredns:1.5.0"

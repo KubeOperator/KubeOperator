@@ -6,7 +6,6 @@
 env
 venv
 dist
-build
 *.egg
 *.egg-info
 _mailinglist
@@ -21,6 +20,6 @@ dump.rdb
 data/celery/
 data/ansible/
 data/projects/
-data/openshift-ansible/
+data/log
 *.log
 django.iml

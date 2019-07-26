@@ -1,0 +1,5 @@
+- name: 拉取集群镜像
+  docker_image:
+    name: "{{registry_prefix}}/{{item}}"
+    state: present
+  with_items: "{{images}}"

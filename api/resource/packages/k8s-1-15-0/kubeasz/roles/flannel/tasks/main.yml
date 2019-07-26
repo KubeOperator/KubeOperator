@@ -22,8 +22,6 @@
     - loopback
     - portmap
 
-- import_tasks: pull_image.yml
-
 # 只需单节点执行一次
 - name: 运行 flannel网络
   shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/flannel/ && sleep 5"
