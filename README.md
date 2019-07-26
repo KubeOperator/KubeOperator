@@ -52,6 +52,45 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
  [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
 
+## 组件版本
+
+|  组件名称   | 版本  |
+|  ----  | ----  |
+| kubernetes  | 1.15.0 |
+| etcd  | 3.3.10 |
+| docker  | docker-ce-18.09.2 |
+
+
+## 镜像版本
+
+|  镜像名称   | TAG  |
+|  ----  | ----  |
+| quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
+| docker.io/traefik  | v1.7.11 |
+| docker.io/grafana/grafana  | v1.7.11 |
+| quay.io/prometheus/alertmanager  | v0.15.2 |
+| docker.io/busybox  | 1.31.0 |
+| quay.io/prometheus/node-exporter  | v1.7.11 |
+| quay.io/prometheus/prometheus| v2.4.3|
+| quay.io/prometheus/pushgateway| v0.5.2|
+| docker.io/coredns/coredns| 1.5.0|
+| quay.io/coreos/flannel| v0.11.0-amd64|
+| gcr.io/google_containers/heapster-grafana-amd64| v4.4.3|
+| gcr.io/google_containers/heapster-amd64| v1.5.4|
+| gcr.io/google_containers/heapster-influxdb-amd64| v1.5.2|
+| gcr.io/kubernetes-helm/tiller| v2.12.3|
+| k8s.gcr.io/kubernetes-dashboard-amd64| v1.10.0|
+| k8s.gcr.io/metrics-server-amd64| v0.3.2|
+| quay.io/coreos/configmap-reload| v0.0.1|
+| gcr.io/google-containers/pause-amd64| 3.1|
+| docker.io/registry| 2|
+| docker.io/alpine| 3.6|
+| quay.io/coreos/kube-state-metrics| v1.4.0|
+| docker.io/appropriate/curl| edge|
+| docker.io/konradkleine/docker-registry-frontend| v2|
+
+
+
 ## 致谢
 
 - 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 Kubernetes Ansible 脚本.
