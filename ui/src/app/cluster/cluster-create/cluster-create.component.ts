@@ -57,8 +57,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   suffix = 'f2o';
   @ViewChild('basicFrom') basicForm: NgForm;
   @ViewChild('storageForm') storageForm: NgForm;
-  // @ViewChild('networkForm') networkForm: NgForm;
-  // @ViewChild('nodeForm') nodeForm: NgForm;
+  @ViewChild('networkForm') networkForm: NgForm;
+  @ViewChild('nodeForm') nodeForm: NgForm;
   @ViewChild('configForm') configForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
@@ -121,7 +121,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.templates = this.package.meta.templates;
     this.networks = this.package.meta.networks;
     this.storages = this.package.meta.storages;
-    console.log(this.package);
   }
 
   onNetworkChange() {
@@ -175,8 +174,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.resetCheckState();
     this.basicForm.resetForm();
     this.storageForm.resetForm();
-    // this.networkForm.resetForm();
-    // this.nodeForm.resetForm();
+    this.networkForm.resetForm();
+    this.nodeForm.resetForm();
   }
 
 
