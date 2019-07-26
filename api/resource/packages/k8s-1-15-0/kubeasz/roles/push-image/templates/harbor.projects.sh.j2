@@ -1,7 +1,0 @@
-#!/bin/bash
-
-list="fit2cloud"
-for i in $list;
-do
-curl -k -u "{{ REGISTRY_ACCOUNT_NAME }}:{{ REGISTRY_ACCOUNT_PASSWORD }}" -X POST -H "Content-Type:application/json" -d '{"project_name": "'$i'", "public": 0}' https://{{ REGISTRY_ADDRESS }}/api/projects;
-done
