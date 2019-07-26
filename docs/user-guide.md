@@ -22,10 +22,22 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 集群域名后缀为集群节点访问地址的后缀，集群暴露出来的对外服务的 URL 都将以该域名后缀作为访问地址后缀。例如: grafana.apps.cluster.f2c.com。
 
+![setting-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/setting-1.png?raw=true)
 
-## 3 添加凭据
+## 3 凭据
 
-在添加主机资产之前，需要添加主机的登陆凭据，例如 password或者 private_key 。
+### 3.1 凭据列表
+
+凭据为 KubeOperator 连接主机资产的凭证，可以使用 password 或者 private key 。
+
+![credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/credential-1.png?raw=true)
+
+### 3.1 创建凭据
+
+点击【添加】按钮添加新的主机。
+
+![add_credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/add_credential-1?raw=true)
+
 
 
 ## 3 离线包
