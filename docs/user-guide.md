@@ -36,7 +36,7 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 点击【添加】按钮添加新的主机。
 
-![add_credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/add_credential-1?raw=true)
+![add_credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/add_credential-1.png?raw=true)
 
 
 
