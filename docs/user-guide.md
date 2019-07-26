@@ -36,7 +36,10 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 在离线包列表中可以查看 KubeOperator 当前所提供的 Kubernetes 安装版本详细信息。在后续进行 Kubernetes 集群部署时，可以从这些版本中选择其一进行部署（当前仅支持1.15.0，后续会跟随 Kubernetes 社区发布离线包）。
 
-TBD：增加一个离线包的详细版本突破。
+![package-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-1.png?raw=true)
+
+![package-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-2.png?raw=true)
+
 
 ## 4 主机
 
