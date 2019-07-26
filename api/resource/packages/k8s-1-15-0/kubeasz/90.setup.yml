@@ -55,10 +55,6 @@
 
 # to install network plugin, only one can be choosen
 
-- hosts:
-    - kube-node
-  roles:
-    - pull-images
 
 - hosts:
     - kube-node
