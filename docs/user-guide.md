@@ -180,7 +180,18 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 回到集群的【概览】页，该页提供了 Grafana、Prometheus、Registry-console、Dashboard 等四个管理系统快捷访问方式。这四个系统的访问域名需要在 DNS 服务器中添加相应的域名记录。如无条件，也可以通过修改本地 /etc/hosts 文件来达到相同的作用。
 
-TBD: 增加一个 /etc/hosts 示例，让用户可以直接完整复制并修改。
+eg: 
+
+``` bash
+# 编辑 /etc/hosts
+$ vim /etc/hosts
+# 替换 WORKER_IP 为任意 worker 节点 IP 地址
+WORKER_IP grafana.apps.whfay.f2c.com
+WORKER_IP prometheus.apps.whfay.f2c.com
+WORKER_IP registry-ui.apps.whfay.f2c.com
+WORKER_IP dashboard.apps.whfay.f2c.com
+WORKER_IP master-1.whfay.f2c.com
+```
 
 #### 5.4.1 访问 Dashboard
 
