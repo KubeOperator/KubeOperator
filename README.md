@@ -52,19 +52,13 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 
  [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
 
-## 组件版本
+## 最新离线包中的 Kubernetes 及组件版本
 
 |  组件名称   | 版本  |
 |  ----  | ----  |
 | kubernetes  | 1.15.0 |
 | etcd  | 3.3.10 |
 | docker  | docker-ce-18.09.2 |
-
-
-## 镜像版本
-
-|  镜像名称   | TAG  |
-|  ----  | ----  |
 | quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
 | docker.io/traefik  | v1.7.11 |
 | docker.io/grafana/grafana  | v1.7.11 |
@@ -88,8 +82,6 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 | quay.io/coreos/kube-state-metrics| v1.4.0|
 | docker.io/appropriate/curl| edge|
 | docker.io/konradkleine/docker-registry-frontend| v2|
-
-
 
 ## 致谢
 
