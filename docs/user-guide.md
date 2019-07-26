@@ -85,7 +85,9 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 在左侧导航菜单中选择【主机】，进入【主机】页后可以看到已添加主机的详细信息，包括 IP、CPU、内存、操作系统等。点击【添加】按钮添加新的主机。在输入完主机名称、IP、主机的 SSH 登录信息后，点击【提交】按钮即可完成一台主机的添加。
 
-TBD：增加主机列表截图（包括一个集群所需要的所有主机）
+![host-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/host-2.png?raw=true)
+
+![host-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/host-1.png?raw=true)
 
 ## 5 集群
 
