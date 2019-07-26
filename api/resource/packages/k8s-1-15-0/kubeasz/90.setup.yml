@@ -55,7 +55,7 @@
 
 # to install network plugin, only one can be choosen
 
-- hsots:
+- hosts:
     - kube-node
   roles:
     - pull-images
