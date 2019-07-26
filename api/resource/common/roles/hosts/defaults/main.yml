@@ -40,6 +40,8 @@ firewall_tcp_ports:
   - 10253
   - 10254
   - 10255
+  - 9100
+  - 8580
 firewall_udp_ports:
   - 53
   - 123

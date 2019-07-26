@@ -21,6 +21,27 @@ roleRef:
 
 ---
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-conf
+  namespace: kube-system
+data:
+  traefik.toml: |
+    insecureSkipVerify = true
+    defaultEntryPoints = ["http","https"]
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+      [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          [[entryPoints.https.tls.certificates]]
+          certFile = "/ssl/tls.crt"
+          keyFile = "/ssl/tls.key"
+
+---
+
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -28,6 +49,8 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: traefik-ingress-lb
+  annotations:
+    ingress.kubernetes.io/proxy-body-size: "5120M"
 spec:
   template:
     metadata:
@@ -36,27 +59,36 @@ spec:
         name: traefik-ingress-lb
     spec:
       terminationGracePeriodSeconds: 60
+      volumes:
+      - name: ssl
+        secret:
+          secretName: traefik-tls-cert
+      - name: config
+        configMap:
+          name: traefik-conf
       hostNetwork: true
       restartPolicy: Always
       serviceAccountName: ingress
       containers:
       - image: registry.kubeops.io:8092/docker.io/traefik:v1.7.11
+        imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
-        resources:
-          limits:
-            cpu: 200m
-            memory: 30Mi
-          requests:
-            cpu: 100m
-            memory: 20Mi
+        volumeMounts:
+        - mountPath: /ssl
+          name: ssl
+        - mountPath: /config
+          name: config
         ports:
         - name: http
           containerPort: 80
           hostPort: 80
+        - name: https
+          containerPort: 443
         - name: admin
           containerPort: 8580
           hostPort: 8580
         args:
+        - --configFile=/config/traefik.toml
         - --web
         - --web.address=:8580
         - --kubernetes
@@ -75,3 +107,6 @@ spec:
   - name: web
     port: 80
     targetPort: 8580
+  - protocol: TCP
+    port: 443
+    name: https
