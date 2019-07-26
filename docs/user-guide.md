@@ -106,8 +106,6 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 【添加主机】环节，把集群所需的主机添加到了 KubeOperator 中。在【配置节点】环节，则可以根据不同的节点角色，选择主机列表中的各个主机。
 
-![添加集群-3](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-3.png?raw=true)
-
 #### 5.2.4 配置网络
 
 【配置网络】环节，选择集群的网络插件，当前版本仅支持 Flannel。
