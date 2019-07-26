@@ -43,11 +43,6 @@
     - name: 下载helm客户端
       copy: src={{ base_dir }}/bin/helm dest={{ bin_dir }}/helm mode=0755
 
-    - name: Setting master role name
-      shell: "{{ bin_dir }}/kubectl label node {{ inventory_hostname }} kubernetes.io/role=master --overwrite"
-      ignore_errors: true
-      delegate_to: "{{ groups['kube-master'][0] }}"
-
 # to set up 'kube-node' nodes
 - hosts: kube-node
   roles:
@@ -82,7 +77,7 @@
   roles:
     - registry
 
-- hosts: "cluster_nodes"
+- hosts: kube-node
   tasks:
     - name: 尝试登陆 registry
       shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
