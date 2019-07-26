@@ -119,6 +119,7 @@ roles:
       base_dir: "/opt/kubeOperator-kube-bin/1.15.0"
       kube_version: "1.15.0"
       repo_port: 8082
+      registry_prefix: "registry.kubeops.io:8092"
 
       #dns
       dns_install: true
