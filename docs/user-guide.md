@@ -26,15 +26,17 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 ## 3 凭据
 
+凭据为 KubeOperator 连接主机资产的凭证，可以使用 password 或者 private key 。
+
 ### 3.1 凭据列表
 
-凭据为 KubeOperator 连接主机资产的凭证，可以使用 password 或者 private key 。
+在左侧导航菜单中选择【设置】，进入【设置】页后点击【凭据】TAB 可以看到已添加凭据信息。
 
 ![credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/credential-1.png?raw=true)
 
 ### 3.1 创建凭据
 
-点击【添加】按钮添加新的主机。
+点击【添加】按钮添加新的凭据。
 
 ![add_credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/add_credential-1.png?raw=true)
 
