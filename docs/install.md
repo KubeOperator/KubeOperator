@@ -8,7 +8,7 @@
 ## 离线包方式安装
 
 安装前请自行至百度云盘下载完整离线包:  
-https://pan.baidu.com/XXXX/nexus-data.tar.gz 提取码 0304 
+https://pan.baidu.com/s/1FxAywjA4zJOutBvVjKFGNQ 提取码 9inf 
 
 ``` bash
 # 解压离线包
@@ -26,7 +26,7 @@ $ ./kubeopsctl status
 ## 源码方式安装
 
 安装前请自行至百度云盘下载数据文件:  
-https://pan.baidu.com/XXXX/nexus-data.tar.gz 提取码 0304 
+https://pan.baidu.com/s/1FxAywjA4zJOutBvVjKFGNQ 提取码 9inf 
 
 ``` bash
 # 文档中脚本默认均以root用户执行
