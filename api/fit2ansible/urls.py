@@ -27,6 +27,7 @@ def get_api_v1_urlpatterns():
         path('', include('users.urls')),
         path('', include('celery_api.urls.api_urls')),
         path('', include('kubeops_api.api_url')),
+        path('', include('cloud_provider.api_url'))
     ]
     return _urlpatterns
 

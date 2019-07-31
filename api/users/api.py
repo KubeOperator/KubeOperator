@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 from django.http import HttpResponse
+from kombu.utils import json
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.generics import RetrieveAPIView, get_object_or_404, CreateAPIView
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
 
@@ -30,14 +32,14 @@ class UserProfileApi(RetrieveAPIView):
         return self.request.user
 
 
-class UserPasswordChangeApi(CreateAPIView):
+class UserPasswordChangeApi(APIView):
     def post(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         password = request.data.get('password')
         new_password = request.data.get('new_password')
-        print(request.data)
         user = get_object_or_404(get_user_model(), pk=pk)
         response = HttpResponse()
+        response.write(json.dumps({'result': 'success'}))
         if user.check_password(password):
             if new_password:
                 user.set_password(new_password)

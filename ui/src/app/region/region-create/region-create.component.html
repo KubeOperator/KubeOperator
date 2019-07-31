@@ -1,0 +1,58 @@
+<clr-wizard #wizard [(clrWizardOpen)]="createOpened" [clrWizardClosable]="false" (clrWizardOnCancel)="onCancel()"
+            (clrWizardOnFinish)="onSubmit()">
+  <clr-wizard-title>创建区域</clr-wizard-title>
+
+  <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
+  <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
+  <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
+  <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="regionForm.invalid"
+                   (clrWizardPageOnCommit)="onBasicFormCommit()">
+    <ng-template clrPageTitle>基本信息</ng-template>
+    <form clrForm #regionForm="ngForm">
+      <clr-input-container>
+        <label>名称</label>
+        <input clrInput type="text" [(ngModel)]="item.name" name="name" required>
+      </clr-input-container>
+      <clr-select-container>
+        <label>提供商</label>
+        <select clrSelect [(ngModel)]="item.template" name="provider" (change)="onTemplateChange()" required>
+          <option [value]="">请选择</option>
+          <option *ngFor="let template of cloudTemplates" [value]="template.name">{{template.name}}</option>
+        </select>
+      </clr-select-container>
+      <div *ngIf="cloudTemplate">
+        <div [ngSwitch]="config.type" *ngFor="let config of this.cloudTemplate.meta.meta.configs">
+          <clr-input-container *ngSwitchCase="'Input'">
+            <label>{{config.alias}}</label>
+            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+          </clr-input-container>
+          <clr-password-container *ngSwitchCase="'Password'">
+            <label>{{config.alias}}</label>
+            <input clrPassword type="password" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+          </clr-password-container>
+        </div>
+      </div>
+      <clr-textarea-container>
+        <label>描述</label>
+        <textarea clrTextarea [(ngModel)]="item.comment" name="content"></textarea>
+      </clr-textarea-container>
+    </form>
+  </clr-wizard-page>
+  <clr-wizard-page>
+    <ng-template clrPageTitle>选择区域</ng-template>
+    <form clrForm #regionForm="ngForm">
+      <clr-select-container>
+        <label>区域</label>
+        <select clrSelect *ngFor="let c_region of cloudRegions" [(ngModel)]="item.cloud_region" name="cloud-region">
+          <option [value]="">请选择</option>
+          <option [value]="c_region">{{c_region}}</option>
+        </select>
+      </clr-select-container>
+    </form>
+  </clr-wizard-page>
+</clr-wizard>
+
+
+

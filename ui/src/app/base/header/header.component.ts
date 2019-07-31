@@ -38,7 +38,6 @@ export class HeaderComponent implements OnInit {
   getVersionInfo() {
     this.baseService.getVersion().subscribe(data => {
       this.version = data;
-      console.log(this.version);
     });
   }
 

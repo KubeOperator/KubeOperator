@@ -21,6 +21,7 @@ import {DeployModule} from './deploy/deploy.module';
 import {SettingModule} from './setting/setting.module';
 import {AuthModule} from './auth/auth.module';
 import {CredentialModule} from './credential/credential.module';
+import {RegionModule} from './region/region.module';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import {CredentialModule} from './credential/credential.module';
     ClusterModule,
     DeployModule,
     OverviewModule,
+    RegionModule,
     NodeModule,
     ConfigModule,
     LogModule,

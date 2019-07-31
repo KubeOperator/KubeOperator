@@ -18,6 +18,7 @@ import {SettingComponent} from './setting/setting.component';
 import {AuthComponent} from './auth/auth.component';
 import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
 import {CredentialComponent} from './credential/credential.component';
+import {RegionComponent} from './region/region.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -39,7 +40,8 @@ const routes: Routes = [
         children: [
           {path: '', redirectTo: 'system', pathMatch: 'full'},
           {path: 'system', component: SystemSettingComponent},
-          {path: 'credential', component: CredentialComponent}
+          {path: 'credential', component: CredentialComponent},
+          {path: 'region', component: RegionComponent}
         ]
       },
       {

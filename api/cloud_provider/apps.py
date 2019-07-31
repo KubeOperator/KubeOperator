@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
 
-class KubeOperatorApiConfig(AppConfig):
-    name = 'kubeops_api'
+class CloudProviderConfig(AppConfig):
+    name = 'cloud_provider'
 
     def ready(self):
         from . import signal_handlers

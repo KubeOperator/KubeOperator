@@ -149,7 +149,6 @@ class Cluster(Project):
         role.save()
 
     def set_config_unlock(self, vars):
-        print(vars)
         self.change_to()
         config_role = Role.objects.get(name='config')
         role_vars = config_role.vars
