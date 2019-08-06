@@ -1,4 +1,4 @@
-# KubeOperator - Kubernetes 集群部署和管理平台
+# KubeOperator - Kubernetes 集群管理平台
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
@@ -7,20 +7,20 @@
 
 ## 什么是 KubeOperator？
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，在完全离线环境下实现生产级别的 Kubernetes 集群的可视化部署及生命周期管理。KubeOperator 尤其适合用于在 VMware 云平台上部署和管理生产级别的 Kubernetes 集群。
+KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全离线环境下实现生产级别的 Kubernetes 集群的可视化部署及生命周期管理。KubeOperator 尤其适合用于在 VMware 和 Openstack 云平台上部署和管理生产级别的 Kubernetes 集群。
 
 ## 为什么需要 KubeOperator？
 
--  按需创建：快速创建 Kubernetes 集群，避免手动创建。
+-  按需创建：对于云平台 API，一键快速创建 Kubernetes 集群。
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率。
--  按需修补：快速升级和修补 Kubernetes 集群，保证安全性和版本同步。
+-  按需修补：快速升级和修补 Kubernetes 集群，保证集群安全性和版本同步。
 -  健康检查：主动式健康检测，及时发现潜在问题。
 -  自我修复：通过重建故障节点确保集群可用性。
 -  Multi-AZ支持：通过把集群节点分布在不同的故障域上确保集群的高可用。
 
 ## KubeOperator 的版本规划
 
- v1.0
+ v1.0 （已发布）
 
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
@@ -29,20 +29,21 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
+- [x] 支持 Kubernetes 集群手动部署模式（自行准备主机资源和 NFS 环境）；
 
- v2.0
+ v2.0 （开发中）
 
-- [ ] 支持集群扩容；
-- [ ] 支持集群升级；
-- [ ] 支持调用 VMware vCenter 接口自动创建集群所需资源；
-- [ ] 支持 VMware vSAN / VMFS 作为持久化存储；
+- [ ] 支持 VMware 云平台（调用 VMware vCenter 接口自动创建集群所需资源、支持VMware vSAN / VMFS 作为持久化存储）；
+- [ ] 支持 Kubernetes 集群扩缩容
 - [ ] 支持对接 F5
 
- v2.1
+ v2.1 （计划中）
  
+- [ ] 支持 Openstack 云平台（调用 Openstack API 接口自动创建集群所需资源、支持 Cinder 作为持久化存储）
+- [ ] 支持集群升级；
+- [ ] 支持集群备份及恢复；
 - [ ] 支持多主多节点模式（Multi AZ，分布在不同故障域） 
 - [ ] 支持 VMware NSX-T；
-- [ ] 支持集群备份及恢复；
 
 ## 安装 KubeOperator
 
@@ -53,6 +54,8 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web 控制台，�
  [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
 
 ## 最新离线包中的 Kubernetes 及组件版本
+
+KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署。离线包版本和 KubeOperator 版本保持一致，KubeOperator V1.0.0 离线包中包括的组件及版本信息如下：
 
 |  组件名称   | 版本  |
 |  ----  | ----  |
