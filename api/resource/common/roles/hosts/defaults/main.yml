@@ -27,7 +27,6 @@ firewall_tcp_ports:
   - 2379
   - 2380
   - 4001
-  - 4789
   - 9000
   - 1936
   - 9200
@@ -42,6 +41,8 @@ firewall_tcp_ports:
   - 10255
   - 9100
   - 8580
+  - 8472
 firewall_udp_ports:
   - 53
   - 123
+  - 8472
