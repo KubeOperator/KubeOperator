@@ -19,6 +19,8 @@ import {AuthComponent} from './auth/auth.component';
 import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
 import {CredentialComponent} from './credential/credential.component';
 import {RegionComponent} from './region/region.component';
+import {ZoneComponent} from './zone/zone.component';
+import {PlanComponent} from './plan/plan.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -41,7 +43,9 @@ const routes: Routes = [
           {path: '', redirectTo: 'system', pathMatch: 'full'},
           {path: 'system', component: SystemSettingComponent},
           {path: 'credential', component: CredentialComponent},
-          {path: 'region', component: RegionComponent}
+          {path: 'region', component: RegionComponent},
+          {path: 'zone', component: ZoneComponent},
+          {path: 'plan', component: PlanComponent}
         ]
       },
       {

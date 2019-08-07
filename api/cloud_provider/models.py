@@ -5,6 +5,7 @@ import yaml
 from django.db import models
 
 # Create your models here.
+from ansible_api.models.mixins import AbstractExecutionModel
 from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
@@ -54,11 +55,39 @@ class Region(models.Model):
         self.set_vars()
 
 
-# class Zone(models.Model):
-#     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-#     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
-#     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-#     comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
-#     vars = common_models.JsonDictTextField(default={})
-#     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
-#     cloud_zone = models.CharField(max_length=128, null=True, default=None)
+class Zone(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
+    vars = common_models.JsonDictTextField(default={})
+    region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
+    cloud_zone = models.CharField(max_length=128, null=True, default=None)
+
+
+class Plan(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
+    zones = models.ManyToManyField('Zone')
+    region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
+    vars = common_models.JsonDictTextField(default={})
+
+    @property
+    def first_zone(self):
+        return self.zones.first()
+
+    @property
+    def mixed_vars(self):
+        _vars = self.vars
+        _vars.update(self.region.vars)
+        for zone in self.zones.all():
+            _vars.update(zone.vars)
+        _vars['region'] = self.region.cloud_region
+        _vars['zone'] = self.zones.first().cloud_zone
+        return _vars
+
+    @property
+    def compute_models(self):
+        return self.region.template.meta["plan"]["models"]
+
+

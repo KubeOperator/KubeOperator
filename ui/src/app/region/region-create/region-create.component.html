@@ -23,7 +23,7 @@
         </select>
       </clr-select-container>
       <div *ngIf="cloudTemplate">
-        <div [ngSwitch]="config.type" *ngFor="let config of this.cloudTemplate.meta.meta.configs">
+        <div [ngSwitch]="config.type" *ngFor="let config of this.cloudTemplate.meta.region.configs">
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>

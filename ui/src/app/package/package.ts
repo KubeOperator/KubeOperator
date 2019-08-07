@@ -36,6 +36,7 @@ export class PackageMeta {
   images: Image[];
   networks: Network[] = [];
   storages: Storage[] = [];
+  public_config: Config[] = [];
   apps: App[] = [];
   cluster_infos: ClusterInfo[] = [];
   operations: Operation[] = [];
@@ -59,6 +60,8 @@ export class Config {
   alias: string;
   type: string;
   options: Option[];
+  option_var: string;
+  objs: any[] = [];
   value: string;
   display: boolean;
 }
@@ -115,6 +118,7 @@ export class Os {
 
 export class Template {
   name: string;
+  deploy_type: string;
   roles: Role[] = [];
   private_config: Config[] = [];
   portals: Portal[];

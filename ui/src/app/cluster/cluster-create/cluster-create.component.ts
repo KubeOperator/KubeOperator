@@ -17,6 +17,8 @@ import {Subject} from 'rxjs';
 import {NgForm} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
+import {PlanService} from '../../plan/plan.service';
+import {Plan} from '../../plan/plan';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -48,6 +50,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   nodes: Node[] = [];
   hosts: Host[] = [];
   groups: Group[] = [];
+  plans: Plan[] = [];
+  plan: Plan;
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -63,13 +67,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
+  Manual = 'manual';
+  Automatic = 'automatic';
   clusterNameChecker: Subject<string> = new Subject<string>();
 
   @Output() create = new EventEmitter<boolean>();
 
   constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
-              private hostService: HostService, private deviceCheckService: DeviceCheckService, private settingService: SettingService) {
+              private hostService: HostService, private deviceCheckService: DeviceCheckService,
+              private settingService: SettingService, private planService: PlanService) {
   }
 
   ngOnInit() {
@@ -116,6 +123,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (pk.name === this.cluster.package) {
         this.package = pk;
         this.templates = this.package.meta.templates;
+        this.configs = this.package.meta.public_config;
+        this.replaceConfig();
       }
     });
     this.templates = this.package.meta.templates;
@@ -148,6 +157,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
+    this.listPlans();
   }
 
 
@@ -172,10 +182,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.network = null;
     this.networks = null;
     this.resetCheckState();
-    this.basicForm.resetForm();
-    this.storageForm.resetForm();
-    this.networkForm.resetForm();
-    this.nodeForm.resetForm();
+
   }
 
 
@@ -187,19 +194,44 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  listPlans() {
+    this.planService.listPlan().subscribe(data => {
+      this.plans = data;
+    });
+  }
+
+  planOnChange() {
+    console.log('change');
+    this.plans.forEach(plan => {
+      if (this.cluster.plan === plan.name) {
+        this.plan = plan;
+        this.package.meta.templates.forEach(template => {
+          if (template.deploy_type === plan.vars['k8s_deploy_model']) {
+            this.template = template;
+            this.cluster.template = template.name;
+          }
+        });
+      }
+    });
+  }
+
+  replaceConfig() {
+    if (this.configs) {
+      this.configs.forEach(c => {
+        if (c.type === 'Input') {
+          c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
+        }
+      });
+    }
+  }
+
 
   templateOnChange() {
     this.templates.forEach(template => {
       if (template.name === this.cluster.template) {
         this.template = template;
-        this.configs = template.private_config;
-        if (this.configs) {
-          this.configs.forEach(c => {
-            if (c.type === 'Input') {
-              c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
-            }
-          });
-        }
+        this.configs.concat(this.template.private_config);
+        this.replaceConfig();
       } else {
         this.template = null;
       }
@@ -294,10 +326,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.isSubmitGoing = true;
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.cluster = data;
-      this.createNodes();
+      // if (this.nodes) {
+      //   this.createNodes();
+      // }
+      // this.configCluster();
     });
   }
-
 
   createNodes() {
     const promises: Promise<{}>[] = [];
@@ -306,7 +340,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
 
     Promise.all(promises).then(() => {
-      this.configCluster();
+      console.log('nodes 创建成功！');
     });
   }
 
@@ -450,6 +484,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   canCheckNext() {
+    return true;
     if (this.checkOsState === CHECK_STATE_SUCCESS && this.checkMemoryState === CHECK_STATE_SUCCESS &&
       this.checkCpuState === CHECK_STATE_SUCCESS) {
       return true;

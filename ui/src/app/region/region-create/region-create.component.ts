@@ -48,6 +48,7 @@ export class RegionCreateComponent implements OnInit {
 
   listCloudTemplates() {
     this.cloudTemplateService.listCloudTemplate().subscribe(data => {
+      console.log(data[0].meta);
       this.cloudTemplates = data;
     });
   }

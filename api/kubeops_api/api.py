@@ -21,7 +21,7 @@ from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
 from . import serializers
-from .mixin import ClusterResourceAPIMixin, StorageResourceAPIMixin
+from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 
 

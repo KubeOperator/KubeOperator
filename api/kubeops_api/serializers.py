@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
+
+from cloud_provider.models import Plan
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
@@ -171,8 +173,8 @@ class ClusterSerializer(ProjectSerializer):
         queryset=Package.objects.all(),
         slug_field='name', required=False
     )
-    auth_template = serializers.SlugRelatedField(
-        queryset=AuthTemplate.objects.all(),
+    plan = serializers.SlugRelatedField(
+        queryset=Plan.objects.all(),
         slug_field='name', required=False
     )
 
@@ -181,9 +183,8 @@ class ClusterSerializer(ProjectSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'persistent_storage', 'network_plugin', 'template', 'auth_template',
-                  'comment',
-                  'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
+        fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template', 'plan',
+                  'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
                   'apps']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps']

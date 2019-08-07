@@ -22,6 +22,8 @@ import {SettingModule} from './setting/setting.module';
 import {AuthModule} from './auth/auth.module';
 import {CredentialModule} from './credential/credential.module';
 import {RegionModule} from './region/region.module';
+import {ZoneModule} from './zone/zone.module';
+import {PlanModule} from './plan/plan.module';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import {RegionModule} from './region/region.module';
     TipModule,
     HostModule,
     SettingModule,
-    AuthModule
+    AuthModule,
+    ZoneModule,
+    PlanModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

@@ -15,4 +15,8 @@ export class CloudTemplateService {
   listCloudTemplate(): Observable<CloudTemplate[]> {
     return this.http.get<CloudTemplate[]>(this.baseUrl);
   }
+
+  getCloudTemplate(name: string): Observable<CloudTemplate> {
+    return this.http.get<CloudTemplate>(this.baseUrl + name + '/');
+  }
 }

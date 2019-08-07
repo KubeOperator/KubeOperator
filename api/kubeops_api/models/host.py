@@ -59,7 +59,9 @@ class HostInfo(models.Model):
     def gather_info(self):
         facts = gather_host_info(self.host)
         self.memory = facts["ansible_memtotal_mb"]
-        self.cpu_core = facts["ansible_processor_cores"]
+        cpu_cores = facts["ansible_processor_cores"]
+        cpu_count = facts["ansible_processor_count"]
+        self.cpu_core = int(cpu_cores) * int(cpu_count)
         self.os = facts["ansible_distribution"]
         self.os_version = facts["ansible_distribution_version"]
         self.save()

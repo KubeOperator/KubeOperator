@@ -1,16 +1,21 @@
-# common
-- hosts: all_nodes
-  roles:
-    - hosts
-# daemon
-- hosts: daemon
-  roles:
-    - daemon
-#config
-- hosts: cluster_nodes
-  roles:
-    - cluster-nodes
+## common
+#- hosts: all_nodes
+#  roles:
+#    - hosts
+## daemon
+#- hosts: daemon
+#  roles:
+#    - daemon
+##config
+#- hosts: cluster_nodes
+#  roles:
+#    - cluster-nodes
+#
+#- hosts: localhost
+#  roles:
+#    - localhost
 
-- hosts: localhost
-  roles:
-    - localhost
+- hosts: all_nodes
+  tasks:
+    - name: "test"
+      ping:

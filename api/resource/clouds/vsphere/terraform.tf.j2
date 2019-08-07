@@ -1,0 +1,69 @@
+provider "vsphere" {
+  user = "{{ vc_username }}"
+  password = "{{ vc_password }}"
+  vsphere_server = "{{ vc_host }}"
+
+  # If you have a self-signed cert
+  allow_unverified_ssl = true
+}
+
+data "vsphere_datacenter" "dc" {
+  name = "{{ region }}"
+}
+
+data "vsphere_compute_cluster" "cluster" {
+  name = "{{ zone }}"
+  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+}
+
+data "vsphere_network" "network" {
+  name = "{{ vc_network }}"
+  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+}
+
+data "vsphere_datastore" "datastore" {
+  name = "{{ vc_storage }}"
+  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+}
+data "vsphere_virtual_machine" "template" {
+  name = "{{ vc_image }}"
+  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+}
+
+{% for host in hosts %}
+resource "vsphere_virtual_machine" "{{host.s_name}}" {
+  name = "{{ host.name }}"
+  folder = "{{ vc_folder }}"
+  resource_pool_id = "${data.vsphere_compute_cluster.cluster.resource_pool_id}"
+  datastore_id = "${data.vsphere_datastore.datastore.id}"
+  num_cpus = {{ host.cpu }}
+  memory = {{ host.memory }}
+  guest_id = "centos7_64Guest"
+
+  network_interface {
+    network_id = "${data.vsphere_network.network.id}"
+  }
+
+  disk {
+    label = "disk0"
+    size = 50
+  }
+
+  clone {
+    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    customize {
+
+      linux_options {
+        host_name = "{{ host.s_name }}"
+        domain = "{{ host.domain }}"
+      }
+
+      network_interface {
+        ipv4_address = "{{ host.ip }}"
+        ipv4_netmask = 24
+      }
+      ipv4_gateway = "{{vc_gateway}}"
+    }
+  }
+}
+{% endfor %}

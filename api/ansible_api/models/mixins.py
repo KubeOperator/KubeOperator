@@ -74,7 +74,8 @@ class AbstractExecutionModel(models.Model):
     timedelta = models.FloatField(default=0.0, verbose_name=_('Time'), null=True)
     state = models.CharField(choices=STATUS_CHOICES, default=STATE_PENDING, max_length=16)
     num = models.IntegerField(default=1)
-    result_summary = common_models.JsonDictTextField(blank=True, null=True, default={}, verbose_name=_('Result summary'))
+    result_summary = common_models.JsonDictTextField(blank=True, null=True, default={},
+                                                     verbose_name=_('Result summary'))
     result_raw = common_models.JsonDictTextField(blank=True, null=True, default={}, verbose_name=_('Result raw'))
     date_created = models.DateTimeField(auto_now_add=True, null=True, verbose_name=_('Create time'))
     date_start = models.DateTimeField(null=True, verbose_name=_('Start time'))

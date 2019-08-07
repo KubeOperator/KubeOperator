@@ -5,8 +5,10 @@ from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
+from cloud_provider import CloudClient, get_cloud_client
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
+from kubeops_api.cloud_provider import create_hosts
 from kubeops_api.components import generate_grafana_urls, generate_prometheus_url, get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
@@ -25,6 +27,8 @@ class Cluster(Project):
     CLUSTER_STATUS_WARNING = 'WARNING'
     CLUSTER_STATUS_INSTALLING = 'INSTALLING'
     CLUSTER_STATUS_DELETING = 'DELETING'
+    CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
+    CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
@@ -35,12 +39,21 @@ class Cluster(Project):
         (CLUSTER_STATUS_WARNING, 'warning')
     )
 
+    CLUSTER_DEPLOY_TYPE_CHOICES = (
+        (CLUSTER_DEPLOY_TYPE_MANUAL, 'manual'),
+        (CLUSTER_DEPLOY_TYPE_AUTOMATIC, 'automatic'),
+    )
+
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.CharField(max_length=128, null=True, blank=True)
     network_plugin = models.CharField(max_length=128, null=True, blank=True)
     auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
+    plan = models.ForeignKey('cloud_provider.Plan', on_delete=models.SET_NULL, null=True)
+    worker_size = models.IntegerField(default=3)
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
+    deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
+                                   default=CLUSTER_DEPLOY_TYPE_MANUAL)
 
     @property
     def current_execution(self):
@@ -101,6 +114,7 @@ class Cluster(Project):
 
     def create_roles(self):
         _roles = {}
+        print("test")
         for role in self.package.meta.get('roles', []):
             _roles[role['name']] = role
         template = None
@@ -179,6 +193,9 @@ class Cluster(Project):
             )
             node.set_groups(group_names=['config'])
 
+    def create_resource(self):
+        create_hosts(self)
+
     def fetch_config(self):
         path = None
         if self.status == Cluster.CLUSTER_STATUS_RUNNING:
@@ -195,9 +212,6 @@ class Cluster(Project):
             master = self.group_set.get(name='master').hosts.first()
             token = get_cluster_token(master)
         return token
-
-    def node_health_check(self):
-        self.change_to()
 
     def on_cluster_create(self):
         self.change_to()

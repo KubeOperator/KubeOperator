@@ -1,7 +1,6 @@
 <clr-wizard #wizard [(clrWizardOpen)]="createClusterOpened" (clrWizardOnCancel)="onCancel()"
             (clrWizardOnFinish)="onSubmit()">
   <clr-wizard-title>创建集群</clr-wizard-title>
-
   <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
   <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
@@ -23,16 +22,35 @@
           <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
         </select>
       </clr-select-container>
-
-      <clr-textarea-container>
-        <label>描述</label>
-        <textarea id="comment" [(ngModel)]="cluster.comment" [ngModelOptions]="{standalone: true}" name="comment"
-                  clrTextarea></textarea>
-      </clr-textarea-container>
+      <clr-select-container>
+        <label>部署模式</label>
+        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" clrSelect required>
+          <option value="">请选择</option>
+          <option value="manual">手动模式</option>
+          <option value="automatic">自动模式</option>
+        </select>
+      </clr-select-container>
+    </form>
+  </clr-wizard-page>
+  <clr-wizard-page *ngIf="cluster.deploy_type === Automatic">
+    <ng-template clrPageTitle>部署计划</ng-template>
+    <form clrForm>
+      <clr-select-container>
+        <label>计划</label>
+        <select clrSelect [(ngModel)]="cluster.plan" (change)="planOnChange()" name="plan">
+          <option [value]="">请选择</option>
+          <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
+        </select>
+      </clr-select-container>
+      <clr-input-container>
+        <label>worker数量</label>
+        <input clrInput type="number" [(ngModel)]="cluster.worker_size" name="work_size">
+      </clr-input-container>
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!templateForm.valid">
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="!templateForm.valid" *ngIf="cluster.deploy_type===Manual">
     <ng-template clrPageTitle>部署模型</ng-template>
     <form clrForm #templateForm='ngForm'>
       <clr-radio-wrapper *ngFor="let template of templates">
@@ -104,7 +122,8 @@
   </clr-wizard-page>
 
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()"
+                   *ngIf="cluster.deploy_type == Manual">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #nodeForm='ngForm' class="clr-form clr-form-compact">
       <div *ngFor="let group of groups">
@@ -126,33 +145,6 @@
                     </option>
                   </select>
                   <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-                </div>
-              </div>
-            </div>
-            <div *ngIf="group.node_vars">
-              <div class="clr-form-control clr-row" *ngFor="let _var of group.node_vars">
-                <label [for]="node.name+_var.name"
-                       class="clr-control-label clr-col-xs-12 clr-col-md-2">{{replaceNodeVarsKey(_var.name)}}</label>
-                <div class="clr-control-container clr-col-xs-12 clr-col-md-10" [ngSwitch]="_var.type">
-                  <div class="clr-select-wrapper" *ngSwitchCase="'Select'">
-                    <select [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
-                            class="clr-select"
-                            required>
-                      <option [value]="">请选择磁盘</option>
-                      <option *ngFor="let v of node.volumes" [value]="v">{{v}}</option>
-                    </select>
-                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-                  </div>
-
-                  <div class="clr-multiselect-wrapper" *ngSwitchCase="'Mutiselect'">
-                    <select multiple [id]="node.name+_var.name" [(ngModel)]="node.vars[_var.name]" name="node_vars"
-                            class="clr-select"
-                            required>
-                      <option *ngFor="let v of node.volumes" [value]="v">{{v}}</option>
-                    </select>
-                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
-                  </div>
-                  <span class="clr-subtext"> 此操作将格式化此设备!</span>
                 </div>
               </div>
             </div>
@@ -235,7 +227,7 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()" *ngIf="cluster.deploy_type === Manual">
     <!--<clr-wizard-page>-->
     <ng-template clrPageTitle>配置检查</ng-template>
     <div>

@@ -1,0 +1,55 @@
+{
+  "vc_datacenter": "Datacenter",
+  "vc_cluster": "vSan-Cluster",
+  "vc_network": "VM Network",
+  "vc_storage": "vsanDatastore",
+  "vc_image": "Centos7.6_vSan_template",
+  "vc_folder": "kubeops",
+  "hosts": [
+    {
+      "name": "master1.cluster",
+      "folder": "kubeops",
+      "cpu": 4,
+      "memory": 8096,
+      "hostname": "master1.cluster",
+      "domain": "f2c.com",
+      "ip": "172.16.10.201"
+    },
+    {
+      "name": "daemon1.cluster",
+      "folder": "kubeops",
+      "cpu": 4,
+      "memory": 8096,
+      "hostname": "daemon1",
+      "domain": "f2c.com",
+      "ip": "172.16.10.202"
+    },
+    {
+      "name": "worker1.cluster",
+      "folder": "kubeops",
+      "cpu": 4,
+      "memory": 8096,
+      "hostname": "worker1.cluster",
+      "domain": "f2c.com",
+      "ip": "172.16.10.203"
+    },
+    {
+      "name": "worker2.cluster",
+      "folder": "kubeops",
+      "cpu": 4,
+      "memory": 8096,
+      "hostname": "worker2.cluster",
+      "domain": "f2c.com",
+      "ip": "172.16.10.204"
+    },
+    {
+      "name": "worker3.cluster",
+      "folder": "kubeops",
+      "cpu": 4,
+      "memory": 8096,
+      "hostname": "worker3.cluster",
+      "domain": "f2c.com",
+      "ip": "172.16.10.205"
+    }
+  ]
+}

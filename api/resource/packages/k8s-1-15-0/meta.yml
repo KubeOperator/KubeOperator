@@ -1,6 +1,5 @@
 resource: kubernetes-1.15.0
 version: 1.15.0
-enable_auth: []
 components:
   kubernetes: 1.15.0
   etcd: 3.3.10
@@ -259,37 +258,38 @@ storages:
         required: true
         display: true
 
+public_config:
+  - name: MASTER_IP
+    alias: 域名
+    type: Input
+    value: master-1.$cluster_name$domain_suffix
+    required: true
+    help_text: kubernetes 访问地址
+    display: true
+  - name: KUBE_APISERVER
+    alias: api-server 地址
+    type: Input
+    value: https://master-1.$cluster_name$domain_suffix:6443
+    required: true
+    help_text: kubernetes api-server 地址
+    display: true
+  - name: APP_DOMAIN
+    alias: 应用域名
+    type: Input
+    value: apps.$cluster_name$domain_suffix
+    required: true
+    help_text: 应用域名
+    display: true
 
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
-
+    deploy_type: 'single'
     private_vars:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
       grafana_install: true
-    private_config:
-      - name: MASTER_IP
-        alias: 域名
-        type: Input
-        value: master-1.$cluster_name$domain_suffix
-        required: true
-        help_text: kubernetes 访问地址
-        display: true
-      - name: KUBE_APISERVER
-        alias: api-server 地址
-        type: Input
-        value: https://master-1.$cluster_name$domain_suffix:6443
-        required: true
-        help_text: kubernetes api-server 地址
-        display: true
-      - name: APP_DOMAIN
-        alias: 应用域名
-        type: Input
-        value: apps.$cluster_name$domain_suffix
-        required: true
-        help_text: 应用域名
-        display: true
+    private_config: []
     operations:
       - name: install
         status_change:
@@ -298,7 +298,7 @@ templates:
           failed: 'ERROR'
         playbooks:
           - common-config
-          - install-k8s
+#          - install-k8s
       - name: uninstall
         status_change:
           succeed: 'READY'

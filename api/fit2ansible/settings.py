@@ -20,6 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
 BASE_LOG_DIR = os.path.join(BASE_DIR, "data", "log")
 VERSION_DIR = os.path.join(BASE_DIR, "data", "static", "build", "version")
+RESOURCE_DIR = os.path.join(BASE_DIR, "resource", "clouds")
 CONFIG = load_user_config()
 # 添加离线包路径
 

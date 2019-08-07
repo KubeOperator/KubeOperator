@@ -1,4 +1,5 @@
 import json
+import os
 
 from pyVmomi.VmomiSupport import VmomiJSONEncoder
 
@@ -6,8 +7,11 @@ from cloud_provider.cloud_client import CloudClient
 from pyVim import connect
 from pyVmomi import vim
 
+from fit2ansible.settings import RESOURCE_DIR
+
 
 class VsphereCloudClient(CloudClient):
+    cloud_config_path = os.path.join(RESOURCE_DIR, 'vsphere')
 
     def list_region(self):
         params = replace_params(self.vars)
@@ -19,7 +23,6 @@ class VsphereCloudClient(CloudClient):
         data = []
         for region in regions:
             data.append(region.name)
-        print(data)
         return data
 
     def list_zone(self, region):
@@ -32,16 +35,21 @@ class VsphereCloudClient(CloudClient):
         zones = []
         for entity in region.hostFolder.childEntity:
             zone = {
-                "name": None,
-                "datastores": [],
+                "storages": [],
                 "networks": [],
+                "images": []
             }
             if isinstance(entity, vim.ClusterComputeResource):
                 zone["name"] = entity.name
                 for network in entity.network:
                     zone.get("networks").append(network.name)
                 for datastore in entity.datastore:
-                    zone.get("datastores").append(datastore.name)
+                    zone.get("storages").append(datastore.name)
+                for host in entity.host:
+                    for vm in host.vm:
+                        if vm.summary.config.template:
+                            zone.get('images').append(vm.name)
+                zones.append(zone)
         return zones
 
 

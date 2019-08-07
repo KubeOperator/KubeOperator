@@ -1,0 +1,125 @@
+<clr-wizard #wizard [(clrWizardOpen)]="createOpened" [clrWizardClosable]="false" (clrWizardOnCancel)="onCancel()"
+            (clrWizardOnFinish)="onSubmit()">
+  <clr-wizard-title>创建计划</clr-wizard-title>
+
+  <clr-wizard-button [type]="'cancel'">取消</clr-wizard-button>
+  <clr-wizard-button [type]="'previous'">上一步</clr-wizard-button>
+  <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
+  <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid"
+                   (clrWizardPageOnCommit)="onBasicFormCommit()">
+    <ng-template clrPageTitle>基本信息</ng-template>
+    <form clrForm #basicForm="ngForm">
+      <clr-input-container>
+        <label>名称</label>
+        <input clrInput type="text" [(ngModel)]="item.name" name="name" required>
+      </clr-input-container>
+      <clr-select-container>
+        <label>区域</label>
+        <select clrSelect [(ngModel)]="item.region" name="provider" (change)="onRegionChange()" required>
+          <option [value]="">请选择</option>
+          <option *ngFor="let re of regions" [value]="re.name">{{re.name}}</option>
+        </select>
+      </clr-select-container>
+      <div *ngIf="cloudTemplate">
+        <div *ngFor="let config of cloudTemplate.meta.plan.configs" [ngSwitch]="config.type">
+          <clr-select-container *ngSwitchCase="'Select'">
+            <label>{{config.alias}}</label>
+            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" clrSelect>
+              <option [value]="">请选择</option>
+              <option *ngFor="let option of config.options" [value]="option.value">{{option.name}}</option>
+            </select>
+          </clr-select-container>
+          <clr-input-container *ngSwitchCase="'Input'">
+            <label>{{config.alias}}</label>
+            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+          </clr-input-container>
+        </div>
+      </div>
+    </form>
+  </clr-wizard-page>
+  <clr-wizard-page>
+    <ng-template clrPageTitle>配置计划</ng-template>
+    <form clrForm #regionForm="ngForm">
+      <clr-select-container>
+        <label>可用区</label>
+        <select clrSelect [(ngModel)]="item.zones[0]" name="cloud-region">
+          <option [value]="">请选择</option>
+          <option *ngFor="let zone of zones" [value]="zone.name">{{zone.name}}</option>
+        </select>
+      </clr-select-container>
+      <div *ngIf="cloudTemplate">
+        <div *ngFor="let inf of cloudTemplate.meta.plan.infra">
+          <clr-select-container>
+            <label>{{inf.alias}}</label>
+            <select clrSelect [(ngModel)]="item.vars[inf.name]" [name]="inf.name">
+              <option [value]="">请选择</option>
+              <option *ngFor="let model of cloudTemplate.meta.plan.models" [value]="model.name">{{model.name}}</option>
+            </select>
+          </clr-select-container>
+        </div>
+      </div>
+    </form>
+    <div *ngIf="cloudTemplate">
+      <h3>配置参考</h3>
+      <table class="table">
+        <thead>
+        <tr>
+          <th>规格</th>
+          <th>CPU(核)</th>
+          <th>内存(GB)</th>
+          <th>磁盘(GB)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let model of cloudTemplate.meta.plan.models">
+          <td>{{model.name}}</td>
+          <td>{{model.meta.cpu}}</td>
+          <td>{{model.meta.memory}}</td>
+          <td>{{model.meta.disk}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </clr-wizard-page>
+</clr-wizard>
+
+
+<!--<clr-modal [(clrModalOpen)]="createOpened" [clrModalSize]="'lg'">-->
+<!--<h3 class="modal-title">添加计划</h3>-->
+<!--<div class="modal-body modal-height">-->
+<!--<form clrForm #hostForm='ngForm'>-->
+<!--<clr-select-container>-->
+<!--<label>区域</label>-->
+<!--<select clrSelect [(ngModel)]="item.region" name="region">-->
+<!--<option [value]="">请选择</option>-->
+<!--</select>-->
+<!--</clr-select-container>-->
+<!--<clr-select-container>-->
+<!--<label>可用区</label>-->
+<!--<select clrSelect [(ngModel)]="item.zones" name="zone" multiple></select>-->
+<!--<option [value]="">请选择</option>-->
+<!--</clr-select-container>-->
+<!--<clr-radio-container>-->
+<!--<label>型号</label>-->
+<!--<clr-radio-wrapper>-->
+<!--<input type="radio" clrRadio name="options" required value="option1"/>-->
+<!--<label>small</label>-->
+<!--</clr-radio-wrapper>-->
+<!--<clr-radio-wrapper>-->
+<!--<input type="radio" clrRadio name="options" required value="option2"/>-->
+<!--<label>big</label>-->
+<!--</clr-radio-wrapper>-->
+<!--<clr-control-helper>Master(4C,16G),Worker(8C,32G)</clr-control-helper>-->
+<!--</clr-radio-container>-->
+<!--<div class="modal-footer">-->
+<!--<button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>-->
+<!--<button type="submit" class="btn btn-primary" (click)="onSubmit()"-->
+<!--[disabled]="isSubmitGoing || hostForm.invalid">-->
+<!--<i *ngIf="isSubmitGoing " class="fa fa-spinner fa-pulse"></i>提交-->
+<!--</button>-->
+<!--</div>-->
+<!--</form>-->
+<!--</div>-->
+<!--</clr-modal>-->

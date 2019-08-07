@@ -36,6 +36,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             if temp['name'] == cluster.template:
                 template = temp
         try:
+            if len(cluster.node_set.all()) == 0:
+                print("\n>>> Start Create nodes... ")
+                cluster.create_resource()
+                print("\n>>> End Create nodes... ")
             status_set = []
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:
