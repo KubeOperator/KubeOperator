@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 from django.db import models
 
@@ -213,6 +214,15 @@ class Cluster(Project):
             token = get_cluster_token(master)
         return token
 
+    def delete_data(self):
+        path = os.path.join(ANSIBLE_PROJECTS_DIR, self.name)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+
+    def set_plan_configs(self):
+        if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            self.set_config_unlock(self.plan.vars)
+
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
@@ -220,3 +230,7 @@ class Cluster(Project):
         self.create_node_localhost()
         self.create_network_plugin()
         self.create_storage()
+        self.set_plan_configs()
+
+    def on_cluster_delete(self):
+        self.delete_data()

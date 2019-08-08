@@ -1,7 +1,7 @@
 import json
 import os
 
-from django.db.models.signals import m2m_changed, post_save, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from gunicorn.config import Setting
@@ -17,6 +17,11 @@ from .signals import pre_deploy_execution_start, post_deploy_execution_start
 def on_cluster_save(sender, instance=None, created=True, **kwargs):
     if created and instance and instance.template:
         instance.on_cluster_create()
+
+
+@receiver(post_delete, sender=Cluster)
+def on_cluster_delete(sender, instance=None, **kwargs):
+    instance.on_cluster_delete()
 
 
 @receiver(post_save, sender=Node)

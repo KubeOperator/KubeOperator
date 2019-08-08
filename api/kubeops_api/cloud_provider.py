@@ -64,9 +64,9 @@ def generate_host_model(cluster):
         for i in range(0, size):
             host = {
                 "role": role,
-                "s_name": role + "{}".format(i),
-                "h_name": role + "{}-{}".format(i, cluster.name),
-                "name": role + "{}.".format(i) + "{}".format(domain),
+                "s_name": role + "{}".format(i+1),
+                "h_name": role + "{}-{}".format(i+1, cluster.name),
+                "name": role + "{}.".format(i+1) + "{}".format(domain),
                 "domain": domain,
                 "folder": deploy_vars.get("vc_folder"),
                 "cpu": role_compute_model["cpu"],

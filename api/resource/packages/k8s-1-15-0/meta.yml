@@ -257,19 +257,33 @@ storages:
         value: true
         required: true
         display: true
+  - name: vsan
+    vars:
+      storage_vsan_enabled: true
+      storage_vsan_storage_class_default: vsphere-storageclass-default
+      storage_vsan_storage_class_iops: vsphere-storageclass-iops
+    configs:
+      - name: vsan_storage_iops_limit
+        alias: IOPS
+        value: 2000
+        type: Input
+        required: true
+
+
+
 
 public_config:
   - name: MASTER_IP
     alias: 域名
     type: Input
-    value: master-1.$cluster_name$domain_suffix
+    value: master1.$cluster_name$domain_suffix
     required: true
     help_text: kubernetes 访问地址
     display: true
   - name: KUBE_APISERVER
     alias: api-server 地址
     type: Input
-    value: https://master-1.$cluster_name$domain_suffix:6443
+    value: https://master1.$cluster_name$domain_suffix:6443
     required: true
     help_text: kubernetes api-server 地址
     display: true
@@ -298,7 +312,7 @@ templates:
           failed: 'ERROR'
         playbooks:
           - common-config
-#          - install-k8s
+      #          - install-k8s
       - name: uninstall
         status_change:
           succeed: 'READY'
