@@ -7,47 +7,54 @@
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="regionForm.invalid"
-                   (clrWizardPageOnCommit)="onBasicFormCommit()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="regionForm.invalid">
     <ng-template clrPageTitle>基本信息</ng-template>
     <form clrForm #regionForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput type="text" [(ngModel)]="item.name" name="name" required>
+        <input clrInput type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
       </clr-input-container>
       <clr-select-container>
         <label>提供商</label>
         <select clrSelect [(ngModel)]="item.template" name="provider" (change)="onTemplateChange()" required>
-          <option [value]="">请选择</option>
+          <option value=''>请选择</option>
           <option *ngFor="let template of cloudTemplates" [value]="template.name">{{template.name}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
+    </form>
+  </clr-wizard-page>
+  <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid" (clrWizardPageOnCommit)="onParamsFormCommit()">
+    <ng-template clrPageTitle>配置参数</ng-template>
+    <form clrForm #paramsForm='ngForm'>
       <div *ngIf="cloudTemplate">
         <div [ngSwitch]="config.type" *ngFor="let config of this.cloudTemplate.meta.region.configs">
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
           <clr-password-container *ngSwitchCase="'Password'">
             <label>{{config.alias}}</label>
             <input clrPassword type="password" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-password-container>
         </div>
       </div>
-      <clr-textarea-container>
-        <label>描述</label>
-        <textarea clrTextarea [(ngModel)]="item.comment" name="content"></textarea>
-      </clr-textarea-container>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page>
-    <ng-template clrPageTitle>选择区域</ng-template>
-    <form clrForm #regionForm="ngForm">
+  <clr-wizard-page [clrWizardPageNextDisabled]="dtFrom.invalid">
+    <ng-template clrPageTitle>数据中心</ng-template>
+    <form clrForm #dtFrom='ngForm'>
       <clr-select-container>
-        <label>区域</label>
-        <select clrSelect *ngFor="let c_region of cloudRegions" [(ngModel)]="item.cloud_region" name="cloud-region">
-          <option [value]="">请选择</option>
+        <label>数据中心</label>
+        <select clrSelect *ngFor="let c_region of cloudRegions" [(ngModel)]="item.cloud_region" name="cloud-region"
+                required>
+          <option value="">请选择</option>
           <option [value]="c_region">{{c_region}}</option>
+          <clr-control-error>此字段为必填项</clr-control-error>
         </select>
       </clr-select-container>
     </form>

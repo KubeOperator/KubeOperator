@@ -19,4 +19,8 @@ export class ZoneService {
   createZones(item: Zone): Observable<Zone> {
     return this.http.post<Zone>(this.baseUrl, item);
   }
+
+  getZone(name: string): Observable<Zone> {
+    return this.http.get<Zone>(this.baseUrl + name + '/');
+  }
 }

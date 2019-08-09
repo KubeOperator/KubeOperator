@@ -7,6 +7,8 @@ import {Plan} from '../plan';
 import {ZoneService} from '../../zone/zone.service';
 import {Zone} from '../../zone/zone';
 import {PlanService} from '../plan.service';
+import {NgForm} from '@angular/forms';
+import {ClrWizard} from '@clr/angular';
 
 @Component({
   selector: 'app-plan-create',
@@ -25,6 +27,8 @@ export class PlanCreateComponent implements OnInit {
   region: Region;
   zones: Zone[] = [];
   zone: Zone;
+  @ViewChild('basicForm') ngForm: NgForm;
+  @ViewChild('wizard') wizard: ClrWizard;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
               private cloudService: CloudService, private zoneService: ZoneService, private planService: PlanService) {

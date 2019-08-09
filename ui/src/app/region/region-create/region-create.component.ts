@@ -1,10 +1,13 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {NgForm} from '@angular/forms';
+import {AbstractControl, NgForm, ValidationErrors} from '@angular/forms';
 import {CloudTemplate, Region} from '../region';
 import {CloudTemplateService} from '../cloud-template.service';
 import {RegionService} from '../region.service';
 import {CloudService} from '../cloud.service';
 import {ClrWizard} from '@clr/angular';
+import {Observable, Subject} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {validate} from 'codelyzer/walkerFactory/walkerFn';
 
 @Component({
   selector: 'app-region-create',
@@ -22,6 +25,7 @@ export class RegionCreateComponent implements OnInit {
   cloudTemplate: CloudTemplate;
   cloudRegions: string[] = [];
   @ViewChild('regionForm') regionFrom: NgForm;
+  @ViewChild('paramsForm') paramsForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
@@ -29,7 +33,13 @@ export class RegionCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+
   }
+
+  get nameCtrl() {
+    return this.regionFrom.controls['name'];
+  }
+
 
   newItem() {
     this.item = new Region();
@@ -44,11 +54,12 @@ export class RegionCreateComponent implements OnInit {
     this.cloudRegions = [];
     this.wizard.reset();
     this.regionFrom.resetForm();
+    this.paramsForm.resetForm();
   }
+
 
   listCloudTemplates() {
     this.cloudTemplateService.listCloudTemplate().subscribe(data => {
-      console.log(data[0].meta);
       this.cloudTemplates = data;
     });
   }
@@ -63,10 +74,17 @@ export class RegionCreateComponent implements OnInit {
     });
   }
 
-  onBasicFormCommit() {
+  nameOnBlur() {
+    this.regionService.getRegion(this.item.name).pipe(catchError(() => null)).subscribe((data) => {
+      if (this.item.name) {
+        this.nameCtrl.setErrors({repeat: true});
+      }
+    });
+  }
+
+  onParamsFormCommit() {
     this.cloudService.listRegion(this.item.vars).subscribe(data => {
       this.cloudRegions = data;
-      this.wizard.forceNext();
     });
   }
 

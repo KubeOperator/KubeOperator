@@ -260,15 +260,7 @@ storages:
   - name: vsan
     vars:
       storage_vsan_enabled: true
-      storage_vsan_storage_class_default: vsphere-storageclass-default
-      storage_vsan_storage_class_iops: vsphere-storageclass-iops
-    configs:
-      - name: vsan_storage_iops_limit
-        alias: IOPS
-        value: 2000
-        type: Input
-        required: true
-
+    configs: []
 
 
 

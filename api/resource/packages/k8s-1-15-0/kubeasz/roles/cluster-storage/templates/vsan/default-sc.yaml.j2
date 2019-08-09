@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: vsphere-storageclass-default
+provisioner: kubernetes.io/vsphere-volume
+reclaimPolicy: Delete
+parameters:
+  storagePolicyName: "{{ storagepolicyname }}"
+  datastore: "{{ vc_storage }}"

@@ -22,6 +22,7 @@ export class RegionService {
     return this.http.get<Region>(this.baseUrl + name + '/');
   }
 
+
   createRegion(item: Region): Observable<Region> {
     return this.http.post<Region>(this.baseUrl, item);
   }

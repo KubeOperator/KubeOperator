@@ -7,20 +7,23 @@
   <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
   <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="regionForm.invalid"
+  <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid"
                    (clrWizardPageOnCommit)="onBasicFormCommit()">
     <ng-template clrPageTitle>基本信息</ng-template>
-    <form clrForm #regionForm="ngForm">
+    <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput type="text" [(ngModel)]="item.name" name="name" required>
+        <input clrInput type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
       </clr-input-container>
       <clr-select-container>
         <label>区域</label>
         <select clrSelect [(ngModel)]="item.region" name="provider" (change)="onRegionChange()" required>
-          <option [value]="">请选择</option>
+          <option value="">请选择</option>
           <option *ngFor="let region of regions" [value]="region.name">{{region.name}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
     </form>
   </clr-wizard-page>
@@ -35,6 +38,7 @@
           <option [value]="">请选择</option>
           <option *ngFor="let zone of cloudZones" [value]="zone.name">{{zone.name}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
       <div *ngIf="item.cloud_zone">
         <h2>镜像</h2>
@@ -46,14 +50,14 @@
               <option [value]="">请选择</option>
               <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
             </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-select-container>
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
-
-
         <h2>存储</h2>
         <hr/>
         <div *ngFor="let config of cloudTemplate.meta.zone.storage.configs" [ngSwitch]="config.type">
@@ -63,10 +67,12 @@
               <option [value]="">请选择</option>
               <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
             </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-select-container>
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
 
@@ -79,18 +85,31 @@
               <option [value]="">请选择</option>
               <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
             </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-select-container>
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
         <h2>其他</h2>
         <hr/>
-        <clr-input-container>
-          <label>VM Folder</label>
-          <input clrInput>
-        </clr-input-container>
+        <div *ngFor="let config of cloudTemplate.meta.zone.others.configs" [ngSwitch]="config.type">
+          <clr-select-container *ngSwitchCase="'Select'">
+            <label>{{config.alias}}</label>
+            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" clrSelect>
+              <option [value]="">请选择</option>
+              <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
+            </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
+          </clr-select-container>
+          <clr-input-container *ngSwitchCase="'Input'">
+            <label>{{config.alias}}</label>
+            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+          </clr-input-container>
+        </div>
       </div>
 
     </form>

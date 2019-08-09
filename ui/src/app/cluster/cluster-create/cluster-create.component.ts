@@ -67,8 +67,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
-  Manual = 'manual';
-  Automatic = 'automatic';
+  Manual = 'MANUAL';
+  Automatic = 'AUTOMATIC';
   clusterNameChecker: Subject<string> = new Subject<string>();
 
   @Output() create = new EventEmitter<boolean>();
@@ -201,7 +201,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   planOnChange() {
-    console.log('change');
     this.plans.forEach(plan => {
       if (this.cluster.plan === plan.name) {
         this.plan = plan;
@@ -296,7 +295,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       node.delete = canDelete;
     }
     const no = group.node_sum + 1;
-    node.name = group.name + '-' + no + '.' + this.cluster.name + this.suffix;
+    node.name = group.name + no + '.' + this.cluster.name + this.suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
@@ -326,10 +325,10 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.isSubmitGoing = true;
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.cluster = data;
-      // if (this.nodes) {
-      //   this.createNodes();
-      // }
-      // this.configCluster();
+      if (this.nodes) {
+        this.createNodes();
+      }
+      this.configCluster();
     });
   }
 

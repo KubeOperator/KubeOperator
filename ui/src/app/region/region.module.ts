@@ -15,7 +15,7 @@ import {SharedModule} from '../shared/shared.module';
     CoreModule,
     TipModule,
     SharedModule
-  ]
+  ],
 })
 export class RegionModule {
 }

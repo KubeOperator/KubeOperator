@@ -43,9 +43,12 @@
 
 - name: prepare vsan default storageclass file
   template:
-    src: sc/default-sc.yaml.j2
+    src: default-sc.yaml.j2
     dest: "/tmp/default-sc.yaml"
 
 - name: create vsan default storageclass
   shell: "kubectl apply -f /tmp/default-sc.yaml"
   run_once: true
+
+- name: 设置default storageClass
+  shell: "{{ bin_dir }}/kubectl patch storageclass vsphere-storageclass-default -p '{{default_label}}'"

@@ -8,6 +8,7 @@ import {Zone} from '../zone';
 import {CloudZone} from '../../region/cloud';
 import {CloudTemplateService} from '../../region/cloud-template.service';
 import {ZoneService} from '../zone.service';
+import {catchError} from 'rxjs/operators';
 
 @Component({
   selector: 'app-zone-create',
@@ -26,7 +27,7 @@ export class ZoneCreateComponent implements OnInit {
   region: Region;
   cloudTemplate: CloudTemplate;
   loading = false;
-  @ViewChild('regionForm') regionFrom: NgForm;
+  @ViewChild('basicForm') basicForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
 
   constructor(private regionService: RegionService,
@@ -38,6 +39,18 @@ export class ZoneCreateComponent implements OnInit {
   ngOnInit() {
   }
 
+  get nameCtrl() {
+    return this.basicForm.controls['name'];
+  }
+
+  nameOnBlur() {
+    this.zoneService.getZone(this.item.name).pipe(catchError(() => null)).subscribe((data) => {
+      if (this.item.name) {
+        this.nameCtrl.setErrors({repeat: true});
+      }
+    });
+  }
+
   newItem() {
     this.item = new Zone();
     this.reset();
@@ -47,7 +60,7 @@ export class ZoneCreateComponent implements OnInit {
 
   reset() {
     this.wizard.reset();
-    this.regionFrom.resetForm();
+    this.basicForm.resetForm();
   }
 
   listRegion() {
