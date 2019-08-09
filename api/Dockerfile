@@ -12,7 +12,7 @@ RUN test -f /root/.ssh/id_rsa || ssh-keygen -f /root/.ssh/id_rsa -t rsa -P ''
 RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null" > /root/.ssh/config
 COPY ./requirements/instll_curl.sh /opt/kubeOperator-api
 COPY ./requirements/install_terraform.sh /opt/kubeOperator-api
-RUN bash /opt/kubeOperator-api/instll_curl.sh
+RUN bash /opt/kubeOperator-api/install_curl.sh
 RUN bash /opt/kubeOperator-api/install_terraform.sh
 COPY extra/dnsmasq.conf /etc/
 COPY extra/kubeops.dns.conf /etc/dnsmasq.d
