@@ -14,10 +14,8 @@ def create_hosts(cluster):
     vars['host_password'] = 'Calong@2015'
     vars["hosts"] = generate_host_model(cluster)
     cloud_provider = get_cloud_client(vars)
-
     # 创建远程机器
     result = cloud_provider.apply_terraform(cluster=cluster.name, vars=vars)
-
     if result:
         # 创建hosts
         for _host in vars["hosts"]:
@@ -36,6 +34,8 @@ def create_hosts(cluster):
                 host=instance
             )
             node.set_groups(group_names=[_host['role']])
+    else:
+        raise Exception('Create nodes error!')
 
 
 def generate_host_model(cluster):
