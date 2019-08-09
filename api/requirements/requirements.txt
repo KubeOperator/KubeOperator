@@ -76,3 +76,4 @@ djangorestframework-jwt==1.11.0
 mysqlclient==1.4.2
 passlib==1.7.1
 python_terraform==0.10.1
+pyvmomi==6.7.1.2018.12
