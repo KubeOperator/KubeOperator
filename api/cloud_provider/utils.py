@@ -20,5 +20,5 @@ def generate_terraform_file(target_path, cloud_path, vars):
 
 def init_terraform(target_path, cloud_path):
     if not os.path.exists(os.path.join(target_path, '.terraform', 'plugins')):
-        shutil.copytree(os.path.join(os.path.join(cloud_path, "terraform", "plugin")),
+        shutil.copytree(os.path.join(os.path.join(cloud_path, "terraform", "plugins")),
                         os.path.join(target_path, '.terraform', 'plugins'))

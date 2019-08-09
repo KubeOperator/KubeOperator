@@ -15,32 +15,27 @@ def create_hosts(cluster):
     vars["hosts"] = generate_host_model(cluster)
     cloud_provider = get_cloud_client(vars)
 
-    # 创建hosts
-    for _host in vars["hosts"]:
-        name = _host['h_name']
-        defaults = {
-            "name": name,
-            "ip": _host['ip'],
-            "username": vars['host_username'],
-            "password": vars['host_password']
-        }
-        Host.objects.update_or_create(defaults=defaults, name=name)
     # 创建远程机器
     result = cloud_provider.apply_terraform(cluster=cluster.name, vars=vars)
+
     if result:
-        # 创建 node
+        # 创建hosts
         for _host in vars["hosts"]:
-            host = Host.objects.get(name=_host['h_name'])
-            host.gather_info()
+            name = _host['h_name']
+            defaults = {
+                "name": name,
+                "ip": _host['ip'],
+                "username": vars['host_username'],
+                "password": vars['host_password']
+            }
+            instance = Host.objects.update_or_create(defaults=defaults, name=name)
+            instance.gather_info()
             cluster.change_to()
             node = Node.objects.create(
                 name=_host['name'],
-                host=host
+                host=instance
             )
             node.set_groups(group_names=[_host['role']])
-            print('node:  {} created !'.format(node.name))
-    else:
-        raise RuntimeError('Create hosts error')
 
 
 def generate_host_model(cluster):
@@ -64,9 +59,9 @@ def generate_host_model(cluster):
         for i in range(0, size):
             host = {
                 "role": role,
-                "s_name": role + "{}".format(i+1),
-                "h_name": role + "{}-{}".format(i+1, cluster.name),
-                "name": role + "{}.".format(i+1) + "{}".format(domain),
+                "s_name": role + "{}".format(i + 1),
+                "h_name": role + "{}-{}".format(i + 1, cluster.name),
+                "name": role + "{}.".format(i + 1) + "{}".format(domain),
                 "domain": domain,
                 "folder": deploy_vars.get("vc_folder"),
                 "cpu": role_compute_model["cpu"],
