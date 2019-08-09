@@ -35,11 +35,5 @@ class CloudClient(metaclass=ABCMeta):
         p = p[0]
         for i in p.stdout:
             print(i.decode())
-        print(p.returncode)
         p.communicate()
-        print(p.returncode)
-        code = p.returncode
-        if not code == 0:
-            for i in p.stderr:
-                print(i.decode())
         return p.returncode == 0

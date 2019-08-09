@@ -45,7 +45,7 @@ class Region(models.Model):
     comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
 
     def set_vars(self):
-        meta = self.template.meta.get('meta', None)
+        meta = self.template.meta.get('region', None)
         if meta:
             _vars = meta.get('vars', {})
             self.vars.update(_vars)
@@ -89,5 +89,3 @@ class Plan(models.Model):
     @property
     def compute_models(self):
         return self.region.template.meta["plan"]["models"]
-
-
