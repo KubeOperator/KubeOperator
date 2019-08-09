@@ -27,6 +27,7 @@ def create_hosts(cluster):
                 "password": vars['host_password']
             }
             instance = Host.objects.update_or_create(defaults=defaults, name=name)
+            instance = instance[0]
             instance.gather_info()
             cluster.change_to()
             node = Node.objects.create(
