@@ -54,44 +54,18 @@ v2.2 （计划中）
 
 ## 安装 KubeOperator
 
- [安装手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/install.md)
+ [安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
 
 ## 使用 KubeOperator
 
- [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
+ [使用手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide.md)
 
 ## 离线包信息
 
-KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。例如 V1.5.0 离线包中的组件如下：
+KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。目前已发布的离线包：
 
-|  分类  |  组件名称   | 版本  |
-|  ---- |  ----  | ----  |
-| 核心 | kubernetes  | 1.15.0 |
-| 核心 | etcd  | 3.3.10 |
-| 核心 | docker  | docker-ce-18.09.2 |
-| 核心 | gcr.io/google-containers/pause-amd64| 3.1 |
-| 存储 | quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
-| 网络 | docker.io/coredns/coredns| 1.5.0 |
-| 网络 | quay.io/coreos/flannel| v0.11.0-amd64 |
-| 网络 | docker.io/traefik  | v1.7.11 |
-| 监控 | docker.io/grafana/grafana  | v1.7.11 |
-| 监控 | quay.io/prometheus/alertmanager  | v0.15.2 |
-| 监控 | quay.io/prometheus/node-exporter  | v1.7.11 |
-| 监控 | quay.io/prometheus/prometheus| v2.4.3 |
-| 监控 | quay.io/prometheus/pushgateway| v0.5.2 |
-| 监控 | quay.io/coreos/kube-state-metrics| v1.4.0 |
-| Dashboard | gcr.io/google_containers/heapster-grafana-amd64| v4.4.3 |
-| Dashboard | gcr.io/google_containers/heapster-amd64| v1.5.4 |
-| Dashboard | gcr.io/google_containers/heapster-influxdb-amd64| v1.5.2 |
-| Dashboard | k8s.gcr.io/metrics-server-amd64| v0.3.2 |
-| Dashboard | k8s.gcr.io/kubernetes-dashboard-amd64| v1.10.0 |
-| 工具 | docker.io/registry| 2 |
-| 工具 | docker.io/konradkleine/docker-registry-frontend| v2 |
-| 工具 | gcr.io/kubernetes-helm/tiller| v2.12.3 |
-| 工具 | docker.io/busybox  | 1.31.0 |
-| 工具 | quay.io/coreos/configmap-reload| v0.0.1 |
-| 工具 | docker.io/alpine| 3.6|
-| 工具 | docker.io/appropriate/curl| edge |
+ [v1.5.0](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.0.md)
+ [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
 
 ## 致谢
 
