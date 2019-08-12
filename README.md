@@ -52,13 +52,13 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 
 KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。目前已发布的离线包：
 
- [v1.5.0](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.0.md)
- [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
+- [v1.5.0](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.0.md)
+- [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
  
  ## KubeOperator 使用指南
 
- [KubeOperator 安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
- [KubeOperator 使用手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide.md)
+- [KubeOperator 安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
+- [KubeOperator 使用手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide.md)
 
 ## 致谢
 
