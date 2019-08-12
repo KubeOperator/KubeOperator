@@ -59,6 +59,7 @@ KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，�
 
 - [KubeOperator 安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
 - [KubeOperator 使用手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide.md)
+- [KubeOperator REST API](https://github.com/KubeOperator/KubeOperator/blob/master/docs/restapi.md)
 
 ## 致谢
 
