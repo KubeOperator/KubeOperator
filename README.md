@@ -31,22 +31,22 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
-- [x] 支持 Kubernetes 集群手动部署模式（自行准备主机资源和 NFS 环境）；
+- [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
  v2.0.0 （开发中）
 
-- [ ] 支持 VMware 云平台（调用 VMware vCenter API 自动创建集群所需资源）；
-- [ ] 支持 VMware vSAN / VMFS 作为持久化存储
-- [ ] 支持 Kubernetes 集群扩缩容
-- [ ] 支持通过 F5 对外暴露服务 
+- [ ] 支持调用 VMware vCenter API 自动创建集群主机；
+- [ ] 支持 VMware vSAN / VMFS 作为持久化存储；
+- [ ] 支持 Kubernetes 集群扩缩容；
+- [ ] 支持通过 F5 对外暴露服务；
 
  v3.0.0 （计划中）
  
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 支持 Multi AZ，主节点分布在不同的故障域
+- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
 - [ ] 支持 VMware NSX-T；
-- [ ] 支持 Openstack 云平台
+- [ ] 支持 Openstack 云平台；
 
 ## 离线包信息
 
