@@ -11,7 +11,7 @@ function get_images(){
        "node:10-alpine"
        "kube-operator/api:1.0.0"
        "kube-operator/ui:1.0.0"
-       "registry.fit2cloud.com/public/nexus-helm:latest"
+       "registry.fit2cloud.com/public/nexus-helm:3.15.2-01"
        "registry.fit2cloud.com/public/python:v3"
     )
     for image in ${images[@]};do
