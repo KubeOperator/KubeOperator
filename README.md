@@ -1,5 +1,7 @@
 # KubeOperator - Kubernetes 集群管理平台
 
+![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
+![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
@@ -53,9 +55,9 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 
  [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
 
-## 最新离线包中的 Kubernetes 及组件版本
+## 离线包信息
 
-KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署。离线包版本和 KubeOperator 版本保持一致，KubeOperator V1.0.0 离线包中包括的组件及版本信息如下：
+KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。例如 V1.5.0 离线包中的组件如下：
 
 |  组件名称   | 版本  |
 |  ----  | ----  |
