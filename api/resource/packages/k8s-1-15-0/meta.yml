@@ -304,7 +304,7 @@ templates:
           failed: 'ERROR'
         playbooks:
           - common-config
-      #          - install-k8s
+          - install-k8s
       - name: uninstall
         status_change:
           succeed: 'READY'

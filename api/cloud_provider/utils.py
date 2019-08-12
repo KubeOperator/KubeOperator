@@ -8,7 +8,7 @@ def generate_terraform_file(target_path, cloud_path, vars):
     terraform_path = os.path.dirname(os.path.join(cloud_path, "terraform"))
     lorder = FileSystemLoader(terraform_path)
     env = Environment(loader=lorder)
-    _template = env.get_template(os.path.basename(os.path.join(terraform_path, "terraform.tf.j2")))
+    _template = env.get_template(os.path.basename(os.path.join(terraform_path, "terraform", "terraform.tf.j2")))
     result = _template.render(vars)
     if not os.path.exists(target_path):
         os.makedirs(target_path)
