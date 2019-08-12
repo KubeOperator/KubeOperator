@@ -130,7 +130,7 @@ alertmanager:
     ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
     ##
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
 
     ## alertmanager data Persistent Volume Claim annotations
     ##
@@ -589,7 +589,7 @@ server:
     ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
     ##
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
 
     ## Prometheus server data Persistent Volume annotations
     ##

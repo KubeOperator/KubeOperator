@@ -1,5 +1,8 @@
-- name: download govc file
-  copy: src=govc dest=/usr/local/bin/govc mode=0755
+- name: download govc
+  get_url:
+    url: "http://{{local_hostname}}:8082/repository/raw/bin/govc"
+    dest: "/usr/local/bin/govc"
+    mode: "0755"
 
 - name: prepare vsphere.conf
   template: src=vsan/vsphere.conf.j2 dest=/usr/local/bin/vsphere.conf
@@ -43,7 +46,7 @@
 
 - name: prepare vsan default storageclass file
   template:
-    src: default-sc.yaml.j2
+    src: vsan/default-sc.yaml.j2
     dest: "/tmp/default-sc.yaml"
 
 - name: create vsan default storageclass

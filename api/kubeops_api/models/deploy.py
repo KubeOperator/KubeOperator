@@ -6,6 +6,7 @@ from django.db import models
 
 from common import models as common_models
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
@@ -37,10 +38,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 template = temp
         try:
             if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
-                # if cluster.node_set or len(cluster.node_set.all()) == 0:
-                    print("\n>>> Start Create nodes... ")
+                print("\n>>> Start Create nodes... ")
+                cluster.change_to()
+                node_set = Node.objects.all()
+                if not len(node_set) > 0:
                     cluster.create_resource()
-                    print("\n>>> End Create nodes... ")
+                print("\n>>> End Create nodes... ")
             status_set = []
             for opt in template.get('operations', []):
                 if opt['name'] == self.operation:

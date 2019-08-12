@@ -58,7 +58,7 @@ zone:
         option_var: "storages"
   others:
     configs:
-      - name: vc_floder
+      - name: vc_folder
         alias: VM文件夹
         value: kubeops
         type: Input

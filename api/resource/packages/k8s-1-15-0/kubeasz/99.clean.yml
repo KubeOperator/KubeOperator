@@ -49,7 +49,6 @@
 
 # to clean container runtime and networking
 - hosts:
-    - kube-master
     - kube-node
   tasks:
     - block:

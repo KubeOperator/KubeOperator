@@ -170,8 +170,6 @@ class Cluster(Project):
         role_vars.update(vars)
         config_role.vars = role_vars
         config_role.save()
-        config_role.vars = role_vars
-        config_role.save()
 
     def get_config(self, k):
         v = self.configs(tp='dict').get(k)
@@ -221,7 +219,7 @@ class Cluster(Project):
 
     def set_plan_configs(self):
         if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
-            self.set_config_unlock(self.plan.vars)
+            self.set_config_unlock(self.plan.mixed_vars)
 
     def on_cluster_create(self):
         self.change_to()
