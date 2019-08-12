@@ -9,7 +9,7 @@
 
 ## 什么是 KubeOperator？
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全离线环境下实现生产级别的 Kubernetes 集群的可视化部署及生命周期管理。KubeOperator 尤其适合用于在 VMware 和 Openstack 云平台上部署和管理生产级别的 Kubernetes 集群。
+KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全离线环境下实现生产级别的 Kubernetes 集群的可视化部署及生命周期管理。KubeOperator 尤其适合在 VMware 云平台上部署和管理生产级别的 Kubernetes 集群。
 
 ## 为什么需要 KubeOperator？
 
@@ -18,11 +18,11 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 -  按需修补：快速升级和修补 Kubernetes 集群，保证集群安全性和版本同步。
 -  健康检查：主动式健康检测，及时发现潜在问题。
 -  自我修复：通过重建故障节点确保集群可用性。
--  Multi-AZ支持：通过把集群节点分布在不同的故障域上确保集群的高可用。
+-  Multi-AZ 支持：通过把集群节点分布在不同的故障域上确保集群的高可用。
 
 ## KubeOperator 的版本规划
 
- v1.0 （已发布）
+ v1.0.0 （已发布）
 
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
@@ -33,60 +33,32 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 - [x] 支持 Flannel 作为网络方案；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机资源和 NFS 环境）；
 
- v2.0 （开发中）
+ v2.0.0 （开发中）
 
-- [ ] 支持 VMware 云平台（调用 VMware vCenter 接口自动创建集群所需资源、支持VMware vSAN / VMFS 作为持久化存储）；
+- [ ] 支持 VMware 云平台（调用 VMware vCenter API 自动创建集群所需资源）；
+- [ ] 支持 VMware vSAN / VMFS 作为持久化存储
 - [ ] 支持 Kubernetes 集群扩缩容
-- [ ] 支持对接 F5
+- [ ] 支持通过 F5 对外暴露服务 
 
- v2.1 （计划中）
+ v3.0.0 （计划中）
  
-- [ ] 支持 Openstack 云平台（调用 Openstack API 接口自动创建集群所需资源、支持 Cinder 作为持久化存储）
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 支持多主多节点模式（Multi AZ，分布在不同故障域） 
+- [ ] 支持 Multi AZ，主节点分布在不同的故障域
 - [ ] 支持 VMware NSX-T；
-
-## 安装 KubeOperator
-
- [安装手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/install.md)
-
-## 使用 KubeOperator
-
- [使用手册](https://github.com/fit2anything/KubeOperator/blob/master/docs/user-guide.md)
+- [ ] 支持 Openstack 云平台
 
 ## 离线包信息
 
-KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。例如 V1.5.0 离线包中的组件如下：
+KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。目前已发布的离线包：
 
-|  组件名称   | 版本  |
-|  ----  | ----  |
-| kubernetes  | 1.15.0 |
-| etcd  | 3.3.10 |
-| docker  | docker-ce-18.09.2 |
-| quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
-| docker.io/traefik  | v1.7.11 |
-| docker.io/grafana/grafana  | v1.7.11 |
-| quay.io/prometheus/alertmanager  | v0.15.2 |
-| docker.io/busybox  | 1.31.0 |
-| quay.io/prometheus/node-exporter  | v1.7.11 |
-| quay.io/prometheus/prometheus| v2.4.3|
-| quay.io/prometheus/pushgateway| v0.5.2|
-| docker.io/coredns/coredns| 1.5.0|
-| quay.io/coreos/flannel| v0.11.0-amd64|
-| gcr.io/google_containers/heapster-grafana-amd64| v4.4.3|
-| gcr.io/google_containers/heapster-amd64| v1.5.4|
-| gcr.io/google_containers/heapster-influxdb-amd64| v1.5.2|
-| gcr.io/kubernetes-helm/tiller| v2.12.3|
-| k8s.gcr.io/kubernetes-dashboard-amd64| v1.10.0|
-| k8s.gcr.io/metrics-server-amd64| v0.3.2|
-| quay.io/coreos/configmap-reload| v0.0.1|
-| gcr.io/google-containers/pause-amd64| 3.1|
-| docker.io/registry| 2|
-| docker.io/alpine| 3.6|
-| quay.io/coreos/kube-state-metrics| v1.4.0|
-| docker.io/appropriate/curl| edge|
-| docker.io/konradkleine/docker-registry-frontend| v2|
+- [v1.5.0](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.0.md)
+- [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
+ 
+ ## KubeOperator 使用指南
+
+- [KubeOperator 安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
+- [KubeOperator 使用手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide.md)
 
 ## 致谢
 
