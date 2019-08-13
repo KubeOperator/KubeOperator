@@ -50,6 +50,8 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
  v4.0.0 （计划中）
  
 - [ ] 支持 Openstack 云平台；
+- [ ] 支持 Ceph 作为持久化存储；
+- [ ] 支持 Calico 作为网络方案；
 
 ## 离线包
 
