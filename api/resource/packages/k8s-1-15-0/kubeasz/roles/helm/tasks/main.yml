@@ -16,7 +16,7 @@
 - name: 轮询等待 tiller 启动完成
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system | grep 'tiller' | awk '{print $3}'"
   register: tiller_status
-  until: tiller_status == 'Running'
+  until: tiller_status.stdout == 'Running'
   retries: 20
   delay: 2
 
