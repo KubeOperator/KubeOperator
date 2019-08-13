@@ -37,7 +37,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 作为持久化存储；
-- [x] 支持通过 F5 对外暴露服务；
+- [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
 - [x] 支持 Kubernetes 集群扩缩容；
 
  v3.0.0 （计划中）
