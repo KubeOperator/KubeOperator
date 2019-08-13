@@ -13,6 +13,13 @@
         --skip-refresh"
   ignore_errors: true
 
+- name: 轮询等待 tiller 启动完成
+  shell: "{{ bin_dir }}/kubectl get pod -n kube-system | grep 'tiller' | awk '{print $3}'"
+  register: tiller_status
+  until: tiller_status == 'Running'
+  retries: 20
+  delay: 2
+
 - name: 配置helm tls环境变量
   lineinfile:
     dest: ~/.bashrc
