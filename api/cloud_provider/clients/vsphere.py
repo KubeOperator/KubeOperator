@@ -1,17 +1,17 @@
-import json
 import os
-
-from pyVmomi.VmomiSupport import VmomiJSONEncoder
-
+from urllib.parse import urljoin
 from cloud_provider.cloud_client import CloudClient
 from pyVim import connect
 from pyVmomi import vim
 
-from fit2ansible.settings import RESOURCE_DIR
+from cloud_provider.utils import download_plugins
+from fit2ansible.settings import CLOUDS_RESOURCE_DIR
+from kubeops_api.models.setting import Setting
 
 
 class VsphereCloudClient(CloudClient):
-    cloud_config_path = os.path.join(RESOURCE_DIR, 'vsphere')
+    cloud_config_path = os.path.join(CLOUDS_RESOURCE_DIR, 'vsphere')
+    working_path = None
 
     def list_region(self):
         params = replace_params(self.vars)
@@ -51,6 +51,16 @@ class VsphereCloudClient(CloudClient):
                             zone.get('images').append(vm.name)
                 zones.append(zone)
         return zones
+
+    def init_terraform(self):
+        plugin_dir = os.path.join(self.working_path, '.terraform', 'plugins')
+        if not os.path.exists(plugin_dir):
+            os.makedirs(plugin_dir)
+        hostname = Setting.objects.get(key='local_hostname').value
+        print(hostname)
+        port = 8082
+        url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
+        download_plugins(url=url, target=self.working_path)
 
 
 def get_obj(content, vimtype, folder, name):

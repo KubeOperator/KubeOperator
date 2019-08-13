@@ -2,7 +2,7 @@ import os
 
 from ansible_api import ctx
 from ansible_api.models import Project
-from cloud_provider import get_cloud_client
+from cloud_provider import get_cloud_client, create_terrafrom_working_dir
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting

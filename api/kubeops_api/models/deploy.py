@@ -41,7 +41,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 print("\n>>> Start Create nodes... ")
                 cluster.change_to()
                 node_set = Node.objects.all()
-                if not len(node_set) > 0:
+                if not len(node_set) > 3:
                     cluster.create_resource()
                 print("\n>>> End Create nodes... ")
             status_set = []

@@ -1,8 +1,7 @@
-- name: download govc
-  get_url:
-    url: "http://{{local_hostname}}:8082/repository/raw/bin/govc"
-    dest: "/usr/local/bin/govc"
-    mode: "0755"
+- name: 下载 govc 二进制
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - govc
 
 - name: prepare vsphere.conf
   template: src=vsan/vsphere.conf.j2 dest=/usr/local/bin/vsphere.conf

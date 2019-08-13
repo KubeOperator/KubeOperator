@@ -1,7 +1,9 @@
 import os
-import shutil
-
+import zipfile
+from download import download
 from jinja2 import FileSystemLoader, Environment
+
+from fit2ansible.settings import TERRAFORM_DIR
 
 
 def generate_terraform_file(target_path, cloud_path, vars):
@@ -18,7 +20,27 @@ def generate_terraform_file(target_path, cloud_path, vars):
         return os.path.dirname(file)
 
 
-def init_terraform(target_path, cloud_path):
-    if not os.path.exists(os.path.join(target_path, '.terraform', 'plugins')):
-        shutil.copytree(os.path.join(os.path.join(cloud_path, "terraform", "plugins")),
-                        os.path.join(target_path, '.terraform', 'plugins'))
+def create_terrafrom_working_dir(cluster_name):
+    if not os.path.exists(TERRAFORM_DIR):
+        os.makedirs(TERRAFORM_DIR)
+    cluster_dir = os.path.join(TERRAFORM_DIR, cluster_name)
+    if not os.path.exists(cluster_dir):
+        os.mkdir(cluster_dir)
+    return cluster_dir
+
+
+def download_plugins(url, target):
+    f = download_file(url, target)
+    unzip_plugin(f)
+
+
+def download_file(url, target):
+    return download(url, target, progressbar=True)
+
+
+def unzip_plugin(f):
+    file_zip = zipfile.ZipFile(f, 'r')
+    for file in file_zip.namelist():
+        file_zip.extract(file, r'.')
+    file_zip.close()
+    os.remove(f)
