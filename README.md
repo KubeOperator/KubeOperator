@@ -1,4 +1,4 @@
-# KubeOperator - Kubernetes 集群管理平台
+# KubeOperator - Kubernetes 集群部署及管理平台
 
 ![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
 ![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
