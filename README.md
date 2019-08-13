@@ -46,6 +46,9 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 - [ ] 支持集群备份及恢复；
 - [ ] 支持 Multi AZ，主节点分布在不同的故障域；
 - [ ] 支持 VMware NSX-T；
+
+ v4.0.0 （计划中）
+ 
 - [ ] 支持 Openstack 云平台；
 
 ## 离线包
