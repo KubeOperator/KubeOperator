@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from python_terraform import Terraform, IsNotFlagged
 
 from cloud_provider.utils import generate_terraform_file, create_terrafrom_working_dir
-from fit2ansible.settings import  CLOUDS_RESOURCE_DIR
+from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 
 
 def get_cloud_client(vars):
@@ -32,8 +32,8 @@ class CloudClient(metaclass=ABCMeta):
         pass
 
     def apply_terraform(self, cluster, vars):
-        if self.working_path:
-            self.working_path = create_terrafrom_working_dir(cluster_name=cluster.name)
+        if not self.working_path:
+            self.working_path = create_terrafrom_working_dir(cluster_name=cluster)
         generate_terraform_file(self.working_path, self.cloud_config_path, vars)
         self.init_terraform()
         t = Terraform(working_dir=self.working_path)

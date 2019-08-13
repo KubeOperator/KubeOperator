@@ -165,6 +165,11 @@ roles:
       IMAGE_PULL_SECRET: registry-fit2cloud-com-key
 
 apps:
+  - name: Dashboard
+    logo: k8s.png
+    url_key: dashboard
+    describe: "kubernetes 控制台"
+    
   - name: Grafana
     logo: grafana_icon.svg
     url_key: grafana
@@ -180,10 +185,7 @@ apps:
     url_key: registry-ui
     describe: "集群镜像仓库控制台，默认用户名: admin 默认密码: admin123"
 
-  - name: Dashboard
-    logo: k8s.png
-    url_key: dashboard
-    describe: "kubernetes 控制台"
+
 
 cluster_infos:
   - name: 网络插件

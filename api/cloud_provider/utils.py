@@ -35,6 +35,9 @@ def download_plugins(url, target):
 
 
 def download_file(url, target):
+    basename = os.path.basename(url)
+    target = os.path.join(target, basename)
+    print(target)
     return download(url, target, progressbar=True)
 
 
