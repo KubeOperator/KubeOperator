@@ -13,12 +13,12 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 
 ## 为什么需要 KubeOperator？
 
--  按需创建：对于云平台 API，一键快速创建 Kubernetes 集群。
--  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率。
--  按需修补：快速升级和修补 Kubernetes 集群，保证集群安全性和版本同步。
--  健康检查：主动式健康检测，及时发现潜在问题。
--  自我修复：通过重建故障节点确保集群可用性。
--  Multi-AZ 支持：通过把集群节点分布在不同的故障域上确保集群的高可用。
+-  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群 (即 Kubernetes as a Service)；
+-  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
+-  按需修补：快速升级和修补 Kubernetes 集群，保证集群安全性，并与社区最新版本同步；
+-  自我修复：通过重建故障节点确保集群可用性；
+-  工具集成：打包集成常用工具组件，比如 Promethus 和 Dashboard 等；
+-  Multi-AZ 支持：通过把集群节点分布在不同的故障域上确保集群的高可用；
 
 ## KubeOperator 的版本规划
 
@@ -31,26 +31,26 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
-- [x] 支持 Kubernetes 集群手动部署模式（自行准备主机资源和 NFS 环境）；
+- [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
  v2.0.0 （开发中）
 
-- [ ] 支持 VMware 云平台（调用 VMware vCenter API 自动创建集群所需资源）；
-- [ ] 支持 VMware vSAN / VMFS 作为持久化存储
-- [ ] 支持 Kubernetes 集群扩缩容
-- [ ] 支持通过 F5 对外暴露服务 
+- [x] 支持调用 VMware vCenter API 自动创建集群主机；
+- [x] 支持 VMware vSAN / VMFS 作为持久化存储；
+- [x] 支持通过 F5 对外暴露服务；
+- [x] 支持 Kubernetes 集群扩缩容；
 
  v3.0.0 （计划中）
  
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 支持 Multi AZ，主节点分布在不同的故障域
+- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
 - [ ] 支持 VMware NSX-T；
-- [ ] 支持 Openstack 云平台
+- [ ] 支持 Openstack 云平台；
 
-## 离线包信息
+## 离线包
 
-KubeOperator 会持续维护包括 Kubernetes 及其常用组件的离线包，该离线包能在网络完全离线情况下部署和升级。离线包版本和 Kubernetes 版本保持一致。目前已发布的离线包：
+KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的完整离线包，该离线包能在完全离线的网络环境下部署和升级，并保证最终的一致性。离线包版本命名和 Kubernetes 版本命名保持一致。目前已发布的离线包：
 
 - [v1.5.0](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.0.md)
 - [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
