@@ -37,13 +37,13 @@ def download_plugins(url, target):
 def download_file(url, target):
     basename = os.path.basename(url)
     target = os.path.join(target, basename)
-    print(target)
-    return download(url, target, progressbar=True)
+    download(url, target, progressbar=True)
+    return target
 
 
 def unzip_plugin(f):
     file_zip = zipfile.ZipFile(f, 'r')
     for file in file_zip.namelist():
-        file_zip.extract(file, r'.')
+        file_zip.extract(file, os.path.dirname(f))
     file_zip.close()
     os.remove(f)
