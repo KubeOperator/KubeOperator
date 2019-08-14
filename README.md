@@ -1,4 +1,4 @@
-# KubeOperator - Kubernetes 集群部署及管理平台
+# KubeOperator - Kubernetes 集群部署和管理平台
 
 ![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
 ![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
@@ -9,7 +9,7 @@
 
 ## 什么是 KubeOperator？
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在纯离线环境下部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在 VMware 云平台上部署和管理 Kubernetes 集群。
+KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全离线环境下部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在 VMware 云平台上部署和管理 Kubernetes 集群。
 ![overview](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/KubeOperator.jpeg?raw=true)
 
 ## 为什么需要 KubeOperator？
