@@ -168,24 +168,22 @@ apps:
   - name: Dashboard
     logo: k8s.png
     url_key: dashboard
-    describe: "kubernetes 控制台"
+    describe: "Kubernetes 管理控制台"
     
   - name: Grafana
     logo: grafana_icon.svg
     url_key: grafana
-    describe:  集群监控可视化工具。
+    describe: "集群监控展示面板"
 
   - name: Prometheus
     logo: prometheus.ico
     url_key: prometheus
-    describe: 集群监控采集工具。
+    describe: "集群监控采集工具"
 
   - name: Registry-console
     logo: registry.ico
     url_key: registry-ui
-    describe: "集群镜像仓库控制台，默认用户名: admin 默认密码: admin123"
-
-
+    describe: "集群镜像仓库，默认用户名和密码: admin admin123"
 
 cluster_infos:
   - name: 网络插件
@@ -198,7 +196,6 @@ cluster_infos:
     key: SERVICE_CIDR
   - name: cluster_cidr
     key: CLUSTER_CIDR
-
 
 networks:
   - name: flannel
@@ -263,8 +260,6 @@ storages:
     vars:
       storage_vsan_enabled: true
     configs: []
-
-
 
 public_config:
   - name: MASTER_IP
@@ -422,7 +417,3 @@ templates:
                 excellent: 32
                 unit: "GB"
                 comment: "无"
-
-
-
-

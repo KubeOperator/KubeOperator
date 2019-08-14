@@ -1,4 +1,4 @@
-# KubeOperator - Kubernetes 集群管理平台
+# KubeOperator - Kubernetes 集群部署及管理平台
 
 ![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
 ![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
@@ -9,7 +9,7 @@
 
 ## 什么是 KubeOperator？
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全离线环境下实现生产级别的 Kubernetes 集群的可视化部署及生命周期管理。KubeOperator 尤其适合在 VMware 云平台上部署和管理生产级别的 Kubernetes 集群。
+KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在纯离线的私有云环境下部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在 VMware 云平台上部署和管理 Kubernetes 集群。
 
 ## 为什么需要 KubeOperator？
 
@@ -50,6 +50,8 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web UI，在完全
  v4.0.0 （计划中）
  
 - [ ] 支持 Openstack 云平台；
+- [ ] 支持 Ceph 作为持久化存储；
+- [ ] 支持 Calico 作为网络方案；
 
 ## 离线包
 
