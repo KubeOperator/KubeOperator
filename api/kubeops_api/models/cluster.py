@@ -9,7 +9,7 @@ from ansible_api.models import Project, Playbook
 from cloud_provider import CloudClient, get_cloud_client
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
-from kubeops_api.cloud_provider import create_hosts
+from kubeops_api.cloud_provider import create_hosts, delete_hosts
 from kubeops_api.components import generate_grafana_urls, generate_prometheus_url, get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
@@ -81,6 +81,27 @@ class Cluster(Project):
         for node in nodes:
             n.append(node.name)
         return n
+
+    @property
+    def node_size(self):
+        self.change_to()
+        nodes = Node.objects.all().filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
+        return len(nodes)
+
+    def change_status(self, status):
+        self.status = status
+        self.save()
+
+    def get_template_obj(self):
+        for temp in self.package.meta.get('templates', []):
+            if temp['name'] == self.template:
+                template = temp
+                return template
+
+    def get_playbooks(self, name):
+        for operation in self.get_template_obj()['operations']:
+            if operation['name'] == name:
+                return operation['playbooks']
 
     def create_network_plugin(self):
         if self.network_plugin:
@@ -194,6 +215,9 @@ class Cluster(Project):
 
     def create_resource(self):
         create_hosts(self)
+
+    def destroy_resource(self):
+        delete_hosts(self)
 
     def fetch_config(self):
         path = None

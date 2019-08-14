@@ -26,58 +26,67 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = Cluster.objects.get(id=self.project.id)
         hostname = Setting.objects.get(key='local_hostname')
-        cluster.status = Cluster.status = Cluster.CLUSTER_STATUS_INSTALLING
-        cluster.save()
-        template = None
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value
         }
-        for temp in cluster.package.meta.get('templates', []):
-            if temp['name'] == cluster.template:
-                template = temp
         try:
-            if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
-                print("\n>>> Start Create nodes... ")
-                cluster.change_to()
-                node_set = Node.objects.all()
-                if not len(node_set) > 3:
-                    cluster.create_resource()
-                print("\n>>> End Create nodes... ")
-            status_set = []
-            for opt in template.get('operations', []):
-                if opt['name'] == self.operation:
-                    status_set = opt['status_change']
-                    playbooks = []
-                    cluster_playbooks = opt.get('playbooks', [])
-                    playbooks.extend(cluster_playbooks)
-                    total_palybook = len(playbooks)
-                    current = 0
-                    cluster.status = status_set['on']
-                    cluster.save()
-                    for playbook_name in playbooks:
-                        print("\n>>> Start run {} ".format(playbook_name))
-                        self.current_play = playbook_name
-                        self.save()
-                        playbook = self.project.playbook_set.get(name=playbook_name)
-                        _result = playbook.execute(extra_vars=extra_vars)
-                        result["summary"].update(_result["summary"])
-                        if not _result.get('summary', {}).get('success', False):
-                            cluster.status = status_set['failed']
-                            cluster.save()
-                            break
-                        current = current + 1
-                        self.progress = current / total_palybook * 100
-                        self.save()
-            cluster.status = status_set['succeed']
-            cluster.save()
+            if self.operation == "install":
+                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
+                result = self.on_install(extra_vars)
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'uninstall':
+                cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
+                result = self.on_uninstall(extra_vars)
+                cluster.change_status(Cluster.CLUSTER_STATUS_READY)
         except Exception as e:
-            logger.error(e, exc_info=True)
-            cluster.status = Cluster.CLUSTER_STATUS_ERROR
-            cluster.save()
+            cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result)
         return result
+
+    def on_install(self, extra_vars):
+        cluster = self.get_cluster()
+        if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            if not cluster.node_size > 0:
+                cluster.create_resource()
+        playbooks = cluster.get_playbooks('install')
+        return self.run_playbooks(playbooks, extra_vars)
+
+    def on_uninstall(self, extra_vars):
+        cluster = self.get_cluster()
+        if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            cluster.destroy_resource()
+        else:
+            playbooks = cluster.get_playbooks('uninstall')
+            return self.run_playbooks(playbooks, extra_vars)
+
+    def run_playbooks(self, playbooks, extra_vars):
+        result = {"raw": {}, "summary": {}}
+        play_total = len(playbooks)
+        self.update_progress(0)
+        for index, playbook_name in enumerate(playbooks):
+            self.update_current_play(playbook_name)
+            playbook = self.project.playbook_set.get(name=playbook_name)
+            _result = playbook.execute(extra_vars=extra_vars)
+            result["summary"].update(_result["summary"])
+            if not _result.get('summary', {}).get('success', False):
+                raise Exception("playbook: {} error!".format(playbook_name))
+            progress = ((index + 1) / play_total) * 100
+            print(progress)
+            self.update_progress(progress)
+            return result
+
+    def get_cluster(self):
+        return Cluster.objects.get(name=self.project.name)
+
+    def update_progress(self, p):
+        self.progress = p
+        self.save()
+
+    def update_current_play(self, playbook_name):
+        self.current_play = playbook_name
+        self.save()
 
     def to_json(self):
         dict = {'current_play': self.current_play,

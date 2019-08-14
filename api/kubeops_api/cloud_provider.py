@@ -95,3 +95,19 @@ def get_available_ips(start, end):
     for host in hosts:
         ip_list.remove(host.ip)
     return ip_list
+
+
+def delete_hosts(cluster):
+    cloud_provider = get_cloud_client(cluster.plan.mixed_vars)
+    result = cloud_provider.destroy_terraform(cluster.name)
+    if not result:
+        raise Exception('Destroy nodes error! ')
+    else:
+        hosts = []
+        cluster.change_to()
+        nodes = Node.objects.all()
+        for node in nodes:
+            hosts.append(node.host)
+            node.delete()
+        for host in hosts:
+            host.delete()

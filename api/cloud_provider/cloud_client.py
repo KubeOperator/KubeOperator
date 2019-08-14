@@ -31,15 +31,26 @@ class CloudClient(metaclass=ABCMeta):
     def init_terraform(self):
         pass
 
+    def destroy_terraform(self, cluster):
+        if not self.working_path:
+            self.working_path = create_terrafrom_working_dir(cluster_name=cluster)
+        t = Terraform(working_dir=self.working_path)
+        p, _, _ = t.destroy('./', synchronous=False, no_color=IsNotFlagged, refresh=True)
+        for i in p.stdout:
+            print(i.decode())
+        _, err = p.communicate()
+        print(err.decode())
+        return p.returncode == 0
+
     def apply_terraform(self, cluster, vars):
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster)
         generate_terraform_file(self.working_path, self.cloud_config_path, vars)
         self.init_terraform()
         t = Terraform(working_dir=self.working_path)
-        p = t.apply('./', refresh=True, skip_plan=True, no_color=IsNotFlagged, synchronous=False)
-        p = p[0]
+        p, _, _ = t.apply('./', refresh=True, skip_plan=True, no_color=IsNotFlagged, synchronous=False)
         for i in p.stdout:
             print(i.decode())
-        p.communicate()
+        _, err = p.communicate()
+        print(err.decode())
         return p.returncode == 0

@@ -77,6 +77,8 @@ playbooks:
     alias: kubeasz/99.clean.yml
   - name: add-node
     alias: kubeasz/20.addnode.yml
+  - name: test
+    alias: kubeasz/100.test.yml
 roles:
   - name: cluster_nodes
     children:
@@ -308,7 +310,7 @@ templates:
           "on": 'DELETING'
           failed: 'ERROR'
         playbooks:
-          - uninstall-k8s
+          - test
       - name: add_node
         status_change:
           succeed: 'RUNNING'
