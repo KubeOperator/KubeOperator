@@ -82,8 +82,8 @@ export class ClusterListComponent implements OnInit {
     return this.clusterStatusService.getComment(status);
   }
 
-  get_grafana_url(cluster: Cluster): string {
-    return this.clusterService.get_cluster_grafana(cluster);
+  getDeployTypeComment(type: string): string {
+    return this.clusterStatusService.getDeployType(type);
   }
 
 

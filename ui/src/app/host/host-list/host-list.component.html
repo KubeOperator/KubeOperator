@@ -6,8 +6,8 @@
     </p>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
     <button type="button" class="btn" (click)="deleteModal = false">取消</button>
+    <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
   </div>
 </clr-modal>
 <app-host-info [(showInfoModal)]=showHostInfo (updated)="refresh()"></app-host-info>

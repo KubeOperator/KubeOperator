@@ -308,7 +308,7 @@
         <label>{{config.alias}}:</label>
         <span>{{config.value}}</span>
       </div>
-      <div class="row">
+      <div class="row" *ngIf="nodes">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h5>节点信息</h5>
           <table class="table">

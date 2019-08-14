@@ -8,6 +8,18 @@ export class ClusterStatusService {
   constructor() {
   }
 
+  getDeployType(type: string): string {
+    let result = null;
+    switch (type) {
+      case 'AUTOMATIC':
+        result = '自动';
+        break;
+      case 'MANUAL':
+        result = '手动';
+        break;
+    }
+    return result;
+  }
 
   getComment(status: string): string {
     let result = null;
