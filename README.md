@@ -63,14 +63,20 @@ KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的�
  
  ## KubeOperator 使用指南
 
-- [KubeOperator 安装手册](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
+安装手册：
+- [KubeOperator 安装手册（离线包方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
+- [KubeOperator 安装手册（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install.md)
+
+使用手册：
 - [KubeOperator 使用手册（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
 - [KubeOperator 使用手册（自动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-2.md)
-- [KubeOperator REST API](https://github.com/KubeOperator/KubeOperator/blob/master/docs/restapi.md)
 
 > Note:
 > - 手动模式：用户需要自行准备主机及 NFS 存储，适合在物理机环境下部署。
 > - 自动模式：依赖于 VMware 云平台（包括 vSAN），用户只需绑定 vCenter 相关账号和密码，设置好部署计划，即可实现一键部署、扩容和故障自愈。注：V4.0.0 版本开始会支持 Openstack 云平台。
+
+REST API：
+- [KubeOperator REST API](https://github.com/KubeOperator/KubeOperator/blob/master/docs/restapi.md)
 
 ## 致谢
 
