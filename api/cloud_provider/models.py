@@ -10,6 +10,8 @@ from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
 
+from kubeops_api.models.cluster import Cluster
+
 
 class CloudProviderTemplate(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
@@ -68,22 +70,17 @@ class Plan(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-    zones = models.ManyToManyField('Zone')
+    zone = models.ForeignKey('Zone', null=True, on_delete=models.CASCADE)
     region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
     vars = common_models.JsonDictTextField(default={})
-
-    @property
-    def first_zone(self):
-        return self.zones.first()
 
     @property
     def mixed_vars(self):
         _vars = self.vars
         _vars.update(self.region.vars)
-        for zone in self.zones.all():
-            _vars.update(zone.vars)
+        _vars.update(self.zone.vars)
         _vars['region'] = self.region.cloud_region
-        _vars['zone'] = self.zones.first().cloud_zone
+        _vars['zone'] = self.zone.cloud_zone
         return _vars
 
     @property

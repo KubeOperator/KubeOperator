@@ -47,13 +47,13 @@ class PlanSerializer(serializers.ModelSerializer):
         queryset=Region.objects.all(),
         slug_field='name', required=True
     )
-    zones = serializers.SlugRelatedField(
+    zone = serializers.SlugRelatedField(
         queryset=Zone.objects.all(),
-        slug_field='name', many=True, required=True,
+        slug_field='name', required=True,
     )
     vars = serializers.DictField(required=False, default={})
 
     class Meta:
         model = Plan
         read_only_fields = ['id', 'date_created']
-        fields = ['id', 'name', 'vars', 'date_created', 'zones', 'region']
+        fields = ['id', 'name', 'vars', 'date_created', 'zone', 'region']

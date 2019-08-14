@@ -70,8 +70,6 @@ plan:
       options:
         - name: 一主多节点
           value: single
-        - name: 多主多节点
-          value: multiple
   infra:
     - name: k8s_master_model
       alias: Master 规格
