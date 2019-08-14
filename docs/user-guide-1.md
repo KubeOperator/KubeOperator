@@ -1,8 +1,9 @@
-# KubeOperator 使用手册
+# KubeOperator 使用手册 （手动模式）
 
-KubeOperator 支持两种 Kubernetes 集群部署模式，一种是一主多节点模式，另外一种是多主多节点模式。本手册仅描述一主多节点的部署和管理。
+KubeOperator 支持两种 Kubernetes 集群部署模式，一种是手动模式，另外一种是自动模式模式。本手册仅描述手动模式下的集群部署和管理。
 
-> 多主多节点模式适合在 MultiAZ（多故障域）下部署，实现双活环境下的高可用。KubeOperator 2.1 版本会支持 MultiAZ。
+> 手动模式：用户需要自行准备主机及 NFS 存储
+> 自动模式：依赖于 VMware 环境（包括 vSAN），用户只需绑定 vCenter 账号和密码，设置好部署计划，即可实现一键部署。
 
 ## 1 登录
 
@@ -114,6 +115,8 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 选择 Kubernetes 集群的部署模型。KubeOperator 当前版本仅支持一主多节点。选择部署模型后，KubeOperator 将展示集群中各个角色节点的详细配置要求。
 
 ![cluster-create-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-2.png?raw=true)
+
+> 多主多节点模式适合在 MultiAZ（多故障域）下部署，实现双活环境下的高可用。KubeOperator 2.1 版本会支持 MultiAZ。
 
 
 #### 5.2.3 配置节点
