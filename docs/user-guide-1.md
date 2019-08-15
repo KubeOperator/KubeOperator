@@ -1,8 +1,19 @@
-# KubeOperator 使用手册
+# KubeOperator 使用手册 （手动模式）
 
-KubeOperator 支持两种 Kubernetes 集群部署模式，一种是一主多节点模式，另外一种是多主多节点模式。本手册仅描述一主多节点的部署和管理。
+KubeOperator 支持两种 Kubernetes 集群部署模式，一种是手动模式，另外一种是自动模式模式。本手册仅描述手动模式下的集群部署和管理。
 
-> 多主多节点模式适合在 MultiAZ（多故障域）下部署，实现双活环境下的高可用。KubeOperator 2.1 版本会支持 MultiAZ。
+> Note:
+> - 手动模式：用户需要自行准备主机及 NFS 存储。
+> - 自动模式：依赖于 VMware 环境（包括 vSAN），用户只需绑定 vCenter 账号和密码，设置好部署计划，即可实现一键部署。
+
+手动部署的整个流程如下：
+
+- 1 登录：登录 Web 控制台;
+- 2 系统设置：包括主机登录凭据和集群域名后缀等；
+- 3 选择离线包：选择 k8s  版本；
+- 4 准备主机：准备 k8s 集群所需要的主机；
+ -5 创建和部署集群：创建集群、配置集群和部署机器；
+ -6 管理集群：访问 Dashboard、监控系统和 Registry等。
 
 ## 1 登录
 
@@ -10,7 +21,7 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 > 为了保证系统的安全，请在完成登录后，点击控制台右上角的"修改密码"进行密码的重置。
 
-## 2 设置
+## 2 系统设置
 
 在使用 KubeOperator 之前，需要先对 KubeOperator 进行必要的参数设置。这些系统参数将影响到 Kubernetes 集群的安装及相关服务的访问。
 
@@ -32,7 +43,7 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 ![add_credential-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/add_credential-1.png?raw=true)
 
-## 3 离线包
+## 3 选择离线包
 
 在离线包列表中可以查看 KubeOperator 当前所提供的 Kubernetes 安装版本详细信息。在后续进行 Kubernetes 集群部署时，可以从这些版本中选择其一进行部署（当前仅支持1.15.0，后续会跟随 Kubernetes 社区发布离线包）。
 
@@ -40,10 +51,9 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 ![package-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-2.png?raw=true)
 
+## 4 准备主机
 
-## 4 主机
-
-### 4.1 节点准备
+### 4.1 主机需求
 
 KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集群中各节点的要求如下：
 <table>
@@ -89,14 +99,13 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 ![host-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/host-1.png?raw=true)
 
-## 5 集群
+## 5 创建和部署集群
 
 ### 5.1 集群列表
 
 在左侧导航菜单中选择【集群】，进入【集群】页后可以看到已添加集群的详细信息，包括 集群部署的 Kubernetes 版本、部署模式、节点数及运行状态等。
 
 ![cluster-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-1.png?raw=true)
-
 
 ### 5.2 创建集群
 
@@ -108,20 +117,19 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 ![cluster-create-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-1.png?raw=true)
 
-
 #### 5.2.2 部署模型
 
 选择 Kubernetes 集群的部署模型。KubeOperator 当前版本仅支持一主多节点。选择部署模型后，KubeOperator 将展示集群中各个角色节点的详细配置要求。
 
 ![cluster-create-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-2.png?raw=true)
 
+> 多主多节点模式适合在 MultiAZ（多故障域）下部署，实现双活环境下的高可用。KubeOperator 2.1 版本会支持 MultiAZ。
 
 #### 5.2.3 配置节点
 
 【添加主机】环节，把集群所需的主机添加到了 KubeOperator 中。在【配置节点】环节，则可以根据不同的节点角色，选择主机列表中的各个主机。
 
 ![cluster-create-3](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-3.png?raw=true)
-
 
 #### 5.2.4 配置网络
 
@@ -131,13 +139,11 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 ![cluster-create-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-4.png?raw=true)
 
-
 #### 5.2.5 配置存储
 
 【添加存储】环节，选择外部持久化存储。
 
 ![cluster-create-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-5.png?raw=true)
-
 
 #### 5.2.6 配置检测
 
@@ -145,13 +151,11 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 ![cluster-create-6](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-6.png?raw=true)
 
-
 #### 5.2.7 配置集群参数
 
 完成检测后，可以对集群的域名参数进行配置，如无特殊要求，推荐使用默认值。
 
 ![cluster-create-7](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-7.png?raw=true)
-
 
 #### 5.2.8 集群配置概览
 
@@ -159,24 +163,21 @@ KubeOperator 当前版本仅支持一主多节点的部署和管理，对于集�
 
 ![cluster-create-8](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-8.png?raw=true)
 
-
 ### 5.3 部署集群
 
 在集群列表中点击要进行部署的集群名称，默认展示的是该集群的【概览】信息。【概览】页中展示了 Kubernetes 集群的诸多详情，包括 Kubernetes 版本、集群所用存储、网络模式等。点击【概览】页最下方的【安装】按钮进行 Kubernetes 集群的部署。
 
 ![cluster-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-2.png?raw=true)
 
-
 集群部署开始后，将会自动跳转到【任务】页。在【任务】页里可以看到集群部署当前所执行的具体任务信息。
 
 ![cluster-deploy-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-1.png?raw=true)
-
 
 如果是内网环境的话，一个典型的 5 节点集群的部署大概需要10分钟左右的时间。在出现类似下图的信息后，表明集群已部署成功：
 
 ![cluster-deploy-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-2.png?raw=true)
 
-## 5.4 访问 Kubernetes 集群
+## 6 管理 Kubernetes 集群
 
 回到集群的【概览】页，该页提供了 Grafana、Prometheus、Registry-console、Dashboard 等四个管理系统快捷访问方式。这四个系统的访问域名需要在 DNS 服务器中添加相应的域名记录。如无条件，也可以通过修改本地 /etc/hosts 文件来达到相同的作用。
 
@@ -193,7 +194,7 @@ WORKER_IP dashboard.apps.whfay.f2c.com
 WORKER_IP master-1.whfay.f2c.com
 ```
 
-#### 5.4.1 访问 Dashboard
+### 6.1 访问 Dashboard
 
 Dashboard 对应的是 Kubernetes 的控制台，从浏览器中访问 Kubernetes 控制台需要用到【令牌】。点击【概览】页下方的【获取TOKEN】按钮获取令牌信息，将令牌信息复制到粘贴板。
 
@@ -203,7 +204,7 @@ Dashboard 对应的是 Kubernetes 的控制台，从浏览器中访问 Kubernete
 
 ![dashboard-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/dashboard-2.png?raw=true)
 
-#### 5.4.2 访问 Grafana
+### 6.2 访问 Grafana
 
 Grafana 对 Prometheus 采集到的监控数据进行了不同维度的图形化展示，更方便用户了解整个 Kubernetes 集群的运行状况。点击 Grafana 下方的【转到】按钮访问 Grafana 控制台。
 
@@ -215,13 +216,13 @@ Grafana 对 Prometheus 采集到的监控数据进行了不同维度的图形化
 
 ![grafana-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/grafana-2.png?raw=true)
 
-#### 5.4.3 访问 Registry
+### 6.3 访问 Registry
 
 Registry 则用来存放 Kubernetes 集群所使用到的 Docker 镜像。
 
 ![regsitry-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/registry-1.png?raw=true)
 
-#### 5.4.4 访问 Prometheus
+### 6.4 访问 Prometheus
 
 Prometheus 用来对整个 kubernetes 集群进行监控数据的采集。点击 Prometheus 下方的【转到】按钮即可访问 Prometheus 控制台。
 

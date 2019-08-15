@@ -1,9 +1,9 @@
-# KubeOperator V1.0 安装手册
+# KubeOperator 安装手册（离线包方式）
 
 ## 环境要求
 
 + 最低硬件配置: 2 CPU, 4G 内存, 50G 硬盘
-+ 操作系统要求: CentOS 7.6 Minimal
++ 操作系统要求: CentOS 7.6 Minimal （必须）
 
 ## 离线包方式安装
 
