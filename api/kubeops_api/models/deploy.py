@@ -57,6 +57,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             cluster.destroy_resource()
+            return {"raw": {}, "summary": {"success": True}}
         else:
             playbooks = cluster.get_playbooks('uninstall')
             return self.run_playbooks(playbooks, extra_vars)
