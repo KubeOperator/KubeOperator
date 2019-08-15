@@ -242,7 +242,6 @@ storages:
         value: true
         required: true
         display: true
-
   - name: nfs
     vars:
       storage_nfs_enabled: true
