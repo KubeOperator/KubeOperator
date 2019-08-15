@@ -57,7 +57,6 @@ class VsphereCloudClient(CloudClient):
         if not os.path.exists(plugin_dir):
             os.makedirs(plugin_dir)
         hostname = Setting.objects.get(key='local_hostname').value
-        print(hostname)
         port = 8082
         url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
         download_plugins(url=url, target=self.working_path)

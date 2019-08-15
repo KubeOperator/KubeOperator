@@ -57,6 +57,16 @@ class Cluster(Project):
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
 
     @property
+    def region(self):
+        if self.plan:
+            return self.plan.region.name
+
+    @property
+    def zone(self):
+        if self.plan:
+            return self.plan.zone.name
+
+    @property
     def current_execution(self):
         current = kubeops_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current

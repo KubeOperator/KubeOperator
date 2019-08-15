@@ -25,8 +25,9 @@ class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Region
-        read_only_fields = ['id', 'date_created', 'template', 'comment']
-        fields = ['id', 'name', 'vars', 'date_created', 'template', 'comment', 'cloud_region']
+        read_only_fields = ['id', 'zone_size', 'cluster_size', 'date_created', 'template', 'comment']
+        fields = ['id', 'zone_size', 'cluster_size', 'name', 'vars', 'date_created', 'template', 'comment',
+                  'cloud_region']
 
 
 class ZoneSerializer(serializers.ModelSerializer):
@@ -38,8 +39,8 @@ class ZoneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Zone
-        read_only_fields = ['id', 'date_created']
-        fields = ['id', 'name', 'vars', 'date_created', 'cloud_zone', 'region']
+        read_only_fields = ['id', 'cluster_size', 'plan_size', 'date_created']
+        fields = ['id', 'name', 'cluster_size', 'plan_size', 'vars', 'date_created', 'cloud_zone', 'region']
 
 
 class PlanSerializer(serializers.ModelSerializer):

@@ -171,7 +171,7 @@ apps:
     logo: k8s.png
     url_key: dashboard
     describe: "Kubernetes 管理控制台"
-    
+
   - name: Grafana
     logo: grafana_icon.svg
     url_key: grafana
@@ -185,7 +185,7 @@ apps:
   - name: Registry-console
     logo: registry.ico
     url_key: registry-ui
-    describe: "集群镜像仓库，默认用户名和密码: admin admin123"
+    describe: "集群镜像仓库"
 
 cluster_infos:
   - name: 网络插件
@@ -232,6 +232,17 @@ networks:
         display: true
 
 storages:
+  - name: vsan
+    vars:
+      storage_vsan_enabled: true
+    configs:
+      - name: set_vsan_default
+        type: Switch
+        alias: 默认存储
+        value: true
+        required: true
+        display: true
+
   - name: nfs
     vars:
       storage_nfs_enabled: true
@@ -258,10 +269,7 @@ storages:
         value: true
         required: true
         display: true
-  - name: vsan
-    vars:
-      storage_vsan_enabled: true
-    configs: []
+
 
 public_config:
   - name: MASTER_IP

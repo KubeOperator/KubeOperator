@@ -46,6 +46,21 @@ class Region(models.Model):
     vars = common_models.JsonDictTextField(default={})
     comment = models.CharField(max_length=128, blank=True, null=True, verbose_name=_("Comment"))
 
+    @property
+    def zone_size(self):
+        zones = Zone.objects.filter(region=self)
+        return len(zones)
+
+    @property
+    def cluster_size(self):
+        clusters = []
+        plans = Plan.objects.filter(region=self)
+        for plan in plans:
+            cs = Cluster.objects.filter(plan=plan)
+            for c in cs:
+                clusters.append(c)
+        return len(clusters)
+
     def set_vars(self):
         meta = self.template.meta.get('region', None)
         if meta:
@@ -64,6 +79,19 @@ class Zone(models.Model):
     vars = common_models.JsonDictTextField(default={})
     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
+
+    @property
+    def cluster_size(self):
+        clusters = []
+        plans = Plan.objects.filter(zone=self)
+        for plan in plans:
+            cs = Cluster.objects.filter(plan=plan)
+            clusters.append(cs)
+        return len(clusters)
+
+    @property
+    def plan_size(self):
+        return len(Plan.objects.filter(zone=self))
 
 
 class Plan(models.Model):
