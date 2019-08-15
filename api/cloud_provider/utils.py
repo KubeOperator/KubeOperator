@@ -1,4 +1,5 @@
 import os
+import stat
 import zipfile
 from download import download
 from jinja2 import FileSystemLoader, Environment
@@ -32,6 +33,10 @@ def create_terrafrom_working_dir(cluster_name):
 def download_plugins(url, target):
     f = download_file(url, target)
     unzip_plugin(f)
+    dir = os.path.dirname(f)
+    for file in os.listdir(dir):
+        if os.path.isfile(file):
+            os.chmod(file, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
 
 def download_file(url, target):

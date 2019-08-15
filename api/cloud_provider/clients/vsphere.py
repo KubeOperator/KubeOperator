@@ -59,7 +59,7 @@ class VsphereCloudClient(CloudClient):
         hostname = Setting.objects.get(key='local_hostname').value
         port = 8082
         url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
-        download_plugins(url=url, target=self.working_path)
+        download_plugins(url=url, target=plugin_dir)
 
 
 def get_obj(content, vimtype, folder, name):
