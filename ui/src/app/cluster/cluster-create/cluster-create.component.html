@@ -193,7 +193,7 @@
     <form #storageForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
         <label>存储类型</label>
-        <select clrSelect [(ngModel)]="cluster.persistent_storage" name="network" (change)="onStorageChange()">
+        <select clrSelect [(ngModel)]="cluster.persistent_storage" name="storage" (change)="onStorageChange()" required>
           <option value="">请选择</option>
           <option *ngFor="let s of storages" [value]="s.name">{{s.name}}</option>
         </select>
@@ -220,7 +220,6 @@
                 <label>{{config.alias}}</label>
               </clr-toggle-wrapper>
             </clr-toggle-container>
-
           </div>
         </div>
       </div>

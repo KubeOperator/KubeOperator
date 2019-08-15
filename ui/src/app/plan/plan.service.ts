@@ -24,4 +24,8 @@ export class PlanService {
     return this.http.delete<Plan>(this.baseUrl + name + '/');
   }
 
+  getPlan(name: string): Observable<Plan> {
+    return this.http.get<Plan>(this.baseUrl + name + '/');
+  }
+
 }

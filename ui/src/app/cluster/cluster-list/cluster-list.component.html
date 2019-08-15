@@ -38,8 +38,8 @@
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.resource}}</clr-dg-cell>
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
-    <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{getDeployTypeComment(cluster.deploy_type)}}</clr-dg-cell>
+    <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.plan}}</clr-dg-cell>
     <clr-dg-cell>{{getStatusComment(cluster.status)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>

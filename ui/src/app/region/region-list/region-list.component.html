@@ -19,12 +19,16 @@
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>云提供商</clr-dg-column>
+  <clr-dg-column>可用区</clr-dg-column>
+  <clr-dg-column>集群</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
   <clr-dg-column>描述</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
     <clr-dg-cell>{{item.name}}</clr-dg-cell>
     <clr-dg-cell>{{item.template}}</clr-dg-cell>
+    <clr-dg-cell>{{item.zone_size}}</clr-dg-cell>
+    <clr-dg-cell>{{item.cluster_size}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     <clr-dg-cell>{{item.comment}}</clr-dg-cell>
   </clr-dg-row>

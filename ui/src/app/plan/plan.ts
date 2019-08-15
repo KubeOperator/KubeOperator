@@ -4,5 +4,5 @@ export class Plan {
   vars: {} = {};
   date_created: string;
   region: string;
-  zones: string[] = [];
+  zone: string;
 }

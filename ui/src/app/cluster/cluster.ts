@@ -21,6 +21,8 @@ export class Cluster {
   nodes: string[] = [];
   network_plugin: string;
   apps: {};
+  region: string;
+  zone: string;
 }
 
 export class ExtraConfig {

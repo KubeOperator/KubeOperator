@@ -5,4 +5,6 @@ export class Zone {
   vars: {} = {};
   date_created: string;
   region: string;
+  cluster_size: string;
+  plan_size: string;
 }

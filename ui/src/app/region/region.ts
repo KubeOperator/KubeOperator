@@ -8,6 +8,8 @@ export class Region {
   template: string;
   comment: string;
   cloud_region: string;
+  zone_size: string;
+  cluster_size: string;
 }
 
 export class CloudTemplate {

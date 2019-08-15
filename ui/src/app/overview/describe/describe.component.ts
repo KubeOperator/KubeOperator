@@ -7,6 +7,7 @@ import {OverviewService} from '../overview.service';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {Router} from '@angular/router';
 import {ClusterStatus} from './class/describe';
+import {ClusterStatusService} from '../../cluster/cluster-status.service';
 
 @Component({
   selector: 'app-describe',
@@ -23,7 +24,7 @@ export class DescribeComponent implements OnInit {
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
-              private router: Router) {
+              private router: Router, private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
@@ -97,6 +98,10 @@ export class DescribeComponent implements OnInit {
         result.alias = '执行中';
     }
     return result;
+  }
+
+  getDeployTypeComment(type: string): string {
+    return this.clusterStatusService.getDeployType(type);
   }
 
 }

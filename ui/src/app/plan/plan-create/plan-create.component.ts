@@ -9,6 +9,7 @@ import {Zone} from '../../zone/zone';
 import {PlanService} from '../plan.service';
 import {NgForm} from '@angular/forms';
 import {ClrWizard} from '@clr/angular';
+import {catchError} from 'rxjs/operators';
 
 @Component({
   selector: 'app-plan-create',
@@ -27,7 +28,7 @@ export class PlanCreateComponent implements OnInit {
   region: Region;
   zones: Zone[] = [];
   zone: Zone;
-  @ViewChild('basicForm') ngForm: NgForm;
+  @ViewChild('basicForm') basicForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
@@ -37,15 +38,31 @@ export class PlanCreateComponent implements OnInit {
   ngOnInit() {
   }
 
+  get nameCtrl() {
+    return this.basicForm.controls['name'];
+  }
+
   newItem() {
+    this.basicForm.resetForm();
+    this.wizard.reset();
     this.item = new Plan();
+    this.regions = [];
     this.listRegion();
     this.createOpened = true;
+    this.cloudTemplate = null;
   }
 
   listRegion() {
     this.regionService.listRegion().subscribe(data => {
       this.regions = data;
+    });
+  }
+
+  nameOnBlur() {
+    this.planService.getPlan(this.item.name).pipe(catchError(() => null)).subscribe((data) => {
+      if (this.item.name) {
+        this.nameCtrl.setErrors({repeat: true});
+      }
     });
   }
 

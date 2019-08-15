@@ -13,7 +13,9 @@
     <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput type="text" [(ngModel)]="item.name" name="name" required>
+        <input clrInput type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
+        <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
       </clr-input-container>
       <clr-select-container>
         <label>区域</label>
@@ -21,19 +23,22 @@
           <option [value]="">请选择</option>
           <option *ngFor="let re of regions" [value]="re.name">{{re.name}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
       <div *ngIf="cloudTemplate">
         <div *ngFor="let config of cloudTemplate.meta.plan.configs" [ngSwitch]="config.type">
           <clr-select-container *ngSwitchCase="'Select'">
             <label>{{config.alias}}</label>
-            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" clrSelect>
-              <option [value]="">请选择</option>
+            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" required clrSelect>
+              <option value="">请选择</option>
               <option *ngFor="let option of config.options" [value]="option.value">{{option.name}}</option>
             </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-select-container>
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
             <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
       </div>
@@ -44,10 +49,11 @@
     <form clrForm #regionForm="ngForm">
       <clr-select-container>
         <label>可用区</label>
-        <select clrSelect [(ngModel)]="item.zones[0]" name="cloud-region">
+        <select clrSelect [(ngModel)]="item.zone" name="cloud-region">
           <option [value]="">请选择</option>
           <option *ngFor="let zone of zones" [value]="zone.name">{{zone.name}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
       <div *ngIf="cloudTemplate">
         <div *ngFor="let inf of cloudTemplate.meta.plan.infra">
@@ -57,6 +63,7 @@
               <option [value]="">请选择</option>
               <option *ngFor="let model of cloudTemplate.meta.plan.models" [value]="model.name">{{model.name}}</option>
             </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
           </clr-select-container>
         </div>
       </div>
