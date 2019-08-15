@@ -242,6 +242,7 @@ storages:
         value: true
         required: true
         display: true
+
   - name: nfs
     vars:
       storage_nfs_enabled: true
@@ -317,7 +318,7 @@ templates:
           "on": 'DELETING'
           failed: 'ERROR'
         playbooks:
-          - test
+          - uninstall-k8s
       - name: add_node
         status_change:
           succeed: 'RUNNING'

@@ -75,7 +75,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             progress = ((index + 1) / play_total) * 100
             print(progress)
             self.update_progress(progress)
-            return result
+        return result
 
     def get_cluster(self):
         return Cluster.objects.get(name=self.project.name)

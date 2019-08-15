@@ -34,10 +34,8 @@ def download_plugins(url, target):
     f = download_file(url, target)
     unzip_plugin(f)
     dir = os.path.dirname(f)
-    for file in os.listdir(dir):
-        if os.path.isdir(file):
-            for cf in os.listdir(file):
-                os.chmod(cf, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
+    print(dir)
+    os.system("chmod -R 755 " + dir)
 
 
 def download_file(url, target):
