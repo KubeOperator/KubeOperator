@@ -136,8 +136,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.networks.forEach(network => {
       if (this.cluster.network_plugin === network.name) {
         this.network = network;
-      } else {
-        this.network = null;
       }
     });
   }
@@ -146,8 +144,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.storages.forEach(storage => {
       if (this.cluster.persistent_storage === storage.name) {
         this.storage = storage;
-      } else {
-        this.storage = null;
       }
     });
   }
