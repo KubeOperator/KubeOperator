@@ -24,9 +24,7 @@ Kubenetes 及其附属组件
 | 工具 | docker.io/registry| 2 |
 | 工具 | docker.io/konradkleine/docker-registry-frontend| v2 |
 | 工具 | gcr.io/kubernetes-helm/tiller| v2.12.3 |
-| 工具 | docker.io/busybox  | 1.31.0 |
 | 工具 | quay.io/coreos/configmap-reload| v0.0.1 |
-| 工具 | docker.io/alpine| 3.6|
 | 工具 | docker.io/appropriate/curl| edge |
 
 操作系统及附属组件
@@ -34,22 +32,20 @@ Kubenetes 及其附属组件
 |  分类  |  组件名称   | 版本  |
 |  ---- |  ----  | ----  |
 | OS | CentOS 7.6  | CentOS-7-x86_64-Minimal-1810 |
-| RPM | wget  |  |
-| RPM | net-tools  |  |
-| RPM | iptables-services  |  |
-| RPM | bind-utils  |  |
-| RPM | bridge-utils  |  |
-| RPM | rsync  |  |
-| RPM | ntp  |  |
-| RPM | chrony  |  |
-| RPM | jq  |  |
-| RPM | oniguruma  |  |
-| RPM | glibc-common  |  |
-| RPM | kexec-tools  |  |
-| RPM | sos  |  |
-| RPM | psacct  |  |
-| RPM | libseccomp2  |  |
-| RPM | libseccomp  |  |
-| RPM | python-passlib  |  |
-| RPM | python-docker-py  |  |
-| RPM | python2-passlib  |  |
+| RPM | wget  | 1.14-18.el7 |
+| RPM | net-tools  | 2.0-0.24.20131004git.el7 |
+| RPM | iptables-services  | 1.4.21-28.el7 |
+| RPM | bind-utils  | 9.9.4-72.el7 |
+| RPM | bridge-utils  | 1.5-9.el7 |
+| RPM | rsync  | 3.1.2-4.el7 |
+| RPM | ntp  | 4.2.6p5-28.el7.centos |
+| RPM | chrony  | 3.2-2.el7 |
+| RPM | jq  | 1.5-1.el7 |
+| RPM | oniguruma  | 5.9.5-3.el7 |
+| RPM | glibc-common  | 2.17-260.el7 |
+| RPM | kexec-tools  | 2.0.15-21.el7 |
+| RPM | sos  | 3.6-9.el7.centos |
+| RPM | psacct  | 6.6.1-13.el7 |
+| RPM | libseccomp  | 2.3.1-3.el7 |
+| RPM | python-passlib  | 1.6.5-2.el7 |
+| RPM | python-docker-py  | 1.10.6-9.el7_6|
