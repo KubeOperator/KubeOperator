@@ -1,5 +1,7 @@
 import os
 
+from django.db.models import Q
+
 from ansible_api import ctx
 from ansible_api.models import Project
 from cloud_provider import get_cloud_client, create_terrafrom_working_dir
@@ -105,7 +107,7 @@ def delete_hosts(cluster):
     else:
         hosts = []
         cluster.change_to()
-        nodes = Node.objects.all()
+        nodes = Node.objects.all().filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
             hosts.append(node.host)
             node.delete()
