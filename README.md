@@ -28,7 +28,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
-- [x] 支持 Kubernetes 常用组件安装，包括 Registry，Promethus，Dashboard、Traefik等；
+- [x] 支持 Kubernetes 常用组件安装，包括 Registry，Promethus，Dashboard、Traefik 等；
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
