@@ -16,6 +16,10 @@ def get_component_urls(cluster):
         urls.update(registry_urls)
         dashboard_urls = generate_dashboard_url(cluster, app_url)
         urls.update(dashboard_urls)
+        tarefis_urls = generate_tarefik_url(cluster, app_url)
+        urls.update(tarefis_urls)
+        scope_urls = generate_scope_url(cluster, app_url)
+        urls.update(scope_urls)
     return urls
 
 
@@ -74,4 +78,18 @@ def generate_dashboard_url(cluster, app_url):
     dashboard_url = https_prefix + "dashboard." + app_url
     return {
         "dashboard": dashboard_url
+    }
+
+
+def generate_tarefik_url(cluster, app_url):
+    traefik_url = http_prefix + "tarefik." + app_url
+    return {
+        "traefik": traefik_url
+    }
+
+
+def generate_scope_url(cluster, app_url):
+    scope_url = http_prefix + "scope." + app_url
+    return {
+        "scope": scope_url
     }

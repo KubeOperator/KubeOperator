@@ -10,7 +10,7 @@ from cloud_provider import CloudClient, get_cloud_client
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
 from kubeops_api.cloud_provider import create_hosts, delete_hosts
-from kubeops_api.components import generate_grafana_urls, generate_prometheus_url, get_component_urls
+from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role

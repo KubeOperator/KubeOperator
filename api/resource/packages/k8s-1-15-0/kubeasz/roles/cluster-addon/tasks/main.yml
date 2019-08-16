@@ -97,3 +97,16 @@
       run_once: true
   when: '"grafana" not in pod_info.stdout and grafana_install'
   ignore_errors: true
+
+- block:
+    - name: 生成 scope weave 部署文件
+      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+
+    - name: 部署 scope weave
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"weave-scope" not in pod_info.stdout'
+  ignore_errors: true

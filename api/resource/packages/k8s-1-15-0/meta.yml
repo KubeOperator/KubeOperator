@@ -51,23 +51,6 @@ images:
     tag: edge
   - name: docker.io/konradkleine/docker-registry-frontend
     tag: v2
-operations:
-  - name: install
-    display_on:
-      - "READY"
-      - "ERROR"
-    comment: "安装"
-    icon: random
-    event: "install"
-    redirect: "deploy"
-  - name: uninstall
-    display_on:
-      - "RUNNING"
-      - "ERROR"
-    comment: "卸载"
-    icon: trash
-    event: "uninstall"
-    redirect: "deploy"
 playbooks:
   - name:  common-config
     alias: common/common.yml
@@ -187,6 +170,16 @@ apps:
     url_key: registry-ui
     describe: "集群镜像仓库"
 
+  - name: Traefik
+    logo: traefik.logo.svg
+    url_key: traefik
+    describe: "Traefik 是一个为了让部署微服务更加便捷而诞生的现代 HTTP 反向代理、负载均衡工具"
+
+  - name: Weave Scope
+    logo: weave-logo.png
+    url_key: scope
+    describe: "实时交互展示和管理 Kubernetes 集群、主机、Pod 和容器"
+
 cluster_infos:
   - name: 网络插件
     key: CLUSTER_NETWORK
@@ -305,25 +298,13 @@ templates:
     private_config: []
     operations:
       - name: install
-        status_change:
-          succeed: 'RUNNING'
-          "on": 'INSTALLING'
-          failed: 'ERROR'
         playbooks:
           - common-config
           - install-k8s
       - name: uninstall
-        status_change:
-          succeed: 'READY'
-          "on": 'DELETING'
-          failed: 'ERROR'
         playbooks:
           - uninstall-k8s
       - name: add_node
-        status_change:
-          succeed: 'RUNNING'
-          "on": 'INSTALLING'
-          failed: 'ERROR'
         playbooks:
           - common-config
           - add-node
