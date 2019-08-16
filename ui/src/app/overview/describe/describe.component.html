@@ -10,6 +10,7 @@
     <!--<button type="button" class="btn btn-primary" ngxClipboard [cbContent]="token" (cbOnSuccess)="openToken=false">复制</button>-->
   </div>
 </clr-modal>
+<app-confirm-alert (confirm)="handleEvent()"></app-confirm-alert>
 <div class="clr-row">
   <div class="clr-col-12">
     <div class="card">
@@ -32,13 +33,11 @@
       <div class="card-footer">
         <div class="clr-row">
           <div class="clr-col-9">
-            <button *ngFor="let opt of operations" class="btn btn-outline"
-                    [disabled]="!opt.display_on.includes(currentCluster.status)"
-                    (click)="handleEvent(currentCluster.name,opt)">{{opt.comment}}</button>
+            <button class="btn btn-outline" (click)="onInstall()">安装</button>
+            <button class="btn btn-outline" (click)="onUninstall()">卸载</button>
             <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
               下载kube-config
             </button>
-
             <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
               获取Token
             </button>

@@ -5,16 +5,18 @@ import {CoreModule} from '../core/core.module';
 import {AuthUserActiveService} from './route/auth-user-active.service';
 import {NullFilterPipe} from './pipe/null-filter.pipe';
 import {DeleteAlertComponent} from './common-component/delete-alert/delete-alert.component';
+import {ConfirmAlertComponent} from './common-component/confirm-alert/confirm-alert.component';
 
 @NgModule({
-  declarations: [NotFoundComponent, NullFilterPipe, DeleteAlertComponent],
+  declarations: [NotFoundComponent, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent],
   imports: [
     CommonModule,
     CoreModule
   ], exports: [
     CoreModule,
     NullFilterPipe,
-    DeleteAlertComponent
+    DeleteAlertComponent,
+    ConfirmAlertComponent
   ], providers: [
     AuthUserActiveService,
   ]

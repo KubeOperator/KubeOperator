@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster, Operation} from '../../cluster/cluster';
 import {PackageService} from '../../package/package.service';
 import {ClusterInfo, Portal, Template} from '../../package/package';
@@ -8,6 +8,8 @@ import {OperaterService} from '../../deploy/component/operater/operater.service'
 import {Router} from '@angular/router';
 import {ClusterStatus} from './class/describe';
 import {ClusterStatusService} from '../../cluster/cluster-status.service';
+import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
+import {ClusterListComponent} from '../../cluster/cluster-list/cluster-list.component';
 
 @Component({
   selector: 'app-describe',
@@ -21,6 +23,8 @@ export class DescribeComponent implements OnInit {
   operations: Operation[] = [];
   openToken = false;
   token: string = null;
+  event: string = null;
+  @ViewChild(ConfirmAlertComponent) confirmAlert: ConfirmAlertComponent;
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
@@ -56,27 +60,39 @@ export class DescribeComponent implements OnInit {
     });
   }
 
-
-  handleEvent(cluster_name: string, opt: Operation) {
-    if (opt.event) {
-      this.operaterService.executeOperate(cluster_name, opt.event).subscribe(() => {
-        this.redirect(cluster_name, opt.redirect);
-      });
-    } else if (opt.redirect) {
-      this.redirect(cluster_name, opt.redirect);
-    }
+  testOpen() {
+    this.confirmAlert.opened = true;
   }
 
-  redirect(cluster_name: string, url: string) {
+  onInstall() {
+    this.confirmAlert.setTitle('确认安装');
+    this.confirmAlert.setComment('安装即将开始，请确认所有配置已就绪');
+    this.event = 'install';
+    this.confirmAlert.opened = true;
+  }
+
+  onUninstall() {
+    this.confirmAlert.setTitle('确认卸载');
+    this.confirmAlert.setComment('卸载操作可能造成您的数据丢失，是否继续 ?');
+    this.event = 'uninstall';
+    this.confirmAlert.opened = true;
+  }
+
+  handleEvent() {
+    // this.operaterService.executeOperate(this.currentCluster.name, this.event).subscribe(() => {
+    //   this.redirect('deploy');
+    // });
+    console.log(this.event);
+    this.confirmAlert.close();
+  }
+
+  redirect(url: string) {
     if (url) {
-      const linkUrl = ['kubeOperator', 'cluster', cluster_name, url];
+      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
   }
 
-  getStatus(): ClusterStatus {
-    return this.getStatusDescribe(this.currentCluster);
-  }
 
   getStatusDescribe(cluster: Cluster): ClusterStatus {
     const result = new ClusterStatus();
