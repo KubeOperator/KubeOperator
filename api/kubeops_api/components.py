@@ -82,7 +82,7 @@ def generate_dashboard_url(cluster, app_url):
 
 
 def generate_tarefik_url(cluster, app_url):
-    traefik_url = http_prefix + "tarefik." + app_url
+    traefik_url = http_prefix + "traefik." + app_url
     return {
         "traefik": traefik_url
     }
