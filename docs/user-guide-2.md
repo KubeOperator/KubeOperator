@@ -61,7 +61,70 @@ Zone: 与 AWS 中的 AZ 概念相似，可以简单理解为 Region 中具体的
 
 Plan: 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，使用什么样的机器规格，部署什么类型的集群的一个抽象概念。
 
-## 7 创建集群
+## 7 创建和部署集群
+
+### 7.1 集群列表
+
+在左侧导航菜单中选择【集群】，进入【集群】页后可以看到已添加集群的详细信息，包括 集群部署的 Kubernetes 版本、部署模式、节点数及运行状态等。
+
+![cluster-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-auto-list.png?raw=true)
+
+### 7.2 创建集群
+
+> KubeOperator 1.0 支持 NFS和VSAN 作为外部持久化存储，如果使用 NFS 存储，创建集群前，请自行准备 NFS 存储，并可以被集群主机挂载。我们推荐使用专用 NAS 产品，自行搭建的 NFS 服务仅适合在开发测试环境使用。
+
+#### 7.2.1 基本信息
+
+点击【集群】页的【添加】按钮进行集群的创建。在【基本信息】里输入集群的名称，选择该集群所要部署的 Kubernetes 版本和部署模式。
+
+![cluster-create-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-1.png?raw=true)
+
+#### 5.2.2 部署计划
+
+选择 Kubernetes 集群的部署计划和 Worker 节点数量。
+
+![cluster-create-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-2.png?raw=true)
+
+#### 5.2.3 配置网络
+
+【配置网络】环节，选择集群的网络插件，当前版本仅支持 Flannel。
+
+> 如果集群节点全部都在同一个二层网络下，请选择"host-gw"。如果不是，则选择"vxlan"。"host-gw" 性能优于 "vxlan"。
+
+![cluster-create-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-3.png?raw=true)
+
+#### 5.2.4 配置存储
+
+【添加存储】环节，选择外部持久化存储。
+
+![cluster-create-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-4.png?raw=true)
+
+
+#### 5.2.5 配置集群参数
+
+完成检测后，可以对集群的域名参数进行配置，如无特殊要求，推荐使用默认值。
+
+![cluster-create-7](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-5.png?raw=true)
+
+#### 5.2.6 集群配置概览
+
+所有步骤完成后，会有一个集群配置概览页对之前步骤所设参数进行汇总，用户可在此页进行集群配置的最后检查。
+
+![cluster-create-8](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-6.png?raw=true)
+
+### 5.3 部署集群
+
+在集群列表中点击要进行部署的集群名称，默认展示的是该集群的【概览】信息。【概览】页中展示了 Kubernetes 集群的诸多详情，包括 Kubernetes 版本、集群所用存储、网络模式等。点击【概览】页最下方的【安装】按钮进行 Kubernetes 集群的部署。
+
+![cluster-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-auto-overview.png?raw=true)
+
+集群部署开始后，将会自动跳转到【任务】页。在【任务】页里可以看到集群部署当前所执行的具体任务信息。
+
+![cluster-deploy-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-1.png?raw=true)
+
+如果是内网环境的话，一个典型的 5 节点集群的部署大概需要10分钟左右的时间。在出现类似下图的信息后，表明集群已部署成功：
+
+![cluster-deploy-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-deploy-2.png?raw=true)
 
 ## 8 验证集群
 
