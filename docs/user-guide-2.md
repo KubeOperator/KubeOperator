@@ -1,6 +1,6 @@
 # KubeOperator 使用手册 （自动模式）
 
-KubeOperator 支持两种 Kubernetes 集群部署模式，一种是手动模式，另外一种是自动模式模式。本手册仅描述手自动模式下的集群部署和管理。
+KubeOperator 支持两种 Kubernetes 集群部署模式，一种是自动模式，另外一种是手动模式。本手册仅描述手自动模式下的集群部署和管理。
 
 > Note:
 > - 手动模式：用户需要自行准备主机及 NFS 存储。
@@ -43,15 +43,19 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 ## 4 准备区域(Region)
 
+Region：与 AWS 中的 Region 概念相似，可以简单理解为地理上的分区，比如亚洲地区，或者华北地区，再或者北京等等。在 Vsphere 体系中我们使用 DataCenter 实现 Region 的划分。
+
 ### 4.1 创建区域(Region)
 
-Region：与 AWS 中的 Region 概念相似，可以简单理解为地理上的分区，比如亚洲地区，或者华北地区，再或者北京等等。在 Vsphere 体系中我们使用 DataCenter 实现 Region 的划分。
+
 
 ## 5 准备可用区(Zone)
 
+Zone: 与 AWS 中的 AZ 概念相似，可以简单理解为 Region 中具体的机房，比如北京1区，北京2区。在 Vsphere 体系中我们使用 Cluster 实现 Zone 的划分。
+
 ### 5.1 创建可用区
 
-Zone: 与 AWS 中的 AZ 概念相似，可以简单理解为 Region 中具体的机房，比如北京1区，北京2区。在 Vsphere 体系中我们使用 Cluster 实现 Zone 的划分。
+
 
 ## 6 准备部署计划(Plan)
 
@@ -59,8 +63,7 @@ Plan: 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，
 
 ## 7 创建集群
 
-
-
+## 8 验证集群
 
 ### 6.1 访问 Dashboard
 
