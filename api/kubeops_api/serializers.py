@@ -177,7 +177,7 @@ class ClusterSerializer(ProjectSerializer):
         queryset=Plan.objects.all(),
         slug_field='name', required=False
     )
-
+    meta = serializers.DictField(required=False)
     apps = serializers.JSONField(read_only=True)
     current_execution = DeployExecutionSerializer(read_only=True)
 
@@ -185,6 +185,6 @@ class ClusterSerializer(ProjectSerializer):
         model = Cluster
         fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template', 'plan',
                   'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
-                  'apps', 'deploy_type', 'zone', 'region']
+                  'apps', 'deploy_type', 'zone', 'region', 'meta']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
-                            'nodes', 'apps', 'zone', 'region']
+                            'nodes', 'apps', 'zone', 'region', 'meta']

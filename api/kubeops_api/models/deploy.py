@@ -62,6 +62,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             playbooks = cluster.get_playbooks('uninstall')
             return self.run_playbooks(playbooks, extra_vars)
 
+    def on_f5_config(self, extra_vars):
+        cluster = self.get_cluster()
+        extra_vars.update(cluster.meta)
+        playbooks = cluster.get_playbooks('bigip-config')
+        return self.run_playbooks(playbooks, extra_vars)
+
     def run_playbooks(self, playbooks, extra_vars):
         result = {"raw": {}, "summary": {}}
         play_total = len(playbooks)
@@ -74,7 +80,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             if not _result.get('summary', {}).get('success', False):
                 raise Exception("playbook: {} error!".format(playbook_name))
             progress = ((index + 1) / play_total) * 100
-            print(progress)
             self.update_progress(progress)
         return result
 

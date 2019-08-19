@@ -6,7 +6,6 @@ from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
-from cloud_provider import CloudClient, get_cloud_client
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
 from kubeops_api.cloud_provider import create_hosts, delete_hosts
@@ -15,7 +14,6 @@ from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.role import Role
 from django.db.models import Q
-from common import models as common_models
 
 logger = logging.getLogger(__name__)
 __all__ = ["Cluster"]

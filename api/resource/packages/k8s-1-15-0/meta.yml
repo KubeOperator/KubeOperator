@@ -58,8 +58,10 @@ playbooks:
     alias: kubeasz/90.setup.yml
   - name:  uninstall-k8s
     alias: kubeasz/99.clean.yml
-  - name: add-node
+  - name:  add-node
     alias: kubeasz/20.addnode.yml
+  - name:  config-bigip
+    alias: kubeasz/08.f5-bigip.yml
   - name: test
     alias: kubeasz/100.test.yml
 roles:
