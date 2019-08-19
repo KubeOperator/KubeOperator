@@ -85,8 +85,9 @@ class Zone(models.Model):
         clusters = []
         plans = Plan.objects.filter(zone=self)
         for plan in plans:
-            cs = Cluster.objects.filter(plan=plan)
-            clusters.append(cs)
+            cs = Cluster.objects.all().filter(plan=plan)
+            for c in cs:
+                clusters.append(c)
         return len(clusters)
 
     @property
