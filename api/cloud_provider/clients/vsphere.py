@@ -61,6 +61,17 @@ class VsphereCloudClient(CloudClient):
         url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
         download_plugins(url=url, target=plugin_dir)
 
+    def apply_terraform(self, cluster, vars):
+        st = connect.SmartConnectNoSSL(host=vars['vc_host'], user=vars['vc_username'],
+                                       pwd=['vc_password'], port=int(443))
+        content = st.RetrieveContent()
+        container = content.rootFolder
+        dc = get_obj(content, [vim.Datacenter], container, vars['region'])
+        folder = get_obj(content, [vim.Folder], container, vars['vc_folder'])
+        if not folder:
+            dc.hostFolder.CreateFolder(vars['vc_folder'])
+        super().apply_terraform(cluster, vars)
+
 
 def get_obj(content, vimtype, folder, name):
     obj = None
