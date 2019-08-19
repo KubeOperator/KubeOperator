@@ -37,7 +37,7 @@ KubeOperator 完全启动后，访问 KubeOperator 控制台，进行登录。�
 
 在离线包列表中可以查看 KubeOperator 当前所提供的 Kubernetes 安装版本详细信息。在后续进行 Kubernetes 集群部署时，可以从这些版本中选择其一进行部署（当前支持1.15.0,1.15.2，后续会继续跟随 Kubernetes 社区发布离线包）。
 
-![package-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-1.png?raw=true)
+![package-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-v2.png?raw=true)
 
 ![package-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/package-2.png?raw=true)
 
@@ -79,13 +79,13 @@ Plan: 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，
 
 ![cluster-create-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-1.png?raw=true)
 
-#### 5.2.2 部署计划
+#### 7.2.2 部署计划
 
 选择 Kubernetes 集群的部署计划和 Worker 节点数量。
 
 ![cluster-create-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-2.png?raw=true)
 
-#### 5.2.3 配置网络
+#### 7.2.3 配置网络
 
 【配置网络】环节，选择集群的网络插件，当前版本仅支持 Flannel。
 
@@ -93,26 +93,26 @@ Plan: 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，
 
 ![cluster-create-4](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-3.png?raw=true)
 
-#### 5.2.4 配置存储
+#### 7.2.4 配置存储
 
 【添加存储】环节，选择外部持久化存储。
 
 ![cluster-create-5](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-4.png?raw=true)
 
 
-#### 5.2.5 配置集群参数
+#### 7.2.5 配置集群参数
 
 完成检测后，可以对集群的域名参数进行配置，如无特殊要求，推荐使用默认值。
 
 ![cluster-create-7](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-5.png?raw=true)
 
-#### 5.2.6 集群配置概览
+#### 7.2.6 集群配置概览
 
 所有步骤完成后，会有一个集群配置概览页对之前步骤所设参数进行汇总，用户可在此页进行集群配置的最后检查。
 
-![cluster-create-8](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-6.png?raw=true)
+![cluster-create-8](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/cluster-create-auto-6.png?raw=true)
 
-### 5.3 部署集群
+### 7.3 部署集群
 
 在集群列表中点击要进行部署的集群名称，默认展示的是该集群的【概览】信息。【概览】页中展示了 Kubernetes 集群的诸多详情，包括 Kubernetes 版本、集群所用存储、网络模式等。点击【概览】页最下方的【安装】按钮进行 Kubernetes 集群的部署。
 
@@ -128,7 +128,7 @@ Plan: 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，
 
 ## 8 验证集群
 
-### 6.1 访问 Dashboard
+### 8.1 访问 Dashboard
 
 Dashboard 对应的是 Kubernetes 的控制台，从浏览器中访问 Kubernetes 控制台需要用到【令牌】。点击【概览】页下方的【获取TOKEN】按钮获取令牌信息，将令牌信息复制到粘贴板。
 
@@ -138,7 +138,7 @@ Dashboard 对应的是 Kubernetes 的控制台，从浏览器中访问 Kubernete
 
 ![dashboard-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/dashboard-2.png?raw=true)
 
-### 6.2 访问 Grafana
+### 8.2 访问 Grafana
 
 Grafana 对 Prometheus 采集到的监控数据进行了不同维度的图形化展示，更方便用户了解整个 Kubernetes 集群的运行状况。点击 Grafana 下方的【转到】按钮访问 Grafana 控制台。
 
@@ -150,13 +150,13 @@ Grafana 对 Prometheus 采集到的监控数据进行了不同维度的图形化
 
 ![grafana-2](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/grafana-2.png?raw=true)
 
-### 6.3 访问 Registry
+### 8.3 访问 Registry
 
 Registry 则用来存放 Kubernetes 集群所使用到的 Docker 镜像。
 
 ![regsitry-1](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/registry-1.png?raw=true)
 
-### 6.4 访问 Prometheus
+### 8.4 访问 Prometheus
 
 Prometheus 用来对整个 kubernetes 集群进行监控数据的采集。点击 Prometheus 下方的【转到】按钮即可访问 Prometheus 控制台。
 
