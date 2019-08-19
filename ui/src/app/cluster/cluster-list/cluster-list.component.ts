@@ -69,14 +69,6 @@ export class ClusterListComponent implements OnInit {
     this.addCluster.emit();
   }
 
-  goToLink(clusterName: string) {
-    const linkUrl = ['kubeOperator', 'cluster', clusterName, 'overview'];
-    this.router.navigate(linkUrl);
-  }
-
-  getLogo(resource: string) {
-    return this.packageLogoService.getLogo(resource);
-  }
 
   getStatusComment(status: string): string {
     return this.clusterStatusService.getComment(status);

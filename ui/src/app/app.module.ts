@@ -24,6 +24,7 @@ import {CredentialModule} from './credential/credential.module';
 import {RegionModule} from './region/region.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
+import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import {PlanModule} from './plan/plan.module';
     SettingModule,
     AuthModule,
     ZoneModule,
-    PlanModule
+    PlanModule,
+    F5BigIpModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

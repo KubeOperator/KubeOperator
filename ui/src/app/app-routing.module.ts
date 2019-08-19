@@ -21,6 +21,7 @@ import {CredentialComponent} from './credential/credential.component';
 import {RegionComponent} from './region/region.component';
 import {ZoneComponent} from './zone/zone.component';
 import {PlanComponent} from './plan/plan.component';
+import {F5BigIpComponent} from './f5-big-ip/f5-big-ip.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -59,6 +60,7 @@ const routes: Routes = [
           {path: 'deploy', component: DeployComponent},
           {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
+          {path: 'big-ip', component: F5BigIpComponent}
         ]
       }
     ]

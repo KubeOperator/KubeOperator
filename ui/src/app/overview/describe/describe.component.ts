@@ -79,10 +79,9 @@ export class DescribeComponent implements OnInit {
   }
 
   handleEvent() {
-    // this.operaterService.executeOperate(this.currentCluster.name, this.event).subscribe(() => {
-    //   this.redirect('deploy');
-    // });
-    console.log(this.event);
+    this.operaterService.executeOperate(this.currentCluster.name, this.event).subscribe(() => {
+      this.redirect('deploy');
+    });
     this.confirmAlert.close();
   }
 
