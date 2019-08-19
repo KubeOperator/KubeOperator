@@ -69,10 +69,7 @@ KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的�
  ## KubeOperator 安装、升级及使用指南
 
 安装指南：
-- [KubeOperator 安装指南（离线包方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-1.md)
-- [KubeOperator 安装指南（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-2.md)
-- [KubeOperator 升级指南（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/upgrade.md)
-
+- [KubeOperator 安装及升级指南](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-1.md)
 
 使用指南：
 - [KubeOperator 使用指南（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
