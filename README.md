@@ -28,7 +28,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
-- [x] 支持 Kubernetes 常用组件安装，包括 Registry，Promethus，Dashboard等；
+- [x] 支持 Kubernetes 常用组件安装，包括 Registry，Promethus，Dashboard、Traefik 等；
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
@@ -40,15 +40,20 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持 VMware vSAN 作为持久化存储；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
 - [x] 支持 Kubernetes 集群扩缩容；
+- [x] 集成 Weave Scope；
 
- v3.0.0 （计划中）
+ v2.1.0 （计划中）
  
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
+- [ ] 集成 KubeApps 应用管理器（支持常用应用比如 Jenkins、GitLab 及 Harbor 等的可视化安装和管理）；
+
+ v2.2.0 （计划中）
+
 - [ ] 支持 Multi AZ，主节点分布在不同的故障域；
 - [ ] 支持 VMware NSX-T；
 
- v4.0.0 （计划中）
+ v3.0.0 （计划中）
  
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
@@ -61,21 +66,23 @@ KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的�
 - [v1.5.0](https://github.com/KubeOperator/KubeOperator/tree/master/offline-package/v1.5.0)
 - [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2.md)
  
- ## KubeOperator 使用指南
+ ## KubeOperator 安装、升级及使用指南
 
-安装手册：
-- [KubeOperator 安装手册（离线包方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-1.md)
-- [KubeOperator 安装手册（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-2.md)
+安装指南：
+- [KubeOperator 安装指南（离线包方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-1.md)
+- [KubeOperator 安装指南（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-2.md)
+- [KubeOperator 升级指南（OVA 方式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/upgrade.md)
 
-使用手册：
-- [KubeOperator 使用手册（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
-- [KubeOperator 使用手册（自动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-2.md)
+
+使用指南：
+- [KubeOperator 使用指南（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
+- [KubeOperator 使用指南（自动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-2.md)
 
 > Note:
 > - 手动模式：用户需要自行准备主机及 NFS 存储，适合在物理机环境下部署。
-> - 自动模式：依赖于 VMware 云平台（包括 vSAN），用户只需绑定 vCenter 相关账号和密码，设置好部署计划，即可实现一键部署、扩容和故障自愈。注：V4.0.0 版本开始会支持 Openstack 云平台。
+> - 自动模式：依赖于 VMware 云平台（包括 vSAN），用户只需绑定 vCenter 相关账号和密码，设置好部署计划，即可实现一键部署、扩容和故障自愈。注：V3.0.0 版本开始会支持 Openstack 云平台。
 
-REST API：
+REST API 指南：
 - [KubeOperator REST API](https://github.com/KubeOperator/KubeOperator/blob/master/docs/restapi.md)
 
 ## 致谢
