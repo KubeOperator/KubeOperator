@@ -162,7 +162,7 @@ items:
               command:
                 - /home/weave/scope
               env: []
-              image: 'docker.io/weaveworks/scope:1.9.1'
+              image: 'registry.kubeops.io:8092/weaveworks/scope:1.9.1'
               imagePullPolicy: IfNotPresent
               ports:
                 - containerPort: 4040
@@ -243,7 +243,7 @@ items:
                     fieldRef:
                       apiVersion: v1
                       fieldPath: spec.nodeName
-              image: 'docker.io/weaveworks/scope:1.9.1'
+              image: 'registry.kubeops.io:8092/weaveworks/scope:1.9.1'
               imagePullPolicy: IfNotPresent
               securityContext:
                 privileged: true
