@@ -27,7 +27,7 @@ services:
     dns:
       - "127.0.0.1"
     volumes:
-      - api_data:/opt/kube-operator-api/data
+      - api_data:/opt/kubeOperator-api/data
       - dns_data:/etc/dnsmasq.d
     environment:
       DB_HOST: mysql
