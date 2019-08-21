@@ -1,4 +1,10 @@
 # 18.09.x 版本二进制名字有变化，需要做判断
+- name: 配置 Ip forward
+  shell: "echo 'net.ipv4.ip_forward = 1' >> /usr/lib/sysctl.d/50-default.conf
+  && sysctl -p /usr/lib/sysctl.d/50-default.conf "
+  ignore_errors: true
+
+
 - name: 获取docker版本信息
   shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
   register: docker_ver
