@@ -72,7 +72,7 @@ class VsphereCloudClient(CloudClient):
         folder = get_obj(content, [vim.Folder], container, vars['vc_folder'])
         if not folder:
             dc.vmFolder.CreateFolder(vars['vc_folder'])
-        super().apply_terraform(cluster)
+        return super().apply_terraform(cluster)
 
 
 def get_obj(content, vimtype, folder, name):
