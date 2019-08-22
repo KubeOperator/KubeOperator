@@ -155,3 +155,4 @@ class TerraformHost(models.Model):
         )
         host.gather_info()
         self.host = host
+        self.save()
