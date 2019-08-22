@@ -250,9 +250,7 @@ class Playbook(AbstractProjectResourceModel):
         if self.url.startswith('file://'):
             url = self.url.replace('file://', '')
         try:
-            shutil.copytree(url, playbook_dir, symlinks=True, ignore=shutil.ignore_patterns('common'))
-            if os.path.exists(os.path.join(url, 'common')):
-                shutil.copytree(os.path.join(url, 'common'), os.path.join(playbook_dir, 'common'), symlinks=False)
+            shutil.copytree(url, playbook_dir, symlinks=False)
         except Exception as e:
             return False, e
         return True, None
