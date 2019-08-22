@@ -103,4 +103,4 @@ def delete_hosts(cluster):
         for node in nodes:
             node.delete()
         for host in cluster.terraform_hosts.all():
-            host.delete()
+            host.host.delete()
