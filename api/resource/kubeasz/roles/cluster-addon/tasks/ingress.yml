@@ -11,7 +11,7 @@
 - name: 生成 ingress 部署文件
   template:
     src: traefik/traefik-ingress.yaml.j2
-    dest: "{{ base_dir }}/manifests/traefik/traefik-ingress.yaml"
+    dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
 
 - name: 创建 traefik部署
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
