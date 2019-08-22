@@ -31,7 +31,7 @@ data "vsphere_virtual_machine" "template" {
 }
 
 {% for host in hosts %}
-resource "vsphere_virtual_machine" "{{host.s_name}}" {
+resource "vsphere_virtual_machine" "{{host.short_name}}" {
   name = "{{ host.name }}"
   folder = "{{ vc_folder }}"
   resource_pool_id = "${data.vsphere_compute_cluster.cluster.resource_pool_id}"
@@ -54,7 +54,7 @@ resource "vsphere_virtual_machine" "{{host.s_name}}" {
     customize {
 
       linux_options {
-        host_name = "{{ host.s_name }}"
+        host_name = "{{ host.short_name }}"
         domain = "{{ host.domain }}"
       }
 

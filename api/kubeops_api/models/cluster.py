@@ -53,6 +53,7 @@ class Cluster(Project):
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
     deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
+    terraform_hosts = models.ManyToManyField('cloud_provider.TerraformHost')
 
     @property
     def region(self):
@@ -252,6 +253,18 @@ class Cluster(Project):
     def set_plan_configs(self):
         if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             self.set_config_unlock(self.plan.mixed_vars)
+
+    def create_nodes_by_terraform(self):
+        for th in self.terraform_hosts.all():
+            self.change_to()
+            node = Node.objects.create(
+                name=th.name,
+                host=th.host
+            )
+            node.set_groups(group_names=[th.role])
+
+    def set_terraform_hosts(self, terraform_hosts):
+        self.terraform_hosts.set(terraform_hosts)
 
     def on_cluster_create(self):
         self.change_to()

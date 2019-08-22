@@ -4,13 +4,11 @@ import uuid
 import yaml
 from django.db import models
 
-# Create your models here.
 from ansible_api.models.mixins import AbstractExecutionModel
 from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
-
-from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.host import Host
 
 
 class CloudProviderTemplate(models.Model):
@@ -56,6 +54,7 @@ class Region(models.Model):
         clusters = []
         plans = Plan.objects.filter(region=self)
         for plan in plans:
+            from kubeops_api.models.cluster import Cluster
             cs = Cluster.objects.filter(plan=plan)
             for c in cs:
                 clusters.append(c)
@@ -85,6 +84,7 @@ class Zone(models.Model):
         clusters = []
         plans = Plan.objects.filter(zone=self)
         for plan in plans:
+            from kubeops_api.models.cluster import Cluster
             cs = Cluster.objects.all().filter(plan=plan)
             for c in cs:
                 clusters.append(c)
@@ -115,3 +115,42 @@ class Plan(models.Model):
     @property
     def compute_models(self):
         return self.region.template.meta["plan"]["models"]
+
+
+class TerraformHost(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    name = models.CharField(max_length=255, unique=True, verbose_name=_('Name'))
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
+    domain = models.CharField(max_length=255)
+    folder = models.CharField(max_length=128)
+    cpu = models.IntegerField(default=0)
+    memory = models.IntegerField(default=0)
+    short_name = models.CharField(max_length=128)
+    host_name = models.CharField(max_length=255)
+    role = models.CharField(max_length=32)
+    ip = models.CharField(max_length=32)
+    host = models.ForeignKey('kubeops_api.Host', on_delete=models.CASCADE, null=True)
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "domain": self.domain,
+            "folder": self.folder,
+            "cpu": self.cpu,
+            "memory": self.memory,
+            "short_name": self.short_name,
+            "host_name": self.host_name,
+            "role": self.role,
+            "ip": self.ip
+        }
+
+    def create_host(self):
+        username = 'root'
+        password = 'Calong@2015'
+        host = Host.objects.create(
+            name=self.name,
+            ip=self.ip,
+            username=username,
+            password=password
+        )
+        host.gather_info()
