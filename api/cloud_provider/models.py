@@ -154,3 +154,4 @@ class TerraformHost(models.Model):
             password=password
         )
         host.gather_info()
+        self.host = host
