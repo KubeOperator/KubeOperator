@@ -60,7 +60,7 @@ playbooks:
     alias: kubeasz/99.clean.yml
   - name:  add-node
     alias: kubeasz/20.addnode.yml
-  - name:  config-bigip
+  - name:  bigip-config
     alias: kubeasz/08.f5-bigip.yml
   - name: test
     alias: kubeasz/100.test.yml
