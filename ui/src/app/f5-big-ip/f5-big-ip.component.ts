@@ -21,15 +21,21 @@ export class F5BigIpComponent implements OnInit {
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
-      this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
-        this.currentCluster = cluster;
-      });
+      this.refreshCluster();
+    });
+  }
+
+  refreshCluster() {
+    this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
+      this.currentCluster = cluster;
     });
   }
 
   onCommit() {
-    this.operaterService.executeOperate(this.currentCluster.name, 'bigip-config').subscribe(data => {
-      this.redirect('deploy');
+    this.clusterService.updateCluster(this.currentCluster).subscribe(() => {
+      this.operaterService.executeOperate(this.currentCluster.name, 'bigip-config').subscribe(data => {
+        this.redirect('deploy');
+      });
     });
   }
 

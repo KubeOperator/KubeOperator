@@ -53,17 +53,13 @@ export class ClusterService {
     );
   }
 
+  updateCluster(cluster: Cluster): Observable<Cluster> {
+    return this.http.patch<Cluster>(`${baseClusterUrl}${cluster.name}/`, cluster);
+  }
+
   deleteCluster(clusterName): Observable<any> {
     return this.http.delete(`${baseClusterUrl}${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
-  }
-
-  get_cluster_grafana(cluster: Cluster): string {
-    return cluster.apps['cluster_grafana'];
-  }
-
-  get_cluster_regsitry_ui(cluster: Cluster): string {
-    return cluster.apps['registry-ui'];
   }
 }
