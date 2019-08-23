@@ -3,10 +3,7 @@ import logging
 
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
-
-from common import models as common_models
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 
@@ -39,6 +36,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
                 result = self.on_uninstall(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_READY)
+            elif self.operation == 'bigip-config':
+                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
+                result = self.on_f5_config(extra_vars)
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
         except Exception as e:
             cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
