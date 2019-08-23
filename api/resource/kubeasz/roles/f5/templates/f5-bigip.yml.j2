@@ -58,7 +58,7 @@ spec:
       serviceAccountName: bigip-ctlr
       containers:
         - name: k8s-bigip-ctlr
-          image: "registry.kubeops.io:8092/f5networks/k8s-bigip-ctrl:1.9.2"
+          image: "registry.kubeops.io:8092/f5networks/k8s-bigip-ctlr:1.9.2"
           env:
             - name: BIGIP_USERNAME
               valueFrom:
@@ -74,7 +74,7 @@ spec:
           args: [
             "--bigip-username=$(BIGIP_USERNAME)",
             "--bigip-password=$(BIGIP_PASSWORD)",
-            "--bigip-url={{bigip_url}},
+            "--bigip-url={{bigip_url}}",
             "--bigip-partition={{bigip_partition}}",
             "--pool-member-type=nodeport"
           ]

@@ -1,5 +1,6 @@
 - name: 创建 secret
   shell: "kubectl create secret generic bigip-login --namespace kube-system --from-literal=username={{bigip_username}} --from-literal=password={{bigip_password}}"
+  ignore_errors: true
 
 - name: 创建F5-ctrl 部署文件
   template:
