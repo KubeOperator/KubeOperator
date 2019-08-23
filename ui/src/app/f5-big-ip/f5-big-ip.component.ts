@@ -28,7 +28,7 @@ export class F5BigIpComponent implements OnInit {
   }
 
   onCommit() {
-    this.operaterService.executeOperate(this.currentCluster, 'bigip-config').subscribe(data => {
+    this.operaterService.executeOperate(this.currentCluster.name, 'bigip-config').subscribe(data => {
       this.redirect('deploy');
     });
   }
