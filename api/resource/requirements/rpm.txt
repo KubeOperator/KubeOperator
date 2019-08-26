@@ -13,8 +13,6 @@ python-passlib
 chrony
 python-docker-py
 ntp
-haproxy
-keepalived
 libseccomp2
 ibseccomp
 rsync
