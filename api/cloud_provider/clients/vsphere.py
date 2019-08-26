@@ -63,7 +63,6 @@ class VsphereCloudClient(CloudClient):
 
     def apply_terraform(self, cluster):
         vars = cluster.plan.mixed_vars
-        print(vars)
         st = connect.SmartConnectNoSSL(host=vars['vc_host'], user=vars['vc_username'],
                                        pwd=vars['vc_password'], port=int(443))
         content = st.RetrieveContent()
