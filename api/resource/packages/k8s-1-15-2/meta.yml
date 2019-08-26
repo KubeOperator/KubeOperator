@@ -51,6 +51,8 @@ images:
     tag: edge
   - name: docker.io/konradkleine/docker-registry-frontend
     tag: v2
+  - name: docker.io/weaveworks/scope:1.9.1
+    tag: 1.9.1
 playbooks:
   - name:  common-config
     alias: common/common.yml
@@ -171,7 +173,7 @@ apps:
     describe: "集群镜像仓库"
 
   - name: Traefik
-    logo: traefik.logo.svg
+    logo: traefik_logo.svg
     url_key: traefik
     describe: "Traefik 是一个为了让部署微服务更加便捷而诞生的现代 HTTP 反向代理、负载均衡工具"
 
