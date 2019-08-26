@@ -33,8 +33,10 @@
       <div class="card-footer">
         <div class="clr-row">
           <div class="clr-col-9">
-            <button class="btn btn-outline" (click)="onInstall()">安装</button>
-            <button class="btn btn-outline" (click)="onUninstall()">卸载</button>
+            <button class="btn btn-outline" (click)="onInstall()" [disabled]="currentCluster.status === 'RUNNING'">安装
+            </button>
+            <button class="btn btn-outline" (click)="onUninstall()" [disabled]="currentCluster.status === 'READY'">卸载
+            </button>
             <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
               下载kube-config
             </button>
