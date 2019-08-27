@@ -60,7 +60,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def on_uninstall(self, extra_vars):
         cluster = self.get_cluster()
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            self.update_progress(0)
+            self.update_current_play('destroy resource')
             cluster.destroy_resource()
+            self.update_progress(100)
             return {"raw": {}, "summary": {"success": True}}
         else:
             playbooks = cluster.get_playbooks('uninstall')
