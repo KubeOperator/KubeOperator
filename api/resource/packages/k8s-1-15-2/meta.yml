@@ -205,14 +205,15 @@ networks:
       - name: FLANNEL_BACKEND
         alias: 网络模式
         type: Select
-        value: host-gw
+        value: vxlan
         required: true
         display: true
         options:
-          - name: host-gw
-            value: host-gw
           - name: vxlan
             value: vxlan
+          - name: host-gw
+            value: host-gw
+
       - name: SERVICE_CIDR
         alias: Service CIDR
         value: 10.68.0.0/16
