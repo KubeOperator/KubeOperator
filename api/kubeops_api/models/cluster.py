@@ -250,6 +250,13 @@ class Cluster(Project):
         if os.path.exists(path):
             shutil.rmtree(path)
 
+    def delete_terraformHost(self):
+        for host in self.terraform_hosts.all():
+            if host.host:
+                host.host.delete()
+            else:
+                host.delete()
+
     def set_plan_configs(self):
         if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             self.set_config_unlock(self.plan.mixed_vars)
@@ -277,3 +284,4 @@ class Cluster(Project):
 
     def on_cluster_delete(self):
         self.delete_data()
+        self.delete_terraformHost()

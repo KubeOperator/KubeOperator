@@ -323,6 +323,7 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             result["summary"] = {"error": str(err)}
             post_execution_start.send(self.__class__, execution=self, result=result)
             return result
+        pwd = os.getcwd()
         os.chdir(self.playbook.playbook_dir())
         try:
             runner = PlayBookRunner(
@@ -339,5 +340,6 @@ class PlaybookExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         except IndexError as e:
             result["summary"] = {'error': str(e)}
         finally:
+            os.chdir(pwd)
             post_execution_start.send(self.__class__, execution=self, result=result)
         return result
