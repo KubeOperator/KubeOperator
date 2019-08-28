@@ -1,5 +1,6 @@
 import os
-from urllib.parse import urljoin
+from threading import Thread
+from time import sleep
 from cloud_provider.cloud_client import CloudClient
 from pyVim import connect
 from pyVmomi import vim
@@ -73,6 +74,54 @@ class VsphereCloudClient(CloudClient):
             dc.vmFolder.CreateFolder(vars['vc_folder'])
         return super().apply_terraform(cluster)
 
+    def create_template_image(self, zone):
+        params = replace_params(self.vars)
+        st = get_service_instance(params)
+        content = st.RetrieveContent()
+        container = content.rootFolder
+        viewType = [vim.ClusterComputeResource]
+        cluster = get_obj(content, viewType, container, zone.cloud_zone)
+        images = []
+        for host in cluster.host:
+            for vm in host.vm:
+                if vm.summary.config.template:
+                    images.append(vm.name)
+        image_exists = False
+        for image in images:
+            if image == zone.region.image_name:
+                image_exists = True
+        ds = get_obj(content, [vim.Datastore], container, zone.vars['vc_storage'])
+        dc = get_obj(content, [vim.Datacenter], container, zone.region.cloud_region)
+        if not image_exists:
+            manager = st.content.ovfManager
+            spec_params = vim.OvfManager.CreateImportSpecParams()
+            ovf_path = zone.region.image_ovf_path
+            vmdk_path = zone.region.image_vmdk_path
+            ovfd = get_ovf_descriptor(ovf_path)
+            resource_pool = cluster.resourcePool
+            import_spec = manager.CreateImportSpec(ovfd,
+                                                   resource_pool,
+                                                   ds,
+                                                   spec_params)
+            lease = resource_pool.ImportVApp(import_spec.importSpec,
+                                             dc.vmFolder)
+            while True:
+                if lease.state == vim.HttpNfcLease.State.ready:
+                    url = lease.info.deviceUrl[0].url.replace('*', self.vars['vc_host'])
+                    keepalive_thread = Thread(target=keep_lease_alive, args=(lease,))
+                    keepalive_thread.start()
+                    curl_cmd = (
+                            "curl -Ss -X POST --insecure -T %s -H 'Content-Type: \
+                            application/x-vnd.vmware-streamVmdk' %s" %
+                            (vmdk_path, url))
+                    os.system(curl_cmd)
+                    lease.HttpNfcLeaseComplete()
+                    keepalive_thread.join()
+                    vm = get_obj(content, [vim.VirtualMachine], container, "KubeOperator_CentOS7.6")
+                    vm.MarkAsTemplate()
+                elif lease.state == vim.HttpNfcLease.State.error:
+                    print("Lease error: " + lease.state.error)
+
 
 def get_obj(content, vimtype, folder, name):
     obj = None
@@ -99,6 +148,29 @@ def get_service_instance(kwargs):
     if not service_instance:
         raise Exception('Could not connect to the specified host using specified username and password')
     return service_instance
+
+
+def get_ovf_descriptor(ovf_path):
+    if os.path.exists(ovf_path):
+        with open(ovf_path, 'r') as f:
+            try:
+                ovfd = f.read()
+                f.close()
+                return ovfd
+            except:
+                print("Could not read file: {}".format(ovf_path))
+
+
+def keep_lease_alive(lease):
+    while (True):
+        sleep(5)
+        try:
+            print('模版上传中...')
+            lease.HttpNfcLeaseProgress(50)
+            if lease.state == vim.HttpNfcLease.State.done:
+                return
+        except:
+            return
 
 
 def replace_params(vars):

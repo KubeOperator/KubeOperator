@@ -60,6 +60,18 @@ class Region(models.Model):
                 clusters.append(c)
         return len(clusters)
 
+    @property
+    def image_ovf_path(self):
+        return self.vars['image_ovf_path']
+
+    @property
+    def image_vmdk_path(self):
+        return self.vars['image_vmdk_path']
+
+    @property
+    def image_name(self):
+        return self.vars['image_name']
+
     def set_vars(self):
         meta = self.template.meta.get('region', None)
         if meta:
@@ -78,7 +90,6 @@ class Zone(models.Model):
     vars = common_models.JsonDictTextField(default={})
     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
-
     @property
     def cluster_size(self):
         clusters = []

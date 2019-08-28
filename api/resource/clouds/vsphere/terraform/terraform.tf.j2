@@ -26,14 +26,14 @@ data "vsphere_datastore" "datastore" {
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 data "vsphere_virtual_machine" "template" {
-  name = "{{ vc_image }}"
+  name = "{{ image_name }}"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 
 {% for host in hosts %}
 resource "vsphere_virtual_machine" "{{host.short_name}}" {
   name = "{{ host.name }}"
-  folder = "{{ vc_folder }}"
+  folder = "kubeoperator"
   resource_pool_id = "${data.vsphere_compute_cluster.cluster.resource_pool_id}"
   datastore_id = "${data.vsphere_datastore.datastore.id}"
   num_cpus = {{ host.cpu }}

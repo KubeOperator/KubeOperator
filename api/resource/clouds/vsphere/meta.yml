@@ -1,27 +1,10 @@
 name: Vshpere
 region:
-  configs:
-    - name: vc_host
-      alias: vCenter Host
-      value: vcenter-example.com
-      type: Input
-
-    - name: vc_port
-      alias: vCenter Port
-      value: 443
-      type: Input
-
-    - name: vc_username
-      alias: vCenter 用户名
-      value: administrator@vsphere.local
-      type: Input
-
-    - name: vc_password
-      alias: vCenter 密码
-      value: xxxxxxxx
-      type: Password
   vars:
     provider: vsphere
+    image_ovf_path: "/images/kubeoperator_centos_7.6.1810.ovf"
+    image_vmdk_path: "/images/kubeoperator_centos_7.6.1810.vmdk"
+    image_name: "kubeoperator_centos_7.6.1810"
 zone:
   network:
     configs:
@@ -42,13 +25,6 @@ zone:
         alias: 网关地址
         value: ""
         type: Input
-  image:
-    configs:
-      - name: vc_image
-        alias: 镜像
-        option_var: "images"
-        value: ""
-        type: Select
   storage:
     configs:
       - name: vc_storage
@@ -56,12 +32,6 @@ zone:
         value: ""
         type: Select
         option_var: "storages"
-  others:
-    configs:
-      - name: vc_folder
-        alias: VM文件夹
-        value: kubeops
-        type: Input
 plan:
   configs:
     - name: k8s_deploy_model

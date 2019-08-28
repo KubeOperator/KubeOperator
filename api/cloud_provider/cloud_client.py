@@ -31,6 +31,10 @@ class CloudClient(metaclass=ABCMeta):
     def init_terraform(self):
         pass
 
+    @abstractmethod
+    def create_image(self, zone):
+        pass
+
     def destroy_terraform(self, cluster):
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster)
