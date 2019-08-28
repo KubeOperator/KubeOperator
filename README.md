@@ -1,7 +1,5 @@
-# KubeOperator - 容器集群部署及管理平台
+# KubeOperator - 容器集群管理平台
 
-![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
-![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
@@ -47,6 +45,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
 - [ ] 集成 KubeApps 应用管理器（支持常用应用比如 Jenkins、GitLab 及 Harbor 等的可视化安装和管理）；
+- [ ] 支持 Web Shell
 
  v2.2.0 （计划中）
  
