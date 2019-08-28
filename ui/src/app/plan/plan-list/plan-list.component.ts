@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Region} from '../../region/region';
 import {RegionService} from '../../region/region.service';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {Plan} from '../plan';
 import {PlanService} from '../plan.service';
+import {PlanDetailComponent} from '../plan-detail/plan-detail.component';
 
 @Component({
   selector: 'app-plan-list',
@@ -17,8 +18,11 @@ export class PlanListComponent implements OnInit {
   selected: Plan[] = [];
   loading = true;
   showDelete = false;
+  showDetail = false;
   resourceTypeName: '计划';
   @Output() add = new EventEmitter();
+  @ViewChild(PlanDetailComponent)
+  child: PlanDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService,
               private planService: PlanService) {
@@ -52,6 +56,11 @@ export class PlanListComponent implements OnInit {
         this.selected = [];
       }
     );
+  }
+
+  onShowDetail(item: Plan) {
+    this.showDetail = true;
+    this.child.currentPlan = item;
   }
 
   refresh() {

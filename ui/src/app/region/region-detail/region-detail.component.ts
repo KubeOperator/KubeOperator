@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Region} from '../region';
 
 @Component({
   selector: 'app-region-detail',
@@ -7,9 +8,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RegionDetailComponent implements OnInit {
 
-  constructor() { }
+  @Input() currentRegion: Region;
+  @Input() showInfoModal = false;
+  @Output() showInfoModalChange = new EventEmitter();
+
+  constructor() {
+  }
 
   ngOnInit() {
+  }
+
+  cancel() {
+    this.showInfoModal = false;
+    this.showInfoModalChange.emit(this.showInfoModal);
   }
 
 }

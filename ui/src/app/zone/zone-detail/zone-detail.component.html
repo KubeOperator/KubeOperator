@@ -1,0 +1,23 @@
+<clr-modal [(clrModalOpen)]="showInfoModal" [clrModalSize]="'lg'" [clrModalClosable]=false>
+  <h3 class="modal-title">可用区详情</h3>
+  <div class="modal-body" *ngIf="currentZone">
+    <hr/>
+    <div class="card-block">
+      <ul class="list-unstyled">
+        <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>
+        <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>
+        <li><b style="margin-right: 16px">计算资源:</b>{{currentZone.cloud_zone}}</li>
+        <li><b style="margin-right: 16px">存储资源:</b>{{currentZone.vars['vc_storage']}}</li>
+        <li><b style="margin-right: 16px">网络资源:</b>{{currentZone.vars['vc_network']}}</li>
+        <li><b style="margin-right: 16px">VM 文件夹:</b>{{currentZone.vars['vc_folder']}}</li>
+        <li><b style="margin-right: 16px">起始 Ip:</b>{{currentZone.vars['vc_ip_start']}}</li>
+        <li><b style="margin-right: 16px">终止 Ip:</b>{{currentZone.vars['vc_ip_end']}}</li>
+        <li><b style="margin-right: 16px">网关:</b>{{currentZone.vars['vc_gateway']}}</li>
+        <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" (click)="cancel()" [disabled]="loading">取消</button>
+  </div>
+</clr-modal>

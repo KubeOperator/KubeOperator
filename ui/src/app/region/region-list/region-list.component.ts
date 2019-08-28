@@ -1,9 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Credential} from '../../credential/credential-list/credential';
 import {RegionService} from '../region.service';
 import {Region} from '../region';
 import {TipLevels} from '../../tip/tipLevels';
 import {TipService} from '../../tip/tip.service';
+import {PackageDetailComponent} from '../../package/package-detail/package-detail.component';
+import {RegionDetailComponent} from '../region-detail/region-detail.component';
 
 @Component({
   selector: 'app-region-list',
@@ -16,8 +18,11 @@ export class RegionListComponent implements OnInit {
   selected: Region[] = [];
   loading = true;
   showDelete = false;
+  showDetail = false;
   resourceTypeName: '区域';
   @Output() add = new EventEmitter();
+  @ViewChild(RegionDetailComponent)
+  child: RegionDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService) {
   }
@@ -32,6 +37,11 @@ export class RegionListComponent implements OnInit {
       this.items = data;
       this.loading = false;
     });
+  }
+
+  onShowDetail(item: Region) {
+    this.showDetail = true;
+    this.child.currentRegion = item;
   }
 
   delete() {

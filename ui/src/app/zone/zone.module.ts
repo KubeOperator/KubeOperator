@@ -6,9 +6,10 @@ import {TipModule} from '../tip/tip.module';
 import {SharedModule} from '../shared/shared.module';
 import { ZoneListComponent } from './zone-list/zone-list.component';
 import { ZoneCreateComponent } from './zone-create/zone-create.component';
+import { ZoneDetailComponent } from './zone-detail/zone-detail.component';
 
 @NgModule({
-  declarations: [ZoneComponent, ZoneListComponent, ZoneCreateComponent],
+  declarations: [ZoneComponent, ZoneListComponent, ZoneCreateComponent, ZoneDetailComponent],
   imports: [
     CommonModule,
     CoreModule,

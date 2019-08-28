@@ -1,13 +1,11 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {AbstractControl, NgForm, ValidationErrors} from '@angular/forms';
+import {NgForm} from '@angular/forms';
 import {CloudTemplate, Region} from '../region';
 import {CloudTemplateService} from '../cloud-template.service';
 import {RegionService} from '../region.service';
 import {CloudService} from '../cloud.service';
 import {ClrWizard} from '@clr/angular';
-import {Observable, Subject} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
-import {validate} from 'codelyzer/walkerFactory/walkerFn';
 
 @Component({
   selector: 'app-region-create',

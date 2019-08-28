@@ -21,11 +21,8 @@ export class PackageDetailComponent implements OnInit {
   }
 
   loadPackage(pkg: Package) {
-    console.log(pkg);
     setTimeout(() => {
       this.currentPackage = pkg;
-      console.log(123);
-      console.log(this.currentPackage);
     }, 10);
   }
 

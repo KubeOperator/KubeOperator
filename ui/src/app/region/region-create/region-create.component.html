@@ -29,17 +29,37 @@
   <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid" (clrWizardPageOnCommit)="onParamsFormCommit()">
     <ng-template clrPageTitle>配置参数</ng-template>
     <form clrForm #paramsForm='ngForm'>
-      <div *ngIf="cloudTemplate">
-        <div [ngSwitch]="config.type" *ngFor="let config of this.cloudTemplate.meta.region.configs">
-          <clr-input-container *ngSwitchCase="'Input'">
-            <label>{{config.alias}}</label>
-            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+      <div *ngIf="item.template === 'vsphere'">
+        <div>
+          <clr-input-container>
+            <label>vCenter Host</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['vc_host']" name="vc_host" required>
             <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>vCenter API地址</clr-control-helper>
           </clr-input-container>
-          <clr-password-container *ngSwitchCase="'Password'">
-            <label>{{config.alias}}</label>
-            <input clrPassword type="password" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
+        </div>
+        <div>
+          <clr-input-container>
+            <label>vCenter 端口</label>
+            <input clrInput type="number" [(ngModel)]="item.vars['vc_port']" name="vc_port" required>
             <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>访问 vCenter API的端口， http: 80 ,https: 443</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <div>
+          <clr-input-container>
+            <label>用户名</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['vc_username']" name="vc_username" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>访问 vCenter 的用户名</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <div>
+          <clr-password-container>
+            <label>密码</label>
+            <input clrPassword type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>访问 vCenter 的密码</clr-control-helper>
           </clr-password-container>
         </div>
       </div>

@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Region} from '../../region/region';
 import {RegionService} from '../../region/region.service';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {Zone} from '../zone';
 import {ZoneService} from '../zone.service';
+import {ZoneDetailComponent} from '../zone-detail/zone-detail.component';
 
 @Component({
   selector: 'app-zone-list',
@@ -17,8 +18,11 @@ export class ZoneListComponent implements OnInit {
   selected: Zone[] = [];
   loading = false;
   showDelete = false;
+  showDetail = false;
   resourceTypeName: '可用区';
   @Output() add = new EventEmitter();
+  @ViewChild(ZoneDetailComponent)
+  child: ZoneDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService, private zoneService: ZoneService) {
   }
@@ -51,6 +55,11 @@ export class ZoneListComponent implements OnInit {
         this.selected = [];
       }
     );
+  }
+
+  onShowDetail(item: Zone) {
+    this.child.currentZone = item;
+    this.showDetail = true;
   }
 
   refresh() {

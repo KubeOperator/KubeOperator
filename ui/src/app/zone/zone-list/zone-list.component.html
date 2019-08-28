@@ -1,7 +1,7 @@
 <app-delete-alert [(opened)]="showDelete" [resourceTypeName]="resourceTypeName" [items]="selected"
                   (confirm)="delete()">
 </app-delete-alert>
-
+<app-zone-detail [(showInfoModal)]="showDetail"></app-zone-detail>
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
   <clr-dg-action-bar>
     <div class="btn-group">
@@ -24,7 +24,7 @@
   <clr-dg-column>创建时间</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-    <clr-dg-cell>{{item.name}}</clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;"><a (click)="onShowDetail(item)">{{item.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{item.region}}</clr-dg-cell>
     <clr-dg-cell>{{item.cluster_size}}</clr-dg-cell>
     <clr-dg-cell>{{item.plan_size}}</clr-dg-cell>
