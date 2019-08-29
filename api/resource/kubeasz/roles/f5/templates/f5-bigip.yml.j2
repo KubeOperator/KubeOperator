@@ -76,5 +76,8 @@ spec:
             "--bigip-password=$(BIGIP_PASSWORD)",
             "--bigip-url={{bigip_url}}",
             "--bigip-partition={{bigip_partition}}",
-            "--pool-member-type=nodeport"
+            "--pool-member-type=nodeport",
+            "--node-poll-interval=35",
+            "--verify-interval=120",
+            "--log-level=INFO"
           ]
