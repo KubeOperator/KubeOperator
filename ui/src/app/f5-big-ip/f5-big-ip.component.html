@@ -17,6 +17,10 @@
       <label>Partition</label>
       <input clrInput type="text" [(ngModel)]="currentCluster.meta['bigip_partition']" name="part"/>
     </clr-input-container>
+    <clr-input-container>
+      <label>公网 IP</label>
+      <input clrInput type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="part"/>
+    </clr-input-container>
   </form>
   <button class="btn btn-info-outline" (click)="onCommit()">保存</button>
 </div>
