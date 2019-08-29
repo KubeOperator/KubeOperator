@@ -74,7 +74,7 @@ class VsphereCloudClient(CloudClient):
             dc.vmFolder.CreateFolder(vars['vc_folder'])
         return super().apply_terraform(cluster)
 
-    def create_template_image(self, zone):
+    def create_image(self, zone):
         params = replace_params(self.vars)
         st = get_service_instance(params)
         content = st.RetrieveContent()

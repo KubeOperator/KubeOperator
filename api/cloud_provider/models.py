@@ -1,10 +1,13 @@
 import os
+import threading
 import uuid
+from time import sleep
 
 import yaml
 from django.db import models
 
 from ansible_api.models.mixins import AbstractExecutionModel
+from cloud_provider import get_cloud_client
 from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
@@ -84,12 +87,22 @@ class Region(models.Model):
 
 
 class Zone(models.Model):
+    ZONE_STATUS_READY = "READY"
+    ZONE_STATUS_INITIALIZING = "INITIALIZING"
+    ZONE_STATUS_ERROR = "ERROR"
+    ZONE_STATUS_CHOICES = (
+        (ZONE_STATUS_READY, 'READY'),
+        (ZONE_STATUS_INITIALIZING, 'INITIALIZING'),
+        (ZONE_STATUS_ERROR, 'ERROR'),
+    )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     vars = common_models.JsonDictTextField(default={})
     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
+    status = models.CharField(max_length=64, choices=ZONE_STATUS_CHOICES, null=True)
+
     @property
     def cluster_size(self):
         clusters = []
@@ -104,6 +117,24 @@ class Zone(models.Model):
     @property
     def plan_size(self):
         return len(Plan.objects.filter(zone=self))
+
+    def change_status(self, status):
+        self.status = status
+        self.save()
+
+    def create_image(self):
+        try:
+            self.change_status(Zone.ZONE_STATUS_INITIALIZING)
+            client = get_cloud_client(self.region.vars)
+            client.create_image(zone=self)
+            self.change_status(Zone.ZONE_STATUS_READY)
+        except Exception as e:
+            print(e.args)
+            self.change_status(Zone.ZONE_STATUS_ERROR)
+
+    def on_zone_create(self):
+        thread = threading.Thread(target=self.create_image)
+        thread.start()
 
 
 class Plan(models.Model):
