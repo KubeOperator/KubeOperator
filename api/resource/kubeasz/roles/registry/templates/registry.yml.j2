@@ -23,7 +23,7 @@ metadata:
   labels:
     k8s-app: kube-registry
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     k8s-app: kube-registry
   ports:
