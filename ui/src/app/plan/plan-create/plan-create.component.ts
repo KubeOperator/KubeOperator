@@ -80,7 +80,7 @@ export class PlanCreateComponent implements OnInit {
   onBasicFormCommit() {
     this.zoneService.listZones().subscribe(data => {
       this.zones = data.filter(zone => {
-        return zone.region === this.region.name;
+        return zone.region === this.region.name && zone.status === 'READY';
       });
     });
   }
