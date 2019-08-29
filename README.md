@@ -45,7 +45,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 Web Shell
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Spinnaker）；
+- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）；
 
  v2.2.0 （计划中）
  
