@@ -188,7 +188,7 @@ class TerraformHost(models.Model):
 
     def create_host(self):
         username = 'root'
-        password = 'Calong@2015'
+        password = 'KubeOperator@2019'
         host = Host.objects.create(
             name=self.name,
             ip=self.ip,
