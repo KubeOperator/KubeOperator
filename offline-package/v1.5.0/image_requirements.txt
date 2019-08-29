@@ -18,3 +18,5 @@ docker.io/konradkleine/docker-registry-frontend:v2
 docker.io/traefik:v1.7.11
 docker.io/grafana/grafana:5.2.1
 docker.io/coredns/coredns:1.5.0
+weaveworks/scope:1.9.1
+f5networks/k8s-bigip-ctlr:1.9.2
