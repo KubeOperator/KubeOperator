@@ -43,6 +43,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_f5_config(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
         except Exception as e:
+            print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
