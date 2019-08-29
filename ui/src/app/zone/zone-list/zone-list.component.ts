@@ -41,7 +41,7 @@ export class ZoneListComponent implements OnInit {
   delete() {
     const promises: Promise<{}>[] = [];
     this.selected.forEach(item => {
-        promises.push(this.regionService.deleteRegion(item.name).toPromise());
+        promises.push(this.zoneService.deleteZone(item.name).toPromise());
       }
     );
     Promise.all(promises).then(data => {

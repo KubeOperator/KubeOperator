@@ -23,4 +23,8 @@ export class ZoneService {
   getZone(name: string): Observable<Zone> {
     return this.http.get<Zone>(this.baseUrl + name + '/');
   }
+
+  deleteZone(name: string): Observable<Zone> {
+    return this.http.delete<Zone>(this.baseUrl + name + '/');
+  }
 }
