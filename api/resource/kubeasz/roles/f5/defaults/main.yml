@@ -9,10 +9,10 @@ all_ingress:
     name: f2c-traefik-ingress
     namespace: kube-system
   grafana:
-    name:
+    name: f2c-grafana
     namespace: monitoring
   prometheus:
-    name:
+    name: f2c-prometheus-server
     namespace: monitoring
   weave:
     name: f2c-weave-ingress
