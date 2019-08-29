@@ -48,7 +48,6 @@ def generate_host_model(cluster):
                 host_name=role + "{}-{}".format(i + 1, cluster.name),
                 name=role + "{}.".format(i + 1) + "{}".format(domain),
                 domain=domain,
-                folder=deploy_vars.get("vc_folder"),
                 cpu=role_compute_model["cpu"],
                 memory=role_compute_model["memory"] * 1024
             )
