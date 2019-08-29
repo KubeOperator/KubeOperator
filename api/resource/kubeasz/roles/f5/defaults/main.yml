@@ -1,0 +1,19 @@
+all_ingress:
+  dashboard:
+    name: f2c-dashboard-ingress
+    namespace: kube-system
+  registry:
+    name:
+    namespace: kube-system
+  traefik:
+    name: f2c-traefik-ingress
+    namespace: kube-system
+  grafana:
+    name:
+    namespace: monitoring
+  prometheus:
+    name:
+    namespace: monitoring
+  weave:
+    name: f2c-weave-ingress
+    namespace: weave

@@ -17,3 +17,8 @@
   retries: 20
   delay: 5
 
+- name: Attach a Virtual Server to Kubernetes Ingress
+  shell: "kubectl -n {{ item.value.namespace }} annotate ingress {{ item.value.name }} \
+            virtual-server.f5.com/ip={{ bigip_url }} \
+            virtual-server.f5.com/partition={{ bigip_partition }}"
+  with_dict: "{{ all_ingress }}"
