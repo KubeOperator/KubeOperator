@@ -3,7 +3,7 @@ all_ingress:
     name: f2c-dashboard-ingress
     namespace: kube-system
   registry:
-    name:
+    name: f2c-registry-ui-ingress
     namespace: kube-system
   traefik:
     name: f2c-traefik-ingress
