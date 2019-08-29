@@ -1,4 +1,4 @@
-# KubeOperator 安装手册（离线包方式）
+# KubeOperator 安装手册
 
 ## 环境要求
 
