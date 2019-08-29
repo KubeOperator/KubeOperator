@@ -38,7 +38,7 @@ resource "vsphere_virtual_machine" "{{host.short_name}}" {
   datastore_id = "${data.vsphere_datastore.datastore.id}"
   num_cpus = {{ host.cpu }}
   memory = {{ host.memory }}
-  guest_id = "centos7_64Guest"
+  guest_id = "centos6_64Guest"
 
   network_interface {
     network_id = "${data.vsphere_network.network.id}"
