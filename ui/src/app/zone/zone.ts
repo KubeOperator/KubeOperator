@@ -7,4 +7,5 @@ export class Zone {
   region: string;
   cluster_size: string;
   plan_size: string;
+  status: string;
 }

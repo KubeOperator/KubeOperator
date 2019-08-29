@@ -94,11 +94,6 @@ export class ZoneCreateComponent implements OnInit {
             config.objs = zone.storages;
           }
         });
-        this.cloudTemplate.meta.zone.image.configs.forEach(config => {
-          if (config.option_var === 'images') {
-            config.objs = zone.images;
-          }
-        });
         this.item.vars = {};
       }
     });

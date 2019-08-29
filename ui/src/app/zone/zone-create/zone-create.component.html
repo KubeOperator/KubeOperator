@@ -41,23 +41,6 @@
         <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
       <div *ngIf="item.cloud_zone">
-        <h2>镜像</h2>
-        <hr/>
-        <div *ngFor="let config of cloudTemplate.meta.zone.image.configs" [ngSwitch]="config.type">
-          <clr-select-container *ngSwitchCase="'Select'">
-            <label>{{config.alias}}</label>
-            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" clrSelect>
-              <option [value]="">请选择</option>
-              <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
-            </select>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-select-container>
-          <clr-input-container *ngSwitchCase="'Input'">
-            <label>{{config.alias}}</label>
-            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-input-container>
-        </div>
         <h2>存储</h2>
         <hr/>
         <div *ngFor="let config of cloudTemplate.meta.zone.storage.configs" [ngSwitch]="config.type">
@@ -93,25 +76,7 @@
             <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
-        <h2>其他</h2>
-        <hr/>
-        <div *ngFor="let config of cloudTemplate.meta.zone.others.configs" [ngSwitch]="config.type">
-          <clr-select-container *ngSwitchCase="'Select'">
-            <label>{{config.alias}}</label>
-            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" clrSelect>
-              <option [value]="">请选择</option>
-              <option *ngFor="let obj of config.objs" [value]="obj">{{obj}}</option>
-            </select>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-select-container>
-          <clr-input-container *ngSwitchCase="'Input'">
-            <label>{{config.alias}}</label>
-            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-input-container>
-        </div>
       </div>
-
     </form>
   </clr-wizard-page>
 </clr-wizard>
