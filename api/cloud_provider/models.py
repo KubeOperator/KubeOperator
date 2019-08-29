@@ -164,7 +164,6 @@ class TerraformHost(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_('Name'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     domain = models.CharField(max_length=255)
-    folder = models.CharField(max_length=128)
     cpu = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     short_name = models.CharField(max_length=128)
@@ -177,7 +176,6 @@ class TerraformHost(models.Model):
         return {
             "name": self.name,
             "domain": self.domain,
-            "folder": self.folder,
             "cpu": self.cpu,
             "memory": self.memory,
             "short_name": self.short_name,
@@ -188,7 +186,7 @@ class TerraformHost(models.Model):
 
     def create_host(self):
         username = 'root'
-        password = 'Calong@2015'
+        password = 'KubeOperator@2019'
         host = Host.objects.create(
             name=self.name,
             ip=self.ip,

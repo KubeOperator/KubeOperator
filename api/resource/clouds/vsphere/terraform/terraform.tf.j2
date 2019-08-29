@@ -38,16 +38,19 @@ resource "vsphere_virtual_machine" "{{host.short_name}}" {
   datastore_id = "${data.vsphere_datastore.datastore.id}"
   num_cpus = {{ host.cpu }}
   memory = {{ host.memory }}
-  guest_id = "centos7_64Guest"
+  guest_id = "centos6_64Guest"
 
   network_interface {
     network_id = "${data.vsphere_network.network.id}"
   }
 
   disk {
-    label = "disk0"
-    size = 50
+    label            = "disk0"
+    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
+    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
+    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
   }
+
 
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"

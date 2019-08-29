@@ -69,9 +69,9 @@ class VsphereCloudClient(CloudClient):
         content = st.RetrieveContent()
         container = content.rootFolder
         dc = get_obj(content, [vim.Datacenter], container, vars['region'])
-        folder = get_obj(content, [vim.Folder], container, vars['vc_folder'])
+        folder = get_obj(content, [vim.Folder], container, 'kubeoperator')
         if not folder:
-            dc.vmFolder.CreateFolder(vars['vc_folder'])
+            dc.vmFolder.CreateFolder('kubeoperator')
         return super().apply_terraform(cluster)
 
     def create_image(self, zone):
