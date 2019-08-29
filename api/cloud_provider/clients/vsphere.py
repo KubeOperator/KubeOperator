@@ -119,6 +119,7 @@ class VsphereCloudClient(CloudClient):
                     keepalive_thread.join()
                     vm = get_obj(content, [vim.VirtualMachine], container, zone.region.image_name)
                     vm.MarkAsTemplate()
+                    break
                 elif lease.state == vim.HttpNfcLease.State.error:
                     print("Lease error: " + lease.state.error)
 
