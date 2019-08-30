@@ -79,20 +79,14 @@ class VsphereCloudClient(CloudClient):
         st = get_service_instance(params)
         content = st.RetrieveContent()
         container = content.rootFolder
-        viewType = [vim.ClusterComputeResource]
-        cluster = get_obj(content, viewType, container, zone.cloud_zone)
-        images = []
-        for host in cluster.host:
-            for vm in host.vm:
-                if vm.summary.config.template:
-                    images.append(vm.name)
-        image_exists = False
-        for image in images:
-            if image == zone.region.image_name:
-                image_exists = True
+        viewType = [vim.Folder]
+        folder = get_obj(content, viewType, container, 'kubeoperator')
+        viewType = [vim.VirtualMachine]
+        vm = get_obj(content, viewType, folder, zone.region.image_name)
         ds = get_obj(content, [vim.Datastore], container, zone.vars['vc_storage'])
         dc = get_obj(content, [vim.Datacenter], container, zone.region.cloud_region)
-        if not image_exists:
+        cluster = get_obj(content, [vim.ClusterComputeResource], container, zone.cloud_zone)
+        if not vm:
             manager = st.content.ovfManager
             spec_params = vim.OvfManager.CreateImportSpecParams()
             ovf_path = zone.region.image_ovf_path
@@ -122,6 +116,7 @@ class VsphereCloudClient(CloudClient):
                     break
                 elif lease.state == vim.HttpNfcLease.State.error:
                     print("Lease error: " + lease.state.error)
+                    break
 
 
 def get_obj(content, vimtype, folder, name):
