@@ -98,7 +98,7 @@ class VsphereCloudClient(CloudClient):
                                                    ds,
                                                    spec_params)
             lease = resource_pool.ImportVApp(import_spec.importSpec,
-                                             dc.vmFolder)
+                                             folder)
             while True:
                 if lease.state == vim.HttpNfcLease.State.ready:
                     url = lease.info.deviceUrl[0].url.replace('*', self.vars['vc_host'])
