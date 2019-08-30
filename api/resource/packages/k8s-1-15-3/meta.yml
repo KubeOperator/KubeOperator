@@ -106,7 +106,7 @@ roles:
       kube_version: "1.15.3"
       repo_port: 8082
       registry_prefix: "registry.kubeops.io:8092"
-      download_path: "repository/raw/1.15.0/k8s.1-15-3.tar.gz"
+      download_path: "repository/raw/1.15.3/k8s.1-15-3.tar.gz"
       file_name: "k8s.1-15-3.tar.gz"
 
       #dns
