@@ -19,6 +19,8 @@ def create_hosts(cluster):
             h.create_host()
         cluster.create_nodes_by_terraform()
     else:
+        for host in terraform_hosts:
+            host.delete()
         raise Exception('Create nodes error!')
 
 

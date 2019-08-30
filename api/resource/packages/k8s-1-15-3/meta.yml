@@ -1,7 +1,7 @@
-resource: kubernetes-1.15.2
-version: 1.15.2
+resource: kubernetes-1.15.3
+version: 1.15.3
 components:
-  kubernetes: 1.15.2
+  kubernetes: 1.15.3
   etcd: 3.3.10
   docker: docker-ce-18.09.2
 images:
@@ -102,10 +102,12 @@ roles:
       CLUSTER_DNS_SVC_IP: "10.68.0.2"
       CLUSTER_DNS_DOMAIN: "cluster.local."
       #kubeOperator
-      base_dir: "/opt/kubeOperator-kube-bin/1.15.2"
-      kube_version: "1.15.2"
+      base_dir: "/opt/kubeOperator-kube-bin/1.15.3"
+      kube_version: "1.15.3"
       repo_port: 8082
       registry_prefix: "registry.kubeops.io:8092"
+      download_path: "repository/raw/1.15.0/k8s.1-15-3.tar.gz"
+      file_name: "k8s.1-15-3.tar.gz"
 
       #dns
       dns_install: true
