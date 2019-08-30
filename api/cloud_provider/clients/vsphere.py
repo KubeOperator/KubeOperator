@@ -84,7 +84,6 @@ class VsphereCloudClient(CloudClient):
         viewType = [vim.VirtualMachine]
         vm = get_obj(content, viewType, folder, zone.region.image_name)
         ds = get_obj(content, [vim.Datastore], container, zone.vars['vc_storage'])
-        dc = get_obj(content, [vim.Datacenter], container, zone.region.cloud_region)
         cluster = get_obj(content, [vim.ClusterComputeResource], container, zone.cloud_zone)
         if not vm:
             manager = st.content.ovfManager
@@ -111,7 +110,7 @@ class VsphereCloudClient(CloudClient):
                     os.system(curl_cmd)
                     lease.HttpNfcLeaseComplete()
                     keepalive_thread.join()
-                    vm = get_obj(content, [vim.VirtualMachine], container, zone.region.image_name)
+                    vm = get_obj(content, [vim.VirtualMachine], folder, zone.region.image_name)
                     vm.MarkAsTemplate()
                     break
                 elif lease.state == vim.HttpNfcLease.State.error:
