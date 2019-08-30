@@ -29,7 +29,7 @@ services:
     volumes:
       - api_data:/opt/kubeOperator-api/data
       - dns_data:/etc/dnsmasq.d
-      - template_data:/images
+      - ./docker/template:/images
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -90,6 +90,5 @@ volumes:
   mysql_data:
   redis_data:
   dns_data:
-  template_data:
 networks: 
   default:
