@@ -1,5 +1,7 @@
 # KubeOperator - 容器集群管理平台
 
+![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
+![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
@@ -37,25 +39,21 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 作为持久化存储；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
-- [x] 支持 Kubernetes 集群扩缩容；
-- [x] 集成 Weave Scope；
+- [x] 集成 Weave Scope (支持 Web Shell)；
+- [x] 支持 Multi AZ，支持多主多节点部署模式；
 
  v2.1.0 （计划中）
  
-- [ ] 支持 Web Shell
-- [ ] 支持集群升级；
-- [ ] 支持集群备份及恢复；
-- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）；
-
- v2.2.0 （计划中）
- 
+- [ ] 支持 Kubernetes 集群升级；
+- [ ] 支持 Kubernetes 集群扩缩容；
+- [ ] 支持 etcd 备份及恢复；
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
 - [ ] 支持 Calico 作为网络方案；
 
- v2.3.0 （计划中）
+ v3.0.0 （计划中）
 
-- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
+- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 VMware NSX-T；
 
 ## 离线包
@@ -63,7 +61,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的完整离线包，该离线包能在完全离线的网络环境下部署和升级，并保证最终的一致性。离线包版本命名和 Kubernetes 版本命名保持一致。目前已发布的离线包：
 
 - [v1.5.0](https://github.com/KubeOperator/KubeOperator/tree/master/offline-package/v1.5.0)
-- [v1.5.2](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.2)
+- [v1.5.3](https://github.com/KubeOperator/KubeOperator/blob/master/offline-package/v1.5.3)
  
  ## KubeOperator 安装、升级及使用指南
 
@@ -76,7 +74,7 @@ KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的�
 
 > Note:
 > - 手动模式：用户需要自行准备主机及 NFS 存储，适合在物理机环境下部署。
-> - 自动模式：依赖于 VMware 云平台（包括 vSAN），用户只需绑定 vCenter 相关账号和密码，设置好部署计划，即可实现一键部署、扩容和故障自愈。注：V2.2.0 版本开始会支持 Openstack 云平台。
+> - 自动模式：依赖于 VMware 云平台（包括 vSAN），用户只需绑定 vCenter 相关账号和密码，设置好部署计划，即可实现一键部署、扩容和故障自愈。注：V2.1.0 版本开始会支持 Openstack 云平台。
 
 REST API 指南：
 - [KubeOperator REST API](https://github.com/KubeOperator/KubeOperator/blob/master/docs/restapi.md)
