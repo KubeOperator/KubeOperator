@@ -138,11 +138,20 @@ class Zone(models.Model):
 
 
 class Plan(models.Model):
+    DEPLOY_TEMPLATE_SINGLE = "SINGLE"
+    DEPLOY_TEMPLATE_MULTIPLE = "MULTIPLE"
+    DEPLOY_TEMPLATE_CHOICES = (
+        (DEPLOY_TEMPLATE_SINGLE, 'single'),
+        (DEPLOY_TEMPLATE_MULTIPLE, 'multiple'),
+    )
+
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     zone = models.ForeignKey('Zone', null=True, on_delete=models.CASCADE)
     region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
+    zones = models.ManyToManyField('Zone', null=True)
+    deploy_template = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=DEPLOY_TEMPLATE_SINGLE, null=True)
     vars = common_models.JsonDictTextField(default={})
 
     @property
@@ -151,7 +160,12 @@ class Plan(models.Model):
         _vars.update(self.region.vars)
         _vars.update(self.zone.vars)
         _vars['region'] = self.region.cloud_region
-        _vars['zone'] = self.zone.cloud_zone
+        if self.zone:
+            _vars['zone'] = self.zone.cloud_zone
+        if self.zones:
+            _vars['zones'] = []
+            for zone in self.zones.all():
+                _vars['zones'].append(zone.cloud_zone)
         return _vars
 
     @property
@@ -170,6 +184,7 @@ class TerraformHost(models.Model):
     host_name = models.CharField(max_length=255)
     role = models.CharField(max_length=32)
     ip = models.CharField(max_length=32)
+    zone = models.CharField(max_length=32)
     host = models.ForeignKey('kubeops_api.Host', on_delete=models.CASCADE, null=True)
 
     def to_dict(self):
@@ -181,7 +196,8 @@ class TerraformHost(models.Model):
             "short_name": self.short_name,
             "host_name": self.host_name,
             "role": self.role,
-            "ip": self.ip
+            "ip": self.ip,
+            "zone": self.zone
         }
 
     def create_host(self):

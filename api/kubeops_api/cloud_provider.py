@@ -43,7 +43,9 @@ def generate_host_model(cluster):
         total_size = total_size + size
         role_model = get_k8s_role_model(role, deploy_vars)
         role_compute_model = find_compute_model(role_model, cluster.plan.compute_models)
+        zones = cluster.plan.zones
         for i in range(0, size):
+            hash_code = (i + 1) % zones.size
             host = TerraformHost(
                 role=role,
                 short_name=role + "{}".format(i + 1),
@@ -51,7 +53,8 @@ def generate_host_model(cluster):
                 name=role + "{}.".format(i + 1) + "{}".format(domain),
                 domain=domain,
                 cpu=role_compute_model["cpu"],
-                memory=role_compute_model["memory"] * 1024
+                memory=role_compute_model["memory"] * 1024,
+                zone=zones[hash_code]
             )
             hosts.append(host)
     available_ips = get_available_ips(ip_start, ip_end)

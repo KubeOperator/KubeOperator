@@ -11,10 +11,12 @@ data "vsphere_datacenter" "dc" {
   name = "{{ region }}"
 }
 
-data "vsphere_compute_cluster" "cluster" {
-  name = "{{ zone }}"
-  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+{% for zone in zones %}
+ data "vsphere_resource_pool" "{{zone.name}}" {
+   name          = "{{ zone.name }}"
+   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
+{% endfor %}
 
 data "vsphere_network" "network" {
   name = "{{ vc_network }}"
@@ -34,7 +36,7 @@ data "vsphere_virtual_machine" "template" {
 resource "vsphere_virtual_machine" "{{host.short_name}}" {
   name = "{{ host.name }}"
   folder = "kubeoperator"
-  resource_pool_id = "${data.vsphere_compute_cluster.cluster.resource_pool_id}"
+  resource_pool_id = "${data.vsphere_resource_pool.{{zone}}.id}"
   datastore_id = "${data.vsphere_datastore.datastore.id}"
   num_cpus = {{ host.cpu }}
   memory = {{ host.memory }}
