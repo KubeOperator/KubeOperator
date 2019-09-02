@@ -1,7 +1,7 @@
 # KubeOperator - 容器集群管理平台
 
-![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=KubeOperator)
-![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=KubeOperator)
+![Total visitor](https://visitor-count-badge.herokuapp.com/total.svg?repo_id=kubeoperator)
+![Visitors in today](https://visitor-count-badge.herokuapp.com/today.svg?repo_id=kubeoperator)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
