@@ -34,7 +34,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持 Flannel 作为网络方案；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
- v2.0.0 （开发中）
+ v2.0.0 （已发布）
 
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
