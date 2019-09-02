@@ -45,17 +45,14 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 Web Shell
 - [ ] 支持集群升级；
 - [ ] 支持集群备份及恢复；
-- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）；
-
- v2.2.0 （计划中）
- 
+- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
+- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
 - [ ] 支持 Calico 作为网络方案；
 
- v2.3.0 （计划中）
+ v3.0.0 （计划中）
 
-- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
 - [ ] 支持 VMware NSX-T；
 
 ## 离线包
