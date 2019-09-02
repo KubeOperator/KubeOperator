@@ -39,14 +39,14 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 作为持久化存储；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
-- [x] 支持 Kubernetes 集群扩缩容；
 - [x] 集成 Weave Scope (支持 Web Shell)；
+- [x] 支持 Multi AZ，主节点分布在不同的故障域；
 
  v2.1.0 （计划中）
  
 - [ ] 支持集群升级；
-- [ ] 支持集群备份及恢复；
-- [ ] 支持 Multi AZ，主节点分布在不同的故障域；
+- [ ] 支持 Kubernetes 集群扩缩容；
+- [ ] 支持集群 etcd 备份及恢复；
 - [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
