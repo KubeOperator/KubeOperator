@@ -16,10 +16,10 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群 (即 Kubernetes as a Service)；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
--  按需修补：快速升级和修补 Kubernetes 集群，保证集群安全性，并与社区最新版本同步；
+-  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
 -  自我修复：通过重建故障节点确保集群可用性；
 -  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
--  Multi-AZ 支持：通过把集群节点分布在不同的故障域上确保集群的高可用；
+-  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
 
 ## KubeOperator 的版本规划
 
@@ -38,9 +38,9 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
+- [x] 支持 Multi AZ，支持多主多节点部署模式；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
 - [x] 集成 Weave Scope (支持 Web Shell)；
-- [x] 支持 Multi AZ，支持多主多节点部署模式；
 
  v2.1.0 （计划中）
  
