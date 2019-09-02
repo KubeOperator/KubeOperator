@@ -42,7 +42,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
 - [x] 集成 Weave Scope (支持 Web Shell)；
 
- v2.1.0 （计划中）
+ v2.1.0 （开发中）
  
 - [ ] 支持 Kubernetes 集群升级；
 - [ ] 支持 Kubernetes 集群扩缩容；
