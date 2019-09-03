@@ -1,7 +1,4 @@
-all_ingress:
-  dashboard:
-    name: f2c-dashboard-ingress
-    namespace: kube-system
+http_ingress:
   registry:
     name: f2c-registry-ui-ingress
     namespace: kube-system
@@ -14,6 +11,12 @@ all_ingress:
   prometheus:
     name: f2c-prometheus-server
     namespace: monitoring
+
+https_ingress:
+  dashboard:
+    name: f2c-dashboard-ingress
+    namespace: kube-system
   weave:
     name: f2c-weave-ingress
     namespace: weave
+

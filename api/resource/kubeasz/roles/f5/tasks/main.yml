@@ -17,8 +17,20 @@
   retries: 20
   delay: 5
 
-- name: Attach a Virtual Server to Kubernetes Ingress
+- name: attach a virtual server to kubernetes http ingress
   shell: "kubectl -n {{ item.value.namespace }} annotate ingress {{ item.value.name }} \
             virtual-server.f5.com/ip={{ public_ip }} \
             virtual-server.f5.com/partition={{ bigip_partition }}"
-  with_dict: "{{ all_ingress }}"
+  with_dict: "{{ http_ingress }}"
+
+- name: attach a virtual server to kubernetes https ingress step first
+  shell: "kubectl -n {{ item.value.namespace }} patch ingress {{ item.value.name }} \
+            -p '{'spec':{'tls':[{'secretName':'/Common/clientssl'}]}}'"
+  with_dict: "{{ https_ingress }}"
+
+- name: attach a virtual server to kubernetes https ingress step second
+  shell: "kubectl -n {{ item.value.namespace }} annotate ingress {{ item.value.name }} \
+            virtual-server.f5.com/ip={{ public_ip }} \
+            virtual-server.f5.com/partition={{ bigip_partition }} \
+            virtual-server.f5.com/serverssl=/Common/serverssl"
+  with_dict: "{{ https_ingress }}"
