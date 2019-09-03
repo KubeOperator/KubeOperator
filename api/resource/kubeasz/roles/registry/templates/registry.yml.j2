@@ -110,7 +110,8 @@ spec:
   - host: registry-ui.{{APP_DOMAIN}}
     http:
       paths:
-      - backend:
+      - path: /
+        backend:
           serviceName: kube-registry
           servicePort: 80
 

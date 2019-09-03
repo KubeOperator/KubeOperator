@@ -25,7 +25,7 @@
 
 - name: attach a virtual server to kubernetes https ingress step first
   shell: "kubectl -n {{ item.value.namespace }} patch ingress {{ item.value.name }} \
-            -p '{'spec':{'tls':[{'secretName':'/Common/clientssl'}]}}'"
+            -p '{\"spec\":{\"tls\":[{\"secretName\":\"/Common/clientssl\"}]}}'"
   with_dict: "{{ https_ingress }}"
 
 - name: attach a virtual server to kubernetes https ingress step second
