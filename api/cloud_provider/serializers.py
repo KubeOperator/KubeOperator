@@ -50,11 +50,11 @@ class PlanSerializer(serializers.ModelSerializer):
     )
     zone = serializers.SlugRelatedField(
         queryset=Zone.objects.all(),
-        slug_field='name', required=True,
+        slug_field='name', required=False
     )
     zones = serializers.SlugRelatedField(
         queryset=Zone.objects.all(),
-        slug_field='name', required=True, many=True
+        slug_field='name', many=True, required=False
     )
     vars = serializers.DictField(required=False, default={})
 

@@ -5,41 +5,7 @@ region:
     image_ovf_path: "/images/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810.ovf"
     image_vmdk_path: "/images/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810-1.vmdk"
     image_name: "kubeoperator_centos_7.6.1810"
-zone:
-  network:
-    configs:
-      - name: vc_network
-        alias: 网络适配器
-        value: ""
-        type: Select
-        option_var: "networks"
-      - name: vc_ip_start
-        alias: 起始IP
-        value: ""
-        type: Input
-      - name: vc_ip_end
-        alias: 终止IP
-        value: ""
-        type: Input
-      - name: vc_gateway
-        alias: 网关地址
-        value: ""
-        type: Input
-  storage:
-    configs:
-      - name: vc_storage
-        alias: 存储器
-        value: ""
-        type: Select
-        option_var: "storages"
 plan:
-  configs:
-    - name: k8s_deploy_model
-      type: Select
-      alias: 部署模型
-      options:
-        - name: 一主多节点
-          value: single
   infra:
     - name: k8s_master_model
       alias: Master 规格

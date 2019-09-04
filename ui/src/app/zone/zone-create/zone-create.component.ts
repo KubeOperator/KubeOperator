@@ -25,14 +25,12 @@ export class ZoneCreateComponent implements OnInit {
   cloudZone: CloudZone;
   regions: Region[] = [];
   region: Region;
-  cloudTemplate: CloudTemplate;
   loading = false;
   @ViewChild('basicForm') basicForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
 
   constructor(private regionService: RegionService,
               private cloudService: CloudService,
-              private cloudTemplateService: CloudTemplateService,
               private zoneService: ZoneService) {
   }
 
@@ -61,6 +59,9 @@ export class ZoneCreateComponent implements OnInit {
   reset() {
     this.wizard.reset();
     this.basicForm.resetForm();
+    this.regions = [];
+    this.cloudZones = [];
+    this.cloudZone = null;
   }
 
   listRegion() {
@@ -73,28 +74,15 @@ export class ZoneCreateComponent implements OnInit {
     this.regions.forEach(region => {
       if (region.name === this.item.region) {
         this.region = region;
-        this.cloudTemplateService.getCloudTemplate(region.template).subscribe(data => {
-          this.cloudTemplate = data;
-        });
       }
     });
   }
 
   onComputeChange() {
+    this.item.vars = {};
     this.cloudZones.forEach(zone => {
-      if (this.item.cloud_zone === zone.name) {
+      if (this.item.cluster === zone.cluster) {
         this.cloudZone = zone;
-        this.cloudTemplate.meta.zone.network.configs.forEach(config => {
-          if (config.option_var === 'networks') {
-            config.objs = zone.networks;
-          }
-        });
-        this.cloudTemplate.meta.zone.storage.configs.forEach(config => {
-          if (config.option_var === 'storages') {
-            config.objs = zone.storages;
-          }
-        });
-        this.item.vars = {};
       }
     });
   }
@@ -110,6 +98,7 @@ export class ZoneCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
+    this.item.vars['vc_cluster'] = this.item.cluster;
     this.zoneService.createZones(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;
@@ -119,7 +108,6 @@ export class ZoneCreateComponent implements OnInit {
 
   onCancel() {
     this.createOpened = false;
-    this.reset();
   }
 
 }

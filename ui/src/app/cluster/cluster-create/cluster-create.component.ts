@@ -201,7 +201,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (this.cluster.plan === plan.name) {
         this.plan = plan;
         this.package.meta.templates.forEach(template => {
-          if (template.deploy_type === plan.vars['k8s_deploy_model']) {
+          if (template.deploy_type === plan.deploy_template) {
             this.template = template;
             this.cluster.template = template.name;
           }

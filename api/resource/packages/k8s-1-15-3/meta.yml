@@ -295,7 +295,7 @@ public_config:
 templates:
   - name: 一主多节点
     comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
-    deploy_type: 'single'
+    deploy_type: 'SINGLE'
     private_vars:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
@@ -416,7 +416,7 @@ templates:
 
   - name: 多主多节点
     comment: '此部署模型为多主多节点部署模型，1个daemon 节点,3个 Master 节点和至少3个 Worker 节点。'
-    deploy_type: 'multiple'
+    deploy_type: 'MULTIPLE'
     private_vars:
       DEPLOY_MODE: 'multiple-master'
       prometheus_install: true

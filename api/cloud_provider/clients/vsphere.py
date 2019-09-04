@@ -54,6 +54,7 @@ class VsphereCloudClient(CloudClient):
                     "type": datastore.summary.type,
                     "multipleHostAccess": datastore.summary.multipleHostAccess
                 })
+            zones.append(zone)
         return zones
 
     def init_terraform(self):

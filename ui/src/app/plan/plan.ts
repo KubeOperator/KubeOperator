@@ -5,4 +5,6 @@ export class Plan {
   date_created: string;
   region: string;
   zone: string;
+  zones: string[] = [];
+  deploy_template: string;
 }

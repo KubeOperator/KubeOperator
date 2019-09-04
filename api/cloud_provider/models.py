@@ -85,6 +85,13 @@ class Region(models.Model):
     def on_region_create(self):
         self.set_vars()
 
+    def to_dict(self):
+        dic = {
+            "region": self.cloud_region
+        }
+        dic.update(self.vars)
+        return dic
+
 
 class Zone(models.Model):
     ZONE_STATUS_READY = "READY"
@@ -136,6 +143,13 @@ class Zone(models.Model):
         thread = threading.Thread(target=self.create_image)
         thread.start()
 
+    def to_dict(self):
+        dic = {
+            "name": self.cloud_zone
+        }
+        dic.update(self.vars)
+        return dic
+
 
 class Plan(models.Model):
     DEPLOY_TEMPLATE_SINGLE = "SINGLE"
@@ -150,23 +164,23 @@ class Plan(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     zone = models.ForeignKey('Zone', null=True, on_delete=models.CASCADE)
     region = models.ForeignKey('Region', null=True, on_delete=models.CASCADE)
-    zones = models.ManyToManyField('Zone', null=True)
-    deploy_template = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=DEPLOY_TEMPLATE_SINGLE, null=True)
+    zones = models.ManyToManyField('Zone', related_name='zones')
+    deploy_template = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=DEPLOY_TEMPLATE_SINGLE, max_length=128)
     vars = common_models.JsonDictTextField(default={})
 
     @property
     def mixed_vars(self):
-        _vars = self.vars
-        _vars.update(self.region.vars)
-        _vars.update(self.zone.vars)
-        _vars['region'] = self.region.cloud_region
-        if self.zone:
-            _vars['zone'] = self.zone.cloud_zone
+        _vars = self.vars.copy()
+        _vars.update(self.region.to_dict())
+        zones = []
         if self.zones:
-            _vars['zones'] = []
             for zone in self.zones.all():
-                _vars['zones'].append(zone.cloud_zone)
+                zones.append(zone.to_dict())
+        if self.zone:
+            zones.append(self.zone.to_dict())
+        _vars['zones'] = zones
         return _vars
+
 
     @property
     def compute_models(self):
@@ -184,7 +198,7 @@ class TerraformHost(models.Model):
     host_name = models.CharField(max_length=255)
     role = models.CharField(max_length=32)
     ip = models.CharField(max_length=32)
-    zone = models.CharField(max_length=32)
+    zone_vars = common_models.JsonDictTextField(default={})
     host = models.ForeignKey('kubeops_api.Host', on_delete=models.CASCADE, null=True)
 
     def to_dict(self):
@@ -197,7 +211,7 @@ class TerraformHost(models.Model):
             "host_name": self.host_name,
             "role": self.role,
             "ip": self.ip,
-            "zone": self.zone
+            "zone": self.zone_vars
         }
 
     def create_host(self):

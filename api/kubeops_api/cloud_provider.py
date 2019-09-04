@@ -1,16 +1,17 @@
 import os
+from ipaddress import ip_address
 
 from django.db.models import Q
 
 from cloud_provider import get_cloud_client
-from cloud_provider.models import TerraformHost
+from cloud_provider.models import TerraformHost, Plan
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
 
 
 def create_hosts(cluster):
-    terraform_hosts = generate_host_model(cluster)
+    terraform_hosts = create_terraform_hosts(cluster)
     cluster.set_terraform_hosts(terraform_hosts)
     cloud_provider = get_cloud_client(cluster.plan.mixed_vars)
     result = cloud_provider.apply_terraform(cluster=cluster)
@@ -24,7 +25,7 @@ def create_hosts(cluster):
         raise Exception('Create nodes error!')
 
 
-def generate_host_model(cluster):
+def create_terraform_hosts(cluster):
     roles = {
         "master": 1,
         "daemon": 1,
@@ -32,38 +33,45 @@ def generate_host_model(cluster):
     }
     hosts = []
     deploy_vars = cluster.plan.mixed_vars
-    ip_start = deploy_vars.get('vc_ip_start')
-    ip_end = deploy_vars.get('vc_ip_end')
-    deploy_model = deploy_vars.get('k8s_deploy_model')
+    deploy_template = cluster.plan.deploy_template
     domain = cluster.name + "." + Setting.objects.get(key="domain_suffix").value
-    total_size = 0
-    if deploy_model == 'multiple':
-        roles["master"] = 3
+    zones = deploy_vars['zones']
+    gen_zone_ip_pool(zones)
+    if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
+        roles['master'] = 3
     for role, size in roles.items():
-        total_size = total_size + size
-        role_model = get_k8s_role_model(role, deploy_vars)
-        role_compute_model = find_compute_model(role_model, cluster.plan.compute_models)
-        zones = cluster.plan.zones
-        for i in range(0, size):
-            hash_code = (i + 1) % zones.size
+        compute_model = get_k8s_role_model(role, cluster.plan, deploy_vars)
+        for i in range(1, size + 1):
+            zone = get_zone(zones, i)
             host = TerraformHost(
                 role=role,
-                short_name=role + "{}".format(i + 1),
-                host_name=role + "{}-{}".format(i + 1, cluster.name),
-                name=role + "{}.".format(i + 1) + "{}".format(domain),
+                cpu=compute_model['cpu'],
+                memory=compute_model["memory"] * 1024,
+                name=role + "{}.".format(i) + "{}".format(domain),
                 domain=domain,
-                cpu=role_compute_model["cpu"],
-                memory=role_compute_model["memory"] * 1024,
-                zone=zones[hash_code]
+                short_name=role + "{}".format(i),
+                host_name=role + "{}-{}".format(i, cluster.name),
+                zone_vars=zone,
+                ip=zone['ip_pool'].pop()
             )
             hosts.append(host)
-    available_ips = get_available_ips(ip_start, ip_end)
-    if not total_size > len(available_ips):
-        for no, host in enumerate(hosts):
-            host.ip = available_ips[no]
-    else:
-        raise Exception("{} ip address not enough to create cluster".format(len(available_ips)))
     return TerraformHost.objects.bulk_create(hosts)
+
+
+def get_k8s_role_model(role, plan, deploy_vars):
+    k8s_model = None
+    if role == 'master':
+        k8s_model = deploy_vars['k8s_master_model']
+    if role == 'worker':
+        k8s_model = deploy_vars['k8s_worker_model']
+    if role == 'daemon':
+        k8s_model = deploy_vars['k8s_daemon_model']
+    return find_compute_model(k8s_model, plan.compute_models)
+
+
+def get_zone(zones, index):
+    hash = index % len(zones)
+    return zones[hash]
 
 
 def find_compute_model(role, models):
@@ -72,28 +80,22 @@ def find_compute_model(role, models):
             return model["meta"]
 
 
-def get_k8s_role_model(role, deploy_vars):
-    k8s_model = None
-    if role == 'master':
-        k8s_model = deploy_vars['k8s_master_model']
-    if role == 'worker':
-        k8s_model = deploy_vars['k8s_worker_model']
-    if role == 'daemon':
-        k8s_model = deploy_vars['k8s_daemon_model']
-    return k8s_model
+def gen_zone_ip_pool(zones):
+    for zone in zones:
+        zone['ip_pool'] = get_available_ips(zone['vc_ip_start'], zone['vc_ip_end'])
 
 
 def get_available_ips(start, end):
-    sub_start = int(start.split('.')[3])
-    sub_end = int(end.split('.')[3])
-    ip_prefix = start[0:start.index(start.split('.')[3])]
-    ip_list = []
-    for i in range(sub_start, sub_end):
-        ip_list.append(ip_prefix + str(i))
-    hosts = Host.objects.filter(ip__in=ip_list)
+    start = ip_address(start)
+    end = ip_address(end)
+    result = []
+    while start <= end:
+        result.append(str(start))
+        start += 1
+    hosts = Host.objects.filter(ip__in=result)
     for host in hosts:
-        ip_list.remove(host.ip)
-    return ip_list
+        result.pop(host.ip)
+    return result
 
 
 def delete_hosts(cluster):

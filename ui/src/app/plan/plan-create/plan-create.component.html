@@ -25,29 +25,21 @@
         </select>
         <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
-      <div *ngIf="cloudTemplate">
-        <div *ngFor="let config of cloudTemplate.meta.plan.configs" [ngSwitch]="config.type">
-          <clr-select-container *ngSwitchCase="'Select'">
-            <label>{{config.alias}}</label>
-            <select [(ngModel)]="item.vars[config.name]" [name]="config.name" required clrSelect>
-              <option value="">请选择</option>
-              <option *ngFor="let option of config.options" [value]="option.value">{{option.name}}</option>
-            </select>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-select-container>
-          <clr-input-container *ngSwitchCase="'Input'">
-            <label>{{config.alias}}</label>
-            <input clrInput type="text" [(ngModel)]="item.vars[config.name]" [name]="config.name" required>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-input-container>
-        </div>
-      </div>
+      <clr-select-container>
+        <label>部署模型</label>
+        <select [(ngModel)]="item.deploy_template" name="template" required clrSelect>
+          <option value="">请选择</option>
+          <option value="SINGLE">一主多节点</option>
+          <option value="MULTIPLE">多主多节点</option>
+        </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
+      </clr-select-container>
     </form>
   </clr-wizard-page>
   <clr-wizard-page>
     <ng-template clrPageTitle>配置计划</ng-template>
     <form clrForm #regionForm="ngForm">
-      <clr-select-container>
+      <clr-select-container *ngIf="item.deploy_template === 'SINGLE'">
         <label>可用区</label>
         <select clrSelect [(ngModel)]="item.zone" name="cloud-region">
           <option [value]="">请选择</option>
@@ -55,6 +47,17 @@
         </select>
         <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
+
+      <clr-select-container *ngIf="item.deploy_template === 'MULTIPLE'">
+        <label>可用区</label>
+        <select clrSelect [(ngModel)]="item.zones" name="cloud-region" multiple required>
+          <option [value]="">请选择</option>
+          <option *ngFor="let zone of zones" [value]="zone.name">{{zone.name}}</option>
+        </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
+      </clr-select-container>
+
+
       <div *ngIf="cloudTemplate">
         <div *ngFor="let inf of cloudTemplate.meta.plan.infra">
           <clr-select-container>
