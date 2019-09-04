@@ -109,6 +109,9 @@
   shell: systemctl daemon-reload && systemctl restart kube-proxy
   tags: reload-kube-proxy, upgrade_k8s, restart_node
 
+- import_tasks: node_lb.yml
+  when: "DEPLOY_MODE == 'multiple-master'"
+
 # 批准 node 节点，首先轮询等待kubelet启动完成
 - name: 轮询等待kubelet启动
   shell: "systemctl status kubelet.service|grep Active"
@@ -132,5 +135,4 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
 
 
-- import_tasks: node_lb.yml
-  when: "DEPLOY_MODE == 'multiple-master'"
+
