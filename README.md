@@ -55,7 +55,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 
 - [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 VMware NSX-T；
-- [ ] 多集群策略统一管控；
+- [ ] 多集群策略（Policies）统一管控；
 
 ## 离线包
 
