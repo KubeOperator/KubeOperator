@@ -9,7 +9,7 @@ TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ hostvars[h]['ansible_def
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
 # 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
-CALICO_IPV4POOL_IPIP: "Always"
+CALICO_IPV4POOL_IPIP: "off"
 
 # 设置 Felix 日志级别
 FELIX_LOG_LVL: "warning"

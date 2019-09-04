@@ -51,7 +51,7 @@
 
 
 # to install storage_class
-- hosts: "{{groups['kube-master'][0]}}"
+- hosts: "kube-master"
   roles:
     - cluster-storage
 

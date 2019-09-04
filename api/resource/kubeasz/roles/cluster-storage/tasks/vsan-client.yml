@@ -33,24 +33,29 @@
     line: '  --cloud-provider=vsphere \'
   delegate_to: "{{ item }}"
   with_items: "{{ groups['kube-node'] }}"
+  run_once: true
 
 - name: restart kubelet service
   shell: "systemctl daemon-reload && systemctl restart kubelet"
   delegate_to: "{{ item }}"
   with_items: "{{ groups['kube-node'] }}"
+  run_once: true
 
 - name: restart apiserver and controller-manager service
   shell: "systemctl daemon-reload && systemctl restart kube-controller-manager && \
     systemctl restart kube-apiserver"
 
-- name: prepare vsan default storageclass file
-  template:
-    src: vsan/default-sc.yaml.j2
-    dest: "/tmp/default-sc.yaml"
+-block:
+  - name: prepare vsan default storageclass file
+    template:
+      src: vsan/default-sc.yaml.j2
+      dest: "/tmp/default-sc.yaml"
 
-- name: create vsan default storageclass
-  shell: "kubectl apply -f /tmp/default-sc.yaml"
-  run_once: true
+  - name: create vsan default storageclass
+    shell: "kubectl apply -f /tmp/default-sc.yaml"
 
-- name: 设置default storageClass
-  shell: "{{ bin_dir }}/kubectl patch storageclass vsphere-storageclass-default -p '{{default_label}}'"
+  - name: 设置default storageClass
+    shell: "{{ bin_dir }}/kubectl patch storageclass vsphere-storageclass-default -p '{{default_label}}'"
+
+ delegate_to: "{{ groups['kube-master'][0] }}"
+ run_once: true
