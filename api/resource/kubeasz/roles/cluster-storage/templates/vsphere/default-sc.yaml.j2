@@ -5,5 +5,4 @@ metadata:
 provisioner: kubernetes.io/vsphere-volume
 reclaimPolicy: Delete
 parameters:
-  storagePolicyName: "{{ storagepolicyname }}"
-  datastore: "{{  }}"
+  datastore: "{{ zones[0]['vc_storage'] }}"

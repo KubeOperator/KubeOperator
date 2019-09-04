@@ -8,7 +8,7 @@
     - 'storage_nfs_enabled '
     - '"nfs-provisioner" not in pod_info.stdout'
 
-- import_tasks: vsan-client.yml
+- import_tasks: vsphere-client.yml
   when:
     - 'storage_vsan_enabled is defined'
     - 'storage_vsan_enabled'

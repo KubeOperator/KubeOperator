@@ -4,10 +4,10 @@
   - govc
 
 - name: prepare vsphere.conf
-  template: src=vsan/vsphere.conf.j2 dest=/usr/local/bin/vsphere.conf
+  template: src=vsphere/vsphere.conf.j2 dest=/usr/local/bin/vsphere.conf
 
 - name: prepare setup.sh
-  template: src=vsan/setup.sh.j2 dest=/tmp/setup.sh
+  template: src=vsphere/setup.sh.j2 dest=/tmp/setup.sh
 
 - name: set disk.enableuuid to true for all vms
   shell: "bash setup.sh"
@@ -48,7 +48,7 @@
 -block:
   - name: prepare vsan default storageclass file
     template:
-      src: vsan/default-sc.yaml.j2
+      src: vsphere/default-sc.yaml.j2
       dest: "/tmp/default-sc.yaml"
 
   - name: create vsan default storageclass
