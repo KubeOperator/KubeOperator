@@ -19,7 +19,7 @@ KUBE_RESERVED: "cpu=200m,memory=500Mi,ephemeral-storage=1Gi"
 HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"
 
 # 配置 APISERVER 地址
-NODE_KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
+KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
                      https://{{ inventory_hostname }}:6443 \
                  {%- else -%} \
                      {%- if groups['kube-master']|length > 1 -%} \
@@ -29,4 +29,3 @@ NODE_KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
                      {%- endif -%} \
                  {%- endif -%}"
 
-MASTER_HOST_NAME: "{% for host in groups['kube-master'] %}https://{{ hostvars[h]['ansible_default_ipv4']['address'] }}:2379,{% endfor %}"

@@ -15,15 +15,8 @@
     - kube-master
     - kube-node
     - deploy
-    - etcd
-    - lb
   roles:
     - prepare
-
-# [optional] to install loadbalance service, only needed by multi-master cluster
-- hosts: lb
-  roles:
-    - lb
 
 # to install etcd cluster
 - hosts: etcd

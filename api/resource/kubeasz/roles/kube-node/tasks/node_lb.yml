@@ -27,19 +27,19 @@
   lineinfile:
     dest: /root/.kube/config
     regexp: "^    server"
-    line: "    server: {{ NODE_KUBE_APISERVER }}"
+    line: "    server: {{ KUBE_APISERVER }}"
 
 - name: 替换 kubelet.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kubelet.kubeconfig
     regexp: "^    server"
-    line: "    server: {{ NODE_KUBE_APISERVER }}"
+    line: "    server: {{ KUBE_APISERVER }}"
 
 - name: 替换 kube-proxy.kubeconfig 的 apiserver 地址
   lineinfile:
     dest: /etc/kubernetes/kube-proxy.kubeconfig
     regexp: "^    server"
-    line: "    server: {{ NODE_KUBE_APISERVER }}"
+    line: "    server: {{ KUBE_APISERVER }}"
 
 - name: restart kube-node service
   service:
