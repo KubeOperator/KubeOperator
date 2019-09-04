@@ -3,11 +3,11 @@
   <form clrForm>
     <clr-input-container>
       <label>BIG-IP URL</label>
-      <input clrInput type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
     </clr-input-container>
     <clr-input-container>
       <label>BIG-IP 用户名</label>
-      <input clrInput type="text" [(ngModel)]="currentCluster.meta['bigip_username']" name="username"/>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_username']" name="username"/>
     </clr-input-container>
     <clr-password-container>
       <label>BIG-IP 密码</label>
@@ -15,11 +15,11 @@
     </clr-password-container>
     <clr-input-container>
       <label>Partition</label>
-      <input clrInput type="text" [(ngModel)]="currentCluster.meta['bigip_partition']" name="part"/>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_partition']" name="part"/>
     </clr-input-container>
     <clr-input-container>
       <label>公网 IP</label>
-      <input clrInput type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
     </clr-input-container>
   </form>
   <button class="btn btn-info-outline" (click)="onCommit()">保存</button>

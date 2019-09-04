@@ -13,14 +13,14 @@
           <div *ngIf="op.type !== 'parent'">
             <clr-input-container>
               <label>{{op.name}}</label>
-              <input [placeholder]="op.default" type="text" clrInput [(ngModel)]="op.value" [name]="op.name"/>
+              <input [placeholder]="op.default" type="text" clrInput size=45 [(ngModel)]="op.value" [name]="op.name"/>
             </clr-input-container>
           </div>
           <div *ngIf="op.type == 'parent'">
             <div *ngFor="let children of op.children">
               <clr-input-container>
                 <label>{{children.name}}</label>
-                <input [placeholder]="children.default" type="text" clrInput
+                <input [placeholder]="children.default" type="text" clrInput size=45
                        [(ngModel)]="op.value[children.name]"
                        [name]="children.name"/>
               </clr-input-container>

@@ -12,7 +12,7 @@
         <label>集群名称</label>
         <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()" clrInput required>
+               name="cluster_name" (keyup)="handleValidation()" clrInput size=45 required>
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
@@ -44,7 +44,7 @@
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
-        <input clrInput type="number" [(ngModel)]="cluster.worker_size" name="work_size">
+        <input clrInput size=45 type="number" [(ngModel)]="cluster.worker_size" name="work_size">
       </clr-input-container>
     </form>
   </clr-wizard-page>
@@ -181,7 +181,7 @@
             </clr-select-container>
             <clr-input-container *ngSwitchCase="'Input'">
               <label>{{config.alias}}</label>
-              <input clrInput [name]="config.name" [(ngModel)]="config.value" required>
+              <input clrInput size=45 [name]="config.name" [(ngModel)]="config.value" required>
             </clr-input-container>
           </div>
         </div>
@@ -212,7 +212,7 @@
             </clr-select-container>
             <clr-input-container *ngSwitchCase="'Input'">
               <label>{{config.alias}}</label>
-              <input clrInput [name]="config.name" [(ngModel)]="config.value" required>
+              <input clrInput size=45 [name]="config.name" [(ngModel)]="config.value" required>
             </clr-input-container>
             <clr-toggle-container *ngSwitchCase="'Switch'">
               <clr-toggle-wrapper>
@@ -277,7 +277,7 @@
         <div [ngSwitch]="config.type" [hidden]="!config.display">
           <clr-input-container *ngSwitchCase="'Input'">
             <label>{{config.alias}}</label>
-            <input clrInput type="text" [value]="config.default" [(ngModel)]="config.value"
+            <input clrInput size=45 type="text" [value]="config.default" [(ngModel)]="config.value"
                    [ngModelOptions]="{standalone: true}">
           </clr-input-container>
           <clr-checkbox [clrInline]="true" *ngSwitchCase="'Checkbox'" [(ngModel)]="config.value"

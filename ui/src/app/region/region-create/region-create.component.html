@@ -12,7 +12,7 @@
     <form clrForm #regionForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
       </clr-input-container>
@@ -33,7 +33,7 @@
         <div>
           <clr-input-container>
             <label>vCenter Host</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['vc_host']" name="vc_host" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_host']" name="vc_host" required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>vCenter API地址</clr-control-helper>
           </clr-input-container>
@@ -41,7 +41,7 @@
         <div>
           <clr-input-container>
             <label>vCenter 端口</label>
-            <input clrInput type="number" [(ngModel)]="item.vars['vc_port']" name="vc_port" required>
+            <input clrInput size=45 type="number" [(ngModel)]="item.vars['vc_port']" name="vc_port" required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>访问 vCenter API的端口， http: 80 ,https: 443</clr-control-helper>
           </clr-input-container>
@@ -49,7 +49,7 @@
         <div>
           <clr-input-container>
             <label>用户名</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['vc_username']" name="vc_username" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_username']" name="vc_username" required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>访问 vCenter 的用户名</clr-control-helper>
           </clr-input-container>

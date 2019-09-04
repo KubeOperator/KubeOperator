@@ -13,7 +13,7 @@
     <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 type="text" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
       </clr-input-container>
@@ -77,17 +77,17 @@
         </clr-select-container>
         <clr-input-container>
           <label>起始IP</label>
-          <input clrInput type="text" [(ngModel)]="item.vars['vc_ip_start']" name="ip_start" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_ip_start']" name="ip_start" required>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-input-container>
         <clr-input-container>
           <label>终止IP</label>
-          <input clrInput type="text" [(ngModel)]="item.vars['vc_ip_end']" name="ip_end" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_ip_end']" name="ip_end" required>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-input-container>
         <clr-input-container>
           <label>网关IP</label>
-          <input clrInput type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-input-container>
       </div>
