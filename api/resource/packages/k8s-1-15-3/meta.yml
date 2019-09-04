@@ -176,14 +176,14 @@ apps:
     describe: "集群监控采集工具"
 
   - name: Registry-console
-    logo: registry.ico
+    logo: registry.png
     url_key: registry-ui
-    describe: "集群镜像仓库"
+    describe: "Docker 群镜像仓库"
 
   - name: Traefik
     logo: traefik_logo.svg
     url_key: traefik
-    describe: "Traefik 是一个为了让部署微服务更加便捷而诞生的现代 HTTP 反向代理、负载均衡工具"
+    describe: "HTTP 反向代理、负载均衡工具"
 
   - name: Weave Scope
     logo: weave-logo.png
