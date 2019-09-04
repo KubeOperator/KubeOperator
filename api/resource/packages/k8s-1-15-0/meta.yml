@@ -53,6 +53,12 @@ images:
     tag: v2
   - name: docker.io/weaveworks/scope:1.9.1
     tag: 1.9.1
+  - name: calico/node
+    tag: v3.4.4
+  - name: calico/cni
+    tag: v3.4.4
+  - name: calico/kube-controllers
+    tag: v3.4.4
 playbooks:
   - name:  common-config
     alias: common/common.yml

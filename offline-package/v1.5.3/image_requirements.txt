@@ -20,3 +20,6 @@ docker.io/grafana/grafana:5.2.1
 docker.io/coredns/coredns:1.5.0
 weaveworks/scope:1.9.1
 f5networks/k8s-bigip-ctlr:1.9.2
+calico/node:v3.4.4
+calico/cni:v3.4.4
+calico/kube-controllers:v3.4.4
