@@ -271,20 +271,6 @@ storages:
 
 
 public_config:
-  - name: MASTER_IP
-    alias: 域名
-    type: Input
-    value: master1.$cluster_name$domain_suffix
-    required: true
-    help_text: kubernetes 访问地址
-    display: true
-  - name: KUBE_APISERVER
-    alias: api-server 地址
-    type: Input
-    value: https://master1.$cluster_name$domain_suffix:6443
-    required: true
-    help_text: kubernetes api-server 地址
-    display: true
   - name: APP_DOMAIN
     alias: 应用域名
     type: Input
