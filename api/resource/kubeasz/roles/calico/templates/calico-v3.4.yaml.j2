@@ -1,4 +1,4 @@
-# Calico Version {{ calico_ver }} 
+# Calico Version {{ calico_ver }}
 # https://docs.projectcalico.org/{{ calico_ver_main }}/releases#{{ calico_ver }}
 # This manifest includes the following component versions:
 #   calico/node:{{ calico_ver }}
@@ -221,7 +221,7 @@ spec:
             # Disable IPv6 on Kubernetes.
             - name: FELIX_IPV6SUPPORT
               value: "false"
-            # Set Felix logging 
+            # Set Felix logging
             - name: FELIX_LOGSEVERITYSCREEN
               value: "{{ FELIX_LOG_LVL }}"
             - name: FELIX_HEALTHENABLED
@@ -485,4 +485,3 @@ subjects:
   name: calico-node
   namespace: kube-system
 ---
-

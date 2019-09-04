@@ -1,5 +1,5 @@
-# Calico Version {{ calico_ver }} 
-# https://docs.projectcalico.org/v3.3/releases#{{ calico_ver }}
+# Calico Version {{ calico_ver }}
+# https://docs.projectcalico.org/{{ calico_ver_main }}/releases#{{ calico_ver }}
 # This manifest includes the following component versions:
 #   calico/node:{{ calico_ver }}
 #   calico/cni:{{ calico_ver }}
@@ -110,6 +110,44 @@ spec:
       # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
       # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
       terminationGracePeriodSeconds: 0
+      initContainers:
+        # This container installs the Calico CNI binaries
+        # and CNI network config file on each node.
+        - name: install-cni
+          image: calico/cni:{{ calico_ver }}
+          command: ["/install-cni.sh"]
+          env:
+            # Name of the CNI config file to create.
+            - name: CNI_CONF_NAME
+              value: "10-calico.conflist"
+            # The CNI network config to install on each node.
+            - name: CNI_NETWORK_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: cni_network_config
+            # The location of the Calico etcd cluster.
+            - name: ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            # CNI MTU Config variable
+            - name: CNI_MTU
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: veth_mtu
+            # Prevents the container from sleeping forever.
+            - name: SLEEP
+              value: "false"
+          volumeMounts:
+            - mountPath: /host/opt/cni/bin
+              name: cni-bin-dir
+            - mountPath: /host/etc/cni/net.d
+              name: cni-net-dir
+            - mountPath: /calico-secrets
+              name: etcd-certs
       containers:
         # Runs calico/node container on each Kubernetes node.  This
         # container programs network policy and routes on each
@@ -183,7 +221,7 @@ spec:
             # Disable IPv6 on Kubernetes.
             - name: FELIX_IPV6SUPPORT
               value: "false"
-            # Set Felix logging 
+            # Set Felix logging
             - name: FELIX_LOGSEVERITYSCREEN
               value: "{{ FELIX_LOG_LVL }}"
             - name: FELIX_HEALTHENABLED
@@ -227,40 +265,6 @@ spec:
             - mountPath: /var/lib/calico
               name: var-lib-calico
               readOnly: false
-            - mountPath: /calico-secrets
-              name: etcd-certs
-        # This container installs the Calico CNI binaries
-        # and CNI network config file on each node.
-        - name: install-cni
-          image: calico/cni:{{ calico_ver }}
-          command: ["/install-cni.sh"]
-          env:
-            # Name of the CNI config file to create.
-            - name: CNI_CONF_NAME
-              value: "10-calico.conflist"
-            # The location of the Calico etcd cluster.
-            - name: ETCD_ENDPOINTS
-              valueFrom:
-                configMapKeyRef:
-                  name: calico-config
-                  key: etcd_endpoints
-            # The CNI network config to install on each node.
-            - name: CNI_NETWORK_CONFIG
-              valueFrom:
-                configMapKeyRef:
-                  name: calico-config
-                  key: cni_network_config
-            # CNI MTU Config variable
-            - name: CNI_MTU
-              valueFrom:
-                configMapKeyRef:
-                  name: calico-config
-                  key: veth_mtu
-          volumeMounts:
-            - mountPath: /host/opt/cni/bin
-              name: cni-bin-dir
-            - mountPath: /host/etc/cni/net.d
-              name: cni-net-dir
             - mountPath: /calico-secrets
               name: etcd-certs
       volumes:
@@ -394,28 +398,31 @@ kind: ServiceAccount
 metadata:
   name: calico-kube-controllers
   namespace: kube-system
-
 ---
 
+# Include a clusterrole for the kube-controllers component,
+# and bind it to the calico-kube-controllers serviceaccount.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: calico-kube-controllers
 rules:
+  # Pods are monitored for changing labels.
+  # The node controller monitors Kubernetes nodes.
+  # Namespace and serviceaccount labels are used for policy.
   - apiGroups:
-    - ""
-    - extensions
+      - ""
     resources:
       - pods
-      - namespaces
-      - networkpolicies
       - nodes
+      - namespaces
       - serviceaccounts
     verbs:
       - watch
       - list
+  # Watch for changes to Kubernetes NetworkPolicies.
   - apiGroups:
-    - networking.k8s.io
+      - networking.k8s.io
     resources:
       - networkpolicies
     verbs:
@@ -434,14 +441,15 @@ subjects:
 - kind: ServiceAccount
   name: calico-kube-controllers
   namespace: kube-system
-
 ---
-
+# Include a clusterrole for the calico-node DaemonSet,
+# and bind it to the calico-node serviceaccount.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
   name: calico-node
 rules:
+  # The CNI plugin needs to get pods, nodes, and namespaces.
   - apiGroups: [""]
     resources:
       - pods
@@ -451,12 +459,19 @@ rules:
       - get
   - apiGroups: [""]
     resources:
+      - endpoints
+      - services
+    verbs:
+      # Used to discover service IPs for advertisement.
+      - watch
+      - list
+  - apiGroups: [""]
+    resources:
       - nodes/status
     verbs:
+      # Needed for clearing NodeNetworkUnavailable flag.
       - patch
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
@@ -469,3 +484,4 @@ subjects:
 - kind: ServiceAccount
   name: calico-node
   namespace: kube-system
+---
