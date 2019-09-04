@@ -16,6 +16,16 @@
   </div>
   <app-password></app-password>
   <div class="header-actions">
+    <clr-dropdown>
+      <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
+        <clr-icon shape="help" class="is-inverse" size="24"></clr-icon>
+        <clr-icon shape="caret down"></clr-icon>
+      </button>
+      <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+        <a href="https://docs.kubeoperator.io" target="_blank" clrDropdownItem>帮助</a>
+        <a href="javascript:void(0)" (click)="showInfo()" clrDropdownItem>关于</a>
+      </clr-dropdown-menu>
+    </clr-dropdown>
     <clr-dropdown class="dropdown">
       <button class="nav-text" clrDropdownToggle>
         <clr-icon shape="user" class="is-inverse" size="24"></clr-icon>
@@ -25,8 +35,6 @@
       <clr-dropdown-menu [clrPosition]="'bottom-right'">
         <a href="javascript:void(0)" clrDropdownItem (click)="changePassword()">修改密码</a>
         <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
-        <a href="javascript:void(0)" clrDropdownItem (click)="showInfo()">关于</a>
-
       </clr-dropdown-menu>
     </clr-dropdown>
   </div>

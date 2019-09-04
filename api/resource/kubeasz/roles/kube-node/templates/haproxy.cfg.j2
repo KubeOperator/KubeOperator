@@ -19,5 +19,5 @@ listen kube-master
         option dontlog-normal
         balance {{ BALANCE_ALG }}
 {% for host in groups['kube-master'] %}
-        server {{  hostvars[host]['ansible_default_ipv4']['address']  }} {{  hostvars[h]['ansible_default_ipv4']['address']  }}:6443 check inter 10s fall 2 rise 2 weight 1
+        server {{  hostvars[host]['ansible_default_ipv4']['address']  }} {{  hostvars[host]['ansible_default_ipv4']['address']  }}:6443 check inter 10s fall 2 rise 2 weight 1
 {% endfor %}

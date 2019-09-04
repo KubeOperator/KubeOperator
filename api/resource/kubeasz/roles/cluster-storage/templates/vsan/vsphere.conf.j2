@@ -4,7 +4,7 @@ password = "{{ vc_password }}"
 server = "{{ vc_host }}"
 port = "{{ vc_port }}"
 datacenter = "{{ region }}"
-datastore = "{{ vc_storage }}"
+datastore = "{{ zones[0]['vc_storage'] }}"
 working-dir = "kubeoperator"
 insecure-flag = "1"
 

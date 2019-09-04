@@ -145,7 +145,6 @@ class Cluster(Project):
 
     def create_roles(self):
         _roles = {}
-        print("test")
         for role in self.package.meta.get('roles', []):
             _roles[role['name']] = role
         template = None

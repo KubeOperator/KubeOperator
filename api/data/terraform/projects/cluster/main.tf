@@ -103,86 +103,8 @@ resource "vsphere_virtual_machine" "master1" {
   }
 }
 
-resource "vsphere_virtual_machine" "worker3" {
-  name = "worker3.cluster.f2c.com"
-  folder = "kubeoperator"
-  resource_pool_id = "${data.vsphere_resource_pool.az-2.id}"
-  datastore_id = "${data.vsphere_datastore.az-2.id}"
-  num_cpus = 2
-  memory = 8192
-  guest_id = "centos6_64Guest"
-
-  network_interface {
-    network_id = "${data.vsphere_network.az-2.id}"
-  }
-
-  disk {
-    label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
-  }
-
-
-  clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
-    customize {
-
-      linux_options {
-        host_name = "worker3"
-        domain = "cluster.f2c.com"
-      }
-
-      network_interface {
-        ipv4_address = "172.16.10.86"
-        ipv4_netmask = 24
-      }
-      ipv4_gateway = "172.16.10.254"
-    }
-  }
-}
-
-resource "vsphere_virtual_machine" "master3" {
-  name = "master3.cluster.f2c.com"
-  folder = "kubeoperator"
-  resource_pool_id = "${data.vsphere_resource_pool.az-2.id}"
-  datastore_id = "${data.vsphere_datastore.az-2.id}"
-  num_cpus = 2
-  memory = 8192
-  guest_id = "centos6_64Guest"
-
-  network_interface {
-    network_id = "${data.vsphere_network.az-2.id}"
-  }
-
-  disk {
-    label            = "disk0"
-    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
-    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
-    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
-  }
-
-
-  clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
-    customize {
-
-      linux_options {
-        host_name = "master3"
-        domain = "cluster.f2c.com"
-      }
-
-      network_interface {
-        ipv4_address = "172.16.10.87"
-        ipv4_netmask = 24
-      }
-      ipv4_gateway = "172.16.10.254"
-    }
-  }
-}
-
-resource "vsphere_virtual_machine" "worker1" {
-  name = "worker1.cluster.f2c.com"
+resource "vsphere_virtual_machine" "daemon1" {
+  name = "daemon1.cluster.f2c.com"
   folder = "kubeoperator"
   resource_pool_id = "${data.vsphere_resource_pool.az-3.id}"
   datastore_id = "${data.vsphere_datastore.az-3.id}"
@@ -207,12 +129,12 @@ resource "vsphere_virtual_machine" "worker1" {
     customize {
 
       linux_options {
-        host_name = "worker1"
+        host_name = "daemon1"
         domain = "cluster.f2c.com"
       }
 
       network_interface {
-        ipv4_address = "172.16.10.96"
+        ipv4_address = "172.16.10.97"
         ipv4_netmask = 24
       }
       ipv4_gateway = "172.16.10.254"
@@ -259,17 +181,17 @@ resource "vsphere_virtual_machine" "master2" {
   }
 }
 
-resource "vsphere_virtual_machine" "daemon1" {
-  name = "daemon1.cluster.f2c.com"
+resource "vsphere_virtual_machine" "master3" {
+  name = "master3.cluster.f2c.com"
   folder = "kubeoperator"
-  resource_pool_id = "${data.vsphere_resource_pool.az-3.id}"
-  datastore_id = "${data.vsphere_datastore.az-3.id}"
+  resource_pool_id = "${data.vsphere_resource_pool.az-2.id}"
+  datastore_id = "${data.vsphere_datastore.az-2.id}"
   num_cpus = 2
   memory = 8192
   guest_id = "centos6_64Guest"
 
   network_interface {
-    network_id = "${data.vsphere_network.az-3.id}"
+    network_id = "${data.vsphere_network.az-2.id}"
   }
 
   disk {
@@ -285,12 +207,12 @@ resource "vsphere_virtual_machine" "daemon1" {
     customize {
 
       linux_options {
-        host_name = "daemon1"
+        host_name = "master3"
         domain = "cluster.f2c.com"
       }
 
       network_interface {
-        ipv4_address = "172.16.10.97"
+        ipv4_address = "172.16.10.87"
         ipv4_netmask = 24
       }
       ipv4_gateway = "172.16.10.254"
@@ -330,6 +252,84 @@ resource "vsphere_virtual_machine" "worker2" {
 
       network_interface {
         ipv4_address = "172.16.10.72"
+        ipv4_netmask = 24
+      }
+      ipv4_gateway = "172.16.10.254"
+    }
+  }
+}
+
+resource "vsphere_virtual_machine" "worker1" {
+  name = "worker1.cluster.f2c.com"
+  folder = "kubeoperator"
+  resource_pool_id = "${data.vsphere_resource_pool.az-3.id}"
+  datastore_id = "${data.vsphere_datastore.az-3.id}"
+  num_cpus = 2
+  memory = 8192
+  guest_id = "centos6_64Guest"
+
+  network_interface {
+    network_id = "${data.vsphere_network.az-3.id}"
+  }
+
+  disk {
+    label            = "disk0"
+    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
+    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
+    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+  }
+
+
+  clone {
+    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    customize {
+
+      linux_options {
+        host_name = "worker1"
+        domain = "cluster.f2c.com"
+      }
+
+      network_interface {
+        ipv4_address = "172.16.10.96"
+        ipv4_netmask = 24
+      }
+      ipv4_gateway = "172.16.10.254"
+    }
+  }
+}
+
+resource "vsphere_virtual_machine" "worker3" {
+  name = "worker3.cluster.f2c.com"
+  folder = "kubeoperator"
+  resource_pool_id = "${data.vsphere_resource_pool.az-2.id}"
+  datastore_id = "${data.vsphere_datastore.az-2.id}"
+  num_cpus = 2
+  memory = 8192
+  guest_id = "centos6_64Guest"
+
+  network_interface {
+    network_id = "${data.vsphere_network.az-2.id}"
+  }
+
+  disk {
+    label            = "disk0"
+    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
+    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
+    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+  }
+
+
+  clone {
+    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    customize {
+
+      linux_options {
+        host_name = "worker3"
+        domain = "cluster.f2c.com"
+      }
+
+      network_interface {
+        ipv4_address = "172.16.10.86"
         ipv4_netmask = 24
       }
       ipv4_gateway = "172.16.10.254"

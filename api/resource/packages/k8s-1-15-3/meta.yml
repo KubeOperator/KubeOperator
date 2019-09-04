@@ -228,6 +228,22 @@ networks:
         value: 172.20.0.0/16
         required: true
         display: true
+  - name: calico
+    vars:
+      CLUSTER_NETWORK: calico
+    configs:
+      - name: SERVICE_CIDR
+        alias: Service CIDR
+        value: 10.68.0.0/16
+        type: Input
+        required: true
+        display: true
+      - name: CLUSTER_CIDR
+        type: Input
+        alias: POD CIDR
+        value: 172.20.0.0/16
+        required: true
+        display: true
 
 storages:
   - name: vsan

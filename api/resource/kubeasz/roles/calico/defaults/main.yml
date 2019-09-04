@@ -5,7 +5,7 @@
 NODE_WITH_MULTIPLE_NETWORKS: "true"
 
 # etcd 集群服务地址列表, 根据etcd组成员自动生成
-TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ h }}:2379,{% endfor %}"
+TMP_ENDPOINTS: "{% for h in groups['etcd'] %}https://{{ hostvars[h]['ansible_default_ipv4']['address'] }}:2379,{% endfor %}"
 ETCD_ENDPOINTS: "{{ TMP_ENDPOINTS.rstrip(',') }}"
 
 # 设置 CALICO_IPV4POOL_IPIP=“off”,可以提高网络性能，条件限制详见 docs/setup/calico.md
@@ -24,5 +24,3 @@ calico_ver: "v3.4.4"
 # calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 
-# 离线镜像tar包
-calico_offline: "calico_{{ calico_ver }}.tar"
