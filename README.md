@@ -41,6 +41,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持 Multi AZ，支持多主多节点部署模式；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode）；
 - [x] 集成 Weave Scope (支持 Web Shell)；
+- [x] 支持 Calico 作为网络方案；
 
  v2.1.0 （开发中）
  
@@ -49,7 +50,6 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 etcd 备份及恢复；
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
-- [ ] 支持 Calico 作为网络方案；
 
  v3.0.0 （计划中）
 
