@@ -45,7 +45,8 @@
   shell: "systemctl daemon-reload && systemctl restart kube-controller-manager && \
     systemctl restart kube-apiserver"
 
--block:
+
+- block:
   - name: prepare vsan default storageclass file
     template:
       src: vsphere/default-sc.yaml.j2
@@ -56,6 +57,5 @@
 
   - name: 设置default storageClass
     shell: "{{ bin_dir }}/kubectl patch storageclass vsphere-storageclass-default -p '{{default_label}}'"
-
- delegate_to: "{{ groups['kube-master'][0] }}"
- run_once: true
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true
