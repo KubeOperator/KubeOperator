@@ -69,8 +69,8 @@ KubeOperator 会持续维护包括操作系统、Kubernetes 及常用组件的�
 - [KubeOperator 安装及升级指南](https://github.com/KubeOperator/KubeOperator/blob/master/docs/install-1.md)
 
 使用指南：
-- [KubeOperator 使用指南（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
 - [KubeOperator 使用指南（自动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-2.md)
+- [KubeOperator 使用指南（手动模式）](https://github.com/KubeOperator/KubeOperator/blob/master/docs/user-guide-1.md)
 
 > Note:
 > - 手动模式：用户需要自行准备主机及 NFS 存储，适合在物理机环境下部署。
