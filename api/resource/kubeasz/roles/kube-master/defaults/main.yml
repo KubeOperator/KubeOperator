@@ -16,3 +16,7 @@ BASIC_AUTH_PASS: '_pwd_'
 # 如果flannel 使用 --kube-subnet-mgr 参数，那么它将读取该设置为每个节点分配pod网段
 # https://github.com/coreos/flannel/issues/847
 NODE_CIDR_LEN: 24
+
+# 配置 APISERVER 地址
+KUBE_APISERVER: "https://{{ inventory_hostname }}:6443"
+

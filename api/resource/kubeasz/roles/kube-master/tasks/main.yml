@@ -117,3 +117,19 @@
   delegate_to: "{{ groups['kube-master'][0]}}"
   run_once: true
   tags: restart_master
+
+- name: 下载 kubectl
+  copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+  with_items:
+  - kubectl
+
+- name: 分发 kubeconfig配置文件
+  synchronize: src=/root/.kube/config dest=/root/.kube/config
+  delegate_to: "{{ groups['kube-master'][0] }}"
+
+- name: 替换 kubeconfig 的 apiserver 地址
+  lineinfile:
+    dest: /root/.kube/config
+    regexp: "^    server"
+    line: "    server: {{ KUBE_APISERVER }}"
+
