@@ -3,7 +3,7 @@ version: 1.15.3
 components:
   kubernetes: 1.15.3
   etcd: 3.3.10
-  docker: docker-ce-18.09.2
+  docker: docker-ce-18.09.9
 images:
   - name: quay.io/external_storage/nfs-client-provisioner
     tag: v3.1.0-k8s1.11
