@@ -123,6 +123,11 @@
   with_items:
   - kubectl
 
+- name: 创建 kubeconfig 相关目录
+  file: name={{ item }} state=directory
+  with_items:
+  - /root/.kube
+
 - name: 分发 kubeconfig配置文件
   synchronize: src=/root/.kube/config dest=/root/.kube/config
   delegate_to: "{{ groups['kube-master'][0] }}"
@@ -132,4 +137,3 @@
     dest: /root/.kube/config
     regexp: "^    server"
     line: "    server: {{ KUBE_APISERVER }}"
-
