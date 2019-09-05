@@ -1,9 +1,3 @@
-# Calico Version {{ calico_ver }}
-# https://docs.projectcalico.org/{{ calico_ver_main }}/releases#{{ calico_ver }}
-# This manifest includes the following component versions:
-#   calico/node:{{ calico_ver }}
-#   calico/cni:{{ calico_ver }}
-#   calico/kube-controllers:{{ calico_ver }}
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -114,7 +108,7 @@ spec:
         # This container installs the Calico CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: calico/cni:{{ calico_ver }}
+          image: {{registry_prefix}}/calico/cni:{{ calico_ver }}
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -153,7 +147,7 @@ spec:
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: calico/node:{{ calico_ver }}
+          image: {{registry_prefix}}/calico/node:{{ calico_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
@@ -345,7 +339,7 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          image: calico/kube-controllers:{{ calico_ver }}
+          image: {{registry_prefix}}/calico/kube-controllers:{{ calico_ver }}
           env:
             # The location of the Calico etcd cluster.
             - name: ETCD_ENDPOINTS
