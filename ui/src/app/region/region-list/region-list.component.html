@@ -24,7 +24,7 @@
   <clr-dg-column>创建时间</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-    <clr-dg-cell style="cursor: pointer;"><a (click)="onShowDetail(item)">{{item.name}}</a></clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="onShowDetail(item)">{{item.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{item.template}}</clr-dg-cell>
     <clr-dg-cell>{{item.zone_size}}</clr-dg-cell>
     <clr-dg-cell>{{item.cluster_size}}</clr-dg-cell>

@@ -22,6 +22,7 @@ import {RegionComponent} from './region/region.component';
 import {ZoneComponent} from './zone/zone.component';
 import {PlanComponent} from './plan/plan.component';
 import {F5BigIpComponent} from './f5-big-ip/f5-big-ip.component';
+import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -38,15 +39,22 @@ const routes: Routes = [
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
       {
+        path: 'plan',
+        component: DeployPlanComponent,
+        children: [
+          {path: '', redirectTo: 'plan', pathMatch: 'full'},
+          {path: 'region', component: RegionComponent},
+          {path: 'zone', component: ZoneComponent},
+          {path: 'plan', component: PlanComponent}
+        ]
+      },
+      {
         path: 'setting',
         component: SettingComponent,
         children: [
           {path: '', redirectTo: 'system', pathMatch: 'full'},
           {path: 'system', component: SystemSettingComponent},
           {path: 'credential', component: CredentialComponent},
-          {path: 'region', component: RegionComponent},
-          {path: 'zone', component: ZoneComponent},
-          {path: 'plan', component: PlanComponent}
         ]
       },
       {

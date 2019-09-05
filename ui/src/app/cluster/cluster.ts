@@ -23,6 +23,7 @@ export class Cluster {
   apps: {};
   region: string;
   zone: string;
+  zones: string[] = [];
   meta: {} = {};
 }
 

@@ -25,10 +25,12 @@ import {RegionModule} from './region/region.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
+import { DeployPlanComponent } from './deploy-plan/deploy-plan.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    DeployPlanComponent,
   ],
   imports: [
     CredentialModule,
