@@ -74,6 +74,11 @@ class Cluster(Project):
             return zones
 
     @property
+    def cloud_provider(self):
+        if self.plan:
+            return self.plan.region.vars['provider']
+
+    @property
     def current_execution(self):
         current = kubeops_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current

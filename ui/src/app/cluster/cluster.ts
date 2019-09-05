@@ -8,6 +8,7 @@ export class Cluster {
   comment: string;
   template: string;
   deploy_type: string;
+  cloud_provider: string;
   plan: string;
   worker_size = 3;
   persistent_storage: string;

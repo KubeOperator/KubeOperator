@@ -28,6 +28,7 @@
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>节点</clr-dg-column>
+  <clr-dg-column>云提供商</clr-dg-column>
   <clr-dg-column>部署模式</clr-dg-column>
   <clr-dg-column>部署模型</clr-dg-column>
   <clr-dg-column>部署计划</clr-dg-column>
@@ -38,6 +39,9 @@
     <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{cluster.resource}}</clr-dg-cell>
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
+    <clr-dg-cell>
+      <img *ngIf="cluster.cloud_provider ==='vsphere'" width="24px" height="16px" src="assets/images/vsphere.png"/>
+      {{cluster.cloud_provider}}</clr-dg-cell>
     <clr-dg-cell>{{getDeployTypeComment(cluster.deploy_type)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.plan}}</clr-dg-cell>
