@@ -197,8 +197,6 @@ cluster_infos:
     key: CLUSTER_NETWORK
   - name: 网络模式
     key: FLANNEL_BACKEND
-  - name: apiserver地址
-    key: KUBE_APISERVER
   - name: server_cidr
     key: SERVICE_CIDR
   - name: cluster_cidr
@@ -208,7 +206,6 @@ networks:
   - name: flannel
     vars:
       CLUSTER_NETWORK: flannel
-      NODE_WITH_MULTIPLE_NETWORKS: "true"
       flanneld_image: "quay.io/coreos/flannel"
       flanneld_version: "v0.11.0-amd64"
     configs:

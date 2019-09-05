@@ -66,6 +66,14 @@ class Cluster(Project):
             return self.plan.zone.name
 
     @property
+    def zones(self):
+        if self.plan.zones:
+            zones = []
+            for zone in self.plan.zones.all():
+                zones.append(zone.name)
+            return zones
+
+    @property
     def current_execution(self):
         current = kubeops_api.models.deploy.DeployExecution.objects.filter(project=self).first()
         return current
