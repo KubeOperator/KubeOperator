@@ -19,7 +19,7 @@ services:
 
   api:
     build: api
-    image: kube-operator/api:1.0.0
+    image: kube-operator/api:2.0.0
     container_name: kubeops_api
     restart: always
     privileged: true
@@ -71,7 +71,7 @@ services:
 
   ui:
     build: ui
-    image: kube-operator/ui:1.0.0
+    image: kube-operator/ui:2.0.0
     container_name: kubeops_ui
     restart: always
 
