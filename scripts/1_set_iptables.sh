@@ -25,7 +25,6 @@ function main {
         set_iptables
         exit 0
     fi
-    service docker restart
 }
 
 main
