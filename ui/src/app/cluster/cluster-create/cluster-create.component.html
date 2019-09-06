@@ -38,13 +38,14 @@
       <clr-select-container>
         <label>计划</label>
         <select clrSelect [(ngModel)]="cluster.plan" (change)="planOnChange()" name="plan">
-          <option [value]="">请选择</option>
+          <option value="">请选择</option>
           <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
         </select>
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
-        <input clrInput size=45 type="number" [(ngModel)]="cluster.worker_size" name="work_size">
+        <input clrInput size=45 type="number" min="3" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
+               name="work_size">
       </clr-input-container>
     </form>
   </clr-wizard-page>

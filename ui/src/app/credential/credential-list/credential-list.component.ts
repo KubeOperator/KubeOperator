@@ -49,6 +49,7 @@ export class CredentialListComponent implements OnInit {
     }).finally(
       () => {
         this.showDelete = false;
+        this.selected = [];
         this.listItems();
       }
     );

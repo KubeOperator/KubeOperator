@@ -36,12 +36,12 @@
       </clr-select-container>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page>
+  <clr-wizard-page [clrWizardPageNextDisabled]="planForm.invalid">
     <ng-template clrPageTitle>配置计划</ng-template>
-    <form clrForm #regionForm="ngForm">
+    <form clrForm #planForm="ngForm">
       <clr-select-container *ngIf="item.deploy_template === 'SINGLE'">
         <label>可用区</label>
-        <select clrSelect [(ngModel)]="item.zone" name="cloud-region">
+        <select clrSelect [(ngModel)]="item.zone" name="cloud-region" required>
           <option [value]="">请选择</option>
           <option *ngFor="let zone of zones" [value]="zone.name">{{zone.name}}</option>
         </select>
@@ -62,7 +62,7 @@
         <div *ngFor="let inf of cloudTemplate.meta.plan.infra">
           <clr-select-container>
             <label>{{inf.alias}}</label>
-            <select clrSelect [(ngModel)]="item.vars[inf.name]" [name]="inf.name">
+            <select clrSelect [(ngModel)]="item.vars[inf.name]" [name]="inf.name" required>
               <option [value]="">请选择</option>
               <option *ngFor="let model of cloudTemplate.meta.plan.models" [value]="model.name">{{model.name}}</option>
             </select>
