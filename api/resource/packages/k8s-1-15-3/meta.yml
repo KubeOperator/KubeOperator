@@ -68,6 +68,8 @@ playbooks:
     alias: kubeasz/99.clean.yml
   - name: add-node
     alias: kubeasz/20.addnode.yml
+  - name:  bigip-config
+    alias: kubeasz/08.f5-bigip.yml
   - name: test
     alias: kubeasz/100.test.yml
 roles:
@@ -318,6 +320,9 @@ templates:
         playbooks:
           - common-config
           - add-node
+      - name: bigip-config
+        playbooks:
+          - bigip-config
     roles:
       - name: master
         vars:
@@ -439,6 +444,9 @@ templates:
         playbooks:
           - common-config
           - add-node
+      - name: bigip-config
+        playbooks:
+          - bigip-config
     roles:
       - name: master
         vars:
