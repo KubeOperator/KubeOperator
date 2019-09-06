@@ -6,7 +6,7 @@
 
 
 - name: 获取docker版本信息
-  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
+  shell: "{{ base_dir }}/bin/docker --version|cut -d' ' -f3"
   register: docker_ver
   connection: local
   run_once: true
