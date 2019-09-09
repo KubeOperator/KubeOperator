@@ -7,7 +7,7 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-## 什么是 KubeOperator？
+## 项目介绍
 
 KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在完全离线和多云环境下，部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在云平台（比如 VMware 及 Openstack）上部署和管理 Kubernetes 集群，实现 Kubernetes as a Service。
 ![overview](https://github.com/KubeOperator/KubeOperator/blob/master/docs/images/KubeOperator.jpeg?raw=true)
@@ -57,11 +57,16 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 VMware NSX-T；
  
- ## 快速入门
+ ## 使用指南
 
 -  [在线文档](https://docs.kubeoperator.io/)
 -  [演示视频](http://kubeoperator.io/index.html#video)
 -  [功能截屏](http://kubeoperator.io/index.html#screenshot)
+
+ ## 沟通交流
+ 
+- 技术交流 QQ 群：825046920
+- 技术支持邮箱：support@fit2cloud.com
 
 ## 致谢
 
