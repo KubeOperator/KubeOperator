@@ -6,7 +6,7 @@ items:
     metadata:
       name: weave
       annotations:
-        cloud.weave.works/version: unknown
+        cloud.weave.works/version: v1.0.0-27-g45f6e64
   - apiVersion: v1
     kind: ServiceAccount
     metadata:
@@ -16,7 +16,7 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -32,76 +32,24 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
       labels:
         name: weave-scope
+      namespace: weave
     rules:
       - apiGroups:
-          - ''
+          - '*'
         resources:
-          - pods
+          - '*'
         verbs:
-          - get
-          - list
-          - watch
-          - delete
-      - apiGroups:
-          - ''
-        resources:
-          - pods/log
-          - services
-          - nodes
-          - namespaces
-          - persistentvolumes
-          - persistentvolumeclaims
+          - '*'
+      - nonResourceURLs:
+          - '*'
         verbs:
-          - get
-          - list
-          - watch
-      - apiGroups:
-          - apps
-        resources:
-          - statefulsets
-        verbs:
-          - get
-          - list
-          - watch
-      - apiGroups:
-          - batch
-        resources:
-          - cronjobs
-          - jobs
-        verbs:
-          - get
-          - list
-          - watch
-      - apiGroups:
-          - extensions
-        resources:
-          - deployments
-          - daemonsets
-        verbs:
-          - get
-          - list
-          - watch
-      - apiGroups:
-          - extensions
-        resources:
-          - deployments/scale
-        verbs:
-          - get
-          - update
-      - apiGroups:
-          - storage.k8s.io
-        resources:
-          - storageclasses
-        verbs:
-          - get
-          - list
-          - watch
+          - '*'
   - apiVersion: rbac.authorization.k8s.io/v1beta1
     kind: ClusterRoleBinding
     metadata:
@@ -111,12 +59,13 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
       labels:
         name: weave-scope
+      namespace: weave
     roleRef:
       kind: ClusterRole
       name: weave-scope
@@ -134,7 +83,7 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -158,12 +107,13 @@ items:
           containers:
             - name: app
               args:
-                - '--mode=app'
-              command:
-                - /home/weave/scope
-              env: []
-              image: 'registry.kubeops.io:8092/weaveworks/scope:1.9.1'
-              imagePullPolicy: IfNotPresent
+                - '--no-probe'
+                - '--app.basicAuth=true'
+                - '--app.basicAuth.password=test'
+                - '--app.basicAuth.username=test'
+
+              image: 'registry.kubeops.io:8092/weaveworks/scope:1.11.5'
+              imagePullPolicy: Always
               ports:
                 - containerPort: 4040
                   protocol: TCP
@@ -176,7 +126,7 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -187,17 +137,16 @@ items:
         weave-scope-component: app
       namespace: weave
     spec:
+      type: NodePort
       ports:
         - name: app
-          port: 80
+          port: 4040
           protocol: TCP
-          targetPort: 4040
       selector:
         name: weave-scope-app
         app: weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-      type: NodePort
   - apiVersion: extensions/v1beta1
     kind: DaemonSet
     metadata:
@@ -207,7 +156,7 @@ items:
           {
             "original-request": {
               "url": "/k8s/v1.8/scope.yaml",
-              "date": "Fri Aug 17 2018 13:08:44 GMT+0000 (UTC)"
+              "date": "Fri Feb 09 2018 08:45:31 GMT+0000 (UTC)"
             },
             "email-address": "support@weave.works"
           }
@@ -218,7 +167,6 @@ items:
         weave-scope-component: agent
       namespace: weave
     spec:
-      minReadySeconds: 5
       template:
         metadata:
           labels:
@@ -230,31 +178,25 @@ items:
           containers:
             - name: scope-agent
               args:
-                - '--mode=probe'
-                - '--probe-only'
-                - '--probe.kubernetes=true'
+                - '--no-app'
                 - '--probe.docker.bridge=docker0'
                 - '--probe.docker=true'
-                - 'weave-scope-app.weave.svc.cluster.local:80'
-              command:
-                - /home/weave/scope
-              env:
-                - name: KUBERNETES_NODENAME
-                  valueFrom:
-                    fieldRef:
-                      apiVersion: v1
-                      fieldPath: spec.nodeName
-              image: 'registry.kubeops.io:8092/weaveworks/scope:1.9.1'
-              imagePullPolicy: IfNotPresent
+                - '--probe.kubernetes=true'
+                - '--probe.basicAuth=true'
+                - '--probe.basicAuth.password=test'
+                - '--probe.basicAuth.username=test'
+                - 'weave-scope-app.weave.svc.cluster.local:4040'
+              image: 'registry.kubeops.io:8092/weaveworks/scope:1.11.5'
+              imagePullPolicy: Always
               securityContext:
                 privileged: true
               volumeMounts:
+                - name: docker-socket
+                  mountPath: /var/run/docker.sock
                 - name: scope-plugins
                   mountPath: /var/run/scope/plugins
                 - name: sys-kernel-debug
                   mountPath: /sys/kernel/debug
-                - name: docker-socket
-                  mountPath: /var/run/docker.sock
           dnsPolicy: ClusterFirstWithHostNet
           hostNetwork: true
           hostPID: true
@@ -263,15 +205,15 @@ items:
             - effect: NoSchedule
               operator: Exists
           volumes:
+            - name: docker-socket
+              hostPath:
+                path: /var/run/docker.sock
             - name: scope-plugins
               hostPath:
                 path: /var/run/scope/plugins
             - name: sys-kernel-debug
               hostPath:
                 path: /sys/kernel/debug
-            - name: docker-socket
-              hostPath:
-                path: /var/run/docker.sock
       updateStrategy:
         type: RollingUpdate
 ---
@@ -288,4 +230,4 @@ spec:
       - path: /
         backend:
           serviceName: weave-scope-app
-          servicePort: 80
+          servicePort: 4040
