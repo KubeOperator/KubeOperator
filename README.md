@@ -47,7 +47,8 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
  
 - [ ] 支持 Kubernetes 集群升级；
 - [ ] 支持 Kubernetes 集群扩缩容；
-- [ ] 支持 etcd 备份及恢复；
+- [ ] 支持 Kubernetes 集群备份与恢复；
+- [ ] 支持 Kubernetes 集群健康检查与诊断；
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
 
