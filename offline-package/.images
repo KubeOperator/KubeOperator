@@ -21,7 +21,7 @@ docker.io/alpine:3.6
 quay.io/coreos/kube-state-metrics:v1.4.0
 docker.io/konradkleine/docker-registry-frontend:v2
 appropriate/curl:edge
-weaveworks/scope:1.9.1
+weaveworks/scope:1.11.5
 f5networks/k8s-bigip-ctlr:1.9.2
 calico/node:v3.4.4
 calico/cni:v3.4.4
