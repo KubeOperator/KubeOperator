@@ -13,7 +13,9 @@
         </p>
       </div>
       <div class="card-footer">
-        <a target="_blank" [href]="getAppUrl(app)" class="card-link">转到</a>
+        <a target="_blank" [href]="getAppUrl(app)" class="card-link">
+          <button class="btn btn-link" [disabled]="currentCluster.status !== 'RUNNING'">转到</button>
+        </a>
       </div>
     </div>
   </div>
