@@ -94,7 +94,7 @@ def get_available_ips(start, end):
         start += 1
     hosts = Host.objects.filter(ip__in=result)
     for host in hosts:
-        result.pop(host.ip)
+        result.remove(host.ip)
     return result
 
 
