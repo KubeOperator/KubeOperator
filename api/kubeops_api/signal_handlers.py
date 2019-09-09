@@ -57,7 +57,7 @@ def on_execution_start(sender, execution, **kwargs):
 
 
 @receiver(post_deploy_execution_start)
-def on_execution_end(sender, execution, result, **kwargs):
+def on_execution_end(sender, execution, result, ignore_errors, **kwargs):
     cluster = Cluster.objects.get(id=execution.project.id)
     date_finished = timezone.now()
     timedelta = (timezone.now() - execution.date_start).seconds
@@ -65,8 +65,8 @@ def on_execution_end(sender, execution, result, **kwargs):
         state = execution.STATE_SUCCESS
     else:
         state = execution.STATE_FAILURE
-        cluster.status = Cluster.CLUSTER_STATUS_ERROR
-        cluster.save()
+        if not ignore_errors:
+            cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
     execution.result_summary = result.get('summary', {})
     execution.result_raw = result.get('raw', {})
     execution.state = state

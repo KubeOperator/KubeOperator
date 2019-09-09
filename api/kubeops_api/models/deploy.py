@@ -41,15 +41,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_STATUS_READY)
             elif self.operation == 'bigip-config':
                 ignore_errors = True
-                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_f5_config(extra_vars)
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
-        post_deploy_execution_start.send(self.__class__, execution=self, result=result)
+        post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
 
     def on_install(self, extra_vars):
