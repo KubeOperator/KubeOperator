@@ -9,6 +9,7 @@ function success(){
 }
 
 function start_service(){
+    echo "start service......"
     systemctl restart docker.service
     systemctl enable kubeops.service
     systemctl start kubeops.service

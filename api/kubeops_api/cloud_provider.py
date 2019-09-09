@@ -1,8 +1,5 @@
-import os
 from ipaddress import ip_address
-
 from django.db.models import Q
-
 from cloud_provider import get_cloud_client
 from cloud_provider.models import TerraformHost, Plan
 from kubeops_api.models.host import Host

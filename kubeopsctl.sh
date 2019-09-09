@@ -39,7 +39,7 @@ function main() {
     EXE=docker-compose
     case "${action}" in
       install)
-         bash ${SCRIPT_DIR}/4_install.sh
+         bash ${SCRIPT_DIR}/5_install.sh
          ;;
       start)
          ${EXE} up -d
