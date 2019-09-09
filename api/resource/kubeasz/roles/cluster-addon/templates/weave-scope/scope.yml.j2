@@ -109,8 +109,8 @@ items:
               args:
                 - '--no-probe'
                 - '--app.basicAuth=true'
-                - '--app.basicAuth.password=test'
-                - '--app.basicAuth.username=test'
+                - '--app.basicAuth.password=admin'
+                - '--app.basicAuth.username=admin123'
 
               image: 'registry.kubeops.io:8092/weaveworks/scope:1.11.5'
               imagePullPolicy: Always
@@ -183,8 +183,8 @@ items:
                 - '--probe.docker=true'
                 - '--probe.kubernetes=true'
                 - '--probe.basicAuth=true'
-                - '--probe.basicAuth.password=test'
-                - '--probe.basicAuth.username=test'
+                - '--probe.basicAuth.password=admin'
+                - '--probe.basicAuth.username=admin123'
                 - 'weave-scope-app.weave.svc.cluster.local:4040'
               image: 'registry.kubeops.io:8092/weaveworks/scope:1.11.5'
               imagePullPolicy: Always
