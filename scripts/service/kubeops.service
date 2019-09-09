@@ -1,0 +1,11 @@
+[Unit]
+Description=Servico de manutencao do Harbor
+After=network.target docker.service
+[Service]
+Type=simple
+WorkingDirectory=/opt/kubeOperator
+ExecStart=/usr/bin/docker-compose -f /opt/kubeOperator/docker-compose.yml up
+ExecStop=/usr/bin/docker-compose -f /opt/kubeOperator/docker-compose.yml down
+#Restart=always
+[Install]
+WantedBy=multi-user.target

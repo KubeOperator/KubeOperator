@@ -8,11 +8,17 @@ function success(){
     echo -e "\033[32m password: kubeoperator@admin123 \033[0m"  
 }
 
+function start_service(){
+    systemctl restart docker.service
+    systemctl enable kubeops.service
+    systemctl start kubeops.service
+}
+
 function main() {
     ${SCRIPTS_DIR}/1_set_iptables.sh
     ${SCRIPTS_DIR}/2_install_docker.sh
     ${SCRIPTS_DIR}/3_prepare_images.sh
-    service docker restart
+    start_service
     success
 }
 
