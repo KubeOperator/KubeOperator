@@ -51,10 +51,10 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 Kubernetes 集群扩缩容；
 - [ ] 支持 Kubernetes 集群备份与恢复；
 - [ ] 支持 Kubernetes 集群健康检查与诊断；
+- [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 
  v3.0.0 （计划中）
 
-- [ ] 集成 KubeApps 应用管理器（支持常用应用部署，比如 CI/CD 应用组合 Jenkins、GitLab、Harbor 和 Tekton 等）
 - [ ] 支持 VMware NSX-T；
  
  ## 使用指南
@@ -70,7 +70,10 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 
 ## 致谢
 
-- 感谢 [kubeasz](https://github.com/easzlab/kubeasz) 提供各种 Kubernetes Ansible 脚本.
+- [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
+- [Clarity](https://github.com/vmware/clarity/): KubeOperator 采用 Clarity 作为前端 Web 框架；
+- [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
+- [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
 
 ## License & Copyright
 
