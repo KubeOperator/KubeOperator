@@ -12,7 +12,7 @@ services:
       test: ["CMD", "test", "-f", "/var/run/nginx.pid"]
       interval: 10s
       timeout: 5s
-      retries: 2
+      retries: 10
 
   ui:
     build: ui

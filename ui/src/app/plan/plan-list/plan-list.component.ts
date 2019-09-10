@@ -71,4 +71,14 @@ export class PlanListComponent implements OnInit {
     this.add.emit();
   }
 
+  getDeployName(name: string) {
+    switch (name) {
+      case 'SINGLE':
+        return '一主多节点';
+      case 'MULTIPLE':
+        return '多主多节点';
+      default:
+        return '无';
+    }
+  }
 }

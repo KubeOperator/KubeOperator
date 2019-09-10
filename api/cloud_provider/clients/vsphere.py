@@ -88,7 +88,7 @@ class VsphereCloudClient(CloudClient):
         viewType = [vim.VirtualMachine]
         vm = get_obj(content, viewType, folder, zone.region.image_name)
         ds = get_obj(content, [vim.Datastore], container, zone.vars['vc_storage'])
-        cluster = get_obj(content, [vim.ClusterComputeResource], container, zone.cloud_zone)
+        cluster = get_obj(content, [vim.ClusterComputeResource], container, zone.vars['vc_cluster'])
         if not vm:
             manager = st.content.ovfManager
             spec_params = vim.OvfManager.CreateImportSpecParams()

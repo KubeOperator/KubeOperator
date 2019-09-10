@@ -23,4 +23,15 @@ export class PlanDetailComponent implements OnInit {
     this.showInfoModalChange.emit(this.showInfoModal);
   }
 
+  getDeployName(name: string) {
+    switch (name) {
+      case 'SINGLE':
+        return '一主多节点';
+      case 'MULTIPLE':
+        return '多主多节点';
+      default:
+        return '无';
+    }
+  }
+
 }

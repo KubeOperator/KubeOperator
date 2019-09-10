@@ -27,5 +27,4 @@ export class PlanService {
   getPlan(name: string): Observable<Plan> {
     return this.http.get<Plan>(this.baseUrl + name + '/');
   }
-
 }

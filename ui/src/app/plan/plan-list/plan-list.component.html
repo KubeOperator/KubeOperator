@@ -28,7 +28,7 @@
     <clr-dg-cell>{{item.region}}</clr-dg-cell>
     <clr-dg-cell><span *ngIf="item.zone">{{item.zone}}</span><span *ngIf="item.zones">{{item.zones}}</span>
     </clr-dg-cell>
-    <clr-dg-cell>{{item.deploy_template}}</clr-dg-cell>
+    <clr-dg-cell>{{getDeployName(item.deploy_template)}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
 

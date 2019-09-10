@@ -42,7 +42,7 @@ const routes: Routes = [
         path: 'plan',
         component: DeployPlanComponent,
         children: [
-          {path: '', redirectTo: 'plan', pathMatch: 'full'},
+          {path: '', redirectTo: 'region', pathMatch: 'full'},
           {path: 'region', component: RegionComponent},
           {path: 'zone', component: ZoneComponent},
           {path: 'plan', component: PlanComponent}
