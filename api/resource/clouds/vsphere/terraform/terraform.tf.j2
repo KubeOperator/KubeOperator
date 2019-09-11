@@ -14,10 +14,10 @@ data "vsphere_datacenter" "dc" {
 {% for zone in zones %}
 data "vsphere_resource_pool" "{{ zone.name }}" {
   {% if zone.name=='Resources' %}
-   name          = "{{vc_cluster}}/Resources"
+   name          = "{{zone.vc_cluster}}/Resources"
   {% endif %}
   {% if zone.name!='Resources' %}
-   name          = "{{vc_cluster}}/Resources/{{ zone.name }}"
+   name          = "{{zone.vc_cluster}}/Resources/{{ zone.name }}"
   {% endif %}
    datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
