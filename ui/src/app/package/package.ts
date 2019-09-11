@@ -60,10 +60,9 @@ export class Config {
   alias: string;
   type: string;
   options: Option[];
-  option_var: string;
-  objs: any[] = [];
   value: string;
   display: boolean;
+  default: string;
 }
 
 export class Option {

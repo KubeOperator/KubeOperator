@@ -4,7 +4,7 @@ import {CloudTemplate, Region} from '../region';
 import {CloudTemplateService} from '../cloud-template.service';
 import {RegionService} from '../region.service';
 import {CloudService} from '../cloud.service';
-import {ClrWizard} from '@clr/angular';
+import {ClrWizard, fadeSlide} from '@clr/angular';
 import {catchError, map} from 'rxjs/operators';
 
 @Component({
@@ -22,6 +22,9 @@ export class RegionCreateComponent implements OnInit {
   cloudTemplates: CloudTemplate[] = [];
   cloudTemplate: CloudTemplate;
   cloudRegions: string[] = [];
+  isParamsValid;
+  errorMsg: string;
+  isParamsCheckGoing = false;
   @ViewChild('regionForm') regionFrom: NgForm;
   @ViewChild('paramsForm') paramsForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
@@ -50,6 +53,8 @@ export class RegionCreateComponent implements OnInit {
     this.cloudTemplates = [];
     this.cloudTemplate = null;
     this.cloudRegions = [];
+    this.isParamsValid = undefined;
+    this.isParamsCheckGoing = false;
     this.wizard.reset();
     this.regionFrom.resetForm();
     this.paramsForm.resetForm();
@@ -80,9 +85,22 @@ export class RegionCreateComponent implements OnInit {
     });
   }
 
-  onParamsFormCommit() {
+  onCheckParams() {
+    if (this.isParamsCheckGoing) {
+      return;
+    }
+    this.isParamsCheckGoing = true;
     this.cloudService.listRegion(this.item.vars).subscribe(data => {
       this.cloudRegions = data;
+      this.isParamsValid = true;
+      this.isParamsCheckGoing = false;
+      this.paramsForm.valueChanges.subscribe(() => {
+        this.isParamsValid = undefined;
+      });
+    }, error => {
+      this.isParamsValid = false;
+      this.errorMsg = error;
+      this.isParamsCheckGoing = false;
     });
   }
 

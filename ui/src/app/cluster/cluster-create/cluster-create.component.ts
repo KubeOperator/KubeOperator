@@ -167,6 +167,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   reset() {
     this.wizard.reset();
+    this.basicForm.resetForm();
     this.cluster = new Cluster();
     this.cluster.template = '';
     this.template = null;
@@ -216,11 +217,15 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
+  onClusterNameChange() {
+    this.replaceConfig();
+  }
+
   replaceConfig() {
     if (this.configs) {
       this.configs.forEach(c => {
         if (c.type === 'Input') {
-          c.value = (c.value + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
+          c.value = (c.default + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
         }
       });
     }
@@ -233,8 +238,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.template = template;
         this.configs.concat(this.template.private_config);
         this.replaceConfig();
-      } else {
-        this.template = null;
       }
     });
     this.nodes = [];

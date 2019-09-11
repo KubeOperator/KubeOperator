@@ -293,7 +293,8 @@ public_config:
   - name: APP_DOMAIN
     alias: 应用域名
     type: Input
-    value: apps.$cluster_name$domain_suffix
+    default: apps.$cluster_name$domain_suffix
+    value:
     required: true
     help_text: 应用域名
     display: true

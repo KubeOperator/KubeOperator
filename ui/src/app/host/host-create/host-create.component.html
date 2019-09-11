@@ -20,11 +20,6 @@
           <option [value]="credential.name" *ngFor="let credential of credentials">{{credential.name}}</option>
         </select>
       </clr-select-container>
-
-      <clr-textarea-container>
-        <label>描述:</label>
-        <textarea clrTextarea [(ngModel)]="host.comment" name="comment"></textarea>
-      </clr-textarea-container>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"

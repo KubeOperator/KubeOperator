@@ -26,7 +26,7 @@
       </clr-select-container>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid" (clrWizardPageOnCommit)="onParamsFormCommit()">
+  <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid||!isParamsValid">
     <ng-template clrPageTitle>配置参数</ng-template>
     <form clrForm #paramsForm='ngForm'>
       <div *ngIf="item.template === 'vsphere'">
@@ -43,7 +43,7 @@
             <label>vCenter 端口</label>
             <input clrInput size=45 type="number" [(ngModel)]="item.vars['vc_port']" name="vc_port" required>
             <clr-control-error>此字段为必填项</clr-control-error>
-            <clr-control-helper>访问 vCenter API的端口， http: 80 ,https: 443</clr-control-helper>
+            <clr-control-helper>访问 vCenter API的端口， http: 80 https: 444</clr-control-helper>
           </clr-input-container>
         </div>
         <div>
@@ -51,17 +51,24 @@
             <label>用户名</label>
             <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_username']" name="vc_username" required>
             <clr-control-error>此字段为必填项</clr-control-error>
-            <clr-control-helper>访问 vCenter 的用户名， administrator@vsphere.local</clr-control-helper>
+            <clr-control-helper>访问 vCenter 的用户名，例如 administrator@vsphere.local</clr-control-helper>
           </clr-input-container>
         </div>
         <div>
           <clr-password-container>
             <label>密码</label>
-            <input clrPassword size=45 type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password" required>
+            <input clrPassword size=45 type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>访问 vCenter 的密码</clr-control-helper>
           </clr-password-container>
         </div>
+        <button class="btn" [disabled]="isParamsCheckGoing || paramsForm.invalid" (click)="onCheckParams()">
+          <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>
+          验证
+        </button>
+        <span *ngIf="isParamsValid&&!isParamsCheckGoing" style="color: #859900;">参数有效！</span>
+        <span *ngIf="isParamsValid==false&&!isParamsCheckGoing" style="color: #e02200;"> 参数无效,请检查 vCenter 连接信息！</span>
       </div>
     </form>
   </clr-wizard-page>

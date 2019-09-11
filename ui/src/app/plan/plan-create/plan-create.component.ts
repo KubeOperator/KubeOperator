@@ -68,7 +68,7 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onRegionChange() {
-    this.item.zone = null;
+    this.item.zone = undefined;
     this.item.zones = [];
     this.regions.forEach(region => {
       if (this.item.region === region.name) {
@@ -81,7 +81,7 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onDeployChange() {
-    this.item.zone = null;
+    this.item.zone = undefined;
     this.item.zones = [];
   }
 

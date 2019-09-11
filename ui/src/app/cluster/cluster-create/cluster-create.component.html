@@ -12,7 +12,9 @@
         <label>集群名称</label>
         <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()" clrInput size=45 required>
+               name="cluster_name" (keyup)="handleValidation()" (change)="onClusterNameChange()" clrInput size=45
+               required>
+        <clr-control-helper>仅支持用小写字母和 "-"</clr-control-helper>
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
@@ -197,6 +199,7 @@
         <select clrSelect [(ngModel)]="cluster.persistent_storage" name="storage" (change)="onStorageChange()" required>
           <option value="">请选择</option>
           <option *ngFor="let s of storages" [value]="s.name">{{s.name}}</option>
+          <clr-control-helper>的</clr-control-helper>
         </select>
       </clr-select-container>
       <div *ngIf="storage">
