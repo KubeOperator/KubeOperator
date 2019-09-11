@@ -27,7 +27,7 @@
       </clr-select-container>
       <clr-select-container>
         <label>部署模型</label>
-        <select [(ngModel)]="item.deploy_template" name="template" required clrSelect>
+        <select [(ngModel)]="item.deploy_template" name="template" (change)="onDeployChange()" required clrSelect>
           <option value="">请选择</option>
           <option value="SINGLE">一主多节点</option>
           <option value="MULTIPLE">多主多节点</option>
