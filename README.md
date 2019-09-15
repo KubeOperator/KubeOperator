@@ -43,7 +43,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 集成 Weave Scope (支持 Web Shell)；
 - [x] 支持 Calico 作为网络方案；
 
- v2.1.0 （开发中）
+ v2.1.0 （开发中，预计 2019.10.31 发布）
  
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Ceph 作为持久化存储；
