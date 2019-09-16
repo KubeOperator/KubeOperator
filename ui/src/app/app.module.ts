@@ -26,11 +26,17 @@ import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
 import { DeployPlanComponent } from './deploy-plan/deploy-plan.component';
+import { ApplicationComponent } from './application/application.component';
+import { ClusterHealthComponent } from './cluster-health/cluster-health.component';
+import { ClusterBackupComponent } from './cluster-backup/cluster-backup.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DeployPlanComponent,
+    ApplicationComponent,
+    ClusterHealthComponent,
+    ClusterBackupComponent,
   ],
   imports: [
     CredentialModule,

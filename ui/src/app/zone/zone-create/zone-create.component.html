@@ -88,6 +88,12 @@
           <clr-control-helper>例如: 172.16.10.50</clr-control-helper>
         </clr-input-container>
         <clr-input-container>
+          <label>子网掩码</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
+          <clr-control-error>此字段为必填项</clr-control-error>
+          <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
+        </clr-input-container>
+        <clr-input-container>
           <label>网关IP</label>
           <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
           <clr-control-error>此字段为必填项</clr-control-error>
