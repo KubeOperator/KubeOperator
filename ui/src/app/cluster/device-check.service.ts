@@ -25,7 +25,7 @@ export class DeviceCheckService {
       template.roles.forEach(role => {
         if (node.roles.includes(role.name)) {
           role.meta.allow_os.forEach(o => {
-            if (host.info.os === o.name && o.version.includes(host.info.os_version.substr(0, 3))) {
+            if (host.os === o.name && o.version.includes(host.os_version.substr(0, 3))) {
               checkResult.passed.push(node.name);
             }
           });
@@ -47,7 +47,7 @@ export class DeviceCheckService {
       template.roles.forEach(role => {
         if (node.roles.includes(role.name)) {
           const cpuCore = role.meta.requires.device_require[0].minimal;
-          if (host.info.cpu_core >= cpuCore) {
+          if (host.cpu_core >= cpuCore) {
             checkResult.passed.push(node.name);
           }
         }
@@ -69,7 +69,7 @@ export class DeviceCheckService {
       template.roles.forEach(role => {
         if (node.roles.includes(role.name)) {
           const memory = role.meta.requires.device_require[1].minimal;
-          if ((host.info.memory / memory) > 800) {
+          if ((host.memory / memory) > 800) {
             checkResult.passed.push(node.name);
           }
         }

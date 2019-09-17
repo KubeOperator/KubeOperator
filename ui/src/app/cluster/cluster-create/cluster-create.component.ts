@@ -34,7 +34,7 @@ export const CHECK_STATE_FAIL = 'fail';
 export class ClusterCreateComponent implements OnInit, OnDestroy {
 
 
-  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
+  @ViewChild('wizard', {static: true}) wizard: ClrWizard;
   createClusterOpened: boolean;
   isSubmitGoing = false;
   cluster: Cluster = new Cluster();
@@ -59,11 +59,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
   suffix = 'f2o';
-  @ViewChild('basicFrom', { static: true }) basicForm: NgForm;
-  @ViewChild('storageForm', { static: true }) storageForm: NgForm;
-  @ViewChild('networkForm', { static: true }) networkForm: NgForm;
-  @ViewChild('nodeForm', { static: false }) nodeForm: NgForm;
-  @ViewChild('configForm', { static: true }) configForm: NgForm;
+  @ViewChild('basicFrom', {static: true}) basicForm: NgForm;
+  @ViewChild('storageForm', {static: true}) storageForm: NgForm;
+  @ViewChild('networkForm', {static: true}) networkForm: NgForm;
+  @ViewChild('nodeForm', {static: false}) nodeForm: NgForm;
+  @ViewChild('configForm', {static: true}) configForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
@@ -266,7 +266,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       node.volumes = [];
       this.hosts.forEach(host => {
         if (host.id === node.host) {
-          host.info.volumes.forEach(volume => {
+          host.volumes.forEach(volume => {
             node.volumes.push(volume.name);
           });
         }
@@ -314,10 +314,10 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       this.hosts.forEach(host => {
         if (node.host === host.id) {
           node.ip = host.ip;
-          node.host_memory = host.info.memory;
-          node.host_cpu_core = host.info.cpu_core;
-          node.host_os = host.info.os;
-          node.host_os_version = host.info.os_version;
+          node.host_memory = host.memory;
+          node.host_cpu_core = host.cpu_core;
+          node.host_os = host.os;
+          node.host_os_version = host.os_version;
         }
       });
     });
@@ -400,9 +400,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   getHostInfo(host: Host) {
     const template = '{N} [{C}核  {M}MB  {O}]';
-    return template.replace('{C}', host.info.cpu_core.toString())
-      .replace('{M}', host.info.memory.toString())
-      .replace('{O}', host.info.os + host.info.os_version)
+    return template.replace('{C}', host.cpu_core.toString())
+      .replace('{M}', host.memory.toString())
+      .replace('{O}', host.os + host.os_version)
       .replace('{N}', host.name);
   }
 

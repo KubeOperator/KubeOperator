@@ -18,7 +18,7 @@ export class HostListComponent implements OnInit {
   selectedHosts: Host[] = [];
   showHostInfo = false;
   @Output() addHost = new EventEmitter();
-  @ViewChild(HostInfoComponent, { static: true })
+  @ViewChild(HostInfoComponent, {static: true})
   child: HostInfoComponent;
 
 
@@ -73,8 +73,7 @@ export class HostListComponent implements OnInit {
 
   openInfo(host: Host) {
     this.showHostInfo = true;
-    this.child.hostId = host.id;
-    this.child.loadHostInfo();
+    this.child.host = host;
   }
 
   listHost() {

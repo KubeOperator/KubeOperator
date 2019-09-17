@@ -10,7 +10,7 @@ from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.deploy import DeployExecution
-from kubeops_api.models.host import Volume, HostInfo
+from kubeops_api.models.host import Volume
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
@@ -18,7 +18,7 @@ from kubeops_api.models.setting import Setting
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
-    'RoleSerializer', 'DeployExecutionSerializer', 'HostInfoSerializer', 'SettingSerializer', 'HostSerializer',
+    'RoleSerializer', 'DeployExecutionSerializer', 'SettingSerializer', 'HostSerializer',
     'CredentialSerializer'
 ]
 
@@ -68,32 +68,21 @@ class VolumeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'size', ]
 
 
-class HostInfoSerializer(serializers.ModelSerializer):
-    volumes = VolumeSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = HostInfo
-        fields = '__all__'
-        read_only_fields = [
-            'id', "memory", "os", "os_version", "cpu_core", "volumes", "date_created"
-        ]
-
-
 class HostSerializer(HostReadSerializer):
-    info = HostInfoSerializer(read_only=True, required=False)
     credential = serializers.SlugRelatedField(
         queryset=Credential.objects.all(),
         slug_field='name', required=False
     )
+    volumes = VolumeSerializer(required=False, many=True)
 
     class Meta:
         model = Host
         extra_kwargs = HostReadSerializer.Meta.extra_kwargs
         fields = [
-            'id', 'name', 'ip', 'username', 'password', 'comment', 'info', 'comment',
-            'cluster', 'credential'
+            'id', 'name', 'ip', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone',
+            'region'
         ]
-        read_only_fields = ['id', 'info', 'comment']
+        read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region']
 
 
 class ClusterConfigSerializer(serializers.Serializer):

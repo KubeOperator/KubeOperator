@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {HostInfo} from '../host';
 import {HostInfoService} from './host-info.service';
 import {HostService} from '../host.service';
+import {Host} from '../host';
 
 @Component({
   selector: 'app-host-info',
@@ -10,37 +10,15 @@ import {HostService} from '../host.service';
 })
 export class HostInfoComponent implements OnInit {
 
-  hostId: string;
-  hostInfo: HostInfo = null;
+  host: Host = new Host;
   loading = false;
-  errorText = null;
-  @Output() updated = new EventEmitter();
   @Input() showInfoModal = false;
   @Output() showInfoModalChange = new EventEmitter();
 
-  constructor(private hostInfoService: HostInfoService, private hostService: HostService) {
+  constructor() {
   }
 
   ngOnInit() {
-  }
-
-  loadHostInfo() {
-    this.hostService.getHost(this.hostId).subscribe(data => {
-      this.hostInfo = data.info;
-    });
-
-
-  }
-
-  update() {
-    this.loading = true;
-    this.hostInfoService.loadHostInfo(this.hostId).subscribe(data => {
-      this.loading = false;
-      this.hostInfo = data;
-      this.updated.emit();
-    }, error => {
-      this.errorText = error;
-    });
   }
 
   cancel() {
