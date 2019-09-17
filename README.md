@@ -28,7 +28,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
 - [x] 支持离线环境下的一键自动化部署，可视化展示集群部署进展和结果；
-- [x] 集成 Kubernetes 常用插件的安装，包括 Registry、Promethus、Dashboard、Traefik Ingress、Helm 等；
+- [x] 内置 Kubernetes 常用系统应用的安装，包括 Registry、Promethus、Dashboard、Traefik Ingress、Helm 等；
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
 - [x] 支持 Flannel 作为网络方案；
@@ -40,7 +40,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
 - [x] 支持 Multi AZ，支持多主多节点部署模式；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
-- [x] 集成 Weave Scope (支持 Web Shell)；
+- [x] 内置 Weave Scope (支持 Web Shell)；
 - [x] 支持 Calico 作为网络方案；
 
  v2.1.0 （开发中，预计 2019.10.31 发布）
@@ -60,7 +60,6 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
  ## 使用指南
 
 -  [在线文档](https://docs.kubeoperator.io/)
--  [演示视频](http://kubeoperator.io/index.html#video)
 -  [功能截屏](http://kubeoperator.io/index.html#screenshot)
 
  ## 沟通交流
