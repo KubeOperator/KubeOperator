@@ -8,7 +8,7 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
-from kubeops_api.cloud_provider import create_hosts, delete_hosts, add_hosts
+from kubeops_api.cloud_provider import create_hosts, delete_hosts
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
@@ -53,7 +53,6 @@ class Cluster(Project):
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
     deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
-    terraform_hosts = models.ManyToManyField('cloud_provider.TerraformHost')
 
     @property
     def region(self):
@@ -109,6 +108,11 @@ class Cluster(Project):
         self.change_to()
         nodes = Node.objects.all().filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         return len(nodes)
+
+    @property
+    def current_workers(selfs):
+        selfs.change_to()
+        return Node.objects.filter(groups__name__in=['worker'])
 
     def change_status(self, status):
         self.status = status
@@ -234,11 +238,16 @@ class Cluster(Project):
             )
             node.set_groups(group_names=['config'])
 
+    def create_node(self, role, host):
+        node = Node.objects.create(
+            name=host.name,
+            host=host,
+            project=self
+        )
+        node.set_groups(group_names=[role])
+
     def create_resource(self):
         create_hosts(self)
-
-    def create_new_node_resource(self):
-        add_hosts(self, 1)
 
     def destroy_resource(self):
         delete_hosts(self)
@@ -265,38 +274,9 @@ class Cluster(Project):
         if os.path.exists(path):
             shutil.rmtree(path)
 
-    def delete_terraformHost(self):
-        for host in self.terraform_hosts.all():
-            if host.host:
-                host.host.delete()
-            else:
-                host.delete()
-
     def set_plan_configs(self):
         if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             self.set_config_unlock(self.plan.mixed_vars)
-
-    def add_nodes_by_terraform(self):
-        for th in self.terraform_hosts.all():
-            node = Node.objects.get(host=th.host)
-            if not node:
-                node = Node.objects.create(
-                    name=th.name,
-                    host=th.host
-                )
-            node.set_groups(group_names=['worker', 'new_node'])
-
-    def create_nodes_by_terraform(self):
-        for th in self.terraform_hosts.all():
-            self.change_to()
-            node = Node.objects.create(
-                name=th.name,
-                host=th.host
-            )
-            node.set_groups(group_names=[th.role])
-
-    def set_terraform_hosts(self, terraform_hosts):
-        self.terraform_hosts.set(terraform_hosts)
 
     def on_cluster_create(self):
         self.change_to()
@@ -309,4 +289,3 @@ class Cluster(Project):
 
     def on_cluster_delete(self):
         self.delete_data()
-        self.delete_terraformHost()

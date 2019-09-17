@@ -7,12 +7,12 @@ from jinja2 import FileSystemLoader, Environment
 from fit2ansible.settings import TERRAFORM_DIR
 
 
-def generate_terraform_file(target_path, cloud_path, vars):
+def generate_terraform_file(target_path, cloud_path, dict):
     terraform_path = os.path.join(cloud_path, "terraform")
     lorder = FileSystemLoader(terraform_path)
     env = Environment(loader=lorder)
     _template = env.get_template("terraform.tf.j2")
-    result = _template.render(vars)
+    result = _template.render(dict)
     if not os.path.exists(target_path):
         os.makedirs(target_path)
     file = os.path.join(target_path, 'main.tf')

@@ -109,6 +109,11 @@ class Zone(models.Model):
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
     status = models.CharField(max_length=64, choices=ZONE_STATUS_CHOICES, null=True)
 
+    @property
+    def host_size(self):
+        hosts = Host.objects.filter(zone=self)
+        return len(hosts)
+
     def change_status(self, status):
         self.status = status
         self.save()
@@ -187,44 +192,3 @@ class Plan(models.Model):
     @property
     def compute_models(self):
         return self.region.template.meta["plan"]["models"]
-
-
-class TerraformHost(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    name = models.CharField(max_length=255, unique=True, verbose_name=_('Name'))
-    date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-    domain = models.CharField(max_length=255)
-    cpu = models.IntegerField(default=0)
-    memory = models.IntegerField(default=0)
-    short_name = models.CharField(max_length=128)
-    host_name = models.CharField(max_length=255)
-    role = models.CharField(max_length=32)
-    ip = models.CharField(max_length=32)
-    zone_vars = common_models.JsonDictTextField(default={})
-    host = models.ForeignKey('kubeops_api.Host', on_delete=models.CASCADE, null=True)
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "domain": self.domain,
-            "cpu": self.cpu,
-            "memory": self.memory,
-            "short_name": self.short_name,
-            "host_name": self.host_name,
-            "role": self.role,
-            "ip": self.ip,
-            "zone": self.zone_vars
-        }
-
-    def create_host(self):
-        username = 'root'
-        password = 'KubeOperator@2019'
-        host = Host.objects.create(
-            name=self.name,
-            ip=self.ip,
-            username=username,
-            password=password
-        )
-        host.gather_info()
-        self.host = host
-        self.save()

@@ -5,7 +5,7 @@ from ansible_api.models import Host as Ansible_Host
 
 
 class Node(Ansible_Host):
-    host = models.ForeignKey('Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
+    host = models.ForeignKey('kubeops_api.Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
 
     @property
     def roles(self):
@@ -13,23 +13,20 @@ class Node(Ansible_Host):
 
     @property
     def host_memory(self):
-        return self.host.info.memory
+        return self.host.memory
 
     @property
     def host_cpu_core(self):
-        return self.host.info.cpu_core
+        return self.host.cpu_core
 
     @property
     def host_os(self):
-        return self.host.info.os
+        return self.host.os
 
     @property
     def host_os_version(self):
-        return self.host.info.os_version
+        return self.host.os_version
 
-    @property
-    def host_volumes(self):
-        return self.host.info.volumes
 
     @roles.setter
     def roles(self, value):
