@@ -60,7 +60,6 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
  ## 使用指南
 
 -  [在线文档](https://docs.kubeoperator.io/)
--  [演示视频](http://kubeoperator.io/index.html#video)
 -  [功能截屏](http://kubeoperator.io/index.html#screenshot)
 
  ## 沟通交流
