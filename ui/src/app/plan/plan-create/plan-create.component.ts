@@ -28,9 +28,9 @@ export class PlanCreateComponent implements OnInit {
   region: Region;
   zones: Zone[] = [];
   zone: Zone;
-  @ViewChild('basicForm') basicForm: NgForm;
-  @ViewChild('planForm') planForm: NgForm;
-  @ViewChild('wizard') wizard: ClrWizard;
+  @ViewChild('basicForm', { static: true }) basicForm: NgForm;
+  @ViewChild('planForm', { static: true }) planForm: NgForm;
+  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
               private cloudService: CloudService, private zoneService: ZoneService, private planService: PlanService) {

@@ -26,7 +26,7 @@ export class PasswordComponent implements OnInit {
   msg = '';
   level = '';
 
-  @ViewChild('passform') passform: NgForm;
+  @ViewChild('passform', { static: true }) passform: NgForm;
 
   ngOnInit() {
   }

@@ -11,10 +11,10 @@ import {RegionCreateComponent} from './region-create/region-create.component';
 })
 export class RegionComponent implements OnInit {
 
-  @ViewChild(RegionCreateComponent)
+  @ViewChild(RegionCreateComponent, { static: true })
   creation: RegionCreateComponent;
 
-  @ViewChild(RegionListComponent)
+  @ViewChild(RegionListComponent, { static: true })
   listRegion: RegionListComponent;
 
   constructor() {

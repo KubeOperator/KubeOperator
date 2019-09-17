@@ -18,7 +18,7 @@ export class HostListComponent implements OnInit {
   selectedHosts: Host[] = [];
   showHostInfo = false;
   @Output() addHost = new EventEmitter();
-  @ViewChild(HostInfoComponent)
+  @ViewChild(HostInfoComponent, { static: true })
   child: HostInfoComponent;
 
 

@@ -9,10 +9,10 @@ import {ZoneListComponent} from './zone-list/zone-list.component';
 })
 export class ZoneComponent implements OnInit {
 
-  @ViewChild(ZoneCreateComponent)
+  @ViewChild(ZoneCreateComponent, { static: true })
   creation: ZoneCreateComponent;
 
-  @ViewChild(ZoneListComponent)
+  @ViewChild(ZoneListComponent, { static: true })
   listZone: ZoneListComponent;
 
   constructor() {

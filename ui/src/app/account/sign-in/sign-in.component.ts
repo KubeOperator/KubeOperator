@@ -24,7 +24,7 @@ export class SignInComponent implements OnInit, AfterViewChecked {
 
   // form
   signInFrom: NgForm;
-  @ViewChild('signInForm') currentForm: NgForm;
+  @ViewChild('signInForm', { static: true }) currentForm: NgForm;
 
   signInStatus: number = signInStatusNormal;
 

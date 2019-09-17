@@ -21,7 +21,7 @@ export class ZoneListComponent implements OnInit {
   showDetail = false;
   resourceTypeName: '可用区';
   @Output() add = new EventEmitter();
-  @ViewChild(ZoneDetailComponent)
+  @ViewChild(ZoneDetailComponent, { static: true })
   child: ZoneDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService, private zoneService: ZoneService) {

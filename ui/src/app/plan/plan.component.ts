@@ -11,10 +11,10 @@ import {PlanListComponent} from './plan-list/plan-list.component';
 })
 export class PlanComponent implements OnInit {
 
-  @ViewChild(PlanCreateComponent)
+  @ViewChild(PlanCreateComponent, { static: true })
   creation: PlanCreateComponent;
 
-  @ViewChild(PlanListComponent)
+  @ViewChild(PlanListComponent, { static: true })
   listRegion: PlanListComponent;
 
   constructor() {

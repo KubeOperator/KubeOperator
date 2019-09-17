@@ -18,7 +18,7 @@ export class LogListComponent implements OnInit {
   executions: Execution[] = [];
   @Input() currentCluster: Cluster;
   showDetail = false;
-  @ViewChild(LogDetailComponent)
+  @ViewChild(LogDetailComponent, { static: true })
   child: LogDetailComponent;
 
   constructor(private logService: LogService) {

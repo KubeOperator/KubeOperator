@@ -25,9 +25,9 @@ export class RegionCreateComponent implements OnInit {
   isParamsValid;
   errorMsg: string;
   isParamsCheckGoing = false;
-  @ViewChild('regionForm') regionFrom: NgForm;
-  @ViewChild('paramsForm') paramsForm: NgForm;
-  @ViewChild('wizard') wizard: ClrWizard;
+  @ViewChild('regionForm', { static: true }) regionFrom: NgForm;
+  @ViewChild('paramsForm', { static: true }) paramsForm: NgForm;
+  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
               private cloudService: CloudService) {

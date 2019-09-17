@@ -10,10 +10,10 @@ import {Cluster} from './cluster';
 })
 export class ClusterComponent implements OnInit {
 
-  @ViewChild(ClusterCreateComponent)
+  @ViewChild(ClusterCreateComponent, { static: true })
   creationCluster: ClusterCreateComponent;
 
-  @ViewChild(ClusterListComponent)
+  @ViewChild(ClusterListComponent, { static: true })
   listCluster: ClusterListComponent;
 
 

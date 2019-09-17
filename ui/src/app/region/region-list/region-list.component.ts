@@ -21,7 +21,7 @@ export class RegionListComponent implements OnInit {
   showDetail = false;
   resourceTypeName: '区域';
   @Output() add = new EventEmitter();
-  @ViewChild(RegionDetailComponent)
+  @ViewChild(RegionDetailComponent, { static: true })
   child: RegionDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService) {

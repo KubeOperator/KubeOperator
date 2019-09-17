@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
   username = 'guest';
   showVersionInfo = false;
   version: Version = new Version();
-  @ViewChild(PasswordComponent)
+  @ViewChild(PasswordComponent, { static: true })
   password: PasswordComponent;
 
   constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService) {

@@ -9,9 +9,9 @@ import {UserListComponent} from './user-list/user-list.component';
 })
 export class UserComponent implements OnInit {
 
-  @ViewChild(UserCreateComponent)
+  @ViewChild(UserCreateComponent, { static: true })
   creationUser: UserCreateComponent;
-  @ViewChild(UserListComponent)
+  @ViewChild(UserListComponent, { static: true })
   listUser: UserListComponent;
 
   constructor() {
