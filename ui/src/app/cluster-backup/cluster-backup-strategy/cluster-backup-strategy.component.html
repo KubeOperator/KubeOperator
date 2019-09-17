@@ -1,0 +1,23 @@
+<div >
+  <h3>备份策略</h3>
+  <app-tip></app-tip>
+  <form clrForm>
+    <clr-input-container>
+      <label>保存间隔</label>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>保存份数</label>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>保存天数</label>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>保存位置</label>
+      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+    </clr-input-container>
+  </form>
+  <button class="btn btn-info-outline" (click)="onCommit()">保存</button>
+</div>
