@@ -67,12 +67,15 @@ playbooks:
   - name:  uninstall-k8s
     alias: kubeasz/99.clean.yml
   - name:  add-node
+    alias: common/new-node.yml
+  - name:  add-kube-node
     alias: kubeasz/20.addnode.yml
   - name:  bigip-config
     alias: kubeasz/08.f5-bigip.yml
   - name: test
     alias: kubeasz/100.test.yml
 roles:
+  - name: new_node
   - name: cluster_nodes
     children:
       - master
@@ -316,10 +319,10 @@ templates:
       - name: uninstall
         playbooks:
           - uninstall-k8s
-      - name: add_node
+      - name: add-node
         playbooks:
-          - common-config
           - add-node
+          - add-kube-node
       - name: bigip-config
         playbooks:
           - bigip-config
@@ -391,7 +394,8 @@ templates:
                 unit: "GB"
                 comment: "无"
       - name: worker
-        vars:
+        children:
+          - new-node
         meta:
           hidden: false
           allow_os:
@@ -514,7 +518,8 @@ templates:
                 unit: "GB"
                 comment: "无"
       - name: worker
-        vars:
+        children:
+          - new_node
         meta:
           hidden: false
           allow_os:

@@ -1,7 +1,7 @@
 - name: 安装 daemon 相关依赖
   package:
     name: "{{item}}"
-    state: latest
+    state: present
   with_items: "{{packages}}"
 
 - name: 开机启动dnsmasq

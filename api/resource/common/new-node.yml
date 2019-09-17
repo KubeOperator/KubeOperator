@@ -1,0 +1,9 @@
+- hosts: daemon
+  roles:
+    - daemon
+
+- hosts: new_node
+  roles:
+    - hosts
+    - cluster_nodes
+

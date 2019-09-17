@@ -1,8 +1,7 @@
 import os
 import threading
 import uuid
-from time import sleep
-
+from ipaddress import ip_address, ip_interface, ip_network
 import yaml
 from django.db import models
 
@@ -110,21 +109,6 @@ class Zone(models.Model):
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
     status = models.CharField(max_length=64, choices=ZONE_STATUS_CHOICES, null=True)
 
-    @property
-    def cluster_size(self):
-        clusters = []
-        plans = Plan.objects.filter(zone=self)
-        for plan in plans:
-            from kubeops_api.models.cluster import Cluster
-            cs = Cluster.objects.all().filter(plan=plan)
-            for c in cs:
-                clusters.append(c)
-        return len(clusters)
-
-    @property
-    def plan_size(self):
-        return len(Plan.objects.filter(zone=self))
-
     def change_status(self, status):
         self.status = status
         self.save()
@@ -145,10 +129,29 @@ class Zone(models.Model):
 
     def to_dict(self):
         dic = {
-            "name": self.cloud_zone
+            "name": self.cloud_zone,
+            "zone_name": self.name
         }
         dic.update(self.vars)
         return dic
+
+    def ip_pools(self):
+        ip_start = ip_address(self.vars['vc_ip_start'])
+        ip_end = ip_address(self.vars['vc_ip_end'])
+        net_mask = self.vars['net_mask']
+        interface = ip_interface("{}/{}".format(str(ip_start), net_mask))
+        network = interface.network
+        ip_pool = []
+        for host in network.hosts():
+            if ip_start <= host <= ip_end:
+                ip_pool.append(str(host))
+        hosts = Host.objects.filter(ip__in=ip_pool)
+        for host in hosts:
+            ip_pool.remove(host.ip)
+        return ip_pool
+
+    def ip_available_size(self):
+        return len(self.ip_pools())
 
 
 class Plan(models.Model):
@@ -180,7 +183,6 @@ class Plan(models.Model):
             zones.append(self.zone.to_dict())
         _vars['zones'] = zones
         return _vars
-
 
     @property
     def compute_models(self):
