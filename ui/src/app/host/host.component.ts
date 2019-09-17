@@ -11,10 +11,10 @@ import {HostListComponent} from './host-list/host-list.component';
 })
 export class HostComponent implements OnInit {
 
-  @ViewChild(HostCreateComponent)
+  @ViewChild(HostCreateComponent, { static: true })
   creationHost: HostCreateComponent;
 
-  @ViewChild(HostListComponent)
+  @ViewChild(HostListComponent, { static: true })
   listHost: HostListComponent;
 
   constructor() {

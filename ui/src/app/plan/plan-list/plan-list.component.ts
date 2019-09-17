@@ -21,7 +21,7 @@ export class PlanListComponent implements OnInit {
   showDetail = false;
   resourceTypeName: '计划';
   @Output() add = new EventEmitter();
-  @ViewChild(PlanDetailComponent)
+  @ViewChild(PlanDetailComponent, { static: true })
   child: PlanDetailComponent;
 
   constructor(private regionService: RegionService, private tipService: TipService,

@@ -26,8 +26,8 @@ export class ZoneCreateComponent implements OnInit {
   regions: Region[] = [];
   region: Region;
   loading = false;
-  @ViewChild('basicForm') basicForm: NgForm;
-  @ViewChild('wizard') wizard: ClrWizard;
+  @ViewChild('basicForm', { static: true }) basicForm: NgForm;
+  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
 
   constructor(private regionService: RegionService,
               private cloudService: CloudService,

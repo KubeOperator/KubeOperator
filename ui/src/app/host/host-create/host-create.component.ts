@@ -25,7 +25,7 @@ export class HostCreateComponent implements OnInit {
   host: Host = new Host();
   loading = false;
   credentials: Credential[] = [];
-  @ViewChild('hostForm') hostFrom: NgForm;
+  @ViewChild('hostForm', { static: true }) hostFrom: NgForm;
 
   ngOnInit() {
 

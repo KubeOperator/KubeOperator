@@ -9,10 +9,10 @@ import {CredentialListComponent} from './credential-list/credential-list.compone
 })
 export class CredentialComponent implements OnInit {
 
-  @ViewChild(CredentialCreateComponent)
+  @ViewChild(CredentialCreateComponent, { static: true })
   creation: CredentialCreateComponent;
 
-  @ViewChild(CredentialListComponent)
+  @ViewChild(CredentialListComponent, { static: true })
   listHost: CredentialListComponent;
 
   constructor() {

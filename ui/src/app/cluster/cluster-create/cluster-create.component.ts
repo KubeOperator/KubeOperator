@@ -34,7 +34,7 @@ export const CHECK_STATE_FAIL = 'fail';
 export class ClusterCreateComponent implements OnInit, OnDestroy {
 
 
-  @ViewChild('wizard') wizard: ClrWizard;
+  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
   createClusterOpened: boolean;
   isSubmitGoing = false;
   cluster: Cluster = new Cluster();
@@ -59,11 +59,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   checkMemoryResult: CheckResult = new CheckResult();
   checkOsResult: CheckResult = new CheckResult();
   suffix = 'f2o';
-  @ViewChild('basicFrom') basicForm: NgForm;
-  @ViewChild('storageForm') storageForm: NgForm;
-  @ViewChild('networkForm') networkForm: NgForm;
-  @ViewChild('nodeForm') nodeForm: NgForm;
-  @ViewChild('configForm') configForm: NgForm;
+  @ViewChild('basicFrom', { static: true }) basicForm: NgForm;
+  @ViewChild('storageForm', { static: true }) storageForm: NgForm;
+  @ViewChild('networkForm', { static: true }) networkForm: NgForm;
+  @ViewChild('nodeForm', { static: false }) nodeForm: NgForm;
+  @ViewChild('configForm', { static: true }) configForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;

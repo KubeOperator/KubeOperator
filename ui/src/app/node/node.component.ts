@@ -12,10 +12,10 @@ import {Cluster} from '../cluster/cluster';
 })
 export class NodeComponent implements OnInit {
 
-  @ViewChild(NodeCreateComponent)
+  @ViewChild(NodeCreateComponent, { static: true })
   creationNode: NodeCreateComponent;
 
-  @ViewChild(NodeListComponent)
+  @ViewChild(NodeListComponent, { static: true })
   listNode: NodeListComponent;
 
   public currentCluster: Cluster;

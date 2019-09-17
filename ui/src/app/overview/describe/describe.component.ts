@@ -24,7 +24,7 @@ export class DescribeComponent implements OnInit {
   openToken = false;
   token: string = null;
   event: string = null;
-  @ViewChild(ConfirmAlertComponent) confirmAlert: ConfirmAlertComponent;
+  @ViewChild(ConfirmAlertComponent, { static: true }) confirmAlert: ConfirmAlertComponent;
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,

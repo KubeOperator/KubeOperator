@@ -17,7 +17,7 @@ export class PackageListComponent implements OnInit {
   packages: Package[] = [];
   selectedRow: Package[] = [];
   showDetail = false;
-  @ViewChild(PackageDetailComponent)
+  @ViewChild(PackageDetailComponent, { static: true })
   child: PackageDetailComponent;
 
   constructor(private offlineService: PackageService, private tipService: TipService, private packageLogoService: PackageLogoService) {

@@ -16,7 +16,7 @@ export class CredentialListComponent implements OnInit {
   selected: Credential[] = [];
   loading = true;
   @Output() add = new EventEmitter();
-  @ViewChild(HostInfoComponent)
+  @ViewChild(HostInfoComponent, { static: false })
   child: HostInfoComponent;
   showDelete = false;
   resourceTypeName: '凭据';

@@ -16,7 +16,7 @@ import {Cluster} from '../../../cluster/cluster';
 export class TermComponent implements OnInit, OnDestroy {
   term: Terminal;
   logSub: Subscription;
-  @ViewChild('terminal') terminal: ElementRef;
+  @ViewChild('terminal', { static: true }) terminal: ElementRef;
   currentExecution: Execution;
   @Input() currentCluster: Cluster;
 

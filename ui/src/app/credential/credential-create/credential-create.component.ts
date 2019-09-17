@@ -19,7 +19,7 @@ export class CredentialCreateComponent implements OnInit {
   isSubmitGoing = false;
   item: Credential = new Credential();
   loading = false;
-  @ViewChild('credentialForm') credentialForm: NgForm;
+  @ViewChild('credentialForm', { static: true }) credentialForm: NgForm;
 
   constructor(private credentialService: CredentialService, private tipService: TipService) {
   }
