@@ -1,8 +1,7 @@
-from ipaddress import ip_address
 from django.db.models import Q
+
 from cloud_provider import get_cloud_client
-from cloud_provider.models import TerraformHost, Plan
-from kubeops_api.models.host import Host
+from cloud_provider.models import TerraformHost, Plan, Zone
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
 
@@ -22,6 +21,21 @@ def create_hosts(cluster):
         raise Exception('Create nodes error!')
 
 
+def add_hosts(cluster, num):
+    terraform_hosts = add_terraform_host(cluster, num)
+    cluster.set_terraform_hosts(terraform_hosts)
+    cloud_provider = get_cloud_client(cluster.plan.mixed_vars)
+    result = cloud_provider.apply_terraform(cluster=cluster)
+    if result:
+        for h in cluster.terraform_hosts.all():
+            h.create_host()
+        cluster.add_nodes_by_terraform()
+    else:
+        for host in terraform_hosts:
+            host.delete()
+        raise Exception('Add nodes error!')
+
+
 def create_terraform_hosts(cluster):
     roles = {
         "master": 1,
@@ -37,9 +51,13 @@ def create_terraform_hosts(cluster):
     if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
         roles['master'] = 3
     for role, size in roles.items():
-        compute_model = get_k8s_role_model(role, cluster.plan, deploy_vars)
+        compute_model = get_k8s_role_model(role, cluster.plan)
         for i in range(1, size + 1):
             zone = get_zone(zones, i)
+            ip = zone['ip_pool'].pop()
+            zone_name = zone['name']
+            if not ip:
+                raise RuntimeError('zone: {}  ip address not enough!', zone_name)
             host = TerraformHost(
                 role=role,
                 cpu=compute_model['cpu'],
@@ -48,15 +66,16 @@ def create_terraform_hosts(cluster):
                 domain=domain,
                 short_name=role + "{}".format(i),
                 host_name=role + "{}-{}".format(i, cluster.name),
-                zone_vars=zone,
-                ip=zone['ip_pool'].pop()
+                zone_vars=zone_name,
+                ip=ip
             )
             hosts.append(host)
     return TerraformHost.objects.bulk_create(hosts)
 
 
-def get_k8s_role_model(role, plan, deploy_vars):
+def get_k8s_role_model(role, plan):
     k8s_model = None
+    deploy_vars = plan.mixed_vars
     if role == 'master':
         k8s_model = deploy_vars['k8s_master_model']
     if role == 'worker':
@@ -78,21 +97,10 @@ def find_compute_model(role, models):
 
 
 def gen_zone_ip_pool(zones):
-    for zone in zones:
-        zone['ip_pool'] = get_available_ips(zone['vc_ip_start'], zone['vc_ip_end'])
-
-
-def get_available_ips(start, end):
-    start = ip_address(start)
-    end = ip_address(end)
-    result = []
-    while start <= end:
-        result.append(str(start))
-        start += 1
-    hosts = Host.objects.filter(ip__in=result)
-    for host in hosts:
-        result.remove(host.ip)
-    return result
+    for zone_dic in zones:
+        zone = Zone.objects.get(name=zone_dic['zone_name'])
+        print(zone.ip_pools())
+        zone_dic['ip_pool'] = zone.ip_pools()
 
 
 def delete_hosts(cluster):
@@ -107,3 +115,33 @@ def delete_hosts(cluster):
             node.delete()
         for host in cluster.terraform_hosts.all():
             host.host.delete()
+
+
+def add_terraform_host(cluster, num):
+    deploy_vars = cluster.plan.mixed_vars
+    zones = deploy_vars['zones']
+    gen_zone_ip_pool(zones)
+    compute_model = get_k8s_role_model('worker', cluster.plan)
+    domain = cluster.name + "." + Setting.objects.get(key="domain_suffix").value
+    role = 'worker'
+    hosts = []
+    for i in range(1, num + 1):
+        no = cluster.node_size + i
+        zone = get_zone(zones, no)
+        zone_name = zone['zone_name']
+        ip = zone['ip_pool'].pop()
+        if not ip:
+            raise RuntimeError('zone: {}  ip address not enough!', zone_name)
+        host = TerraformHost(
+            role=role,
+            cpu=compute_model['cpu'],
+            memory=compute_model["memory"] * 1024,
+            name=role + "{}.".format(no) + "{}".format(domain),
+            domain=domain,
+            short_name=role + "{}".format(no),
+            host_name=role + "{}-{}".format(no, cluster.name),
+            zone_vars=zone,
+            ip=ip
+        )
+        hosts.append(host)
+    return TerraformHost.objects.bulk_create(hosts)

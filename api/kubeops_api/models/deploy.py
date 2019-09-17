@@ -42,10 +42,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             elif self.operation == 'bigip-config':
                 ignore_errors = True
                 result = self.on_f5_config(extra_vars)
+            elif self.operation == 'add-node':
+                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
+                result = self.on_add_node(extra_vars)
+                cluster.change_status(Cluster.CLUSTER_STATUS_READY)
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
+            logger.error(e, exc_info=True)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
@@ -74,6 +79,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         extra_vars.update(cluster.meta)
         playbooks = cluster.get_playbooks('bigip-config')
+        return self.run_playbooks(playbooks, extra_vars)
+
+    def on_add_node(self, extra_vars):
+        cluster = self.get_cluster()
+        cluster.create_new_node_resource()
+        playbooks = cluster.get_playbooks('new-node')
         return self.run_playbooks(playbooks, extra_vars)
 
     def run_playbooks(self, playbooks, extra_vars):
