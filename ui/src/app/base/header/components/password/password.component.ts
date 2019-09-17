@@ -1,10 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {SessionService} from '../../../../shared/session.service';
-import {SignInCredential} from '../../../../shared/signInCredential';
-import {TipService} from '../../../../tip/tip.service';
-import {TipLevels} from '../../../../tip/tipLevels';
 import {NgForm} from '@angular/forms';
-import {el} from '@angular/platform-browser/testing/src/browser_util';
 
 @Component({
   selector: 'app-password',

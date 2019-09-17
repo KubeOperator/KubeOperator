@@ -5,12 +5,9 @@ import {Router} from '@angular/router';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {MessageService} from '../../base/message.service';
-import {MessageLevels} from '../../base/message/message-level';
 import {SettingService} from '../../setting/setting.service';
 import {PackageLogoService} from '../../package/package-logo.service';
 import {ClusterStatusService} from '../cluster-status.service';
-import {OperaterService} from '../../deploy/component/operater/operater.service';
-import {el} from '@angular/platform-browser/testing/src/browser_util';
 
 @Component({
   selector: 'app-cluster-list',

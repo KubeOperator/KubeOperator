@@ -284,10 +284,6 @@
             <input clrInput size=45 type="text" [value]="config.default" [(ngModel)]="config.value"
                    [ngModelOptions]="{standalone: true}">
           </clr-input-container>
-          <clr-checkbox [clrInline]="true" *ngSwitchCase="'Checkbox'" [(ngModel)]="config.value"
-                        [ngModelOptions]="{standalone: true}">
-            {{config.alias}}
-          </clr-checkbox>
         </div>
       </div>
     </form>

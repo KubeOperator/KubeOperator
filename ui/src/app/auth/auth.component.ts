@@ -3,10 +3,9 @@ import {Cluster} from '../cluster/cluster';
 import {ActivatedRoute} from '@angular/router';
 import {ClusterService} from '../cluster/cluster.service';
 import {Package} from '../package/package';
-import {AuthMeta, AuthTemplate} from './class/auth';
+import { AuthTemplate} from './class/auth';
 import {PackageService} from '../package/package.service';
 import {AuthService} from './service/auth.service';
-import {template} from '@angular/core/src/render3';
 
 @Component({
   selector: 'app-auth',

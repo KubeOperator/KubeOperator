@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ClarityModule, ClrFormsDeprecatedModule} from '@clr/angular';
+import {ClarityModule} from '@clr/angular';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -14,7 +14,6 @@ import {NgxEchartsModule} from 'ngx-echarts';
   imports: [
     CommonModule,
     ClarityModule,
-    ClrFormsDeprecatedModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -32,7 +31,6 @@ import {NgxEchartsModule} from 'ngx-echarts';
     RouterModule,
     HttpClientModule,
     HttpClientJsonpModule,
-    ClrFormsDeprecatedModule,
     BrowserModule,
     NgxEchartsModule,
     BrowserAnimationsModule
