@@ -1,33 +1,26 @@
 <clr-modal [(clrModalOpen)]="showInfoModal" [clrModalSize]="'lg'" [clrModalClosable]=false>
   <h3 class="modal-title">主机信息</h3>
   <div class="modal-body">
-    <div *ngIf="hostInfo!=null">
+    <div *ngIf="host!=null">
       <h5>基本信息</h5>
       <hr/>
-      CPU:{{hostInfo.cpu_core}} 核<br/>
-      内存:{{hostInfo.memory}} MB<br/>
-      操作系统:{{hostInfo.os}} {{hostInfo.os_version}}<br/>
+      CPU:{{host.cpu_core}} 核<br/>
+      内存:{{host.memory}} MB<br/>
+      操作系统:{{host.os}} {{host.os_version}}<br/>
       <h5>磁盘信息</h5>
       <hr/>
       <clr-datagrid>
         <clr-dg-column>名称</clr-dg-column>
         <clr-dg-column>大小</clr-dg-column>
 
-        <clr-dg-row *clrDgItems="let volume of hostInfo.volumes" [clrDgItem]="cluster">
+        <clr-dg-row *clrDgItems="let volume of host.volumes" [clrDgItem]="volume">
           <clr-dg-cell>{{volume.name}}</clr-dg-cell>
           <clr-dg-cell>{{volume.size}}</clr-dg-cell>
         </clr-dg-row>
       </clr-datagrid>
     </div>
-    <div *ngIf="hostInfo === null">
-      暂无主机信息！
-    </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn" (click)="cancel()" [disabled]="loading">取消</button>
-    <button type="button" class="btn btn-primary" (click)="update()" [disabled]="loading">
-      <i *ngIf="loading" class="fa fa-spinner fa-pulse"></i>
-      更新
-    </button>
   </div>
 </clr-modal>

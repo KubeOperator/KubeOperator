@@ -15,7 +15,6 @@ from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.deploy import DeployExecution
-from kubeops_api.models.host import Volume, HostInfo
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
@@ -157,17 +156,6 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
             args=(instance.id,), task_id=str(instance.id)
         ))
         return instance
-
-
-class HostInfoViewSet(viewsets.ModelViewSet):
-    queryset = HostInfo.objects.all()
-    permission_classes = (IsSuperUser,)
-    serializer_class = serializers.HostInfoSerializer
-    http_method_names = ['head', 'options', 'post']
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        instance.gather_info()
 
 
 class SettingViewSet(viewsets.ModelViewSet):

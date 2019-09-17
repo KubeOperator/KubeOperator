@@ -6,8 +6,10 @@ from django.dispatch import receiver
 from django.utils import timezone
 from gunicorn.config import Setting
 
+from kubeops_api.adhoc import test_host
+from kubeops_api.models import Credential
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.host import HostInfo, Host
+from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from .signals import pre_deploy_execution_start, post_deploy_execution_start
@@ -30,16 +32,20 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
         instance.on_node_save()
 
 
+@receiver(pre_save, sender=Host)
+def post_host_save(sender, instance=None, **kwargs):
+    print(instance.credential)
+    credential = Credential.objects.get(name=instance.credential.name)
+    host_valid = test_host(instance.ip, credential.username, credential.password)
+    if not host_valid:
+        raise RuntimeError('can not connected host:{}'.format(instance.ip))
+
+
 @receiver(post_save, sender=Host)
 def post_host_save(sender, instance=None, created=False, **kwargs):
     if created:
         instance.full_host_credential()
-
-
-@receiver(pre_save, sender=HostInfo)
-def before_hostInfo_save(sender, instance=None, created=False, **kwargs):
-    if created:
-        instance.clear_host_info()
+        instance.gather_info()
 
 
 def auto_lookup_packages():

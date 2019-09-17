@@ -13,7 +13,6 @@ router.register('packages', api.PackageViewSet, 'package')
 router.register('credential', api.CredentialViewSet, 'credential')
 router.register('host', api.HostViewSet, 'host')
 router.register('setting', api.SettingViewSet, 'setting')
-router.register('hostInfo', api.HostInfoViewSet, 'hostInfo')
 router.register('auth', api.AuthViewSet, 'auth')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')

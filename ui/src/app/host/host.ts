@@ -7,15 +7,12 @@ export class Host {
   credential: string;
   cluster: string;
   comment: string;
-  info: HostInfo;
-}
-
-export class HostInfo {
-  id: string;
   memory: number;
   os: string;
   os_version: string;
   cpu_core: number;
+  region: string;
+  zone: string;
   volumes: Volume[];
 }
 

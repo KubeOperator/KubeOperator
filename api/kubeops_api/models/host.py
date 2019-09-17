@@ -5,7 +5,7 @@ from ansible_api.models.utils import name_validator
 from kubeops_api.adhoc import gather_host_info
 from kubeops_api.models.credential import Credential
 
-__all__ = ['Host', 'HostInfo']
+__all__ = ['Host']
 
 
 class Host(BaseHost):
@@ -14,6 +14,12 @@ class Host(BaseHost):
                              on_delete=models.SET_NULL)
     name = models.CharField(max_length=128, validators=[name_validator], unique=True)
     credential = models.ForeignKey("kubeops_api.Credential", null=True, on_delete=models.SET_NULL)
+    memory = models.fields.BigIntegerField(default=0)
+    os = models.fields.CharField(max_length=128, default="")
+    os_version = models.fields.CharField(max_length=128, default="")
+    cpu_core = models.fields.IntegerField(default=0)
+    volumes = models.ManyToManyField('Volume')
+    zone = models.ForeignKey('cloud_provider.Zone', null=True, on_delete=models.CASCADE)
 
     def full_host_credential(self):
         if self.credential:
@@ -26,38 +32,16 @@ class Host(BaseHost):
 
     @property
     def cluster(self):
-        if self.node is not None:
+        if self.node:
             return self.node.project.name
-        else:
-            return '无'
 
     @property
-    def info(self):
-        return self.infos.all().latest()
+    def region(self):
+        if self.zone:
+            return self.zone.region
 
     def gather_info(self):
-        info = HostInfo.objects.create(host_id=self.id)
-        info.gather_info()
-
-    class Meta:
-        ordering = ('name',)
-
-
-class HostInfo(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    memory = models.fields.BigIntegerField(default=0)
-    os = models.fields.CharField(max_length=128, default="")
-    os_version = models.fields.CharField(max_length=128, default="")
-    cpu_core = models.fields.IntegerField(default=0)
-    host = models.ForeignKey('Host', on_delete=models.CASCADE, null=True, related_name='infos')
-    volumes = models.ManyToManyField('Volume')
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        get_latest_by = 'date_created'
-
-    def gather_info(self):
-        facts = gather_host_info(self.host)
+        facts = gather_host_info(self.ip, self.username, self.password)
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]
         cpu_count = facts["ansible_processor_count"]
@@ -74,6 +58,9 @@ class HostInfo(models.Model):
                 volume.save()
                 volumes.append(volume)
         self.volumes.set(volumes)
+
+    class Meta:
+        ordering = ('name',)
 
 
 class Volume(models.Model):

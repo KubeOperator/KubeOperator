@@ -25,7 +25,7 @@ export class HostCreateComponent implements OnInit {
   host: Host = new Host();
   loading = false;
   credentials: Credential[] = [];
-  @ViewChild('hostForm', { static: true }) hostFrom: NgForm;
+  @ViewChild('hostForm', {static: true}) hostFrom: NgForm;
 
   ngOnInit() {
 
@@ -66,7 +66,7 @@ export class HostCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建主机失败:' + err.reason + ' state code:' + err.status, TipLevels.ERROR);
+      this.tipService.showTip('创建主机失败：无法连接到目标主机！请检查目标主机22端口是否开启!', TipLevels.ERROR);
     });
   }
 
