@@ -26,6 +26,7 @@ import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
 import {ApplicationComponent} from './application/application.component';
 import {ClusterHealthComponent} from './cluster-health/cluster-health.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
+import {BackupStorageSettingComponent} from './setting/backup-storage-setting/backup-storage-setting.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -58,6 +59,7 @@ const routes: Routes = [
           {path: '', redirectTo: 'system', pathMatch: 'full'},
           {path: 'system', component: SystemSettingComponent},
           {path: 'credential', component: CredentialComponent},
+          {path: 'backup-storage', component: BackupStorageSettingComponent}
         ]
       },
       {

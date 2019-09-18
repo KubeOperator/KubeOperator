@@ -29,6 +29,7 @@ import { DeployPlanComponent } from './deploy-plan/deploy-plan.component';
 import { ApplicationComponent } from './application/application.component';
 import { ClusterHealthComponent } from './cluster-health/cluster-health.component';
 import { ClusterBackupComponent } from './cluster-backup/cluster-backup.component';
+import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { ClusterBackupComponent } from './cluster-backup/cluster-backup.componen
     DeployPlanComponent,
     ApplicationComponent,
     ClusterHealthComponent,
-    ClusterBackupComponent,
+    ClusterBackupComponent
   ],
   imports: [
     CredentialModule,
@@ -61,7 +62,8 @@ import { ClusterBackupComponent } from './cluster-backup/cluster-backup.componen
     AuthModule,
     ZoneModule,
     PlanModule,
-    F5BigIpModule
+    F5BigIpModule,
+    ClusterBackupModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]
