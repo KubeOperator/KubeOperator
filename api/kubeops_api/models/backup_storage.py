@@ -28,7 +28,7 @@ class backup_storage(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=128, null=True,blank=True)
-    region1 = models.CharField(max_length=128,null=True,blank=True)
+    region = models.CharField(max_length=128,null=True,blank=True)
     credentials = JsonDictTextField(blank=True, null=True)
     type = models.CharField(max_length=64,choices=BACKUP_STORAGE_TYPE_CHOICES)
     status = models.CharField(max_length=64,choices=BACKUP_STORAGE_STATUS_CHOICES,default=BACKUP_STORAGE_STATUS_VALID)
