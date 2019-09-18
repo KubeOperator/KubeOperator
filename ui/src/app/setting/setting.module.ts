@@ -4,9 +4,10 @@ import {SettingComponent} from './setting.component';
 import {TipModule} from '../tip/tip.module';
 import {CoreModule} from '../core/core.module';
 import {SystemSettingComponent} from './system-setting/system-setting.component';
+import { BackupStorageSettingComponent } from './backup-storage-setting/backup-storage-setting.component';
 
 @NgModule({
-  declarations: [SettingComponent, SystemSettingComponent],
+  declarations: [SettingComponent, SystemSettingComponent, BackupStorageSettingComponent],
   imports: [
     CommonModule,
     CoreModule,
