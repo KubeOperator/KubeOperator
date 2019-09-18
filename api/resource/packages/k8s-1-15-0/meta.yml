@@ -59,21 +59,54 @@ images:
     tag: v3.4.4
   - name: calico/kube-controllers
     tag: v3.4.4
+
 playbooks:
-  - name:  common-config
-    alias: common/common.yml
-  - name:  install-k8s
-    alias: kubeasz/90.setup.yml
-  - name:  uninstall-k8s
-    alias: kubeasz/99.clean.yml
-  - name:  add-node
-    alias: common/new-node.yml
-  - name:  add-kube-node
-    alias: kubeasz/20.addnode.yml
+  - name:  config
+    alias: ../../kubeeasz/config.yml
+  - name:  prepare
+    alias: ../../kubeeasz/prepare.yml
+  - name:  master
+    alias: ../../kubeasz/master.yml
+  - name:  worker
+    alias: ../../kubeasz/worker.yml
+  - name:  addon
+    alias: ../../kubeasz/addon.yml
   - name:  bigip-config
-    alias: kubeasz/08.f5-bigip.yml
-  - name: test
-    alias: kubeasz/100.test.yml
+    alias: ../../kubeasz/f5-bigip.yml
+  - name: uninstall
+    alias: ../../kubeasz/clean.yml
+
+operations:
+  - name: install
+    steps:
+      - name: create-resource
+        flow: 创建资源
+      - name: config
+        playbook: config
+        flow: 配置操作系统
+      - name: prepare
+        playbook: prepare
+        flow: 准备安装环境
+      - name: master
+        playbook: master
+        flow: 安装 master
+      - name: worker
+        playbook: worker
+        flow: 安装 worker
+      - name: addon
+        playbook: addon
+        flow: 安装内置应用
+  - name: uninstall
+    steps:
+      - name: uninstall
+        playbook: uninstall
+        flow: 卸载集群
+  - name: bigip-config
+    steps:
+      - name: bigip-config
+        playbook: bigip-config
+        flow: 配置 F5
+
 roles:
   - name: new_node
   - name: cluster_nodes
@@ -292,6 +325,7 @@ storages:
         display: true
 
 
+
 public_config:
   - name: APP_DOMAIN
     alias: 应用域名
@@ -310,22 +344,6 @@ templates:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
       grafana_install: true
-    private_config: []
-    operations:
-      - name: install
-        playbooks:
-          - common-config
-          - install-k8s
-      - name: uninstall
-        playbooks:
-          - uninstall-k8s
-      - name: add-node
-        playbooks:
-          - add-node
-          - add-kube-node
-      - name: bigip-config
-        playbooks:
-          - bigip-config
     roles:
       - name: master
         vars:
@@ -434,22 +452,6 @@ templates:
       DEPLOY_MODE: 'multiple-master'
       prometheus_install: true
       grafana_install: true
-    private_config: []
-    operations:
-      - name: install
-        playbooks:
-          - common-config
-          - install-k8s
-      - name: uninstall
-        playbooks:
-          - uninstall-k8s
-      - name: add_node
-        playbooks:
-          - common-config
-          - add-node
-      - name: bigip-config
-        playbooks:
-          - bigip-config
     roles:
       - name: master
         vars:

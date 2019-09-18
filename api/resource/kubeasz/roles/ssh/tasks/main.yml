@@ -1,0 +1,14 @@
+- name: 分发 ssh key
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+    state: present
+    exclusive: no
+
+- name: 忽略 ssh 登陆 key 校验
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^UseDNS.*'
+    line: UseDNS no
+  notify:
+    - restart sshd

@@ -135,13 +135,14 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     log_url = serializers.SerializerMethodField()
     log_ws_url = serializers.SerializerMethodField()
     progress_ws_url = serializers.SerializerMethodField()
+    steps = serializers.ListField(required=False, read_only=True)
 
     class Meta:
         model = DeployExecution
         fields = '__all__'
         read_only_fields = [
             'id', 'state', 'num', 'result_summary', 'result_raw',
-            'date_created', 'date_start', 'date_end', 'project', 'timedelta', 'current_task', 'progress'
+            'date_created', 'date_start', 'date_end', 'project', 'timedelta', 'steps'
         ]
 
     @staticmethod

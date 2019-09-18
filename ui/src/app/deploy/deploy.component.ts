@@ -18,8 +18,6 @@ export class DeployComponent implements OnInit {
   constructor(private route: ActivatedRoute, private clusterService: ClusterService, private executionService: LogService,
               private deployService: DeployService) {
   }
-
-
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];

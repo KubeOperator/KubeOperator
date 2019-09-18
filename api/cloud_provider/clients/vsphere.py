@@ -66,7 +66,7 @@ class VsphereCloudClient(CloudClient):
         url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
         download_plugins(url=url, target=plugin_dir)
 
-    def apply_terraform(self, cluster):
+    def apply_terraform(self, cluster, mix_vars):
         vars = cluster.plan.mixed_vars
         st = connect.SmartConnectNoSSL(host=vars['vc_host'], user=vars['vc_username'],
                                        pwd=vars['vc_password'], port=int(443))
@@ -76,7 +76,7 @@ class VsphereCloudClient(CloudClient):
         folder = get_obj(content, [vim.Folder], container, 'kubeoperator')
         if not folder:
             dc.vmFolder.CreateFolder('kubeoperator')
-        return super().apply_terraform(cluster)
+        return super().apply_terraform(cluster, mix_vars)
 
     def create_image(self, zone):
         params = replace_params(self.vars)

@@ -1,3 +1,0 @@
-dns_server: "{{hostvars[groups['daemon'][0]]['ansible_default_ipv4']['address']}}"
-ntp_server: "{{hostvars[groups['daemon'][0]]['ansible_default_ipv4']['address']}}"
-network_default_interface: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['interface']}}"

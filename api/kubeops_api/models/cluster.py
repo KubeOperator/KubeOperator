@@ -124,10 +124,10 @@ class Cluster(Project):
                 template = temp
                 return template
 
-    def get_playbooks(self, name):
-        for operation in self.get_template_obj()['operations']:
-            if operation['name'] == name:
-                return operation['playbooks']
+    def get_steps(self, opt):
+        for operation in self.package.meta['operations']:
+            if operation['name'] == opt:
+                return operation['steps']
 
     def create_network_plugin(self):
         if self.network_plugin:

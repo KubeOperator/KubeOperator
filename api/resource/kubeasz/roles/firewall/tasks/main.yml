@@ -1,0 +1,26 @@
+- name: 开启firewalld 防火墙
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: 打开防火墙UDP端口
+  firewalld:
+    port: "{{item}}/udp"
+    permanent: true
+    state: enabled
+  with_items: "{{firewall_udp_ports}}"
+
+- name: 打开防火墙TCP端口
+  firewalld:
+    port: "{{item}}/tcp"
+    permanent: true
+    state: enabled
+  with_items: "{{firewall_tcp_ports}}"
+
+- name: 生效防火墙配置
+  shell: "firewall-cmd --reload"
+
+- name: 配置主机名
+  hostname:
+    name: "{{inventory_hostname}}"

@@ -1,0 +1,17 @@
+packages:
+  - wget
+  - net-tools
+  - bind-utils
+  - firewalld
+  - bridge-utils
+  - bash-completion
+  - kexec-tools
+  - sos
+  - psacct
+  - glibc-common
+  - bind-license
+  - python-passlib
+  - chrony
+  - python-docker-py
+  - ntpdate
+  - jq

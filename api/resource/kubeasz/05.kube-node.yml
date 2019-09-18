@@ -1,4 +1,0 @@
-# to set up 'kube-node' nodes
-- hosts: kube-node
-  roles:
-  - kube-node

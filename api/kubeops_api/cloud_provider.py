@@ -8,10 +8,32 @@ from kubeops_api.models.setting import Setting
 
 
 # def scale_hosts(cluster):
-#     current_workers = cluster.current_workers
-#     if len(current_workers) > cluster.worker_size:
-
-
+#     worker_size = cluster.worker_size
+#     current_worker_size = len(cluster.current_workers)
+#     if worker_size < current_worker_size:
+#         remove_host(cluster, current_worker_size - worker_size)
+#     elif worker_size > current_worker_size:
+#         add_new_host(cluster, worker_size - current_worker_size)
+#
+#
+# def add_new_host(cluster, num):
+#     hosts = []
+#     role = "worker"
+#     compute_model = get_k8s_role_model(role, cluster.plan)
+#     domain = cluster.name + "." + Setting.objects.get(key="domain_suffix").value
+#     for worker in cluster.current_workers:
+#         hosts.append({
+#             "role": role,
+#             "cpu": compute_model['cpu'],
+#             "memory": compute_model['memory'] * 1024,
+#             "name": worker.name,
+#             "domain": domain,
+#             "host_name": role + "{}-{}".format(i, cluster.name),
+#             "zone_vars": zone_name,
+#             "ip": worker.ip
+#         })
+#
+# def remove_host(cluster, num):
 
 
 def create_hosts(cluster):
@@ -61,9 +83,8 @@ def create_cluster_hosts(cluster):
                 "memory": compute_model['memory'] * 1024,
                 "name": role + "{}.".format(i) + "{}".format(domain),
                 "domain": domain,
-                "host_name": role + "{}-{}".format(i, cluster.name),
-                "zone_vars": zone_name,
-                "ip": ip
+                "ip": ip,
+                "zone": zone
             }
             hosts.append(host)
     return hosts

@@ -1,0 +1,27 @@
+- hosts: "kube-master"
+  roles:
+    - cluster-storage
+
+# to install helm
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - helm
+
+# to install cluster-addons
+- hosts:
+    - "{{groups['kube-master'][0]}}"
+  roles:
+    - cluster-addon
+
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - registry
+
+- hosts: kube-node
+  tasks:
+    - name: 尝试登陆 registry
+      shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
+      register: login_result
+      until: login_result.rc == 0
+      retries: 5
+      delay: 30

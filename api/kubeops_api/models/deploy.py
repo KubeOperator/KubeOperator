@@ -1,11 +1,13 @@
 import json
 import logging
+import time
 
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
+from common import models as common_models
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -13,9 +15,13 @@ logger = logging.getLogger(__name__)
 
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     operation = models.CharField(max_length=128, blank=False, null=False)
-    progress = models.FloatField(default=0)
-    current_play = models.CharField(max_length=512, null=True, default=None)
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
+    steps = common_models.JsonListTextField(default=[], null=True)
+
+    STEP_STAUTS_PENDING = 'pending'
+    STEP_STAUTS_RUNNING = 'running'
+    STEP_STAUTS_SUCCESS = 'success'
+    STEP_STAUTS_ERROR = 'error'
 
     @property
     def start(self):
@@ -42,10 +48,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             elif self.operation == 'bigip-config':
                 ignore_errors = True
                 result = self.on_f5_config(extra_vars)
-            elif self.operation == 'add-node':
-                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
-                result = self.on_add_node(extra_vars)
-                cluster.change_status(Cluster.CLUSTER_STATUS_READY)
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
@@ -57,67 +59,77 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
     def on_install(self, extra_vars):
         cluster = self.get_cluster()
+        self.steps = cluster.get_steps('install')
+        self.set_step_default()
+        self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             if not cluster.node_size > 0:
-                cluster.create_resource()
-        playbooks = cluster.get_playbooks('install')
-        return self.run_playbooks(playbooks, extra_vars)
+                try:
+                    cluster.create_resource()
+                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+                except RuntimeError as e:
+                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
+                    raise e
+        return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
         cluster = self.get_cluster()
+        self.steps = cluster.get_steps('uninstall')
+        self.set_step_default()
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
-            self.update_progress(0)
-            self.update_current_play('destroy resource')
-            cluster.destroy_resource()
-            self.update_progress(100)
+            try:
+                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_RUNNING)
+                cluster.destroy_resource()
+                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_SUCCESS)
+            except RuntimeError as e:
+                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_ERROR)
+                raise e
             return {"raw": {}, "summary": {"success": True}}
         else:
-            playbooks = cluster.get_playbooks('uninstall')
-            return self.run_playbooks(playbooks, extra_vars)
+            return self.run_playbooks(extra_vars)
 
     def on_f5_config(self, extra_vars):
         cluster = self.get_cluster()
+        self.steps = cluster.get_steps('bigip-config')
+        self.set_step_default()
         extra_vars.update(cluster.meta)
-        playbooks = cluster.get_playbooks('bigip-config')
-        return self.run_playbooks(playbooks, extra_vars)
+        return self.run_playbooks(extra_vars)
 
-    def on_add_node(self, extra_vars):
-        cluster = self.get_cluster()
-        cluster.create_new_node_resource()
-        playbooks = cluster.get_playbooks('new-node')
-        return self.run_playbooks(playbooks, extra_vars)
-
-    def run_playbooks(self, playbooks, extra_vars):
+    def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}
-        play_total = len(playbooks)
-        self.update_progress(0)
-        for index, playbook_name in enumerate(playbooks):
-            self.update_current_play(playbook_name)
-            playbook = self.project.playbook_set.get(name=playbook_name)
-            _result = playbook.execute(extra_vars=extra_vars)
-            result["summary"].update(_result["summary"])
-            if not _result.get('summary', {}).get('success', False):
-                raise Exception("playbook: {} error!".format(playbook_name))
-            progress = ((index + 1) / play_total) * 100
-            self.update_progress(progress)
+        for step in self.steps:
+            playbook_name = step.get('playbook', None)
+            if playbook_name:
+                playbook = self.project.playbook_set.get(name=playbook_name)
+                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_RUNNING)
+                time.sleep(10)
+                _result = playbook.execute(extra_vars=extra_vars)
+                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)
+                _result = {"raw": {}, "summary": {"success": False}}
+                result["summary"].update(_result["summary"])
+                if not _result.get('summary', {}).get('success', False):
+                    self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_ERROR)
+                    raise RuntimeError("playbook: {} error!".format(step['playbook']))
         return result
+
+    def set_step_default(self):
+        for step in self.steps:
+            step['status'] = DeployExecution.STEP_STAUTS_PENDING
 
     def get_cluster(self):
         return Cluster.objects.get(name=self.project.name)
 
-    def update_progress(self, p):
-        self.progress = p
-        self.save()
-
-    def update_current_play(self, playbook_name):
-        self.current_play = playbook_name
-        self.save()
+    def update_current_step(self, name, status):
+        for step in self.steps:
+            if step['name'] == name:
+                step['status'] = status
+                self.save()
 
     def to_json(self):
-        dict = {'current_play': self.current_play,
-                'progress': self.progress,
-                'operation': self.operation,
-                'state': self.state}
+        dict = {
+            'steps': self.steps,
+            'operation': self.operation,
+            'state': self.state}
         return json.dumps(dict)
 
     class Meta:

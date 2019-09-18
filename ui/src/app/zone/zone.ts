@@ -7,5 +7,6 @@ export class Zone {
   region: string;
   status: string;
   cluster: string;
+  host_size: string;
   ip_available_size: number;
 }

@@ -1,0 +1,9 @@
+- hosts: kube-master
+  roles:
+    - kube-master
+  #
+  tasks:
+    - name: 下载helm客户端
+      copy: src={{ base_dir }}/bin/helm dest={{ bin_dir }}/helm mode=0755
+
+

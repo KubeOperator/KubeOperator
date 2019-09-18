@@ -5,10 +5,17 @@
       KubeOperator
     </section>
     <div class="login-group">
-      <input class="username" type="text" id="login_username" placeholder="Username" required name="login_username"
-             [(ngModel)]="signInCredential.principal">
-      <input class="password" type="password" id="login_password" placeholder="Password" required name="login_password"
-             [(ngModel)]="signInCredential.password">
+      <clr-input-container>
+        <label class="clr-sr-only">用户名</label>
+        <input type="text" name="username" clrInput placeholder="Username"
+               [(ngModel)]="signInCredential.principal"
+               required/>
+      </clr-input-container>
+      <clr-password-container>
+        <label class="clr-sr-only">密码</label>
+        <input type="password" name="password" clrPassword placeholder="Password"
+               [(ngModel)]="signInCredential.password" required/>
+      </clr-password-container>
       <div [class.visibility-hidden]="!isError" class="error active">
         {{message}}
       </div>

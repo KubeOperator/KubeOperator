@@ -9,6 +9,11 @@ export class Execution {
   state: string;
   operation: string;
   timedelta: string;
-  current_play: string;
-  progress: number;
+  steps: Step[];
+}
+
+export class Step {
+  name: string;
+  status: string;
+  flow: string;
 }

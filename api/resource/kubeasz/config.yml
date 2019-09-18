@@ -1,0 +1,19 @@
+- hosts: all_nodes
+  roles:
+    - ssh
+    - repository
+    - firewall
+    -
+- hosts: daemon
+  roles:
+    - daemon
+
+- hosts: cluster_nodes
+  roles:
+    - host-dns
+    - ntp
+
+- hosts: localhost
+  roles:
+    - localhost
+

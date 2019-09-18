@@ -1,52 +1,13 @@
-<div *ngIf="showProgress" style="margin-left: 200px;margin-top: 50px">
-  <!--<h5>当前任务:</h5>-->
-  <!--{{currentDeploy}}-->
-  <!--<h5></h5>-->
-  <!--<h5 *ngIf="showLoading">{{currentTask}}<i class="fa fa-spinner fa-pulse"></i></h5>-->
-
-  <!--<div class="progress">-->
-  <!--<progress max="100" [value]="currentProgress"></progress>-->
-  <!--</div>-->
+<div style="margin-left: 200px;margin-top: 50px">
   <ul class="clr-timeline clr-timeline-horizontal">
-    <li class="clr-timeline-step disabled">
-      <div class="clr-timeline-step-header">11:59 am</div>
-      <clr-icon shape="circle" aria-label="Not started"></clr-icon>
+    <li class="clr-timeline-step disabled" *ngFor="let step of steps">
+      <clr-icon shape="circle" *ngIf="step.status==='pending'"></clr-icon>
+      <clr-spinner clrMedium aria-label="In progress" *ngIf="step.status === 'running'"></clr-spinner>
+      <clr-icon shape="success-standard" *ngIf="step.status==='success'"></clr-icon>
+      <clr-icon shape="error-standard" *ngIf="step.status === 'error'"></clr-icon>
       <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">创建资源</span>
-      </div>
-    </li>
-    <li class="clr-timeline-step">
-      <div class="clr-timeline-step-header">11:59 am</div>
-      <clr-icon shape="dot-circle" aria-current="true" aria-label="Current"></clr-icon>
-      <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">配置操作系统</span>
-      </div>
-    </li>
-    <li class="clr-timeline-step">
-      <div class="clr-timeline-step-header">11:59 am</div>
-      <clr-spinner clrMedium aria-label="In progress">Fetching data</clr-spinner>
-      <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">安装 kubernetes 控制面板</span>
-      </div>
-    </li>
-    <li class="clr-timeline-step">
-      <div class="clr-timeline-step-header">11:59 am</div>
-      <clr-icon shape="success-standard" aria-label="Completed"></clr-icon>
-      <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">安装 kubernetes Worker</span>
-      </div>
-    </li>
-    <li class="clr-timeline-step">
-      <div class="clr-timeline-step-header">11:59 am</div>
-      <clr-icon shape="error-standard" aria-label="Error"></clr-icon>
-      <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">安装内置应用</span>
+        <span class="clr-timeline-step-title">{{step.flow}}</span>
       </div>
     </li>
   </ul>
 </div>
-
-<<<<<<< HEAD
-=======
-
->>>>>>> ed8c742badd3c3ff444e7d166238676fdc4eb987

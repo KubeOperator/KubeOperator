@@ -1,0 +1,1 @@
+ntp_server: "{{hostvars[groups['daemon'][0]]['ansible_default_ipv4']['address']}}"
