@@ -6,10 +6,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from common.models import JsonDictTextField
 
-__all__ = ["backup_storage"]
+__all__ = ["BackupStorage"]
 
 
-class backup_storage(models.Model):
+class BackupStorage(models.Model):
     BACKUP_STORAGE_STATUS_VALID = 'VALID1233'
     BACKUP_STORAGE_STATUS_INVALID = 'INVALID'
 
