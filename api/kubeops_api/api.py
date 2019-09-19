@@ -19,6 +19,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
+from kubeops_api.models.backup_storage import BackupStorage
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
@@ -202,3 +203,12 @@ class GetClusterTokenView(APIView):
         response = HttpResponse()
         response.write(json.dumps(result))
         return response
+
+class BackupStorageViewSet(viewsets.ModelViewSet):
+    queryset = BackupStorage.objects.all()
+    serializer_class = serializers.BackupStorageSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+

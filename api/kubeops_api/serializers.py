@@ -15,6 +15,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
+from kubeops_api.models.backup_storage import BackupStorage
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -178,3 +179,13 @@ class ClusterSerializer(ProjectSerializer):
                   'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
+
+class BackupStorageSerializer(ProjectSerializer):
+    class Meta:
+        model = BackupStorage
+        # extra_kwargs = {
+        #     'password': {'write_only': True},
+        #     'private_key': {'write_only': True},
+        # }
+        fields = ['id', 'name', 'region', 'credentials', 'type', 'date_created', 'status']
+        read_only_fields = ['id', 'date_created']

@@ -4,7 +4,9 @@ import {SettingComponent} from './setting.component';
 import {TipModule} from '../tip/tip.module';
 import {CoreModule} from '../core/core.module';
 import {SystemSettingComponent} from './system-setting/system-setting.component';
-import { BackupStorageSettingComponent } from './backup-storage-setting/backup-storage-setting.component';
+import {BackupStorageSettingComponent } from './backup-storage-setting/backup-storage-setting.component';
+import {ClusterBackupModule} from '../cluster-backup/cluster-backup.module';
+import {BackupStorageSettingModule} from './backup-storage-setting/backup-storage-setting.module';
 
 @NgModule({
   declarations: [SettingComponent, SystemSettingComponent, BackupStorageSettingComponent],
@@ -12,6 +14,8 @@ import { BackupStorageSettingComponent } from './backup-storage-setting/backup-s
     CommonModule,
     CoreModule,
     TipModule,
+    ClusterBackupModule,
+    BackupStorageSettingModule,
 
   ]
 })
