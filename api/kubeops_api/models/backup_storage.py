@@ -10,7 +10,7 @@ __all__ = ["BackupStorage"]
 
 
 class BackupStorage(models.Model):
-    BACKUP_STORAGE_STATUS_VALID = 'VALID1233'
+    BACKUP_STORAGE_STATUS_VALID = 'VALID'
     BACKUP_STORAGE_STATUS_INVALID = 'INVALID'
 
     BACKUP_STORAGE_STATUS_CHOICES  = (
@@ -27,7 +27,7 @@ class BackupStorage(models.Model):
     )
 
     id = models.UUIDField(max_length=255,primary_key=True, default=uuid.uuid4)
-    name = models.CharField(max_length=128, null=True,blank=True)
+    name = models.CharField(max_length=128, null=True,blank=True, unique=True, verbose_name=_('Name'))
     region = models.CharField(max_length=128,null=True,blank=True)
     credentials = JsonDictTextField(blank=True, null=True)
     type = models.CharField(max_length=64,choices=BACKUP_STORAGE_TYPE_CHOICES)
