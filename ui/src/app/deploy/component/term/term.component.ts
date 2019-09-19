@@ -16,7 +16,7 @@ import {Cluster} from '../../../cluster/cluster';
 export class TermComponent implements OnInit, OnDestroy {
   term: Terminal;
   logSub: Subscription;
-  @ViewChild('terminal', { static: true }) terminal: ElementRef;
+  @ViewChild('terminal', {static: true}) terminal: ElementRef;
   currentExecution: Execution;
   @Input() currentCluster: Cluster;
 
@@ -47,7 +47,9 @@ export class TermComponent implements OnInit, OnDestroy {
     });
 
     this.term = new Terminal({
-      cursorBlink: true,
+      cursorBlink: false,
+      disableStdin: true,
+      cursorStyle: 'bar',
       cols: 120,
       rows: 30,
       letterSpacing: 0,
