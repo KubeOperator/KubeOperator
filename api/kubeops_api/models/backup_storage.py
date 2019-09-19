@@ -26,7 +26,7 @@ class BackupStorage(models.Model):
         (BACKUP_STORAGE_TYPE_OSS, 'OSS')
     )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(max_length=255,primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=128, null=True,blank=True)
     region = models.CharField(max_length=128,null=True,blank=True)
     credentials = JsonDictTextField(blank=True, null=True)

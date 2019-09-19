@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='backup_storage',
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                ('id', models.UUIDField(max_length=255,default=uuid.uuid4, primary_key=True, serialize=False)),
                 ('name', models.CharField(blank=True, max_length=128, null=True)),
                 ('region', models.CharField(blank=True, max_length=128, null=True)),
                 ('credentials', common.models.JsonDictTextField(blank=True, null=True)),
