@@ -75,8 +75,17 @@ export class PlanCreateComponent implements OnInit {
         this.region = region;
         this.cloudTemplateService.getCloudTemplate(region.template).subscribe(data => {
           this.cloudTemplate = data;
+          if(this.region.template === 'openstack'){
+            this.setFlavorModels()
+          }
         });
       }
+    });
+  }
+
+  setFlavorModels() {
+    this.cloudService.listFlavor(this.region.name).subscribe(data => {
+      this.cloudTemplate.meta.plan.models = data;
     });
   }
 
@@ -98,6 +107,9 @@ export class PlanCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
+    if(this.region.template === 'openstack'){
+      this.item.vars['compute_models'] = this.cloudTemplate.meta.plan.models
+    }
     this.planService.createPlan(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;

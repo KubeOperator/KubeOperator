@@ -8,4 +8,5 @@ export class Zone {
   status: string;
   cluster: string;
   ip_available_size: number;
+  provider: string;
 }

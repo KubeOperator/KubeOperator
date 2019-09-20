@@ -40,7 +40,8 @@ class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
         read_only_fields = ['id', 'cluster_size', 'plan_size', 'status', 'date_created']
-        fields = ['id', 'name', 'cluster_size', 'plan_size', 'vars', 'date_created', 'cloud_zone', 'region', 'status']
+        fields = ['id', 'name', 'cluster_size', 'plan_size', 'vars', 'date_created', 'cloud_zone', 'region', 'status',
+                  'provider']
 
 
 class PlanSerializer(serializers.ModelSerializer):

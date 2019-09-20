@@ -70,6 +70,54 @@
         <span *ngIf="isParamsValid&&!isParamsCheckGoing" style="color: #859900;">参数有效！</span>
         <span *ngIf="isParamsValid==false&&!isParamsCheckGoing" style="color: #e02200;"> 参数无效,请检查 vCenter 连接信息！</span>
       </div>
+      <div *ngIf="item.template === 'openstack'">
+        <div>
+          <clr-input-container>
+            <label>Identity</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_identity']" name="openstack_identity" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>OpenStack keystone地址</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <div>
+          <clr-input-container>
+            <label>用户名</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_username']" name="openstack_username" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>访问 OpenStack 的用户名</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <div>
+           <clr-password-container>
+            <label>用户密码</label>
+            <input clrPassword type="text" [(ngModel)]="item.vars['openstack_password']" name="openstack_password" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>访问 OpenStack 的密码</clr-control-helper>
+          </clr-password-container>
+        </div>
+        <div>
+          <clr-input-container>
+            <label>项目ID</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_projectId']" name="openstack_projectId" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>OpenStack 项目ID</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <div>
+          <clr-input-container>
+            <label>Domain Name</label>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_domain_name']" name="openstack_domain_name" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>OpenStack Domain Name</clr-control-helper>
+          </clr-input-container>
+        </div>
+        <button class="btn" [disabled]="isParamsCheckGoing || paramsForm.invalid" (click)="onCheckParams()">
+          <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>
+          验证
+        </button>
+        <span *ngIf="isParamsValid&&!isParamsCheckGoing" style="color: #859900;">参数有效！</span>
+        <span *ngIf="isParamsValid==false&&!isParamsCheckGoing" style="color: #e02200;"> 参数无效,请检查 OpenStack 连接信息！</span>
+      </div>
     </form>
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="dtFrom.invalid">

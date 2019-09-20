@@ -15,4 +15,5 @@ router.register('plans', api.PlanViewSet, 'plans')
 urlpatterns = [
                   url(r'cloud/region/', api.CloudRegionView.as_view(), name='cloud-region'),
                   path(r'cloud/<region>/zone/', api.CloudZoneView.as_view(), name='cloud-zone'),
+                  path(r'cloud/<region>/flavor/', api.CloudFlavorView.as_view(), name='cloud-flavor'),
               ] + router.urls

@@ -10,8 +10,11 @@ from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 def get_cloud_client(vars):
     provider = vars.get('provider', {})
     from cloud_provider.clients.vsphere import VsphereCloudClient
+    from cloud_provider.clients.openstack import OpenStackCloudClient
     if provider == 'vsphere':
         return VsphereCloudClient(vars)
+    if provider == 'openstack':
+        return OpenStackCloudClient(vars)
     else:
         return None
 
@@ -52,6 +55,7 @@ class CloudClient(metaclass=ABCMeta):
         for host in cluster.terraform_hosts.all():
             hosts.append(host.to_dict())
         vars['hosts'] = hosts
+        print(vars)
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster.name)
         generate_terraform_file(self.working_path, self.cloud_config_path, vars)

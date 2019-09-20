@@ -150,6 +150,9 @@ class Zone(models.Model):
         dic.update(self.vars)
         return dic
 
+    @property
+    def provider(self):
+        return self.region.template.name
 
 class Plan(models.Model):
     DEPLOY_TEMPLATE_SINGLE = "SINGLE"

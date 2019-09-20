@@ -48,8 +48,8 @@ class PlanViewSet(viewsets.ModelViewSet):
 class CloudRegionView(APIView):
 
     def post(self, request):
-        vars = request.data
-        vars['provider'] = 'vsphere'
+        vars = request.data.get('vars')
+        vars['provider'] = request.data.get('template')
         client = get_cloud_client(vars)
         data = client.list_region()
         return HttpResponse(json.dumps(data))
@@ -60,7 +60,17 @@ class CloudZoneView(APIView):
     def get(self, request, *args, **kwargs):
         region_name = kwargs.get('region')
         region = get_object_or_404(Region, name=region_name)
-        region.vars['provider'] = 'vsphere'
+        region.vars['provider'] = region.template.name
         client = get_cloud_client(region.vars)
         data = client.list_zone(region.cloud_region)
         return HttpResponse(json.dumps(data))
+
+
+class CloudFlavorView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        region_name = kwargs.get('region')
+        region = get_object_or_404(Region, name=region_name)
+        client = get_cloud_client(region.vars)
+        return HttpResponse(json.dumps(client.get_flavors(region.cloud_region)))
+

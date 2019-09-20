@@ -90,7 +90,7 @@ export class RegionCreateComponent implements OnInit {
       return;
     }
     this.isParamsCheckGoing = true;
-    this.cloudService.listRegion(this.item.vars).subscribe(data => {
+    this.cloudService.listRegion(this.item).subscribe(data => {
       this.cloudRegions = data;
       this.isParamsValid = true;
       this.isParamsCheckGoing = false;

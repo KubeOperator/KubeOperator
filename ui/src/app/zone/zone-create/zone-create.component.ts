@@ -24,7 +24,7 @@ export class ZoneCreateComponent implements OnInit {
   cloudZones: CloudZone[] = [];
   cloudZone: CloudZone;
   regions: Region[] = [];
-  region: Region;
+  region: Region = new Region();
   loading = false;
   @ViewChild('basicForm') basicForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
@@ -98,7 +98,14 @@ export class ZoneCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    this.item.vars['vc_cluster'] = this.item.cluster;
+    switch (this.region.template) {
+      case 'vsphere':
+        this.item.vars['vc_cluster'] = this.item.cluster;
+        break;
+      case 'openstack':
+        this.item.vars['openstack_zone'] = this.item.cluster;
+        break;
+    }
     this.zoneService.createZones(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;

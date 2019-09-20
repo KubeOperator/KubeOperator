@@ -63,6 +63,10 @@ def get_k8s_role_model(role, plan, deploy_vars):
         k8s_model = deploy_vars['k8s_worker_model']
     if role == 'daemon':
         k8s_model = deploy_vars['k8s_daemon_model']
+
+    if deploy_vars.get('provider', {}) == 'openstack':
+        return find_compute_model(k8s_model, deploy_vars['compute_models'])
+
     return find_compute_model(k8s_model, plan.compute_models)
 
 
