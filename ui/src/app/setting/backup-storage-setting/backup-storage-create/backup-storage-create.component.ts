@@ -4,7 +4,7 @@ import {NgForm} from '@angular/forms';
 import {BackupStorageService} from '../backup-storage.service';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
-import {StorageCredential} from "../storage-credential";
+import {StorageCredential} from '../storage-credential';
 
 @Component({
   selector: 'app-backup-storage-create',
@@ -41,6 +41,7 @@ export class BackupStorageCreateComponent implements OnInit {
     }
     this.isSubmitGoing = true;
     this.loading = true;
+    this.item.credentials = this.credential;
     this.backupStorageService.createBackupStorage(this.item).subscribe(data => {
       this.createOpened = false;
       this.isSubmitGoing = false;
@@ -52,7 +53,7 @@ export class BackupStorageCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('新增失败!'+ err.reson + 'state code:' + err.status, TipLevels.ERROR);
+      this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
     });
 
   }
