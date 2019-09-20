@@ -62,19 +62,19 @@ images:
 
 playbooks:
   - name:  config
-    alias: ../../kubeeasz/config.yml
+    alias: kubeasz/config.yml
   - name:  prepare
-    alias: ../../kubeeasz/prepare.yml
+    alias: kubeasz/prepare.yml
   - name:  master
-    alias: ../../kubeasz/master.yml
+    alias: kubeasz/master.yml
   - name:  worker
-    alias: ../../kubeasz/worker.yml
+    alias: kubeasz/worker.yml
   - name:  addon
-    alias: ../../kubeasz/addon.yml
+    alias: kubeasz/addon.yml
   - name:  bigip-config
-    alias: ../../kubeasz/f5-bigip.yml
-  - name: uninstall
-    alias: ../../kubeasz/clean.yml
+    alias: kubeasz/f5-bigip.yml
+  - name:  uninstall
+    alias: kubeasz/clean.yml
 
 operations:
   - name: install
