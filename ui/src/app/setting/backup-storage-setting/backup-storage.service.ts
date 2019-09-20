@@ -19,4 +19,8 @@ export class BackupStorageService {
   deleteBackupStorage(name: string): Observable<BackupStorage> {
     return this.http.delete<BackupStorage>(this.baseURL + name + '/');
   }
+
+  createBackupStorage(item: BackupStorage): Observable<BackupStorage> {
+    return this.http.post<BackupStorage>(this.baseURL, item);
+  }
 }
