@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BackupStorageService} from '../backup-storage.service';
 import {BackupStorage} from '../backup-storage';
 import {TipService} from '../../../tip/tip.service';
@@ -16,6 +16,7 @@ export class BackupStorageListComponent implements OnInit {
   items: BackupStorage[] = [];
   selected: BackupStorage[] = [];
   resourceTypeName: '备份';
+  @Output() add = new EventEmitter();
 
   constructor(private backupStorageService: BackupStorageService, private tipService: TipService) {
   }
@@ -54,5 +55,9 @@ export class BackupStorageListComponent implements OnInit {
 
   refresh() {
     this.listItems();
+  }
+
+  addItem() {
+    this.add.emit();
   }
 }
