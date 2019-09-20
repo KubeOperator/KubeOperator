@@ -4,13 +4,14 @@
     - repository
     - firewall
     -
-- hosts: daemon
+- hosts: master
   roles:
     - daemon
 
 - hosts: cluster_nodes
   roles:
     - host-dns
+    - package
     - ntp
 
 - hosts: localhost
