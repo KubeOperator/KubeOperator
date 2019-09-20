@@ -82,6 +82,7 @@ def create_cluster_hosts(cluster):
                 "cpu": compute_model['cpu'],
                 "memory": compute_model['memory'] * 1024,
                 "name": role + "{}.".format(i) + "{}".format(domain),
+                "short_name": role + "{}".format(i),
                 "domain": domain,
                 "ip": ip,
                 "zone": zone
