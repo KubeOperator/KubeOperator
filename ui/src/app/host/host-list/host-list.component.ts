@@ -39,7 +39,7 @@ export class HostListComponent implements OnInit {
     }
     let result = true;
     this.selectedHosts.forEach(host => {
-      if (host.cluster !== '无') {
+      if (host.cluster !== null) {
         result = false;
       }
     });
