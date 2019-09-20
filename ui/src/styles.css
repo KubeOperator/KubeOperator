@@ -9,3 +9,7 @@
   width: 108px !important;
   height: 108px !important;
 }
+.prompt {
+  font-style: italic
+}
+
