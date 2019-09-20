@@ -1,27 +1,28 @@
-- hosts: "kube-master"
+# download bin
+- name: prepare kube bin files
+  hosts: localhost
+  connection: local
   roles:
-    - cluster-storage
+    - kube-bin
 
-# to install helm
+# to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: "{{groups['kube-master'][0]}}"
   roles:
-    - helm
+    - deploy
 
-# to install cluster-addons
+# prepare tasks for all nodes
 - hosts:
-    - "{{groups['kube-master'][0]}}"
+    - kube-master
+    - kube-node
+    - deploy
   roles:
-    - cluster-addon
+    - prepare
 
-- hosts: "{{groups['kube-master'][0]}}"
+# to install etcd cluster
+- hosts: etcd
   roles:
-    - registry
+    - etcd
 
 - hosts: kube-node
-  tasks:
-    - name: 尝试登陆 registry
-      shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
-      register: login_result
-      until: login_result.rc == 0
-      retries: 5
-      delay: 30
+  roles:
+    - docker

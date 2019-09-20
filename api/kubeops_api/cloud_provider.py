@@ -52,7 +52,7 @@ def create_hosts(cluster):
             "password": 'KubeOperator@2019'
         }
         h = Host.objects.update_or_create(defaults, name=host['name'])
-        cluster.create_node(host['role'], h)
+        cluster.create_node(host['role'], h[0])
 
 
 def create_cluster_hosts(cluster):
@@ -82,6 +82,7 @@ def create_cluster_hosts(cluster):
                 "cpu": compute_model['cpu'],
                 "memory": compute_model['memory'] * 1024,
                 "name": role + "{}.".format(i) + "{}".format(domain),
+                "short_name": role + "{}".format(i),
                 "domain": domain,
                 "ip": ip,
                 "zone": zone
@@ -129,6 +130,4 @@ def delete_hosts(cluster):
         cluster.change_to()
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
-            node.delete()
-        for host in cluster.terraform_hosts.all():
-            host.host.delete()
+            node.host.delete()

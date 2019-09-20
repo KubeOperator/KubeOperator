@@ -22,7 +22,6 @@ export class ProgressMessage {
 
 
 export class ProgressComponent implements OnInit, OnDestroy {
-  showProgress = true;
   progressWsUrl: string;
   progressSub: Subscription;
   currentDeploy: string;

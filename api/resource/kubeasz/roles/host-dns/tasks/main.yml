@@ -4,32 +4,16 @@
     regexp: "^PEERDNS"
     line: "PEERDNS=no"
 
-
-- name: 添加 dns 解析记录
-  lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{network_default_interface}}"
-    regexp: "^DNS1"
-    line: "DNS1={{dns_server}}"
-
 - name: 解锁 resolv.conf
   shell: "chattr -i /etc/resolv.conf"
 
 - name: 更新 resolv.conf
-  shell: "echo nameserver {{dns_server}} >  /etc/resolv.conf"
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
 
 - name: 锁定 resolv.conf
   shell: "chattr +i /etc/resolv.conf"
-
-
-- name: 刷新 dns 解析
-  service:
-    state: restarted
-    name: "{{ item }}"
-  with_items:
-    - NetworkManager
-    - dbus
-    - systemd-logind
-    - systemd-hostnamed
 
 - name: 重新启动firewall
   service:

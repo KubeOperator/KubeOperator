@@ -3,14 +3,13 @@
     - ssh
     - repository
     - firewall
-    -
-- hosts: daemon
+- hosts: master
   roles:
     - daemon
-
 - hosts: cluster_nodes
   roles:
     - host-dns
+    - rpm
     - ntp
 
 - hosts: localhost
