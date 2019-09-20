@@ -52,7 +52,7 @@ def create_hosts(cluster):
             "password": 'KubeOperator@2019'
         }
         h = Host.objects.update_or_create(defaults, name=host['name'])
-        cluster.create_node(host['role'], h)
+        cluster.create_node(host['role'], h[0])
 
 
 def create_cluster_hosts(cluster):

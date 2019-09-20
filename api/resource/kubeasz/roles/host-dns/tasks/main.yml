@@ -10,7 +10,7 @@
 - name: 更新 resolv.conf
   template:
     src: resolv.conf.j2
-    dest: resolv.conf
+    dest: /etc/resolv.conf
 
 - name: 锁定 resolv.conf
   shell: "chattr +i /etc/resolv.conf"

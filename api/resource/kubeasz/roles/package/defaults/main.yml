@@ -1,4 +1,0 @@
-packages:
-  - chrony
-  - ntpdate
-  - jq
