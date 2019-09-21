@@ -52,7 +52,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 Kubernetes 集群备份与恢复（Day 2）；
 - [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 
- v3.0.0 （计划中）
+ v3.0.0 （计划中，预计 2019.12.31 发布）
 
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
