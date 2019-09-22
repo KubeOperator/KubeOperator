@@ -66,7 +66,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             if not cluster.node_size > 0:
                 try:
                     cluster.create_resource()
-                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
                 except RuntimeError as e:
                     self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                     raise e
@@ -104,9 +104,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_RUNNING)
                 time.sleep(10)
                 _result = playbook.execute(extra_vars=extra_vars)
-                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)
-                _result = {"raw": {}, "summary": {"success": False}}
                 result["summary"].update(_result["summary"])
+                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)
                 if not _result.get('summary', {}).get('success', False):
                     self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_ERROR)
                     raise RuntimeError("playbook: {} error!".format(step['playbook']))

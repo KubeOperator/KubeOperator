@@ -46,13 +46,13 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
  v2.1.0 （开发中，预计 2019.10.31 发布）
  
 - [ ] 支持 Openstack 云平台；
-- [ ] 支持 Ceph 作为持久化存储；
+- [ ] 支持 Openstack Cinder 作为持久化存储；
 - [ ] 支持 Kubernetes 集群升级 （Day 2）；
 - [ ] 支持 Kubernetes 集群扩缩容（Day 2）；
 - [ ] 支持 Kubernetes 集群备份与恢复（Day 2）；
 - [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 
- v3.0.0 （计划中）
+ v3.0.0 （计划中，预计 2019.12.31 发布）
 
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
