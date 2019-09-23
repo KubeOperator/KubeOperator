@@ -4,6 +4,7 @@ import {BackupStorage} from '../backup-storage';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
 import { BackupStorageStatusPipe } from '../backup-storage-status.pipe';
+import {StorageCredential} from "../storage-credential";
 
 
 @Component({
@@ -19,6 +20,7 @@ export class BackupStorageListComponent implements OnInit {
   selected: BackupStorage[] = [];
   resourceTypeName: '备份';
   @Output() add = new EventEmitter();
+  credential = new StorageCredential();
 
   constructor(private backupStorageService: BackupStorageService, private tipService: TipService) {
   }
@@ -61,5 +63,13 @@ export class BackupStorageListComponent implements OnInit {
 
   addItem() {
     this.add.emit();
+  }
+
+  getBucket(item) {
+     if (item.type === 'AZURE') {
+         return item.credentials.container;
+     } else {
+         return item.credentials.bucket;
+     }
   }
 }
