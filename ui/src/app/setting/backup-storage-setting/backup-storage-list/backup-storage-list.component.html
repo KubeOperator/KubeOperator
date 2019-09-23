@@ -28,7 +28,7 @@
     <clr-dg-cell>{{item.name}}</clr-dg-cell>
     <clr-dg-cell>{{item.type}}</clr-dg-cell>
 <!--    <clr-dg-cell>{{item.region}}</clr-dg-cell>-->
-    <clr-dg-cell>{{item.status}}</clr-dg-cell>
+    <clr-dg-cell [ngStyle]="{'color':item.status==='VALID'?'green':'red'}">{{item.status | backupStorageStatus}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     <clr-dg-cell></clr-dg-cell>
 

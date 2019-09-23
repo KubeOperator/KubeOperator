@@ -49,8 +49,10 @@ export class BackupStorageCreateComponent implements OnInit {
     } else {
         this.item.credentials = this.credential;
         this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
+           // @ts-ignore
           this.invalid = !data.success;
           this.tipShow = true;
+          // @ts-ignore
           if (data.success) {
               this.postItem(this.item);
           } else {
