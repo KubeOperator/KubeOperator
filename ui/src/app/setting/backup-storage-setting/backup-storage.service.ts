@@ -23,4 +23,8 @@ export class BackupStorageService {
   createBackupStorage(item: BackupStorage): Observable<BackupStorage> {
     return this.http.post<BackupStorage>(this.baseURL, item);
   }
+
+  checkBackupStorageConfig(item: BackupStorage): Observable<BackupStorage> {
+    return this.http.post<BackupStorage>(this.baseURL + 'check', item);
+  }
 }

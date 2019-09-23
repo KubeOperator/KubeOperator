@@ -4,6 +4,7 @@ import { BackupStorageCreateComponent } from './backup-storage-create/backup-sto
 import { BackupStorageListComponent } from './backup-storage-list/backup-storage-list.component';
 import {ClrDatagridModule, ClrIconModule} from '@clr/angular';
 import {SharedModule} from "../../shared/shared.module";
+import {TipModule} from "../../tip/tip.module";
 
 
 
@@ -17,7 +18,8 @@ import {SharedModule} from "../../shared/shared.module";
     CommonModule,
     ClrDatagridModule,
     ClrIconModule,
-    SharedModule
+    SharedModule,
+    TipModule
   ]
 })
 export class BackupStorageSettingModule { }

@@ -22,6 +22,8 @@ export class BackupStorageCreateComponent implements OnInit {
   closable = false;
   @ViewChild('backupStorageForm', {static: true}) backupStorageForm: NgForm;
   credential = new StorageCredential();
+  invalid = false;
+  tipShow = false;
 
 
   constructor(private backupStorageService: BackupStorageService, private tipService: TipService ) { }
@@ -41,21 +43,42 @@ export class BackupStorageCreateComponent implements OnInit {
     }
     this.isSubmitGoing = true;
     this.loading = true;
-    this.item.credentials = this.credential;
-    this.backupStorageService.createBackupStorage(this.item).subscribe(data => {
+    if (this.credential == null) {
+          this.invalid = true;
+          this.tipShow = true;
+    } else {
+        this.item.credentials = this.credential;
+        this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
+          this.invalid = !data.success;
+          this.tipShow = true;
+          if (data.success) {
+              this.postItem(this.item);
+          } else {
+              this.isSubmitGoing = false;
+          }
+        }, err => {
+          this.invalid = false;
+          this.tipShow = true;
+          this.isSubmitGoing = false;
+        });
+    }
+  }
+
+  postItem(credentials) {
+    this.backupStorageService.createBackupStorage(credentials).subscribe(data => {
       this.createOpened = false;
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
       this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
+      this.tipShow = false;
     }, err => {
-      this.createOpened = false;
+      this.createOpened = true;
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
       this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
     });
-
   }
 
 
@@ -64,5 +87,13 @@ export class BackupStorageCreateComponent implements OnInit {
     this.item.type = 'OSS';
     this.credential = new StorageCredential();
     this.createOpened = true;
+  }
+
+  checkValid(credential) {
+
+  }
+
+  closeTip() {
+    this.tipShow = false;
   }
 }

@@ -23,6 +23,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
+from kubeops_api.storage_client import StorageClient;
 
 
 # 集群视图
@@ -210,5 +211,23 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+
+class CheckStorageView(APIView):
+
+    def post(self,request, **kwargs):
+        valid = StorageClient.check_valid(StorageClient,request.data);
+        response = HttpResponse()
+        result = {
+            "message": '验证成功!',
+            "success": True
+        }
+        if valid:
+            response.write(json.dumps(result))
+        else:
+            result['message'] = '验证失败！'
+            result['success'] = False
+            response.write(json.dumps(result))
+        return response
 
 
