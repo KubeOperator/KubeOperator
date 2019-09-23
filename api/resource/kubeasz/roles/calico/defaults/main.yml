@@ -23,4 +23,4 @@ calico_ver: "v3.4.4"
 
 # calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
-
+NODE_PORT_RANGE: "30000-32767"

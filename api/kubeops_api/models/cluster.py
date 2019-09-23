@@ -2,13 +2,15 @@ import logging
 import os
 import shutil
 
+import yaml
 from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
-from fit2ansible.settings import ANSIBLE_PROJECTS_DIR
+from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
 from kubeops_api.cloud_provider import create_hosts, delete_hosts
+from common import models as common_models
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
@@ -53,6 +55,7 @@ class Cluster(Project):
     status = models.CharField(max_length=128, choices=CLUSTER_STATUS_CHOICES, default=CLUSTER_STATUS_READY)
     deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
+    configs = common_models.JsonDictTextField(default={})
 
     @property
     def region(self):
@@ -118,20 +121,15 @@ class Cluster(Project):
         self.status = status
         self.save()
 
-    def get_template_obj(self):
-        for temp in self.package.meta.get('templates', []):
-            if temp['name'] == self.template:
-                template = temp
-                return template
-
     def get_steps(self, opt):
         for operation in self.package.meta['operations']:
             if operation['name'] == opt:
                 return operation['steps']
 
     def create_network_plugin(self):
+        cluster_configs = self.load_config_file()
         if self.network_plugin:
-            networks = self.package.meta.get('networks', [])
+            networks = cluster_configs.get('networks', [])
             vars = {}
             for net in networks:
                 if net["name"] == self.network_plugin:
@@ -139,13 +137,18 @@ class Cluster(Project):
             self.set_config_unlock(vars)
 
     def create_storage(self):
+        cluster_configs = self.load_config_file()
         if self.persistent_storage:
-            storages = self.package.meta.get('storages', [])
+            storages = cluster_configs.get('storages', [])
             vars = {}
             for storage in storages:
                 if storage['name'] == self.persistent_storage:
                     vars = storage.get('vars', {})
             self.set_config_unlock(vars)
+
+    def set_package_configs(self):
+        self.configs.update(self.package.meta['vars'])
+        self.save()
 
     def get_template_meta(self):
         for template in self.package.meta.get('templates', []):
@@ -154,18 +157,24 @@ class Cluster(Project):
 
     def create_playbooks(self):
         for playbook in self.package.meta.get('playbooks', []):
-            url = 'file:///{}'.format(os.path.join(self.package.path))
+            url = 'file:///{}'.format(os.path.join(KUBEEASZ_DIR))
             Playbook.objects.create(
                 name=playbook['name'], alias=playbook['alias'],
                 type=Playbook.TYPE_LOCAL, url=url, project=self
             )
 
+    @staticmethod
+    def load_config_file():
+        with open(os.path.join(CLUSTER_CONFIG_DIR, "config.yml")) as f:
+            return yaml.load(f.read())
+
     def create_roles(self):
+        config_file = self.load_config_file()
         _roles = {}
-        for role in self.package.meta.get('roles', []):
+        for role in config_file.get('roles', []):
             _roles[role['name']] = role
         template = None
-        for tmp in self.package.meta.get('templates', []):
+        for tmp in config_file.get('templates', []):
             if tmp['name'] == self.template:
                 template = tmp
                 break
@@ -191,43 +200,34 @@ class Cluster(Project):
         config_role.vars = role_vars
         config_role.save()
 
-    def configs(self, tp='list'):
-        self.change_to()
-        role = Role.objects.get(name='config')
-        configs = role.vars
-        if tp == 'list':
-            configs = [{'key': k, 'value': v} for k, v in configs.items()]
-        return configs
-
     def set_config(self, k, v):
-        self.change_to()
-        role = Role.objects.select_for_update().get(name='config')
-        _vars = role.vars
+        cluster = Cluster.objects.select_for_update().get(name=self.name)
+        _vars = cluster.configs
         if isinstance(v, str):
             v = v.strip()
         _vars[k] = v
-        role.vars = _vars
-        role.save()
-
-    def set_config_unlock(self, vars):
-        self.change_to()
-        config_role = Role.objects.get(name='config')
-        role_vars = config_role.vars
-        role_vars.update(vars)
-        config_role.vars = role_vars
-        config_role.save()
+        cluster.configs = _vars
+        cluster.save()
 
     def get_config(self, k):
-        v = self.configs(tp='dict').get(k)
+        v = self.configs.get(k)
         return {'key': k, 'value': v}
 
+    def get_configs(self):
+        configs = [{'key': k, 'value': v} for k, v in self.configs.items()]
+        return configs
+
     def del_config(self, k):
-        self.change_to()
-        role = Role.objects.get(name='config')
-        _vars = role.vars
+        _vars = self.vars
         _vars.pop(k, None)
-        role.vars = _vars
-        role.save()
+        self.vars = _vars
+        self.save()
+
+    def set_config_unlock(self, vars):
+        configs = self.configs
+        configs.update(vars)
+        self.configs = configs
+        self.save()
 
     def create_node_localhost(self):
         local_nodes = ['localhost', '127.0.0.1', '::1']
@@ -284,6 +284,7 @@ class Cluster(Project):
         self.create_playbooks()
         self.create_node_localhost()
         self.create_network_plugin()
+        self.set_package_configs()
         self.create_storage()
         self.set_plan_configs()
 

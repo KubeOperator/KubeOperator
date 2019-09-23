@@ -1,5 +1,6 @@
 import {Node} from '../node/node';
 import {Execution} from '../deploy/component/operater/execution';
+import {Config, Template} from '../package/package';
 
 export class Cluster {
   id: string;
@@ -40,4 +41,20 @@ export class Operation {
   event: string;
   redirect: string;
   display_on: string[];
+}
+
+export class ClusterConfigs {
+  templates: Template[];
+  storages: Storage[];
+  networks: Network[];
+}
+
+export class Network {
+  name: string;
+  configs: Config[] = [];
+}
+
+export class Storage {
+  name: string;
+  configs: Config[] = [];
 }

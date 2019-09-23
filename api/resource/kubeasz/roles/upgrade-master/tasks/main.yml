@@ -1,0 +1,21 @@
+- name: 获取 kube-worker 版本信息
+  shell: "kubectl version --short | grep Server | awk '{print $3}' | tr -d 'a-zA-Z'"
+  register: kube_ver
+
+- block:
+    - name: 下载 kube-master 二进制
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-scheduler
+
+    - name: enable master 服务
+      shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
+      ignore_errors: true
+
+     - name: 启动 master 服务
+       shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
+    	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
+
+  when: 'kube_ver.stdout < kube_version

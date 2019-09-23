@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     operation = models.CharField(max_length=128, blank=False, null=False)
     project = models.ForeignKey('ansible_api.Project', on_delete=models.CASCADE)
+    params = common_models.JsonDictTextField(default={})
     steps = common_models.JsonListTextField(default=[], null=True)
 
     STEP_STAUTS_PENDING = 'pending'
@@ -33,11 +34,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value,
-            "domain_suffix": domain_suffix.value
+            "domain_suffix": domain_suffix.value,
+            "APP_DOMAIN": "apps.{}.{}".format(cluster.name, domain_suffix.value)
         }
         ignore_errors = False
         try:
             if self.operation == "install":
+                extra_vars.update(cluster.configs)
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_install(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
