@@ -1,6 +1,7 @@
 <clr-modal [(clrModalOpen)]="createOpened" [clrModalStaticBackdrop]="staticBackDrop"
             [clrModalClosable]="closable">
     <h3 class="modal-title">添加备份账号</h3>
+    <app-tip></app-tip>
     <div class="modal-body modal-height">
         <form clrForm #backupStorageForm="ngForm">
             <clr-input-container>
@@ -9,55 +10,91 @@
             </clr-input-container>
             <clr-select-container>
               <label>类型:</label>
-              <select clrSelect name="type" [(ngModel)]="item.type" required>
+              <select clrSelect  name="type" [(ngModel)]="item.type" required>
                   <option value="OSS">oss</option>
                   <option value="S3">s3/ceph</option>
-                  <option value="Azure">azure</option>
+                  <option value="AZURE">azure</option>
 <!--                  <option value="Ceph">ceph</option>-->
               </select>
             </clr-select-container>
             <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
-                <label>桶名称</label>
+                <label>桶名称:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.bucket" name="name" required>
             </clr-input-container>
             <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
-                <label>Access key</label>
+                <label>AccessKey:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.accessKey" name="accessKey" required>
             </clr-input-container>
-            <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
-                <label>Secret key</label>
-                <input clrInput size=45 type="text" [(ngModel)]="credential.secretKey" name="secretKey" required>
-            </clr-input-container>
-            <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
-                <label>端点</label>
+            <clr-password-container *ngIf="item.type=='OSS' || item.type=='S3'">
+                <label>SecretKey:</label>
+                <input clrPassword size=45 type="password" [(ngModel)]="credential.secretKey" name="secretKey" required>
+            </clr-password-container>
+            <clr-input-container *ngIf="item.type=='OSS'">
+<!--  因为s3传endpoint 会导致验证失败 所以暂时先注释|| item.type=='S3'-->
+                <label>端点:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.endpoint" name="endpoint" required>
                 <clr-control-helper *ngIf="item.type=='S3'">S3: http://s3.REGION_NAME.amazonaws.com</clr-control-helper>
                 <clr-control-helper *ngIf="item.type=='S3'">S3(China): http://s3.REGION_NAME.amazonaws.com.cn</clr-control-helper>
                 <clr-control-helper *ngIf="item.type=='S3'">如: http://s3.cn-north-1.amazonaws.com.cn</clr-control-helper>
                 <clr-control-helper *ngIf="item.type=='OSS'">OSS: http://REGION_NAME.aliyuncs.com</clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='OSS'">http://oss-cn-hangzhou.aliyuncs.com</clr-control-helper>
+                <clr-control-helper *ngIf="item.type=='OSS'">如:http://oss-cn-hangzhou.aliyuncs.com</clr-control-helper>
             </clr-input-container>
-            <clr-input-container *ngIf="item.type=='Azure'">
-                <label>容器名称</label>
+            <clr-input-container *ngIf="item.type=='AZURE'">
+                <label>容器名称:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.container" name="container" required>
             </clr-input-container>
-            <clr-input-container *ngIf="item.type=='Azure'">
-                <label>账户名称</label>
+            <clr-input-container *ngIf="item.type=='AZURE'">
+                <label>账户名称:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.accountName" name="accountName" required>
             </clr-input-container>
-            <clr-input-container *ngIf="item.type=='Azure'">
-                <label>账户密钥</label>
-                <input clrInput size=45 type="text" [(ngModel)]="credential.accountSecret" name="accountSecret" required>
-            </clr-input-container>
-            <clr-select-container *ngIf="item.type=='Azure'">
-              <label>端点后缀</label>
-              <select clrSelect name="endpoint" [(ngModel)]="credential.endpoint" required>
+            <clr-password-container *ngIf="item.type=='AZURE'">
+                <label>账户密钥:</label>
+                <input clrPassword size=45 type="password" [(ngModel)]="credential.accountSecret" name="accountSecret" required>
+            </clr-password-container>
+            <clr-select-container *ngIf="item.type=='AZURE'">
+              <label>端点后缀:</label>
+              <select clrSelect  name="endpoint_suffix" [(ngModel)]="credential.endpointSuffix" required>
                   <option value="core.chinacloudapi.cn">core.chinacloudapi.cn</option>
                   <option value="core.windows.net">core.windows.net</option>
               </select>
             </clr-select-container>
+            <div class="alert alert-danger alert-sm" *ngIf="tipShow && invalid">
+              <div class="alert-items">
+                <div class="alert-item static" role="alert">
+                  <div class="alert-icon-wrapper">
+                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                  </div>
+                  <span class="alert-text">
+                      校验失败！
+                  </span>
+                </div>
+              </div>
+              <button type="button" class="close" aria-label="Close" (click)="closeTip()">
+                <clr-icon aria-hidden="true" shape="close"></clr-icon>
+              </button>
+              </div>
+              <div class="alert alert-success alert-sm" role="alert" *ngIf="tipShow && !invalid">
+                <div class="alert-items">
+                  <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                      <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
+                    </div>
+                    <span class="alert-text" size=45 >
+                        校验成功！
+                    </span>
+                  </div>
+                </div>
+                <button type="button" class="close" aria-label="Close" (click)="closeTip()">
+                  <clr-icon aria-hidden="true" shape="close"></clr-icon>
+                </button>
+              </div>
         </form>
+
+
+
+
         <div class="modal-footer">
+<!--        <button type="button" class="btn btn-success-outline" (click)="checkValid(credential)" [disabled]="isSubmitGoing">链接性测试</button>-->
         <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="backupStorageForm.invalid">提交</button>
     </div>

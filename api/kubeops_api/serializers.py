@@ -183,11 +183,9 @@ class ClusterSerializer(ProjectSerializer):
 
 
 class BackupStorageSerializer(ProjectSerializer):
+    credentials = serializers.DictField()
+
     class Meta:
         model = BackupStorage
-        # extra_kwargs = {
-        #     'password': {'write_only': True},
-        #     'private_key': {'write_only': True},
-        # }
         fields = ['id', 'name', 'region', 'credentials', 'type', 'date_created', 'status']
         read_only_fields = ['id', 'date_created']

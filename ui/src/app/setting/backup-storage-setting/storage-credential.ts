@@ -7,4 +7,5 @@ export class StorageCredential {
     accountName: string;
     accountSecret: string;
     container: string;
+    endpointSuffix: string;
 }

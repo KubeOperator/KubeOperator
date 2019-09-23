@@ -20,10 +20,12 @@ class BackupStorage(models.Model):
 
     BACKUP_STORAGE_TYPE_S3 = 'S3'
     BACKUP_STORAGE_TYPE_OSS = 'OSS'
+    BACKUP_STORAGE_TYPE_AZURE = 'AZURE'
 
     BACKUP_STORAGE_TYPE_CHOICES = (
         (BACKUP_STORAGE_TYPE_S3,'S3'),
-        (BACKUP_STORAGE_TYPE_OSS, 'OSS')
+        (BACKUP_STORAGE_TYPE_OSS, 'OSS'),
+        (BACKUP_STORAGE_TYPE_AZURE, 'AZURE')
     )
 
     id = models.UUIDField(max_length=255,primary_key=True, default=uuid.uuid4)

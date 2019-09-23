@@ -26,5 +26,7 @@ urlpatterns = [
                   path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
                   path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view()),
                   path('cluster/config', api.GetClusterConfigView.as_view()),
-                  path('version/', api.VersionView.as_view())
+                  path('version/', api.VersionView.as_view()),
+                  path('version/', api.VersionView.as_view()),
+                  path('backupStorage/check', api.CheckStorageView.as_view())
               ] + router.urls + cluster_router.urls
