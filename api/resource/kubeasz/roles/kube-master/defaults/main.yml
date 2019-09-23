@@ -19,4 +19,5 @@ NODE_CIDR_LEN: 24
 
 # 配置 APISERVER 地址
 KUBE_APISERVER: "https://{{ inventory_hostname }}:6443"
-
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+NODE_PORT_RANGE: "30000-32767"

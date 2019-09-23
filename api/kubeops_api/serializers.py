@@ -137,13 +137,14 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     log_ws_url = serializers.SerializerMethodField()
     progress_ws_url = serializers.SerializerMethodField()
     steps = serializers.ListField(required=False, read_only=True)
+    params = serializers.DictField(required=False, read_only=False)
 
     class Meta:
         model = DeployExecution
         fields = '__all__'
         read_only_fields = [
             'id', 'state', 'num', 'result_summary', 'result_raw',
-            'date_created', 'date_start', 'date_end', 'project', 'timedelta', 'steps'
+            'date_created', 'date_start', 'date_end', 'project', 'timedelta', 'steps',
         ]
 
     @staticmethod
@@ -179,6 +180,7 @@ class ClusterSerializer(ProjectSerializer):
                   'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
+
 
 class BackupStorageSerializer(ProjectSerializer):
     credentials = serializers.DictField()

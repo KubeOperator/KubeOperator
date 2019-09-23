@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Cluster, ExtraConfig} from './cluster';
+import {Cluster, ClusterConfigs, ExtraConfig} from './cluster';
 import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {HostService} from '../host/host.service';
@@ -61,5 +61,9 @@ export class ClusterService {
     return this.http.delete(`${baseClusterUrl}${clusterName}`).pipe(
       catchError(error => throwError(error))
     );
+  }
+
+  getClusterConfigs(): Observable<ClusterConfigs> {
+    return this.http.get<ClusterConfigs>('api/v1/cluster/config');
   }
 }

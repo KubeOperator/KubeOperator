@@ -1,0 +1,8 @@
+- hosts: etcd
+  roles:
+    - upgrade-etcd
+
+- hosts: master
+  serial: 1
+  roles:
+    - upgrade-master

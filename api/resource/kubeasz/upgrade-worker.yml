@@ -1,0 +1,4 @@
+- hosts: worker
+  serial: 1
+  roles:
+    - upgrade-worker

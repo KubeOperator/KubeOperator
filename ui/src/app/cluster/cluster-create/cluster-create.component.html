@@ -18,8 +18,7 @@
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
-        <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select"
-                (change)="onPackageChange()" clrSelect required>
+        <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select" clrSelect required>
           <option value="">请选择离线包</option>
           <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
         </select>
@@ -273,23 +272,6 @@
       </div>
     </div>
   </clr-wizard-page>
-
-  <clr-wizard-page [clrWizardPageNextDisabled]="canConfigNext() && configForm.invalid">
-    <ng-template clrPageTitle>设置参数</ng-template>
-    <form #configForm='ngForm' clrForm>
-      <div *ngFor="let config of configs">
-        <div [ngSwitch]="config.type" [hidden]="!config.display">
-          <clr-input-container *ngSwitchCase="'Input'">
-            <label>{{config.alias}}</label>
-            <input clrInput size=45 type="text" [value]="config.default" [(ngModel)]="config.value"
-                   [ngModelOptions]="{standalone: true}">
-          </clr-input-container>
-        </div>
-      </div>
-    </form>
-
-  </clr-wizard-page>
-
   <clr-wizard-page>
     <ng-template clrPageTitle>完成</ng-template>
     <section class="form-block">

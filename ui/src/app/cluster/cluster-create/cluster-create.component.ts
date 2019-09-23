@@ -118,19 +118,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPackageChange() {
-    this.packages.forEach(pk => {
-      if (pk.name === this.cluster.package) {
-        this.package = pk;
-        this.templates = this.package.meta.templates;
-        this.configs = this.package.meta.public_config;
-        this.replaceConfig();
-      }
-    });
-    this.templates = this.package.meta.templates;
-    this.networks = this.package.meta.networks;
-    this.storages = this.package.meta.storages;
-  }
 
   onNetworkChange() {
     this.networks.forEach(network => {
@@ -148,12 +135,21 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadClusterConfig() {
+    this.clusterService.getClusterConfigs().subscribe(data => {
+      this.templates = data.templates;
+      this.storages = data.storages;
+      this.networks = data.networks;
+    });
+  }
+
   newCluster() {
     this.reset();
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
     this.listPlans();
+    this.loadClusterConfig();
   }
 
 
@@ -171,9 +167,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.cluster = new Cluster();
     this.cluster.template = '';
     this.template = null;
-    this.templates = null;
-    this.nodes = null;
-    this.configs = null;
+    this.templates = [];
+    this.nodes = [];
+    this.configs = [];
     this.groups = null;
     this.storage = null;
     this.network = null;
@@ -201,7 +197,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.plans.forEach(plan => {
       if (this.cluster.plan === plan.name) {
         this.plan = plan;
-        this.package.meta.templates.forEach(template => {
+        this.templates.forEach(template => {
           if (template.deploy_type === plan.deploy_template) {
             this.template = template;
             this.cluster.template = template.name;

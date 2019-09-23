@@ -1,14 +1,15 @@
 import json
+import os
 
 import yaml
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
-from fit2ansible.settings import VERSION_DIR
+from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
@@ -23,7 +24,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
-from kubeops_api.storage_client import StorageClient;
+from kubeops_api.storage_client import StorageClient
 
 
 # 集群视图
@@ -131,7 +132,7 @@ class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
         return Response(data=serializer.data, status=201)
 
     def list(self, request, *args, **kwargs):
-        configs = self.cluster.configs()
+        configs = self.cluster.get_configs()
         serializer = self.serializer_class(configs, many=True)
         return Response(serializer.data)
 
@@ -205,13 +206,21 @@ class GetClusterTokenView(APIView):
         response.write(json.dumps(result))
         return response
 
+
+class GetClusterConfigView(APIView):
+    def get(self, request, **kwargs):
+        config_file = os.path.join(CLUSTER_CONFIG_DIR, "config.yml")
+        with open(config_file) as f:
+            data = yaml.load(f)
+            return JsonResponse(data)
+
+
 class BackupStorageViewSet(viewsets.ModelViewSet):
     queryset = BackupStorage.objects.all()
     serializer_class = serializers.BackupStorageSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
-
 
 class CheckStorageView(APIView):
 

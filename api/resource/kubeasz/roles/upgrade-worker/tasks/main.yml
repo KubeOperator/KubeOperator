@@ -1,0 +1,73 @@
+# docker
+- name: 获取docker版本信息
+  shell: "{{ base_dir }}/bin/dockerd --version|cut -d' ' -f3"
+  register: docker_ver
+
+- name: 转换docker版本信息为浮点数
+  set_fact:
+    current_docker_ver: "{{ docker_ver.stdout.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
+
+- name: 转换新docker版信息为浮点数
+  set_fact:
+    new_docker_ver: "{{ docker_version.split('.')[0]|int + docker_ver.stdout.split('.')[1]|int/100 }}"
+
+- block:
+    - name: 下载新 docker 二进制文件
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+        - containerd
+        - containerd-shim
+        - docker-init
+        - runc
+        - docker
+        - ctr
+        - dockerd
+        - docker-proxy
+
+    - name: 开机启用docker 服务
+      shell: systemctl enable docker
+      ignore_errors: true
+
+    - name: 开启docker 服务
+      shell: systemctl daemon-reload && systemctl restart docker
+      tags: upgrade_docker
+
+  when: 'current_docker_ver < new_docker_ver'
+
+# worker
+- name: 获取 kube-worker 版本信息
+  shell: "kubectl version --short | grep Server | awk '{print $3}' | tr -d 'a-zA-Z'"
+  register: kube_ver
+
+- block:
+    - name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+        - kubectl
+        - kubelet
+        - kube-proxy
+        - bridge
+        - host-local
+        - loopback
+
+
+    - name: 开机启用kubelet 服务
+      shell: systemctl enable kubelet
+
+    - name: 开启kubelet 服务
+      shell: systemctl daemon-reload && systemctl restart kubelet
+
+    - name: 开机启用kube-proxy 服务
+      shell: systemctl enable kube-proxy
+
+    - name: 开启kube-proxy 服务
+      shell: systemctl daemon-reload && systemctl restart kube-proxy
+
+    - name: 轮询等待kubelet启动
+      shell: "systemctl status kubelet.service|grep Active"
+      register: kubelet_status
+      until: '"running" in kubelet_status.stdout'
+      retries: 8
+      delay: 2
+
+  when: 'kube_ver.stdout < kube_version'
