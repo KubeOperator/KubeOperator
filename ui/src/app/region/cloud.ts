@@ -17,5 +17,10 @@ export class CloudStorage {
 export class Network {
   name: string;
   id: string;
-  external: boolean;
+  subnetList: Subnet[] = [];
+}
+
+export class Subnet {
+  name: string;
+  id: string;
 }

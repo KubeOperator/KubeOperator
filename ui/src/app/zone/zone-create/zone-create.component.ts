@@ -5,7 +5,7 @@ import {ClrWizard} from '@clr/angular';
 import {RegionService} from '../../region/region.service';
 import {CloudService} from '../../region/cloud.service';
 import {Zone} from '../zone';
-import {CloudZone} from '../../region/cloud';
+import {CloudZone, Subnet} from '../../region/cloud';
 import {CloudTemplateService} from '../../region/cloud-template.service';
 import {ZoneService} from '../zone.service';
 import {catchError} from 'rxjs/operators';
@@ -25,6 +25,7 @@ export class ZoneCreateComponent implements OnInit {
   cloudZone: CloudZone;
   regions: Region[] = [];
   region: Region = new Region();
+  subnetList: Subnet[] = [];
   loading = false;
   @ViewChild('basicForm') basicForm: NgForm;
   @ViewChild('wizard') wizard: ClrWizard;
@@ -62,6 +63,7 @@ export class ZoneCreateComponent implements OnInit {
     this.regions = [];
     this.cloudZones = [];
     this.cloudZone = null;
+    this.subnetList = [];
   }
 
   listRegion() {
@@ -83,6 +85,14 @@ export class ZoneCreateComponent implements OnInit {
     this.cloudZones.forEach(zone => {
       if (this.item.cluster === zone.cluster) {
         this.cloudZone = zone;
+      }
+    });
+  }
+
+  onNetworkChange() {
+    this.cloudZone.networkList.forEach(network => {
+      if (this.item.vars['openstack_network'] === network.id) {
+        this.subnetList = network.subnetList;
       }
     });
   }

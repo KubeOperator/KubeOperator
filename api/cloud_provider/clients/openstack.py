@@ -5,6 +5,8 @@ from cloud_provider.cloud_client import CloudClient
 from pyVmomi import vim
 from keystoneclient.v3 import client as KeystoneClient
 from openstack import connection
+from urllib import request
+import json
 
 from cloud_provider.utils import download_plugins
 from fit2ansible.settings import CLOUDS_RESOURCE_DIR
@@ -17,11 +19,14 @@ class OpenStackCloudClient(CloudClient):
 
     def list_region(self):
         keystone_client = get_keystone_client(self.vars)
-        regions = keystone_client.regions.list()
-        keystone_client.users.list()
+        req = request.Request(self.vars.get('openstack_identity') + '/regions', headers={
+            "X-Auth-Token": keystone_client.auth_token
+        })
+        response = request.urlopen(req).read()
+        regions = json.loads(response)["regions"]
         data = []
         for region in regions:
-            data.append(region.id)
+            data.append(region["id"])
         return data
 
     def list_zone(self, region):
@@ -41,10 +46,18 @@ class OpenStackCloudClient(CloudClient):
                         "id": network.id,
                     })
                 else:
+                    subnetList = []
+                    openstack_subnets = openstack_client.list_subnets(get_filter(self.vars, network_id=network.id))
+                    for subnet in openstack_subnets:
+                        subnetList.append({
+                            "name": subnet.name,
+                            "id": subnet.id,
+                        })
                     zone.get("networkList").append({
                         "name": network.name,
                         "id": network.id,
-                    })
+                        "subnetList": subnetList
+                        })
             for sg in openstack_security_groups:
                 zone.get("securityGroups").append(sg.name)
             for datastore in openstack_datastores:
@@ -138,8 +151,7 @@ class OpenStackCloudClient(CloudClient):
             os.makedirs(plugin_dir)
         hostname = Setting.objects.get(key='local_hostname').value
         port = 8082
-        url = "http://127.0.0.1:8080/openstack.zip"
-        # url = "http://{}:{}/repository/raw/terraform/vsphere.zip".format(hostname, port)
+        url = "http://{}:{}/repository/raw/terraform/openstack.zip".format(hostname, port)
         download_plugins(url=url, target=plugin_dir)
 
     def apply_terraform(self, cluster):
@@ -216,7 +228,8 @@ def get_keystone_client(vars):
     keystone = KeystoneClient.Client(auth_url=str.strip(vars.get('openstack_identity', '')),
                                      username=vars.get('openstack_username', None),
                                      password=vars.get('openstack_password', None),
-                                     project_id=vars.get('openstack_projectId', None))
+                                     project_id=vars.get('openstack_projectId', None),
+                                     user_domain_name=vars.get('openstack_domain_name', None))
     return keystone
 
 
@@ -232,8 +245,56 @@ def get_openstack_client(vars, region):
 
 def get_filter(vars, **kwargs):
     filters = {
-        'project_id': vars.get('openstack_projectId', None)
+        'project_id': vars.get('openstack_projectId', None),
+        'tenant_id': vars.get('openstack_projectId', None)
     }
-    if not kwargs.get('network_id'):
+    if kwargs.get('network_id'):
         filters['network_id'] = kwargs.get('network_id')
     return filters
+
+
+
+# keystone = KeystoneClient.Client(auth_url='http://openstack.fit2cloud.com/identity/v3',
+#                                  username='admin',
+#                                  password='Calong@2015',
+#                                  project_id='ed2838ecd90a4ec5a1ef5cf305bef59c',
+#                                  user_domain_name='Default')
+#
+#
+# client = connection.Connection(auth_url='http://openstack.fit2cloud.com/identity/v3',
+#                                  username='admin',
+#                                  password='Calong@2015',
+#                                  project_id='ed2838ecd90a4ec5a1ef5cf305bef59c',
+#                                  user_domain_name='Default',
+#                                region_name='RegionOne')
+#
+#
+#
+# keystone = KeystoneClient.Client(auth_url='http://172.190.78.10:5000/v3',
+#                                  username='f2c',
+#                                  password='fit2cloud',
+#                                  project_id='4bf0e161fc6446b7aff69581717b2311',
+#                                  user_domain_name='FIT测试')
+#
+#
+#
+client = connection.Connection(auth_url='http://172.190.78.10:5000/v3',
+                                     username='f2c',
+                                     password='fit2cloud',
+                                     project_id='4bf0e161fc6446b7aff69581717b2311',
+                                 user_domain_name='FIT测试',
+                               region_name='RegionTwo')
+
+# for network in openstack_networks:
+#     if network['router:external']:
+#         print("network ex " + network.name)
+#         print("network ex " + network.project_id)
+#     else:
+#         print("network in " + network.name)
+#         print("network in " + network.project_id)
+#         filter = {
+#             "network_id":  network.id
+#         }
+#         openstack_subnets = client.list_subnets(filter)
+#         for subnet in openstack_subnets:
+#             print(subnet.name)

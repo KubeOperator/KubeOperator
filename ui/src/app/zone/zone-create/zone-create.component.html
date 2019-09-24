@@ -140,9 +140,19 @@
           </clr-select-container>
           <clr-select-container>
             <label>网络</label>
-            <select [(ngModel)]="item.vars['openstack_network']" name="network"  clrSelect required>
+            <select [(ngModel)]="item.vars['openstack_network']" name="network" (change)="onNetworkChange()" clrSelect required>
               <option [value]="">请选择</option>
               <option *ngFor="let network of cloudZone.networkList"  [value]="network.id">{{network.name}}</option>
+            </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
+          </clr-select-container>
+
+          <clr-select-container>
+            <label>子网</label>
+            <select [(ngModel)]="item.vars['openstack_subnet']" name="subnet"  clrSelect required>
+              <option [value]="">请选择</option>
+              <option *ngFor="let subnet of subnetList"  [value]="subnet.id">{{subnet.name}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
