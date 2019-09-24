@@ -1,8 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Cluster} from '../cluster/cluster';
+import {Cluster, ClusterConfigs} from '../cluster/cluster';
 import {App} from '../package/package';
 import {PackageService} from '../package/package.service';
 import {ActivatedRoute} from '@angular/router';
+import {ClusterService} from '../cluster/cluster.service';
 
 @Component({
   selector: 'app-application',
@@ -14,16 +15,15 @@ export class ApplicationComponent implements OnInit {
   apps: App[] = [];
   currentCluster: Cluster;
 
-  constructor(private packageService: PackageService, private route: ActivatedRoute) {
+  constructor(private clusterService: ClusterService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
     });
-
-    this.packageService.getPackage(this.currentCluster.package).subscribe(data => {
-      this.apps = data.meta.apps;
+    this.clusterService.getClusterConfigs().subscribe(data => {
+      this.apps = data.apps;
     });
   }
 

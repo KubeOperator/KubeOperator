@@ -14,6 +14,7 @@ from common import models as common_models
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
+from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
 
@@ -28,6 +29,7 @@ class Cluster(Project):
     CLUSTER_STATUS_WARNING = 'WARNING'
     CLUSTER_STATUS_INSTALLING = 'INSTALLING'
     CLUSTER_STATUS_DELETING = 'DELETING'
+    CLUSTER_STATUS_UPGRADING = 'UPGRADING'
     CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
 
@@ -37,7 +39,8 @@ class Cluster(Project):
         (CLUSTER_STATUS_DELETING, 'deleting'),
         (CLUSTER_STATUS_READY, 'ready'),
         (CLUSTER_STATUS_ERROR, 'error'),
-        (CLUSTER_STATUS_WARNING, 'warning')
+        (CLUSTER_STATUS_WARNING, 'warning'),
+        (CLUSTER_STATUS_UPGRADING, 'upgrading')
     )
 
     CLUSTER_DEPLOY_TYPE_CHOICES = (
@@ -122,9 +125,10 @@ class Cluster(Project):
         self.save()
 
     def get_steps(self, opt):
-        for operation in self.package.meta['operations']:
-            if operation['name'] == opt:
-                return operation['steps']
+        config_file = self.load_config_file()
+        for op in config_file.get('operations', []):
+            if op['name'] == opt:
+                return op['steps']
 
     def create_network_plugin(self):
         cluster_configs = self.load_config_file()
@@ -156,12 +160,18 @@ class Cluster(Project):
                 return template['name']
 
     def create_playbooks(self):
-        for playbook in self.package.meta.get('playbooks', []):
+        config_file = self.load_config_file()
+        for playbook in config_file.get('playbooks', []):
             url = 'file:///{}'.format(os.path.join(KUBEEASZ_DIR))
             Playbook.objects.create(
                 name=playbook['name'], alias=playbook['alias'],
                 type=Playbook.TYPE_LOCAL, url=url, project=self
             )
+
+    def upgrade_package(self, name):
+        package = Package.objects.get(name='name')
+        self.package = package
+        self.save()
 
     @staticmethod
     def load_config_file():

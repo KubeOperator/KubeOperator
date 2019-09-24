@@ -80,3 +80,4 @@ git+https://github.com/KubeOperator/python-terraform.git@develop
 download==0.3.4
 tqdm==4.33.0
 jms-storage==0.0.24
+netaddr==0.7.19

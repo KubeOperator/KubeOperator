@@ -5,6 +5,7 @@ export class Package {
   name: string;
   meta: PackageMeta;
   date_created: string;
+  vars: {};
 }
 
 export class Network {
@@ -31,15 +32,12 @@ export class Image {
 export class PackageMeta {
   resource: string;
   version: string;
-  templates: Template[];
   components: Components;
   images: Image[];
-  networks: Network[] = [];
-  storages: Storage[] = [];
-  public_config: Config[] = [];
   apps: App[] = [];
   cluster_infos: ClusterInfo[] = [];
   operations: Operation[] = [];
+  vars = {};
 }
 
 export class App {

@@ -10,6 +10,7 @@ import {ClusterStatus} from './class/describe';
 import {ClusterStatusService} from '../../cluster/cluster-status.service';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {ClusterListComponent} from '../../cluster/cluster-list/cluster-list.component';
+import {UpgradeComponent} from '../upgrade/upgrade.component';
 
 @Component({
   selector: 'app-describe',
@@ -24,7 +25,8 @@ export class DescribeComponent implements OnInit {
   openToken = false;
   token: string = null;
   event: string = null;
-  @ViewChild(ConfirmAlertComponent, { static: true }) confirmAlert: ConfirmAlertComponent;
+  @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
+  @ViewChild(UpgradeComponent, {static: true}) upgrade: UpgradeComponent;
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
@@ -35,16 +37,16 @@ export class DescribeComponent implements OnInit {
     this.packageService.getPackage(this.currentCluster.package).subscribe(pkg => {
       const infos = pkg.meta.cluster_infos;
       this.operations = pkg.meta.operations;
-      this.clusterService.listClusterConfig(this.currentCluster.name).subscribe(configs => {
-        infos.forEach(info => {
-          configs.forEach(cfg => {
-            if (cfg.key === info.key) {
-              info.value = cfg.value;
-            }
-          });
-        });
-        this.clusterInfos = infos;
-      });
+      // this.clusterService.listClusterConfig(this.currentCluster.name).subscribe(configs => {
+      //   infos.forEach(info => {
+      //     configs.forEach(cfg => {
+      //       if (cfg.key === info.key) {
+      //         info.value = cfg.value;
+      //       }
+      //     });
+      //   });
+      //   this.clusterInfos = infos;
+      // });
     });
   }
 
@@ -60,9 +62,6 @@ export class DescribeComponent implements OnInit {
     });
   }
 
-  testOpen() {
-    this.confirmAlert.opened = true;
-  }
 
   onInstall() {
     this.confirmAlert.setTitle('确认安装');
@@ -78,8 +77,21 @@ export class DescribeComponent implements OnInit {
     this.confirmAlert.opened = true;
   }
 
-  handleEvent() {
-    this.operaterService.executeOperate(this.currentCluster.name, this.event).subscribe(() => {
+  onUpgrade() {
+    this.upgrade.opened = true;
+    this.upgrade.currentPackageName = this.currentCluster.package;
+    this.upgrade.listPackage();
+    this.event = 'upgrade';
+  }
+
+  handleUpgrade() {
+    const params = {'package': this.upgrade.newPackage.name};
+    this.handleEvent(params);
+  }
+
+
+  handleEvent(params?) {
+    this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
       this.redirect('deploy');
     });
     this.confirmAlert.close();
@@ -90,29 +102,6 @@ export class DescribeComponent implements OnInit {
       const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
-  }
-
-
-  getStatusDescribe(cluster: Cluster): ClusterStatus {
-    const result = new ClusterStatus();
-    switch (cluster.status) {
-      case 'READY':
-        result.color = 'red';
-        result.alias = '准备安装';
-        break;
-      case 'ERROR':
-        result.color = 'red';
-        result.alias = '错误';
-        break;
-      case 'RUNNING':
-        result.color = 'green';
-        result.alias = '运行中';
-        break;
-      default :
-        result.color = 'blue';
-        result.alias = '执行中';
-    }
-    return result;
   }
 
   getDeployTypeComment(type: string): string {

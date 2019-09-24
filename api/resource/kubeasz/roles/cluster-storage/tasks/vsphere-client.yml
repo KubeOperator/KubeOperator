@@ -54,6 +54,7 @@
 
   - name: create vsan default storageclass
     shell: "kubectl apply -f /tmp/default-sc.yaml"
+    ignore_errors: true
 
   - name: 设置default storageClass
     shell: "{{ bin_dir }}/kubectl patch storageclass vsphere-storageclass-default -p '{{default_label}}'"

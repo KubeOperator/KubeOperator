@@ -85,6 +85,9 @@ class VsphereCloudClient(CloudClient):
         container = content.rootFolder
         viewType = [vim.Folder]
         folder = get_obj(content, viewType, container, 'kubeoperator')
+        dc = get_obj(content, [vim.Datacenter], container, zone.region.cloud_region)
+        if not folder:
+            dc.vmFolder.CreateFolder('kubeoperator')
         viewType = [vim.VirtualMachine]
         vm = get_obj(content, viewType, folder, zone.region.image_name)
         ds = get_obj(content, [vim.Datastore], container, zone.vars['vc_storage'])
