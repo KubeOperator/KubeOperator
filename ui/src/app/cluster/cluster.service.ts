@@ -64,6 +64,6 @@ export class ClusterService {
   }
 
   getClusterConfigs(): Observable<ClusterConfigs> {
-    return this.http.get<ClusterConfigs>('api/v1/cluster/config');
+    return this.http.get<ClusterConfigs>('/api/v1/cluster/config');
   }
 }
