@@ -127,7 +127,7 @@ class Cluster(Project):
     def get_steps(self, opt):
         config_file = self.load_config_file()
         for op in config_file.get('operations', []):
-            if op == opt:
+            if op['name'] == opt:
                 return op['steps']
 
     def create_network_plugin(self):
