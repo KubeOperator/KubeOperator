@@ -225,7 +225,8 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
 class CheckStorageView(APIView):
 
     def post(self,request, **kwargs):
-        valid = StorageClient.check_valid(StorageClient,request.data);
+        client = StorageClient(request.data)
+        valid = client.check_valid(request.data)
         response = HttpResponse()
         result = {
             "message": '验证成功!',
@@ -237,6 +238,20 @@ class CheckStorageView(APIView):
             result['message'] = '验证失败！'
             result['success'] = False
             response.write(json.dumps(result))
+        return response
+
+class GetBucketsView(APIView):
+
+    def post(self,request):
+        client = StorageClient(request.data)
+        buckets = client.list_buckets()
+        response = HttpResponse()
+        result = {
+            "message": '验证成功!',
+            "success": True,
+            "data": buckets
+        }
+        response.write(json.dumps(result))
         return response
 
 

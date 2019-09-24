@@ -24,6 +24,8 @@ export class BackupStorageCreateComponent implements OnInit {
   credential = new StorageCredential();
   invalid = false;
   tipShow = false;
+  message = '';
+  buckets = [];
 
 
   constructor(private backupStorageService: BackupStorageService, private tipService: TipService ) { }
@@ -51,6 +53,8 @@ export class BackupStorageCreateComponent implements OnInit {
         this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
            // @ts-ignore
           this.invalid = !data.success;
+          // @ts-ignore
+          this.message = data.message;
           this.tipShow = true;
           // @ts-ignore
           if (data.success) {
@@ -59,7 +63,7 @@ export class BackupStorageCreateComponent implements OnInit {
               this.isSubmitGoing = false;
           }
         }, err => {
-          this.invalid = false;
+          this.invalid = true;
           this.tipShow = true;
           this.isSubmitGoing = false;
         });
@@ -91,11 +95,28 @@ export class BackupStorageCreateComponent implements OnInit {
     this.createOpened = true;
   }
 
-  checkValid(credential) {
-
-  }
-
   closeTip() {
     this.tipShow = false;
+  }
+
+  getBuckets(credential) {
+      this.item.credentials = credential;
+      this.backupStorageService.getBuckets(this.item).subscribe(rep => {
+         // @ts-ignore
+        this.invalid = !rep.success;
+        // @ts-ignore
+        if (rep.success) {
+            // @ts-ignore
+            this.buckets = rep.data;
+        } else {
+            this.tipShow = true;
+            // @ts-ignore
+            this.message = '查询失败';
+        }
+      }, err => {
+        this.invalid = true;
+        this.tipShow = true;
+        this.message = '查询失败';
+      });
   }
 }
