@@ -18,10 +18,6 @@
               </select>
             </clr-select-container>
             <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
-                <label>桶名称:</label>
-                <input clrInput size=45 type="text" [(ngModel)]="credential.bucket" name="name" required>
-            </clr-input-container>
-            <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
                 <label>AccessKey:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.accessKey" name="accessKey" required>
             </clr-input-container>
@@ -39,10 +35,12 @@
                 <clr-control-helper *ngIf="item.type=='OSS'">OSS: http://REGION_NAME.aliyuncs.com</clr-control-helper>
                 <clr-control-helper *ngIf="item.type=='OSS'">如:http://oss-cn-hangzhou.aliyuncs.com</clr-control-helper>
             </clr-input-container>
-            <clr-input-container *ngIf="item.type=='AZURE'">
-                <label>容器名称:</label>
-                <input clrInput size=45 type="text" [(ngModel)]="credential.container" name="container" required>
-            </clr-input-container>
+            <clr-select-container *ngIf="item.type=='OSS' || item.type=='S3'">
+              <label>桶名称:</label>
+              <select clrSelect  name="bucket" [(ngModel)]="credential.bucket"  required>
+                  <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
+              </select>
+            </clr-select-container>
             <clr-input-container *ngIf="item.type=='AZURE'">
                 <label>账户名称:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.accountName" name="accountName" required>
@@ -58,6 +56,12 @@
                   <option value="core.windows.net">core.windows.net</option>
               </select>
             </clr-select-container>
+            <clr-select-container *ngIf="item.type=='AZURE'">
+              <label>容器名称:</label>
+              <select clrSelect  name="container" [(ngModel)]="credential.container"  required>
+                  <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
+              </select>
+            </clr-select-container>
             <div class="alert alert-danger alert-sm" *ngIf="tipShow && invalid">
               <div class="alert-items">
                 <div class="alert-item static" role="alert">
@@ -65,7 +69,7 @@
                     <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
                   </div>
                   <span class="alert-text">
-                      校验失败！
+                      {{message}}
                   </span>
                 </div>
               </div>
@@ -80,7 +84,7 @@
                       <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
                     </div>
                     <span class="alert-text" size=45 >
-                        校验成功！
+                        {{message}}
                     </span>
                   </div>
                 </div>
@@ -89,12 +93,8 @@
                 </button>
               </div>
         </form>
-
-
-
-
         <div class="modal-footer">
-<!--        <button type="button" class="btn btn-success-outline" (click)="checkValid(credential)" [disabled]="isSubmitGoing">链接性测试</button>-->
+        <button type="button" class="btn btn-success-outline" (click)="getBuckets(credential)" [disabled]="isSubmitGoing">获取桶/容器</button>
         <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="backupStorageForm.invalid">提交</button>
     </div>

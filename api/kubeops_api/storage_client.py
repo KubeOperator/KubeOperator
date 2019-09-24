@@ -1,25 +1,30 @@
 import jms_storage
 import os
+from kubeops_api.models.backup_storage import BackupStorage;
 
 
 class StorageClient():
 
+    def __init__(self,backupStorage):
+        storage_config = self.cover_to_config(backupStorage.get('credentials'))
+        try:
+            if 'S3' == backupStorage['type']:
+                self.client = jms_storage.S3Storage(storage_config)
+            if 'OSS' == backupStorage['type']:
+                self.client = jms_storage.OSSStorage(storage_config)
+            if 'AZURE' == backupStorage['type']:
+                self.client = jms_storage.AzureStorage(storage_config)
+        except ValueError:
+            pass
+
     def check_valid(self,backupStorage):
-        storage_config = self.coverToConfig(self,backupStorage['credentials'])
-        client = {}
-        if 'S3' == backupStorage['type']:
-            client = jms_storage.S3Storage(storage_config)
-        if 'OSS' == backupStorage['type']:
-            client = jms_storage.OSSStorage(storage_config)
-        if 'AZURE' == backupStorage['type']:
-            client = jms_storage.AzureStorage(storage_config)
-        if client is not None:
-            # 上传文件测试可用性
-            file_locale_path = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, 'README.md'))
-            return client.is_valid(file_locale_path, 'kube-operator-test')
+        if self.client is None:
+            return False
+        # 上传文件测试可用性
+        file_locale_path = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, 'README.md'))
+        return self.client.is_valid(file_locale_path, 'kube-operator-test')
 
-
-    def coverToConfig(self,credentials):
+    def cover_to_config(self,credentials):
         storage_config = {}
         storage_config['BUCKET'] = credentials.get('bucket',"kube-operator")
         storage_config['ACCESS_KEY'] = credentials.get('accessKey',None)
@@ -30,3 +35,8 @@ class StorageClient():
         storage_config['ENDPOINT_SUFFIX'] = credentials.get('endpointSuffix',None)
         storage_config['ENDPOINT'] = credentials.get('endpoint',None)
         return storage_config
+
+    def list_buckets(self):
+        return self.client.list_buckets()
+
+
