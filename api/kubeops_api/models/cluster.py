@@ -125,9 +125,10 @@ class Cluster(Project):
         self.save()
 
     def get_steps(self, opt):
-        for operation in self.package.meta['operations']:
-            if operation['name'] == opt:
-                return operation['steps']
+        config_file = self.load_config_file()
+        for op in config_file.get('operations', []):
+            if op == opt:
+                return op['steps']
 
     def create_network_plugin(self):
         cluster_configs = self.load_config_file()
