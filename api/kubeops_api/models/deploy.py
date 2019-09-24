@@ -58,7 +58,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 package_name = self.params.get('package', None)
                 package = Package.objects.get(name=package_name)
                 extra_vars.update(package.meta.get('vars'))
-                result = self.on_upgrade(extra_vars)
+                print(extra_vars)
+                # result = self.on_upgrade(extra_vars)
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
 

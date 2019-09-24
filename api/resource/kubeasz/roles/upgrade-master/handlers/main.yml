@@ -1,0 +1,8 @@
+- name: restart_master
+  service:
+    name: "docker"
+    state: restarted
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler

@@ -9,13 +9,16 @@
         - kube-apiserver
         - kube-controller-manager
         - kube-scheduler
+        - kubectl
+      notify:
+        restart_master
 
-    - name: enable master 服务
-      shell: systemctl enable kube-apiserver kube-controller-manager kube-scheduler
-      ignore_errors: true
+    - name: 以轮询的方式等待master服务启动完成
+      command: "{{ bin_dir }}/kubectl get node"
+      register: result
+      until:    result.rc == 0
+      retries:  5
+      delay: 6
+      run_once: True
 
-     - name: 启动 master 服务
-       shell: "systemctl daemon-reload && systemctl restart kube-apiserver && \
-    	systemctl restart kube-controller-manager && systemctl restart kube-scheduler"
-
-  when: 'kube_ver.stdout < kube_version
+  when: 'kube_ver.stdout < kube_version'
