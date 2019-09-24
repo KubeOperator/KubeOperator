@@ -160,7 +160,8 @@ class Cluster(Project):
                 return template['name']
 
     def create_playbooks(self):
-        for playbook in self.package.meta.get('playbooks', []):
+        config_file = self.load_config_file()
+        for playbook in config_file.get('playbooks', []):
             url = 'file:///{}'.format(os.path.join(KUBEEASZ_DIR))
             Playbook.objects.create(
                 name=playbook['name'], alias=playbook['alias'],

@@ -84,9 +84,14 @@ export class DescribeComponent implements OnInit {
     this.event = 'upgrade';
   }
 
+  handleUpgrade() {
+    const params = {'package': this.upgrade.newPackage.name};
+    this.handleEvent(params);
+  }
 
-  handleEvent() {
-    this.operaterService.executeOperate(this.currentCluster.name, this.event).subscribe(() => {
+
+  handleEvent(params?) {
+    this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
       this.redirect('deploy');
     });
     this.confirmAlert.close();

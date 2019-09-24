@@ -14,7 +14,6 @@ export class UpgradeComponent implements OnInit {
   newPackage: Package;
   packages: Package[] = [];
   @Output() openedChange = new EventEmitter();
-  @Output() paramsChange = new EventEmitter();
   @Output() confirm = new EventEmitter();
 
   constructor(private packageService: PackageService) {
@@ -40,7 +39,6 @@ export class UpgradeComponent implements OnInit {
   }
 
   onConfirm() {
-    this.paramsChange.emit();
     this.confirm.emit();
   }
 
