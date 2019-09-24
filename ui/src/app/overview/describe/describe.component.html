@@ -11,6 +11,7 @@
   </div>
 </clr-modal>
 <app-confirm-alert (confirm)="handleEvent()"></app-confirm-alert>
+<app-upgrade (confirm)="handleEvent()"></app-upgrade>
 <div class="clr-row">
   <div class="clr-col-12">
     <div class="card">
@@ -37,6 +38,10 @@
             <button class="btn btn-outline" (click)="onInstall()" [disabled]="currentCluster.status === 'RUNNING'">安装
             </button>
             <button class="btn btn-outline" (click)="onUninstall()" [disabled]="currentCluster.status === 'READY'">卸载
+            </button>
+            <!--<button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级-->
+            <!--</button>-->
+            <button class="btn btn-outline" (click)="onUpgrade()">升级
             </button>
             <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
               下载kube-config

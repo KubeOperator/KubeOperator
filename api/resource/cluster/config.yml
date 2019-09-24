@@ -1,18 +1,24 @@
 playbooks:
   - name:  config
-    alias: kubeasz/config.yml
+    alias: config.yml
   - name:  prepare
-    alias: kubeasz/prepare.yml
+    alias: prepare.yml
   - name:  master
-    alias: kubeasz/master.yml
+    alias: master.yml
   - name:  worker
-    alias: kubeasz/worker.yml
+    alias: worker.yml
   - name:  addon
-    alias: kubeasz/addon.yml
+    alias: addon.yml
   - name:  bigip-config
-    alias: kubeasz/f5-bigip.yml
+    alias: f5-bigip.yml
   - name:  uninstall
-    alias: kubeasz/clean.yml
+    alias: clean.yml
+  - name:  upgrade-worker
+    alias: upgrade-worker.yml
+  - name:  upgrade-master
+    alias: upgrade-master.yml
+  - name:  upgrade-addon
+    alias: upgrade-addon.yml
 
 operations:
   - name: install
@@ -44,6 +50,19 @@ operations:
       - name: bigip-config
         playbook: bigip-config
         flow: 配置 F5
+
+  - name: upgrade
+    steps:
+      - name: upgrade-worker
+        playbook: upgrade-worker
+        flow: 升级 worker
+      - name: upgrade-master
+        playbook: upgrade-master
+        flow: 升级 master
+      - name: upgrade-addon
+        playbook: upgrade-addon
+        flow: 升级内置应用
+
 
 
 roles:

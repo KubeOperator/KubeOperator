@@ -5,6 +5,7 @@ import time
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 from common import models as common_models
@@ -37,10 +38,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             "domain_suffix": domain_suffix.value,
             "APP_DOMAIN": "apps.{}.{}".format(cluster.name, domain_suffix.value)
         }
+
+        extra_vars.update(cluster.configs)
         ignore_errors = False
         try:
             if self.operation == "install":
-                extra_vars.update(cluster.configs)
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_install(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
@@ -51,6 +53,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             elif self.operation == 'bigip-config':
                 ignore_errors = True
                 result = self.on_f5_config(extra_vars)
+            elif self.operation == 'upgrade':
+                cluster.change_status(Cluster.CLUSTER_STATUS_UPGRADING)
+                package_name = self.params.get('package', None)
+                package = Package.objects.get(name=package_name)
+                extra_vars.update(package.meta.get('vars'))
+                result = self.on_upgrade(extra_vars)
+                cluster.upgrade_package(package_name)
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
@@ -90,6 +101,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             return {"raw": {}, "summary": {"success": True}}
         else:
             return self.run_playbooks(extra_vars)
+
+    def on_upgrade(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('upgrade')
+        self.set_step_default()
+        return self.run_playbooks(extra_vars)
 
     def on_f5_config(self, extra_vars):
         cluster = self.get_cluster()
