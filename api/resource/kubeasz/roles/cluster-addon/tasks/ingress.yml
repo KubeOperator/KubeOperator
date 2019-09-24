@@ -2,11 +2,13 @@
   shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj \"/CN={{APP_DOMAIN}}\""
   args:
     chdir: "/tmp/"
+  ignore_errors: true
 
 - name: 生成 secret
   shell: kubectl -n kube-system create secret tls traefik-tls-cert --key=tls.key --cert=tls.crt
   args:
     chdir: "/tmp/"
+  ignore_errors: true
 
 - name: 生成 ingress 部署文件
   template:
