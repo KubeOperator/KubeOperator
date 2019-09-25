@@ -65,7 +65,7 @@ vars:
   CONTAINER_RUNTIME: "docker"
   base_dir: "/opt/kubeOperator-kube-bin/1.15.3"
   kube_version: "1.15.3"
-  docker_version: "docker-ce-18.09.9"
+  docker_version: "18.09.9"
   etcd_version: "3.3.10"
 
   repo_port: 8082

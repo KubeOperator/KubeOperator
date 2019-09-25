@@ -11,7 +11,6 @@
         <li><b style="margin-right: 16px">部署模型:</b>{{getDeployName(currentPlan.deploy_template)}}</li>
         <li><b style="margin-right: 16px">Master 节点规格:</b>{{currentPlan.vars['k8s_master_model']}}</li>
         <li><b style="margin-right: 16px">Worker 节点规格:</b>{{currentPlan.vars['k8s_worker_model']}}</li>
-        <li><b style="margin-right: 16px">Daemon 节点规格</b>{{currentPlan.vars['k8s_daemon_model']}}</li>
         <li><b style="margin-right: 16px">创建时间</b>{{currentPlan.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
       </ul>
     </div>

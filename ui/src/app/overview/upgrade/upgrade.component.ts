@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {PackageService} from '../../package/package.service';
 import {Package} from '../../package/package';
+import {NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-upgrade',
@@ -15,8 +16,15 @@ export class UpgradeComponent implements OnInit {
   packages: Package[] = [];
   @Output() openedChange = new EventEmitter();
   @Output() confirm = new EventEmitter();
+  @ViewChild('form', {static: true}) form: NgForm;
 
   constructor(private packageService: PackageService) {
+  }
+
+  reset() {
+    this.newPackage = undefined;
+    this.form.resetForm();
+    this.listPackage();
   }
 
   ngOnInit() {
@@ -29,6 +37,9 @@ export class UpgradeComponent implements OnInit {
         if (p.name === this.currentPackageName) {
           this.currentPackage = p;
         }
+      });
+      this.packages = this.packages.filter((p) => {
+        return this.currentPackage.meta.vars['kube_version'] < p.meta.vars['kube_version'];
       });
     });
   }

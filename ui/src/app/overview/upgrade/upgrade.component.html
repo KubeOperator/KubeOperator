@@ -1,10 +1,11 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
   <h3 class="modal-title">升级</h3>
   <div class="modal-body">
-    <form clrForm>
+    <form clrForm #form='ngForm'>
       <clr-select-container>
         <label>目标版本: </label>
-        <select clrSelect name="package" [(ngModel)]="newPackage">
+        <select clrSelect name="package" [(ngModel)]="newPackage" required>
+          <option value="">请选择</option>
           <option *ngFor="let package of packages" [ngValue]="package">{{package.name}}</option>
         </select>
       </clr-select-container>
@@ -36,6 +37,6 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline" (click)="close()">取消</button>
-    <button type="button" class="btn btn-primary" (click)="onConfirm()">确认</button>
+    <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="onConfirm()">确认</button>
   </div>
 </clr-modal>

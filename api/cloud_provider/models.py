@@ -125,7 +125,6 @@ class Zone(models.Model):
             client.create_image(zone=self)
             self.change_status(Zone.ZONE_STATUS_READY)
         except Exception as e:
-            print(e.args)
             self.change_status(Zone.ZONE_STATUS_ERROR)
 
     def on_zone_create(self):
@@ -134,6 +133,7 @@ class Zone(models.Model):
 
     def to_dict(self):
         dic = {
+            "key": "z" + str(self.id).split("-")[3],
             "name": self.cloud_zone,
             "zone_name": self.name
         }

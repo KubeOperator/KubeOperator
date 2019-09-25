@@ -1,5 +1,7 @@
 # Use public servers from the pool.ntp.org project.
-server {{ ntp_server }} iburst
+{% for h in groups['master'] %}
+server {{ hostvars[h]['inventory_hostname'] }} iburst
+{% endfor %}
 
 # Ignor source level
 stratumweight 0

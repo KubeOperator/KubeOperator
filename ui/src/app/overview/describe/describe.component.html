@@ -39,10 +39,10 @@
             </button>
             <button class="btn btn-outline" (click)="onUninstall()" [disabled]="currentCluster.status === 'READY'">卸载
             </button>
-            <!--<button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级-->
-            <!--</button>-->
-            <button class="btn btn-outline" (click)="onUpgrade()">升级
+            <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
             </button>
+            <!--<button class="btn btn-outline" (click)="onUpgrade()">升级-->
+            <!--</button>-->
             <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
               下载kube-config
             </button>
