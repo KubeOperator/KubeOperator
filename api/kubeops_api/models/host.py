@@ -38,7 +38,7 @@ class Host(BaseHost):
     @property
     def region(self):
         if self.zone:
-            return self.zone.region
+            return self.zone.region.name
 
     def gather_info(self):
         facts = gather_host_info(self.ip, self.username, self.password)
