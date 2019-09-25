@@ -1,6 +1,6 @@
 - name: restart_master
   service:
-    name: "docker"
+    name: "{{item}}"
     state: restarted
   with_items:
     - kube-apiserver

@@ -84,6 +84,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 except RuntimeError as e:
                     self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                     raise e
+            else:
+                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
