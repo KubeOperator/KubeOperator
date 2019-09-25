@@ -12,7 +12,7 @@ data "vsphere_datacenter" "dc" {
 }
 
 {% for zone in zones %}
-data "vsphere_resource_pool" "{{ zone.name }}" {
+data "vsphere_resource_pool" "{{ zone.key }}" {
   {% if zone.name=='Resources' %}
    name          = "{{zone.vc_cluster}}/Resources"
   {% endif %}
@@ -22,12 +22,12 @@ data "vsphere_resource_pool" "{{ zone.name }}" {
    datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 
-data "vsphere_network" "{{ zone.name }}" {
+data "vsphere_network" "{{ zone.key }}" {
   name = "{{ zone.vc_network }}"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
 
-data "vsphere_datastore" "{{zone.name}}" {
+data "vsphere_datastore" "{{zone.key}}" {
   name = "{{ zone.vc_storage }}"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
@@ -42,14 +42,14 @@ data "vsphere_virtual_machine" "template" {
 resource "vsphere_virtual_machine" "{{host.short_name}}" {
   name = "{{ host.name }}"
   folder = "kubeoperator"
-  resource_pool_id = "${data.vsphere_resource_pool.{{host.zone.name}}.id}"
-  datastore_id = "${data.vsphere_datastore.{{host.zone.name}}.id}"
+  resource_pool_id = "${data.vsphere_resource_pool.{{host.zone.key}}.id}"
+  datastore_id = "${data.vsphere_datastore.{{host.zone.key}}.id}"
   num_cpus = {{ host.cpu }}
   memory = {{ host.memory }}
   guest_id = "centos6_64Guest"
 
   network_interface {
-    network_id = "${data.vsphere_network.{{host.zone.name}}.id}"
+    network_id = "${data.vsphere_network.{{host.zone.key}}.id}"
   }
 
   disk {

@@ -45,9 +45,11 @@ def create_hosts(cluster):
     if not terraform_result:
         raise RuntimeError("create host error!")
     for host in hosts:
+        zone = Zone.objects.get(name=host["zone_name"])
         defaults = {
             "name": host['name'],
             "ip": host['ip'],
+            "zone": zone,
             "username": 'root',
             "password": 'KubeOperator@2019'
         }
@@ -58,7 +60,6 @@ def create_hosts(cluster):
 def create_cluster_hosts(cluster):
     roles = {
         "master": 1,
-        "daemon": 1,
         "worker": cluster.worker_size
     }
     hosts = []
@@ -85,7 +86,8 @@ def create_cluster_hosts(cluster):
                 "short_name": role + "{}".format(i),
                 "domain": domain,
                 "ip": ip,
-                "zone": zone
+                "zone": zone,
+                "zone_name": zone_name,
             }
             hosts.append(host)
     return hosts
@@ -98,8 +100,6 @@ def get_k8s_role_model(role, plan):
         k8s_model = deploy_vars['k8s_master_model']
     if role == 'worker':
         k8s_model = deploy_vars['k8s_worker_model']
-    if role == 'daemon':
-        k8s_model = deploy_vars['k8s_daemon_model']
     return find_compute_model(k8s_model, plan.compute_models)
 
 

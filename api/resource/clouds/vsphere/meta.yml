@@ -11,8 +11,6 @@ plan:
       alias: Master 规格
     - name: k8s_worker_model
       alias: Worker 规格
-    - name: k8s_daemon_model
-      alias: Daemon 规格
   models:
     - name: small
       meta:
@@ -44,8 +42,3 @@ plan:
         cpu: 64
         memory: 256
         disk: 100
-
-
-
-
-
