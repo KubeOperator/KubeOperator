@@ -75,7 +75,7 @@ def create_cluster_hosts(cluster):
         for i in range(1, size + 1):
             zone = get_zone(zones, i)
             ip = zone['ip_pool'].pop()
-            zone_name = zone['name']
+            zone_name = zone['zone_name']
             if not ip:
                 raise RuntimeError('zone: {}  ip address not enough!', zone_name)
             host = {
@@ -117,7 +117,6 @@ def find_compute_model(role, models):
 def gen_zone_ip_pool(zones):
     for zone_dic in zones:
         zone = Zone.objects.get(name=zone_dic['zone_name'])
-        print(zone.ip_pools())
         zone_dic['ip_pool'] = zone.ip_pools()
 
 
