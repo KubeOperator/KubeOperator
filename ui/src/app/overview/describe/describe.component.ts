@@ -80,7 +80,7 @@ export class DescribeComponent implements OnInit {
   onUpgrade() {
     this.upgrade.opened = true;
     this.upgrade.currentPackageName = this.currentCluster.package;
-    this.upgrade.listPackage();
+    this.upgrade.reset();
     this.event = 'upgrade';
   }
 
