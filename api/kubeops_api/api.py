@@ -25,6 +25,7 @@ from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
+from kubeops_api.models.backup_strategy import BackupStrategy
 
 
 # 集群视图
@@ -253,5 +254,11 @@ class GetBucketsView(APIView):
         }
         response.write(json.dumps(result))
         return response
+
+class BackupStrategyViewSet(viewsets.ModelViewSet):
+    queryset = BackupStrategy.objects.all()
+    serializer_class = serializers.BackupStrategySerializer
+    permission_classes = (IsSuperUser,)
+
 
 
