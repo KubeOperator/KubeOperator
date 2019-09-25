@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
 
-from cloud_provider.models import Plan
+from cloud_provider.models import Plan, Zone
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
@@ -72,6 +72,10 @@ class VolumeSerializer(serializers.ModelSerializer):
 class HostSerializer(HostReadSerializer):
     credential = serializers.SlugRelatedField(
         queryset=Credential.objects.all(),
+        slug_field='name', required=False
+    )
+    zone = serializers.SlugRelatedField(
+        queryset=Zone.objects.all(),
         slug_field='name', required=False
     )
     volumes = VolumeSerializer(required=False, many=True)
