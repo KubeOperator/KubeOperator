@@ -288,6 +288,13 @@ class Cluster(Project):
         if self.plan and self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             self.set_config_unlock(self.plan.mixed_vars)
 
+    def get_current_worker_hosts(self):
+        self.change_to()
+        hosts = []
+        for node in Node.objects.filter(groups__name__in=['worker']):
+            hosts.append(node.host)
+        return hosts
+
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()

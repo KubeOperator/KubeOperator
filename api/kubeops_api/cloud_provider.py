@@ -57,6 +57,54 @@ def create_hosts(cluster):
         cluster.create_node(host['role'], h[0])
 
 
+def is_worker(host):
+    return host['role'] == 'worker'
+
+
+def is_master(host):
+    return host['role'] == 'master'
+
+
+def scale_up(cluster, num):
+    worker_hosts = cluster.get_current_worker_hosts()
+    worker_size = len(worker_hosts)
+    hosts = create_cluster_hosts(cluster)
+    worker_hosts_new = list(filter(is_worker, hosts))
+    master_hosts_new = list(filter(is_master, hosts))
+    remove_list = []
+    add_list = []
+    for h in hosts:
+        if worker_size > num:
+            for i in range(worker_size - num):
+                rm_worker = worker_hosts_new.pop()
+                remove_list.append(rm_worker)
+        elif worker_size < num:
+            if h['new']:
+                add_list.append(h)
+    hosts = worker_hosts_new.append(master_hosts_new)
+    mix_vars = cluster.plan.mixed_vars
+    mix_vars["hosts"] = hosts
+    client = get_cloud_client(mix_vars)
+    terraform_result = client.apply_terraform(cluster, mix_vars)
+    if not terraform_result:
+        raise RuntimeError("create host error!")
+    for host in add_list:
+        zone = Zone.objects.get(name=host["zone_name"])
+        defaults = {
+            "name": host['name'],
+            "ip": host['ip'],
+            "zone": zone,
+            "username": 'root',
+            "password": 'KubeOperator@2019'
+        }
+        h = Host.objects.update_or_create(defaults, name=host['name'])
+        cluster.create_node(host['role'], h[0])
+    for host in remove_list:
+        cluster.change_to()
+        node = Node.objects.get(name=host['name'])
+        node.host.delete()
+
+
 def create_cluster_hosts(cluster):
     roles = {
         "master": 1,
@@ -71,24 +119,37 @@ def create_cluster_hosts(cluster):
     if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
         roles['master'] = 3
     for role, size in roles.items():
+
         compute_model = get_k8s_role_model(role, cluster.plan)
         for i in range(1, size + 1):
+            name = role + "{}.".format(i) + "{}".format(domain)
             zone = get_zone(zones, i)
-            ip = zone['ip_pool'].pop()
-            zone_name = zone['zone_name']
-            if not ip:
-                raise RuntimeError('zone: {}  ip address not enough!', zone_name)
             host = {
                 "role": role,
                 "cpu": compute_model['cpu'],
                 "memory": compute_model['memory'] * 1024,
-                "name": role + "{}.".format(i) + "{}".format(domain),
+                "name": name,
                 "short_name": role + "{}".format(i),
                 "domain": domain,
-                "ip": ip,
                 "zone": zone,
-                "zone_name": zone_name,
+                "zone_name": zone['zone_name'],
             }
+            h = None
+            try:
+                h = Host.objects.get(name=name)
+            except Exception as e:
+                pass
+            if h:
+                host.update({
+                    "ip": h.ip
+                })
+            else:
+                host.update({
+                    "ip": zone['ip_pool'].pop(),
+                    "new": True
+                })
+            if not host['ip']:
+                raise RuntimeError('zone: {}  ip address not enough!', zone['zone_name'])
             hosts.append(host)
     return hosts
 
