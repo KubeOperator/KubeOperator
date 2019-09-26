@@ -7,35 +7,6 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
 
 
-# def scale_hosts(cluster):
-#     worker_size = cluster.worker_size
-#     current_worker_size = len(cluster.current_workers)
-#     if worker_size < current_worker_size:
-#         remove_host(cluster, current_worker_size - worker_size)
-#     elif worker_size > current_worker_size:
-#         add_new_host(cluster, worker_size - current_worker_size)
-#
-#
-# def add_new_host(cluster, num):
-#     hosts = []
-#     role = "worker"
-#     compute_model = get_k8s_role_model(role, cluster.plan)
-#     domain = cluster.name + "." + Setting.objects.get(key="domain_suffix").value
-#     for worker in cluster.current_workers:
-#         hosts.append({
-#             "role": role,
-#             "cpu": compute_model['cpu'],
-#             "memory": compute_model['memory'] * 1024,
-#             "name": worker.name,
-#             "domain": domain,
-#             "host_name": role + "{}-{}".format(i, cluster.name),
-#             "zone_vars": zone_name,
-#             "ip": worker.ip
-#         })
-#
-# def remove_host(cluster, num):
-
-
 def create_hosts(cluster):
     hosts = create_cluster_hosts(cluster)
     mix_vars = cluster.plan.mixed_vars
@@ -66,24 +37,27 @@ def is_master(host):
 
 
 def scale_up(cluster, num):
+    cluster.worker_size = num
     worker_hosts = cluster.get_current_worker_hosts()
     worker_size = len(worker_hosts)
     hosts = create_cluster_hosts(cluster)
+    new_hosts = []
     worker_hosts_new = list(filter(is_worker, hosts))
     master_hosts_new = list(filter(is_master, hosts))
     remove_list = []
     add_list = []
-    for h in hosts:
-        if worker_size > num:
-            for i in range(worker_size - num):
-                rm_worker = worker_hosts_new.pop()
-                remove_list.append(rm_worker)
-        elif worker_size < num:
+    if worker_size > num:
+        for i in range(worker_size - num):
+            rm_worker = worker_hosts_new.pop()
+            remove_list.append(rm_worker)
+    elif worker_size < num:
+        for h in hosts:
             if h['new']:
                 add_list.append(h)
-    hosts = worker_hosts_new.append(master_hosts_new)
+    new_hosts.extend(worker_hosts_new)
+    new_hosts.extend(master_hosts_new)
     mix_vars = cluster.plan.mixed_vars
-    mix_vars["hosts"] = hosts
+    mix_vars["hosts"] = new_hosts
     client = get_cloud_client(mix_vars)
     terraform_result = client.apply_terraform(cluster, mix_vars)
     if not terraform_result:
@@ -98,11 +72,13 @@ def scale_up(cluster, num):
             "password": 'KubeOperator@2019'
         }
         h = Host.objects.update_or_create(defaults, name=host['name'])
-        cluster.create_node(host['role'], h[0])
+        node = cluster.create_node(host['role'], h[0])
+        cluster.add_to_new_node(node)
     for host in remove_list:
         cluster.change_to()
         node = Node.objects.get(name=host['name'])
         node.host.delete()
+    cluster.save()
 
 
 def create_cluster_hosts(cluster):

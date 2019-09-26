@@ -61,6 +61,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_upgrade(extra_vars)
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'scale':
+                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
+                result = self.on_scaling(extra_vars)
+                cluster.clean_new_node()
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
 
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
@@ -86,6 +91,20 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                     raise e
             else:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+        return self.run_playbooks(extra_vars)
+
+    def on_scaling(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('scale')
+        self.set_step_default()
+        self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+        if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            try:
+                num = self.params.get('num', None)
+                cluster.scale_up_to(int(num))
+            except RuntimeError as e:
+                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
+                raise e
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
@@ -124,7 +143,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             if playbook_name:
                 playbook = self.project.playbook_set.get(name=playbook_name)
                 self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_RUNNING)
-                time.sleep(10)
                 _result = playbook.execute(extra_vars=extra_vars)
                 result["summary"].update(_result["summary"])
                 self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)

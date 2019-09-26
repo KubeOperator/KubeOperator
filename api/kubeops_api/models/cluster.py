@@ -9,7 +9,7 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
-from kubeops_api.cloud_provider import create_hosts, delete_hosts
+from kubeops_api.cloud_provider import create_hosts, delete_hosts, scale_up
 from common import models as common_models
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
@@ -32,6 +32,7 @@ class Cluster(Project):
     CLUSTER_STATUS_UPGRADING = 'UPGRADING'
     CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
+    CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
@@ -40,7 +41,8 @@ class Cluster(Project):
         (CLUSTER_STATUS_READY, 'ready'),
         (CLUSTER_STATUS_ERROR, 'error'),
         (CLUSTER_STATUS_WARNING, 'warning'),
-        (CLUSTER_STATUS_UPGRADING, 'upgrading')
+        (CLUSTER_STATUS_UPGRADING, 'upgrading'),
+        (CLUSTER_DEPLOY_TYPE_SCALING, 'scaling')
     )
 
     CLUSTER_DEPLOY_TYPE_CHOICES = (
@@ -119,6 +121,20 @@ class Cluster(Project):
     def current_workers(selfs):
         selfs.change_to()
         return Node.objects.filter(groups__name__in=['worker'])
+
+    def scale_up_to(self, num):
+        scale_up(self, num)
+
+    def add_to_new_node(self, node):
+        self.change_to()
+        node.add_to_groups(['new_node'])
+
+    def exit_new_node(self):
+        self.change_to()
+        role = Role.objects.get(name='new_node')
+        hosts = role.hosts
+        for host in hosts:
+            role.hosts.remove(host)
 
     def change_status(self, status):
         self.status = status
@@ -255,6 +271,7 @@ class Cluster(Project):
             project=self
         )
         node.set_groups(group_names=[role])
+        return node
 
     def create_resource(self):
         create_hosts(self)

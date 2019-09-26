@@ -1,25 +1,28 @@
+<app-scale (confirm)="handleScale()"></app-scale>
 <div class="clr-row">
   <div class="clr-col-lg-6 clr-col-md-6 clr-col-6">
     <div class="card">
       <div class="card-header">
         集群状态
       </div>
-      <table class="table">
-        <tbody>
-        <tr>
-          <td>ETCD</td>
-          <td>Running</td>
-        </tr>
-        <tr>
-          <td>kube-apiserver</td>
-          <td>Running</td>
-        </tr>
-        <tr>
-          <td>kube-controller</td>
-          <td>Running</td>
-        </tr>
-        </tbody>
-      </table>
+      <div class="card-block" style="height: 200px">
+        <table class="table">
+          <tbody>
+          <tr>
+            <td>ETCD</td>
+            <td>Running</td>
+          </tr>
+          <tr>
+            <td>kube-apiserver</td>
+            <td>Running</td>
+          </tr>
+          <tr>
+            <td>kube-controller</td>
+            <td>Running</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="card-footer">
         <button class="btn btn-sm btn-link">start</button>
         <button class="btn btn-sm btn-link">stop</button>
@@ -30,26 +33,21 @@
     <div class="card">
       <div class="card-header">
         Worker 状态
-        <span style="float: right">Worker 数量: 3</span>
+        <span style="float: right">Worker 数量: {{workers.length}}</span>
       </div>
-      <table class="table">
-        <tbody>
-        <tr>
-          <td>worker1.nmss.f2c.com</td>
-          <td>Running</td>
-        </tr>
-        <tr>
-          <td>worker2.nmss.f2c.com</td>
-          <td>Running</td>
-        </tr>
-        <tr>
-          <td>worker3.nmss.f2c.com</td>
-          <td>Running</td>
-        </tr>
-        </tbody>
-      </table>
+      <div class="card-block" style="height: 200px">
+        <table class="table">
+          <tbody>
+          <tr *ngFor="let worker of workers">
+            <td>{{worker.name}}</td>
+            <td>Running</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="card-footer">
-        <button class="btn btn-sm btn-link">伸缩</button>
+        <button class="btn btn-sm btn-link" (click)="onScale()" [disabled]="currentCluster.status !== 'RUNNING'">伸缩
+        </button>
       </div>
     </div>
   </div>

@@ -19,6 +19,8 @@ playbooks:
     alias: upgrade-master.yml
   - name:  upgrade-addon
     alias: upgrade-addon.yml
+  - name:  scale
+    alias: scale.yml
 
 operations:
   - name: install
@@ -62,6 +64,14 @@ operations:
       - name: upgrade-addon
         playbook: upgrade-addon
         flow: 升级内置应用
+
+  - name: scale
+    setps:
+      - name: create-resource
+        flow: 创建资源
+      - name: scale
+        flow: 扩容
+        playbook: scale
 
 
 

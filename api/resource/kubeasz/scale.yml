@@ -1,0 +1,17 @@
+- hosts: master
+  roles:
+    - deamon
+
+
+- hosts: new_node
+  roles:
+    - ssh
+    - repository
+    - firewall
+    - host-dns
+    - rpm
+    - ntp
+    - docker
+    - { role: kube-node, when: "DEPLOY_MODE != 'allinone'" }
+    - { role: flannel, when: "CLUSTER_NETWORK == 'flannel'" }
+    - { role: calico, when: "CLUSTER_NETWORK == 'calico'" }
