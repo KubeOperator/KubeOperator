@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ClusterService} from '../../cluster/cluster.service';
-import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {ActivatedRoute} from '@angular/router';
+import {ClusterBackupService} from '../cluster-backup.service';
+import {BackupStrategy} from '../backup-strategy';
+import {TipService} from '../../tip/tip.service';
+import {TipLevels} from '../../tip/tipLevels';
+import {BackupStorageService} from '../../setting/backup-storage-setting/backup-storage.service';
+import {BackupStorage} from '../../setting/backup-storage-setting/backup-storage';
 
 
 @Component({
@@ -12,20 +16,51 @@ import {OperaterService} from '../../deploy/component/operater/operater.service'
 })
 export class ClusterBackupStrategyComponent implements OnInit {
 
+  constructor(private route: ActivatedRoute,  private clusterBackupService: ClusterBackupService,
+               private tipService: TipService, private backupStorageService: BackupStorageService) {}
+  tipShow = false;
+  loading = false;
   currentCluster: Cluster;
-    constructor(private route: ActivatedRoute, private clusterService: ClusterService,
-              private router: Router, private operaterService: OperaterService) {
-  }
+  backupStorage: BackupStorage[] = [];
+  backupStrategy = new BackupStrategy();
+  projectId = '';
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
-      this.refreshCluster();
+      this.projectId = this.currentCluster.id;
+      this.getBackupStrategy();
+      this.getBackupStorage();
     });
   }
-   refreshCluster() {
-    this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
-      this.currentCluster = cluster;
-    });
+
+  getBackupStrategy() {
+      this.clusterBackupService.listBackupStrategy(this.projectId).subscribe(data => {
+          this.backupStrategy = data;
+      }, error => {
+          this.backupStrategy = new BackupStrategy();
+          this.backupStrategy.project_id = this.projectId;
+      });
   }
+
+  onCommit() {
+      this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
+        this.loading = false;
+        this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
+        this.tipShow = false;
+      }, err => {
+        this.loading = false;
+        this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
+      });
+  }
+
+  getBackupStorage() {
+      this.backupStorageService.listBackupStorage().subscribe(data => {
+        this.loading = false;
+        this.backupStorage = data;
+      }, err => {
+        this.loading = false;
+      });
+  }
+
 }
