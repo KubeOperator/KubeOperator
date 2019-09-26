@@ -1,13 +1,13 @@
 <div >
   <h3>备份策略</h3>
-  <form clrForm>
+  <form clrForm #backupStrategyForm="ngForm">
     <clr-input-container>
       <label>备份间隔(天)</label>
-      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.cron" name="url"/>
+      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.cron" name="cron" required/>
     </clr-input-container>
     <clr-input-container>
       <label>保留份数</label>
-      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.save_num" name="url"/>
+      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required/>
     </clr-input-container>
     <clr-select-container>
         <label>备份位置</label>
@@ -16,5 +16,7 @@
           </select>
     </clr-select-container>
   </form>
-  <button class="btn btn-info-outline" (click)="onCommit()">保存</button>
+  <div class="modal-footer clr-row clr-col-4">
+      <button class="btn btn-info-outline clr-col-1" (click)="onCommit()" [disabled]="backupStrategyForm.invalid">保存</button>
+  </div>
 </div>

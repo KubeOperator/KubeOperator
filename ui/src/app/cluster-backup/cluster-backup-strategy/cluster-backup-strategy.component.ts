@@ -7,6 +7,7 @@ import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {BackupStorageService} from '../../setting/backup-storage-setting/backup-storage.service';
 import {BackupStorage} from '../../setting/backup-storage-setting/backup-storage';
+import {NgForm} from '@angular/forms';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
   backupStorage: BackupStorage[] = [];
   backupStrategy = new BackupStrategy();
   projectId = '';
+  backupStrategyForm: NgForm;
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
