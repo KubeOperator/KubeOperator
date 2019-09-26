@@ -3,7 +3,7 @@
     path: /etc/dnsmasq.d/kubeops.dns.conf
     regexp: 'server=/{{cluster_name}}.{{domain_suffix}}'
     line: 'server=/{{cluster_name}}.{{domain_suffix}}/{{ hostvars[item]["ansible_ssh_host"]}}'
-  with_items: "groups['master']"
+  with_items: "{{groups['master']}}"
 
 - name: 重启生效dnsmasq
   service:
