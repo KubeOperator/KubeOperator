@@ -259,6 +259,8 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     queryset = BackupStrategy.objects.all()
     serializer_class = serializers.BackupStrategySerializer
     permission_classes = (IsSuperUser,)
+    lookup_field = 'project_id'
+    lookup_url_kwarg = 'project_id'
 
 
 

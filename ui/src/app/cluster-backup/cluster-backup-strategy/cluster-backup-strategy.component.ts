@@ -6,7 +6,7 @@ import {BackupStrategy} from '../backup-strategy';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
 import {BackupStorageService} from '../../setting/backup-storage-setting/backup-storage.service';
-import {BackupStorage} from "../../setting/backup-storage-setting/backup-storage";
+import {BackupStorage} from '../../setting/backup-storage-setting/backup-storage';
 
 
 @Component({
@@ -16,33 +16,30 @@ import {BackupStorage} from "../../setting/backup-storage-setting/backup-storage
 })
 export class ClusterBackupStrategyComponent implements OnInit {
 
-  currentCluster: Cluster;
   constructor(private route: ActivatedRoute,  private clusterBackupService: ClusterBackupService,
                private tipService: TipService, private backupStorageService: BackupStorageService) {}
-  backupStrategies: BackupStrategy[] = [];
-  backupStrategy = new BackupStrategy();
   tipShow = false;
   loading = false;
+  currentCluster: Cluster;
   backupStorage: BackupStorage[] = [];
-
+  backupStrategy = new BackupStrategy();
+  projectId = '';
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
+      this.projectId = this.currentCluster.id;
       this.getBackupStrategy();
       this.getBackupStorage();
     });
   }
 
   getBackupStrategy() {
-      this.clusterBackupService.listBackupStrategy().subscribe(data => {
-          this.backupStrategies = data;
-          if ( this.backupStrategies.length > 0) {
-            this.backupStrategy = this.backupStrategies[0];
-          } else {
-            this.backupStrategy = new BackupStrategy();
-            this.backupStrategy.project_id = this.currentCluster.id;
-          }
+      this.clusterBackupService.listBackupStrategy(this.projectId).subscribe(data => {
+          this.backupStrategy = data;
+      }, error => {
+          this.backupStrategy = new BackupStrategy();
+          this.backupStrategy.project_id = this.projectId;
       });
   }
 

@@ -12,8 +12,8 @@ export class ClusterBackupService {
 
   constructor(private http: HttpClient) {}
 
-  listBackupStrategy(): Observable<BackupStrategy[]> {
-    return this.http.get<BackupStrategy[]>(this.strategyUrl);
+  listBackupStrategy(project_id: string): Observable<BackupStrategy> {
+    return this.http.get<BackupStrategy>(this.strategyUrl + project_id);
   }
 
   createBackStrategy(item: BackupStrategy): Observable<BackupStrategy> {
