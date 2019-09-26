@@ -17,6 +17,7 @@ from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
 from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.backup_strategy import BackupStrategy
+from kubeops_api.models.cluster_backup import ClusterBackup
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
@@ -197,11 +198,17 @@ class BackupStorageSerializer(serializers.ModelSerializer):
 
 class BackupStrategySerializer(serializers.ModelSerializer):
 
-    # backup_storage = serializers.SlugRelatedField(
-    #     queryset=BackupStorage.objects.all(),
-    #     slug_field='name', required=False
-    # )
-
     class Meta:
         model = BackupStrategy
         fields = ['id', 'cron' ,'save_num', 'project_id','backup_storage_id']
+
+class ClusterBackupSerializer(serializers.ModelSerializer):
+
+    backup_storage = serializers.SlugRelatedField(
+        queryset=BackupStorage.objects.all(),
+        slug_field='id', required=False
+    )
+
+    class Meta:
+        model = ClusterBackup
+        fields = ['id', 'name', 'size', 'date_created', 'project_id', 'folder', 'backup_storage']

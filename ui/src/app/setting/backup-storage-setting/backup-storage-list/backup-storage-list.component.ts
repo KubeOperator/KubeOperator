@@ -3,8 +3,7 @@ import {BackupStorageService} from '../backup-storage.service';
 import {BackupStorage} from '../backup-storage';
 import {TipService} from '../../../tip/tip.service';
 import {TipLevels} from '../../../tip/tipLevels';
-import { BackupStorageStatusPipe } from '../backup-storage-status.pipe';
-import {StorageCredential} from "../storage-credential";
+import {StorageCredential} from '../storage-credential';
 
 
 @Component({

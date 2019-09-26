@@ -10,9 +10,9 @@
       <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required/>
     </clr-input-container>
     <clr-select-container>
-        <label>备份位置</label>
+        <label>备份账号</label>
           <select clrSelect  name="project" [(ngModel)]="backupStrategy.backup_storage_id"  required>
-              <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}</option>
+              <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
           </select>
     </clr-select-container>
   </form>

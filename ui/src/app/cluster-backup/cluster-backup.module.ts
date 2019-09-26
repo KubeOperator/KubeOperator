@@ -4,6 +4,7 @@ import { ClusterBackupListComponent } from './cluster-backup-list/cluster-backup
 import {CoreModule} from '../core/core.module';
 import { ClusterBackupStrategyComponent } from './cluster-backup-strategy/cluster-backup-strategy.component';
 import {TipModule} from '../tip/tip.module';
+import {SharedModule} from "../shared/shared.module";
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import {TipModule} from '../tip/tip.module';
     CommonModule,
     CoreModule,
     TipModule,
+    SharedModule,
   ]
 })
 export class ClusterBackupModule { }

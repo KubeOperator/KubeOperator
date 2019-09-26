@@ -26,7 +26,7 @@ from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_strategy import BackupStrategy
-
+from kubeops_api.models.cluster_backup import ClusterBackup
 
 # 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
@@ -262,5 +262,11 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
 
+class ClusterBackupViewSet(viewsets.ModelViewSet):
+    queryset = ClusterBackup.objects.all()
+    serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'project_id'
+    lookup_url_kwarg = 'project_id'
 
 
