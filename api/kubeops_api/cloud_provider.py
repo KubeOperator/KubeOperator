@@ -52,7 +52,7 @@ def scale_up(cluster, num):
             remove_list.append(rm_worker)
     elif worker_size < num:
         for h in hosts:
-            if h['new']:
+            if h.get('new', None):
                 add_list.append(h)
     new_hosts.extend(worker_hosts_new)
     new_hosts.extend(master_hosts_new)
