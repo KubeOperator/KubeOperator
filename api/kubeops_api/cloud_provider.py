@@ -58,6 +58,8 @@ def scale_up(cluster, num):
     elif worker_size < num:
         cluster.worker_size = num
         hosts = create_cluster_hosts(cluster)
+        worker_hosts_new = list(filter(is_worker, hosts))
+        master_hosts_new = list(filter(is_master, hosts))
         for h in hosts:
             if h.get('new', None):
                 add_list.append(h)
