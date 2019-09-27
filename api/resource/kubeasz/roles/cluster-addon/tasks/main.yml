@@ -29,13 +29,6 @@
   when: '"ingress-controller" not in pod_info.stdout '
 
 - block:
-    - name: 创建 metrics-server部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/metrics-server"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-  when: '"metrics-server" not in pod_info.stdout and metricsserver_install'
-  ignore_errors: true
-
 # 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
 - block:
     - name: 创建 dashboard 部署文件

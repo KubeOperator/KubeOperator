@@ -1,6 +1,6 @@
 - hosts: master
   roles:
-    - deamon
+    - daemon
 
 
 - hosts: new_node
