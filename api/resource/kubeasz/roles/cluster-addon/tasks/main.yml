@@ -28,7 +28,6 @@
 - import_tasks: ingress.yml
   when: '"ingress-controller" not in pod_info.stdout '
 
-- block:
 # 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
 - block:
     - name: 创建 dashboard 部署文件

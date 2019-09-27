@@ -64,7 +64,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             elif self.operation == 'scale':
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
-                cluster.clean_new_node()
+                cluster.exit_new_node()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
 
         except Exception as e:
@@ -102,6 +102,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             try:
                 num = self.params.get('num', None)
                 cluster.scale_up_to(int(num))
+                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
             except RuntimeError as e:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                 raise e

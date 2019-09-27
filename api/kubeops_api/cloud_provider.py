@@ -2,6 +2,7 @@ from django.db.models import Q
 
 from cloud_provider import get_cloud_client
 from cloud_provider.models import Plan, Zone
+from kubeops_api.adhoc import drain_worker_node
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
@@ -37,7 +38,6 @@ def is_master(host):
 
 
 def scale_up(cluster, num):
-    cluster.worker_size = num
     worker_hosts = cluster.get_current_worker_hosts()
     worker_size = len(worker_hosts)
     hosts = create_cluster_hosts(cluster)
@@ -54,6 +54,7 @@ def scale_up(cluster, num):
         for h in hosts:
             if h.get('new', None):
                 add_list.append(h)
+        drain_worker_node(cluster, remove_list)
     new_hosts.extend(worker_hosts_new)
     new_hosts.extend(master_hosts_new)
     mix_vars = cluster.plan.mixed_vars
@@ -78,7 +79,12 @@ def scale_up(cluster, num):
         cluster.change_to()
         node = Node.objects.get(name=host['name'])
         node.host.delete()
-    cluster.save()
+
+
+def drain_workers(cluster, remove_list):
+    master = cluster.get_first_master()
+    for host in remove_list:
+        drain_worker_node(master, host.name)
 
 
 def create_cluster_hosts(cluster):
