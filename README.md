@@ -12,6 +12,8 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ## 技术优势
 
+KubeOperator 提供可视化的界面和经过验证的原生 K8S 离线安装包，使用 Terraform 自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。KubeOperator 的技术优势包括：
+
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群 (即 Kubernetes as a Service)；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
 -  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
