@@ -7,7 +7,7 @@
 
 ## 项目介绍
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在完全离线和多云环境下，部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在云平台（比如 VMware 及 Openstack）上部署和管理 Kubernetes 集群，实现 Kubernetes as a Service。
+KubeOperator 是一个开源项目，在完全离线和多云环境下，通过可视化 Web UI 来部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在 IaaS 平台（比如 VMware 及 Openstack）上部署和管理 Kubernetes 集群，实现 Kubernetes as a Service。
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/KubeOperator.jpeg?raw=true)
 
 ## 技术优势
