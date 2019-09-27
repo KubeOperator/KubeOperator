@@ -91,7 +91,7 @@ def scale_up(cluster, num):
 def drain_workers(cluster, remove_list):
     master = cluster.get_first_master()
     for host in remove_list:
-        drain_worker_node(master, host.name)
+        drain_worker_node(master, host['name'])
 
 
 def create_cluster_hosts(cluster):
