@@ -38,21 +38,26 @@ def is_master(host):
 
 
 def scale_up(cluster, num):
-    cluster.worker_size = num
     worker_hosts = cluster.get_current_worker_hosts()
     worker_size = len(worker_hosts)
-    hosts = create_cluster_hosts(cluster)
+
     new_hosts = []
-    worker_hosts_new = list(filter(is_worker, hosts))
-    master_hosts_new = list(filter(is_master, hosts))
+    worker_hosts_new = []
+    master_hosts_new = []
     remove_list = []
     add_list = []
     if worker_size > num:
+        hosts = create_cluster_hosts(cluster)
+        worker_hosts_new = list(filter(is_worker, hosts))
+        master_hosts_new = list(filter(is_master, hosts))
         for i in range(worker_size - num):
             rm_worker = worker_hosts_new.pop()
             remove_list.append(rm_worker)
-        drain_worker_node(cluster, remove_list)
+        cluster.worker_size = num
+        drain_workers(cluster, remove_list)
     elif worker_size < num:
+        cluster.worker_size = num
+        hosts = create_cluster_hosts(cluster)
         for h in hosts:
             if h.get('new', None):
                 add_list.append(h)
@@ -103,7 +108,6 @@ def create_cluster_hosts(cluster):
     if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
         roles['master'] = 3
     for role, size in roles.items():
-
         compute_model = get_k8s_role_model(role, cluster.plan)
         for i in range(1, size + 1):
             name = role + "{}.".format(i) + "{}".format(domain)
