@@ -50,11 +50,11 @@ def scale_up(cluster, num):
         for i in range(worker_size - num):
             rm_worker = worker_hosts_new.pop()
             remove_list.append(rm_worker)
+        drain_worker_node(cluster, remove_list)
     elif worker_size < num:
         for h in hosts:
             if h.get('new', None):
                 add_list.append(h)
-        drain_worker_node(cluster, remove_list)
     new_hosts.extend(worker_hosts_new)
     new_hosts.extend(master_hosts_new)
     mix_vars = cluster.plan.mixed_vars
