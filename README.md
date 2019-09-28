@@ -23,7 +23,7 @@ KubeOperator 提供可视化的 Web 界面和经过验证的原生 K8S 离线安
 
 ## 版本规划
 
- v1.0.0 （已发布）
+ v1.0 （已发布）
 
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
@@ -34,7 +34,7 @@ KubeOperator 提供可视化的 Web 界面和经过验证的原生 K8S 离线安
 - [x] 支持 Flannel 作为网络方案；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
- v2.0.0 （已发布）
+ v2.0 （已发布）
 
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
@@ -43,7 +43,7 @@ KubeOperator 提供可视化的 Web 界面和经过验证的原生 K8S 离线安
 - [x] 内置 Weave Scope (支持 Web Shell)；
 - [x] 支持 Calico 作为网络方案；
 
- v2.1.0 （开发中，预计 2019.10.31 发布）
+ v2.1 （开发中，预计 2019.10.31 发布）
  
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Openstack Cinder 作为持久化存储；
@@ -52,7 +52,7 @@ KubeOperator 提供可视化的 Web 界面和经过验证的原生 K8S 离线安
 - [ ] 支持 Kubernetes 集群备份与恢复（Day 2）；
 - [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 
- v3.0.0 （计划中，预计 2019.12.31 发布）
+ v2.2 （计划中，预计 2019.12.31 发布）
 
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
