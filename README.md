@@ -74,7 +74,7 @@ KubeOperator 提供可视化的 Web 界面和经过验证的原生 K8S 离线安
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
 - [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
 
-## License & Copyright
+## License
 
 Copyright (c) 2014-2019 FIT2CLOUD 飞致云
 
