@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Plan} from './plan';
+import {ComputeModel, Plan} from './plan';
 
 @Injectable({
   providedIn: 'root'
@@ -26,5 +26,9 @@ export class PlanService {
 
   getPlan(name: string): Observable<Plan> {
     return this.http.get<Plan>(this.baseUrl + name + '/');
+  }
+
+  getComputeModel(): Observable<ComputeModel[]> {
+    return this.http.get<ComputeModel[]>('/api/v1/cloud/compute/');
   }
 }

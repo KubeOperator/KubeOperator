@@ -135,14 +135,15 @@ class Zone(models.Model):
         dic = {
             "key": "z" + str(self.id).split("-")[3],
             "name": self.cloud_zone,
-            "zone_name": self.name
+            "zone_name": self.name,
+            "ip_pool": self.ip_pools()
         }
         dic.update(self.vars)
         return dic
 
     def ip_pools(self):
-        ip_start = ip_address(self.vars['vc_ip_start'])
-        ip_end = ip_address(self.vars['vc_ip_end'])
+        ip_start = ip_address(self.vars['ip_start'])
+        ip_end = ip_address(self.vars['ip_end'])
         net_mask = self.vars['net_mask']
         interface = ip_interface("{}/{}".format(str(ip_start), net_mask))
         network = interface.network
@@ -180,15 +181,24 @@ class Plan(models.Model):
     def mixed_vars(self):
         _vars = self.vars.copy()
         _vars.update(self.region.to_dict())
-        zones = []
-        if self.zones:
-            for zone in self.zones.all():
-                zones.append(zone.to_dict())
-        if self.zone:
-            zones.append(self.zone.to_dict())
-        _vars['zones'] = zones
+        zones = self.get_zones()
+        zone_dicts = []
+        for zone in zones:
+            zone_dicts.append(zone.to_dict())
+        _vars['zones'] = zone_dicts
         return _vars
+
+    def get_zones(self):
+        zones = []
+        if self.zone:
+            zones.append(self.zone)
+        if self.zones:
+            zones.extend(self.zones)
+        return zones
 
     @property
     def compute_models(self):
-        return self.region.template.meta["plan"]["models"]
+        return {
+            "master": self.vars.get('master_model', None),
+            "worker": self.vars.get('worker_model', None)
+        }

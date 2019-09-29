@@ -7,7 +7,8 @@ from jinja2 import FileSystemLoader, Environment
 from fit2ansible.settings import TERRAFORM_DIR
 
 
-def generate_terraform_file(target_path, cloud_path, dict):
+def generate_terraform_file(target_path, cloud_path, mixin_vars, hosts_dict):
+    mixin_vars['hosts'] = hosts_dict
     terraform_path = os.path.join(cloud_path, "terraform")
     lorder = FileSystemLoader(terraform_path)
     env = Environment(loader=lorder)

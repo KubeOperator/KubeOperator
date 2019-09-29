@@ -29,7 +29,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-        cluster = Cluster.objects.get(id=self.project.id)
+        cluster = self.get_cluster()
         hostname = Setting.objects.get(key='local_hostname')
         domain_suffix = Setting.objects.get(key="domain_suffix")
         extra_vars = {

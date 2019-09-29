@@ -7,10 +7,9 @@ from cloud_provider.utils import generate_terraform_file, create_terrafrom_worki
 from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 
 
-def get_cloud_client(vars):
-    provider = vars.get('provider', {})
+def get_cloud_client(provider_name):
     from cloud_provider.clients.vsphere import VsphereCloudClient
-    if provider == 'vsphere':
+    if property == 'vsphere':
         return VsphereCloudClient(vars)
     else:
         return None
@@ -46,10 +45,10 @@ class CloudClient(metaclass=ABCMeta):
         print(err.decode())
         return p.returncode == 0
 
-    def apply_terraform(self, cluster, mix_vars):
+    def apply_terraform(self, cluster, hosts_dict):
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster.name)
-        generate_terraform_file(self.working_path, self.cloud_config_path, mix_vars)
+        generate_terraform_file(self.working_path, self.cloud_config_path, cluster.plan.mixed_vars, hosts_dict)
         self.init_terraform()
         t = Terraform(working_dir=self.working_path)
         p, _, _ = t.apply('./', refresh=True, skip_plan=True, no_color=IsNotFlagged, synchronous=False)
