@@ -38,8 +38,7 @@ def is_master(host):
 
 
 def scale_up(cluster, num):
-    worker_hosts = cluster.get_current_worker_hosts()
-    worker_size = len(worker_hosts)
+    worker_size = cluster.worker_size
 
     new_hosts = []
     worker_hosts_new = []
@@ -53,10 +52,10 @@ def scale_up(cluster, num):
         for i in range(worker_size - num):
             rm_worker = worker_hosts_new.pop()
             remove_list.append(rm_worker)
-        cluster.worker_size = num
+            cluster.set_worker_size(num)
         drain_workers(cluster, remove_list)
     elif worker_size < num:
-        cluster.worker_size = num
+        cluster.set_worker_size(num)
         hosts = create_cluster_hosts(cluster)
         worker_hosts_new = list(filter(is_worker, hosts))
         master_hosts_new = list(filter(is_master, hosts))
@@ -87,7 +86,6 @@ def scale_up(cluster, num):
         cluster.change_to()
         node = Node.objects.get(name=host['name'])
         node.host.delete()
-    cluster.save()
 
 
 def drain_workers(cluster, remove_list):

@@ -125,6 +125,10 @@ class Cluster(Project):
     def scale_up_to(self, num):
         scale_up(self, num)
 
+    def set_worker_size(self, num):
+        self.worker_size = num
+        self.save()
+
     def add_to_new_node(self, node):
         self.change_to()
         node.add_to_groups(['new_node'])
