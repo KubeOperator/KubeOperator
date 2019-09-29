@@ -11,6 +11,8 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/kubeoperator-ui.jpg?raw=true)
 
+> Note: 可以点击查看大图。
+
 ## 整体架构
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
