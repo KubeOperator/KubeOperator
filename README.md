@@ -59,6 +59,7 @@ KubeOperator 使用 Terraform 自动创建主机，通过 Ansible 完成自动�
  
  ## 使用指南
 
+-  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 -  [在线文档](https://docs.kubeoperator.io/)
 -  [功能截屏](http://kubeoperator.io/index.html#screenshot)
 
