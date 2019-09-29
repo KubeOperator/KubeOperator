@@ -24,3 +24,5 @@ f5networks/k8s-bigip-ctlr:1.9.2
 calico/node:v3.4.4
 calico/cni:v3.4.4
 calico/kube-controllers:v3.4.4
+quay.io/comcast/kuberhealthy:v1.0.2
+gcr.io/google_containers/pause:0.8.0
