@@ -27,23 +27,27 @@
     </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>集群</clr-dg-column>
+  <clr-dg-column>区域</clr-dg-column>
+  <clr-dg-column>可用区</clr-dg-column>
   <clr-dg-column>IP 地址</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
   <clr-dg-column>内存(MB)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
-  <clr-dg-column>集群</clr-dg-column>
-  <clr-dg-column>区域</clr-dg-column>
-  <clr-dg-column>可用区</clr-dg-column>
+  <clr-dg-column>状态</clr-dg-column>
+
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
     <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
+    <clr-dg-cell>{{getValueOrNone(host.cluster)}}</clr-dg-cell>
+    <clr-dg-cell>{{getValueOrNone(host.region)}}</clr-dg-cell>
+    <clr-dg-cell>{{getValueOrNone(host.zone)}}</clr-dg-cell>
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
     <clr-dg-cell>{{host.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.memory}}</clr-dg-cell>
     <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
-    <clr-dg-cell>{{host.cluster}}</clr-dg-cell>
-    <clr-dg-cell>{{host.region}}</clr-dg-cell>
-    <clr-dg-cell>{{host.zone}}</clr-dg-cell>
+    <clr-dg-cell>{{getStatus(host.status)}}</clr-dg-cell>
+
   </clr-dg-row>
 
   <clr-dg-footer>

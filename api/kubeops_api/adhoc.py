@@ -1,6 +1,16 @@
 from ansible_api.tasks import run_im_adhoc
 
 
+def drain_worker_node(host, worker_name):
+    hosts = [host.__dict__]
+    shell = "kubectl drain {} --delete-local-data --force --ignore-daemonsets && kubectl delete node {}".format(
+        worker_name, worker_name)
+    result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': 'shell', 'args': shell},
+                          inventory_data={'hosts': hosts, 'vars': {}})
+    if not is_adhoc_success(result):
+        raise Exception("drain! node {} failed!".format(worker_name))
+
+
 def gather_host_info(ip, username, password):
     hosts = [{
         "ip": ip,

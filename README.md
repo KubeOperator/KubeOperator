@@ -1,13 +1,15 @@
-# KubeOperator - 容器集群管理平台
+# KubeOperator
 
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-## 项目介绍
+## KubeOperator 是什么？
 
-KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在完全离线和多云环境下，部署和管理生产级别的 Kubernetes 集群。KubeOperator 尤其适合在云平台（比如 VMware 及 Openstack）上部署和管理 Kubernetes 集群，实现 Kubernetes as a Service。
+KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上部署和管理生产级别的 Kubernetes 集群。
+
+KubeOperator 使用 Terraform 自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/KubeOperator.jpeg?raw=true)
 
 ## 技术优势
@@ -21,7 +23,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 
 ## 版本规划
 
- v1.0.0 （已发布）
+ v1.0 （已发布）
 
 - [x] 提供原生 Kubernetes 的离线包仓库；
 - [x] 支持一主多节点部署模式；
@@ -32,7 +34,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 支持 Flannel 作为网络方案；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
- v2.0.0 （已发布）
+ v2.0 （已发布）
 
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
@@ -41,7 +43,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [x] 内置 Weave Scope (支持 Web Shell)；
 - [x] 支持 Calico 作为网络方案；
 
- v2.1.0 （开发中，预计 2019.10.31 发布）
+ v2.1 （开发中，预计 2019.10.31 发布）
  
 - [ ] 支持 Openstack 云平台；
 - [ ] 支持 Openstack Cinder 作为持久化存储；
@@ -50,13 +52,14 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [ ] 支持 Kubernetes 集群备份与恢复（Day 2）；
 - [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 
- v3.0.0 （计划中，预计 2019.12.31 发布）
+ v2.2 （计划中，预计 2019.12.31 发布）
 
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
  
  ## 使用指南
 
+-  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 -  [在线文档](https://docs.kubeoperator.io/)
 -  [功能截屏](http://kubeoperator.io/index.html#screenshot)
 
@@ -72,7 +75,7 @@ KubeOperator 是一个开源项目，帮助运维人员通过 Web-based UI，在
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
 - [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
 
-## License & Copyright
+## License
 
 Copyright (c) 2014-2019 FIT2CLOUD 飞致云
 

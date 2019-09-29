@@ -125,6 +125,10 @@ class Cluster(Project):
     def scale_up_to(self, num):
         scale_up(self, num)
 
+    def set_worker_size(self, num):
+        self.worker_size = num
+        self.save()
+
     def add_to_new_node(self, node):
         self.change_to()
         node.add_to_groups(['new_node'])
@@ -132,7 +136,7 @@ class Cluster(Project):
     def exit_new_node(self):
         self.change_to()
         role = Role.objects.get(name='new_node')
-        hosts = role.hosts
+        hosts = role.hosts.all()
         for host in hosts:
             role.hosts.remove(host)
 
@@ -288,6 +292,10 @@ class Cluster(Project):
             path = dest
         return path
 
+    def get_first_master(self):
+        self.change_to()
+        return self.group_set.get(name='master').hosts.first()
+
     def get_cluster_token(self):
         token = None
         if self.status == Cluster.CLUSTER_STATUS_RUNNING:
@@ -306,10 +314,14 @@ class Cluster(Project):
             self.set_config_unlock(self.plan.mixed_vars)
 
     def get_current_worker_hosts(self):
+        def get_name(ele):
+            return ele.name
+
         self.change_to()
         hosts = []
         for node in Node.objects.filter(groups__name__in=['worker']):
             hosts.append(node.host)
+        hosts.sort(key=get_name)
         return hosts
 
     def on_cluster_create(self):

@@ -8,21 +8,12 @@
   roles:
     - daemon
 
-
 - hosts: new_node
-  tasks:
-    - name: prepare some dirs
-      file: name={{ item }} state=directory
-      with_items:
-        - "{{ bin_dir }}"
-        - "{{ ca_dir }}"
-        - "{{ base_dir }}"
-        - "/etc/kubernetes"
-        - "/opt/kube/kube-system"
   roles:
     - ssh
     - repository
     - firewall
+    - prepare
     - host-dns
     - rpm
     - ntp

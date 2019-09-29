@@ -9,6 +9,15 @@ __all__ = ['Host']
 
 
 class Host(BaseHost):
+    HOST_STATUS_RUNNING = "RUNNING"
+    HOST_STATUS_CREATING = "CREATING"
+    HOST_STATUS_UNKNOWN = "UNKNOWN"
+    DEPLOY_TEMPLATE_CHOICES = (
+        (HOST_STATUS_RUNNING, 'running'),
+        (HOST_STATUS_CREATING, 'creating'),
+        (HOST_STATUS_UNKNOWN, "unknown")
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     node = models.ForeignKey('Node', default=None, null=True, related_name='node',
                              on_delete=models.SET_NULL)
@@ -20,6 +29,7 @@ class Host(BaseHost):
     cpu_core = models.fields.IntegerField(default=0)
     volumes = models.ManyToManyField('Volume')
     zone = models.ForeignKey('cloud_provider.Zone', null=True, on_delete=models.CASCADE)
+    status = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=HOST_STATUS_UNKNOWN, max_length=128)
 
     def full_host_credential(self):
         if self.credential:
@@ -39,6 +49,7 @@ class Host(BaseHost):
     def region(self):
         if self.zone:
             return self.zone.region.name
+
     def gather_info(self):
         facts = gather_host_info(self.ip, self.username, self.password)
         self.memory = facts["ansible_memtotal_mb"]
@@ -57,6 +68,8 @@ class Host(BaseHost):
                 volume.save()
                 volumes.append(volume)
         self.volumes.set(volumes)
+        self.status = Host.HOST_STATUS_RUNNING
+        self.save()
 
     class Meta:
         ordering = ('name',)
