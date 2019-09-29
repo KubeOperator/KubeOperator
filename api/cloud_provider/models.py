@@ -226,6 +226,6 @@ class TerraformHost(models.Model):
             username=username,
             password=password
         )
-        host.gather_info()
+        host.gather_info(retry=5)
         self.host = host
         self.save()

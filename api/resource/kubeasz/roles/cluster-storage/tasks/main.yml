@@ -12,4 +12,8 @@
   when:
     - 'storage_vsan_enabled is defined'
     - 'storage_vsan_enabled'
- 
+
+- import_tasks: cinder-client.yml
+  when:
+    - 'storage_cinder_enabled is defined'
+    - 'storage_cinder_enabled'

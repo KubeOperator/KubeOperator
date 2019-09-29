@@ -3,7 +3,7 @@ region:
   vars:
     provider: openstack
     image_vmdk_path: "/images/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810-1.qcow2"
-    image_name: "centos_server_7.4_x86_64_20180904"
+    image_name: "centos-server-7.6_x86_64.qcow2"
 plan:
   infra:
     - name: k8s_master_model

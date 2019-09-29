@@ -6,6 +6,7 @@ export class CloudZone {
   securityGroups: [] = [];
   networkList: Network[] = [];
   floatingNetworkList: Network[] = [];
+  ipType: [] = [];
 }
 
 export class CloudStorage {

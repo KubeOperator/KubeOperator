@@ -6,7 +6,7 @@ import unittest
 import warnings
 
 sys.path.insert(0, '../..')
-from ansible_ui.ansible.inventory import BaseInventory
+from ansible_api.ansible.inventory import BaseInventory
 
 warnings.simplefilter("ignore", ResourceWarning)
 

@@ -28,7 +28,7 @@ provider "openstack" {
         {% if host.role=='daemon' %}
        flavor_name          = "{{k8s_daemon_model}}"
       {% endif %}
-      admin_pass = "KubeOperator0@2019"
+      admin_pass = "KubeOperator@2019"
       security_groups = ["{{host.zone.openstack_security_group}}"]
       network {
         port = "${openstack_networking_port_v2.{{host.short_name}}.id}"
@@ -46,5 +46,35 @@ provider "openstack" {
       fixed_ip    = "${openstack_compute_instance_v2.{{host.short_name}}.network.0.fixed_ip_v4}"
     }
 
+{% endfor %}
 
+{% for host in hosts %}
+    resource "openstack_networking_port_v2" "{{host.short_name}}" {
+      name               = "{{host.short_name}}"
+      network_id = "{{host.zone.openstack_network}}"
+      admin_state_up     = "true"
+      fixed_ip {
+        subnet_id  = "{{host.zone.openstack_subnet}}"
+        ip_address = "{{host.ip}}"
+      }
+    }
+
+    resource "openstack_compute_instance_v2" "{{host.short_name}}" {
+      name            = "{{host.short_name}}"
+      image_name        = "{{image_name}}"
+      {% if host.role=='worker' %}
+       flavor_name          = "{{k8s_worker_model}}"
+      {% endif %}
+      {% if host.role=='master' %}
+       flavor_name          = "{{k8s_master_model}}"
+      {% endif %}
+        {% if host.role=='daemon' %}
+       flavor_name          = "{{k8s_daemon_model}}"
+      {% endif %}
+      admin_pass = "KubeOperator@2019"
+      security_groups = ["{{host.zone.openstack_security_group}}"]
+      network {
+        port = "${openstack_networking_port_v2.{{host.short_name}}.id}"
+      }
+    }
 {% endfor %}

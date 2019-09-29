@@ -55,7 +55,6 @@ class CloudClient(metaclass=ABCMeta):
         for host in cluster.terraform_hosts.all():
             hosts.append(host.to_dict())
         vars['hosts'] = hosts
-        print(vars)
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster.name)
         generate_terraform_file(self.working_path, self.cloud_config_path, vars)

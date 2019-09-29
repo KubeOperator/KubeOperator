@@ -5,6 +5,7 @@ from cloud_provider.models import TerraformHost, Plan
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
+from time import sleep
 
 
 def create_hosts(cluster):
@@ -13,6 +14,9 @@ def create_hosts(cluster):
     cloud_provider = get_cloud_client(cluster.plan.mixed_vars)
     result = cloud_provider.apply_terraform(cluster=cluster)
     if result:
+        if cluster.plan.mixed_vars.get('provider') == 'openstack':
+            print("sleep 15s: 等待机器状态可用")
+            sleep(15)
         for h in cluster.terraform_hosts.all():
             h.create_host()
         cluster.create_nodes_by_terraform()

@@ -33,31 +33,33 @@ class OpenStackCloudClient(CloudClient):
         openstack_client = get_openstack_client(self.vars, region)
         openstack_zones = openstack_client.list_availability_zone_names()
         openstack_networks = openstack_client.list_networks(get_filter(self.vars))
+        openstack_floating_networks = openstack_client.list_networks({
+            "router:external": True
+        })
         openstack_security_groups = openstack_client.list_security_groups(get_filter(self.vars))
         openstack_datastores = openstack_client.list_volume_types()
         openstack_client.close()
         zones = []
         for zone_item in openstack_zones:
-            zone = {"storages": [], "networkList": [], "floatingNetworkList": [], "securityGroups": [], "cluster": zone_item}
+            zone = {"storages": [], "networkList": [], "floatingNetworkList": [], "securityGroups": [], "cluster": zone_item, "ipType": []}
+            for floating_network in openstack_floating_networks:
+                zone.get("floatingNetworkList").append({
+                    "name": floating_network.name,
+                    "id": floating_network.id,
+                })
             for network in openstack_networks:
-                if network['router:external']:
-                    zone.get("floatingNetworkList").append({
-                        "name": network.name,
-                        "id": network.id,
+                subnetList = []
+                openstack_subnets = openstack_client.list_subnets(get_filter(self.vars, network_id=network.id))
+                for subnet in openstack_subnets:
+                    subnetList.append({
+                        "name": subnet.name,
+                        "id": subnet.id,
                     })
-                else:
-                    subnetList = []
-                    openstack_subnets = openstack_client.list_subnets(get_filter(self.vars, network_id=network.id))
-                    for subnet in openstack_subnets:
-                        subnetList.append({
-                            "name": subnet.name,
-                            "id": subnet.id,
-                        })
-                    zone.get("networkList").append({
-                        "name": network.name,
-                        "id": network.id,
-                        "subnetList": subnetList
-                        })
+                zone.get("networkList").append({
+                    "name": network.name,
+                    "id": network.id,
+                    "subnetList": subnetList
+                    })
             for sg in openstack_security_groups:
                 zone.get("securityGroups").append(sg.name)
             for datastore in openstack_datastores:
@@ -65,6 +67,8 @@ class OpenStackCloudClient(CloudClient):
                     "name": datastore.name,
                     "type": datastore.id
                 })
+            zone.get("ipType").append("private")
+            zone.get("ipType").append("floating")
             zones.append(zone)
         return zones
 

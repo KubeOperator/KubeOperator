@@ -35,9 +35,9 @@ class Host(BaseHost):
     def info(self):
         return self.infos.all().latest()
 
-    def gather_info(self):
+    def gather_info(self, retry=1):
         info = HostInfo.objects.create(host_id=self.id)
-        info.gather_info()
+        info.gather_info(retry)
 
     class Meta:
         ordering = ('name',)
@@ -56,8 +56,8 @@ class HostInfo(models.Model):
     class Meta:
         get_latest_by = 'date_created'
 
-    def gather_info(self):
-        facts = gather_host_info(self.host)
+    def gather_info(self, retry=1):
+        facts = gather_host_info(self.host, retry)
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]
         cpu_count = facts["ansible_processor_count"]

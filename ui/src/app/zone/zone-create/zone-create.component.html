@@ -122,7 +122,7 @@
             <label>存储类型</label>
             <select [(ngModel)]="item.vars['openstack_storage_type']" name="storage" clrSelect required>
               <option [value]="">请选择</option>
-              <option *ngFor="let storage of cloudZone.storages" [value]="storage.type">{{storage.name}}</option>
+              <option *ngFor="let storage of cloudZone.storages" [value]="storage.name">{{storage.name}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于运行虚拟机的存储类型</clr-control-helper>
@@ -149,6 +149,16 @@
           </clr-select-container>
 
           <clr-select-container>
+            <label>IP类型</label>
+            <select [(ngModel)]="item.vars['openstack_ip_type']" name="ip_type"  clrSelect required>
+              <option [value]="">请选择</option>
+              <option *ngFor="let type of cloudZone.ipType"  [value]="type">{{type}}</option>
+            </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
+          </clr-select-container>
+
+          <clr-select-container *ngIf="item.vars['openstack_ip_type'] === 'private'">
             <label>子网</label>
             <select [(ngModel)]="item.vars['openstack_subnet']" name="subnet"  clrSelect required>
               <option [value]="">请选择</option>
@@ -158,7 +168,7 @@
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
           </clr-select-container>
 
-          <clr-select-container>
+          <clr-select-container *ngIf="item.vars['openstack_ip_type'] === 'floating'">
             <label>FloatingIP池</label>
             <select [(ngModel)]="item.vars['openstack_floating_network']" name="network"  clrSelect required>
               <option [value]="">请选择</option>
@@ -167,6 +177,7 @@
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
           </clr-select-container>
+
           <clr-input-container>
             <label>起始IP</label>
             <input clrInput type="text" [(ngModel)]="item.vars['vc_ip_start']" name="ip_start" required>
