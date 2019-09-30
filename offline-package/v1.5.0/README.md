@@ -7,7 +7,7 @@
 | 核心 | docker  | docker-ce-18.09.2 |
 | 核心 | gcr.io/google-containers/pause-amd64| 3.1 |
 | 存储 | quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
-| 网络 | docker.io/coredns/coredns| 1.5.0 |
+| 网络 | docker.io/coredns/coredns| 1.6.0 |
 | 网络 | quay.io/coreos/flannel| v0.11.0-amd64 |
 | 网络 | calico/node:v3.4.4 |
 | 网络 | calico/cni:v3.4.4 |
