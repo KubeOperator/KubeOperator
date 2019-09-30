@@ -1,0 +1,26 @@
+apiVersion: v1
+appVersion: v1.0.2
+description: The official Helm chart for Kuberhealthy.
+home: https://comcast.github.io/kuberhealthy/
+icon: https://raw.githubusercontent.com/Comcast/kuberhealthy/helm/deploy/helm/kuberhealthy/kh-logo.png
+keywords:
+- kuberhealthy
+- kubernetes
+- monitoring
+- synthetic
+- comcast
+- health
+- cluster
+- prometheus
+maintainers:
+- email: eric.greer@comcast.com
+  name: integrii
+- email: jacob.martin@comcast.com
+  name: lolimjake
+- email: ianhoegen@gmail.com
+  name: ihoegen
+name: kuberhealthy
+sources:
+- https://github.com/Comcast/kuberhealthy
+- https://github.com/helm/charts/tree/master/stable/kuberhealthy
+version: 1.2.6

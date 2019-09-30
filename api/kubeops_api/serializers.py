@@ -22,7 +22,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
     'RoleSerializer', 'DeployExecutionSerializer', 'SettingSerializer', 'HostSerializer',
-    'CredentialSerializer', 'BackupStrategySerializer','BackupStorageSerializer'
+    'CredentialSerializer', 'BackupStrategySerializer', 'BackupStorageSerializer'
 ]
 
 
@@ -87,9 +87,10 @@ class HostSerializer(HostReadSerializer):
         extra_kwargs = HostReadSerializer.Meta.extra_kwargs
         fields = [
             'id', 'name', 'ip', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone',
-            'region'
+            'region', 'status'
         ]
-        read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region']
+        read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region',
+                            'status']
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -196,14 +197,14 @@ class BackupStorageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'region', 'credentials', 'type', 'date_created', 'status']
         read_only_fields = ['id', 'date_created']
 
-class BackupStrategySerializer(serializers.ModelSerializer):
 
+class BackupStrategySerializer(serializers.ModelSerializer):
     class Meta:
         model = BackupStrategy
-        fields = ['id', 'cron' ,'save_num', 'project_id','backup_storage_id']
+        fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id']
+
 
 class ClusterBackupSerializer(serializers.ModelSerializer):
-
     backup_storage = serializers.SlugRelatedField(
         queryset=BackupStorage.objects.all(),
         slug_field='id', required=False

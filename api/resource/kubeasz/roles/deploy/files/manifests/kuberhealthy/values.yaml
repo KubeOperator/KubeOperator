@@ -1,0 +1,44 @@
+prometheus:
+  enabled: true
+  name: "prometheus"
+  enableScraping: true
+  serviceMonitor: false
+  enableAlerting: true
+
+image:
+  repository: registry.kubeops.io:8092/quay.io/comcast/kuberhealthy
+  tag: v1.0.2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 80Mi
+  limits:
+    cpu: 400m
+    memory: 200Mi
+
+tolerations:
+  master: false
+
+deployment:
+  replicas: 2
+  maxSurge: 0
+  maxUnavailable: 1
+  imagePullPolicy: IfNotPresent
+  podAnnotations: {}
+  command:
+  - /app/kuberhealthy
+  args:
+  - -dsPauseContainerImageOverride
+  - registry.kubeops.io:8092/gcr.io/google_containers/pause:0.8.0
+  - -podCheckNamespaces=default,kube-system,monitoring,weave
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  allowPrivilegeEscalation: false
+
+service:
+  externalPort: 80
+  type: NodePort
+  annotations: {}

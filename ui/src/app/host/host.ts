@@ -13,6 +13,7 @@ export class Host {
   cpu_core: number;
   region: string;
   zone: string;
+  status: string;
   volumes: Volume[];
 }
 
