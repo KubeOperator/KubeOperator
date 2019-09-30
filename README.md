@@ -1,15 +1,20 @@
 # KubeOperator
 
+[![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/KubeOperatpr/KubeOperatpr/blob/master/LICENSE)
 [![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-## KubeOperator 是什么？
-
 KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上部署和管理生产级别的 Kubernetes 集群。
 
-KubeOperator 使用 Terraform 自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
+![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/kubeoperator-ui.jpg?raw=true)
+
+> Note: 可以点击查看大图。
+
+## 整体架构
+
+KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/KubeOperator.jpeg?raw=true)
 
 ## 技术优势
@@ -61,7 +66,6 @@ KubeOperator 使用 Terraform 自动创建主机，通过 Ansible 完成自动�
 
 -  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 -  [在线文档](https://docs.kubeoperator.io/)
--  [功能截屏](http://kubeoperator.io/index.html#screenshot)
 
  ## 沟通交流
  

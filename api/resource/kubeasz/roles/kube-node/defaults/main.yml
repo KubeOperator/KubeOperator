@@ -36,4 +36,4 @@ KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
 # "uri": 基于请求的URI
 BALANCE_ALG: "roundrobin"
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
-CLUSTER_DNS_DOMAIN: "cluster.local."
+CLUSTER_DNS_DOMAIN: "cluster.local"

@@ -76,7 +76,7 @@ vars:
   #dns
   dns_install: true
   dns_image: "docker.io/coredns/coredns"
-  dns_version: "1.5.0"
+  dns_version: "1.6.0"
 
   #metrics-server
   metricsserver_install: false

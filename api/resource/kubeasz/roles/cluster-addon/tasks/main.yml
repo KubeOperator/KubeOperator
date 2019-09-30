@@ -5,9 +5,10 @@
         - /opt/kube/kube-system/coredns
     # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
     - name: 准备 DNS的部署文件
-      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/{{ item }}/{{ item }}.yaml
+      template: src=coredns/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
       with_items:
         - coredns
+        - autoscaler
 
     - name: 获取所有已经创建的POD信息
       command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
@@ -88,6 +89,16 @@
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"grafana" not in pod_info.stdout and grafana_install'
+  ignore_errors: true
+
+- block:
+    - name: 部署 kuberhealthy
+      shell: "helm install --name kuberhealthy --namespace monitoring ./kuberhealthy"
+      args:
+        chdir: "{{ base_dir }}/manifests"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"kuberhealthy" not in pod_info.stdout and grafana_install'
   ignore_errors: true
 
 - block:
