@@ -39,4 +39,13 @@ class StorageClient():
     def list_buckets(self):
         return self.client.list_buckets()
 
+    def upload_file(self,src,target):
+        return self.client.upload(src,target)
+
+    def exists(self,path):
+        return self.client.exists(path)
+
+    def download_file(self,src,target):
+        return self.client.download(src,target)
+
 

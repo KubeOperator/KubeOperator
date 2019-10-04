@@ -30,3 +30,5 @@
     - ca.csr
     - ca-csr.json
     - ca-config.json
+
+  - name: Get backup.zip
