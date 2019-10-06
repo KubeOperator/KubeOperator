@@ -227,7 +227,7 @@ class CheckStorageView(APIView):
 
     def post(self,request, **kwargs):
         client = StorageClient(request.data)
-        valid = client.check_valid(request.data)
+        valid = client.check_valid()
         response = HttpResponse()
         result = {
             "message": '验证成功!',

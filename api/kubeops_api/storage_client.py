@@ -17,7 +17,7 @@ class StorageClient():
         except ValueError:
             pass
 
-    def check_valid(self,backupStorage):
+    def check_valid(self):
         if self.client is None:
             return False
         # 上传文件测试可用性

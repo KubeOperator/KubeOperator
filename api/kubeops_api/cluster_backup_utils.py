@@ -50,7 +50,7 @@ def run_backup(project_id,backup_storage_id):
     client = StorageClient(backup_storage)
     file_name = cluster.name+str(now)+'.zip'
     file_remote_path = cluster.name+'/'+file_name
-    result,message = client.upload_file("/opt/cluster-backup.zip",file_remote_path)
+    result,message = client.upload_file("/etc/ansible/roles/cluster-backup/files/cluster-backup.zip",file_remote_path)
     if result:
         clusterBackup = ClusterBackup(name=file_name,size=10,folder=file_remote_path,
                                       backup_storage_id=backup_storage_id,project_id=project_id)
@@ -69,7 +69,7 @@ def run_restore(cluster_backup_id):
     client = StorageClient(backup_storage)
     backup_file_path = cluster.name+'/'+cluster_backup.name
     if client.exists(backup_file_path):
-        success = client.download_file(backup_file_path,"/opt/cluster-backup.zip")
+        success = client.download_file(backup_file_path,"/etc/ansible/roles/cluster-backup/files/cluster-backup.zip")
         if success:
             extra_vars = {
                 "cluster_name": cluster.name,
