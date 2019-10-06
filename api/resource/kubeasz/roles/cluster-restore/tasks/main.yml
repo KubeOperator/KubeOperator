@@ -8,7 +8,8 @@
   file: name=/backup/k8s state=directory
 
 - name: 准备指定的备份etcd 数据
-  copy: 
+  copy:
+    remote-src: true
     src: "{{ base_dir }}/roles/cluster-backup/files/snapshot/{{ db_to_restore }}"
     dest: "/backup/k8s/snapshot.db"
 
