@@ -31,4 +31,12 @@
     - ca-csr.json
     - ca-config.json
 
-  - name: Get backup.zip
+  - name: zip backup files
+    shell: tar -zcvf  /backup/cluster-backup.zip {{ base_dir }}/roles/cluster-backup/files
+
+  - name: get backup files
+    fetch:
+      src: /backup/cluster-backup.zip
+      dest: /etc/ansible/roles/cluster-backup/files/
+      flat: yes
+    run_once: true
