@@ -7,8 +7,8 @@ import warnings
 warnings.simplefilter("ignore", ResourceWarning)
 
 sys.path.insert(0, '../..')
-from ansible_ui.ansible.runner import AdHocRunner
-from ansible_ui.ansible.inventory import BaseInventory
+from ansible_api.ansible.runner import AdHocRunner
+from ansible_api.ansible.inventory import BaseInventory
 
 
 class TestAdHocRunner(unittest.TestCase):
@@ -16,31 +16,44 @@ class TestAdHocRunner(unittest.TestCase):
         data = {
             "hosts": [
                 {
-                    "hostname": "192.168.244.163",
+                    "hostname": "192.168.0.77",
                     "vars": {
                         "ansible_ssh_user": "root",
-                        "ansible_ssh_pass": "redhat123"
+                        "ansible_ssh_pass": "KubeOperator@2019"
                     }
                 },
                 {
-                    "hostname": "centos",
+                    "hostname": "192.168.0.75",
                     "vars": {
-                        "ansible_ssh_user": "web",
-                        "ansible_ssh_pass": "gaga"
+                        "ansible_ssh_user": "root",
+                        "ansible_ssh_pass": "KubeOperator@2019"
+                    }
+                },
+                {
+                    "hostname": "172.190.92.62",
+                    "vars": {
+                        "ansible_ssh_user": "root",
+                        "ansible_ssh_pass": "123"
                     }
                 }
             ]
         }
 
         inventory = BaseInventory(data)
+        print("inventory")
+        print(inventory.__dict__)
         self.runner = AdHocRunner(inventory)
 
     def test_run(self):
         tasks = [
-            {"action": {"module": "shell", "args": "ls"}, "name": "run_cmd"},
-            {"action": {"module": "shell", "args": "whoami"}, "name": "run_whoami"},
+            {'action': {'module': 'setup', 'args': ''}},
+            # {"action": {"module": "shell", "args": "ls"}, "name": "run_cmd"},
+            # {"action": {"module": "shell", "args": "whoami"}, "name": "run_whoami"},
         ]
-        ret = self.runner.run(tasks, "all")
+        pattern = "172.190.92.62"
+        ret = self.runner.run(tasks, pattern)
+        print("result: ")
+        print(ret["raw"]["ok"][pattern]["setup"]["ansible_facts"])
         print(ret.get("summary"))
 
 

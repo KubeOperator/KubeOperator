@@ -2,8 +2,8 @@
   <h3 class="modal-title">可用区详情</h3>
   <div class="modal-body" *ngIf="currentZone">
     <hr/>
-    <div class="card-block">
-      <ul class="list-unstyled">
+    <div class="card-block" >
+      <ul class="list-unstyled" *ngIf="currentZone.provider === 'vsphere'">
         <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>
         <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>
         <li><b style="margin-right: 16px">资源池:</b>{{currentZone.cloud_zone}}</li>
@@ -12,6 +12,17 @@
         <li><b style="margin-right: 16px">起始 Ip:</b>{{currentZone.vars['vc_ip_start']}}</li>
         <li><b style="margin-right: 16px">终止 Ip:</b>{{currentZone.vars['vc_ip_end']}}</li>
         <li><b style="margin-right: 16px">网关:</b>{{currentZone.vars['vc_gateway']}}</li>
+        <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+      </ul>
+    </div>
+    <div class="card-block" *ngIf="currentZone.provider === 'openstack'">
+      <ul class="list-unstyled">
+        <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>
+        <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>
+        <li><b style="margin-right: 16px">可用区:</b>{{currentZone.vars['openstack_zone']}}</li>
+        <li><b style="margin-right: 16px">存储类型:</b>{{currentZone.vars['openstack_storage_type']}}</li>
+        <li><b style="margin-right: 16px">网络:</b>{{currentZone.vars['openstack_network']}}</li>
+        <li><b style="margin-right: 16px">安全组:</b>{{currentZone.vars['openstack_security_group']}}</li>
         <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
       </ul>
     </div>

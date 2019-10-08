@@ -31,6 +31,7 @@
     "mockjs": "^1.0.1-beta3",
     "ngx-cookie": "^4.1.2",
     "ngx-echarts": "^4.0.1",
+    "node-sass": "^4.10.0",
     "npm": "^6.11.2",
     "rxjs": "~6.5.3",
     "tslib": "^1.10.0",

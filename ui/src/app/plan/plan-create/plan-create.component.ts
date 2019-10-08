@@ -3,7 +3,7 @@ import {CloudTemplate, Region} from '../../region/region';
 import {CloudTemplateService} from '../../region/cloud-template.service';
 import {RegionService} from '../../region/region.service';
 import {CloudService} from '../../region/cloud.service';
-import {ComputeModel, Plan} from '../plan';
+import {Plan} from '../plan';
 import {ZoneService} from '../../zone/zone.service';
 import {Zone} from '../../zone/zone';
 import {PlanService} from '../plan.service';
@@ -80,7 +80,19 @@ export class PlanCreateComponent implements OnInit {
     this.regions.forEach(region => {
       if (this.item.region === region.name) {
         this.region = region;
+        this.cloudTemplateService.getCloudTemplate(region.template).subscribe(data => {
+          this.cloudTemplate = data;
+          if(this.region.template === 'openstack'){
+            this.setFlavorModels()
+          }
+        });
       }
+    });
+  }
+
+  setFlavorModels() {
+    this.cloudService.listFlavor(this.region.name).subscribe(data => {
+      this.cloudTemplate.meta.plan.models = data;
     });
   }
 
@@ -102,6 +114,9 @@ export class PlanCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
+    if(this.region.template === 'openstack'){
+      this.item.vars['compute_models'] = this.cloudTemplate.meta.plan.models
+    }
     this.planService.createPlan(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;

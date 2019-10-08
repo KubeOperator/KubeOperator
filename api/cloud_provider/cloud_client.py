@@ -8,9 +8,13 @@ from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 
 
 def get_cloud_client(vars):
+    provider = vars.get('provider', {})
     from cloud_provider.clients.vsphere import VsphereCloudClient
-    if vars['provider'] == 'vsphere':
+    from cloud_provider.clients.openstack import OpenStackCloudClient
+    if provider == 'vsphere':
         return VsphereCloudClient(vars)
+    if provider == 'openstack':
+        return OpenStackCloudClient(vars)
     else:
         return None
 

@@ -1,0 +1,8 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cinder-storageclass-default
+provisioner: kubernetes.io/cinder
+reclaimPolicy: Delete
+parameters:
+  type: "{{ storage_cinder_type }}"
