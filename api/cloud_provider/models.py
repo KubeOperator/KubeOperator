@@ -142,6 +142,7 @@ class Zone(models.Model):
         return dic
 
     def ip_pools(self):
+        print(self.vars)
         ip_start = ip_address(self.vars['ip_start'])
         ip_end = ip_address(self.vars['ip_end'])
         net_mask = self.vars['net_mask']
@@ -193,7 +194,7 @@ class Plan(models.Model):
         if self.zone:
             zones.append(self.zone)
         if self.zones:
-            zones.extend(self.zones)
+            zones.extend(self.zones.all())
         return zones
 
     @property

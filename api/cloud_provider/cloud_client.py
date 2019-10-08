@@ -7,9 +7,9 @@ from cloud_provider.utils import generate_terraform_file, create_terrafrom_worki
 from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 
 
-def get_cloud_client(provider_name):
+def get_cloud_client(vars):
     from cloud_provider.clients.vsphere import VsphereCloudClient
-    if property == 'vsphere':
+    if vars['provider'] == 'vsphere':
         return VsphereCloudClient(vars)
     else:
         return None

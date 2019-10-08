@@ -50,7 +50,6 @@ class CloudRegionView(APIView):
 
     def post(self, request):
         vars = request.data
-        vars['provider'] = 'vsphere'
         client = get_cloud_client(vars)
         data = client.list_region()
         return HttpResponse(json.dumps(data))

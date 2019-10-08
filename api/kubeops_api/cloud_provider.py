@@ -81,7 +81,7 @@ def create_nodes(cluster, hosts_dict):
         host = result[0]
         cluster.create_node(host_dict['role'], host)
         hosts.append(host)
-    client = get_cloud_client(cluster.cloud_provider)
+    client = get_cloud_client(cluster.plan.mixed_vars)
     terraform_result = client.apply_terraform(cluster, hosts_dict)
     if not terraform_result:
         raise RuntimeError("create host error!")
@@ -95,6 +95,7 @@ def is_worker(host):
 
 def is_master(host):
     return host['role'] == 'master'
+
 
 def create_cluster_hosts_dict(cluster):
     roles = {

@@ -142,6 +142,7 @@ class Cluster(Project):
             role.hosts.remove(host)
 
     def change_status(self, status):
+        self.refresh_from_db()
         self.status = status
         self.save()
 

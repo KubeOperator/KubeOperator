@@ -62,6 +62,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'scale':
+                ignore_errors = True
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
