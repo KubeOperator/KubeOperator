@@ -21,6 +21,10 @@ playbooks:
     alias: upgrade-addon.yml
   - name:  scale
     alias: scale.yml
+  - name:  cluster-backup
+    alias: cluster-backup.yml
+  - name:  cluster-restore
+    alias: cluster-restore.yml
 
 operations:
   - name: install

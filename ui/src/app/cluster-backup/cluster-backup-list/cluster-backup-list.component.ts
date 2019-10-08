@@ -4,7 +4,7 @@ import {ClusterBackup} from '../cluster-backup';
 import {ClusterBackupService} from '../cluster-backup.service';
 import {ActivatedRoute} from '@angular/router';
 import {TipService} from '../../tip/tip.service';
-import {TipLevels} from "../../tip/tipLevels";
+import {TipLevels} from '../../tip/tipLevels';
 
 @Component({
   selector: 'app-cluster-backup-list',
@@ -31,7 +31,6 @@ export class ClusterBackupListComponent implements OnInit {
       this.listClusterBackups();
     });
   }
-
 
   listClusterBackups() {
       this.clusterBackupService.listClusterBackup(this.projectId).subscribe(data => {

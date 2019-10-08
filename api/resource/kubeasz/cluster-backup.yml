@@ -1,0 +1,42 @@
+- hosts:
+  - etcd
+  roles:
+  - cluster-backup
+
+- hosts:
+  - master
+  tasks:
+  - name: Creating backup dirs
+    file: name={{ item }} state=directory
+    with_items:
+    - "{{ base_dir }}/roles/cluster-backup/files/ca"
+    - "{{ base_dir }}/roles/cluster-backup/files/hosts"
+    - "{{ base_dir }}/roles/cluster-backup/files/snapshot"
+
+  - name: Backing up snapshot
+    copy:
+      remote_src: true
+      src: /backup/k8s/snapshot.db
+      dest: "{{ base_dir }}/roles/cluster-backup/files/snapshot/snapshot.db"
+
+  - name: Backing up CA sth
+    copy:
+      remote_src: true
+      src: "{{ ca_dir }}/{{ item }}"
+      dest: "{{ base_dir }}/roles/cluster-backup/files/ca/{{ item }}"
+    with_items:
+    - ca.pem
+    - ca-key.pem
+    - ca.csr
+    - ca-csr.json
+    - ca-config.json
+
+  - name: zip backup files
+    shell: tar -zcvf  /backup/cluster-backup.zip {{ base_dir }}/roles/cluster-backup/files
+
+  - name: get backup files
+    fetch:
+      src: /backup/cluster-backup.zip
+      dest: /etc/ansible/roles/cluster-backup/files/
+      flat: yes
+    run_once: true
