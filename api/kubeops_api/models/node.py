@@ -27,10 +27,14 @@ class Node(Ansible_Host):
     def host_os_version(self):
         return self.host.os_version
 
-
     @roles.setter
     def roles(self, value):
         self.groups.set(value)
+
+    @property
+    def status(self):
+        if self.host:
+            return self.host.status
 
     def on_node_save(self):
         self.ip = self.host.ip

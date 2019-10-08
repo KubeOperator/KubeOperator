@@ -12,8 +12,6 @@ plan:
       alias: Worker 规格
     - name: k8s_daemon_model
       alias: Daemon 规格
-  models:
-
 
 
 

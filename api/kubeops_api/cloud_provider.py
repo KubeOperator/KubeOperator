@@ -19,6 +19,7 @@ def scale_compute_resource(cluster, num):
     change_list = []
     hosts_dict = []
     delete = False
+    add = False
     if worker_size > num:
         _hosts_dict = create_cluster_hosts_dict(cluster)
         result = create_cluster_scale_down_hosts_dict(_hosts_dict, worker_size - num)
@@ -30,14 +31,18 @@ def scale_compute_resource(cluster, num):
     elif worker_size < num:
         cluster.worker_size = num
         _hosts_dict = create_cluster_hosts_dict(cluster)
-        result = create_cluster_scale_up_hosts_dict(_hosts_dict, num)
+        result = create_cluster_scale_up_hosts_dict(_hosts_dict)
         change_list = result['change_list']
         hosts_dict = result['hosts_dict']
+        add = True
     create_nodes(cluster, hosts_dict)
-    if delete:
-        for host_dict in change_list:
-            host = Host.objects.get(name=host_dict['name'])
+    cluster.save()
+    for host_dict in change_list:
+        host = Host.objects.get(name=host_dict['name'])
+        if delete:
             host.delete()
+        if add:
+            cluster.add_to_new_node(host.node)
 
 
 def create_cluster_scale_down_hosts_dict(hosts_dict, num):
@@ -47,21 +52,27 @@ def create_cluster_scale_down_hosts_dict(hosts_dict, num):
     for i in range(num):
         rm_worker = worker_hosts_dict.pop()
         change_list.append(rm_worker)
+    hosts_dict = []
+    hosts_dict.extend(master_hosts_dict)
+    hosts_dict.extend(worker_hosts_dict)
     return {
-        "hosts_dict": master_hosts_dict.extend(worker_hosts_dict),
+        "hosts_dict": hosts_dict,
         "change_list": change_list
     }
 
 
-def create_cluster_scale_up_hosts_dict(hosts_dict, num):
+def create_cluster_scale_up_hosts_dict(hosts_dict):
     change_list = []
     worker_hosts_dict = list(filter(is_worker, hosts_dict))
     master_hosts_dict = list(filter(is_master, hosts_dict))
     for host_dict in hosts_dict:
         if host_dict.get('new', None):
             change_list.append(host_dict)
+    hosts_dict = []
+    hosts_dict.extend(master_hosts_dict)
+    hosts_dict.extend(worker_hosts_dict)
     return {
-        "hosts_dict": master_hosts_dict.extend(worker_hosts_dict),
+        "hosts_dict": hosts_dict,
         "change_list": change_list
     }
 
@@ -77,10 +88,11 @@ def create_nodes(cluster, hosts_dict):
             "status": Host.HOST_STATUS_CREATING,
             "auto_gather_info": False
         }
-        result = Host.objects.update_or_create(defaults, name=host_dict['name'])
-        host = result[0]
-        cluster.create_node(host_dict['role'], host)
-        hosts.append(host)
+        if host_dict.get('new', False):
+            result = Host.objects.update_or_create(defaults, name=host_dict['name'])
+            host = result[0]
+            cluster.create_node(host_dict['role'], host)
+            hosts.append(host)
     client = get_cloud_client(cluster.plan.mixed_vars)
     terraform_result = client.apply_terraform(cluster, hosts_dict)
     if not terraform_result:
@@ -171,5 +183,5 @@ def delete_hosts(cluster):
         cluster.change_to()
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
-            node.host.zone.recover_ip(node.host.model.ip)
+            node.host.zone.recover_ip(node.host.ip)
             node.host.delete()

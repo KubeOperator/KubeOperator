@@ -11,13 +11,11 @@ __all__ = ['Host']
 
 
 class Host(BaseHost):
-    HOST_STATUS_VALID = "VALID"
-    HOST_STATUS_INVALID = "INVALID"
+    HOST_STATUS_RUNNING = "RUNNING"
     HOST_STATUS_CREATING = "CREATING"
     HOST_STATUS_UNKNOWN = "UNKNOWN"
     DEPLOY_TEMPLATE_CHOICES = (
-        (HOST_STATUS_VALID, 'valid'),
-        (HOST_STATUS_INVALID, 'invalid'),
+        (HOST_STATUS_RUNNING, 'running'),
         (HOST_STATUS_CREATING, 'creating'),
         (HOST_STATUS_UNKNOWN, "unknown")
     )
@@ -67,7 +65,7 @@ class Host(BaseHost):
         try:
             facts = gather_host_info(self.ip, self.username, self.password)
         except Exception as e:
-            self.status = Host.HOST_STATUS_VALID
+            self.status = Host.HOST_STATUS_RUNNING
             raise e
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]
@@ -85,7 +83,7 @@ class Host(BaseHost):
                 volume.save()
                 volumes.append(volume)
         self.volumes.set(volumes)
-        self.status = Host.HOST_STATUS_INVALID
+        self.status = Host.HOST_STATUS_RUNNING
         self.save()
 
     class Meta:
