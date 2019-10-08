@@ -25,6 +25,7 @@ import {RegionModule} from './region/region.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
+import { ClusterHealthComponent } from './cluster-health/cluster-health.component';
 import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
 import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
@@ -36,7 +37,8 @@ import {SharedModule} from './shared/shared.module';
     AppComponent,
     DeployPlanComponent,
     ApplicationComponent,
-    ClusterBackupComponent
+    ClusterHealthComponent,
+    ClusterBackupComponent,
   ],
   imports: [
     CredentialModule,
