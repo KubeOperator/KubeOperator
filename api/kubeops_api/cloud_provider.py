@@ -1,7 +1,7 @@
 from django.db.models import Q
 
 from cloud_provider import get_cloud_client
-from cloud_provider.compute_model import compute_models
+from cloud_provider.compute_model import compute_models, get_compute_model_meta
 from cloud_provider.models import Plan, Zone
 from kubeops_api.adhoc import drain_worker_node
 from kubeops_api.models.host import Host
@@ -109,10 +109,10 @@ def create_cluster_hosts_dict(cluster):
         roles['master'] = 3
     for role, size in roles.items():
         compute_model_name = cluster.plan.compute_models[role]
-        compute_model = compute_models[compute_model_name]
+        compute_model = get_compute_model_meta(compute_model_name)
         for i in range(1, size + 1):
             name = role + "{}.".format(i) + "{}".format(domain)
-            zone = get_zone(cluster.plan.zones, i)
+            zone = get_zone(cluster.plan.get_zones(), i)
             if not zone:
                 raise RuntimeError('Can not find  available ip address!')
             host = {
@@ -123,7 +123,7 @@ def create_cluster_hosts_dict(cluster):
                 "short_name": role + "{}".format(i),
                 "domain": domain,
                 "zone": zone.to_dict(),
-                "zone_name": zone['zone_name'],
+                "zone_name": zone.name,
             }
             host_set = Host.objects.filter(name=name)
             if host_set:
@@ -132,7 +132,7 @@ def create_cluster_hosts_dict(cluster):
                 })
             else:
                 host.update({
-                    "ip": zone['ip_pool'].pop(),
+                    "ip": zone.allocate_ip(),
                     "new": True
                 })
             hosts.append(host)
@@ -171,4 +171,5 @@ def delete_hosts(cluster):
         cluster.change_to()
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
+            node.host.zone.recover_ip(node.host.model.ip)
             node.host.delete()

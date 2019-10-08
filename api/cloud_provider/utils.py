@@ -13,7 +13,7 @@ def generate_terraform_file(target_path, cloud_path, mixin_vars, hosts_dict):
     lorder = FileSystemLoader(terraform_path)
     env = Environment(loader=lorder)
     _template = env.get_template("terraform.tf.j2")
-    result = _template.render(dict)
+    result = _template.render(mixin_vars)
     if not os.path.exists(target_path):
         os.makedirs(target_path)
     file = os.path.join(target_path, 'main.tf')
@@ -35,7 +35,6 @@ def download_plugins(url, target):
     f = download_file(url, target)
     unzip_plugin(f)
     dir = os.path.dirname(f)
-    print(dir)
     os.system("chmod -R 755 " + dir)
 
 

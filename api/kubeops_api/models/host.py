@@ -58,6 +58,11 @@ class Host(BaseHost):
         if self.zone:
             return self.zone.region.name
 
+    def delete(self, using=None, keep_parents=False):
+        if self.zone:
+            self.zone.recover_ip(self.ip)
+        super().delete(using=None, keep_parents=False)
+
     def gather_info(self):
         try:
             facts = gather_host_info(self.ip, self.username, self.password)

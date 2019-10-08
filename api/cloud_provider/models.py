@@ -107,6 +107,7 @@ class Zone(models.Model):
     vars = common_models.JsonDictTextField(default={})
     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
+    ip_used = common_models.JsonListTextField(null=True, default=[])
     status = models.CharField(max_length=64, choices=ZONE_STATUS_CHOICES, null=True)
 
     @property
@@ -131,6 +132,16 @@ class Zone(models.Model):
         thread = threading.Thread(target=self.create_image)
         thread.start()
 
+    def allocate_ip(self):
+        ip = self.ip_pools().pop()
+        self.ip_used.append(ip)
+        self.save()
+        return ip
+
+    def recover_ip(self, ip):
+        self.ip_used.remove(ip)
+        self.save()
+
     def to_dict(self):
         dic = {
             "key": "z" + str(self.id).split("-")[3],
@@ -142,7 +153,6 @@ class Zone(models.Model):
         return dic
 
     def ip_pools(self):
-        print(self.vars)
         ip_start = ip_address(self.vars['ip_start'])
         ip_end = ip_address(self.vars['ip_end'])
         net_mask = self.vars['net_mask']
@@ -152,9 +162,9 @@ class Zone(models.Model):
         for host in network.hosts():
             if ip_start <= host <= ip_end:
                 ip_pool.append(str(host))
-        hosts = Host.objects.filter(ip__in=ip_pool)
-        for host in hosts:
-            ip_pool.remove(host.ip)
+        for ip in self.ip_used:
+            if ip in ip_pool:
+                ip_pool.remove(ip)
         return ip_pool
 
     def ip_available_size(self):
