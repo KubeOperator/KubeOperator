@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'django_crontab',
     'kubeops_api.apps.KubeOperatorApiConfig',
     'cloud_provider.apps.CloudProviderConfig',
     'ansible_api.apps.AnsibleApiConfig',
@@ -56,6 +57,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+CRONJOBS = (
+    ('*/5 * * * *', 'kubeops_api.cluster_backup_utils.cluster_backup'),
+)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

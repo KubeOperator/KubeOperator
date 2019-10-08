@@ -8,4 +8,4 @@
 
 - hosts: etcd
   roles:
-  - cluster-restore
+    - cluster-restore

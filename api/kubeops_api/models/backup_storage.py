@@ -36,4 +36,11 @@ class BackupStorage(models.Model):
     status = models.CharField(max_length=64,choices=BACKUP_STORAGE_STATUS_CHOICES,default=BACKUP_STORAGE_STATUS_VALID)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
 
+    def get_dict(self):
+        backup_storage= {
+            'credentials':self.credentials,
+            'type': self.type
+        }
+        return backup_storage
+
 

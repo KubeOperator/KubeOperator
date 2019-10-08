@@ -77,8 +77,17 @@ operations:
         flow: 扩容
         playbook: scale
 
+  - name: cluster-backup
+    steps:
+      - name: cluster-backup
+        playbook: cluster-backup
+        flow: 集群备份
 
-
+  - name: cluster-restore
+    steps:
+      - name: cluster-restore
+        playbook: cluster-restore
+        flow: 集群备份恢复
 roles:
   - name: cluster_nodes
     children:
