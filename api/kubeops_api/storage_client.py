@@ -6,7 +6,9 @@ from kubeops_api.models.backup_storage import BackupStorage;
 class StorageClient():
 
     def __init__(self,backupStorage):
-        storage_config = self.cover_to_config(backupStorage.get('credentials'))
+        if isinstance(backupStorage,BackupStorage):
+            backupStorage=backupStorage.get_dict()
+        storage_config = self.cover_to_config(backupStorage['credentials'])
         try:
             if 'S3' == backupStorage['type']:
                 self.client = jms_storage.S3Storage(storage_config)
@@ -21,8 +23,7 @@ class StorageClient():
         if self.client is None:
             return False
         # 上传文件测试可用性
-        file_locale_path = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, 'README.md'))
-        return self.client.is_valid(file_locale_path, 'kube-operator-test')
+        return self.client.is_valid("../Dockerfile", 'kube-operator-test')
 
     def cover_to_config(self,credentials):
         storage_config = {}
@@ -47,5 +48,6 @@ class StorageClient():
 
     def download_file(self,src,target):
         return self.client.download(src,target)
+
 
 

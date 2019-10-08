@@ -19,7 +19,7 @@
 - name: etcd 数据恢复
   shell: "cd /backup/k8s && \
 	ETCDCTL_API=3 {{ bin_dir }}/etcdctl snapshot restore snapshot.db \
-	--name {{ NODE_NAME }} \
+	--name {{ inventory_hostname }} \
 	--initial-cluster {{ ETCD_NODES }} \
 	--initial-cluster-token etcd-cluster-0 \
 	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
