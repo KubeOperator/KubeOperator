@@ -46,14 +46,11 @@ export class ClusterBackupStrategyComponent implements OnInit {
   }
 
   onCommit() {
-      this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
-        this.loading = false;
-        this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
-        this.tipShow = false;
-      }, err => {
-        this.loading = false;
-        this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
-      });
+      if (this.backupStrategy.id) {
+          this.update();
+      } else {
+          this.create();
+      }
   }
 
   getBackupStorage() {
@@ -62,6 +59,28 @@ export class ClusterBackupStrategyComponent implements OnInit {
         this.backupStorage = data;
       }, err => {
         this.loading = false;
+      });
+  }
+
+  update() {
+      this.clusterBackupService.updateBackupStrategy(this.backupStrategy.project_id, this.backupStrategy).subscribe(data => {
+        this.loading = false;
+        this.tipService.showTip('更新成功!', TipLevels.SUCCESS);
+        this.tipShow = false;
+      }, err => {
+        this.loading = false;
+        this.tipService.showTip('更新失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
+      });
+  }
+
+  create() {
+      this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
+        this.loading = false;
+        this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
+        this.tipShow = false;
+      }, err => {
+        this.loading = false;
+        this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
       });
   }
 

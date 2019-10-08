@@ -22,6 +22,10 @@ export class ClusterBackupService {
     return this.http.post<BackupStrategy>(this.strategyUrl, item);
   }
 
+  updateBackupStrategy(project_id: string, item: BackupStrategy): Observable<BackupStrategy> {
+    return this.http.patch<BackupStrategy>(this.strategyUrl + project_id + '/', item);
+  }
+
   listClusterBackup(project_id: string): Observable<ClusterBackup[]> {
     return this.http.get<ClusterBackup[]>(this.backupUrl);
   }
