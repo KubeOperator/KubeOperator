@@ -9,7 +9,8 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
-from kubeops_api.cloud_provider import create_hosts, delete_hosts, scale_up
+from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, \
+    scale_compute_resource
 from common import models as common_models
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.auth import AuthTemplate
@@ -123,7 +124,7 @@ class Cluster(Project):
         return Node.objects.filter(groups__name__in=['worker'])
 
     def scale_up_to(self, num):
-        scale_up(self, num)
+        scale_compute_resource(self, num)
 
     def set_worker_size(self, num):
         self.worker_size = num
@@ -141,6 +142,7 @@ class Cluster(Project):
             role.hosts.remove(host)
 
     def change_status(self, status):
+        self.refresh_from_db()
         self.status = status
         self.save()
 
@@ -278,7 +280,7 @@ class Cluster(Project):
         return node
 
     def create_resource(self):
-        create_hosts(self)
+        create_compute_resource(self)
 
     def destroy_resource(self):
         delete_hosts(self)

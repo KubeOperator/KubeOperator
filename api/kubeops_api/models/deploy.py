@@ -29,7 +29,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     def start(self):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
-        cluster = Cluster.objects.get(id=self.project.id)
+        cluster = self.get_cluster()
         hostname = Setting.objects.get(key='local_hostname')
         domain_suffix = Setting.objects.get(key="domain_suffix")
         extra_vars = {
@@ -62,6 +62,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'scale':
+                ignore_errors = True
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()

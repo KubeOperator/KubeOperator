@@ -1,0 +1,30 @@
+- name: small
+  meta:
+    cpu: 2
+    memory: 8
+    disk: 100
+- name: medium
+  meta:
+    cpu: 4
+    memory: 16
+    disk: 100
+- name: large
+  meta:
+    cpu: 8
+    memory: 32
+    disk: 100
+- name: xlarge
+  meta:
+    cpu: 16
+    memory: 64
+    disk: 100
+- name: 2xlarge
+  meta:
+    cpu: 32
+    memory: 128
+    disk: 100
+- name: 4xlarge
+  meta:
+    cpu: 64
+    memory: 256
+    disk: 100

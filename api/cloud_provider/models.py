@@ -107,6 +107,7 @@ class Zone(models.Model):
     vars = common_models.JsonDictTextField(default={})
     region = models.ForeignKey('Region', on_delete=models.CASCADE, null=True)
     cloud_zone = models.CharField(max_length=128, null=True, default=None)
+    ip_used = common_models.JsonListTextField(null=True, default=[])
     status = models.CharField(max_length=64, choices=ZONE_STATUS_CHOICES, null=True)
 
     @property
@@ -131,18 +132,29 @@ class Zone(models.Model):
         thread = threading.Thread(target=self.create_image)
         thread.start()
 
+    def allocate_ip(self):
+        ip = self.ip_pools().pop()
+        self.ip_used.append(ip)
+        self.save()
+        return ip
+
+    def recover_ip(self, ip):
+        self.ip_used.remove(ip)
+        self.save()
+
     def to_dict(self):
         dic = {
             "key": "z" + str(self.id).split("-")[3],
             "name": self.cloud_zone,
-            "zone_name": self.name
+            "zone_name": self.name,
+            "ip_pool": self.ip_pools()
         }
         dic.update(self.vars)
         return dic
 
     def ip_pools(self):
-        ip_start = ip_address(self.vars['vc_ip_start'])
-        ip_end = ip_address(self.vars['vc_ip_end'])
+        ip_start = ip_address(self.vars['ip_start'])
+        ip_end = ip_address(self.vars['ip_end'])
         net_mask = self.vars['net_mask']
         interface = ip_interface("{}/{}".format(str(ip_start), net_mask))
         network = interface.network
@@ -150,9 +162,9 @@ class Zone(models.Model):
         for host in network.hosts():
             if ip_start <= host <= ip_end:
                 ip_pool.append(str(host))
-        hosts = Host.objects.filter(ip__in=ip_pool)
-        for host in hosts:
-            ip_pool.remove(host.ip)
+        for ip in self.ip_used:
+            if ip in ip_pool:
+                ip_pool.remove(ip)
         return ip_pool
 
     def ip_available_size(self):
@@ -180,15 +192,24 @@ class Plan(models.Model):
     def mixed_vars(self):
         _vars = self.vars.copy()
         _vars.update(self.region.to_dict())
-        zones = []
-        if self.zones:
-            for zone in self.zones.all():
-                zones.append(zone.to_dict())
-        if self.zone:
-            zones.append(self.zone.to_dict())
-        _vars['zones'] = zones
+        zones = self.get_zones()
+        zone_dicts = []
+        for zone in zones:
+            zone_dicts.append(zone.to_dict())
+        _vars['zones'] = zone_dicts
         return _vars
+
+    def get_zones(self):
+        zones = []
+        if self.zone:
+            zones.append(self.zone)
+        if self.zones:
+            zones.extend(self.zones.all())
+        return zones
 
     @property
     def compute_models(self):
-        return self.region.template.meta["plan"]["models"]
+        return {
+            "master": self.vars.get('master_model', None),
+            "worker": self.vars.get('worker_model', None)
+        }

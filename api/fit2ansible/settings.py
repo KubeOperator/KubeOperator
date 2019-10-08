@@ -292,3 +292,8 @@ LOGGING = {
         },
     },
 }
+
+NODE_CREDENTIAL = {
+    'username': "root",
+    'password': "KubeOperator@2019"
+}

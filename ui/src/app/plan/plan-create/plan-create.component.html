@@ -57,21 +57,26 @@
         <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
 
-
-      <div *ngIf="cloudTemplate">
-        <div *ngFor="let inf of cloudTemplate.meta.plan.infra">
-          <clr-select-container>
-            <label>{{inf.alias}}</label>
-            <select clrSelect [(ngModel)]="item.vars[inf.name]" [name]="inf.name" required>
-              <option [value]="">请选择</option>
-              <option *ngFor="let model of cloudTemplate.meta.plan.models" [value]="model.name">{{model.name}}</option>
-            </select>
-            <clr-control-error>此字段为必填项</clr-control-error>
-          </clr-select-container>
-        </div>
+      <div>
+        <clr-select-container>
+          <label>Master 规格</label>
+          <select clrSelect [(ngModel)]="item.vars['master_model']" name="master" required>
+            <option [value]="">请选择</option>
+            <option *ngFor="let model of computeModels" [value]="model.name">{{model.name}}</option>
+          </select>
+          <clr-control-error>此字段为必填项</clr-control-error>
+        </clr-select-container>
+        <clr-select-container>
+          <label>Worker 规格</label>
+          <select clrSelect [(ngModel)]="item.vars['worker_model']" name="worker" required>
+            <option [value]="">请选择</option>
+            <option *ngFor="let model of computeModels" [value]="model.name">{{model.name}}</option>
+          </select>
+          <clr-control-error>此字段为必填项</clr-control-error>
+        </clr-select-container>
       </div>
     </form>
-    <div *ngIf="cloudTemplate">
+    <div *ngIf="computeModels">
       <h3>配置参考</h3>
       <table class="table">
         <thead>
@@ -83,7 +88,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let model of cloudTemplate.meta.plan.models">
+        <tr *ngFor="let model of computeModels">
           <td>{{model.name}}</td>
           <td>{{model.meta.cpu}}</td>
           <td>{{model.meta.memory}}</td>

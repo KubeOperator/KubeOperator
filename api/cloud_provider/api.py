@@ -5,6 +5,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from ansible_api.permissions import IsSuperUser
 from cloud_provider import serializers, get_cloud_client
+from cloud_provider.compute_model import compute_models
 from cloud_provider.models import CloudProviderTemplate, Region, Zone, Plan
 
 
@@ -49,10 +50,15 @@ class CloudRegionView(APIView):
 
     def post(self, request):
         vars = request.data
-        vars['provider'] = 'vsphere'
         client = get_cloud_client(vars)
         data = client.list_region()
         return HttpResponse(json.dumps(data))
+
+
+class ComputeModleView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(json.dumps(compute_models))
 
 
 class CloudZoneView(APIView):

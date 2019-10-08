@@ -3,7 +3,7 @@ import {CloudTemplate, Region} from '../../region/region';
 import {CloudTemplateService} from '../../region/cloud-template.service';
 import {RegionService} from '../../region/region.service';
 import {CloudService} from '../../region/cloud.service';
-import {Plan} from '../plan';
+import {ComputeModel, Plan} from '../plan';
 import {ZoneService} from '../../zone/zone.service';
 import {Zone} from '../../zone/zone';
 import {PlanService} from '../plan.service';
@@ -23,16 +23,16 @@ export class PlanCreateComponent implements OnInit {
   isSubmitGoing = false;
   item: Plan = new Plan();
   loading = false;
-  cloudTemplate: CloudTemplate;
   regions: Region[] = [];
   region: Region;
   zones: Zone[] = [];
+  computeModels: ComputeModel[] = [];
   zone: Zone;
-  @ViewChild('basicForm', { static: true }) basicForm: NgForm;
-  @ViewChild('planForm', { static: true }) planForm: NgForm;
-  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
+  @ViewChild('basicForm', {static: true}) basicForm: NgForm;
+  @ViewChild('planForm', {static: true}) planForm: NgForm;
+  @ViewChild('wizard', {static: true}) wizard: ClrWizard;
 
-  constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
+  constructor(private regionService: RegionService,
               private cloudService: CloudService, private zoneService: ZoneService, private planService: PlanService) {
   }
 
@@ -49,13 +49,20 @@ export class PlanCreateComponent implements OnInit {
     this.item = new Plan();
     this.regions = [];
     this.listRegion();
+    this.listComputeModel();
     this.createOpened = true;
-    this.cloudTemplate = null;
   }
 
   listRegion() {
     this.regionService.listRegion().subscribe(data => {
       this.regions = data;
+    });
+  }
+
+  listComputeModel() {
+    this.planService.getComputeModel().subscribe(data => {
+      console.log(data);
+      this.computeModels = data;
     });
   }
 
@@ -73,9 +80,6 @@ export class PlanCreateComponent implements OnInit {
     this.regions.forEach(region => {
       if (this.item.region === region.name) {
         this.region = region;
-        this.cloudTemplateService.getCloudTemplate(region.template).subscribe(data => {
-          this.cloudTemplate = data;
-        });
       }
     });
   }

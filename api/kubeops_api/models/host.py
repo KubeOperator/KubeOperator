@@ -2,18 +2,22 @@ import uuid
 from django.db import models
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
+from fit2ansible.settings import NODE_CREDENTIAL
 from kubeops_api.adhoc import gather_host_info
 from kubeops_api.models.credential import Credential
+from common import models as common_models
 
 __all__ = ['Host']
 
 
 class Host(BaseHost):
-    HOST_STATUS_RUNNING = "RUNNING"
+    HOST_STATUS_VALID = "VALID"
+    HOST_STATUS_INVALID = "INVALID"
     HOST_STATUS_CREATING = "CREATING"
     HOST_STATUS_UNKNOWN = "UNKNOWN"
     DEPLOY_TEMPLATE_CHOICES = (
-        (HOST_STATUS_RUNNING, 'running'),
+        (HOST_STATUS_VALID, 'valid'),
+        (HOST_STATUS_INVALID, 'invalid'),
         (HOST_STATUS_CREATING, 'creating'),
         (HOST_STATUS_UNKNOWN, "unknown")
     )
@@ -30,6 +34,10 @@ class Host(BaseHost):
     volumes = models.ManyToManyField('Volume')
     zone = models.ForeignKey('cloud_provider.Zone', null=True, on_delete=models.CASCADE)
     status = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=HOST_STATUS_UNKNOWN, max_length=128)
+    username = models.CharField(max_length=256, default=NODE_CREDENTIAL['username'])
+    password = common_models.EncryptCharField(max_length=4096, blank=True, null=True,
+                                              default=NODE_CREDENTIAL['password'])
+    auto_gather_info = models.BooleanField(default=True, null=True)
 
     def full_host_credential(self):
         if self.credential:
@@ -50,8 +58,17 @@ class Host(BaseHost):
         if self.zone:
             return self.zone.region.name
 
+    def delete(self, using=None, keep_parents=False):
+        if self.zone:
+            self.zone.recover_ip(self.ip)
+        super().delete(using=None, keep_parents=False)
+
     def gather_info(self):
-        facts = gather_host_info(self.ip, self.username, self.password)
+        try:
+            facts = gather_host_info(self.ip, self.username, self.password)
+        except Exception as e:
+            self.status = Host.HOST_STATUS_VALID
+            raise e
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]
         cpu_count = facts["ansible_processor_count"]
@@ -68,7 +85,7 @@ class Host(BaseHost):
                 volume.save()
                 volumes.append(volume)
         self.volumes.set(volumes)
-        self.status = Host.HOST_STATUS_RUNNING
+        self.status = Host.HOST_STATUS_INVALID
         self.save()
 
     class Meta:
