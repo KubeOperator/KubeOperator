@@ -13,4 +13,5 @@ export class Node {
   host_os_version: string;
   delete = true;
   volumes: string[] = [];
+  status: string;
 }

@@ -40,7 +40,7 @@
           <tbody>
           <tr *ngFor="let worker of workers">
             <td>{{worker.name}}</td>
-            <td>Running</td>
+            <td>{{worker.status | status}}</td>
           </tr>
           </tbody>
         </table>

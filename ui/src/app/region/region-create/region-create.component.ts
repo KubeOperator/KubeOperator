@@ -4,7 +4,7 @@ import {CloudTemplate, Region} from '../region';
 import {CloudTemplateService} from '../cloud-template.service';
 import {RegionService} from '../region.service';
 import {CloudService} from '../cloud.service';
-import {ClrWizard, fadeSlide} from '@clr/angular';
+import {ClrWizard} from '@clr/angular';
 import {catchError, map} from 'rxjs/operators';
 
 @Component({
@@ -91,7 +91,7 @@ export class RegionCreateComponent implements OnInit {
     }
     this.isParamsCheckGoing = true;
     this.item.vars['provider'] = this.item.template;
-    this.cloudService.listRegion(this.item.vars).subscribe(data => {
+    this.cloudService.listRegion(this.item).subscribe(data => {
       this.cloudRegions = data;
       this.isParamsValid = true;
       this.isParamsCheckGoing = false;

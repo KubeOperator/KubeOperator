@@ -1,0 +1,22 @@
+<div class="clr-row">
+  <div class="clr-col-12 clr-col-sm-4" *ngFor="let app of apps">
+    <div class="card">
+      <div class="card-block">
+        <h4 class="card-title">{{app.name}}</h4>
+        <div style="float: left;margin-right: 20px">
+          <img [src]=" 'assets/images/'+app.logo" height="48px" width="48px">
+        </div>
+        <div style="min-height: 64px; text-align:left; padding-top: 10px">
+          {{app.describe}}
+        </div>
+        <p class="card-text">
+        </p>
+      </div>
+      <div class="card-footer">
+        <a target="_blank" [href]="getAppUrl(app)" class="card-link">
+          <button class="btn btn-link" [disabled]="currentCluster.status !== 'RUNNING'">转到</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

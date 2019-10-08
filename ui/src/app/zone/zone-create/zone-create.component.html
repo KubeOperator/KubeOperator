@@ -89,11 +89,11 @@
             <clr-control-helper>例如: 172.16.10.50</clr-control-helper>
           </clr-input-container>
           <clr-input-container>
-            <label>子网掩码</label>
-            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
-            <clr-control-error>此字段为必填项</clr-control-error>
-            <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
-          </clr-input-container>
+          <label>子网掩码</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
+          <clr-control-error>此字段为必填项</clr-control-error>
+          <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
+        </clr-input-container>
           <clr-input-container>
             <label>网关IP</label>
             <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
@@ -101,7 +101,6 @@
           </clr-input-container>
         </div>
       </div>
-
 
       <div *ngIf="region.template === 'openstack'">
         <h3>计算</h3>
@@ -115,31 +114,6 @@
           <clr-control-error>此字段为必填项</clr-control-error>
           <clr-control-helper>选择用于运行虚拟机的可用区</clr-control-helper>
         </clr-select-container>
-<<<<<<< HEAD
-        <clr-input-container>
-          <label>起始IP</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
-          <clr-control-helper>例如: 172.16.10.1</clr-control-helper>
-          <clr-control-error>此字段为必填项</clr-control-error>
-        </clr-input-container>
-        <clr-input-container>
-          <label>截止IP</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
-          <clr-control-error>此字段为必填项</clr-control-error>
-          <clr-control-helper>例如: 172.16.10.50</clr-control-helper>
-        </clr-input-container>
-        <clr-input-container>
-          <label>子网掩码</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
-          <clr-control-error>此字段为必填项</clr-control-error>
-          <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
-        </clr-input-container>
-        <clr-input-container>
-          <label>网关IP</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
-          <clr-control-error>此字段为必填项</clr-control-error>
-        </clr-input-container>
-=======
         <div *ngIf="cloudZone">
           <h3>网络</h3>
           <hr/>
@@ -194,16 +168,15 @@
 
           <clr-input-container>
             <label>起始IP</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['vc_ip_start']" name="ip_start" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
             <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
           <clr-input-container>
             <label>终止IP</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['vc_ip_end']" name="ip_end" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
             <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
         </div>
->>>>>>> origin/dev-2.0
       </div>
     </form>
   </clr-wizard-page>
