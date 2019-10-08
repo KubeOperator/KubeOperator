@@ -1,5 +1,10 @@
-- name: prepare cinder.conf
+- name: prepare master cinder.conf
   template: src=cinder/cinder.conf.j2 dest=/usr/local/bin/cinder.conf
+
+- name: prepare node cinder.conf
+  template: src=cinder/cinder.conf.j2 dest=/usr/local/bin/cinder.conf
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['kube-node'] }}"
 
 - name: modify apiserver and controller-manager services on master node
   lineinfile:
@@ -21,6 +26,15 @@
   with_items: "{{ groups['kube-node'] }}"
   run_once: true
 
+- name: modify kubelet services on worker node
+  lineinfile:
+    path: "v"
+    insertbefore: "--v=2"
+    line: '  --cloud-config=/usr/local/bin/cinder.conf \'
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['kube-node'] }}"
+  run_once: true
+
 - name: restart kubelet service
   shell: "systemctl daemon-reload && systemctl restart kubelet"
   delegate_to: "{{ item }}"
@@ -30,7 +44,6 @@
 - name: restart apiserver and controller-manager service
   shell: "systemctl daemon-reload && systemctl restart kube-controller-manager && \
     systemctl restart kube-apiserver"
-
 
 - block:
   - name: prepare cinder default storageclass file

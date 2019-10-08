@@ -18,7 +18,7 @@ def gather_host_info(host, retry=1):
             sleep(1)
         except Exception:
             attempts += 1
-            if attempts == 3:
+            if attempts == retry:
                 raise Exception("get os info failed!")
             else:
                 sleep(1)

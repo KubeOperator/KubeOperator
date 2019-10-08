@@ -23,9 +23,6 @@ import {ZoneComponent} from './zone/zone.component';
 import {PlanComponent} from './plan/plan.component';
 import {F5BigIpComponent} from './f5-big-ip/f5-big-ip.component';
 import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
-import {ApplicationComponent} from './application/application.component';
-import {ClusterHealthComponent} from './cluster-health/cluster-health.component';
-import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -71,9 +68,6 @@ const routes: Routes = [
           {path: 'deploy', component: DeployComponent},
           {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
-          {path: 'apps', component: ApplicationComponent},
-          {path: 'health', component: ClusterHealthComponent},
-          {path: 'backup', component: ClusterBackupComponent},
           {path: 'big-ip', component: F5BigIpComponent}
         ]
       }

@@ -265,6 +265,13 @@ storages:
     vars:
       storage_cinder_enabled: true
     configs:
+      - name: storage_cinder_type
+        alias: 存储类型
+        comment: storage_type
+        value: ceph
+        type: Input
+        required: true
+        display: true
       - name: set_cinder_default
         type: Switch
         alias: 默认存储

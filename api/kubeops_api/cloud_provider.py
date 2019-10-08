@@ -15,8 +15,8 @@ def create_hosts(cluster):
     result = cloud_provider.apply_terraform(cluster=cluster)
     if result:
         if cluster.plan.mixed_vars.get('provider') == 'openstack':
-            print("sleep 15s: 等待机器状态可用")
-            sleep(15)
+            print("sleep 25s: 等待机器状态可用")
+            sleep(25)
         for h in cluster.terraform_hosts.all():
             h.create_host()
         cluster.create_nodes_by_terraform()

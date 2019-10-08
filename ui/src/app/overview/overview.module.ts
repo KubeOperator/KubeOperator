@@ -3,11 +3,11 @@ import {CommonModule} from '@angular/common';
 import {OverviewComponent} from './overview.component';
 import {CoreModule} from '../core/core.module';
 import {DescribeComponent} from './describe/describe.component';
+import {AppsComponent} from './apps/apps.component';
 import {SharedModule} from '../shared/shared.module';
-import {ClusterStatusComponent} from './cluster-status/cluster-status.component';
 
 @NgModule({
-  declarations: [OverviewComponent, DescribeComponent, ClusterStatusComponent],
+  declarations: [OverviewComponent, DescribeComponent, AppsComponent],
   imports: [
     CommonModule,
     CoreModule,
