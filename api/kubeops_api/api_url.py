@@ -32,4 +32,6 @@ urlpatterns = [
                   path('version/', api.VersionView.as_view()),
                   path('backupStorage/check', api.CheckStorageView.as_view()),
                   path('backupStorage/getBuckets', api.GetBucketsView.as_view()),
+                  path('clusterBackup/<uuid:project_id>/', api.ClusterBackupList.as_view()),
+                  path('clusterBackup/<uuid:id>/delete/', api.ClusterBackupDelete.as_view()),
               ] + router.urls + cluster_router.urls

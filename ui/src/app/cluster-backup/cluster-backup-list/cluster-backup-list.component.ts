@@ -43,7 +43,7 @@ export class ClusterBackupListComponent implements OnInit {
   delete() {
       const promises: Promise<{}>[] = [];
       this.selected.forEach(item => {
-          promises.push(this.clusterBackupService.deleteClusterBackup(item.name).toPromise());
+          promises.push(this.clusterBackupService.deleteClusterBackup(item.id).toPromise());
       });
 
       Promise.all(promises).then(data => {
@@ -57,5 +57,13 @@ export class ClusterBackupListComponent implements OnInit {
           this.listClusterBackups();
         }
       );
+  }
+
+  restore() {
+      this.clusterBackupService.restoreClusterBackup(this.selected[0]).subscribe(data => {
+        this.tipService.showTip('恢复成功', TipLevels.SUCCESS);
+      }, error1 => {
+
+      });
   }
 }

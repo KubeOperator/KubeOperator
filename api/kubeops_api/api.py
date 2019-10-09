@@ -27,6 +27,8 @@ from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
+import kubeops_api.cluster_backup_utils
+from rest_framework import generics
 
 # 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
@@ -220,8 +222,8 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     queryset = BackupStorage.objects.all()
     serializer_class = serializers.BackupStorageSerializer
     permission_classes = (IsSuperUser,)
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
+    lookup_field = 'id'
+    lookup_url_kwarg = 'id'
 
 class CheckStorageView(APIView):
 
@@ -268,6 +270,44 @@ class ClusterBackupViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
+
+
+class ClusterBackupRestore(viewsets.ModelViewSet):
+    queryset = ClusterBackup.objects.all()
+    serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'id'
+    lookup_url_kwarg = 'id'
+
+    def post(self,request):
+        kubeops_api.cluster_backup_utils.run_restore(request.data['id'])
+
+class ClusterBackupList(generics.ListAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return ClusterBackup.objects.filter(project_id=project_id)
+
+
+class ClusterBackupDelete(generics.DestroyAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        id = self.kwargs['id']
+        ok = kubeops_api.cluster_backup_utils.delete_backup(id)
+        result = {
+            "message": '删除成功!',
+            "success": True
+        }
+        response = HttpResponse()
+        if ok:
+            response.write(json.dumps(result))
+        else:
+            result['message'] = '删除失败！'
+            result['success'] = False
+            response.write(json.dumps(result))
+        return response
 
 
 

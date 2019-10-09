@@ -10,12 +10,12 @@ import {ClusterBackup} from './cluster-backup';
 export class ClusterBackupService {
 
   strategyUrl = '/api/v1/backupStrategy/';
-  backupUrl = '/api/v1/clusterBackup';
+  backupUrl = '/api/v1/clusterBackup/';
 
   constructor(private http: HttpClient) {}
 
   listBackupStrategy(project_id: string): Observable<BackupStrategy> {
-    return this.http.get<BackupStrategy>(this.strategyUrl + project_id);
+    return this.http.get<BackupStrategy>(this.strategyUrl + project_id + '/');
   }
 
   createBackStrategy(item: BackupStrategy): Observable<BackupStrategy> {
@@ -27,10 +27,14 @@ export class ClusterBackupService {
   }
 
   listClusterBackup(project_id: string): Observable<ClusterBackup[]> {
-    return this.http.get<ClusterBackup[]>(this.backupUrl);
+    return this.http.get<ClusterBackup[]>(this.backupUrl + project_id + '/');
   }
 
   deleteClusterBackup(id: string): Observable<ClusterBackup> {
-    return this.http.delete<ClusterBackup>(this.backupUrl + id + '/');
+    return this.http.delete<ClusterBackup>(this.backupUrl + id + '/delete/');
+  }
+
+  restoreClusterBackup(item: ClusterBackup): Observable<ClusterBackup> {
+    return this.http.post<ClusterBackup>(this.strategyUrl, item);
   }
 }

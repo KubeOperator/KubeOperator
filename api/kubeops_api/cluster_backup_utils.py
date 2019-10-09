@@ -83,8 +83,18 @@ def run_restore(cluster_backup_id):
 
 
 def delete_backup(cluster_backup_id):
+
     cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)
-    cluster_backup.delete()
+    backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
+    client = StorageClient(backup_storage)
+    if client.exists(cluster_backup.folder):
+        ok,msg = client.delete_file(cluster_backup.folder)
+        if ok:
+            cluster_backup.delete()
+            return True
+    else:
+        cluster_backup.delete()
+        return True
 
 def run_playbooks(steps,extra_vars,project):
     result = {"raw": {}, "summary": {}}
