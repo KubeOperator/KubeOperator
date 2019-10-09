@@ -45,13 +45,12 @@ class SettingSerializer(serializers.ModelSerializer):
 
 
 class PackageSerializer(serializers.ModelSerializer):
-    meta = serializers.DictField(required=False, default={})
+    meta = serializers.JSONField()
 
     class Meta:
         model = Package
-        read_only_fields = ['id', 'date_created']
-        fields = ['id', 'name', 'meta', 'endpoint', 'date_created']
-
+        read_only_fields = ['id', 'name', 'meta', 'date_created']
+        fields = ['id', 'name', 'meta', 'date_created']
 
 class AuthTemplateSerializer(serializers.ModelSerializer):
     meta = serializers.JSONField()
