@@ -23,8 +23,8 @@ import {ZoneComponent} from './zone/zone.component';
 import {PlanComponent} from './plan/plan.component';
 import {F5BigIpComponent} from './f5-big-ip/f5-big-ip.component';
 import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
-import {ApplicationComponent} from './application/application.component';
 import {ClusterHealthComponent} from './cluster-health/cluster-health.component';
+import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {BackupStorageSettingComponent} from './setting/backup-storage-setting/backup-storage-setting.component';
 

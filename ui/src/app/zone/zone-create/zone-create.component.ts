@@ -5,7 +5,7 @@ import {ClrWizard} from '@clr/angular';
 import {RegionService} from '../../region/region.service';
 import {CloudService} from '../../region/cloud.service';
 import {Zone} from '../zone';
-import {CloudZone} from '../../region/cloud';
+import {CloudZone, Subnet} from '../../region/cloud';
 import {CloudTemplateService} from '../../region/cloud-template.service';
 import {ZoneService} from '../zone.service';
 import {catchError} from 'rxjs/operators';
@@ -24,7 +24,8 @@ export class ZoneCreateComponent implements OnInit {
   cloudZones: CloudZone[] = [];
   cloudZone: CloudZone;
   regions: Region[] = [];
-  region: Region;
+  region: Region = new Region();
+  subnetList: Subnet[] = [];
   loading = false;
   @ViewChild('basicForm', { static: true }) basicForm: NgForm;
   @ViewChild('wizard', { static: true }) wizard: ClrWizard;
@@ -62,6 +63,7 @@ export class ZoneCreateComponent implements OnInit {
     this.regions = [];
     this.cloudZones = [];
     this.cloudZone = null;
+    this.subnetList = [];
   }
 
   listRegion() {
@@ -87,6 +89,14 @@ export class ZoneCreateComponent implements OnInit {
     });
   }
 
+  onNetworkChange() {
+    this.cloudZone.networkList.forEach(network => {
+      if (this.item.vars['openstack_network'] === network.id) {
+        this.subnetList = network.subnetList;
+      }
+    });
+  }
+
   onBasicFormCommit() {
     this.cloudService.listZone(this.item.region).subscribe(data => {
       this.cloudZones = data;
@@ -98,7 +108,14 @@ export class ZoneCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    this.item.vars['vc_cluster'] = this.item.cluster;
+    switch (this.region.template) {
+      case 'vsphere':
+        this.item.vars['vc_cluster'] = this.item.cluster;
+        break;
+      case 'openstack':
+        this.item.vars['openstack_zone'] = this.item.cluster;
+        break;
+    }
     this.zoneService.createZones(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;

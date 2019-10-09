@@ -70,3 +70,13 @@ class CloudZoneView(APIView):
         client = get_cloud_client(region.vars)
         data = client.list_zone(region.cloud_region)
         return HttpResponse(json.dumps(data))
+
+
+class CloudFlavorView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        region_name = kwargs.get('region')
+        region = get_object_or_404(Region, name=region_name)
+        client = get_cloud_client(region.vars)
+        return HttpResponse(json.dumps(client.get_flavors(region.cloud_region)))
+

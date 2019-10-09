@@ -46,7 +46,7 @@
     <clr-dg-cell>{{host.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.memory}}</clr-dg-cell>
     <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
-    <clr-dg-cell>{{getStatus(host.status)}}</clr-dg-cell>
+    <clr-dg-cell>{{host.status | status}}</clr-dg-cell>
 
   </clr-dg-row>
 

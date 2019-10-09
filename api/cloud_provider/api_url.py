@@ -16,4 +16,5 @@ urlpatterns = [
                   url(r'cloud/region/', api.CloudRegionView.as_view(), name='cloud-region'),
                   url(r'cloud/compute/', api.ComputeModleView.as_view(), name='compute-model'),
                   path(r'cloud/<region>/zone/', api.CloudZoneView.as_view(), name='cloud-zone'),
+                  path(r'cloud/<region>/flavor/', api.CloudFlavorView.as_view(), name='cloud-flavor'),
               ] + router.urls
