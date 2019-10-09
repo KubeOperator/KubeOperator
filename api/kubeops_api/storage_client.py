@@ -49,5 +49,8 @@ class StorageClient():
     def download_file(self,src,target):
         return self.client.download(src,target)
 
+    def delete_file(self,path):
+        return self.client.delete(path)
+
 
 

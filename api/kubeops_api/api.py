@@ -27,6 +27,8 @@ from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
+import kubeops_api.cluster_backup_utils
+from rest_framework import generics
 
 
 # 集群视图
@@ -41,8 +43,14 @@ class ClusterViewSet(viewsets.ModelViewSet):
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     serializer_class = serializers.PackageSerializer
+    permission_classes = (IsSuperUser,)
+    http_method_names = ['get', 'head', 'options']
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+    def get_queryset(self):
+        Package.lookup()
+        return super().get_queryset()
 
 
 class AuthViewSet(viewsets.ModelViewSet):
@@ -218,10 +226,9 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
-
 class CheckStorageView(APIView):
 
-    def post(self, request, **kwargs):
+    def post(self,request, **kwargs):
         client = StorageClient(request.data)
         valid = client.check_valid()
         response = HttpResponse()
@@ -237,10 +244,9 @@ class CheckStorageView(APIView):
             response.write(json.dumps(result))
         return response
 
-
 class GetBucketsView(APIView):
 
-    def post(self, request):
+    def post(self,request):
         client = StorageClient(request.data)
         buckets = client.list_buckets()
         response = HttpResponse()
@@ -252,7 +258,6 @@ class GetBucketsView(APIView):
         response.write(json.dumps(result))
         return response
 
-
 class BackupStrategyViewSet(viewsets.ModelViewSet):
     queryset = BackupStrategy.objects.all()
     serializer_class = serializers.BackupStrategySerializer
@@ -260,10 +265,58 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
 
-
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
     serializer_class = serializers.ClusterBackupSerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
+
+
+class ClusterBackupList(generics.ListAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return ClusterBackup.objects.filter(project_id=project_id)
+
+
+class ClusterBackupDelete(generics.DestroyAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
+
+    def destroy(self, request, *args, **kwargs):
+        id = self.kwargs['id']
+        ok = kubeops_api.cluster_backup_utils.delete_backup(id)
+        result = {
+            "message": '删除成功!',
+            "success": True
+        }
+        response = HttpResponse()
+        if ok:
+            response.write(json.dumps(result))
+        else:
+            result['message'] = '删除失败！'
+            result['success'] = False
+            response.write(json.dumps(result))
+        return response
+
+class ClusterBackupRestore(generics.UpdateAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
+
+    def put(self, request, *args, **kwargs):
+        ok = kubeops_api.cluster_backup_utils.run_restore(request.data['id'])
+        result = {
+            "message": '恢复成功!',
+            "success": True
+        }
+        response = HttpResponse()
+        if ok:
+            response.write(json.dumps(result))
+        else:
+            result['message'] = '恢复失败！'
+            result['success'] = False
+            response.write(json.dumps(result))
+        return response
+

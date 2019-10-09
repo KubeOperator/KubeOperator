@@ -14,7 +14,7 @@
     dest: "/backup/k8s/snapshot.db"
 
 - name: 清理原备份出来数据
-  file: name=/backup/k8s/{{ NODE_NAME }}.etcd state=absent
+  file: name=/backup/k8s/{{ inventory_hostname }}.etcd state=absent
 
 - name: etcd 数据恢复
   shell: "cd /backup/k8s && \
@@ -25,7 +25,7 @@
 	--initial-advertise-peer-urls https://{{ inventory_hostname }}:2380"
 
 - name: 恢复数据至etcd 数据目录
-  shell: "cp -rf /backup/k8s/{{ NODE_NAME }}.etcd/member /var/lib/etcd/"
+  shell: "cp -rf /backup/k8s/{{ inventory_hostname }}.etcd/member /var/lib/etcd/"
 
 - name: 重启etcd 服务
   service: name=etcd state=restarted

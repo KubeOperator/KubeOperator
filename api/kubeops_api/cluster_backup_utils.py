@@ -65,7 +65,7 @@ def run_restore(cluster_backup_id):
     backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
     project = Project.objects.get(id=cluster_backup.project_id)
     cluster = Cluster.objects.get(id=cluster_backup.project_id)
-    steps = cluster.get_steps('cluster-backup')
+    steps = cluster.get_steps('cluster-restore')
     cluster.configs = cluster.load_config_file()
     client = StorageClient(backup_storage)
     backup_file_path = cluster.name+'/'+cluster_backup.name
@@ -75,7 +75,9 @@ def run_restore(cluster_backup_id):
             extra_vars = {
                 "cluster_name": cluster.name,
             }
+            extra_vars.update(cluster.configs)
             run_playbooks(steps, extra_vars, project)
+            return True
         else:
             raise Exception('download file failed!')
     else:
@@ -83,8 +85,18 @@ def run_restore(cluster_backup_id):
 
 
 def delete_backup(cluster_backup_id):
+
     cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)
-    cluster_backup.delete()
+    backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
+    client = StorageClient(backup_storage)
+    if client.exists(cluster_backup.folder):
+        ok,msg = client.delete_file(cluster_backup.folder)
+        if ok:
+            cluster_backup.delete()
+            return True
+    else:
+        cluster_backup.delete()
+        return True
 
 def run_playbooks(steps,extra_vars,project):
     result = {"raw": {}, "summary": {}}
