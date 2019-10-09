@@ -35,6 +35,6 @@ export class ClusterBackupService {
   }
 
   restoreClusterBackup(item: ClusterBackup): Observable<ClusterBackup> {
-    return this.http.post<ClusterBackup>(this.strategyUrl, item);
+    return this.http.put<ClusterBackup>(this.backupUrl + 'restore/', item);
   }
 }

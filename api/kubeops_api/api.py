@@ -272,16 +272,6 @@ class ClusterBackupViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'project_id'
 
 
-class ClusterBackupRestore(viewsets.ModelViewSet):
-    queryset = ClusterBackup.objects.all()
-    serializer_class = serializers.ClusterBackupSerializer
-    permission_classes = (IsSuperUser,)
-    lookup_field = 'id'
-    lookup_url_kwarg = 'id'
-
-    def post(self,request):
-        kubeops_api.cluster_backup_utils.run_restore(request.data['id'])
-
 class ClusterBackupList(generics.ListAPIView):
     serializer_class = serializers.ClusterBackupSerializer
 
@@ -292,6 +282,7 @@ class ClusterBackupList(generics.ListAPIView):
 
 class ClusterBackupDelete(generics.DestroyAPIView):
     serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
 
     def destroy(self, request, *args, **kwargs):
         id = self.kwargs['id']
@@ -309,5 +300,22 @@ class ClusterBackupDelete(generics.DestroyAPIView):
             response.write(json.dumps(result))
         return response
 
+class ClusterBackupRestore(generics.UpdateAPIView):
+    serializer_class = serializers.ClusterBackupSerializer
+    permission_classes = (IsSuperUser,)
 
+    def put(self, request, *args, **kwargs):
+        ok = kubeops_api.cluster_backup_utils.run_restore(request.data['id'])
+        result = {
+            "message": '恢复成功!',
+            "success": True
+        }
+        response = HttpResponse()
+        if ok:
+            response.write(json.dumps(result))
+        else:
+            result['message'] = '恢复失败！'
+            result['success'] = False
+            response.write(json.dumps(result))
+        return response
 
