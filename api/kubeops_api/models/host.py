@@ -61,9 +61,9 @@ class Host(BaseHost):
             self.zone.recover_ip(self.ip)
         super().delete(using=None, keep_parents=False)
 
-    def gather_info(self):
+    def gather_info(self, retry=1):
         try:
-            facts = gather_host_info(self.ip, self.username, self.password)
+            facts = gather_host_info(self.ip, self.username, self.password, retry)
         except Exception as e:
             self.status = Host.HOST_STATUS_RUNNING
             raise e

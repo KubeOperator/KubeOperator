@@ -15,6 +15,13 @@
               <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
           </select>
     </clr-select-container>
+    <clr-select-container>
+         <label>状态</label>
+         <select clrSelect name="status" [(ngModel)]="backupStrategy.status" required="">
+              <option value="ENABLE">启用</option>
+              <option value="DISABLE">禁用</option>
+         </select>
+    </clr-select-container>
   </form>
   <div class="modal-footer clr-row clr-col-4">
       <button class="btn btn-info-outline clr-col-1" (click)="onCommit()" [disabled]="backupStrategyForm.invalid">保存</button>

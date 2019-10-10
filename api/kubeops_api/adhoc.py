@@ -1,4 +1,5 @@
 from ansible_api.tasks import run_im_adhoc
+from time import sleep
 
 
 def drain_worker_node(host, worker_name):
@@ -11,18 +12,28 @@ def drain_worker_node(host, worker_name):
         raise Exception("drain! node {} failed!".format(worker_name))
 
 
-def gather_host_info(ip, username, password):
+def gather_host_info(ip, username, password, retry=1):
     hosts = [{
         "ip": ip,
         "username": username,
         "password": password,
         "name": "default"
     }]
-    result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'setup'},
-                          inventory_data={'hosts': hosts, 'vars': {}})
-    if not is_adhoc_success(result):
-        raise Exception("get os info failed!")
-    return result["raw"]["ok"]["default"]["setup"]["ansible_facts"]
+    attempts = 0
+    while attempts < retry:
+        try:
+            result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'setup'},
+                                  inventory_data={'hosts': hosts, 'vars': {}})
+            if is_adhoc_success(result):
+                return result["raw"]["ok"]["default"]["setup"]["ansible_facts"]
+            attempts += 1
+            sleep(1)
+        except Exception:
+            attempts += 1
+            if attempts == retry:
+                raise Exception("get os info failed!")
+            else:
+                sleep(1)
 
 
 def test_host(ip, username, password):
