@@ -11,7 +11,7 @@ import time
 
 
 def cluster_backup():
-    backup_strategies = BackupStrategy.objects.all()
+    backup_strategies = BackupStrategy.objects.filter(status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
     for b in backup_strategies:
         project_id = str(b.project_id)
         backup_storage_id = str(b.backup_storage_id)
