@@ -244,6 +244,16 @@ storages:
         required: true
         display: true
 
+  - name: cinder
+    vars:
+      storage_cinder_enabled: true
+    configs:
+      - name: set_cinder_default
+        type: Switch
+        alias: 默认存储
+        value: true
+        required: true
+        display: true
 
 
 public_config:

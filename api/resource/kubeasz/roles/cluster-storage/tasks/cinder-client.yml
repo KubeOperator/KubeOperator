@@ -28,7 +28,7 @@
 
 - name: modify kubelet services on worker node
   lineinfile:
-    path: "v"
+    path: "/etc/systemd/system/kubelet.service"
     insertbefore: "--v=2"
     line: '  --cloud-config=/usr/local/bin/cinder.conf \'
   delegate_to: "{{ item }}"

@@ -5,4 +5,4 @@ metadata:
 provisioner: kubernetes.io/cinder
 reclaimPolicy: Delete
 parameters:
-  type: "{{ storage_cinder_type }}"
+  type: "{{ zones[0]['openstack_storage_type'] }}"

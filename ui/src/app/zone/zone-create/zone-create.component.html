@@ -115,6 +115,18 @@
           <clr-control-helper>选择用于运行虚拟机的可用区</clr-control-helper>
         </clr-select-container>
         <div *ngIf="cloudZone">
+           <h3>存储</h3>
+          <hr/>
+          <clr-select-container>
+            <label>存储类型</label>
+            <select [(ngModel)]="item.vars['openstack_storage_type']" name="storage" clrSelect required>
+              <option [value]="">请选择</option>
+              <option *ngFor="let storage of cloudZone.storages" [value]="storage.type">{{storage.name}}</option>
+            </select>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>选择用于运行持久化存储的存储类型</clr-control-helper>
+          </clr-select-container>
+
           <h3>网络</h3>
           <hr/>
           <clr-select-container>
