@@ -183,5 +183,4 @@ def delete_hosts(cluster):
         cluster.change_to()
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
-            node.host.zone.recover_ip(node.host.ip)
             node.host.delete()
