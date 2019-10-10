@@ -11,10 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='package',
-            name='endpoint',
-        ),
         migrations.AddField(
             model_name='backupstrategy',
             name='status',
