@@ -52,7 +52,6 @@ class PackageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'meta', 'date_created']
         fields = ['id', 'name', 'meta', 'date_created']
 
-
 class AuthTemplateSerializer(serializers.ModelSerializer):
     meta = serializers.JSONField()
 

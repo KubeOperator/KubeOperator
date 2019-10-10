@@ -50,7 +50,6 @@ class CloudRegionView(APIView):
 
     def post(self, request):
         vars = request.data.get('vars')
-        vars['provider'] = request.data.get('template')
         client = get_cloud_client(vars)
         data = client.list_region()
         return HttpResponse(json.dumps(data))
@@ -80,4 +79,3 @@ class CloudFlavorView(APIView):
         region = get_object_or_404(Region, name=region_name)
         client = get_cloud_client(region.vars)
         return HttpResponse(json.dumps(client.get_flavors(region.cloud_region)))
-

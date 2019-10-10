@@ -78,22 +78,22 @@
           </clr-select-container>
           <clr-input-container>
             <label>起始IP</label>
-            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_ip_start']" name="ip_start" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
             <clr-control-helper>例如: 172.16.10.1</clr-control-helper>
             <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
           <clr-input-container>
             <label>截止IP</label>
-            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_ip_end']" name="ip_end" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>例如: 172.16.10.50</clr-control-helper>
           </clr-input-container>
           <clr-input-container>
-          <label>子网掩码</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
-          <clr-control-error>此字段为必填项</clr-control-error>
-          <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
-        </clr-input-container>
+            <label>子网掩码</label>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
+            <clr-control-error>此字段为必填项</clr-control-error>
+            <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
+          </clr-input-container>
           <clr-input-container>
             <label>网关IP</label>
             <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
@@ -140,9 +140,10 @@
           </clr-select-container>
           <clr-select-container>
             <label>网络</label>
-            <select [(ngModel)]="item.vars['openstack_network']" name="network" (change)="onNetworkChange()" clrSelect required>
+            <select [(ngModel)]="item.vars['openstack_network']" name="network" (change)="onNetworkChange()" clrSelect
+                    required>
               <option [value]="">请选择</option>
-              <option *ngFor="let network of cloudZone.networkList"  [value]="network.id">{{network.name}}</option>
+              <option *ngFor="let network of cloudZone.networkList" [value]="network.id">{{network.name}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
@@ -150,9 +151,9 @@
 
           <clr-select-container>
             <label>IP类型</label>
-            <select [(ngModel)]="item.vars['openstack_ip_type']" name="ip_type"  clrSelect required>
+            <select [(ngModel)]="item.vars['openstack_ip_type']" name="ip_type" clrSelect required>
               <option [value]="">请选择</option>
-              <option *ngFor="let type of cloudZone.ipType"  [value]="type">{{type}}</option>
+              <option *ngFor="let type of cloudZone.ipType" [value]="type">{{type}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
@@ -160,9 +161,9 @@
 
           <clr-select-container *ngIf="item.vars['openstack_ip_type'] === 'private'">
             <label>子网</label>
-            <select [(ngModel)]="item.vars['openstack_subnet']" name="subnet"  clrSelect required>
+            <select [(ngModel)]="item.vars['openstack_subnet']" name="subnet" clrSelect required>
               <option [value]="">请选择</option>
-              <option *ngFor="let subnet of subnetList"  [value]="subnet.id">{{subnet.name}}</option>
+              <option *ngFor="let subnet of subnetList" [value]="subnet.id">{{subnet.name}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>
@@ -170,9 +171,10 @@
 
           <clr-select-container *ngIf="item.vars['openstack_ip_type'] === 'floating'">
             <label>FloatingIP池</label>
-            <select [(ngModel)]="item.vars['openstack_floating_network']" name="network"  clrSelect required>
+            <select [(ngModel)]="item.vars['openstack_floating_network']" name="network" clrSelect required>
               <option [value]="">请选择</option>
-              <option *ngFor="let network of cloudZone.floatingNetworkList" [value]="network.id">{{network.name}}</option>
+              <option *ngFor="let network of cloudZone.floatingNetworkList"
+                      [value]="network.id">{{network.name}}</option>
             </select>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>选择用于连接虚拟机的网络</clr-control-helper>

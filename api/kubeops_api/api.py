@@ -30,6 +30,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 import kubeops_api.cluster_backup_utils
 from rest_framework import generics
 
+
 # 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
     queryset = Cluster.objects.all()
@@ -222,8 +223,8 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     queryset = BackupStorage.objects.all()
     serializer_class = serializers.BackupStorageSerializer
     permission_classes = (IsSuperUser,)
-    lookup_field = 'id'
-    lookup_url_kwarg = 'id'
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
 
 class CheckStorageView(APIView):
 

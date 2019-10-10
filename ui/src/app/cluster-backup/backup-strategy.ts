@@ -4,4 +4,5 @@ export class BackupStrategy {
   save_num: number;
   project_id: string;
   backup_storage_id: string;
+  status: string;
 }

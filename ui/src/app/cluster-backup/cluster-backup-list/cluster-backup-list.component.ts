@@ -1,10 +1,12 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {ClusterBackup} from '../cluster-backup';
 import {ClusterBackupService} from '../cluster-backup.service';
 import {ActivatedRoute} from '@angular/router';
 import {TipService} from '../../tip/tip.service';
 import {TipLevels} from '../../tip/tipLevels';
+import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
+
 
 @Component({
   selector: 'app-cluster-backup-list',
@@ -20,6 +22,8 @@ export class ClusterBackupListComponent implements OnInit {
   selected: ClusterBackup[] = [];
   resourceTypeName = '备份';
   projectId = '';
+  @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
+
 
   constructor(private route: ActivatedRoute,  private clusterBackupService: ClusterBackupService,
                private tipService: TipService) {}
@@ -42,6 +46,7 @@ export class ClusterBackupListComponent implements OnInit {
 
   delete() {
       const promises: Promise<{}>[] = [];
+      this.loading = true;
       this.selected.forEach(item => {
           promises.push(this.clusterBackupService.deleteClusterBackup(item.id).toPromise());
       });
@@ -57,11 +62,14 @@ export class ClusterBackupListComponent implements OnInit {
           this.listClusterBackups();
         }
       );
+      this.loading = false;
   }
 
   restore() {
+      this.confirmAlert.setTitle('确认恢复');
+      this.confirmAlert.setComment('确认以此备份恢复？');
       this.clusterBackupService.restoreClusterBackup(this.selected[0]).subscribe(data => {
-        this.tipService.showTip('恢复成功', TipLevels.SUCCESS);
+          this.tipService.showTip('恢复成功', TipLevels.SUCCESS);
       }, error1 => {
 
       });
