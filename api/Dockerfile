@@ -13,8 +13,6 @@ RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null"
 COPY ./requirements/install_terraform.sh /opt/kubeOperator-api
 RUN bash /opt/kubeOperator-api/install_terraform.sh
 RUN yum -y install crontabs
-RUN echo -e "nameserver 8.8.8.8" >> /etc/resolv.conf
-RUN echo -e "nameserver 114.114.114.114" >> /etc/resolv.conf
 COPY extra/dnsmasq.conf /etc/
 COPY extra/kubeops.dns.conf /etc/dnsmasq.d
 COPY . /opt/kubeOperator-api
