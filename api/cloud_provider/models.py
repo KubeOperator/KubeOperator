@@ -153,12 +153,22 @@ class Zone(models.Model):
         return dic
 
     def ip_pools(self):
+        ip_pool = []
         ip_start = ip_address(self.vars['ip_start'])
         ip_end = ip_address(self.vars['ip_end'])
+
+        if self.region.template.name == 'openstack':
+            while ip_start <= ip_end:
+                ip_pool.append(str(ip_start))
+                ip_start += 1
+            for ip in self.ip_used:
+                if ip in ip_pool:
+                    ip_pool.remove(ip)
+            return ip_pool
+
         net_mask = self.vars['net_mask']
         interface = ip_interface("{}/{}".format(str(ip_start), net_mask))
         network = interface.network
-        ip_pool = []
         for host in network.hosts():
             if ip_start <= host <= ip_end:
                 ip_pool.append(str(host))
@@ -169,6 +179,10 @@ class Zone(models.Model):
 
     def ip_available_size(self):
         return len(self.ip_pools())
+
+    @property
+    def provider(self):
+        return self.region.template.name
 
 
 class Plan(models.Model):

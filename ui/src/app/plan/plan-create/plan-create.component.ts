@@ -80,21 +80,19 @@ export class PlanCreateComponent implements OnInit {
     this.regions.forEach(region => {
       if (this.item.region === region.name) {
         this.region = region;
-        // this.cloudTemplateService.getCloudTemplate(region.template).subscribe(data => {
-        //   this.cloudTemplate = data;
-        //   if(this.region.template === 'openstack'){
-        //     this.setFlavorModels()
-        //   }
-        // });
+          if(this.region.template === 'openstack'){
+            this.setFlavorModels()
+          }
       }
     });
   }
 
-  // setFlavorModels() {
-  //   this.cloudService.listFlavor(this.region.name).subscribe(data => {
-  //     this.cloudTemplate.meta.plan.models = data;
-  //   });
-  // }
+  setFlavorModels() {
+    this.computeModels = [];
+    this.cloudService.listFlavor(this.region.name).subscribe(data => {
+      this.computeModels = data;
+    });
+  }
 
   onDeployChange() {
     this.item.zone = undefined;
@@ -114,9 +112,9 @@ export class PlanCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    // if(this.region.template === 'openstack'){
-    //   this.item.vars['compute_models'] = this.cloudTemplate.meta.plan.models
-    // }
+    if(this.region.template === 'openstack'){
+      this.item.vars['compute_models'] = this.computeModels
+    }
     this.planService.createPlan(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.createOpened = false;

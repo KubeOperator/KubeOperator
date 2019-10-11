@@ -158,8 +158,8 @@ class OpenStackCloudClient(CloudClient):
         url = "http://{}:{}/repository/raw/terraform/openstack.zip".format(hostname, port)
         download_plugins(url=url, target=plugin_dir)
 
-    def apply_terraform(self, cluster):
-        return super().apply_terraform(cluster)
+    def apply_terraform(self, cluster, hosts_dict):
+        return super().apply_terraform(cluster, hosts_dict)
 
     def create_image(self, zone):
         openstack_client = get_openstack_client(self.vars, zone.region.cloud_region)
@@ -256,49 +256,3 @@ def get_filter(vars, **kwargs):
         filters['network_id'] = kwargs.get('network_id')
     return filters
 
-
-
-# keystone = KeystoneClient.Client(auth_url='http://openstack.fit2cloud.com/identity/v3',
-#                                  username='admin',
-#                                  password='Calong@2015',
-#                                  project_id='ed2838ecd90a4ec5a1ef5cf305bef59c',
-#                                  user_domain_name='Default')
-#
-#
-# client = connection.Connection(auth_url='http://openstack.fit2cloud.com/identity/v3',
-#                                  username='admin',
-#                                  password='Calong@2015',
-#                                  project_id='ed2838ecd90a4ec5a1ef5cf305bef59c',
-#                                  user_domain_name='Default',
-#                                region_name='RegionOne')
-#
-#
-#
-# keystone = KeystoneClient.Client(auth_url='http://172.190.78.10:5000/v3',
-#                                  username='f2c',
-#                                  password='fit2cloud',
-#                                  project_id='4bf0e161fc6446b7aff69581717b2311',
-#                                  user_domain_name='FIT测试')
-#
-#
-#
-client = connection.Connection(auth_url='http://172.190.78.10:5000/v3',
-                                     username='f2c',
-                                     password='fit2cloud',
-                                     project_id='4bf0e161fc6446b7aff69581717b2311',
-                                 user_domain_name='FIT测试',
-                               region_name='RegionTwo')
-
-# for network in openstack_networks:
-#     if network['router:external']:
-#         print("network ex " + network.name)
-#         print("network ex " + network.project_id)
-#     else:
-#         print("network in " + network.name)
-#         print("network in " + network.project_id)
-#         filter = {
-#             "network_id":  network.id
-#         }
-#         openstack_subnets = client.list_subnets(filter)
-#         for subnet in openstack_subnets:
-#             print(subnet.name)

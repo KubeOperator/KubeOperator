@@ -7,6 +7,7 @@ from kubeops_api.adhoc import drain_worker_node
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.setting import Setting
+from time import sleep
 
 
 def create_compute_resource(cluster):
@@ -97,8 +98,11 @@ def create_nodes(cluster, hosts_dict):
     terraform_result = client.apply_terraform(cluster, hosts_dict)
     if not terraform_result:
         raise RuntimeError("create host error!")
+    if cluster.plan.mixed_vars.get('provider') == 'openstack':
+        print("sleep 20s,等待sshd服务可用")
+        sleep(20)
     for host in hosts:
-        host.gather_info()
+        host.gather_info(retry=5)
 
 
 def is_worker(host):
@@ -121,7 +125,13 @@ def create_cluster_hosts_dict(cluster):
         roles['master'] = 3
     for role, size in roles.items():
         compute_model_name = cluster.plan.compute_models[role]
-        compute_model = get_compute_model_meta(compute_model_name)
+        compute_model = {}
+        if cluster.plan.region.template.name == 'openstack':
+            for model in cluster.plan.vars['compute_models']:
+                if model['name'] == compute_model_name:
+                    compute_model = model['meta']
+        else:
+            compute_model = get_compute_model_meta(compute_model_name)
         for i in range(1, size + 1):
             name = role + "{}.".format(i) + "{}".format(domain)
             zone = get_zone(cluster.plan.get_zones(), i)
@@ -183,5 +193,4 @@ def delete_hosts(cluster):
         cluster.change_to()
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
-            node.host.zone.recover_ip(node.host.ip)
             node.host.delete()
