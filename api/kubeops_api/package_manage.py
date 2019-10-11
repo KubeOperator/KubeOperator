@@ -13,7 +13,7 @@ def get_docker_client():
 def is_package_container_exists(package_name):
     result = False
     client = get_docker_client()
-    containers = client.containers.list()
+    containers = client.containers.list(all=True)
     for container in containers:
         if container.name == package_name:
             result = True
