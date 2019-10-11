@@ -3,7 +3,7 @@
 <app-delete-alert [(opened)]="showDelete" [resourceTypeName]="resourceTypeName" [items]="selected"
                   (confirm)="delete()">
 </app-delete-alert>
-<app-confirm-alert (confirm)="restore()"></app-confirm-alert>
+<app-confirm-alert (confirm)="handleRestore()"></app-confirm-alert>
 <clr-datagrid [clrDgSelected]="selected">
     <clr-dg-action-bar>
     <div class="btn-group">

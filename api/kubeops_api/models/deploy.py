@@ -9,6 +9,10 @@ from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 from common import models as common_models
+from kubeops_api.models.cluster_backup import ClusterBackup
+from kubeops_api.storage_client import StorageClient
+from kubeops_api.models.backup_storage import BackupStorage
+
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -66,6 +70,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'restore':
+                cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
+                cluster_backup_id = self.params.get('clusterBackupId', None)
+                result = self.on_restore(extra_vars,cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
 
         except Exception as e:
@@ -138,6 +147,23 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars.update(cluster.meta)
         return self.run_playbooks(extra_vars)
 
+    def on_restore(self,extra_vars,cluster_backup_id):
+        cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)
+        backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('cluster-restore')
+        client = StorageClient(backup_storage)
+        backup_file_path = cluster.name + '/' + cluster_backup.name
+        if client.exists(backup_file_path):
+            success = client.download_file(backup_file_path,
+                                           "/etc/ansible/roles/cluster-backup/files/cluster-backup.zip")
+            if success:
+                return self.run_playbooks(extra_vars)
+            else:
+                raise Exception('download file failed!')
+        else:
+            raise Exception('File is not exist!')
+
     def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}
         for step in self.steps:
@@ -176,3 +202,4 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('-date_created',)
+
