@@ -27,6 +27,7 @@ KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
 CONFIG = load_user_config()
 # 添加离线包路径
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -57,11 +58,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-
-CRONJOBS = (
-    ('*/5 * * * *', 'kubeops_api.cluster_backup_utils.cluster_backup'),
-)
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

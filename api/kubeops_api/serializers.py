@@ -201,7 +201,7 @@ class BackupStorageSerializer(serializers.ModelSerializer):
 class BackupStrategySerializer(serializers.ModelSerializer):
     class Meta:
         model = BackupStrategy
-        fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id']
+        fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id' ,'status']
 
 
 class ClusterBackupSerializer(serializers.ModelSerializer):
