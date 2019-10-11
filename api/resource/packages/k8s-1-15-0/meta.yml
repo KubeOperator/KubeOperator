@@ -69,6 +69,7 @@ vars:
   etcd_version: "3.3.10"
 
   repo_port: 8082
+  registry_port: 8092
   registry_prefix: "registry.kubeops.io:8092"
   download_path: "repository/raw/1.15.0/k8s.1-15-0.tar.gz"
   file_name: "k8s.1-15-0.tar.gz"

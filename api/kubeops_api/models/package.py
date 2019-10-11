@@ -1,4 +1,5 @@
 import os
+import threading
 import uuid
 
 import yaml
@@ -6,6 +7,7 @@ from django.db import models
 from common.models import JsonTextField
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
+from kubeops_api.package_manage import *
 
 __all__ = ['Package']
 
@@ -27,6 +29,14 @@ class Package(models.Model):
     def path(self):
         return os.path.join(self.packages_dir, self.name)
 
+    @property
+    def repo_port(self):
+        return self.meta['vars']['repo_port']
+
+    @property
+    def registry_port(self):
+        return self.meta['vars']['registry_port']
+
     @classmethod
     def lookup(cls):
         for d in os.listdir(cls.packages_dir):
@@ -37,4 +47,14 @@ class Package(models.Model):
             with open(meta_path) as f:
                 metadata = yaml.load(f)
             defaults = {'name': d, 'meta': metadata}
-            cls.objects.update_or_create(defaults=defaults, name=d)
+            instance = cls.objects.update_or_create(defaults=defaults, name=d)[0]
+            thread = threading.Thread(target=cls.start_container(instance))
+            thread.start()
+
+    @classmethod
+    def start_container(cls, package):
+        if not is_package_container_exists(package.name):
+            create_package_container(package)
+            return
+        if not is_package_container_start(package.name):
+            start_package_container(package)
