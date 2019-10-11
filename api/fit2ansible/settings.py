@@ -41,7 +41,6 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    'django_crontab',
     'kubeops_api.apps.KubeOperatorApiConfig',
     'cloud_provider.apps.CloudProviderConfig',
     'ansible_api.apps.AnsibleApiConfig',
