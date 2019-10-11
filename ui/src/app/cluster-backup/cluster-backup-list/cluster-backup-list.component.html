@@ -3,6 +3,7 @@
 <app-delete-alert [(opened)]="showDelete" [resourceTypeName]="resourceTypeName" [items]="selected"
                   (confirm)="delete()">
 </app-delete-alert>
+<app-confirm-alert (confirm)="restore()"></app-confirm-alert>
 <clr-datagrid [clrDgSelected]="selected">
     <clr-dg-action-bar>
     <div class="btn-group">
@@ -12,7 +13,7 @@
         <clr-icon shape="close"></clr-icon>
         删除
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1" (click)="restore()">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1" (click)="onRestore()">
         <clr-icon shape="restore" size="16" ></clr-icon>
         恢复
       </button>

@@ -65,13 +65,18 @@ export class ClusterBackupListComponent implements OnInit {
       this.loading = false;
   }
 
-  restore() {
+  onRestore() {
       this.confirmAlert.setTitle('确认恢复');
       this.confirmAlert.setComment('确认以此备份恢复？');
+      this.confirmAlert.opened = true;
+  }
+
+  restore() {
       this.clusterBackupService.restoreClusterBackup(this.selected[0]).subscribe(data => {
           this.tipService.showTip('恢复成功', TipLevels.SUCCESS);
       }, error1 => {
 
       });
+      this.confirmAlert.close();
   }
 }
