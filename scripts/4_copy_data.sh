@@ -11,6 +11,5 @@ function main {
     cp -rp ${PROJECT_DIR}/scripts /opt/kubeOperator/
     cp -rp ${PROJECT_DIR}/docker-compose.yml /opt/kubeOperator/
     cp -rp ${PROJECT_DIR}/kubeopsctl.sh /opt/kubeOperator/
-    chmod -R 777 /opt/kubeOperator/docker/nexus
 }
 main
