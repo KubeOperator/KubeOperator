@@ -40,8 +40,7 @@ services:
     volumes:
       - api_data:/opt/kubeOperator-api/data
       - dns_data:/etc/dnsmasq.d
-      - ./docker/template:/images
-      - ./docker/packages:/opt/kubeOperator-api/resource/packages
+      - ./data: /data
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DB_HOST: mysql

@@ -2,6 +2,8 @@ import logging
 
 import docker
 
+from fit2ansible.settings import PACKAGE_IMAGE_NAME, PACKAGE_PATH_PREFIX
+
 Logger = logging.getLogger(__name__)
 
 
@@ -28,10 +30,10 @@ def is_package_container_start(package_name):
 
 def create_package_container(package):
     client = get_docker_client()
-    image_name = "registry.fit2cloud.com/public/nexus-helm:3.15.2-01"
-    package_path = "/opt/kubeoperator/docker/packages/{}/data".format(package.name)
+    image_name = PACKAGE_IMAGE_NAME
+    package_path = "{}{}/data".format(PACKAGE_PATH_PREFIX, package.name)
     volumes = {
-        package_path: {"bind": "/nexus-data"}
+        package_path: {"bind": "/nexus-data", "mode": "rw"}
     }
     ports = {
         '8081/tcp': package.repo_port,

@@ -5,8 +5,8 @@ import uuid
 import yaml
 from django.db import models
 from common.models import JsonTextField
-from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
+from fit2ansible.settings import PACKAGE_DIR
 from kubeops_api.package_manage import *
 
 __all__ = ['Package']
@@ -17,7 +17,7 @@ class Package(models.Model):
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     meta = JsonTextField(blank=True, null=True, verbose_name=_('Meta'))
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
-    packages_dir = os.path.join(settings.BASE_DIR, 'resource', 'packages')
+    packages_dir = PACKAGE_DIR
 
     def __str__(self):
         return self.name
