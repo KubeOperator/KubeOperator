@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import yaml
 from django.http import HttpResponse, JsonResponse
@@ -29,6 +30,8 @@ from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
 import kubeops_api.cluster_backup_utils
 from rest_framework import generics
+from kubeops_api.prometheus_client import PrometheusClient
+from django.views import View
 
 
 # 集群视图
@@ -320,3 +323,50 @@ class ClusterBackupRestore(generics.UpdateAPIView):
             response.write(json.dumps(result))
         return response
 
+class ClusterHealth(View):
+    permission_classes = (IsSuperUser,)
+
+    def get(self,request, *args, **kwargs):
+        project_name = self.kwargs['project_name']
+        table_name = self.kwargs['table_name']
+        cluster = Cluster.objects.get(name=project_name)
+        domain_suffix = Setting.objects.get(key="domain_suffix")
+        host = "prometheus.apps."+cluster.name+"."+domain_suffix.value
+        config = {
+            'host': host,
+            'end': time.time(),
+            'start': time.time()-60,
+            'table_name': table_name,
+            'param': ''
+        }
+        response = HttpResponse(content_type='application/json')
+        res = PrometheusClient(config).query()
+        dataArray = []
+        allData = []
+        if res.get('data') and res.get('data').get('result'):
+            array  = res.get('data').get('result')
+            for a in array:
+                hostName = ''
+                try:
+                    hostName = Host.objects.get(ip=a.get('metric').get('instance').split(':')[0]).name
+                except:
+                    pass
+                if hostName != '':
+                    data = {
+                        'key':hostName,
+                        'value': a.get('value')[1]
+                    }
+                    dataArray.append(data)
+        etcd = {
+            'type': 'etcd',
+            'data': dataArray
+        }
+        allData.append(etcd)
+
+        result = {
+            'status': res['status'],
+            'data': allData
+        }
+
+        response.write(json.dumps(result))
+        return response

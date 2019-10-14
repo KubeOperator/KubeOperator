@@ -213,3 +213,9 @@ class ClusterBackupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClusterBackup
         fields = ['id', 'name', 'size', 'date_created', 'project_id', 'folder', 'backup_storage']
+
+class ClusterHealthSerializer(serializers.Serializer):
+
+    type = serializers.CharField()
+    data = serializers.CharField()
+    status = serializers.CharField()
