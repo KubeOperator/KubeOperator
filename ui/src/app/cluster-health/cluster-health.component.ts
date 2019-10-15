@@ -118,4 +118,21 @@ export class ClusterHealthComponent implements OnInit {
      };
      this.seriesArray.push(series);
   }
+
+  getClusterServiceStatus(data) {
+    let num = 0;
+    let  serviceStyle = '#7ED321';
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].value === '1') {
+        num = num + 1;
+      }
+    }
+    if (num >= data.length / 2 ) {
+      serviceStyle = '#FF0000';
+    }
+    if (num > 0 && num < data.length / 2) {
+      serviceStyle = '#FFB90F';
+    }
+    return serviceStyle;
+  }
 }

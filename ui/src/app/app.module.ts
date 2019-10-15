@@ -31,6 +31,7 @@ import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
+import { ClusterHealthStatusPipe } from './cluster-health/cluster-health-status.pipe';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import {SharedModule} from './shared/shared.module';
     ApplicationComponent,
     ClusterHealthComponent,
     ClusterBackupComponent,
+    ClusterHealthStatusPipe,
   ],
   imports: [
     CredentialModule,

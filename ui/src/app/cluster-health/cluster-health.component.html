@@ -9,8 +9,8 @@
               <div class="card-header" style="background-color: #7ED321">
 
               </div>
-              <div class="card-block">
-                <img src="../../assets/images/k8s.png" class="img-responsive">
+              <div class="card-block" align="center">
+                <img src="../../assets/images/k8s.png" class="img-responsive" width="64">
               </div>
               <div class="card-footer">
 
@@ -26,7 +26,7 @@
               </div>
               <div class="card-block">
                 <div class="card-media-block">
-                  <img src="../../assets/images/master.png" style="width: 40%">
+                  <img src="../../assets/images/master.png" width="64">
                   <div class="card-media-description">
                       <span class="card-media-title"></span>
                       <span class="card-media-text">
@@ -51,18 +51,16 @@
       <div class="clr-col-4 clr-row">
          <div class="clr-col-12">
            <div class="card">
-             <div class="card-header" style="background-color: #7ED321">
-
+             <div class="card-header" [ngStyle]="{'background-color':getClusterServiceStatus(etcdData)}" align="center">
+                  <img src="../../assets/images/etcd.png" width="32">  ETCD
              </div>
              <div class="card-block">
-               <div class="card-media-block">
-                   <img src="../../assets/images/etcd.png" style="width: 40%" class="card-media-image">
-                   <div class="card-media-description">
-                        <span class="card-media-text">
-                          <span *ngFor="let etcd of etcdData">{{etcd.key}} {{etcd.value}}</span>
-                        </span>
-                    </div>
-               </div>
+                 <table class="table">
+                   <tr *ngFor="let etcd of etcdData">
+                     <td >{{etcd.key}}</td>
+                     <td >{{etcd.value | clusterHealthStatus}}</td>
+                   </tr>
+                 </table>
              </div>
            </div>
          </div>
