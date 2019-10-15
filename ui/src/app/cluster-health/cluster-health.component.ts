@@ -101,6 +101,7 @@ export class ClusterHealthComponent implements OnInit {
       calendar: calendarArray,
       series: seriesArray
     };
+    console.log(this.options);
   }
 
   setSeries(index, data) {
@@ -149,7 +150,7 @@ export class ClusterHealthComponent implements OnInit {
     for (const d of data) {
       dataArray.push([
          this.datePipe.transform(d.key, 'yyyy-MM-dd'),
-         1
+         d.value
       ]);
     }
     return dataArray;

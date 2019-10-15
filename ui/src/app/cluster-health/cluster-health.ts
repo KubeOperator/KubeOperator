@@ -11,5 +11,5 @@ export class HealthData {
 
 export class Data {
   key: string;
-  value: string;
+  value: any;
 }
