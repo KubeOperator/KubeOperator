@@ -4,7 +4,6 @@ import {RegionListComponent} from './region-list/region-list.component';
 import {RegionDetailComponent} from './region-detail/region-detail.component';
 import {RegionCreateComponent} from './region-create/region-create.component';
 import {CoreModule} from '../core/core.module';
-import {TipModule} from '../tip/tip.module';
 import {RegionComponent} from './region.component';
 import {SharedModule} from '../shared/shared.module';
 
@@ -13,7 +12,6 @@ import {SharedModule} from '../shared/shared.module';
   imports: [
     CommonModule,
     CoreModule,
-    TipModule,
     SharedModule
   ],
 })

@@ -2,10 +2,9 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {NodeService} from '../../node/node.service';
 import {Node} from '../../node/node';
-import {UpgradeComponent} from '../upgrade/upgrade.component';
 import {ScaleComponent} from '../scale/scale.component';
-import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {Router} from '@angular/router';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
 
 @Component({
   selector: 'app-cluster-status',
@@ -18,8 +17,8 @@ export class ClusterStatusComponent implements OnInit {
   workers: Node[] = [];
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
 
-  constructor(private nodeService: NodeService, private operaterService: OperaterService,
-              private router: Router) {
+  constructor(private nodeService: NodeService,
+              private router: Router, private operaterService: OperaterService) {
   }
 
   ngOnInit() {

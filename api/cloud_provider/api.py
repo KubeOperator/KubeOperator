@@ -1,12 +1,14 @@
 import json
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from ansible_api.permissions import IsSuperUser
 from cloud_provider import serializers, get_cloud_client
 from cloud_provider.compute_model import compute_models
 from cloud_provider.models import CloudProviderTemplate, Region, Zone, Plan
+from kubeops_api.models.cluster import Cluster
 
 
 class CloudProviderTemplateViewSet(viewsets.ModelViewSet):
@@ -29,6 +31,12 @@ class RegionViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.zone_size > 0:
+            return Response(data={'msg': '区域: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
+
 
 class ZoneViewSet(viewsets.ModelViewSet):
     queryset = Zone.objects.all()
@@ -37,6 +45,12 @@ class ZoneViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.host_size > 0:
+            return Response(data={'msg': '可用区: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
+
 
 class PlanViewSet(viewsets.ModelViewSet):
     queryset = Plan.objects.all()
@@ -44,6 +58,13 @@ class PlanViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        query_set = Cluster.objects.filter(plan__name=instance.name)
+        if len(query_set) > 0:
+            return Response(data={'msg': '部署计划: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
 
 
 class CloudRegionView(APIView):

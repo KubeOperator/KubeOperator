@@ -1,11 +1,9 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {Credential} from '../../credential/credential-list/credential';
 import {RegionService} from '../region.service';
 import {Region} from '../region';
-import {TipLevels} from '../../tip/tipLevels';
-import {TipService} from '../../tip/tip.service';
-import {PackageDetailComponent} from '../../package/package-detail/package-detail.component';
 import {RegionDetailComponent} from '../region-detail/region-detail.component';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-region-list',
@@ -21,10 +19,10 @@ export class RegionListComponent implements OnInit {
   showDetail = false;
   resourceTypeName: '区域';
   @Output() add = new EventEmitter();
-  @ViewChild(RegionDetailComponent, { static: true })
+  @ViewChild(RegionDetailComponent, {static: true})
   child: RegionDetailComponent;
 
-  constructor(private regionService: RegionService, private tipService: TipService) {
+  constructor(private regionService: RegionService, private alertService: CommonAlertService) {
   }
 
 
@@ -51,9 +49,7 @@ export class RegionListComponent implements OnInit {
       }
     );
     Promise.all(promises).then(data => {
-      this.tipService.showTip('删除成功', TipLevels.SUCCESS);
-    }, error => {
-      this.tipService.showTip('删除失败' + error.toString(), TipLevels.ERROR);
+      this.alertService.showAlert('删除成功', AlertLevels.SUCCESS);
     }).finally(
       () => {
         this.showDelete = false;

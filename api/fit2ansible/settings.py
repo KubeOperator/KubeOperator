@@ -37,7 +37,7 @@ CONFIG = load_user_config()
 SECRET_KEY = '33h+(k@zm7o#@j%7_1(8q8dlzn9%5ajml2_frgp5e2ikxzfw$8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 

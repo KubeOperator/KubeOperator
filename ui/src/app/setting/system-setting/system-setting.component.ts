@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Setting} from '../setting';
 import {SettingService} from '../setting.service';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-system-setting',
@@ -14,7 +14,7 @@ export class SystemSettingComponent implements OnInit {
   orgSettings: Setting[] = [];
   settings: Setting[] = [];
 
-  constructor(private  settingService: SettingService, private tipService: TipService) {
+  constructor(private  settingService: SettingService, private alert: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -38,9 +38,9 @@ export class SystemSettingComponent implements OnInit {
       this.settings.forEach(s => {
         if (os.key === s.key && os.value !== s.value) {
           this.settingService.updateSetting(s.key, s).subscribe(data => {
-            this.tipService.showTip('修改成功！', TipLevels.SUCCESS);
+            this.alert.showAlert('修改成功！', AlertLevels.SUCCESS);
           }, err => {
-            this.tipService.showTip('修改失败！:' + err, TipLevels.ERROR);
+            this.alert.showAlert('修改失败！:' + err, AlertLevels.ERROR);
           });
         }
       });

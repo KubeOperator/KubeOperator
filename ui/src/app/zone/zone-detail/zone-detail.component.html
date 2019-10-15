@@ -2,15 +2,15 @@
   <h3 class="modal-title">可用区详情</h3>
   <div class="modal-body" *ngIf="currentZone">
     <hr/>
-    <div class="card-block" >
+    <div class="card-block">
       <ul class="list-unstyled" *ngIf="currentZone.provider === 'vsphere'">
         <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>
         <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>
         <li><b style="margin-right: 16px">资源池:</b>{{currentZone.cloud_zone}}</li>
         <li><b style="margin-right: 16px">存储资源:</b>{{currentZone.vars['vc_storage']}}</li>
         <li><b style="margin-right: 16px">网络资源:</b>{{currentZone.vars['vc_network']}}</li>
-        <li><b style="margin-right: 16px">起始 Ip:</b>{{currentZone.vars['vc_ip_start']}}</li>
-        <li><b style="margin-right: 16px">终止 Ip:</b>{{currentZone.vars['vc_ip_end']}}</li>
+        <li><b style="margin-right: 16px">起始 Ip:</b>{{currentZone.vars['ip_start']}}</li>
+        <li><b style="margin-right: 16px">终止 Ip:</b>{{currentZone.vars['ip_end']}}</li>
         <li><b style="margin-right: 16px">网关:</b>{{currentZone.vars['vc_gateway']}}</li>
         <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
       </ul>

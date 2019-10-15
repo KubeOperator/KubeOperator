@@ -3,7 +3,7 @@ import os
 
 import yaml
 from django.http import HttpResponse, JsonResponse
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.views import APIView
@@ -38,6 +38,13 @@ class ClusterViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not instance.status == Cluster.CLUSTER_STATUS_READY and not instance.status == Cluster.CLUSTER_STATUS_ERROR:
+            return Response(data={'msg': '集群处于: {} 状态,不可删除'.format(instance.status)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -88,6 +95,13 @@ class CredentialViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        query_set = Host.objects.filter(credential__name=instance.name)
+        if len(query_set) > 0:
+            return Response(data={'msg': '凭据: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
 
 
 class HostViewSet(viewsets.ModelViewSet):
@@ -226,9 +240,10 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+
 class CheckStorageView(APIView):
 
-    def post(self,request, **kwargs):
+    def post(self, request, **kwargs):
         client = StorageClient(request.data)
         valid = client.check_valid()
         response = HttpResponse()
@@ -244,9 +259,10 @@ class CheckStorageView(APIView):
             response.write(json.dumps(result))
         return response
 
+
 class GetBucketsView(APIView):
 
-    def post(self,request):
+    def post(self, request):
         client = StorageClient(request.data)
         buckets = client.list_buckets()
         response = HttpResponse()
@@ -258,12 +274,14 @@ class GetBucketsView(APIView):
         response.write(json.dumps(result))
         return response
 
+
 class BackupStrategyViewSet(viewsets.ModelViewSet):
     queryset = BackupStrategy.objects.all()
     serializer_class = serializers.BackupStrategySerializer
     permission_classes = (IsSuperUser,)
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
+
 
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
@@ -301,6 +319,7 @@ class ClusterBackupDelete(generics.DestroyAPIView):
             response.write(json.dumps(result))
         return response
 
+
 class ClusterBackupRestore(generics.UpdateAPIView):
     serializer_class = serializers.ClusterBackupSerializer
     permission_classes = (IsSuperUser,)
@@ -319,4 +338,3 @@ class ClusterBackupRestore(generics.UpdateAPIView):
             result['success'] = False
             response.write(json.dumps(result))
         return response
-

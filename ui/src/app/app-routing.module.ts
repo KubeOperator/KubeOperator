@@ -15,7 +15,6 @@ import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.
 import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
-import {AuthComponent} from './auth/auth.component';
 import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
 import {CredentialComponent} from './credential/credential.component';
 import {RegionComponent} from './region/region.component';
@@ -71,7 +70,6 @@ const routes: Routes = [
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
-          {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
           {path: 'apps', component: ApplicationComponent},
           {path: 'health', component: ClusterHealthComponent},

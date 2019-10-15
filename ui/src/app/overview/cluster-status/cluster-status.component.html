@@ -24,8 +24,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <button class="btn btn-sm btn-link">start</button>
-        <button class="btn btn-sm btn-link">stop</button>
+        <button class="btn btn-sm btn-link">TODO</button>
       </div>
     </div>
   </div>
@@ -35,12 +34,12 @@
         Worker 状态
         <span style="float: right">Worker 数量: {{workers.length}}</span>
       </div>
-      <div class="card-block" style="height: 200px">
+      <div class="card-block" style="height: 200px;overflow:auto">
         <table class="table">
           <tbody>
           <tr *ngFor="let worker of workers">
             <td>{{worker.name}}</td>
-            <td>{{worker.status | status}}</td>
+            <td [ngClass]="{'worker-status-running': worker.status ==='RUNNING'}">{{worker.status | status}}</td>
           </tr>
           </tbody>
         </table>

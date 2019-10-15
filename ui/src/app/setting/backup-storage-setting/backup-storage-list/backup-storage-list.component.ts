@@ -1,9 +1,9 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BackupStorageService} from '../backup-storage.service';
 import {BackupStorage} from '../backup-storage';
-import {TipService} from '../../../tip/tip.service';
-import {TipLevels} from '../../../tip/tipLevels';
 import {StorageCredential} from '../storage-credential';
+import {CommonAlertService} from '../../../base/header/common-alert.service';
+import {AlertLevels} from '../../../base/header/components/common-alert/alert';
 
 
 @Component({
@@ -21,7 +21,7 @@ export class BackupStorageListComponent implements OnInit {
   @Output() add = new EventEmitter();
   credential = new StorageCredential();
 
-  constructor(private backupStorageService: BackupStorageService, private tipService: TipService) {
+  constructor(private backupStorageService: BackupStorageService, private alert: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -40,13 +40,13 @@ export class BackupStorageListComponent implements OnInit {
   delete() {
     const promises: Promise<{}>[] = [];
     this.selected.forEach(item => {
-        promises.push(this.backupStorageService.deleteBackupStorage(item.name).toPromise());
+      promises.push(this.backupStorageService.deleteBackupStorage(item.name).toPromise());
     });
 
     Promise.all(promises).then(data => {
-      this.tipService.showTip('删除成功', TipLevels.SUCCESS);
+      this.alert.showAlert('删除成功', AlertLevels.SUCCESS);
     }, error => {
-      this.tipService.showTip('删除失败', TipLevels.ERROR);
+      this.alert.showAlert('删除失败', AlertLevels.ERROR);
     }).finally(
       () => {
         this.showDelete = false;
@@ -65,10 +65,10 @@ export class BackupStorageListComponent implements OnInit {
   }
 
   getBucket(item) {
-     if (item.type === 'AZURE') {
-         return item.credentials.container;
-     } else {
-         return item.credentials.bucket;
-     }
+    if (item.type === 'AZURE') {
+      return item.credentials.container;
+    } else {
+      return item.credentials.bucket;
+    }
   }
 }

@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {ActivatedRoute} from '@angular/router';
 import {ClusterBackupService} from '../cluster-backup.service';
 import {BackupStrategy} from '../backup-strategy';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
 import {BackupStorageService} from '../../setting/backup-storage-setting/backup-storage.service';
 import {BackupStorage} from '../../setting/backup-storage-setting/backup-storage';
 import {NgForm} from '@angular/forms';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 
 @Component({
@@ -17,8 +17,10 @@ import {NgForm} from '@angular/forms';
 })
 export class ClusterBackupStrategyComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute,  private clusterBackupService: ClusterBackupService,
-               private tipService: TipService, private backupStorageService: BackupStorageService) {}
+  constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
+              private alertService: CommonAlertService, private backupStorageService: BackupStorageService) {
+  }
+
   tipShow = false;
   loading = false;
   currentCluster: Cluster;
@@ -37,51 +39,51 @@ export class ClusterBackupStrategyComponent implements OnInit {
   }
 
   getBackupStrategy() {
-      this.clusterBackupService.listBackupStrategy(this.projectId).subscribe(data => {
-          this.backupStrategy = data;
-      }, error => {
-          this.backupStrategy = new BackupStrategy();
-          this.backupStrategy.project_id = this.projectId;
-      });
+    this.clusterBackupService.listBackupStrategy(this.projectId).subscribe(data => {
+      this.backupStrategy = data;
+    }, error => {
+      this.backupStrategy = new BackupStrategy();
+      this.backupStrategy.project_id = this.projectId;
+    });
   }
 
   onCommit() {
-      if (this.backupStrategy.id) {
-          this.update();
-      } else {
-          this.create();
-      }
+    if (this.backupStrategy.id) {
+      this.update();
+    } else {
+      this.create();
+    }
   }
 
   getBackupStorage() {
-      this.backupStorageService.listBackupStorage().subscribe(data => {
-        this.loading = false;
-        this.backupStorage = data;
-      }, err => {
-        this.loading = false;
-      });
+    this.backupStorageService.listBackupStorage().subscribe(data => {
+      this.loading = false;
+      this.backupStorage = data;
+    }, err => {
+      this.loading = false;
+    });
   }
 
   update() {
-      this.clusterBackupService.updateBackupStrategy(this.backupStrategy.project_id, this.backupStrategy).subscribe(data => {
-        this.loading = false;
-        this.tipService.showTip('更新成功!', TipLevels.SUCCESS);
-        this.tipShow = false;
-      }, err => {
-        this.loading = false;
-        this.tipService.showTip('更新失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
-      });
+    this.clusterBackupService.updateBackupStrategy(this.backupStrategy.project_id, this.backupStrategy).subscribe(data => {
+      this.loading = false;
+      this.alertService.showAlert('更新成功!', AlertLevels.SUCCESS);
+      this.tipShow = false;
+    }, err => {
+      this.loading = false;
+      this.alertService.showAlert('更新失败!' + err.reson + 'state code:' + err.status, AlertLevels.ERROR);
+    });
   }
 
   create() {
-      this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
-        this.loading = false;
-        this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
-        this.tipShow = false;
-      }, err => {
-        this.loading = false;
-        this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
-      });
+    this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
+      this.loading = false;
+      this.alertService.showAlert('新增成功!', AlertLevels.SUCCESS);
+      this.tipShow = false;
+    }, err => {
+      this.loading = false;
+      this.alertService.showAlert('新增失败!' + err.reson + 'state code:' + err.status, AlertLevels.ERROR);
+    });
   }
 
 }

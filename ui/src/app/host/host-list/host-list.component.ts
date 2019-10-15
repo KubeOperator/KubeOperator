@@ -1,9 +1,9 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {HostService} from '../host.service';
 import {Host} from '../host';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
 import {HostInfoComponent} from '../host-info/host-info.component';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-host-list',
@@ -22,7 +22,7 @@ export class HostListComponent implements OnInit {
   child: HostInfoComponent;
 
 
-  constructor(private hostService: HostService, private tipService: TipService) {
+  constructor(private hostService: HostService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -53,9 +53,9 @@ export class HostListComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       this.refresh();
-      this.tipService.showTip('删除主机成功！', TipLevels.SUCCESS);
+      this.alertService.showAlert('删除主机成功！', AlertLevels.SUCCESS);
     }, (error) => {
-      this.tipService.showTip('删除主机失败:' + error, TipLevels.ERROR);
+      this.alertService.showAlert('删除主机失败:' + error, AlertLevels.ERROR);
     }).finally(() => {
       this.deleteModal = false;
       this.selectedHosts = [];

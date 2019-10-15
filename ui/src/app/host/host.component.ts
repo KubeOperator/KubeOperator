@@ -1,6 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {NodeCreateComponent} from '../node/node-create/node-create.component';
-import {NodeListComponent} from '../node/node-list/node-list.component';
 import {HostCreateComponent} from './host-create/host-create.component';
 import {HostListComponent} from './host-list/host-list.component';
 

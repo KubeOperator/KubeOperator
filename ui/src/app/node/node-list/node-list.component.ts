@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {NodeService} from '../node.service';
 import {Node} from '../node';
 import {Cluster} from '../../cluster/cluster';
@@ -12,9 +12,7 @@ export class NodeListComponent implements OnInit {
 
   loading = true;
   nodes: Node[] = [];
-  selectedRow: Node[] = [];
   @Input() currentCluster: Cluster;
-  @Output() addNode = new EventEmitter();
 
   constructor(private nodeService: NodeService) {
   }
@@ -38,11 +36,4 @@ export class NodeListComponent implements OnInit {
     this.listNodes();
   }
 
-  get_grafana_url(node: Node): string {
-    return this.nodeService.get_grafana_url(node.ip, this.currentCluster);
-  }
-
-  addNewNode() {
-    this.addNode.emit();
-  }
 }

@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
-import {TipModule} from '../tip/tip.module';
+
 import {CoreModule} from '../core/core.module';
 import {SystemSettingComponent} from './system-setting/system-setting.component';
 import {BackupStorageSettingComponent } from './backup-storage-setting/backup-storage-setting.component';
@@ -13,7 +13,7 @@ import {BackupStorageSettingModule} from './backup-storage-setting/backup-storag
   imports: [
     CommonModule,
     CoreModule,
-    TipModule,
+
     ClusterBackupModule,
     BackupStorageSettingModule,
 

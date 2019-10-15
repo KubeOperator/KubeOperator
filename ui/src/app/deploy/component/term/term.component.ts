@@ -52,7 +52,7 @@ export class TermComponent implements OnInit, OnDestroy {
       cursorStyle: 'bar',
       cols: 120,
       rows: 30,
-      letterSpacing: 0,
+      letterSpacing: 1,
       fontSize: 16
     });
     this.term.open(this.terminal.nativeElement);

@@ -1,9 +1,9 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Credential} from '../credential-list/credential';
-import {TipLevels} from '../../tip/tipLevels';
 import {CredentialService} from '../credential.service';
-import {TipService} from '../../tip/tip.service';
 import {NgForm} from '@angular/forms';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-credential-create',
@@ -19,9 +19,9 @@ export class CredentialCreateComponent implements OnInit {
   isSubmitGoing = false;
   item: Credential = new Credential();
   loading = false;
-  @ViewChild('credentialForm', { static: true }) credentialForm: NgForm;
+  @ViewChild('credentialForm', {static: true}) credentialForm: NgForm;
 
-  constructor(private credentialService: CredentialService, private tipService: TipService) {
+  constructor(private credentialService: CredentialService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -43,13 +43,13 @@ export class CredentialCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建凭据成功', TipLevels.SUCCESS);
+      this.alertService.showAlert('创建凭据成功', AlertLevels.SUCCESS);
     }, err => {
       this.createOpened = false;
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建凭据失败:' + err.reason + ' state code:' + err.status, TipLevels.ERROR);
+      this.alertService.showAlert('创建凭据失败:' + err.reason + ' state code:' + err.status, AlertLevels.ERROR);
     });
   }
 
