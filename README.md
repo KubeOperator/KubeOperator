@@ -36,7 +36,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 内置 Kubernetes 常用系统应用的安装，包括 Registry、Promethus、Dashboard、Traefik Ingress、Helm 等；
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
-- [x] 支持 Flannel 作为网络方案；
+- [x] 支持 Flannel 网络插件；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
  v2.0 （已发布）
@@ -44,9 +44,9 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
 - [x] 支持 Multi AZ，支持多主多节点部署模式；
-- [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
+- [x] 支持 Calico 网络插件；
 - [x] 内置 Weave Scope (支持 Web Shell)；
-- [x] 支持 Calico 作为网络方案；
+- [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
  v2.1 （开发中，预计 2019.10.31 发布）
  
