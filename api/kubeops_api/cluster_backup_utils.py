@@ -14,7 +14,7 @@ def cluster_backup():
     for b in backup_strategies:
         project_id = str(b.project_id)
         backup_storage_id = str(b.backup_storage_id)
-        cluster_backups = ClusterBackup.objects.filter(backup_storage_id=backup_storage_id).order_by('date_created')
+        cluster_backups = ClusterBackup.objects.filter(backup_storage_id=backup_storage_id).order_by('-date_created')
         if cluster_backups:
             time_now = datetime.datetime.now().strftime('%Y-%m-%d')
             date1 = time.strptime(time_now,'%Y-%m-%d')
