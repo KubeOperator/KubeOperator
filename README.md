@@ -14,7 +14,7 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ## 整体架构
 
-KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机，通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
+KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/KubeOperator.jpeg?raw=true)
 
 ## 技术优势
@@ -62,12 +62,16 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机，通过 Ansi
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
  
+ ## Kubernetes 离线安装包
+
+KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
+
  ## 使用指南
 
 -  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 -  [在线文档](https://docs.kubeoperator.io/)
 
- ## 沟通交流
+## 沟通交流
  
 - 技术交流 QQ 群：825046920
 - 技术支持邮箱：support@fit2cloud.com
