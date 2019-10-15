@@ -69,7 +69,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
  ## Kubernetes 离线安装包
 
-KubeOperator 提供完整的离线 Kubernetes 安装包，每个安装包会被构建成一个容器供 KubeOperator 使用，具体请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)
+KubeOperator 提供完整的离线 Kubernetes 安装包，每个安装包会被构建成一个容器供 KubeOperator 使用，具体请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
 
  ## 沟通交流
  
