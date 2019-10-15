@@ -3,7 +3,7 @@
 <!--      <div class="clr-col-1">-->
 
 <!--      </div>-->
-      <div class="clr-col-4">
+      <div class="clr-col-2">
         <div class="clr-col-12" style="margin-top: 80px">
           <div class="card">
               <div class="card-header" style="background-color: #7ED321">
@@ -18,7 +18,7 @@
           </div>
         </div>
       </div>
-      <div class="clr-col-4 clr-row">
+      <div class="clr-col-5 clr-row">
           <div class="clr-col-12">
             <div class="card">
               <div class="card-header" style="background-color: #7ED321">
@@ -43,24 +43,30 @@
 
                 </div>
                 <div class="card-block">
-                   <img src="../../assets/images/node.png" style="width: 40%">
+                   <img src="../../assets/images/node.png" width="64">
                 </div>
             </div>
           </div>
       </div>
-      <div class="clr-col-4 clr-row">
+      <div class="clr-col-5 clr-row">
          <div class="clr-col-12">
            <div class="card">
-             <div class="card-header" [ngStyle]="{'background-color':getClusterServiceStatus(etcdData)}" align="center">
-                  <img src="../../assets/images/etcd.png" width="32">  ETCD
+             <div class="card-header" [ngStyle]="{'background-color':getClusterServiceStatus(etcdData)}">
              </div>
              <div class="card-block">
-                 <table class="table">
-                   <tr *ngFor="let etcd of etcdData">
-                     <td >{{etcd.key}}</td>
-                     <td >{{etcd.value | clusterHealthStatus}}</td>
-                   </tr>
-                 </table>
+               <div class="card-media-block">
+                  <img src="../../assets/images/master.png" width="64" class="card-media-image" style="margin-top: 30px">
+                  <div class="card-media-description">
+                     <table class="table" style="margin-top: 0px">
+                       <tbody>
+                         <tr *ngFor="let etcd of etcdData">
+                           <td >{{etcd.key}}</td>
+                           <td >{{etcd.value | clusterHealthStatus}}</td>
+                         </tr>
+                       </tbody>
+                     </table>
+                  </div>
+                </div>
              </div>
            </div>
          </div>
@@ -70,7 +76,7 @@
 
              </div>
              <div class="card-block">
-               <img src="../../assets/images/pod.png" style="width: 40%">
+               <img src="../../assets/images/pod.png" width="64">
              </div>
            </div>
          </div>
