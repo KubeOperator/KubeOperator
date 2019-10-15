@@ -3,7 +3,8 @@ import {DatePipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
 import {ActivatedRoute} from '@angular/router';
-import {ClusterHealth, Data} from './cluster-health';
+import {ClusterHealth, Data, HealthData} from './cluster-health';
+import {ClusterHealthHistory} from './cluster-health-history';
 
 @Component({
   selector: 'app-cluster-health',
@@ -18,105 +19,140 @@ export class ClusterHealthComponent implements OnInit {
   options: {};
   time: any;
   seriesArray = [];
+  calendarArray = [];
   currentCluster: Cluster;
   projectName = '';
+  projectId = '';
   clusterHealth: ClusterHealth;
   etcdData: Data[] = [];
-
+  clusterHealthHistories: ClusterHealthHistory[] = [];
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectName = this.currentCluster.name;
+      this.projectId = this.currentCluster.id;
       this.getClusterHealth();
+      this.getClusterHealthHistory();
     });
-    this.setSeries();
-    this.setOptions(this.seriesArray);
   }
 
   getClusterHealth() {
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
-        console.log(this.clusterHealth);
         for ( const ch of this.clusterHealth.data) {
           if ( ch.type === 'etcd') {
             this.etcdData = ch.data;
-            console.log(this.etcdData);
           }
         }
       });
   }
 
-  setOptions(seriesArray) {
+  getClusterHealthHistory() {
+    this.clusterHealthService.listClusterHealthHistory(this.projectId).subscribe(res => {
+        this.clusterHealthHistories = res;
+        const healthDataArray: HealthData[] = [];
+        const nameArray = [];
+        for (const clusterHealthHistory of this.clusterHealthHistories) {
+          const month = clusterHealthHistory.month;
+          const index = nameArray.indexOf(clusterHealthHistory.month);
+          if (index > -1) {
+              const healthData = healthDataArray[index];
+              const data = new Data();
+              data.key = clusterHealthHistory.date_created;
+              data.value = clusterHealthHistory.available_rate;
+              healthData.data.push(data);
+          } else {
+              const healthData = new HealthData();
+              healthData.type = month;
+              healthData.data = [];
+              const data = new Data();
+              data.key = clusterHealthHistory.date_created;
+              data.value = clusterHealthHistory.available_rate;
+              healthData.data.push(data);
+              healthDataArray.push(healthData);
+              nameArray.push(month);
+          }
+        }
+        for (let i = 0 ; i < healthDataArray.length; i++) {
+          const healthData = healthDataArray[i];
+          this.setCalendar(healthData.type);
+          this.setSeries(i, healthData.data);
+        }
+        this.setOptions(this.seriesArray, this.calendarArray);
+    });
+  }
+
+  setOptions(seriesArray, calendarArray) {
     this.options = {
       tooltip: {
           position: 'top'
       },
       visualMap: [{
         min: 0,
-        max: 2,
+        max: 100,
         splitNumber: 3,
-        color: ['#7ED321', '#EE0000', '#FFFFFF'],
+        color: ['#EE0000', '#FFB90F', '#7ED321'],
         textStyle: {
             color: '#fff'
         },
         show: false
       }],
-      calendar: [
-      {
-          orient: 'vertical',
-          yearLabel: {
-              margin: 40,
-              show: false
-          },
-          monthLabel: {
-              margin: 10,
-              nameMap: 'cn',
-          },
-          dayLabel: {
-            firstDay: 1,
-            nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-            show: false
-          },
-          cellSize: 40,
-          left: 40,
-          range: '2019-10',
-          splitLine: {
-            show: false
-          },
-          itemStyle: {
-            borderColor: '#FFFFFF'
-          }
-      }],
+      calendar: calendarArray,
       series: seriesArray
     };
   }
 
-  getVirtulData(start, end, value) {
-    const dayTime = 3600 * 24 * 1000;
-    const data = [];
-    const index = [1 , 2, 3];
-    let test = 0;
-    for (this.time = start; this.time < end; this.time += dayTime) {
-        test = test + 1;
-        data.push([
-            this.datePipe.transform(this.time, 'yyyy-MM-dd'),
-            2
-        ]);
-    }
-    return data;
-  }
-
-  setSeries() {
+  setSeries(index, data) {
      const series = {
       type: 'scatter',
       coordinateSystem: 'calendar',
-      calendarIndex: 0,
+      calendarIndex: index,
       symbol: 'roundRect',
       symbolSize: 35,
-      data: this.getVirtulData(1569914595000, 1572506595000, 1)
+      data: this.getVirtualData(data)
      };
      this.seriesArray.push(series);
+  }
+
+  setCalendar(month) {
+    const calendar = {
+      orient: 'vertical',
+      yearLabel: {
+        margin: 40,
+        show: false
+      },
+      monthLabel: {
+        margin: 10,
+        nameMap: 'cn',
+      },
+      dayLabel: {
+        firstDay: 1,
+        nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+        show: false
+      },
+      cellSize: 40,
+      left: 40,
+      range: month,
+      splitLine: {
+        show: false
+      },
+      itemStyle: {
+        borderColor: '#FFFFFF'
+      }
+    };
+    this.calendarArray.push(calendar);
+  }
+
+  getVirtualData(data) {
+    const dataArray = [];
+    for (const d of data) {
+      dataArray.push([
+         this.datePipe.transform(d.key, 'yyyy-MM-dd'),
+         1
+      ]);
+    }
+    return dataArray;
   }
 
   getClusterServiceStatus(data) {

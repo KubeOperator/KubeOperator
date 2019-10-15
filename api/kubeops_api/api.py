@@ -32,6 +32,7 @@ import kubeops_api.cluster_backup_utils
 from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
+from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 
 
 # 集群视图
@@ -369,3 +370,11 @@ class ClusterHealth(View):
 
         response.write(json.dumps(result))
         return response
+
+class ClusterHealthHistoryView(generics.ListAPIView):
+    serializer_class = serializers.ClusterHeathHistorySerializer
+    permission_classes = (IsSuperUser,)
+
+    def get_queryset(self):
+        project_id = str(self.kwargs['project_id'])
+        return ClusterHealthHistory.objects.filter(project_id=str(project_id)).order_by('-date_created')
