@@ -62,7 +62,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
 - [ ] 支持 VMware NSX-T；
  
-  ## Kubernetes 离线安装包
+ ## Kubernetes 离线安装包
 
 KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
 
