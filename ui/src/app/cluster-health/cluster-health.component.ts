@@ -35,7 +35,7 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterHealth() {
-    this.clusterHealthService.listClusterHealth(this.projectName, 'etcd_server_health_success').subscribe( res => {
+    this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
         console.log(this.clusterHealth);
         for ( const ch of this.clusterHealth.data) {

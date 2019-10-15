@@ -328,7 +328,6 @@ class ClusterHealth(View):
 
     def get(self,request, *args, **kwargs):
         project_name = self.kwargs['project_name']
-        table_name = self.kwargs['table_name']
         cluster = Cluster.objects.get(name=project_name)
         domain_suffix = Setting.objects.get(key="domain_suffix")
         host = "prometheus.apps."+cluster.name+"."+domain_suffix.value
@@ -336,7 +335,7 @@ class ClusterHealth(View):
             'host': host,
             'end': time.time(),
             'start': time.time()-60,
-            'table_name': table_name,
+            'table_name': 'etcd_server_health_success',
             'param': ''
         }
         response = HttpResponse(content_type='application/json')
