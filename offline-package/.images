@@ -12,7 +12,6 @@ quay.io/coreos/flannel:v0.11.0-amd64
 gcr.io/kubernetes-helm/tiller:v2.12.3
 kubernetesui/dashboard:v2.0.0-beta4
 kubernetesui/metrics-scraper:v1.0.1
-k8s.gcr.io/metrics-server-amd64:v0.3.2
 quay.io/coreos/configmap-reload:v0.0.1
 gcr.io/google-containers/pause-amd64:3.1
 docker.io/registry:2

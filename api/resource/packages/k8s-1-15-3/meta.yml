@@ -29,8 +29,6 @@ images:
     tag: v2.12.3
   - name: kubernetesui/dashboard
     tag: v2.0.0-beta4
-  - name: k8s.gcr.io/metrics-server-amd64
-    tag: v0.3.2
   - name: quay.io/coreos/configmap-reload
     tag: v0.0.1
   - name: gcr.io/google-containers/pause-amd64
@@ -71,11 +69,6 @@ vars:
   dns_install: true
   dns_image: "docker.io/coredns/coredns"
   dns_version: "1.6.0"
-
-  #metrics-server
-  metricsserver_install: false
-  metricsserver_image: "k8s.gcr.io/metrics-server-amd64"
-  metricsserver_version: "v0.3.2"
 
   #dashboard
   dashboard_install: true
