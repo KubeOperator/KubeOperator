@@ -103,7 +103,7 @@ spec:
       serviceAccountName: flannel
       initContainers:
       - name: install-cni
-        image: {{registry_prefix}}/{{flanneld_image}}:{{flanneld_version}}
+        image: {{registry_prefix}}:{{registry_port}}/{{flanneld_image}}:{{flanneld_version}}
         command:
         - cp
         args:
@@ -117,7 +117,7 @@ spec:
           mountPath: /etc/kube-flannel/
       containers:
       - name: kube-flannel
-        image: {{registry_prefix}}/{{flanneld_image}}:{{flanneld_version}}
+        image: {{registry_prefix}}:{{registry_port}}/{{flanneld_image}}:{{flanneld_version}}
         command:
         - /opt/bin/flanneld
         args:

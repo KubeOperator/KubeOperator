@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: registry
-        image: registry.kubeops.io:8092/docker.io/registry:2
+        image: {{registry_prefix}}:{{registry_port}}/docker.io/registry:2
         resources:
           limits:
             cpu: 1000m
@@ -81,7 +81,7 @@ spec:
           name: registry
           protocol: TCP
       - name: registry-ui
-        image: registry.kubeops.io:8092/docker.io/konradkleine/docker-registry-frontend:v2
+        image: {{registry_prefix}}:{{registry_port}}/docker.io/konradkleine/docker-registry-frontend:v2
         env:
         - name: ENV_DOCKER_REGISTRY_HOST
           value: "localhost"

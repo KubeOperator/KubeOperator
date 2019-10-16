@@ -24,8 +24,8 @@ readinessProbe:
   periodSeconds: 10
 
 image:
-  repository: registry.kubeops.io:8092/docker.io/grafana/grafana
-  tag: 5.2.1
+  repository: {{registry_prefix}}:{{registry_port}}/{{grafana_image}}
+  tag: {{grafana_version}}
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -40,8 +40,8 @@ securityContext:
   fsGroup: 472
 
 downloadDashboardsImage:
-  repository: registry.kubeops.io:8092/appropriate/curl
-  tag: edge
+  repository: {{registry_prefix}}:{{registry_port}}/{{curl_image}}
+  tag: {{curl_version}}
   pullPolicy: IfNotPresent
 
 ## Pod Annotations

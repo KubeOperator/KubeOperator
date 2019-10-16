@@ -6,8 +6,8 @@ prometheus:
   enableAlerting: true
 
 image:
-  repository: registry.kubeops.io:8092/quay.io/comcast/kuberhealthy
-  tag: v1.0.2
+  repository: {{registry_prefix}}:{{registry_port}}/{{kuberhealthy_image}}
+  tag: {{kuberhealthy_version}}
 
 resources:
   requests:
@@ -30,7 +30,7 @@ deployment:
   - /app/kuberhealthy
   args:
   - -dsPauseContainerImageOverride
-  - registry.kubeops.io:8092/gcr.io/google_containers/pause:0.8.0
+  - {{registry_prefix}}:{{registry_port}}/{{kuberhealthy_pause}}:{{kuberhealthy_pause_version}}
   - -podCheckNamespaces=default,kube-system,monitoring,weave
 
 securityContext:

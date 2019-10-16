@@ -116,7 +116,7 @@ spec:
       - args:
         - -conf
         - /etc/coredns/Corefile
-        image: registry.kubeops.io:8092/docker.io/coredns/coredns:{{dns_version}}
+        image: {{registry_prefix}}:{{registry_port}}/{{dns_image}}:{{dns_version}}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:

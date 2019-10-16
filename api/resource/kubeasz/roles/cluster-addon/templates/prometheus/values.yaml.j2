@@ -32,8 +32,8 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/prometheus/alertmanager
-    tag: v0.15.2
+    repository: {{registry_prefix}}:{{registry_port}}/{{alertmanager_image}}
+    tag: {{alertmanager_version}}
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -215,8 +215,8 @@ configmapReload:
   ## configmap-reload container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/coreos/configmap-reload
-    tag: v0.0.1
+    repository: {{registry_prefix}}:{{registry_port}}/{{configmap-reload_image}}
+    tag: {{configmap-reload_version}}
     pullPolicy: IfNotPresent
 
   ## Additional configmap-reload container arguments
@@ -250,8 +250,8 @@ initChownData:
   ## initChownData container image
   ##
   image:
-    repository: registry.kubeops.io:8092/docker.io/busybox
-    tag: 1.31.0
+    repository: {{registry_prefix}}:{{registry_port}}/{{busybox_image}}
+    tag: {{busybox_version}}
     pullPolicy: IfNotPresent
 
   ## initChownData resource requests and limits
@@ -271,8 +271,8 @@ kubeStateMetrics:
   ## kube-state-metrics container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/coreos/kube-state-metrics
-    tag: v1.4.0
+    repository: {{registry_prefix}}:{{registry_port}}/{{kube-state-metrics_image}}
+    tag: {{kube-state-metrics_version}}
     pullPolicy: IfNotPresent
 
   ## kube-state-metrics priorityClassName
@@ -360,8 +360,8 @@ nodeExporter:
   ## node-exporter container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/prometheus/node-exporter
-    tag: v0.15.2
+    repository: {{registry_prefix}}:{{registry_port}}/{{node-exporter_image}}
+    tag: {{node-exporter_version}}
     pullPolicy: IfNotPresent
 
   ## node-exporter priorityClassName
@@ -458,8 +458,8 @@ server:
   ## Prometheus server container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/prometheus/prometheus
-    tag: v2.4.3
+    repository: {{registry_prefix}}:{{registry_port}}/{{prometheus_image}}
+    tag: {{prometheus_version}}
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
@@ -679,8 +679,8 @@ pushgateway:
   ## pushgateway container image
   ##
   image:
-    repository: registry.kubeops.io:8092/quay.io/prometheus/pushgateway
-    tag: v0.5.2
+    repository: {{registry_prefix}}:{{registry_port}}/{{pushgateway_image}}
+    tag: {{pushgateway_version}}
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
