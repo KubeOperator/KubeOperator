@@ -1,15 +1,17 @@
 
 export class ClusterHealth {
   data: HealthData[];
-  status: string;
+  success: Boolean;
+  rate: number;
 }
 
 export class HealthData {
-  type: string;
+  job: string;
   data: Data[];
+  rate: number;
 }
 
 export class Data {
   key: string;
-  value: string;
+  value: any;
 }

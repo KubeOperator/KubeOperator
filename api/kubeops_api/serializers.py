@@ -225,4 +225,4 @@ class ClusterHeathHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClusterHealthHistory
-        fields = ['id','project_id','available_rate','date_type','date_created']
+        fields = ['id','project_id','available_rate','date_type','date_created','month']
