@@ -9,13 +9,12 @@ from kubeops_api.storage_client import StorageClient
 import datetime
 import time
 
-
 def cluster_backup():
     backup_strategies = BackupStrategy.objects.filter(status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
     for b in backup_strategies:
         project_id = str(b.project_id)
         backup_storage_id = str(b.backup_storage_id)
-        cluster_backups = ClusterBackup.objects.filter(backup_storage_id=backup_storage_id).order_by('date_created')
+        cluster_backups = ClusterBackup.objects.filter(backup_storage_id=backup_storage_id).order_by('-date_created')
         if cluster_backups:
             time_now = datetime.datetime.now().strftime('%Y-%m-%d')
             date1 = time.strptime(time_now,'%Y-%m-%d')
@@ -34,11 +33,9 @@ def cluster_backup():
 def run_backup(project_id,backup_storage_id):
     cluster = Cluster.objects.get(id=project_id)
     steps = cluster.get_steps('cluster-backup')
-    cluster.configs = cluster.load_config_file()
     hostname = Setting.objects.get(key='local_hostname')
     domain_suffix = Setting.objects.get(key="domain_suffix")
     project = Project.objects.get(id=project_id)
-    print(project)
     backup_storage = BackupStorage.objects.get(id=backup_storage_id)
     extra_vars = {
         "cluster_name": cluster.name,
@@ -48,7 +45,7 @@ def run_backup(project_id,backup_storage_id):
     }
     extra_vars.update(cluster.configs)
     run_playbooks(steps,extra_vars,project)
-    now = datetime.datetime.now().strftime('%Y-%m-%d')
+    now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     client = StorageClient(backup_storage)
     client.check_valid()
     file_name = cluster.name+'-'+str(now)+'.zip'
@@ -66,7 +63,6 @@ def run_restore(cluster_backup_id):
     project = Project.objects.get(id=cluster_backup.project_id)
     cluster = Cluster.objects.get(id=cluster_backup.project_id)
     steps = cluster.get_steps('cluster-restore')
-    cluster.configs = cluster.load_config_file()
     client = StorageClient(backup_storage)
     backup_file_path = cluster.name+'/'+cluster_backup.name
     if client.exists(backup_file_path):
@@ -110,3 +106,4 @@ def run_playbooks(steps,extra_vars,project):
             if not _result.get('summary', {}).get('success', False):
                 raise RuntimeError("playbook: {} error!".format(step['playbook']))
     return result
+

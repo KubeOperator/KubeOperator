@@ -13,7 +13,6 @@ if [[ "$1" == "bash" ]];then
     bash
 else
     echo -e "nameserver 8.8.8.8 \nnameserver 114.114.114.114" >> /etc/resolv.conf
-    python manage.py crontab add
     service dnsmasq start
     python kubeops.py start
 fi

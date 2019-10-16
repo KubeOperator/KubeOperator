@@ -29,7 +29,7 @@ DAEMON = False
 LOG_LEVEL = 'INFO'
 
 EXIT_EVENT = threading.Event()
-all_services = ['gunicorn', 'celery']
+all_services = ['gunicorn', 'celery', 'beat']
 
 try:
     os.makedirs(os.path.join(BASE_DIR, "data", "static"), exist_ok=True)
@@ -161,11 +161,37 @@ def start_celery():
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     return p
 
+def start_celery_beat():
+    print("\n- Start Celery beat as Distributed Task Queue")
+    os.environ.setdefault('PYTHONOPTIMIZE', '1')
+    if os.getuid() == 0:
+        os.environ.setdefault('C_FORCE_ROOT', '1')
+
+    service = 'beat'
+    pid_file = get_pid_file_path(service)
+
+    scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
+    cmd = [
+        'celery', 'beat',
+        '-A', 'celery_api',
+        '-l', 'DEBUG',
+        '--scheduler', scheduler,
+        '--pidfile', pid_file,
+        '--max-interval', '600'
+    ]
+    if DAEMON:
+        cmd.extend([
+            '--logfile', os.path.join(LOG_DIR, 'beat.log'),
+            '--detach',
+        ])
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    return p
 
 def start_service(s):
     services_handler = {
         "gunicorn": start_gunicorn,
         "celery": start_celery,
+        "beat": start_celery_beat,
     }
     services_set = parse_service(s)
     processes = []
@@ -257,7 +283,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
-        choices=("all", "gunicorn", "celery"),
+        choices=("all", "gunicorn", "celery", "beat"),
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)
