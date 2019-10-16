@@ -1,11 +1,11 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Host} from '../host';
 import {HostService} from '../host.service';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
 import {Credential} from '../../credential/credential-list/credential';
 import {CredentialService} from '../../credential/credential.service';
 import {NgForm} from '@angular/forms';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-host-create',
@@ -14,7 +14,7 @@ import {NgForm} from '@angular/forms';
 })
 export class HostCreateComponent implements OnInit {
 
-  constructor(private hostService: HostService, private tipService: TipService, private credentialService: CredentialService) {
+  constructor(private hostService: HostService, private alert: CommonAlertService, private credentialService: CredentialService) {
   }
 
   @Output() create = new EventEmitter<boolean>();
@@ -60,13 +60,13 @@ export class HostCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建主机成功', TipLevels.SUCCESS);
+      this.alert.showAlert('创建主机成功', AlertLevels.SUCCESS);
     }, err => {
       this.createHostOpened = false;
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('创建主机失败：无法连接到目标主机！请检查目标主机22端口是否开启!', TipLevels.ERROR);
+      this.alert.showAlert('创建主机失败：无法连接到目标主机！请检查目标主机22端口是否开启!', AlertLevels.ERROR);
     });
   }
 

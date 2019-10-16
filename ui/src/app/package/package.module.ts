@@ -5,7 +5,7 @@ import {PackageService} from './package.service';
 import {SharedModule} from '../shared/shared.module';
 import {PackageListComponent} from './package-list/package-list.component';
 import {CoreModule} from '../core/core.module';
-import {TipModule} from '../tip/tip.module';
+
 import { PackageDetailComponent } from './package-detail/package-detail.component';
 
 @NgModule({
@@ -14,7 +14,6 @@ import { PackageDetailComponent } from './package-detail/package-detail.componen
     CommonModule,
     SharedModule,
     CoreModule,
-    TipModule
   ], providers: [PackageService]
 })
 export class PackageModule {

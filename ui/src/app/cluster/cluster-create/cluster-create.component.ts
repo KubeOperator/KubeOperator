@@ -1,10 +1,8 @@
 import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ExtraConfig} from '../cluster';
-import {TipService} from '../../tip/tip.service';
 import {ClrWizard} from '@clr/angular';
-import {Config, Network, Package, Template, Storage} from '../../package/package';
+import {Config, Network, Package, Storage, Template} from '../../package/package';
 import {PackageService} from '../../package/package.service';
-import {TipLevels} from '../../tip/tipLevels';
 import {ClusterService} from '../cluster.service';
 import {NodeService} from '../../node/node.service';
 import {RelationService} from '../relation.service';
@@ -19,6 +17,8 @@ import {debounceTime} from 'rxjs/operators';
 import {SettingService} from '../../setting/setting.service';
 import {PlanService} from '../../plan/plan.service';
 import {Plan} from '../../plan/plan';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -73,7 +73,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   @Output() create = new EventEmitter<boolean>();
 
-  constructor(private tipService: TipService, private nodeService: NodeService, private clusterService: ClusterService
+  constructor(private alertService: CommonAlertService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
               private hostService: HostService, private deviceCheckService: DeviceCheckService,
               private settingService: SettingService, private planService: PlanService) {
@@ -183,7 +183,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.packageService.listPackage().subscribe(data => {
       this.packages = data;
     }, error => {
-      this.tipService.showTip('加载离线包错误!: \n' + error, TipLevels.ERROR);
+      this.alertService.showAlert('加载离线包错误!: \n' + error, AlertLevels.ERROR);
     });
   }
 

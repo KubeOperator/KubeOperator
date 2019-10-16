@@ -39,8 +39,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value,
-            "domain_suffix": domain_suffix.value,
-            "APP_DOMAIN": "apps.{}.{}".format(cluster.name, domain_suffix.value)
+            "domain_suffix": domain_suffix.value
         }
 
         extra_vars.update(cluster.configs)

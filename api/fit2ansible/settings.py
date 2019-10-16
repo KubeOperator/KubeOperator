@@ -24,6 +24,9 @@ VERSION_DIR = os.path.join(BASE_DIR, "data", "static", "build", "version")
 CLOUDS_RESOURCE_DIR = os.path.join(BASE_DIR, "resource", "clouds")
 CLUSTER_CONFIG_DIR = os.path.join(BASE_DIR, "resource", "cluster")
 KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
+PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
+PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
+PACKAGE_DIR = "/data/packages"
 CONFIG = load_user_config()
 # 添加离线包路径
 
@@ -35,12 +38,14 @@ CONFIG = load_user_config()
 SECRET_KEY = '33h+(k@zm7o#@j%7_1(8q8dlzn9%5ajml2_frgp5e2ikxzfw$8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'django_crontab',
+    'storage.apps.StorageConfig',
     'kubeops_api.apps.KubeOperatorApiConfig',
     'cloud_provider.apps.CloudProviderConfig',
     'ansible_api.apps.AnsibleApiConfig',
@@ -57,6 +62,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+CRONJOBS = (
+    ('*/5 * * * *', 'kubeops_api.cluster_backup_utils.cluster_backup'),
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

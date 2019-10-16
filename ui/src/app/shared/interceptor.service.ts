@@ -2,15 +2,15 @@ import {Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
-import {MessageService} from '../base/message.service';
-import {MessageLevels} from '../base/message/message-level';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {SessionService} from './session.service';
+import {CommonAlertService} from '../base/header/common-alert.service';
+import {AlertLevels} from '../base/header/components/common-alert/alert';
 
 
 @Injectable()
 export class InterceptorService implements HttpInterceptor {
-  constructor(private message: MessageService, private session: SessionService) {
+  constructor(private session: SessionService, private alert: CommonAlertService) {
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -42,7 +42,12 @@ export class InterceptorService implements HttpInterceptor {
         let msg = '无可用消息！';
         if (error.status === 403) {
           msg = '权限不允许此操作或者Session过期！';
-          this.message.announceMessage(msg, MessageLevels.ERROR);
+          this.alert.showAlert(msg, AlertLevels.ERROR);
+        }
+        if (error.status === 400) {
+          msg = error.error['msg'];
+          console.log(error);
+          this.alert.showAlert(msg, AlertLevels.ERROR);
         }
         return throwError(error);
       }));

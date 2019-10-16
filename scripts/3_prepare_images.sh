@@ -31,12 +31,10 @@ function find_offline_images() {
             ok=0
         fi
     done
-    echo ${ok}
     return ${ok}
 }
 
 function main() {
-    chmod -R 777 ${PROJECT_DIR}/docker/nexus/data
     find_offline_images
     ok=$?
     if [[ ${ok} == "1" ]];then

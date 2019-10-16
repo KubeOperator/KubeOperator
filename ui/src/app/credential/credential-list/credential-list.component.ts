@@ -2,8 +2,8 @@ import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core'
 import {CredentialService} from '../credential.service';
 import {Credential} from './credential';
 import {HostInfoComponent} from '../../host/host-info/host-info.component';
-import {TipLevels} from '../../tip/tipLevels';
-import {TipService} from '../../tip/tip.service';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-credential-list',
@@ -16,12 +16,12 @@ export class CredentialListComponent implements OnInit {
   selected: Credential[] = [];
   loading = true;
   @Output() add = new EventEmitter();
-  @ViewChild(HostInfoComponent, { static: false })
+  @ViewChild(HostInfoComponent, {static: false})
   child: HostInfoComponent;
   showDelete = false;
   resourceTypeName: '凭据';
 
-  constructor(private credentialService: CredentialService, private tipService: TipService) {
+  constructor(private credentialService: CredentialService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -43,9 +43,7 @@ export class CredentialListComponent implements OnInit {
       }
     );
     Promise.all(promises).then(data => {
-      this.tipService.showTip('删除成功', TipLevels.SUCCESS);
-    }, error => {
-      this.tipService.showTip('删除失败' + error.toString(), TipLevels.ERROR);
+      this.alertService.showAlert('删除成功', AlertLevels.SUCCESS);
     }).finally(
       () => {
         this.showDelete = false;

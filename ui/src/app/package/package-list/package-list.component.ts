@@ -1,10 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Package} from '../package';
 import {PackageService} from '../package.service';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
 import {PackageLogoService} from '../package-logo.service';
 import {PackageDetailComponent} from '../package-detail/package-detail.component';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-offline-list',
@@ -17,10 +17,10 @@ export class PackageListComponent implements OnInit {
   packages: Package[] = [];
   selectedRow: Package[] = [];
   showDetail = false;
-  @ViewChild(PackageDetailComponent, { static: true })
+  @ViewChild(PackageDetailComponent, {static: true})
   child: PackageDetailComponent;
 
-  constructor(private offlineService: PackageService, private tipService: TipService, private packageLogoService: PackageLogoService) {
+  constructor(private offlineService: PackageService, private packageLogoService: PackageLogoService, private alert: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -46,7 +46,7 @@ export class PackageListComponent implements OnInit {
 
 
   refresh() {
-    this.tipService.showTip('刷新成功', TipLevels.SUCCESS);
+    this.alert.showAlert('刷新成功', AlertLevels.SUCCESS);
     this.listOfflines();
   }
 

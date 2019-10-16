@@ -5,17 +5,16 @@ import {HeaderComponent} from './header/header.component';
 import {NavigatorComponent} from './navigator/navigator.component';
 import {ShellComponent} from './shell/shell.component';
 import {CoreModule} from '../core/core.module';
-import {MessageComponent} from './message/message.component';
-import {MessageService} from './message.service';
 import {PasswordComponent} from './header/components/password/password.component';
-import {TipModule} from '../tip/tip.module';
+
+import {CommonAlertComponent} from './header/components/common-alert/common-alert.component';
 
 @NgModule({
-  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent, MessageComponent, PasswordComponent],
+  declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent,
+     PasswordComponent, CommonAlertComponent],
   imports: [
     CommonModule,
     CoreModule,
-    TipModule
   ],
   exports: [NavigatorComponent]
 })

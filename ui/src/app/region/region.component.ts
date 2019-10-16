@@ -1,6 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {CredentialCreateComponent} from '../credential/credential-create/credential-create.component';
-import {CredentialListComponent} from '../credential/credential-list/credential-list.component';
 import {RegionListComponent} from './region-list/region-list.component';
 import {RegionCreateComponent} from './region-create/region-create.component';
 

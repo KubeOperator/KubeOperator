@@ -2,12 +2,11 @@ import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core'
 import {Cluster, Operation} from '../cluster';
 import {ClusterService} from '../cluster.service';
 import {Router} from '@angular/router';
-import {TipService} from '../../tip/tip.service';
-import {TipLevels} from '../../tip/tipLevels';
-import {MessageService} from '../../base/message.service';
 import {SettingService} from '../../setting/setting.service';
 import {PackageLogoService} from '../../package/package-logo.service';
 import {ClusterStatusService} from '../cluster-status.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {CommonAlertService} from '../../base/header/common-alert.service';
 
 @Component({
   selector: 'app-cluster-list',
@@ -22,7 +21,7 @@ export class ClusterListComponent implements OnInit {
   @Output() addCluster = new EventEmitter<void>();
 
   constructor(private clusterService: ClusterService, private router: Router,
-              private tipService: TipService, private messageService: MessageService, private settingService: SettingService,
+              private alertService: CommonAlertService, private settingService: SettingService,
               private packageLogoService: PackageLogoService,
               private clusterStatusService: ClusterStatusService) {
   }
@@ -52,9 +51,7 @@ export class ClusterListComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       this.listCluster();
-      this.tipService.showTip('删除集群成功！', TipLevels.SUCCESS);
-    }, (error) => {
-      this.tipService.showTip('删除集群失败:' + error, TipLevels.ERROR);
+      this.alertService.showAlert('删除集群成功！', AlertLevels.SUCCESS);
     }).finally(() => {
       this.deleteModal = false;
       this.selectedClusters = [];

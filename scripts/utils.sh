@@ -9,8 +9,8 @@ function get_images(){
        "docker.io/mysql:5"
        "docker.io/nginx:alpine"
        "node:10-alpine"
-       "kube-operator/api:2.0.0"
-       "kube-operator/ui:2.0.0"
+       "kube-operator/api:2.1.0"
+       "kube-operator/ui:2.1.0"
        "registry.fit2cloud.com/public/nexus-helm:3.15.2-01"
        "registry.fit2cloud.com/public/python:v3"
     )

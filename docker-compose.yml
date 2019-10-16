@@ -16,7 +16,7 @@ services:
 
   ui:
     build: ui
-    image: kube-operator/ui:2.0.0
+    image: kube-operator/ui:2.1.0
     container_name: kubeops_ui
     restart: always
     healthcheck:
@@ -30,7 +30,7 @@ services:
 
   api:
     build: api
-    image: kube-operator/api:2.0.0
+    image: kube-operator/api:2.1.0
     container_name: kubeops_api
     restart: always
     privileged: true
@@ -40,7 +40,8 @@ services:
     volumes:
       - api_data:/opt/kubeOperator-api/data
       - dns_data:/etc/dnsmasq.d
-      - ./docker/template:/images
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -83,20 +84,6 @@ services:
       - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "info"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  nexus:
-    container_name: kubeops_nexus
-    image: registry.fit2cloud.com/public/nexus-helm:3.15.2-01
-    ports:
-      - 8082:8081
-      - 8092:8092
-    volumes:
-      - ./docker/nexus/data/k8s:/nexus-data
-    healthcheck:
-      test: "curl localhost:8081"
       interval: 10s
       timeout: 5s
       retries: 10

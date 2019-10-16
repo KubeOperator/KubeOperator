@@ -76,7 +76,7 @@ function main {
        start_docker
     fi
     which docker-compose >/dev/null 2>&1
-    if [ $? -ne 0];then
+    if [ $? -ne 0 ];then
        install_docker-compose
     fi
 }

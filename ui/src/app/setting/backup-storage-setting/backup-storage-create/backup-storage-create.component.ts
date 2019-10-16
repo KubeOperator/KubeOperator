@@ -2,9 +2,9 @@ import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core'
 import {BackupStorage} from '../backup-storage';
 import {NgForm} from '@angular/forms';
 import {BackupStorageService} from '../backup-storage.service';
-import {TipService} from '../../../tip/tip.service';
-import {TipLevels} from '../../../tip/tipLevels';
 import {StorageCredential} from '../storage-credential';
+import {CommonAlertService} from '../../../base/header/common-alert.service';
+import {AlertLevels} from '../../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-backup-storage-create',
@@ -28,7 +28,8 @@ export class BackupStorageCreateComponent implements OnInit {
   buckets = [];
 
 
-  constructor(private backupStorageService: BackupStorageService, private tipService: TipService ) { }
+  constructor(private backupStorageService: BackupStorageService, private alertService: CommonAlertService) {
+  }
 
   ngOnInit() {
   }
@@ -46,27 +47,27 @@ export class BackupStorageCreateComponent implements OnInit {
     this.isSubmitGoing = true;
     this.loading = true;
     if (this.credential == null) {
-          this.invalid = true;
-          this.tipShow = true;
+      this.invalid = true;
+      this.tipShow = true;
     } else {
-        this.item.credentials = this.credential;
-        this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
-           // @ts-ignore
-          this.invalid = !data.success;
-          // @ts-ignore
-          this.message = data.message;
-          this.tipShow = true;
-          // @ts-ignore
-          if (data.success) {
-              this.postItem(this.item);
-          } else {
-              this.isSubmitGoing = false;
-          }
-        }, err => {
-          this.invalid = true;
-          this.tipShow = true;
+      this.item.credentials = this.credential;
+      this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
+        // @ts-ignore
+        this.invalid = !data.success;
+        // @ts-ignore
+        this.message = data.message;
+        this.tipShow = true;
+        // @ts-ignore
+        if (data.success) {
+          this.postItem(this.item);
+        } else {
           this.isSubmitGoing = false;
-        });
+        }
+      }, err => {
+        this.invalid = true;
+        this.tipShow = true;
+        this.isSubmitGoing = false;
+      });
     }
   }
 
@@ -76,14 +77,14 @@ export class BackupStorageCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('新增成功!', TipLevels.SUCCESS);
+      this.alertService.showAlert('新增成功!', AlertLevels.SUCCESS);
       this.tipShow = false;
     }, err => {
       this.createOpened = true;
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      this.tipService.showTip('新增失败!' + err.reson + 'state code:' + err.status, TipLevels.ERROR);
+      this.alertService.showAlert('新增失败!' + err.reson + 'state code:' + err.status, AlertLevels.ERROR);
     });
   }
 
@@ -100,23 +101,23 @@ export class BackupStorageCreateComponent implements OnInit {
   }
 
   getBuckets(credential) {
-      this.item.credentials = credential;
-      this.backupStorageService.getBuckets(this.item).subscribe(rep => {
-         // @ts-ignore
-        this.invalid = !rep.success;
+    this.item.credentials = credential;
+    this.backupStorageService.getBuckets(this.item).subscribe(rep => {
+      // @ts-ignore
+      this.invalid = !rep.success;
+      // @ts-ignore
+      if (rep.success) {
         // @ts-ignore
-        if (rep.success) {
-            // @ts-ignore
-            this.buckets = rep.data;
-        } else {
-            this.tipShow = true;
-            // @ts-ignore
-            this.message = '查询失败';
-        }
-      }, err => {
-        this.invalid = true;
+        this.buckets = rep.data;
+      } else {
         this.tipShow = true;
+        // @ts-ignore
         this.message = '查询失败';
-      });
+      }
+    }, err => {
+      this.invalid = true;
+      this.tipShow = true;
+      this.message = '查询失败';
+    });
   }
 }

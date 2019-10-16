@@ -84,3 +84,8 @@ python-openstacksdk==0.5.2
 retrying==1.3.3
 jms-storage==0.0.24
 netaddr==0.7.19
+<<<<<<< HEAD
+django-crontab==0.7.1
+docker
+=======
+>>>>>>> 8935cc0015ff7b6cc1964ae9b1652af282a2fb33

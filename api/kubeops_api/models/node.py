@@ -61,3 +61,6 @@ class Node(Ansible_Host):
 
     def get_var(self, key, default):
         return self.vars.get(key, default)
+
+    class Meta:
+        ordering = ['name']

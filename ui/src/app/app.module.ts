@@ -12,26 +12,22 @@ import {UserModule} from './user/user.module';
 import {ClusterModule} from './cluster/cluster.module';
 import {OverviewModule} from './overview/overview.module';
 import {NodeModule} from './node/node.module';
-import {ConfigModule} from './config/config.module';
-import {MonitorModule} from './monitor/monitor.module';
 import {LogModule} from './log/log.module';
-import {TipModule} from './tip/tip.module';
 import {HostModule} from './host/host.module';
 import {DeployModule} from './deploy/deploy.module';
 import {SettingModule} from './setting/setting.module';
-import {AuthModule} from './auth/auth.module';
 import {CredentialModule} from './credential/credential.module';
 import {RegionModule} from './region/region.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
-import { ClusterHealthComponent } from './cluster-health/cluster-health.component';
+import {ClusterHealthComponent} from './cluster-health/cluster-health.component';
 import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
 import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
-import { ClusterHealthStatusPipe } from './cluster-health/cluster-health-status.pipe';
+import {NfsModule} from './nfs/nfs.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +36,6 @@ import { ClusterHealthStatusPipe } from './cluster-health/cluster-health-status.
     ApplicationComponent,
     ClusterHealthComponent,
     ClusterBackupComponent,
-    ClusterHealthStatusPipe,
   ],
   imports: [
     CredentialModule,
@@ -56,18 +51,15 @@ import { ClusterHealthStatusPipe } from './cluster-health/cluster-health-status.
     OverviewModule,
     RegionModule,
     NodeModule,
-    ConfigModule,
     LogModule,
-    MonitorModule,
-    TipModule,
     HostModule,
     SettingModule,
-    AuthModule,
     ZoneModule,
     PlanModule,
     F5BigIpModule,
     ClusterBackupModule,
-    SharedModule
+    SharedModule,
+    NfsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

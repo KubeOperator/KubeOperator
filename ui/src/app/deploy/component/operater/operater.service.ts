@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {tap} from 'rxjs/operators';
 import {Observable, Observer, Subject} from 'rxjs';
-import {Tip} from '../../../tip/tip';
 import {Execution} from './execution';
 
 @Injectable({

@@ -4,7 +4,6 @@ import { BackupStorageCreateComponent } from './backup-storage-create/backup-sto
 import { BackupStorageListComponent } from './backup-storage-list/backup-storage-list.component';
 import {ClrDatagridModule, ClrIconModule} from '@clr/angular';
 import {SharedModule} from '../../shared/shared.module';
-import {TipModule} from '../../tip/tip.module';
 import { BackupStorageStatusPipe } from './backup-storage-status.pipe';
 
 
@@ -20,7 +19,6 @@ import { BackupStorageStatusPipe } from './backup-storage-status.pipe';
     ClrDatagridModule,
     ClrIconModule,
     SharedModule,
-    TipModule
   ]
 })
 export class BackupStorageSettingModule { }

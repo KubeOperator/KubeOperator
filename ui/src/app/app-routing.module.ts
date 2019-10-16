@@ -15,7 +15,6 @@ import {ClusterRoutingResolverService} from './cluster/cluster-routing-resolver.
 import {HostComponent} from './host/host.component';
 import {DeployComponent} from './deploy/deploy.component';
 import {SettingComponent} from './setting/setting.component';
-import {AuthComponent} from './auth/auth.component';
 import {SystemSettingComponent} from './setting/system-setting/system-setting.component';
 import {CredentialComponent} from './credential/credential.component';
 import {RegionComponent} from './region/region.component';
@@ -27,6 +26,7 @@ import {ClusterHealthComponent} from './cluster-health/cluster-health.component'
 import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {BackupStorageSettingComponent} from './setting/backup-storage-setting/backup-storage-setting.component';
+import {NfsComponent} from './nfs/nfs.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -42,6 +42,7 @@ const routes: Routes = [
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
+      {path: 'nfs', component: NfsComponent},
       {
         path: 'plan',
         component: DeployPlanComponent,
@@ -71,7 +72,6 @@ const routes: Routes = [
           {path: 'overview', component: OverviewComponent},
           {path: 'node', component: NodeComponent},
           {path: 'deploy', component: DeployComponent},
-          {path: 'auth', component: AuthComponent},
           {path: 'log', component: LogComponent},
           {path: 'apps', component: ApplicationComponent},
           {path: 'health', component: ClusterHealthComponent},

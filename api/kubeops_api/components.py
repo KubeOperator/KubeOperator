@@ -1,3 +1,5 @@
+from kubeops_api.models.setting import Setting
+
 http_prefix = 'http://'
 https_prefix = 'https://'
 

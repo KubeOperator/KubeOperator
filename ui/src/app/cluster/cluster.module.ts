@@ -6,7 +6,7 @@ import {CoreModule} from '../core/core.module';
 import {ClusterService} from './cluster.service';
 import {ClusterDetailComponent} from './cluster-detail/cluster-detail.component';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
-import {TipModule} from '../tip/tip.module';
+
 import {ClusterRoutingResolverService} from './cluster-routing-resolver.service';
 import {HostsFilterPipe} from './hosts-filter.pipe';
 import {DeviceCheckService} from './device-check.service';
@@ -16,7 +16,7 @@ import {SharedModule} from '../shared/shared.module';
   declarations: [ClusterComponent, ClusterListComponent, ClusterDetailComponent, ClusterCreateComponent, HostsFilterPipe],
   imports: [
     CommonModule,
-    TipModule,
+
     CoreModule,
     SharedModule
   ],
