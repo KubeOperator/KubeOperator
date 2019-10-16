@@ -9,9 +9,9 @@
 | 存储 | quay.io/external_storage/nfs-client-provisioner  | v3.1.0-k8s1.11 |
 | 网络 | docker.io/coredns/coredns| 1.6.0 |
 | 网络 | quay.io/coreos/flannel| v0.11.0-amd64 |
-| 网络 | calico/node:v3.4.4 |
-| 网络 | calico/cni:v3.4.4 |
-| 网络 | calico/kube-controllers:v3.4.4 |
+| 网络 | calico/node:v3.7.3 |
+| 网络 | calico/cni:v3.7.3 |
+| 网络 | calico/kube-controllers:v3.7.3 |
 | 网络 | docker.io/traefik  | v1.7.11 |
 | 监控 | docker.io/grafana/grafana  | v1.7.11 |
 | 监控 | quay.io/prometheus/alertmanager  | v0.15.2 |

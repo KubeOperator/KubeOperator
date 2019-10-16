@@ -54,11 +54,11 @@ images:
   - name: docker.io/weaveworks/scope:1.9.1
     tag: 1.9.1
   - name: calico/node
-    tag: v3.4.4
+    tag: v3.7.3
   - name: calico/cni
-    tag: v3.4.4
+    tag: v3.7.3
   - name: calico/kube-controllers
-    tag: v3.4.4
+    tag: v3.7.3
 vars:
   bin_dir: "/usr/local/bin"
   ca_dir: "/etc/kubernetes/ssl"
