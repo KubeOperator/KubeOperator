@@ -97,18 +97,19 @@ export class ClusterHealthComponent implements OnInit {
           left: 'center',
           text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(totalRate , '1.0-1') + '%)'
       },
+      tooltip : {},
       visualMap: [{
         min: 0,
         max: 100,
         top: 60,
         orient: 'horizontal',
         left: 'center',
-        splitNumber: 2,
-        color: ['#9DE7BD', '#FF4040' ],
+        splitNumber: 100,
+        color: ['#9DE7BD', '#FF4040'],
         textStyle: {
             color: '#000000'
         },
-        show: true
+        show: false
       }],
       calendar: [{
         top: 120,
@@ -123,7 +124,7 @@ export class ClusterHealthComponent implements OnInit {
         dayLabel: {
           firstDay: 0,
           nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-          show: false
+          show: true
         },
         cellSize: ['auto', 13],
         left: 30,
