@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {DatePipe} from '@angular/common';
+import {DatePipe, DecimalPipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
 import {ActivatedRoute} from '@angular/router';
@@ -10,11 +10,11 @@ import {ClusterHealthHistory} from './cluster-health-history';
   selector: 'app-cluster-health',
   templateUrl: './cluster-health.component.html',
   styleUrls: ['./cluster-health.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe, DecimalPipe]
 })
 export class ClusterHealthComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute,
+  constructor(private route: ActivatedRoute, private decimalPipe: DecimalPipe,
               private datePipe: DatePipe, private clusterHealthService: ClusterHealthService) { }
   options: {};
   time: any;
@@ -76,7 +76,7 @@ export class ClusterHealthComponent implements OnInit {
         }
         for (let i = 0 ; i < healthDataArray.length; i++) {
           const healthData = healthDataArray[i];
-          this.setCalendar(healthData.type);
+          this.setCalendar(i, healthData.type);
           this.setSeries(i, healthData.data);
         }
         this.setOptions(this.seriesArray, this.calendarArray);
@@ -92,7 +92,7 @@ export class ClusterHealthComponent implements OnInit {
         min: 0,
         max: 100,
         splitNumber: 3,
-        color: ['#EE0000', '#FFB90F', '#7ED321'],
+        color: ['#7ED321', '#EE0000', '#FFB90F'],
         textStyle: {
             color: '#fff'
         },
@@ -116,7 +116,17 @@ export class ClusterHealthComponent implements OnInit {
      this.seriesArray.push(series);
   }
 
-  setCalendar(month) {
+  setCalendar(index, month) {
+
+    let left = index;
+    let top = 0;
+    let s = '';
+    if (index > 2) {
+      left = index % 2 - 1;
+      top = index / 3;
+       s = this.decimalPipe.transform(top, '1.0-0');
+       console.log(s);
+    }
     const calendar = {
       orient: 'vertical',
       yearLabel: {
@@ -128,12 +138,13 @@ export class ClusterHealthComponent implements OnInit {
         nameMap: 'cn',
       },
       dayLabel: {
-        firstDay: 1,
+        firstDay: 0,
         nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
         show: false
       },
       cellSize: 40,
-      left: 40,
+      left: 40 + 350 * left,
+      top: top * 220,
       range: month,
       splitLine: {
         show: false
