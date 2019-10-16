@@ -36,7 +36,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 内置 Kubernetes 常用系统应用的安装，包括 Registry、Promethus、Dashboard、Traefik Ingress、Helm 等；
 - [x] 提供简易明了的 Kubernetes 集群运行状况面板；
 - [x] 支持 NFS 作为持久化存储；
-- [x] 支持 Flannel 作为网络方案；
+- [x] 支持 Flannel 网络插件；
 - [x] 支持 Kubernetes 集群手动部署模式（自行准备主机和 NFS）；
 
  v2.0 （已发布）
@@ -44,32 +44,32 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 支持调用 VMware vCenter API 自动创建集群主机；
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
 - [x] 支持 Multi AZ，支持多主多节点部署模式；
-- [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
+- [x] 支持 Calico 网络插件；
 - [x] 内置 Weave Scope (支持 Web Shell)；
-- [x] 支持 Calico 作为网络方案；
+- [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
  v2.1 （开发中，预计 2019.10.31 发布）
  
-- [ ] 支持 Openstack 云平台；
-- [ ] 支持 Openstack Cinder 作为持久化存储；
-- [ ] 支持 Kubernetes 集群升级 （Day 2）；
-- [ ] 支持 Kubernetes 集群扩缩容（Day 2）；
-- [ ] 支持 Kubernetes 集群备份与恢复（Day 2）；
+- [x] 支持 Openstack 云平台；
+- [x] 支持 Openstack Cinder 作为持久化存储；
+- [x] 支持 Kubernetes 集群升级 （Day 2）；
+- [x] 支持 Kubernetes 集群扩缩容（Day 2）；
+- [x] 支持 Kubernetes 集群备份与恢复（Day 2）；
 - [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 
  v2.2 （计划中，预计 2019.12.31 发布）
 
-- [ ] 集成 KubeApps（支持常用应用部署，如 Jenkins、GitLab、Harbor、Tekton、Sonarqube）；
+- [ ] 集成 KubeApps 应用商店；
 - [ ] 支持 VMware NSX-T；
  
  ## Kubernetes 离线安装包
 
-KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
+KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
 
  ## 使用指南
 
--  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 -  [在线文档](https://docs.kubeoperator.io/)
+-  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 
 ## 沟通交流
  

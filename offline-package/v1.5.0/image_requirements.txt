@@ -6,12 +6,9 @@ quay.io/prometheus/pushgateway:v0.5.2
 quay.io/coreos/flannel:v0.11.0-amd64
 quay.io/coreos/configmap-reload:v0.0.1
 quay.io/coreos/kube-state-metrics:v1.4.0
-k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0
-k8s.gcr.io/metrics-server-amd64:v0.3.2
+kubernetesui/dashboard:v2.0.0-beta4
+kubernetesui/metrics-scraper:v1.0.1
 gcr.io/google-containers/pause-amd64:3.1
-gcr.io/google_containers/heapster-grafana-amd64:v4.4.3
-gcr.io/google_containers/heapster-amd64:v1.5.4
-gcr.io/google_containers/heapster-influxdb-amd64:v1.5.2
 gcr.io/kubernetes-helm/tiller:v2.12.3
 docker.io/registry:2
 docker.io/konradkleine/docker-registry-frontend:v2
@@ -21,8 +18,8 @@ docker.io/coredns/coredns:1.6.0
 gcr.io/google-containers/cluster-proportional-autoscaler-amd64:1.6.0
 weaveworks/scope:1.11.5
 f5networks/k8s-bigip-ctlr:1.9.2
-calico/node:v3.4.4
-calico/cni:v3.4.4
-calico/kube-controllers:v3.4.4
+calico/node:v3.7.3
+calico/cni:v3.7.3
+calico/kube-controllers:v3.7.3
 quay.io/comcast/kuberhealthy:v1.0.2
 gcr.io/google_containers/pause:0.8.0

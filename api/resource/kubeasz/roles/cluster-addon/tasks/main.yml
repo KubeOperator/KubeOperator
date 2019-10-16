@@ -29,22 +29,18 @@
 - import_tasks: ingress.yml
   when: '"ingress-controller" not in pod_info.stdout '
 
-# 现阶段 dashboard 获取metrics仍旧依赖于heapster，因此需连带安装heapster
 - block:
     - name: 创建 dashboard 部署文件
       template:
         src: dashboard/kubernetes-dashboard.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/kubernetes-dashboard.yaml"
 
-    - name: 创建 dashboard部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard && \
-	      {{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/heapster/heapster-only"
+    - name: 部署 dashboard
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install '
   ignore_errors: true
-
-
 
 - block:
     - name: 创建 monitoring namespace
