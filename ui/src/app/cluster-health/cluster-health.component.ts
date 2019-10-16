@@ -119,13 +119,10 @@ export class ClusterHealthComponent implements OnInit {
   setCalendar(index, month) {
 
     let left = index;
-    let top = 0;
-    let s = '';
+    let top = '';
     if (index > 2) {
       left = index % 2 - 1;
-      top = index / 3;
-       s = this.decimalPipe.transform(top, '1.0-0');
-       console.log(s);
+      top = this.decimalPipe.transform(index / 3, '1.0-0');
     }
     const calendar = {
       orient: 'vertical',
@@ -144,7 +141,7 @@ export class ClusterHealthComponent implements OnInit {
       },
       cellSize: 40,
       left: 40 + 350 * left,
-      top: top * 220,
+      top: parseInt(top, 0) * 220,
       range: month,
       splitLine: {
         show: false
