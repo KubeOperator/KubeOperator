@@ -799,6 +799,26 @@ serverFiles:
       - /etc/config/alerts
 
     scrape_configs:
+      - job_name: 'kubernetes-schedule'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [{% for h in groups['master'] %}"{{hostvars[h]['ansible_ssh_host']}}:10251",{% endfor %}]
+
+      - job_name: 'kubernetes-control-manager'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [{% for h in groups['master'] %}"{{hostvars[h]['ansible_ssh_host']}}:10252",{% endfor %}]
+
+      - job_name: 'kubernetes-kubelet'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [{% for h in groups['worker'] %}"{{hostvars[h]['ansible_ssh_host']}}:10255",{% endfor %}]
+
+      - job_name: 'kubernetes-kube-proxy'
+        scrape_interval: 5s
+        static_configs:
+          - targets: [{% for h in groups['worker'] %}"{{hostvars[h]['ansible_ssh_host']}}:10249",{% endfor %}]
+
       - job_name: prometheus
         static_configs:
           - targets:

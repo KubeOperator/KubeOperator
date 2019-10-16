@@ -9,6 +9,7 @@ After=network.target
 WorkingDirectory=/var/lib/kube-proxy
 ExecStart={{ bin_dir }}/kube-proxy \
   --bind-address={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} \
+  --metrics-bind-address=0.0.0.0 \
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --logtostderr=true \
