@@ -1,19 +1,13 @@
 <div class="row">
-  <div class="clr-row">
-<!--      <div class="clr-col-1">-->
-
-<!--      </div>-->
+  <div class="clr-row" [clrLoading]="loading">
       <div class="clr-col-2">
-        <div class="clr-col-12" style="margin-top: 80px">
+        <div class="clr-col-12">
           <div class="card">
-              <div class="card-header" style="background-color: #7ED321">
-
+              <div class="card-header" [ngStyle]="{'backgroundColor': clusterHealth.rate === 100 ? '#9DE7BD' : '#FF4040'}">
+                <small>k8s 集群</small>
               </div>
               <div class="card-block" align="center">
                 <img src="../../assets/images/k8s.png" class="img-responsive" width="64">
-              </div>
-              <div class="card-footer">
-
               </div>
           </div>
         </div>
@@ -21,63 +15,83 @@
       <div class="clr-col-5 clr-row">
           <div class="clr-col-12">
             <div class="card">
-              <div class="card-header" style="background-color: #7ED321">
-
+              <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-control-manager')}">
+                <small>control manager</small>
               </div>
-              <div class="card-block">
-                <div class="card-media-block">
-                  <img src="../../assets/images/master.png" width="64">
-                  <div class="card-media-description">
-                      <span class="card-media-title"></span>
-                      <span class="card-media-text">
-                          状态：100%可用
-                      </span>
-                  </div>
-                </div>
-              </div>
+<!--              <div class="card-block">-->
+<!--                 <div class="card-text"  *ngFor="let data of clusterHealth.data">-->
+<!--                   <table class="table table-margin" *ngIf="data.job === 'kubernetes-control-manager'">-->
+<!--                     <tbody>-->
+<!--                       <tr *ngFor="let etcd of data.data">-->
+<!--                         <td >{{etcd.key}}</td>-->
+<!--                         <td >{{etcd.value}}</td>-->
+<!--                       </tr>-->
+<!--                     </tbody>-->
+<!--                   </table>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
           </div>
           <div class="clr-col-12">
             <div class="card">
-                <div class="card-header" style="background-color: #7ED321">
-
+                <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-schedule')}">
+                     <small>schedule</small>
                 </div>
-                <div class="card-block">
-                   <img src="../../assets/images/node.png" width="64">
-                </div>
+<!--                <div class="card-block">-->
+<!--                   <img src="../../assets/images/node.png" width="64">-->
+<!--                  <div class="card-text"  *ngFor="let data of clusterHealth.data">-->
+<!--                   <table class="table table-margin" *ngIf="data.job === 'kubernetes-nodes'">-->
+<!--                     <tbody>-->
+<!--                       <tr *ngFor="let etcd of data.data">-->
+<!--                         <td >{{etcd.key}}</td>-->
+<!--                         <td >{{etcd.value}}</td>-->
+<!--                       </tr>-->
+<!--                     </tbody>-->
+<!--                   </table>-->
+<!--                  </div>-->
+<!--                </div>-->
             </div>
           </div>
       </div>
       <div class="clr-col-5 clr-row">
          <div class="clr-col-12">
            <div class="card">
-             <div class="card-header" [ngStyle]="{'background-color':getClusterServiceStatus(etcdData)}">
+             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'etcd')}">
+               <small>etcd</small>
              </div>
-             <div class="card-block">
-               <div class="card-media-block">
-                  <img src="../../assets/images/etcd.png" width="64" class="card-media-image" style="margin-top: 30px">
-                  <div class="card-media-description">
-                     <table class="table" style="margin-top: 0px">
-                       <tbody>
-                         <tr *ngFor="let etcd of etcdData">
-                           <td >{{etcd.key}}</td>
-                           <td >{{etcd.value | clusterHealthStatus}}</td>
-                         </tr>
-                       </tbody>
-                     </table>
-                  </div>
-                </div>
-             </div>
+<!--             <div class="card-block">-->
+<!--&lt;!&ndash;                  <img src="../../assets/images/etcd.png" width="64" class="card-media-image" style="margin-top: 30px">&ndash;&gt;-->
+<!--                <div class="card-text"  *ngFor="let data of clusterHealth.data">-->
+<!--                   <table class="table table-margin" style="" *ngIf="data.job === 'etcd'">-->
+<!--                     <tbody>-->
+<!--                       <tr *ngFor="let etcd of data.data">-->
+<!--                         <td >{{etcd.key}}</td>-->
+<!--                         <td >{{etcd.value}}</td>-->
+<!--                       </tr>-->
+<!--                     </tbody>-->
+<!--                   </table>-->
+<!--                </div>-->
+<!--             </div>-->
            </div>
          </div>
          <div class="clr-col-12">
            <div class="card">
-             <div class="card-header" style="background-color: #EE0000">
-
+             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-nodes')}">
+                <small>nodes</small>
              </div>
-             <div class="card-block">
-               <img src="../../assets/images/pod.png" width="64">
-             </div>
+<!--             <div class="card-block">-->
+<!--&lt;!&ndash;               <img src="../../assets/images/pod.png" width="64">&ndash;&gt;-->
+<!--                 <div class="card-text"  *ngFor="let data of clusterHealth.data">-->
+<!--                   <table class="table table-margin" *ngIf="data.job === 'kubernetes-nodes'">-->
+<!--                     <tbody>-->
+<!--                       <tr *ngFor="let etcd of data.data">-->
+<!--                         <td >{{etcd.key}}</td>-->
+<!--                         <td >{{etcd.value}}</td>-->
+<!--                       </tr>-->
+<!--                     </tbody>-->
+<!--                   </table>-->
+<!--                </div>-->
+<!--             </div>-->
            </div>
          </div>
       </div>

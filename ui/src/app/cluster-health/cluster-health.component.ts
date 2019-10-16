@@ -23,11 +23,12 @@ export class ClusterHealthComponent implements OnInit {
   currentCluster: Cluster;
   projectName = '';
   projectId = '';
-  clusterHealth: ClusterHealth;
-  etcdData: Data[] = [];
+  clusterHealth: ClusterHealth = new ClusterHealth();
   clusterHealthHistories: ClusterHealthHistory[] = [];
+  loading = true;
 
   ngOnInit() {
+    this.clusterHealth.data = [];
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectName = this.currentCluster.name;
@@ -40,11 +41,7 @@ export class ClusterHealthComponent implements OnInit {
   getClusterHealth() {
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
-        for ( const ch of this.clusterHealth.data) {
-          if ( ch.type === 'etcd') {
-            this.etcdData = ch.data;
-          }
-        }
+        this.loading = false;
       });
   }
 
@@ -64,7 +61,7 @@ export class ClusterHealthComponent implements OnInit {
               healthData.data.push(data);
           } else {
               const healthData = new HealthData();
-              healthData.type = month;
+              healthData.job = month;
               healthData.data = [];
               const data = new Data();
               data.key = clusterHealthHistory.date_created;
@@ -76,7 +73,7 @@ export class ClusterHealthComponent implements OnInit {
         }
         for (let i = 0 ; i < healthDataArray.length; i++) {
           const healthData = healthDataArray[i];
-          this.setCalendar(i, healthData.type);
+          this.setCalendar(i, healthData.job);
           this.setSeries(i, healthData.data);
         }
         this.setOptions(this.seriesArray, this.calendarArray);
@@ -92,7 +89,7 @@ export class ClusterHealthComponent implements OnInit {
         min: 0,
         max: 100,
         splitNumber: 3,
-        color: ['#7ED321', '#EE0000', '#FFB90F'],
+        color: ['#9DE7BD', '#FF4040', '#FF4040' ],
         textStyle: {
             color: '#fff'
         },
@@ -164,19 +161,15 @@ export class ClusterHealthComponent implements OnInit {
     return dataArray;
   }
 
-  getClusterServiceStatus(data) {
-    let num = 0;
-    let  serviceStyle = '#7ED321';
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].value === '1') {
-        num = num + 1;
+  getClusterServiceStatus(data, job) {
+    let  serviceStyle = '#9de7bd';
+
+    for (const d of data) {
+      if (d.job === job) {
+        if ( d.rate !== 100) {
+          serviceStyle = '#FF4040';
+        }
       }
-    }
-    if (num >= data.length / 2 ) {
-      serviceStyle = '#FF0000';
-    }
-    if (num > 0 && num < data.length / 2) {
-      serviceStyle = '#FFB90F';
     }
     return serviceStyle;
   }
