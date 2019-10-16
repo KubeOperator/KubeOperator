@@ -27,6 +27,7 @@ export class ClusterHealthComponent implements OnInit {
 
   ngOnInit() {
     this.clusterHealth.data = [];
+    this.clusterHealth.rate = 0;
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectName = this.currentCluster.name;
@@ -51,6 +52,7 @@ export class ClusterHealthComponent implements OnInit {
         this.clusterHealthHistories = res;
         const healthDataArray: HealthData[] = [];
         const nameArray = [];
+        let totalRate = 0;
         for (const clusterHealthHistory of this.clusterHealthHistories) {
           const month = clusterHealthHistory.month;
           const index = nameArray.indexOf(clusterHealthHistory.month);
@@ -71,7 +73,9 @@ export class ClusterHealthComponent implements OnInit {
               healthDataArray.push(healthData);
               nameArray.push(month);
           }
+          totalRate = totalRate + clusterHealthHistory.available_rate;
         }
+        totalRate = totalRate / this.clusterHealthHistories.length;
         const dataArray = [];
         for (let i = 0 ; i < healthDataArray.length; i++) {
           const healthData = healthDataArray[i];
@@ -82,16 +86,16 @@ export class ClusterHealthComponent implements OnInit {
             ]);
           }
         }
-        this.setOptions(dataArray);
+        this.setOptions(dataArray, totalRate);
     });
   }
 
-  setOptions(data) {
+  setOptions(data, totalRate) {
     this.options = {
       title: {
           top: 30,
           left: 'center',
-          text: '过去半年集群运行状态(可用率)'
+          text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(totalRate , '1.0-1') + '%)'
       },
       visualMap: [{
         min: 0,
@@ -125,8 +129,11 @@ export class ClusterHealthComponent implements OnInit {
         left: 30,
         range: this.getDateRange(),
         itemStyle: {
-          normal: {borderWidth: 0.5},
-          borderColor: '#FFFFFF'
+          normal: {
+                color: '#CCCCCC',
+                borderWidth: 0.5,
+                borderColor: '#8F8F8F'
+          }
         }
       }],
       series: [{
@@ -158,7 +165,7 @@ export class ClusterHealthComponent implements OnInit {
     const halfYear = 365 / 2 * 24 * 3600 * 1000;
     const pastResult = time - halfYear;
     const pastDate = new Date(pastResult);
-    const start = pastDate.getFullYear() + '-' + pastDate.getMonth() + '-' + '01';
+    const start = pastDate.getFullYear() + '-' + (pastDate.getMonth() + 1) + '-' + '01';
     const endDate = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0);
     const end = endDate.getFullYear() + '-' + (endDate.getMonth() + 1) + '-' + endDate.getDate();
     range.push(start, end);
