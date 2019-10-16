@@ -18,8 +18,6 @@ export class ClusterHealthComponent implements OnInit {
               private datePipe: DatePipe, private clusterHealthService: ClusterHealthService) { }
   options: {};
   time: any;
-  seriesArray = [];
-  calendarArray = [];
   currentCluster: Cluster;
   projectName = '';
   projectId = '';
@@ -29,6 +27,7 @@ export class ClusterHealthComponent implements OnInit {
 
   ngOnInit() {
     this.clusterHealth.data = [];
+    this.clusterHealth.rate = 0;
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectName = this.currentCluster.name;
@@ -42,7 +41,10 @@ export class ClusterHealthComponent implements OnInit {
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
         this.loading = false;
-      });
+      }, error1 => {
+        this.clusterHealth.data = [];
+        this.loading = false;
+    });
   }
 
   getClusterHealthHistory() {
@@ -50,6 +52,7 @@ export class ClusterHealthComponent implements OnInit {
         this.clusterHealthHistories = res;
         const healthDataArray: HealthData[] = [];
         const nameArray = [];
+        let totalRate = 0;
         for (const clusterHealthHistory of this.clusterHealthHistories) {
           const month = clusterHealthHistory.month;
           const index = nameArray.indexOf(clusterHealthHistory.month);
@@ -70,107 +73,103 @@ export class ClusterHealthComponent implements OnInit {
               healthDataArray.push(healthData);
               nameArray.push(month);
           }
+          totalRate = totalRate + clusterHealthHistory.available_rate;
         }
+        totalRate = totalRate / this.clusterHealthHistories.length;
+        const dataArray = [];
         for (let i = 0 ; i < healthDataArray.length; i++) {
           const healthData = healthDataArray[i];
-          this.setCalendar(i, healthData.job);
-          this.setSeries(i, healthData.data);
+          for (const d of healthData.data) {
+            dataArray.push([
+               this.datePipe.transform(d.key, 'yyyy-MM-dd'),
+               d.value
+            ]);
+          }
         }
-        this.setOptions(this.seriesArray, this.calendarArray);
+        this.setOptions(dataArray, totalRate);
     });
   }
 
-  setOptions(seriesArray, calendarArray) {
+  setOptions(data, totalRate) {
     this.options = {
-      tooltip: {
-          position: 'top'
+      title: {
+          top: 30,
+          left: 'center',
+          text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(totalRate , '1.0-1') + '%)'
       },
+      tooltip : {},
       visualMap: [{
         min: 0,
         max: 100,
-        splitNumber: 3,
-        color: ['#9DE7BD', '#FF4040', '#FF4040' ],
+        top: 60,
+        orient: 'horizontal',
+        left: 'center',
+        splitNumber: 100,
+        color: ['#9DE7BD', '#FF4040'],
         textStyle: {
-            color: '#fff'
+            color: '#000000'
         },
         show: false
       }],
-      calendar: calendarArray,
-      series: seriesArray
-    };
+      calendar: [{
+        top: 120,
+        orient: 'horizontal',
+        yearLabel: {
+          show: false
+        },
+        monthLabel: {
+          margin: 10,
+          nameMap: 'cn',
+        },
+        dayLabel: {
+          firstDay: 0,
+          nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          show: true
+        },
+        cellSize: ['auto', 13],
+        left: 30,
+        range: this.getDateRange(),
+        itemStyle: {
+          normal: {
+                color: '#CCCCCC',
+                borderWidth: 0.5,
+                borderColor: '#8F8F8F'
+          }
+        }
+      }],
+      series: [{
+        type: 'heatmap',
+        coordinateSystem: 'calendar',
+        data: data
+      }]
+      };
     console.log(this.options);
   }
 
-  setSeries(index, data) {
-     const series = {
-      type: 'scatter',
-      coordinateSystem: 'calendar',
-      calendarIndex: index,
-      symbol: 'roundRect',
-      symbolSize: 35,
-      data: this.getVirtualData(data)
-     };
-     this.seriesArray.push(series);
-  }
-
-  setCalendar(index, month) {
-
-    let left = index;
-    let top = '';
-    if (index > 2) {
-      left = index % 2 - 1;
-      top = this.decimalPipe.transform(index / 3, '1.0-0');
-    }
-    const calendar = {
-      orient: 'vertical',
-      yearLabel: {
-        margin: 40,
-        show: false
-      },
-      monthLabel: {
-        margin: 10,
-        nameMap: 'cn',
-      },
-      dayLabel: {
-        firstDay: 0,
-        nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
-        show: false
-      },
-      cellSize: 40,
-      left: 40 + 350 * left,
-      top: parseInt(top, 0) * 220,
-      range: month,
-      splitLine: {
-        show: false
-      },
-      itemStyle: {
-        borderColor: '#FFFFFF'
-      }
-    };
-    this.calendarArray.push(calendar);
-  }
-
-  getVirtualData(data) {
-    const dataArray = [];
-    for (const d of data) {
-      dataArray.push([
-         this.datePipe.transform(d.key, 'yyyy-MM-dd'),
-         d.value
-      ]);
-    }
-    return dataArray;
-  }
-
   getClusterServiceStatus(data, job) {
-    let  serviceStyle = '#9de7bd';
+    let  serviceStyle = '#FF4040';
 
     for (const d of data) {
       if (d.job === job) {
-        if ( d.rate !== 100) {
-          serviceStyle = '#FF4040';
+        if ( d.rate === 100) {
+          serviceStyle = '#9DE7BD';
         }
       }
     }
     return serviceStyle;
+  }
+
+  getDateRange() {
+    const range = [];
+    const curDate = new Date();
+    const time = curDate.getTime();
+    const halfYear = 365 / 2 * 24 * 3600 * 1000;
+    const pastResult = time - halfYear;
+    const pastDate = new Date(pastResult);
+    const start = pastDate.getFullYear() + '-' + (pastDate.getMonth() + 1) + '-' + '01';
+    const endDate = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0);
+    const end = endDate.getFullYear() + '-' + (endDate.getMonth() + 1) + '-' + endDate.getDate();
+    range.push(start, end);
+    return range;
   }
 }
