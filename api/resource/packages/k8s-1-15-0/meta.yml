@@ -25,16 +25,10 @@ images:
     tag: 1.6.0
   - name: quay.io/coreos/flannel
     tag: v0.11.0-amd64
-  - name: gcr.io/google_containers/heapster-grafana-amd64
-    tag: v4.4.3
-  - name: gcr.io/google_containers/heapster-amd64
-    tag: v1.5.4
-  - name: gcr.io/google_containers/heapster-influxdb-amd64
-    tag: v1.5.2
   - name: gcr.io/kubernetes-helm/tiller
     tag: v2.12.3
-  - name: k8s.gcr.io/kubernetes-dashboard-amd64
-    tag: v1.10.0
+  - name: kubernetesui/dashboard
+    tag: v2.0.0-beta4
   - name: k8s.gcr.io/metrics-server-amd64
     tag: v0.3.2
   - name: quay.io/coreos/configmap-reload
@@ -80,13 +74,8 @@ vars:
 
   #dashboard
   dashboard_install: true
-  dashboard_image: "k8s.gcr.io/kubernetes-dashboard-amd64"
-  dashboard_version: "v1.10.0"
-
-  #heapster
-  heapster_install: true
-  heapster_version: "v1.5.4"
-  heapster_image: "gcr.io/google_containers/heapster-amd64"
+  dashboard_image: "kubernetesui/dashboard"
+  dashboard_version: "v2.0.0-beta4"
 
   #traefik
   traefik_version: "v1.7.11"
