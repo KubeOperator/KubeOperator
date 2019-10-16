@@ -6,8 +6,7 @@ https_prefix = 'https://'
 
 def get_component_urls(cluster):
     urls = {}
-    domain_suffix = Setting.objects.get(key="domain_suffix")
-    app_url = "apps.{}.{}".format(cluster.name, domain_suffix.value)
+    app_url = cluster.get_config("APP_DOMAIN").get('value')
     if app_url:
         urls = {
             "grafana": http_prefix + "grafana." + app_url,

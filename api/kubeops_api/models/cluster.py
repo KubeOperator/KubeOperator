@@ -19,6 +19,8 @@ from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
 
+from kubeops_api.models.setting import Setting
+
 logger = logging.getLogger(__name__)
 __all__ = ["Cluster"]
 
@@ -326,6 +328,15 @@ class Cluster(Project):
         hosts.sort(key=get_name)
         return hosts
 
+    def set_app_domain(self):
+        self.change_to()
+        config = Role.objects.get(name='config')
+        _vars = config.vars
+        domain_suffix = Setting.objects.get(key="domain_suffix")
+        _vars.update({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
+        config.vars = _vars
+        config.save()
+
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
@@ -335,6 +346,7 @@ class Cluster(Project):
         self.set_package_configs()
         self.create_storage()
         self.set_plan_configs()
+        self.set_app_domain()
 
     def on_cluster_delete(self):
         self.delete_data()
