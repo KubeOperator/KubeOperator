@@ -26,6 +26,7 @@ import {ClusterHealthComponent} from './cluster-health/cluster-health.component'
 import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {BackupStorageSettingComponent} from './setting/backup-storage-setting/backup-storage-setting.component';
+import {NfsComponent} from './nfs/nfs.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -41,6 +42,7 @@ const routes: Routes = [
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
+      {path: 'nfs', component: NfsComponent},
       {
         path: 'plan',
         component: DeployPlanComponent,

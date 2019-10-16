@@ -21,12 +21,13 @@ import {RegionModule} from './region/region.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
 import {F5BigIpModule} from './f5-big-ip/f5-big-ip.module';
-import { ClusterHealthComponent } from './cluster-health/cluster-health.component';
+import {ClusterHealthComponent} from './cluster-health/cluster-health.component';
 import {DeployPlanComponent} from './deploy-plan/deploy-plan.component';
 import {ApplicationComponent} from './application/application.component';
 import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component';
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
+import {NfsModule} from './nfs/nfs.module';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import {SharedModule} from './shared/shared.module';
     PlanModule,
     F5BigIpModule,
     ClusterBackupModule,
-    SharedModule
+    SharedModule,
+    NfsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]
