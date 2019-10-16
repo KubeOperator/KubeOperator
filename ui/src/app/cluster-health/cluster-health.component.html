@@ -1,4 +1,7 @@
 <div class="row">
+  <div class="col-lg-12" align="center">
+      <h4 class="font-title">当前集群运行状态</h4>
+  </div>
   <div class="clr-row" [clrLoading]="loading">
       <div class="clr-col-2">
         <div class="clr-col-12">
@@ -25,7 +28,7 @@
                             <span *ngFor="let etcd of data.data">
                               <a>{{etcd.key}} {{etcd.value}}</a> <br>
                             </span>
-                            <span *ngIf="data.data.length == 0 ">数据获取失败</span>
+                            <span *ngIf="clusterHealth.data.length == 0 || data.data.length == 0 ">数据获取失败</span>
                           </div>
                       </div>
                     </span>
