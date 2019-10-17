@@ -1,0 +1,3 @@
+- hosts: nfs
+  roles:
+    - nfs
