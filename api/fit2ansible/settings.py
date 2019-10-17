@@ -44,7 +44,6 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    'django_crontab',
     'storage.apps.StorageConfig',
     'kubeops_api.apps.KubeOperatorApiConfig',
     'cloud_provider.apps.CloudProviderConfig',
@@ -63,9 +62,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-CRONJOBS = (
-    ('*/5 * * * *', 'kubeops_api.cluster_backup_utils.cluster_backup'),
-)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
