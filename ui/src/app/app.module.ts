@@ -28,7 +28,6 @@ import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component'
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
-import {ClusterHealthStatusPipe} from './cluster-health/cluster-health-status.pipe';
 
 @NgModule({
   declarations: [
@@ -36,7 +35,6 @@ import {ClusterHealthStatusPipe} from './cluster-health/cluster-health-status.pi
     DeployPlanComponent,
     ApplicationComponent,
     ClusterHealthComponent,
-    ClusterHealthStatusPipe,
     ClusterBackupComponent,
   ],
   imports: [
