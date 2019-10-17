@@ -24,6 +24,7 @@ export class ClusterHealthComponent implements OnInit {
   clusterHealth: ClusterHealth = new ClusterHealth();
   clusterHealthHistories: ClusterHealthHistory[] = [];
   loading = true;
+  totalRate = 0;
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -52,7 +53,6 @@ export class ClusterHealthComponent implements OnInit {
         this.clusterHealthHistories = res;
         const healthDataArray: HealthData[] = [];
         const nameArray = [];
-        let totalRate = 0;
         for (const clusterHealthHistory of this.clusterHealthHistories) {
           const month = clusterHealthHistory.month;
           const index = nameArray.indexOf(clusterHealthHistory.month);
@@ -73,9 +73,11 @@ export class ClusterHealthComponent implements OnInit {
               healthDataArray.push(healthData);
               nameArray.push(month);
           }
-          totalRate = totalRate + clusterHealthHistory.available_rate;
+          this.totalRate = this.totalRate + clusterHealthHistory.available_rate;
         }
-        totalRate = totalRate / this.clusterHealthHistories.length;
+        if (this.clusterHealthHistories.length > 0) {
+          this.totalRate = this.totalRate / this.clusterHealthHistories.length;
+        }
         const dataArray = [];
         for (let i = 0 ; i < healthDataArray.length; i++) {
           const healthData = healthDataArray[i];
@@ -86,16 +88,17 @@ export class ClusterHealthComponent implements OnInit {
             ]);
           }
         }
-        this.setOptions(dataArray, totalRate);
+        this.setOptions(dataArray);
     });
   }
 
-  setOptions(data, totalRate) {
+  setOptions(data) {
+    console.log(this.totalRate);
     this.options = {
       title: {
           top: 30,
           left: 'center',
-          text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(totalRate , '1.0-1') + '%)'
+          text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(this.totalRate , '1.0-1') + '%)'
       },
       tooltip : {},
       visualMap: [{
