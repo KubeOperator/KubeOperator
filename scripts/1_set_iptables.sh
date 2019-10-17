@@ -2,7 +2,7 @@
 success=0
 
 function set_firewall {
-    firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp  --add-port=8082/tcp --add-port=8092/tcp --permanent >/dev/null 2>&1
+    firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp  --add-port=8080-8089/tcp --add-port=8090-8099/tcp --permanent >/dev/null 2>&1
     systemctl restart firewalld >/dev/null 2>&1
 }
 

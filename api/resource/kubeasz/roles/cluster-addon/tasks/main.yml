@@ -58,6 +58,9 @@
     - name: 拷贝 prometheus values文件
       template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
 
+    - name: 拷贝 prometheus setting文件
+      template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
+
     - name: 部署 prometheus
       shell: "helm install --name f2c-prometheus --namespace monitoring \
           -f prom-settings.yaml \
@@ -88,6 +91,10 @@
   ignore_errors: true
 
 - block:
+
+    - name: 生成 kuberhealthy 部署文件
+      template: src=kuberhealthy/values.yaml.j2 dest={{ base_dir }}/manifests/kuberhealthy/values.yaml
+
     - name: 部署 kuberhealthy
       shell: "helm install --name kuberhealthy --namespace monitoring ./kuberhealthy"
       args:

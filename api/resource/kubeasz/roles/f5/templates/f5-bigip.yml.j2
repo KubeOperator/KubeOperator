@@ -58,7 +58,7 @@ spec:
       serviceAccountName: bigip-ctlr
       containers:
         - name: k8s-bigip-ctlr
-          image: "registry.kubeops.io:8092/f5networks/k8s-bigip-ctlr:1.9.2"
+          image: "{{registry_prefix}}:{{registry_port}}/f5networks/k8s-bigip-ctlr:1.9.2"
           env:
             - name: BIGIP_USERNAME
               valueFrom:

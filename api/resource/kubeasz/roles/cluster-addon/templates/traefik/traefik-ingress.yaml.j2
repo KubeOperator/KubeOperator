@@ -70,7 +70,7 @@ spec:
       restartPolicy: Always
       serviceAccountName: ingress
       containers:
-      - image: registry.kubeops.io:8092/docker.io/traefik:v1.7.11
+      - image: {{registry_prefix}}:{{registry_port}}/{{traefik_image}}:{{traefik_version}}
         imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
         volumeMounts:

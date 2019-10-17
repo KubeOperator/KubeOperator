@@ -31,7 +31,7 @@ class CloudClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def init_terraform(self):
+    def init_terraform(self, cluster):
         pass
 
     @abstractmethod
@@ -53,7 +53,7 @@ class CloudClient(metaclass=ABCMeta):
         if not self.working_path:
             self.working_path = create_terrafrom_working_dir(cluster_name=cluster.name)
         generate_terraform_file(self.working_path, self.cloud_config_path, cluster.plan.mixed_vars, hosts_dict)
-        self.init_terraform()
+        self.init_terraform(cluster)
         t = Terraform(working_dir=self.working_path)
         p, _, _ = t.apply('./', refresh=True, skip_plan=True, no_color=IsNotFlagged, synchronous=False)
         for i in p.stdout:

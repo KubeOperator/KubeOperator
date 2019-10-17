@@ -15,4 +15,4 @@ pushgateway:
 
 kubeStateMetrics:
   image:
-    repository: registry.kubeops.io:8092/quay.io/coreos/kube-state-metrics
+    repository: {{registry_prefix}}:{{registry_port}}/{{kube-state-metrics_image}}:{{kube-state-metrics_version}}

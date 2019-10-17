@@ -164,7 +164,7 @@ spec:
     spec:
       containers:
         - name: kubernetes-dashboard
-          image: {{registry_prefix}}/kubernetesui/dashboard:v2.0.0-beta4
+          image: {{registry_prefix}}:{{registry_port}}/{{dashboard_image}}:{{dashboard_version}}
           imagePullPolicy: Always
           ports:
             - containerPort: 8443
@@ -233,7 +233,7 @@ spec:
     spec:
       containers:
         - name: dashboard-metrics-scraper
-          image: {{registry_prefix}}/kubernetesui/metrics-scraper:v1.0.1
+          image: {{registry_prefix}}:{{registry_port}}/{{metrics-scraper_image}}:{{metrics-scraper_version}}
           ports:
             - containerPort: 8000
               protocol: TCP
