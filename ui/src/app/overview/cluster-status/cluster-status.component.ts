@@ -48,4 +48,8 @@ export class ClusterStatusComponent implements OnInit {
     this.scale.opened = true;
   }
 
+  toHealth() {
+    this.redirect('health');
+  }
+
 }
