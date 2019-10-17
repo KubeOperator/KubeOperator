@@ -93,7 +93,6 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   setOptions(data) {
-    console.log(this.totalRate);
     this.options = {
       title: {
           top: 30,
@@ -146,7 +145,6 @@ export class ClusterHealthComponent implements OnInit {
         data: data
       }]
       };
-    console.log(this.options);
   }
 
   getClusterServiceStatus(data, job) {
