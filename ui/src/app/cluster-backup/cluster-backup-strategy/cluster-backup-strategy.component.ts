@@ -27,7 +27,6 @@ export class ClusterBackupStrategyComponent implements OnInit {
   backupStorage: BackupStorage[] = [];
   backupStrategy = new BackupStrategy();
   projectId = '';
-  backupStrategyForm: NgForm;
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
