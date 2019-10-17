@@ -38,7 +38,7 @@ def test_task():
         task_id=str(123)
     )
 
-@periodic_task(run_every=crontab(minute='*/15'),name='task.cluster_backup')
+@periodic_task(run_every=crontab(minute=0, hour=1),name='task.cluster_backup')
 def cluster_backup():
     kubeops_api.cluster_backup_utils.cluster_backup()
 
