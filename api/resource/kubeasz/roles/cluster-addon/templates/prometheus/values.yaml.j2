@@ -215,8 +215,8 @@ configmapReload:
   ## configmap-reload container image
   ##
   image:
-    repository: {{registry_prefix}}:{{registry_port}}/{{configmap-reload_image}}
-    tag: {{configmap-reload_version}}
+    repository: {{registry_prefix}}:{{registry_port}}/{{configmap_reload_image}}
+    tag: {{configmap_reload_version}}
     pullPolicy: IfNotPresent
 
   ## Additional configmap-reload container arguments
@@ -271,8 +271,8 @@ kubeStateMetrics:
   ## kube-state-metrics container image
   ##
   image:
-    repository: {{registry_prefix}}:{{registry_port}}/{{kube-state-metrics_image}}
-    tag: {{kube-state-metrics_version}}
+    repository: {{registry_prefix}}:{{registry_port}}/{{kube_state_metrics_image}}
+    tag: {{kube_state_metrics_version}}
     pullPolicy: IfNotPresent
 
   ## kube-state-metrics priorityClassName
@@ -360,8 +360,8 @@ nodeExporter:
   ## node-exporter container image
   ##
   image:
-    repository: {{registry_prefix}}:{{registry_port}}/{{node-exporter_image}}
-    tag: {{node-exporter_version}}
+    repository: {{registry_prefix}}:{{registry_port}}/{{node_exporter_image}}
+    tag: {{node_exporter_version}}
     pullPolicy: IfNotPresent
 
   ## node-exporter priorityClassName

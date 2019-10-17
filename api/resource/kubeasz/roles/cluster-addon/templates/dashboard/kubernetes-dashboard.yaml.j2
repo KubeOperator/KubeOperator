@@ -233,7 +233,7 @@ spec:
     spec:
       containers:
         - name: dashboard-metrics-scraper
-          image: {{registry_prefix}}:{{registry_port}}/{{metrics-scraper_image}}:{{metrics-scraper_version}}
+          image: {{registry_prefix}}:{{registry_port}}/{{metrics_scraper_image}}:{{metrics_scraper_version}}
           ports:
             - containerPort: 8000
               protocol: TCP
