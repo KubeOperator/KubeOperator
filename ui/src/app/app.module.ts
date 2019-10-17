@@ -28,6 +28,7 @@ import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component'
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
+import {ClusterHealthStatusPipe} from './cluster-health/cluster-health-status.pipe';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import {NfsModule} from './nfs/nfs.module';
     DeployPlanComponent,
     ApplicationComponent,
     ClusterHealthComponent,
+    ClusterHealthStatusPipe,
     ClusterBackupComponent,
   ],
   imports: [
@@ -59,7 +61,6 @@ import {NfsModule} from './nfs/nfs.module';
     F5BigIpModule,
     ClusterBackupModule,
     SharedModule,
-    NfsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]
