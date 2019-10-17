@@ -18,6 +18,12 @@
     state: enabled
   with_items: "{{firewall_tcp_ports}}"
 
+- name: 打开防火墙 Node Port 端口
+  firewalld:
+    port: "30000-32767/tcp"
+    permanent: true
+    state: enabled
+
 - name: 生效防火墙配置
   shell: "firewall-cmd --reload"
 
