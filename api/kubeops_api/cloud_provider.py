@@ -98,9 +98,9 @@ def create_nodes(cluster, hosts_dict):
     terraform_result = client.apply_terraform(cluster, hosts_dict)
     if not terraform_result:
         cluster.change_to()
-    for node in Node.objects.all():
-        node.host.delete()
-        raise RuntimeError("create host error!")
+        for node in Node.objects.all():
+            node.host.delete()
+            raise RuntimeError("create host error!")
     if cluster.plan.mixed_vars.get('provider') == 'openstack':
         print("sleep 20s,等待sshd服务可用")
         sleep(20)
