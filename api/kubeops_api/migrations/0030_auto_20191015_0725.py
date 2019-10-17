@@ -8,7 +8,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kubeops_api', '0029_auto_20191011_0825'),
+        ('kubeops_api', '0029_auto_20191011_0358'),
     ]
 
     operations = [
