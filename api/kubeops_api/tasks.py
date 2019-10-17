@@ -46,6 +46,6 @@ def cluster_backup():
 def get_cluster_health_day():
     kubeops_api.cluster_health_utils.handle_cluster_health_msg_day()
 
-@periodic_task(run_every=crontab(hour='*/1'),name='task.get_cluster_health_hour')
+@periodic_task(run_every=crontab(minute=0, hour='*/1'),name='task.get_cluster_health_hour')
 def get_cluster_health_hour():
     kubeops_api.cluster_health_utils.get_cluster_health_msg_hour()
