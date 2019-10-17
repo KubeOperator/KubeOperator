@@ -2,10 +2,11 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {ClusterBackup} from '../cluster-backup';
 import {ClusterBackupService} from '../cluster-backup.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
 
 
 @Component({
@@ -22,11 +23,12 @@ export class ClusterBackupListComponent implements OnInit {
   selected: ClusterBackup[] = [];
   resourceTypeName = '备份';
   projectId = '';
+  event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
 
 
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
-              private alertService: CommonAlertService) {
+              private alertService: CommonAlertService, private operaterService: OperaterService, private router: Router) {
   }
 
   ngOnInit() {
@@ -66,13 +68,30 @@ export class ClusterBackupListComponent implements OnInit {
     this.loading = false;
   }
 
-  restore() {
+  onRestore() {
     this.confirmAlert.setTitle('确认恢复');
     this.confirmAlert.setComment('确认以此备份恢复？');
-    this.clusterBackupService.restoreClusterBackup(this.selected[0]).subscribe(data => {
-      this.alertService.showAlert('恢复成功', AlertLevels.SUCCESS);
-    }, error1 => {
+    this.confirmAlert.opened = true;
+    this.event = 'restore';
+  }
 
+  handleRestore() {
+    const params = {'clusterBackupId': this.selected[0].id};
+    this.handleEvent(params);
+  }
+
+
+  handleEvent(params?) {
+    this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
+      this.redirect('deploy');
     });
+    this.confirmAlert.close();
+  }
+
+  redirect(url: string) {
+    if (url) {
+      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
+      this.router.navigate(linkUrl);
+    }
   }
 }
