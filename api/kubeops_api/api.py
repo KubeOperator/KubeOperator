@@ -349,7 +349,7 @@ class ClusterHealthHistoryView(generics.ListAPIView):
 
     def get_queryset(self):
         project_id = str(self.kwargs['project_id'])
-        return ClusterHealthHistory.objects.filter(project_id=str(project_id)).order_by('-date_created')
+        return ClusterHealthHistory.objects.filter(project_id=str(project_id),date_type=ClusterHealthHistory.CLUSTER_HEALTH_HISTORY_DATE_TYPE_DAY).order_by('-date_created')
 
 class ClusterHealth(View):
     permission_classes = (IsSuperUser,)
@@ -365,39 +365,6 @@ class ClusterHealth(View):
         response = HttpResponse(content_type='application/json')
         prometheus_client = PrometheusClient(config)
         result = prometheus_client.handle_targets_message(prometheus_client.targets())
-
-        # config = {
-        #     'end': time.time(),
-        #     'start': time.time()-60,
-        #     'table_name': 'etcd_server_health_success',
-        #     'param': ''
-        # }
-        # dataArray = []
-        # allData = []
-        # if res.get('data') and res.get('data').get('result'):
-        #     array  = res.get('data').get('result')
-        #     for a in array:
-        #         hostName = ''
-        #         try:
-        #             hostName = Host.objects.get(ip=a.get('metric').get('instance').split(':')[0]).name
-        #         except:
-        #             pass
-        #         if hostName != '':
-        #             data = {
-        #                 'key':hostName,
-        #                 'value': a.get('value')[1]
-        #             }
-        #             dataArray.append(data)
-        # etcd = {
-        #     'type': 'etcd',
-        #     'data': dataArray
-        # }
-        # allData.append(etcd)
-        #
-        # result = {
-        #     'status': res['status'],
-        #     'data': allData
-        # }
 
         response.write(json.dumps(result))
         return response
