@@ -10,15 +10,15 @@
           <tbody>
           <tr>
             <td>ETCD</td>
-            <td>Running</td>
+            <td>{{getServiceStatus('etcd')}}</td>
           </tr>
           <tr>
             <td>kube-apiserver</td>
-            <td>Running</td>
+            <td>{{getServiceStatus('kubernetes-apiservers')}}</td>
           </tr>
           <tr>
             <td>kube-controller</td>
-            <td>Running</td>
+            <td>{{getServiceStatus('kubernetes-control-manager')}}</td>
           </tr>
           </tbody>
         </table>

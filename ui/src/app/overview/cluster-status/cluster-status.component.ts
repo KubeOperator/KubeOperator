@@ -5,6 +5,9 @@ import {Node} from '../../node/node';
 import {ScaleComponent} from '../scale/scale.component';
 import {Router} from '@angular/router';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
+import {ClusterHealth} from '../../cluster-health/cluster-health';
+
 
 @Component({
   selector: 'app-cluster-status',
@@ -16,8 +19,10 @@ export class ClusterStatusComponent implements OnInit {
   @Input() currentCluster: Cluster;
   workers: Node[] = [];
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
+  clusterHealth: ClusterHealth = new ClusterHealth();
 
-  constructor(private nodeService: NodeService,
+
+  constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
               private router: Router, private operaterService: OperaterService) {
   }
 
@@ -27,6 +32,7 @@ export class ClusterStatusComponent implements OnInit {
         return node.roles.includes('worker');
       });
     });
+    this.getClusterStatus();
   }
 
   handleScale() {
@@ -52,4 +58,22 @@ export class ClusterStatusComponent implements OnInit {
     this.redirect('health');
   }
 
+  getClusterStatus() {
+    this.clusterHealth.data = [];
+    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe( res => {
+        this.clusterHealth = res;
+      }, error1 => {
+        this.clusterHealth.data = [];
+    });
+  }
+
+  getServiceStatus(type) {
+    let status = 'Error';
+    for (const ch of this.clusterHealth.data) {
+      if (ch.job === type && ch.rate === 100) {
+        status =  'Running';
+      }
+    }
+    return status;
+  }
 }
