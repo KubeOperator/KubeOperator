@@ -78,7 +78,7 @@ spec:
         - --default-params={"linear":{"coresPerReplica":8,"nodesPerReplica":3,"min":1}}
         - --logtostderr=true
         - --v=2
-        image: {{registry_prefix}}:{{registry_port}}/{{cluster-proportional-autoscaler-amd64_image}}:{{dns_version}}
+        image: {{registry_prefix}}:{{registry_port}}/{{cluster_proportional_autoscaler_amd64_image}}:{{dns_version}}
         imagePullPolicy: IfNotPresent
         name: autoscaler
         resources:
