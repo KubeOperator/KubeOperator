@@ -21,8 +21,7 @@ class Host(BaseHost):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    node = models.ForeignKey('Node', default=None, null=True, related_name='node',
-                             on_delete=models.SET_NULL)
+    node = models.ForeignKey('Node', default=None, null=True, related_name='node',on_delete=models.SET_NULL)
     name = models.CharField(max_length=128, validators=[name_validator], unique=True)
     credential = models.ForeignKey("kubeops_api.Credential", null=True, on_delete=models.SET_NULL)
     memory = models.fields.BigIntegerField(default=0)

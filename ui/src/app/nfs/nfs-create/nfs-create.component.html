@@ -1,1 +1,65 @@
-<p>nfs-create works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+  <h3 class="modal-title">添加NFS</h3>
+  <div class="modal-body modal-height">
+    <form clrForm #itemForm='ngForm'>
+      <clr-input-container>
+        <label>名称:</label>
+        <input clrInput size=45 type="text" [(ngModel)]="item.name" name="name" required>
+      </clr-input-container>
+
+      <clr-radio-container clrInline>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="options" required value="new" [(ngModel)]="item.option"/>
+          <label>新建 NFS</label>
+        </clr-radio-wrapper>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="options" required value="exists" [(ngModel)]="item.option"/>
+          <label>录入 NFS</label>
+        </clr-radio-wrapper>
+      </clr-radio-container>
+
+      <div *ngIf="item.option == 'exists'">
+        <clr-input-container>
+          <label>白名单 :</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.allow_ip" name="allow_ip" required>
+        </clr-input-container>
+
+        <clr-input-container>
+          <label>服务地址:</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.server" name="name" required>
+        </clr-input-container>
+
+        <clr-input-container>
+          <label>挂载路径 :</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.path" name="name" required>
+        </clr-input-container>
+      </div>
+      <div *ngIf="item.option === 'new'">
+        <clr-select-container>
+          <label>主机</label>
+          <select clrSelect name="option" [(ngModel)]="item.nfs_host">
+            <option value="">请选择</option>
+            <option *ngFor="let host of hosts" [value]="host.name">{{host.name}}:{{host.ip}}</option>
+          </select>
+        </clr-select-container>
+
+        <clr-input-container>
+          <label>白名单 :</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.allow_ip" name="allow_ip" required>
+        </clr-input-container>
+
+        <clr-input-container>
+          <label>挂载路径 :</label>
+          <input clrInput size=45 type="text" [(ngModel)]="item.path" name="name" required>
+        </clr-input-container>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing || itemForm.invalid">
+          <i *ngIf="isSubmitGoing " class="fa fa-spinner fa-pulse"></i>提交
+        </button>
+      </div>
+    </form>
+  </div>
+</clr-modal>

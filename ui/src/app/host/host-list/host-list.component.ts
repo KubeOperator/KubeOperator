@@ -85,17 +85,6 @@ export class HostListComponent implements OnInit {
     });
   }
 
-  getStatus(status) {
-    switch (status) {
-      case 'RUNNING':
-        return '运行中';
-      case 'CREATING':
-        return '创建中';
-      case 'UNKNOWN':
-        return '未知';
-    }
-  }
-
   getValueOrNone(value) {
     return value == null ? '无' : value;
   }

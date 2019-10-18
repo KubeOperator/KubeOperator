@@ -38,7 +38,6 @@ class Cluster(Project):
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
     CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
 
-
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
         (CLUSTER_STATUS_INSTALLING, 'installing'),
@@ -332,13 +331,8 @@ class Cluster(Project):
         return hosts
 
     def set_app_domain(self):
-        self.change_to()
-        config = Role.objects.get(name='config')
-        _vars = config.vars
         domain_suffix = Setting.objects.get(key="domain_suffix")
-        _vars.update({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
-        config.vars = _vars
-        config.save()
+        self.set_config('APP_DOMAIN', "apps.{}.{}".format(self.name, domain_suffix.value))
 
     def on_cluster_create(self):
         self.change_to()
