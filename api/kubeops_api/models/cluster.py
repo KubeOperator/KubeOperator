@@ -332,7 +332,7 @@ class Cluster(Project):
 
     def set_app_domain(self):
         domain_suffix = Setting.objects.get(key="domain_suffix")
-        self.set_config('APP_DOMAIN', "apps.{}.{}".format(self.name, domain_suffix.value))
+        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
 
     def on_cluster_create(self):
         self.change_to()
