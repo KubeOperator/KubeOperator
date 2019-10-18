@@ -100,6 +100,11 @@ export class BackupStorageCreateComponent implements OnInit {
     this.tipShow = false;
   }
 
+  changeType() {
+    this.buckets = [];
+    this.closeTip();
+  }
+
   getBuckets(credential) {
     this.item.credentials = credential;
     this.backupStorageService.getBuckets(this.item).subscribe(rep => {
@@ -109,15 +114,18 @@ export class BackupStorageCreateComponent implements OnInit {
       if (rep.success) {
         // @ts-ignore
         this.buckets = rep.data;
+        this.message = '查询成功';
       } else {
         this.tipShow = true;
         // @ts-ignore
         this.message = '查询失败';
+        this.buckets = [];
       }
     }, err => {
       this.invalid = true;
       this.tipShow = true;
       this.message = '查询失败';
+      this.buckets = [];
     });
   }
 }

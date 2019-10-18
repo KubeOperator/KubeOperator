@@ -10,7 +10,7 @@
             </clr-input-container>
             <clr-select-container>
               <label>类型:</label>
-              <select clrSelect  name="type" [(ngModel)]="item.type" required>
+              <select clrSelect  name="type" [(ngModel)]="item.type" (ngModelChange)="changeType()" required>
                   <option value="OSS">oss</option>
                   <option value="S3">s3/ceph</option>
                   <option value="AZURE">azure</option>
