@@ -31,7 +31,7 @@ class PrometheusClient():
             'rate': 0
         }
         if json.get('status') and json.get('status') == 'success':
-            keys = ['kubernetes-control-manager','etcd','kubernetes-nodes','kubernetes-schedule']
+            keys = ['kubernetes-control-manager','etcd','kubernetes-nodes','kubernetes-schedule','kubernetes-apiservers']
             for key in keys:
                 result['data'].append({
                     'job':key,
