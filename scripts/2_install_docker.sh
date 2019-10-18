@@ -30,7 +30,7 @@ function install_docker_offline {
 
 function install_docker-compose_offline {
     cp ${OFFLINE_DOCKER_DIR}/docker-compose /usr/bin/
-    chmod +x /usr/bin/docker* 
+    chmod +x /usr/bin/docker-compose
 }
 
 function install_docker {
@@ -52,7 +52,7 @@ function install_docker-compose {
         echo "Platform is MacOS, install manually"
         return
     fi
-    if [[ -f "${OFFLINE_DOCKER_DIR}/docker/docker-compose" ]];then
+    if [[ -f "${OFFLINE_DOCKER_DIR}/docker-compose" ]];then
         install_docker-compose_offline
     else
         install_docker-conpose_online
