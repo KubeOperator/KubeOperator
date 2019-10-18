@@ -25,7 +25,7 @@
                 <label>SecretKey:</label>
                 <input clrPassword size=45 type="password" [(ngModel)]="credential.secretKey" name="secretKey" required>
             </clr-password-container>
-            <clr-input-container *ngIf="item.type=='OSS'">
+            <clr-input-container *ngIf="item.type=='OSS' || item.type=='S3'">
 <!--  因为s3传endpoint 会导致验证失败 所以暂时先注释|| item.type=='S3'-->
                 <label>端点:</label>
                 <input clrInput size=45 type="text" [(ngModel)]="credential.endpoint" name="endpoint" required>
