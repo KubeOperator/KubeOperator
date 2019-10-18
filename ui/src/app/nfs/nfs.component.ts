@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {NfsListComponent} from './nfs-list/nfs-list.component';
+import {NfsCreateComponent} from './nfs-create/nfs-create.component';
 
 @Component({
   selector: 'app-nfs',
@@ -7,9 +9,29 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NfsComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(NfsListComponent, {static: true})
+  list: NfsListComponent;
+
+  @ViewChild(NfsCreateComponent, {static: true})
+  creation: NfsCreateComponent;
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
 
+  openModal() {
+    this.creation.newItem();
+  }
+
+  create(created: boolean) {
+    if (created) {
+      this.refresh();
+    }
+  }
+
+  refresh() {
+    this.list.refresh();
+  }
 }

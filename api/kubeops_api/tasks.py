@@ -27,17 +27,6 @@ def start_deploy_execution(eid, **kwargs):
         return {"error": msg}
 
 
-@shared_task
-def test():
-    cluster = Cluster.objects.first()
-    cluster.create_resource()
-
-
-def test_task():
-    test.apply_async(
-        task_id=str(123)
-    )
-
 @periodic_task(run_every=crontab(minute=0, hour=1),name='task.cluster_backup')
 def cluster_backup():
     kubeops_api.cluster_backup_utils.cluster_backup()

@@ -59,6 +59,7 @@ import {NfsModule} from './nfs/nfs.module';
     F5BigIpModule,
     ClusterBackupModule,
     SharedModule,
+    NfsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]
