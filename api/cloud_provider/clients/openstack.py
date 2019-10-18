@@ -84,7 +84,7 @@ class OpenStackCloudClient(CloudClient):
                         'id': flavor.id,
                         'cpu': 2,
                         'memory': 4,
-                        'disk': 40
+                        'disk': 100
                     }
                 }
                 models.append(model)
@@ -149,12 +149,12 @@ class OpenStackCloudClient(CloudClient):
                 continue
         return models
 
-    def init_terraform(self):
+    def init_terraform(self, cluster):
         plugin_dir = os.path.join(self.working_path, '.terraform', 'plugins')
         if not os.path.exists(plugin_dir):
             os.makedirs(plugin_dir)
         hostname = Setting.objects.get(key='local_hostname').value
-        port = 8082
+        port = cluster.package.repo_port
         url = "http://{}:{}/repository/raw/terraform/openstack.zip".format(hostname, port)
         download_plugins(url=url, target=plugin_dir)
 
