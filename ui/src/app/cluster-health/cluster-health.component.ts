@@ -28,7 +28,7 @@ export class ClusterHealthComponent implements OnInit {
 
   ngOnInit() {
     this.clusterHealth.data = [];
-    this.clusterHealth.rate = 0;
+    this.clusterHealth.rate = 100;
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectName = this.currentCluster.name;
@@ -39,11 +39,13 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterHealth() {
+    this.loading = true;
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
         this.loading = false;
       }, error1 => {
         this.clusterHealth.data = [];
+        this.clusterHealth.rate = 0;
         this.loading = false;
     });
   }
@@ -125,11 +127,11 @@ export class ClusterHealthComponent implements OnInit {
         },
         dayLabel: {
           firstDay: 0,
-          nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          nameMap: ['日', '一', '二', '三', '四', '五', '六'],
           show: true
         },
         cellSize: ['auto', 13],
-        left: 30,
+        left: 45,
         range: this.getDateRange(),
         itemStyle: {
           normal: {
@@ -148,8 +150,10 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterServiceStatus(data, job) {
+    if (this.loading) {
+      return;
+    }
     let  serviceStyle = '#FF4040';
-
     for (const d of data) {
       if (d.job === job) {
         if ( d.rate === 100) {
