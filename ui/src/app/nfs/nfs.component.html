@@ -1,7 +1,2 @@
-<div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-    <h2>NFS</h2>
-    <app-nfs-list (add)="openModal()"></app-nfs-list>
-    <app-nfs-create (create)="create($event)"></app-nfs-create>
-  </div>
-</div>
+<app-nfs-list (add)="openModal()"></app-nfs-list>
+<app-nfs-create (create)="create($event)"></app-nfs-create>

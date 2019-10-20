@@ -51,12 +51,12 @@ spec:
             - name: NFS_SERVER
               value: {{ storage_nfs_server }}
             - name: NFS_PATH
-              value: {{ storage_nfs__server_path}}
+              value: {{ storage_nfs_server_path}}
       volumes:
         - name: nfs-client-root
           nfs:
             server: {{ storage_nfs_server }}
-            path: {{ storage_nfs__server_path }}
+            path: {{ storage_nfs_server_path }}
 
 ---
 apiVersion: storage.k8s.io/v1

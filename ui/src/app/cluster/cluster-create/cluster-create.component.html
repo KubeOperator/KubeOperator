@@ -12,7 +12,7 @@
         <label>集群名称</label>
         <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()" (change)="onClusterNameChange()" clrInput size=45
+               name="cluster_name" (keyup)="handleValidation()"  clrInput size=45
                required>
         <clr-control-helper>仅支持用小写字母和 "-"</clr-control-helper>
       </clr-input-container>
@@ -25,7 +25,7 @@
       </clr-select-container>
       <clr-select-container>
         <label>部署模式</label>
-        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" clrSelect required>
+        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" (change)="onDeployTypeChange()" clrSelect required>
           <option value="">请选择</option>
           <option value="MANUAL">手动模式</option>
           <option value="AUTOMATIC">自动模式</option>
@@ -33,12 +33,12 @@
       </clr-select-container>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page *ngIf="cluster.deploy_type === Automatic">
+  <clr-wizard-page *ngIf="cluster.deploy_type === Automatic" [clrWizardPageNextDisabled]="planForm.invalid">
     <ng-template clrPageTitle>部署计划</ng-template>
-    <form clrForm>
+    <form clrForm #planForm='ngForm'>
       <clr-select-container>
-        <label>计划</label>
-        <select clrSelect [(ngModel)]="cluster.plan" (change)="planOnChange()" name="plan">
+        <label>部署计划</label>
+        <select clrSelect [(ngModel)]="cluster.plan" (change)="planOnChange()" name="plan" required>
           <option value="">请选择</option>
           <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
         </select>
@@ -46,7 +46,7 @@
       <clr-input-container>
         <label>worker数量</label>
         <input clrInput size=45 type="number" min="3" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
-               name="work_size">
+               name="work_size" required>
       </clr-input-container>
     </form>
   </clr-wizard-page>
@@ -174,16 +174,18 @@
           <div [ngSwitch]="config.type">
             <clr-select-container *ngSwitchCase="'Select'">
               <label>{{config.alias}}</label>
-              <select clrSelect [(ngModel)]="config.value" [name]="config.name" required>
+              <select clrSelect [(ngModel)]="config.value" [name]="config.name" [ngModel]="cluster.configs[config.name]"
+                      required>
                 <option value="">请选择</option>
                 <option *ngFor="let opt of config.options"
-                        [value]="opt.value">{{opt.name}}
+                        [value]="opt.name">{{opt.name}}
                 </option>
               </select>
             </clr-select-container>
             <clr-input-container *ngSwitchCase="'Input'">
               <label>{{config.alias}}</label>
-              <input clrInput size=45 [name]="config.name" [(ngModel)]="config.value" required>
+              <input clrInput size=45 [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
+                     [ngModel]="cluster.configs[config.name]" required>
             </clr-input-container>
           </div>
         </div>
@@ -198,33 +200,16 @@
         <select clrSelect [(ngModel)]="cluster.persistent_storage" name="storage" (change)="onStorageChange()" required>
           <option value="">请选择</option>
           <option *ngFor="let s of storages" [value]="s.name">{{s.name}}</option>
-          <clr-control-helper>的</clr-control-helper>
         </select>
       </clr-select-container>
-      <div *ngIf="storage">
-        <div *ngFor="let config of storage.configs">
-          <div [ngSwitch]="config.type">
-            <clr-select-container *ngSwitchCase="'Select'">
-              <label>{{config.alias}}</label>
-              <select clrSelect [(ngModel)]="config.value" [name]="config.name" required>
-                <option value="">请选择</option>
-                <option *ngFor="let opt of config.options"
-                        [value]="opt.value">{{opt.name}}
-                </option>
-              </select>
-            </clr-select-container>
-            <clr-input-container *ngSwitchCase="'Input'">
-              <label>{{config.alias}}</label>
-              <input clrInput size=45 [name]="config.name" [(ngModel)]="config.value" required>
-            </clr-input-container>
-            <clr-toggle-container *ngSwitchCase="'Switch'">
-              <clr-toggle-wrapper>
-                <input type="checkbox" clrToggle [name]="config.name" [(ngModel)]="config.value"/>
-                <label>{{config.alias}}</label>
-              </clr-toggle-wrapper>
-            </clr-toggle-container>
-          </div>
-        </div>
+      <div *ngIf="cluster.persistent_storage==='nfs'">
+        <clr-select-container>
+          <label>NFS:</label>
+          <select clrSelect name="nfs" [(ngModel)]="cluster.configs['nfs']" required>
+            <option value="">请选择</option>
+            <option *ngFor="let nfs of storageList" [value]="nfs.name">{{nfs.name}}</option>
+          </select>
+        </clr-select-container>
       </div>
     </form>
   </clr-wizard-page>

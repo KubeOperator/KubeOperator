@@ -9,35 +9,35 @@
 
       <clr-radio-container clrInline>
         <clr-radio-wrapper>
-          <input type="radio" clrRadio name="options" required value="new" [(ngModel)]="item.option"/>
+          <input type="radio" clrRadio name="options" required value="new" [(ngModel)]="item.vars['option']"/>
           <label>新建 NFS</label>
         </clr-radio-wrapper>
         <clr-radio-wrapper>
-          <input type="radio" clrRadio name="options" required value="exists" [(ngModel)]="item.option"/>
+          <input type="radio" clrRadio name="options" required value="exists" [(ngModel)]="item.vars['option']"/>
           <label>录入 NFS</label>
         </clr-radio-wrapper>
       </clr-radio-container>
 
-      <div *ngIf="item.option == 'exists'">
+      <div *ngIf="item.vars['option'] == 'exists'">
         <clr-input-container>
           <label>白名单 :</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.allow_ip" name="allow_ip" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['allow_ip']" name="allow_ip" required>
         </clr-input-container>
 
         <clr-input-container>
           <label>服务地址:</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.server" name="name" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server']" name="server" required>
         </clr-input-container>
 
         <clr-input-container>
           <label>挂载路径 :</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.path" name="name" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server_path']" name="name" required>
         </clr-input-container>
       </div>
-      <div *ngIf="item.option === 'new'">
+      <div *ngIf="item.vars['option'] === 'new'">
         <clr-select-container>
           <label>主机</label>
-          <select clrSelect name="option" [(ngModel)]="item.nfs_host">
+          <select clrSelect name="option" [(ngModel)]="item.vars['host']">
             <option value="">请选择</option>
             <option *ngFor="let host of hosts" [value]="host.name">{{host.name}}:{{host.ip}}</option>
           </select>
@@ -45,12 +45,12 @@
 
         <clr-input-container>
           <label>白名单 :</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.allow_ip" name="allow_ip" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['allow_ip']" name="allow_ip" required>
         </clr-input-container>
 
         <clr-input-container>
           <label>挂载路径 :</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.path" name="name" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server_path']" name="path" required>
         </clr-input-container>
       </div>
       <div class="modal-footer">

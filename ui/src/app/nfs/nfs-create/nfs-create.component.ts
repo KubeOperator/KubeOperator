@@ -25,7 +25,6 @@ export class NfsCreateComponent implements OnInit {
   @ViewChild('itemForm', {static: true}) itemFrom: NgForm;
 
   ngOnInit() {
-    this.listHosts();
   }
 
   onCancel() {
@@ -54,6 +53,8 @@ export class NfsCreateComponent implements OnInit {
   }
 
   newItem() {
+    this.listHosts();
+    this.itemFrom.resetForm();
     this.item = new NfsStorage();
     this.opened = true;
   }
