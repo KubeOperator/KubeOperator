@@ -343,25 +343,29 @@ class ClusterBackupRestore(generics.UpdateAPIView):
             response.write(json.dumps(result))
         return response
 
+
 class ClusterHealthHistoryView(generics.ListAPIView):
     serializer_class = serializers.ClusterHeathHistorySerializer
     permission_classes = (IsSuperUser,)
 
     def get_queryset(self):
         project_id = str(self.kwargs['project_id'])
-        return ClusterHealthHistory.objects.filter(project_id=str(project_id),date_type=ClusterHealthHistory.CLUSTER_HEALTH_HISTORY_DATE_TYPE_DAY).order_by('-date_created')
+        return ClusterHealthHistory.objects.filter(project_id=str(project_id),
+                                                   date_type=ClusterHealthHistory.CLUSTER_HEALTH_HISTORY_DATE_TYPE_DAY).order_by(
+            '-date_created')
+
 
 class ClusterHealth(View):
     permission_classes = (IsSuperUser,)
 
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
         cluster = Cluster.objects.get(name=project_name)
         response = HttpResponse(content_type='application/json')
         if cluster.status == Cluster.CLUSTER_STATUS_ERROR or cluster.status == Cluster.CLUSTER_STATUS_READY:
             return response
         domain_suffix = Setting.objects.get(key="domain_suffix")
-        host = "prometheus.apps."+cluster.name+"."+domain_suffix.value
+        host = "prometheus.apps." + cluster.name + "." + domain_suffix.value
         config = {
             'host': host
         }
@@ -370,3 +374,12 @@ class ClusterHealth(View):
 
         response.write(json.dumps(result))
         return response
+
+
+class WebKubeCtrlToken(APIView):
+    permission_classes = (IsSuperUser,)
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        cluster = get_object_or_404(Cluster, name=pk)
+        return HttpResponse().write(cluster.get_webkubectl_token())

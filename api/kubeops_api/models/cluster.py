@@ -1,13 +1,15 @@
+import base64
 import logging
 import os
 import shutil
 
+import requests
 import yaml
 from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
-from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR
+from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR, WEBKUBECTL_URL
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
 from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, \
     scale_compute_resource
@@ -337,6 +339,21 @@ class Cluster(Project):
     def set_app_domain(self):
         domain_suffix = Setting.objects.get(key="domain_suffix")
         self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
+
+    def get_kube_config_base64(self):
+        file_name = self.fetch_config()
+        with open(file_name) as f:
+            text = f.read()
+            return base64.decodebytes(bytes(text, 'utf-8'))
+
+    def get_webkubectl_token(self):
+        data = {
+            "name": self.name,
+            "kubeConfig": self.get_kube_config_base64()
+        }
+        result = requests.post(WEBKUBECTL_URL, json=data)
+        if result.ok:
+            return result.json()['token']
 
     def on_cluster_create(self):
         self.change_to()

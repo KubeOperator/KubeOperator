@@ -7,8 +7,8 @@ import {HostService} from '../host/host.service';
 
 
 const baseClusterUrl = '/api/v1/clusters/';
+const webKubeCtlUrl = '/api/v1/cluster/{name}/webkubectl/token/';
 
-const baseClusterConfigUrl = '/api/v1/clusters/{cluster_name}/configs/';
 
 @Injectable({
   providedIn: 'root'
@@ -29,24 +29,6 @@ export class ClusterService {
     );
   }
 
-  configCluster(clusterName: string, extraConfig: ExtraConfig): Observable<ExtraConfig> {
-    return this.http.post<ExtraConfig>(`${baseClusterConfigUrl.replace('{cluster_name}', clusterName)}`, extraConfig).pipe(
-      catchError(error => throwError(error))
-    );
-  }
-
-  configClusterAuth(clusterName: string, auth: string): Observable<Cluster> {
-    return this.http.patch<Cluster>(baseClusterUrl + clusterName + '/', {auth_template: auth});
-  }
-
-  getClusterConfig(clusterName: string, key: string): Observable<ExtraConfig> {
-    return this.http.get<ExtraConfig>(baseClusterConfigUrl.replace('{cluster_name}', clusterName) + key);
-  }
-
-  listClusterConfig(clusterName: string): Observable<ExtraConfig[]> {
-    return this.http.get<ExtraConfig[]>(baseClusterConfigUrl.replace('{cluster_name}', clusterName));
-  }
-
   createCluster(cluster: Cluster): Observable<Cluster> {
     return this.http.post<Cluster>(baseClusterUrl, cluster).pipe(
       catchError(error => throwError(error))
@@ -65,5 +47,9 @@ export class ClusterService {
 
   getClusterConfigs(): Observable<ClusterConfigs> {
     return this.http.get<ClusterConfigs>('/api/v1/cluster/config');
+  }
+
+  getWebkubectlToken(name: string): Observable<any> {
+    return this.http.get<any>(webKubeCtlUrl.replace('{name}', name));
   }
 }

@@ -49,6 +49,9 @@
             <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
               获取Token
             </button>
+            <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING'">
+              WEBKUBECTL
+            </button>
           </div>
         </div>
       </div>
