@@ -12,7 +12,7 @@
         <label>集群名称</label>
         <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()"  clrInput size=45
+               name="cluster_name" (keyup)="handleValidation()" clrInput size=45
                required>
         <clr-control-helper>仅支持用小写字母和 "-"</clr-control-helper>
       </clr-input-container>
@@ -45,7 +45,7 @@
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
-        <input clrInput size=45 type="number" min="3" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
+        <input clrInput size=45 type="number" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
                name="work_size" required>
       </clr-input-container>
     </form>
