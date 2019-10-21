@@ -26,7 +26,7 @@ CLUSTER_CONFIG_DIR = os.path.join(BASE_DIR, "resource", "cluster")
 KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
-PACKAGE_DIR = "/Users/shenchenyang/data/packages"
+PACKAGE_DIR = "/data/packages"
 CONFIG = load_user_config()
 # 添加离线包路径
 
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
