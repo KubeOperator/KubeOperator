@@ -10,11 +10,10 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/kubeoperator-ui.jpg?raw=true)
 
-> Note: 可以点击查看大图。
-
 ## 整体架构
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 变更的全生命周期管理。
+
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/KubeOperator.jpeg?raw=true)
 
 ## 技术优势
@@ -25,6 +24,15 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  自我修复：通过重建故障节点确保集群可用性；
 -  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
+
+ ## 安装及使用指南
+
+-  [在线文档](https://docs.kubeoperator.io/)
+-  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
+
+ ## Kubernetes 离线安装包
+
+KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
 
 ## 版本规划
 
@@ -45,7 +53,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 支持 VMware vSAN 、VMFS/NFS 作为持久化存储；
 - [x] 支持 Multi AZ，支持多主多节点部署模式；
 - [x] 支持 Calico 网络插件；
-- [x] 内置 Weave Scope (支持 Web Shell)；
+- [x] 内置 Weave Scope；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
  v2.1 （开发中，预计 2019.10.31 发布）
@@ -55,23 +63,15 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 - [x] 支持 Kubernetes 集群升级 （Day 2）；
 - [x] 支持 Kubernetes 集群扩缩容（Day 2）；
 - [x] 支持 Kubernetes 集群备份与恢复（Day 2）；
-- [ ] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
-- [ ] 支持 [webkubectl](https://github.com/webkubectl/webkubectl) ；
+- [x] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
+- [x] 支持 [webkubectl](https://github.com/webkubectl/webkubectl) ；
 
  v2.2 （计划中，预计 2019.12.31 发布）
 
+- [ ] 国际化支持；
 - [ ] 集成 KubeApps 应用商店；
 - [ ] 支持 VMware NSX-T；
 - [ ] 日志收集及管理方案；
- 
- ## Kubernetes 离线安装包
-
-KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考这个工程：[k8s-package](https://github.com/KubeOperator/k8s-package)。
-
- ## 使用指南
-
--  [在线文档](https://docs.kubeoperator.io/)
--  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
 
 ## 沟通交流
  
