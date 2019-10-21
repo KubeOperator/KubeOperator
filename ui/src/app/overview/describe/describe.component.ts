@@ -37,16 +37,6 @@ export class DescribeComponent implements OnInit {
     this.packageService.getPackage(this.currentCluster.package).subscribe(pkg => {
       const infos = pkg.meta.cluster_infos;
       this.operations = pkg.meta.operations;
-      // this.clusterService.listClusterConfig(this.currentCluster.name).subscribe(configs => {
-      //   infos.forEach(info => {
-      //     configs.forEach(cfg => {
-      //       if (cfg.key === info.key) {
-      //         info.value = cfg.value;
-      //       }
-      //     });
-      //   });
-      //   this.clusterInfos = infos;
-      // });
     });
   }
 
@@ -59,6 +49,12 @@ export class DescribeComponent implements OnInit {
     this.openToken = true;
     this.overviewService.getClusterToken(this.currentCluster).subscribe(data => {
       this.token = data.token;
+    });
+  }
+
+  openWebkubectl() {
+    this.clusterService.getWebkubectlToken(this.currentCluster.name).subscribe(data => {
+      window.open(window.location.host + '/terminal/?token=' + data);
     });
   }
 
