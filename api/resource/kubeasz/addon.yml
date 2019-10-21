@@ -17,7 +17,9 @@
   roles:
     - registry
 
-- hosts: kube-node
+- hosts:
+  - kube-master
+  - kube-node
   tasks:
     - name: 尝试登陆 registry
       shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
