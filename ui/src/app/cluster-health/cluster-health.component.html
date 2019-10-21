@@ -6,7 +6,7 @@
       <div class="clr-col-2">
         <div class="clr-col-12">
           <div class="card">
-              <div class="card-header" [ngStyle]="{'backgroundColor': clusterHealth.rate === 100 ? '#9DE7BD' : '#FF4040'}">
+              <div class="card-header" [ngStyle]="getClusterStatus(clusterHealth)">
                 <small>整体状态</small>
               </div>
               <div class="card-block" align="center">

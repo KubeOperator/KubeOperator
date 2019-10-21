@@ -60,6 +60,9 @@ export class ClusterStatusComponent implements OnInit {
 
   getClusterStatus() {
     this.clusterHealth.data = [];
+    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+      return;
+    }
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe( res => {
         this.clusterHealth = res;
       }, error1 => {
@@ -68,10 +71,14 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getServiceStatus(type) {
-    let status = 'Error';
+    let status = 'Unknown';
     for (const ch of this.clusterHealth.data) {
-      if (ch.job === type && ch.rate === 100) {
-        status =  'Running';
+      if (ch.job === type) {
+        if (ch.rate === 100) {
+          status =  'Running';
+        } else {
+          status =  'Warning';
+        }
       }
     }
     return status;
