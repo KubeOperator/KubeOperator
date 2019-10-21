@@ -133,7 +133,7 @@ export class ClusterHealthComponent implements OnInit {
           nameMap: ['日', '一', '二', '三', '四', '五', '六'],
           show: true
         },
-        cellSize: ['auto', 13],
+        cellSize: ['auto', 27],
         left: 45,
         range: this.getDateRange(),
         itemStyle: {
