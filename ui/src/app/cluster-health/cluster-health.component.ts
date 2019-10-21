@@ -135,9 +135,15 @@ export class ClusterHealthComponent implements OnInit {
         range: this.getDateRange(),
         itemStyle: {
           normal: {
-                color: '#CCCCCC',
+                color: '#efefef',
                 borderWidth: 0.5,
-                borderColor: '#8F8F8F'
+                borderColor: '#d9d9d9'
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: '#2c4159',
+            width: 0.3
           }
         }
       }],
@@ -146,7 +152,7 @@ export class ClusterHealthComponent implements OnInit {
         coordinateSystem: 'calendar',
         data: data
       }]
-      };
+    };
   }
 
   getClusterServiceStatus(data, job) {
@@ -177,4 +183,5 @@ export class ClusterHealthComponent implements OnInit {
     range.push(start, end);
     return range;
   }
+
 }
