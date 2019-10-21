@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, ExtraConfig} from '../cluster';
 import {ClrWizard} from '@clr/angular';
-import {Config, Network, Package, Storage, Template} from '../../package/package';
+import {Config, Network, Package, Template} from '../../package/package';
 import {PackageService} from '../../package/package.service';
 import {ClusterService} from '../cluster.service';
 import {NodeService} from '../../node/node.service';
@@ -19,6 +19,9 @@ import {PlanService} from '../../plan/plan.service';
 import {Plan} from '../../plan/plan';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {Storage} from '../cluster';
+import {Storage as StorageItem} from '../cluster';
+import {StorageService} from '../storage.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -46,6 +49,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   networks: Network[] = [];
   network: Network = null;
   storages: Storage[] = [];
+  storageList: StorageItem[] = [];
   storage: Storage = null;
   nodes: Node[] = [];
   hosts: Host[] = [];
@@ -76,7 +80,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   constructor(private alertService: CommonAlertService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
               private hostService: HostService, private deviceCheckService: DeviceCheckService,
-              private settingService: SettingService, private planService: PlanService) {
+              private settingService: SettingService, private planService: PlanService, private storageService: StorageService) {
   }
 
   ngOnInit() {
@@ -128,6 +132,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   onStorageChange() {
+    if (this.cluster.persistent_storage === 'nfs') {
+      this.storageService.list(this.cluster.persistent_storage).subscribe(data => {
+        this.storageList = data;
+      });
+    }
     this.storages.forEach(storage => {
       if (this.cluster.persistent_storage === storage.name) {
         this.storage = storage;
@@ -143,6 +152,14 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  onDeployTypeChange() {
+    if (this.cluster.deploy_type) {
+      this.storages = this.storages.filter(data => {
+        return data.deploy_type.includes(this.cluster.deploy_type);
+      });
+    }
+  }
+
   newCluster() {
     this.reset();
     this.createClusterOpened = true;
@@ -155,6 +172,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
+      console.log(this.hosts);
       this.hosts = data;
     }, error => {
       console.log(error);
@@ -175,7 +193,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.network = null;
     this.networks = null;
     this.resetCheckState();
-
   }
 
 
@@ -213,27 +230,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  onClusterNameChange() {
-    this.replaceConfig();
-  }
-
-  replaceConfig() {
-    if (this.configs) {
-      this.configs.forEach(c => {
-        if (c.type === 'Input') {
-          c.value = (c.default + '').replace('$cluster_name', this.cluster.name).replace('$domain_suffix', this.suffix);
-        }
-      });
-    }
-  }
-
-
   templateOnChange() {
     this.templates.forEach(template => {
       if (template.name === this.cluster.template) {
         this.template = template;
         this.configs.concat(this.template.private_config);
-        this.replaceConfig();
       }
     });
     this.nodes = [];
@@ -301,6 +302,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     node.roles.push(group.name);
     group.nodes.push(node);
     this.nodes.push(node);
+    console.log(this.nodes);
   }
 
   fullNode() {
@@ -329,7 +331,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       if (this.nodes) {
         this.createNodes();
       }
-      this.configCluster();
     });
   }
 
@@ -340,7 +341,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
 
     Promise.all(promises).then(() => {
-      console.log('nodes 创建成功！');
+      this.finishForm();
     });
   }
 
@@ -357,42 +358,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     return result;
   }
 
-
-  configCluster() {
-    const promises: Promise<{}>[] = [];
-    if (this.configs) {
-      this.configs = this.configs.concat(this.network.configs).concat(this.storage.configs);
-      this.configs.forEach(c => {
-        const extraConfig: ExtraConfig = new ExtraConfig();
-        extraConfig.key = c.name;
-        extraConfig.value = c.value;
-        promises.push(this.clusterService.configCluster(this.cluster.name, extraConfig).toPromise());
-        Promise.all(promises).then((data) => {
-          this.finishForm();
-        });
-      });
-    } else {
-      this.finishForm();
-    }
-  }
-
   finishForm() {
     this.isSubmitGoing = false;
     this.createClusterOpened = false;
     this.create.emit(true);
   }
-
-  replaceNodeVarsKey(key: string): string {
-    switch (key) {
-      case 'docker_storage_device':
-        return 'Docker 存储卷';
-      case 'glusterfs_devices':
-        return 'GlusterFS 卷';
-      default:
-        return key;
-    }
-  }
-
 
   getHostInfo(host: Host) {
     const template = '{N} [{C}核  {M}MB  {O}]';
@@ -422,21 +392,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
     return result;
   }
-
-
-  canConfigNext() {
-    let result = true;
-    if (this.configs) {
-      this.configs.some(c => {
-        if (c.value != null && c.value !== '') {
-          result = false;
-          return true;
-        }
-      });
-    }
-    return result;
-  }
-
 
   deviceCheck() {
     setTimeout(() => {

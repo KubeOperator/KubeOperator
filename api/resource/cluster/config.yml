@@ -207,6 +207,8 @@ networks:
 
 storages:
   - name: vsan
+    deploy_type: ['AUTOMATIC']
+    provider: ['vsphere']
     vars:
       storage_vsan_enabled: true
     configs:
@@ -218,25 +220,13 @@ storages:
         display: true
 
   - name: nfs
+    deploy_type: ['AUTOMATIC','MANUAL']
+    provider: ['vsphere','openstack']
     vars:
       storage_nfs_enabled: true
       storage_nfs_storage_class: nfs-storage
       storage_nfs_provisioner_name: nfs-provisioner
     configs:
-      - name: storage_nfs_server
-        alias: NFS 地址
-        comment: nfs_server
-        value: 10.0.0.1
-        type: Input
-        required: true
-        display: true
-      - name: storage_nfs__server_path
-        type: Input
-        alias: NFS 路径
-        comment: nfs_path
-        value: /exports
-        required: true
-        display: true
       - name: set_nfs_default
         type: Switch
         alias: 默认存储
@@ -244,7 +234,10 @@ storages:
         required: true
         display: true
 
+
   - name: cinder
+    deploy_type: ['AUTOMATIC']
+    provider: ['openstack']
     vars:
       storage_cinder_enabled: true
     configs:
@@ -268,7 +261,7 @@ public_config:
 
 templates:
   - name: 一主多节点
-    comment: '此部署模型为一主多节点部署模型，1个daemon 节点,1个 Master 节点和至少3个 Worker 节点。'
+    comment: '此部署模型为一主多节点部署模型，1个 Master 节点和至少3个 Worker 节点。'
     deploy_type: 'SINGLE'
     private_vars:
       DEPLOY_MODE: 'single-master'
@@ -308,39 +301,6 @@ templates:
                 excellent: 16
                 unit: "GB"
                 comment: "无"
-      - name: daemon
-        vars:
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.6"
-          node_vars: []
-          requires:
-            nodes_require:
-              - '='
-              - 1
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 1
-                excellent: 2
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 2
-                excellent: 4
-                unit: "GB"
-                comment: "无"
       - name: worker
         children:
           - new-node
@@ -376,7 +336,7 @@ templates:
                 unit: "GB"
                 comment: "无"
   - name: 多主多节点
-    comment: '此部署模型为多主多节点部署模型，1个daemon 节点,3个 Master 节点和至少3个 Worker 节点。'
+    comment: '此部署模型为多主多节点部署模型，3个 Master 节点和至少3个 Worker 节点。'
     deploy_type: 'MULTIPLE'
     private_vars:
       DEPLOY_MODE: 'multiple-master'
@@ -414,39 +374,6 @@ templates:
                 verbose: "内存大小"
                 minimal: 4
                 excellent: 16
-                unit: "GB"
-                comment: "无"
-      - name: daemon
-        vars:
-        meta:
-          hidden: false
-          allow_os:
-            - name: CentOS
-              version:
-                - "7.6"
-          node_vars: []
-          requires:
-            nodes_require:
-              - '='
-              - 1
-            volumes_require:
-              - name: "system"
-                verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
-                comment: "系统卷，用于运行操作系统"
-                unit: "GB"
-            device_require:
-              - name: "cpu_core"
-                verbose: "CPU 核心数"
-                minimal: 1
-                excellent: 2
-                comment: "无"
-                unit: "个"
-              - name: "memory_size"
-                verbose: "内存大小"
-                minimal: 2
-                excellent: 4
                 unit: "GB"
                 comment: "无"
       - name: worker

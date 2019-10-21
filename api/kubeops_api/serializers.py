@@ -53,6 +53,7 @@ class PackageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'meta', 'date_created']
         fields = ['id', 'name', 'meta', 'date_created']
 
+
 class AuthTemplateSerializer(serializers.ModelSerializer):
     meta = serializers.JSONField()
 
@@ -178,6 +179,7 @@ class ClusterSerializer(ProjectSerializer):
         slug_field='name', required=False
     )
     meta = serializers.DictField(required=False)
+    configs = serializers.DictField(required=False)
     apps = serializers.JSONField(read_only=True)
     current_execution = DeployExecutionSerializer(read_only=True)
 
@@ -185,7 +187,7 @@ class ClusterSerializer(ProjectSerializer):
         model = Cluster
         fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template', 'plan',
                   'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
-                  'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
+                  'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'configs']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
 
@@ -202,7 +204,7 @@ class BackupStorageSerializer(serializers.ModelSerializer):
 class BackupStrategySerializer(serializers.ModelSerializer):
     class Meta:
         model = BackupStrategy
-        fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id' ,'status']
+        fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id', 'status']
 
 
 class ClusterBackupSerializer(serializers.ModelSerializer):
@@ -215,14 +217,14 @@ class ClusterBackupSerializer(serializers.ModelSerializer):
         model = ClusterBackup
         fields = ['id', 'name', 'size', 'date_created', 'project_id', 'folder', 'backup_storage']
 
-class ClusterHealthSerializer(serializers.Serializer):
 
+class ClusterHealthSerializer(serializers.Serializer):
     type = serializers.CharField()
     data = serializers.CharField()
     status = serializers.CharField()
 
-class ClusterHeathHistorySerializer(serializers.ModelSerializer):
 
+class ClusterHeathHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClusterHealthHistory
-        fields = ['id','project_id','available_rate','date_type','date_created','month']
+        fields = ['id', 'project_id', 'available_rate', 'date_type', 'date_created', 'month']

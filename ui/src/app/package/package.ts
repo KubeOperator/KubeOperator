@@ -13,11 +13,6 @@ export class Network {
   configs: Config[] = [];
 }
 
-export class Storage {
-  name: string;
-  configs: Config[] = [];
-}
-
 export class Components {
   kubernetes: string;
   etcd: string;

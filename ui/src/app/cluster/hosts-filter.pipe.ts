@@ -16,7 +16,7 @@ export class HostsFilterPipe implements PipeTransform {
     }
     const result: Host[] = [];
     hosts.forEach(host => {
-      if (host.cluster === '无') {
+      if (!host.cluster) {
         const others: Node[] = [];
         nodes.forEach(n => {
           if (n !== node) {

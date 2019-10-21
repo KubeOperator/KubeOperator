@@ -28,6 +28,7 @@ import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component'
 import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
+import {StorageModule} from './storage/storage.module';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import {NfsModule} from './nfs/nfs.module';
     F5BigIpModule,
     ClusterBackupModule,
     SharedModule,
-    NfsModule
+    NfsModule,
+    StorageModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

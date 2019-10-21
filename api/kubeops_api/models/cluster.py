@@ -20,6 +20,7 @@ from kubeops_api.models.role import Role
 from django.db.models import Q
 
 from kubeops_api.models.setting import Setting
+from storage.models import NfsStorage
 
 logger = logging.getLogger(__name__)
 __all__ = ["Cluster"]
@@ -174,6 +175,9 @@ class Cluster(Project):
             for storage in storages:
                 if storage['name'] == self.persistent_storage:
                     vars = storage.get('vars', {})
+            if self.persistent_storage == 'nfs':
+                nfs = NfsStorage.objects.get(name=self.configs['nfs'])
+                vars.update(nfs.vars)
             self.set_config_unlock(vars)
 
     def set_package_configs(self):
@@ -332,7 +336,7 @@ class Cluster(Project):
 
     def set_app_domain(self):
         domain_suffix = Setting.objects.get(key="domain_suffix")
-        self.set_config('APP_DOMAIN', "apps.{}.{}".format(self.name, domain_suffix.value))
+        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
 
     def on_cluster_create(self):
         self.change_to()

@@ -16,7 +16,6 @@ export class Cluster {
   date_created: string;
   auth_template: string;
   node: Node[];
-  configs: ExtraConfig[];
   current_execution: Execution;
   status: string;
   resource: string;
@@ -27,6 +26,12 @@ export class Cluster {
   zone: string;
   zones: string[] = [];
   meta: {} = {};
+  configs: {} = {};
+
+  constructor() {
+    this.configs['SERVICE_CIDR'] = '10.68.0.0/16';
+    this.configs['CLUSTER_CIDR'] = '172.20.0.0/16';
+  }
 }
 
 export class ExtraConfig {
@@ -57,5 +62,7 @@ export class Network {
 
 export class Storage {
   name: string;
+  deploy_type: string[] = [];
+  provider: string[] = [];
   configs: Config[] = [];
 }
