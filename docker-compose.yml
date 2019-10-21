@@ -87,6 +87,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+      
+  webkubectl:
+    images: webkubectl/webkubectl
+    container_name: webkubectl
+    restart: always
+    ports:
+     - 8080
+    privileged: true
+    healthcheck:
+      test: "curl localhost:8008"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+
 
 volumes:
   api_data:
