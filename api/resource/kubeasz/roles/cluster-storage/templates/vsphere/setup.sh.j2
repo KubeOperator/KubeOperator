@@ -9,7 +9,7 @@ FOLDER="kubeoperator"
 
 
 IFS=$'\n'
-for vm in $(govc ls "/$DATACENTER/vm/$FOLDER" | grep {{cluster_name}} | grep {{domain_suffix}} |grep worker  ); do
+for vm in $(govc ls "/$DATACENTER/vm/$FOLDER" | grep {{cluster_name}} | grep {{domain_suffix}}); do
   MACHINE_INFO=$(govc vm.info -json -dc=$DATACENTER -vm.ipath="/$vm" -e=true)
   VM_NAME=$(jq -r ' .VirtualMachines[] | .Name' <<< $MACHINE_INFO | awk '{print tolower($0)}')
   VM_UUID=$( jq -r ' .VirtualMachines[] | .Config.Uuid' <<< $MACHINE_INFO | awk '{print toupper($0)}')

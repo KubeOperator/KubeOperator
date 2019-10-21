@@ -23,6 +23,8 @@
   roles:
     - etcd
 
-- hosts: kube-node
+- hosts:
+  - kube-master
+  - kube-node
   roles:
     - docker
