@@ -89,7 +89,7 @@ services:
       retries: 10
 
   webkubectl:
-    images: webkubectl/webkubectl
+    image: webkubectl/webkubectl
     container_name: kubeops_webkubectl
     restart: always
     ports:
