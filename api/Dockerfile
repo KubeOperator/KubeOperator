@@ -17,6 +17,8 @@ COPY extra/dnsmasq.conf /etc/
 COPY extra/kubeops.dns.conf /etc/dnsmasq.d
 COPY . /opt/kubeOperator-api
 RUN echo > config.yml
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo "Asia/Shanghai" >> /etc/timezone
 
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
