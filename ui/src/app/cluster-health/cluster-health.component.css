@@ -13,3 +13,6 @@
 .loading {
   margin: auto;
 }
+.shadow-none {
+  box-shadow: inherit
+}
