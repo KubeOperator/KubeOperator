@@ -20,7 +20,7 @@ HARD_EVICTION: "memory.available<200Mi,nodefs.available<10%"
 
 # 配置 APISERVER 地址
 KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
-                     https://{{ inventory_hostname }}:6443 \
+                     https://{{ ansible_ssh_host }}:6443 \
                  {%- else -%} \
                      {%- if groups['kube-master']|length > 1 -%} \
                          https://127.0.0.1:6443 \
