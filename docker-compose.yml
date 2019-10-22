@@ -62,7 +62,10 @@ services:
   mysql:
     container_name: kubeops_mysql
     image: mysql:5
-    command: --character-set-server=utf8
+    command: [
+              '--character-set-server=utf8',
+              '--default-time-zone=+8:00'
+    ]
     ports:
       - 3306
     volumes:
@@ -70,6 +73,7 @@ services:
     environment:
       MYSQL_DATABASE: kube-operator
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
+      TZ: Asia/Shangha
     healthcheck:
       test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
       interval: 10s
