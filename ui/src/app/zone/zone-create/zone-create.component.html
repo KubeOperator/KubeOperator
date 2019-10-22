@@ -78,7 +78,8 @@
           </clr-select-container>
           <clr-input-container>
             <label>起始IP</label>
-            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start"
+                   required>
             <clr-control-helper>例如: 172.16.10.1</clr-control-helper>
             <clr-control-error>此字段为必填项</clr-control-error>
           </clr-input-container>
@@ -90,7 +91,7 @@
           </clr-input-container>
           <clr-input-container>
             <label>子网掩码</label>
-            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="gateway" required>
+            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="mask" required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
           </clr-input-container>
@@ -115,7 +116,7 @@
           <clr-control-helper>选择用于运行虚拟机的可用区</clr-control-helper>
         </clr-select-container>
         <div *ngIf="cloudZone">
-           <h3>存储</h3>
+          <h3>存储</h3>
           <hr/>
           <clr-select-container>
             <label>存储类型</label>

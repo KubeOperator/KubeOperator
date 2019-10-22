@@ -39,6 +39,8 @@ export class ClusterStatusComponent implements OnInit {
     const params = {'num': this.scale.worker_size};
     this.operaterService.executeOperate(this.currentCluster.name, 'scale', params).subscribe(() => {
       this.redirect('deploy');
+    }, error => {
+      this.scale.opened = false;
     });
   }
 
@@ -63,10 +65,10 @@ export class ClusterStatusComponent implements OnInit {
     if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
       return;
     }
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe( res => {
-        this.clusterHealth = res;
-      }, error1 => {
-        this.clusterHealth.data = [];
+    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
+      this.clusterHealth = res;
+    }, error1 => {
+      this.clusterHealth.data = [];
     });
   }
 
@@ -75,9 +77,9 @@ export class ClusterStatusComponent implements OnInit {
     for (const ch of this.clusterHealth.data) {
       if (ch.job === type) {
         if (ch.rate === 100) {
-          status =  'Running';
+          status = 'Running';
         } else {
-          status =  'Warning';
+          status = 'Warning';
         }
       }
     }

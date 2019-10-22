@@ -22,7 +22,7 @@ export class PasswordComponent implements OnInit {
   msg = '';
   level = '';
 
-  @ViewChild('passform', { static: true }) passform: NgForm;
+  @ViewChild('passform', {static: true}) passform: NgForm;
 
   ngOnInit() {
   }
@@ -32,6 +32,7 @@ export class PasswordComponent implements OnInit {
 
     this.sessionService.changePassword(user.id, this.oldPassword, this.newPassword).subscribe(data => {
       this.showMsg('success', '修改成功');
+      this.onCancel();
     }, error => {
       this.showMsg('danger', '修改失败,原密码错误!');
       this.clear();
