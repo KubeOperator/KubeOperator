@@ -3,11 +3,13 @@
   <form clrForm #backupStrategyForm="ngForm">
     <clr-input-container>
       <label>备份间隔(天)</label>
-      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.cron" name="cron" required/>
+      <input clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1" max="300" />
+      <clr-control-helper>1~300</clr-control-helper>
     </clr-input-container>
     <clr-input-container>
       <label>保留份数</label>
-      <input clrInput size=45 type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required/>
+      <input clrInput  type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required min="1" max="100"/>
+      <clr-control-helper>1~100</clr-control-helper>
     </clr-input-container>
     <clr-select-container>
         <label>备份账号</label>
@@ -17,7 +19,7 @@
     </clr-select-container>
     <clr-select-container>
          <label>状态</label>
-         <select clrSelect name="status" [(ngModel)]="backupStrategy.status" required="">
+         <select clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
               <option value="ENABLE">启用</option>
               <option value="DISABLE">禁用</option>
          </select>

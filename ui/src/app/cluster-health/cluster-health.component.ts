@@ -98,11 +98,16 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   setOptions(data) {
+    let titleText = '';
+    if (this.totalRate !== 0) {
+      titleText = '(可用率' + this.decimalPipe.transform(this.totalRate , '1.0-1') + '%)';
+    }
+
     this.options = {
       title: {
           top: 30,
           left: 'center',
-          text: '过去半年集群运行状态(可用率' + this.decimalPipe.transform(this.totalRate , '1.0-1') + '%)'
+          text: '过去半年集群运行状态' + titleText
       },
       tooltip : {},
       visualMap: [{
@@ -134,7 +139,7 @@ export class ClusterHealthComponent implements OnInit {
           show: true
         },
         cellSize: ['auto', 27],
-        left: 45,
+        left: 50,
         range: this.getDateRange(),
         itemStyle: {
           normal: {

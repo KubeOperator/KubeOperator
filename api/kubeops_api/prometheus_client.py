@@ -44,11 +44,15 @@ class PrometheusClient():
                     index = keys.index(target.get('labels').get('job'))
                     instance_address = target.get('discoveredLabels').get('__address__').split(':')[0]
                     hostName = Host.objects.get(ip=instance_address).name
-                    health = target.get('health')
-                    result['data'][index]['data'].append({
-                        'key':hostName,
-                        'value':health
-                    })
+                    if 'master' not in hostName:
+                        health = target.get('health')
+                        status = 'NotReady'
+                        if health == 'up':
+                            status = 'Ready'
+                        result['data'][index]['data'].append({
+                            'key':hostName,
+                            'value':status
+                        })
         else:
              result['success'] = False
         self.calculate_available_rate(result)
