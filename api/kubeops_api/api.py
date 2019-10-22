@@ -175,7 +175,18 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     http_method_names = ['post', 'get', 'head', 'options']
 
+    def check_ip(self, serializer):
+        if serializer.operation == 'install':
+            cluster = Cluster.objects.get(id=serializer.project.id)
+            if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+                if cluster.expect_worker_size > cluster.plan.count_ip_available():
+                    return Response(
+                        data={'msg': '资源不足: IP 剩余 {} 需要 {}'.format(cluster.expect_worker_size,
+                                                                   cluster.plan.count_ip_available())},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     def perform_create(self, serializer):
+        self.check_ip(serializer)
         instance = serializer.save()
         transaction.on_commit(lambda: start_deploy_execution.apply_async(
             args=(instance.id,), task_id=str(instance.id)
