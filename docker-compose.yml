@@ -102,7 +102,7 @@ services:
      - 8080
     privileged: true
     healthcheck:
-      test: "curl localhost:8008"
+      test: "curl localhost:8080"
       interval: 10s
       timeout: 5s
       retries: 10

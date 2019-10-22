@@ -45,7 +45,8 @@
         </table>
       </div>
       <div class="card-footer">
-        <button class="btn btn-sm btn-link" (click)="onScale()" [disabled]="currentCluster.status !== 'RUNNING'">伸缩
+        <button class="btn btn-sm btn-link" (click)="onScale()"
+                [disabled]="currentCluster.deploy_type!=='MANUAL'&&currentCluster.status !== 'RUNNING'">伸缩
         </button>
       </div>
     </div>

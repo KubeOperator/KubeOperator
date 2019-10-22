@@ -126,6 +126,14 @@ class Cluster(Project):
         return len(nodes)
 
     @property
+    def expect_worker_size(self):
+        if self.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
+            if self.template == 'MULTIPLE':
+                return self.worker_size + 3
+            if self.template == 'SINGLE':
+                return self.worker_size + 1
+
+    @property
     def current_workers(selfs):
         selfs.change_to()
         return Node.objects.filter(groups__name__in=['worker'])

@@ -54,7 +54,7 @@ export class DescribeComponent implements OnInit {
 
   openWebkubectl() {
     this.clusterService.getWebkubectlToken(this.currentCluster.id).subscribe(data => {
-      window.open('http://' + window.location.host + '/terminal/?token=' + data['token']);
+      window.open('http://' + window.location.host + '/webkubectl/terminal/?token=' + data['token']);
     });
   }
 

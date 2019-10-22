@@ -221,6 +221,13 @@ class Plan(models.Model):
             zones.extend(self.zones.all())
         return zones
 
+    def count_ip_available(self):
+        zones = self.get_zones()
+        num = 0
+        for zone in zones:
+            num += zone.ip_available_size()
+        return num
+
     @property
     def compute_models(self):
         return {
