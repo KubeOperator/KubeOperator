@@ -134,7 +134,7 @@ export class ClusterHealthComponent implements OnInit {
           show: true
         },
         cellSize: ['auto', 27],
-        left: 45,
+        left: 50,
         range: this.getDateRange(),
         itemStyle: {
           normal: {
