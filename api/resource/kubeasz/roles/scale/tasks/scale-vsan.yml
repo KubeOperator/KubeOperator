@@ -1,0 +1,25 @@
+- name: prepare setup.sh
+  template: src=vsphere/scale-vsan.sh.j2 dest=/tmp/setup.sh
+
+- name: set disk.enableuuid to true for all vms
+  shell: "bash setup.sh"
+  args:
+    chdir: "/tmp"
+  run_once: true
+
+
+- name: modify kubelet services on worker node
+  lineinfile:
+    path: "/etc/systemd/system/kubelet.service"
+    insertbefore: "--v=2"
+    line: '  --cloud-provider=vsphere \'
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['new-node'] }}"
+  run_once: true
+
+- name: restart kubelet service
+  shell: "systemctl daemon-reload && systemctl restart kubelet"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['new-node'] }}"
+  run_once: true
+
