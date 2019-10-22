@@ -13,7 +13,6 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 
-
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
 
@@ -73,7 +72,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             elif self.operation == 'restore':
                 cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
                 cluster_backup_id = self.params.get('clusterBackupId', None)
-                result = self.on_restore(extra_vars,cluster_backup_id)
+                result = self.on_restore(extra_vars, cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
 
         except Exception as e:
@@ -113,7 +112,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.scale_up_to(int(num))
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
             except RuntimeError as e:
-                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
+                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
                 raise e
         return self.run_playbooks(extra_vars)
 
@@ -146,7 +145,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars.update(cluster.meta)
         return self.run_playbooks(extra_vars)
 
-    def on_restore(self,extra_vars,cluster_backup_id):
+    def on_restore(self, extra_vars, cluster_backup_id):
         cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)
         backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
         cluster = self.get_cluster()
@@ -201,4 +200,3 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('-date_created',)
-
