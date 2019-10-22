@@ -64,6 +64,9 @@ export class ClusterBackupStrategyComponent implements OnInit {
   }
 
   update() {
+    if (!this.valid()) {
+      return;
+    }
     this.clusterBackupService.updateBackupStrategy(this.backupStrategy.project_id, this.backupStrategy).subscribe(data => {
       this.loading = false;
       this.alertService.showAlert('更新成功!', AlertLevels.SUCCESS);
@@ -75,6 +78,9 @@ export class ClusterBackupStrategyComponent implements OnInit {
   }
 
   create() {
+    if (!this.valid()) {
+      return;
+    }
     this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
       this.loading = false;
       this.alertService.showAlert('新增成功!', AlertLevels.SUCCESS);
@@ -83,6 +89,17 @@ export class ClusterBackupStrategyComponent implements OnInit {
       this.loading = false;
       this.alertService.showAlert('新增失败!' + err.reson + 'state code:' + err.status, AlertLevels.ERROR);
     });
+  }
+
+  valid() {
+    if (this.backupStrategy.cron <= 0 || this.backupStrategy.cron > 300) {
+      this.alertService.showAlert('备份间隔范围(1-300)', AlertLevels.ERROR);
+      return false;
+    } else if (this.backupStrategy.save_num <= 0 || this.backupStrategy.save_num > 100) {
+      this.alertService.showAlert('保留份数范围(1-100)', AlertLevels.ERROR);
+      return false;
+    }
+    return true;
   }
 
 }
