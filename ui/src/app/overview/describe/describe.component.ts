@@ -11,6 +11,8 @@ import {ClusterStatusService} from '../../cluster/cluster-status.service';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {ClusterListComponent} from '../../cluster/cluster-list/cluster-list.component';
 import {UpgradeComponent} from '../upgrade/upgrade.component';
+import {WebkubectlComponent} from '../webkubectl/webkubectl.component';
+import {strictEqual} from 'assert';
 
 @Component({
   selector: 'app-describe',
@@ -27,6 +29,8 @@ export class DescribeComponent implements OnInit {
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   @ViewChild(UpgradeComponent, {static: true}) upgrade: UpgradeComponent;
+  @ViewChild(WebkubectlComponent, {static: true}) webKubeCtrl: WebkubectlComponent;
+
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
@@ -53,11 +57,17 @@ export class DescribeComponent implements OnInit {
   }
 
   openWebkubectl() {
+    this.webKubeCtrl.loading = true;
+    this.webKubeCtrl.opened = true;
     this.clusterService.getWebkubectlToken(this.currentCluster.id).subscribe(data => {
-      window.open('http://' + window.location.host + '/webkubectl/terminal/?token=' + data['token']);
+      this.webKubeCtrl.loading = false;
+      this.webKubeCtrl.url = 'http://' + window.location.host + '/webkubectl/terminal/?token=' + data['token'];
     });
   }
 
+  openModel() {
+    this.webKubeCtrl.opened = true;
+  }
 
   onInstall() {
     this.confirmAlert.setTitle('确认安装');
