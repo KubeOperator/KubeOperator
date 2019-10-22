@@ -344,7 +344,7 @@ class Cluster(Project):
         file_name = self.fetch_config()
         with open(file_name) as f:
             text = f.read()
-            return base64.decodebytes(bytes(text, 'utf-8'))
+            return base64.encodebytes(bytes(text, 'utf-8')).decode().replace('\n', '')
 
     def get_webkubectl_token(self):
         data = {

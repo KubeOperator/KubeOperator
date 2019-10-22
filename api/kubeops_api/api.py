@@ -379,5 +379,5 @@ class WebKubeCtrlToken(APIView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
-        cluster = get_object_or_404(Cluster, name=pk)
-        return HttpResponse().write(cluster.get_webkubectl_token())
+        cluster = get_object_or_404(Cluster, pk=pk)
+        return JsonResponse({'token': cluster.get_webkubectl_token()})

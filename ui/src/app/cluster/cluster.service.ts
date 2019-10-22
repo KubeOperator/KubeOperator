@@ -7,7 +7,7 @@ import {HostService} from '../host/host.service';
 
 
 const baseClusterUrl = '/api/v1/clusters/';
-const webKubeCtlUrl = '/api/v1/cluster/{name}/webkubectl/token/';
+const webKubeCtlUrl = '/api/v1/cluster/{id}/webkubectl/token/';
 
 
 @Injectable({
@@ -49,7 +49,7 @@ export class ClusterService {
     return this.http.get<ClusterConfigs>('/api/v1/cluster/config');
   }
 
-  getWebkubectlToken(name: string): Observable<any> {
-    return this.http.get<any>(webKubeCtlUrl.replace('{name}', name));
+  getWebkubectlToken(id: string): Observable<any> {
+    return this.http.get<any>(webKubeCtlUrl.replace('{id}', id));
   }
 }
