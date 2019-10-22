@@ -40,15 +40,21 @@ class PrometheusClient():
                 })
             active_targets =  json.get('data').get('activeTargets')
             for target in active_targets:
-                if target.get('labels').get('job') in keys:
+                key = target.get('labels').get('job')
+                if  key in keys:
                     index = keys.index(target.get('labels').get('job'))
                     instance_address = target.get('discoveredLabels').get('__address__').split(':')[0]
                     hostName = Host.objects.get(ip=instance_address).name
-                    if 'master' not in hostName:
-                        health = target.get('health')
-                        status = 'NotReady'
-                        if health == 'up':
-                            status = 'Ready'
+                    health = target.get('health')
+                    status = 'NotReady'
+                    if health == 'up':
+                        status = 'Ready'
+                    if key != 'kubernetes-nodes':
+                        result['data'][index]['data'].append({
+                            'key':hostName,
+                            'value':status
+                        })
+                    if key == 'kubernetes-nodes' and 'master' not in hostName:
                         result['data'][index]['data'].append({
                             'key':hostName,
                             'value':status
@@ -63,7 +69,7 @@ class PrometheusClient():
         for res in result['data']:
             job_up = 0
             for job in res['data']:
-                if job['value'] == 'up':
+                if job['value'] == 'Ready':
                     job_up = job_up +1
             res['rate'] = job_up / len(res['data']) * 100 if len(res['data']) > 0 else 0
             if res['rate'] == 100:
