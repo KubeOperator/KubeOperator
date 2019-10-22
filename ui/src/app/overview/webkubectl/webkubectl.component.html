@@ -2,7 +2,7 @@
 
   <h3 class="modal-title">Termina</h3>
   <div class="modal-body">
-    <iframe *ngIf="!loading" [src]="url" style="width: 100%; min-height: 750px">
+    <iframe *ngIf="!loading" [src]="jump" style="width: 100%; min-height: 750px">
 
     </iframe>
     <clr-spinner clrMedium aria-label="In progress" *ngIf="loading"></clr-spinner>

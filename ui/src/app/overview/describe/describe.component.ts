@@ -60,14 +60,11 @@ export class DescribeComponent implements OnInit {
     this.webKubeCtrl.loading = true;
     this.webKubeCtrl.opened = true;
     this.clusterService.getWebkubectlToken(this.currentCluster.id).subscribe(data => {
-      this.webKubeCtrl.loading = false;
       this.webKubeCtrl.url = 'http://' + window.location.host + '/webkubectl/terminal/?token=' + data['token'];
+      this.webKubeCtrl.open();
     });
   }
 
-  openModel() {
-    this.webKubeCtrl.opened = true;
-  }
 
   onInstall() {
     this.confirmAlert.setTitle('确认安装');
