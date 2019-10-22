@@ -39,6 +39,9 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterHealth() {
+    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+      return;
+    }
     this.loading = true;
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
@@ -130,7 +133,7 @@ export class ClusterHealthComponent implements OnInit {
           nameMap: ['日', '一', '二', '三', '四', '五', '六'],
           show: true
         },
-        cellSize: ['auto', 13],
+        cellSize: ['auto', 27],
         left: 45,
         range: this.getDateRange(),
         itemStyle: {
@@ -168,6 +171,17 @@ export class ClusterHealthComponent implements OnInit {
       }
     }
     return serviceStyle;
+  }
+
+  getClusterStatus(clusterHealth) {
+    if (this.loading) {
+      return;
+    }
+    let clusterStyle = '#FF4040';
+    if (clusterHealth.rate === 100) {
+      clusterStyle = '#9DE7BD';
+    }
+    return clusterStyle;
   }
 
   getDateRange() {
