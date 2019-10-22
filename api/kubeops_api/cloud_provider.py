@@ -80,6 +80,7 @@ def create_cluster_scale_up_hosts_dict(hosts_dict):
 
 def create_nodes(cluster, hosts_dict):
     hosts = []
+    new_nodes = []
     for host_dict in hosts_dict:
         zone = Zone.objects.get(name=host_dict["zone_name"])
         defaults = {
@@ -92,13 +93,13 @@ def create_nodes(cluster, hosts_dict):
         if host_dict.get('new', False):
             result = Host.objects.update_or_create(defaults, name=host_dict['name'])
             host = result[0]
-            cluster.create_node(host_dict['role'], host)
+            node = cluster.create_node(host_dict['role'], host)
+            new_nodes.append(node)
             hosts.append(host)
     client = get_cloud_client(cluster.plan.mixed_vars)
     terraform_result = client.apply_terraform(cluster, hosts_dict)
     if not terraform_result:
-        cluster.change_to()
-        for node in Node.objects.all():
+        for node in new_nodes:
             node.host.delete()
             raise RuntimeError("create host error!")
     if cluster.plan.mixed_vars.get('provider') == 'openstack':

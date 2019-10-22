@@ -175,6 +175,20 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     http_method_names = ['post', 'get', 'head', 'options']
 
+    def create(self, request, *args, **kwargs):
+        operation = request.data['operation']
+        cluster_name = kwargs.get('cluster_name')
+        cluster = Cluster.objects.get(name=cluster_name)
+        if operation == 'install':
+            if cluster.worker_size > cluster.plan.count_ip_available():
+                return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
+        if operation == 'scale':
+            num = request.data['params']['num']
+            if num > cluster.worker_size:
+                if num - cluster.worker_size > cluster.plan.count_ip_available():
+                    return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
+        super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         instance = serializer.save()
         transaction.on_commit(lambda: start_deploy_execution.apply_async(
