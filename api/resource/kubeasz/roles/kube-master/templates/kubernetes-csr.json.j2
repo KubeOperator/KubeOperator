@@ -3,6 +3,7 @@
   "hosts": [
     "127.0.0.1",
     "{{ inventory_hostname }}",
+    "{{ ansible_ssh_host }}",
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
     "kubernetes",
     "kubernetes.default",
