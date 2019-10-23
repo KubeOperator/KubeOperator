@@ -1,5 +1,5 @@
 - name: prepare setup.sh
-  template: src=vsphere/scale-vsan.sh.j2 dest=/tmp/setup.sh
+  template: src=scale-vsan.sh.j2 dest=/tmp/setup.sh
 
 - name: set disk.enableuuid to true for all vms
   shell: "bash setup.sh"
