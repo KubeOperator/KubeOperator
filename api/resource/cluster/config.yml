@@ -74,7 +74,7 @@ operations:
       - name: create-resource
         flow: 创建主机
       - name: scale
-        flow: 扩容
+        flow: 伸缩
         playbook: scale
 
   - name: cluster-backup
