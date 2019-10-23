@@ -187,7 +187,7 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
             if num > cluster.worker_size:
                 if num - cluster.worker_size > cluster.plan.count_ip_available():
                     return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
-        super().create(request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         instance = serializer.save()

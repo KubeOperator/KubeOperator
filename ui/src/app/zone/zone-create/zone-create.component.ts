@@ -1,14 +1,15 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {CloudTemplate, Region} from '../../region/region';
+import {Region} from '../../region/region';
 import {NgForm} from '@angular/forms';
 import {ClrWizard} from '@clr/angular';
 import {RegionService} from '../../region/region.service';
 import {CloudService} from '../../region/cloud.service';
 import {Zone} from '../zone';
 import {CloudZone, Subnet} from '../../region/cloud';
-import {CloudTemplateService} from '../../region/cloud-template.service';
 import {ZoneService} from '../zone.service';
 import {catchError} from 'rxjs/operators';
+import * as ipaddr from 'ipaddr.js';
+import {IpService} from '../ip.service';
 
 @Component({
   selector: 'app-zone-create',
@@ -27,16 +28,18 @@ export class ZoneCreateComponent implements OnInit {
   region: Region = new Region();
   subnetList: Subnet[] = [];
   loading = false;
-  @ViewChild('basicForm', { static: true }) basicForm: NgForm;
-  @ViewChild('wizard', { static: true }) wizard: ClrWizard;
+  @ViewChild('basicForm', {static: true}) basicForm: NgForm;
+  @ViewChild('wizard', {static: true}) wizard: ClrWizard;
 
   constructor(private regionService: RegionService,
               private cloudService: CloudService,
-              private zoneService: ZoneService) {
+              private zoneService: ZoneService,
+              private ipService: IpService) {
   }
 
   ngOnInit() {
   }
+
 
   get nameCtrl() {
     return this.basicForm.controls['name'];
@@ -46,6 +49,7 @@ export class ZoneCreateComponent implements OnInit {
     this.zoneService.getZone(this.item.name).pipe(catchError(() => null)).subscribe((data) => {
       if (this.item.name) {
         this.nameCtrl.setErrors({repeat: true});
+        console.log(this.nameCtrl);
       }
     });
   }

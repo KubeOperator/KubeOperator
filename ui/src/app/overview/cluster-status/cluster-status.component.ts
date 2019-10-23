@@ -20,7 +20,6 @@ export class ClusterStatusComponent implements OnInit {
   workers: Node[] = [];
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
   clusterHealth: ClusterHealth = new ClusterHealth();
-  status: '';
 
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
@@ -40,6 +39,8 @@ export class ClusterStatusComponent implements OnInit {
     const params = {'num': this.scale.worker_size};
     this.operaterService.executeOperate(this.currentCluster.name, 'scale', params).subscribe(() => {
       this.redirect('deploy');
+    }, error => {
+      this.scale.opened = false;
     });
   }
 
@@ -64,10 +65,10 @@ export class ClusterStatusComponent implements OnInit {
     if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
       return;
     }
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe( res => {
-        this.clusterHealth = res;
-      }, error1 => {
-        this.clusterHealth.data = [];
+    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
+      this.clusterHealth = res;
+    }, error1 => {
+      this.clusterHealth.data = [];
     });
   }
 
