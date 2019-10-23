@@ -1,8 +1,5 @@
 import os
-from threading import Thread
-from time import sleep
 from cloud_provider.cloud_client import CloudClient
-from pyVmomi import vim
 from keystoneclient.v3 import client as KeystoneClient
 from openstack import connection
 from urllib import request
@@ -167,56 +164,6 @@ class OpenStackCloudClient(CloudClient):
         if image is None:
             image = openstack_client.create_image(name=zone.region.image_name, filename=zone.region.image_vmdk_path,
                                           disk_format='qcow2')
-
-def get_obj(content, vimtype, folder, name):
-    obj = None
-    container = content.viewManager.CreateContainerView(folder, vimtype, True)
-    for c in container.view:
-        if c.name == name:
-            obj = c
-    return obj
-
-
-def get_obj_list(content, vimtype, folder):
-    objs = []
-    container = content.viewManager.CreateContainerView(folder, vimtype, True)
-    for c in container.view:
-        objs.append(c)
-    return objs
-
-
-def get_service_instance(kwargs):
-    host = kwargs.get('host')
-    username = kwargs.get('username')
-    password = kwargs.get('password')
-    service_instance = connect.SmartConnectNoSSL(host=host, user=username, pwd=password, port=int(443))
-    if not service_instance:
-        raise Exception('Could not connect to the specified host using specified username and password')
-    return service_instance
-
-
-def get_ovf_descriptor(ovf_path):
-    if os.path.exists(ovf_path):
-        with open(ovf_path, 'r') as f:
-            try:
-                ovfd = f.read()
-                f.close()
-                return ovfd
-            except:
-                print("Could not read file: {}".format(ovf_path))
-
-
-def keep_lease_alive(lease):
-    while (True):
-        sleep(5)
-        try:
-            print('模版上传中...')
-            lease.HttpNfcLeaseProgress(50)
-            if lease.state == vim.HttpNfcLease.State.done:
-                return
-        except:
-            return
-
 
 def replace_params(vars):
     return {
