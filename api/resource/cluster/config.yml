@@ -303,7 +303,7 @@ templates:
                 comment: "无"
       - name: worker
         children:
-          - new-node
+          - new_node
         meta:
           hidden: false
           allow_os:
