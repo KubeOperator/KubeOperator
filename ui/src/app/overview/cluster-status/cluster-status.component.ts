@@ -73,13 +73,13 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getServiceStatus(type) {
-    let status = 'Unknown';
+    let status = 'UNKNOWN';
     for (const ch of this.clusterHealth.data) {
       if (ch.job === type) {
         if (ch.rate === 100) {
-          status = 'Running';
+          status =  'RUNNING';
         } else {
-          status = 'Warning';
+          status =  'WARNING';
         }
       }
     }
