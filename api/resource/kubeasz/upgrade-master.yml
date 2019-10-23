@@ -5,4 +5,6 @@
 - hosts: master
   serial: 1
   roles:
+    - upgrade-worker
     - upgrade-master
+
