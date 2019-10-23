@@ -192,7 +192,7 @@
       </div>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="storageForm.invalid">
+  <clr-wizard-page (clrWizardPageOnLoad)="onDeployTypeChange()" [clrWizardPageNextDisabled]="storageForm.invalid">
     <ng-template clrPageTitle>配置存储</ng-template>
     <form #storageForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
