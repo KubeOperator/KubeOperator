@@ -1,7 +1,5 @@
 import json
 import logging
-import time
-
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
@@ -43,6 +41,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
         extra_vars.update(cluster.configs)
         ignore_errors = False
+        return_running = False
+
         try:
             if self.operation == "install":
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
@@ -65,6 +65,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'scale':
                 ignore_errors = True
+                return_running = True
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
@@ -79,6 +80,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
+            if return_running:
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             logger.error(e, exc_info=True)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
@@ -112,7 +115,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.scale_up_to(int(num))
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
             except RuntimeError as e:
-                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                 raise e
         return self.run_playbooks(extra_vars)
 
