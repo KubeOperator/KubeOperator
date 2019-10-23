@@ -10,15 +10,15 @@
           <tbody>
           <tr>
             <td>etcd</td>
-            <td>{{getServiceStatus('etcd')}}</td>
+            <td [ngStyle]="{'color':getServiceStatus('etcd') | statusColor }">{{getServiceStatus('etcd') | status}}</td>
           </tr>
           <tr>
             <td>kube-apiserver</td>
-            <td>{{getServiceStatus('kubernetes-apiservers')}}</td>
+            <td [ngStyle]="{'color':getServiceStatus('kubernetes-apiservers') | statusColor }">{{getServiceStatus('kubernetes-apiservers') | status}}</td>
           </tr>
           <tr>
             <td>kube-controller</td>
-            <td>{{getServiceStatus('kubernetes-control-manager')}}</td>
+            <td [ngStyle]="{'color':getServiceStatus('kubernetes-control-manager') | statusColor }">{{getServiceStatus('kubernetes-control-manager') | status }}</td>
           </tr>
           </tbody>
         </table>

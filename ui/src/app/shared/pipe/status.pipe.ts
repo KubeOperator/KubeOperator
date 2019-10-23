@@ -33,6 +33,12 @@ export class StatusPipe implements PipeTransform {
         case 'INITIALIZING':
           result = '初始化中';
           break;
+        case 'UNKNOWN':
+          result = '未知';
+          break;
+        case 'WARNING':
+          result = '告警';
+          break;
         default:
           result = '未知';
       }
