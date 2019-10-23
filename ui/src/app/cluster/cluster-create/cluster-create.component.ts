@@ -152,7 +152,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDeployTypeChange() {
+  loadStorage() {
     if (this.cluster.deploy_type) {
       this.storages = this.storages.filter(data => {
         return data.deploy_type.includes(this.cluster.deploy_type);
