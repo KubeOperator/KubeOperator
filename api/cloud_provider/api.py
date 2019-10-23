@@ -47,7 +47,7 @@ class ZoneViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.host_size > 0:
+        if instance.host_size > 0 or instance.has_plan():
             return Response(data={'msg': '可用区: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 

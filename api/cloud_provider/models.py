@@ -180,6 +180,13 @@ class Zone(models.Model):
     def ip_available_size(self):
         return len(self.ip_pools())
 
+    def has_plan(self):
+        for plan in Plan.objects.all():
+            for zone in plan.get_zones():
+                if zone.name == self.name:
+                    return True
+        return False
+
     @property
     def provider(self):
         return self.region.template.name
