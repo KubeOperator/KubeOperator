@@ -2,8 +2,10 @@
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-    "{{ inventory_hostname }}",
-    "{{ ansible_ssh_host }}",
+    {% for h in groups['cluster_nodes'] %}
+    "hostvars[h]['ansible_ssh_host']",
+    "hostvars[h]['inventory_hostname']",
+    {% endfor %}
     "{{ CLUSTER_KUBERNETES_SVC_IP }}",
     "kubernetes",
     "kubernetes.default",
