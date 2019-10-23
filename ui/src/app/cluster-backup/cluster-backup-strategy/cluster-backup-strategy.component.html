@@ -3,23 +3,23 @@
   <form clrForm #backupStrategyForm="ngForm">
     <clr-input-container>
       <label>备份间隔(天)</label>
-      <input clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1" max="300" />
+      <input class="input-width" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1" max="300" />
       <clr-control-helper>1~300</clr-control-helper>
     </clr-input-container>
     <clr-input-container>
       <label>保留份数</label>
-      <input clrInput  type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required min="1" max="100"/>
+      <input class="input-width" clrInput  type="number"  [(ngModel)]="backupStrategy.save_num" name="saveNum" required min="1" max="100"/>
       <clr-control-helper>1~100</clr-control-helper>
     </clr-input-container>
     <clr-select-container>
         <label>备份账号</label>
-          <select clrSelect  name="project" [(ngModel)]="backupStrategy.backup_storage_id"  required>
+          <select  class="input-width" clrSelect  name="project" [(ngModel)]="backupStrategy.backup_storage_id"  required>
               <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
           </select>
     </clr-select-container>
     <clr-select-container>
          <label>状态</label>
-         <select clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
+         <select  class="input-width" clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
               <option value="ENABLE">启用</option>
               <option value="DISABLE">禁用</option>
          </select>
