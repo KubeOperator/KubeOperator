@@ -18,6 +18,7 @@ function usage() {
    echo "  install 部署安装 kubeOperator"
    echo "  start 启动 kubeOperator"
    echo "  uninstall 卸载 kubeOperator"
+   echo "  upgrade 升级 kubeOperator"
    echo "  restart [service] 重启, 并不会重建服务容器"
    echo "  reload [service] 重建容器如何需要并重启服务"
    echo "  status 查看 kubeOperator 状态"
@@ -44,6 +45,9 @@ function main() {
          ;;
       uninstall)
          bash ${SCRIPT_DIR}/6_uninstall.sh
+         ;;
+      upgrade)
+         bash ${SCRIPT_DIR}/7_upgrade.sh
          ;;
       start)
          ${EXE} up -d

@@ -1,5 +1,5 @@
 [Unit]
-Description=Servico de manutencao do Harbor
+Description=KubeOperator service
 After=network.target docker.service
 [Service]
 Type=simple
