@@ -7,7 +7,6 @@ export GOVC_INSECURE="1"
 DATACENTER="{{ region }}"
 FOLDER="kubeoperator"
 
-
 IFS=$'\n'
 for vm in $(govc ls "/$DATACENTER/vm/$FOLDER" | grep {{cluster_name}} | grep {{ inventory_hostname }}); do
   MACHINE_INFO=$(govc vm.info -json -dc=$DATACENTER -vm.ipath="/$vm" -e=true)

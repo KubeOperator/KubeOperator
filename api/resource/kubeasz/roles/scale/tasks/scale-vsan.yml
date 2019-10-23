@@ -5,8 +5,9 @@
   shell: "bash setup.sh"
   args:
     chdir: "/tmp"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['kube-master'] }}"
   run_once: true
-
 
 - name: modify kubelet services on worker node
   lineinfile:
@@ -22,4 +23,3 @@
   delegate_to: "{{ item }}"
   with_items: "{{ groups['new-node'] }}"
   run_once: true
-
