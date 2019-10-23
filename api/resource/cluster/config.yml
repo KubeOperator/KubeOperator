@@ -30,7 +30,7 @@ operations:
   - name: install
     steps:
       - name: create-resource
-        flow: 创建资源
+        flow: 创建主机
       - name: config
         playbook: config
         flow: 配置操作系统
@@ -72,7 +72,7 @@ operations:
   - name: scale
     steps:
       - name: create-resource
-        flow: 创建资源
+        flow: 创建主机
       - name: scale
         flow: 扩容
         playbook: scale
