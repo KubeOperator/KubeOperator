@@ -28,6 +28,8 @@ export class ZoneCreateComponent implements OnInit {
   region: Region = new Region();
   subnetList: Subnet[] = [];
   loading = false;
+  networkValid = false;
+  networkError = [];
   @ViewChild('basicForm', {static: true}) basicForm: NgForm;
   @ViewChild('wizard', {static: true}) wizard: ClrWizard;
 
@@ -49,7 +51,6 @@ export class ZoneCreateComponent implements OnInit {
     this.zoneService.getZone(this.item.name).pipe(catchError(() => null)).subscribe((data) => {
       if (this.item.name) {
         this.nameCtrl.setErrors({repeat: true});
-        console.log(this.nameCtrl);
       }
     });
   }
@@ -68,6 +69,49 @@ export class ZoneCreateComponent implements OnInit {
     this.cloudZones = [];
     this.cloudZone = null;
     this.subnetList = [];
+  }
+
+  checkNetwork() {
+    this.networkError = [];
+    let result = true;
+    const ipStart = this.item.vars['ip_start'];
+    const ipEnd = this.item.vars['ip_end'];
+    if (!ipaddr.isValid(ipStart)) {
+      result = false;
+      this.networkError.push('起始IP不是有效的IPV4地址!');
+    }
+    if (!ipaddr.isValid(ipEnd)) {
+      result = false;
+      this.networkError.push('截止IP不是有效的IPV4地址!');
+    }
+    if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
+      const start = ipaddr.parse(ipStart);
+      const end = ipaddr.parse(ipEnd);
+      if (start > end) {
+        result = false;
+        this.networkError.push('截止IP不可大于起始IP!');
+      }
+    }
+    if (this.region.template === 'vsphere') {
+      const mask = this.item.vars['net_mask'];
+      const gateway = this.item.vars['vc_gateway'];
+      if (!ipaddr.isValid(gateway)) {
+        result = false;
+        this.networkError.push('网关IP不是有效的IPV4地址!');
+      }
+      if (!ipaddr.isValid(mask)) {
+        result = false;
+        this.networkError.push('子网掩码不是有效的IPV4地址!');
+      } else {
+        const maskIp = ipaddr.parse(mask);
+        if (maskIp.prefixLengthFromSubnetMask() == null) {
+          result = false;
+          this.networkError.push('子网掩码无效！');
+        }
+      }
+    }
+    this.networkValid = result;
+    console.log()
   }
 
   listRegion() {
@@ -102,7 +146,9 @@ export class ZoneCreateComponent implements OnInit {
   }
 
   onBasicFormCommit() {
+    this.loading = true;
     this.cloudService.listZone(this.item.region).subscribe(data => {
+      this.loading = false;
       this.cloudZones = data;
     });
   }
