@@ -6,6 +6,7 @@ export class Plan {
   region: string;
   zone: string;
   zones: string[] = [];
+  provider: string;
   deploy_template: string;
 }
 
