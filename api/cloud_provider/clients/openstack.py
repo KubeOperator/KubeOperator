@@ -2,6 +2,7 @@ import os
 from threading import Thread
 from time import sleep
 from cloud_provider.cloud_client import CloudClient
+from pyVim import connect
 from pyVmomi import vim
 from keystoneclient.v3 import client as KeystoneClient
 from openstack import connection
