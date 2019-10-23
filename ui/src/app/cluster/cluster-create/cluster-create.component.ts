@@ -156,6 +156,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     if (this.cluster.deploy_type) {
       this.storages = this.storages.filter(data => {
         return data.deploy_type.includes(this.cluster.deploy_type);
+      }).filter(data => {
+        return data.provider.includes(this.cluster.cloud_provider);
       });
     }
   }
