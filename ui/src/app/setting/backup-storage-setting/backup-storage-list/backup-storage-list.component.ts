@@ -45,8 +45,8 @@ export class BackupStorageListComponent implements OnInit {
 
     Promise.all(promises).then(data => {
       this.alert.showAlert('删除成功', AlertLevels.SUCCESS);
-    }, error => {
-      this.alert.showAlert('删除失败', AlertLevels.ERROR);
+    }, res => {
+      this.alert.showAlert('删除失败' + res.error.msg , AlertLevels.ERROR);
     }).finally(
       () => {
         this.showDelete = false;

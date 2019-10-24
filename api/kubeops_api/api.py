@@ -259,6 +259,14 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def destroy(self, request, *args, **kwargs):
+        backup_storage_id = BackupStorage.objects.get(name=self.kwargs['name']).id
+        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id, status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
+        if len(result) > 0:
+            return Response(data={'msg': ': 有集群使用此备份账号!请先禁用集群中的备份功能!'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return super().destroy(self, request, *args, **kwargs)
+
 
 class CheckStorageView(APIView):
 
@@ -300,7 +308,6 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
-
 
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
