@@ -376,3 +376,6 @@ class Cluster(Project):
 
     def on_cluster_delete(self):
         self.delete_data()
+
+    class Meta:
+        ordering = ('date_created',)
