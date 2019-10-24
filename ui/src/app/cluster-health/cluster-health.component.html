@@ -8,7 +8,7 @@
       </span>
   </div>
   <div class="clr-row">
-      <div class="clr-col-12" style="text-align: center;">
+      <div class="clr-col-12" *ngIf="error" style="text-align: center;">
         <span>prometheus数据读取失败！</span>
       </div>
   </div>
