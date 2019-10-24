@@ -36,7 +36,7 @@ export class SystemSettingComponent implements OnInit {
   onSubmit() {
     this.orgSettings.forEach(os => {
       this.settings.forEach(s => {
-        if (os.key === s.key && os.value !== s.value) {
+        if (os.key === s.key && os.value !== s.value && this.validate(s) ) {
           this.settingService.updateSetting(s.key, s).subscribe(data => {
             this.alert.showAlert('修改成功！', AlertLevels.SUCCESS);
           }, err => {
@@ -45,6 +45,28 @@ export class SystemSettingComponent implements OnInit {
         }
       });
     });
+  }
+
+  validate(setting) {
+    const ipReg =  /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    if (setting.key === 'local_hostname') {
+      const validate: boolean = ipReg.test(setting.value);
+      if (!validate) {
+        this.alert.showAlert('请输入正确的IP地址！', AlertLevels.ERROR);
+        return false;
+      }
+    }
+    const domainReg = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/g;
+    if (setting.key === 'domain_suffix') {
+      const validate: boolean = domainReg.test(setting.value);
+      console.log(validate);
+      console.log(setting.value);
+      if (!validate) {
+        this.alert.showAlert('请输入正确的域名后缀！', AlertLevels.ERROR);
+        return false;
+      }
+    }
+    return true;
   }
 
 }
