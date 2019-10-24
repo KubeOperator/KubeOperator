@@ -5,8 +5,9 @@
   shell: "bash setup.sh"
   args:
     chdir: "/tmp"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['kube-master'] }}"
   run_once: true
-
 
 - name: modify kubelet services on worker node
   lineinfile:
@@ -14,12 +15,11 @@
     insertbefore: "--v=2"
     line: '  --cloud-provider=vsphere \'
   delegate_to: "{{ item }}"
-  with_items: "{{ groups['new-node'] }}"
+  with_items: "{{ groups['new_node'] }}"
   run_once: true
 
 - name: restart kubelet service
   shell: "systemctl daemon-reload && systemctl restart kubelet"
   delegate_to: "{{ item }}"
-  with_items: "{{ groups['new-node'] }}"
+  with_items: "{{ groups['new_node'] }}"
   run_once: true
-

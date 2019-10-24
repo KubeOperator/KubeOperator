@@ -74,7 +74,7 @@ operations:
       - name: create-resource
         flow: 创建主机
       - name: scale
-        flow: 扩容
+        flow: 伸缩
         playbook: scale
 
   - name: cluster-backup
@@ -261,7 +261,7 @@ public_config:
 
 templates:
   - name: 一主多节点
-    comment: '此部署模型为一主多节点部署模型，1个 Master 节点和至少3个 Worker 节点。'
+    comment: '此部署模型为一主多节点部署模型，1个 Master 节点和至少1个 Worker 节点。'
     deploy_type: 'SINGLE'
     private_vars:
       DEPLOY_MODE: 'single-master'
@@ -303,7 +303,7 @@ templates:
                 comment: "无"
       - name: worker
         children:
-          - new-node
+          - new_node
         meta:
           hidden: false
           allow_os:
@@ -314,7 +314,7 @@ templates:
           requires:
             nodes_require:
               - '>'
-              - 3
+              - 1
             volumes_require:
               - name: "system"
                 verbose: "系统卷:"
@@ -336,7 +336,7 @@ templates:
                 unit: "GB"
                 comment: "无"
   - name: 多主多节点
-    comment: '此部署模型为多主多节点部署模型，3个 Master 节点和至少3个 Worker 节点。'
+    comment: '此部署模型为多主多节点部署模型，3个 Master 节点和至少1 个 Worker 节点。'
     deploy_type: 'MULTIPLE'
     private_vars:
       DEPLOY_MODE: 'multiple-master'
@@ -389,7 +389,7 @@ templates:
           requires:
             nodes_require:
               - '>'
-              - 3
+              - 1
             volumes_require:
               - name: "system"
                 verbose: "系统卷:"

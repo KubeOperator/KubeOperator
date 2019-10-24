@@ -19,7 +19,7 @@ export class StatusPipe implements PipeTransform {
           result = '升级中';
           break;
         case 'SCALING':
-          result = '扩容中';
+          result = '伸缩中';
           break;
         case 'ERROR':
           result = '错误';

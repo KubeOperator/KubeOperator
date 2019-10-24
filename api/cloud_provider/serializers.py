@@ -40,7 +40,8 @@ class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
         read_only_fields = ['id', 'status', 'date_created', 'ip_available_size', 'host_size']
-        fields = ['id', 'name', 'vars', 'date_created', 'cloud_zone', 'region', 'status', 'ip_available_size',
+        fields = ['id', 'name', 'vars', 'date_created', 'cloud_zone', 'region', 'status',
+                  'ip_available_size',
                   'host_size', 'provider']
 
 
@@ -61,5 +62,5 @@ class PlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Plan
-        read_only_fields = ['id', 'date_created']
-        fields = ['id', 'name', 'vars', 'date_created', 'zone', 'zones', 'region', 'deploy_template']
+        read_only_fields = ['id', 'provider', 'date_created']
+        fields = ['id', 'name', 'vars', 'provider', 'date_created', 'zone', 'zones', 'region', 'deploy_template']

@@ -210,6 +210,10 @@ class Plan(models.Model):
     vars = common_models.JsonDictTextField(default={})
 
     @property
+    def provider(self):
+        return self.region.vars['provider']
+
+    @property
     def mixed_vars(self):
         _vars = self.vars.copy()
         _vars.update(self.region.to_dict())

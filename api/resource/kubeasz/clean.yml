@@ -26,6 +26,8 @@
         - "/etc/systemd/system/kubelet.service"
         - "/etc/systemd/system/kube-proxy.service"
         - "/opt/kube/kube-system/"
+        - "/etc/kubernetes/"
+        - "/root/.kube/config"
 
 # to clean 'kube-master' nodes
 - hosts:
@@ -49,6 +51,7 @@
 
 # to clean container runtime and networking
 - hosts:
+    - kube-master
     - kube-node
   tasks:
     - block:

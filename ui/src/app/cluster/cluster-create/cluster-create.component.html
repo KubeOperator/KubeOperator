@@ -25,7 +25,7 @@
       </clr-select-container>
       <clr-select-container>
         <label>部署模式</label>
-        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" (change)="onDeployTypeChange()" clrSelect required>
+        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" clrSelect required>
           <option value="">请选择</option>
           <option value="MANUAL">手动模式</option>
           <option value="AUTOMATIC">自动模式</option>
@@ -192,7 +192,7 @@
       </div>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="storageForm.invalid">
+  <clr-wizard-page (clrWizardPageOnLoad)="loadStorage()" [clrWizardPageNextDisabled]="storageForm.invalid">
     <ng-template clrPageTitle>配置存储</ng-template>
     <form #storageForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
