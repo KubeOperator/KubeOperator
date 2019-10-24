@@ -7,7 +7,12 @@
         Loading...
       </span>
   </div>
-  <div class="clr-row" *ngIf="!loading">
+  <div class="clr-row">
+      <div class="clr-col-12" *ngIf="error" style="text-align: center;">
+        <span>prometheus数据读取失败！</span>
+      </div>
+  </div>
+  <div class="clr-row" *ngIf="!loading && !error">
       <div class="clr-col-2">
         <div class="clr-col-12 cluster-height">
           <div class="card shadow-none">

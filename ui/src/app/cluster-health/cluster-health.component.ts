@@ -25,6 +25,7 @@ export class ClusterHealthComponent implements OnInit {
   clusterHealthHistories: ClusterHealthHistory[] = [];
   loading = true;
   totalRate = 0;
+  error = false;
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -46,10 +47,12 @@ export class ClusterHealthComponent implements OnInit {
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
         this.loading = false;
+        this.error = false;
       }, error1 => {
         this.clusterHealth.data = [];
         this.clusterHealth.rate = 0;
         this.loading = false;
+        this.error = true;
     });
   }
 
