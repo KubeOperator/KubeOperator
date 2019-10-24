@@ -18,7 +18,7 @@
       when: '"registry-auth-secret" not in secret_list.stdout'
 
     - name: 创建 worker1节点标签
-      shell: kubectl label node worker1.{{cluster_name}}.{{domain_suffix}} nodetype=kube-registry
+      shell: kubectl label node worker1.{{cluster_name}}.{{domain_suffix}} nodetype=persistent
 
     - name: 部署 registry
       shell: kubectl --namespace=kube-system apply -f /tmp/registry.yml
