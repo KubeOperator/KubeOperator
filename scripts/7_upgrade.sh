@@ -42,6 +42,7 @@ function upgrade_service() {
 
     echo -ne "更新升级文件 ... "
     \cp -rf ${PROJECT_DIR}/* ${KUBEOPS_DIR}/
+    chmod -R 777 ${KUBEOPS_DIR}/data
     echo "[OK]"
 
     kubeops_service_old="/etc/systemd/system/kubeops.service"
@@ -50,6 +51,7 @@ function upgrade_service() {
     if [ ! "$diffLine" -eq "0" ];then
         echo -ne "kubeops 服务有更新，升级 kubeops 服务 ... "
         \cp -f ${PROJECT_DIR}/scripts/service/kubeops.service /etc/systemd/system/kubeops.service
+        systemctl daemon-reload
         echo "[OK]"
     fi
 
