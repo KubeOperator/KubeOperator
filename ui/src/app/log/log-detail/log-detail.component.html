@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="showLogModal" [clrModalSize]="'xl'" [clrModalClosable]=false>
   <h3 class="modal-title">日志详情</h3>
-  <div class="modal-body" style="min-height: 500px;max-height:800px;overflow-y: auto">
-    {{logText}}
+  <div class="modal-body">
+    <div #terminal></div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn" (click)="cancel()">关闭</button>
