@@ -1,3 +1,4 @@
 - hosts: nfs
   roles:
+    - repository
     - nfs

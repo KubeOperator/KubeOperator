@@ -74,4 +74,3 @@ ui/dist
 dump.rdb
 *tar.gz
 *.retry
-api/data/
