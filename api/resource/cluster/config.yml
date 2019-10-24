@@ -224,7 +224,6 @@ storages:
     provider: ['vsphere','openstack']
     vars:
       storage_nfs_enabled: true
-      storage_nfs_storage_class: nfs-storage
       storage_nfs_provisioner_name: nfs-provisioner
     configs:
       - name: set_nfs_default
