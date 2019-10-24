@@ -48,8 +48,8 @@ class Package(models.Model):
                 metadata = yaml.load(f)
             defaults = {'name': d, 'meta': metadata}
             instance = cls.objects.update_or_create(defaults=defaults, name=d)[0]
-            thread = threading.Thread(target=cls.start_container(instance))
-            thread.start()
+            # thread = threading.Thread(target=cls.start_container(instance))
+            # thread.start()
 
     @classmethod
     def start_container(cls, package):

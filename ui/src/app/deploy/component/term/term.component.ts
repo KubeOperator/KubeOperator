@@ -7,6 +7,7 @@ import {Subject, Subscription} from 'rxjs';
 import {LogService} from '../../../log/log.service';
 import {DeployService} from '../../service/deploy.service';
 import {Cluster} from '../../../cluster/cluster';
+import {DeplayUtilService} from '../../service/deplay-util.service';
 
 @Component({
   selector: 'app-term',
@@ -21,31 +22,10 @@ export class TermComponent implements OnInit, OnDestroy {
   @Input() currentCluster: Cluster;
 
   constructor(private wsService: WebsocketService, private operaterService: OperaterService,
-              private executionService: LogService, private deployService: DeployService) {
+              private executionService: LogService, private deployService: DeployService, private deployUtil: DeplayUtilService) {
   }
 
   ngOnInit() {
-    this.deployService.$executionQueue.subscribe(data => {
-      this.currentExecution = data;
-      if (this.currentExecution === null) {
-        this.resetTerm();
-      } else {
-        if (this.currentExecution.state !== 'SUCCESS' && this.currentExecution.state !== 'FAILURE') {
-          this.subLog();
-        } else {
-          this.resetTerm();
-        }
-      }
-      this.operaterService.$executionQueue.subscribe(e => {
-        this.term.clear();
-        if (this.logSub !== undefined && !this.logSub.closed) {
-          this.logSub.unsubscribe();
-        }
-        this.currentExecution = e;
-        this.subLog();
-      });
-    });
-
     this.term = new Terminal({
       cursorBlink: false,
       disableStdin: true,
@@ -56,6 +36,13 @@ export class TermComponent implements OnInit, OnDestroy {
       fontSize: 16
     });
     this.term.open(this.terminal.nativeElement);
+    this.resetTerm();
+    this.deployService.$executionQueue.subscribe(data => {
+      this.currentExecution = data;
+      if (!this.deployUtil.execution_is_complated(this.currentExecution.state)) {
+        this.subLog();
+      }
+    });
   }
 
 
@@ -73,9 +60,8 @@ export class TermComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    if (this.logSub !== undefined && !this.logSub.closed) {
+    if (this.logSub) {
       this.logSub.unsubscribe();
     }
   }
-
 }
