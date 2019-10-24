@@ -53,7 +53,7 @@ spec:
         k8s-app: kube-registry
     spec:
       nodeSelector:
-        nodetype: kube-registry
+        nodetype: persistent
       containers:
       - name: registry
         image: {{registry_prefix}}:{{registry_port}}/docker.io/registry:2
