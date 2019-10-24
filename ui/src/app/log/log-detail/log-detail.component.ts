@@ -2,6 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} f
 import {Terminal} from 'xterm';
 import {Subscription} from 'rxjs';
 import {LogService} from '../log.service';
+import {logging} from 'selenium-webdriver';
 
 @Component({
   selector: 'app-log-detail',
@@ -13,6 +14,7 @@ export class LogDetailComponent implements OnInit {
   @Output() showLogModalChange = new EventEmitter();
   @Input() logUrl = null;
   @ViewChild('terminal', {static: true}) terminal: ElementRef;
+  loading = true;
   term: Terminal;
 
   constructor(private service: LogService) {
@@ -23,8 +25,8 @@ export class LogDetailComponent implements OnInit {
       cursorBlink: false,
       disableStdin: true,
       cursorStyle: 'bar',
-      cols: 120,
-      rows: 30,
+      cols: 110,
+      rows: 25,
       letterSpacing: 1,
       fontSize: 16
     });
@@ -32,8 +34,12 @@ export class LogDetailComponent implements OnInit {
   }
 
   loadLog() {
+    this.showLogModal = true;
+    this.loading = true;
     if (this.logUrl != null) {
+      this.term.reset();
       this.service.getExecutionLog(this.logUrl).subscribe(data => {
+        this.loading = false;
         this.term.write(data.data);
       });
     }
