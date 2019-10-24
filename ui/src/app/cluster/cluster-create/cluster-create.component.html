@@ -260,21 +260,22 @@
   <clr-wizard-page>
     <ng-template clrPageTitle>完成</ng-template>
     <section class="form-block">
-      <div class="form-group">
-        <label>集群名称:</label>
-        <span>{{cluster.name}}</span>
-      </div>
-
-      <div class="form-group">
-        <label>部署模型:</label>
-        <span>{{cluster.template}}</span>
-      </div>
-
+      <ul class="list-unstyled">
+        <li><b style="margin-right: 16px">集群名称:</b>{{cluster.name}}</li>
+        <li><b style="margin-right: 16px">网络插件:</b>{{cluster.network_plugin}}</li>
+        <li><b style="margin-right: 16px">存储类型:</b>{{cluster.persistent_storage}}</li>
+        <li *ngIf="cluster.deploy_type === 'AUTOMATIC'"><b
+          style="margin-right: 16px">部署计划:</b>{{cluster.plan}}
+        </li>
+        <li *ngIf="cluster.deploy_type === 'AUTOMATIC'"><b
+          style="margin-right: 16px">Worker 数量:</b>{{cluster.worker_size}}
+        </li>
+      </ul>
       <div class="form-group" *ngFor="let config of configs">
         <label>{{config.alias}}:</label>
         <span>{{config.value}}</span>
       </div>
-      <div class="row" *ngIf="nodes">
+      <div class="row" *ngIf="nodes.length!=0">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h5>节点信息</h5>
           <table class="table">

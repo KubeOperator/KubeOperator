@@ -12,16 +12,8 @@ export class DeployService {
 
   private executionQueue = new Subject<Execution>();
   $executionQueue = this.executionQueue.asObservable();
-  private finished = new Subject<boolean>();
-  $finished = this.finished.asObservable();
 
   next(execution: Execution) {
-    console.log(execution);
     this.executionQueue.next(execution);
   }
-
-  nextState(state: boolean) {
-    this.finished.next(state);
-  }
-
 }
