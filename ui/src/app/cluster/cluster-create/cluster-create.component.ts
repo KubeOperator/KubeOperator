@@ -230,8 +230,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   onWorkerSizeChange() {
-    if (this.cluster.worker_size < 3) {
-      this.cluster.worker_size = 3;
+    if (this.cluster.worker_size < 1) {
+      this.cluster.worker_size = 1;
     }
   }
 
