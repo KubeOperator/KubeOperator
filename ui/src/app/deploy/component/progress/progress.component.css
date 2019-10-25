@@ -1,0 +1,9 @@
+ul {
+  width: 80%;
+  margin: 0 auto;
+}
+
+ul > li:last-child {
+  width: 40px;
+  min-width: 40px;
+}
