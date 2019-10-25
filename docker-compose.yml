@@ -95,7 +95,7 @@ services:
       TZ: Asia/Shanghai
 
   webkubectl:
-    image: webkubectl/webkubectl
+    image: webkubectl/webkubectl:v1.4
     container_name: kubeops_webkubectl
     restart: always
     ports:
