@@ -102,6 +102,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                     raise e
             else:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+        else:
+            delete = None
+            for step in self.steps:
+                if step['name'] == 'create-resource':
+                    delete = step
+            self.steps.remove(delete)
         return self.run_playbooks(extra_vars)
 
     def on_scaling(self, extra_vars):
