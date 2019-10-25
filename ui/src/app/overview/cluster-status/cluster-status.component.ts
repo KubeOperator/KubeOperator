@@ -62,7 +62,7 @@ export class ClusterStatusComponent implements OnInit {
 
   getClusterStatus() {
     this.clusterHealth.data = [];
-    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+    if (this.currentCluster.status === 'READY') {
       return;
     }
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {

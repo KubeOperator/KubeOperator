@@ -40,7 +40,7 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterHealth() {
-    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+    if (this.currentCluster.status === 'READY') {
       return;
     }
     this.loading = true;
