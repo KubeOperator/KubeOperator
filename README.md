@@ -60,7 +60,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 内置 Weave Scope；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
- v2.1 （开发中，预计 2019.10.31 发布）
+ v2.1 （已发布）
  
 - [x] 支持 Openstack 云平台；
 - [x] 支持 Openstack Cinder 作为持久化存储；
