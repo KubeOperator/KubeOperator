@@ -73,7 +73,7 @@ services:
     environment:
       MYSQL_DATABASE: kube-operator
       MYSQL_ROOT_PASSWORD: SuMk2lH20ocmvyu1p38m40
-      TZ: Asia/Shangha
+      TZ: Asia/Shanghai
     healthcheck:
       test: "mysql -uroot -h127.0.0.1 -pSuMk2lH20ocmvyu1p38m40 -e 'SHOW DATABASES;'"
       interval: 10s
@@ -92,7 +92,7 @@ services:
       timeout: 5s
       retries: 10
     environment:
-      TZ: Asia/Shangha
+      TZ: Asia/Shanghai
 
   webkubectl:
     image: webkubectl/webkubectl
