@@ -11,10 +11,9 @@ export class Cluster {
   deploy_type: string;
   cloud_provider: string;
   plan: string;
-  worker_size = 3;
+  worker_size = 1;
   persistent_storage: string;
   date_created: string;
-  auth_template: string;
   node: Node[];
   current_execution: Execution;
   status: string;
