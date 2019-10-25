@@ -6,8 +6,11 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上部署和管理生产级别的 Kubernetes 集群。
-> 注：2.1 版本将于10月31日正式发布，敬请期待。
+KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上规划、部署和管理生产级别的 Kubernetes 集群。
+
+![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/overview.png?raw=true)
+
+## Web UI 展示
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/kubeoperator-ui.jpg?raw=true)
 
@@ -57,7 +60,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 内置 Weave Scope；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
- v2.1 （开发中，预计 2019.10.31 发布）
+ v2.1 （已发布）
  
 - [x] 支持 Openstack 云平台；
 - [x] 支持 Openstack Cinder 作为持久化存储；
