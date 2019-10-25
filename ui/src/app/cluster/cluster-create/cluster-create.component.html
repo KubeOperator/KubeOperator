@@ -14,7 +14,7 @@
                [(ngModel)]="cluster.name"
                name="cluster_name" (keyup)="handleValidation()" clrInput size=45
                required>
-        <clr-control-helper>仅支持用小写字母和 "-"</clr-control-helper>
+        <clr-control-helper>仅支持小写字母、数字和 "-"</clr-control-helper>
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
