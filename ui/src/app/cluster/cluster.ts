@@ -11,7 +11,7 @@ export class Cluster {
   deploy_type: string;
   cloud_provider: string;
   plan: string;
-  worker_size = 1;
+  worker_size: number;
   persistent_storage: string;
   date_created: string;
   node: Node[];
@@ -28,6 +28,7 @@ export class Cluster {
   configs: {} = {};
 
   constructor() {
+    this.worker_size = 1;
     this.configs['SERVICE_CIDR'] = '10.68.0.0/16';
     this.configs['CLUSTER_CIDR'] = '172.20.0.0/16';
   }

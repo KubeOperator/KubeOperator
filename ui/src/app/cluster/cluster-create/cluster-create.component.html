@@ -122,7 +122,18 @@
 
     </form>
   </clr-wizard-page>
-
+  <clr-wizard-page *ngIf="cluster.deploy_type == Manual" [clrWizardPageNextDisabled]="workerForm.invalid">
+    <ng-template clrPageTitle>配置节点</ng-template>
+    <form #workerForm='ngForm' clrForm class=" clr-form-compact">
+      <clr-input-container>
+        <label>worker数量</label>
+        <input clrInput size=45 type="number" min="1" [(ngModel)]="cluster.worker_size"
+               name="worker"
+               (change)="workerSizeOnChange()" required>
+        <clr-control-helper>当前可用最大主机数量:{{hosts.length}}</clr-control-helper>
+      </clr-input-container>
+    </form>
+  </clr-wizard-page>
 
   <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()"
                    *ngIf="cluster.deploy_type == Manual">
@@ -151,9 +162,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div style="padding-top: 20px" *ngIf="group.op !== '='">
-          <a href="javascript:void(0)" (click)="addNode(group,true)">添加</a>
         </div>
       </div>
     </form>
