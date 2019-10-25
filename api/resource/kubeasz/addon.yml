@@ -18,12 +18,13 @@
     - registry
 
 - hosts:
-  - kube-master
-  - kube-node
+    - kube-master
+    - kube-node
   tasks:
     - name: 尝试登陆 registry
       shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
-      retries: 5
-      delay: 30
+      retries: 6
+      delay: 10
+      ignore_errors: true
