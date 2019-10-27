@@ -29,10 +29,10 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
 
- ## 安装及使用指南
+ ## Demo 视频、使用文档
 
--  [在线文档](https://docs.kubeoperator.io/)
--  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
+-  [:tv:10分钟演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)：从 Kubernetes 集群 Day 0 规划，到 Day 1 部署，到 Day 2 运维和变更，详细演示 KubeOperator 的功能。
+-  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
 
  ## Kubernetes 离线安装包
 
