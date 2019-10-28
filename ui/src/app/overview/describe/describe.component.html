@@ -26,7 +26,7 @@
           <li *ngIf="currentCluster.plan"><b class="b-style">区域: </b>{{currentCluster.region}}</li>
           <li *ngIf="currentCluster.plan"><b class="b-style">可用区: </b>{{currentCluster.zones}}{{currentCluster.zone}}</li>
           <li><b class="b-style">部署模式:</b> {{getDeployTypeComment(currentCluster.deploy_type)}}</li>
-          <li><b class="b-style">存储: </b>{{currentCluster.persistent_storage}}</li>
+          <li><b class="b-style">存储类型: </b>{{currentCluster.persistent_storage}}</li>
           <li *ngFor="let info of clusterInfos"><b class="b-style">{{info.name}}:</b> {{info.value}}</li>
           <li><b class="b-style">创建时间:</b> {{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}
           </li>
