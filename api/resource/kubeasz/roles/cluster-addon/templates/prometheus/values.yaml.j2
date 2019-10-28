@@ -478,7 +478,7 @@ server:
 
   ## This flag controls access to the administrative HTTP API which includes functionality such as deleting time
   ## series. This is disabled by default.
-  enableAdminApi: false
+  enableAdminApi: true
 
   global:
     ## How frequently to scrape targets by default
@@ -667,7 +667,7 @@ server:
 
   ## Prometheus data retention period (i.e 360h)
   ##
-  retention: ""
+  retention: 168h
 
 pushgateway:
   ## If false, pushgateway will not be installed
