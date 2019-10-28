@@ -12,7 +12,7 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ## Web UI 展示
 
-![overview](https://raw.githubusercontent.com/KubeOperator/website/master/images/04.jpg)
+![overview](https://raw.githubusercontent.com/KubeOperator/website/master/images/kubeoperator-ui.jpg)
 
 >更多功能截屏请查看：https://docs.kubeoperator.io/kubeoperator-v2.1/screenshot
 
