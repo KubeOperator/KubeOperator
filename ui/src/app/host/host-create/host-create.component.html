@@ -5,7 +5,7 @@
     <form clrForm #hostForm='ngForm'>
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput size=45 type="text" [(ngModel)]="host.name" name="name" required>
+        <input clrInput size=45 maxlength="50" type="text" [(ngModel)]="host.name" name="name" required>
       </clr-input-container>
 
       <clr-input-container>
