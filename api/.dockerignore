@@ -16,3 +16,4 @@ ui
 celerybeat.pid
 tmp
 dump.rdb
+data

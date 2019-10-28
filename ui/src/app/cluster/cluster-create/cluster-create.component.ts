@@ -68,6 +68,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   @ViewChild('networkForm', {static: true}) networkForm: NgForm;
   @ViewChild('nodeForm', {static: false}) nodeForm: NgForm;
   @ViewChild('configForm', {static: true}) configForm: NgForm;
+  @ViewChild('workerForm', {static: true}) workerForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
@@ -177,16 +178,15 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
-      console.log(this.hosts);
       this.hosts = data;
-    }, error => {
-      console.log(error);
     });
   }
 
   reset() {
     this.wizard.reset();
     this.basicForm.resetForm();
+    this.storageForm.resetForm();
+    this.networkForm.resetForm();
     this.cluster = new Cluster();
     this.cluster.template = '';
     this.template = null;
@@ -242,6 +242,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.configs.concat(this.template.private_config);
       }
     });
+  }
+
+  workerSizeOnChange() {
+    if (this.cluster.worker_size < 1) {
+      this.cluster.worker_size = 1;
+    }
+    if (this.cluster.worker_size > this.hosts.length) {
+      this.cluster.worker_size = this.hosts.length;
+    }
+
     this.nodes = [];
     this.groups = [];
     this.templates.forEach(tmp => {
@@ -253,6 +263,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
             group.name = role.name;
             group.op = role.meta.requires.nodes_require[0];
             group.limit = role.meta.requires.nodes_require[1];
+            if (group.name === 'worker') {
+              group.limit = this.cluster.worker_size;
+            }
             for (let i = group.node_sum; i < group.limit; i++) {
               this.addNode(group, false);
             }
@@ -307,7 +320,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     node.roles.push(group.name);
     group.nodes.push(node);
     this.nodes.push(node);
-    console.log(this.nodes);
   }
 
   fullNode() {

@@ -6,10 +6,15 @@
 [![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
 [![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
 
-KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上部署和管理生产级别的 Kubernetes 集群。
-> 注：2.1 版本将于10月31日正式发布，敬请期待。
+KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上规划、部署和管理生产级别的 Kubernetes 集群。
+
+![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/overview.png?raw=true)
+
+## Web UI 展示
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/kubeoperator-ui.jpg?raw=true)
+
+>更多功能截屏请查看：https://docs.kubeoperator.io/kubeoperator-v2.1/screenshot
 
 ## 整体架构
 
@@ -26,10 +31,10 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
 
- ## 安装及使用指南
+ ## Demo 视频、使用文档
 
--  [在线文档](https://docs.kubeoperator.io/)
--  [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator_2.0.mp4)
+-  [:tv:8 分钟演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
+-  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
 
  ## Kubernetes 离线安装包
 
@@ -57,7 +62,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 内置 Weave Scope；
 - [x] 支持通过 F5 BIG-IP Controller 对外暴露服务（Nodeport mode, 七层和四层服务都支持）；
 
- v2.1 （开发中，预计 2019.10.31 发布）
+ v2.1 （已发布）
  
 - [x] 支持 Openstack 云平台；
 - [x] 支持 Openstack Cinder 作为持久化存储；
