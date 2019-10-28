@@ -73,7 +73,7 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getServiceStatus(type) {
-    if (this.clusterHealth.data.length === 0 ) {
+    if (this.clusterHealth.data == null || this.clusterHealth.data.length === 0 ) {
       return '';
     }
     let status = 'UNKNOWN';
