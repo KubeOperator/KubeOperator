@@ -122,7 +122,8 @@
 
     </form>
   </clr-wizard-page>
-  <clr-wizard-page *ngIf="cluster.deploy_type == Manual" [clrWizardPageNextDisabled]="workerForm.invalid">
+  <clr-wizard-page *ngIf="cluster.deploy_type == Manual" [clrWizardPageNextDisabled]="workerForm.invalid"
+                   (clrWizardPageNext)="workerSizeOnChange()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #workerForm='ngForm' clrForm class=" clr-form-compact">
       <clr-input-container>
@@ -137,7 +138,7 @@
 
   <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()"
                    *ngIf="cluster.deploy_type == Manual">
-    <ng-template clrPageTitle>配置节点</ng-template>
+    <ng-template clrPageTitle>选择节点</ng-template>
     <form #nodeForm='ngForm' class="clr-form clr-form-compact">
       <div *ngFor="let group of groups">
         <h4>{{group.name}}</h4>
