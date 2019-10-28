@@ -107,7 +107,6 @@ class CredentialViewSet(viewsets.ModelViewSet):
             return Response(data={'msg': '凭据: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
-
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = serializers.HostSerializer
@@ -116,6 +115,19 @@ class HostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         instance = serializer.save()
         transaction.on_commit(lambda: instance.gather_info())
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.data['ip'] is not None:
+            host = Host.objects.filter(ip=serializer.data['ip'])
+            if len(host) > 0:
+                return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])}, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
 
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
