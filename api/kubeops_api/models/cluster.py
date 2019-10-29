@@ -297,6 +297,17 @@ class Cluster(Project):
         node.set_groups(group_names=[role])
         return node
 
+    def add_worker(self, host):
+        num = len(self.current_workers)
+        domain = Setting.objects.get(name='domain_suffix').value
+        node = Node.objects.create(
+            name="worker{}.{}.{}".format(num + 1, self.name, domain),
+            host=host,
+            project=self
+        )
+        node.set_groups(group_names=['worker', 'new_node'])
+        return node
+
     def create_resource(self):
         create_compute_resource(self)
 

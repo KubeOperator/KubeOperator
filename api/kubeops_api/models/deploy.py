@@ -3,6 +3,7 @@ import logging
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.host import Host
 from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
@@ -123,6 +124,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             except RuntimeError as e:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                 raise e
+        else:
+            host_name = self.params.get('host', None)
+            host = Host.objects.get(name=host_name)
+            cluster.add_worker(host)
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):

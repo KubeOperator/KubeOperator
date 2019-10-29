@@ -1,7 +1,5 @@
 import json
 import os
-import time
-
 import yaml
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
