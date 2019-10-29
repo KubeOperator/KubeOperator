@@ -51,7 +51,7 @@
         <button *ngIf="currentCluster.deploy_type==='AUTOMATIC'" class="btn btn-sm btn-link" (click)="onScale()"
                 [disabled]="currentCluster.status !== 'RUNNING'">伸缩
         </button>
-        <button *ngIf="currentCluster.deploy_type==='MANUAL'" class="btn btn-sm btn-link" (click)="onScale()">扩容
+        <button *ngIf="currentCluster.deploy_type==='MANUAL'" class="btn btn-sm btn-link" (click)="onAddWorker()">扩容
         </button>
       </div>
     </div>

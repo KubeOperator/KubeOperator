@@ -39,6 +39,9 @@ export class StatusPipe implements PipeTransform {
         case 'WARNING':
           result = '告警';
           break;
+        case 'ADDING':
+          result = '扩容中';
+          break;
         default:
           result = '未知';
       }
