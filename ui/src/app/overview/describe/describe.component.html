@@ -1,7 +1,7 @@
-<clr-modal [(clrModalOpen)]="openToken">
+<clr-modal [(clrModalOpen)]="openToken" clrModalSize="xl">
   <h3 class="modal-title">Cluster Token</h3>
   <div class="modal-body">
-    <textarea rows="10" *ngIf="token" [(ngModel)]="token"></textarea>
+    <textarea rows="20" cols="128" *ngIf="token" [(ngModel)]="token"></textarea>
     <div *ngIf="!token">
       Cluster Token 获取中......<i class="fa fa-spinner fa-pulse"></i>
     </div>

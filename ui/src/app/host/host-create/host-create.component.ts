@@ -66,11 +66,6 @@ export class HostCreateComponent implements OnInit {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.loading = false;
-      if (res.error.msg != null) {
-        this.alert.showAlert(res.error.msg, AlertLevels.ERROR);
-      } else {
-        this.alert.showAlert('创建主机失败：无法连接到目标主机！请检查目标主机22端口是否开启!', AlertLevels.ERROR);
-      }
     });
   }
 

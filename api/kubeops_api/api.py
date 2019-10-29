@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
+from kubeops_api.adhoc import gather_host_info, test_host
 from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
@@ -107,14 +108,11 @@ class CredentialViewSet(viewsets.ModelViewSet):
             return Response(data={'msg': '凭据: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
+
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = serializers.HostSerializer
     permission_classes = (IsSuperUser,)
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        transaction.on_commit(lambda: instance.gather_info())
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -122,12 +120,15 @@ class HostViewSet(viewsets.ModelViewSet):
         if serializer.data['ip'] is not None:
             host = Host.objects.filter(ip=serializer.data['ip'])
             if len(host) > 0:
-                return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
+                                status=status.HTTP_400_BAD_REQUEST)
+        credential = Credential.objects.get(name=serializer.data['credential'])
+        connected = test_host(serializer.data['ip'], credential.username, credential.password)
+        if not connected:
+            return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
 
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
@@ -273,7 +274,8 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         backup_storage_id = BackupStorage.objects.get(name=self.kwargs['name']).id
-        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id, status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
+        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id,
+                                               status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
         if len(result) > 0:
             return Response(data={'msg': ': 有集群使用此备份账号!请先禁用集群中的备份功能!'}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -320,6 +322,7 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
+
 
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
