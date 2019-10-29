@@ -72,12 +72,15 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 - [x] 支持 [webkubectl](https://github.com/webkubectl/webkubectl) ；
 
- v2.2 （计划中，预计 2019.12.31 发布）
+ v2.2 （进行中，预计 2019.11.30 发布）
+
+- [ ] KubeApps 应用商店；
+- [ ] 日志收集及管理方案；
+
+ v2.3 （计划中，预计 2019.12.31 发布）
 
 - [ ] 国际化支持；
-- [ ] 集成 KubeApps 应用商店；
 - [ ] 支持 VMware NSX-T；
-- [ ] 日志收集及管理方案；
 
 ## 沟通交流
  
