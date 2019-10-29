@@ -2,14 +2,14 @@
   <div class="col-lg-14" align="center">
       <h4 class="font-title">当前集群运行状态</h4>
   </div>
-  <div class="clr-row">
-      <span class="spinner spinner-lg loading" *ngIf="loading">
+  <div class="clr-row" *ngIf="loading">
+      <span class="spinner spinner-lg loading" >
         Loading...
       </span>
   </div>
-  <div class="clr-row">
-      <div class="clr-col-12" *ngIf="error" style="text-align: center;">
-        <span>prometheus数据读取失败！</span>
+  <div class="clr-row" >
+      <div class="clr-col-12" *ngIf="!loading && error" style="text-align: center;">
+        <span *ngIf="currentCluster.status !== 'READY'">prometheus数据读取失败！</span>
       </div>
   </div>
   <div class="clr-row" *ngIf="!loading && !error">
