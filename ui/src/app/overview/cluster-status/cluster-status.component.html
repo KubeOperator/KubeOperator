@@ -1,4 +1,5 @@
 <app-scale (confirm)="handleScale()"></app-scale>
+<app-add-worker (confirm)="handleAddWorker()"></app-add-worker>
 <div class="clr-row">
   <div class="clr-col-lg-6 clr-col-md-6 clr-col-6">
     <div class="card">
@@ -14,11 +15,13 @@
           </tr>
           <tr>
             <td>kube-apiserver</td>
-            <td [ngStyle]="{'color':getServiceStatus('kubernetes-apiservers') | statusColor }">{{getServiceStatus('kubernetes-apiservers') | status}}</td>
+            <td
+              [ngStyle]="{'color':getServiceStatus('kubernetes-apiservers') | statusColor }">{{getServiceStatus('kubernetes-apiservers') | status}}</td>
           </tr>
           <tr>
             <td>kube-controller</td>
-            <td [ngStyle]="{'color':getServiceStatus('kubernetes-control-manager') | statusColor }">{{getServiceStatus('kubernetes-control-manager') | status }}</td>
+            <td
+              [ngStyle]="{'color':getServiceStatus('kubernetes-control-manager') | statusColor }">{{getServiceStatus('kubernetes-control-manager') | status }}</td>
           </tr>
           </tbody>
         </table>
@@ -45,8 +48,10 @@
         </table>
       </div>
       <div class="card-footer">
-        <button class="btn btn-sm btn-link" (click)="onScale()"
-                [disabled]="currentCluster.deploy_type=='MANUAL' || currentCluster.status !== 'RUNNING'">伸缩
+        <button *ngIf="currentCluster.deploy_type==='AUTOMATIC'" class="btn btn-sm btn-link" (click)="onScale()"
+                [disabled]="currentCluster.status !== 'RUNNING'">伸缩
+        </button>
+        <button *ngIf="currentCluster.deploy_type==='MANUAL'" class="btn btn-sm btn-link" (click)="onAddWorker()">扩容
         </button>
       </div>
     </div>

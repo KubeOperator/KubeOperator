@@ -40,6 +40,7 @@ class Cluster(Project):
     CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
     CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
+    CLUSTER_DEPLOY_TYPE_ADDING = 'ADDING'
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
@@ -51,6 +52,7 @@ class Cluster(Project):
         (CLUSTER_STATUS_UPGRADING, 'upgrading'),
         (CLUSTER_DEPLOY_TYPE_SCALING, 'scaling'),
         (CLUSTER_STATUS_RESTORING, 'restoring'),
+        (CLUSTER_DEPLOY_TYPE_ADDING, 'adding')
     )
 
     CLUSTER_DEPLOY_TYPE_CHOICES = (
@@ -295,6 +297,17 @@ class Cluster(Project):
             project=self
         )
         node.set_groups(group_names=[role])
+        return node
+
+    def add_worker(self, host):
+        num = len(self.current_workers)
+        domain = Setting.objects.get(name='domain_suffix').value
+        node = Node.objects.create(
+            name="worker{}.{}.{}".format(num + 1, self.name, domain),
+            host=host,
+            project=self
+        )
+        node.set_groups(group_names=['worker', 'new_node'])
         return node
 
     def create_resource(self):

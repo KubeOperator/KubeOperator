@@ -69,6 +69,12 @@ operations:
         playbook: upgrade-addon
         flow: 升级内置应用
 
+  - name: add-worker
+    steps:
+      - name: add-node
+        flow: 添加节点
+        playbook: scale
+
   - name: scale
     steps:
       - name: create-resource
