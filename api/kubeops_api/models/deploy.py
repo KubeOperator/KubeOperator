@@ -70,6 +70,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
+            elif self.operation == 'add-worker':
+                ignore_errors = True
+                return_running = True
+                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_ADDING)
+                result = self.on_add_worker(extra_vars)
+                cluster.exit_new_node()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'restore':
                 cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
@@ -124,10 +130,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             except RuntimeError as e:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                 raise e
-        else:
-            host_name = self.params.get('host', None)
-            host = Host.objects.get(name=host_name)
-            cluster.add_worker(host)
+        return self.run_playbooks(extra_vars)
+
+    def on_add_worker(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('add-worker')
+        self.set_step_default()
+        host_name = self.params.get('host', None)
+        host = Host.objects.get(name=host_name)
+        cluster.add_worker(host)
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
