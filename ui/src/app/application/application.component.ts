@@ -20,7 +20,7 @@ export class ApplicationComponent implements OnInit {
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
-      const clusterName = data['cluster'];
+      const clusterName = data['cluster']['name'];
       this.clusterService.getCluster(clusterName).subscribe(c => {
         this.currentCluster = c;
         this.clusterService.getClusterConfigs().subscribe(d => {
