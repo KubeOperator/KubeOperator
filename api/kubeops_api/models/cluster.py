@@ -301,7 +301,7 @@ class Cluster(Project):
 
     def add_worker(self, host):
         num = len(self.current_workers)
-        domain = Setting.objects.get(name='domain_suffix').value
+        domain = Setting.objects.get(key='domain_suffix').value
         node = Node.objects.create(
             name="worker{}.{}.{}".format(num + 1, self.name, domain),
             host=host,

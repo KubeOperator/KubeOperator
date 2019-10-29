@@ -4,6 +4,6 @@ ul {
 }
 
 ul > li:last-child {
-  width: 40px;
-  min-width: 40px;
+  width: 48px;
+  min-width: 48px;
 }
