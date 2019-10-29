@@ -28,7 +28,7 @@
       <div class="clr-col-5 clr-row">
           <div class="clr-col-12">
             <div class="card shadow-none">
-              <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-control-manager')}">
+              <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-control-manager')}">
                 <small>control manager
                   <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
                     <clr-icon shape="info-circle" size="24"></clr-icon>
@@ -49,7 +49,7 @@
           </div>
           <div class="clr-col-12">
             <div class="card shadow-none">
-                <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-schedule')}">
+                <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-schedule')}">
                      <small>schedule
                        <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
                           <clr-icon shape="info-circle" size="24"></clr-icon>
@@ -72,7 +72,7 @@
       <div class="clr-col-5 clr-row">
          <div class="clr-col-12">
            <div class="card shadow-none">
-             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'etcd')}">
+             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'etcd')}">
                <small>etcd
                  <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
                     <clr-icon shape="info-circle" size="24"></clr-icon>
@@ -93,7 +93,7 @@
          </div>
          <div class="clr-col-12">
            <div class="card shadow-none">
-             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth.data,'kubernetes-nodes')}">
+             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-nodes')}">
                 <small>nodes
                   <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
                     <clr-icon shape="info-circle" size="24"></clr-icon>

@@ -168,12 +168,12 @@ export class ClusterHealthComponent implements OnInit {
     };
   }
 
-  getClusterServiceStatus(data, job) {
-    if (this.loading) {
+  getClusterServiceStatus(clusterHealth, job) {
+    if (this.loading || clusterHealth === null) {
       return;
     }
     let  serviceStyle = '#FF4040';
-    for (const d of data) {
+    for (const d of clusterHealth.data) {
       if (d.job === job) {
         if ( d.rate === 100) {
           serviceStyle = '#9DE7BD';
@@ -184,7 +184,7 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterStatus(clusterHealth) {
-    if (this.loading) {
+    if (this.loading || clusterHealth === null) {
       return;
     }
     let clusterStyle = '#FF4040';

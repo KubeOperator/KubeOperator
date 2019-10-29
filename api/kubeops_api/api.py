@@ -390,7 +390,7 @@ class ClusterHealthHistoryView(generics.ListAPIView):
             '-date_created')
 
 
-class ClusterHealth(View):
+class ClusterHealthView(View):
     permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
@@ -398,7 +398,7 @@ class ClusterHealth(View):
         cluster = Cluster.objects.get(name=project_name)
         response = HttpResponse(content_type='application/json')
         if cluster.status == Cluster.CLUSTER_STATUS_ERROR or cluster.status == Cluster.CLUSTER_STATUS_READY:
-            return response
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         domain_suffix = Setting.objects.get(key="domain_suffix")
         host = "prometheus.apps." + cluster.name + "." + domain_suffix.value
         config = {
