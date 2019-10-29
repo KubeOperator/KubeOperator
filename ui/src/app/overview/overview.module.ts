@@ -8,9 +8,10 @@ import { UpgradeComponent } from './upgrade/upgrade.component';
 import { ScaleComponent } from './scale/scale.component';
 import {SharedModule} from '../shared/shared.module';
 import { WebkubectlComponent } from './webkubectl/webkubectl.component';
+import { AddWorkerComponent } from './add-worker/add-worker.component';
 
 @NgModule({
-  declarations: [OverviewComponent, DescribeComponent, ClusterStatusComponent, UpgradeComponent, ScaleComponent, WebkubectlComponent],
+  declarations: [OverviewComponent, DescribeComponent, ClusterStatusComponent, UpgradeComponent, ScaleComponent, WebkubectlComponent, AddWorkerComponent],
   imports: [
     CommonModule,
     CoreModule,

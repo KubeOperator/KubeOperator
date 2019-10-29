@@ -77,6 +77,7 @@ export class HostListComponent implements OnInit {
   }
 
   listHost() {
+    this.loading = true;
     this.hostService.listHosts().subscribe(data => {
       this.hosts = data;
       this.loading = false;
