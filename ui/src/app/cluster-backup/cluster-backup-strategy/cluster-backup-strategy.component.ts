@@ -1,13 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ClusterBackupService} from '../cluster-backup.service';
 import {BackupStrategy} from '../backup-strategy';
 import {BackupStorageService} from '../../setting/backup-storage-setting/backup-storage.service';
 import {BackupStorage} from '../../setting/backup-storage-setting/backup-storage';
-import {NgForm} from '@angular/forms';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
+import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
+import {ClusterHealth} from '../../cluster-health/cluster-health';
 
 
 @Component({
@@ -18,7 +21,9 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 export class ClusterBackupStrategyComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
-              private alertService: CommonAlertService, private backupStorageService: BackupStorageService) {
+              private alertService: CommonAlertService, private operaterService: OperaterService,
+              private backupStorageService: BackupStorageService, private router: Router,
+              private clusterHealthService: ClusterHealthService) {
   }
 
   tipShow = false;
@@ -27,6 +32,11 @@ export class ClusterBackupStrategyComponent implements OnInit {
   backupStorage: BackupStorage[] = [];
   backupStrategy = new BackupStrategy();
   projectId = '';
+  event: string = null;
+  @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
+  clusterHealth: ClusterHealth = new ClusterHealth();
+  etcdHealth = false;
+
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
@@ -34,6 +44,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
       this.projectId = this.currentCluster.id;
       this.getBackupStrategy();
       this.getBackupStorage();
+      this.getClusterStatus();
     });
   }
 
@@ -84,6 +95,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
     this.clusterBackupService.createBackStrategy(this.backupStrategy).subscribe(data => {
       this.loading = false;
       this.alertService.showAlert('新增成功!', AlertLevels.SUCCESS);
+      this.backupStrategy.id = data.id;
       this.tipShow = false;
     }, err => {
       this.loading = false;
@@ -100,6 +112,55 @@ export class ClusterBackupStrategyComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  getClusterStatus() {
+    if (this.currentCluster.status === 'READY') {
+      return;
+    }
+    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
+      this.clusterHealth = res;
+      for (const ch of this.clusterHealth.data) {
+        if (ch.job === 'etcd') {
+          this.etcdHealth = (ch.rate === 100);
+        }
+      }
+    });
+  }
+
+  onBackup() {
+    if (!this.etcdHealth) {
+      this.alertService.showAlert('集群ETCD不在运行状态 无法备份！', AlertLevels.ERROR);
+      return;
+    }
+    if (this.backupStrategy.id == null) {
+      this.alertService.showAlert('请先保存！', AlertLevels.ERROR);
+      return;
+    }
+    this.confirmAlert.setTitle('确认备份');
+    this.confirmAlert.setComment('立即开始备份？');
+    this.confirmAlert.opened = true;
+    this.event = 'backup';
+  }
+
+  handleBackup() {
+    const params = {'backupStorageId': this.backupStrategy.backup_storage_id};
+    this.handleEvent(params);
+  }
+
+
+  handleEvent(params?) {
+    this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
+      this.redirect('deploy');
+    });
+    this.confirmAlert.close();
+  }
+
+  redirect(url: string) {
+    if (url) {
+      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
+      this.router.navigate(linkUrl);
+    }
   }
 
 }

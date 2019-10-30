@@ -11,6 +11,8 @@ from common import models as common_models
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
+import kubeops_api.cluster_backup_utils
+
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -82,6 +84,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster_backup_id = self.params.get('clusterBackupId', None)
                 result = self.on_restore(extra_vars, cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'backup':
+                cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
+                cluster_storage_id = self.params.get('backupStorageId', None)
+                result = self.on_backup(extra_vars)
+                self.on_upload_backup_file(cluster_storage_id)
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+
 
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
@@ -186,6 +195,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 raise Exception('download file failed!')
         else:
             raise Exception('File is not exist!')
+
+    def on_backup(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('cluster-backup')
+        return self.run_playbooks(extra_vars)
+
+    def on_upload_backup_file(self,backup_storage_id):
+        cluster = self.get_cluster()
+        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id,backup_storage_id)
 
     def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}
