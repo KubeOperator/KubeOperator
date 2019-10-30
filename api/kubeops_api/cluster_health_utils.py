@@ -19,6 +19,7 @@ def get_cluster_health_msg_hour():
                 role_names.append(role.name)
             if 'master' in role_names:
                 host = host + node.name[7:]
+                break
         config = {
             'host': host
         }
