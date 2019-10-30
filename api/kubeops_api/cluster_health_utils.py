@@ -1,5 +1,6 @@
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.setting import Setting
+from kubeops_api.models.node import Node
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 
@@ -9,8 +10,16 @@ import datetime
 def get_cluster_health_msg_hour():
     clusters = Cluster.objects.all()
     for cluster in clusters:
-        domain_suffix = Setting.objects.get(key="domain_suffix")
-        host = "prometheus.apps."+cluster.name+"."+domain_suffix.value
+        cluster.change_to()
+        nodes = Node.objects.all()
+        host = "prometheus.apps"
+        for node in nodes:
+            role_names=[]
+            for role in node.roles.all():
+                role_names.append(role.name)
+            if 'master' in role_names:
+                host = host + node.name[7:]
+                break
         config = {
             'host': host
         }
