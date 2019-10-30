@@ -1,6 +1,7 @@
 import json
 import os
 import yaml
+import logging
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -32,6 +33,7 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+logger = logging.getLogger(__name__)
 
 
 # 集群视图
@@ -390,26 +392,28 @@ class ClusterHealthHistoryView(generics.ListAPIView):
             '-date_created')
 
 
-class ClusterHealthView(View):
+class ClusterHealthView(APIView):
     permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
         cluster = Cluster.objects.get(name=project_name)
         response = HttpResponse(content_type='application/json')
-        if cluster.status == Cluster.CLUSTER_STATUS_ERROR or cluster.status == Cluster.CLUSTER_STATUS_READY:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if cluster.status == Cluster.CLUSTER_STATUS_READY:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         domain_suffix = Setting.objects.get(key="domain_suffix")
         host = "prometheus.apps." + cluster.name + "." + domain_suffix.value
         config = {
             'host': host
         }
         prometheus_client = PrometheusClient(config)
-        result = prometheus_client.handle_targets_message(prometheus_client.targets())
-
+        try:
+            result = prometheus_client.handle_targets_message(prometheus_client.targets())
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         response.write(json.dumps(result))
         return response
-
 
 class WebKubeCtrlToken(APIView):
     permission_classes = (IsSuperUser,)
