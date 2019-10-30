@@ -76,6 +76,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 - [ ] 日志收集及管理方案；
 - [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果
+- [ ] 新增概览页面：展示关键信息，比如告警、使用率、异常日志、重复重启容器等信息；
 
  v2.3 （计划中）
 
