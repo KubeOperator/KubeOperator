@@ -204,8 +204,8 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def mark(self, cluster_name):
         cluster = Cluster.objects.get(name=cluster_name)
-        if cluster.current_execution:
-            last = cluster.current_execution
+        last = cluster.current_execution
+        if last and last.state == last.STATE_STARTED:
             last.mark_state(last.STATE_FAILURE)
 
     def perform_create(self, serializer):
