@@ -14,13 +14,12 @@ def get_cluster_health_msg_hour():
         nodes = Node.objects.all()
         host = "prometheus.apps"
         for node in nodes:
-            print('---------------')
             role_names=[]
             for role in node.roles.all():
                 role_names.append(role.name)
-            print(role_names)
             if 'master' in role_names:
                 host = host + node.name[7:]
+                break
         config = {
             'host': host
         }
