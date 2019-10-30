@@ -188,6 +188,7 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         cluster_name = kwargs.get('cluster_name')
+        self.mark(cluster_name)
         cluster = Cluster.objects.get(name=cluster_name)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             operation = request.data['operation']
@@ -200,6 +201,12 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
                     if num - cluster.worker_size > cluster.plan.count_ip_available():
                         return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
+
+    def mark(self, cluster_name):
+        cluster = Cluster.objects.get(name=cluster_name)
+        if cluster.current_execution:
+            last = cluster.current_execution
+            last.mark_state(last.STATE_FAILURE)
 
     def perform_create(self, serializer):
         instance = serializer.save()
