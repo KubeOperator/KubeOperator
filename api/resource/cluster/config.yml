@@ -272,6 +272,8 @@ templates:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
       grafana_install: true
+      kuberhealthy_install: true
+      loki_install: true
     roles:
       - name: master
         vars:
@@ -347,6 +349,8 @@ templates:
       DEPLOY_MODE: 'multiple-master'
       prometheus_install: true
       grafana_install: true
+      kuberhealthy_install: true
+      loki_install: true
     roles:
       - name: master
         vars:
