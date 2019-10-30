@@ -8,9 +8,11 @@ import {DeleteAlertComponent} from './common-component/delete-alert/delete-alert
 import {ConfirmAlertComponent} from './common-component/confirm-alert/confirm-alert.component';
 import {StatusPipe} from './pipe/status.pipe';
 import { StatusColorPipe } from './pipe/status-color.pipe';
+import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.component';
 
 @NgModule({
-  declarations: [NotFoundComponent, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe, StatusColorPipe],
+  declarations: [NotFoundComponent, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe,
+    StatusColorPipe, ModalAlertComponent],
   imports: [
     CommonModule,
     CoreModule
@@ -20,6 +22,7 @@ import { StatusColorPipe } from './pipe/status-color.pipe';
     StatusPipe,
     DeleteAlertComponent,
     ConfirmAlertComponent,
+    ModalAlertComponent,
     StatusColorPipe
   ], providers: [
     AuthUserActiveService,
