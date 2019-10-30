@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
@@ -26,6 +26,7 @@ export class ClusterHealthComponent implements OnInit {
   loading = true;
   totalRate = 0;
   error = false;
+  timer;
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -37,6 +38,16 @@ export class ClusterHealthComponent implements OnInit {
       this.getClusterHealth();
       this.getClusterHealthHistory();
     });
+    this.timer = setInterval(() => {
+      this.getClusterHealth();
+    }, 30000);
+  }
+
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   getClusterHealth() {

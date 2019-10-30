@@ -5,6 +5,7 @@ import {BackupStorageService} from '../backup-storage.service';
 import {StorageCredential} from '../storage-credential';
 import {CommonAlertService} from '../../../base/header/common-alert.service';
 import {AlertLevels} from '../../../base/header/components/common-alert/alert';
+import {ModalAlertComponent} from '../../../shared/common-component/modal-alert/modal-alert.component';
 
 @Component({
   selector: 'app-backup-storage-create',

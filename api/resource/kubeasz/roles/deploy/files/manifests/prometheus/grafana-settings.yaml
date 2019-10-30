@@ -2,7 +2,7 @@ service:
   type: NodePort
 
 adminUser: admin
-adminPassword: admin
+adminPassword: admin123
 
 datasources:
   datasources.yaml:
