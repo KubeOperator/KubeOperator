@@ -38,11 +38,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = self.get_cluster()
         hostname = Setting.objects.get(key='local_hostname')
-        domain_suffix = Setting.objects.get(key="domain_suffix")
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value,
-            "domain_suffix": domain_suffix.value
+            "domain_suffix": cluster.cluster_doamin_suffix
         }
 
         extra_vars.update(cluster.configs)

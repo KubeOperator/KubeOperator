@@ -56,6 +56,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   groups: Group[] = [];
   plans: Plan[] = [];
   plan: Plan;
+  global_domain: string;
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -103,14 +104,34 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.settingService.getSetting('domain_suffix').subscribe(data => {
-      this.suffix = '.' + data.value;
-    });
   }
 
   ngOnDestroy(): void {
     this.clusterNameChecker.unsubscribe();
   }
+
+  reset() {
+    this.wizard.reset();
+    this.basicForm.resetForm();
+    this.storageForm.resetForm();
+    this.networkForm.resetForm();
+    this.cluster = new Cluster();
+    this.cluster.template = '';
+    this.template = null;
+    this.templates = [];
+    this.nodes = [];
+    this.configs = [];
+    this.groups = null;
+    this.storage = null;
+    this.network = null;
+    this.networks = null;
+    this.resetCheckState();
+    this.settingService.getSetting('domain_suffix').subscribe(data => {
+      this.global_domain = data.value;
+      this.cluster.cluster_doamin_suffix = this.global_domain;
+    });
+  }
+
 
   public get isBasicFormValid(): boolean {
     return this.basicForm && this.basicForm.valid && this.isNameValid && !this.checkOnGoing && this.cluster.package !== '';
@@ -182,24 +203,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         return !host.cluster;
       });
     });
-  }
-
-  reset() {
-    this.wizard.reset();
-    this.basicForm.resetForm();
-    this.storageForm.resetForm();
-    this.networkForm.resetForm();
-    this.cluster = new Cluster();
-    this.cluster.template = '';
-    this.template = null;
-    this.templates = [];
-    this.nodes = [];
-    this.configs = [];
-    this.groups = null;
-    this.storage = null;
-    this.network = null;
-    this.networks = null;
-    this.resetCheckState();
   }
 
 
@@ -317,7 +320,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       node.delete = canDelete;
     }
     const no = group.node_sum + 1;
-    node.name = group.name + no + '.' + this.cluster.name + this.suffix;
+    node.name = group.name + no + '.' + this.cluster.name + '.' + this.cluster.cluster_doamin_suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
