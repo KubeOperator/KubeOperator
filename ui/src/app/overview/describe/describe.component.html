@@ -27,6 +27,7 @@
           <li *ngIf="currentCluster.plan"><b>可用区: </b>{{currentCluster.zones}}{{currentCluster.zone}}</li>
           <li><b>部署模式:</b> {{getDeployTypeComment(currentCluster.deploy_type)}}</li>
           <li><b>存储类型: </b>{{currentCluster.persistent_storage}}</li>
+          <li *ngIf="currentCluster.persistent_storage==='nfs'"><b>存储: </b>{{currentCluster.configs['nfs']}}</li>
           <li *ngFor="let info of clusterInfos"><b>{{info.name}}:</b> {{info.value}}</li>
           <li><b>创建时间:</b> {{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}
           </li>
