@@ -4,9 +4,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('kubeops_api', '0034_auto_20191017_0234'),
+        ('kubeops_api', '0035_auto_20191030_0703'),
     ]
 
     operations = [
@@ -22,7 +21,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='cluster',
             name='status',
-            field=models.CharField(choices=[('RUNNING', 'running'), ('INSTALLING', 'installing'), ('DELETING', 'deleting'), ('READY', 'ready'), ('ERROR', 'error'), ('WARNING', 'warning'), ('UPGRADING', 'upgrading'), ('SCALING', 'scaling'), ('RESTORING', 'restoring'), ('ADDING', 'adding')], default='READY', max_length=128),
+            field=models.CharField(
+                choices=[('RUNNING', 'running'), ('INSTALLING', 'installing'), ('DELETING', 'deleting'),
+                         ('READY', 'ready'), ('ERROR', 'error'), ('WARNING', 'warning'), ('UPGRADING', 'upgrading'),
+                         ('SCALING', 'scaling'), ('RESTORING', 'restoring'), ('ADDING', 'adding')], default='READY',
+                max_length=128),
         ),
         migrations.AlterField(
             model_name='clusterhealthhistory',
