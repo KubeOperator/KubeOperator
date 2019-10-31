@@ -1,1 +1,115 @@
-<p>dashboard works!</p>
+<div class="clr-row">
+  <div class="clr-col-lg-12 clr-col-12">
+    <div style="float: right">
+      <button class="btn btn-link">
+        <clr-icon shape="refresh"></clr-icon>
+      </button>
+      <div class="clr-select-wrapper">
+        <select class="clr-select">
+          <option value="1">过去一周</option>
+          <option value="2">过去一天</option>
+          <option value="3">过去一月</option>
+        </select>
+      </div>
+      &nbsp; &nbsp; &nbsp;
+      <div class="clr-select-wrapper">
+        <select class="clr-select">
+          <option value="1">所有集群</option>
+          <option value="2">cluster1</option>
+          <option value="3">cluster2</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="clr-row">
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">集群状态</h3>
+        <table class="table">
+          <tr>
+            <th>名称</th>
+            <th>状态</th>
+          </tr>
+          <tbody>
+          <tr *ngFor="let cluster of clusters">
+            <td>{{cluster.name}}</td>
+            <td [ngStyle]="{'color':cluster.status | statusColor }">{{cluster.status | status}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <a class="btn btn-sm btn-link" (click)="toPage('cluster')">集群列表</a>
+      </div>
+    </div>
+  </div>
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">容量信息</h3>
+        <p class="card-text">
+          ...
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href="..." class="btn btn-sm btn-link">Action 2</a>
+      </div>
+    </div>
+  </div>
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">统计信息</h3>
+        <p class="card-text">
+          ...
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href="..." class="btn btn-sm btn-link">Action 3</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="clr-row">
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">异常日志</h3>
+        <p class="card-text">
+          ...
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href="..." class="btn btn-sm btn-link">详情</a>
+      </div>
+    </div>
+  </div>
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">重启次数</h3>
+        <p class="card-text">
+          ...
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href="..." class="btn btn-sm btn-link">Action 2</a>
+      </div>
+    </div>
+  </div>
+  <div class="clr-col-lg-4 clr-col-12">
+    <div class="card">
+      <div class="card-block">
+        <h3 class="card-title">异常容器</h3>
+        <p class="card-text">
+          ...
+        </p>
+      </div>
+      <div class="card-footer">
+        <a href="..." class="btn btn-sm btn-link">Action 3</a>
+      </div>
+    </div>
+  </div>
+</div>
