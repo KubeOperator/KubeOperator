@@ -29,6 +29,9 @@ import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
 import {StorageModule} from './storage/storage.module';
+import {DashboardComponent} from './dashboard/dashboard.component';
+import {SystemLogComponent} from './system-log/system-log.component';
+import {SystemLogModule} from './system-log/system-log.module';
 
 @NgModule({
   declarations: [
@@ -37,6 +40,7 @@ import {StorageModule} from './storage/storage.module';
     ApplicationComponent,
     ClusterHealthComponent,
     ClusterBackupComponent,
+    DashboardComponent,
   ],
   imports: [
     CredentialModule,
@@ -61,7 +65,8 @@ import {StorageModule} from './storage/storage.module';
     ClusterBackupModule,
     SharedModule,
     NfsModule,
-    StorageModule
+    StorageModule,
+    SystemLogModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

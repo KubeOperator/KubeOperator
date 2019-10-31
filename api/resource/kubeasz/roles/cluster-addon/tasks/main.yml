@@ -91,17 +91,32 @@
   ignore_errors: true
 
 - block:
+    - name: 生成 loki 部署文件
+      template: src=loki/loki/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/loki/values.yaml
 
+    - name: 生成 promtail 部署文件
+      template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
+
+    - name: 部署 loki-stack
+      shell: "helm install --name f2c-loki --namespace monitoring ./loki"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"loki" not in pod_info.stdout and loki_install'
+  ignore_errors: true
+
+- block:
     - name: 生成 kuberhealthy 部署文件
       template: src=kuberhealthy/values.yaml.j2 dest={{ base_dir }}/manifests/kuberhealthy/values.yaml
 
     - name: 部署 kuberhealthy
-      shell: "helm install --name kuberhealthy --namespace monitoring ./kuberhealthy"
+      shell: "helm install --name f2c-kuberhealthy --namespace monitoring ./kuberhealthy"
       args:
         chdir: "{{ base_dir }}/manifests"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"kuberhealthy" not in pod_info.stdout and grafana_install'
+  when: '"kuberhealthy" not in pod_info.stdout and kuberhealthy_install'
   ignore_errors: true
 
 - block:

@@ -15,7 +15,6 @@ from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, \
     scale_compute_resource
 from common import models as common_models
 from kubeops_api.components import get_component_urls
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
@@ -66,7 +65,6 @@ class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.CharField(max_length=128, null=True, blank=True)
     network_plugin = models.CharField(max_length=128, null=True, blank=True)
-    auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
     plan = models.ForeignKey('cloud_provider.Plan', on_delete=models.SET_NULL, null=True)
     worker_size = models.IntegerField(default=3)

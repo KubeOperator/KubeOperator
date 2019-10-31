@@ -11,7 +11,6 @@ from django.shortcuts import get_object_or_404
 
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import gather_host_info, test_host
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
@@ -33,6 +32,7 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,19 +62,6 @@ class PackageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         Package.lookup()
-        return super().get_queryset()
-
-
-class AuthViewSet(viewsets.ModelViewSet):
-    queryset = AuthTemplate.objects.all()
-    serializer_class = serializers.AuthTemplateSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'head', 'options']
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def get_queryset(self):
-        AuthTemplate.lookup()
         return super().get_queryset()
 
 
@@ -190,7 +177,6 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         cluster_name = kwargs.get('cluster_name')
-        self.mark(cluster_name)
         cluster = Cluster.objects.get(name=cluster_name)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             operation = request.data['operation']
@@ -203,12 +189,6 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
                     if num - cluster.worker_size > cluster.plan.count_ip_available():
                         return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
-
-    def mark(self, cluster_name):
-        cluster = Cluster.objects.get(name=cluster_name)
-        last = cluster.current_execution
-        if last and last.state == last.STATE_STARTED:
-            last.mark_state(last.STATE_FAILURE)
 
     def perform_create(self, serializer):
         instance = serializer.save()

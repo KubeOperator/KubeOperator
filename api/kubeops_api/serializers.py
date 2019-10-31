@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.shortcuts import reverse
 
 from cloud_provider.models import Plan, Zone
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
@@ -50,15 +49,6 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        read_only_fields = ['id', 'name', 'meta', 'date_created']
-        fields = ['id', 'name', 'meta', 'date_created']
-
-
-class AuthTemplateSerializer(serializers.ModelSerializer):
-    meta = serializers.JSONField()
-
-    class Meta:
-        model = AuthTemplate
         read_only_fields = ['id', 'name', 'meta', 'date_created']
         fields = ['id', 'name', 'meta', 'date_created']
 

@@ -1,4 +1,8 @@
 <clr-vertical-nav [clrVerticalNavCollapsible]="true">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/kubeOperator/dashboard">
+    <clr-icon shape="dashboard" clrVerticalNavIcon></clr-icon>
+    概览
+  </a>
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/kubeOperator/cluster">
     <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>
     集群
@@ -19,6 +23,10 @@
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/kubeOperator/package">
     <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
     离线包
+  </a>
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/kubeOperator/system/log">
+    <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
+    日志
   </a>
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/kubeOperator/setting">
     <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>
