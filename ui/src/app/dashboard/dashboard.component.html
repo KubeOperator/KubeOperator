@@ -5,18 +5,17 @@
         <clr-icon shape="refresh"></clr-icon>
       </button>
       <div class="clr-select-wrapper">
-        <select class="clr-select">
-          <option value="1">过去一周</option>
-          <option value="2">过去一天</option>
-          <option value="3">过去一月</option>
+        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">
+          <option value="1">过去一天</option>
+          <option value="7">过去一周</option>
+          <option value="30">过去一月</option>
         </select>
       </div>
       &nbsp; &nbsp; &nbsp;
       <div class="clr-select-wrapper">
-        <select class="clr-select">
-          <option value="1">所有集群</option>
-          <option value="2">cluster1</option>
-          <option value="3">cluster2</option>
+        <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
+          <option value="all">所有集群</option>
+          <option *ngFor="let c of clusters" value="{{c.name}}">{{c.name}}</option>
         </select>
       </div>
     </div>
