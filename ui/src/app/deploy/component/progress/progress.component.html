@@ -6,7 +6,7 @@
       <clr-icon shape="success-standard" *ngIf="step.status==='success'"></clr-icon>
       <clr-icon shape="error-standard" *ngIf="step.status === 'error'"></clr-icon>
       <div class="clr-timeline-step-body">
-        <span class="clr-timeline-step-title">{{step.flow}}</span>
+        <span class="clr-timeline-step-title" style="white-space: nowrap;">{{step.flow}}</span>
       </div>
     </li>
   </ul>
