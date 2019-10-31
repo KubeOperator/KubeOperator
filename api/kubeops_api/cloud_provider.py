@@ -124,7 +124,7 @@ def create_cluster_hosts_dict(cluster):
     }
     hosts = []
     deploy_template = cluster.plan.deploy_template
-    domain = cluster.cluster_doamin_suffix
+    domain = cluster.name + '.' + cluster.cluster_doamin_suffix
     if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
         roles['master'] = 3
     for role, size in roles.items():
