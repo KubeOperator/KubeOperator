@@ -28,6 +28,7 @@ import {ClusterBackupComponent} from './cluster-backup/cluster-backup.component'
 import {BackupStorageSettingComponent} from './setting/backup-storage-setting/backup-storage-setting.component';
 import {NfsComponent} from './nfs/nfs.component';
 import {StorageComponent} from './storage/storage.component';
+import {DashboardComponent} from './dashboard/dashboard.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -39,6 +40,7 @@ const routes: Routes = [
     canActivateChild: [AuthUserActiveService],
     children: [
       {path: '', redirectTo: 'cluster', pathMatch: 'full'},
+      {path: 'dashboard', component: DashboardComponent},
       {path: 'cluster', component: ClusterComponent},
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},

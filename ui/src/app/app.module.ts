@@ -29,6 +29,7 @@ import {ClusterBackupModule} from './cluster-backup/cluster-backup.module';
 import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
 import {StorageModule} from './storage/storage.module';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import {StorageModule} from './storage/storage.module';
     ApplicationComponent,
     ClusterHealthComponent,
     ClusterBackupComponent,
+    DashboardComponent,
   ],
   imports: [
     CredentialModule,
