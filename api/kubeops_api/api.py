@@ -401,8 +401,7 @@ class ClusterHealthView(APIView):
         response = HttpResponse(content_type='application/json')
         if cluster.status == Cluster.CLUSTER_STATUS_READY:
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        domain_suffix = Setting.objects.get(key="domain_suffix")
-        host = "prometheus.apps." + cluster.name + "." + domain_suffix.value
+        host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
         config = {
             'host': host
         }
@@ -414,6 +413,7 @@ class ClusterHealthView(APIView):
             return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         response.write(json.dumps(result))
         return response
+
 
 class WebKubeCtrlToken(APIView):
     permission_classes = (IsSuperUser,)

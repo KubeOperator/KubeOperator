@@ -10,11 +10,19 @@
       <ng-template clrPageTitle>基本信息</ng-template>
       <clr-input-container>
         <label>集群名称</label>
-        <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
+        <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
                [(ngModel)]="cluster.name"
                name="cluster_name" (keyup)="handleValidation()" clrInput size=45 maxlength="100"
                required>
         <clr-control-helper>仅支持小写字母、数字和 "-"</clr-control-helper>
+      </clr-input-container>
+      <clr-input-container>
+        <label>域名后缀</label>
+        <input id="domain" type="text" [(ngModel)]="cluster.cluster_doamin_suffix" name="cluster_domain" clrInput
+               size=45
+               maxlength="100"
+               required>
+        <clr-control-helper>输入集群域名的后缀,默认为全局域名后缀</clr-control-helper>
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
