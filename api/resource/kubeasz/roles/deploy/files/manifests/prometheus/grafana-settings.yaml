@@ -15,7 +15,7 @@ datasources:
       isDefault: true
     - name: Loki
       type: loki
-      url: http://loki:3100
+      url: http://f2c-loki:3100
       access: proxy
 
 dashboardProviders:
