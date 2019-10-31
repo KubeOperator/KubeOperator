@@ -283,6 +283,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -317,6 +318,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -360,6 +362,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -394,6 +397,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
