@@ -4,7 +4,8 @@
     <form clrForm #itemForm='ngForm'>
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput size=45 maxlength="50" type="text" [(ngModel)]="item.name" name="name" required>
+        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name" name="name" required>
+        <clr-control-helper>最长15个字符</clr-control-helper>
       </clr-input-container>
 
       <clr-radio-container clrInline>

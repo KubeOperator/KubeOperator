@@ -13,9 +13,10 @@
     <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput size=45 type="text" maxlength="50" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 type="text" maxlength="15" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
+        <clr-control-helper>最长15个字符</clr-control-helper>
       </clr-input-container>
       <clr-select-container>
         <label>区域</label>
