@@ -14,6 +14,8 @@ import os
 import datetime
 from celery.schedules import crontab
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from cmreslogging.handlers import CMRESHandler
+
 from .conf import load_user_config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,7 +30,10 @@ WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
-# PACKAGE_DIR = "/Users/shenchenyang/data/packages"
+DEV_PACKAGE_DIR = "/Users/shenchenyang/data/packages"
+
+DEV = True
+
 CONFIG = load_user_config()
 # 添加离线包路径
 
@@ -259,37 +264,43 @@ LOGGING = {
     'handlers': {
         'console': {
             'level': 'DEBUG',
-            'filters': ['require_debug_true'],  # 只有在Django debug为True时才在屏幕打印日志
-            'class': 'logging.StreamHandler',  #
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        # 默认的
+        'elasticsearch': {
+            'level': 'INFO',
+            'class': 'cmreslogging.handlers.CMRESHandler',
+            'hosts': [{'host': '172.16.10.142', 'port': 9200}],
+            'es_index_name': 'my_python_app',
+            'es_additional_fields': {'App': 'Test', 'Environment': 'Dev'},
+            'auth_type': CMRESHandler.AuthType.NO_AUTH,
+            'use_ssl': False,
+        },
         'default': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
-            'filename': os.path.join(BASE_LOG_DIR, "info.log"),  # 日志文件
-            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
-            'backupCount': 7,  # 最多备份几个
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_LOG_DIR, "info.log"),
+            'maxBytes': 1024 * 1024 * 50,
+            'backupCount': 7,
             'formatter': 'standard',
             'encoding': 'utf-8',
         },
-        # 专门用来记错误日志
         'error': {
             'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
-            'filename': os.path.join(BASE_LOG_DIR, "error.log"),  # 日志文件
-            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_LOG_DIR, "error.log"),
+            'maxBytes': 1024 * 1024 * 50,
             'backupCount': 5,
             'formatter': 'standard',
             'encoding': 'utf-8',
         },
     },
     'loggers': {
-        # 默认的logger应用如下配置
         '': {
-            'handlers': ['default', 'console', 'error'],  # 上线之后可以把'console'移除
+            'handlers': ['default', 'console', 'error', 'elasticsearch'],
             'level': 'DEBUG',
-            'propagate': True,  # 向不向更高级别的logger传递
+            'propagate': True,
         },
     },
 }
