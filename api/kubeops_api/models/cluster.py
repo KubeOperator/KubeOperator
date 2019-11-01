@@ -74,6 +74,7 @@ class Cluster(Project):
     deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
     configs = common_models.JsonDictTextField(default={})
+    cluster_doamin_suffix = models.CharField(max_length=256, null=True)
 
     @property
     def region(self):
@@ -304,9 +305,8 @@ class Cluster(Project):
 
     def add_worker(self, host):
         num = len(self.current_workers)
-        domain = Setting.objects.get(key='domain_suffix').value
         node = Node.objects.create(
-            name="worker{}.{}.{}".format(num + 1, self.name, domain),
+            name="worker{}.{}.{}".format(num + 1, self.name, self.cluster_doamin_suffix),
             host=host,
             project=self
         )
@@ -361,8 +361,7 @@ class Cluster(Project):
         return hosts
 
     def set_app_domain(self):
-        domain_suffix = Setting.objects.get(key="domain_suffix")
-        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
+        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, self.cluster_doamin_suffix)})
 
     def get_kube_config_base64(self):
         file_name = self.fetch_config()

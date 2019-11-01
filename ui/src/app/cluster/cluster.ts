@@ -8,6 +8,7 @@ export class Cluster {
   package: string;
   comment: string;
   template: string;
+  cluster_doamin_suffix: string;
   deploy_type: string;
   cloud_provider: string;
   plan: string;
