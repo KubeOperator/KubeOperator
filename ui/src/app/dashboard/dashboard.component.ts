@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.dashboardSearch.cluster = 'all';
     this.dashboardSearch.dateLimit = 1;
-    this.listCluster();
+    this.search();
   }
 
   listCluster() {
@@ -37,15 +37,21 @@ export class DashboardComponent implements OnInit {
     this.clusterService.getCluster(this.dashboardSearch.cluster).subscribe(data => {
       this.clusters = [];
       this.clusters.push(data);
+      this.loading = false;
     });
   }
 
   search() {
+    this.loading = true;
     if (this.dashboardSearch.cluster === 'all') {
       this.listCluster();
     } else {
       this.getCluster();
     }
+  }
+
+  refresh() {
+    this.search();
   }
 
   toPage(url) {
