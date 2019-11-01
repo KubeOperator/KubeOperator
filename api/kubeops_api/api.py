@@ -11,7 +11,6 @@ from django.shortcuts import get_object_or_404
 
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import gather_host_info, test_host
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
@@ -33,6 +32,7 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,19 +62,6 @@ class PackageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         Package.lookup()
-        return super().get_queryset()
-
-
-class AuthViewSet(viewsets.ModelViewSet):
-    queryset = AuthTemplate.objects.all()
-    serializer_class = serializers.AuthTemplateSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'head', 'options']
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def get_queryset(self):
-        AuthTemplate.lookup()
         return super().get_queryset()
 
 
