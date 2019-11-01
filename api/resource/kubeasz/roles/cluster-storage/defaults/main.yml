@@ -1,3 +1,2 @@
 default_label: '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 storagepolicyname: "vSAN Default Storage Policy"
-storageClassName: "storageclass-default"
