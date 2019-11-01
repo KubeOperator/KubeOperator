@@ -30,6 +30,7 @@ WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
+ELASTICSEARCH_HOST = "172.16.10.142"
 DEV_PACKAGE_DIR = "/Users/shenchenyang/data/packages"
 
 DEV = True
@@ -51,6 +52,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'log.apps.LogConfig',
     'storage.apps.StorageConfig',
     'kubeops_api.apps.KubeOperatorApiConfig',
     'cloud_provider.apps.CloudProviderConfig',
@@ -268,15 +270,15 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        # 'elasticsearch': {
-        #     'level': 'INFO',
-        #     'class': 'cmreslogging.handlers.CMRESHandler',
-        #     'hosts': [{'host': '172.16.10.142', 'port': 9200}],
-        #     'es_index_name': 'my_python_app',
-        #     'es_additional_fields': {'App': 'Test', 'Environment': 'Dev'},
-        #     'auth_type': CMRESHandler.AuthType.NO_AUTH,
-        #     'use_ssl': False,
-        # },
+        'elasticsearch': {
+            'level': 'INFO',
+            'class': 'cmreslogging.handlers.CMRESHandler',
+            'hosts': [{'host': ELASTICSEARCH_HOST, 'port': 9200}],
+            'es_index_name': 'my_python_app',
+            'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
+            'auth_type': CMRESHandler.AuthType.NO_AUTH,
+            'use_ssl': False,
+        },
         'default': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',

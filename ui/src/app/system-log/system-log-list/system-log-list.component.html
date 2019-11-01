@@ -1,16 +1,43 @@
 <clr-datagrid>
-  <clr-dg-column>name</clr-dg-column>
-  <clr-dg-column>task</clr-dg-column>
+  <clr-dg-action-bar>
 
-  <clr-dg-row>
+    <div style="float: right">
+      <div class="clr-input-wrapper">
+        <input clrInput placeholder="关键字" name="name"/>
+      </div>
+      <div class="clr-select-wrapper">
+        <select class="clr-select">
+          <option value="1">过去一天</option>
+          <option value="7">过去一周</option>
+          <option value="30">过去一月</option>
+        </select>
+      </div>
+      &nbsp;
+      <div class="clr-select-wrapper">
+        <select class="clr-select">
+          <option value="all">全部等级</option>
+          <option value="all">INFO</option>
+          <option value="all">DEBUG</option>
+          <option value="all">ERROR</option>
+        </select>
+      </div>
+      <button class="btn btn-link">
+        <clr-icon shape="refresh"></clr-icon>
+      </button>
+    </div>
+  </clr-dg-action-bar>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>等级</clr-dg-column>
+  <clr-dg-column>时间</clr-dg-column>
+
+  <clr-dg-row *ngFor="let log of logs" [clrDgItem]="log">
+    <clr-dg-cell>{{log.name}}</clr-dg-cell>
+    <clr-dg-cell>{{log.level}}</clr-dg-cell>
+    <clr-dg-cell>{{log.timestamp}}</clr-dg-cell>
   </clr-dg-row>
-  <clr-dg-cell>ddd</clr-dg-cell>
-  <clr-dg-cell>fff</clr-dg-cell>
-  <clr-dg-row-detail>
-    Lorem ipsum...
-  </clr-dg-row-detail>
   <clr-dg-footer>
-
+    <clr-dg-pagination [clrDgTotalItems]="totalItems" [clrDgPage]="currentPage" (clrDgPageChange)="onPageChange()"
+                       [clrDgPageSize]="10">
+    </clr-dg-pagination>
   </clr-dg-footer>
-
 </clr-datagrid>
