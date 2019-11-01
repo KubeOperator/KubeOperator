@@ -124,6 +124,7 @@ def create_cluster_hosts_dict(cluster):
     }
     hosts = []
     deploy_template = cluster.plan.deploy_template
+    domain = cluster.name + '.' + cluster.cluster_doamin_suffix
     if deploy_template == Plan.DEPLOY_TEMPLATE_MULTIPLE:
         roles['master'] = 3
     for role, size in roles.items():
@@ -136,7 +137,7 @@ def create_cluster_hosts_dict(cluster):
         else:
             compute_model = get_compute_model_meta(compute_model_name)
         for i in range(1, size + 1):
-            name = role + "{}.".format(i) + "{}".format(cluster.cluster_doamin_suffix)
+            name = role + "{}.".format(i) + "{}".format(domain)
             zone = get_zone(cluster.plan.get_zones(), i)
             if not zone:
                 raise RuntimeError('Can not find  available ip address!')
@@ -146,7 +147,7 @@ def create_cluster_hosts_dict(cluster):
                 "memory": compute_model['memory'] * 1024,
                 "name": name,
                 "short_name": role + "{}".format(i),
-                "domain": cluster.cluster_doamin_suffix,
+                "domain": domain,
                 "zone": zone.to_dict(),
                 "zone_name": zone.name,
             }
