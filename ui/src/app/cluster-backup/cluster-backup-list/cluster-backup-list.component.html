@@ -13,7 +13,7 @@
         <clr-icon shape="close"></clr-icon>
         删除
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1" (click)="onRestore()">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1 || this.currentCluster.status === 'Ready'" (click)="onRestore()">
         <clr-icon shape="backup-restore" size="16" ></clr-icon>
         恢复
       </button>
