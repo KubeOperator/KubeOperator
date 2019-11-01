@@ -6,7 +6,8 @@
         <form clrForm #backupStorageForm="ngForm">
             <clr-input-container>
               <label>名称:</label>
-              <input clrInput size=45 type="text" [(ngModel)]="item.name" name="name" required>
+              <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name" name="name" required>
+              <clr-control-helper>最长15个字符</clr-control-helper>
             </clr-input-container>
             <clr-select-container>
               <label>类型:</label>
@@ -62,36 +63,7 @@
                   <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
               </select>
             </clr-select-container>
-            <div class="alert alert-danger alert-sm" *ngIf="tipShow && invalid">
-              <div class="alert-items">
-                <div class="alert-item static" role="alert">
-                  <div class="alert-icon-wrapper">
-                    <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
-                  </div>
-                  <span class="alert-text">
-                      {{message}}
-                  </span>
-                </div>
-              </div>
-              <button type="button" class="close" aria-label="Close" (click)="closeTip()">
-                <clr-icon aria-hidden="true" shape="close"></clr-icon>
-              </button>
-              </div>
-              <div class="alert alert-success alert-sm" role="alert" *ngIf="tipShow && !invalid">
-                <div class="alert-items">
-                  <div class="alert-item static">
-                    <div class="alert-icon-wrapper">
-                      <clr-icon class="alert-icon" shape="check-circle"></clr-icon>
-                    </div>
-                    <span class="alert-text" size=45 >
-                        {{message}}
-                    </span>
-                  </div>
-                </div>
-                <button type="button" class="close" aria-label="Close" (click)="closeTip()">
-                  <clr-icon aria-hidden="true" shape="close"></clr-icon>
-                </button>
-              </div>
+            <app-modal-alert message="{{message}}" invalid="{{invalid}}" tipShow="{{tipShow}}" ></app-modal-alert>
         </form>
         <div class="modal-footer">
           <button type="button" class="btn btn-success-outline" (click)="getBuckets(credential)" [disabled]="isSubmitGoing">获取桶/容器</button>

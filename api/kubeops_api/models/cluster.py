@@ -15,7 +15,6 @@ from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, \
     scale_compute_resource
 from common import models as common_models
 from kubeops_api.components import get_component_urls
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
@@ -37,9 +36,12 @@ class Cluster(Project):
     CLUSTER_STATUS_DELETING = 'DELETING'
     CLUSTER_STATUS_UPGRADING = 'UPGRADING'
     CLUSTER_STATUS_RESTORING = 'RESTORING'
+    CLUSTER_STATUS_BACKUP = 'BACKUP'
     CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
     CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
+    CLUSTER_DEPLOY_TYPE_ADDING = 'ADDING'
+
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
@@ -51,6 +53,8 @@ class Cluster(Project):
         (CLUSTER_STATUS_UPGRADING, 'upgrading'),
         (CLUSTER_DEPLOY_TYPE_SCALING, 'scaling'),
         (CLUSTER_STATUS_RESTORING, 'restoring'),
+        (CLUSTER_DEPLOY_TYPE_ADDING, 'adding'),
+        (CLUSTER_STATUS_BACKUP, 'backup')
     )
 
     CLUSTER_DEPLOY_TYPE_CHOICES = (
@@ -61,7 +65,6 @@ class Cluster(Project):
     package = models.ForeignKey("Package", null=True, on_delete=models.SET_NULL)
     persistent_storage = models.CharField(max_length=128, null=True, blank=True)
     network_plugin = models.CharField(max_length=128, null=True, blank=True)
-    auth_template = models.ForeignKey('kubeops_api.AuthTemplate', null=True, on_delete=models.SET_NULL)
     template = models.CharField(max_length=64, blank=True, default='')
     plan = models.ForeignKey('cloud_provider.Plan', on_delete=models.SET_NULL, null=True)
     worker_size = models.IntegerField(default=3)
@@ -69,6 +72,7 @@ class Cluster(Project):
     deploy_type = models.CharField(max_length=128, choices=CLUSTER_DEPLOY_TYPE_CHOICES,
                                    default=CLUSTER_DEPLOY_TYPE_MANUAL)
     configs = common_models.JsonDictTextField(default={})
+    cluster_doamin_suffix = models.CharField(max_length=256, null=True)
 
     @property
     def region(self):
@@ -297,6 +301,16 @@ class Cluster(Project):
         node.set_groups(group_names=[role])
         return node
 
+    def add_worker(self, host):
+        num = len(self.current_workers)
+        node = Node.objects.create(
+            name="worker{}.{}.{}".format(num + 1, self.name, self.cluster_doamin_suffix),
+            host=host,
+            project=self
+        )
+        node.set_groups(group_names=['worker', 'new_node'])
+        return node
+
     def create_resource(self):
         create_compute_resource(self)
 
@@ -345,8 +359,7 @@ class Cluster(Project):
         return hosts
 
     def set_app_domain(self):
-        domain_suffix = Setting.objects.get(key="domain_suffix")
-        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, domain_suffix.value)})
+        self.set_config_unlock({'APP_DOMAIN': "apps.{}.{}".format(self.name, self.cluster_doamin_suffix)})
 
     def get_kube_config_base64(self):
         file_name = self.fetch_config()
@@ -376,3 +389,6 @@ class Cluster(Project):
 
     def on_cluster_delete(self):
         self.delete_data()
+
+    class Meta:
+        ordering = ('date_created',)

@@ -7,7 +7,6 @@ import {SharedModule} from '../../shared/shared.module';
 import { BackupStorageStatusPipe } from './backup-storage-status.pipe';
 
 
-
 @NgModule({
   declarations: [BackupStorageCreateComponent, BackupStorageListComponent, BackupStorageStatusPipe],
   exports: [

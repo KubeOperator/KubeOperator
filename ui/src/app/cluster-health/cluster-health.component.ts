@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
@@ -25,6 +25,8 @@ export class ClusterHealthComponent implements OnInit {
   clusterHealthHistories: ClusterHealthHistory[] = [];
   loading = true;
   totalRate = 0;
+  error = false;
+  timer;
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -36,20 +38,34 @@ export class ClusterHealthComponent implements OnInit {
       this.getClusterHealth();
       this.getClusterHealthHistory();
     });
+    this.timer = setInterval(() => {
+      this.getClusterHealth();
+    }, 30000);
+  }
+
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   getClusterHealth() {
-    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+    if (this.currentCluster.status === 'READY') {
+      this.loading = false;
+      this.error = true;
       return;
     }
     this.loading = true;
     this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
         this.clusterHealth = res;
         this.loading = false;
+        this.error = false;
       }, error1 => {
         this.clusterHealth.data = [];
         this.clusterHealth.rate = 0;
         this.loading = false;
+        this.error = true;
     });
   }
 
@@ -163,12 +179,12 @@ export class ClusterHealthComponent implements OnInit {
     };
   }
 
-  getClusterServiceStatus(data, job) {
-    if (this.loading) {
+  getClusterServiceStatus(clusterHealth, job) {
+    if (this.loading || clusterHealth === null) {
       return;
     }
     let  serviceStyle = '#FF4040';
-    for (const d of data) {
+    for (const d of clusterHealth.data) {
       if (d.job === job) {
         if ( d.rate === 100) {
           serviceStyle = '#9DE7BD';
@@ -179,7 +195,7 @@ export class ClusterHealthComponent implements OnInit {
   }
 
   getClusterStatus(clusterHealth) {
-    if (this.loading) {
+    if (this.loading || clusterHealth === null) {
       return;
     }
     let clusterStyle = '#FF4040';

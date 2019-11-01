@@ -1,0 +1,21 @@
+dependencies:
+- name: "loki"
+  condition: loki.enabled
+  repository: "file://../loki"
+  version: "^0.6.0"
+- name: "promtail"
+  condition: promtail.enabled
+  repository: "file://../promtail"
+  version: "^0.6.0"
+- name: "fluent-bit"
+  condition: fluent-bit.enabled
+  repository: "file://../fluent-bit"
+  version: "^0.0.1"
+- name: "grafana"
+  condition: grafana.enabled
+  version: "~3.4.3"
+  repository:  "https://kubernetes-charts.storage.googleapis.com/"
+- name: "prometheus"
+  condition: prometheus.enabled
+  version: "~8.11.2"
+  repository:  "https://kubernetes-charts.storage.googleapis.com/"

@@ -1,10 +1,9 @@
 import json
 import os
 
-from django.db.models.signals import m2m_changed, post_save, pre_save, post_delete
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from gunicorn.config import Setting
 
 from kubeops_api.adhoc import test_host
 from kubeops_api.models import Credential
@@ -30,15 +29,6 @@ def on_cluster_delete(sender, instance=None, **kwargs):
 def on_node_save(sender, instance=None, created=False, **kwargs):
     if created and not instance.name == 'localhost' and not instance.name == '127.0.0.1' and not instance.name == '::1':
         instance.on_node_save()
-
-
-@receiver(pre_save, sender=Host)
-def post_host_save(sender, instance=None, **kwargs):
-    print(instance.credential)
-    credential = Credential.objects.get(name=instance.credential.name)
-    host_valid = test_host(instance.ip, credential.username, credential.password)
-    if not host_valid:
-        raise RuntimeError('can not connected host:{}'.format(instance.ip))
 
 
 @receiver(post_save, sender=Host)

@@ -85,7 +85,8 @@ resources: {}
 ## Node labels for pod assignment
 ## ref: https://kubernetes.io/docs/user-guide/node-selection/
 #
-nodeSelector: {}
+nodeSelector:
+  nodetype: persistent
 
 ## Tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -104,13 +105,13 @@ persistence:
   enabled: true
   accessModes:
     - ReadWriteOnce
-  size: 10Gi
+  size: 100Gi
   annotations: {}
   subPath: ""
   existingClaim:
 
 adminUser: admin
-# adminPassword: strongpassword
+adminPassword: admin123
 
 ## Use an alternate scheduler, e.g. "stork".
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -215,9 +216,9 @@ grafana.ini:
   grafana_net:
     url: https://grafana.net
   auth:
-    disable_login_form: true
-  auth.anonymous:
-    enabled: true
+    disable_login_form: false
+  # auth.anonymous:
+  #   enabled: true
   ## LDAP Authentication can be enabled with the following values on grafana.ini
   ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
   # auth.ldap:

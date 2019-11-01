@@ -37,7 +37,6 @@ export class LogListComponent implements OnInit {
   }
 
   showLogDetail(execution: Execution) {
-    this.showDetail = true;
     this.child.logUrl = execution.log_url;
     this.child.loadLog();
   }

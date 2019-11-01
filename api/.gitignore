@@ -17,9 +17,6 @@ db.sqlite3
 celerybeat.pid
 tmp
 dump.rdb
-data/celery/
-data/ansible/
-data/projects/
-data/log
+data
 *.log
 django.iml

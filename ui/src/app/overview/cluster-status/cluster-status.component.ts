@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
 import {ClusterHealth} from '../../cluster-health/cluster-health';
+import {AddWorkerComponent} from '../add-worker/add-worker.component';
 
 
 @Component({
@@ -19,6 +20,7 @@ export class ClusterStatusComponent implements OnInit {
   @Input() currentCluster: Cluster;
   workers: Node[] = [];
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
+  @ViewChild(AddWorkerComponent, {static: true}) addWorker: AddWorkerComponent;
   clusterHealth: ClusterHealth = new ClusterHealth();
 
 
@@ -44,6 +46,15 @@ export class ClusterStatusComponent implements OnInit {
     });
   }
 
+  handleAddWorker() {
+    const params = {'host': this.addWorker.host};
+    this.operaterService.executeOperate(this.currentCluster.name, 'add-worker', params).subscribe(() => {
+      this.redirect('deploy');
+    }, error => {
+      this.scale.opened = false;
+    });
+  }
+
   redirect(url: string) {
     if (url) {
       const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
@@ -56,13 +67,18 @@ export class ClusterStatusComponent implements OnInit {
     this.scale.opened = true;
   }
 
+  onAddWorker() {
+    this.addWorker.loadHosts();
+    this.addWorker.opened = true;
+  }
+
   toHealth() {
     this.redirect('health');
   }
 
   getClusterStatus() {
     this.clusterHealth.data = [];
-    if (this.currentCluster.status === 'READY' || this.currentCluster.status === 'ERROR') {
+    if (this.currentCluster.status === 'READY') {
       return;
     }
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
@@ -73,13 +89,16 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getServiceStatus(type) {
+    if (this.clusterHealth == null || this.clusterHealth.data.length === 0 ) {
+      return '';
+    }
     let status = 'UNKNOWN';
     for (const ch of this.clusterHealth.data) {
       if (ch.job === type) {
         if (ch.rate === 100) {
-          status =  'RUNNING';
+          status = 'RUNNING';
         } else {
-          status =  'WARNING';
+          status = 'WARNING';
         }
       }
     }

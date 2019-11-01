@@ -3,6 +3,7 @@ import logging
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.host import Host
 from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
@@ -10,6 +11,8 @@ from common import models as common_models
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
+import kubeops_api.cluster_backup_utils
+
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -32,11 +35,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = self.get_cluster()
         hostname = Setting.objects.get(key='local_hostname')
-        domain_suffix = Setting.objects.get(key="domain_suffix")
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value,
-            "domain_suffix": domain_suffix.value
+            "domain_suffix": cluster.cluster_doamin_suffix
         }
 
         extra_vars.update(cluster.configs)
@@ -69,12 +71,25 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
+            elif self.operation == 'add-worker':
+                ignore_errors = True
+                return_running = True
+                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_ADDING)
+                result = self.on_add_worker(extra_vars)
+                cluster.exit_new_node()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'restore':
                 cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
                 cluster_backup_id = self.params.get('clusterBackupId', None)
                 result = self.on_restore(extra_vars, cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'backup':
+                cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
+                cluster_storage_id = self.params.get('backupStorageId', None)
+                result = self.on_backup(extra_vars)
+                self.on_upload_backup_file(cluster_storage_id)
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+
 
         except Exception as e:
             print('Unexpect error occur: {}'.format(e))
@@ -102,6 +117,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                     raise e
             else:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+        else:
+            delete = None
+            for step in self.steps:
+                if step['name'] == 'create-resource':
+                    delete = step
+            self.steps.remove(delete)
         return self.run_playbooks(extra_vars)
 
     def on_scaling(self, extra_vars):
@@ -117,6 +138,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             except RuntimeError as e:
                 self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
                 raise e
+        return self.run_playbooks(extra_vars)
+
+    def on_add_worker(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('add-worker')
+        self.set_step_default()
+        host_name = self.params.get('host', None)
+        host = Host.objects.get(name=host_name)
+        cluster.add_worker(host)
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
@@ -164,6 +194,15 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 raise Exception('download file failed!')
         else:
             raise Exception('File is not exist!')
+
+    def on_backup(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('cluster-backup')
+        return self.run_playbooks(extra_vars)
+
+    def on_upload_backup_file(self,backup_storage_id):
+        cluster = self.get_cluster()
+        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id,backup_storage_id)
 
     def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}

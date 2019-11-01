@@ -1,8 +1,7 @@
 import json
 import os
-import time
-
 import yaml
+import logging
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -11,7 +10,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
-from kubeops_api.models.auth import AuthTemplate
+from kubeops_api.adhoc import gather_host_info, test_host
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.permissions import IsSuperUser
@@ -33,6 +32,8 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
+logger = logging.getLogger(__name__)
 
 
 # 集群视图
@@ -61,19 +62,6 @@ class PackageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         Package.lookup()
-        return super().get_queryset()
-
-
-class AuthViewSet(viewsets.ModelViewSet):
-    queryset = AuthTemplate.objects.all()
-    serializer_class = serializers.AuthTemplateSerializer
-    permission_classes = (IsSuperUser,)
-    http_method_names = ['get', 'head', 'options']
-    lookup_field = 'name'
-    lookup_url_kwarg = 'name'
-
-    def get_queryset(self):
-        AuthTemplate.lookup()
         return super().get_queryset()
 
 
@@ -113,9 +101,21 @@ class HostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.HostSerializer
     permission_classes = (IsSuperUser,)
 
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        transaction.on_commit(lambda: instance.gather_info())
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.data['ip'] is not None:
+            host = Host.objects.filter(ip=serializer.data['ip'])
+            if len(host) > 0:
+                return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
+                                status=status.HTTP_400_BAD_REQUEST)
+        credential = Credential.objects.get(name=serializer.data['credential'])
+        connected = test_host(serializer.data['ip'], credential.username, credential.password)
+        if not connected:
+            return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
@@ -259,6 +259,15 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def destroy(self, request, *args, **kwargs):
+        backup_storage_id = BackupStorage.objects.get(name=self.kwargs['name']).id
+        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id,
+                                               status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
+        if len(result) > 0:
+            return Response(data={'msg': ': 有集群使用此备份账号!请先禁用集群中的备份功能!'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return super().destroy(self, request, *args, **kwargs)
+
 
 class CheckStorageView(APIView):
 
@@ -370,23 +379,25 @@ class ClusterHealthHistoryView(generics.ListAPIView):
             '-date_created')
 
 
-class ClusterHealth(View):
+class ClusterHealthView(APIView):
     permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
         cluster = Cluster.objects.get(name=project_name)
         response = HttpResponse(content_type='application/json')
-        if cluster.status == Cluster.CLUSTER_STATUS_ERROR or cluster.status == Cluster.CLUSTER_STATUS_READY:
-            return response
-        domain_suffix = Setting.objects.get(key="domain_suffix")
-        host = "prometheus.apps." + cluster.name + "." + domain_suffix.value
+        if cluster.status == Cluster.CLUSTER_STATUS_READY:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
         config = {
             'host': host
         }
         prometheus_client = PrometheusClient(config)
-        result = prometheus_client.handle_targets_message(prometheus_client.targets())
-
+        try:
+            result = prometheus_client.handle_targets_message(prometheus_client.targets())
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         response.write(json.dumps(result))
         return response
 

@@ -69,6 +69,12 @@ operations:
         playbook: upgrade-addon
         flow: 升级内置应用
 
+  - name: add-worker
+    steps:
+      - name: add-node
+        flow: 添加节点
+        playbook: scale
+
   - name: scale
     steps:
       - name: create-resource
@@ -224,7 +230,6 @@ storages:
     provider: ['vsphere','openstack']
     vars:
       storage_nfs_enabled: true
-      storage_nfs_storage_class: nfs-storage
       storage_nfs_provisioner_name: nfs-provisioner
     configs:
       - name: set_nfs_default
@@ -267,6 +272,8 @@ templates:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
       grafana_install: true
+      kuberhealthy_install: true
+      loki_install: true
     roles:
       - name: master
         vars:
@@ -276,6 +283,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -310,6 +318,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -342,6 +351,8 @@ templates:
       DEPLOY_MODE: 'multiple-master'
       prometheus_install: true
       grafana_install: true
+      kuberhealthy_install: true
+      loki_install: true
     roles:
       - name: master
         vars:
@@ -351,6 +362,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -385,6 +397,7 @@ templates:
             - name: CentOS
               version:
                 - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:

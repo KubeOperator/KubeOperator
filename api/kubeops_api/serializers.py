@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.shortcuts import reverse
 
 from cloud_provider.models import Plan, Zone
-from kubeops_api.models.auth import AuthTemplate
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
@@ -50,15 +49,6 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        read_only_fields = ['id', 'name', 'meta', 'date_created']
-        fields = ['id', 'name', 'meta', 'date_created']
-
-
-class AuthTemplateSerializer(serializers.ModelSerializer):
-    meta = serializers.JSONField()
-
-    class Meta:
-        model = AuthTemplate
         read_only_fields = ['id', 'name', 'meta', 'date_created']
         fields = ['id', 'name', 'meta', 'date_created']
 
@@ -187,7 +177,8 @@ class ClusterSerializer(ProjectSerializer):
         model = Cluster
         fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template', 'plan',
                   'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
-                  'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'configs']
+                  'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'configs',
+                  'cluster_doamin_suffix']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
 

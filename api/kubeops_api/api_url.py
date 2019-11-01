@@ -13,7 +13,6 @@ router.register('packages', api.PackageViewSet, 'package')
 router.register('credential', api.CredentialViewSet, 'credential')
 router.register('host', api.HostViewSet, 'host')
 router.register('setting', api.SettingViewSet, 'setting')
-router.register('auth', api.AuthViewSet, 'auth')
 router.register('backupStorage', api.BackupStorageViewSet, 'backupStorage')
 router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')
@@ -36,6 +35,6 @@ urlpatterns = [
                   path('clusterBackup/<uuid:project_id>/', api.ClusterBackupList.as_view()),
                   path('clusterBackup/<uuid:id>/delete/', api.ClusterBackupDelete.as_view()),
                   path('clusterBackup/restore/', api.ClusterBackupRestore.as_view()),
-                  path('cluster/<project_name>/health/', api.ClusterHealth.as_view()),
+                  path('cluster/<project_name>/health/', api.ClusterHealthView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
               ] + router.urls + cluster_router.urls

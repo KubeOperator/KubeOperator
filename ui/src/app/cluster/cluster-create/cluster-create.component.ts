@@ -56,6 +56,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   groups: Group[] = [];
   plans: Plan[] = [];
   plan: Plan;
+  global_domain: string;
   checkCpuState = CHECK_STATE_PENDING;
   checkMemoryState = CHECK_STATE_PENDING;
   checkOsState = CHECK_STATE_PENDING;
@@ -68,6 +69,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   @ViewChild('networkForm', {static: true}) networkForm: NgForm;
   @ViewChild('nodeForm', {static: false}) nodeForm: NgForm;
   @ViewChild('configForm', {static: true}) configForm: NgForm;
+  @ViewChild('workerForm', {static: true}) workerForm: NgForm;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
@@ -102,14 +104,34 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.settingService.getSetting('domain_suffix').subscribe(data => {
-      this.suffix = '.' + data.value;
-    });
   }
 
   ngOnDestroy(): void {
     this.clusterNameChecker.unsubscribe();
   }
+
+  reset() {
+    this.wizard.reset();
+    this.basicForm.resetForm();
+    this.storageForm.resetForm();
+    this.networkForm.resetForm();
+    this.cluster = new Cluster();
+    this.cluster.template = '';
+    this.template = null;
+    this.templates = [];
+    this.nodes = [];
+    this.configs = [];
+    this.groups = null;
+    this.storage = null;
+    this.network = null;
+    this.networks = null;
+    this.resetCheckState();
+    this.settingService.getSetting('domain_suffix').subscribe(data => {
+      this.global_domain = data.value;
+      this.cluster.cluster_doamin_suffix = this.global_domain;
+    });
+  }
+
 
   public get isBasicFormValid(): boolean {
     return this.basicForm && this.basicForm.valid && this.isNameValid && !this.checkOnGoing && this.cluster.package !== '';
@@ -152,7 +174,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDeployTypeChange() {
+  loadStorage() {
     if (this.cluster.deploy_type) {
       this.storages = this.storages.filter(data => {
         return data.deploy_type.includes(this.cluster.deploy_type);
@@ -177,27 +199,10 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   getAllHost() {
     this.hostService.listHosts().subscribe(data => {
-      console.log(this.hosts);
-      this.hosts = data;
-    }, error => {
-      console.log(error);
+      this.hosts = data.filter(host => {
+        return !host.cluster;
+      });
     });
-  }
-
-  reset() {
-    this.wizard.reset();
-    this.basicForm.resetForm();
-    this.cluster = new Cluster();
-    this.cluster.template = '';
-    this.template = null;
-    this.templates = [];
-    this.nodes = [];
-    this.configs = [];
-    this.groups = null;
-    this.storage = null;
-    this.network = null;
-    this.networks = null;
-    this.resetCheckState();
   }
 
 
@@ -230,8 +235,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   onWorkerSizeChange() {
-    if (this.cluster.worker_size < 3) {
-      this.cluster.worker_size = 3;
+    if (this.cluster.worker_size < 1) {
+      this.cluster.worker_size = 1;
     }
   }
 
@@ -242,6 +247,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.configs.concat(this.template.private_config);
       }
     });
+  }
+
+  workerSizeOnChange() {
+    if (this.cluster.worker_size < 1) {
+      this.cluster.worker_size = 1;
+    }
+    if (this.cluster.worker_size > this.hosts.length) {
+      this.cluster.worker_size = this.hosts.length;
+    }
+
     this.nodes = [];
     this.groups = [];
     this.templates.forEach(tmp => {
@@ -253,6 +268,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
             group.name = role.name;
             group.op = role.meta.requires.nodes_require[0];
             group.limit = role.meta.requires.nodes_require[1];
+            if (group.name === 'worker') {
+              group.limit = this.cluster.worker_size;
+            }
             for (let i = group.node_sum; i < group.limit; i++) {
               this.addNode(group, false);
             }
@@ -302,12 +320,11 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       node.delete = canDelete;
     }
     const no = group.node_sum + 1;
-    node.name = group.name + no + '.' + this.cluster.name + this.suffix;
+    node.name = group.name + no + '.' + this.cluster.name + '.' + this.cluster.cluster_doamin_suffix;
     group.node_sum++;
     node.roles.push(group.name);
     group.nodes.push(node);
     this.nodes.push(node);
-    console.log(this.nodes);
   }
 
   fullNode() {

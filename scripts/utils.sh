@@ -11,7 +11,7 @@ function get_images(){
        "kube-operator/api:2.1.0"
        "kube-operator/ui:2.1.0"
        "registry.fit2cloud.com/public/nexus-helm:3.15.2-01"
-       "webkubectl/webkubectl:latest"
+       "webkubectl/webkubectl:v1.4"
     )
     for image in ${images[@]};do
         echo ${image}

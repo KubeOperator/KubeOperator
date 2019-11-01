@@ -21,7 +21,7 @@ class Host(BaseHost):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    node = models.ForeignKey('Node', default=None, null=True, related_name='node',on_delete=models.SET_NULL)
+    node = models.ForeignKey('Node', default=None, null=True, related_name='node', on_delete=models.SET_NULL)
     name = models.CharField(max_length=128, validators=[name_validator], unique=True)
     credential = models.ForeignKey("kubeops_api.Credential", null=True, on_delete=models.SET_NULL)
     memory = models.fields.BigIntegerField(default=0)
@@ -64,7 +64,7 @@ class Host(BaseHost):
         try:
             facts = gather_host_info(self.ip, self.username, self.password, retry)
         except Exception as e:
-            self.status = Host.HOST_STATUS_RUNNING
+            self.status = Host.HOST_STATUS_UNKNOWN
             raise e
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]

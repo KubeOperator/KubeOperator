@@ -108,7 +108,8 @@ alertmanager:
   ## Node labels for alertmanager pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector:
+    nodetype: persistent
 
   ## Pod affinity
   ##
@@ -147,7 +148,7 @@ alertmanager:
 
     ## alertmanager data Persistent Volume size
     ##
-    size: 2Gi
+    size: 100Gi
 
     ## alertmanager data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
@@ -477,7 +478,7 @@ server:
 
   ## This flag controls access to the administrative HTTP API which includes functionality such as deleting time
   ## series. This is disabled by default.
-  enableAdminApi: false
+  enableAdminApi: true
 
   global:
     ## How frequently to scrape targets by default
@@ -567,7 +568,8 @@ server:
   ## Node labels for Prometheus server pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector:
+    nodetype: persistent
 
   ## Pod affinity
   ##
@@ -606,7 +608,7 @@ server:
 
     ## Prometheus server data Persistent Volume size
     ##
-    size: 8Gi
+    size: 100Gi
 
     ## Prometheus server data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
@@ -665,7 +667,7 @@ server:
 
   ## Prometheus data retention period (i.e 360h)
   ##
-  retention: ""
+  retention: 168h
 
 pushgateway:
   ## If false, pushgateway will not be installed

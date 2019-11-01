@@ -10,11 +10,19 @@
       <ng-template clrPageTitle>基本信息</ng-template>
       <clr-input-container>
         <label>集群名称</label>
-        <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$" placeholder="eg: mycluster"
+        <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()" clrInput size=45
+               name="cluster_name" (keyup)="handleValidation()" clrInput size=45 maxlength="15"
                required>
-        <clr-control-helper>仅支持用小写字母和 "-"</clr-control-helper>
+        <clr-control-helper>仅支持小写字母、数字和 "-" 最长15个字符</clr-control-helper>
+      </clr-input-container>
+      <clr-input-container>
+        <label>域名后缀</label>
+        <input id="domain" type="text" [(ngModel)]="cluster.cluster_doamin_suffix" name="cluster_domain" clrInput
+               size=45
+               maxlength="100"
+               required>
+        <clr-control-helper>输入集群域名的后缀,默认为全局域名后缀</clr-control-helper>
       </clr-input-container>
       <clr-select-container>
         <label>离线包</label>
@@ -25,7 +33,7 @@
       </clr-select-container>
       <clr-select-container>
         <label>部署模式</label>
-        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" (change)="onDeployTypeChange()" clrSelect required>
+        <select name="deploy_type" [(ngModel)]="cluster.deploy_type" clrSelect required>
           <option value="">请选择</option>
           <option value="MANUAL">手动模式</option>
           <option value="AUTOMATIC">自动模式</option>
@@ -45,7 +53,7 @@
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
-        <input clrInput size=45 type="number" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
+        <input clrInput size=45 type="number" min="1" (change)="onWorkerSizeChange()" [(ngModel)]="cluster.worker_size"
                name="work_size" required>
       </clr-input-container>
     </form>
@@ -122,11 +130,23 @@
 
     </form>
   </clr-wizard-page>
-
+  <clr-wizard-page *ngIf="cluster.deploy_type == Manual" [clrWizardPageNextDisabled]="workerForm.invalid"
+                   (clrWizardPageNext)="workerSizeOnChange()">
+    <ng-template clrPageTitle>配置节点</ng-template>
+    <form #workerForm='ngForm' clrForm class=" clr-form-compact">
+      <clr-input-container>
+        <label>worker数量</label>
+        <input clrInput size=45 type="number" min="1" [(ngModel)]="cluster.worker_size"
+               name="worker"
+               (change)="workerSizeOnChange()" required>
+        <clr-control-helper>当前可用最大主机数量:{{hosts.length}}</clr-control-helper>
+      </clr-input-container>
+    </form>
+  </clr-wizard-page>
 
   <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()"
                    *ngIf="cluster.deploy_type == Manual">
-    <ng-template clrPageTitle>配置节点</ng-template>
+    <ng-template clrPageTitle>选择节点</ng-template>
     <form #nodeForm='ngForm' class="clr-form clr-form-compact">
       <div *ngFor="let group of groups">
         <h4>{{group.name}}</h4>
@@ -151,9 +171,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div style="padding-top: 20px" *ngIf="group.op !== '='">
-          <a href="javascript:void(0)" (click)="addNode(group,true)">添加</a>
         </div>
       </div>
     </form>
@@ -192,7 +209,7 @@
       </div>
     </form>
   </clr-wizard-page>
-  <clr-wizard-page [clrWizardPageNextDisabled]="storageForm.invalid">
+  <clr-wizard-page (clrWizardPageOnLoad)="loadStorage()" [clrWizardPageNextDisabled]="storageForm.invalid">
     <ng-template clrPageTitle>配置存储</ng-template>
     <form #storageForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
@@ -260,21 +277,22 @@
   <clr-wizard-page>
     <ng-template clrPageTitle>完成</ng-template>
     <section class="form-block">
-      <div class="form-group">
-        <label>集群名称:</label>
-        <span>{{cluster.name}}</span>
-      </div>
-
-      <div class="form-group">
-        <label>部署模型:</label>
-        <span>{{cluster.template}}</span>
-      </div>
-
+      <ul class="list-unstyled">
+        <li><b style="margin-right: 16px">集群名称:</b>{{cluster.name}}</li>
+        <li><b style="margin-right: 16px">网络插件:</b>{{cluster.network_plugin}}</li>
+        <li><b style="margin-right: 16px">存储类型:</b>{{cluster.persistent_storage}}</li>
+        <li *ngIf="cluster.deploy_type === 'AUTOMATIC'"><b
+          style="margin-right: 16px">部署计划:</b>{{cluster.plan}}
+        </li>
+        <li *ngIf="cluster.deploy_type === 'AUTOMATIC'"><b
+          style="margin-right: 16px">Worker 数量:</b>{{cluster.worker_size}}
+        </li>
+      </ul>
       <div class="form-group" *ngFor="let config of configs">
         <label>{{config.alias}}:</label>
         <span>{{config.value}}</span>
       </div>
-      <div class="row" *ngIf="nodes">
+      <div class="row" *ngIf="nodes.length!=0">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h5>节点信息</h5>
           <table class="table">

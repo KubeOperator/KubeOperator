@@ -32,12 +32,5 @@ class LogTailApi(generics.RetrieveAPIView):
                 return Response({"data": _("Waiting ...\n")}, status=200)
 
         with open(log_path, 'r') as f:
-            offset = cache.get(mark, 0)
-            f.seek(offset)
-            data = f.read(self.buff_size).replace('\n', '\r\n')
-            mark = str(uuid.uuid4())
-            cache.set(mark, f.tell(), 5)
-
-            if data == '' and self.is_end():
-                self.end = True
-            return Response({"data": data, 'end': self.end, 'mark': mark})
+            data = f.read().replace('\n', '\r\n')
+            return Response({"data": data})

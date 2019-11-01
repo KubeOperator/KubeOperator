@@ -34,14 +34,13 @@ def run_backup(project_id,backup_storage_id):
     cluster = Cluster.objects.get(id=project_id)
     steps = cluster.get_steps('cluster-backup')
     hostname = Setting.objects.get(key='local_hostname')
-    domain_suffix = Setting.objects.get(key="domain_suffix")
-    project = Project.objects.get(id=project_id)
     backup_storage = BackupStorage.objects.get(id=backup_storage_id)
+    project = Project.objects.get(id=project_id)
     extra_vars = {
         "cluster_name": cluster.name,
         "local_hostname": hostname.value,
-        "domain_suffix": domain_suffix.value,
-        "APP_DOMAIN": "apps.{}.{}".format(cluster.name, domain_suffix.value),
+        "domain_suffix": cluster.cluster_doamin_suffix,
+        "APP_DOMAIN": "apps.{}.{}".format(cluster.name, cluster.cluster_doamin_suffix),
     }
     extra_vars.update(cluster.configs)
     run_playbooks(steps,extra_vars,project)
@@ -56,6 +55,24 @@ def run_backup(project_id,backup_storage_id):
                                       backup_storage_id=backup_storage_id,project_id=project_id)
         clusterBackup.save()
         return True
+
+def upload_backup_file(project_id,backup_storage_id):
+    cluster = Cluster.objects.get(id=project_id)
+    backup_storage = BackupStorage.objects.get(id=backup_storage_id)
+    now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    client = StorageClient(backup_storage)
+    client.check_valid()
+    file_name = cluster.name+'-'+str(now)+'.zip'
+    file_remote_path = cluster.name+'/'+file_name
+    result,message = client.upload_file("/etc/ansible/roles/cluster-backup/files/cluster-backup.zip",file_remote_path)
+    if result:
+        clusterBackup = ClusterBackup(name=file_name,size=10,folder=file_remote_path,
+                                      backup_storage_id=backup_storage_id,project_id=project_id)
+        clusterBackup.save()
+        return True
+    else:
+        return False
+
 
 def run_restore(cluster_backup_id):
     cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)

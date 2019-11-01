@@ -2,7 +2,7 @@ service:
   type: NodePort
 
 adminUser: admin
-adminPassword: admin
+adminPassword: admin123
 
 datasources:
   datasources.yaml:
@@ -10,11 +10,13 @@ datasources:
     datasources:
     - name: MYDS_Prometheus
       type: prometheus
-      #url: http:// + 集群里prometheus-server的服务名
-      #可以用 kubectl get svc --all-namespaces |grep prometheus-server查看
       url: http://f2c-prometheus-server
       access: proxy
       isDefault: true
+    - name: Loki
+      type: loki
+      url: http://f2c-loki:3100
+      access: proxy
 
 dashboardProviders:
   dashboardproviders.yaml:

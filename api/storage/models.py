@@ -10,6 +10,8 @@ from ansible_api.models import Project, Group, Playbook
 from fit2ansible.settings import KUBEEASZ_DIR
 from kubeops_api.models.node import Node
 from kubeops_api.models.host import Host
+from kubeops_api.models.package import Package
+from kubeops_api.models.setting import Setting
 
 Logger = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ class NfsStorage(Project):
         (NFS_OPTION_EXISTS, 'EXISTS')
     )
     status = models.CharField(max_length=128, choices=NFS_STATUS_CHOICES, default=NFS_STATUS_RUNNING, null=True)
-    vars = common_models.JsonDictTextField(default={"allow_ip": "0.0.0.0/0", "storage_nfs_server_path": "/exports"})
+    vars = common_models.JsonDictTextField(default={"allow_ip": "*", "storage_nfs_server_path": "/exports"})
 
     def create_group_node(self):
         host = Host.objects.get(name=self.vars['host'])
@@ -57,6 +59,13 @@ class NfsStorage(Project):
     def deploy_nfs(self):
         playbook = self.playbook_set.get(name="nfs")
         Logger.info('开始部署 NFS 服务')
+        hostname = Setting.objects.get(key='local_hostname').value
+        package = Package.objects.first()
+        port = package.repo_port
+        self.vars.update({
+            "local_hostname": hostname,
+            "repo_port": port
+        })
         thread = threading.Thread(target=self.execute_playbook, args=(playbook, self.vars))
         thread.start()
 

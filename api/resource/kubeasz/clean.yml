@@ -4,6 +4,7 @@
 # to clean 'kube-node' nodes
 - hosts:
     - kube-node
+    - kube-master
   tasks:
     - name: stop and disable kube-node service
       service: name={{ item }} state=stopped enabled=no
@@ -26,6 +27,8 @@
         - "/etc/systemd/system/kubelet.service"
         - "/etc/systemd/system/kube-proxy.service"
         - "/opt/kube/kube-system/"
+        - "/etc/kubernetes/"
+        - "/root/.kube/config"
 
 # to clean 'kube-master' nodes
 - hosts:
@@ -49,6 +52,7 @@
 
 # to clean container runtime and networking
 - hosts:
+    - kube-master
     - kube-node
   tasks:
     - block:
@@ -73,6 +77,9 @@
 
         - name: unmount docker filesystem-2
           mount: path=/var/lib/docker/overlay state=unmounted
+
+        - name: unmount docker filesystem-3
+          mount: path=/var/lib/docker state=unmounted
 
         - name: remove files and dirs
           file: name={{ item }} state=absent
