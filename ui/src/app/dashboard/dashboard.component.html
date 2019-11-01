@@ -1,9 +1,14 @@
-<div class="clr-row">
+<div class="clr-row" *ngIf="loading">
+  <div class="clr-col-lg-12 white-div"></div>
+  <div class="clr-col-lg-12 loading-div">
+    <span class="spinner spinner-lg loading">
+      Loading...
+    </span>
+  </div>
+</div>
+<div class="clr-row" *ngIf="!loading">
   <div class="clr-col-lg-12 clr-col-12">
     <div style="float: right">
-      <button class="btn btn-link">
-        <clr-icon shape="refresh"></clr-icon>
-      </button>
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">
           <option value="1">过去一天</option>
@@ -18,13 +23,43 @@
           <option *ngFor="let c of clusters" value="{{c.name}}">{{c.name}}</option>
         </select>
       </div>
+      &nbsp;
+      <button class="btn btn-link" (click)="refresh()">
+        <clr-icon shape="refresh"></clr-icon>
+      </button>
     </div>
   </div>
 </div>
-<div class="clr-row">
+<div class="clr-row" *ngIf="clusters.length === 0">
+  <div class="clr-col-sm-12 center">
+    <div class="card card-block card-top">
+      <h2 >快速开始</h2>
+      <div class="clr-row" style="margin-top: 50px;">
+        <div class="clr-col-sm-4 center">
+          <img src="assets/images/dashboad_server.svg" class="img-responsive middle" width="88" height="88">
+          <p class="card-text"><a href="https://docs.kubeoperator.io/kubeoperator-v2.1/userguide-manual"
+                                  target="_blank">在物理机上创建集群</a></p>
+        </div>
+        <div class="clr-col-sm-4 center">
+          <img src="assets/images/dashboard_vmware.svg" class="img-responsive middle" width="88" height="88">
+          <p class="card-text"><a href="https://docs.kubeoperator.io/kubeoperator-v2.1/userguide-vsphere"
+                                  target="_blank">在vSphere上创建集群</a></p>
+        </div>
+        <div class="clr-col-sm-4 center">
+          <img src="assets/images/dashboard_openstack.svg" class="img-responsive middle" width="88" height="88">
+          <p class="card-text">
+            <a href="https://docs.kubeoperator.io/kubeoperator-v2.1/userguide-openstack"
+               target="_blank">在OpenStack上创建集群</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">集群状态</h3>
         <table class="table">
           <tr>
@@ -46,7 +81,7 @@
   </div>
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
         <p class="card-text">
           ...
@@ -59,7 +94,7 @@
   </div>
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">统计信息</h3>
         <p class="card-text">
           ...
@@ -71,10 +106,10 @@
     </div>
   </div>
 </div>
-<div class="clr-row">
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">异常日志</h3>
         <p class="card-text">
           ...
@@ -87,7 +122,7 @@
   </div>
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">重启次数</h3>
         <p class="card-text">
           ...
@@ -100,7 +135,7 @@
   </div>
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
-      <div class="card-block">
+      <div class="card-block card-style">
         <h3 class="card-title">异常容器</h3>
         <p class="card-text">
           ...
