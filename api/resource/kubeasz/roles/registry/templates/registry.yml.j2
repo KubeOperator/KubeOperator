@@ -57,13 +57,6 @@ spec:
       containers:
       - name: registry
         image: {{registry_prefix}}:{{registry_port}}/docker.io/registry:2
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 1000Mi
-          requests:
-            cpu: 1000m
-            memory: 1000Mi
         env:
         - name: REGISTRY_HTTP_ADDR
           value: :5000
