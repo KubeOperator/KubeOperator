@@ -16,7 +16,6 @@ from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 
-
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
 
@@ -74,6 +73,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'add-worker':
                 ignore_errors = True
                 return_running = True
@@ -203,9 +203,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         self.steps = cluster.get_steps('cluster-backup')
         return self.run_playbooks(extra_vars)
 
-    def on_upload_backup_file(self,backup_storage_id):
+    def on_upload_backup_file(self, backup_storage_id):
         cluster = self.get_cluster()
-        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id,backup_storage_id)
+        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id, backup_storage_id)
 
     def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}
