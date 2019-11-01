@@ -3,6 +3,7 @@ import {ClusterService} from '../cluster/cluster.service';
 import {Cluster} from '../cluster/cluster';
 import {Router} from '@angular/router';
 import {DashboardSearch} from './dashboardSearch';
+import {DashboardService} from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +16,7 @@ export class DashboardComponent implements OnInit {
   clusters: Cluster[] = [];
   dashboardSearch: DashboardSearch = new DashboardSearch();
 
-  constructor(private clusterService: ClusterService, private router: Router) {
+  constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
 
   ngOnInit() {
@@ -51,7 +52,10 @@ export class DashboardComponent implements OnInit {
   }
 
   refresh() {
-    this.search();
+    // this.search();
+    this.dashboardService.getDashboard(this.clusters[1].name).subscribe(data => {
+      console.log('1111');
+    });
   }
 
   toPage(url) {

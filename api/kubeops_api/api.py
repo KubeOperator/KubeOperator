@@ -30,8 +30,8 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 import kubeops_api.cluster_backup_utils
 from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
-from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+from kubeops_api.cluster_monitor import ClusterMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -409,3 +409,13 @@ class WebKubeCtrlToken(APIView):
         pk = kwargs.get('pk')
         cluster = get_object_or_404(Cluster, pk=pk)
         return JsonResponse({'token': cluster.get_webkubectl_token()})
+
+class DashBoardView(APIView):
+    permission_classes = (IsSuperUser,)
+
+    def get(self, request, *args, **kwargs):
+        project_name = self.kwargs['project_name']
+        cluster = Cluster.objects.get(name=project_name)
+        cluster_monitor = ClusterMonitor(cluster)
+        res = cluster_monitor.list_pods()
+        print(res)

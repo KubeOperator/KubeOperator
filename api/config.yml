@@ -1,5 +1,6 @@
 DEBUG: false
-DB_HOST: 127.0.0.1
+#DB_HOST: 127.0.0.1
+DB_HOST: 10.1.240.92
 DB_PORT: 3306
 DB_NAME: fit2openshift
 DB_USER: root
