@@ -34,10 +34,11 @@ class ClusterMonitor():
     def get_authorization(self):
         try:
             if self.redis_cli.exists(self.cluster.name):
-                self.token = str(self.redis_cli.get(self.cluster.name),encoding= 'utf-8')
+                cluster_str = str(self.redis_cli.get(self.cluster.name),encoding= 'utf-8')
+                cluster_data = json.loads(cluster_str)
+                self.token = cluster_data['token']
             else:
                 self.token = self.cluster.get_cluster_token()
-                self.redis_cli.set(self.cluster.name,self.token)
         except ApiException as e:
             if e.status == 401:
                 self.token = self.cluster.get_cluster_token()
@@ -96,7 +97,8 @@ class ClusterMonitor():
         clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
         cluster_data_list = []
         for c in clusters:
-            cluster_d = self.redis_cli.get(c.name)
-            if cluster_d is not None:
+            cluster_str = str(self.redis_cli.get(c.name),encoding= 'utf-8')
+            if cluster_str is not None:
+                cluster_d = json.loads(cluster_str)
                 cluster_data_list.append(cluster_d)
         return cluster_data_list
