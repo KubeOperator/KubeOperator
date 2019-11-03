@@ -13,7 +13,7 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-  getDashboard(project_name: string): Observable<DashboardSearch> {
-    return this.http.get<DashboardSearch>(this.dashboardUrl + project_name + '/');
+  getDashboard(project_name: string): Observable<any> {
+    return this.http.get<any>(this.dashboardUrl + project_name + '/');
   }
 }

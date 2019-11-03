@@ -15,6 +15,12 @@ export class DashboardComponent implements OnInit {
   loading = true;
   clusters: Cluster[] = [];
   dashboardSearch: DashboardSearch = new DashboardSearch();
+  clusterData = [];
+  podCount = 0;
+  nodeCount = 0;
+  namespaceCount = 0;
+  deploymentCount = 0;
+  containerCount = 0;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -28,7 +34,7 @@ export class DashboardComponent implements OnInit {
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;
-      this.loading = false;
+      this.getClusterData();
     }, error => {
       this.loading = false;
     });
@@ -38,6 +44,18 @@ export class DashboardComponent implements OnInit {
     this.clusterService.getCluster(this.dashboardSearch.cluster).subscribe(data => {
       this.clusters = [];
       this.clusters.push(data);
+      this.loading = false;
+    });
+  }
+
+  getClusterData() {
+    this.dashboardService.getDashboard(this.clusters[1].name).subscribe(data => {
+      this.clusterData = JSON.parse(data.data);
+      for (const d of this.clusterData) {
+        this.podCount = this.podCount + d['pods'].length;
+        this.namespaceCount = this.namespaceCount + d['name_spaces'].length;
+        this.nodeCount = this.nodeCount + d['nodes'].length;
+      }
       this.loading = false;
     });
   }
@@ -52,10 +70,7 @@ export class DashboardComponent implements OnInit {
   }
 
   refresh() {
-    // this.search();
-    this.dashboardService.getDashboard(this.clusters[1].name).subscribe(data => {
-      console.log('1111');
-    });
+     this.search();
   }
 
   toPage(url) {

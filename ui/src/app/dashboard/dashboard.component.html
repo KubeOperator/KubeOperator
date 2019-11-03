@@ -1,6 +1,6 @@
 <div class="clr-row" *ngIf="loading">
   <div class="clr-col-lg-12 white-div"></div>
-  <div class="clr-col-lg-12 loading-div">
+  <div class="clr-col-lg-12 loading-div center" >
     <span class="spinner spinner-lg loading">
       Loading...
     </span>
@@ -96,9 +96,24 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">统计信息</h3>
-        <p class="card-text">
-          ...
-        </p>
+        <div class="clr-row">
+          <div class="clr-col-lg-6 clr-col-12 count">
+            <span><b>{{nodeCount}}</b></span> <br>
+            <span><b>{{clusters.length}}</b></span> <br>
+            <span><b>{{namespaceCount}}</b></span> <br>
+            <span><b>0</b></span> <br>
+            <span><b>{{podCount}}</b></span> <br>
+            <span><b>0</b></span> <br>
+          </div>
+          <div class="clr-col-lg-6 clr-col-12 type-face">
+            <span>Nodes</span> <br>
+            <span>Clusters</span> <br>
+            <span>Namespaces</span> <br>
+            <span>Deployments</span> <br>
+            <span>Pods</span> <br>
+            <span>Containers</span> <br>
+          </div>
+        </div>
       </div>
       <div class="card-footer">
         <a href="..." class="btn btn-sm btn-link">Action 3</a>

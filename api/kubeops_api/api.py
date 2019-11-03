@@ -417,5 +417,5 @@ class DashBoardView(APIView):
         project_name = self.kwargs['project_name']
         cluster = Cluster.objects.get(name=project_name)
         cluster_monitor = ClusterMonitor(cluster)
-        res = cluster_monitor.list_pods()
-        print(res)
+        res = cluster_monitor.list_cluster_data()
+        return JsonResponse({'data': json.dumps(res)})
