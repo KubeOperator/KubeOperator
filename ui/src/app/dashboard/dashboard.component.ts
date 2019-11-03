@@ -53,8 +53,12 @@ export class DashboardComponent implements OnInit {
       this.clusterData = JSON.parse(data.data);
       for (const d of this.clusterData) {
         this.podCount = this.podCount + d['pods'].length;
-        this.namespaceCount = this.namespaceCount + d['name_spaces'].length;
+        this.namespaceCount = this.namespaceCount + d['namespaces'].length;
+        this.deploymentCount = this.deploymentCount + d['deployments'].length;
         this.nodeCount = this.nodeCount + d['nodes'].length;
+        for (const p of d['pods']) {
+          this.containerCount = this.containerCount + p['containers'].length;
+        }
       }
       this.loading = false;
     });
@@ -70,7 +74,7 @@ export class DashboardComponent implements OnInit {
   }
 
   refresh() {
-     this.search();
+    this.search();
   }
 
   toPage(url) {
