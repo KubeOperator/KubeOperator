@@ -67,7 +67,7 @@ class ClusterMonitor():
                 restart_count = 0
                 for c in status.container_statuses:
                     restart_count = restart_count+c.restart_count
-                    container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count)
+                    container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,pod_name=p.metadata.name)
                     containers.append(container.__dict__)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count, status=status.phase,
                           namespace=p.metadata.namespace,

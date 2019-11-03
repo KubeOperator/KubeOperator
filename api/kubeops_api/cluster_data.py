@@ -44,10 +44,11 @@ class Node():
 
 class Container():
 
-    def __init__(self, name, ready, restart_count):
+    def __init__(self, name, ready, restart_count,pod_name):
         self.name = name
         self.ready = ready
         self.restart_count = restart_count
+        self.pod_name = pod_name
 
 
 class Deployment():

@@ -166,12 +166,26 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">异常容器</h3>
-        <p class="card-text">
-          ...
-        </p>
+        <table class="table">
+          <tr>
+            <th>名称</th>
+            <th>Pod</th>
+            <th>重启次数</th>
+          </tr>
+          <tr>
+            <td>coredns</td>
+            <td>coredns-65464bb4d7-tfbs7</td>
+            <td>10</td>
+          </tr>
+          <tr *ngFor="let c of warnContainers">
+             <td>{{c.name}}</td>
+             <td>{{c.cluster_name}}</td>
+             <td>{{c.restart_count}}</td>
+          </tr>
+        </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">Action 3</a>
+        <a href="..." class="btn btn-sm btn-link">更多</a>
       </div>
     </div>
   </div>
