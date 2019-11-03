@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
   namespaceCount = 0;
   deploymentCount = 0;
   containerCount = 0;
+  restartPods = [];
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -58,6 +59,9 @@ export class DashboardComponent implements OnInit {
         this.nodeCount = this.nodeCount + d['nodes'].length;
         for (const p of d['pods']) {
           this.containerCount = this.containerCount + p['containers'].length;
+          if (p['restart_count'] > 0) {
+            this.restartPods.push(p);
+          }
         }
       }
       this.loading = false;

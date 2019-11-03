@@ -1,6 +1,6 @@
 <div class="clr-row" *ngIf="loading">
   <div class="clr-col-lg-12 white-div"></div>
-  <div class="clr-col-lg-12 loading-div center" >
+  <div class="clr-col-lg-12 loading-div center">
     <span class="spinner spinner-lg loading">
       Loading...
     </span>
@@ -33,7 +33,7 @@
 <div class="clr-row" *ngIf="!loading && clusters.length === 0">
   <div class="clr-col-sm-12 center">
     <div class="card card-block card-top">
-      <h2 >快速开始</h2>
+      <h2>快速开始</h2>
       <div class="clr-row" style="margin-top: 50px;">
         <div class="clr-col-sm-4 center">
           <img src="assets/images/dashboad_server.svg" class="img-responsive middle" width="88" height="88">
@@ -139,12 +139,26 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">重启次数</h3>
-        <p class="card-text">
-          ...
-        </p>
+        <table class="table">
+          <tr>
+            <th>名称</th>
+            <th>集群</th>
+            <th>重启次数</th>
+          </tr>
+          <tr>
+            <td>test</td>
+            <td>cluster4</td>
+            <td>10</td>
+          </tr>
+          <tr *ngFor="let rp of restartPods">
+             <td>{{rp.name}}</td>
+             <td>{{rp.cluster_name}}</td>
+             <td>{{rp.restart_count}}</td>
+          </tr>
+        </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">Action 2</a>
+        <a href="..." class="btn btn-sm btn-link">更多</a>
       </div>
     </div>
   </div>
