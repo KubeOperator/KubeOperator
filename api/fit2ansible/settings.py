@@ -32,7 +32,6 @@ PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
 ELASTICSEARCH_HOST = "elasticsearch"
 
-
 CONFIG = load_user_config()
 # 添加离线包路径
 
@@ -269,7 +268,7 @@ LOGGING = {
             'formatter': 'simple'
         },
         'elasticsearch': {
-            'level': 'ERROR',
+            'level': 'INFO',
             'class': 'cmreslogging.handlers.CMRESHandler',
             'hosts': [{'host': ELASTICSEARCH_HOST, 'port': 9200}],
             'es_index_name': 'my_python_app',
@@ -277,28 +276,10 @@ LOGGING = {
             'auth_type': CMRESHandler.AuthType.NO_AUTH,
             'use_ssl': False,
         },
-        'default': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_LOG_DIR, "info.log"),
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 7,
-            'formatter': 'standard',
-            'encoding': 'utf-8',
-        },
-        'error': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_LOG_DIR, "error.log"),
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-            'formatter': 'standard',
-            'encoding': 'utf-8',
-        },
     },
     'loggers': {
         '': {
-            'handlers': ['default', 'console', 'error', 'elasticsearch'],
+            'handlers': ['console', 'elasticsearch'],
             'level': 'DEBUG',
             'propagate': True,
         },

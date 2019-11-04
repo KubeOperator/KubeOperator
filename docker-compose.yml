@@ -58,6 +58,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
 
   mysql:
     container_name: kubeops_mysql
