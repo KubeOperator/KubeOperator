@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 import uuid
@@ -11,6 +12,8 @@ from common import models as common_models
 from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
 from kubeops_api.models.host import Host
+
+logger = logging.getLogger(__name__)
 
 
 class CloudProviderTemplate(models.Model):
@@ -126,6 +129,7 @@ class Zone(models.Model):
             client.create_image(zone=self)
             self.change_status(Zone.ZONE_STATUS_READY)
         except Exception as e:
+            logger.error(e, exc_info=True)
             self.change_status(Zone.ZONE_STATUS_ERROR)
 
     def on_zone_create(self):

@@ -11,4 +11,3 @@ class NfsStorageViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
-

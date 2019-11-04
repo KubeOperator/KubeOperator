@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {SystemLog} from './system-log';
+import {SystemLog, SystemLogPager} from './system-log';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class SystemLogService {
 
   private baseUrl = 'api/v1/log/';
 
-  searchLog(params): Observable<SystemLog[]> {
-    return this.http.post<SystemLog[]>(this.baseUrl, params);
+  searchLog(params): Observable<SystemLogPager> {
+    return this.http.post<SystemLogPager>(this.baseUrl, params);
   }
 }

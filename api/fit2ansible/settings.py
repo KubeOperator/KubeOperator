@@ -30,10 +30,8 @@ WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
-ELASTICSEARCH_HOST = "172.16.10.142"
-DEV_PACKAGE_DIR = "/Users/shenchenyang/data/packages"
+ELASTICSEARCH_HOST = "elasticsearch"
 
-DEV = True
 
 CONFIG = load_user_config()
 # 添加离线包路径
@@ -271,7 +269,7 @@ LOGGING = {
             'formatter': 'simple'
         },
         'elasticsearch': {
-            'level': 'INFO',
+            'level': 'ERROR',
             'class': 'cmreslogging.handlers.CMRESHandler',
             'hosts': [{'host': ELASTICSEARCH_HOST, 'port': 9200}],
             'es_index_name': 'my_python_app',
@@ -300,7 +298,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['default', 'console', 'error'],
+            'handlers': ['default', 'console', 'error', 'elasticsearch'],
             'level': 'DEBUG',
             'propagate': True,
         },

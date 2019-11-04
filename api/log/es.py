@@ -7,39 +7,75 @@ from elasticsearch_dsl import Search
 # from fit2ansible.settings import ELASTICSEARCH_HOST
 
 
-def search_log():
-    level = "INFO"
-    page = 1
+def search_log(params):
+    level = params.get('level', None)
+    page = params.get('currentPage', None)
+    keywords = params.get('keywords', None)
+    limit_days = params.get('limit_days', None)
+
     size = 10
-    time_start = "2016-10-31T10:20:03"
-    time_end = "2019-11-31T10:20:06"
-    index = "my_python_app-2019.10.31"
+    time_start = get_start_time(limit_days)
+    time_end = get_time_now()
+    index = "my_python_app-2019.11"
 
     client = get_es_client()
     s = Search(using=client, index=index)
     s = s.using(client)
-    s = s.query("match", levelname=level)
+    if level and not level == 'all':
+        s = s.query("match", levelname=level)
     s = s.query("range", timestamp={"gte": time_start, "lte": time_end})
-    s = s[page:size]
+    if page and size:
+        s = s[page - 1:size]
+    if keywords:
+        s = s.query("match", message=keywords)
     s = s.sort({"timestamp": {"order": "desc"}})
+    print(s.to_dict())
     s.execute()
-    hits = []
+    items = []
     for hit in s:
-        hits.append(
+        items.append(
             {
                 "name": hit.name,
                 "level": hit.levelname,
-                "timestamp": format_tz_time(hit.timestamp)
+                "timestamp": format_tz_time(hit.timestamp),
+                "filename": hit.filename,
+                "funcName": hit.funcName,
+                "lineno": hit.lineno,
+                "message": hit.message,
+                "host_ip": hit.host_ip,
+                "exc_text": hit.exc_text
             }
         )
-    return hits
+    return {
+        "items": items,
+        "total": s.count()
+    }
 
 
 def format_tz_time(tz_time):
     _format = "%Y-%m-%dT%H:%M:%S.%fZ"
     format = "%Y-%m-%d %H:%M:%S"
-    local_time = datetime.datetime.strptime(tz_time, _format)
+    local_time = datetime.datetime.strptime(tz_time, _format) + datetime.timedelta(hours=8)
     return datetime.datetime.strftime(local_time, format)
+
+
+def format_local_time(local_time):
+    _format = "%Y-%m-%d %H:%M:%S"
+    format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    tz_time = datetime.datetime.strptime(local_time, _format) - datetime.timedelta(hours=8)
+    return datetime.datetime.strftime(tz_time, format)
+
+
+def get_time_now():
+    now = datetime.datetime.now()
+    format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    return datetime.datetime.strftime(now, format)
+
+
+def get_start_time(days):
+    format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    time_start = datetime.datetime.now() - datetime.timedelta(days=int(days))
+    return datetime.datetime.strftime(time_start, format)
 
 
 def get_es_client():
