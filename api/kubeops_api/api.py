@@ -39,7 +39,6 @@ from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.cluster_monitor import ClusterMonitor
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -117,7 +116,8 @@ class HostViewSet(viewsets.ModelViewSet):
                 return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
                                 status=status.HTTP_400_BAD_REQUEST)
         credential = Credential.objects.get(name=serializer.data['credential'])
-        connected = test_host(serializer.data['ip'], credential.username, credential.password)
+        print(serializer.data)
+        connected = test_host(serializer.data['ip'], serializer.data['port'], credential.username, credential.password)
         if not connected:
             return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
@@ -416,6 +416,7 @@ class WebKubeCtrlToken(APIView):
         pk = kwargs.get('pk')
         cluster = get_object_or_404(Cluster, pk=pk)
         return JsonResponse({'token': cluster.get_webkubectl_token()})
+
 
 class DashBoardView(APIView):
     permission_classes = (IsSuperUser,)

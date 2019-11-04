@@ -14,6 +14,11 @@
         <input clrInput size=45 type="text" [(ngModel)]="host.ip" name="ip" required>
       </clr-input-container>
 
+      <clr-input-container>
+        <label>端口:</label>
+        <input clrInput size=45 type="number" max="65535" [(ngModel)]="host.port" name="port" required>
+      </clr-input-container>
+
       <clr-select-container>
         <label>凭据:</label>
         <select clrSelect [(ngModel)]="host.credential" name="credential" required>

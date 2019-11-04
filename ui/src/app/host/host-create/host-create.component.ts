@@ -38,7 +38,6 @@ export class HostCreateComponent implements OnInit {
     });
   }
 
-
   reset() {
     this.hostFrom.resetForm();
     this.listCredential();
@@ -70,8 +69,9 @@ export class HostCreateComponent implements OnInit {
   }
 
   newHost() {
-    this.host = new Host();
     this.reset();
+    this.host = new Host();
+    this.host.port = 22;
     this.createHostOpened = true;
   }
 }

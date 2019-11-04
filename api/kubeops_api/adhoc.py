@@ -12,12 +12,13 @@ def drain_worker_node(host, worker_name):
         raise Exception("drain! node {} failed!".format(worker_name))
 
 
-def gather_host_info(ip, username, password, retry=1):
+def gather_host_info(ip, port, username, password, retry=1):
     hosts = [{
         "ip": ip,
         "username": username,
         "password": password,
-        "name": "default"
+        "name": "default",
+        "port": port
     }]
     attempts = 0
     while attempts < retry:
@@ -36,13 +37,14 @@ def gather_host_info(ip, username, password, retry=1):
                 sleep(1)
 
 
-def test_host(ip, username, password):
+def test_host(ip, port, username, password):
     r = False
     hosts = [{
         "ip": ip,
         "username": username,
         "password": password,
-        "name": "default"
+        "name": "default",
+        "port": port
     }]
     result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'ping'},
                           inventory_data={'hosts': hosts, 'vars': {}})
