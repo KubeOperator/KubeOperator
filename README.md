@@ -76,12 +76,12 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 - [ ] K8s 日志收集及管理方案；
 - [ ] KubeOperator 自身的系统日志收集和管理；
-- [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 新增概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
 
  v2.3 （计划中）
 
 - [ ] KubeApps 应用商店；
+- [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
 
