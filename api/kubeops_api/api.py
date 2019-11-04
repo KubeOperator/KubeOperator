@@ -4,6 +4,7 @@ import yaml
 import logging
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.views import APIView
@@ -20,12 +21,14 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.deploy import DeployExecution
+from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
 from kubeops_api.prometheus_client import PrometheusClient
+from kubeops_api.serializers import DNSSerializer
 from kubeops_api.storage_client import StorageClient
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
@@ -427,3 +430,16 @@ class DashBoardView(APIView):
         cluster_monitor = ClusterMonitor(cluster)
         res = cluster_monitor.list_cluster_data()
         return JsonResponse({'data': json.dumps(res)})
+
+
+class DNSView(RetrieveAPIView):
+    permission_classes = (IsSuperUser,)
+    serializer_class = DNSSerializer
+
+    def get_object(self):
+        return DNS.objects.first()
+
+
+class DNSUpdateView(CreateAPIView):
+    permission_classes = (IsSuperUser,)
+    serializer_class = DNSSerializer

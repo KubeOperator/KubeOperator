@@ -3,6 +3,7 @@ import logging
 from ansible_api.models.mixins import AbstractProjectResourceModel, AbstractExecutionModel
 from django.db import models
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
@@ -12,7 +13,6 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
-
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger(__name__)
@@ -35,10 +35,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = self.get_cluster()
         hostname = Setting.objects.get(key='local_hostname')
+        dns = DNS.objects.first()
         extra_vars = {
             "cluster_name": cluster.name,
             "local_hostname": hostname.value,
-            "domain_suffix": cluster.cluster_doamin_suffix
+            "domain_suffix": cluster.cluster_doamin_suffix,
+            "dns1": dns.dns1,
+            "dns2": dns.dns2,
         }
 
         extra_vars.update(cluster.configs)
@@ -200,9 +203,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         self.steps = cluster.get_steps('cluster-backup')
         return self.run_playbooks(extra_vars)
 
-    def on_upload_backup_file(self,backup_storage_id):
+    def on_upload_backup_file(self, backup_storage_id):
         cluster = self.get_cluster()
-        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id,backup_storage_id)
+        return kubeops_api.cluster_backup_utils.upload_backup_file(cluster.id, backup_storage_id)
 
     def run_playbooks(self, extra_vars):
         result = {"raw": {}, "summary": {}}

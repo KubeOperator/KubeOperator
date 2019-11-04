@@ -1,2 +1,7 @@
-server= {{dns_default_public_server}}
+{% if dns1 %}
+server= {{dns1}}
+{% endif %}
+{% if dns2 %}
+server= {{dns2}}
+{% endif %}
 address=/{{dns_repository_hostname}}/{{local_hostname}}

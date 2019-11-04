@@ -32,6 +32,7 @@ import {StorageModule} from './storage/storage.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SystemLogComponent} from './system-log/system-log.component';
 import {SystemLogModule} from './system-log/system-log.module';
+import {DnsModule} from './dns/dns.module';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import {SystemLogModule} from './system-log/system-log.module';
     SharedModule,
     NfsModule,
     StorageModule,
-    SystemLogModule
+    SystemLogModule,
+    DnsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

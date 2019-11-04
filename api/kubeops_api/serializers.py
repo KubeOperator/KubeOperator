@@ -3,6 +3,7 @@ from django.shortcuts import reverse
 
 from cloud_provider.models import Plan, Zone
 from kubeops_api.models.credential import Credential
+from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
@@ -222,3 +223,10 @@ class ClusterHeathHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClusterHealthHistory
         fields = ['id', 'project_id', 'available_rate', 'date_type', 'date_created', 'month']
+
+
+class DNSSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNS
+        fields = ["id", "dns1", "dns2", 'date_created']
+        read_only_fields = ['id', 'date_created']

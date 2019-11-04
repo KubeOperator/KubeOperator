@@ -2,6 +2,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from kubeops_api import api
 from django.urls import path
+from django.conf.urls import url
 
 app_name = "kubeops_api"
 router = DefaultRouter()
@@ -38,4 +39,6 @@ urlpatterns = [
                   path('cluster/<project_name>/health/', api.ClusterHealthView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
+                  url('dns/update/', api.DNSUpdateView.as_view(), name='dns'),
+                  url('dns/', api.DNSView.as_view(), name='dns'),
               ] + router.urls + cluster_router.urls

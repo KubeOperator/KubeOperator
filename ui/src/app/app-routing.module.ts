@@ -30,6 +30,7 @@ import {NfsComponent} from './nfs/nfs.component';
 import {StorageComponent} from './storage/storage.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SystemLogComponent} from './system-log/system-log.component';
+import {DnsComponent} from './dns/dns.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -71,7 +72,8 @@ const routes: Routes = [
           {path: '', redirectTo: 'system', pathMatch: 'full'},
           {path: 'system', component: SystemSettingComponent},
           {path: 'credential', component: CredentialComponent},
-          {path: 'backup-storage', component: BackupStorageSettingComponent}
+          {path: 'backup-storage', component: BackupStorageSettingComponent},
+          {path: 'dns', component: DnsComponent}
         ]
       },
       {
