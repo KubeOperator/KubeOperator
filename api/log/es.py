@@ -3,8 +3,7 @@ import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
-
-# from fit2ansible.settings import ELASTICSEARCH_HOST
+from fit2ansible.settings import ELASTICSEARCH_HOST
 
 
 def search_log(params):
@@ -25,7 +24,7 @@ def search_log(params):
         s = s.query("match", levelname=level)
     s = s.query("range", timestamp={"gte": time_start, "lte": time_end})
     if page and size:
-        s = s[page - 1:size]
+        s = s[(page - 1) * size:page * size]
     if keywords:
         s = s.query("match", message=keywords)
     s = s.sort({"timestamp": {"order": "desc"}})
@@ -46,6 +45,7 @@ def search_log(params):
                 "exc_text": hit.exc_text
             }
         )
+    print(len(items))
     return {
         "items": items,
         "total": s.count()
@@ -79,5 +79,5 @@ def get_start_time(days):
 
 
 def get_es_client():
-    client = Elasticsearch(hosts=['172.16.10.142'])
+    client = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
     return client
