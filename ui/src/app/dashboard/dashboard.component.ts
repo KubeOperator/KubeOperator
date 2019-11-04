@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
 
   loading = true;
   clusters: Cluster[] = [];
+  selectClusters: Cluster[] = [];
   dashboardSearch: DashboardSearch = new DashboardSearch();
   clusterData = [];
   podCount = 0;
@@ -36,6 +37,7 @@ export class DashboardComponent implements OnInit {
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;
+      this.selectClusters = data;
       this.getClusterData();
     }, error => {
       this.loading = false;

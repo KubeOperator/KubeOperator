@@ -20,7 +20,7 @@
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
           <option value="all">所有集群</option>
-          <option *ngFor="let c of clusters" value="{{c.name}}">{{c.name}}</option>
+          <option *ngFor="let c of selectClusters" value="{{c.name}}">{{c.name}}</option>
         </select>
       </div>
       &nbsp;
