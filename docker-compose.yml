@@ -66,8 +66,6 @@ services:
               '--character-set-server=utf8',
               '--default-time-zone=+8:00'
     ]
-    ports:
-      - 3306
     volumes:
       - mysql_data:/var/lib/mysql
     environment:
@@ -84,8 +82,6 @@ services:
     image: redis:alpine
     container_name: kubeops_redis
     restart: always
-    ports:
-      - 6379
     healthcheck:
       test: ["CMD", "redis-cli", "info"]
       interval: 10s
@@ -98,22 +94,31 @@ services:
     image: webkubectl/webkubectl:v1.4
     container_name: kubeops_webkubectl
     restart: always
-    ports:
-     - 8080
     privileged: true
     healthcheck:
       test: "curl localhost:8080"
       interval: 10s
       timeout: 5s
       retries: 10
-
-
-
+  elasticsearch:
+    image: elasticsearch:7.4.1
+    container_name: kubeops_elasticsearch
+    restart: always
+    environment:
+      discovery.type: single-node
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: "curl localhost:9200"
+      interval: 10s
+      timeout: 5s
+      retries: 10  
 
 volumes:
   api_data:
   mysql_data:
   redis_data:
+  es_data:
   dns_data:
 networks:
   default:
