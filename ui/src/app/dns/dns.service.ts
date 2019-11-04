@@ -12,10 +12,10 @@ export class DnsService {
   }
 
   getDns(): Observable<Dns> {
-    return this.http.get<Dns>('api/v1/dns/');
+    return this.http.get<Dns>('/api/v1/dns/');
   }
 
   updateDns(dns: Dns): Observable<Dns> {
-    return this.http.post<Dns>('api/v1/dns/update/', dns);
+    return this.http.post<Dns>('/api/v1/dns/update/', dns);
   }
 }

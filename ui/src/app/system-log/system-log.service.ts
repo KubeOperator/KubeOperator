@@ -11,7 +11,7 @@ export class SystemLogService {
   constructor(private http: HttpClient) {
   }
 
-  private baseUrl = 'api/v1/log/';
+  private baseUrl = '/api/v1/log/';
 
   searchLog(params): Observable<SystemLogPager> {
     return this.http.post<SystemLogPager>(this.baseUrl, params);
