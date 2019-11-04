@@ -62,8 +62,8 @@ config:
   chunk_store_config:
     max_look_back_period: 0
   table_manager:
-    retention_deletes_enabled: false
-    retention_period: 0
+    retention_deletes_enabled: true
+    retention_period: 720h
 
 image:
   repository: {{registry_prefix}}:{{registry_port}}/{{loki_image}}
@@ -89,17 +89,19 @@ client: {}
   # name:
 
 ## ref: https://kubernetes.io/docs/user-guide/node-selection/
-nodeSelector: {}
+nodeSelector:
+  nodetype: persistent
 
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ## If you set enabled as "True", you need :
 ## - create a pv which above 10Gi and has same namespace with loki
 ## - keep storageClassName same with below setting
 persistence:
-  enabled: false
+  enabled: true
+  storageClassName: {{ storageClassName }}
   accessModes:
   - ReadWriteOnce
-  size: 10Gi
+  size: 100Gi
   annotations: {}
   # subPath: ""
   # existingClaim:

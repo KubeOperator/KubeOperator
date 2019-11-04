@@ -65,8 +65,7 @@ import {SystemLogModule} from './system-log/system-log.module';
     ClusterBackupModule,
     SharedModule,
     NfsModule,
-    StorageModule,
-    SystemLogModule
+    StorageModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

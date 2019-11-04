@@ -1,0 +1,36 @@
+.center {
+  text-align: center;
+}
+.middle {
+  vertical-align: middle
+}
+
+.white-div {
+  height: 250px;
+}
+.card-style {
+  height: 200px;
+}
+
+.card-top {
+  position: absolute;
+  z-index: 10;
+  top: calc(50% - 150px);
+  text-align: center;
+  width: 600px;
+  height: 350px;
+  left: calc(50% - 200px);
+}
+
+.div-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.count span {
+  float: right;
+}
+
+.type-face span{
+  color: #c1c5d3;
+}
