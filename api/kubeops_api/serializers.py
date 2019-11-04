@@ -20,8 +20,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 
 __all__ = [
-    'PackageSerializer', 'ClusterSerializer', 'NodeSerializer',
-    'RoleSerializer', 'DeployExecutionSerializer', 'SettingSerializer', 'HostSerializer',
+    'PackageSerializer', 'ClusterSerializer', 'NodeSerializer','RoleSerializer', 'DeployExecutionSerializer', 'SettingSerializer', 'HostSerializer',
     'CredentialSerializer', 'BackupStrategySerializer', 'BackupStorageSerializer'
 ]
 
@@ -111,11 +110,11 @@ class NodeSerializer(AnsibleHostSerializer):
         extra_kwargs = AnsibleHostSerializer.Meta.extra_kwargs
 
         fields = [
-            'id', 'name', 'ip', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version',
+            'id', 'name', 'ip', 'port', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os',
+            'host_os_version',
             'status'
         ]
         read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip', 'status']
-
 
 class RoleSerializer(GroupSerializer):
     nodes = serializers.SlugRelatedField(
@@ -128,7 +127,6 @@ class RoleSerializer(GroupSerializer):
         model = Role
         fields = ['id', 'name', 'nodes', 'children', 'vars', 'meta', 'comment']
         read_only_fields = ['id']
-
 
 class DeployExecutionSerializer(serializers.ModelSerializer):
     result_summary = serializers.JSONField(read_only=True)
@@ -158,7 +156,6 @@ class DeployExecutionSerializer(serializers.ModelSerializer):
     def get_progress_ws_url(obj):
         return '/ws/progress/{}/'.format(obj.id)
 
-
 class ClusterSerializer(ProjectSerializer):
     package = serializers.SlugRelatedField(
         queryset=Package.objects.all(),
@@ -175,13 +172,13 @@ class ClusterSerializer(ProjectSerializer):
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template', 'plan',
+        fields = ['id', 'name', 'package', 'worker_size', 'persistent_storage', 'network_plugin', 'template',
+                  'plan',
                   'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
                   'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'configs',
                   'cluster_doamin_suffix']
         read_only_fields = ['id', 'date_created', 'current_execution', 'status', 'resource', 'resource_version',
                             'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
-
 
 class BackupStorageSerializer(serializers.ModelSerializer):
     credentials = serializers.DictField()
@@ -191,12 +188,10 @@ class BackupStorageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'region', 'credentials', 'type', 'date_created', 'status']
         read_only_fields = ['id', 'date_created']
 
-
 class BackupStrategySerializer(serializers.ModelSerializer):
     class Meta:
         model = BackupStrategy
         fields = ['id', 'cron', 'save_num', 'project_id', 'backup_storage_id', 'status']
-
 
 class ClusterBackupSerializer(serializers.ModelSerializer):
     backup_storage = serializers.SlugRelatedField(
@@ -208,12 +203,10 @@ class ClusterBackupSerializer(serializers.ModelSerializer):
         model = ClusterBackup
         fields = ['id', 'name', 'size', 'date_created', 'project_id', 'folder', 'backup_storage']
 
-
 class ClusterHealthSerializer(serializers.Serializer):
     type = serializers.CharField()
     data = serializers.CharField()
     status = serializers.CharField()
-
 
 class ClusterHeathHistorySerializer(serializers.ModelSerializer):
     class Meta:
