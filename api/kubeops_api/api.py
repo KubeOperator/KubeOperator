@@ -4,7 +4,7 @@ import yaml
 import logging
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.generics import RetrieveAPIView, CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.views import APIView
@@ -125,6 +125,12 @@ class HostViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        host = get_object_or_404(Host, pk=pk)
+        host.gather_info(retry=1)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):

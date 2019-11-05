@@ -154,7 +154,7 @@ def get_service_instance(kwargs):
     service_instance = connect.SmartConnectNoSSL(host=host, user=username, pwd=password, port=int(443))
     if not service_instance:
         logger.error(msg='Could not connect to the specified host using specified username and password',
-                     exec_info=True)
+                     exc_info=True)
         raise Exception('Could not connect to the specified host using specified username and password')
     return service_instance
 
@@ -168,7 +168,7 @@ def get_ovf_descriptor(ovf_path):
                 return ovfd
             except:
                 logger.error(msg='Could not read file: {}'.format(ovf_path),
-                             exec_info=True)
+                             exc_info=True)
                 print("Could not read file: {}".format(ovf_path))
 
 

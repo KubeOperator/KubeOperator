@@ -53,19 +53,16 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_install(extra_vars)
-                logger.info(msg="cluster: {} extc {} success".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'uninstall':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
-                logger.info(msg="cluster: {} exec: {} success".format(cluster, self.operation))
                 result = self.on_uninstall(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_READY)
             elif self.operation == 'bigip-config':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 result = self.on_f5_config(extra_vars)
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'upgrade':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_UPGRADING)
@@ -75,7 +72,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_upgrade(extra_vars)
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'scale':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
@@ -83,7 +79,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'add-worker':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
@@ -92,14 +87,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_add_worker(extra_vars)
                 cluster.exit_new_node()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'restore':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
                 cluster_backup_id = self.params.get('clusterBackupId', None)
                 result = self.on_restore(extra_vars, cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'backup':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
@@ -107,7 +100,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_backup(extra_vars)
                 self.on_upload_backup_file(cluster_storage_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
 
 
         except Exception as e:
@@ -115,7 +107,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             if return_running:
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exec_info=True)
+            logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result

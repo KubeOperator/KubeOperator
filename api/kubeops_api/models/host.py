@@ -68,7 +68,7 @@ class Host(BaseHost):
             facts = gather_host_info(self.ip, self.port, self.username, self.password, retry)
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
-            logger.error("host: {}  gather host info".format(self.name), exec_info=True)
+            logger.error("host: {}  gather host info".format(self.name), exc_info=True)
             raise e
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]

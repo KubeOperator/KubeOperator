@@ -15,10 +15,18 @@ export class HostInfoComponent implements OnInit {
   @Input() showInfoModal = false;
   @Output() showInfoModalChange = new EventEmitter();
 
-  constructor() {
+  constructor(private hostService: HostService) {
   }
 
   ngOnInit() {
+  }
+
+  refresh() {
+    this.loading = true;
+    this.hostService.getHost(this.host.id).subscribe(data => {
+      this.loading = false;
+      this.host = data;
+    });
   }
 
   cancel() {
