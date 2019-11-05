@@ -211,6 +211,7 @@ class Cluster(Project):
     def upgrade_package(self, name):
         package = Package.objects.get(name=name)
         self.package = package
+        self.configs.update(package.meta['vars'])
         self.save()
 
     @staticmethod
