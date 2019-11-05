@@ -61,7 +61,10 @@ class PackageViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'name'
 
     def get_queryset(self):
-        Package.lookup()
+        try:
+            Package.lookup()
+        except Exception as e:
+            logger.error(e, exc_info=True)
         return super().get_queryset()
 
 
