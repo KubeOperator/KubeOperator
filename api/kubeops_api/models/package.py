@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from fit2ansible.settings import PACKAGE_DIR
 from kubeops_api.package_manage import *
 
+logger = logging.getLogger('kubeops')
 __all__ = ['Package']
 
 
@@ -39,7 +40,9 @@ class Package(models.Model):
 
     @classmethod
     def lookup(cls):
+        logger.info('lookup package...')
         for d in os.listdir(cls.packages_dir):
+
             full_path = os.path.join(cls.packages_dir, d)
             meta_path = os.path.join(full_path, 'meta.yml')
             if not os.path.isdir(full_path) or not os.path.isfile(meta_path):
@@ -47,6 +50,7 @@ class Package(models.Model):
             with open(meta_path) as f:
                 metadata = yaml.load(f)
             defaults = {'name': d, 'meta': metadata}
+            logger.info('save package  {}...'.format(d))
             instance = cls.objects.update_or_create(defaults=defaults, name=d)[0]
             thread = threading.Thread(target=cls.start_container(instance))
             thread.start()

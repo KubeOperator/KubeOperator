@@ -1,3 +1,4 @@
+import logging
 import os
 from threading import Thread
 from time import sleep
@@ -8,6 +9,8 @@ from pyVmomi import vim
 from cloud_provider.utils import download_plugins
 from fit2ansible.settings import CLOUDS_RESOURCE_DIR
 from kubeops_api.models.setting import Setting
+
+logger = logging.getLogger('cloud_provider')
 
 
 class VsphereCloudClient(CloudClient):
@@ -88,6 +91,7 @@ class VsphereCloudClient(CloudClient):
         dc = get_obj(content, [vim.Datacenter], container, zone.region.cloud_region)
         if not folder:
             dc.vmFolder.CreateFolder('kubeoperator')
+            logger.info("create vm folder : {}".format('kubeoperator'))
         folder = get_obj(content, viewType, container, 'kubeoperator')
         viewType = [vim.VirtualMachine]
         vm = get_obj(content, viewType, folder, zone.region.image_name)
@@ -149,6 +153,8 @@ def get_service_instance(kwargs):
     password = kwargs.get('password')
     service_instance = connect.SmartConnectNoSSL(host=host, user=username, pwd=password, port=int(443))
     if not service_instance:
+        logger.error(msg='Could not connect to the specified host using specified username and password',
+                     exec_info=True)
         raise Exception('Could not connect to the specified host using specified username and password')
     return service_instance
 
@@ -161,6 +167,8 @@ def get_ovf_descriptor(ovf_path):
                 f.close()
                 return ovfd
             except:
+                logger.error(msg='Could not read file: {}'.format(ovf_path),
+                             exec_info=True)
                 print("Could not read file: {}".format(ovf_path))
 
 
@@ -168,7 +176,7 @@ def keep_lease_alive(lease):
     while (True):
         sleep(5)
         try:
-            print('模版上传中...')
+            logger.info('template uploading...')
             lease.HttpNfcLeaseProgress(50)
             if lease.state == vim.HttpNfcLease.State.done:
                 return

@@ -187,17 +187,11 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['json', 'pickle']
 CELERY_RESULT_EXPIRES = 3600
-# CELERY_WORKER_LOG_FORMAT = '%(asctime)s [%(module)s %(levelname)s] %(message)s'
-# CELERY_WORKER_LOG_FORMAT = '%(message)s'
-# CELERY_WORKER_TASK_LOG_FORMAT = '%(task_id)s %(task_name)s %(message)s'
 CELERY_WORKER_TASK_LOG_FORMAT = '%(message)s'
-# CELERY_WORKER_LOG_FORMAT = CELERY_WORKER_TASK_LOG_FORMAT
-# CELERY_WORKER_LOG_FORMAT = '%(asctime)s [%(module)s %(levelname)s] %(message)s'
 CELERY_WORKER_LOG_FORMAT = '%(message)s'
 CELERY_TASK_EAGER_PROPAGATES = True
 CELERY_WORKER_REDIRECT_STDOUTS = True
 CELERY_WORKER_REDIRECT_STDOUTS_LEVEL = "INFO"
-# CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 40
 
 REST_FRAMEWORK = {
@@ -247,11 +241,7 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'standard': {
-            'format': '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]'
-                      '[%(levelname)s][%(message)s]'
-        },
-        'simple': {
+        'default': {
             'format': '[%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d]%(message)s'
         },
     },
@@ -265,23 +255,30 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'default'
         },
         'elasticsearch': {
             'level': 'INFO',
             'class': 'cmreslogging.handlers.CMRESHandler',
             'hosts': [{'host': ELASTICSEARCH_HOST, 'port': 9200}],
-            'es_index_name': 'my_python_app',
+            'es_index_name': 'kubeoperator',
             'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
             'auth_type': CMRESHandler.AuthType.NO_AUTH,
             'use_ssl': False,
         },
     },
     'loggers': {
-        '': {
+        'user': {
             'handlers': ['console', 'elasticsearch'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'level': 'INFO',
+        },
+        'kubeops': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'cloud_provider': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
         },
     },
 }

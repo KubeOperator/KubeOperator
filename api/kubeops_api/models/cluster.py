@@ -11,19 +11,16 @@ import kubeops_api
 from ansible_api.models import Project, Playbook
 from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR, WEBKUBECTL_URL
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
-from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, \
-    scale_compute_resource
+from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, scale_compute_resource
 from common import models as common_models
 from kubeops_api.components import get_component_urls
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
-
-from kubeops_api.models.setting import Setting
 from storage.models import NfsStorage
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("kubeops")
 __all__ = ["Cluster"]
 
 
@@ -41,7 +38,6 @@ class Cluster(Project):
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
     CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
     CLUSTER_DEPLOY_TYPE_ADDING = 'ADDING'
-
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),

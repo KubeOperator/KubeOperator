@@ -42,10 +42,9 @@ from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.cluster_monitor import ClusterMonitor
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('kubeops')
 
 
-# 集群视图
 class ClusterViewSet(viewsets.ModelViewSet):
     queryset = Cluster.objects.all()
     serializer_class = serializers.ClusterSerializer

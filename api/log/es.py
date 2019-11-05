@@ -15,7 +15,7 @@ def search_log(params):
     size = 10
     time_start = get_start_time(limit_days)
     time_end = get_time_now()
-    index = "my_python_app-2019.11"
+    index = get_index()
 
     client = get_es_client()
     s = Search(using=client, index=index)
@@ -76,6 +76,12 @@ def get_start_time(days):
     format = "%Y-%m-%dT%H:%M:%S.%fZ"
     time_start = datetime.datetime.now() - datetime.timedelta(days=int(days))
     return datetime.datetime.strftime(time_start, format)
+
+
+def get_index():
+    year = datetime.datetime.now().year
+    month = datetime.datetime.now().month
+    return 'kubeoperator-{}.{}'.format(year, month)
 
 
 def get_es_client():

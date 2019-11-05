@@ -1,3 +1,4 @@
+import logging
 import uuid
 from django.db import models
 from ansible_api.models.inventory import BaseHost
@@ -8,6 +9,7 @@ from kubeops_api.models.credential import Credential
 from common import models as common_models
 
 __all__ = ['Host']
+logger = logging.getLogger('kubeops')
 
 
 class Host(BaseHost):
@@ -62,9 +64,11 @@ class Host(BaseHost):
 
     def gather_info(self, retry=1):
         try:
+            logger.info("host: {}  gather host info ".format(self.name))
             facts = gather_host_info(self.ip, self.port, self.username, self.password, retry)
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
+            logger.error("host: {}  gather host info".format(self.name), exec_info=True)
             raise e
         self.memory = facts["ansible_memtotal_mb"]
         cpu_cores = facts["ansible_processor_cores"]

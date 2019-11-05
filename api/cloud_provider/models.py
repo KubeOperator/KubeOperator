@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 import uuid
-from ipaddress import ip_address, ip_interface, ip_network
+from ipaddress import ip_address, ip_interface
 import yaml
 from django.db import models
 
@@ -13,7 +13,7 @@ from fit2ansible import settings
 from django.utils.translation import ugettext_lazy as _
 from kubeops_api.models.host import Host
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cloud_provider')
 
 
 class CloudProviderTemplate(models.Model):
@@ -124,12 +124,13 @@ class Zone(models.Model):
 
     def create_image(self):
         try:
+            logger.info('upload os image')
             self.change_status(Zone.ZONE_STATUS_INITIALIZING)
             client = get_cloud_client(self.region.vars)
             client.create_image(zone=self)
             self.change_status(Zone.ZONE_STATUS_READY)
         except Exception as e:
-            logger.error(e, exc_info=True)
+            logger.error(msg='upload os image error!', exc_info=True)
             self.change_status(Zone.ZONE_STATUS_ERROR)
 
     def on_zone_create(self):

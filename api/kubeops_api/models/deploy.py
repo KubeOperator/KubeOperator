@@ -15,7 +15,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 
 __all__ = ['DeployExecution']
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('kubeops')
 
 
 class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
@@ -50,17 +50,24 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
         try:
             if self.operation == "install":
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_install(extra_vars)
+                logger.info(msg="cluster: {} extc {} success".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'uninstall':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
+                logger.info(msg="cluster: {} exec: {} success".format(cluster, self.operation))
                 result = self.on_uninstall(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_READY)
             elif self.operation == 'bigip-config':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 result = self.on_f5_config(extra_vars)
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'upgrade':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_UPGRADING)
                 package_name = self.params.get('package', None)
                 package = Package.objects.get(name=package_name)
@@ -68,39 +75,47 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_upgrade(extra_vars)
                 cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'scale':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 return_running = True
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_scaling(extra_vars)
                 cluster.exit_new_node()
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'add-worker':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 return_running = True
                 cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_ADDING)
                 result = self.on_add_worker(extra_vars)
                 cluster.exit_new_node()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'restore':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
                 cluster_backup_id = self.params.get('clusterBackupId', None)
                 result = self.on_restore(extra_vars, cluster_backup_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             elif self.operation == 'backup':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
                 cluster_storage_id = self.params.get('backupStorageId', None)
                 result = self.on_backup(extra_vars)
                 self.on_upload_backup_file(cluster_storage_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
 
 
         except Exception as e:
-            print('Unexpect error occur: {}'.format(e))
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             if return_running:
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            logger.error(e, exc_info=True)
+            logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exec_info=True)
             result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
