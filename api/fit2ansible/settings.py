@@ -29,7 +29,7 @@ KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
 WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
-PACKAGE_DIR = "/data/packages"
+PACKAGE_DIR = "/Users/shenchenyang/data/packages"
 ELASTICSEARCH_HOST = "elasticsearch"
 
 CONFIG = load_user_config()
@@ -208,8 +208,6 @@ REST_FRAMEWORK = {
     ),
     'ORDERING_PARAM': "order",
     'SEARCH_PARAM': "search",
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S %z',
-    'DATETIME_INPUT_FORMATS': ['%Y-%m-%d %H:%M:%S %z'],
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     # 'PAGE_SIZE': 25
 }
@@ -268,18 +266,18 @@ LOGGING = {
         },
     },
     'loggers': {
-        'user': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
-        'kubeops': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
-        'cloud_provider': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
+        # 'user': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
+        # 'kubeops': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
+        # 'cloud_provider': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
     },
 }
 
