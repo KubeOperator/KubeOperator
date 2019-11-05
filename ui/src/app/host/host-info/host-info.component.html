@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="showInfoModal" [clrModalSize]="'lg'" [clrModalClosable]=false>
   <h3 class="modal-title">主机信息</h3>
   <div class="modal-body">
-    <div *ngIf="host!=null">
+    <div *ngIf="host!=null && !loading">
       <h5>基本信息</h5>
       <hr/>
       CPU:{{host.cpu_core}} 核<br/>
@@ -19,8 +19,12 @@
         </clr-dg-row>
       </clr-datagrid>
     </div>
+    <div *ngIf="loading" style="text-align: center">
+      <clr-spinner></clr-spinner>
+    </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn" (click)="cancel()" [disabled]="loading">取消</button>
+    <button type="button" class="btn" (click)="refresh()" [disabled]="loading">刷新</button>
   </div>
 </clr-modal>

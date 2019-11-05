@@ -133,6 +133,12 @@ class HostViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        host = get_object_or_404(Host, pk=pk)
+        host.gather_info(retry=1)
+        return super().retrieve(request, *args, **kwargs)
+
 
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ClusterConfigSerializer
