@@ -1,0 +1,18 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
+  <h3 class="modal-title">移除节点</h3>
+  <div class="modal-body">
+    <form clrForm #form='ngForm'>
+      <clr-select-container>
+        <label>选择节点</label>
+        <select clrSelect [(ngModel)]="worker" name="host">
+          <option value="">请选择</option>
+          <option *ngFor="let node of workers" [value]="node.name">{{node.name}}</option>
+        </select>
+      </clr-select-container>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="close()">取消</button>
+    <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="onConfirm()">确认</button>
+  </div>
+</clr-modal>

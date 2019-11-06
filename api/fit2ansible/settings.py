@@ -29,7 +29,7 @@ KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
 WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
-PACKAGE_DIR = "/Users/shenchenyang/data/packages"
+PACKAGE_DIR = "/data/packages"
 ELASTICSEARCH_HOST = "elasticsearch"
 
 CONFIG = load_user_config()

@@ -25,6 +25,8 @@ playbooks:
     alias: cluster-backup.yml
   - name:  cluster-restore
     alias: cluster-restore.yml
+  - name: remove-worker
+    alias: remove-worker.yml
 
 operations:
   - name: install
@@ -74,6 +76,12 @@ operations:
       - name: add-node
         flow: 添加节点
         playbook: scale
+
+  - name: remove-worker
+    steps:
+      - name: remove-node
+        flow: 删除节点
+        playbook: remove-worker
 
   - name: scale
     steps:
