@@ -7,7 +7,6 @@ from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from django.db.models import Q
 
-
 class ClusterMonitor():
 
     def __init__(self, cluster):
@@ -176,3 +175,9 @@ class ClusterMonitor():
             else:
                 left.append(item)
         return self.quick_sort_pods(left) + [mid] + self.quick_sort_pods(right)
+
+def put_cluster_data_to_redis():
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    for cluster in clusters:
+        cluster_monitor = ClusterMonitor(cluster)
+        success = cluster_monitor.set_cluster_data()

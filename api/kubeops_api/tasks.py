@@ -5,11 +5,12 @@ from celery.task import periodic_task
 
 from common.utils import get_object_or_none
 from ansible_api.ctx import change_to_root
-from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.deploy import DeployExecution
 import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_health_utils
 from celery.schedules import crontab
+import kubeops_api.cluster_monitor
+
 
 
 logger = logging.getLogger(__name__)
@@ -38,3 +39,7 @@ def get_cluster_health_day():
 @periodic_task(run_every=crontab(minute=0, hour='*/1'),name='task.get_cluster_health_hour')
 def get_cluster_health_hour():
     kubeops_api.cluster_health_utils.get_cluster_health_msg_hour()
+
+@periodic_task(run_every=crontab(minute='*/5'),name='task.save_cluster_data')
+def save_cluster_data():
+    kubeops_api.cluster_monitor.put_cluster_data_to_redis()
