@@ -52,6 +52,10 @@ metadata:
   annotations:
     ingress.kubernetes.io/proxy-body-size: "5120M"
 spec:
+  selector:
+    matchLabels:
+      k8s-app: traefik-ingress-lb
+      name: traefik-ingress-lb
   template:
     metadata:
       labels:

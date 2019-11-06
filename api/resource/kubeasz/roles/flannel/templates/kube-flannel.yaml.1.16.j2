@@ -55,6 +55,7 @@ data:
   cni-conf.json: |
     {
       "name": "cbr0",
+      "cniVersion": "0.3.1",
       "plugins": [
         {
           "type": "flannel",
@@ -88,6 +89,10 @@ metadata:
     tier: node
     app: flannel
 spec:
+  selector:
+    matchLabels:
+      tier: node
+      app: flannel
   template:
     metadata:
       labels:

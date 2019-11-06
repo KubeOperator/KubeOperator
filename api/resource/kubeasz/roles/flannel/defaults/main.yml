@@ -12,3 +12,6 @@ FLANNEL_BACKEND: "host-gw"
 
 # 离线镜像tar包
 flannel_offline: "flannel_v0.11.0-amd64.tar"
+
+# kubernetes 大版本号
+kube_version_main: "{{ kube_version.split('.')[0] }}.{{ kube_version.split('.')[1] }}"

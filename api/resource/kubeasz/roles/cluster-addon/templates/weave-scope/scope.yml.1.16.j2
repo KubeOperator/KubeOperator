@@ -229,6 +229,12 @@ items:
         weave-scope-component: agent
       namespace: weave
     spec:
+      selector:
+        matchLabels:
+          name: weave-scope-agent
+          app: weave-scope
+          weave-cloud-component: scope
+          weave-scope-component: agent
       minReadySeconds: 5
       template:
         metadata:
