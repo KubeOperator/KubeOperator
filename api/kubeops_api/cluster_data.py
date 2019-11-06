@@ -4,7 +4,8 @@ from uuid import UUID
 
 class ClusterData():
 
-    def __init__(self, cluster, token, pods, nodes, namespaces, deployments):
+    def __init__(self, cluster, token, pods, nodes, namespaces, deployments, cpu_usage, cpu_total, mem_usage,
+                 mem_total):
         self.id = str(cluster.id)
         self.name = cluster.name
         self.pods = pods
@@ -12,6 +13,10 @@ class ClusterData():
         self.token = token
         self.namespaces = namespaces
         self.deployments = deployments
+        self.cpu_usage = cpu_usage
+        self.cpu_total = cpu_total
+        self.mem_usage = mem_usage
+        self.mem_total = mem_total
 
 
 class Pod():
@@ -37,14 +42,18 @@ class NameSpace():
 
 class Node():
 
-    def __init__(self, name, status):
+    def __init__(self, name, status, cpu, mem, cpu_usage, mem_usage):
         self.name = name
         self.status = status
+        self.cpu = cpu
+        self.mem = mem
+        self.cpu_usage = cpu_usage
+        self.mem_usage = mem_usage
 
 
 class Container():
 
-    def __init__(self, name, ready, restart_count,pod_name):
+    def __init__(self, name, ready, restart_count, pod_name):
         self.name = name
         self.ready = ready
         self.restart_count = restart_count
