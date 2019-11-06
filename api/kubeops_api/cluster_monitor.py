@@ -6,6 +6,9 @@ from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Containe
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from django.db.models import Q
+import logging
+
+logger = logging.getLogger('kubeops')
 
 class ClusterMonitor():
 
@@ -181,3 +184,5 @@ def put_cluster_data_to_redis():
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
+        if success == False:
+            logger.error(msg='put cluster data to redis error',exec_info = True)
