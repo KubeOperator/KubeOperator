@@ -34,3 +34,6 @@
 .type-face span{
   color: #c1c5d3;
 }
+.progress-dashboard {
+  height: 20px !important;position: relative !important;
+}

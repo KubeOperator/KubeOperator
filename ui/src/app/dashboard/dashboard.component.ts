@@ -38,6 +38,21 @@ export class DashboardComponent implements OnInit {
     this.search();
   }
 
+  data_init() {
+    this.clusterData = [];
+    this.podCount = 0;
+    this.nodeCount = 0;
+    this.namespaceCount = 0;
+    this.deploymentCount = 0;
+    this.containerCount = 0;
+    this.restartPods = [];
+    this.warnContainers = [];
+    this.cpu_usage = 0;
+    this.mem_usage = 0;
+    this.cpu_total = 0;
+    this.mem_total = 0;
+  }
+
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;
@@ -52,29 +67,22 @@ export class DashboardComponent implements OnInit {
     this.clusterService.getCluster(this.dashboardSearch.cluster).subscribe(data => {
       this.clusters = [];
       this.clusters.push(data);
-      this.loading = false;
+      this.getClusterData();
     });
   }
 
   getClusterData() {
-    this.dashboardService.getDashboard(this.clusters[1].name).subscribe(data => {
-      this.clusterData = JSON.parse(data.data);
-      for (const d of this.clusterData) {
+    this.data_init();
+    this.dashboardService.getDashboard(this.dashboardSearch.cluster).subscribe(data => {
+      this.clusterData = data.data;
+      this.restartPods = data.restartPods;
+      this.warnContainers = data.warnContainers;
+      for (const cd of this.clusterData) {
+        const d = JSON.parse(cd);
         this.podCount = this.podCount + d['pods'].length;
         this.namespaceCount = this.namespaceCount + d['namespaces'].length;
         this.deploymentCount = this.deploymentCount + d['deployments'].length;
         this.nodeCount = this.nodeCount + d['nodes'].length;
-        for (const p of d['pods']) {
-          this.containerCount = this.containerCount + p['containers'].length;
-          if (p['restart_count'] > 0) {
-            this.restartPods.push(p);
-          }
-          for (const c of p['containers']) {
-            if (p['ready'] === false) {
-              this.warnContainers.push(c);
-            }
-          }
-        }
         this.cpu_total = this.cpu_total + d['cpu_total'];
         this.mem_total = this.mem_total + d['mem_total'];
         this.cpu_usage = this.cpu_usage + d['cpu_usage'];
@@ -85,6 +93,7 @@ export class DashboardComponent implements OnInit {
         this.mem_usage = this.mem_usage / this.clusterData.length * 100;
       }
       this.loading = false;
+      console.log(this.restartPods);
     });
   }
 

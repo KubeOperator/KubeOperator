@@ -9,13 +9,13 @@
 <div class="clr-row" *ngIf="!loading">
   <div class="clr-col-lg-12 clr-col-12">
     <div style="float: right">
-      <div class="clr-select-wrapper">
-        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">
-          <option value="1">过去一天</option>
-          <option value="7">过去一周</option>
-          <option value="30">过去一月</option>
-        </select>
-      </div>
+<!--      <div class="clr-select-wrapper">-->
+<!--        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">-->
+<!--          <option value="1">过去一天</option>-->
+<!--          <option value="7">过去一周</option>-->
+<!--          <option value="30">过去一月</option>-->
+<!--        </select>-->
+<!--      </div>-->
       &nbsp; &nbsp; &nbsp;
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
@@ -75,7 +75,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="toPage('cluster')">集群列表</a>
+        <a class="btn btn-sm btn-link" (click)="toPage('cluster')">详情</a>
       </div>
     </div>
   </div>
@@ -91,10 +91,9 @@
           <br>
           <br>
           <div class="clr-col-sm-11 clr-offset-sm-1">
-            <div class="progress success labeled" style="height: 20px !important;position: relative !important;"
+            <div class="progress success labeled progress-dashboard"
                  data-displayval="80%">
-              <progress max="100" value="{{cpu_usage}}"
-                        style="height: 20px !important;position: relative !important;"></progress>
+              <progress class="progress-dashboard" max="100" value="{{cpu_usage}}"></progress>
               <span>{{cpu_total}}核</span>
             </div>
           </div>
@@ -105,10 +104,8 @@
           <br>
           <br>
           <div class="clr-col-sm-11 clr-offset-sm-1">
-            <div class="progress success labeled" style="height: 20px !important;position: relative !important;"
-                 data-displayval="80%">
-              <progress max="100" value="{{mem_usage}}"
-                        style="height: 20px !important;position: relative !important;"></progress>
+            <div class="progress success labeled progress-dashboard" data-displayval="80%">
+              <progress class="progress-dashboard" max="100" value="{{mem_usage}}"></progress>
               <span>{{mem_total | number: '1.0-2' }}G</span>
             </div>
           </div>
@@ -116,7 +113,7 @@
 
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">Action 2</a>
+        <a href="..." class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>
@@ -144,7 +141,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">集群列表</a>
+        <a href="..." class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>
@@ -173,11 +170,6 @@
             <th>集群</th>
             <th>重启次数</th>
           </tr>
-          <tr>
-            <td>test</td>
-            <td>cluster4</td>
-            <td>10</td>
-          </tr>
           <tr *ngFor="let rp of restartPods">
             <td>{{rp.name}}</td>
             <td>{{rp.cluster_name}}</td>
@@ -186,7 +178,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">更多</a>
+        <a href="..." class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>
@@ -200,11 +192,6 @@
             <th>Pod</th>
             <th>重启次数</th>
           </tr>
-          <tr>
-            <td>coredns</td>
-            <td>coredns-65464bb4d7-tfbs7</td>
-            <td>10</td>
-          </tr>
           <tr *ngFor="let c of warnContainers">
             <td>{{c.name}}</td>
             <td>{{c.cluster_name}}</td>
@@ -213,7 +200,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">更多</a>
+        <a href="..." class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>

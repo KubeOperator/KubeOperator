@@ -41,6 +41,7 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.cluster_monitor import ClusterMonitor
+from django.db.models import Q
 
 logger = logging.getLogger('kubeops')
 
@@ -434,10 +435,27 @@ class DashBoardView(APIView):
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
-        cluster = Cluster.objects.get(name=project_name)
-        cluster_monitor = ClusterMonitor(cluster)
-        res = cluster_monitor.list_cluster_data()
-        return JsonResponse({'data': json.dumps(res)})
+        cluster_data = []
+        restart_pods = []
+        warn_containers = []
+        if project_name == 'all':
+            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+            for c in clusters:
+                cluster_monitor = ClusterMonitor(c)
+                res = cluster_monitor.list_cluster_data()
+                restart_pods = restart_pods + res['restart_pods']
+                warn_containers = warn_containers + res['warn_containers']
+                cluster_data.append(json.dumps(res))
+            restart_pods = ClusterMonitor(clusters[0]).quick_sort_pods(restart_pods)
+        else:
+            cluster = Cluster.objects.get(name=project_name)
+            if cluster.status != Cluster.CLUSTER_STATUS_READY:
+                cluster_monitor = ClusterMonitor(cluster)
+                res = cluster_monitor.list_cluster_data()
+                restart_pods = res['restart_pods']
+                warn_containers = res['warn_containers']
+                cluster_data.append(json.dumps(res))
+        return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods})
 
 
 class DNSView(RetrieveAPIView):
