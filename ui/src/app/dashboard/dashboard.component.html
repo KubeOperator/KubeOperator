@@ -200,7 +200,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a class="btn btn-sm btn-link" (click)="show_container_detail=true">详情</a>
       </div>
     </div>
   </div>
@@ -219,7 +219,7 @@
           <clr-dg-column>名称</clr-dg-column>
           <clr-dg-column>集群</clr-dg-column>
           <clr-dg-column>NameSpace</clr-dg-column>
-          <clr-dg-column>ip</clr-dg-column>
+          <clr-dg-column>pod ip</clr-dg-column>
           <clr-dg-column>重启次数</clr-dg-column>
           <clr-dg-column>状态</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of restartPods" [clrDgItem]="item">
@@ -231,7 +231,32 @@
             <clr-dg-cell>{{item.status}}</clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
-
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" *ngIf="show_container_detail">
+  <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" type="button" (click)="show_container_detail=false">
+          <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+        <h3 class="modal-title">Container详情</h3>
+      </div>
+      <div class="modal-body">
+        <clr-datagrid>
+          <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-column>Pod</clr-dg-column>
+          <clr-dg-column>重启次数</clr-dg-column>
+          <clr-dg-column>Ready</clr-dg-column>
+          <clr-dg-row *clrDgItems="let item of warnContainers" [clrDgItem]="item">
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.pod_name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.restart_count}}</clr-dg-cell>
+            <clr-dg-cell>{{item.ready}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
       </div>
     </div>
   </div>
