@@ -5,6 +5,7 @@ from django.db import models
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
+from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
@@ -84,9 +85,20 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 return_running = True
-                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_ADDING)
+                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
                 result = self.on_add_worker(extra_vars)
                 cluster.exit_new_node()
+                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+            elif self.operation == 'remove-worker':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+                ignore_errors = True
+                return_running = True
+                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
+                result = self.on_remove_worker(extra_vars)
+                node_name = self.params.get('node', None)
+                cluster.change_to()
+                node = Node.objects.get(name=node_name)
+                node.delete()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'restore':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
@@ -158,6 +170,16 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         host_name = self.params.get('host', None)
         host = Host.objects.get(name=host_name)
         cluster.add_worker(host)
+        return self.run_playbooks(extra_vars)
+
+    def on_remove_worker(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('remove-worker')
+        self.set_step_default()
+        node_name = self.params.get('node', None)
+        cluster.change_to()
+        node = Node.objects.get(name=node_name)
+        node.set_groups(['new_node'])
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):

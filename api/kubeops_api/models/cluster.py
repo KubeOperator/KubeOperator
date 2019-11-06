@@ -37,7 +37,6 @@ class Cluster(Project):
     CLUSTER_DEPLOY_TYPE_MANUAL = 'MANUAL'
     CLUSTER_DEPLOY_TYPE_AUTOMATIC = 'AUTOMATIC'
     CLUSTER_DEPLOY_TYPE_SCALING = 'SCALING'
-    CLUSTER_DEPLOY_TYPE_ADDING = 'ADDING'
 
     CLUSTER_STATUS_CHOICES = (
         (CLUSTER_STATUS_RUNNING, 'running'),
@@ -49,7 +48,6 @@ class Cluster(Project):
         (CLUSTER_STATUS_UPGRADING, 'upgrading'),
         (CLUSTER_DEPLOY_TYPE_SCALING, 'scaling'),
         (CLUSTER_STATUS_RESTORING, 'restoring'),
-        (CLUSTER_DEPLOY_TYPE_ADDING, 'adding'),
         (CLUSTER_STATUS_BACKUP, 'backup')
     )
 

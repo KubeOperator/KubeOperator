@@ -8,6 +8,7 @@ import {OperaterService} from '../../deploy/component/operater/operater.service'
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
 import {ClusterHealth} from '../../cluster-health/cluster-health';
 import {AddWorkerComponent} from '../add-worker/add-worker.component';
+import {RemoveWorkerComponent} from '../remove-worker/remove-worker.component';
 
 
 @Component({
@@ -21,6 +22,7 @@ export class ClusterStatusComponent implements OnInit {
   workers: Node[] = [];
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
   @ViewChild(AddWorkerComponent, {static: true}) addWorker: AddWorkerComponent;
+  @ViewChild(RemoveWorkerComponent, {static: true}) removeWorker: RemoveWorkerComponent;
   clusterHealth: ClusterHealth = new ClusterHealth();
 
 
@@ -55,6 +57,15 @@ export class ClusterStatusComponent implements OnInit {
     });
   }
 
+  handleRemoveWorker() {
+    const params = {'node': this.removeWorker.worker};
+    this.operaterService.executeOperate(this.currentCluster.name, 'remove-worker', params).subscribe(() => {
+      this.redirect('deploy');
+    }, error => {
+      this.scale.opened = false;
+    });
+  }
+
   redirect(url: string) {
     if (url) {
       const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
@@ -70,6 +81,11 @@ export class ClusterStatusComponent implements OnInit {
   onAddWorker() {
     this.addWorker.loadHosts();
     this.addWorker.opened = true;
+  }
+
+  onRemoveWorker() {
+    this.removeWorker.loadNodes(this.currentCluster.name);
+    this.removeWorker.opened = true;
   }
 
   toHealth() {
@@ -89,7 +105,7 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getServiceStatus(type) {
-    if (this.clusterHealth == null || this.clusterHealth.data.length === 0 ) {
+    if (this.clusterHealth == null || this.clusterHealth.data.length === 0) {
       return '';
     }
     let status = 'UNKNOWN';
