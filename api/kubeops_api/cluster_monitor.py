@@ -4,6 +4,7 @@ import json
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
+from kubeops_api.prometheus_client import PrometheusClient
 from django.db.models import Q
 
 
@@ -20,9 +21,13 @@ class ClusterMonitor():
     def get_authorization(self):
         try:
             if self.redis_cli.exists(self.cluster.name):
-                cluster_str = str(self.redis_cli.get(self.cluster.name), encoding='utf-8')
-                cluster_data = json.loads(cluster_str)
-                self.token = cluster_data['token']
+                cluster_data = self.redis_cli.get(self.cluster.name)
+                if cluster_data is not None:
+                    cluster_str = str(cluster_data, encoding='utf-8')
+                    cluster_d = json.loads(cluster_str)
+                    self.token = cluster_d['token']
+                else:
+                    self.token = self.cluster.get_cluster_token()
             else:
                 self.token = self.cluster.get_cluster_token()
         except ApiException as e:
@@ -66,10 +71,12 @@ class ClusterMonitor():
                 containers = []
                 restart_count = 0
                 for c in status.container_statuses:
-                    restart_count = restart_count+c.restart_count
-                    container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,pod_name=p.metadata.name)
+                    restart_count = restart_count + c.restart_count
+                    container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,
+                                          pod_name=p.metadata.name)
                     containers.append(container.__dict__)
-                pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count, status=status.phase,
+                pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
+                          status=status.phase,
                           namespace=p.metadata.namespace,
                           host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=None, containers=containers)
                 podList.append(pod.__dict__)
@@ -89,7 +96,8 @@ class ClusterMonitor():
         nodes = self.api_instance.list_node()
         node_list = []
         for n in nodes.items:
-            node = Node(name=n.metadata.name, status=n.status.phase)
+            node = Node(name=n.metadata.name, status=n.status.phase, cpu=0, mem=0, cpu_usage=0, mem_usage=0)
+            node = self.get_node_data(node)
             node_list.append(node.__dict__)
         return node_list
 
@@ -107,16 +115,45 @@ class ClusterMonitor():
         pods = self.list_pods()
         namespaces = self.list_namespaces()
         deployments = self.list_deployments()
+
+        cpu_usage = 0
+        cpu_total = 0
+        mem_total = 0
+        mem_usage = 0
+        count = len(nodes)
+        for n in nodes:
+            # 不计算异常node数据
+            cpu_total = cpu_total + float(n['cpu'])
+            cpu_usage = cpu_usage + float(n['cpu_usage'])
+            mem_total = mem_total + float(n['mem'])
+            mem_usage = mem_usage + float(n['mem_usage'])
+            if n['cpu_usage'] == 0 and n['mem_usage'] == 0:
+                count = count -1
+        cpu_usage = cpu_usage / count
+        mem_usage = mem_usage / count
+
         cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=pods, nodes=nodes,
-                                   namespaces=namespaces,deployments=deployments)
+                                   namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
+                                   cpu_total=cpu_total,
+                                   mem_total=mem_total, mem_usage=mem_usage)
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
+        self.set_cluster_data()
         clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
         cluster_data_list = []
         for c in clusters:
-            cluster_str = str(self.redis_cli.get(c.name), encoding='utf-8')
-            if cluster_str is not None:
+            cluster_data = self.redis_cli.get(c.name)
+            if cluster_data is not None:
+                cluster_str = str(cluster_data, encoding='utf-8')
                 cluster_d = json.loads(cluster_str)
                 cluster_data_list.append(cluster_d)
         return cluster_data_list
+
+    def get_node_data(self, node):
+        host = "prometheus.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
+        config = {
+            'host': host
+        }
+        prometheus_client = PrometheusClient(config)
+        return prometheus_client.get_node_resource(node)
