@@ -83,9 +83,37 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
-        <p class="card-text">
-          ...
-        </p>
+        <div class="clr-row">
+          <div class="clr-col-sm-11 clr-offset-sm-1">
+            <h5>CPU使用率 ({{cpu_usage | number: '1.0-2'}}%)</h5>
+          </div>
+          <br>
+          <br>
+          <br>
+          <div class="clr-col-sm-11 clr-offset-sm-1">
+            <div class="progress success labeled" style="height: 20px !important;position: relative !important;"
+                 data-displayval="80%">
+              <progress max="100" value="{{cpu_usage}}"
+                        style="height: 20px !important;position: relative !important;"></progress>
+              <span>{{cpu_total}}核</span>
+            </div>
+          </div>
+          <div class="clr-col-sm-11 clr-offset-sm-1">
+            <h5>内存使用率 ({{mem_usage | number: '1.0-2'}}%)</h5>
+          </div>
+          <br>
+          <br>
+          <br>
+          <div class="clr-col-sm-11 clr-offset-sm-1">
+            <div class="progress success labeled" style="height: 20px !important;position: relative !important;"
+                 data-displayval="80%">
+              <progress max="100" value="{{mem_usage}}"
+                        style="height: 20px !important;position: relative !important;"></progress>
+              <span>{{mem_total | number: '1.0-2' }}G</span>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div class="card-footer">
         <a href="..." class="btn btn-sm btn-link">Action 2</a>
@@ -151,9 +179,9 @@
             <td>10</td>
           </tr>
           <tr *ngFor="let rp of restartPods">
-             <td>{{rp.name}}</td>
-             <td>{{rp.cluster_name}}</td>
-             <td>{{rp.restart_count}}</td>
+            <td>{{rp.name}}</td>
+            <td>{{rp.cluster_name}}</td>
+            <td>{{rp.restart_count}}</td>
           </tr>
         </table>
       </div>
@@ -178,9 +206,9 @@
             <td>10</td>
           </tr>
           <tr *ngFor="let c of warnContainers">
-             <td>{{c.name}}</td>
-             <td>{{c.cluster_name}}</td>
-             <td>{{c.restart_count}}</td>
+            <td>{{c.name}}</td>
+            <td>{{c.cluster_name}}</td>
+            <td>{{c.restart_count}}</td>
           </tr>
         </table>
       </div>

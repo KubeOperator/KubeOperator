@@ -24,6 +24,10 @@ export class DashboardComponent implements OnInit {
   containerCount = 0;
   restartPods = [];
   warnContainers = [];
+  cpu_usage = 0;
+  mem_usage = 0;
+  cpu_total = 0;
+  mem_total = 0;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -71,6 +75,14 @@ export class DashboardComponent implements OnInit {
             }
           }
         }
+        this.cpu_total = this.cpu_total + d['cpu_total'];
+        this.mem_total = this.mem_total + d['mem_total'];
+        this.cpu_usage = this.cpu_usage + d['cpu_usage'];
+        this.mem_usage = this.mem_usage + d['mem_usage'];
+      }
+      if (this.clusterData.length > 0) {
+        this.cpu_usage = this.cpu_usage / this.clusterData.length * 100;
+        this.mem_usage = this.mem_usage / this.clusterData.length * 100;
       }
       this.loading = false;
     });

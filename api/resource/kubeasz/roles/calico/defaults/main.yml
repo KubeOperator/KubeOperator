@@ -24,3 +24,6 @@ IP_AUTODETECTION_METHOD: "can-reach={{ groups['kube-master'][0] }}"
 # calico 主版本
 calico_ver_main: "{{ calico_ver.split('.')[0] }}.{{ calico_ver.split('.')[1] }}"
 NODE_PORT_RANGE: "30000-32767"
+
+# kubernetes 大版本号
+kube_version_main: "{{ kube_version.split('.')[0] }}.{{ kube_version.split('.')[1] }}"

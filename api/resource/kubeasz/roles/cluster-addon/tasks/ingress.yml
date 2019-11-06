@@ -14,6 +14,13 @@
   template:
     src: traefik/traefik-ingress.yaml.j2
     dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+  when: "kube_version_main  == '1.15'"
+
+- name: 生成 ingress 部署文件
+  template:
+    src: traefik/traefik-ingress.yaml.1.16.j2
+    dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+  when: "kube_version_main  == '1.16'"
 
 - name: 创建 traefik部署
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"

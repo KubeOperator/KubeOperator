@@ -37,3 +37,6 @@ KUBE_APISERVER: "{%- if inventory_hostname in groups['kube-master'] -%} \
 BALANCE_ALG: "roundrobin"
 CLUSTER_DNS_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(2) | ipaddr('address') }}"
 CLUSTER_DNS_DOMAIN: "cluster.local"
+
+# kubernetes 大版本号
+kube_version_main: "{{ kube_version.split('.')[0] }}.{{ kube_version.split('.')[1] }}"

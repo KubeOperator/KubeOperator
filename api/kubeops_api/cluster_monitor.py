@@ -139,7 +139,7 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
-        self.set_cluster_data()
+        # self.set_cluster_data()
         clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
         cluster_data_list = []
         for c in clusters:

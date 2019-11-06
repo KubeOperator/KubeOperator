@@ -3,12 +3,20 @@
       file: path={{ item }} state=directory
       with_items:
         - /opt/kube/kube-system/coredns
-    # DNS文件中部分参数根据hosts文件设置而定，因此需要用template模块替换参数
+
     - name: 准备 DNS的部署文件
-      template: src=coredns/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
+      template: src=coredns/1.15/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
       with_items:
         - coredns
         - autoscaler
+      when: "kube_version_main  == '1.15'"
+
+    - name: 准备 DNS的部署文件
+      template: src=coredns/1.16/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
+      with_items:
+        - coredns
+        - autoscaler
+      when: "kube_version_main  == '1.16'"
 
     - name: 获取所有已经创建的POD信息
       command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
@@ -45,7 +53,6 @@
 - block:
     - name: 创建 monitoring namespace
       shell: "kubectl create ns monitoring"
-      ignore_errors: true
 
     - name: 创建 etcd 监控 secrets
       shell: "kubectl -n monitoring create secret generic etcd-secret-files \
@@ -53,8 +60,9 @@
           --from-file=/etc/etcd/ssl/etcd.pem \
           --from-file=/etc/etcd/ssl/etcd-key.pem"
       delegate_to: "{{ groups['kube-master'][0] }}"
-      ignore_errors: true
+  ignore_errors: true
 
+- block:
     - name: 拷贝 prometheus values文件
       template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
 
@@ -71,7 +79,27 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"prometheus" not in pod_info.stdout and prometheus_install'
+  when: '"prometheus" not in pod_info.stdout and prometheus_install and kube_version_main == "1.15"'
+  ignore_errors: true
+
+- block:
+    - name: 拷贝 prometheus values文件
+      template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/1.16/prometheus/values.yaml
+
+    - name: 拷贝 prometheus setting文件
+      template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
+
+    - name: 部署 prometheus
+      shell: "helm install --name f2c-prometheus --namespace monitoring \
+          -f prom-settings.yaml \
+          -f prom-alertsmanager.yaml \
+          -f prom-alertrules.yaml \
+          ./1.16/prometheus"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"prometheus" not in pod_info.stdout and prometheus_install and kube_version_main == "1.16"'
   ignore_errors: true
 
 - block:
@@ -87,7 +115,23 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"grafana" not in pod_info.stdout and grafana_install'
+  when: '"grafana" not in pod_info.stdout and grafana_install and kube_version_main == "1.15"'
+  ignore_errors: true
+
+- block:
+    - name: 拷贝 grafana values文件
+      template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/1.16/grafana/values.yaml
+
+    - name: 部署 grafana
+      shell: "helm install --name f2c-grafana --namespace monitoring \
+         -f grafana-settings.yaml \
+         -f grafana-dashboards.yaml \
+         ./1.16/grafana"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"grafana" not in pod_info.stdout and grafana_install and kube_version_main == "1.16"'
   ignore_errors: true
 
 - block:
@@ -122,6 +166,11 @@
 - block:
     - name: 生成 scope weave 部署文件
       template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+      when: "kube_version_main  == '1.15'"
+
+    - name: 生成 scope weave 部署文件
+      template: src=weave-scope/scope.yml.1.16.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+      when: "kube_version_main  == '1.16'"
 
     - name: 部署 scope weave
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
