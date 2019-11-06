@@ -8,9 +8,9 @@
 
 KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上规划、部署和管理生产级别的 Kubernetes 集群。KubeOperator 是 [Jumpserver](https://github.com/jumpserver/jumpserver) 明星开源团队在 Kubernetes 领域的的又一全新力作。
 
-> 注： KubeOperator 2.1 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io)。
-
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/overview.png?raw=true)
+
+> 注： KubeOperator 2.1 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io)。
 
 ## Web UI 展示
 
