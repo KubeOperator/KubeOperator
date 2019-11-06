@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit {
   mem_usage = 0;
   cpu_total = 0;
   mem_total = 0;
+  show_pod_detail = false;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -51,6 +52,8 @@ export class DashboardComponent implements OnInit {
     this.mem_usage = 0;
     this.cpu_total = 0;
     this.mem_total = 0;
+    this.show_pod_detail = false;
+
   }
 
   listCluster() {
@@ -93,7 +96,6 @@ export class DashboardComponent implements OnInit {
         this.mem_usage = this.mem_usage / this.clusterData.length * 100;
       }
       this.loading = false;
-      console.log(this.restartPods);
     });
   }
 
