@@ -5,6 +5,7 @@ from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
+from kubeops_api.models.host import Host
 from django.db.models import Q
 import logging
 
@@ -81,10 +82,12 @@ class ClusterMonitor():
                     if container.ready == False:
                         self.warn_containers.append(container.__dict__)
                     containers.append(container.__dict__)
+                host = Host.objects.get(ip=status.host_ip)
+                hostname = (host.name if host.name is not None else None)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
                           status=status.phase,
                           namespace=p.metadata.namespace,
-                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=None, containers=containers)
+                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
                 if restart_count > 0:
                     self.restart_pods.append(pod.__dict__)
                 podList.append(pod.__dict__)

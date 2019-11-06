@@ -217,6 +217,7 @@
       <div class="modal-body">
         <clr-datagrid>
           <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-column>主机</clr-dg-column>
           <clr-dg-column>集群</clr-dg-column>
           <clr-dg-column>NameSpace</clr-dg-column>
           <clr-dg-column>pod ip</clr-dg-column>
@@ -224,6 +225,7 @@
           <clr-dg-column>状态</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of restartPods" [clrDgItem]="item">
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.hostname}}</clr-dg-cell>
             <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
             <clr-dg-cell>{{item.pod_ip}}</clr-dg-cell>
