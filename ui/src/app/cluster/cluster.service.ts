@@ -52,4 +52,8 @@ export class ClusterService {
   getWebkubectlToken(id: string): Observable<any> {
     return this.http.get<any>(webKubeCtlUrl.replace('{id}', id));
   }
+
+  changeStatus(status: string, name: string): Observable<Cluster> {
+    return this.http.patch<Cluster>(`${baseClusterUrl}${name}/`, {'status': status});
+  }
 }

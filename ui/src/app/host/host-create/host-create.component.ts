@@ -39,7 +39,7 @@ export class HostCreateComponent implements OnInit {
   }
 
   reset() {
-    this.hostFrom.resetForm();
+    this.hostFrom.resetForm({port: 22});
     this.listCredential();
   }
 

@@ -25,6 +25,8 @@ export class DescribeComponent implements OnInit {
   clusterInfos: ClusterInfo[] = [];
   operations: Operation[] = [];
   openToken = false;
+  status: string;
+  openChangeStatus = false;
   token: string = null;
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
@@ -85,6 +87,17 @@ export class DescribeComponent implements OnInit {
     this.upgrade.currentPackageName = this.currentCluster.package;
     this.upgrade.reset();
     this.event = 'upgrade';
+  }
+
+  onCancel() {
+    this.openChangeStatus = false;
+  }
+
+  onConfirm() {
+    this.clusterService.changeStatus(this.status, this.currentCluster.name).subscribe(data => {
+      this.currentCluster = data;
+      this.openChangeStatus = false;
+    });
   }
 
   handleUpgrade() {
