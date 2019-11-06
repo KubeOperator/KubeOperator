@@ -147,7 +147,7 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"loki" not in pod_info.stdout and loki_install'
+  when: '"loki" not in pod_info.stdout and loki_install and kube_version_main == "1.16"'
   ignore_errors: true
 
 - block:
