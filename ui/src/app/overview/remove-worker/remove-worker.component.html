@@ -1,10 +1,10 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
-  <h3 class="modal-title">添加节点</h3>
+  <h3 class="modal-title">移除节点</h3>
   <div class="modal-body">
     <form clrForm #form='ngForm'>
       <clr-select-container>
         <label>选择节点</label>
-        <select clrSelect [(ngModel)]="node" name="host">
+        <select clrSelect [(ngModel)]="worker" name="host">
           <option value="">请选择</option>
           <option *ngFor="let node of workers" [value]="node.name">{{node.name}}</option>
         </select>
