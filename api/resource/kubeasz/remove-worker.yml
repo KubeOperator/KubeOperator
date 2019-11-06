@@ -1,0 +1,9 @@
+- hosts: "{{groups['kube-master'][0]}}"
+  tasks:
+    - name: drain node
+      shell: "kubectl drain {{item}} --delete-local-data --force --ignore-daemonsets && kubectl delete node {{item}}"
+      with_items: "groups['kube-master']"
+
+    - name: remove node
+      shell: "kubectl delete node {{item}}"
+      with_items: "groups['kube-master']"

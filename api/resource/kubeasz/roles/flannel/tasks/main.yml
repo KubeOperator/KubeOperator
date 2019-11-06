@@ -4,6 +4,11 @@
 
     - name: 配置 flannel DaemonSet yaml文件
       template: src=kube-flannel.yaml.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
+      when: "kube_version_main  == '1.15'"
+
+    - name: 配置 flannel DaemonSet yaml文件
+      template: src=kube-flannel.yaml.1.16.j2 dest=/opt/kube/kube-system/flannel/kube-flannel.yaml
+      when: "kube_version_main  == '1.16'"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 

@@ -10,6 +10,8 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/overview.png?raw=true)
 
+> 注： KubeOperator 2.1 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io)。
+
 ## Web UI 展示
 
 ![overview](https://raw.githubusercontent.com/KubeOperator/website/master/images/kubeoperator-ui.jpg)
@@ -77,7 +79,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 - [x] K8s 日志收集及管理方案（Loki）；
 - [x] KubeOperator 自身的系统日志收集和管理；
-- [x] 新增概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
+- [x] 概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
 - [ ] 支持云原生存储 Rook + Ceph；
 - [ ] 支持 Kubernetes 1.16；
 
