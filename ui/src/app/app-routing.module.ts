@@ -41,7 +41,7 @@ const routes: Routes = [
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],
     children: [
-      {path: '', redirectTo: 'cluster', pathMatch: 'full'},
+      {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
       {path: 'dashboard', component: DashboardComponent},
       {path: 'cluster', component: ClusterComponent},
       {path: 'package', component: PackageComponent},
