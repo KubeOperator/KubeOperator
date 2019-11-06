@@ -41,6 +41,8 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.cluster_monitor import ClusterMonitor
+from django.db.models import Q
+
 
 logger = logging.getLogger('kubeops')
 
@@ -434,10 +436,20 @@ class DashBoardView(APIView):
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
-        cluster = Cluster.objects.get(name=project_name)
-        cluster_monitor = ClusterMonitor(cluster)
-        res = cluster_monitor.list_cluster_data()
-        return JsonResponse({'data': json.dumps(res)})
+        result= []
+        if project_name == 'all':
+            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+            for c in clusters:
+                cluster_monitor = ClusterMonitor(c)
+                res = cluster_monitor.list_cluster_data()
+                result.append(json.dumps(res))
+        else:
+            cluster = Cluster.objects.get(name = project_name)
+            if cluster.status != Cluster.CLUSTER_STATUS_READY:
+                cluster_monitor = ClusterMonitor(cluster)
+                res = cluster_monitor.list_cluster_data()
+                result.append(json.dumps(res))
+        return Response(data={'data': result})
 
 
 class DNSView(RetrieveAPIView):

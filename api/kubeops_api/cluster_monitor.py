@@ -139,16 +139,12 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
-        # self.set_cluster_data()
-        clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
-        cluster_data_list = []
-        for c in clusters:
-            cluster_data = self.redis_cli.get(c.name)
-            if cluster_data is not None:
-                cluster_str = str(cluster_data, encoding='utf-8')
-                cluster_d = json.loads(cluster_str)
-                cluster_data_list.append(cluster_d)
-        return cluster_data_list
+        cluster_data = self.redis_cli.get(self.cluster.name)
+        result = {}
+        if cluster_data is not None:
+            cluster_str = str(cluster_data, encoding='utf-8')
+            result = json.loads(cluster_str)
+        return result
 
     def get_node_data(self, node):
         host = "prometheus.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix

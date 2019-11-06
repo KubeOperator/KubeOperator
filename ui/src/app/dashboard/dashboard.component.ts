@@ -38,6 +38,21 @@ export class DashboardComponent implements OnInit {
     this.search();
   }
 
+  data_init() {
+    this.clusterData = [];
+    this.podCount = 0;
+    this.nodeCount = 0;
+    this.namespaceCount = 0;
+    this.deploymentCount = 0;
+    this.containerCount = 0;
+    this.restartPods = [];
+    this.warnContainers = [];
+    this.cpu_usage = 0;
+    this.mem_usage = 0;
+    this.cpu_total = 0;
+    this.mem_total = 0;
+  }
+
   listCluster() {
     this.clusterService.listCluster().subscribe(data => {
       this.clusters = data;
@@ -52,14 +67,16 @@ export class DashboardComponent implements OnInit {
     this.clusterService.getCluster(this.dashboardSearch.cluster).subscribe(data => {
       this.clusters = [];
       this.clusters.push(data);
-      this.loading = false;
+      this.getClusterData();
     });
   }
 
   getClusterData() {
-    this.dashboardService.getDashboard(this.clusters[1].name).subscribe(data => {
-      this.clusterData = JSON.parse(data.data);
-      for (const d of this.clusterData) {
+    this.data_init();
+    this.dashboardService.getDashboard(this.dashboardSearch.cluster).subscribe(data => {
+      this.clusterData = data.data;
+      for (const cd of this.clusterData) {
+        const d = JSON.parse(cd);
         this.podCount = this.podCount + d['pods'].length;
         this.namespaceCount = this.namespaceCount + d['namespaces'].length;
         this.deploymentCount = this.deploymentCount + d['deployments'].length;
