@@ -5,8 +5,11 @@ from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
+from kubeops_api.models.host import Host
 from django.db.models import Q
+import logging
 
+logger = logging.getLogger('kubeops')
 
 class ClusterMonitor():
 
@@ -17,6 +20,8 @@ class ClusterMonitor():
         self.retry_count = 0
         self.get_authorization()
         self.get_api_instance()
+        self.restart_pods = []
+        self.warn_containers = []
 
     def get_authorization(self):
         try:
@@ -74,11 +79,17 @@ class ClusterMonitor():
                     restart_count = restart_count + c.restart_count
                     container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,
                                           pod_name=p.metadata.name)
+                    if container.ready == False:
+                        self.warn_containers.append(container.__dict__)
                     containers.append(container.__dict__)
+                host = Host.objects.get(ip=status.host_ip)
+                hostname = (host.name if host.name is not None else None)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
                           status=status.phase,
                           namespace=p.metadata.namespace,
-                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=None, containers=containers)
+                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
+                if restart_count > 0:
+                    self.restart_pods.append(pod.__dict__)
                 podList.append(pod.__dict__)
             return podList
         except ApiException as e:
@@ -132,23 +143,21 @@ class ClusterMonitor():
         cpu_usage = cpu_usage / count
         mem_usage = mem_usage / count
 
+        sort_restart_pod_list = self.quick_sort_pods(self.restart_pods)
+
         cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=pods, nodes=nodes,
                                    namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
                                    cpu_total=cpu_total,
-                                   mem_total=mem_total, mem_usage=mem_usage)
+                                   mem_total=mem_total, mem_usage=mem_usage,restart_pods=sort_restart_pod_list,warn_containers=self.warn_containers)
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
-        # self.set_cluster_data()
-        clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
-        cluster_data_list = []
-        for c in clusters:
-            cluster_data = self.redis_cli.get(c.name)
-            if cluster_data is not None:
-                cluster_str = str(cluster_data, encoding='utf-8')
-                cluster_d = json.loads(cluster_str)
-                cluster_data_list.append(cluster_d)
-        return cluster_data_list
+        cluster_data = self.redis_cli.get(self.cluster.name)
+        result = {}
+        if cluster_data is not None:
+            cluster_str = str(cluster_data, encoding='utf-8')
+            result = json.loads(cluster_str)
+        return result
 
     def get_node_data(self, node):
         host = "prometheus.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
@@ -157,3 +166,26 @@ class ClusterMonitor():
         }
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_node_resource(node)
+
+    def quick_sort_pods(self,podList):
+        if len(podList) < 2:
+            return podList
+        mid = podList[0]
+
+        left , right = [], []
+        podList.remove(mid)
+
+        for item in podList:
+            if item['restart_count'] >= mid['restart_count']:
+                right.append(item)
+            else:
+                left.append(item)
+        return self.quick_sort_pods(left) + [mid] + self.quick_sort_pods(right)
+
+def put_cluster_data_to_redis():
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    for cluster in clusters:
+        cluster_monitor = ClusterMonitor(cluster)
+        success = cluster_monitor.set_cluster_data()
+        if success == False:
+            logger.error(msg='put cluster data to redis error',exec_info = True)
