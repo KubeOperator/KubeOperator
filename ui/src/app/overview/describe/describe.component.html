@@ -62,7 +62,7 @@
                     [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
             </button>
             <button class="btn btn-outline" (click)="onUninstall()"
-                    [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">">卸载
+                    [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">卸载
             </button>
             <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
             </button>
