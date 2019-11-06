@@ -30,6 +30,9 @@ export class DashboardComponent implements OnInit {
   mem_total = 0;
   show_pod_detail = false;
   show_container_detail = false;
+  show_cluster_usage_detail = false;
+  nodes = [];
+
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -55,6 +58,8 @@ export class DashboardComponent implements OnInit {
     this.mem_total = 0;
     this.show_pod_detail = false;
     this.show_container_detail = false;
+    this.show_cluster_usage_detail = false;
+    this.nodes = [];
   }
 
   listCluster() {
@@ -91,6 +96,7 @@ export class DashboardComponent implements OnInit {
         this.mem_total = this.mem_total + d['mem_total'];
         this.cpu_usage = this.cpu_usage + d['cpu_usage'];
         this.mem_usage = this.mem_usage + d['mem_usage'];
+        this.nodes = this.nodes.concat(d['nodes']);
       }
       if (this.clusterData.length > 0) {
         this.cpu_usage = this.cpu_usage / this.clusterData.length * 100;
