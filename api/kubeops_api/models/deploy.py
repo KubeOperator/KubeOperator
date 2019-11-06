@@ -49,79 +49,78 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         ignore_errors = False
         return_running = False
 
-        try:
-            if self.operation == "install":
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
-                result = self.on_install(extra_vars)
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'uninstall':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
-                result = self.on_uninstall(extra_vars)
-                cluster.change_status(Cluster.CLUSTER_STATUS_READY)
-            elif self.operation == 'bigip-config':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                ignore_errors = True
-                result = self.on_f5_config(extra_vars)
-            elif self.operation == 'upgrade':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                cluster.change_status(Cluster.CLUSTER_STATUS_UPGRADING)
-                package_name = self.params.get('package', None)
-                package = Package.objects.get(name=package_name)
-                extra_vars.update(package.meta.get('vars'))
-                result = self.on_upgrade(extra_vars)
-                cluster.upgrade_package(package_name)
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'scale':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                ignore_errors = True
-                return_running = True
-                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
-                result = self.on_scaling(extra_vars)
+        if self.operation == "install":
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
+            result = self.on_install(extra_vars)
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        elif self.operation == 'uninstall':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
+            result = self.on_uninstall(extra_vars)
+            cluster.change_status(Cluster.CLUSTER_STATUS_READY)
+        elif self.operation == 'bigip-config':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            ignore_errors = True
+            result = self.on_f5_config(extra_vars)
+        elif self.operation == 'upgrade':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            cluster.change_status(Cluster.CLUSTER_STATUS_UPGRADING)
+            package_name = self.params.get('package', None)
+            package = Package.objects.get(name=package_name)
+            extra_vars.update(package.meta.get('vars'))
+            result = self.on_upgrade(extra_vars)
+            cluster.upgrade_package(package_name)
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        elif self.operation == 'scale':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            ignore_errors = True
+            return_running = True
+            cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
+            result = self.on_scaling(extra_vars)
+            cluster.exit_new_node()
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        elif self.operation == 'add-worker':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            ignore_errors = True
+            return_running = True
+            cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
+            result = self.on_add_worker(extra_vars)
+            cluster.exit_new_node()
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        elif self.operation == 'remove-worker':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            ignore_errors = True
+            return_running = True
+            cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
+            result = self.on_remove_worker(extra_vars)
+            if not result.get('summary', {}).get('success', False):
                 cluster.exit_new_node()
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'add-worker':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                ignore_errors = True
-                return_running = True
-                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
-                result = self.on_add_worker(extra_vars)
-                cluster.exit_new_node()
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'remove-worker':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                ignore_errors = True
-                return_running = True
-                cluster.change_status(Cluster.CLUSTER_DEPLOY_TYPE_SCALING)
-                result = self.on_remove_worker(extra_vars)
+            else:
                 node_name = self.params.get('node', None)
                 cluster.change_to()
                 node = Node.objects.get(name=node_name)
                 node.delete()
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'restore':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
-                cluster_backup_id = self.params.get('clusterBackupId', None)
-                result = self.on_restore(extra_vars, cluster_backup_id)
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-            elif self.operation == 'backup':
-                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
-                cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
-                cluster_storage_id = self.params.get('backupStorageId', None)
-                result = self.on_backup(extra_vars)
-                self.on_upload_backup_file(cluster_storage_id)
-                cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
-
-
-        except Exception as e:
+        elif self.operation == 'restore':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            cluster.change_status(Cluster.CLUSTER_STATUS_RESTORING)
+            cluster_backup_id = self.params.get('clusterBackupId', None)
+            result = self.on_restore(extra_vars, cluster_backup_id)
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        elif self.operation == 'backup':
+            logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+            cluster.change_status(Cluster.CLUSTER_STATUS_BACKUP)
+            cluster_storage_id = self.params.get('backupStorageId', None)
+            result = self.on_backup(extra_vars)
+            self.on_upload_backup_file(cluster_storage_id)
+            cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+        if not result.get('summary', {}).get('success', False):
             if not ignore_errors:
                 cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
             if return_running:
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
-            result['summary'] = {'error': 'Unexpect error occur: {}'.format(e)}
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
 
@@ -179,7 +178,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         node_name = self.params.get('node', None)
         cluster.change_to()
         node = Node.objects.get(name=node_name)
-        node.set_groups(['new_node'])
+        node.set_groups(['new_node', 'worker'])
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
@@ -249,7 +248,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)
                 if not _result.get('summary', {}).get('success', False):
                     self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_ERROR)
-                    raise RuntimeError("playbook: {} error!".format(step['playbook']))
         return result
 
     def set_step_default(self):
