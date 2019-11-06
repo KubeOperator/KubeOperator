@@ -10,6 +10,28 @@
     <!--<button type="button" class="btn btn-primary" ngxClipboard [cbContent]="token" (cbOnSuccess)="openToken=false">复制</button>-->
   </div>
 </clr-modal>
+
+<clr-modal [(clrModalOpen)]="openChangeStatus" clrModalSize="lg">
+  <h3 class="modal-title">重置状态</h3>
+  <div class="modal-body">
+    <p>重置状态前请确认集群状态是否健康。</p>
+    <form clrForm #statusForm='ngForm'>
+      <clr-select-container>
+        <label>状态</label>
+        <select clrSelect [(ngModel)]="status" name="status" required>
+          <option value="">请选择</option>
+          <option value="RUNNING">运行中</option>
+          <option value="READY">就绪</option>
+        </select>
+      </clr-select-container>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" (click)="onCancel()">取消</button>
+    <button type="button" class="btn btn-primary" (click)="onConfirm()" [disabled]="statusForm.invalid">确认</button>
+  </div>
+</clr-modal>
+
 <app-confirm-alert (confirm)="handleEvent()"></app-confirm-alert>
 <app-webkubectl></app-webkubectl>
 <app-upgrade (confirm)="handleUpgrade()"></app-upgrade>
@@ -36,9 +58,11 @@
       <div class="card-footer">
         <div class="clr-row">
           <div class="clr-col-9">
-            <button class="btn btn-outline" (click)="onInstall()" [disabled]="currentCluster.status === 'RUNNING'">安装
+            <button class="btn btn-outline" (click)="onInstall()"
+                    [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
             </button>
-            <button class="btn btn-outline" (click)="onUninstall()" [disabled]="currentCluster.status === 'READY'">卸载
+            <button class="btn btn-outline" (click)="onUninstall()"
+                    [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">卸载
             </button>
             <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
             </button>
@@ -51,6 +75,9 @@
             </button>
             <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING'">
               WEBKUBECTL
+            </button>
+            <button class="btn btn-outline" (click)="openChangeStatus=true">
+              重置状态
             </button>
           </div>
         </div>
