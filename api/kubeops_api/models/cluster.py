@@ -193,6 +193,7 @@ class Cluster(Project):
                     vars = storage.get('vars', {})
             if self.persistent_storage == 'nfs':
                 nfs = NfsStorage.objects.get(name=self.configs['nfs'])
+                nfs.vars.pop('repo_port')
                 vars.update(nfs.vars)
             self.set_config_unlock(vars)
 
