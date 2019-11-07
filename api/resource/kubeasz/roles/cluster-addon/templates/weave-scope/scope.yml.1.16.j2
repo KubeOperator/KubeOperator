@@ -115,7 +115,7 @@ items:
       - kind: ServiceAccount
         name: weave-scope
         namespace: weave
-  - apiVersion: apps/v1beta1
+  - apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: weave-scope-app
@@ -126,6 +126,12 @@ items:
         weave-scope-component: app
       namespace: weave
     spec:
+      selector:
+        matchLabels:
+          name: weave-scope-app
+          app: weave-scope
+          weave-cloud-component: scope
+          weave-scope-component: app
       replicas: 1
       revisionHistoryLimit: 2
       template:
@@ -173,7 +179,7 @@ items:
         app: weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-  - apiVersion: apps/v1beta1
+  - apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: weave-scope-cluster-agent
@@ -184,6 +190,12 @@ items:
         weave-scope-component: cluster-agent
       namespace: weave
     spec:
+      selector:
+        matchLabels:
+          name: weave-scope-cluster-agent
+          app: weave-scope
+          weave-cloud-component: scope
+          weave-scope-component: cluster-agent
       replicas: 1
       revisionHistoryLimit: 2
       template:
