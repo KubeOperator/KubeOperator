@@ -38,7 +38,7 @@ function service_to_docker_name() {
 }
 
 function main() {
-    EXE=docker-compose -f /opt/kubeoperator/docker-compose.yml
+    EXE='docker-compose -f /opt/kubeoperator/docker-compose.yml'
     case "${action}" in
       install)
          bash ${SCRIPT_DIR}/5_install.sh
