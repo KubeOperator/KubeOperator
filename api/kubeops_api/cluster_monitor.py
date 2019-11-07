@@ -1,13 +1,15 @@
 import kubernetes.client
 import redis
 import json
+import logging
+import fit2ansible.settings
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
 from django.db.models import Q
-import logging
+
 
 logger = logging.getLogger('kubeops')
 
@@ -15,7 +17,7 @@ class ClusterMonitor():
 
     def __init__(self, cluster):
         # init redis
-        self.redis_cli = redis.StrictRedis(host='localhost', port=6379)
+        self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
         self.cluster = cluster
         self.retry_count = 0
         self.get_authorization()
