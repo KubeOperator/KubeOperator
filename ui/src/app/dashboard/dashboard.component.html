@@ -9,13 +9,13 @@
 <div class="clr-row" *ngIf="!loading">
   <div class="clr-col-lg-12 clr-col-12">
     <div style="float: right">
-<!--      <div class="clr-select-wrapper">-->
-<!--        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">-->
-<!--          <option value="1">过去一天</option>-->
-<!--          <option value="7">过去一周</option>-->
-<!--          <option value="30">过去一月</option>-->
-<!--        </select>-->
-<!--      </div>-->
+      <!--      <div class="clr-select-wrapper">-->
+      <!--        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">-->
+      <!--          <option value="1">过去一天</option>-->
+      <!--          <option value="7">过去一周</option>-->
+      <!--          <option value="30">过去一月</option>-->
+      <!--        </select>-->
+      <!--      </div>-->
       &nbsp; &nbsp; &nbsp;
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
@@ -113,7 +113,7 @@
 
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a class="btn btn-sm btn-link" (click)="show_cluster_usage_detail = true">详情</a>
       </div>
     </div>
   </div>
@@ -170,7 +170,7 @@
             <th>集群</th>
             <th>重启次数</th>
           </tr>
-          <tr *ngFor="let rp of restartPods">
+          <tr *ngFor="let rp of restartPods.slice(0,4)">
             <td>{{rp.name}}</td>
             <td>{{rp.cluster_name}}</td>
             <td>{{rp.restart_count}}</td>
@@ -178,7 +178,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a class="btn btn-sm btn-link" (click)="show_pod_detail = true">详情</a>
       </div>
     </div>
   </div>
@@ -192,7 +192,7 @@
             <th>Pod</th>
             <th>重启次数</th>
           </tr>
-          <tr *ngFor="let c of warnContainers">
+          <tr *ngFor="let c of warnContainers.slice(0,4)">
             <td>{{c.name}}</td>
             <td>{{c.cluster_name}}</td>
             <td>{{c.restart_count}}</td>
@@ -200,7 +200,93 @@
         </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a class="btn btn-sm btn-link" (click)="show_container_detail=true">详情</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" *ngIf="show_pod_detail">
+  <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" type="button" (click)="show_pod_detail=false">
+          <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+        <h3 class="modal-title">Pod详情</h3>
+      </div>
+      <div class="modal-body">
+        <clr-datagrid>
+          <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-column>主机</clr-dg-column>
+          <clr-dg-column>集群</clr-dg-column>
+          <clr-dg-column>NameSpace</clr-dg-column>
+          <clr-dg-column>pod ip</clr-dg-column>
+          <clr-dg-column>重启次数</clr-dg-column>
+          <clr-dg-column>状态</clr-dg-column>
+          <clr-dg-row *clrDgItems="let item of restartPods" [clrDgItem]="item">
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.hostname}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
+            <clr-dg-cell>{{item.pod_ip}}</clr-dg-cell>
+            <clr-dg-cell>{{item.restart_count}}</clr-dg-cell>
+            <clr-dg-cell>{{item.status}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" *ngIf="show_container_detail">
+  <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" type="button" (click)="show_container_detail=false">
+          <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+        <h3 class="modal-title">Container详情</h3>
+      </div>
+      <div class="modal-body">
+        <clr-datagrid>
+          <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-column>Pod</clr-dg-column>
+          <clr-dg-column>重启次数</clr-dg-column>
+          <clr-dg-column>Ready</clr-dg-column>
+          <clr-dg-row *clrDgItems="let item of warnContainers" [clrDgItem]="item">
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.pod_name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.restart_count}}</clr-dg-cell>
+            <clr-dg-cell>{{item.ready}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" *ngIf="show_cluster_usage_detail">
+  <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" type="button" (click)="show_cluster_usage_detail=false">
+          <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+        <h3 class="modal-title">容量详情</h3>
+      </div>
+      <div class="modal-body">
+        <clr-datagrid>
+          <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-column>cpu</clr-dg-column>
+          <clr-dg-column>cpu使用率(%)</clr-dg-column>
+          <clr-dg-column>内存(GB)</clr-dg-column>
+          <clr-dg-column>内存使用率(%)</clr-dg-column>
+          <clr-dg-row *clrDgItems="let item of nodes" [clrDgItem]="item">
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cpu}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cpu_usage*100 | number: '1.0-2'}}</clr-dg-cell>
+            <clr-dg-cell>{{item.mem | number: '1.0-2'}}</clr-dg-cell>
+            <clr-dg-cell>{{item.mem_usage*100 | number: '1.0-2'}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
       </div>
     </div>
   </div>

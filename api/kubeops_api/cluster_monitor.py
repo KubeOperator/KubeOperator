@@ -1,12 +1,15 @@
 import kubernetes.client
 import redis
 import json
+import logging
+import fit2ansible.settings
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
+from kubeops_api.models.host import Host
 from django.db.models import Q
-import logging
+
 
 logger = logging.getLogger('kubeops')
 
@@ -14,7 +17,7 @@ class ClusterMonitor():
 
     def __init__(self, cluster):
         # init redis
-        self.redis_cli = redis.StrictRedis(host='localhost', port=6379)
+        self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
         self.cluster = cluster
         self.retry_count = 0
         self.get_authorization()
@@ -81,10 +84,12 @@ class ClusterMonitor():
                     if container.ready == False:
                         self.warn_containers.append(container.__dict__)
                     containers.append(container.__dict__)
+                host = Host.objects.get(ip=status.host_ip)
+                hostname = (host.name if host.name is not None else None)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
                           status=status.phase,
                           namespace=p.metadata.namespace,
-                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=None, containers=containers)
+                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
                 if restart_count > 0:
                     self.restart_pods.append(pod.__dict__)
                 podList.append(pod.__dict__)
@@ -164,20 +169,20 @@ class ClusterMonitor():
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_node_resource(node)
 
-    def quick_sort_pods(self,podList):
-        if len(podList) < 2:
-            return podList
-        mid = podList[0]
+def quick_sort_pods(podList):
+    if len(podList) < 2:
+        return podList
+    mid = podList[0]
 
-        left , right = [], []
-        podList.remove(mid)
+    left , right = [], []
+    podList.remove(mid)
 
-        for item in podList:
-            if item['restart_count'] >= mid['restart_count']:
-                right.append(item)
-            else:
-                left.append(item)
-        return self.quick_sort_pods(left) + [mid] + self.quick_sort_pods(right)
+    for item in podList:
+        if item['restart_count'] >= mid['restart_count']:
+            right.append(item)
+        else:
+            left.append(item)
+    return quick_sort_pods(left) + [mid] + quick_sort_pods(right)
 
 def put_cluster_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))

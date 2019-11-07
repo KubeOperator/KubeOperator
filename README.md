@@ -10,7 +10,7 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 ![overview](https://github.com/KubeOperator/docs/blob/master/website/static/img/overview.png?raw=true)
 
-> 注： KubeOperator 2.1 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io)。
+> 注： KubeOperator 2.1 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io/selected=kube-operator)。
 
 ## Web UI 展示
 
