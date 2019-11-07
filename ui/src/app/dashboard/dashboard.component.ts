@@ -86,6 +86,7 @@ export class DashboardComponent implements OnInit {
       this.clusterData = data.data;
       this.restartPods = data.restartPods;
       this.warnContainers = data.warnContainers;
+      const count = this.clusterData.length;
       for (const cd of this.clusterData) {
         const d = JSON.parse(cd);
         this.podCount = this.podCount + d['pods'].length;
@@ -99,8 +100,8 @@ export class DashboardComponent implements OnInit {
         this.nodes = this.nodes.concat(d['nodes']);
       }
       if (this.clusterData.length > 0) {
-        this.cpu_usage = this.cpu_usage / this.clusterData.length * 100;
-        this.mem_usage = this.mem_usage / this.clusterData.length * 100;
+        this.cpu_usage = this.cpu_usage / count * 100;
+        this.mem_usage = this.mem_usage / count * 100;
       }
       this.loading = false;
     });

@@ -439,18 +439,20 @@ class DashBoardView(APIView):
             for c in clusters:
                 cluster_monitor = ClusterMonitor(c)
                 res = cluster_monitor.list_cluster_data()
-                restart_pods = restart_pods + res['restart_pods']
-                warn_containers = warn_containers + res['warn_containers']
-                cluster_data.append(json.dumps(res))
+                if len(res) != 0:
+                    restart_pods = restart_pods + res.get('restart_pods', [])
+                    warn_containers = warn_containers + res.get('warn_containers', [])
+                    cluster_data.append(json.dumps(res))
             restart_pods = kubeops_api.cluster_monitor.quick_sort_pods(restart_pods)
         else:
             cluster = Cluster.objects.get(name=project_name)
             if cluster.status != Cluster.CLUSTER_STATUS_READY:
                 cluster_monitor = ClusterMonitor(cluster)
                 res = cluster_monitor.list_cluster_data()
-                restart_pods = res['restart_pods']
-                warn_containers = res['warn_containers']
-                cluster_data.append(json.dumps(res))
+                if len(res) != 0:
+                    restart_pods = res.get('restart_pods',[])
+                    warn_containers = res.get('restart_pods',[])
+                    cluster_data.append(json.dumps(res))
         return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods})
 
 
