@@ -39,6 +39,6 @@ urlpatterns = [
                   path('cluster/<project_name>/health/', api.ClusterHealthView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
-                  # url('dns/update/', api.DNSUpdateView.as_view(), name='dns'),
-                  # url('dns/', api.DNSView.as_view(), name='dns'),
+                  url('dns/update/', api.DNSUpdateView.as_view(), name='dns'),
+                  url('dns/', api.DNSView.as_view(), name='dns'),
               ] + router.urls + cluster_router.urls
