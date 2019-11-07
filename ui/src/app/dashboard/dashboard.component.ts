@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   containerCount = 0;
   restartPods = [];
   warnContainers = [];
+  errorLokiContainers = [];
   cpu_usage = 0;
   mem_usage = 0;
   cpu_total = 0;
@@ -31,6 +32,7 @@ export class DashboardComponent implements OnInit {
   show_pod_detail = false;
   show_container_detail = false;
   show_cluster_usage_detail = false;
+  show_error_loki_container_detail = false;
   nodes = [];
 
 
@@ -59,6 +61,7 @@ export class DashboardComponent implements OnInit {
     this.show_pod_detail = false;
     this.show_container_detail = false;
     this.show_cluster_usage_detail = false;
+    this.show_error_loki_container_detail = false;
     this.nodes = [];
   }
 
@@ -86,6 +89,7 @@ export class DashboardComponent implements OnInit {
       this.clusterData = data.data;
       this.restartPods = data.restartPods;
       this.warnContainers = data.warnContainers;
+      this.errorLokiContainers = data.errorLokiContainers;
       const count = this.clusterData.length;
       for (const cd of this.clusterData) {
         const d = JSON.parse(cd);

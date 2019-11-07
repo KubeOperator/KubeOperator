@@ -1,5 +1,6 @@
 import requests
 from kubeops_api.models.host import Host
+from kubeops_api.cluster_data import LokiContainer
 
 
 class PrometheusClient():
@@ -87,23 +88,51 @@ class PrometheusClient():
             node.cpu_usage = cpu_usage_json['data']['result'][0]['value'][1]
         # cpu total
         cpu_total_url = 'http://{host}/api/v1/query?query=sum(machine_cpu_cores{{kubernetes_io_hostname="{hostname}"}})'
-        cpu_total_query_url = cpu_total_url.format(host=self.host,hostname=node.name)
+        cpu_total_query_url = cpu_total_url.format(host=self.host, hostname=node.name)
         cpu_total_req = requests.get(cpu_total_query_url)
         cpu_total_json = cpu_total_req.json()
         if cpu_total_json['status'] == 'success' and len(cpu_total_json['data']['result']) > 0:
             node.cpu = cpu_total_json['data']['result'][0]['value'][1]
         # mem total
         mem_total_url = 'http://{host}/api/v1/query?query=sum(machine_memory_bytes{{kubernetes_io_hostname="{hostname}"}})'
-        mem_total_query_url = mem_total_url.format(host=self.host,hostname=node.name)
+        mem_total_query_url = mem_total_url.format(host=self.host, hostname=node.name)
         mem_total_req = requests.get(mem_total_query_url)
         mem_total_json = mem_total_req.json()
         if mem_total_json['status'] == 'success' and len(mem_total_json['data']['result']) > 0:
             node.mem = int(mem_total_json['data']['result'][0]['value'][1]) / 1024 / 1024 / 1024
         # mem total
         mem_usage_url = 'http://{host}/api/v1/query?query=sum(container_memory_working_set_bytes{{id=\"/\",kubernetes_io_hostname="{hostname}"}})/sum(machine_memory_bytes{{kubernetes_io_hostname="{hostname}"}})'
-        mem_usage_query_url = mem_usage_url.format(host=self.host,hostname=node.name)
+        mem_usage_query_url = mem_usage_url.format(host=self.host, hostname=node.name)
         mem_usage_req = requests.get(mem_usage_query_url)
         mem_usage_json = mem_usage_req.json()
         if mem_usage_json['status'] == 'success' and len(mem_usage_json['data']['result']) > 0:
             node.mem_usage = mem_usage_json['data']['result'][0]['value'][1]
         return node
+
+    def get_msg_from_loki(self, cluster_name):
+        # label_url =  "http://{host}/loki/api/v1/label/container_name/values"
+        label_url = 'http://10.1.240.195:31452/loki/api/v1/label/container_name/values'
+        label_query_url = label_url.format(host=self.host)
+        label_req = requests.get(label_query_url)
+        loki_containers = []
+        if label_req.ok:
+            label_req_json = label_req.json()
+            values = label_req_json.get('values', [])
+            for name in values:
+                error_count = 0
+                prom_url = 'http://10.1.240.195:31452/api/prom/query?query={{container_name="{name}"}}'
+                prom_query_url = prom_url.format(host=self.host, name=name)
+                prom_req = requests.get(prom_query_url)
+                if prom_req.ok:
+                    prom_req_json = prom_req.json()
+                    streams = prom_req_json.get('streams', [])
+                    for stream in streams:
+                        entries = stream.get('entries', [])
+                        for entry in entries:
+                            line = entry.get('line', None)
+                            if line is not None and 'level=error' in line:
+                                error_count = error_count + 1
+                if error_count > 0:
+                    loki_container = LokiContainer(name, error_count, cluster_name)
+                    loki_containers.append(loki_container.__dict__)
+        return loki_containers

@@ -5,7 +5,7 @@ from uuid import UUID
 class ClusterData():
 
     def __init__(self, cluster, token, pods, nodes, namespaces, deployments, cpu_usage, cpu_total, mem_usage,
-                 mem_total, restart_pods, warn_containers):
+                 mem_total, restart_pods, warn_containers,error_loki_containers):
         self.id = str(cluster.id)
         self.name = cluster.name
         self.pods = pods
@@ -19,6 +19,7 @@ class ClusterData():
         self.mem_total = mem_total
         self.restart_pods = restart_pods
         self.warn_containers = warn_containers
+        self.error_loki_containers = error_loki_containers
 
 
 class Pod():
@@ -69,3 +70,11 @@ class Deployment():
         self.ready_replicas = ready_replicas
         self.replicas = replicas
         self.namespace = namespace
+
+
+class LokiContainer():
+
+    def __init__(self, name, error_count,cluster_name):
+        self.name = name
+        self.error_count = error_count
+        self.cluster_name = cluster_name

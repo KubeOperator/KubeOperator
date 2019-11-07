@@ -151,12 +151,21 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">异常日志</h3>
-        <p class="card-text">
-          ...
-        </p>
+        <table class="table">
+          <tr>
+            <th>容器名称</th>
+            <th>集群</th>
+            <th>Error数量</th>
+          </tr>
+          <tr *ngFor="let elc of errorLokiContainers.slice(0,4)">
+            <td>{{elc.name}}</td>
+            <td>{{elc.cluster_name}}</td>
+            <td>{{elc.error_count}}</td>
+          </tr>
+        </table>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a class="btn btn-sm btn-link" (click)="show_error_loki_container_detail=true">详情</a>
       </div>
     </div>
   </div>
@@ -282,9 +291,35 @@
           <clr-dg-row *clrDgItems="let item of nodes" [clrDgItem]="item">
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
             <clr-dg-cell>{{item.cpu}}</clr-dg-cell>
-            <clr-dg-cell>{{item.cpu_usage*100 | number: '1.0-2'}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cpu_usage * 100 | number: '1.0-2'}}</clr-dg-cell>
             <clr-dg-cell>{{item.mem | number: '1.0-2'}}</clr-dg-cell>
-            <clr-dg-cell>{{item.mem_usage*100 | number: '1.0-2'}}</clr-dg-cell>
+            <clr-dg-cell>{{item.mem_usage * 100 | number: '1.0-2'}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" *ngIf="show_error_loki_container_detail">
+  <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button aria-label="Close" class="close" type="button" (click)="show_error_loki_container_detail=false">
+          <clr-icon aria-hidden="true" shape="close"></clr-icon>
+        </button>
+        <h3 class="modal-title">异常详情</h3>
+      </div>
+      <div class="modal-body">
+        <clr-datagrid>
+          <clr-dg-column>容器名称</clr-dg-column>
+          <clr-dg-column>所属集群</clr-dg-column>
+          <clr-dg-column>错误次数</clr-dg-column>
+          <clr-dg-column>跳转</clr-dg-column>
+          <clr-dg-row *clrDgItems="let item of errorLokiContainers" [clrDgItem]="item">
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.error_count}}</clr-dg-cell>
+            <clr-dg-cell></clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
       </div>

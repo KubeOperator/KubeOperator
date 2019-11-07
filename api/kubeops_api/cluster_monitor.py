@@ -10,8 +10,8 @@ from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
 from django.db.models import Q
 
-
 logger = logging.getLogger('kubeops')
+
 
 class ClusterMonitor():
 
@@ -141,16 +141,16 @@ class ClusterMonitor():
             mem_total = mem_total + float(n['mem'])
             mem_usage = mem_usage + float(n['mem_usage'])
             if n['cpu_usage'] == 0 and n['mem_usage'] == 0:
-                count = count -1
+                count = count - 1
         cpu_usage = cpu_usage / count
         mem_usage = mem_usage / count
-
-        sort_restart_pod_list = self.quick_sort_pods(self.restart_pods)
+        sort_restart_pod_list = quick_sort_pods(self.restart_pods)
 
         cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=pods, nodes=nodes,
                                    namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
                                    cpu_total=cpu_total,
-                                   mem_total=mem_total, mem_usage=mem_usage,restart_pods=sort_restart_pod_list,warn_containers=self.warn_containers)
+                                   mem_total=mem_total, mem_usage=mem_usage, restart_pods=sort_restart_pod_list,
+                                   warn_containers=self.warn_containers, error_loki_containers=[])
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
@@ -169,20 +169,53 @@ class ClusterMonitor():
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_node_resource(node)
 
+    def get_loki_msg(self):
+        host = "loki.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
+        config = {
+            'host': host
+        }
+        prometheus_client = PrometheusClient(config)
+        return prometheus_client.get_msg_from_loki(self.cluster.name)
+
+    def set_loki_data_to_cluster(self):
+        cluster_data = self.redis_cli.get(self.cluster.name)
+        if cluster_data is not None:
+            cluster_str = str(cluster_data, encoding='utf-8')
+            cluster_d = json.loads(cluster_str)
+            cluster_d['error_loki_containers'] = quick_sort_error_loki_container(self.get_loki_msg())
+            return self.redis_cli.set(self.cluster.name, json.dumps(cluster_d.__dict__))
+        else:
+            return False
 def quick_sort_pods(podList):
     if len(podList) < 2:
         return podList
     mid = podList[0]
 
-    left , right = [], []
+    left, right = [], []
     podList.remove(mid)
 
     for item in podList:
-        if item['restart_count'] >= mid['restart_count']:
+        if item['restart_count'] <= mid['restart_count']:
             right.append(item)
         else:
             left.append(item)
     return quick_sort_pods(left) + [mid] + quick_sort_pods(right)
+
+def quick_sort_error_loki_container(containers):
+    if len(containers) < 2:
+        return containers
+    mid = containers[0]
+
+    left, right = [], []
+    containers.remove(mid)
+
+    for item in containers:
+        if item.get('error_count') <= mid.get('error_count'):
+            right.append(item)
+        else:
+            left.append(item)
+    return quick_sort_pods(left) + [mid] + quick_sort_pods(right)
+
 
 def put_cluster_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
@@ -190,4 +223,13 @@ def put_cluster_data_to_redis():
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
         if success == False:
-            logger.error(msg='put cluster data to redis error',exec_info = True)
+            logger.error(msg='put cluster data to redis error', exec_info=True)
+
+
+def put_loki_data_to_redis():
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    for cluster in clusters:
+        cluster_monitor = ClusterMonitor(cluster)
+        success = cluster_monitor.set_loki_data_to_cluster()
+        if success == False:
+            logger.error(msg='put cluster loki data to redis error', exec_info=True)
