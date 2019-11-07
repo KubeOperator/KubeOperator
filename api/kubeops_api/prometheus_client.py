@@ -110,8 +110,7 @@ class PrometheusClient():
         return node
 
     def get_msg_from_loki(self, cluster_name):
-        # label_url =  "http://{host}/loki/api/v1/label/container_name/values"
-        label_url = 'http://10.1.240.195:31452/loki/api/v1/label/container_name/values'
+        label_url =  "http://{host}/loki/api/v1/label/container_name/values"
         label_query_url = label_url.format(host=self.host)
         label_req = requests.get(label_query_url)
         loki_containers = []
@@ -120,7 +119,7 @@ class PrometheusClient():
             values = label_req_json.get('values', [])
             for name in values:
                 error_count = 0
-                prom_url = 'http://10.1.240.195:31452/api/prom/query?query={{container_name="{name}"}}'
+                prom_url = 'http://{host}/api/prom/query?query={{container_name="{name}"}}'
                 prom_query_url = prom_url.format(host=self.host, name=name)
                 prom_req = requests.get(prom_query_url)
                 if prom_req.ok:

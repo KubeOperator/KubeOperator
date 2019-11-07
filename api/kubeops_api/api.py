@@ -454,7 +454,7 @@ class DashBoardView(APIView):
                 res = cluster_monitor.list_cluster_data()
                 if len(res) != 0:
                     restart_pods = res.get('restart_pods', [])
-                    warn_containers = res.get('restart_pods', [])
+                    warn_containers = res.get('warn_containers', [])
                     error_loki_containers = res.get('error_loki_containers', [])
                     cluster_data.append(json.dumps(res))
         return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods,

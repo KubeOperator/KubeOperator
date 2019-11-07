@@ -96,6 +96,9 @@ export class DashboardComponent implements OnInit {
         this.podCount = this.podCount + d['pods'].length;
         this.namespaceCount = this.namespaceCount + d['namespaces'].length;
         this.deploymentCount = this.deploymentCount + d['deployments'].length;
+        for (const p of d['pods']) {
+          this.containerCount = this.containerCount + p['containers'].length;
+        }
         this.nodeCount = this.nodeCount + d['nodes'].length;
         this.cpu_total = this.cpu_total + d['cpu_total'];
         this.mem_total = this.mem_total + d['mem_total'];
