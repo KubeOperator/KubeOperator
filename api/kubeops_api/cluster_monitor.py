@@ -169,20 +169,20 @@ class ClusterMonitor():
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_node_resource(node)
 
-    def quick_sort_pods(self,podList):
-        if len(podList) < 2:
-            return podList
-        mid = podList[0]
+def quick_sort_pods(podList):
+    if len(podList) < 2:
+        return podList
+    mid = podList[0]
 
-        left , right = [], []
-        podList.remove(mid)
+    left , right = [], []
+    podList.remove(mid)
 
-        for item in podList:
-            if item['restart_count'] >= mid['restart_count']:
-                right.append(item)
-            else:
-                left.append(item)
-        return self.quick_sort_pods(left) + [mid] + self.quick_sort_pods(right)
+    for item in podList:
+        if item['restart_count'] >= mid['restart_count']:
+            right.append(item)
+        else:
+            left.append(item)
+    return quick_sort_pods(left) + [mid] + quick_sort_pods(right)
 
 def put_cluster_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))

@@ -1,19 +1,24 @@
 import json
-import os
-import yaml
 import logging
-from django.http import HttpResponse, JsonResponse
-from rest_framework import viewsets, status
-from rest_framework.generics import RetrieveAPIView, CreateAPIView, GenericAPIView
-from rest_framework.response import Response
+import os
+
+import yaml
 from django.db import transaction
-from rest_framework.views import APIView
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
+from rest_framework import generics
+from rest_framework import viewsets, status
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 import kubeops_api.cluster_backup_utils
+import kubeops_api.cluster_monitor
 from ansible_api.permissions import IsSuperUser
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import test_host
+from kubeops_api.cluster_monitor import ClusterMonitor
 from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster import Cluster
@@ -33,15 +38,6 @@ from kubeops_api.storage_client import StorageClient
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
-from kubeops_api.storage_client import StorageClient
-from kubeops_api.models.backup_strategy import BackupStrategy
-from kubeops_api.models.cluster_backup import ClusterBackup
-import kubeops_api.cluster_backup_utils
-from rest_framework import generics
-from kubeops_api.prometheus_client import PrometheusClient
-from kubeops_api.models.cluster_health_history import ClusterHealthHistory
-from kubeops_api.cluster_monitor import ClusterMonitor
-from django.db.models import Q
 
 logger = logging.getLogger('kubeops')
 
@@ -434,7 +430,7 @@ class DashBoardView(APIView):
     permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
-        project_name = self.kwargs['project_name']
+        project_name = kwargs['project_name']
         cluster_data = []
         restart_pods = []
         warn_containers = []
@@ -446,7 +442,7 @@ class DashBoardView(APIView):
                 restart_pods = restart_pods + res['restart_pods']
                 warn_containers = warn_containers + res['warn_containers']
                 cluster_data.append(json.dumps(res))
-            restart_pods = ClusterMonitor(clusters[0]).quick_sort_pods(restart_pods)
+            restart_pods = kubeops_api.cluster_monitor.quick_sort_pods(restart_pods)
         else:
             cluster = Cluster.objects.get(name=project_name)
             if cluster.status != Cluster.CLUSTER_STATUS_READY:
