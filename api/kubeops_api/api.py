@@ -33,6 +33,7 @@ from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
 from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
 logger = logging.getLogger(__name__)
 
 
@@ -203,8 +204,10 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
         cluster = Cluster.objects.get(name=cluster_name)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             operation = request.data['operation']
+            cluster.change_to()
+            nodes = Node.objects.all()
             if operation == 'install':
-                if cluster.worker_size > cluster.plan.count_ip_available():
+                if cluster.worker_size > cluster.plan.count_ip_available() + len(nodes):
                     return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
             if operation == 'scale':
                 num = request.data['params']['num']
