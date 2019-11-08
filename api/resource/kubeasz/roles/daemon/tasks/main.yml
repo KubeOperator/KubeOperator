@@ -40,5 +40,6 @@
 
 - block:
     - name: 主动同步时间
-      shell: "ntpdate {{groups['kube-master'][0]}}"
+      shell: "ntpdate {{groups['kube-master'][0]}} | hwclock -w"
+      when: "inventory_hostname != groups['kube-master'][0]"
   when: "DEPLOY_MODE == 'multiple-master'"
