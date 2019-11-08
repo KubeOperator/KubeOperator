@@ -1,7 +1,5 @@
 import json
-import logging
 import os
-
 import yaml
 from django.db import transaction
 from django.db.models import Q
@@ -38,6 +36,16 @@ from kubeops_api.storage_client import StorageClient
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
+from kubeops_api.storage_client import StorageClient
+from kubeops_api.models.backup_strategy import BackupStrategy
+from kubeops_api.models.cluster_backup import ClusterBackup
+import kubeops_api.cluster_backup_utils
+from rest_framework import generics
+from kubeops_api.prometheus_client import PrometheusClient
+from django.views import View
+from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger('kubeops')
 
@@ -118,8 +126,7 @@ class HostViewSet(viewsets.ModelViewSet):
                 return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
                                 status=status.HTTP_400_BAD_REQUEST)
         credential = Credential.objects.get(name=serializer.data['credential'])
-        print(serializer.data)
-        connected = test_host(serializer.data['ip'], serializer.data['port'], credential.username, credential.password)
+        connected = test_host(serializer.data['ip'], credential.username, credential.password)
         if not connected:
             return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
@@ -192,11 +199,14 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         cluster_name = kwargs.get('cluster_name')
+        self.mark(cluster_name)
         cluster = Cluster.objects.get(name=cluster_name)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             operation = request.data['operation']
+            cluster.change_to()
+            nodes = Node.objects.all()
             if operation == 'install':
-                if cluster.worker_size > cluster.plan.count_ip_available():
+                if cluster.worker_size > cluster.plan.count_ip_available() + len(nodes):
                     return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
             if operation == 'scale':
                 num = request.data['params']['num']
@@ -204,6 +214,12 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
                     if num - cluster.worker_size > cluster.plan.count_ip_available():
                         return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
+
+    def mark(self, cluster_name):
+        cluster = Cluster.objects.get(name=cluster_name)
+        last = cluster.current_execution
+        if last and last.state == last.STATE_STARTED:
+            last.mark_state(last.STATE_FAILURE)
 
     def perform_create(self, serializer):
         instance = serializer.save()
