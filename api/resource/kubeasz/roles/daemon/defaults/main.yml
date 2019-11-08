@@ -1,6 +1,7 @@
 packages:
   - dnsmasq
   - chrony
+  - ntpdate
 services:
   - dnsmasq
   - chronyd
