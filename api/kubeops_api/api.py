@@ -435,6 +435,7 @@ class DashBoardView(APIView):
         restart_pods = []
         warn_containers = []
         error_loki_containers = []
+        error_pods = []
         if project_name == 'all':
             clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
             for c in clusters:
@@ -444,6 +445,7 @@ class DashBoardView(APIView):
                     restart_pods = restart_pods + res.get('restart_pods', [])
                     warn_containers = warn_containers + res.get('warn_containers', [])
                     error_loki_containers = error_loki_containers + res.get('error_loki_containers', [])
+                    error_pods = error_pods + res.get('error_pods', [])
                     cluster_data.append(json.dumps(res))
             restart_pods = kubeops_api.cluster_monitor.quick_sort_pods(restart_pods)
             error_loki_containers = kubeops_api.cluster_monitor.quick_sort_error_loki_container(error_loki_containers)
@@ -456,17 +458,18 @@ class DashBoardView(APIView):
                     restart_pods = res.get('restart_pods', [])
                     warn_containers = res.get('warn_containers', [])
                     error_loki_containers = res.get('error_loki_containers', [])
+                    error_pods = res.get('error_pods', [])
                     cluster_data.append(json.dumps(res))
         return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods,
-                              'errorLokiContainers':error_loki_containers})
+                              'errorLokiContainers': error_loki_containers,'errorPods':error_pods})
 
-    class DNSView(RetrieveAPIView):
-        permission_classes = (IsSuperUser,)
-        serializer_class = DNSSerializer
+class DNSView(RetrieveAPIView):
+    permission_classes = (IsSuperUser,)
+    serializer_class = DNSSerializer
 
-        def get_object(self):
-            return DNS.objects.first()
+    def get_object(self):
+        return DNS.objects.first()
 
-    class DNSUpdateView(CreateAPIView):
-        permission_classes = (IsSuperUser,)
-        serializer_class = DNSSerializer
+class DNSUpdateView(CreateAPIView):
+    permission_classes = (IsSuperUser,)
+    serializer_class = DNSSerializer
