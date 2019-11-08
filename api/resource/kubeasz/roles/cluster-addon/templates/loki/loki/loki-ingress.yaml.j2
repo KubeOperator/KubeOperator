@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: f2c-loki-ingress
+  namespace: monitoring
+spec:
+  rules:
+  - host: loki.{{ APP_DOMAIN }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: f2c-loki
+          servicePort: 3100

@@ -138,6 +138,9 @@
     - name: 生成 loki 部署文件
       template: src=loki/loki/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/loki/values.yaml
 
+    - name: 生成 loki ingress部署文件
+      template: src=loki/loki/loki-ingress.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/loki/templates/ingress.yaml
+
     - name: 生成 promtail 部署文件
       template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
 
