@@ -266,18 +266,18 @@ LOGGING = {
         },
     },
     'loggers': {
-        # 'user': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
-        # 'kubeops': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
-        # 'cloud_provider': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
+        'user': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'kubeops': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'cloud_provider': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
     },
 }
 
