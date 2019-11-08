@@ -37,3 +37,8 @@
   service:
     name: chronyd
     state: restarted
+
+- block:
+    - name: 主动同步时间
+      shell: "ntpdate {{groups['kube-master'][0]}}"
+  when: "DEPLOY_MODE == 'multiple-master'"

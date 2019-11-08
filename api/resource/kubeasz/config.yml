@@ -10,6 +10,9 @@
   roles:
     - host-dns
     - rpm
+
+- hosts: kube-node
+  roles:
     - ntp
 
 - hosts: localhost
