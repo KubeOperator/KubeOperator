@@ -80,7 +80,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] K8s 日志收集及管理方案（Loki）；
 - [x] KubeOperator 自身的系统日志收集和管理；
 - [x] 概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
-- [ ] 支持云原生存储 Rook + Ceph；
+- [ ] 支持云原生存储 Rook（CephRBD）；
 - [ ] 支持 Kubernetes 1.16；
 
  v2.3 （计划中，2019.12.31 发布）
