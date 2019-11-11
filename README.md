@@ -87,6 +87,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
  v2.3 （计划中，2019.12.31 发布）
 
+- [ ] 实现内置应用的统一认证；
 - [ ] KubeApps 应用商店；
 - [ ] 支持 NetApp 存储；
 
