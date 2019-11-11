@@ -122,7 +122,10 @@
       <div class="card-block card-style">
         <h3 class="card-title">统计信息</h3>
         <div class="clr-row">
-          <div class="clr-col-lg-6 clr-col-12 count">
+          <div class="clr-col-lg-5 clr-col-12">
+            <img src="assets/images/pie-chart.svg">
+          </div>
+          <div class="clr-col-lg-1  clr-col-12 count">
             <span><b>{{nodeCount}}</b></span> <br>
             <span><b>{{clusters.length}}</b></span> <br>
             <span><b>{{namespaceCount}}</b></span> <br>
@@ -141,7 +144,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a href="..." class="btn btn-sm btn-link">详情</a>
+        <a (click)="toPage('cluster')" class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>
