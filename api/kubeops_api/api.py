@@ -21,13 +21,11 @@ from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.deploy import DeployExecution
-from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.serializers import DNSSerializer
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
@@ -219,15 +217,6 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
             args=(instance.id,), task_id=str(instance.id)
         ))
         return instance
-
-
-class SettingViewSet(viewsets.ModelViewSet):
-    queryset = Setting.objects.all()
-    permission_classes = (IsSuperUser,)
-    serializer_class = serializers.SettingSerializer
-    http_method_names = ['get', 'head', 'options', 'put', 'patch']
-    lookup_field = 'key'
-    lookup_url_kwarg = 'key'
 
 
 class VersionView(APIView):
@@ -472,14 +461,12 @@ class DashBoardView(APIView):
                               'errorLokiContainers': error_loki_containers, 'errorPods': error_pods})
 
 
-class DNSView(RetrieveAPIView):
-    permission_classes = (IsSuperUser,)
-    serializer_class = DNSSerializer
+class SettingView(APIView):
 
-    def get_object(self):
-        return DNS.objects.first()
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(Setting.get_settings())
 
-
-class DNSUpdateView(CreateAPIView):
-    permission_classes = (IsSuperUser,)
-    serializer_class = DNSSerializer
+    def post(self, request, *args, **kwargs):
+        settings = request.data
+        Setting.set_settings(settings)
+        return Response(settings, status=status.HTTP_201_CREATED)

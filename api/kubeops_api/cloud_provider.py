@@ -1,12 +1,11 @@
 from django.db.models import Q
 
 from cloud_provider import get_cloud_client
-from cloud_provider.compute_model import compute_models, get_compute_model_meta
+from cloud_provider.compute_model import get_compute_model_meta
 from cloud_provider.models import Plan, Zone
 from kubeops_api.adhoc import drain_worker_node
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
-from kubeops_api.models.setting import Setting
 from time import sleep
 
 
