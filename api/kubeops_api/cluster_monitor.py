@@ -55,7 +55,6 @@ class ClusterMonitor():
         configuration.verify_ssl = False
         self.api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
         self.app_v1_api = kubernetes.client.AppsV1Api(kubernetes.client.ApiClient(configuration))
-        self.check_authorization(self.retry_count)
 
     def check_authorization(self, retry_count):
         if retry_count > 2:
@@ -127,6 +126,7 @@ class ClusterMonitor():
         return deployment_list
 
     def set_cluster_data(self):
+        self.check_authorization(self.retry_count)
         nodes = self.list_nodes()
         pods = self.list_pods()
         namespaces = self.list_namespaces()
