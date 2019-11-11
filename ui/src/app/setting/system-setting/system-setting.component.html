@@ -1,9 +1,25 @@
 <div>
 
-  <form clrForm *ngFor="let s of settings">
+  <form clrForm *ngIf="settings">
     <clr-input-container>
-      <label>{{s.name}}</label>
-      <input clrInput size=45 [placeholder]="s.helper" type="text" [(ngModel)]="s.value" name="value"/>
+      <label>本机IP</label>
+      <input clrInput [(ngModel)]="settings['local_hostname']" name="local_hostname" size=45/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>域名后缀</label>
+      <input clrInput [(ngModel)]="settings['domain_suffix']" name="domain_suffix" size=45/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>DNS1</label>
+      <input clrInput [(ngModel)]="settings['dns1']" name="dns1" size=45/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>DNS2</label>
+      <input clrInput [(ngModel)]="settings['dns2']" name="dns2" size=45/>
+    </clr-input-container>
+    <clr-input-container>
+      <label>NTP Server</label>
+      <input clrInput [(ngModel)]="settings['ntp_server']" name="ntp_server" size=45/>
     </clr-input-container>
   </form>
   <button class="btn btn-info-outline" (click)="onSubmit()">保存</button>

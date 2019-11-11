@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {SettingService} from '../../setting/setting.service';
 import {Router} from '@angular/router';
 
@@ -10,12 +10,15 @@ import {Router} from '@angular/router';
 export class ShellComponent implements OnInit {
 
   showAlert: boolean;
-  constructor(private  settingService: SettingService, private router: Router) { }
+
+  constructor(private  settingService: SettingService, private router: Router) {
+  }
 
   ngOnInit() {
     this.showAlert = false;
-    this.settingService.getSetting('local_hostname' ).subscribe(data => {
-      if (data.value === '') {
+    this.settingService.getSettings().subscribe(data => {
+      const hostName = data['local_hostname'];
+      if (!hostName) {
         this.showAlert = true;
       }
     });

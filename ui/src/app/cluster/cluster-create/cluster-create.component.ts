@@ -126,8 +126,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.network = null;
     this.networks = null;
     this.resetCheckState();
-    this.settingService.getSetting('domain_suffix').subscribe(data => {
-      this.global_domain = data.value;
+    this.settingService.getSettings().subscribe(data => {
+      this.global_domain = data['domain_suffix'];
       this.cluster.cluster_doamin_suffix = this.global_domain;
     });
   }
@@ -461,7 +461,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   canCheckNext() {
-    return true;
     if (this.checkOsState === CHECK_STATE_SUCCESS && this.checkMemoryState === CHECK_STATE_SUCCESS &&
       this.checkCpuState === CHECK_STATE_SUCCESS) {
       return true;

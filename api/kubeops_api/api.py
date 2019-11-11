@@ -1,13 +1,11 @@
 import json
 import logging
 import os
-
 import yaml
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
 from rest_framework import viewsets, status
 from rest_framework.generics import RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
@@ -20,24 +18,24 @@ from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import test_host
 from kubeops_api.cluster_monitor import ClusterMonitor
 from kubeops_api.models.backup_storage import BackupStorage
-from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.cluster_backup import ClusterBackup
-from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.deploy import DeployExecution
-from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.prometheus_client import PrometheusClient
-from kubeops_api.serializers import DNSSerializer
-from kubeops_api.storage_client import StorageClient
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
+from kubeops_api.storage_client import StorageClient
+from kubeops_api.models.backup_strategy import BackupStrategy
+from kubeops_api.models.cluster_backup import ClusterBackup
+import kubeops_api.cluster_backup_utils
+from rest_framework import generics
+from kubeops_api.prometheus_client import PrometheusClient
+from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 
 logger = logging.getLogger('kubeops')
 
@@ -118,8 +116,7 @@ class HostViewSet(viewsets.ModelViewSet):
                 return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
                                 status=status.HTTP_400_BAD_REQUEST)
         credential = Credential.objects.get(name=serializer.data['credential'])
-        print(serializer.data)
-        connected = test_host(serializer.data['ip'], serializer.data['port'], credential.username, credential.password)
+        connected = test_host(serializer.data['ip'], credential.username, credential.password)
         if not connected:
             return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
@@ -192,11 +189,14 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         cluster_name = kwargs.get('cluster_name')
+        self.mark(cluster_name)
         cluster = Cluster.objects.get(name=cluster_name)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             operation = request.data['operation']
+            cluster.change_to()
+            nodes = Node.objects.all()
             if operation == 'install':
-                if cluster.worker_size > cluster.plan.count_ip_available():
+                if cluster.worker_size > cluster.plan.count_ip_available() + len(nodes):
                     return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
             if operation == 'scale':
                 num = request.data['params']['num']
@@ -205,21 +205,18 @@ class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
                         return Response(data={'msg': ': Ip 资源不足！'}, status=status.HTTP_400_BAD_REQUEST)
         return super().create(request, *args, **kwargs)
 
+    def mark(self, cluster_name):
+        cluster = Cluster.objects.get(name=cluster_name)
+        last = cluster.current_execution
+        if last and last.state == last.STATE_STARTED:
+            last.mark_state(last.STATE_FAILURE)
+
     def perform_create(self, serializer):
         instance = serializer.save()
         transaction.on_commit(lambda: start_deploy_execution.apply_async(
             args=(instance.id,), task_id=str(instance.id)
         ))
         return instance
-
-
-class SettingViewSet(viewsets.ModelViewSet):
-    queryset = Setting.objects.all()
-    permission_classes = (IsSuperUser,)
-    serializer_class = serializers.SettingSerializer
-    http_method_names = ['get', 'head', 'options', 'put', 'patch']
-    lookup_field = 'key'
-    lookup_url_kwarg = 'key'
 
 
 class VersionView(APIView):
@@ -461,15 +458,15 @@ class DashBoardView(APIView):
                     error_pods = res.get('error_pods', [])
                     cluster_data.append(json.dumps(res))
         return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods,
-                              'errorLokiContainers': error_loki_containers,'errorPods':error_pods})
+                              'errorLokiContainers': error_loki_containers, 'errorPods': error_pods})
 
-class DNSView(RetrieveAPIView):
-    permission_classes = (IsSuperUser,)
-    serializer_class = DNSSerializer
 
-    def get_object(self):
-        return DNS.objects.first()
+class SettingView(APIView):
 
-class DNSUpdateView(CreateAPIView):
-    permission_classes = (IsSuperUser,)
-    serializer_class = DNSSerializer
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(Setting.get_settings())
+
+    def post(self, request, *args, **kwargs):
+        settings = request.data
+        Setting.set_settings(settings)
+        return Response(settings, status=status.HTTP_201_CREATED)

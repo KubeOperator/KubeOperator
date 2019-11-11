@@ -3,7 +3,6 @@ from django.shortcuts import reverse
 
 from cloud_provider.models import Plan, Zone
 from kubeops_api.models.credential import Credential
-from kubeops_api.models.dns import DNS
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
@@ -14,7 +13,6 @@ from kubeops_api.models.host import Volume
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
-from kubeops_api.models.setting import Setting
 from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
@@ -22,7 +20,7 @@ from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer', 'RoleSerializer', 'DeployExecutionSerializer',
-    'SettingSerializer', 'HostSerializer',
+    'HostSerializer',
     'CredentialSerializer', 'BackupStrategySerializer', 'BackupStorageSerializer'
 ]
 
@@ -36,13 +34,6 @@ class CredentialSerializer(serializers.ModelSerializer):
         }
         fields = ['id', 'name', 'username', 'password', 'private_key', 'date_created', 'type']
         read_only_fields = ['id', 'date_created']
-
-
-class SettingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Setting
-        fields = ['id', 'name', 'key', 'helper', 'order', 'value']
-        read_only_fields = ['id', 'name', 'key', 'helper', 'order']
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -223,10 +214,3 @@ class ClusterHeathHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClusterHealthHistory
         fields = ['id', 'project_id', 'available_rate', 'date_type', 'date_created', 'month']
-
-
-class DNSSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DNS
-        fields = ["id", "dns1", "dns2", 'date_created']
-        read_only_fields = ['id', 'date_created']
