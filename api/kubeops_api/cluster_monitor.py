@@ -27,22 +27,17 @@ class ClusterMonitor():
         self.error_pods = []
 
     def get_authorization(self):
-        try:
-            if self.redis_cli.exists(self.cluster.name):
-                cluster_data = self.redis_cli.get(self.cluster.name)
-                if cluster_data is not None:
-                    cluster_str = str(cluster_data, encoding='utf-8')
-                    cluster_d = json.loads(cluster_str)
-                    self.token = cluster_d['token']
-                else:
-                    self.token = self.cluster.get_cluster_token()
+        if self.redis_cli.exists(self.cluster.name):
+            cluster_data = self.redis_cli.get(self.cluster.name)
+            if cluster_data is not None:
+                cluster_str = str(cluster_data, encoding='utf-8')
+                cluster_d = json.loads(cluster_str)
+                self.token = cluster_d['token']
             else:
                 self.token = self.cluster.get_cluster_token()
-        except ApiException as e:
-            if e.status == 401:
-                self.token = self.cluster.get_cluster_token()
-            else:
-                raise Exception('get authorization failed!' + e.reason)
+        else:
+            self.token = self.cluster.get_cluster_token()
+
 
     def get_api_instance(self):
         self.cluster.change_to()
