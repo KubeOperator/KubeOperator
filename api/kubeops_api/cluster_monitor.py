@@ -100,30 +100,39 @@ class ClusterMonitor():
             raise Exception('list pod failed!' + e.reason)
 
     def list_namespaces(self):
-        namespaces = self.api_instance.list_namespace()
-        namespace_list = []
-        for n in namespaces.items:
-            namespace = NameSpace(name=n.metadata.name, status=n.status.phase)
-            namespace_list.append(namespace.__dict__)
-        return namespace_list
+        try:
+            namespaces = self.api_instance.list_namespace()
+            namespace_list = []
+            for n in namespaces.items:
+                namespace = NameSpace(name=n.metadata.name, status=n.status.phase)
+                namespace_list.append(namespace.__dict__)
+            return namespace_list
+        except ApiException as e:
+            logger.error(msg='list namespace error'+e.reason, exec_info=True)
 
     def list_nodes(self):
-        nodes = self.api_instance.list_node()
-        node_list = []
-        for n in nodes.items:
-            node = Node(name=n.metadata.name, status=n.status.phase, cpu=0, mem=0, cpu_usage=0, mem_usage=0)
-            node = self.get_node_data(node)
-            node_list.append(node.__dict__)
-        return node_list
+        try:
+            nodes = self.api_instance.list_node()
+            node_list = []
+            for n in nodes.items:
+                node = Node(name=n.metadata.name, status=n.status.phase, cpu=0, mem=0, cpu_usage=0, mem_usage=0)
+                node = self.get_node_data(node)
+                node_list.append(node.__dict__)
+            return node_list
+        except ApiException as e:
+            logger.error(msg='list node error' + e.reason, exec_info=True)
 
     def list_deployments(self):
-        deployments = self.app_v1_api.list_deployment_for_all_namespaces()
-        deployment_list = []
-        for d in deployments.items:
-            deployment = Deployment(name=d.metadata.name, ready_replicas=d.status.ready_replicas,
-                                    replicas=d.status.replicas, namespace=d.metadata.namespace)
-            deployment_list.append(deployment.__dict__)
-        return deployment_list
+        try:
+            deployments = self.app_v1_api.list_deployment_for_all_namespaces()
+            deployment_list = []
+            for d in deployments.items:
+                deployment = Deployment(name=d.metadata.name, ready_replicas=d.status.ready_replicas,
+                                        replicas=d.status.replicas, namespace=d.metadata.namespace)
+                deployment_list.append(deployment.__dict__)
+            return deployment_list
+        except ApiException as e:
+            logger.error(msg='list namespace error' + e.reason, exec_info=True)
 
     def set_cluster_data(self):
         self.check_authorization(self.retry_count)
