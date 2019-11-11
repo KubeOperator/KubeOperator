@@ -195,7 +195,7 @@ class ClusterMonitor():
             cluster_str = str(cluster_data, encoding='utf-8')
             cluster_d = json.loads(cluster_str)
             cluster_d['error_loki_containers'] = quick_sort_error_loki_container(self.get_loki_msg())
-            return self.redis_cli.set(self.cluster.name, json.dumps(cluster_d.__dict__))
+            return self.redis_cli.set(self.cluster.name, json.dumps(cluster_d))
         else:
             return False
 def quick_sort_pods(podList):

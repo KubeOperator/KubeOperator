@@ -344,7 +344,7 @@
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
             <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.error_count}}</clr-dg-cell>
-            <clr-dg-cell></clr-dg-cell>
+            <clr-dg-cell (click)="toGrafana(item.cluster_name)"></clr-dg-cell>
           </clr-dg-row>
         </clr-datagrid>
       </div>
