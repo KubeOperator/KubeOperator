@@ -1,6 +1,7 @@
 # Use public servers from the pool.ntp.org project.
-
+{% if ntp_server %}
 server {{ntp_server}}
+{% endif %}
 
 # Ignor source level
 stratumweight 0
