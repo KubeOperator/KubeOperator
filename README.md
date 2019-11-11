@@ -82,6 +82,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
 - [ ] 支持云原生存储 Rook（CephRBD）；
 - [ ] 支持 Kubernetes 1.16；
+- [ ] 支持全局的 NTP 设置；
 
  v2.3 （计划中，2019.12.31 发布）
 
