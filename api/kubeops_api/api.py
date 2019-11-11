@@ -1,11 +1,11 @@
 import json
+import logging
 import os
 import yaml
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
 from rest_framework import viewsets, status
 from rest_framework.generics import RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
@@ -18,10 +18,7 @@ from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import test_host
 from kubeops_api.cluster_monitor import ClusterMonitor
 from kubeops_api.models.backup_storage import BackupStorage
-from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.cluster_backup import ClusterBackup
-from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.deploy import DeployExecution
 from kubeops_api.models.dns import DNS
@@ -30,9 +27,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.serializers import DNSSerializer
-from kubeops_api.storage_client import StorageClient
 from . import serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
@@ -42,10 +37,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 import kubeops_api.cluster_backup_utils
 from rest_framework import generics
 from kubeops_api.prometheus_client import PrometheusClient
-from django.views import View
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
-
-logger = logging.getLogger(__name__)
 
 logger = logging.getLogger('kubeops')
 
@@ -477,7 +469,8 @@ class DashBoardView(APIView):
                     error_pods = res.get('error_pods', [])
                     cluster_data.append(json.dumps(res))
         return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods,
-                              'errorLokiContainers': error_loki_containers,'errorPods':error_pods})
+                              'errorLokiContainers': error_loki_containers, 'errorPods': error_pods})
+
 
 class DNSView(RetrieveAPIView):
     permission_classes = (IsSuperUser,)
@@ -485,6 +478,7 @@ class DNSView(RetrieveAPIView):
 
     def get_object(self):
         return DNS.objects.first()
+
 
 class DNSUpdateView(CreateAPIView):
     permission_classes = (IsSuperUser,)
