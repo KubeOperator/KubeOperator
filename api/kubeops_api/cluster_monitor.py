@@ -24,24 +24,20 @@ class ClusterMonitor():
         self.get_api_instance()
         self.restart_pods = []
         self.warn_containers = []
+        self.error_pods = []
 
     def get_authorization(self):
-        try:
-            if self.redis_cli.exists(self.cluster.name):
-                cluster_data = self.redis_cli.get(self.cluster.name)
-                if cluster_data is not None:
-                    cluster_str = str(cluster_data, encoding='utf-8')
-                    cluster_d = json.loads(cluster_str)
-                    self.token = cluster_d['token']
-                else:
-                    self.token = self.cluster.get_cluster_token()
+        if self.redis_cli.exists(self.cluster.name):
+            cluster_data = self.redis_cli.get(self.cluster.name)
+            if cluster_data is not None:
+                cluster_str = str(cluster_data, encoding='utf-8')
+                cluster_d = json.loads(cluster_str)
+                self.token = cluster_d['token']
             else:
                 self.token = self.cluster.get_cluster_token()
-        except ApiException as e:
-            if e.status == 401:
-                self.token = self.cluster.get_cluster_token()
-            else:
-                raise Exception('get authorization failed!' + e.reason)
+        else:
+            self.token = self.cluster.get_cluster_token()
+
 
     def get_api_instance(self):
         self.cluster.change_to()
@@ -54,7 +50,6 @@ class ClusterMonitor():
         configuration.verify_ssl = False
         self.api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
         self.app_v1_api = kubernetes.client.AppsV1Api(kubernetes.client.ApiClient(configuration))
-        self.check_authorization(self.retry_count)
 
     def check_authorization(self, retry_count):
         if retry_count > 2:
@@ -92,38 +87,50 @@ class ClusterMonitor():
                           host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
                 if restart_count > 0:
                     self.restart_pods.append(pod.__dict__)
+                if status.phase != 'Running':
+                    self.error_pods.append(pod.__dict__)
                 podList.append(pod.__dict__)
             return podList
         except ApiException as e:
             raise Exception('list pod failed!' + e.reason)
 
     def list_namespaces(self):
-        namespaces = self.api_instance.list_namespace()
-        namespace_list = []
-        for n in namespaces.items:
-            namespace = NameSpace(name=n.metadata.name, status=n.status.phase)
-            namespace_list.append(namespace.__dict__)
-        return namespace_list
+        try:
+            namespaces = self.api_instance.list_namespace()
+            namespace_list = []
+            for n in namespaces.items:
+                namespace = NameSpace(name=n.metadata.name, status=n.status.phase)
+                namespace_list.append(namespace.__dict__)
+            return namespace_list
+        except ApiException as e:
+            logger.error(msg='list namespace error'+e.reason, exec_info=True)
 
     def list_nodes(self):
-        nodes = self.api_instance.list_node()
-        node_list = []
-        for n in nodes.items:
-            node = Node(name=n.metadata.name, status=n.status.phase, cpu=0, mem=0, cpu_usage=0, mem_usage=0)
-            node = self.get_node_data(node)
-            node_list.append(node.__dict__)
-        return node_list
+        try:
+            nodes = self.api_instance.list_node()
+            node_list = []
+            for n in nodes.items:
+                node = Node(name=n.metadata.name, status=n.status.phase, cpu=0, mem=0, cpu_usage=0, mem_usage=0)
+                node = self.get_node_data(node)
+                node_list.append(node.__dict__)
+            return node_list
+        except ApiException as e:
+            logger.error(msg='list node error' + e.reason, exec_info=True)
 
     def list_deployments(self):
-        deployments = self.app_v1_api.list_deployment_for_all_namespaces()
-        deployment_list = []
-        for d in deployments.items:
-            deployment = Deployment(name=d.metadata.name, ready_replicas=d.status.ready_replicas,
-                                    replicas=d.status.replicas, namespace=d.metadata.namespace)
-            deployment_list.append(deployment.__dict__)
-        return deployment_list
+        try:
+            deployments = self.app_v1_api.list_deployment_for_all_namespaces()
+            deployment_list = []
+            for d in deployments.items:
+                deployment = Deployment(name=d.metadata.name, ready_replicas=d.status.ready_replicas,
+                                        replicas=d.status.replicas, namespace=d.metadata.namespace)
+                deployment_list.append(deployment.__dict__)
+            return deployment_list
+        except ApiException as e:
+            logger.error(msg='list namespace error' + e.reason, exec_info=True)
 
     def set_cluster_data(self):
+        self.check_authorization(self.retry_count)
         nodes = self.list_nodes()
         pods = self.list_pods()
         namespaces = self.list_namespaces()
@@ -150,7 +157,7 @@ class ClusterMonitor():
                                    namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
                                    cpu_total=cpu_total,
                                    mem_total=mem_total, mem_usage=mem_usage, restart_pods=sort_restart_pod_list,
-                                   warn_containers=self.warn_containers, error_loki_containers=[])
+                                   warn_containers=self.warn_containers, error_loki_containers=[],error_pods=[])
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
@@ -183,7 +190,7 @@ class ClusterMonitor():
             cluster_str = str(cluster_data, encoding='utf-8')
             cluster_d = json.loads(cluster_str)
             cluster_d['error_loki_containers'] = quick_sort_error_loki_container(self.get_loki_msg())
-            return self.redis_cli.set(self.cluster.name, json.dumps(cluster_d.__dict__))
+            return self.redis_cli.set(self.cluster.name, json.dumps(cluster_d))
         else:
             return False
 def quick_sort_pods(podList):
@@ -218,7 +225,7 @@ def quick_sort_error_loki_container(containers):
 
 
 def put_cluster_data_to_redis():
-    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) | ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING) )
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
@@ -227,7 +234,7 @@ def put_cluster_data_to_redis():
 
 
 def put_loki_data_to_redis():
-    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) | ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_loki_data_to_cluster()

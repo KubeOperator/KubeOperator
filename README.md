@@ -83,6 +83,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [ ] 支持云原生存储 Rook（CephRBD）；
 - [ ] 支持 Kubernetes 1.16；
 - [ ] 支持全局的 NTP 设置；
+- [ ] 支持操作系统版本扩大到：CentOS 7.4/7.5/7.6/7.7；
 
  v2.3 （计划中，2019.12.31 发布）
 

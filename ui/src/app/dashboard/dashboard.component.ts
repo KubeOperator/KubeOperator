@@ -25,6 +25,7 @@ export class DashboardComponent implements OnInit {
   restartPods = [];
   warnContainers = [];
   errorLokiContainers = [];
+  errorPods = [];
   cpu_usage = 0;
   mem_usage = 0;
   cpu_total = 0;
@@ -33,6 +34,7 @@ export class DashboardComponent implements OnInit {
   show_container_detail = false;
   show_cluster_usage_detail = false;
   show_error_loki_container_detail = false;
+  show_error_pod_detail = false;
   nodes = [];
 
 
@@ -54,6 +56,7 @@ export class DashboardComponent implements OnInit {
     this.containerCount = 0;
     this.restartPods = [];
     this.warnContainers = [];
+    this.errorPods = [];
     this.cpu_usage = 0;
     this.mem_usage = 0;
     this.cpu_total = 0;
@@ -90,6 +93,7 @@ export class DashboardComponent implements OnInit {
       this.restartPods = data.restartPods;
       this.warnContainers = data.warnContainers;
       this.errorLokiContainers = data.errorLokiContainers;
+      this.errorPods = data.errorPods;
       const count = this.clusterData.length;
       for (const cd of this.clusterData) {
         const d = JSON.parse(cd);
@@ -136,5 +140,15 @@ export class DashboardComponent implements OnInit {
       const linkUrl = ['kubeOperator', url];
       this.router.navigate(linkUrl);
     }
+  }
+
+  toGrafana(cluster_name) {
+    for (const cluster of this.clusters) {
+      if (cluster_name === cluster.name) {
+        const url = 'grafana.apps.' + cluster.name + '.' + cluster.cluster_doamin_suffix;
+        window.open('url', '_blank');
+      }
+    }
+
   }
 }
