@@ -24,6 +24,7 @@ class ClusterMonitor():
         self.get_api_instance()
         self.restart_pods = []
         self.warn_containers = []
+        self.error_pods = []
 
     def get_authorization(self):
         try:
@@ -92,6 +93,8 @@ class ClusterMonitor():
                           host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
                 if restart_count > 0:
                     self.restart_pods.append(pod.__dict__)
+                if status.phase != 'Running':
+                    self.error_pods.append(pod.__dict__)
                 podList.append(pod.__dict__)
             return podList
         except ApiException as e:
@@ -150,7 +153,7 @@ class ClusterMonitor():
                                    namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
                                    cpu_total=cpu_total,
                                    mem_total=mem_total, mem_usage=mem_usage, restart_pods=sort_restart_pod_list,
-                                   warn_containers=self.warn_containers, error_loki_containers=[])
+                                   warn_containers=self.warn_containers, error_loki_containers=[],error_pods=[])
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
@@ -218,7 +221,7 @@ def quick_sort_error_loki_container(containers):
 
 
 def put_cluster_data_to_redis():
-    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) | ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING) )
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
@@ -227,7 +230,7 @@ def put_cluster_data_to_redis():
 
 
 def put_loki_data_to_redis():
-    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY))
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) | ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_loki_data_to_cluster()
