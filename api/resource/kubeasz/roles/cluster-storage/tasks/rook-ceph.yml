@@ -1,0 +1,57 @@
+- name: prepare rook-ceph directory
+  file: name={{ base_dir }}/manifests/storage/rook state=directory
+
+- name: prepare rook-crd file
+  template:
+    src: rook-ceph/common.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/common.yaml"
+
+- name: deploy rook-crd
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/common.yaml"
+  ignore_errors: true
+
+- name: prepare rook-operator file
+  template:
+    src: rook-ceph/operator.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/operator.yaml"
+
+- name: deploy rook-operator
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/operator.yaml"
+  ignore_errors: true
+
+# TODO 判断osd为哪种形式
+# 目录
+- name: prepare rook-cluster file
+  template:
+    src: rook-ceph/cluster-directories.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/cluster-directories.yaml"
+# 裸盘
+- name: prepare rook-cluster file
+  template:
+    src: rook-ceph/cluster-directories.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/cluster-directories.yaml"
+# 部署
+- name: deploy rook-cluster
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/cluster-directories.yaml"
+  ignore_errors: true
+
+- name: prepare rook-dashboard file
+  template:
+    src: rook-ceph/dashboard.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/dashboard.yaml"
+
+- name: deploy rook-dashboard-service
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/dashboard.yaml"
+  ignore_errors: true
+
+- name: prepare rook-storageclass file
+  template:
+    src: rook-ceph/storageclass.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/storageclass.yaml"
+
+- name: deploy rook-storageclass
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/storageclass.yaml"
+  ignore_errors: true
+
+- name: set default storageClass
+  shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{default_label}}'"
