@@ -461,7 +461,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   canCheckNext() {
-    return true;
     if (this.checkOsState === CHECK_STATE_SUCCESS && this.checkMemoryState === CHECK_STATE_SUCCESS &&
       this.checkCpuState === CHECK_STATE_SUCCESS) {
       return true;
