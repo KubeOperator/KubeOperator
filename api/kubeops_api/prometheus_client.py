@@ -1,4 +1,5 @@
 import requests
+import time
 from kubeops_api.models.host import Host
 from kubeops_api.cluster_data import LokiContainer
 
@@ -110,17 +111,21 @@ class PrometheusClient():
         return node
 
     def get_msg_from_loki(self, cluster_name):
-        label_url =  "http://{host}/loki/api/v1/label/container_name/values"
+        label_url = "http://{host}/loki/api/v1/label/container_name/values"
         label_query_url = label_url.format(host=self.host)
         label_req = requests.get(label_query_url)
         loki_containers = []
+        now = time.time()
+        # 乘以1000000是loki的要求
+        end = int(round(now * 1000 * 1000000))
+        start = int(round(now * 1000 - 3600000) * 1000000)
         if label_req.ok:
             label_req_json = label_req.json()
             values = label_req_json.get('values', [])
             for name in values:
                 error_count = 0
-                prom_url = 'http://{host}/api/prom/query?query={{container_name="{name}"}}'
-                prom_query_url = prom_url.format(host=self.host, name=name)
+                prom_url = 'http://{host}/api/prom/query?limit=1000&query={{container_name="{name}"}}&start={start}&end={end}'
+                prom_query_url = prom_url.format(host=self.host, name=name, start=start, end=end)
                 prom_req = requests.get(prom_query_url)
                 if prom_req.ok:
                     prom_req_json = prom_req.json()
