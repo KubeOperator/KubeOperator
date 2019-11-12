@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rook-ceph-mgr-dashboard-external-https
+  name: rook-ceph-mgr-dashboard-external-http
   namespace: rook-ceph
   labels:
     app: rook-ceph-mgr
@@ -9,9 +9,9 @@ metadata:
 spec:
   ports:
   - name: dashboard
-    port: 8443
+    port: 7000
     protocol: TCP
-    targetPort: 8443
+    targetPort: 7000
   selector:
     app: rook-ceph-mgr
     rook_cluster: rook-ceph
@@ -30,5 +30,5 @@ spec:
         paths:
         - path: /
           backend:
-            serviceName: rook-ceph-mgr-dashboard-external-https
-            servicePort: 8443
+            serviceName: rook-ceph-mgr-dashboard-external-http
+            servicePort: 7000
