@@ -82,7 +82,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [x] 概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
 - [ ] 支持 Ceph RBD 存储 （通过 Rook）；
 - [ ] 支持 Kubernetes 1.16；
-- [ ] 支持全局的 NTP 设置；
+- [ ] 支持全局的 DNS 和 NTP 设置；
 - [ ] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
 
  v2.3 （计划中，2019.12.31 发布）
