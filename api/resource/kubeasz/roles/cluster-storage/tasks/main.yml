@@ -18,6 +18,11 @@
     - 'storage_cinder_enabled is defined'
     - 'storage_cinder_enabled'
 
+- import_tasks: rook-ceph.yml
+  when:
+    - 'storage_rook_ceph_enabled is defined'
+    - 'storage_rook_ceph_enabled'
+
 - block:
     - name: copy test-sc.yaml
       template:

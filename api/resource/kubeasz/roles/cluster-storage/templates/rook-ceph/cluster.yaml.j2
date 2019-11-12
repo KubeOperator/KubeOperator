@@ -16,7 +16,7 @@ spec:
     modules:
   dashboard:
     enabled: true
-    ssl: true
+    ssl: false
   monitoring:
     enabled: false
     rulesNamespace: rook-ceph
@@ -35,9 +35,17 @@ spec:
     location:
     config:
     nodes:
-    - name: "172.16.10.117"
+    {% for h in groups['kube-node'] %}
+    - name: "'{{hostvars[h]["inventory_hostname"]}}'"
+    {% if device_type == 'device' %}
       devices:
-      - name: "sdb"
+      - name: "{{ rook_path }}"
+    {% endif %}
+    {% if device_type == 'path' %}
+      directories:
+      - path: "{{ rook_path }}"
+    {% endif %}
+    {% endfor %}
   disruptionManagement:
     managePodBudgets: false
     osdMaintenanceTimeout: 30

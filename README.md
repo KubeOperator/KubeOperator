@@ -30,7 +30,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
 -  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
 -  自我修复：通过重建故障节点确保集群可用性；
--  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
+-  离线部署：持续更新包括 Kubernetes 及常用组件（即内置应用）的离线包；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
 
  ## Demo 视频、使用文档
@@ -84,15 +84,18 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [ ] 支持 Kubernetes 1.16；
 - [ ] 支持全局的 DNS 和 NTP 设置；
 - [ ] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
-- [ ] 实现内置应用的统一认证；
+
+ v2.3 （计划中，2019.12.31 发布）
+ 
+- [ ] KubeApps 应用商店；
 
  v3.0 （计划中）
  
-- [ ] KubeApps 应用商店；
 - [ ] 支持 NetApp 存储； 
 - [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
+- [ ] 实现内置应用的统一认证；
 
 ## 沟通交流
  
