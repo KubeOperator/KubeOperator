@@ -91,7 +91,6 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
  v3.0 （计划中）
  
-- [ ] KubeApps 应用商店；
 - [ ] 支持 NetApp 存储； 
 - [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
