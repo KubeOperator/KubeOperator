@@ -43,7 +43,7 @@ export class SystemSettingComponent implements OnInit {
   }
 
   validate(setting) {
-    const ipReg = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/g;
+    const ipReg = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
     if (setting.local_hostname !== undefined) {
       const validate: boolean = ipReg.test(setting.local_hostname);
       if (!validate) {
@@ -54,11 +54,12 @@ export class SystemSettingComponent implements OnInit {
     if (setting.dns1 !== undefined && setting.dns1 !== '') {
       const validate: boolean = ipReg.test(setting.dns1);
       if (!validate) {
-        this.alert.showAlert('请输入正确的NDS地址！', AlertLevels.ERROR);
+        this.alert.showAlert('请输入正确的DNS地址！', AlertLevels.ERROR);
         return false;
       }
     }
     if (setting.dns2 !== undefined && setting.dns2 !== '') {
+
       const validate: boolean = ipReg.test(setting.dns2);
       if (!validate) {
         this.alert.showAlert('请输入正确的DNS地址！', AlertLevels.ERROR);
@@ -75,8 +76,6 @@ export class SystemSettingComponent implements OnInit {
     const domainReg = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/g;
     if (setting.domain_suffix !== undefined) {
       const validate: boolean = domainReg.test(setting.domain_suffix);
-      console.log(validate);
-      console.log(setting.value);
       if (!validate) {
         this.alert.showAlert('请输入正确的域名后缀！', AlertLevels.ERROR);
         return false;
