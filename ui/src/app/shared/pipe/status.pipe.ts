@@ -42,6 +42,12 @@ export class StatusPipe implements PipeTransform {
         case 'ADDING':
           result = '扩容中';
           break;
+        case 'BACKUP':
+          result = '备份中';
+          break;
+        case 'RESTORING':
+          result = '恢复中';
+          break;
         default:
           result = '未知';
       }
