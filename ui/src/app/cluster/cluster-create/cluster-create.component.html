@@ -230,13 +230,13 @@
         </clr-select-container>
         <clr-input-container *ngIf="cluster.configs['device_type'] === 'device'">
           <label>Devices</label>
-          <input clrInput [(ngModel)]="cluster.configs['rook-path']" name="path" size="45"/>
+          <input clrInput [(ngModel)]="cluster.configs['rook_path']" name="path" size="45"/>
           <clr-control-helper>例如: sda,sdb 多块盘以,分隔
           </clr-control-helper>
         </clr-input-container>
         <clr-input-container *ngIf="cluster.configs['device_type'] === 'path'">
           <label>Path</label>
-          <input clrInput [(ngModel)]="cluster.configs['rook-path']" name="path" size="45"/>
+          <input clrInput [(ngModel)]="cluster.configs['rook_path']" name="path" size="45"/>
           <clr-control-helper>例如: /data/root</clr-control-helper>
         </clr-input-container>
       </div>

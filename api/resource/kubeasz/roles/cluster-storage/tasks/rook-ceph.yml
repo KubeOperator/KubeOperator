@@ -7,10 +7,10 @@
   with_items: "{{ groups['kube-node'] }}"
 
 - name: prepare rook-ceph conf directory
-  file: name={{ rook-path }} state=directory
+  file: name={{ rook_path }} state=directory
   delegate_to: "{{ item }}"
   with_items: "{{ groups['kube-node'] }}"
-  when: not isProduct
+  when: "device_type == 'path'"
 
 - name: prepare rook-crd file
   template:

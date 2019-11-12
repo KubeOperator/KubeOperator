@@ -39,11 +39,11 @@ spec:
     - name: "'{{hostvars[h]["inventory_hostname"]}}'"
     {% if device_type == 'device' %}
       devices:
-      - name: "{{ rook-path }}"
+      - name: "{{ rook_path }}"
     {% endif %}
     {% if device_type == 'path' %}
       directories:
-      - path: "{{ rook-path }}"
+      - path: "{{ rook_path }}"
     {% endif %}
     {% endfor %}
   disruptionManagement:
