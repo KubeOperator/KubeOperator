@@ -37,10 +37,11 @@ spec:
     nodes:
     {% for h in groups['kube-node'] %}
     - name: "'{{hostvars[h]["inventory_hostname"]}}'"
-    {% if isProduct %}
+    {% if device_type == 'device' %}
       devices:
-      - name: "{{ rook-device }}"
-    {% else %}
+      - name: "{{ rook-path }}"
+    {% endif %}
+    {% if device_type == 'path' %}
       directories:
       - path: "{{ rook-path }}"
     {% endif %}

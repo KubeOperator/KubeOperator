@@ -225,13 +225,6 @@ storages:
     provider: ['vsphere']
     vars:
       storage_vsan_enabled: true
-    configs:
-      - name: set_vsan_default
-        type: Switch
-        alias: 默认存储
-        value: true
-        required: true
-        display: true
 
   - name: nfs
     deploy_type: ['AUTOMATIC','MANUAL']
@@ -239,27 +232,19 @@ storages:
     vars:
       storage_nfs_enabled: true
       storage_nfs_provisioner_name: nfs-provisioner
-    configs:
-      - name: set_nfs_default
-        type: Switch
-        alias: 默认存储
-        value: true
-        required: true
-        display: true
-
 
   - name: cinder
     deploy_type: ['AUTOMATIC']
     provider: ['openstack']
     vars:
       storage_cinder_enabled: true
-    configs:
-      - name: set_cinder_default
-        type: Switch
-        alias: 默认存储
-        value: true
-        required: true
-        display: true
+
+  - name: rook-ceph
+    deploy_type: ['MANUAL']
+    provider: []
+    vars:
+      storage_rook_ceph_enabled: true
+
 
 
 public_config:
