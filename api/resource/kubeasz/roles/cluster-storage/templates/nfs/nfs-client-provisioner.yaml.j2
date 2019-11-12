@@ -39,14 +39,13 @@ spec:
       serviceAccountName: nfs-client-provisioner
       containers:
         - name: nfs-client-provisioner
-          image: {{registry_prefix}}:{{registry_port}}/quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
+          image: {{registry_prefix}}:{{registry_port}}/{{ nfs_client_provisioner_image }}:{{ nfs_client_provisioner_version }}
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
           env:
             - name: PROVISIONER_NAME
-              # 此处供应者名字供storageclass调用
               value: {{ storage_nfs_provisioner_name }}
             - name: NFS_SERVER
               value: {{ storage_nfs_server }}

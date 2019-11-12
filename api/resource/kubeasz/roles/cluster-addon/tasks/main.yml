@@ -14,6 +14,11 @@
         src: dashboard/kubernetes-dashboard.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/kubernetes-dashboard.yaml"
 
+    - name: 创建 metrics-server 部署文件
+      template:
+        src: dashboard/metrics-server.yaml.j2
+        dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
+
     - name: 部署 dashboard
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
       delegate_to: "{{ groups['kube-master'][0] }}"
