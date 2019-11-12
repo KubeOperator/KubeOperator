@@ -84,7 +84,6 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [ ] 支持 Kubernetes 1.16；
 - [ ] 支持全局的 DNS 和 NTP 设置；
 - [ ] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
-- [ ] 实现内置应用的统一认证；
 
  v3.0 （计划中）
  
@@ -93,6 +92,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [ ] 离线环境下使用 Sonobuoy 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
+- [ ] 实现内置应用的统一认证；
 
 ## 沟通交流
  
