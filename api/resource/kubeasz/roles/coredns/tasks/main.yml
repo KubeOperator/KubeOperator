@@ -5,14 +5,14 @@
         - /opt/kube/kube-system/coredns
 
     - name: 准备 DNS的部署文件
-      template: src=coredns/1.15/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
+      template: src=1.15/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
       with_items:
         - coredns
         - autoscaler
       when: "kube_version_main  == '1.15'"
 
     - name: 准备 DNS的部署文件
-      template: src=coredns/1.16/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
+      template: src=1.16/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
       with_items:
         - coredns
         - autoscaler
