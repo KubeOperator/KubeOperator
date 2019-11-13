@@ -6,7 +6,7 @@ metadata:
 spec:
   failureDomain: host
   replicated:
-    size: 3
+    size: {{ groups['kube-node'] | length }}
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass

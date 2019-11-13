@@ -10,7 +10,7 @@ spec:
   dataDirHostPath: /var/lib/rook
   skipUpgradeChecks: false
   mon:
-    count: 3
+    count: {{ groups['kube-node'] | length }}
     allowMultiplePerNode: false
   mgr:
     modules:

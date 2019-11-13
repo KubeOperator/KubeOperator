@@ -5,6 +5,13 @@
   template:
     src: nfs/nfs-client-provisioner.yaml.j2
     dest: "{{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+  when: "kube_version_main  == '1.15'"
+
+- name: 生成nfs-client动态存储配置
+  template:
+    src: nfs/nfs-client-provisioner.yaml.1.16.j2
+    dest: "{{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+  when: "kube_version_main  == '1.16'"
 
 - name: 开始部署nfs-client动态存储
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
