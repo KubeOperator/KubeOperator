@@ -1,7 +1,7 @@
 apiVersion: ceph.rook.io/v1
 kind: CephBlockPool
 metadata:
-  name: replicapool
+  name: {{ cluster_name }}
   namespace: rook-ceph
 spec:
   failureDomain: host
@@ -15,7 +15,7 @@ metadata:
 provisioner: rook-ceph.rbd.csi.ceph.com
 parameters:
     clusterID: rook-ceph
-    pool: replicapool
+    pool: {{ cluster_name }}
     imageFormat: "2"
     imageFeatures: layering
     csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
