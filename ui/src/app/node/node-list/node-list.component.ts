@@ -36,4 +36,8 @@ export class NodeListComponent implements OnInit {
     this.listNodes();
   }
 
+  toGrafana() {
+    const url = 'http://grafana.apps.' + this.currentCluster.name + '.' + this.currentCluster.cluster_doamin_suffix + '/explore';
+    window.open(url, '_blank');
+  }
 }

@@ -149,6 +149,5 @@ export class DashboardComponent implements OnInit {
         window.open(url, '_blank');
       }
     }
-
   }
 }
