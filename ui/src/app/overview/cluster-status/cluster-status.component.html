@@ -55,7 +55,8 @@
         <button *ngIf="currentCluster.deploy_type==='MANUAL'" [disabled]="currentCluster.status !== 'RUNNING'"
                 class="btn btn-sm btn-link" (click)="onAddWorker()">扩容
         </button>
-        <button *ngIf="currentCluster.deploy_type==='MANUAL'" [disabled]="currentCluster.status !== 'RUNNING'"
+        <button *ngIf="currentCluster.deploy_type==='MANUAL'"
+                [disabled]="(currentCluster.status !== 'RUNNING' || workers.length === 1 )"
                 class="btn btn-sm btn-link" (click)="onRemoveWorker()">缩容
         </button>
       </div>
