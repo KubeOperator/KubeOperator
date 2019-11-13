@@ -12,11 +12,12 @@ def drain_worker_node(host, worker_name):
         raise Exception("drain! node {} failed!".format(worker_name))
 
 
-def gather_host_info(ip, port, username, password, retry=1):
+def gather_host_info(ip, port, username, retry=1, **kwargs):
     hosts = [{
         "ip": ip,
         "username": username,
-        "password": password,
+        "password": kwargs.get('password', None),
+        "private_key_path": kwargs.get('private_key_path', None),
         "name": "default",
         "port": port
     }]
@@ -37,12 +38,13 @@ def gather_host_info(ip, port, username, password, retry=1):
                 sleep(1)
 
 
-def test_host(ip, port, username, password):
+def test_host(ip, port, username, **kwargs):
     r = False
     hosts = [{
         "ip": ip,
         "username": username,
-        "password": password,
+        "password": kwargs.get('password', None),
+        "private_key_path": kwargs.get('private_key_path', None),
         "name": "default",
         "port": port
     }]

@@ -116,7 +116,10 @@ class HostViewSet(viewsets.ModelViewSet):
                 return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
                                 status=status.HTTP_400_BAD_REQUEST)
         credential = Credential.objects.get(name=serializer.data['credential'])
-        connected = test_host(serializer.data['ip'], credential.username, credential.password)
+        connected = test_host(ip=serializer.data['ip'], port=serializer.data['port'],
+                              username=credential.username,
+                              password=credential.password,
+                              private_key_path=credential.private_key_path)
         if not connected:
             return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
@@ -434,7 +437,8 @@ class DashBoardView(APIView):
         error_loki_containers = []
         error_pods = []
         if project_name == 'all':
-            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) , ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING) )
+            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
+                                              ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
             for c in clusters:
                 cluster_monitor = ClusterMonitor(c)
                 res = cluster_monitor.list_cluster_data()
