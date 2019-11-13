@@ -218,10 +218,21 @@ networks:
         value: 172.20.0.0/16
         required: true
         display: true
+      - name: CALICO_IPV4POOL_IPIP
+        alias: 网络模式
+        type: Select
+        value: Always
+        required: true
+        display: true
+        options:
+          - name: BGP
+            value: off
+          - name: IPIP
+            value: Always
 
 storages:
   - name: vSphere DataStore
-    deploy_type: ['AUTOMATIC']
+    deploy_type: ['AUTOMATIC',]
     provider: ['vsphere']
     vars:
       storage_vsan_enabled: true
@@ -240,8 +251,8 @@ storages:
       storage_cinder_enabled: true
 
   - name: rook-ceph
-    deploy_type: ['MANUAL']
-    provider: []
+    deploy_type: ['AUTOMATIC','MANUAL']
+    provider: ['vsphere','openstack']
     vars:
       storage_rook_ceph_enabled: true
 
