@@ -195,6 +195,8 @@ class ClusterMonitor():
         else:
             return False
 
+    def delete_cluster_redis_data(self,cluster_name):
+        return self.redis_cli.delete(cluster_name)
 
 def quick_sort_pods(podList):
     if len(podList) < 2:
