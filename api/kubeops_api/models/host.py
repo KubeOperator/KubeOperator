@@ -65,7 +65,8 @@ class Host(BaseHost):
     def gather_info(self, retry=1):
         try:
             logger.info("host: {}  gather host info ".format(self.name))
-            facts = gather_host_info(self.ip, self.port, self.username, self.password, retry)
+            facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry, password=self.password,
+                                     private_key_path=self.private_key_path)
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
             logger.error("host: {}  gather host info".format(self.name), exc_info=True)

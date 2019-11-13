@@ -14,6 +14,7 @@ def get_component_urls(cluster):
             "registry-ui": http_prefix + "registry-ui." + app_url,
             "dashboard": https_prefix + "dashboard." + app_url,
             "traefik": http_prefix + "traefik." + app_url,
-            "scope": http_prefix + "scope.weave." + app_url
+            "scope": http_prefix + "scope.weave." + app_url,
+            "ceph": http_prefix + "ceph." + app_url
         }
     return urls

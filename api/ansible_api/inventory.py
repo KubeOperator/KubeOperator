@@ -3,7 +3,6 @@
 
 from .ansible.inventory import BaseInventory
 
-
 __all__ = [
     'AdHocInventory', 'LocalModelInventory'
 ]
@@ -14,6 +13,7 @@ class AdHocInventory(BaseInventory):
     JMS Inventory is the manager with jumpserver assets, so you can
     write you own manager, construct you inventory_obj
     """
+
     def __init__(self, assets, nodes=None, run_as_admin=False,
                  run_as=None, become_info=None, vars=None):
         """
@@ -86,7 +86,7 @@ class AdHocInventory(BaseInventory):
             info["vars"].update({
                 "domain": asset.domain.name,
             })
-            info["groups"].append("domain_"+asset.domain.name)
+            info["groups"].append("domain_" + asset.domain.name)
         for k, v in self.vars.items():
             if not k.startswith('__'):
                 info['vars'].update({
@@ -249,6 +249,7 @@ class LocalModelInventory(BaseInventory):
                 'ansible_ssh_port': host.port or 22,
                 'ansible_ssh_user': host.username,
                 'ansible_ssh_pass': host.password,
+                'ansible_ssh_private_key_file': host.private_key_path
             })
             hosts.append({
                 'hostname': host.name,
@@ -289,6 +290,7 @@ class WithHostInfoInventory(BaseInventory):
                 'ansible_ssh_port': host.get('port') or 22,
                 'ansible_ssh_user': host.get('username'),
                 'ansible_ssh_pass': host.get('password'),
+                'ansible_ssh_private_key_file': host.get('private_key_path')
             })
             hosts.append({
                 'hostname': host['name'],
