@@ -7,7 +7,10 @@
   </div>
 </div>
 <div class="clr-row" *ngIf="!loading">
-  <div class="clr-col-lg-12 clr-col-12">
+  <div class="clr-col-lg-6 clr-col-12">
+    <p class="p7 prompt">异常日志每小时更新一次 其他信息每5分钟更新一次</p>
+  </div>
+  <div class="clr-col-lg-6 clr-col-12">
     <div style="float: right">
       <!--      <div class="clr-select-wrapper">-->
       <!--        <select class="clr-select" [(ngModel)]="dashboardSearch.dateLimit">-->
@@ -16,7 +19,6 @@
       <!--          <option value="30">过去一月</option>-->
       <!--        </select>-->
       <!--      </div>-->
-      &nbsp; &nbsp; &nbsp;
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
           <option value="all">所有集群</option>
