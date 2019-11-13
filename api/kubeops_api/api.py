@@ -434,7 +434,7 @@ class DashBoardView(APIView):
         error_loki_containers = []
         error_pods = []
         if project_name == 'all':
-            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) | ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING) )
+            clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY) , ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING) )
             for c in clusters:
                 cluster_monitor = ClusterMonitor(c)
                 res = cluster_monitor.list_cluster_data()

@@ -7,6 +7,7 @@
   <clr-dg-column>内存(MB)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
   <clr-dg-column>角色</clr-dg-column>
+  <clr-dg-column>监控</clr-dg-column>
 
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
@@ -16,6 +17,7 @@
     <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_os}} {{node.host_os_version}}</clr-dg-cell>
     <clr-dg-cell>{{node.roles}}</clr-dg-cell>
+    <clr-dg-cell (click)="toGrafana()"><img src="assets/images/grafana.svg" width="15"></clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

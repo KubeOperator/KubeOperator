@@ -13,6 +13,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
+from kubeops_api.cluster_monitor import ClusterMonitor
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
@@ -24,10 +25,10 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     params = common_models.JsonDictTextField(default={})
     steps = common_models.JsonListTextField(default=[], null=True)
 
-    STEP_STAUTS_PENDING = 'pending'
-    STEP_STAUTS_RUNNING = 'running'
-    STEP_STAUTS_SUCCESS = 'success'
-    STEP_STAUTS_ERROR = 'error'
+    STEP_STATUS_PENDING = 'pending'
+    STEP_STATUS_RUNNING = 'running'
+    STEP_STATUS_SUCCESS = 'success'
+    STEP_STATUS_ERROR = 'error'
 
     @property
     def start(self):
@@ -52,6 +53,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
             result = self.on_uninstall(extra_vars)
+            cluster_monitor = ClusterMonitor(cluster)
+            cluster_monitor.delete_cluster_redis_data()
             cluster.change_status(Cluster.CLUSTER_STATUS_READY)
         elif self.operation == 'bigip-config':
             logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
@@ -122,17 +125,17 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         self.steps = cluster.get_steps('install')
         self.set_step_default()
-        self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+        self.update_current_step('create-resource', DeployExecution.STEP_STATUS_RUNNING)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             if not cluster.node_size > 0:
                 try:
                     cluster.create_resource()
-                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+                    self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
                 except RuntimeError as e:
-                    self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
+                    self.update_current_step('create-resource', DeployExecution.STEP_STATUS_ERROR)
                     raise e
             else:
-                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+                self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
         else:
             delete = None
             for step in self.steps:
@@ -145,14 +148,14 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         self.steps = cluster.get_steps('scale')
         self.set_step_default()
-        self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_RUNNING)
+        self.update_current_step('create-resource', DeployExecution.STEP_STATUS_RUNNING)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             try:
                 num = self.params.get('num', None)
                 cluster.scale_up_to(int(num))
-                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_SUCCESS)
+                self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
             except RuntimeError as e:
-                self.update_current_step('create-resource', DeployExecution.STEP_STAUTS_ERROR)
+                self.update_current_step('create-resource', DeployExecution.STEP_STATUS_ERROR)
                 raise e
         return self.run_playbooks(extra_vars)
 
@@ -181,11 +184,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         self.set_step_default()
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             try:
-                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_RUNNING)
+                self.update_current_step('uninstall', DeployExecution.STEP_STATUS_RUNNING)
                 cluster.destroy_resource()
-                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_SUCCESS)
+                self.update_current_step('uninstall', DeployExecution.STEP_STATUS_SUCCESS)
             except RuntimeError as e:
-                self.update_current_step('uninstall', DeployExecution.STEP_STAUTS_ERROR)
+                self.update_current_step('uninstall', DeployExecution.STEP_STATUS_ERROR)
                 raise e
             return {"raw": {}, "summary": {"success": True}}
         else:
@@ -236,17 +239,17 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             playbook_name = step.get('playbook', None)
             if playbook_name:
                 playbook = self.project.playbook_set.get(name=playbook_name)
-                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_RUNNING)
+                self.update_current_step(step['name'], DeployExecution.STEP_STATUS_RUNNING)
                 _result = playbook.execute(extra_vars=extra_vars)
                 result["summary"].update(_result["summary"])
-                self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_SUCCESS)
+                self.update_current_step(step['name'], DeployExecution.STEP_STATUS_SUCCESS)
                 if not _result.get('summary', {}).get('success', False):
-                    self.update_current_step(step['name'], DeployExecution.STEP_STAUTS_ERROR)
+                    self.update_current_step(step['name'], DeployExecution.STEP_STATUS_ERROR)
         return result
 
     def set_step_default(self):
         for step in self.steps:
-            step['status'] = DeployExecution.STEP_STAUTS_PENDING
+            step['status'] = DeployExecution.STEP_STATUS_PENDING
 
     def get_cluster(self):
         return Cluster.objects.get(name=self.project.name)

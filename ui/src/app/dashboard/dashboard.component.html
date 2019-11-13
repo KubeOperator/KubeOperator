@@ -122,10 +122,10 @@
       <div class="card-block card-style">
         <h3 class="card-title">统计信息</h3>
         <div class="clr-row">
-          <div class="clr-col-lg-6 clr-col-12">
-            <img src="assets/images/graph.svg" width="150">
-          </div>
-          <div class="clr-col-lg-1  clr-col-12 count">
+<!--          <div class="clr-col-lg-6 clr-col-12">-->
+<!--            <img src="assets/images/graph.svg" width="150">-->
+<!--          </div>-->
+          <div class="clr-col-lg-5  clr-col-12 count">
             <span><b>{{nodeCount}}</b></span> <br>
             <span><b>{{clusters.length}}</b></span> <br>
             <span><b>{{namespaceCount}}</b></span> <br>
@@ -133,7 +133,7 @@
             <span><b>{{podCount}}</b></span> <br>
             <span><b>{{containerCount}}</b></span> <br>
           </div>
-          <div class="clr-col-lg-5 clr-col-12 type-face">
+          <div class="clr-col-lg-7 clr-col-12 type-face">
             <span>Nodes</span> <br>
             <span>Clusters</span> <br>
             <span>Namespaces</span> <br>
@@ -202,12 +202,12 @@
           <tr>
             <th>名称</th>
             <th>集群</th>
-            <th>重启次数</th>
+            <th>状态</th>
           </tr>
           <tr *ngFor="let rp of errorPods.slice(0,4)">
             <td>{{rp.name}}</td>
             <td>{{rp.cluster_name}}</td>
-            <td>{{rp.restart_count}}</td>
+            <td>{{rp.status}}</td>
           </tr>
         </table>
       </div>
@@ -259,7 +259,7 @@
           <clr-dg-column>状态</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of restartPods" [clrDgItem]="item">
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
-            <clr-dg-cell>{{item.hostname}}</clr-dg-cell>
+            <clr-dg-cell>{{item.host_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
             <clr-dg-cell>{{item.pod_ip}}</clr-dg-cell>
@@ -339,7 +339,7 @@
           <clr-dg-column>容器名称</clr-dg-column>
           <clr-dg-column>所属集群</clr-dg-column>
           <clr-dg-column>错误次数</clr-dg-column>
-          <clr-dg-column>grafana</clr-dg-column>
+          <clr-dg-column>监控</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of errorLokiContainers" [clrDgItem]="item">
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
             <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
@@ -371,7 +371,7 @@
           <clr-dg-column>状态</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of errorPods" [clrDgItem]="item">
             <clr-dg-cell>{{item.name}}</clr-dg-cell>
-            <clr-dg-cell>{{item.hostname}}</clr-dg-cell>
+            <clr-dg-cell>{{item.host_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.cluster_name}}</clr-dg-cell>
             <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
             <clr-dg-cell>{{item.pod_ip}}</clr-dg-cell>
