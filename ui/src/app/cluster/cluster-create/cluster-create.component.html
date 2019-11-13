@@ -192,18 +192,18 @@
           <div [ngSwitch]="config.type">
             <clr-select-container *ngSwitchCase="'Select'">
               <label>{{config.alias}}</label>
-              <select clrSelect [(ngModel)]="config.value" [name]="config.name" [ngModel]="cluster.configs[config.name]"
+              <select clrSelect [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
+                      (change)="test(config.name)"
                       required>
                 <option value="">请选择</option>
                 <option *ngFor="let opt of config.options"
-                        [value]="opt.name">{{opt.name}}
+                        [value]="opt.value">{{opt.name}}
                 </option>
               </select>
             </clr-select-container>
             <clr-input-container *ngSwitchCase="'Input'">
               <label>{{config.alias}}</label>
-              <input clrInput size=45 [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
-                     [ngModel]="cluster.configs[config.name]" required>
+              <input clrInput size=45 [name]="config.name" [(ngModel)]="cluster.configs[config.name]" required>
             </clr-input-container>
           </div>
         </div>
