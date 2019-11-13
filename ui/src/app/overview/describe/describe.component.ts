@@ -23,7 +23,6 @@ export class DescribeComponent implements OnInit {
 
   @Input() currentCluster: Cluster;
   clusterInfos: ClusterInfo[] = [];
-  operations: Operation[] = [];
   openToken = false;
   status: string;
   openChangeStatus = false;
@@ -40,10 +39,6 @@ export class DescribeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.packageService.getPackage(this.currentCluster.package).subscribe(pkg => {
-      const infos = pkg.meta.cluster_infos;
-      this.operations = pkg.meta.operations;
-    });
   }
 
 

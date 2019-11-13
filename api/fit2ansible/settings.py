@@ -266,6 +266,10 @@ LOGGING = {
         },
     },
     'loggers': {
+        "": {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
         'user': {
             'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
