@@ -18,7 +18,8 @@
       </clr-input-container>
       <clr-input-container>
         <label>域名后缀</label>
-        <input id="domain" type="text" [(ngModel)]="cluster.cluster_doamin_suffix" name="cluster_domain" clrInput
+        <input id="domain" type="text" pattern="[a-z0-9.]([a-z0-9.]*[a-z0-9.])?"
+               [(ngModel)]="cluster.cluster_doamin_suffix" name="cluster_domain" clrInput
                size=45
                maxlength="100"
                required>
