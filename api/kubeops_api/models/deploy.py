@@ -16,7 +16,6 @@ import kubeops_api.cluster_backup_utils
 from kubeops_api.cluster_monitor import ClusterMonitor
 from django.utils import timezone
 
-
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
 
@@ -247,6 +246,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.update_current_step(step['name'], DeployExecution.STEP_STATUS_SUCCESS)
                 if not _result.get('summary', {}).get('success', False):
                     self.update_current_step(step['name'], DeployExecution.STEP_STATUS_ERROR)
+                    return result
         return result
 
     def set_step_default(self):
