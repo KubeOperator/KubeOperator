@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit {
   show_error_loki_container_detail = false;
   show_error_pod_detail = false;
   nodes = [];
-
+  timer;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -45,6 +45,16 @@ export class DashboardComponent implements OnInit {
     this.dashboardSearch.cluster = 'all';
     this.dashboardSearch.dateLimit = 1;
     this.search();
+    this.timer = setInterval(() => {
+      this.search();
+    }, 300000);
+  }
+
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   data_init() {
