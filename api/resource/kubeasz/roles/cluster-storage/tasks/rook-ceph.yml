@@ -31,11 +31,11 @@
   ignore_errors: true
 
 - name: wait for operator to running
-  shell: "{{ bin_dir }}/kubectl -n rook-ceph get pod -o wide | grep ceph-operator | awk '{print $3}'"
+  shell: "{{ bin_dir }}/kubectl -n rook-ceph get pod -o wide | grep rook-discover | grep '{{ inventory_hostname }}' | awk '{print $3}'"
   register: pod_status
   until: pod_status.stdout == "Running"
-  retries: 10
-  delay: 10
+  retries: 20
+  delay: 15
 
 - name: prepare rook-cluster file
   template:
@@ -56,11 +56,11 @@
   ignore_errors: true
 
 - name: wait for all component complete
-  shell: "{{ bin_dir }}/kubectl -n rook-ceph get pod -o wide | grep osd | awk '{print $3}'"
+  shell: "{{ bin_dir }}/kubectl -n rook-ceph get pod -o wide | grep ceph-osd-prepare | grep worker1 | awk '{print $3}'"
   register: pod_status
-  until: pod_status.stdout.find("Running") != -1
-  retries: 10
-  delay: 5
+  until: pod_status.stdout == "Completed"
+  retries: 30
+  delay: 15
 
 - name: prepare rook-storageclass file
   template:
