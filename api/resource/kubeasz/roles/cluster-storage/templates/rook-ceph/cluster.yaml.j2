@@ -35,17 +35,17 @@ spec:
     location:
     config:
     nodes:
-    {% for h in groups['kube-node'] %}
-    - name: "'{{hostvars[h]["inventory_hostname"]}}'"
-    {% if device_type == 'device' %}
+{% for h in groups['kube-node'] %}
+    - name: "{{hostvars[h]['inventory_hostname']}}"
+{% if device_type == 'device' %}
       devices:
       - name: "{{ rook_path }}"
-    {% endif %}
-    {% if device_type == 'path' %}
+{% endif %}
+{% if device_type == 'path' %}
       directories:
       - path: "{{ rook_path }}"
-    {% endif %}
-    {% endfor %}
+{% endif %}
+{% endfor %}
   disruptionManagement:
     managePodBudgets: false
     osdMaintenanceTimeout: 30
