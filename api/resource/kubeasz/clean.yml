@@ -56,14 +56,6 @@
     - kube-node
   tasks:
     - block:
-        - name: to check if container 'kubeasz' is running
-          shell: 'docker ps|grep kubeasz || echo "NOT FOUND"'
-          register: install_info
-
-        - name: fail info
-          fail: msg="you CAN NOT delete dockerd, because container 'kubeasz' is running!"
-          when: "'kubeasz' in install_info.stdout"
-
         - name: stop and disable docker service
           service:
             name: docker
