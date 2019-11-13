@@ -220,7 +220,7 @@ networks:
         display: true
 
 storages:
-  - name: vsan
+  - name: vSphere DataStore
     deploy_type: ['AUTOMATIC']
     provider: ['vsphere']
     vars:
@@ -233,7 +233,7 @@ storages:
       storage_nfs_enabled: true
       storage_nfs_provisioner_name: nfs-provisioner
 
-  - name: cinder
+  - name: Openstack Cinder
     deploy_type: ['AUTOMATIC']
     provider: ['openstack']
     vars:
