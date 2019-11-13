@@ -16,15 +16,15 @@ logger = logging.getLogger('kubeops')
 class ClusterMonitor():
 
     def __init__(self, cluster):
-        # init redis
-        self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
         self.cluster = cluster
         self.retry_count = 0
-        self.get_token()
-        self.get_api_instance()
         self.restart_pods = []
         self.warn_containers = []
         self.error_pods = []
+        # init redis
+        self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
+        self.get_token()
+        self.get_api_instance()
 
     def get_token(self):
         if self.redis_cli.exists(self.cluster.name):
@@ -195,8 +195,8 @@ class ClusterMonitor():
         else:
             return False
 
-    def delete_cluster_redis_data(self,cluster_name):
-        return self.redis_cli.delete(cluster_name)
+    def delete_cluster_redis_data(self):
+        return self.redis_cli.delete(self.cluster.name)
 
 def quick_sort_pods(podList):
     if len(podList) < 2:
