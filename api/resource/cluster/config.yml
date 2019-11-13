@@ -336,8 +336,8 @@ templates:
             volumes_require:
               - name: "system"
                 verbose: "系统卷:"
-                minimal: 50
-                excellent: 100
+                minimal: 100
+                excellent: 200
                 comment: "系统卷，用于运行操作系统"
                 unit: "GB"
             device_require:
@@ -349,7 +349,7 @@ templates:
                 unit: "个"
               - name: "memory_size"
                 verbose: "内存大小"
-                minimal: 8
+                minimal: 16
                 excellent: 32
                 unit: "GB"
                 comment: "无"

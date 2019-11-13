@@ -1,6 +1,7 @@
 .center {
   text-align: center;
 }
+
 .middle {
   vertical-align: middle
 }
@@ -8,9 +9,10 @@
 .white-div {
   height: 250px;
 }
+
 .card-style {
   height: 250px;
-  overflow:scroll;
+  overflow: scroll;
 }
 
 .card-top {
@@ -32,9 +34,25 @@
   float: right;
 }
 
-.type-face span{
+.type-face span {
   color: #c1c5d3;
 }
+
 .progress-dashboard {
-  height: 20px !important;position: relative !important;
+  height: 20px !important;
+  position: relative !important;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+tr td:nth-child(1) {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+tr th:nth-child(1) {
+  width: 50%;
 }

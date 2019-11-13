@@ -19,3 +19,5 @@ https_ingress:
   dashboard:
     name: f2c-dashboard-ingress
     namespace: kube-system
+
+kube_version_main: "{{ kube_version.split('.')[0] }}.{{ kube_version.split('.')[1] }}"
