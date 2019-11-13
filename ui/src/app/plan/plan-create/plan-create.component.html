@@ -71,7 +71,7 @@
           <label>Worker 规格</label>
           <select clrSelect [(ngModel)]="item.vars['worker_model']" name="worker" required>
             <option [value]="">请选择</option>
-            <option *ngFor="let model of computeModels.slice(1,computeModels.length)" [value]="model.name">{{model.name}}</option>
+            <option *ngFor="let model of computeModels" [value]="model.name">{{model.name}}</option>
           </select>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-select-container>

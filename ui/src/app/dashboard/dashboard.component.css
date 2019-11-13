@@ -41,6 +41,7 @@
 .progress-dashboard {
   height: 20px !important;
   position: relative !important;
+  margin: 0 !important;
 }
 
 table {
@@ -56,3 +57,4 @@ tr td:nth-child(1) {
 tr th:nth-child(1) {
   width: 50%;
 }
+

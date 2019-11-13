@@ -86,24 +86,20 @@
       <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
         <div class="clr-row">
-          <div class="clr-col-sm-11 clr-offset-sm-1">
+          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
             <h5>CPU使用率 ({{cpu_usage | number: '1.0-2'}}%)</h5>
           </div>
           <br>
-          <br>
-          <br>
-          <div class="clr-col-sm-11 clr-offset-sm-1">
+          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
             <div class="progress success labeled progress-dashboard"
                  data-displayval="80%">
               <progress class="progress-dashboard" max="100" value="{{cpu_usage}}"></progress>
               <span>{{cpu_total}}核</span>
             </div>
           </div>
-          <div class="clr-col-sm-11 clr-offset-sm-1">
+          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
             <h5>内存使用率 ({{mem_usage | number: '1.0-2'}}%)</h5>
           </div>
-          <br>
-          <br>
           <br>
           <div class="clr-col-sm-11 clr-offset-sm-1">
             <div class="progress success labeled progress-dashboard" data-displayval="80%">
