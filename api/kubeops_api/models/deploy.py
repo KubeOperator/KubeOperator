@@ -14,6 +14,8 @@ from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 from kubeops_api.cluster_monitor import ClusterMonitor
+from django.utils import timezone
+
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
@@ -266,6 +268,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             'operation': self.operation,
             'state': self.state}
         return json.dumps(dict)
+
+    def mark_state(self, state):
+        self.state = state
+        self.date_end = timezone.now()
+        self.timedelta = (timezone.now() - self.date_start).seconds
+        self.save()
 
     class Meta:
         get_latest_by = 'date_created'
