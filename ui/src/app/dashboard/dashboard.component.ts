@@ -145,8 +145,8 @@ export class DashboardComponent implements OnInit {
   toGrafana(cluster_name) {
     for (const cluster of this.clusters) {
       if (cluster_name === cluster.name) {
-        const url = 'grafana.apps.' + cluster.name + '.' + cluster.cluster_doamin_suffix;
-        window.open('url', '_blank');
+        const url = 'http://grafana.apps.' + cluster.name + '.' + cluster.cluster_doamin_suffix;
+        window.open(url, '_blank');
       }
     }
 

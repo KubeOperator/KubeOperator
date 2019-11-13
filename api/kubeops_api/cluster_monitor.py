@@ -20,13 +20,13 @@ class ClusterMonitor():
         self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
         self.cluster = cluster
         self.retry_count = 0
-        self.get_authorization()
+        self.get_token()
         self.get_api_instance()
         self.restart_pods = []
         self.warn_containers = []
         self.error_pods = []
 
-    def get_authorization(self):
+    def get_token(self):
         if self.redis_cli.exists(self.cluster.name):
             cluster_data = self.redis_cli.get(self.cluster.name)
             if cluster_data is not None:
@@ -59,7 +59,7 @@ class ClusterMonitor():
             self.api_instance.list_node()
         except ApiException as e:
             if e.status == 401:
-                self.get_authorization()
+                self.get_token()
                 self.get_api_instance()
             else:
                 raise Exception('init k8s client failed!' + e.reason)
