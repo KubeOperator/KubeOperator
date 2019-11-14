@@ -70,6 +70,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   @ViewChild('nodeForm', {static: false}) nodeForm: NgForm;
   @ViewChild('configForm', {static: true}) configForm: NgForm;
   @ViewChild('workerForm', {static: true}) workerForm: NgForm;
+  @ViewChild('alertModal', {static: true}) alertModal;
   isNameValid = true;
   nameTooltipText = '只允许小写英文字母! 请勿包含特殊符号！';
   checkOnGoing = false;
@@ -97,8 +98,10 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
               this.checkOnGoing = false;
               this.nameTooltipText = '集群名称 ' + this.cluster.name + '已存在！';
               this.isNameValid = false;
+              this.alertModal.showTip(true, this.nameTooltipText);
             }, error1 => {
               this.checkOnGoing = false;
+              this.alertModal.closeTip();
             });
           }
         }

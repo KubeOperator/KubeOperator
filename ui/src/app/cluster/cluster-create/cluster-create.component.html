@@ -8,6 +8,7 @@
   <clr-wizard-page [clrWizardPageNextDisabled]="!isBasicFormValid">
     <form clrForm class="clr-form clr-form-compact" #basicFrom='ngForm'>
       <ng-template clrPageTitle>基本信息</ng-template>
+      <app-modal-alert #alertModal></app-modal-alert>
       <clr-input-container>
         <label>集群名称</label>
         <input id="name" type="text" pattern="^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
