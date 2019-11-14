@@ -200,15 +200,15 @@ def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
     return redis_cli.delete(cluster_name)
 
-def quick_sort_pods(podList):
-    if len(podList) < 2:
-        return podList
-    mid = podList[0]
+def quick_sort_pods(pod_list):
+    if len(pod_list) < 2:
+        return pod_list
+    mid = pod_list[0]
 
     left, right = [], []
-    podList.remove(mid)
+    pod_list.remove(mid)
 
-    for item in podList:
+    for item in pod_list:
         if item['restart_count'] <= mid['restart_count']:
             right.append(item)
         else:
