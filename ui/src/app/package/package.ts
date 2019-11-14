@@ -60,7 +60,7 @@ export class Config {
 
 export class Option {
   name: string;
-  alias: string;
+  value: string;
 }
 
 export class Role {

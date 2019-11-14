@@ -251,8 +251,7 @@ storages:
       storage_cinder_enabled: true
 
   - name: rook-ceph
-    deploy_type: ['AUTOMATIC','MANUAL']
-    provider: ['vsphere','openstack']
+    deploy_type: ['MANUAL']
     vars:
       storage_rook_ceph_enabled: true
 

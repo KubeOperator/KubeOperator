@@ -39,7 +39,9 @@ spec:
     - name: "{{hostvars[h]['inventory_hostname']}}"
 {% if device_type == 'device' %}
       devices:
-      - name: "{{ rook_path }}"
+{% for device in rook_path.split(',') %}
+      - name: "{{ device }}"
+{% endfor %}
 {% endif %}
 {% if device_type == 'path' %}
       directories:
