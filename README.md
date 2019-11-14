@@ -33,16 +33,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  离线部署：持续更新包括 Kubernetes 及常用组件（即内置应用）的离线包；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
 
- ## Demo 视频、使用文档
-
--  [:tv:8 分钟演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
--  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
-
- ## Kubernetes 离线安装包
-
-KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
-
-## 版本规划
+## 功能列表
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
@@ -178,6 +169,16 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
         </td>
     </tr>     
  </table>
+
+ ## Demo 视频、使用文档
+
+-  [:tv:8 分钟演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
+-  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
+
+ ## Kubernetes 离线安装包
+
+KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
+
 
 ## 沟通交流
  
