@@ -101,7 +101,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="3">集群 Day 0 部署
+        <td class="features-first-td-background-style" rowspan="3">集群 Day 1 部署
         </td>
         <td class="features-third-td-background-style" rowspan="3">部署
         </td>  
