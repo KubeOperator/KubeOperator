@@ -195,8 +195,9 @@ class ClusterMonitor():
         else:
             return False
 
-    def delete_cluster_redis_data(self):
-        return self.redis_cli.delete(self.cluster.name)
+def delete_cluster_redis_data(cluster_name):
+    redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
+    return redis_cli.delete(cluster_name)
 
 def quick_sort_pods(podList):
     if len(podList) < 2:
