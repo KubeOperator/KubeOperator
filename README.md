@@ -45,7 +45,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>       
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">3 个 Master 节点 n 个 Worker 节点模式， Master 节点分布在不同故障域：适合生产用途
+        <td class="features-third-td-background-style">3 个 Master 节点 n 个 Worker 节点模式：适合生产用途
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
@@ -69,11 +69,11 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">vSphere 平台：支持 vSphere Datastore （vSAN 及 vSphere 兼容的各种集中存储）
+        <td class="features-third-td-background-style">vSphere 平台：支持 vSphere Datastore （vSAN 及 vSphere 兼容的集中存储）
         </td>
     </tr> 
      <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">Openstack 平台：支持 Openstack Cinder （Ceph 及 Cinder 兼容的各种集中存储）
+        <td class="features-third-td-background-style">Openstack 平台：支持 Openstack Cinder （Ceph 及 Cinder 兼容的集中存储）
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
@@ -139,7 +139,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="3">可观察性
         </td>
-         <td class="features-third-td-background-style">内置 Promethus 监控和告警方案，支持对集群、节点、Pod、Container的全方位监控
+         <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警
         </td>
     </tr>
      <tr class="subscription-level-tr-border">
