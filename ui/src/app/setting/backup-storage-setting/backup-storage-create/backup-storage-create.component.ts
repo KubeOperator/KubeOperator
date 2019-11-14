@@ -5,7 +5,6 @@ import {BackupStorageService} from '../backup-storage.service';
 import {StorageCredential} from '../storage-credential';
 import {CommonAlertService} from '../../../base/header/common-alert.service';
 import {AlertLevels} from '../../../base/header/components/common-alert/alert';
-import {ModalAlertComponent} from '../../../shared/common-component/modal-alert/modal-alert.component';
 
 @Component({
   selector: 'app-backup-storage-create',
@@ -24,9 +23,9 @@ export class BackupStorageCreateComponent implements OnInit {
   @ViewChild('backupStorageForm', {static: true}) backupStorageForm: NgForm;
   credential = new StorageCredential();
   invalid = false;
-  tipShow = false;
   message = '';
   buckets = [];
+  @ViewChild('alertModal', {static: true}) alertModal;
 
 
   constructor(private backupStorageService: BackupStorageService, private alertService: CommonAlertService) {
@@ -49,25 +48,20 @@ export class BackupStorageCreateComponent implements OnInit {
     this.loading = true;
     if (this.credential == null) {
       this.invalid = true;
-      this.tipShow = true;
     } else {
       this.item.credentials = this.credential;
       this.backupStorageService.checkBackupStorageConfig(this.item).subscribe(data => {
-        // @ts-ignore
         this.invalid = !data.success;
-        // @ts-ignore
         this.message = data.message;
-        this.tipShow = true;
-        // @ts-ignore
         if (data.success) {
           this.postItem(this.item);
         } else {
           this.isSubmitGoing = false;
         }
+        this.alertModal.showTip(this.invalid, this.message);
       }, err => {
-        this.invalid = true;
-        this.tipShow = true;
         this.isSubmitGoing = false;
+        this.alertModal.showTip(true, '校验失败!');
       });
     }
   }
@@ -79,7 +73,6 @@ export class BackupStorageCreateComponent implements OnInit {
       this.create.emit(true);
       this.loading = false;
       this.alertService.showAlert('新增成功!', AlertLevels.SUCCESS);
-      this.tipShow = false;
     }, err => {
       this.createOpened = true;
       this.isSubmitGoing = false;
@@ -97,36 +90,26 @@ export class BackupStorageCreateComponent implements OnInit {
     this.createOpened = true;
   }
 
-  closeTip() {
-    this.tipShow = false;
-  }
-
   changeType() {
     this.buckets = [];
-    this.closeTip();
+    this.alertModal.closeTip();
   }
 
   getBuckets(credential) {
     this.item.credentials = credential;
     this.backupStorageService.getBuckets(this.item).subscribe(rep => {
-      // @ts-ignore
       this.invalid = !rep.success;
-      // @ts-ignore
       if (rep.success) {
-        // @ts-ignore
         this.buckets = rep.data;
         this.message = '查询成功';
       } else {
-        this.tipShow = true;
-        // @ts-ignore
         this.message = '查询失败';
         this.buckets = [];
       }
+      this.alertModal.showTip(this.invalid, this.message);
     }, err => {
-      this.invalid = true;
-      this.tipShow = true;
-      this.message = '查询失败';
       this.buckets = [];
+      this.alertModal.showTip(true, '查询失败');
     });
   }
 }

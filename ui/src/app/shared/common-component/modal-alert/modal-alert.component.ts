@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 
 @Component({
   selector: 'app-modal-alert',
@@ -7,30 +7,16 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class ModalAlertComponent implements OnInit {
 
-  type: string;
 
-  @Input()
-  set message(message: string) {
-    this._message = message;
+  @Input() public tipShow: boolean;
+  @Output() public tipShowChange = new EventEmitter();
+  @Input() public message: string;
+  @Output() public messageChange = new EventEmitter();
+  @Input() public invalid: boolean;
+  @Output() public invalidChange = new EventEmitter();
+
+  constructor() {
   }
-  get message(): string { return this._message; }
-  _message: string;
-
-  @Input()
-  set tipShow(tipShow: boolean) {
-    this._tipShow = tipShow;
-  }
-  get tipShow(): boolean { return this._tipShow; }
-  _tipShow: boolean;
-
-  @Input()
-  set invalid(invalid: boolean) {
-    this._invalid = invalid;
-  }
-  get invalid(): boolean { return this._invalid; }
-  _invalid: boolean;
-
-  constructor() { }
 
   ngOnInit() {
     this.tipShow = false;
@@ -38,5 +24,11 @@ export class ModalAlertComponent implements OnInit {
 
   closeTip() {
     this.tipShow = false;
+  }
+
+  showTip(invalid, message) {
+    this.tipShow = true;
+    this.message = message;
+    this.invalid = invalid;
   }
 }
