@@ -42,7 +42,7 @@ data:
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: traefik-ingress-lb
@@ -52,6 +52,10 @@ metadata:
   annotations:
     ingress.kubernetes.io/proxy-body-size: "5120M"
 spec:
+  selector:
+    matchLabels:
+      k8s-app: traefik-ingress-lb
+      name: traefik-ingress-lb
   template:
     metadata:
       labels:

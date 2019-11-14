@@ -20,7 +20,7 @@ roleRef:
 
 ---
 kind: Deployment
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 metadata:
   name: {{ storage_nfs_provisioner_name }}
   namespace: kube-system
@@ -39,7 +39,7 @@ spec:
       serviceAccountName: nfs-client-provisioner
       containers:
         - name: nfs-client-provisioner
-          image: {{registry_prefix}}:{{registry_port}}/{{ nfs_client_provisioner_image }}:{{ nfs_client_provisioner_version }}
+          image: {{registry_prefix}}:{{registry_port}}/quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nfs-client-root

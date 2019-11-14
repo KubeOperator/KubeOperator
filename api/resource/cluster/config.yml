@@ -226,7 +226,7 @@ networks:
         display: true
         options:
           - name: BGP
-            value: off
+            value: "off"
           - name: IPIP
             value: Always
 

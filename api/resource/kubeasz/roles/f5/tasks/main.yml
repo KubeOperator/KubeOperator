@@ -2,13 +2,6 @@
   template:
     src: f5-bigip.yml.j2
     dest: /tmp/f5-bigip.yml
-  when: "kube_version_main  == '1.15'"
-
-- name: 创建F5-ctrl 部署文件
-  template:
-    src: f5-bigip.yml.1.16.j2
-    dest: /tmp/f5-bigip.yml
-  when: "kube_version_main  == '1.16'"
 
 - block:
     - name: 创建 secret
