@@ -5,7 +5,7 @@
         - /opt/kube/kube-system/coredns
 
     - name: 准备 DNS的部署文件
-      template: src=1.15/{{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
+      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
       with_items:
         - coredns
         - autoscaler
