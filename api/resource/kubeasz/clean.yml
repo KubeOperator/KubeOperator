@@ -34,7 +34,7 @@
       file: name={{ item }} state=absent
       with_items:
         - "/var/lib/rook/"
-        - {{ rook_path }}
+        - "{{ rook_path }}"
       when:
         - 'storage_rook_ceph_enabled is defined'
         - 'storage_rook_ceph_enabled'
