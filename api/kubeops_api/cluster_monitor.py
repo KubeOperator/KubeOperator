@@ -41,14 +41,15 @@ class ClusterMonitor():
     def get_api_instance(self):
         self.cluster.change_to()
         master = self.cluster.group_set.get(name='master').hosts.first()
-        configuration = kubernetes.client.Configuration()
-        configuration.api_key_prefix['authorization'] = 'Bearer'
-        configuration.api_key['authorization'] = self.token
-        configuration.debug = True
-        configuration.host = 'https://' + master.ip + ":6443"
-        configuration.verify_ssl = False
-        self.api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
-        self.app_v1_api = kubernetes.client.AppsV1Api(kubernetes.client.ApiClient(configuration))
+        if master is not None and master.ip is not None:
+            configuration = kubernetes.client.Configuration()
+            configuration.api_key_prefix['authorization'] = 'Bearer'
+            configuration.api_key['authorization'] = self.token
+            configuration.debug = True
+            configuration.host = 'https://' + master.ip + ":6443"
+            configuration.verify_ssl = False
+            self.api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
+            self.app_v1_api = kubernetes.client.AppsV1Api(kubernetes.client.ApiClient(configuration))
 
     def check_authorization(self, retry_count):
         if retry_count > 2:
@@ -195,8 +196,9 @@ class ClusterMonitor():
         else:
             return False
 
-    def delete_cluster_redis_data(self):
-        return self.redis_cli.delete(self.cluster.name)
+def delete_cluster_redis_data(cluster_name):
+    redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
+    return redis_cli.delete(cluster_name)
 
 def quick_sort_pods(podList):
     if len(podList) < 2:
@@ -232,7 +234,8 @@ def quick_sort_error_loki_container(containers):
 
 def put_cluster_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
-                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
+                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
@@ -242,7 +245,8 @@ def put_cluster_data_to_redis():
 
 def put_loki_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
-                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
+                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_loki_data_to_cluster()

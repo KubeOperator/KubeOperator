@@ -13,7 +13,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
-from kubeops_api.cluster_monitor import ClusterMonitor
+import kubeops_api.cluster_monitor
 from django.utils import timezone
 
 __all__ = ['DeployExecution']
@@ -54,9 +54,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
             result = self.on_uninstall(extra_vars)
-            cluster_monitor = ClusterMonitor(cluster)
-            cluster_monitor.delete_cluster_redis_data()
             cluster.change_status(Cluster.CLUSTER_STATUS_READY)
+            kubeops_api.cluster_monitor.delete_cluster_redis_data(cluster.name)
         elif self.operation == 'bigip-config':
             logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
             ignore_errors = True

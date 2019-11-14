@@ -438,7 +438,8 @@ class DashBoardView(APIView):
         error_pods = []
         if project_name == 'all':
             clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
-                                              ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING))
+                                              ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
+                                              ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
             for c in clusters:
                 cluster_monitor = ClusterMonitor(c)
                 res = cluster_monitor.list_cluster_data()
@@ -452,7 +453,7 @@ class DashBoardView(APIView):
             error_loki_containers = kubeops_api.cluster_monitor.quick_sort_error_loki_container(error_loki_containers)
         else:
             cluster = Cluster.objects.get(name=project_name)
-            if cluster.status != Cluster.CLUSTER_STATUS_READY:
+            if cluster.status != Cluster.CLUSTER_STATUS_READY and cluster.status != Cluster.CLUSTER_STATUS_INSTALLING and cluster.status != Cluster.CLUSTER_STATUS_DELETING:
                 cluster_monitor = ClusterMonitor(cluster)
                 res = cluster_monitor.list_cluster_data()
                 if len(res) != 0:
