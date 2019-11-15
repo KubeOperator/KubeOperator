@@ -72,19 +72,25 @@ class ClusterMonitor():
                 status = p.status
                 containers = []
                 restart_count = 0
-                for c in status.container_statuses:
-                    restart_count = restart_count + c.restart_count
-                    container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,
-                                          pod_name=p.metadata.name)
-                    if container.ready == False:
-                        self.warn_containers.append(container.__dict__)
-                    containers.append(container.__dict__)
-                host = Host.objects.get(ip=status.host_ip)
-                hostname = (host.name if host.name is not None else None)
+                hostname = None
+                host_ip = None
+                if status.container_statuses is not None:
+                    for c in status.container_statuses:
+                        restart_count = restart_count + c.restart_count
+                        container = Container(name=c.name, ready=c.ready, restart_count=c.restart_count,
+                                              pod_name=p.metadata.name)
+                        if container.ready == False:
+                            self.warn_containers.append(container.__dict__)
+                        containers.append(container.__dict__)
+                if status.host_ip is not None:
+                    host = Host.objects.get(ip=status.host_ip)
+                    hostname = (host.name if host.name is not None else None)
+                    host_ip = status.host_ip
+                pod_ip =  (status.pod_ip if status.pod_ip is not None else None)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
                           status=status.phase,
                           namespace=p.metadata.namespace,
-                          host_ip=status.host_ip, pod_ip=status.pod_ip, host_name=hostname, containers=containers)
+                          host_ip=host_ip, pod_ip=pod_ip, host_name=hostname, containers=containers)
                 if restart_count > 0:
                     self.restart_pods.append(pod.__dict__)
                 if status.phase != 'Running' and status.phase != 'Succeeded':
@@ -159,10 +165,12 @@ class ClusterMonitor():
                                    namespaces=namespaces, deployments=deployments, cpu_usage=cpu_usage,
                                    cpu_total=cpu_total,
                                    mem_total=mem_total, mem_usage=mem_usage, restart_pods=sort_restart_pod_list,
-                                   warn_containers=self.warn_containers, error_loki_containers=[], error_pods=error_pods)
+                                   warn_containers=self.warn_containers, error_loki_containers=[],
+                                   error_pods=error_pods)
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
+        self.list_pods()
         cluster_data = self.redis_cli.get(self.cluster.name)
         result = {}
         if cluster_data is not None:
@@ -196,9 +204,11 @@ class ClusterMonitor():
         else:
             return False
 
+
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
     return redis_cli.delete(cluster_name)
+
 
 def quick_sort_pods(pod_list):
     if len(pod_list) < 2:
