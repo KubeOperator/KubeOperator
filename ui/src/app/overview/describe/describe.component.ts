@@ -6,13 +6,11 @@ import {ClusterService} from '../../cluster/cluster.service';
 import {OverviewService} from '../overview.service';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {Router} from '@angular/router';
-import {ClusterStatus} from './class/describe';
+import {NodeService} from '../../node/node.service';
 import {ClusterStatusService} from '../../cluster/cluster-status.service';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
-import {ClusterListComponent} from '../../cluster/cluster-list/cluster-list.component';
 import {UpgradeComponent} from '../upgrade/upgrade.component';
 import {WebkubectlComponent} from '../webkubectl/webkubectl.component';
-import {strictEqual} from 'assert';
 
 @Component({
   selector: 'app-describe',
@@ -28,6 +26,9 @@ export class DescribeComponent implements OnInit {
   openChangeStatus = false;
   token: string = null;
   event: string = null;
+  openHost = false;
+  workers = [];
+  workerIp = '';
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   @ViewChild(UpgradeComponent, {static: true}) upgrade: UpgradeComponent;
   @ViewChild(WebkubectlComponent, {static: true}) webKubeCtrl: WebkubectlComponent;
@@ -35,10 +36,19 @@ export class DescribeComponent implements OnInit {
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
-              private router: Router, private clusterStatusService: ClusterStatusService) {
+              private router: Router, private clusterStatusService: ClusterStatusService,
+              private nodeService: NodeService) {
   }
 
   ngOnInit() {
+    this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
+      this.workers = data.filter((node) => {
+        return node.roles.includes('worker');
+      });
+      if (this.workers.length > 0) {
+        this.workerIp = this.workers[0].ip;
+      }
+    });
   }
 
 

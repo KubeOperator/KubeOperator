@@ -11,6 +11,20 @@
   </div>
 </clr-modal>
 
+<clr-modal [(clrModalOpen)]="openHost" clrModalSize="l">
+  <h3 class="modal-title">域名解析规则</h3>
+  <div class="modal-body">
+    <span>
+      {{workerIp}} grafana.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} prometheus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} registry-ui.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} dashboard.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} traefiks.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+    </span>
+  </div>
+</clr-modal>
+
 <clr-modal [(clrModalOpen)]="openChangeStatus" clrModalSize="lg">
   <h3 class="modal-title">重置状态</h3>
   <div class="modal-body">
@@ -106,6 +120,9 @@
             </button>
             <button class="btn btn-outline" (click)="openChangeStatus=true">
               重置状态
+            </button>
+            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">
+              域名解析规则
             </button>
           </div>
         </div>
