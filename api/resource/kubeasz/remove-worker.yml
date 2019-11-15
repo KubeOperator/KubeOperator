@@ -1,9 +1,9 @@
-- hosts: "{{groups['new-node'][0]}}"
+- hosts: "{{groups['new_node'][0]}}"
   tasks:
     - name: drain node
       shell: "kubectl drain {{item}} --delete-local-data --force --ignore-daemonsets"
-      with_items: "{{groups['new-node']}}"
+      with_items: "{{groups['new_node']}}"
 
     - name: remove node
       shell: "kubectl delete node {{item}}"
-      with_items: "{{groups['new-node']}}"
+      with_items: "{{groups['new_node']}}"
