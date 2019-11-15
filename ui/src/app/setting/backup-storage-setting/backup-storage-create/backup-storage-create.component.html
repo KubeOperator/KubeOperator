@@ -64,7 +64,7 @@
           <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
         </select>
       </clr-select-container>
-      <app-modal-alert #alertModal [(message)]="message" [(invalid)]="invalid"></app-modal-alert>
+      <app-modal-alert #alertModal></app-modal-alert>
     </form>
     <div class="modal-footer">
       <button type="button" class="btn btn-success-outline" (click)="getBuckets(credential)" [disabled]="isSubmitGoing">
