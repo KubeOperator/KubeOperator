@@ -56,6 +56,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
             BackupStrategy.objects.filter(project_id=instance.id).delete()
             ClusterBackup.objects.filter(project_id=instance.id).delete()
             kubeops_api.cluster_monitor.delete_cluster_redis_data(instance.name)
+            ClusterHealthHistory.objects.filter(project_id=instance.id).delete()
         return response
 
 
