@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit {
       this.warnContainers = data.warnContainers;
       this.errorLokiContainers = data.errorLokiContainers;
       this.errorPods = data.errorPods;
-      const count = this.clusterData.length;
+      let count = this.clusterData.length;
       for (const cd of this.clusterData) {
         const d = JSON.parse(cd);
         this.podCount = this.podCount + d['pods'].length;
@@ -118,6 +118,9 @@ export class DashboardComponent implements OnInit {
         this.mem_total = this.mem_total + d['mem_total'];
         this.cpu_usage = this.cpu_usage + d['cpu_usage'];
         this.mem_usage = this.mem_usage + d['mem_usage'];
+        if (d['cpu_total'] === 0 && d['mem_total'] === 0) {
+          count--;
+        }
         this.nodes = this.nodes.concat(d['nodes']);
       }
       if (this.clusterData.length > 0) {
