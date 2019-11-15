@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -52,7 +51,12 @@ class ClusterViewSet(viewsets.ModelViewSet):
         if not instance.status == Cluster.CLUSTER_STATUS_READY and not instance.status == Cluster.CLUSTER_STATUS_ERROR:
             return Response(data={'msg': '集群处于: {} 状态,不可删除'.format(instance.status)},
                             status=status.HTTP_400_BAD_REQUEST)
-        return super().destroy(self, request, *args, **kwargs)
+        response = super().destroy(self, request, *args, **kwargs)
+        if response.status_code == 204:
+            BackupStrategy.objects.filter(project_id=instance.id).delete()
+            ClusterBackup.objects.filter(project_id=instance.id).delete()
+            kubeops_api.cluster_monitor.delete_cluster_redis_data(instance.name)
+        return response
 
 
 class PackageViewSet(viewsets.ModelViewSet):
