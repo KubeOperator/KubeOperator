@@ -57,7 +57,7 @@ fi
 #内存检测
 echo -ne "内存检测 \t\t........................ "
 memTotal=`cat /proc/meminfo | grep MemTotal | awk '{print $2}'`
-if [ $memTotal -lt 8000000 ];then
+if [ $memTotal -lt 7900000 ];then
   echo "[ERROR] 内存小于 8G，KubeOperator 所在机器的内存需要至少 8G"
   validationPassed=0
 else
