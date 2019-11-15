@@ -6,7 +6,7 @@
     </span>
   </div>
 </div>
-<div class="clr-row" *ngIf="!loading">
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
   <div class="clr-col-lg-6 clr-col-12">
     <p class="p7 prompt">异常日志每小时更新一次 其他信息每5分钟更新一次</p>
   </div>
