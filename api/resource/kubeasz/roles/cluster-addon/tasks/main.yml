@@ -18,6 +18,7 @@
       template:
         src: dashboard/metrics-server.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
+      when: 'kube_version_main == "1.16"'
 
     - name: 部署 dashboard
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
