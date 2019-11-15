@@ -30,8 +30,8 @@ export class Cluster {
 
   constructor() {
     this.worker_size = 1;
-    this.configs['SERVICE_CIDR'] = '10.68.0.0/16';
-    this.configs['CLUSTER_CIDR'] = '172.20.0.0/16';
+    this.configs['SERVICE_CIDR'] = '179.10.0.0/16';
+    this.configs['CLUSTER_CIDR'] = '179.20.0.0/16';
   }
 }
 
