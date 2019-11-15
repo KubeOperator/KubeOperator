@@ -27,6 +27,8 @@ export class RemoveWorkerComponent implements OnInit {
     this.nodeService.listNodes(clusterName).subscribe(data => {
       this.workers = data.filter(worker => {
         return worker.roles.includes('worker');
+      }).filter(worker => {
+        return !worker.name.includes('worker1');
       });
     });
   }
