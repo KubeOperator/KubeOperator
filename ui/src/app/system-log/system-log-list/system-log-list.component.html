@@ -32,7 +32,8 @@
   <clr-dg-column>时间</clr-dg-column>
 
   <clr-dg-row *ngFor="let log of logs" [clrDgItem]="log">
-    <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="showDetail(log)">{{log.message}}</a></clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;color: #0079b8;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"><a
+      (click)="showDetail(log)">{{log.message}}</a></clr-dg-cell>
     <clr-dg-cell>{{log.level}}</clr-dg-cell>
     <clr-dg-cell>{{log.timestamp}}</clr-dg-cell>
   </clr-dg-row>
