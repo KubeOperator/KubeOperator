@@ -154,7 +154,6 @@
 
     - name: cleanup networks2
       shell: "ip link del docker0; \
-	systemctl restart networking; \
 	systemctl restart network"
       ignore_errors: true
 
