@@ -80,9 +80,6 @@
         - name: unmount docker filesystem-2
           mount: path=/var/lib/docker/overlay state=unmounted
 
-        - name: unmount docker filesystem-3
-          mount: path=/var/lib/docker state=unmounted
-
         - name: remove files and dirs
           file: name={{ item }} state=absent
           with_items:
@@ -154,7 +151,6 @@
 
     - name: cleanup networks2
       shell: "ip link del docker0; \
-	systemctl restart networking; \
 	systemctl restart network"
       ignore_errors: true
 
