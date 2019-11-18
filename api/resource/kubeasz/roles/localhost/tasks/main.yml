@@ -1,9 +1,7 @@
 - name: 添加集群上游解析记录
   blockinfile:
     path: /opt/kubeOperator-api/dns/dns.conf
-    block: '{{cluster_name}}.{{domain_suffix}}{\n
-        {{ hostvars[item]["ansible_ssh_host"]}}\n
-    }\n'
+    block: "{{cluster_name}}.{{domain_suffix}}{
+      forward . {{forward}}
+    }"
     marker: '# {{cluster_name}}'
-  with_items: "{{groups['master']}}"
-
