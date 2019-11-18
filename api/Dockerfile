@@ -13,8 +13,6 @@ RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null"
 COPY ./requirements/install_terraform.sh /opt/kubeOperator-api
 RUN bash /opt/kubeOperator-api/install_terraform.sh
 RUN yum -y install crontabs
-COPY extra/dnsmasq.conf /etc/
-COPY extra/kubeops.dns.conf /etc/dnsmasq.d
 COPY . /opt/kubeOperator-api
 RUN echo > config.yml
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
