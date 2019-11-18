@@ -1,8 +1,6 @@
 packages:
-  - dnsmasq
   - chrony
   - ntpdate
 services:
-  - dnsmasq
   - chronyd
 dns_repository_hostname: registry.kubeops.io

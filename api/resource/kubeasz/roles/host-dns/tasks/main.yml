@@ -1,9 +1,3 @@
-- name: 禁止从 dhcp 获取 dns
-  lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{network_default_interface}}"
-    regexp: "^PEERDNS"
-    line: "PEERDNS=no"
-
 - name: 解锁 resolv.conf
   shell: "chattr -i /etc/resolv.conf"
 
