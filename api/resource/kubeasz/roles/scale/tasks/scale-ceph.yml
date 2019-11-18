@@ -1,25 +1,20 @@
-- name: prepare setup.sh
-  template: src=scale-vsan.sh.j2 dest=/tmp/setup.sh
+- name: prepare rook-ceph deploy directory
+  file: name={{ base_dir }}/manifests/storage/rook state=directory
 
-- name: set disk.enableuuid to true for all vms
-  shell: "bash setup.sh"
-  args:
-    chdir: "/tmp"
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['kube-master'] }}"
-  run_once: true
+- name: prepare rook-cluster file
+  template:
+    src: rook/scale-ceph-cluster.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/cluster.yaml"
 
-- name: modify kubelet services on worker node
-  lineinfile:
-    path: "/etc/systemd/system/kubelet.service"
-    insertbefore: "--v=2"
-    line: '  --cloud-provider=vsphere \'
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['new_node'] }}"
-  run_once: true
+- name: deploy rook-cluster
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/cluster.yaml"
+  ignore_errors: true
 
-- name: restart kubelet service
-  shell: "systemctl daemon-reload && systemctl restart kubelet"
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['new_node'] }}"
-  run_once: true
+- name: prepare rook-blockpool file
+  template:
+    src: rook/scale-ceph-blockpool.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/blockpool.yaml"
+
+- name: deploy rook-blockpool
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/blockpool.yaml"
+  ignore_errors: true

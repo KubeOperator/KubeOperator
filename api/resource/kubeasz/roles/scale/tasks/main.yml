@@ -2,3 +2,8 @@
   when:
     - 'storage_vsan_enabled is defined'
     - 'storage_vsan_enabled'
+
+- import_tasks: scale-ceph.yml
+  when:
+    - 'storage_rook_ceph_enabled is defined'
+    - 'storage_rook_ceph_enabled'
