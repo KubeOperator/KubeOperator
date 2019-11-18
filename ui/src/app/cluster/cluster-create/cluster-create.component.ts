@@ -87,7 +87,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.clusterNameChecker.pipe(debounceTime(3000)).subscribe(() => {
+    this.clusterNameChecker.pipe(debounceTime(500)).subscribe(() => {
       const cluster_name = this.basicForm.controls['cluster_name'];
       if (cluster_name) {
         this.isNameValid = cluster_name.valid;
