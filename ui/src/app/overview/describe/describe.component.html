@@ -80,6 +80,16 @@
                 <td>{{getDeployTypeComment(currentCluster.deploy_type)}}</td>
               </tr>
               <tr>
+                <td>网络插件:</td>
+                <td>{{currentCluster.network_plugin}}</td>
+              </tr>
+              <tr>
+                <td>网络类型:</td>
+                <td *ngIf="currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
+                <td *ngIf="currentCluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">IPIP</td>
+                <td *ngIf="currentCluster.configs['CALICO_IPV4POOL_IPIP']==='off'">BGP</td>
+              </tr>
+              <tr>
                 <td>存储类型:</td>
                 <td>{{currentCluster.persistent_storage}}
                   <span style="padding-left: 10px" *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
