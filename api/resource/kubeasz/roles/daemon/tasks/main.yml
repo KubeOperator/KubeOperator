@@ -25,9 +25,9 @@
           -v /etc/coredns/:/root \
           -p 53:53/tcp \
           -p 53:53/udp \
+          --name dns \
           {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
-          --conf /root/dns.conf \
-          --name dns"
+          --conf /root/dns.conf"
 
 - name: 生成 chrony server 配置文件
   template:
@@ -45,4 +45,11 @@
       when: "inventory_hostname != groups['kube-master'][0]"
   when: "DEPLOY_MODE == 'multiple-master'"
 
+docker run -d \
+          -v /etc/coredns/:/root \
+          -p 53:53/tcp \
+          -p 53:53/udp \
+          registry.kubeops.io:8094/docker.io/coredns/coredns:1.6.0 \
+          --conf /root/dns.conf \
+          --name dns
 

@@ -1,6 +1,6 @@
 .:53 {
   bind 0.0.0.0
-  hosts:{
+  hosts{
 {% for host in groups['all_nodes'] %}
     {{ hostvars[host]['ansible_ssh_host'] }}  {{host}}
 {% endfor %}
