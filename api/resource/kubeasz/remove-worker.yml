@@ -103,7 +103,8 @@
 	&& iptables -F -t mangle && iptables -X -t mangle"
 
     - name: cleanup networks1
-      shell: "ip link del flannel.1; \
+      shell: "ip link del tunl0; \
+        ip link del flannel.1; \
 	    ip link del cni0; \
         ip link del mynet0;"
       ignore_errors: true
