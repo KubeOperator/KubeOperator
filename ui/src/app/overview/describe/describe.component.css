@@ -1,7 +1,7 @@
 ul li b {
  margin-right: 16px
 }
-table tr td {
+table tr td:first-child {
   font-weight: bold
 }
 
