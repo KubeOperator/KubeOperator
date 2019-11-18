@@ -21,14 +21,13 @@
     line: "{{local_hostname}}  {{dns_repository_hostname}}"
 
 - name: 启动 Core DNS
-  shell: "docker run {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
-          -v /etc/coredns/dns.conf:/root \
-          --conf /root/dns.conf \
+  shell: "docker run -d \
+          -v /etc/coredns/:/root \
           -p 53:53/tcp \
           -p 53:53/udp \
+          {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
+          --conf /root/dns.conf \
           --name dns"
-
-
 
 - name: 生成 chrony server 配置文件
   template:
@@ -45,3 +44,5 @@
       shell: "ntpdate {{groups['kube-master'][0]}} | hwclock -w"
       when: "inventory_hostname != groups['kube-master'][0]"
   when: "DEPLOY_MODE == 'multiple-master'"
+
+
