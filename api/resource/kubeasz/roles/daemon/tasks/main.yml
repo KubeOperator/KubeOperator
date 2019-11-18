@@ -4,6 +4,10 @@
     state: present
   with_items: "{{packages}}"
 
+- name: 创建 dns 目录
+  file:
+    path: /etc/coredns
+    state: directory
 
 - name: 生成集群 dns 配置文件
   template:

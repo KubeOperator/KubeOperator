@@ -1,9 +1,9 @@
 - name: 添加集群上游解析记录
   blockinfile:
     path: /opt/dns/dns.conf
-    block: '{{cluster_name}}.{{domain_suffix}}{
-        {{ hostvars[item]["ansible_ssh_host"]}}
-    }'
-    marker: '{{cluster_name}}'
+    block: '{{cluster_name}}.{{domain_suffix}}{\n
+        {{ hostvars[item]["ansible_ssh_host"]}}\n
+    }\n'
+    marker: '# {{cluster_name}}'
   with_items: "{{groups['master']}}"
 
