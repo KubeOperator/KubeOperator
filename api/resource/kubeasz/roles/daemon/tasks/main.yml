@@ -15,7 +15,7 @@
     dest:  /etc/coredns/dns.conf
 
 - name: 启动 Core DNS
-  shell: "docker run {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
+  shell: "docker run {{local_hostname}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
           -v /etc/coredns/dns.conf:/root \
           --conf /root/dns.conf \
           -p 53:53/tcp \
