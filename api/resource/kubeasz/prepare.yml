@@ -5,6 +5,15 @@
   roles:
     - kube-bin
 
+- hosts:
+  - kube-master
+  - kube-node
+  roles:
+    - docker
+
+- hosts: master
+  roles:
+    - daemon
 # to create CA, kubeconfig, kube-proxy.kubeconfig etc. on 'deploy' node
 - hosts: "{{groups['kube-master'][0]}}"
   roles:
@@ -23,8 +32,3 @@
   roles:
     - etcd
 
-- hosts:
-  - kube-master
-  - kube-node
-  roles:
-    - docker

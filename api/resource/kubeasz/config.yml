@@ -3,9 +3,6 @@
     - ssh
     - repository
     - firewall
-- hosts: master
-  roles:
-    - daemon
 - hosts: cluster_nodes
   roles:
     - host-dns

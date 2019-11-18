@@ -4,29 +4,31 @@
     state: present
   with_items: "{{packages}}"
 
-- name: 开机启动dnsmasq
-  shell: "systemctl enable {{item}}"
-  with_items: "{{services}}"
-
-- name: 生成 dnsmasq 配置文件
-  template:
-    src: dnsmasq.conf.j2
-    dest: /etc/dnsmasq.conf
-
-- name: 生成 dns 上游配置文件
-  template:
-    src: kubeops-upstream.dns.conf.j2
-    dest: /etc/dnsmasq.d/kubeops-upstream.dns.conf
+- name: 创建 dns 目录
+  file:
+    path: /etc/coredns
+    state: directory
 
 - name: 生成集群 dns 配置文件
   template:
-    src: kubeops-origin.dns.conf.j2
-    dest:  /etc/dnsmasq.d/kubeops-origin.dns.conf
+    src: dns.conf.j2
+    dest:  /etc/coredns/dns.conf
 
-- name: 生效 dns 配置
-  service:
-    name: dnsmasq
-    state: restarted
+- name: 插入 hosts 记录
+  lineinfile:
+    path: "/etc/hosts"
+    regexp: '{{ local_hostname }}'
+    line: "{{local_hostname}}  {{dns_repository_hostname}}"
+
+- name: 启动 Core DNS
+  shell: "docker run {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
+          -v /etc/coredns/dns.conf:/root \
+          --conf /root/dns.conf \
+          -p 53:53/tcp \
+          -p 53:53/udp \
+          --name dns"
+
+
 
 - name: 生成 chrony server 配置文件
   template:

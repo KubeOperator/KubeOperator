@@ -1,11 +1,7 @@
-- name: 添加父级解析记录
-  lineinfile:
-    path: /etc/dnsmasq.d/kubeops.dns.conf
-    regexp: 'server=/{{cluster_name}}.{{domain_suffix}}'
-    line: 'server=/{{cluster_name}}.{{domain_suffix}}/{{ hostvars[item]["ansible_ssh_host"]}}'
-  with_items: "{{groups['master']}}"
-
-- name: 重启生效dnsmasq
-  service:
-    name: dnsmasq
-    state: restarted
+- name: 添加集群上游解析记录
+  blockinfile:
+    path: /opt/kubeOperator-api/dns/dns.conf
+    block: "{{cluster_name}}.{{domain_suffix}}{
+      forward . {{forward}}
+    }"
+    marker: '# {{cluster_name}}'
