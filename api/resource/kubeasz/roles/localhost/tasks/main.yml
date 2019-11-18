@@ -1,7 +1,7 @@
 - name: 添加集群上游解析记录
   blockinfile:
     path: /opt/kubeOperator-api/dns/dns.conf
-    block: "{{cluster_name}}.{{domain_suffix}}{
-      forward . {{forward}}
-    }"
+    block: "{{cluster_name}}.{{domain_suffix}}{\n
+      forward . {{forward}}\n
+    }\n"
     marker: '# {{cluster_name}}'
