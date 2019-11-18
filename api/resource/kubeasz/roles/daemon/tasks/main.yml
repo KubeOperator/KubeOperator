@@ -20,6 +20,9 @@
     regexp: '{{ local_hostname }}'
     line: "{{local_hostname}}  {{dns_repository_hostname}}"
 
+- name: 确认 Core DNS 启动
+  shell: ""
+
 - name: 启动 Core DNS
   shell: "docker run -d \
           -v /etc/coredns/:/root \
@@ -28,6 +31,7 @@
           --name dns \
           {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
           --conf /root/dns.conf"
+  ignore_errors: true
 
 - name: 生成 chrony server 配置文件
   template:
