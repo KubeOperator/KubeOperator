@@ -16,7 +16,8 @@
 
 - name: 插入 hosts 记录
   lineinfile:
-    path:
+    path: "/etc/hosts"
+    regexp: '{{ local_hostname }}'
     line: "{{local_hostname}}  {{dns_repository_hostname}}"
 
 - name: 启动 Core DNS
