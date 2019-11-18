@@ -1,3 +1,7 @@
+- hosts: new_node
+  roles:
+    - scale
+
 - hosts: "{{groups['new_node'][0]}}"
   tasks:
     - name: drain node
