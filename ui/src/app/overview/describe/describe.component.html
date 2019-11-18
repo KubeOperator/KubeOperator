@@ -57,49 +57,74 @@
       </div>
       <div class="card-block">
         <div class="clr-row">
-          <div class="clr-col-lg-1 clr-col-12 text">
-            <span><b>集群名称</b></span> <br>
-            <span><b>Kubernetes 版本</b> <br></span>
-            <span *ngIf="currentCluster.plan"><b>区域:</b><br/></span>
-            <span *ngIf="currentCluster.plan"><b>可用区:</b><br/></span>
-            <span><b>部署模式:</b></span><br/>
-            <span><b>存储类型: </b> </span><br/>
-            <span><b>创建时间:</b> </span><br/>
+          <div class="clr-col-lg-12 clr-col-12">
+            <table>
+              <tr>
+                <td>集群名称:</td>
+                <td>{{currentCluster.name}}</td>
+              </tr>
+              <tr>
+                <td>Kubernetes版本:</td>
+                <td>{{currentCluster.package}}</td>
+              </tr>
+              <tr *ngIf="currentCluster.plan">
+                <td>区域:</td>
+                <td>{{currentCluster.region}}</td>
+              </tr>
+              <tr *ngIf="currentCluster.plan">
+                <td>可用区:</td>
+                <td>{{currentCluster.zones}}{{currentCluster.zone}}</td>
+              </tr>
+              <tr>
+                <td>部署模式:</td>
+                <td>{{getDeployTypeComment(currentCluster.deploy_type)}}</td>
+              </tr>
+              <tr>
+                <td>存储类型:</td>
+                <td>{{currentCluster.persistent_storage}}
+                  <span style="padding-left: 10px" *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
+                  <a [href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank"><i
+                    class="fa fa-dashboard fa-lg"></i></a>
+                </span>
+                </td>
+              </tr>
+              <tr *ngIf="currentCluster.persistent_storage==='nfs'">
+                <td>存储:</td>
+                <td>{{currentCluster.configs['nfs']}}</td>
+              </tr>
+              <tr>
+                <td>创建时间:</td>
+                <td>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+              </tr>
+            </table>
           </div>
-          <div class="clr-col-lg-11  clr-col-12 type-face">
-            <span>{{currentCluster.name}}</span> <br>
-            <span>{{currentCluster.package}}</span> <br>
-            <span *ngIf="currentCluster.plan">{{currentCluster.region}} <br/></span>
-            <span *ngIf="currentCluster.plan">{{currentCluster.zones}}{{currentCluster.zone}}<br/></span>
-            <span>{{getDeployTypeComment(currentCluster.deploy_type)}}</span><br/>
-            <span>{{currentCluster.persistent_storage}}<span style="padding-left: 10px"
-                                                             *ngIf="currentCluster.persistent_storage === 'rook-ceph'"><a
-              [href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank">
-          <i class="fa fa-dashboard fa-lg"></i></a></span> </span><br/>
-            <span>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</span><br/>
-          </div>
+
+          <!--          <div class="clr-col-lg-2 clr-col-12 text">-->
+          <!--            <span><b>集群名称:</b></span> <br>-->
+          <!--            <span><b>Kubernetes版本:</b></span> <br>-->
+          <!--            <span *ngIf="currentCluster.plan"><b>区域:</b></span> <br>-->
+          <!--            <span *ngIf="currentCluster.plan"><b>可用区:</b></span> <br>-->
+          <!--            <span><b>部署模式:</b></span> <br>-->
+          <!--            <span><b>存储类型: </b> </span> <br>-->
+          <!--            <span><b>创建时间:</b> </span> <br>-->
+          <!--          </div>-->
+          <!--          <div class="clr-col-lg-10  clr-col-12 type-face">-->
+          <!--            <span>{{currentCluster.name}}</span> <br>-->
+          <!--            <span>{{currentCluster.package}}</span> <br>-->
+          <!--            <span *ngIf="currentCluster.plan">{{currentCluster.region}} <br/></span>-->
+          <!--            <span *ngIf="currentCluster.plan">{{currentCluster.zones}}{{currentCluster.zone}}<br/></span>-->
+          <!--            <span>{{getDeployTypeComment(currentCluster.deploy_type)}}</span><br/>-->
+          <!--            <span>{{currentCluster.persistent_storage}}<span style="padding-left: 10px"-->
+          <!--                                                             *ngIf="currentCluster.persistent_storage === 'rook-ceph'"><a-->
+          <!--              [href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank">-->
+          <!--          <i class="fa fa-dashboard fa-lg"></i></a></span> </span><br/>-->
+          <!--            <span>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</span><br/>-->
+          <!--          </div>-->
         </div>
-
-
-        <!--<ul class="list-unstyled">-->
-        <!--<li><b>集群名称:</b>{{currentCluster.name}}</li>-->
-        <!--<li><b>kubernetes 版本: </b>{{currentCluster.package}}</li>-->
-        <!--<li *ngIf="currentCluster.plan"><b>区域: </b>{{currentCluster.region}}</li>-->
-        <!--<li *ngIf="currentCluster.plan"><b>可用区: </b>{{currentCluster.zones}}{{currentCluster.zone}}</li>-->
-        <!--<li><b>部署模式:</b> {{getDeployTypeComment(currentCluster.deploy_type)}}</li>-->
-        <!--<li><b>存储类型: </b>{{currentCluster.persistent_storage}} <span-->
-        <!--*ngIf="currentCluster.persistent_storage === 'rook-ceph'"><a-->
-        <!--[href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank">-->
-        <!--<i class="fa fa-dashboard fa-lg"></i></a></span></li>-->
-        <!--<li *ngIf="currentCluster.persistent_storage==='nfs'"><b>存储: </b>{{currentCluster.configs['nfs']}}</li>-->
-        <!--<li *ngFor="let info of clusterInfos"><b>{{info.name}}:</b> {{info.value}}</li>-->
-        <!--<li><b>创建时间:</b> {{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}-->
-        <!--</li>-->
-        <!--</ul>-->
       </div>
       <div class="card-footer">
         <div class="clr-row">
-          <div class="clr-col-9">
+          <div class="clr-col-12">
             <button class="btn btn-outline" (click)="onInstall()"
                     [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
             </button>

@@ -1,3 +1,7 @@
 ul li b {
  margin-right: 16px
 }
+table tr td {
+  font-weight: bold
+}
+
