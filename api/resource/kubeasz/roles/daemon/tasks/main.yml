@@ -20,6 +20,10 @@
     regexp: '{{ local_hostname }}'
     line: "{{local_hostname}}  {{dns_repository_hostname}}"
 
+- name: 确认 DNS 服务状态
+  shell: "docker rm -f dns >/dev/null 2>&1"
+  ignore_errors: true
+
 - name: 启动 Core DNS
   shell: "docker run -d \
           -v /etc/coredns/:/root \
