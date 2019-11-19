@@ -236,3 +236,12 @@
         - 'kubectl completion'
         - 'crictl completion'
         - 'HELM_TLS_ENABLE'
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: "remove dns"
+      blockinfile:
+        path: /opt/kubeOperator-api/dns/dns.conf
+        marker: "#{mark} {{cluster_name}}"
+        state: absent
