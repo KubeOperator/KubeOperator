@@ -2,33 +2,18 @@ apiVersion: v1
 kind: List
 items:
   - apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: weave
-      annotations:
-        cloud.weave.works/version: v1.0.0-228-g1d8e966
-  - apiVersion: v1
     kind: ServiceAccount
     metadata:
-      name: weave-scope
+      name: f2c-weave-scope
       labels:
-        name: weave-scope
-      namespace: weave
+        name: f2c-weave-scope
+      namespace: kube-operator
   - apiVersion: rbac.authorization.k8s.io/v1beta1
     kind: ClusterRole
     metadata:
-      name: weave-scope
-      annotations:
-        cloud.weave.works/launcher-info: |-
-          {
-            "original-request": {
-              "url": "/k8s/v1.8/scope.yaml",
-              "date": "Mon Sep 09 2019 07:07:36 GMT+0000 (UTC)"
-            },
-            "email-address": "support@weave.works"
-          }
+      name: f2c-weave-scope
       labels:
-        name: weave-scope
+        name: f2c-weave-scope
     rules:
       - apiGroups:
           - ''
@@ -104,32 +89,32 @@ items:
   - apiVersion: rbac.authorization.k8s.io/v1beta1
     kind: ClusterRoleBinding
     metadata:
-      name: weave-scope
+      name: f2c-weave-scope
       labels:
-        name: weave-scope
+        name: f2c-weave-scope
     roleRef:
       kind: ClusterRole
-      name: weave-scope
+      name: f2c-weave-scope
       apiGroup: rbac.authorization.k8s.io
     subjects:
       - kind: ServiceAccount
-        name: weave-scope
-        namespace: weave
+        name: f2c-weave-scope
+        namespace: kube-operator
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: weave-scope-app
+      name: f2c-weave-scope-app
       labels:
-        name: weave-scope-app
-        app: weave-scope
+        name: f2c-weave-scope-app
+        app: f2c-weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-      namespace: weave
+      namespace: kube-operator
     spec:
       selector:
         matchLabels:
-          name: weave-scope-app
-          app: weave-scope
+          name: f2c-weave-scope-app
+          app: f2c-weave-scope
           weave-cloud-component: scope
           weave-scope-component: app
       replicas: 1
@@ -137,8 +122,8 @@ items:
       template:
         metadata:
           labels:
-            name: weave-scope-app
-            app: weave-scope
+            name: f2c-weave-scope-app
+            app: f2c-weave-scope
             weave-cloud-component: scope
             weave-scope-component: app
         spec:
@@ -160,13 +145,13 @@ items:
   - apiVersion: v1
     kind: Service
     metadata:
-      name: weave-scope-app
+      name: f2c-weave-scope-app
       labels:
-        name: weave-scope-app
-        app: weave-scope
+        name: f2c-weave-scope-app
+        app: f2c-weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
-      namespace: weave
+      namespace: kube-operator
     spec:
       type: NodePort
       ports:
@@ -175,25 +160,25 @@ items:
           protocol: TCP
           targetPort: 4040
       selector:
-        name: weave-scope-app
-        app: weave-scope
+        name: f2c-weave-scope-app
+        app: f2c-weave-scope
         weave-cloud-component: scope
         weave-scope-component: app
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: weave-scope-cluster-agent
+      name: f2c-weave-scope-cluster-agent
       labels:
-        name: weave-scope-cluster-agent
-        app: weave-scope
+        name: f2c-weave-scope-cluster-agent
+        app: f2c-weave-scope
         weave-cloud-component: scope
         weave-scope-component: cluster-agent
-      namespace: weave
+      namespace: kube-operator
     spec:
       selector:
         matchLabels:
-          name: weave-scope-cluster-agent
-          app: weave-scope
+          name: f2c-weave-scope-cluster-agent
+          app: f2c-weave-scope
           weave-cloud-component: scope
           weave-scope-component: cluster-agent
       replicas: 1
@@ -201,8 +186,8 @@ items:
       template:
         metadata:
           labels:
-            name: weave-scope-cluster-agent
-            app: weave-scope
+            name: f2c-weave-scope-cluster-agent
+            app: f2c-weave-scope
             weave-cloud-component: scope
             weave-scope-component: cluster-agent
         spec:
@@ -216,7 +201,7 @@ items:
                 - '--probe.basicAuth=true'
                 - '--probe.basicAuth.username=admin'
                 - '--probe.basicAuth.password=admin123'
-                - 'weave-scope-app.weave.svc.cluster.local:80'
+                - 'f2c-weave-scope-app.kube-operator.svc.cluster.local:80'
               command:
                 - /home/weave/scope
               env: []
@@ -229,30 +214,30 @@ items:
                 requests:
                   cpu: 100m
                   memory: 100Mi
-          serviceAccountName: weave-scope
+          serviceAccountName: f2c-weave-scope
   - apiVersion: apps/v1
     kind: DaemonSet
     metadata:
-      name: weave-scope-agent
+      name: f2c-weave-scope-agent
       labels:
-        name: weave-scope-agent
-        app: weave-scope
+        name: f2c-weave-scope-agent
+        app: f2c-weave-scope
         weave-cloud-component: scope
         weave-scope-component: agent
-      namespace: weave
+      namespace: kube-operator
     spec:
       selector:
         matchLabels:
-          name: weave-scope-agent
-          app: weave-scope
+          name: f2c-weave-scope-agent
+          app: f2c-weave-scope
           weave-cloud-component: scope
           weave-scope-component: agent
       minReadySeconds: 5
       template:
         metadata:
           labels:
-            name: weave-scope-agent
-            app: weave-scope
+            name: f2c-weave-scope-agent
+            app: f2c-weave-scope
             weave-cloud-component: scope
             weave-scope-component: agent
         spec:
@@ -267,7 +252,7 @@ items:
                 - '--probe.basicAuth=true'
                 - '--probe.basicAuth.username=admin'
                 - '--probe.basicAuth.password=admin123'
-                - 'weave-scope-app.weave.svc.cluster.local:80'
+                - 'f2c-weave-scope-app.kube-operator.svc.cluster.local:80'
               command:
                 - /home/weave/scope
               env: []
@@ -308,7 +293,7 @@ items:
     kind: Ingress
     metadata:
       name: f2c-weave-ingress
-      namespace: weave
+      namespace: kube-operator
     spec:
       rules:
       - host: scope.weave.{{ APP_DOMAIN }}
@@ -316,5 +301,5 @@ items:
           paths:
           - path: /
             backend:
-              serviceName: weave-scope-app
+              serviceName: f2c-weave-scope-app
               servicePort: 80

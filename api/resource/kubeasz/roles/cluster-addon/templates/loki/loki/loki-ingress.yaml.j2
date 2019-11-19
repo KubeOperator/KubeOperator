@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: f2c-loki-ingress
-  namespace: monitoring
+  namespace: kube-operator
 spec:
   rules:
   - host: loki.{{ APP_DOMAIN }}

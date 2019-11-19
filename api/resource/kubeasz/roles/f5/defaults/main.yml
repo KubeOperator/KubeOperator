@@ -7,13 +7,13 @@ http_ingress:
     namespace: kube-system
   grafana:
     name: f2c-grafana
-    namespace: monitoring
+    namespace: kube-operator
   prometheus:
     name: f2c-prometheus-server
-    namespace: monitoring
+    namespace: kube-operator
   weave:
     name: f2c-weave-ingress
-    namespace: weave
+    namespace: kube-operator
 
 https_ingress:
   dashboard:

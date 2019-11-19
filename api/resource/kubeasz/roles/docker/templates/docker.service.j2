@@ -1,21 +1,23 @@
 [Unit]
 Description=Docker Application Container Engine
-Documentation=http://docs.docker.io
+Documentation=https://docs.docker.com
 After=network-online.target firewalld.service
 Wants=network-online.target
 
 [Service]
+Type=notify
 Environment="PATH={{ bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin"
 ExecStart={{ bin_dir }}/dockerd
-ExecStartPost=/sbin/iptables -I FORWARD -s 0.0.0.0/0 -j ACCEPT
 ExecReload=/bin/kill -s HUP $MAINPID
-Restart=on-failure
-RestartSec=5
 LimitNOFILE=infinity
 LimitNPROC=infinity
 LimitCORE=infinity
+TimeoutStartSec=0
 Delegate=yes
 KillMode=process
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
 
 [Install]
 WantedBy=multi-user.target

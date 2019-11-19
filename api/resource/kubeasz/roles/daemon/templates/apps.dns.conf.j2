@@ -9,5 +9,5 @@ $ORIGIN {{APP_DOMAIN}}.
 
 
 {% for worker in groups['worker'] %}
-*           IN  A   {{hostvars[host]['ansible_ssh_host'] }}
+*           IN  A   {{hostvars[worker]['ansible_ssh_host'] }}
 {% endfor %}
