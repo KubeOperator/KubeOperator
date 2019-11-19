@@ -4,12 +4,12 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app: {{ template "kuberhealthy.name" . }}
+    app: f2c-{{ template "kuberhealthy.name" . }}
     chart: {{ .Chart.Name }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
     prometheus: {{ .Values.prometheus.name }}
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}
 spec:
   jobLabel: component
   selector:
