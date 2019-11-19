@@ -1,7 +1,7 @@
 apiVersion: {{ template "rbac.apiVersion" . }}
 kind: ClusterRole
 metadata:
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}
 rules:
   - apiGroups:
     - ""

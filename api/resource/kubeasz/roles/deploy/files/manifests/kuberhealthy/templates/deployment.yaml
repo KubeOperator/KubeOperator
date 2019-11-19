@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}
   labels:
-    app: {{ template "kuberhealthy.name" . }}
+    app: f2c-{{ template "kuberhealthy.name" . }}
     chart: {{ .Chart.Name }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -11,7 +11,7 @@ spec:
   replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
-      app: {{ template "kuberhealthy.name" . }}
+      app: f2c-{{ template "kuberhealthy.name" . }}
       release: {{ .Release.Name }}
   strategy:
     rollingUpdate:
@@ -37,7 +37,7 @@ spec:
       {{- end }}
       {{- end }}
       labels:
-        app: {{ template "kuberhealthy.name" . }}
+        app: f2c-{{ template "kuberhealthy.name" . }}
         chart: {{ .Chart.Name }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
@@ -67,7 +67,7 @@ spec:
           tcpSocket:
             port: 8080
           timeoutSeconds: 1
-        name: {{ template "kuberhealthy.name" . }}
+        name: f2c-{{ template "kuberhealthy.name" . }}
         env:
           - name: POD_NAME
             valueFrom:

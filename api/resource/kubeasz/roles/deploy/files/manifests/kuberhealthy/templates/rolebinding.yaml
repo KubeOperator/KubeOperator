@@ -1,11 +1,11 @@
 apiVersion: {{ template "rbac.apiVersion" . }}
 kind: RoleBinding
 metadata:
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}
 subjects:
 - kind: ServiceAccount
-  name: {{ template "kuberhealthy.name" . }}
+  name: f2c-{{ template "kuberhealthy.name" . }}

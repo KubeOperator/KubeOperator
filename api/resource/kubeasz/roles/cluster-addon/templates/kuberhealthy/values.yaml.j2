@@ -31,7 +31,7 @@ deployment:
   args:
   - -dsPauseContainerImageOverride
   - {{registry_prefix}}:{{registry_port}}/{{kuberhealthy_pause}}:{{kuberhealthy_pause_version}}
-  - -podCheckNamespaces=default,kube-system,monitoring,weave
+  - -podCheckNamespaces=default,kube-system,kube-operator,weave
 
 securityContext:
   runAsNonRoot: true

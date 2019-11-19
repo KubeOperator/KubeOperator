@@ -28,11 +28,11 @@
   ignore_errors: true
 
 - block:
-    - name: 创建 monitoring namespace
-      shell: "kubectl create ns monitoring"
+    - name: create kube-operator namespace
+      shell: "kubectl create ns kube-operator"
 
-    - name: 创建 etcd 监控 secrets
-      shell: "kubectl -n monitoring create secret generic etcd-secret-files \
+    - name: create etcd monitoring secrets
+      shell: "kubectl -n kube-operator create secret generic etcd-secret-files \
           --from-file=/etc/kubernetes/ssl/ca.pem \
           --from-file=/etc/etcd/ssl/etcd.pem \
           --from-file=/etc/etcd/ssl/etcd-key.pem"
@@ -47,7 +47,7 @@
       template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
 
     - name: 部署 prometheus
-      shell: "helm install --name f2c-prometheus --namespace monitoring \
+      shell: "helm install --name f2c-prometheus --namespace kube-operator \
           -f prom-settings.yaml \
           -f prom-alertsmanager.yaml \
           -f prom-alertrules.yaml \
@@ -64,7 +64,7 @@
       template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
 
     - name: 部署 grafana
-      shell: "helm install --name f2c-grafana --namespace monitoring \
+      shell: "helm install --name f2c-grafana --namespace kube-operator \
          -f grafana-settings.yaml \
          -f grafana-dashboards.yaml \
          ./grafana"
@@ -86,7 +86,7 @@
       template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
 
     - name: 部署 loki-stack
-      shell: "helm install --name f2c-loki --namespace monitoring ./loki"
+      shell: "helm install --name f2c-loki --namespace kube-operator ./loki"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
@@ -99,7 +99,7 @@
       template: src=kuberhealthy/values.yaml.j2 dest={{ base_dir }}/manifests/kuberhealthy/values.yaml
 
     - name: 部署 kuberhealthy
-      shell: "helm install --name f2c-kuberhealthy --namespace monitoring ./kuberhealthy"
+      shell: "helm install --name f2c-kuberhealthy --namespace kube-operator ./kuberhealthy"
       args:
         chdir: "{{ base_dir }}/manifests"
       delegate_to: "{{ groups['kube-master'][0] }}"
@@ -113,8 +113,6 @@
 
     - name: 部署 scope weave
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
-      args:
-        chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: '"weave-scope" not in pod_info.stdout'
