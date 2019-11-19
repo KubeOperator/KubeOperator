@@ -14,6 +14,11 @@
     src: dns.conf.j2
     dest:  /etc/coredns/dns.conf
 
+- name: 生成 app dns 配置文件
+  template:
+    src: apps.dns.conf.j2
+    dest: /etc/coredns/apps.dns.conf
+
 - name: 插入 hosts 记录
   lineinfile:
     path: "/etc/hosts"
