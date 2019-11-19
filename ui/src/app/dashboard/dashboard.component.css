@@ -12,7 +12,8 @@
 
 .card-style {
   height: 250px;
-  overflow: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .card-top {
