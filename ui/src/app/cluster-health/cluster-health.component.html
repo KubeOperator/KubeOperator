@@ -1,122 +1,150 @@
 <div class="row">
   <div class="col-lg-14" align="center">
-      <h4 class="font-title">当前集群运行状态</h4>
+    <h4 class="font-title">集群状态</h4>
   </div>
   <div class="clr-row" *ngIf="loading">
-      <span class="spinner spinner-lg loading" >
+      <span class="spinner spinner-lg loading">
         Loading...
       </span>
   </div>
-  <div class="clr-row" >
-      <div class="clr-col-12" *ngIf="!loading && error" style="text-align: center;">
-        <span *ngIf="currentCluster.status !== 'READY'">prometheus数据读取失败！</span>
-      </div>
+  <div class="clr-row">
+    <div class="clr-col-12" *ngIf="!loading && error" style="text-align: center;">
+      <span *ngIf="currentCluster.status !== 'READY'">prometheus数据读取失败！</span>
+    </div>
   </div>
   <div class="clr-row" *ngIf="!loading && !error">
-      <div class="clr-col-2">
-        <div class="clr-col-12 cluster-height">
-          <div class="card shadow-none">
-              <div class="card-header" [ngStyle]="{'backgroundColor':getClusterStatus(clusterHealth)}" align="center">
-                <small>整体状态</small>
-              </div>
-              <div class="card-block" align="center">
-                <img src="assets/images/k8s.png" class="img-responsive" width="64">
-              </div>
-          </div>
+    <div class="clr-col-4"  *ngFor="let c of componentData">
+      <div class="card shadow-none">
+        <div class="card-header"
+             [ngStyle]="{'backgroundColor':getStatusColor(c.status)}">
+          <small>{{c.name}}
+            <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
+              <clr-icon shape="info-circle" size="24"></clr-icon>
+              <span class="tooltip-content">
+<!--                      <div *ngFor="let data of clusterHealth.data">-->
+<!--                          <div *ngIf="data.job === 'kubernetes-control-manager'">-->
+<!--                            <span *ngFor="let etcd of data.data">-->
+<!--                              <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
+<!--                            </span>-->
+<!--                            <span *ngIf="clusterHealth.data.length == 0 || data.data.length == 0 ">数据获取失败</span>-->
+<!--                          </div>-->
+<!--                      </div>-->
+                    </span>
+            </a>
+          </small>
         </div>
       </div>
-      <div class="clr-col-5 clr-row">
-          <div class="clr-col-12">
-            <div class="card shadow-none">
-              <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-control-manager')}">
-                <small>control manager
-                  <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
-                    <clr-icon shape="info-circle" size="24"></clr-icon>
-                    <span class="tooltip-content">
-                      <div *ngFor="let data of clusterHealth.data">
-                          <div *ngIf="data.job === 'kubernetes-control-manager'">
-                            <span *ngFor="let etcd of data.data">
-                              <a>{{etcd.key}} {{etcd.value}}</a> <br>
-                            </span>
-                            <span *ngIf="clusterHealth.data.length == 0 || data.data.length == 0 ">数据获取失败</span>
-                          </div>
-                      </div>
-                    </span>
-                  </a>
-                </small>
-              </div>
-            </div>
-          </div>
-          <div class="clr-col-12">
-            <div class="card shadow-none">
-                <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-schedule')}">
-                     <small>schedule
-                       <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
-                          <clr-icon shape="info-circle" size="24"></clr-icon>
-                          <span class="tooltip-content">
-                            <div *ngFor="let data of clusterHealth.data">
-                                <div *ngIf="data.job === 'kubernetes-schedule'">
-                                  <span *ngFor="let etcd of data.data">
-                                    <a>{{etcd.key}} {{etcd.value}}</a> <br>
-                                  </span>
-                                  <span *ngIf="data.data.length == 0 ">数据获取失败</span>
-                                </div>
-                            </div>
-                          </span>
-                        </a>
-                     </small>
-                </div>
-            </div>
-          </div>
-      </div>
-      <div class="clr-col-5 clr-row">
-         <div class="clr-col-12">
-           <div class="card shadow-none">
-             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'etcd')}">
-               <small>etcd
-                 <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
-                    <clr-icon shape="info-circle" size="24"></clr-icon>
-                    <span class="tooltip-content">
-                      <div *ngFor="let data of clusterHealth.data">
-                          <div *ngIf="data.job === 'etcd'">
-                            <span *ngFor="let etcd of data.data">
-                              <a>{{etcd.key}} {{etcd.value}}</a> <br>
-                            </span>
-                            <span *ngIf="data.data.length == 0 ">数据获取失败</span>
-                          </div>
-                      </div>
-                    </span>
-                  </a>
-               </small>
-             </div>
-           </div>
-         </div>
-         <div class="clr-col-12">
-           <div class="card shadow-none">
-             <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-nodes')}">
-                <small>nodes
-                  <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
-                    <clr-icon shape="info-circle" size="24"></clr-icon>
-                    <span class="tooltip-content">
-                      <div *ngFor="let data of clusterHealth.data">
-                          <div *ngIf="data.job === 'kubernetes-nodes'">
-                            <span *ngFor="let etcd of data.data">
-                              <a>{{etcd.key}} {{etcd.value}}</a> <br>
-                            </span>
-                            <span *ngIf="data.data.length == 0 ">数据获取失败</span>
-                          </div>
-                      </div>
-                    </span>
-                  </a>
-                </small>
-             </div>
-           </div>
-         </div>
-      </div>
+    </div>
   </div>
   <hr>
-  <div class="col-lg-12">
-      <div echarts [options]="options"></div>
-  </div>
+<!--  <div class="clr-row" *ngIf="!loading && !error">-->
+<!--    <div class="clr-col-2">-->
+<!--      <div class="clr-col-12 cluster-height">-->
+<!--        <div class="card shadow-none">-->
+<!--          <div class="card-header" [ngStyle]="{'backgroundColor':getClusterStatus(clusterHealth)}" align="center">-->
+<!--            <small>整体状态</small>-->
+<!--          </div>-->
+<!--          <div class="card-block" align="center">-->
+<!--            <img src="assets/images/k8s.png" class="img-responsive" width="64">-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <div class="clr-col-5 clr-row">-->
+<!--      <div class="clr-col-12">-->
+<!--        <div class="card shadow-none">-->
+<!--          <div class="card-header"-->
+<!--               [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-control-manager')}">-->
+<!--            <small>control manager-->
+<!--              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">-->
+<!--                <clr-icon shape="info-circle" size="24"></clr-icon>-->
+<!--                <span class="tooltip-content">-->
+<!--                      <div *ngFor="let data of clusterHealth.data">-->
+<!--                          <div *ngIf="data.job === 'kubernetes-control-manager'">-->
+<!--                            <span *ngFor="let etcd of data.data">-->
+<!--                              <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
+<!--                            </span>-->
+<!--                            <span *ngIf="clusterHealth.data.length == 0 || data.data.length == 0 ">数据获取失败</span>-->
+<!--                          </div>-->
+<!--                      </div>-->
+<!--                    </span>-->
+<!--              </a>-->
+<!--            </small>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="clr-col-12">-->
+<!--        <div class="card shadow-none">-->
+<!--          <div class="card-header"-->
+<!--               [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-schedule')}">-->
+<!--            <small>schedule-->
+<!--              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">-->
+<!--                <clr-icon shape="info-circle" size="24"></clr-icon>-->
+<!--                <span class="tooltip-content">-->
+<!--                            <div *ngFor="let data of clusterHealth.data">-->
+<!--                                <div *ngIf="data.job === 'kubernetes-schedule'">-->
+<!--                                  <span *ngFor="let etcd of data.data">-->
+<!--                                    <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
+<!--                                  </span>-->
+<!--                                  <span *ngIf="data.data.length == 0 ">数据获取失败</span>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                          </span>-->
+<!--              </a>-->
+<!--            </small>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <div class="clr-col-5 clr-row">-->
+<!--      <div class="clr-col-12">-->
+<!--        <div class="card shadow-none">-->
+<!--          <div class="card-header" [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'etcd')}">-->
+<!--            <small>etcd-->
+<!--              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">-->
+<!--                <clr-icon shape="info-circle" size="24"></clr-icon>-->
+<!--                <span class="tooltip-content">-->
+<!--                      <div *ngFor="let data of clusterHealth.data">-->
+<!--                          <div *ngIf="data.job === 'etcd'">-->
+<!--                            <span *ngFor="let etcd of data.data">-->
+<!--                              <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
+<!--                            </span>-->
+<!--                            <span *ngIf="data.data.length == 0 ">数据获取失败</span>-->
+<!--                          </div>-->
+<!--                      </div>-->
+<!--                    </span>-->
+<!--              </a>-->
+<!--            </small>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="clr-col-12">-->
+<!--        <div class="card shadow-none">-->
+<!--          <div class="card-header"-->
+<!--               [ngStyle]="{'backgroundColor':getClusterServiceStatus(clusterHealth,'kubernetes-nodes')}">-->
+<!--            <small>nodes-->
+<!--              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">-->
+<!--                <clr-icon shape="info-circle" size="24"></clr-icon>-->
+<!--                <span class="tooltip-content">-->
+<!--                      <div *ngFor="let data of clusterHealth.data">-->
+<!--                          <div *ngIf="data.job === 'kubernetes-nodes'">-->
+<!--                            <span *ngFor="let etcd of data.data">-->
+<!--                              <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
+<!--                            </span>-->
+<!--                            <span *ngIf="data.data.length == 0 ">数据获取失败</span>-->
+<!--                          </div>-->
+<!--                      </div>-->
+<!--                    </span>-->
+<!--              </a>-->
+<!--            </small>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <hr>-->
+<!--  <div class="col-lg-12">-->
+<!--    <div echarts [options]="options"></div>-->
+<!--  </div>-->
 </div>
 
