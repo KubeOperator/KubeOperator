@@ -4,4 +4,5 @@
     block: "{{cluster_name}}.{{domain_suffix}}{\n
       forward . {{forward}}\n
     }\n"
-    marker: '# {{cluster_name}}'
+    marker: "#{mark} {{cluster_name}}"
+    state: present

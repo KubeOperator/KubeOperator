@@ -5,7 +5,9 @@
     {{ hostvars[host]['ansible_ssh_host'] }}  {{host}}
 {% endfor %}
     {{hostvars[groups['worker'][0]]['ansible_ssh_host']}}  {{APP_DOMAIN}}
+    {{local_hostname}}  {{dns_repository_hostname}}
   }
+  file /etc/coredns/apps.dns.conf {{APP_DOMAIN}}
   forward . /etc/resolv.conf
   reload 6s
   log

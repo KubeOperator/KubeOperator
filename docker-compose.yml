@@ -38,10 +38,10 @@ services:
     dns:
       - "127.0.0.1"
     volumes:
-      - api_data:/opt/kubeOperator-api/data
-      - dns_data:/etc/dnsmasq.d
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/kubeoperator/data/dns/:/opt/kubeOperator-api/dns/
+      - terraform_data:/opt/kubeOperator-api/data/terraform
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -92,7 +92,15 @@ services:
       retries: 10
     environment:
       TZ: Asia/Shanghai
-
+  dns:
+    image: coredns/coredns:1.6.0
+    container_name: kubeops_dns
+    volumes:
+      - /opt/kubeoperator/data/dns:/root
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    command: ['--conf','/root/dns.conf']
   webkubectl:
     image: webkubectl/webkubectl:v1.4
     container_name: kubeops_webkubectl
@@ -122,6 +130,6 @@ volumes:
   mysql_data:
   redis_data:
   es_data:
-  dns_data:
+  terraform_data:
 networks:
   default:
