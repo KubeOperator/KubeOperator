@@ -6,6 +6,7 @@
 {% endfor %}
     {{hostvars[groups['worker'][0]]['ansible_ssh_host']}}  {{APP_DOMAIN}}
     {{local_hostname}}  {{dns_repository_hostname}}
+    fallthrough
   }
   file /root/apps.dns.conf {{APP_DOMAIN}}
   forward . /etc/resolv.conf
