@@ -37,6 +37,11 @@ class ClusterMonitor():
                 self.token = self.cluster.get_cluster_token()
         else:
             self.token = self.cluster.get_cluster_token()
+            cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=[], nodes=[],
+                                       namespaces=[], deployments=[], cpu_usage=0, cpu_total=0, mem_total=0,
+                                       mem_usage=0, restart_pods=[], warn_containers=[], error_loki_containers=[],
+                                       error_pods=[])
+            self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def get_api_instance(self):
         self.cluster.change_to()
@@ -86,7 +91,7 @@ class ClusterMonitor():
                     host = Host.objects.get(ip=status.host_ip)
                     hostname = (host.name if host.name is not None else None)
                     host_ip = status.host_ip
-                pod_ip =  (status.pod_ip if status.pod_ip is not None else None)
+                pod_ip = (status.pod_ip if status.pod_ip is not None else None)
                 pod = Pod(name=p.metadata.name, cluster_name=self.cluster.name, restart_count=restart_count,
                           status=status.phase,
                           namespace=p.metadata.namespace,
