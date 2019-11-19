@@ -117,7 +117,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="11">集群 Day 2 运营
+        <td class="features-first-td-background-style" rowspan="12">集群 Day 2 运营
         </td>
         <td class="features-third-td-background-style" rowspan="4">管理
         </td>  
@@ -137,7 +137,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr>   
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="3">可观察性
+        <td class="features-third-td-background-style" rowspan="4">可观察性
         </td>
          <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警
         </td>
@@ -149,7 +149,11 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">内置 Grafana 作为监控和日志展示
         </td>
-    </tr>  
+    </tr> 
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style"> 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
+        </td>
+    </tr>      
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">升级
         </td>
@@ -176,6 +180,8 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     </tr>     
  </table>
 
+具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
+
  ## Demo 视频、使用文档
 
 -  [:tv:8 分钟演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
@@ -185,13 +191,11 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
 
-
 ## 沟通交流
  
 - 技术交流 QQ 群：825046920；
 - 技术支持邮箱：support@fit2cloud.com；
 - 微信群： 搜索微信号 wh_it0224，添加好友，备注（城市-github用户名）, 验证通过会加入群聊；
-- [Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
 
 ## 致谢
 

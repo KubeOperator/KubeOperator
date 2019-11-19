@@ -93,7 +93,7 @@ services:
     environment:
       TZ: Asia/Shanghai
   dns:
-    image: coredns/coredns:latest
+    image: coredns/coredns:1.6.0
     container_name: kubeops_dns
     volumes:
       - /opt/kubeoperator/data/dns:/root
