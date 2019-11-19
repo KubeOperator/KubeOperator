@@ -68,7 +68,7 @@ class ClusterMonitor():
             self.api_instance.list_node()
         except ApiException as e:
             if e.status == 401:
-                self.get_token()
+                self.token = self.cluster.get_cluster_token()
                 self.get_api_instance()
             else:
                 logger.error(msg='init k8s client failed ' + e.reason, exc_info=True)
@@ -179,7 +179,6 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
-        self.get_kubernetes_status()
         cluster_data = self.redis_cli.get(self.cluster.name)
         result = {}
         if cluster_data is not None:
@@ -214,6 +213,7 @@ class ClusterMonitor():
             return False
 
     def get_kubernetes_status(self):
+        self.check_authorization(2)
         components = self.api_instance.list_component_status()
         component_data = []
         for c in components.items:
