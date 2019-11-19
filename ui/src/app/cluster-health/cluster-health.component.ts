@@ -32,6 +32,7 @@ export class ClusterHealthComponent implements OnInit {
   componentData = [];
   kubeSystemData = [];
   kubeOperatorData = [];
+  healthData = [];
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -45,7 +46,7 @@ export class ClusterHealthComponent implements OnInit {
     });
     this.timer = setInterval(() => {
       this.getClusterHealth();
-    }, 30000);
+    }, 3000000);
   }
 
   // tslint:disable-next-line:use-lifecycle-interface
@@ -62,6 +63,7 @@ export class ClusterHealthComponent implements OnInit {
       this.componentData = res.component;
       this.kubeSystemData = res['kube-system'];
       this.kubeOperatorData = res.monitoring;
+      this.healthData = this.kubeSystemData.concat(this.kubeOperatorData);
       this.loading = false;
       this.error = false;
     }, error1 => {

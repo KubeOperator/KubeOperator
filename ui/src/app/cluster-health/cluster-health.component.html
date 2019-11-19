@@ -53,21 +53,22 @@
         <clr-dg-column>状态</clr-dg-column>
         <clr-dg-column>Ready</clr-dg-column>
         <clr-dg-column>运行时间</clr-dg-column>
-        <clr-dg-row *clrDgItems="let item of kubeSystemData" [clrDgItem]="item">
+        <clr-dg-row *clrDgItems="let item of healthData" [clrDgItem]="item">
           <clr-dg-cell>{{item.name}}</clr-dg-cell>
           <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
           <clr-dg-cell>{{item.status}}</clr-dg-cell>
           <clr-dg-cell>{{item.ready}}</clr-dg-cell>
           <clr-dg-cell>{{item.age}}</clr-dg-cell>
         </clr-dg-row>
-        <clr-dg-row *clrDgItems="let p of kubeOperatorData" [clrDgItem]="p">
-          <clr-dg-cell>{{p.name}}</clr-dg-cell>
-          <clr-dg-cell>{{p.namespace}}</clr-dg-cell>
-          <clr-dg-cell>{{p.status}}</clr-dg-cell>
-          <clr-dg-cell>{{p.ready}}</clr-dg-cell>
-          <clr-dg-cell>{{p.age}}</clr-dg-cell>
-        </clr-dg-row>
+        <clr-dg-footer>
+          <clr-dg-pagination #pagination [clrDgPageSize]="10">
+            <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            共{{pagination.totalItems}} 个
+          </clr-dg-pagination>
+        </clr-dg-footer>
       </clr-datagrid>
+
     </div>
   </div>
   <!--  <div class="clr-row" *ngIf="!loading && !error">-->
