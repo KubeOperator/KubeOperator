@@ -38,14 +38,17 @@ class ClusterMonitor():
                 cluster_d = json.loads(cluster_str)
                 self.token = cluster_d['token']
             else:
-                self.token = self.cluster.get_cluster_token()
+                self.push_token_to_redis()
         else:
-            self.token = self.cluster.get_cluster_token()
-            cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=[], nodes=[],
-                                       namespaces=[], deployments=[], cpu_usage=0, cpu_total=0, mem_total=0,
-                                       mem_usage=0, restart_pods=[], warn_containers=[], error_loki_containers=[],
-                                       error_pods=[])
-            self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
+            self.push_token_to_redis()
+
+    def push_token_to_redis(self):
+        self.token = self.cluster.get_cluster_token()
+        cluster_data = ClusterData(cluster=self.cluster, token=self.token, pods=[], nodes=[],
+                                   namespaces=[], deployments=[], cpu_usage=0, cpu_total=0, mem_total=0,
+                                   mem_usage=0, restart_pods=[], warn_containers=[], error_loki_containers=[],
+                                   error_pods=[])
+        self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def get_api_instance(self):
         self.cluster.change_to()
@@ -68,7 +71,7 @@ class ClusterMonitor():
             self.api_instance.list_node()
         except ApiException as e:
             if e.status == 401:
-                self.token = self.cluster.get_cluster_token()
+                self.push_token_to_redis()
                 self.get_api_instance()
             else:
                 logger.error(msg='init k8s client failed ' + e.reason, exc_info=True)
