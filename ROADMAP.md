@@ -40,7 +40,8 @@
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
 
  ## v2.3 （进行中，2019.12.31 发布）
- 
+
+- [ ] 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
 - [ ] KubeApps 应用商店；
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
 
