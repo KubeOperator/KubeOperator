@@ -49,20 +49,23 @@
     <div class="clr-col-12">
       <clr-datagrid>
         <clr-dg-column>名称</clr-dg-column>
+        <clr-dg-column>namespace</clr-dg-column>
         <clr-dg-column>状态</clr-dg-column>
         <clr-dg-column>Ready</clr-dg-column>
         <clr-dg-column>运行时间</clr-dg-column>
         <clr-dg-row *clrDgItems="let item of kubeSystemData" [clrDgItem]="item">
           <clr-dg-cell>{{item.name}}</clr-dg-cell>
+          <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
           <clr-dg-cell>{{item.status}}</clr-dg-cell>
           <clr-dg-cell>{{item.ready}}</clr-dg-cell>
           <clr-dg-cell>{{item.age}}</clr-dg-cell>
         </clr-dg-row>
-        <clr-dg-row *clrDgItems="let item of kubeOperatorData" [clrDgItem]="item">
-          <clr-dg-cell>{{item.name}}</clr-dg-cell>
-          <clr-dg-cell>{{item.status}}</clr-dg-cell>
-          <clr-dg-cell>{{item.ready}}</clr-dg-cell>
-          <clr-dg-cell>{{item.age}}</clr-dg-cell>
+        <clr-dg-row *clrDgItems="let p of kubeOperatorData" [clrDgItem]="p">
+          <clr-dg-cell>{{p.name}}</clr-dg-cell>
+          <clr-dg-cell>{{p.namespace}}</clr-dg-cell>
+          <clr-dg-cell>{{p.status}}</clr-dg-cell>
+          <clr-dg-cell>{{p.ready}}</clr-dg-cell>
+          <clr-dg-cell>{{p.age}}</clr-dg-cell>
         </clr-dg-row>
       </clr-datagrid>
     </div>

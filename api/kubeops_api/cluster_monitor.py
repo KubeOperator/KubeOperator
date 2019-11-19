@@ -260,7 +260,7 @@ class ClusterMonitor():
                         age = age + str(minute) + 'm'
                     seconds = seconds % 60 % 60
                     age = age + seconds + 's'
-                system_pod = ClusterHealthData(namespace='kube-system', name=s.metadata.name, status=s.status.phase,
+                system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name, status=s.status.phase,
                                                ready=ready_status, age = age)
                 pod_data.append(system_pod.__dict__)
         return pod_data
