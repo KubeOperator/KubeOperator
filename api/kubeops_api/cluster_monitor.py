@@ -3,12 +3,16 @@ import redis
 import json
 import logging
 import fit2ansible.settings
+import time
+import datetime
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
 from django.db.models import Q
+from kubeops_api.cluster_health_data import ClusterHealthData
+from django.utils import timezone
 
 logger = logging.getLogger('kubeops')
 
@@ -175,6 +179,7 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
+        self.get_kubernetes_status()
         cluster_data = self.redis_cli.get(self.cluster.name)
         result = {}
         if cluster_data is not None:
@@ -208,6 +213,54 @@ class ClusterMonitor():
         else:
             return False
 
+    def get_kubernetes_status(self):
+        components = self.api_instance.list_component_status()
+        component_data = []
+        for c in components.items:
+            component = ClusterHealthData(namespace='component', name=c.metadata.name, status=c.conditions[0].status,
+                                          ready='1/1', age=0)
+            component_data.append(component.__dict__)
+        system_pods = self.api_instance.list_namespaced_pod('kube-system')
+        system_data = self.get_pod_status(system_pods.items)
+        monitor_pods = self.api_instance.list_namespaced_pod('monitoring')
+        monitor_data = self.get_pod_status(monitor_pods.items)
+        health_data = {
+            'component':component_data,
+            'kube-system':system_data,
+            'monitoring':monitor_data
+        }
+        return health_data
+
+    def get_pod_status(self,items):
+        pod_data = []
+        for s in items:
+            if s.status.container_statuses is not None:
+                count = len(s.status.container_statuses)
+                ready = 0
+                for c in s.status.container_statuses:
+                    if c.ready:
+                        ready = ready + 1
+                ready_status = str(ready) + '/' + str(count)
+                # 计算存活时间
+                now = timezone.now()
+                age_time = now - s.status.start_time
+                age = ''
+                if age_time.days > 0:
+                    age = str(age_time.days)+'d'
+                else:
+                    seconds = age_time.seconds
+                    hour = seconds / 60
+                    if hour > 1:
+                        age = str(hour) + 'h'
+                    minute = seconds % 60
+                    if minute > 1:
+                        age = age + str(minute) + 'm'
+                    seconds = seconds % 60 % 60
+                    age = age + seconds + 's'
+                system_pod = ClusterHealthData(namespace='kube-system', name=s.metadata.name, status=s.status.phase,
+                                               ready=ready_status, age = age)
+                pod_data.append(system_pod.__dict__)
+        return pod_data
 
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
