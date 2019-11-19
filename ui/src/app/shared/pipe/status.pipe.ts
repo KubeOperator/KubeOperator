@@ -48,8 +48,11 @@ export class StatusPipe implements PipeTransform {
         case 'RESTORING':
           result = '恢复中';
           break;
+        case 'Running':
+          result = '运行中';
+          break;
         default:
-          result = '未知';
+          result = value;
       }
     }
     return result;
