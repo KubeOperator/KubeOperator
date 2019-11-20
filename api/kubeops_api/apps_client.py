@@ -10,6 +10,6 @@ class AppsClient():
         header = {
             "Host": app_domain
         }
-        host_ip = self.cluster.get_first_master()
+        host_ip = self.cluster.get_first_master().ip
         req_url = str(url).replace(app_domain, host_ip)
         return requests.get(header=header, url=req_url)
