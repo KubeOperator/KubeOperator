@@ -3,10 +3,8 @@ import redis
 import json
 import logging
 import fit2ansible.settings
-import time
-import datetime
 from kubernetes.client.rest import ApiException
-from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment
+from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
@@ -62,6 +60,7 @@ class ClusterMonitor():
             configuration.verify_ssl = False
             self.api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
             self.app_v1_api = kubernetes.client.AppsV1Api(kubernetes.client.ApiClient(configuration))
+            self.storage_v1_Api = kubernetes.client.StorageV1Api(kubernetes.client.ApiClient(configuration))
 
     def check_authorization(self, retry_count):
         if retry_count > 2:
@@ -216,6 +215,7 @@ class ClusterMonitor():
             return False
 
     def get_kubernetes_status(self):
+        self.list_storage_class()
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
@@ -245,7 +245,7 @@ class ClusterMonitor():
             'component': component_data,
             'kube-system': system_data,
             'monitoring': monitor_data,
-            'message':message
+            'message': message
         }
         return health_data
 
@@ -284,6 +284,24 @@ class ClusterMonitor():
                 pod_data.append(system_pod.__dict__)
         return pod_data
 
+    def list_storage_class(self):
+        sc_response = self.storage_v1_Api.list_storage_class()
+        scs = []
+        for item in sc_response.items:
+            datastore = item.parameters.get('datastore', None)
+            storage_class = StorageClass(name=item.metadata.name, provisioner=item.provisioner, datastore=datastore,
+                                         create_time=item.metadata.creation_timestamp, pvcs=[])
+            scs.append(storage_class.__dict__)
+        pvc_response = self.api_instance.list_persistent_volume_claim_for_all_namespaces()
+        for item in pvc_response.items:
+            capacity = item.status.capacity.get('storage', None)
+            pvc = PVC(name=item.metadata.name, namespace=item.metadata.namespace, status=item.status.phase,
+                      capacity=capacity, storage_class=item.spce.storage_class_name, mount_by=item.metadata.namespace,
+                      create_time=item.metadata.creation_timestamp)
+            for sc in scs:
+                if sc['name'] == item.spce.storage_class_name:
+                    sc['pvcs'].append(pvc)
+        return  scs
 
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
