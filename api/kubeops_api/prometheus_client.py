@@ -1,29 +1,34 @@
 import requests
 import time
+
+from kubeops_api.apps_client import AppsClient
 from kubeops_api.models.host import Host
 from kubeops_api.cluster_data import LokiContainer
 
 
 class PrometheusClient():
 
-    def __init__(self, config):
+    def __init__(self, config, cluster):
         self.host = config.get("host", None)
         self.table_name = config.get("table_name", None)
         self.param = config.get("param", None)
         self.start = config.get("start", None)
         self.end = config.get("end", None)
+        self.cluster = cluster
 
     def query(self):
         url = "http://{host}/api/v1/query?query={table_name}{param}&start={start}&end={end}"
         query_url = url.format(host=self.host, table_name=self.table_name, param=self.param, start=self.start,
                                end=self.end)
-        req = requests.get(query_url)
+        app_client = AppsClient(cluster=self.cluster)
+        req = app_client.get('prometheus', url)
         return req.json()
 
     def targets(self):
         url = "http://{host}/api/v1/targets"
         query_url = url.format(host=self.host)
-        req = requests.get(query_url)
+        app_client = AppsClient(cluster=self.cluster)
+        req = app_client.get('prometheus', query_url)
         return req.json()
 
     def handle_targets_message(self, json):
@@ -80,6 +85,7 @@ class PrometheusClient():
         result['rate'] = service_up / len(result['data']) * 100 if len(result['data']) > 0 else 0
 
     def get_node_resource(self, node):
+        app_client = AppsClient(cluster=self.cluster)
         # cpu usage
         cpu_usage_url = 'http://{host}/api/v1/query?query=sum(rate(container_cpu_usage_seconds_total{{id=\"/\",kubernetes_io_hostname="{hostname}"}}[5m]))/sum(machine_cpu_cores{{kubernetes_io_hostname="{hostname}"}})'
         cpu_usage_query_url = cpu_usage_url.format(host=self.host, hostname=node.name)
