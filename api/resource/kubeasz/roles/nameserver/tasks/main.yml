@@ -15,4 +15,4 @@
     path: "/etc/hosts"
     regexp: "{{ item }}"
     line: "{{ hostvars[item]['ansible_ssh_host'] }} {{ item }}"
-  with_items: "groups['cluster_nodes']"
+  with_items: "{{ groups['cluster_nodes'] }}"
