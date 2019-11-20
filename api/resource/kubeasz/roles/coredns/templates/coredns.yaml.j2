@@ -71,7 +71,7 @@ data:
           ttl 30
         }
         prometheus :9153
-        forward . {% for host in groups['master'] %}{{hostvars[h]['ansible_ssh_host']}}{% endfor %}
+        forward . {% for host in groups['master'] %}{{hostvars[host]['ansible_ssh_host']}}{% endfor %}
 
         cache 30
         loop
