@@ -293,6 +293,15 @@
       </div>
     </div>
   </clr-wizard-page>
+
+
+  <clr-wizard-page [clrWizardPageNextDisabled]="" *ngIf="cluster.deploy_type === Manual">
+    <ng-template clrPageTitle>集群参数</ng-template>
+
+
+  </clr-wizard-page>
+
+
   <clr-wizard-page>
     <form clrForm class="clr-form clr-form-compact">
       <ng-template clrPageTitle>其他设置</ng-template>
