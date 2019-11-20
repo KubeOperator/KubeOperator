@@ -12,6 +12,7 @@ export class ClusterStorageComponent implements OnInit {
   currentCluster: Cluster;
   projectName = '';
   storages = [];
+  loading = true;
 
   constructor(private clusterStorageService: ClusterStorageService, private route: ActivatedRoute,) {
   }
@@ -28,6 +29,9 @@ export class ClusterStorageComponent implements OnInit {
   listStorageClass() {
     this.clusterStorageService.listClusterStorage(this.projectName).subscribe(res => {
       this.storages = res;
+      this.loading = false;
+    }, error1 => {
+      this.loading = false;
     });
   }
 

@@ -4,7 +4,7 @@
         <h6 class="font-title">存储类型</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid>
+    <clr-datagrid [clrDgLoading]="loading">
       <clr-dg-column>名称</clr-dg-column>
       <clr-dg-column>存储卷数量</clr-dg-column>
       <clr-dg-column>datastore</clr-dg-column>
@@ -20,9 +20,8 @@
   <div class="col-lg-12" align="center">
     <h6 class="font-title">存储卷</h6>
   </div>
-  <!--    <clr-dg-footer>{{storages.length}} users</clr-dg-footer>-->
   <div class="clr-col-lg-12" *ngFor="let s of storages">
-    <clr-datagrid>
+    <clr-datagrid [clrDgLoading]="loading">
       <clr-dg-column>名称</clr-dg-column>
       <clr-dg-column>Namespace</clr-dg-column>
       <clr-dg-column>容量</clr-dg-column>
@@ -35,7 +34,6 @@
         <clr-dg-cell>{{p.status}}</clr-dg-cell>
         <clr-dg-cell>{{p.create_time | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
       </clr-dg-row>
-      <!--    <clr-dg-footer>{{storages.length}} users</clr-dg-footer>-->
     </clr-datagrid>
   </div>
 </div>
