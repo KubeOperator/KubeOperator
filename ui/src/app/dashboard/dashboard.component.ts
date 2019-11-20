@@ -37,6 +37,7 @@ export class DashboardComponent implements OnInit {
   show_error_pod_detail = false;
   nodes = [];
   timer;
+  maxPodCount = 0;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -127,6 +128,15 @@ export class DashboardComponent implements OnInit {
         this.cpu_usage = this.cpu_usage / count * 100;
         this.mem_usage = this.mem_usage / count * 100;
       }
+
+      for (const cluster of this.clusters) {
+        let max_pod = cluster.configs['MAX_PODS'];
+        if (max_pod === undefined) {
+          max_pod = 110;
+        }
+        this.maxPodCount = this.maxPodCount + max_pod;
+      }
+
       this.loading = false;
     });
   }
