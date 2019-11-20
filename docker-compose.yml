@@ -35,8 +35,6 @@ services:
     restart: always
     privileged: true
     tty: true
-    dns:
-      - "127.0.0.1"
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -92,15 +90,6 @@ services:
       retries: 10
     environment:
       TZ: Asia/Shanghai
-  dns:
-    image: coredns/coredns:1.6.0
-    container_name: kubeops_dns
-    volumes:
-      - /opt/kubeoperator/data/dns:/root
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
-    command: ['--conf','/root/dns.conf']
   webkubectl:
     image: webkubectl/webkubectl:v1.4
     container_name: kubeops_webkubectl
