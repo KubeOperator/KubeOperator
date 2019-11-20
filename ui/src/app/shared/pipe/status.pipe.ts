@@ -51,6 +51,9 @@ export class StatusPipe implements PipeTransform {
         case 'Running':
           result = '运行中';
           break;
+        case 'True':
+          result = '运行中';
+          break;
         default:
           result = value;
       }

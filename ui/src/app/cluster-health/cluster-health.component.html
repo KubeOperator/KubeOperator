@@ -1,44 +1,42 @@
 <div class="row">
   <div class="col-lg-12" align="center">
-    <h4 class="font-title">集群状态</h4>
+    <h4 class="font-title">核心组件状态</h4>
   </div>
-  <div class="clr-row" *ngIf="loading">
-      <span class="spinner spinner-lg loading">
-        Loading...
-      </span>
-  </div>
-  <div class="clr-row">
-    <div class="clr-col-12" *ngIf="!loading && error" style="text-align: center;">
-      <span *ngIf="currentCluster.status !== 'READY'">prometheus数据读取失败！</span>
-    </div>
-  </div>
+<!--  <div class="clr-row" *ngIf="loading">-->
+<!--      <span class="spinner spinner-lg loading">-->
+<!--        Loading...-->
+<!--      </span>-->
+<!--  </div>-->
+<!--  <div class="clr-row">-->
+<!--    <div class="clr-col-12" *ngIf="!loading && error" style="text-align: center;">-->
+<!--      <span *ngIf="currentCluster.status !== 'READY'">prometheus数据读取失败！</span>-->
+<!--    </div>-->
+<!--  </div>-->
   <div class="clr-row" *ngIf="!loading && !error">
     <div class="clr-col-4" *ngFor="let c of componentData">
       <div class="card shadow-none">
-        <div class="card-header"
-             [ngStyle]="{'backgroundColor':getStatusColor(c.status)}">
-          <small>{{c.name}}
-            <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
-              <clr-icon shape="info-circle" size="24"></clr-icon>
-              <span class="tooltip-content">
-<!--                      <div *ngFor="let data of clusterHealth.data">-->
-                <!--                          <div *ngIf="data.job === 'kubernetes-control-manager'">-->
-                <!--                            <span *ngFor="let etcd of data.data">-->
-                <!--                              <a>{{etcd.key}} {{etcd.value}}</a> <br>-->
-                <!--                            </span>-->
-                <!--                            <span *ngIf="clusterHealth.data.length == 0 || data.data.length == 0 ">数据获取失败</span>-->
-                <!--                          </div>-->
-                <!--                      </div>-->
-                    </span>
-            </a>
-          </small>
+        <div class="card-header">
+          <div class="clr-row">
+            <div class="clr-col-8">
+              <small>{{c.name}}</small>
+            </div>
+            <div class="clr-col-3">
+              <small [ngStyle]="{'color':c.status | statusColor }">{{c.status | status}}</small>
+            </div>
+            <div class="clr-col-1">
+              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
+                <clr-icon shape="info-circle" size="24"></clr-icon>
+                <span class="tooltip-content"></span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <hr>
   <div class="clr-col-12" align="center">
-    <h4 class="font-title">组件状态</h4>
+    <h4 class="font-title">系统组件状态</h4>
   </div>
   <div class="clr-row" *ngIf="loading">
       <span class="spinner spinner-lg loading">
@@ -48,20 +46,20 @@
   <div class="clr-row" *ngIf="!loading && !error">
     <div class="clr-col-12">
       <clr-datagrid>
+        <clr-dg-column>Namespace</clr-dg-column>
         <clr-dg-column>名称</clr-dg-column>
-        <clr-dg-column>namespace</clr-dg-column>
         <clr-dg-column>状态</clr-dg-column>
         <clr-dg-column>Ready</clr-dg-column>
         <clr-dg-column>运行时间</clr-dg-column>
         <clr-dg-row *clrDgItems="let item of healthData" [clrDgItem]="item">
-          <clr-dg-cell>{{item.name}}</clr-dg-cell>
           <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
+          <clr-dg-cell>{{item.name}}</clr-dg-cell>
           <clr-dg-cell [ngStyle]="{'color':item.status | statusColor }">{{item.status | status}}</clr-dg-cell>
           <clr-dg-cell>{{item.ready}}</clr-dg-cell>
           <clr-dg-cell>{{item.age}}</clr-dg-cell>
         </clr-dg-row>
         <clr-dg-footer>
-          <clr-dg-pagination #pagination [clrDgPageSize]="10">
+          <clr-dg-pagination #pagination [clrDgPageSize]="100">
             <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
             共{{pagination.totalItems}} 个
