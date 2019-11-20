@@ -13,6 +13,7 @@
 {% if dns1 is defined or dns2 is defined %}
   forward . {% if dns1 %}{{dns1}}{% endif %} {% if dns2 %}{{dns2}}{% endif %}
 {% endif %}
+
   cache 120
   reload 6s
   log
