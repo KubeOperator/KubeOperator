@@ -32,6 +32,8 @@ export class Cluster {
     this.worker_size = 1;
     this.configs['SERVICE_CIDR'] = '179.10.0.0/16';
     this.configs['CLUSTER_CIDR'] = '179.20.0.0/16';
+    this.configs['STORAGE_DIR'] = '/var/lib/docker';
+    this.configs['MAX_PODS'] = 110;
   }
 }
 

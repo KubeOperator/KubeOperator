@@ -60,8 +60,6 @@
       </clr-input-container>
     </form>
   </clr-wizard-page>
-
-
   <clr-wizard-page [clrWizardPageNextDisabled]="!templateForm.valid" *ngIf="cluster.deploy_type===Manual">
     <ng-template clrPageTitle>部署模型</ng-template>
     <form clrForm #templateForm='ngForm'>
@@ -176,7 +174,6 @@
         </div>
       </div>
     </form>
-
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="!canNetworkNext()">
     <ng-template clrPageTitle>配置网络</ng-template>
@@ -253,7 +250,6 @@
       </div>
     </form>
   </clr-wizard-page>
-
   <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()" *ngIf="cluster.deploy_type === Manual">
     <!--<clr-wizard-page>-->
     <ng-template clrPageTitle>配置检查</ng-template>
@@ -296,6 +292,23 @@
         <span style="color: red;">未通过检查:</span> {{checkOsResult.failed}}
       </div>
     </div>
+  </clr-wizard-page>
+  <clr-wizard-page>
+    <form clrForm class="clr-form clr-form-compact">
+      <ng-template clrPageTitle>其他设置</ng-template>
+      <clr-input-container>
+        <label>可运行POD数量</label>
+        <input id="pod_count" type="number" [(ngModel)]="cluster.configs['MAX_PODS']"
+               name="pod_count" clrInput size=45 maxlength="15"
+               required>
+      </clr-input-container>
+      <clr-input-container>
+        <label>Docker数据目录</label>
+        <input id="docker" type="text" [(ngModel)]="cluster.configs['STORAGE_DIR']"
+               name="docker" clrInput size=45 maxlength="15"
+               required>
+      </clr-input-container>
+    </form>
   </clr-wizard-page>
   <clr-wizard-page>
     <ng-template clrPageTitle>完成</ng-template>
