@@ -24,7 +24,7 @@
               <small [ngStyle]="{'color':c.status | statusColor }">{{c.status | status}}</small>
             </div>
             <div class="clr-col-1">
-              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin">
+              <a role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg  tooltip-bottom-left tooltip-margin" *ngIf="c.status!='RUNNING'">
                 <clr-icon shape="info-circle" size="24"></clr-icon>
                 <span class="tooltip-content"></span>
               </a>
@@ -50,12 +50,14 @@
         <clr-dg-column>名称</clr-dg-column>
         <clr-dg-column>状态</clr-dg-column>
         <clr-dg-column>Ready</clr-dg-column>
+        <clr-dg-column>重启次数</clr-dg-column>
         <clr-dg-column>运行时间</clr-dg-column>
         <clr-dg-row *clrDgItems="let item of healthData" [clrDgItem]="item">
           <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
           <clr-dg-cell>{{item.name}}</clr-dg-cell>
           <clr-dg-cell [ngStyle]="{'color':item.status | statusColor }">{{item.status | status}}</clr-dg-cell>
           <clr-dg-cell>{{item.ready}}</clr-dg-cell>
+          <clr-dg-cell>{{item.restart_count}}</clr-dg-cell>
           <clr-dg-cell>{{item.age}}</clr-dg-cell>
         </clr-dg-row>
         <clr-dg-footer>
