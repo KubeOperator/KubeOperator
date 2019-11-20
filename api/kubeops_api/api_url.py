@@ -36,6 +36,7 @@ urlpatterns = [
                   path('clusterBackup/<uuid:id>/delete/', api.ClusterBackupDelete.as_view()),
                   path('clusterBackup/restore/', api.ClusterBackupRestore.as_view()),
                   path('cluster/<project_name>/health/', api.ClusterHealthView.as_view()),
+                  path('cluster/<project_name>/storage/', api.ClusterStorageView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),
