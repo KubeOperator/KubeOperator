@@ -10,20 +10,10 @@
       <div class="card-block" style="height: 200px">
         <table class="table">
           <tbody>
-          <tr>
-            <td>etcd</td>
-            <td [ngStyle]="{'color':getServiceStatus('etcd') | statusColor }">{{getServiceStatus('etcd') | status}}</td>
-          </tr>
-          <tr>
-            <td>kube-apiserver</td>
-            <td
-              [ngStyle]="{'color':getServiceStatus('kubernetes-apiservers') | statusColor }">{{getServiceStatus('kubernetes-apiservers') | status}}</td>
-          </tr>
-          <tr>
-            <td>kube-controller</td>
-            <td
-              [ngStyle]="{'color':getServiceStatus('kubernetes-control-manager') | statusColor }">{{getServiceStatus('kubernetes-control-manager') | status }}</td>
-          </tr>
+            <tr *ngFor="let c of componentData">
+                <td>{{c.name}}</td>
+                <td [ngStyle]="{'color':c.status | statusColor }">{{c.status | status}}</td>
+            </tr>
           </tbody>
         </table>
       </div>

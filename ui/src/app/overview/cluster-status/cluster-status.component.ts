@@ -24,6 +24,7 @@ export class ClusterStatusComponent implements OnInit {
   @ViewChild(AddWorkerComponent, {static: true}) addWorker: AddWorkerComponent;
   @ViewChild(RemoveWorkerComponent, {static: true}) removeWorker: RemoveWorkerComponent;
   clusterHealth: ClusterHealth = new ClusterHealth();
+  componentData = [];
 
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
@@ -93,28 +94,10 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getClusterStatus() {
-    this.clusterHealth.data = [];
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      this.clusterHealth = res;
+      this.componentData = res.component;
     }, error1 => {
-      this.clusterHealth.data = [];
-    });
-  }
 
-  getServiceStatus(type) {
-    if (this.clusterHealth == null || this.clusterHealth.data.length === 0) {
-      return '';
-    }
-    let status = 'UNKNOWN';
-    for (const ch of this.clusterHealth.data) {
-      if (ch.job === type) {
-        if (ch.rate === 100) {
-          status = 'RUNNING';
-        } else {
-          status = 'WARNING';
-        }
-      }
-    }
-    return status;
+    });
   }
 }
