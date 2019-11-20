@@ -117,7 +117,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="12">集群 Day 2 运营
+        <td class="features-first-td-background-style" rowspan="13">集群 Day 2 运营
         </td>
         <td class="features-third-td-background-style" rowspan="4">管理
         </td>  
@@ -171,7 +171,13 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
          <td class="features-third-td-background-style">支持 etcd 定期备份
         </td>
-    </tr>     
+    </tr>  
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">合规
+        </td>
+         <td class="features-third-td-background-style">使用 Sonobuoy 进行合规检查并可视化展示结果
+        </td>
+    </tr>      
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
