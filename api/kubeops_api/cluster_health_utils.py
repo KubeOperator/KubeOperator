@@ -12,7 +12,8 @@ def get_cluster_health_msg_hour():
     for cluster in clusters:
         host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
         config = {
-            'host': host
+            'host': host,
+            'cluster': cluster
         }
         prometheus_client = PrometheusClient(config)
         result = prometheus_client.handle_targets_message(prometheus_client.targets())

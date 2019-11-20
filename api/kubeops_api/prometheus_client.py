@@ -8,20 +8,20 @@ from kubeops_api.cluster_data import LokiContainer
 
 class PrometheusClient():
 
-    def __init__(self, config, cluster):
+    def __init__(self, config):
         self.host = config.get("host", None)
         self.table_name = config.get("table_name", None)
         self.param = config.get("param", None)
         self.start = config.get("start", None)
         self.end = config.get("end", None)
-        self.cluster = cluster
+        self.cluster = config.get("cluster", None)
 
     def query(self):
         url = "http://{host}/api/v1/query?query={table_name}{param}&start={start}&end={end}"
         query_url = url.format(host=self.host, table_name=self.table_name, param=self.param, start=self.start,
                                end=self.end)
         app_client = AppsClient(cluster=self.cluster)
-        req = app_client.get('prometheus', url)
+        req = app_client.get('prometheus', query_url)
         return req.json()
 
     def targets(self):
@@ -89,37 +89,38 @@ class PrometheusClient():
         # cpu usage
         cpu_usage_url = 'http://{host}/api/v1/query?query=sum(rate(container_cpu_usage_seconds_total{{id=\"/\",kubernetes_io_hostname="{hostname}"}}[5m]))/sum(machine_cpu_cores{{kubernetes_io_hostname="{hostname}"}})'
         cpu_usage_query_url = cpu_usage_url.format(host=self.host, hostname=node.name)
-        req = requests.get(cpu_usage_query_url)
+        req = app_client.get('prometheus', cpu_usage_query_url)
         cpu_usage_json = req.json()
         if cpu_usage_json['status'] == 'success' and len(cpu_usage_json['data']['result']) > 0:
             node.cpu_usage = cpu_usage_json['data']['result'][0]['value'][1]
         # cpu total
         cpu_total_url = 'http://{host}/api/v1/query?query=sum(machine_cpu_cores{{kubernetes_io_hostname="{hostname}"}})'
         cpu_total_query_url = cpu_total_url.format(host=self.host, hostname=node.name)
-        cpu_total_req = requests.get(cpu_total_query_url)
+        cpu_total_req = app_client.get('prometheus', cpu_total_query_url)
         cpu_total_json = cpu_total_req.json()
         if cpu_total_json['status'] == 'success' and len(cpu_total_json['data']['result']) > 0:
             node.cpu = cpu_total_json['data']['result'][0]['value'][1]
         # mem total
         mem_total_url = 'http://{host}/api/v1/query?query=sum(machine_memory_bytes{{kubernetes_io_hostname="{hostname}"}})'
         mem_total_query_url = mem_total_url.format(host=self.host, hostname=node.name)
-        mem_total_req = requests.get(mem_total_query_url)
+        mem_total_req = app_client.get('prometheus', mem_total_query_url)
         mem_total_json = mem_total_req.json()
         if mem_total_json['status'] == 'success' and len(mem_total_json['data']['result']) > 0:
             node.mem = int(mem_total_json['data']['result'][0]['value'][1]) / 1024 / 1024 / 1024
         # mem total
         mem_usage_url = 'http://{host}/api/v1/query?query=sum(container_memory_working_set_bytes{{id=\"/\",kubernetes_io_hostname="{hostname}"}})/sum(machine_memory_bytes{{kubernetes_io_hostname="{hostname}"}})'
         mem_usage_query_url = mem_usage_url.format(host=self.host, hostname=node.name)
-        mem_usage_req = requests.get(mem_usage_query_url)
+        mem_usage_req = app_client.get('prometheus', mem_usage_query_url)
         mem_usage_json = mem_usage_req.json()
         if mem_usage_json['status'] == 'success' and len(mem_usage_json['data']['result']) > 0:
             node.mem_usage = mem_usage_json['data']['result'][0]['value'][1]
         return node
 
     def get_msg_from_loki(self, cluster_name):
+        app_client = AppsClient(cluster=self.cluster)
         label_url = "http://{host}/loki/api/v1/label/container_name/values"
         label_query_url = label_url.format(host=self.host)
-        label_req = requests.get(label_query_url)
+        label_req = app_client.get('loki', label_query_url)
         loki_containers = []
         now = time.time()
         # 乘以1000000是loki的要求
@@ -132,7 +133,7 @@ class PrometheusClient():
                 error_count = 0
                 prom_url = 'http://{host}/api/prom/query?limit=1000&query={{container_name="{name}"}}&start={start}&end={end}'
                 prom_query_url = prom_url.format(host=self.host, name=name, start=start, end=end)
-                prom_req = requests.get(prom_query_url)
+                prom_req = app_client.get('loki', prom_query_url)
                 if prom_req.ok:
                     prom_req_json = prom_req.json()
                     streams = prom_req_json.get('streams', [])
