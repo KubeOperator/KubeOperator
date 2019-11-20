@@ -6,7 +6,7 @@ class AppsClient():
         self.cluster = cluster
 
     def get(self, app, url):
-        app_domain = app + "." + self.cluster.get_config('APP_DOMAIN')
+        app_domain = app + "." + self.cluster.get_config('APP_DOMAIN').get('value')
         header = {
             "Host": app_domain
         }

@@ -181,6 +181,7 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
+        self.get_loki_msg()
         cluster_data = self.redis_cli.get(self.cluster.name)
         result = {}
         if cluster_data is not None:
