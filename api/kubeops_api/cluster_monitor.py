@@ -220,27 +220,37 @@ class ClusterMonitor():
         components = self.api_instance.list_component_status()
         component_data = []
         for c in components.items:
-            component = ClusterHealthData(namespace='component', name=c.metadata.name, status=c.conditions[0].status,
-                                          ready='1/1', age=0)
+            status, msg = '', ''
+            for condition in c.conditions:
+                if condition.type == 'Healthy':
+                    msg = condition.message
+                    if condition.status == 'True':
+                        status = 'RUNNING'
+                    else:
+                        status = condition.status
+            component = ClusterHealthData(namespace='component', name=c.metadata.name, status=status,
+                                          ready='1/1', age=0, msg=msg, restart_count=0)
             component_data.append(component.__dict__)
         system_pods = self.api_instance.list_namespaced_pod('kube-system')
         system_data = self.get_pod_status(system_pods.items)
         monitor_pods = self.api_instance.list_namespaced_pod('monitoring')
         monitor_data = self.get_pod_status(monitor_pods.items)
         health_data = {
-            'component':component_data,
-            'kube-system':system_data,
-            'monitoring':monitor_data
+            'component': component_data,
+            'kube-system': system_data,
+            'monitoring': monitor_data
         }
         return health_data
 
-    def get_pod_status(self,items):
+    def get_pod_status(self, items):
         pod_data = []
         for s in items:
+            restart_count = 0
             if s.status.container_statuses is not None:
                 count = len(s.status.container_statuses)
                 ready = 0
                 for c in s.status.container_statuses:
+                    restart_count = restart_count + c.restart_count
                     if c.ready:
                         ready = ready + 1
                 ready_status = str(ready) + '/' + str(count)
@@ -249,7 +259,7 @@ class ClusterMonitor():
                 age_time = now - s.status.start_time
                 age = ''
                 if age_time.days > 0:
-                    age = str(age_time.days)+'d'
+                    age = str(age_time.days) + 'd'
                 else:
                     seconds = age_time.seconds
                     hour = seconds / 60
@@ -260,10 +270,13 @@ class ClusterMonitor():
                         age = age + str(minute) + 'm'
                     seconds = seconds % 60 % 60
                     age = age + seconds + 's'
-                system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name, status=s.status.phase,
-                                               ready=ready_status, age = age)
+                system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name,
+                                               status=s.status.phase,
+                                               ready=ready_status, age=age, msg=s.status.message,
+                                               restart_count=restart_count)
                 pod_data.append(system_pod.__dict__)
         return pod_data
+
 
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
