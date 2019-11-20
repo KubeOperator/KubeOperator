@@ -11,8 +11,3 @@
 - hosts: kube-node
   roles:
     - ntp
-
-- hosts: localhost
-  roles:
-    - localhost
-
