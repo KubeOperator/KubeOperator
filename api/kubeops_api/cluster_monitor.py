@@ -191,7 +191,8 @@ class ClusterMonitor():
     def get_node_data(self, node):
         host = "prometheus.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
         config = {
-            'host': host
+            'host': host,
+            'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_node_resource(node)
@@ -199,7 +200,8 @@ class ClusterMonitor():
     def get_loki_msg(self):
         host = "loki.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
         config = {
-            'host': host
+            'host': host,
+            'cluster':self.cluster
         }
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_msg_from_loki(self.cluster.name)
