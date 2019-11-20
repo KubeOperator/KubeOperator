@@ -215,7 +215,6 @@ class ClusterMonitor():
             return False
 
     def get_kubernetes_status(self):
-        self.list_storage_class()
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
@@ -290,17 +289,17 @@ class ClusterMonitor():
         for item in sc_response.items:
             datastore = item.parameters.get('datastore', None)
             storage_class = StorageClass(name=item.metadata.name, provisioner=item.provisioner, datastore=datastore,
-                                         create_time=item.metadata.creation_timestamp, pvcs=[])
+                                         create_time=str(item.metadata.creation_timestamp), pvcs=[])
             scs.append(storage_class.__dict__)
         pvc_response = self.api_instance.list_persistent_volume_claim_for_all_namespaces()
         for item in pvc_response.items:
             capacity = item.status.capacity.get('storage', None)
             pvc = PVC(name=item.metadata.name, namespace=item.metadata.namespace, status=item.status.phase,
-                      capacity=capacity, storage_class=item.spce.storage_class_name, mount_by=item.metadata.namespace,
-                      create_time=item.metadata.creation_timestamp)
+                      capacity=capacity, storage_class=item.spec.storage_class_name, mount_by=item.metadata.namespace,
+                      create_time=str(item.metadata.creation_timestamp))
             for sc in scs:
-                if sc['name'] == item.spce.storage_class_name:
-                    sc['pvcs'].append(pvc)
+                if sc['name'] == item.spec.storage_class_name:
+                    sc['pvcs'].append(pvc.__dict__)
         return  scs
 
 def delete_cluster_redis_data(cluster_name):

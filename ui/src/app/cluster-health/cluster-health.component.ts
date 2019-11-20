@@ -22,7 +22,7 @@ export class ClusterHealthComponent implements OnInit {
   time: any;
   currentCluster: Cluster;
   projectName = '';
-  projectId = '';
+  projectId = ''
   clusterHealth: ClusterHealth = new ClusterHealth();
   clusterHealthHistories: ClusterHealthHistory[] = [];
   loading = true;
