@@ -9,6 +9,7 @@ Type=notify
 Environment="PATH={{ bin_dir }}:/bin:/sbin:/usr/bin:/usr/sbin"
 ExecStart={{ bin_dir }}/dockerd
 ExecReload=/bin/kill -s HUP $MAINPID
+ExecStartPost=/sbin/iptables -w -P FORWARD ACCEPT
 LimitNOFILE=infinity
 LimitNPROC=infinity
 LimitCORE=infinity

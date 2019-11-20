@@ -4,13 +4,16 @@
 {% for host in groups['all_nodes'] %}
     {{ hostvars[host]['ansible_ssh_host'] }}  {{host}}
 {% endfor %}
-    {{hostvars[groups['worker'][0]]['ansible_ssh_host']}}  {{APP_DOMAIN}}
     {{local_hostname}}  {{dns_repository_hostname}}
+    ttl 60
+    reload 1m
     fallthrough
   }
   file /root/apps.dns.conf {{APP_DOMAIN}}
   forward . /etc/resolv.conf
+  cache 120
   reload 6s
   log
   errors
 }
+
