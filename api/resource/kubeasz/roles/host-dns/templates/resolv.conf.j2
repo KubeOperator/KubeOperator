@@ -1,3 +1,0 @@
-{% for host in groups['master'] %}
-nameserver {{  hostvars[host]['ansible_default_ipv4']['address']  }}
-{% endfor %}

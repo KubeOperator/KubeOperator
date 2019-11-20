@@ -4,41 +4,6 @@
     state: present
   with_items: "{{packages}}"
 
-- name: 创建 dns 目录
-  file:
-    path: /etc/coredns
-    state: directory
-
-- name: 生成集群 dns 配置文件
-  template:
-    src: dns.conf.j2
-    dest:  /etc/coredns/dns.conf
-
-- name: 生成 app dns 配置文件
-  template:
-    src: apps.dns.conf.j2
-    dest: /etc/coredns/apps.dns.conf
-
-- name: 插入 hosts 记录
-  lineinfile:
-    path: "/etc/hosts"
-    regexp: '{{ local_hostname }}'
-    line: "{{local_hostname}}  {{dns_repository_hostname}}"
-
-- name: 确认 DNS 服务状态
-  shell: "docker rm -f dns >/dev/null 2>&1"
-  ignore_errors: true
-
-- name: 启动 Core DNS
-  shell: "docker run -d \
-          -v /etc/coredns/:/root \
-          -p 53:53/tcp \
-          -p 53:53/udp \
-          --name dns \
-          {{registry_prefix}}:{{registry_port}}/{{ dns_image }}:{{dns_version}} \
-          --conf /root/dns.conf"
-  ignore_errors: true
-
 - name: 生成 chrony server 配置文件
   template:
     src: chrony.conf.j2

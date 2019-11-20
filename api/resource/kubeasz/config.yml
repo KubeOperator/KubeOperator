@@ -5,8 +5,8 @@
     - firewall
 - hosts: cluster_nodes
   roles:
-    - host-dns
     - rpm
+    - nameserver
 
 - hosts: kube-node
   roles:

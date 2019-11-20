@@ -1,0 +1,11 @@
+- name: 插入 repository 记录
+  lineinfile:
+    path: "/etc/hosts"
+    regexp: '{{ local_hostname }}'
+    line: "{{local_hostname}}  {{dns_repository_hostname}}"
+
+- name: 插入 registry 记录
+  lineinfile:
+    path: "/etc/hosts"
+    regexp: "{{ groups['worker'][0] }}"
+    line: "{{groups['worker'][0]}}  {{ dns_registry_hostname }}"
