@@ -237,7 +237,7 @@ class ClusterMonitor():
                 component_data.append(component.__dict__)
             system_pods = self.api_instance.list_namespaced_pod('kube-system')
             system_data = self.get_pod_status(system_pods.items)
-            monitor_pods = self.api_instance.list_namespaced_pod('monitoring')
+            monitor_pods = self.api_instance.list_namespaced_pod('kube-operator')
             monitor_data = self.get_pod_status(monitor_pods.items)
         except ApiException as e:
             message = e.reason
