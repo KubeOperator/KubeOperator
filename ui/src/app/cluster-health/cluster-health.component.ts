@@ -33,6 +33,7 @@ export class ClusterHealthComponent implements OnInit {
   kubeSystemData = [];
   kubeOperatorData = [];
   healthData = [];
+  errorMessage = '';
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -65,7 +66,10 @@ export class ClusterHealthComponent implements OnInit {
       this.kubeOperatorData = res.monitoring;
       this.healthData = this.kubeSystemData.concat(this.kubeOperatorData);
       this.loading = false;
-      this.error = false;
+      if (res.message !== '') {
+        this.errorMessage = res.message;
+        this.error = true;
+      }
     }, error1 => {
       this.clusterHealth.data = [];
       this.clusterHealth.rate = 0;
@@ -210,18 +214,6 @@ export class ClusterHealthComponent implements OnInit {
   //   return clusterStyle;
   // }
 
-  getStatusColor(status) {
-    let clusterStyle = '#FF4040';
-    switch (status) {
-      case 'True':
-        clusterStyle = '#9DE7BD';
-        break;
-      default:
-        clusterStyle = '#FF4040';
-        break;
-    }
-    return clusterStyle;
-  }
 
   getDateRange() {
     const range = [];

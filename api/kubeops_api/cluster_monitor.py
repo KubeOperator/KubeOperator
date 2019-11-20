@@ -216,29 +216,36 @@ class ClusterMonitor():
             return False
 
     def get_kubernetes_status(self):
-        self.check_authorization(2)
-        components = self.api_instance.list_component_status()
-        component_data = []
-        for c in components.items:
-            status, msg = '', ''
-            for condition in c.conditions:
-                if condition.type == 'Healthy':
-                    msg = condition.message
-                    if condition.status == 'True':
-                        status = 'RUNNING'
-                    else:
-                        status = condition.status
-            component = ClusterHealthData(namespace='component', name=c.metadata.name, status=status,
-                                          ready='1/1', age=0, msg=msg, restart_count=0)
-            component_data.append(component.__dict__)
-        system_pods = self.api_instance.list_namespaced_pod('kube-system')
-        system_data = self.get_pod_status(system_pods.items)
-        monitor_pods = self.api_instance.list_namespaced_pod('monitoring')
-        monitor_data = self.get_pod_status(monitor_pods.items)
+        message = ''
+        component_data, monitor_data, system_data = [], [], []
+        try:
+            components = self.api_instance.list_component_status()
+            for c in components.items:
+                status, msg = '', ''
+                for condition in c.conditions:
+                    if condition.type == 'Healthy':
+                        msg = condition.message
+                        if condition.status == 'True':
+                            status = 'RUNNING'
+                        elif condition.status == 'False':
+                            status = 'ERROR'
+                        else:
+                            status = condition.status
+                component = ClusterHealthData(namespace='component', name=c.metadata.name, status=status,
+                                              ready='1/1', age=0, msg=msg, restart_count=0)
+                component_data.append(component.__dict__)
+            system_pods = self.api_instance.list_namespaced_pod('kube-system')
+            system_data = self.get_pod_status(system_pods.items)
+            monitor_pods = self.api_instance.list_namespaced_pod('monitoring')
+            monitor_data = self.get_pod_status(monitor_pods.items)
+        except ApiException as e:
+            message = e.reason
+            logger.error(msg='list pod error ' + e.reason, exc_info=True)
         health_data = {
             'component': component_data,
             'kube-system': system_data,
-            'monitoring': monitor_data
+            'monitoring': monitor_data,
+            'message':message
         }
         return health_data
 
