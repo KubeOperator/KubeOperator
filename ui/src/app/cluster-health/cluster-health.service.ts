@@ -13,8 +13,8 @@ export class ClusterHealthService {
 
   constructor(private http: HttpClient) { }
 
-  listClusterHealth(project_name: string): Observable<ClusterHealth> {
-    return this.http.get<ClusterHealth>(this.baseUrl + project_name + '/health/');
+  listClusterHealth(project_name: string): Observable<any> {
+    return this.http.get<any>(this.baseUrl + project_name + '/health/');
   }
 
   listClusterHealthHistory(project_id: string): Observable<ClusterHealthHistory[]> {

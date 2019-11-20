@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'statusColor'
@@ -20,6 +20,12 @@ export class StatusColorPipe implements PipeTransform {
           break;
         case 'UNKNOWN':
           result = '#575757';
+          break;
+        case 'Running':
+          result = '#00af00';
+          break;
+        case 'True':
+          result = '#00af00';
           break;
         default:
           result = '#575757';

@@ -44,6 +44,7 @@
 - [ ] 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
 - [ ] KubeApps 应用商店；
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
+- [ ] 支持只读用户； 
 
  ##  v3.0 （计划中）
  

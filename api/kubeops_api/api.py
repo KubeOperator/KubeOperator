@@ -408,13 +408,15 @@ class ClusterHealthView(APIView):
         response = HttpResponse(content_type='application/json')
         if cluster.status == Cluster.CLUSTER_STATUS_READY:
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
-        config = {
-            'host': host
-        }
-        prometheus_client = PrometheusClient(config)
+        cluster_monitor = ClusterMonitor(cluster)
+        # host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
+        # config = {
+        #     'host': host
+        # }
+        # prometheus_client = PrometheusClient(config)
+        # result = prometheus_client.handle_targets_message(prometheus_client.targets())
         try:
-            result = prometheus_client.handle_targets_message(prometheus_client.targets())
+            result = cluster_monitor.get_kubernetes_status()
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

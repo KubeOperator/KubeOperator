@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
@@ -15,7 +15,9 @@ import {ClusterHealthHistory} from './cluster-health-history';
 export class ClusterHealthComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private decimalPipe: DecimalPipe,
-              private datePipe: DatePipe, private clusterHealthService: ClusterHealthService) { }
+              private datePipe: DatePipe, private clusterHealthService: ClusterHealthService) {
+  }
+
   options: {};
   time: any;
   currentCluster: Cluster;
@@ -27,6 +29,10 @@ export class ClusterHealthComponent implements OnInit {
   totalRate = 0;
   error = false;
   timer;
+  componentData = [];
+  kubeSystemData = [];
+  kubeOperatorData = [];
+  healthData = [];
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -40,7 +46,7 @@ export class ClusterHealthComponent implements OnInit {
     });
     this.timer = setInterval(() => {
       this.getClusterHealth();
-    }, 30000);
+    }, 3000000);
   }
 
   // tslint:disable-next-line:use-lifecycle-interface
@@ -52,75 +58,79 @@ export class ClusterHealthComponent implements OnInit {
 
   getClusterHealth() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.projectName).subscribe( res => {
-        this.clusterHealth = res;
-        this.loading = false;
-        this.error = false;
-      }, error1 => {
-        this.clusterHealth.data = [];
-        this.clusterHealth.rate = 0;
-        this.loading = false;
-        this.error = true;
+    this.clusterHealthService.listClusterHealth(this.projectName).subscribe(res => {
+
+      this.componentData = res.component;
+      this.kubeSystemData = res['kube-system'];
+      this.kubeOperatorData = res.monitoring;
+      this.healthData = this.kubeSystemData.concat(this.kubeOperatorData);
+      this.loading = false;
+      this.error = false;
+    }, error1 => {
+      this.clusterHealth.data = [];
+      this.clusterHealth.rate = 0;
+      this.loading = false;
+      this.error = true;
     });
   }
 
   getClusterHealthHistory() {
     this.clusterHealthService.listClusterHealthHistory(this.projectId).subscribe(res => {
-        this.clusterHealthHistories = res;
-        const healthDataArray: HealthData[] = [];
-        const nameArray = [];
-        for (const clusterHealthHistory of this.clusterHealthHistories) {
-          const month = clusterHealthHistory.month;
-          const index = nameArray.indexOf(clusterHealthHistory.month);
-          if (index > -1) {
-              const healthData = healthDataArray[index];
-              const data = new Data();
-              data.key = clusterHealthHistory.date_created;
-              data.value = clusterHealthHistory.available_rate;
-              healthData.data.push(data);
-          } else {
-              const healthData = new HealthData();
-              healthData.job = month;
-              healthData.data = [];
-              const data = new Data();
-              data.key = clusterHealthHistory.date_created;
-              data.value = clusterHealthHistory.available_rate;
-              healthData.data.push(data);
-              healthDataArray.push(healthData);
-              nameArray.push(month);
-          }
-          this.totalRate = this.totalRate + clusterHealthHistory.available_rate;
+      this.clusterHealthHistories = res;
+      const healthDataArray: HealthData[] = [];
+      const nameArray = [];
+      for (const clusterHealthHistory of this.clusterHealthHistories) {
+        const month = clusterHealthHistory.month;
+        const index = nameArray.indexOf(clusterHealthHistory.month);
+        if (index > -1) {
+          const healthData = healthDataArray[index];
+          const data = new Data();
+          data.key = clusterHealthHistory.date_created;
+          data.value = clusterHealthHistory.available_rate;
+          healthData.data.push(data);
+        } else {
+          const healthData = new HealthData();
+          healthData.job = month;
+          healthData.data = [];
+          const data = new Data();
+          data.key = clusterHealthHistory.date_created;
+          data.value = clusterHealthHistory.available_rate;
+          healthData.data.push(data);
+          healthDataArray.push(healthData);
+          nameArray.push(month);
         }
-        if (this.clusterHealthHistories.length > 0) {
-          this.totalRate = this.totalRate / this.clusterHealthHistories.length;
+        this.totalRate = this.totalRate + clusterHealthHistory.available_rate;
+      }
+      if (this.clusterHealthHistories.length > 0) {
+        this.totalRate = this.totalRate / this.clusterHealthHistories.length;
+      }
+      const dataArray = [];
+      for (let i = 0; i < healthDataArray.length; i++) {
+        const healthData = healthDataArray[i];
+        for (const d of healthData.data) {
+          dataArray.push([
+            this.datePipe.transform(d.key, 'yyyy-MM-dd'),
+            d.value
+          ]);
         }
-        const dataArray = [];
-        for (let i = 0 ; i < healthDataArray.length; i++) {
-          const healthData = healthDataArray[i];
-          for (const d of healthData.data) {
-            dataArray.push([
-               this.datePipe.transform(d.key, 'yyyy-MM-dd'),
-               d.value
-            ]);
-          }
-        }
-        this.setOptions(dataArray);
+      }
+      this.setOptions(dataArray);
     });
   }
 
   setOptions(data) {
     let titleText = '';
     if (this.totalRate !== 0) {
-      titleText = '(可用率' + this.decimalPipe.transform(this.totalRate , '1.0-1') + '%)';
+      titleText = '(可用率' + this.decimalPipe.transform(this.totalRate, '1.0-1') + '%)';
     }
 
     this.options = {
       title: {
-          top: 30,
-          left: 'center',
-          text: '过去半年集群运行状态' + titleText
+        top: 30,
+        left: 'center',
+        text: '过去半年集群运行状态' + titleText
       },
-      tooltip : {},
+      tooltip: {},
       visualMap: [{
         min: 0,
         max: 100,
@@ -130,7 +140,7 @@ export class ClusterHealthComponent implements OnInit {
         splitNumber: 100,
         color: ['#9DE7BD', '#FF4040'],
         textStyle: {
-            color: '#000000'
+          color: '#000000'
         },
         show: false
       }],
@@ -154,9 +164,9 @@ export class ClusterHealthComponent implements OnInit {
         range: this.getDateRange(),
         itemStyle: {
           normal: {
-                color: '#efefef',
-                borderWidth: 0.5,
-                borderColor: '#d9d9d9'
+            color: '#efefef',
+            borderWidth: 0.5,
+            borderColor: '#d9d9d9'
           }
         },
         splitLine: {
@@ -174,28 +184,41 @@ export class ClusterHealthComponent implements OnInit {
     };
   }
 
-  getClusterServiceStatus(clusterHealth, job) {
-    if (this.loading || clusterHealth === null) {
-      return;
-    }
-    let  serviceStyle = '#FF4040';
-    for (const d of clusterHealth.data) {
-      if (d.job === job) {
-        if ( d.rate === 100) {
-          serviceStyle = '#9DE7BD';
-        }
-      }
-    }
-    return serviceStyle;
-  }
+  // getClusterServiceStatus(clusterHealth, job) {
+  //   if (this.loading || clusterHealth === null) {
+  //     return;
+  //   }
+  //   let serviceStyle = '#FF4040';
+  //   for (const d of clusterHealth.data) {
+  //     if (d.job === job) {
+  //       if (d.rate === 100) {
+  //         serviceStyle = '#9DE7BD';
+  //       }
+  //     }
+  //   }
+  //   return serviceStyle;
+  // }
+  //
+  // getClusterStatus(clusterHealth) {
+  //   if (this.loading || clusterHealth === null) {
+  //     return;
+  //   }
+  //   let clusterStyle = '#FF4040';
+  //   if (clusterHealth.rate === 100) {
+  //     clusterStyle = '#9DE7BD';
+  //   }
+  //   return clusterStyle;
+  // }
 
-  getClusterStatus(clusterHealth) {
-    if (this.loading || clusterHealth === null) {
-      return;
-    }
+  getStatusColor(status) {
     let clusterStyle = '#FF4040';
-    if (clusterHealth.rate === 100) {
-      clusterStyle = '#9DE7BD';
+    switch (status) {
+      case 'True':
+        clusterStyle = '#9DE7BD';
+        break;
+      default:
+        clusterStyle = '#FF4040';
+        break;
     }
     return clusterStyle;
   }
