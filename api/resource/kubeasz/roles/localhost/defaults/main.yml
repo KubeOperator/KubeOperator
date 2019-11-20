@@ -1,1 +1,0 @@
-forward: "{% for master in groups['master'] %}{{hostvars[master]['ansible_ssh_host']}} {% endfor %}"
