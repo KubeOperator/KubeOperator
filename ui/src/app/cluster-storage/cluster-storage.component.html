@@ -33,7 +33,7 @@
         <clr-dg-cell>{{p.namespace}}</clr-dg-cell>
         <clr-dg-cell>{{p.capacity}}</clr-dg-cell>
         <clr-dg-cell>{{p.status}}</clr-dg-cell>
-        <clr-dg-cell>{{p.create_time}}</clr-dg-cell>
+        <clr-dg-cell>{{p.create_time | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
       </clr-dg-row>
       <!--    <clr-dg-footer>{{storages.length}} users</clr-dg-footer>-->
     </clr-datagrid>
