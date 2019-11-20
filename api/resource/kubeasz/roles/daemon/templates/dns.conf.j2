@@ -10,7 +10,7 @@
     fallthrough
   }
   file /root/apps.dns.conf {{APP_DOMAIN}}
-  forward . /etc/resolv.conf
+  forward . 114.114.114.114 8.8.8.8
   cache 120
   reload 6s
   log
