@@ -8,4 +8,11 @@
   lineinfile:
     path: "/etc/hosts"
     regexp: "{{ groups['worker'][0] }}"
-    line: "{{groups['worker'][0]}}  {{ dns_registry_hostname }}"
+    line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host']  }} {{groups['worker'][0]}}"
+
+- name: 插入 registry 记录
+  lineinfile:
+    path: "/etc/hosts"
+    regexp: "{{ item }}"
+    line: "{{ hostvars[item]['ansible_ssh_host'] }} {{ item }}"
+  with_items: "groups['cluster_nodes']"
