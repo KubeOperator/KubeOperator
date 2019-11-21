@@ -23,8 +23,8 @@ export class ClusterStatusComponent implements OnInit {
   @ViewChild(ScaleComponent, {static: true}) scale: ScaleComponent;
   @ViewChild(AddWorkerComponent, {static: true}) addWorker: AddWorkerComponent;
   @ViewChild(RemoveWorkerComponent, {static: true}) removeWorker: RemoveWorkerComponent;
-  clusterHealth: ClusterHealth = new ClusterHealth();
   componentData = [];
+  loading = false;
 
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
@@ -94,10 +94,12 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   getClusterStatus() {
+    this.loading = true;
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
       this.componentData = res.component;
+      this.loading = false;
     }, error1 => {
-
+      this.loading = false;
     });
   }
 }

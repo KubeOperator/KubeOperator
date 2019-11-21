@@ -38,6 +38,7 @@ export class DashboardComponent implements OnInit {
   nodes = [];
   timer;
   maxPodCount = 0;
+  container_usage = 0;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -77,6 +78,8 @@ export class DashboardComponent implements OnInit {
     this.show_cluster_usage_detail = false;
     this.show_error_loki_container_detail = false;
     this.nodes = [];
+    this.maxPodCount = 0;
+    this.container_usage = 0;
   }
 
   listCluster() {
@@ -134,9 +137,10 @@ export class DashboardComponent implements OnInit {
         if (max_pod === undefined) {
           max_pod = 110;
         }
-        this.maxPodCount = this.maxPodCount + max_pod;
+        const all_max_pod = max_pod * cluster.nodes.length;
+        this.maxPodCount = this.maxPodCount + all_max_pod;
       }
-
+      this.container_usage = this.podCount / this.maxPodCount * 100;
       this.loading = false;
     });
   }
