@@ -39,6 +39,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         settings = Setting.get_settings()
         extra_vars = {
             "cluster_name": cluster.name,
+            "cluster_domain": cluster.cluster_doamin_suffix
         }
         extra_vars.update(settings)
         extra_vars.update(cluster.configs)
