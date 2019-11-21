@@ -201,7 +201,7 @@ class ClusterMonitor():
         host = "loki.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
         config = {
             'host': host,
-            'cluster':self.cluster
+            'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
         return prometheus_client.get_msg_from_loki(self.cluster.name)
@@ -270,14 +270,14 @@ class ClusterMonitor():
                     age = str(age_time.days) + 'd'
                 else:
                     seconds = age_time.seconds
-                    hour = seconds / 60 / 60
-                    if hour > 1:
-                        age = str(int(hour)) + 'h'
-                        minute = seconds % 3600
+                    hour = int(seconds / 60 / 60)
+                    if hour >= 1:
+                        age = str(hour) + 'h'
+                        minute = int((seconds % 3600) / 60)
                     else:
-                        minute = seconds / 60
-                    if minute > 1:
-                        age = age + str(int(minute)) + 'm'
+                        minute = int(seconds / 60)
+                    if minute >= 1:
+                        age = age + str(minute) + 'm'
                 system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name,
                                                status=s.status.phase,
                                                ready=ready_status, age=age, msg=s.status.message,
@@ -302,7 +302,8 @@ class ClusterMonitor():
             for sc in scs:
                 if sc['name'] == item.spec.storage_class_name:
                     sc['pvcs'].append(pvc.__dict__)
-        return  scs
+        return scs
+
 
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
