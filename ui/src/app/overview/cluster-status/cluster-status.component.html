@@ -8,12 +8,24 @@
         集群状态
       </div>
       <div class="card-block card-style">
-        <table class="table">
+        <div class="clr-row" *ngIf="loading" style="margin-top: 10%">
+          <div class="clr-col-12" align="center">
+            <span class="spinner spinner-lg loading">
+              Loading...
+            </span>
+          </div>
+          <div class="clr-col-12" align="center">
+            <small>
+              如果加载时间过长 可能是组件出现错误 请耐心等待
+            </small>
+          </div>
+        </div>
+        <table class="table" *ngIf="!loading">
           <tbody>
-            <tr *ngFor="let c of componentData">
-                <td>{{c.name}}</td>
-                <td [ngStyle]="{'color':c.status | statusColor }">{{c.status | status}}</td>
-            </tr>
+          <tr *ngFor="let c of componentData">
+            <td>{{c.name}}</td>
+            <td [ngStyle]="{'color':c.status | statusColor }">{{c.status | status}}</td>
+          </tr>
           </tbody>
         </table>
       </div>
