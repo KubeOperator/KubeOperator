@@ -277,7 +277,7 @@ class ClusterMonitor():
                     if minute > 1:
                         age = age + str(minute) + 'm'
                     seconds = seconds % 60 % 60
-                    age = age + seconds + 's'
+                    age = age + str(seconds) + 's'
                 system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name,
                                                status=s.status.phase,
                                                ready=ready_status, age=age, msg=s.status.message,
