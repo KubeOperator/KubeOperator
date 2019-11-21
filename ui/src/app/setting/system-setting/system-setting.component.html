@@ -13,16 +13,6 @@
         <clr-control-helper>必填,用于生成 Node 名称以及应用域名</clr-control-helper>
       </clr-input-container>
       <clr-input-container>
-        <label>DNS1</label>
-        <input clrInput [(ngModel)]="settings['dns1']" name="dns1" size=45/>
-        <clr-control-helper>选填,此 DNS 将会设置到所有的 k8s 集群节点</clr-control-helper>
-      </clr-input-container>
-      <clr-input-container>
-        <label>DNS2</label>
-        <input clrInput [(ngModel)]="settings['dns2']" name="dns2" size=45/>
-        <clr-control-helper>选填,此 DNS 将会设置到所有的 k8s 集群节点</clr-control-helper>
-      </clr-input-container>
-      <clr-input-container>
         <label>NTP Server</label>
         <input clrInput [(ngModel)]="settings['ntp_server']" name="ntp_server" size=45/>
         <clr-control-helper>选填,为集群提供对时服务</clr-control-helper>
