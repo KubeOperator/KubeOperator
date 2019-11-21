@@ -270,14 +270,14 @@ class ClusterMonitor():
                     age = str(age_time.days) + 'd'
                 else:
                     seconds = age_time.seconds
-                    hour = seconds / 60
+                    hour = seconds / 60 / 60
                     if hour > 1:
-                        age = str(hour) + 'h'
-                    minute = seconds % 60
+                        age = str(int(hour)) + 'h'
+                        minute = seconds % 3600
+                    else:
+                        minute = seconds / 60
                     if minute > 1:
-                        age = age + str(minute) + 'm'
-                    seconds = seconds % 60 % 60
-                    age = age + str(seconds) + 's'
+                        age = age + str(int(minute)) + 'm'
                 system_pod = ClusterHealthData(namespace=s.metadata.namespace, name=s.metadata.name,
                                                status=s.status.phase,
                                                ready=ready_status, age=age, msg=s.status.message,
