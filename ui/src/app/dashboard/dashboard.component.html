@@ -108,12 +108,12 @@
             </div>
           </div>
           <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
-            <h5>容器组 ({{podCount/maxPodCount | number: '1.0-2'}}%)</h5>
+            <h5>容器组 ({{this.container_usage | number: '1.0-2'}}%)</h5>
           </div>
           <br>
           <div class="clr-col-sm-11 clr-offset-sm-1">
             <div class="progress success labeled progress-dashboard" data-displayval="80%">
-              <progress class="progress-dashboard" max="100" value="{{podCount/maxPodCount}}"></progress>
+              <progress class="progress-dashboard" max="100" value="{{this.container_usage}}"></progress>
               <span>{{podCount}}/{{maxPodCount}}</span>
             </div>
           </div>
