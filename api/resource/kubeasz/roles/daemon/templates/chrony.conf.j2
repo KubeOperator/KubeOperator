@@ -1,6 +1,6 @@
 # Use public servers from the pool.ntp.org project.
 {% if ntp_server is defined %}
-server {{ntp_server}}
+{% if ntp_server %}server {{ntp_server}}{% endif %}
 {% endif %}
 
 # Ignor source level
