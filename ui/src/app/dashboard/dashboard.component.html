@@ -86,32 +86,32 @@
       <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
         <div class="clr-row">
-          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
+          <div class="clr-col-sm-12 clr-col-12">
             <h5>CPU使用率 ({{cpu_usage | number: '1.0-2'}}%)</h5>
           </div>
           <br>
-          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
+          <div class="clr-col-sm-12 clr-col-12">
             <div class="progress success labeled progress-dashboard"
                  data-displayval="80%">
               <progress class="progress-dashboard" max="100" value="{{cpu_usage}}"></progress>
               <span>{{cpu_total}}核</span>
             </div>
           </div>
-          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
+          <div class="clr-col-sm-12 clr-col-12">
             <h5>内存使用率 ({{mem_usage | number: '1.0-2'}}%)</h5>
           </div>
           <br>
-          <div class="clr-col-sm-11 clr-offset-sm-1">
+          <div class="clr-col-sm-12 clr-col-12">
             <div class="progress success labeled progress-dashboard" data-displayval="80%">
               <progress class="progress-dashboard" max="100" value="{{mem_usage}}"></progress>
               <span>{{mem_total | number: '1.0-2' }}G</span>
             </div>
           </div>
-          <div class="clr-col-sm-11 clr-offset-sm-1 clr-col-12">
+          <div class="clr-col-sm-12 clr-col-12">
             <h5>容器组 ({{this.container_usage | number: '1.0-2'}}%)</h5>
           </div>
           <br>
-          <div class="clr-col-sm-11 clr-offset-sm-1">
+          <div class="clr-col-sm-12 clr-col-12">
             <div class="progress success labeled progress-dashboard" data-displayval="80%">
               <progress class="progress-dashboard" max="100" value="{{this.container_usage}}"></progress>
               <span>{{podCount}}/{{maxPodCount}}</span>
@@ -224,28 +224,6 @@
       </div>
     </div>
   </div>
-  <!--  <div class="clr-col-lg-4 clr-col-12">-->
-  <!--    <div class="card">-->
-  <!--      <div class="card-block card-style">-->
-  <!--        <h3 class="card-title">异常容器</h3>-->
-  <!--        <table class="table">-->
-  <!--          <tr>-->
-  <!--            <th>名称</th>-->
-  <!--            <th>Pod</th>-->
-  <!--            <th>重启次数</th>-->
-  <!--          </tr>-->
-  <!--          <tr *ngFor="let c of warnContainers.slice(0,4)">-->
-  <!--            <td>{{c.name}}</td>-->
-  <!--            <td>{{c.pod_name}}</td>-->
-  <!--            <td>{{c.restart_count}}</td>-->
-  <!--          </tr>-->
-  <!--        </table>-->
-  <!--      </div>-->
-  <!--      <div class="card-footer">-->
-  <!--        <a class="btn btn-sm btn-link" (click)="show_container_detail=true">详情</a>-->
-  <!--      </div>-->
-  <!--    </div>-->
-  <!--  </div>-->
 </div>
 <div class="modal" *ngIf="show_pod_detail">
   <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
@@ -317,8 +295,8 @@
       <div class="modal-body">
         <clr-datagrid>
           <clr-dg-column>名称</clr-dg-column>
-          <clr-dg-column>cpu</clr-dg-column>
-          <clr-dg-column>cpu使用率(%)</clr-dg-column>
+          <clr-dg-column>CPU(核)</clr-dg-column>
+          <clr-dg-column>CPU使用率(%)</clr-dg-column>
           <clr-dg-column>内存(GB)</clr-dg-column>
           <clr-dg-column>内存使用率(%)</clr-dg-column>
           <clr-dg-row *clrDgItems="let item of nodes" [clrDgItem]="item">
