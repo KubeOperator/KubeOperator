@@ -1,4 +1,10 @@
-.worker-status-running{
+.worker-status-running {
   color: #00af00
+}
+
+.card-style {
+  height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
