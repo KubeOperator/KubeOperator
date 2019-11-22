@@ -87,14 +87,14 @@ tolerations:
 volumes:
 - name: docker
   hostPath:
-    path: /var/lib/docker/containers
+    path: {{ STORAGE_DIR }}/containers
 - name: pods
   hostPath:
     path: /var/log/pods
 
 volumeMounts:
 - name: docker
-  mountPath: /var/lib/docker/containers
+  mountPath: {{ STORAGE_DIR }}/containers
   readOnly: true
 - name: pods
   mountPath: /var/log/pods
