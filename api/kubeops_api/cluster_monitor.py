@@ -72,7 +72,6 @@ class ClusterMonitor():
         except ApiException as e:
             if e.status == 401:
                 self.push_token_to_redis()
-                self.get_api_instance()
             else:
                 logger.error(msg='init k8s client failed ' + e.reason, exc_info=True)
 
