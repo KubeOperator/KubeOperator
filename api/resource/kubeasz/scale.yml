@@ -4,6 +4,11 @@
   roles:
     - kube-bin
 
+- name: udpate hosts
+  hosts: cluster_nodes
+  roles:
+    - nameserver
+
 - hosts: master
   roles:
     - daemon
