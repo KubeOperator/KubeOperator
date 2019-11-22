@@ -6,6 +6,7 @@ from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
+from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
 from kubeops_api.signals import pre_deploy_execution_start, post_deploy_execution_start
 from common import models as common_models
@@ -150,6 +151,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
     def on_scaling(self, extra_vars):
         cluster = self.get_cluster()
+        cluster.change_to()
+        if not Role.objects.filter(name='new_node'):
+            Role.objects.create(name='new_node', project=cluster)
         self.steps = cluster.get_steps('scale')
         self.set_step_default()
         self.update_current_step('create-resource', DeployExecution.STEP_STATUS_RUNNING)
