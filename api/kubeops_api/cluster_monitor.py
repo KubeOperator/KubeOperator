@@ -47,6 +47,7 @@ class ClusterMonitor():
                                    mem_usage=0, restart_pods=[], warn_containers=[], error_loki_containers=[],
                                    error_pods=[])
         self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
+        self.get_api_instance()
 
     def get_api_instance(self):
         self.cluster.change_to()
@@ -147,7 +148,6 @@ class ClusterMonitor():
         return deployment_list
 
     def set_cluster_data(self):
-        self.check_authorization(self.retry_count)
         nodes = self.list_nodes()
         pods = self.list_pods()
         namespaces = self.list_namespaces()
@@ -217,6 +217,7 @@ class ClusterMonitor():
             return False
 
     def get_kubernetes_status(self):
+        self.check_authorization(self.retry_count)
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
