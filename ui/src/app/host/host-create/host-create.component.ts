@@ -6,6 +6,8 @@ import {CredentialService} from '../../credential/credential.service';
 import {NgForm} from '@angular/forms';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-host-create',
@@ -26,6 +28,7 @@ export class HostCreateComponent implements OnInit {
   loading = false;
   credentials: Credential[] = [];
   @ViewChild('hostForm', {static: true}) hostFrom: NgForm;
+  name_pattern = globals.host_name_pattern;
 
   ngOnInit() {
 
