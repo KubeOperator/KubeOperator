@@ -6,6 +6,8 @@ import {RegionService} from '../region.service';
 import {CloudService} from '../cloud.service';
 import {ClrWizard} from '@clr/angular';
 import {catchError, map} from 'rxjs/operators';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-region-create',
@@ -28,6 +30,8 @@ export class RegionCreateComponent implements OnInit {
   @ViewChild('regionForm', {static: true}) regionFrom: NgForm;
   @ViewChild('paramsForm', {static: true}) paramsForm: NgForm;
   @ViewChild('wizard', {static: true}) wizard: ClrWizard;
+  name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
 
   constructor(private cloudTemplateService: CloudTemplateService, private regionService: RegionService,
               private cloudService: CloudService) {
