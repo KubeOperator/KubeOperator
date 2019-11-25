@@ -24,7 +24,7 @@ sys.path.append(BASE_DIR)
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
-WORKERS = 4
+WORKERS = 10
 DAEMON = False
 LOG_LEVEL = 'INFO'
 
@@ -115,6 +115,10 @@ def is_running(s, unlink=True):
 def parse_service(s):
     if s == 'all':
         return all_services
+    elif s == "web":
+        return ['gunicorn']
+    elif s == "task":
+        return ['celery', 'beat']
     else:
         return [s]
 
@@ -161,6 +165,7 @@ def start_celery():
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     return p
 
+
 def start_celery_beat():
     print("\n- Start Celery beat as Distributed Task Queue")
     os.environ.setdefault('PYTHONOPTIMIZE', '1')
@@ -186,6 +191,7 @@ def start_celery_beat():
         ])
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     return p
+
 
 def start_service(s):
     services_handler = {
@@ -269,7 +275,7 @@ def show_service_status(s):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="""
-        Jumpserver service control tools;
+        Kubeoperator service control tools;
 
         Example: \r\n
 
@@ -283,7 +289,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
-        choices=("all", "gunicorn", "celery", "beat"),
+        choices=("all", 'web', 'task', "gunicorn", "celery", "beat"),
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)

@@ -7,12 +7,14 @@ function cleanup()
     fi
 }
 
-trap cleanup EXIT
+service="all"
+if [[ "$1" != "" ]];then
+    service=$1
+fi
 
+trap cleanup EXIT
 if [[ "$1" == "bash" ]];then
     bash
 else
-    echo -e "nameserver 8.8.8.8 \nnameserver 114.114.114.114" >> /etc/resolv.conf
-    python kubeops.py start
+    python kubeops.py start ${service}
 fi
-

@@ -95,19 +95,6 @@
   ignore_errors: true
 
 - block:
-    - name: 生成 kuberhealthy 部署文件
-      template: src=kuberhealthy/values.yaml.j2 dest={{ base_dir }}/manifests/kuberhealthy/values.yaml
-
-    - name: 部署 kuberhealthy
-      shell: "helm install --name f2c-kuberhealthy --namespace kube-operator ./kuberhealthy"
-      args:
-        chdir: "{{ base_dir }}/manifests"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-  when: '"kuberhealthy" not in pod_info.stdout and kuberhealthy_install'
-  ignore_errors: true
-
-- block:
     - name: 生成 scope weave 部署文件
       template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
 

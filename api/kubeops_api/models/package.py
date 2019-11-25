@@ -42,7 +42,6 @@ class Package(models.Model):
     def lookup(cls):
         logger.info('lookup package...')
         for d in os.listdir(cls.packages_dir):
-
             full_path = os.path.join(cls.packages_dir, d)
             meta_path = os.path.join(full_path, 'meta.yml')
             if not os.path.isdir(full_path) or not os.path.isfile(meta_path):
