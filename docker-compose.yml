@@ -148,4 +148,4 @@ volumes:
   terraform_data:
   celery_data:
 networks:
-  default
+  default:
