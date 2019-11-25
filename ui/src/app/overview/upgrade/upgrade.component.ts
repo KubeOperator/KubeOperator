@@ -39,7 +39,10 @@ export class UpgradeComponent implements OnInit {
         }
       });
       this.packages = this.packages.filter((p) => {
-        return this.currentPackage.meta.vars['kube_version'] < p.meta.vars['kube_version'];
+        const current = this.currentPackage.meta.vars['kube_version'];
+        const packageVersion = p.meta.vars['kube_version'];
+        console.log(packageVersion.toString().split('.')[1]);
+        return current < packageVersion && current.toString().split('.')[1] === packageVersion.toString().split('.')[1];
       });
     });
   }
