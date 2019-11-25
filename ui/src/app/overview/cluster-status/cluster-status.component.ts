@@ -9,6 +9,7 @@ import {ClusterHealthService} from '../../cluster-health/cluster-health.service'
 import {ClusterHealth} from '../../cluster-health/cluster-health';
 import {AddWorkerComponent} from '../add-worker/add-worker.component';
 import {RemoveWorkerComponent} from '../remove-worker/remove-worker.component';
+import {ClusterService} from '../../cluster/cluster.service';
 
 
 @Component({
@@ -28,7 +29,7 @@ export class ClusterStatusComponent implements OnInit {
 
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
-              private router: Router, private operaterService: OperaterService) {
+              private router: Router, private operaterService: OperaterService, private clusterService: ClusterService) {
   }
 
   ngOnInit() {
@@ -46,6 +47,12 @@ export class ClusterStatusComponent implements OnInit {
       this.redirect('deploy');
     }, error => {
       this.scale.opened = false;
+    });
+  }
+
+  refresh() {
+    this.clusterService.getCluster(this.currentCluster.name).subscribe(data => {
+      this.currentCluster = data;
     });
   }
 
