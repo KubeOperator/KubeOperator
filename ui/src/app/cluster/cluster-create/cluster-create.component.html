@@ -15,8 +15,8 @@
                [(ngModel)]="cluster.name"
                name="cluster_name" (keyup)="handleValidation()" clrInput size=45 maxlength="15"
                required>
-        <clr-control-helper>仅支持小写字母、数字和 "-" 最长15个字符</clr-control-helper>
-        <clr-control-error>仅支持小写字母、数字和 "-" 最长15个字符</clr-control-error>
+        <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>
+        <clr-control-error>{{name_pattern_tip}}</clr-control-error>
       </clr-input-container>
       <clr-input-container>
         <label>域名后缀</label>

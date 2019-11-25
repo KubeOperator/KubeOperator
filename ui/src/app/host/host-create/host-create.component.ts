@@ -29,6 +29,7 @@ export class HostCreateComponent implements OnInit {
   credentials: Credential[] = [];
   @ViewChild('hostForm', {static: true}) hostFrom: NgForm;
   name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
 
   ngOnInit() {
 

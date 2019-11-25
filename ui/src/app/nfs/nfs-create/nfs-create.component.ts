@@ -26,6 +26,7 @@ export class NfsCreateComponent implements OnInit {
   @Output() create = new EventEmitter<boolean>();
   @ViewChild('itemForm', {static: true}) itemFrom: NgForm;
   name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
 
 
   ngOnInit() {
