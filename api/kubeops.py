@@ -24,7 +24,7 @@ sys.path.append(BASE_DIR)
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
-WORKERS = 4
+WORKERS = 10
 DAEMON = False
 LOG_LEVEL = 'INFO'
 
@@ -161,6 +161,7 @@ def start_celery():
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     return p
 
+
 def start_celery_beat():
     print("\n- Start Celery beat as Distributed Task Queue")
     os.environ.setdefault('PYTHONOPTIMIZE', '1')
@@ -186,6 +187,7 @@ def start_celery_beat():
         ])
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
     return p
+
 
 def start_service(s):
     services_handler = {
@@ -269,7 +271,7 @@ def show_service_status(s):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="""
-        Jumpserver service control tools;
+        Kubeoperator service control tools;
 
         Example: \r\n
 
