@@ -25,6 +25,28 @@
   </div>
 </clr-modal>
 
+<clr-modal [(clrModalOpen)]="openConfigs" clrModalSize="lg">
+  <h3 class="modal-title">参数详情</h3>
+  <div class="modal-body">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>键</th>
+        <th>值</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let config of currentCluster.configs | keys">
+        <td>{{config.key}}</td>
+        <td>{{config.value}}</td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+</clr-modal>
+
+
 <clr-modal [(clrModalOpen)]="openChangeStatus" clrModalSize="lg">
   <h3 class="modal-title">重置状态</h3>
   <div class="modal-body">
@@ -85,9 +107,16 @@
               </tr>
               <tr>
                 <td>网络类型:</td>
-                <td *ngIf="currentCluster.network_plugin == 'flannel' && currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
-                <td *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">IPIP</td>
-                <td *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='off'">BGP</td>
+                <td
+                  *ngIf="currentCluster.network_plugin == 'flannel' && currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
+                <td
+                  *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">
+                  IPIP
+                </td>
+                <td
+                  *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='off'">
+                  BGP
+                </td>
               </tr>
               <tr>
                 <td>存储类型:</td>
@@ -109,27 +138,6 @@
             </table>
           </div>
 
-          <!--          <div class="clr-col-lg-2 clr-col-12 text">-->
-          <!--            <span><b>集群名称:</b></span> <br>-->
-          <!--            <span><b>Kubernetes版本:</b></span> <br>-->
-          <!--            <span *ngIf="currentCluster.plan"><b>区域:</b></span> <br>-->
-          <!--            <span *ngIf="currentCluster.plan"><b>可用区:</b></span> <br>-->
-          <!--            <span><b>部署模式:</b></span> <br>-->
-          <!--            <span><b>存储类型: </b> </span> <br>-->
-          <!--            <span><b>创建时间:</b> </span> <br>-->
-          <!--          </div>-->
-          <!--          <div class="clr-col-lg-10  clr-col-12 type-face">-->
-          <!--            <span>{{currentCluster.name}}</span> <br>-->
-          <!--            <span>{{currentCluster.package}}</span> <br>-->
-          <!--            <span *ngIf="currentCluster.plan">{{currentCluster.region}} <br/></span>-->
-          <!--            <span *ngIf="currentCluster.plan">{{currentCluster.zones}}{{currentCluster.zone}}<br/></span>-->
-          <!--            <span>{{getDeployTypeComment(currentCluster.deploy_type)}}</span><br/>-->
-          <!--            <span>{{currentCluster.persistent_storage}}<span style="padding-left: 10px"-->
-          <!--                                                             *ngIf="currentCluster.persistent_storage === 'rook-ceph'"><a-->
-          <!--              [href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank">-->
-          <!--          <i class="fa fa-dashboard fa-lg"></i></a></span> </span><br/>-->
-          <!--            <span>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</span><br/>-->
-          <!--          </div>-->
         </div>
       </div>
       <div class="card-footer">
@@ -143,10 +151,6 @@
             </button>
             <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
             </button>
-
-            <button class="btn btn-outline" (click)="onDownload()" [disabled]="currentCluster.status !== 'RUNNING'">
-              下载kube-config
-            </button>
             <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
               获取Token
             </button>
@@ -158,6 +162,8 @@
             </button>
             <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">
               域名解析规则
+            </button>
+            <button class="btn btn-sm btn-link" (click)="openConfigs=true" style="float:right;margin-top: 10px">详情
             </button>
           </div>
         </div>
