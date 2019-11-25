@@ -32,14 +32,15 @@ services:
     build: api
     image: kube-operator/api:2.1.0
     container_name: kubeops_api
+    command: 'web'
     restart: always
     privileged: true
     tty: true
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/kubeoperator/data/dns/:/opt/kubeOperator-api/dns/
       - terraform_data:/opt/kubeOperator-api/data/terraform
+      - celery_data:/opt/kubeOperator-api/data/celery
     environment:
       DB_HOST: mysql
       DB_USER: root
@@ -58,7 +59,32 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
-
+  task:
+    image: kube-operator/api:2.1.0
+    command: 'task'
+    container_name: kubeops_task
+    restart: always
+    privileged: true
+    tty: true
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - terraform_data:/opt/kubeOperator-api/data/terraform
+      - celery_data:/opt/kubeOperator-api/data/celery
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
+      DB_NAME: kube-operator
+      REDIS_HOST: redis
+    healthcheck:
+      test: "ps axu | grep 'celery worker'"
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      redis:
+        condition: service_healthy
 
   mysql:
     container_name: kubeops_mysql
@@ -112,7 +138,7 @@ services:
       test: "curl localhost:9200"
       interval: 10s
       timeout: 5s
-      retries: 10  
+      retries: 10
 
 volumes:
   api_data:
@@ -120,5 +146,6 @@ volumes:
   redis_data:
   es_data:
   terraform_data:
+  celery_data:
 networks:
-  default:
+  default
