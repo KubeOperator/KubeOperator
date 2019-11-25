@@ -27,6 +27,7 @@ export class DescribeComponent implements OnInit {
   token: string = null;
   event: string = null;
   openHost = false;
+  openConfigs = false;
   workers = [];
   workerIp = '';
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
