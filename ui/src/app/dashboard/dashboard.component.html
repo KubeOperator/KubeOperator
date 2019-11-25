@@ -86,36 +86,36 @@
       <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
         <div class="clr-col-sm-12 clr-col-12">
-          <h5>CPU使用率 ({{cpu_usage | number: '1.0-2'}}%)</h5>
+          <h5>CPU使用率 ({{cpuUsage | number: '1.0-2'}}%)</h5>
         </div>
         <div class="clr-col-sm-12 clr-col-12">
           <div class="progress success labeled progress-dashboard"
                data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{cpu_usage}}"></progress>
-            <span>{{cpu_total}}核</span>
+            <progress class="progress-dashboard" max="100" value="{{cpuUsage}}"></progress>
+            <span>{{cpuTotal}}核</span>
           </div>
         </div>
         <div class="clr-col-sm-12 clr-col-12">
-          <h5>内存使用率 ({{mem_usage | number: '1.0-2'}}%)</h5>
+          <h5>内存使用率 ({{memUsage | number: '1.0-2'}}%)</h5>
         </div>
         <div class="clr-col-sm-12 clr-col-12">
           <div class="progress success labeled progress-dashboard" data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{mem_usage}}"></progress>
-            <span>{{mem_total | number: '1.0-2' }}G</span>
+            <progress class="progress-dashboard" max="100" value="{{memUsage}}"></progress>
+            <span>{{memTotal | number: '1.0-2' }}G</span>
           </div>
         </div>
         <div class="clr-col-sm-12 clr-col-12">
-          <h5>容器组 ({{container_usage | number: '1.0-2'}}%)</h5>
+          <h5>容器组 ({{containerUsage | number: '1.0-2'}}%)</h5>
         </div>
         <div class="clr-col-sm-12 clr-col-12">
           <div class="progress success labeled progress-dashboard" data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{container_usage}}"></progress>
+            <progress class="progress-dashboard" max="100" value="{{containerUsage}}"></progress>
             <span>{{podCount}}/{{maxPodCount}}</span>
           </div>
         </div>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="show_cluster_usage_detail = true">详情</a>
+        <a class="btn btn-sm btn-link" (click)="showClusterUsageDetail = true">详情</a>
       </div>
     </div>
   </div>
@@ -167,7 +167,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="show_error_loki_container_detail=true">详情</a>
+        <a class="btn btn-sm btn-link" (click)="showErrorLokiContainerDetail=true">详情</a>
       </div>
     </div>
   </div>
@@ -189,7 +189,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="show_pod_detail = true">详情</a>
+        <a class="btn btn-sm btn-link" (click)="showPodDetail = true">详情</a>
       </div>
     </div>
   </div>
@@ -211,16 +211,16 @@
         </table>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="show_error_pod_detail=true">详情</a>
+        <a class="btn btn-sm btn-link" (click)="showErrorPodDetail=true">详情</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal" *ngIf="show_pod_detail">
+<div class="modal" *ngIf="showPodDetail">
   <div class="modal-dialog modal-xl" role="dialog" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
-        <button aria-label="Close" class="close" type="button" (click)="show_pod_detail=false">
+        <button aria-label="Close" class="close" type="button" (click)="showPodDetail=false">
           <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
         <h3 class="modal-title">Pod详情</h3>
@@ -248,11 +248,11 @@
     </div>
   </div>
 </div>
-<div class="modal" *ngIf="show_container_detail">
+<div class="modal" *ngIf="showContainerDetail">
   <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
-        <button aria-label="Close" class="close" type="button" (click)="show_container_detail=false">
+        <button aria-label="Close" class="close" type="button" (click)="showContainerDetail=false">
           <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
         <h3 class="modal-title">Container详情</h3>
@@ -274,11 +274,11 @@
     </div>
   </div>
 </div>
-<div class="modal" *ngIf="show_cluster_usage_detail">
+<div class="modal" *ngIf="showClusterUsageDetail">
   <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
-        <button aria-label="Close" class="close" type="button" (click)="show_cluster_usage_detail=false">
+        <button aria-label="Close" class="close" type="button" (click)="showClusterUsageDetail=false">
           <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
         <h3 class="modal-title">容量详情</h3>
@@ -302,11 +302,11 @@
     </div>
   </div>
 </div>
-<div class="modal" *ngIf="show_error_loki_container_detail">
+<div class="modal" *ngIf="showErrorLokiContainerDetail">
   <div class="modal-dialog modal-lg" role="dialog" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
-        <button aria-label="Close" class="close" type="button" (click)="show_error_loki_container_detail=false">
+        <button aria-label="Close" class="close" type="button" (click)="showErrorLokiContainerDetail=false">
           <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
         <h3 class="modal-title">异常详情</h3>
@@ -329,11 +329,11 @@
     </div>
   </div>
 </div>
-<div class="modal" *ngIf="show_error_pod_detail">
+<div class="modal" *ngIf="showErrorPodDetail">
   <div class="modal-dialog modal-xl" role="dialog" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
-        <button aria-label="Close" class="close" type="button" (click)="show_error_pod_detail=false">
+        <button aria-label="Close" class="close" type="button" (click)="showErrorPodDetail=false">
           <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
         <h3 class="modal-title">Pod详情</h3>
