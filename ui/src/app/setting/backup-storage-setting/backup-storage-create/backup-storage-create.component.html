@@ -6,8 +6,9 @@
     <form clrForm #backupStorageForm="ngForm">
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name" name="name" required>
-        <clr-control-helper>最长15个字符</clr-control-helper>
+        <input clrInput size=45 maxlength="15" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name" name="name" required>
+        <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>
+        <clr-control-error>{{name_pattern_tip}}</clr-control-error>
       </clr-input-container>
       <clr-select-container>
         <label>类型:</label>
