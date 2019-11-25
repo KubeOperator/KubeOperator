@@ -5,8 +5,5 @@ LOG_LEVEL: "warn"
 LOG_MAX_SIZE: "10m"
 LOG_MAX_FILE: 3
 
-# docker容器存储目录
-STORAGE_DIR: "/var/lib/docker"
-
 # 开启Restful API
 ENABLE_REMOTE_API: false

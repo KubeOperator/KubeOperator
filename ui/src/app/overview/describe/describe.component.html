@@ -85,9 +85,9 @@
               </tr>
               <tr>
                 <td>网络类型:</td>
-                <td *ngIf="currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
-                <td *ngIf="currentCluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">IPIP</td>
-                <td *ngIf="currentCluster.configs['CALICO_IPV4POOL_IPIP']==='off'">BGP</td>
+                <td *ngIf="currentCluster.network_plugin == 'flannel' && currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
+                <td *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">IPIP</td>
+                <td *ngIf="currentCluster.network_plugin == 'calico' && currentCluster.configs['CALICO_IPV4POOL_IPIP']==='off'">BGP</td>
               </tr>
               <tr>
                 <td>存储类型:</td>

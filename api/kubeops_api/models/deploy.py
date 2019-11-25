@@ -16,6 +16,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_monitor
 from django.utils import timezone
+from kubeops_api.cluster_monitor import ClusterMonitor
 
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
@@ -52,6 +53,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 cluster.change_status(Cluster.CLUSTER_STATUS_INSTALLING)
                 result = self.on_install(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
+                cluster_monitor = ClusterMonitor(cluster)
+                cluster_monitor.set_cluster_data()
+                cluster_monitor.set_loki_data_to_cluster()
             elif self.operation == 'uninstall':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 cluster.change_status(Cluster.CLUSTER_STATUS_DELETING)
