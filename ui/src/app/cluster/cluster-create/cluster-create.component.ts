@@ -22,6 +22,7 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {Storage} from '../cluster';
 import {Storage as StorageItem} from '../cluster';
 import {StorageService} from '../storage.service';
+import * as globals from '../../globals';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -77,6 +78,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   Manual = 'MANUAL';
   Automatic = 'AUTOMATIC';
   clusterNameChecker: Subject<string> = new Subject<string>();
+  name_pattern = globals.name_pattern;
 
   @Output() create = new EventEmitter<boolean>();
 
