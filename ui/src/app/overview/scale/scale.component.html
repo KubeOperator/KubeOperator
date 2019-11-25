@@ -10,7 +10,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline" (click)="close()">取消</button>
-    <button type="button" class="btn btn-primary" [disabled]="form.invalid && worker_size==cluster.worker_size"
+    <button type="button" class="btn btn-primary" [disabled]="form.invalid || worker_size === cluster.worker_size"
             (click)="onConfirm()">确认
     </button>
   </div>
