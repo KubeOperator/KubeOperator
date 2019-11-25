@@ -127,7 +127,7 @@ export class DashboardComponent implements OnInit {
         }
         this.nodes = this.nodes.concat(d['nodes']);
       }
-      if (this.clusterData.length > 0) {
+      if (count > 0) {
         this.cpu_usage = this.cpu_usage / count * 100;
         this.mem_usage = this.mem_usage / count * 100;
       }
