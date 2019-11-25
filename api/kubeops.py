@@ -115,6 +115,10 @@ def is_running(s, unlink=True):
 def parse_service(s):
     if s == 'all':
         return all_services
+    elif s == "web":
+        return ['gunicorn']
+    elif s == "task":
+        return ['celery', 'beat']
     else:
         return [s]
 
