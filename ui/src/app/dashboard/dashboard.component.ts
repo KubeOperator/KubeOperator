@@ -26,19 +26,19 @@ export class DashboardComponent implements OnInit {
   warnContainers = [];
   errorLokiContainers = [];
   errorPods = [];
-  cpu_usage = 0;
-  mem_usage = 0;
-  cpu_total = 0;
-  mem_total = 0;
-  show_pod_detail = false;
-  show_container_detail = false;
-  show_cluster_usage_detail = false;
-  show_error_loki_container_detail = false;
-  show_error_pod_detail = false;
+  cpuUsage = 0;
+  memUsage = 0;
+  cpuTotal = 0;
+  memTotal = 0;
+  showPodDetail = false;
+  showContainerDetail = false;
+  showClusterUsageDetail = false;
+  showErrorLokiContainerDetail = false;
+  showErrorPodDetail = false;
   nodes = [];
   timer;
   maxPodCount = 0;
-  container_usage = 0;
+  containerUsage = 0;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }
@@ -59,7 +59,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  data_init() {
+  dataInit() {
     this.clusterData = [];
     this.podCount = 0;
     this.nodeCount = 0;
@@ -69,17 +69,18 @@ export class DashboardComponent implements OnInit {
     this.restartPods = [];
     this.warnContainers = [];
     this.errorPods = [];
-    this.cpu_usage = 0;
-    this.mem_usage = 0;
-    this.cpu_total = 0;
-    this.mem_total = 0;
-    this.show_pod_detail = false;
-    this.show_container_detail = false;
-    this.show_cluster_usage_detail = false;
-    this.show_error_loki_container_detail = false;
+    this.cpuUsage = 0;
+    this.memUsage = 0;
+    this.cpuTotal = 0;
+    this.memTotal = 0;
+    this.showPodDetail = false;
+    this.showContainerDetail = false;
+    this.showClusterUsageDetail = false;
+    this.showErrorLokiContainerDetail = false;
+    this.showErrorPodDetail = false;
     this.nodes = [];
     this.maxPodCount = 0;
-    this.container_usage = 0;
+    this.containerUsage = 0;
   }
 
   listCluster() {
@@ -101,7 +102,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getClusterData() {
-    this.data_init();
+    this.dataInit();
     this.dashboardService.getDashboard(this.dashboardSearch.cluster).subscribe(data => {
       this.clusterData = data.data;
       this.restartPods = data.restartPods;
@@ -118,29 +119,31 @@ export class DashboardComponent implements OnInit {
           this.containerCount = this.containerCount + p['containers'].length;
         }
         this.nodeCount = this.nodeCount + d['nodes'].length;
-        this.cpu_total = this.cpu_total + d['cpu_total'];
-        this.mem_total = this.mem_total + d['mem_total'];
-        this.cpu_usage = this.cpu_usage + d['cpu_usage'];
-        this.mem_usage = this.mem_usage + d['mem_usage'];
+        this.cpuTotal = this.cpuTotal + d['cpu_total'];
+        this.memTotal = this.memTotal + d['mem_total'];
+        this.cpuUsage = this.cpuUsage + d['cpu_usage'];
+        this.memUsage = this.memUsage + d['mem_usage'];
         if (d['cpu_total'] === 0 && d['mem_total'] === 0) {
           count--;
         }
         this.nodes = this.nodes.concat(d['nodes']);
-      }
-      if (this.clusterData.length > 0) {
-        this.cpu_usage = this.cpu_usage / count * 100;
-        this.mem_usage = this.mem_usage / count * 100;
-      }
 
-      for (const cluster of this.clusters) {
-        let max_pod = cluster.configs['MAX_PODS'];
-        if (max_pod === undefined) {
-          max_pod = 110;
+        for (const cluster of this.clusters) {
+          if (cluster.name === d['name']) {
+            let max_pod = cluster.configs['MAX_PODS'];
+            if (max_pod === undefined) {
+              max_pod = 110;
+            }
+            const all_max_pod = max_pod * cluster.nodes.length;
+            this.maxPodCount = this.maxPodCount + all_max_pod;
+          }
         }
-        const all_max_pod = max_pod * cluster.nodes.length;
-        this.maxPodCount = this.maxPodCount + all_max_pod;
       }
-      this.container_usage = this.podCount / this.maxPodCount * 100;
+      if (count > 0) {
+        this.cpuUsage = this.cpuUsage / count * 100;
+        this.memUsage = this.memUsage / count * 100;
+      }
+      this.containerUsage = this.podCount / this.maxPodCount * 100;
       this.loading = false;
     });
   }

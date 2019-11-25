@@ -10,6 +10,8 @@ import {ZoneService} from '../zone.service';
 import {catchError} from 'rxjs/operators';
 import * as ipaddr from 'ipaddr.js';
 import {IpService} from '../ip.service';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-zone-create',
@@ -32,6 +34,8 @@ export class ZoneCreateComponent implements OnInit {
   networkError = [];
   @ViewChild('basicForm', {static: true}) basicForm: NgForm;
   @ViewChild('wizard', {static: true}) wizard: ClrWizard;
+  name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
 
   constructor(private regionService: RegionService,
               private cloudService: CloudService,

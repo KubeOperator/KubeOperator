@@ -6,6 +6,8 @@ import {NfsService} from '../nfs.service';
 import {HostService} from '../../host/host.service';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-nfs-create',
@@ -23,6 +25,9 @@ export class NfsCreateComponent implements OnInit {
   hosts: Host[] = [];
   @Output() create = new EventEmitter<boolean>();
   @ViewChild('itemForm', {static: true}) itemFrom: NgForm;
+  name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
+
 
   ngOnInit() {
   }

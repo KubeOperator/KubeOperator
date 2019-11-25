@@ -10,7 +10,6 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
-import {ClusterHealth} from '../../cluster-health/cluster-health';
 
 
 @Component({
@@ -34,7 +33,6 @@ export class ClusterBackupStrategyComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
-  clusterHealth: ClusterHealth = new ClusterHealth();
   etcdHealth = false;
 
 
@@ -119,10 +117,11 @@ export class ClusterBackupStrategyComponent implements OnInit {
       return;
     }
     this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      this.clusterHealth = res;
-      for (const ch of this.clusterHealth.data) {
-        if (ch.job === 'etcd') {
-          this.etcdHealth = (ch.rate === 100);
+      const clusterHealth = res.component;
+      for (const ch of clusterHealth) {
+        if (ch.name.indexOf('etcd') !== -1 && ch.status !== 'RUNNING') {
+          this.etcdHealth = false;
+          break;
         }
       }
     });

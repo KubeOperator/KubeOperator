@@ -4,6 +4,8 @@ import {CredentialService} from '../credential.service';
 import {NgForm} from '@angular/forms';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-credential-create',
@@ -20,6 +22,8 @@ export class CredentialCreateComponent implements OnInit {
   item: Credential = new Credential();
   loading = false;
   @ViewChild('credentialForm', {static: true}) credentialForm: NgForm;
+  name_pattern = globals.name_pattern;
+  name_pattern_tip = globals.name_pattern_tip;
 
   constructor(private credentialService: CredentialService, private alertService: CommonAlertService) {
   }

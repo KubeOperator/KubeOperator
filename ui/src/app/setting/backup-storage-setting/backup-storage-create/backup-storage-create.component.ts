@@ -5,6 +5,7 @@ import {BackupStorageService} from '../backup-storage.service';
 import {StorageCredential} from '../storage-credential';
 import {CommonAlertService} from '../../../base/header/common-alert.service';
 import {AlertLevels} from '../../../base/header/components/common-alert/alert';
+import * as globals from '../../../globals';
 
 @Component({
   selector: 'app-backup-storage-create',
@@ -26,6 +27,8 @@ export class BackupStorageCreateComponent implements OnInit {
   message = '';
   buckets = [];
   @ViewChild('alertModal', {static: true}) alertModal;
+  name_pattern = globals.name_pattern;
+  name_pattern_tip = globals.name_pattern_tip;
 
 
   constructor(private backupStorageService: BackupStorageService, private alertService: CommonAlertService) {
