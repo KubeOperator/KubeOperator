@@ -20,6 +20,8 @@ def scale_compute_resource(cluster, num):
     hosts_dict = []
     delete = False
     add = False
+    if worker_size == num:
+        return
     if worker_size > num:
         _hosts_dict = create_cluster_hosts_dict(cluster)
         result = create_cluster_scale_down_hosts_dict(_hosts_dict, worker_size - num)
