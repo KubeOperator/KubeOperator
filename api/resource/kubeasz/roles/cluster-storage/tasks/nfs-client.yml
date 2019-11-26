@@ -1,24 +1,28 @@
 - block:
-  - name: set defaultvers
-    replace:
-      path: /tmp/nfsmount.conf
-      regexp: '# Defaultvers=4'
-      replace: "Defaultvers=3"
+    - name: set defaultvers
+      replace:
+        path: /etc/nfsmount.conf
+        regexp: '# Defaultvers=4'
+        replace: "Defaultvers=3"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
 
-  - name: set nfsvers
-    replace:
-      path: /tmp/nfsmount.conf
-      regexp: '# Nfsvers=4'
-      replace: "Nfsvers=3"
+    - name: set nfsvers
+      replace:
+        path: /etc/nfsmount.conf
+        regexp: '# Nfsvers=4'
+        replace: "Nfsvers=3"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
 
-  - name: set nfslock
-    replace:
-      path: /tmp/nfsmount.conf
-      regexp: '# Lock=True'
-      replace: "Lock=False"
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['kube-node'] }}"
-  when: 'storage_nfs_server_version and storage_nfs_server_version == "3"'
+    - name: set nfslock
+      replace:
+        path: /etc/nfsmount.conf
+        regexp: '# Lock=True'
+        replace: "Lock=False"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+  when: 'storage_nfs_server_version is defined and storage_nfs_server_version == "3"'
   ignore_errors: true
 
 - block:
