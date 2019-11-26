@@ -1,14 +1,9 @@
 - block:
-    - name: 在deploy 节点创建相关目录
-      file: path={{ item }} state=directory
-      with_items:
-        - /opt/kube/kube-system/coredns
+    - name: 在 deploy节点创建相关目录
+      file: path=/opt/kube/kube-system/coredns state=directory
 
     - name: 准备 DNS的部署文件
-      template: src={{ item }}.yaml.j2 dest=/opt/kube/kube-system/coredns/{{ item }}.yaml
-      with_items:
-        - coredns
-        - autoscaler
+      template: src=coredns.yaml.j2 dest=/opt/kube/kube-system/coredns/coredns.yaml
 
     - name: 获取所有已经创建的POD信息
       command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
@@ -17,8 +12,8 @@
   run_once: true
 
 - block:
-    - name: 创建CoreDNS部署
-      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns"
+    - name: 创建 CoreDNS部署
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/coredns/coredns.yaml"
       run_once: true
       delegate_to: "{{ groups['kube-master'][0] }}"
   when:

@@ -24,9 +24,9 @@ sys.path.append(BASE_DIR)
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
-WORKERS = 10
+WORKERS = 20
 DAEMON = False
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'ERROR'
 
 EXIT_EVENT = threading.Event()
 all_services = ['gunicorn', 'celery', 'beat']
