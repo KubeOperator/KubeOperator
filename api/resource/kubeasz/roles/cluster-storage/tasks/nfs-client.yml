@@ -1,14 +1,37 @@
-- name: 准备nfs-client 配置目录
-  file: name={{ base_dir }}/manifests/storage/nfs state=directory
+- block:
+  - name: set defaultvers
+    replace:
+      path: /tmp/nfsmount.conf
+      regexp: '# Defaultvers=4'
+      replace: "Defaultvers=3"
 
-- name: 生成nfs-client动态存储配置
-  template:
-    src: nfs/nfs-client-provisioner.yaml.j2
-    dest: "{{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+  - name: set nfsvers
+    replace:
+      path: /tmp/nfsmount.conf
+      regexp: '# Nfsvers=4'
+      replace: "Nfsvers=3"
 
-- name: 开始部署nfs-client动态存储
-  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+  - name: set nfslock
+    replace:
+      path: /tmp/nfsmount.conf
+      regexp: '# Lock=True'
+      replace: "Lock=False"
+  delegate_to: "{{ groups['kube-node'] }}"
+  when: 'storage_nfs_server_version and storage_nfs_server_version == "3"'
   ignore_errors: true
 
-- name: 设置default storageClass
-  shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{default_label}}'"
+- block:
+  - name: 准备nfs-client 配置目录
+    file: name={{ base_dir }}/manifests/storage/nfs state=directory
+
+  - name: 生成nfs-client动态存储配置
+    template:
+      src: nfs/nfs-client-provisioner.yaml.j2
+      dest: "{{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+
+  - name: 开始部署nfs-client动态存储
+    shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/nfs/{{ storage_nfs_provisioner_name }}.yaml"
+    ignore_errors: true
+
+  - name: 设置default storageClass
+    shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{default_label}}'"
