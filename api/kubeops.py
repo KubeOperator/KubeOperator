@@ -195,26 +195,20 @@ def start_celery_beat():
 
 def start_flower():
     print("\n- Start Flower as Task Monitor")
-    service = 'flower'
-    pid_file = get_pid_file_path(service)
 
     cmd = [
         'celery', 'flower',
         '-A', 'celery_api',
         '-l', 'INFO',
-        '--port 5555',
         '--url_prefix=flower',
         '--auto_refresh=False',
-        '--pidfile', pid_file,
         '--max_tasks=1000',
         '--tasks_columns=uuid,name,args,state,received,started,runtime,worker'
     ]
-    if DAEMON:
-        cmd.extend([
-            '--logfile', os.path.join(LOG_DIR, 'flower.log'),
-            '--detach',
-        ])
     p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    pid_file = get_pid_file_path('flower')
+    with open(pid_file, 'w') as f:
+        f.write(str(p.pid))
     return p
 
 
