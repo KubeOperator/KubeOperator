@@ -29,9 +29,17 @@
         </clr-input-container>
 
         <clr-input-container>
-          <label>服务地址:</label>
+          <label>服务地址 :</label>
           <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server']" name="server" required>
         </clr-input-container>
+
+        <clr-select-container>
+          <label>版本 :</label>
+          <select clrSelect [(ngModel)]="item.vars['storage_nfs_server_version']" name="name" required>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </clr-select-container>
 
         <clr-input-container>
           <label>挂载路径 :</label>
