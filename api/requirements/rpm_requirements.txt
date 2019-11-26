@@ -1,1 +1,1 @@
-unzip terraform  vim libtiff-devel libjpeg-devel libzip-devel freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel sshpass openldap-devel mysql-devel libffi-devel openssh-clients redis supervisor telnet patch httpd-tools python2-passlib curl
+unzip terraform  vim libtiff-devel libjpeg-devel libzip-devel freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel sshpass openldap-devel mysql-devel libffi-devel openssh-clients redis supervisor telnet git  patch httpd-tools python2-passlib curl
