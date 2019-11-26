@@ -272,15 +272,15 @@ LOGGING = {
             'level': 'INFO',
         },
         'user': {
-            'handlers': ['console', ],
+            'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
         },
         'kubeops': {
-            'handlers': ['console', ],
+            'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
         },
         'cloud_provider': {
-            'handlers': ['console', ],
+            'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
         },
     },

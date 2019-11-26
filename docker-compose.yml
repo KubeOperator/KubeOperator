@@ -16,7 +16,7 @@ services:
 
   ui:
     build: ui
-    image: kube-operator/ui:2.1.0
+    image: kube-operator/ui:2.2.0
     container_name: kubeops_ui
     restart: always
     healthcheck:
@@ -30,7 +30,7 @@ services:
 
   api:
     build: api
-    image: kube-operator/api:2.1.0
+    image: kube-operator/api:2.2.0
     container_name: kubeops_api
     command: 'web'
     restart: always
@@ -60,7 +60,7 @@ services:
       elasticsearch:
         condition: service_healthy
   task:
-    image: kube-operator/api:2.1.0
+    image: kube-operator/api:2.2.0
     command: 'task'
     container_name: kubeops_task
     restart: always
