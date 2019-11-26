@@ -16,7 +16,8 @@
       path: /tmp/nfsmount.conf
       regexp: '# Lock=True'
       replace: "Lock=False"
-  delegate_to: "{{ groups['kube-node'] }}"
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['kube-node'] }}"
   when: 'storage_nfs_server_version and storage_nfs_server_version == "3"'
   ignore_errors: true
 
