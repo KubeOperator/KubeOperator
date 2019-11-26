@@ -193,6 +193,7 @@ CELERY_TASK_EAGER_PROPAGATES = True
 CELERY_WORKER_REDIRECT_STDOUTS = True
 CELERY_WORKER_REDIRECT_STDOUTS_LEVEL = "ERROR"
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 40
+FLOWER_URL = "localhost:5555"
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -271,15 +272,15 @@ LOGGING = {
             'level': 'INFO',
         },
         'user': {
-            'handlers': ['console', 'elasticsearch'],
+            'handlers': ['console', ],
             'level': 'INFO',
         },
         'kubeops': {
-            'handlers': ['console', 'elasticsearch'],
+            'handlers': ['console', ],
             'level': 'INFO',
         },
         'cloud_provider': {
-            'handlers': ['console', 'elasticsearch'],
+            'handlers': ['console', ],
             'level': 'INFO',
         },
     },

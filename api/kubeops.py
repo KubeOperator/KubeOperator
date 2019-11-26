@@ -116,7 +116,7 @@ def parse_service(s):
     if s == 'all':
         return all_services
     elif s == "web":
-        return ['gunicorn']
+        return ['gunicorn', 'flower']
     elif s == "task":
         return ['celery', 'beat']
     else:
@@ -193,11 +193,37 @@ def start_celery_beat():
     return p
 
 
+def start_flower():
+    print("\n- Start Flower as Task Monitor")
+    service = 'flower'
+    pid_file = get_pid_file_path(service)
+
+    cmd = [
+        'celery', 'flower',
+        '-A', 'celery_api',
+        '-l', 'INFO',
+        '--port 5555',
+        '--url_prefix=flower',
+        '--auto_refresh=False',
+        '--pidfile', pid_file,
+        '--max_tasks=1000',
+        '--tasks_columns=uuid,name,args,state,received,started,runtime,worker'
+    ]
+    if DAEMON:
+        cmd.extend([
+            '--logfile', os.path.join(LOG_DIR, 'flower.log'),
+            '--detach',
+        ])
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    return p
+
+
 def start_service(s):
     services_handler = {
         "gunicorn": start_gunicorn,
         "celery": start_celery,
         "beat": start_celery_beat,
+        "flower": start_flower
     }
     services_set = parse_service(s)
     processes = []
@@ -289,7 +315,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "service", type=str, default="all", nargs="?",
-        choices=("all", 'web', 'task', "gunicorn", "celery", "beat"),
+        choices=("all", 'web', 'task', "gunicorn", "celery", "beat", "flower"),
         help="The service to start",
     )
     parser.add_argument('-d', '--daemon', nargs="?", const=1)

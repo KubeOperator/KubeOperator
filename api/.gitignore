@@ -20,3 +20,4 @@ dump.rdb
 data
 *.log
 django.iml
+data/static/*

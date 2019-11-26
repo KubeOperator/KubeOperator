@@ -89,3 +89,4 @@ kubernetes==10.0.1
 elasticsearch==6.1.1
 elasticsearch-dsl==7.1.0
 CMRESHandler==1.0.0
+django-proxy==1.2.1
