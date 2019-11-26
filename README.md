@@ -65,7 +65,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="3">存储方案
         </td>
-        <td class="features-third-td-background-style">独立主机：支持 NFS / Ceph RBD (通过 Rook) / NetApp （通过Trident)
+        <td class="features-third-td-background-style">独立主机：支持 NFS / Ceph RBD (通过 Rook) 
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
