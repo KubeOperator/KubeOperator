@@ -42,14 +42,15 @@
  ## v2.3 （进行中，2019.12.31 发布）
 
 - [ ] 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
-- [ ] KubeApps 应用商店；
-- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 支持只读用户； 
+- [ ] KubeApps 应用商店； 
 
  ##  v3.0 （计划中）
  
+- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
+- [ ] 支持只读用户；
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
 - [ ] 实现内置应用的统一认证；
 - [ ] Helm 3.0 支持；
+- [ ] Traefik 2.0 支持；
