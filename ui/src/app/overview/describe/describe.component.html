@@ -22,6 +22,9 @@
       {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
+    <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
+      {{workerIp}} ceph.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+    </span>
   </div>
 </clr-modal>
 
