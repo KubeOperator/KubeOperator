@@ -65,30 +65,33 @@ class Host(BaseHost):
     def gather_info(self, retry=1):
         try:
             logger.info("host: {}  gather host info ".format(self.name))
-            facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry, password=self.password,
+            facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry,
+                                     password=self.password,
                                      private_key_path=self.private_key_path)
+            self.memory = facts["ansible_memtotal_mb"]
+            cpu_cores = facts["ansible_processor_cores"]
+            cpu_count = facts["ansible_processor_count"]
+            self.cpu_core = int(cpu_cores) * int(cpu_count)
+            self.os = facts["ansible_distribution"]
+            self.os_version = facts["ansible_distribution_version"]
+            self.save()
+            devices = facts["ansible_devices"]
+            volumes = []
+            for name in devices:
+                if not name.startswith(('dm', 'loop', 'sr')):
+                    volume = Volume(name='/dev/' + name)
+                    volume.size = devices[name]['size']
+                    volume.save()
+                    volumes.append(volume)
+            self.volumes.set(volumes)
+            self.status = Host.HOST_STATUS_RUNNING
+            self.save()
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
+            self.save()
             logger.error("host: {}  gather host info".format(self.name), exc_info=True)
             raise e
-        self.memory = facts["ansible_memtotal_mb"]
-        cpu_cores = facts["ansible_processor_cores"]
-        cpu_count = facts["ansible_processor_count"]
-        self.cpu_core = int(cpu_cores) * int(cpu_count)
-        self.os = facts["ansible_distribution"]
-        self.os_version = facts["ansible_distribution_version"]
-        self.save()
-        devices = facts["ansible_devices"]
-        volumes = []
-        for name in devices:
-            if not name.startswith(('dm', 'loop', 'sr')):
-                volume = Volume(name='/dev/' + name)
-                volume.size = devices[name]['size']
-                volume.save()
-                volumes.append(volume)
-        self.volumes.set(volumes)
-        self.status = Host.HOST_STATUS_RUNNING
-        self.save()
+
 
     class Meta:
         ordering = ('name',)
