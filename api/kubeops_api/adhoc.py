@@ -23,19 +23,14 @@ def gather_host_info(ip, port, username, retry=1, **kwargs):
     }]
     attempts = 0
     while attempts < retry:
-        try:
-            result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'setup'},
-                                  inventory_data={'hosts': hosts, 'vars': {}})
-            if is_adhoc_success(result):
-                return result["raw"]["ok"]["default"]["setup"]["ansible_facts"]
-            attempts += 1
-            sleep(1)
-        except Exception:
-            attempts += 1
-            if attempts == retry:
-                raise Exception("get os info failed!")
-            else:
-                sleep(1)
+        result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'setup'},
+                              inventory_data={'hosts': hosts, 'vars': {}})
+        if is_adhoc_success(result):
+            return result["raw"]["ok"]["default"]["setup"]["ansible_facts"]
+        sleep(5)
+        attempts += 1
+        if attempts == retry:
+            raise Exception('get os info fail')
 
 
 def test_host(ip, port, username, **kwargs):
