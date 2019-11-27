@@ -101,3 +101,21 @@ class PVC():
         self.storage_class = storage_class
         self.mount_by = mount_by
         self.create_time = create_time
+
+
+class Event():
+
+    def __init__(self, name, type, cluster_name, action, reason, count, host, component, namespace, message,
+                 last_timestamp, first_timestamp):
+        self.name = name
+        self.cluster_name = cluster_name
+        self.type = type
+        self.action = action
+        self.reason = reason
+        self.count = count
+        self.host = host
+        self.component = component
+        self.namespace = namespace
+        self.message = message
+        self.last_timestamp = last_timestamp
+        self.first_timestamp = first_timestamp

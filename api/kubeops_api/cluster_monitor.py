@@ -4,7 +4,7 @@ import json
 import logging
 import fit2ansible.settings
 from kubernetes.client.rest import ApiException
-from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC
+from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
@@ -226,7 +226,7 @@ class ClusterMonitor():
                 for condition in c.conditions:
                     if condition.type == 'Healthy':
                         msg = condition.message
-                        if condition.status == 'True':
+                        if condition.status == 'Tre':
                             status = 'RUNNING'
                         elif condition.status == 'False':
                             status = 'ERROR'
@@ -303,6 +303,33 @@ class ClusterMonitor():
                 if sc['name'] == item.spec.storage_class_name:
                     sc['pvcs'].append(pvc.__dict__)
         return scs
+
+    def list_events(self):
+        event_response = self.api_instance.list_event_for_all_namespaces()
+        events = []
+        for item in event_response.items:
+            if item.reporting_component is not None:
+                component = item.reporting_component
+            else:
+                component = item.source.component
+
+            if item.reporting_instance is not None:
+                host = item.reporting_instance
+            else:
+                host = item.source.host
+
+            if item.last_timestamp is not None:
+                last_timestamp = item.last_timestamp
+            elif item.event_time is not None:
+                last_timestamp = item.event_time
+            else:
+                last_timestamp = item.metadata.creation_timestamp
+
+            event = Event(name=item.metadata.name, type=item.type, cluster_name=self.cluster.name, action=item.action,
+                          reason=item.reason, count=item.count,host=host,component=component,namespace=item.metadata.namespace,
+                          message=item.message,last_timestamp=last_timestamp,first_timestamp = item.first_timestamp)
+            events.append(event)
+        return events
 
 
 def delete_cluster_redis_data(cluster_name):
