@@ -33,7 +33,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
-  etcdHealth = false;
+  etcdHealth = true;
 
 
   ngOnInit() {
