@@ -87,3 +87,15 @@ def get_index():
 def get_es_client():
     client = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
     return client
+
+
+def index(client, index, doc_type, body):
+    return client.index(index=index, doc_type=doc_type, body=body)
+
+
+def update(client, index, doc_type, body, id):
+    return client.update(index=index, doc_type=doc_type, body=body, id=id)
+
+
+def exists(client, index):
+    return client.indices.exists(index=index)
