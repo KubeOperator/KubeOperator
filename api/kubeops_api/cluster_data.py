@@ -119,3 +119,4 @@ class Event():
         self.message = message
         self.last_timestamp = last_timestamp
         self.first_timestamp = first_timestamp
+

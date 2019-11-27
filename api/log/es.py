@@ -1,6 +1,6 @@
 import datetime
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 from elasticsearch_dsl import Search
 
 from fit2ansible.settings import ELASTICSEARCH_HOST
@@ -99,3 +99,16 @@ def update(client, index, doc_type, body, id):
 
 def exists(client, index):
     return client.indices.exists(index=index)
+
+
+def create_index_and_mapping(client, index, doc_type, mapping):
+    client.indices.create(index=index)
+    client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping)
+
+
+def batch_data(client, data):
+    return helpers.bulk(client, data)
+
+
+def delte_index(client, index):
+    return client.indices.delete(index=index)

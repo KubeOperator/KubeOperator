@@ -3,6 +3,8 @@ import redis
 import json
 import logging
 import fit2ansible.settings
+import log.es
+import datetime
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
 from kubeops_api.models.cluster import Cluster
@@ -217,6 +219,7 @@ class ClusterMonitor():
 
     def get_kubernetes_status(self):
         self.check_authorization(self.retry_count)
+        put_event_data_to_es()
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
@@ -307,6 +310,7 @@ class ClusterMonitor():
     def list_events(self):
         event_response = self.api_instance.list_event_for_all_namespaces()
         events = []
+        actions = []
         for item in event_response.items:
             if item.reporting_component is not None:
                 component = item.reporting_component
@@ -326,10 +330,21 @@ class ClusterMonitor():
                 last_timestamp = item.metadata.creation_timestamp
 
             event = Event(name=item.metadata.name, type=item.type, cluster_name=self.cluster.name, action=item.action,
-                          reason=item.reason, count=item.count,host=host,component=component,namespace=item.metadata.namespace,
-                          message=item.message,last_timestamp=last_timestamp,first_timestamp = item.first_timestamp)
-            events.append(event)
-        return events
+                          reason=item.reason, count=item.count, host=host, component=component,
+                          namespace=item.metadata.namespace,
+                          message=item.message, last_timestamp=last_timestamp, first_timestamp=item.first_timestamp)
+            events.append(event.__dict__)
+            year = datetime.datetime.now().year
+            month = datetime.datetime.now().month
+            index = (self.cluster.names + '-{}.{}').format(year, month)
+            action = {
+                '_op_type': 'index',
+                '_index': index,
+                '_type': 'event',
+                '_source': event.__dict__
+            }
+            actions.append(action)
+        return events, actions
 
 
 def delete_cluster_redis_data(cluster_name):
@@ -389,3 +404,69 @@ def put_loki_data_to_redis():
         success = cluster_monitor.set_loki_data_to_cluster()
         if success == False:
             logger.error(msg='put cluster loki data to redis error', exc_info=True)
+
+
+def put_event_data_to_es():
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+
+    for cluster in clusters:
+        cluster_monitor = ClusterMonitor(cluster)
+        events, actions = cluster_monitor.list_events()
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        index = (cluster.name + '-{}.{}').format(year, month)
+        es_client = log.es.get_es_client()
+        if(log.es.exists(es_client,index)):
+            log.es.batch_data(es_client,actions)
+        else:
+            if create_index(index):
+                log.es.batch_data(es_client, actions)
+            else:
+                pass
+
+
+def create_index(index):
+    index_mapping = {
+        "properties": {
+            "name": {
+                "type": "text"
+            },
+            "type": {
+                "type": "keyword"
+            },
+            "cluster_name": {
+                "type": "text"
+            },
+            "reason": {
+                "type": "text"
+            },
+            "action": {
+                "type": "text"
+            },
+            "count": {
+                "type": "integer"
+            },
+            "component": {
+                "type": "text"
+            },
+            "namespace": {
+                "type": "text"
+            },
+            "message": {
+                "type": "text"
+            },
+            "host": {
+                "type": "text"
+            },
+            "last_timestamp": {
+                "type": "date"
+            },
+            "first_timestamp": {
+                "type": "date"
+            }
+        }
+    }
+    es_client = log.es.get_es_client()
+    return log.es.create_index_and_mapping(es_client, index, 'event', index_mapping)
