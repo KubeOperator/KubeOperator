@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-cluster-event-detail',
@@ -7,9 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ClusterEventDetailComponent implements OnInit {
 
-  constructor() { }
+  open = false;
+  event: any;
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
 
+  cancel() {
+    this.open = false;
+  }
 }

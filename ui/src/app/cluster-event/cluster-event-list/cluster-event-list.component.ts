@@ -1,7 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {ClusterEventSearch} from '../cluster-event-search';
 import {ClusterEventService} from '../cluster-event.service';
+import {ClusterEventDetailComponent} from '../cluster-event-detail/cluster-event-detail.component';
 
 @Component({
   selector: 'app-cluster-event-list',
@@ -16,6 +17,8 @@ export class ClusterEventListComponent implements OnInit {
   pageSize = 10;
   totalItems: number;
   loading = true;
+  @ViewChild(ClusterEventDetailComponent, {static: true})
+  detail: ClusterEventDetailComponent;
 
   constructor(private clusterEventService: ClusterEventService) {
   }
@@ -34,5 +37,10 @@ export class ClusterEventListComponent implements OnInit {
       this.totalItems = res.total;
       this.loading = false;
     });
+  }
+
+  showDetail(item: any) {
+    this.detail.event = item;
+    this.detail.open = true;
   }
 }
