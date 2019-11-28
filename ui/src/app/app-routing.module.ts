@@ -32,6 +32,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {SystemLogComponent} from './system-log/system-log.component';
 import {DnsComponent} from './dns/dns.component';
 import {ClusterStorageComponent} from './cluster-storage/cluster-storage.component';
+import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 
 const routes: Routes = [
   {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
@@ -89,6 +90,7 @@ const routes: Routes = [
           {path: 'log', component: LogComponent},
           {path: 'apps', component: ApplicationComponent},
           {path: 'health', component: ClusterHealthComponent},
+          {path: 'event', component: ClusterEventComponent},
           {path: 'backup', component: ClusterBackupComponent},
           {path: 'big-ip', component: F5BigIpComponent},
           {path: 'cluster-storage', component: ClusterStorageComponent}

@@ -34,6 +34,7 @@ import {SystemLogComponent} from './system-log/system-log.component';
 import {SystemLogModule} from './system-log/system-log.module';
 import {DnsModule} from './dns/dns.module';
 import { ClusterStorageComponent } from './cluster-storage/cluster-storage.component';
+import { ClusterEventComponent } from './cluster-event/cluster-event.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { ClusterStorageComponent } from './cluster-storage/cluster-storage.compo
     ClusterBackupComponent,
     DashboardComponent,
     ClusterStorageComponent,
+    ClusterEventComponent,
   ],
   imports: [
     CredentialModule,
