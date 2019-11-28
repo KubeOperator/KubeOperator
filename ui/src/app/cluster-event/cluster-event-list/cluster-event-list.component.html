@@ -1,4 +1,21 @@
 <app-cluster-event-detail></app-cluster-event-detail>
-<clr-datagrid>
-
+<clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-column>信息</clr-dg-column>
+  <clr-dg-column>类型</clr-dg-column>
+  <clr-dg-column>原因</clr-dg-column>
+  <clr-dg-column>时间</clr-dg-column>
+  <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
+    <clr-dg-cell style="cursor: pointer;color: #0079b8;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">
+      {{item.message}}</clr-dg-cell>
+    <clr-dg-cell>{{item.type}}</clr-dg-cell>
+    <clr-dg-cell>{{item.reason}}</clr-dg-cell>
+    <clr-dg-cell>{{item.last_timestamp}}</clr-dg-cell>
+  </clr-dg-row>
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [clrDgPageSize]="pageSize" [(clrDgPage)]="currentPage" (clrDgPageChange)="listClusterEvent()">
+      <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
+      {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+      共{{pagination.totalItems}} 个
+    </clr-dg-pagination>
+  </clr-dg-footer>
 </clr-datagrid>

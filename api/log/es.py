@@ -113,12 +113,13 @@ def batch_data(client, data):
 def delete_index(client, index):
     return client.indices.delete(index=index)
 
-def search_event(params,cluster_name):
+
+def search_event(params, cluster_name):
     type = params.get('type', None)
     page = params.get('currentPage', None)
     size = params.get('size', None)
     keywords = params.get('keywords', None)
-    limit_days = params.get('limit_days', None)
+    limit_days = params.get('limitDays', None)
     time_start = get_start_time(limit_days)
     time_end = get_time_now()
     year = datetime.datetime.now().year
@@ -142,7 +143,7 @@ def search_event(params,cluster_name):
             {
                 "action": hit.action,
                 "type": hit.type,
-                "last_timestamp": format_tz_time(hit.last_timestamp),
+                "last_timestamp": hit.last_timestamp,
                 "cluster_name": hit.cluster_name,
                 "component": hit.component,
                 "host": hit.host,
@@ -153,4 +154,7 @@ def search_event(params,cluster_name):
                 "reason": hit.reason,
             }
         )
-    return items
+    return {
+        "items": items,
+        "total": s.count()
+    }
