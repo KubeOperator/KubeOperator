@@ -67,7 +67,7 @@ fi
 
 #磁盘剩余空间检测
 echo -ne "磁盘剩余空间检测 \t........................ "
-path="/opt/kubeoperator"
+path="/opt"
 
 IFSOld=$IFS
 IFS=$'\n'
