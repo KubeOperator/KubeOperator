@@ -110,5 +110,5 @@ def batch_data(client, data):
     return helpers.bulk(client, data)
 
 
-def delte_index(client, index):
+def delete_index(client, index):
     return client.indices.delete(index=index)
