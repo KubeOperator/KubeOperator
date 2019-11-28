@@ -1,19 +1,44 @@
 <app-cluster-event-detail></app-cluster-event-detail>
 <clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-action-bar>
+    <div style="float: right;margin-top: -2%">
+      <div class="clr-input-wrapper">
+        <input clrInput placeholder="关键字" name="name" [(ngModel)]="search.keywords"/>
+      </div>
+      <div class="clr-select-wrapper">
+        <select class="clr-select" [(ngModel)]="search.limitDays">
+          <option value=1>过去一天</option>
+          <option value=7>过去一周</option>
+          <option value=30>过去一月</option>
+        </select>
+      </div>
+      &nbsp;
+      <div class="clr-select-wrapper">
+        <select class="clr-select" [(ngModel)]="search.type">
+          <option value="all">全部等级</option>
+          <option value="Normal">Normal</option>
+          <option value="Warning">Warning</option>
+        </select>
+      </div>
+      <button class="btn btn-link" (click)="listClusterEvent()">
+        <clr-icon shape="refresh"></clr-icon>
+      </button>
+    </div>
+  </clr-dg-action-bar>
   <clr-dg-column>信息</clr-dg-column>
   <clr-dg-column>类型</clr-dg-column>
   <clr-dg-column>原因</clr-dg-column>
   <clr-dg-column>时间</clr-dg-column>
   <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
     <clr-dg-cell style="cursor: pointer;color: #0079b8;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"
-    (click)="showDetail(item)">
+                 (click)="showDetail(item)">
       {{item.message}}</clr-dg-cell>
     <clr-dg-cell>{{item.type}}</clr-dg-cell>
     <clr-dg-cell>{{item.reason}}</clr-dg-cell>
     <clr-dg-cell>{{item.last_timestamp  | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
-    <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [clrDgPageSize]="pageSize" [(clrDgPage)]="currentPage"
+    <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [clrDgPageSize]="this.search.size" [(clrDgPage)]="this.search.currentPage"
                        (clrDgPageChange)="listClusterEvent()">
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}

@@ -131,7 +131,7 @@ def search_event(params, cluster_name):
     s = s.query("range", last_timestamp={"gte": time_start, "lte": time_end})
     if page and size:
         s = s[(page - 1) * size:page * size]
-    if type:
+    if type and not type == 'all':
         s = s.query("match", type=type)
     if keywords:
         s = s.query("match", message=keywords)

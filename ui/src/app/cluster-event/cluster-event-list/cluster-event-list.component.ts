@@ -13,8 +13,6 @@ export class ClusterEventListComponent implements OnInit {
   @Input() currentCluster: Cluster;
   search = new ClusterEventSearch();
   items = [];
-  currentPage = 1;
-  pageSize = 10;
   totalItems: number;
   loading = true;
   @ViewChild(ClusterEventDetailComponent, {static: true})
@@ -24,14 +22,15 @@ export class ClusterEventListComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.search.limitDays = 7;
+    this.search.size = 10;
+    this.search.currentPage = 1;
+    this.search.type = 'all';
     this.listClusterEvent();
   }
 
   listClusterEvent() {
     this.loading = true;
-    this.search.limitDays = 7;
-    this.search.size = this.pageSize;
-    this.search.currentPage = this.currentPage;
     this.clusterEventService.listClusterEvents(this.currentCluster.name, this.search).subscribe(res => {
       this.items = res.items;
       this.totalItems = res.total;
