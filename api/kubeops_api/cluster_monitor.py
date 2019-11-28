@@ -219,12 +219,7 @@ class ClusterMonitor():
 
     def get_kubernetes_status(self):
         self.check_authorization(self.retry_count)
-        year = datetime.datetime.now().year
-        month = datetime.datetime.now().month
-        index = (self.cluster.name + '-{}.{}').format(year, month)
-        es_client = log.es.get_es_client()
         message = ''
-        put_event_data_to_es()
         component_data, monitor_data, system_data = [], [], []
         try:
             components = self.api_instance.list_component_status()
@@ -422,11 +417,15 @@ def put_event_data_to_es():
         month = datetime.datetime.now().month
         index = (cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
-        if(log.es.exists(es_client,index)):
-            log.es.batch_data(es_client,actions)
+        if (log.es.exists(es_client, index)):
+            success, failed = log.es.batch_data(es_client, actions)
+            logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
+                        exc_info=False)
         else:
             if create_index(index):
-                log.es.batch_data(es_client, actions)
+                success, failed = log.es.batch_data(es_client, actions)
+                logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
+                            exc_info=False)
             else:
                 pass
 

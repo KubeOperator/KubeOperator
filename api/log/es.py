@@ -112,3 +112,45 @@ def batch_data(client, data):
 
 def delete_index(client, index):
     return client.indices.delete(index=index)
+
+def search_event(params,cluster_name):
+    type = params.get('type', None)
+    page = params.get('currentPage', None)
+    size = params.get('size', None)
+    keywords = params.get('keywords', None)
+    limit_days = params.get('limit_days', None)
+    time_start = get_start_time(limit_days)
+    time_end = get_time_now()
+    year = datetime.datetime.now().year
+    month = datetime.datetime.now().month
+    index = (cluster_name + '-{}.{}').format(year, month)
+
+    client = get_es_client()
+    s = Search(index=index).using(client)
+    s = s.query("range", last_timestamp={"gte": time_start, "lte": time_end})
+    if page and size:
+        s = s[(page - 1) * size:page * size]
+    if type:
+        s = s.query("match", type=type)
+    if keywords:
+        s = s.query("match", message=keywords)
+    s = s.sort({"last_timestamp": {"order": "desc"}})
+    s.execute()
+    items = []
+    for hit in s:
+        items.append(
+            {
+                "action": hit.action,
+                "type": hit.type,
+                "last_timestamp": format_tz_time(hit.last_timestamp),
+                "cluster_name": hit.cluster_name,
+                "component": hit.component,
+                "host": hit.host,
+                "message": hit.message,
+                "first_timestamp": hit.first_timestamp,
+                "name": hit.name,
+                "namespace": hit.namespace,
+                "reason": hit.reason,
+            }
+        )
+    return items
