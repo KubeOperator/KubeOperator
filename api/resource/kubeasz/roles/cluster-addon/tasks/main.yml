@@ -31,6 +31,10 @@
     - name: create kube-operator namespace
       shell: "kubectl create ns kube-operator"
 
+    - name: 创建 worker1节点标签
+      shell: kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent
+      delegate_to: "{{ groups['kube-master'][0] }}"
+
     - name: create etcd monitoring secrets
       shell: "kubectl -n kube-operator create secret generic etcd-secret-files \
           --from-file=/etc/kubernetes/ssl/ca.pem \

@@ -24,7 +24,7 @@ if [ -f /etc/redhat-release ];then
     echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 64 位版本"
     validationPassed=0
   else
-    if [[ $majorVersion == 7 ]] && [[ $minorVersion > 5 ]];then
+    if [[ $majorVersion == 7 ]] && [[ $minorVersion > 3 ]];then
       is64bitArch=`uname -m`
       if [ "x$is64bitArch" == "xx86_64" ];then
          echo "[OK]"
@@ -67,7 +67,7 @@ fi
 
 #磁盘剩余空间检测
 echo -ne "磁盘剩余空间检测 \t........................ "
-path="/opt/kubeoperator"
+path="/opt"
 
 IFSOld=$IFS
 IFS=$'\n'

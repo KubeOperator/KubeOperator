@@ -2,6 +2,8 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {HostInfoService} from './host-info.service';
 import {HostService} from '../host.service';
 import {Host} from '../host';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
 
 @Component({
   selector: 'app-host-info',
@@ -15,7 +17,7 @@ export class HostInfoComponent implements OnInit {
   @Input() showInfoModal = false;
   @Output() showInfoModalChange = new EventEmitter();
 
-  constructor(private hostService: HostService) {
+  constructor(private hostService: HostService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
