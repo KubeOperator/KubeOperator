@@ -103,7 +103,7 @@ def exists(client, index):
 
 def create_index_and_mapping(client, index, doc_type, mapping):
     client.indices.create(index=index)
-    client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping)
+    client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping,params={'include_type_name':'true'})
 
 
 def batch_data(client, data):

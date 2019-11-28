@@ -219,6 +219,10 @@ class ClusterMonitor():
 
     def get_kubernetes_status(self):
         self.check_authorization(self.retry_count)
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        index = (self.cluster.name + '-{}.{}').format(year, month)
+        es_client = log.es.get_es_client()
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
@@ -458,7 +462,8 @@ def create_index(index):
                 "type": "text"
             },
             "message": {
-                "type": "text"
+                "type": "text",
+                "analyzer": "english"
             },
             "host": {
                 "type": "text"
