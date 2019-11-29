@@ -219,13 +219,8 @@ class ClusterMonitor():
 
     def get_kubernetes_status(self):
         self.check_authorization(self.retry_count)
-        year = datetime.datetime.now().year
-        month = datetime.datetime.now().month
-        index = (self.cluster.name + '-{}.{}').format(year, month)
-        es_client = log.es.get_es_client()
         message = ''
         component_data, monitor_data, system_data = [], [], []
-        put_event_data_to_es()
         try:
             components = self.api_instance.list_component_status()
             for c in components.items:
