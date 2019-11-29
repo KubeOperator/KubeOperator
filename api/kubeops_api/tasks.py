@@ -37,7 +37,7 @@ def save_cluster_data():
     kubeops_api.cluster_monitor.put_cluster_data_to_redis()
 
 
-@periodic_task(run_every=crontab(minute=0, hour='*/5'), name='task.get_loki_data_hour')
+@periodic_task(run_every=crontab(minute=0, hour='*/1'), name='task.get_loki_data_hour')
 def get_loki_data_hour():
     kubeops_api.cluster_monitor.put_loki_data_to_redis()
 
