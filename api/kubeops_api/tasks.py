@@ -11,7 +11,6 @@ import kubeops_api.cluster_health_utils
 from celery.schedules import crontab
 import kubeops_api.cluster_monitor
 from kubeops_api.models.host import Host
-from kubeops_api.models.package import Package
 
 logger = logging.getLogger(__name__)
 
@@ -33,33 +32,18 @@ def cluster_backup():
     kubeops_api.cluster_backup_utils.cluster_backup()
 
 
-@periodic_task(run_every=crontab(minute=0, hour=0), name='task.get_cluster_health_day')
-def get_cluster_health_day():
-    kubeops_api.cluster_health_utils.handle_cluster_health_msg_day()
-
-
-@periodic_task(run_every=crontab(minute=0, hour='*/1'), name='task.get_cluster_health_hour')
-def get_cluster_health_hour():
-    kubeops_api.cluster_health_utils.get_cluster_health_msg_hour()
-
-
 @periodic_task(run_every=crontab(minute='*/5'), name='task.save_cluster_data')
 def save_cluster_data():
     kubeops_api.cluster_monitor.put_cluster_data_to_redis()
 
 
-@periodic_task(run_every=crontab(minute=0, hour='*/1'), name='task.get_loki_data_hour')
+@periodic_task(run_every=crontab(minute=0, hour='*/5'), name='task.get_loki_data_hour')
 def get_loki_data_hour():
     kubeops_api.cluster_monitor.put_loki_data_to_redis()
 
 
-@periodic_task(run_every=crontab(minute="*/5"), name='task.refresh_host_info')
+@periodic_task(run_every=crontab(minute="*/30"), name='task.refresh_host_info')
 def refresh_host_info():
     hosts = Host.objects.all()
     for host in hosts:
         host.gather_info()
-
-
-@periodic_task(run_every=crontab(minute="*/5"), name='task.load_package')
-def load_package():
-    Package.lookup()
