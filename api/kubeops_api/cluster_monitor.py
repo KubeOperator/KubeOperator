@@ -344,7 +344,7 @@ class ClusterMonitor():
                           message=item.message, last_timestamp=last_timestamp, first_timestamp=item.first_timestamp)
             events.append(event.__dict__)
             # 判断根据uid判断这个事件是否已经存入es
-            if log.es.exists(es_client, index) and log.es.get_event_uid_exist(es_client,index,item.metadata.uid):
+            if log.es.get_event_uid_exist(es_client, index, item.metadata.uid):
                 action = {
                     '_op_type': 'index',
                     '_index': index,
@@ -421,25 +421,23 @@ def put_event_data_to_es():
 
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
-        events, actions = cluster_monitor.list_events()
         year = datetime.datetime.now().year
         month = datetime.datetime.now().month
         index = (cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
-        if (log.es.exists(es_client, index)):
+        index_exists = log.es.exists(es_client, index)
+        if index_exists == False:
+            index_exists = create_index(es_client, index)
+        if index_exists:
+            events, actions = cluster_monitor.list_events()
             success, failed = log.es.batch_data(es_client, actions)
             logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
                         exc_info=False)
         else:
-            if create_index(index):
-                success, failed = log.es.batch_data(es_client, actions)
-                logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
-                            exc_info=False)
-            else:
-                pass
+            logger.error(msg='create es index error',exc_info=True)
 
 
-def create_index(index):
+def create_index(client, index):
     index_mapping = {
         "properties": {
             "uid": {
@@ -484,5 +482,4 @@ def create_index(index):
             }
         }
     }
-    es_client = log.es.get_es_client()
-    return log.es.create_index_and_mapping(es_client, index, 'event', index_mapping)
+    return log.es.create_index_and_mapping(client, index, 'event', index_mapping)
