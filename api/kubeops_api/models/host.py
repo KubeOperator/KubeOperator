@@ -88,10 +88,13 @@ class Host(BaseHost):
             self.save()
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
+            self.cpu_core = 0
+            self.memory = 0
+            self.os = "未知"
+            self.volumes.set([])
+            self.os_version = ""
             self.save()
             logger.error("host: {}  gather host info".format(self.name), exc_info=True)
-            raise e
-
 
     class Meta:
         ordering = ('name',)

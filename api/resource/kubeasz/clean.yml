@@ -79,17 +79,35 @@
 
         - name: unmount docker filesystem-2
           mount: path={{ STORAGE_DIR }}/overlay state=unmounted
+          when: 'STORAGE_DIR is defined'
+
+        - name: unmount docker filesystem-2
+          mount: path=/var/lib/docker/overlay state=unmounted
+          when: 'STORAGE_DIR is not defined'
 
         - name: remove files and dirs
           file: name={{ item }} state=absent
           with_items:
-            - "{{ STORAGE_DIR }}"
+            - "{{ STORAGE_DIR }}/"
             - "/var/run/docker/"
             - "/etc/systemd/system/docker.service"
             - "/etc/systemd/system/docker.service.requires/"
             - "/etc/systemd/system/docker.service.d/"
             - "/etc/bash_completion.d/docker"
             - "/usr/bin/docker"
+          when: 'STORAGE_DIR is defined'
+
+        - name: remove files and dirs
+          file: name={{ item }} state=absent
+          with_items:
+            - "/var/lib/docker/"
+            - "/var/run/docker/"
+            - "/etc/systemd/system/docker.service"
+            - "/etc/systemd/system/docker.service.requires/"
+            - "/etc/systemd/system/docker.service.d/"
+            - "/etc/bash_completion.d/docker"
+            - "/usr/bin/docker"
+          when: 'STORAGE_DIR is not defined'
       when: CONTAINER_RUNTIME == 'docker'
 
     - block:

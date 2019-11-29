@@ -1,6 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
   <h3 class="modal-title">升级</h3>
   <div class="modal-body">
+    <p class="p7 prompt">版本升级只能在小版本之前进行 例如:1.16.1 升级到1.16.2 不能从1.15升级到1.16</p>
     <form clrForm #form='ngForm'>
       <clr-select-container>
         <label>目标版本: </label>

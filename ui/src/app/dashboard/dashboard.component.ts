@@ -39,6 +39,7 @@ export class DashboardComponent implements OnInit {
   timer;
   maxPodCount = 0;
   containerUsage = 0;
+  showWindow = true;
 
   constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
   }

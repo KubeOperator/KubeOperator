@@ -196,7 +196,12 @@ class ClusterMonitor():
             'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
-        return prometheus_client.get_node_resource(node)
+        try:
+            res =  prometheus_client.get_node_resource(node)
+            return res
+        except Exception as e:
+            logger.error(msg='get node data error ', exc_info=True)
+            return node
 
     def get_loki_msg(self):
         host = "loki.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
@@ -205,7 +210,12 @@ class ClusterMonitor():
             'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
-        return prometheus_client.get_msg_from_loki(self.cluster.name)
+        try:
+            res =  prometheus_client.get_msg_from_loki(self.cluster.name)
+            return res
+        except Exception as e:
+            logger.error(msg='get loki meg error ', exc_info=True)
+            return []
 
     def set_loki_data_to_cluster(self):
         cluster_data = self.redis_cli.get(self.cluster.name)
@@ -291,13 +301,19 @@ class ClusterMonitor():
         sc_response = self.storage_v1_Api.list_storage_class()
         scs = []
         for item in sc_response.items:
-            datastore = item.parameters.get('datastore', None)
+            if item.parameters:
+                datastore = item.parameters.get('datastore', None)
+            else:
+                datastore = ''
             storage_class = StorageClass(name=item.metadata.name, provisioner=item.provisioner, datastore=datastore,
                                          create_time=str(item.metadata.creation_timestamp), pvcs=[])
             scs.append(storage_class.__dict__)
         pvc_response = self.api_instance.list_persistent_volume_claim_for_all_namespaces()
         for item in pvc_response.items:
-            capacity = item.status.capacity.get('storage', None)
+            if item.status.capacity:
+                capacity = item.status.capacity.get('storage', None)
+            else:
+                capacity = ''
             pvc = PVC(name=item.metadata.name, namespace=item.metadata.namespace, status=item.status.phase,
                       capacity=capacity, storage_class=item.spec.storage_class_name, mount_by=item.metadata.namespace,
                       create_time=str(item.metadata.creation_timestamp))

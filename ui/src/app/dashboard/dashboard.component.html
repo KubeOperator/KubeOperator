@@ -6,7 +6,7 @@
     </span>
   </div>
 </div>
-<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0 && showWindow}">
   <div class="clr-col-lg-6 clr-col-12">
     <p class="p7 prompt">异常日志每小时更新一次 其他信息每5分钟更新一次</p>
   </div>
@@ -32,9 +32,10 @@
     </div>
   </div>
 </div>
-<div class="clr-row" *ngIf="!loading && clusters.length === 0">
+<div class="clr-row" *ngIf="!loading && clusters.length === 0 && showWindow">
   <div class="clr-col-sm-12 center">
     <div class="card card-block card-top">
+      <clr-icon shape="close" role="none" style="float: right" (click)="showWindow=false"></clr-icon>
       <h2>快速开始</h2>
       <div class="clr-row" style="margin-top: 50px;">
         <div class="clr-col-sm-4 center">
@@ -58,7 +59,7 @@
     </div>
   </div>
 </div>
-<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0 && showWindow}">
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
       <div class="card-block card-style">
@@ -88,7 +89,7 @@
         <div class="clr-col-sm-12 clr-col-12">
           <h5>CPU使用率 ({{cpuUsage | number: '1.0-2'}}%)</h5>
         </div>
-        <div class="clr-col-sm-12 clr-col-12">
+        <div class="clr-col-sm-11 clr-col-12">
           <div class="progress success labeled progress-dashboard"
                data-displayval="100%">
             <progress class="progress-dashboard" max="100" value="{{cpuUsage}}"></progress>
@@ -98,7 +99,7 @@
         <div class="clr-col-sm-12 clr-col-12">
           <h5>内存使用率 ({{memUsage | number: '1.0-2'}}%)</h5>
         </div>
-        <div class="clr-col-sm-12 clr-col-12">
+        <div class="clr-col-sm-11 clr-col-12">
           <div class="progress success labeled progress-dashboard" data-displayval="100%">
             <progress class="progress-dashboard" max="100" value="{{memUsage}}"></progress>
             <span>{{memTotal | number: '1.0-2' }}G</span>
@@ -107,7 +108,7 @@
         <div class="clr-col-sm-12 clr-col-12">
           <h5>容器组 ({{containerUsage | number: '1.0-2'}}%)</h5>
         </div>
-        <div class="clr-col-sm-12 clr-col-12">
+        <div class="clr-col-sm-11 clr-col-12">
           <div class="progress success labeled progress-dashboard" data-displayval="100%">
             <progress class="progress-dashboard" max="100" value="{{containerUsage}}"></progress>
             <span>{{podCount}}/{{maxPodCount}}</span>
@@ -148,7 +149,7 @@
     </div>
   </div>
 </div>
-<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0}">
+<div class="clr-row" *ngIf="!loading" [ngClass]="{'div-disabled' : clusters.length === 0 && showWindow}">
   <div class="clr-col-lg-4 clr-col-12">
     <div class="card">
       <div class="card-block card-style">
