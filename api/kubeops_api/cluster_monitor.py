@@ -194,7 +194,12 @@ class ClusterMonitor():
             'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
-        return prometheus_client.get_node_resource(node)
+        try:
+            res =  prometheus_client.get_node_resource(node)
+            return res
+        except Exception as e:
+            logger.error(msg='get node data error ', exc_info=True)
+            return node
 
     def get_loki_msg(self):
         host = "loki.apps." + self.cluster.name + "." + self.cluster.cluster_doamin_suffix
@@ -203,7 +208,12 @@ class ClusterMonitor():
             'cluster': self.cluster
         }
         prometheus_client = PrometheusClient(config)
-        return prometheus_client.get_msg_from_loki(self.cluster.name)
+        try:
+            res =  prometheus_client.get_msg_from_loki(self.cluster.name)
+            return res
+        except Exception as e:
+            logger.error(msg='get loki meg error ', exc_info=True)
+            return []
 
     def set_loki_data_to_cluster(self):
         cluster_data = self.redis_cli.get(self.cluster.name)
