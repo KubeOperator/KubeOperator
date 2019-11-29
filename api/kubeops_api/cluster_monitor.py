@@ -197,7 +197,7 @@ class ClusterMonitor():
         }
         prometheus_client = PrometheusClient(config)
         try:
-            res =  prometheus_client.get_node_resource(node)
+            res = prometheus_client.get_node_resource(node)
             return res
         except Exception as e:
             logger.error(msg='get node data error ', exc_info=True)
@@ -211,7 +211,7 @@ class ClusterMonitor():
         }
         prometheus_client = PrometheusClient(config)
         try:
-            res =  prometheus_client.get_msg_from_loki(self.cluster.name)
+            res = prometheus_client.get_msg_from_loki(self.cluster.name)
             return res
         except Exception as e:
             logger.error(msg='get loki meg error ', exc_info=True)
@@ -331,15 +331,15 @@ class ClusterMonitor():
         index = (self.cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
         for item in event_response.items:
-            if item.reporting_component is not None:
-                component = item.reporting_component
-            else:
+            component, host = '', ''
+            if item.source is not None and item.source.component is not None:
                 component = item.source.component
-
-            if item.reporting_instance is not None:
-                host = item.reporting_instance
-            else:
+            elif item.reporting_component is not None:
+                component = item.reporting_component
+            if item.source is not None and item.source.host is not None:
                 host = item.source.host
+            elif  item.reporting_instance is not None:
+                host = item.reporting_instance
 
             if item.last_timestamp is not None:
                 last_timestamp = item.last_timestamp
@@ -445,7 +445,7 @@ def put_event_data_to_es():
             logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
                         exc_info=False)
         else:
-            logger.error(msg='create es index error',exc_info=True)
+            logger.error(msg='create es index error', exc_info=True)
 
 
 def create_index(client, index):
