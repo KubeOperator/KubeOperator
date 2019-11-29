@@ -68,6 +68,7 @@ resource "vsphere_virtual_machine" "{{host.short_name}}" {
 
   clone {
     template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    timeout = 60
     customize {
 
       linux_options {
