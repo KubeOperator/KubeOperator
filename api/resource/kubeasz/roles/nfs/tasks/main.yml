@@ -18,13 +18,20 @@
   file: 'path="{{ item.strip().split()[0] }}" state=directory'
   with_items: "{{ nfs_exports }}"
 
-- name: Copy exports file.
-  template:
-    src: exports.j2
-    dest: /etc/exports
+- name: Create exports file.
+  file:
+    path: "/etc/exports/exports.j2"
     owner: root
     group: root
     mode: 0644
+    state: touch
+
+- name: Add export
+  blockinfile:
+    path: "/etc/exports/exports.j2"
+    marker: "#{mark} {{nfs_name}}"
+    block: "{{storage_nfs_server_path}} {{allow_ip}}(rw,sync,no_root_squash)"
+    state: present
   notify: reload nfs
 
 - name: Ensure nfs is running.

@@ -64,7 +64,8 @@ class NfsStorage(Project):
         port = package.repo_port
         self.vars.update({
             "local_hostname": hostname,
-            "repo_port": port
+            "repo_port": port,
+            "nfs_name": self.name
         })
         thread = threading.Thread(target=self.execute_playbook, args=(playbook, self.vars))
         thread.start()
