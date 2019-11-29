@@ -223,6 +223,7 @@ class ClusterMonitor():
         month = datetime.datetime.now().month
         index = (self.cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
+        self.list_events()
         message = ''
         component_data, monitor_data, system_data = [], [], []
         try:
@@ -314,6 +315,10 @@ class ClusterMonitor():
         event_response = self.api_instance.list_event_for_all_namespaces()
         events = []
         actions = []
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        index = (self.cluster.name + '-{}.{}').format(year, month)
+        es_client = log.es.get_es_client()
         for item in event_response.items:
             if item.reporting_component is not None:
                 component = item.reporting_component
@@ -332,21 +337,21 @@ class ClusterMonitor():
             else:
                 last_timestamp = item.metadata.creation_timestamp
 
-            event = Event(name=item.metadata.name, type=item.type, cluster_name=self.cluster.name, action=item.action,
+            event = Event(uid=item.metadata.uid, name=item.metadata.name, type=item.type,
+                          cluster_name=self.cluster.name, action=item.action,
                           reason=item.reason, count=item.count, host=host, component=component,
                           namespace=item.metadata.namespace,
                           message=item.message, last_timestamp=last_timestamp, first_timestamp=item.first_timestamp)
             events.append(event.__dict__)
-            year = datetime.datetime.now().year
-            month = datetime.datetime.now().month
-            index = (self.cluster.name + '-{}.{}').format(year, month)
-            action = {
-                '_op_type': 'index',
-                '_index': index,
-                '_type': 'event',
-                '_source': event.__dict__
-            }
-            actions.append(action)
+            # 判断根据uid判断这个事件是否已经存入es
+            if log.es.get_event_uid_exist(es_client,index,item.metadata.uid) == False:
+                action = {
+                    '_op_type': 'index',
+                    '_index': index,
+                    '_type': 'event',
+                    '_source': event.__dict__
+                }
+                actions.append(action)
         return events, actions
 
 
@@ -437,6 +442,9 @@ def put_event_data_to_es():
 def create_index(index):
     index_mapping = {
         "properties": {
+            "uid": {
+                "type": "keyword"
+            },
             "name": {
                 "type": "text"
             },
