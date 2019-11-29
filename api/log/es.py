@@ -141,6 +141,7 @@ def search_event(params, cluster_name):
     for hit in s:
         items.append(
             {
+                "uid": hit.uid,
                 "action": hit.action,
                 "type": hit.type,
                 "last_timestamp": hit.last_timestamp,
@@ -158,7 +159,6 @@ def search_event(params, cluster_name):
         "items": items,
         "total": s.count()
     }
-
 
 def get_event_uid_exist(client, index, uid):
     s = Search(index=index).using(client)

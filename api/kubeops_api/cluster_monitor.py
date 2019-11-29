@@ -223,9 +223,9 @@ class ClusterMonitor():
         month = datetime.datetime.now().month
         index = (self.cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
-        self.list_events()
         message = ''
         component_data, monitor_data, system_data = [], [], []
+        put_event_data_to_es()
         try:
             components = self.api_instance.list_component_status()
             for c in components.items:
@@ -344,7 +344,7 @@ class ClusterMonitor():
                           message=item.message, last_timestamp=last_timestamp, first_timestamp=item.first_timestamp)
             events.append(event.__dict__)
             # 判断根据uid判断这个事件是否已经存入es
-            if log.es.get_event_uid_exist(es_client,index,item.metadata.uid) == False:
+            if log.es.exists(es_client, index) and log.es.get_event_uid_exist(es_client,index,item.metadata.uid):
                 action = {
                     '_op_type': 'index',
                     '_index': index,
