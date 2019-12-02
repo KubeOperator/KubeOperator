@@ -1,10 +1,11 @@
 <clr-modal [(clrModalOpen)]="open" [clrModalSize]="'xl'" [clrModalClosable]=false>
-  <h3 class="modal-title">时间详情</h3>
+  <h3 class="modal-title">事件详情</h3>
   <div class="modal-body" *ngIf="event">
     <div class="card-block">
       <ul class="list-unstyled">
         <li><b>名称:</b>{{event.name}}</li>
         <li><b>类别:</b>{{event.type}}</li>
+        <li><b>原因:</b>{{event.reason}}</li>
         <li><b>组件:</b>{{event.component}}</li>
         <li><b>NameSpace:</b>{{event.namespace}}</li>
         <li><b>主机:</b>{{event.host}}</li>
