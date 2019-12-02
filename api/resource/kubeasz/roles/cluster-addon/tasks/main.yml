@@ -9,6 +9,44 @@
   when: '"ingress-controller" not in pod_info.stdout '
 
 - block:
+    - name: 创建npd相关目录
+      file: path=/opt/kube/kube-system/npd/config state=directory
+
+    - name: 准备npd部署文件
+      template: src=npd.yaml.j2 dest=/opt/kube/kube-system/npd/npd.yaml
+
+    - name: 准备abrt-adaptor部署文件
+      template: src=config/abrt-adaptor.json.j2 dest=/opt/kube/kube-system/npd/config/abrt-adaptor.json
+
+    - name: 准备docker-monitor部署文件
+      template: src=config/docker-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/docker-monitor.json
+
+    - name: 准备kernel-monitor部署文件
+      template: src=config/kernel-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/kernel-monitor.json
+
+    - name: 准备systemd-monitor部署文件
+      template: src=config/systemd-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/systemd-monitor.json
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true
+
+- block:
+    - name: 创建 npd cm部署
+      shell: "{{ bin_dir }}/kubectl -n kube-system create configmap node-problem-detector-config --from-file=./config"
+      args:
+        chdir: "/opt/kube/kube-system/npd"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+
+    - name: 创建 npd 部署
+      shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
+      args:
+        chdir: "/opt/kube/kube-system/npd"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      run_once: true
+  when: '"node-problem-detector" not in pod_info.stdout'
+  ignore_errors: true
+
+- block:
     - name: 创建 dashboard 部署文件
       template:
         src: dashboard/kubernetes-dashboard.yaml.j2
