@@ -11,6 +11,7 @@ import kubeops_api.cluster_health_utils
 from celery.schedules import crontab
 import kubeops_api.cluster_monitor
 from kubeops_api.models.host import Host
+from kubeops_api.models.package import Package
 
 logger = logging.getLogger(__name__)
 
@@ -47,3 +48,12 @@ def refresh_host_info():
     hosts = Host.objects.all()
     for host in hosts:
         host.gather_info()
+
+
+@periodic_task(run_every=crontab(minute="*/5"), name='task.load_package')
+def load_package():
+    Package.lookup()
+
+@periodic_task(run_every=crontab(minute='*/2'), name='task.save_cluster_event')
+def save_cluster_event():
+    kubeops_api.cluster_monitor.put_event_data_to_es()

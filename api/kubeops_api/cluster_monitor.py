@@ -3,8 +3,10 @@ import redis
 import json
 import logging
 import fit2ansible.settings
+import log.es
+import datetime
 from kubernetes.client.rest import ApiException
-from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC
+from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
@@ -195,7 +197,7 @@ class ClusterMonitor():
         }
         prometheus_client = PrometheusClient(config)
         try:
-            res =  prometheus_client.get_node_resource(node)
+            res = prometheus_client.get_node_resource(node)
             return res
         except Exception as e:
             logger.error(msg='get node data error ', exc_info=True)
@@ -209,7 +211,7 @@ class ClusterMonitor():
         }
         prometheus_client = PrometheusClient(config)
         try:
-            res =  prometheus_client.get_msg_from_loki(self.cluster.name)
+            res = prometheus_client.get_msg_from_loki(self.cluster.name)
             return res
         except Exception as e:
             logger.error(msg='get loki meg error ', exc_info=True)
@@ -236,7 +238,7 @@ class ClusterMonitor():
                 for condition in c.conditions:
                     if condition.type == 'Healthy':
                         msg = condition.message
-                        if condition.status == 'True':
+                        if condition.status == 'Tre':
                             status = 'RUNNING'
                         elif condition.status == 'False':
                             status = 'ERROR'
@@ -320,6 +322,49 @@ class ClusterMonitor():
                     sc['pvcs'].append(pvc.__dict__)
         return scs
 
+    def list_events(self):
+        event_response = self.api_instance.list_event_for_all_namespaces()
+        events = []
+        actions = []
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        index = (self.cluster.name + '-{}.{}').format(year, month)
+        es_client = log.es.get_es_client()
+        for item in event_response.items:
+            component, host = '', ''
+            if item.source is not None and item.source.component is not None:
+                component = item.source.component
+            elif item.reporting_component is not None:
+                component = item.reporting_component
+            if item.source is not None and item.source.host is not None:
+                host = item.source.host
+            elif  item.reporting_instance is not None:
+                host = item.reporting_instance
+
+            if item.last_timestamp is not None:
+                last_timestamp = item.last_timestamp
+            elif item.event_time is not None:
+                last_timestamp = item.event_time
+            else:
+                last_timestamp = item.metadata.creation_timestamp
+
+            event = Event(uid=item.metadata.uid, name=item.metadata.name, type=item.type,
+                          cluster_name=self.cluster.name, action=item.action,
+                          reason=item.reason, count=item.count, host=host, component=component,
+                          namespace=item.metadata.namespace,
+                          message=item.message, last_timestamp=last_timestamp, first_timestamp=item.first_timestamp)
+            events.append(event.__dict__)
+            # 判断根据uid判断这个事件是否已经存入es
+            if log.es.get_event_uid_exist(es_client, index, item.metadata.uid):
+                action = {
+                    '_op_type': 'index',
+                    '_index': index,
+                    '_type': 'event',
+                    '_source': event.__dict__
+                }
+                actions.append(action)
+        return events, actions
+
 
 def delete_cluster_redis_data(cluster_name):
     redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
@@ -378,3 +423,74 @@ def put_loki_data_to_redis():
         success = cluster_monitor.set_loki_data_to_cluster()
         if success == False:
             logger.error(msg='put cluster loki data to redis error', exc_info=True)
+
+
+def put_event_data_to_es():
+    clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+
+    for cluster in clusters:
+        cluster_monitor = ClusterMonitor(cluster)
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        index = (cluster.name + '-{}.{}').format(year, month)
+        es_client = log.es.get_es_client()
+        index_exists = log.es.exists(es_client, index)
+        if index_exists == False:
+            index_exists = create_index(es_client, index)
+        if index_exists:
+            events, actions = cluster_monitor.list_events()
+            success, failed = log.es.batch_data(es_client, actions)
+            logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
+                        exc_info=False)
+        else:
+            logger.error(msg='create es index error', exc_info=True)
+
+
+def create_index(client, index):
+    index_mapping = {
+        "properties": {
+            "uid": {
+                "type": "keyword"
+            },
+            "name": {
+                "type": "text"
+            },
+            "type": {
+                "type": "keyword"
+            },
+            "cluster_name": {
+                "type": "text"
+            },
+            "reason": {
+                "type": "text"
+            },
+            "action": {
+                "type": "text"
+            },
+            "count": {
+                "type": "integer"
+            },
+            "component": {
+                "type": "text"
+            },
+            "namespace": {
+                "type": "text"
+            },
+            "message": {
+                "type": "text",
+                "analyzer": "english"
+            },
+            "host": {
+                "type": "text"
+            },
+            "last_timestamp": {
+                "type": "date"
+            },
+            "first_timestamp": {
+                "type": "date"
+            }
+        }
+    }
+    return log.es.create_index_and_mapping(client, index, 'event', index_mapping)

@@ -2,6 +2,10 @@ import json
 import logging
 import os
 import yaml
+import kubeops_api.cluster_backup_utils
+import kubeops_api.cluster_monitor
+import kubeops_api.cluster_backup_utils
+import log.es
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -9,9 +13,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-import kubeops_api.cluster_backup_utils
-import kubeops_api.cluster_monitor
 from ansible_api.permissions import IsSuperUser
 from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import test_host
@@ -31,10 +32,9 @@ from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
-import kubeops_api.cluster_backup_utils
 from rest_framework import generics
-from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+
 
 logger = logging.getLogger('kubeops')
 
@@ -492,6 +492,16 @@ class ClusterStorageView(APIView):
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         cluster_monitor = ClusterMonitor(cluster)
         result = cluster_monitor.list_storage_class()
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(result))
+        return response
+
+class ClusterEventView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        project_name = kwargs['project_name']
+        params = request.data
+        result = log.es.search_event(params,project_name)
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
