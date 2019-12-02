@@ -2,9 +2,11 @@
     - "{{groups['kube-master'][0]}}"
   tasks:
     - name: 安装 rsync
-      package: name=rsync state=present
-
+      package: name=rsync state=present1
     - name: 复制 manifests至 deploy节点
       synchronize: src=manifests dest={{ base_dir }}
+
+- hosts:
+    - "{{groups['kube-master'][0]}}"
   roles:
     - cluster-addon
