@@ -29,7 +29,7 @@
 - [x] 支持 Kubernetes 集群健康检查与诊断（Day 2）；
 - [x] 支持 [webkubectl](https://github.com/webkubectl/webkubectl) ；
 
- ## v2.2 （进行中，2019.11.30 发布）
+ ## v2.2 （已发布）
 
 - [x] 集成 [Loki](https://github.com/grafana/loki) 日志方案，实现监控、告警和日志技术栈的统一；
 - [x] KubeOperator 自身的系统日志收集和管理；
@@ -38,16 +38,17 @@
 - [x] 支持 Kubernetes 1.16；
 - [x] 支持全局的 DNS 和 NTP 设置；
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
+- [ ] 集成 node-problem-detector，支持在 Web UI 上面查看集群事件；
 
  ## v2.3 （进行中，2019.12.31 发布）
 
-- [ ] 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
 - [ ] KubeApps 应用商店； 
 
  ##  v3.0 （计划中）
  
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 支持只读用户；
+- [ ] 支持用户和权限管理；
+- [ ] 支持消息中心；
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
