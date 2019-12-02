@@ -24,7 +24,7 @@ sys.path.append(BASE_DIR)
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 
 START_TIMEOUT = 15
-WORKERS = 20
+WORKERS = 4
 DAEMON = False
 LOG_LEVEL = 'ERROR'
 
