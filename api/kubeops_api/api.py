@@ -281,10 +281,9 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         backup_storage_id = BackupStorage.objects.get(name=self.kwargs['name']).id
-        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id,
-                                               status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
+        result = BackupStrategy.objects.filter(backup_storage_id=backup_storage_id)
         if len(result) > 0:
-            return Response(data={'msg': ': 有集群使用此备份账号!请先禁用集群中的备份功能!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'msg': ': 有集群使用此备份账号!删除失败!'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return super().destroy(self, request, *args, **kwargs)
 
