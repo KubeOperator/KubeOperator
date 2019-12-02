@@ -4,6 +4,9 @@
   register: docker_ver
 
 - block:
+    - name: 添加 registry
+      shell: sed -i 's/"]/","{{registry_prefix}}:{{registry_port}}"]/g' /etc/docker/daemon.json
+
     - name: 下载新 docker 二进制文件
       copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
       with_items:
