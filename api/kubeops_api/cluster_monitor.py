@@ -238,7 +238,7 @@ class ClusterMonitor():
                 for condition in c.conditions:
                     if condition.type == 'Healthy':
                         msg = condition.message
-                        if condition.status == 'Tre':
+                        if condition.status == 'True':
                             status = 'RUNNING'
                         elif condition.status == 'False':
                             status = 'ERROR'
