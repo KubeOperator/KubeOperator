@@ -41,7 +41,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/data/config.yml
+      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/config.yml
     healthcheck:
       test: "curl localhost:8000"
       interval: 10s
@@ -66,7 +66,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/data/config.yml
+      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/config.yml
     healthcheck:
       test: "ps axu | grep 'celery worker'"
       interval: 10s
