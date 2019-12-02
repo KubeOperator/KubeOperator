@@ -38,7 +38,7 @@
 - [x] 支持 Kubernetes 1.16；
 - [x] 支持全局的 DNS 和 NTP 设置；
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
-- [ ] 集成 node-problem-detector，支持在 Web UI 上面查看集群事件；
+- [x] 支持在 Web UI 上面查看集群事件；
 
  ## v2.3 （进行中，2019.12.31 发布）
 
