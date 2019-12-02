@@ -133,15 +133,12 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         self.set_step_default()
         self.update_current_step('create-resource', DeployExecution.STEP_STATUS_RUNNING)
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
-            if not cluster.node_size > 0:
-                try:
-                    cluster.create_resource()
-                    self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
-                except RuntimeError as e:
-                    self.update_current_step('create-resource', DeployExecution.STEP_STATUS_ERROR)
-                    raise e
-            else:
+            try:
+                cluster.create_resource()
                 self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
+            except RuntimeError as e:
+                self.update_current_step('create-resource', DeployExecution.STEP_STATUS_ERROR)
+                raise e
         else:
             delete = None
             for step in self.steps:
