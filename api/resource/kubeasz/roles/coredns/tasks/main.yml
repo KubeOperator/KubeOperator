@@ -5,9 +5,6 @@
     - name: 准备 DNS的部署文件
       template: src=coredns.yaml.j2 dest=/opt/kube/kube-system/coredns/coredns.yaml
 
-    - name: 获取所有已经创建的POD信息
-      command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
-      register: pod_info
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
@@ -17,6 +14,5 @@
       run_once: true
       delegate_to: "{{ groups['kube-master'][0] }}"
   when:
-    - '"coredns" not in pod_info.stdout'
     - 'dns_install'
   ignore_errors: true

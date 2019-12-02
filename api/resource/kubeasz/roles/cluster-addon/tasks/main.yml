@@ -20,12 +20,6 @@
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
-
-
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: true
-
-
 - block:
     - name: 创建npd相关目录
       file: path=/opt/kube/kube-system/npd/config state=directory
