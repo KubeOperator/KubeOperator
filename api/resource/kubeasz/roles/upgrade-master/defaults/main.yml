@@ -1,0 +1,1 @@
+registry: "{{registry_prefix}}:{{registry_port}}"

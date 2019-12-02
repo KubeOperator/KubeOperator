@@ -4,9 +4,6 @@
   register: docker_ver
 
 - block:
-    - name: 添加 registry
-      shell: sed -i 's/"]/","{{registry_prefix}}:{{registry_port}}"]/g' /etc/docker/daemon.json
-
     - name: 下载新 docker 二进制文件
       copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
       with_items:
@@ -22,6 +19,15 @@
         restart_docker
 
   when: 'docker_ver.stdout < docker_version'
+
+- name: 获取 registry 信息
+  shell: "cat /etc/docker/daemon.json"
+  register: daemon
+
+- name: 添加 registry
+  shell: sed -i 's/"]/","{{registry_prefix}}:{{registry_port}}"]/g' /etc/docker/daemon.json
+  when: 'registry not in daemon.stdout'
+  notify: restart_docker
 
 # worker
 - name: 获取 kube-worker 版本信息

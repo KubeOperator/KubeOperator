@@ -44,6 +44,7 @@
       shell: "{{ bin_dir }}/kubectl -n kube-system create configmap node-problem-detector-config --from-file=./config"
       args:
         chdir: "/opt/kube/kube-system/npd"
+      ignore_errors: true
 
     - name: 创建 npd 部署
       shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
