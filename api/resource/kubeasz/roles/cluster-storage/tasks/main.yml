@@ -22,6 +22,7 @@
   when:
     - 'storage_rook_ceph_enabled is defined'
     - 'storage_rook_ceph_enabled'
+    - 'storage_rook_ceph_install'
 
 - block:
     - name: copy test-sc.yaml
