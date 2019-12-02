@@ -1,4 +1,4 @@
-- hosts: worker
-  tasks:
-    - name: ping
-      ping:
+- hosts:
+    - "{{groups['kube-master'][0]}}"
+  roles:
+    - cluster-addon

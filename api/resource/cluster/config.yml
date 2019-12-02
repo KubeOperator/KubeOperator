@@ -275,7 +275,7 @@ templates:
       DEPLOY_MODE: 'single-master'
       prometheus_install: true
       grafana_install: true
-      loki_install: true
+      weave-scope_install: true
       storageClassName: storageclass-default
     roles:
       - name: master
@@ -358,7 +358,7 @@ templates:
       DEPLOY_MODE: 'multiple-master'
       prometheus_install: true
       grafana_install: true
-      loki_install: true
+      weave-scope_install: true
       storageClassName: storageclass-default
     roles:
       - name: master

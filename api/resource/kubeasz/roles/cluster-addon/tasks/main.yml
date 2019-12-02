@@ -1,12 +1,30 @@
 - block:
-    - name: 获取所有已经创建的POD信息
-      command: "{{ bin_dir }}/kubectl get pod --all-namespaces"
-      register: pod_info
+    - name:  生成 https 证书
+      shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj \"/CN={{APP_DOMAIN}}\""
+      args:
+        chdir: "/tmp/"
+      ignore_errors: true
+
+    - name: 生成 secret
+      shell: kubectl -n kube-system create secret tls traefik-tls-cert --key=tls.key --cert=tls.crt
+      args:
+        chdir: "/tmp/"
+      ignore_errors: true
+
+    - name: 生成 ingress 部署文件
+      template:
+        src: traefik/traefik-ingress.yaml.j2
+        dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+
+    - name: 创建 traefik部署
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
-- import_tasks: ingress.yml
-  when: '"ingress-controller" not in pod_info.stdout '
+
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true
+
 
 - block:
     - name: 创建npd相关目录
@@ -26,25 +44,18 @@
 
     - name: 准备systemd-monitor部署文件
       template: src=config/systemd-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/systemd-monitor.json
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: true
-
-- block:
     - name: 创建 npd cm部署
       shell: "{{ bin_dir }}/kubectl -n kube-system create configmap node-problem-detector-config --from-file=./config"
       args:
         chdir: "/opt/kube/kube-system/npd"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-
     - name: 创建 npd 部署
       shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
       args:
         chdir: "/opt/kube/kube-system/npd"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-  when: '"node-problem-detector" not in pod_info.stdout'
-  ignore_errors: true
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: true
+  when: 'npd_install is defined and npd_install'
+
 
 - block:
     - name: 创建 dashboard 部署文件
@@ -56,13 +67,13 @@
       template:
         src: dashboard/metrics-server.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
-      when: 'kube_version_main == "1.16"'
+      when: 'metrics-server_install is defined and metrics-server_install'
 
     - name: 部署 dashboard
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"kubernetes-dashboard" not in pod_info.stdout and dashboard_install '
+  when: 'dashboard_install '
   ignore_errors: true
 
 - block:
@@ -98,7 +109,7 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"prometheus" not in pod_info.stdout and prometheus_install'
+  when: ' prometheus_install'
   ignore_errors: true
 
 - block:
@@ -114,7 +125,7 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"grafana" not in pod_info.stdout and grafana_install'
+  when: 'grafana_install'
   ignore_errors: true
 
 - block:
@@ -133,7 +144,7 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"loki" not in pod_info.stdout and loki_install and kube_version_main == "1.16"'
+  when: 'loki_install is defined and loki_install'
   ignore_errors: true
 
 - block:
@@ -144,5 +155,5 @@
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
       delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: '"weave-scope" not in pod_info.stdout'
+  when: 'weave-scope_install'
   ignore_errors: true
