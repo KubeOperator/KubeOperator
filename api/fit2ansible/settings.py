@@ -30,8 +30,6 @@ WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
 PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
-ELASTICSEARCH_HOST = "elasticsearch"
-
 CONFIG = load_user_config()
 # 添加离线包路径
 
@@ -236,6 +234,9 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
 }
 
+ELASTICSEARCH_HOST = CONFIG.ELASTICSEARCH_HOST
+ELASTICSEARCH_PORT = CONFIG.ELASTICSEARCH_PORT
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -259,7 +260,7 @@ LOGGING = {
         'elasticsearch': {
             'level': 'INFO',
             'class': 'cmreslogging.handlers.CMRESHandler',
-            'hosts': [{'host': ELASTICSEARCH_HOST, 'port': 9200}],
+            'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
             'es_index_name': 'kubeoperator',
             'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
             'auth_type': CMRESHandler.AuthType.NO_AUTH,

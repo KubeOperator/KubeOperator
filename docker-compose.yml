@@ -41,12 +41,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
-      DB_NAME: kube-operator
-      REDIS_HOST: redis
+      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/data/config.yml
     healthcheck:
       test: "curl localhost:8000"
       interval: 10s
@@ -71,12 +66,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-    environment:
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
-      DB_NAME: kube-operator
-      REDIS_HOST: redis
+      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/data/config.yml
     healthcheck:
       test: "ps axu | grep 'celery worker'"
       interval: 10s
