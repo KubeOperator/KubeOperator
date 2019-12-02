@@ -25,20 +25,25 @@
       </button>
     </div>
   </clr-dg-action-bar>
-  <clr-dg-column [style.width.px]="800">信息</clr-dg-column>
-  <clr-dg-column>类型</clr-dg-column>
+  <clr-dg-column [style.width.px]="650">信息</clr-dg-column>
+  <clr-dg-column [style.width.px]="50">类型</clr-dg-column>
+  <clr-dg-column [style.width.px]="50">组件</clr-dg-column>
+  <clr-dg-column>NameSpace</clr-dg-column>
   <clr-dg-column>原因</clr-dg-column>
   <clr-dg-column>时间</clr-dg-column>
   <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
     <clr-dg-cell style="cursor: pointer;color: #0079b8;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"
                  (click)="showDetail(item)">
       {{item.message}}</clr-dg-cell>
-    <clr-dg-cell >{{item.type}}</clr-dg-cell>
-    <clr-dg-cell >{{item.reason}}</clr-dg-cell>
-    <clr-dg-cell >{{item.last_timestamp  | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
+    <clr-dg-cell [ngStyle]="{'color':item.type | statusColor }">{{item.type}}</clr-dg-cell>
+    <clr-dg-cell>{{item.component}}</clr-dg-cell>
+    <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
+    <clr-dg-cell>{{item.reason}}</clr-dg-cell>
+    <clr-dg-cell>{{item.last_timestamp  | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
-    <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [clrDgPageSize]="search.size" [(clrDgPage)]="search.currentPage"
+    <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [clrDgPageSize]="search.size"
+                       [(clrDgPage)]="search.currentPage"
                        (clrDgPageChange)="listClusterEvent(pagination.pageSize)">
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
