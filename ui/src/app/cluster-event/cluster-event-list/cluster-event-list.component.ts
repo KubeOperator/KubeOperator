@@ -23,14 +23,15 @@ export class ClusterEventListComponent implements OnInit {
 
   ngOnInit() {
     this.search.limitDays = 7;
-    this.search.size = 10;
     this.search.currentPage = 1;
-    this.search.type = 'all';
-    this.listClusterEvent();
+    this.search.size = 10;
+    this.search.type = 'Warning';
+    this.listClusterEvent(10);
   }
 
-  listClusterEvent() {
+  listClusterEvent(pageSize) {
     this.loading = true;
+    this.search.size = pageSize;
     this.clusterEventService.listClusterEvents(this.currentCluster.name, this.search).subscribe(res => {
       this.items = res.items;
       this.totalItems = res.total;

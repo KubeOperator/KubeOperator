@@ -103,7 +103,7 @@ def exists(client, index):
 
 def create_index_and_mapping(client, index, doc_type, mapping):
     client.indices.create(index=index)
-    client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping, params={'include_type_name': 'true'})
+    return client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping, params={'include_type_name': 'true'})
 
 
 def batch_data(client, data):
@@ -164,4 +164,4 @@ def get_event_uid_exist(client, index, uid):
     s = Search(index=index).using(client)
     s = s.query("match", uid=uid)
     s.execute()
-    return s.count == 0
+    return s.count() == 0

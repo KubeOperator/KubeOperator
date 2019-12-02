@@ -49,11 +49,6 @@ def refresh_host_info():
     for host in hosts:
         host.gather_info()
 
-
-@periodic_task(run_every=crontab(minute="*/5"), name='task.load_package')
-def load_package():
-    Package.lookup()
-
-@periodic_task(run_every=crontab(minute='*/2'), name='task.save_cluster_event')
+@periodic_task(run_every=crontab(minute='*/3'), name='task.save_cluster_event')
 def save_cluster_event():
     kubeops_api.cluster_monitor.put_event_data_to_es()

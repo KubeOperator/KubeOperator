@@ -338,7 +338,7 @@ class ClusterMonitor():
                 component = item.reporting_component
             if item.source is not None and item.source.host is not None:
                 host = item.source.host
-            elif  item.reporting_instance is not None:
+            elif item.reporting_instance is not None:
                 host = item.reporting_instance
 
             if item.last_timestamp is not None:
@@ -440,10 +440,15 @@ def put_event_data_to_es():
         if index_exists == False:
             index_exists = create_index(es_client, index)
         if index_exists:
-            events, actions = cluster_monitor.list_events()
-            success, failed = log.es.batch_data(es_client, actions)
-            logger.info(msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
+            try:
+                events, actions = cluster_monitor.list_events()
+                if len(actions) > 0:
+                    success, failed = log.es.batch_data(es_client, actions)
+                    logger.info(
+                        msg='put' + cluster.name + 'event to es success:' + str(success) + 'failed:' + str(failed),
                         exc_info=False)
+            except ApiException as e:
+                logger.error(msg='list event error' + e.reason, exc_info=True)
         else:
             logger.error(msg='create es index error', exc_info=True)
 
