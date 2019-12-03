@@ -7,13 +7,20 @@
     </div>
   </div>
   <div class="modal-footer">
-    <!--<button type="button" class="btn btn-primary" ngxClipboard [cbContent]="token" (cbOnSuccess)="openToken=false">复制</button>-->
+    <button type="button" class="btn btn-icon btn-link" (click)="copy(token)">
+      <clr-icon shape="copy"></clr-icon>
+      复制</button>
   </div>
 </clr-modal>
 
 <clr-modal [(clrModalOpen)]="openHost" clrModalSize="l">
-  <h3 class="modal-title">域名解析规则</h3>
-  <div class="modal-body">
+  <h3 class="modal-title">域名解析规则
+    <button class="btn btn-icon btn-link" (click)="copy(hosts.innerText)">
+      <clr-icon shape="copy"></clr-icon>
+      复制
+    </button>
+  </h3>
+  <div class="modal-body" #hosts>
     <span>
       {{workerIp}} grafana.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} prometheus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
@@ -25,6 +32,7 @@
     <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
       {{workerIp}} ceph.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
+    <app-modal-alert #alertModal></app-modal-alert>
   </div>
 </clr-modal>
 
