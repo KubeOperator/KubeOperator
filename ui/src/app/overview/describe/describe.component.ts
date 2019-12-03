@@ -133,5 +133,19 @@ export class DescribeComponent implements OnInit {
 
   copy(text: string) {
     const success = clipboard.writeText(text);
+    if (success) {
+      const alert = this.alertModal;
+      this.alertModal.showTip(false, '复制成功');
+      this.sleep(1000).then(function (this) {
+        alert.closeTip();
+      });
+    }
+  }
+
+  sleep(ms) {
+    return new Promise(
+      (resolve) => {
+        setTimeout(resolve, ms);
+      });
   }
 }
