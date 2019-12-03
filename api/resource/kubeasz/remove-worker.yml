@@ -49,6 +49,7 @@
         - 'storage_rook_ceph_enabled is defined'
         - 'storage_rook_ceph_enabled'
         - 'device_type == "path"'
+      ignore_errors: true
 
 # to clean container runtime and networking
 - hosts:
@@ -97,6 +98,8 @@
             - "/etc/bash_completion.d/docker"
             - "/usr/bin/docker"
           when: 'STORAGE_DIR is not defined'
+      when: CONTAINER_RUNTIME == 'docker'
+      ignore_errors: true
 
     - name: remove files and dirs2
       file: name={{ item }} state=absent
