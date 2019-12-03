@@ -273,9 +273,6 @@ templates:
     deploy_type: 'SINGLE'
     private_vars:
       DEPLOY_MODE: 'single-master'
-      prometheus_install: true
-      grafana_install: true
-      weave-scope_install: true
       storageClassName: storageclass-default
     roles:
       - name: master
@@ -356,9 +353,6 @@ templates:
     deploy_type: 'MULTIPLE'
     private_vars:
       DEPLOY_MODE: 'multiple-master'
-      prometheus_install: true
-      grafana_install: true
-      weave-scope_install: true
       storageClassName: storageclass-default
     roles:
       - name: master

@@ -18,7 +18,6 @@
 
     - name: 创建 traefik部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
-  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
 
 - block:
@@ -50,7 +49,6 @@
       shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
       args:
         chdir: "/opt/kube/kube-system/npd"
-  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true
   when: 'npd_install is defined and npd_install'
 
@@ -68,7 +66,6 @@
 
     - name: 部署 dashboard
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
-      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: 'dashboard_install '
   ignore_errors: true
@@ -79,14 +76,12 @@
 
     - name: 创建 worker1节点标签
       shell: kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent
-      delegate_to: "{{ groups['kube-master'][0] }}"
 
     - name: create etcd monitoring secrets
       shell: "kubectl -n kube-operator create secret generic etcd-secret-files \
           --from-file=/etc/kubernetes/ssl/ca.pem \
           --from-file=/etc/etcd/ssl/etcd.pem \
           --from-file=/etc/etcd/ssl/etcd-key.pem"
-      delegate_to: "{{ groups['kube-master'][0] }}"
   ignore_errors: true
 
 - block:
@@ -104,9 +99,7 @@
           ./prometheus"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: ' prometheus_install'
   ignore_errors: true
 
 - block:
@@ -120,9 +113,16 @@
          ./grafana"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
-  when: 'grafana_install'
+  ignore_errors: true
+
+- block:
+    - name: 生成 scope weave 部署文件
+      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+
+    - name: 部署 scope weave
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
+      run_once: true
   ignore_errors: true
 
 - block:
@@ -139,18 +139,7 @@
       shell: "helm install --name f2c-loki --namespace kube-operator ./loki"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      delegate_to: "{{ groups['kube-master'][0] }}"
       run_once: true
   when: 'loki_install is defined and loki_install'
   ignore_errors: true
 
-- block:
-    - name: 生成 scope weave 部署文件
-      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
-
-    - name: 部署 scope weave
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
-      delegate_to: "{{ groups['kube-master'][0] }}"
-      run_once: true
-  when: 'weave-scope_install'
-  ignore_errors: true
