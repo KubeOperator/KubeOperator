@@ -92,7 +92,7 @@
       template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
 
     - name: 部署 prometheus
-      shell: "helm install --name f2c-prometheus --namespace kube-operator \
+      shell: "helm upgrade f2c-prometheus --namespace=kube-operator --install --force --recreate-pods \
           -f prom-settings.yaml \
           -f prom-alertsmanager.yaml \
           -f prom-alertrules.yaml \
@@ -107,7 +107,7 @@
       template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
 
     - name: 部署 grafana
-      shell: "helm install --name f2c-grafana --namespace kube-operator \
+      shell: "helm upgrade f2c-grafana --namespace=kube-operator --install --force --recreate-pods \
          -f grafana-settings.yaml \
          -f grafana-dashboards.yaml \
          ./grafana"
@@ -136,7 +136,7 @@
       template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
 
     - name: 部署 loki-stack
-      shell: "helm install --name f2c-loki --namespace kube-operator ./loki"
+      shell: "helm upgrade f2c-loki --namespace=kube-operator --install --force --recreate-pods ./loki"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
       run_once: true
