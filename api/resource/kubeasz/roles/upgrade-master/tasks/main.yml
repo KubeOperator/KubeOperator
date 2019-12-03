@@ -1,4 +1,34 @@
-- name: 获取 kube-worker 版本信息
+- name: 获取docker版本信息
+  shell: "dockerd --version | awk '{print $3}' | sed s/,//"
+  register: docker_ver
+
+- block:
+    - name: 下载新 docker 二进制文件
+      copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
+      with_items:
+        - containerd
+        - containerd-shim
+        - docker-init
+        - runc
+        - docker
+        - ctr
+        - dockerd
+        - docker-proxy
+      notify:
+        restart_docker
+
+  when: 'docker_ver.stdout < docker_version'
+
+- name: 获取 registry 信息
+  shell: "cat /etc/docker/daemon.json"
+  register: daemon
+
+- name: 添加 registry
+  shell: sed -i 's/"]/","{{registry_prefix}}:{{registry_port}}"]/g' /etc/docker/daemon.json
+  when: 'registry not in daemon.stdout'
+  notify: restart_docker
+
+- name: 获取 kube-master 版本信息
   shell: "kubectl version --short | grep Server | awk '{print $3}' | tr -d 'a-zA-Z'"
   register: kube_ver
 
@@ -10,6 +40,8 @@
         - kube-controller-manager
         - kube-scheduler
         - kubectl
+        - kubelet
+        - kube-proxy
       notify:
         restart_master
 
@@ -22,3 +54,4 @@
       run_once: True
 
   when: 'kube_ver.stdout < kube_version'
+

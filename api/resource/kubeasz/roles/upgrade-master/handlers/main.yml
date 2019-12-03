@@ -1,3 +1,8 @@
+- name: restart_docker
+  service:
+    name: "docker"
+    state: restarted
+
 - name: restart_master
   service:
     name: "{{item}}"

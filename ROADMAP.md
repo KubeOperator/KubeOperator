@@ -36,9 +36,9 @@
 - [x] 概览页面：展示关键信息，比如状态、容量、TOP 使用率、异常日志、异常容器等信息；
 - [x] 支持 Ceph RBD 存储 （通过 [Rook](https://github.com/rook/rook)）；
 - [x] 支持 Kubernetes 1.16；
-- [x] 支持全局的 DNS 和 NTP 设置；
+- [x] 支持全局的和 NTP 设置；
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
-- [ ] 集成 node-problem-detector，支持在 Web UI 上面查看集群事件；
+- [x] 支持在 Web UI 上面查看集群事件；
 
  ## v2.3 （进行中，2019.12.31 发布）
 
@@ -55,3 +55,4 @@
 - [ ] 实现内置应用的统一认证；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
+- [ ] GPU 支持

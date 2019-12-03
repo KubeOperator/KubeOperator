@@ -70,7 +70,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 package = Package.objects.get(name=package_name)
                 extra_vars.update(package.meta.get('vars'))
                 result = self.on_upgrade(extra_vars)
-                cluster.upgrade_package(package_name)
+                if result.get('summary', {}).get('success', False):
+                    cluster.upgrade_package(package_name)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'scale':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
