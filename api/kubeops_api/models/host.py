@@ -71,7 +71,11 @@ class Host(BaseHost):
             self.memory = facts["ansible_memtotal_mb"]
             cpu_cores = facts["ansible_processor_cores"]
             cpu_count = facts["ansible_processor_count"]
-            self.cpu_core = int(cpu_cores) * int(cpu_count)
+            vcpus = facts.get("ansible_processor_vcpus", None)
+            if vcpus:
+                self.cpu_core = int(vcpus)
+            else:
+                self.cpu_core = int(cpu_cores) * int(cpu_count)
             self.os = facts["ansible_distribution"]
             self.os_version = facts["ansible_distribution_version"]
             self.save()
