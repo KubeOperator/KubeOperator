@@ -39,6 +39,7 @@
         - 'storage_rook_ceph_enabled is defined'
         - 'storage_rook_ceph_enabled'
         - 'device_type == "path"'
+      ignore_errors: true
 
 # to clean 'kube-master' nodes
 - hosts:
@@ -109,6 +110,7 @@
             - "/usr/bin/docker"
           when: 'STORAGE_DIR is not defined'
       when: CONTAINER_RUNTIME == 'docker'
+      ignore_errors: true
 
     - block:
         - name: stop and disable containerd service
