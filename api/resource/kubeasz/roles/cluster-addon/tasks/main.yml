@@ -18,7 +18,6 @@
 
     - name: 创建 traefik部署
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
-  run_once: true
 
 - block:
     - name: 创建npd相关目录
@@ -49,7 +48,6 @@
       shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
       args:
         chdir: "/opt/kube/kube-system/npd"
-  run_once: true
   when: 'npd_install is defined and npd_install'
 
 - block:
@@ -62,11 +60,10 @@
       template:
         src: dashboard/metrics-server.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
-      when: 'metrics-server_install is defined and metrics-server_install'
+      when: 'metrics_server_install is defined and metrics_server_install'
 
     - name: 部署 dashboard
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
-      run_once: true
   when: 'dashboard_install '
   ignore_errors: true
 
@@ -99,7 +96,6 @@
           ./prometheus"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      run_once: true
   ignore_errors: true
 
 - block:
@@ -113,7 +109,6 @@
          ./grafana"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      run_once: true
   ignore_errors: true
 
 - block:
@@ -122,7 +117,6 @@
 
     - name: 部署 scope weave
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
-      run_once: true
   ignore_errors: true
 
 - block:
@@ -139,7 +133,6 @@
       shell: "helm upgrade f2c-loki --namespace=kube-operator --install --force --recreate-pods ./loki"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-      run_once: true
   when: 'loki_install is defined and loki_install'
   ignore_errors: true
 
