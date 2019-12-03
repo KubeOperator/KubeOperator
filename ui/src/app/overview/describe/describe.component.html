@@ -5,11 +5,13 @@
     <div *ngIf="!token">
       Cluster Token 获取中......<i class="fa fa-spinner fa-pulse"></i>
     </div>
+    <app-modal-alert #tokenAlert></app-modal-alert>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-icon btn-link" (click)="copy(token)">
       <clr-icon shape="copy"></clr-icon>
-      复制</button>
+      复制
+    </button>
   </div>
 </clr-modal>
 
