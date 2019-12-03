@@ -25,7 +25,7 @@ export class ClusterEventListComponent implements OnInit {
     this.search.limitDays = 7;
     this.search.currentPage = 1;
     this.search.size = 10;
-    this.search.type = 'Warning';
+    this.search.type = 'all';
     this.listClusterEvent(10);
   }
 
