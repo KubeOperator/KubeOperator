@@ -100,7 +100,6 @@
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
       run_once: true
-  when: ' prometheus_install'
   ignore_errors: true
 
 - block:
@@ -115,7 +114,15 @@
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
       run_once: true
-  when: 'grafana_install'
+  ignore_errors: true
+
+- block:
+    - name: 生成 scope weave 部署文件
+      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+
+    - name: 部署 scope weave
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
+      run_once: true
   ignore_errors: true
 
 - block:
@@ -136,12 +143,3 @@
   when: 'loki_install is defined and loki_install'
   ignore_errors: true
 
-- block:
-    - name: 生成 scope weave 部署文件
-      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
-
-    - name: 部署 scope weave
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
-      run_once: true
-  when: 'weave-scope_install'
-  ignore_errors: true
