@@ -36,6 +36,10 @@ export class ClusterEventListComponent implements OnInit {
       this.items = res.items;
       this.totalItems = res.total;
       this.loading = false;
+    }, error1 => {
+      this.items = [];
+      this.totalItems = 0;
+      this.loading = false;
     });
   }
 
