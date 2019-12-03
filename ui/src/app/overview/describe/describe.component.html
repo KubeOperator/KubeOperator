@@ -1,5 +1,10 @@
 <clr-modal [(clrModalOpen)]="openToken" clrModalSize="xl">
-  <h3 class="modal-title">Cluster Token</h3>
+  <h3 class="modal-title">Cluster Token
+    <button type="button" class="btn btn-icon btn-link" (click)="copy(token)">
+      <clr-icon shape="copy"></clr-icon>
+      复制
+    </button>
+  </h3>
   <div class="modal-body">
     <textarea rows="20" cols="128" *ngIf="token" [(ngModel)]="token"></textarea>
     <div *ngIf="!token">
@@ -8,10 +13,6 @@
     <app-modal-alert #tokenAlert></app-modal-alert>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-icon btn-link" (click)="copy(token)">
-      <clr-icon shape="copy"></clr-icon>
-      复制
-    </button>
   </div>
 </clr-modal>
 
