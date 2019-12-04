@@ -162,7 +162,7 @@
                 <div class="clr-select-wrapper">
                   <select [id]="node.name+'host'" [(ngModel)]="node.host" name="node_host" (change)="onHostChange(node)"
                           class="clr-select" required>
-                    <option [value]="">请选择主机</option>
+                    <option value="">请选择主机</option>
                     <option *ngFor="let host of hosts | hostsFilter :nodes:node "
                             [value]="host.id">{{getHostInfo(host)}}
                     </option>
@@ -182,7 +182,7 @@
       <clr-select-container>
         <label>网络插件</label>
         <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()">
-          <option [value]="">请选择</option>
+          <option value="">请选择</option>
           <option *ngFor="let network of networks" [value]="network.name">{{network.name}}</option>
         </select>
       </clr-select-container>
