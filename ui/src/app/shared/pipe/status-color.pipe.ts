@@ -24,6 +24,9 @@ export class StatusColorPipe implements PipeTransform {
         case 'Running':
           result = '#00af00';
           break;
+        case 'Pending':
+          result = '#FF4040';
+          break;
         case 'True':
           result = '#00af00';
           break;
