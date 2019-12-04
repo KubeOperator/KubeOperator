@@ -59,16 +59,15 @@ class NfsStorage(Project):
     def deploy_nfs(self):
         playbook = self.playbook_set.get(name="nfs")
         Logger.info('开始部署 NFS 服务')
-        hostname = Setting.objects.get(key='local_hostname').value
         package = Package.objects.first()
         port = package.repo_port
         settings = Setting.get_settings()
-        self.vars.update({
+        extra_vars = {
             "repo_port": port,
             "nfs_name": self.name
-        })
-        self.vars.update(settings)
-        thread = threading.Thread(target=self.execute_playbook, args=(playbook, self.vars))
+        }
+        extra_vars.update(settings)
+        thread = threading.Thread(target=self.execute_playbook, args=(playbook, extra_vars))
         thread.start()
 
     def execute_playbook(self, playbook, extra_vars):
