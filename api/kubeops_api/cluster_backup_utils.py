@@ -33,14 +33,10 @@ def cluster_backup():
 def run_backup(project_id,backup_storage_id):
     cluster = Cluster.objects.get(id=project_id)
     steps = cluster.get_steps('cluster-backup')
-    hostname = Setting.objects.get(key='local_hostname')
     backup_storage = BackupStorage.objects.get(id=backup_storage_id)
     project = Project.objects.get(id=project_id)
     extra_vars = {
-        "cluster_name": cluster.name,
-        "local_hostname": hostname.value,
-        "domain_suffix": cluster.cluster_doamin_suffix,
-        "APP_DOMAIN": "apps.{}.{}".format(cluster.name, cluster.cluster_doamin_suffix),
+        "cluster_name": cluster.name
     }
     extra_vars.update(cluster.configs)
     run_playbooks(steps,extra_vars,project)
