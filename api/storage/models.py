@@ -62,11 +62,12 @@ class NfsStorage(Project):
         hostname = Setting.objects.get(key='local_hostname').value
         package = Package.objects.first()
         port = package.repo_port
+        settings = Setting.get_settings()
         self.vars.update({
-            "local_hostname": hostname,
             "repo_port": port,
             "nfs_name": self.name
         })
+        self.vars.update(settings)
         thread = threading.Thread(target=self.execute_playbook, args=(playbook, self.vars))
         thread.start()
 
