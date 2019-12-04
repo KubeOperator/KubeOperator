@@ -30,6 +30,24 @@ function start_service() {
     fi
 }
 
+function check_docker_service() {
+    echo -ne "检测 docker 服务状态 ... "
+    result=`docker ps 2>&1`
+    if [ "$?" -eq "0" ]; then
+        echo "[OK]"
+    else
+        if [[ $(echo $result | grep 'not found' | wc -l) == 1 ]]; then
+            echo "[ERROR] 没有找到 docker 服务"
+            exit 1
+        elif [[ $(echo $result | grep 'running?' | wc -l) == 1 ]]; then
+            echo "[ERROR] docker 服务未运行，请启动 docker 服务"
+            exit 1
+        else
+            echo "[ERROR] 请检查 docker 服务"
+        fi
+    fi
+}
+
 function upgrade_service() {
     echo -e "开始升级 KubeOperator"
     echo -ne "清理旧镜像文件 ... "
@@ -71,10 +89,7 @@ function upgrade_service() {
 }
 
 function main() {
-    stop_service
-    upgrade_service
-    start_service
-    success
+    check_docker_service && stop_service && upgrade_service && start_service && success
 }
 
 main
