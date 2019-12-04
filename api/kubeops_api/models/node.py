@@ -41,6 +41,7 @@ class Node(Ansible_Host):
         self.username = self.host.username
         self.password = self.host.password
         self.private_key = self.host.private_key
+        self.port = self.host.port
         self.host.node_id = self.id
         self.host.save()
         self.save()
