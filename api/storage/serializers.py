@@ -21,5 +21,5 @@ class CephStorageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CephStorage
-        read_only_fields = ['id', 'name', 'date_created']
+        read_only_fields = ['id','date_created']
         fields = ['id', 'name', 'vars', 'date_created']

@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {CephService} from '../ceph.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
+import {Ceph} from '../ceph';
 
 @Component({
   selector: 'app-ceph-list',
@@ -10,11 +11,11 @@ import {CommonAlertService} from '../../base/header/common-alert.service';
 })
 export class CephListComponent implements OnInit {
 
-  items: any;
+  items: Ceph[] = [];
   loading = false;
   resourceTypeName = 'Ceph';
   showDelete = false;
-  selected = [];
+  selected: Ceph[] = [];
 
   @Output() add = new EventEmitter();
 
