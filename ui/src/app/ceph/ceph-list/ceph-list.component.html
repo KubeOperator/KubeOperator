@@ -16,16 +16,16 @@
     </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
-  <clr-dg-column>monitor</clr-dg-column>
-  <clr-dg-column>secrets</clr-dg-column>
-  <clr-dg-column>osd存储池</clr-dg-column>
+  <clr-dg-column>Monitor</clr-dg-column>
+  <clr-dg-column>Secrets</clr-dg-column>
+  <clr-dg-column>OSD存储池</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
     <clr-dg-cell>{{item.name}}</clr-dg-cell>
-    <clr-dg-cell>{{item.vars['monitor']}}</clr-dg-cell>
-    <clr-dg-cell>{{item.vars['secrets']}}</clr-dg-cell>
-    <clr-dg-cell>{{item.vars['osd_pool']}}</clr-dg-cell>
+    <clr-dg-cell>{{item.vars['ceph_monitor']}}</clr-dg-cell>
+    <clr-dg-cell>{{item.vars['ceph_secrets']}}</clr-dg-cell>
+    <clr-dg-cell>{{item.vars['ceph_osd_pool']}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
