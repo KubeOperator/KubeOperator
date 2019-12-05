@@ -19,6 +19,11 @@
     - 'storage_rook_ceph_enabled'
     - 'storage_rook_ceph_install'
 
+- import_tasks: external-ceph.yml
+  when:
+    - 'storage_external_ceph_enabled is defined'
+    - 'storage_external_ceph_enabled'
+
 - block:
     - name: copy test-sc.yaml
       template:
