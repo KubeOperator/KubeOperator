@@ -248,7 +248,7 @@ storages:
     deploy_type: ['AUTOMATIC','MANUAL']
     provider: ['vsphere','openstack']
     vars:
-      external_ceph_enabled: true
+      storage_external_ceph_enabled: true
 
   - name: Openstack Cinder
     deploy_type: ['AUTOMATIC']
