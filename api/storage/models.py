@@ -12,6 +12,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.host import Host
 from kubeops_api.models.package import Package
 from kubeops_api.models.setting import Setting
+import uuid
 
 Logger = logging.getLogger(__name__)
 
@@ -86,3 +87,10 @@ class NfsStorage(Project):
             self.create_group_node()
             self.create_playbooks()
             self.deploy_nfs()
+
+class CephStorage(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    name = models.CharField(max_length=255, null=False, unique=True, blank=False)
+    vars = common_models.JsonDictTextField()
+    date_created = models.DateTimeField(auto_now_add=True)

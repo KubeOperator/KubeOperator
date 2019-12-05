@@ -249,6 +249,15 @@
           </select>
         </clr-select-container>
       </div>
+      <div *ngIf="cluster.persistent_storage==='external-ceph'">
+        <clr-select-container>
+          <label>Ceph:</label>
+          <select clrSelect name="external-ceph" [(ngModel)]="cluster.configs['external-ceph']" required>
+            <option value="">请选择</option>
+            <option *ngFor="let ceph of storageList" [value]="ceph.name">{{ceph.name}}</option>
+          </select>
+        </clr-select-container>
+      </div>
     </form>
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()" *ngIf="cluster.deploy_type === Manual">

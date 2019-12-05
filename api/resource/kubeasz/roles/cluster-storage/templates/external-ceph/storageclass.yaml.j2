@@ -1,0 +1,15 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ storageClassName }}
+provisioner: kubernetes.io/rbd
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  monitors: {{ ceph_monitor }}
+  adminId: {{ ceph_user }}
+  adminSecretName: external-ceph-secret
+  adminSecretNamespace: kube-system
+  pool: {{ ceph_osd_pool }}
+  userId: {{ ceph_user }}
+  userSecretName: external-ceph-secret

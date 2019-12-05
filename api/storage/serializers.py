@@ -1,10 +1,9 @@
 from rest_framework import serializers
 
-from kubeops_api.models.host import Host
-from storage.models import NfsStorage
+from storage.models import NfsStorage, CephStorage
 
 __all__ = [
-    'NfsStorageSerializer'
+    'NfsStorageSerializer', 'CephStorageSerializer'
 ]
 
 
@@ -15,3 +14,12 @@ class NfsStorageSerializer(serializers.ModelSerializer):
         model = NfsStorage
         read_only_fields = ['id', 'status', 'date_created']
         fields = ['id', 'name', 'vars', 'status', 'date_created']
+
+
+class CephStorageSerializer(serializers.ModelSerializer):
+    vars = serializers.DictField()
+
+    class Meta:
+        model = CephStorage
+        read_only_fields = ['id','date_created']
+        fields = ['id', 'name', 'vars', 'date_created']

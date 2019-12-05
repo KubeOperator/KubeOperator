@@ -23,6 +23,7 @@ import {Storage} from '../cluster';
 import {Storage as StorageItem} from '../cluster';
 import {StorageService} from '../storage.service';
 import * as globals from '../../globals';
+import {CephService} from '../../ceph/ceph.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -86,7 +87,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   constructor(private alertService: CommonAlertService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
               private hostService: HostService, private deviceCheckService: DeviceCheckService,
-              private settingService: SettingService, private planService: PlanService, private storageService: StorageService) {
+              private settingService: SettingService, private planService: PlanService, private storageService: StorageService,
+              private cephService: CephService) {
   }
 
   ngOnInit() {
@@ -165,6 +167,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.storageList = data;
       });
     }
+    if (this.cluster.persistent_storage === 'external-ceph') {
+      this.storageService.list('ceph').subscribe(data => {
+        this.storageList = data;
+      });
+    }
+
     this.storages.forEach(storage => {
       if (this.cluster.persistent_storage === storage.name) {
         this.storage = storage;

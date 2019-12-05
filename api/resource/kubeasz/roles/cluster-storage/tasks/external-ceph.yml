@@ -1,0 +1,39 @@
+- name: create default ceph secret
+  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
+        --namespace=default \
+        --type=kubernetes.io/rbd \
+        --from-literal=key={{ ceph_secrets }}"
+  ignore_errors: true
+
+- name: create kube-operator namespace
+  shell: "kubectl create ns kube-operator"
+  ignore_errors: true
+
+- name: create kube-system ceph secret
+  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
+        --namespace=kube-system \
+        --type=kubernetes.io/rbd \
+        --from-literal=key={{ ceph_secrets }}"
+  ignore_errors: true
+
+- name: create kube-operator ceph secret
+  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
+        --namespace=kube-operator \
+        --type=kubernetes.io/rbd \
+        --from-literal=key={{ ceph_secrets }}"
+  ignore_errors: true
+
+- name: prepare external-ceph dir
+  file: name={{ base_dir }}/manifests/storage/external-ceph state=directory
+
+- name: generate external-ceph storageclass file
+  template:
+    src: external-ceph/storageclass.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/external-ceph/storageclass.yaml"
+
+- name: begin deploying external-ceph storageclass
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/external-ceph/storageclass.yaml"
+  ignore_errors: true
+
+- name: set default storageClass
+  shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{ default_label }}'"
