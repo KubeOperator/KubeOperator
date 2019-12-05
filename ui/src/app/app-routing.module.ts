@@ -36,10 +36,9 @@ import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 import {CephComponent} from './ceph/ceph.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
   {path: 'sign-in', component: SignInComponent},
   {
-    path: 'kubeOperator',
+    path: '',
     component: ShellComponent,
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],

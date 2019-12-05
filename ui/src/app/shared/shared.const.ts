@@ -7,7 +7,7 @@ export const dismissInterval = 10 * 1000;
 export const CommonRoutes = {
   SIGN_IN: '/sign-in',
   F2O_ROOT: '/',
-  F2O_DEFAULT: '/kubeOperator'
+  F2O_DEFAULT: '/'
 };
 
 export const httpStatusCode = {
