@@ -18,7 +18,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
-from storage.models import NfsStorage
+from storage.models import NfsStorage,CephStorage
 
 logger = logging.getLogger("kubeops")
 __all__ = ["Cluster"]
@@ -188,6 +188,9 @@ class Cluster(Project):
                 if 'repo_port' in nfs.vars:
                     nfs.vars.pop('repo_port', None)
                 vars.update(nfs.vars)
+            if self.persistent_storage == 'external-ceph':
+                ceph = CephStorage.objects.get(name=self.configs['external-ceph'])
+                vars.update(ceph.vars)
             self.set_config_unlock(vars)
 
     def set_package_configs(self):
