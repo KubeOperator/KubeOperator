@@ -11,13 +11,13 @@
       </clr-input-container>
       <clr-input-container>
         <label>monitor:</label>
-        <input clrInput size=45 maxlength="30" type="text" [(ngModel)]="item.vars['monitor']"
+        <input clrInput size=45 maxlength="100" type="text" [(ngModel)]="item.vars['monitor']"
                name="monitor" required>
         <clr-control-helper>例：172.16.10.160:6789,172.16.10.161:6789,172.16.10.168:6789</clr-control-helper>
       </clr-input-container>
       <clr-input-container>
         <label>secrets:</label>
-        <input clrInput size=45 maxlength="30" type="text" [(ngModel)]="item.vars['secrets']"
+        <input clrInput size=45 maxlength="50" type="text" [(ngModel)]="item.vars['secrets']"
                name="secrets" required>
         <clr-control-helper>{{helper}}</clr-control-helper>
       </clr-input-container>
