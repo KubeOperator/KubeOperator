@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {CephListComponent} from "./ceph-list/ceph-list.component";
-import {CephCreateComponent} from "./ceph-create/ceph-create.component";
+import {CephListComponent} from './ceph-list/ceph-list.component';
+import {CephCreateComponent} from './ceph-create/ceph-create.component';
 
 @Component({
   selector: 'app-ceph',
@@ -19,6 +19,7 @@ export class CephComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.refresh();
   }
 
 
