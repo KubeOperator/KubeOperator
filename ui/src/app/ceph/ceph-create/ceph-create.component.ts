@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import * as globals from '../../globals';
+
 
 @Component({
   selector: 'app-ceph-create',
@@ -7,9 +9,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CephCreateComponent implements OnInit {
 
-  constructor() { }
+  opened = false;
+  name_pattern = globals.host_name_pattern;
+  name_pattern_tip = globals.host_name_pattern_tip;
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
 
+  open() {
+    this.opened = true;
+  }
 }

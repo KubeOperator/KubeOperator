@@ -1,1 +1,24 @@
-<p>ceph-create works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+  <h3 class="modal-title">添加Ceph</h3>
+  <div class="modal-body modal-height">
+    <form clrForm #itemForm='ngForm'>
+      <clr-input-container>
+        <label>名称:</label>
+<!--        <input clrInput size=45 maxlength="15" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name"-->
+<!--               name="name" required>-->
+        <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>
+        <clr-control-error>{{name_pattern_tip}}</clr-control-error>
+      </clr-input-container>
+
+
+
+<!--      <div class="modal-footer">-->
+<!--        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>-->
+<!--        <button type="submit" class="btn btn-primary" (click)="onSubmit()"-->
+<!--                [disabled]="isSubmitGoing || itemForm.invalid">-->
+<!--          <i *ngIf="isSubmitGoing " class="fa fa-spinner fa-pulse"></i>提交-->
+<!--        </button>-->
+<!--      </div>-->
+    </form>
+  </div>
+</clr-modal>
