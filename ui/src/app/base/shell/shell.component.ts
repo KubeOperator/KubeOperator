@@ -29,7 +29,7 @@ export class ShellComponent implements OnInit {
   }
 
   toSetting() {
-    const linkUrl = ['kubeOperator', 'setting', 'system'];
+    const linkUrl = ['setting', 'system'];
     this.router.navigate(linkUrl);
   }
 }
