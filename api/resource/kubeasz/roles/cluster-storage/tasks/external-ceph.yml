@@ -1,26 +1,33 @@
-- name: create default ceph secret
-  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
-        --namespace=default \
+- name: create kube-system ceph admin secret
+  shell: "{{ bin_dir }}/kubectl create secret generic ceph_admin_secret \
+        --namespace=kube-system \
         --type=kubernetes.io/rbd \
-        --from-literal=key={{ ceph_secrets }}"
+        --from-literal=key={{ ceph_admin_secret }}"
+  ignore_errors: true
+
+- name: create kube-system ceph user secret
+  shell: "{{ bin_dir }}/kubectl create secret generic ceph_user_secret \
+        --namespace=kube-system \
+        --type=kubernetes.io/rbd \
+        --from-literal=key={{ ceph_user_secret }}"
+  ignore_errors: true
+
+- name: create default ceph secret
+  shell: "{{ bin_dir }}/kubectl create secret generic ceph_user_secret \
+        --namespace=kube-system \
+        --type=kubernetes.io/rbd \
+        --from-literal=key={{ ceph_user_secret }}"
   ignore_errors: true
 
 - name: create kube-operator namespace
   shell: "kubectl create ns kube-operator"
   ignore_errors: true
 
-- name: create kube-system ceph secret
-  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
+- name: create kube-operator ceph secret
+  shell: "{{ bin_dir }}/kubectl create secret generic ceph_user_secret \
         --namespace=kube-system \
         --type=kubernetes.io/rbd \
-        --from-literal=key={{ ceph_secrets }}"
-  ignore_errors: true
-
-- name: create kube-operator ceph secret
-  shell: "{{ bin_dir }}/kubectl create secret generic external-ceph-secret \
-        --namespace=kube-operator \
-        --type=kubernetes.io/rbd \
-        --from-literal=key={{ ceph_secrets }}"
+        --from-literal=key={{ ceph_user_secret }}"
   ignore_errors: true
 
 - name: prepare external-ceph dir

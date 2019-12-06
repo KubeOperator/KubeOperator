@@ -68,8 +68,13 @@
   ignore_errors: true
 
 - block:
+    - name: get all namespace
+      command: "{{ bin_dir }}/kubectl get ns"
+      register: ns_info
+
     - name: create kube-operator namespace
       shell: "kubectl create ns kube-operator"
+      when: '"kube-operator" not in ns_info.stdout'
 
     - name: 创建 worker1节点标签
       shell: kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent
