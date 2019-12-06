@@ -15,6 +15,6 @@ parameters:
   userSecretName: ceph_user_secret
   fsType: {{ ceph_fsType }}
   imageFormat: "{{ imageFormat }}"
-{% if ceph_imageFeatures and ceph_imageFeatures == 'layering' %}
-  imageFeatures: "{{ ceph_imageFeatures }}"
+{% if imageFormat and imageFormat == '2' %}
+  imageFeatures: "layering"
 {% endif %}
