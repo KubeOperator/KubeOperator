@@ -94,3 +94,8 @@ class CephStorage(models.Model):
     name = models.CharField(max_length=255, null=False, unique=True, blank=False)
     vars = common_models.JsonDictTextField()
     date_created = models.DateTimeField(auto_now_add=True)
+
+class ClusterCephStorage(models.Model):
+
+    cluster_id = models.UUIDField(default=uuid.uuid4)
+    ceph_storage_id = models.UUIDField(default=uuid.uuid4)

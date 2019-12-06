@@ -34,6 +34,7 @@ from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
 from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+from storage.models import ClusterCephStorage
 
 
 logger = logging.getLogger('kubeops')
@@ -57,6 +58,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
             ClusterBackup.objects.filter(project_id=instance.id).delete()
             kubeops_api.cluster_monitor.delete_cluster_redis_data(instance.name)
             ClusterHealthHistory.objects.filter(project_id=instance.id).delete()
+            ClusterCephStorage.objects.filter(cluster_id=instance.id).delete()
         return response
 
 

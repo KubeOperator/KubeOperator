@@ -18,7 +18,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
-from storage.models import NfsStorage,CephStorage
+from storage.models import NfsStorage, CephStorage, ClusterCephStorage
 
 logger = logging.getLogger("kubeops")
 __all__ = ["Cluster"]
@@ -376,6 +376,13 @@ class Cluster(Project):
         if result.ok:
             return result.json()['token']
 
+    def set_cluster_storage(self):
+        if self.persistent_storage and self.persistent_storage == 'external-ceph':
+            ceph = CephStorage.objects.get(name=self.configs['external-ceph'])
+            cluster = Cluster.objects.get(name=self.name)
+            cluster_ceph = ClusterCephStorage(cluster_id=cluster.id, ceph_storage_id=ceph.id)
+            cluster_ceph.save()
+
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
@@ -386,6 +393,7 @@ class Cluster(Project):
         self.create_storage()
         self.set_plan_configs()
         self.set_app_domain()
+        self.set_cluster_storage()
 
     def on_cluster_delete(self):
         self.delete_data()
