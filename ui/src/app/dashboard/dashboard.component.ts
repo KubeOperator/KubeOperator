@@ -168,7 +168,7 @@ export class DashboardComponent implements OnInit {
 
   redirect(url: string) {
     if (url) {
-      const linkUrl = ['kubeOperator', url];
+      const linkUrl = ['', url];
       this.router.navigate(linkUrl);
     }
   }
