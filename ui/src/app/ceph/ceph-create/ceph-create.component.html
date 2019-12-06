@@ -58,15 +58,6 @@
           <option value="2">2</option>
         </select>
       </clr-select-container>
-      <div class="clr-form-control" *ngIf="item.vars['ceph_imageFormat']=='2'">
-        <label class="clr-control-label">image Features:</label>
-        <div class="clr-control-container">
-          <div class="clr-checkbox-wrapper">
-            <input type="checkbox" id='vertical-checkbox1' name="ceph_imageFormat" value="'layering'" class="clr-checkbox" [(ngModel)]="item.vars['ceph_imageFeatures']">
-            <label for="vertical-checkbox1" class="clr-control-label">layering</label>
-          </div>
-        </div>
-      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"

@@ -31,7 +31,7 @@ export class CephCreateComponent implements OnInit {
   open() {
     this.opened = true;
     this.item = new Ceph();
-    this.item.vars['ceph_imageFormat'] = '1';
+    this.item.vars['ceph_imageFormat'] = '2';
     this.item.vars['ceph_fsType'] = 'ext4';
   }
 
@@ -40,7 +40,7 @@ export class CephCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    if (this.item.vars['ceph_imageFeatures']) {
+    if (this.item.vars['ceph_imageFormat'] === '2') {
       this.item.vars['ceph_imageFeatures'] = 'layering';
     }
     this.cephService.create(this.item).subscribe(data => {
