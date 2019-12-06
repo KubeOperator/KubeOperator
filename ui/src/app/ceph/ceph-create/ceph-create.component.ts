@@ -40,9 +40,6 @@ export class CephCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    if (this.item.vars['ceph_imageFormat'] === '2') {
-      this.item.vars['ceph_imageFeatures'] = 'layering';
-    }
     this.cephService.create(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.opened = false;
