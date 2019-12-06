@@ -18,7 +18,6 @@ export class CephCreateComponent implements OnInit {
   name_pattern = globals.host_name_pattern;
   name_pattern_tip = globals.host_name_pattern_tip;
   item: Ceph = new Ceph();
-  helper = '获取方式：grep key ceph.client.admin.keyring |awk \'{printf "%s", $NF}\'';
   isSubmitGoing = false;
   @Output() create = new EventEmitter<boolean>();
   @ViewChild('itemForm', {static: true}) itemFrom: NgForm;
@@ -32,6 +31,8 @@ export class CephCreateComponent implements OnInit {
   open() {
     this.opened = true;
     this.item = new Ceph();
+    this.item.vars['ceph_imageFormat'] = '1';
+    this.item.vars['ceph_fsType'] = 'ext4';
   }
 
   onSubmit() {
@@ -39,6 +40,9 @@ export class CephCreateComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
+    if (this.item.vars['ceph_imageFeatures']) {
+      this.item.vars['ceph_imageFeatures'] = 'layering';
+    }
     this.cephService.create(this.item).subscribe(data => {
       this.isSubmitGoing = false;
       this.opened = false;
