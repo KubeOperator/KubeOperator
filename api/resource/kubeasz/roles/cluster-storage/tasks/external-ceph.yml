@@ -14,7 +14,7 @@
 
 - name: create default ceph secret
   shell: "{{ bin_dir }}/kubectl create secret generic ceph-user-secret \
-        --namespace=kube-system \
+        --namespace=default \
         --type=kubernetes.io/rbd \
         --from-literal=key={{ ceph_user_secret }}"
   ignore_errors: true
@@ -25,7 +25,7 @@
 
 - name: create kube-operator ceph secret
   shell: "{{ bin_dir }}/kubectl create secret generic ceph-user-secret \
-        --namespace=kube-system \
+        --namespace=kube-operator \
         --type=kubernetes.io/rbd \
         --from-literal=key={{ ceph_user_secret }}"
   ignore_errors: true
