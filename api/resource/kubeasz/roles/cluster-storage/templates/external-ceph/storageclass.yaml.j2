@@ -8,13 +8,13 @@ volumeBindingMode: Immediate
 parameters:
   monitors: {{ ceph_monitor }}
   adminId: {{ ceph_admin_id }}
-  adminSecretName: ceph_admin_secret
+  adminSecretName: ceph-admin-secret
   adminSecretNamespace: kube-system
   pool: {{ ceph_osd_pool }}
   userId: {{ ceph_user_id }}
-  userSecretName: ceph_user_secret
+  userSecretName: ceph-user-secret
   fsType: {{ ceph_fsType }}
-  imageFormat: "{{ imageFormat }}"
-{% if imageFormat and imageFormat == '2' %}
+  imageFormat: "{{ ceph_imageFormat }}"
+{% if ceph_imageFormat and ceph_imageFormat == '2' %}
   imageFeatures: "layering"
 {% endif %}
