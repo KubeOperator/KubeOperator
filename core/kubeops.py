@@ -10,6 +10,7 @@ import sys
 import signal
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APPS_DIR = os.path.join(BASE_DIR, 'apps')
 TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 LOG_DIR = os.path.join(BASE_DIR, 'data', 'log')
 VENV = os.environ.get('VENV')
@@ -152,7 +153,7 @@ def start_celery():
 
     cmd = [
         'celery', 'worker',
-        '-A', 'apps/celery_api',
+        '-A', 'celery_api',
         '-l', LOG_LEVEL,
         '--pidfile', pid_file,
         '-c', str(WORKERS),
@@ -162,7 +163,7 @@ def start_celery():
             '--logfile', os.path.join(LOG_DIR, 'celery.log'),
             '--detach',
         ])
-    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, cwd=APPS_DIR)
     return p
 
 
@@ -178,7 +179,7 @@ def start_celery_beat():
     scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
     cmd = [
         'celery', 'beat',
-        '-A', 'apps/celery_api',
+        '-A', 'celery_api',
         '-l', 'DEBUG',
         '--scheduler', scheduler,
         '--pidfile', pid_file,
@@ -189,7 +190,7 @@ def start_celery_beat():
             '--logfile', os.path.join(LOG_DIR, 'beat.log'),
             '--detach',
         ])
-    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, cwd=APPS_DIR)
     return p
 
 
@@ -198,14 +199,14 @@ def start_flower():
 
     cmd = [
         'celery', 'flower',
-        '-A', 'apps/celery_api',
+        '-A', 'celery_api',
         '-l', 'INFO',
         '--url_prefix=flower',
         '--auto_refresh=False',
         '--max_tasks=1000',
         '--tasks_columns=uuid,name,args,state,received,started,runtime,worker'
     ]
-    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr)
+    p = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, cwd=APPS_DIR)
     pid_file = get_pid_file_path('flower')
     with open(pid_file, 'w') as f:
         f.write(str(p.pid))
