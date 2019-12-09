@@ -5,6 +5,7 @@ import {ZoneService} from '../zone.service';
 import {ZoneDetailComponent} from '../zone-detail/zone-detail.component';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {ZoneEditComponent} from '../zone-edit/zone-edit.component';
 
 @Component({
   selector: 'app-zone-list',
@@ -17,11 +18,13 @@ export class ZoneListComponent implements OnInit {
   selected: Zone[] = [];
   loading = false;
   showDelete = false;
+  showEdit = false;
   showDetail = false;
   resourceTypeName: '可用区';
   @Output() add = new EventEmitter();
-  @ViewChild(ZoneDetailComponent, {static: true})
-  child: ZoneDetailComponent;
+  @ViewChild(ZoneDetailComponent, {static: true}) child: ZoneDetailComponent;
+  @ViewChild(ZoneEditComponent, {static: true}) childEdit: ZoneEditComponent;
+
 
   constructor(private regionService: RegionService, private zoneService: ZoneService, private alertService: CommonAlertService) {
   }
@@ -57,6 +60,11 @@ export class ZoneListComponent implements OnInit {
   onShowDetail(item: Zone) {
     this.child.currentZone = item;
     this.showDetail = true;
+  }
+
+  onEdit(item: Zone) {
+    this.childEdit.item = item;
+    this.showEdit = true;
   }
 
   refresh() {
