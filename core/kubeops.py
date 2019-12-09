@@ -44,7 +44,7 @@ except:
 def check_database_connection():
     for i in range(60):
         print("Check database connection ...")
-        code = subprocess.call("python manage.py showmigrations auth", shell=True)
+        code = subprocess.call("python apps/manage.py showmigrations auth", shell=True)
         if code == 0:
             print("Database connect success")
             return
@@ -55,12 +55,12 @@ def check_database_connection():
 
 def make_migrations():
     print("Check database structure change ...")
-    subprocess.call('{} manage.py migrate'.format(PYTHON_EXE), shell=True)
+    subprocess.call('{} apps/manage.py migrate'.format(PYTHON_EXE), shell=True)
 
 
 def collect_static():
     print("Collect static files")
-    subprocess.call('{} manage.py collectstatic --no-input'.format(PYTHON_EXE), shell=True)
+    subprocess.call('{} apps/manage.py collectstatic --no-input'.format(PYTHON_EXE), shell=True)
 
 
 def prepare():
