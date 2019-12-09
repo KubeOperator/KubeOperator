@@ -18,6 +18,9 @@
   file: 'path="{{ item.strip().split()[0] }}" state=directory'
   with_items: "{{ nfs_exports }}"
 
+- name: Ensure directory exports exist
+  file: 'path="/etc/exports" state=directory'
+
 - name: Create exports file.
   file:
     path: "/etc/exports/exports.j2"
