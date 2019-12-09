@@ -256,3 +256,7 @@
         - 'kubectl completion'
         - 'crictl completion'
         - 'HELM_TLS_ENABLE'
+
+    - name: 重启提示 WARNNING
+      debug:
+        msg: "[重要]: 请重启节点以确保清除系统残留的虚拟网卡、路由信息、iptalbes|ipvs规则等"
