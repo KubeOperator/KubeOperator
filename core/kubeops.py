@@ -128,7 +128,7 @@ def start_gunicorn():
     prepare()
     bind = '{}:{}'.format('0.0.0.0', 8000)
     cmd = [
-        'python', 'manage.py',
+        'python', 'apps/manage.py',
         'runserver', bind
     ]
 
