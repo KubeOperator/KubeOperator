@@ -13,7 +13,8 @@
     <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput size=45 maxlength="15" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 maxlength="15" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name"
+               name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.invalid">{{name_pattern_tip}}</clr-control-error>
@@ -104,6 +105,19 @@
               <label>网关IP</label>
               <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
               <clr-control-error>此字段为必填项</clr-control-error>
+            </clr-input-container>
+            <clr-input-container>
+              <label>DNS 1</label>
+              <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns1']" name="dns1" required>
+              <clr-control-error>此字段为必填项</clr-control-error>
+              <clr-control-helper>例如: 114.114.114.114</clr-control-helper>
+            </clr-input-container>
+
+            <clr-input-container>
+              <label>DNS 2</label>
+              <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns2']" name="dns2" required>
+              <clr-control-error>此字段为必填项</clr-control-error>
+              <clr-control-helper>例如: 114.114.114.114</clr-control-helper>
             </clr-input-container>
           </div>
         </div>

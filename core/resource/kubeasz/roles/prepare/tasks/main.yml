@@ -1,6 +1,6 @@
 # 系统基础软件环境
 - import_tasks: centos.yml
-  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]' 
+  when: 'ansible_distribution in ["CentOS","RedHat","Amazon"]'
 
 # 公共系统参数设置
 - import_tasks: common.yml
@@ -8,20 +8,34 @@
 - name: prepare some dirs
   file: name={{ item }} state=directory
   with_items:
-  - "{{ bin_dir }}"
-  - "{{ ca_dir }}"
+    - "{{ bin_dir }}"
+    - "{{ ca_dir }}"
 
 - name: 分发证书工具 CFSSL
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
   with_items:
-  - cfssl
-  - cfssl-certinfo
-  - cfssljson
+    - cfssl
+    - cfssl-certinfo
+    - cfssljson
 
 - name: 本地设置 bin 目录权限
   file: path={{ base_dir }}/bin state=directory mode=0755 recurse=yes
   connection: local
   run_once: true
+
+- name: 添加主 DNS 解析
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{dns1}}"
+    regexp: "nameserver {{dns1}}"
+  when: 'dns1 is defined'
+
+- name: 添加副 DNS 解析
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{dns2}}"
+    regexp: "nameserver {{dns2}}"
+  when: 'dns2 is defined'
 
 - name: 添加 kubens
   copy:
