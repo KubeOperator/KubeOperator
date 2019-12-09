@@ -152,7 +152,7 @@ def start_celery():
 
     cmd = [
         'celery', 'worker',
-        '-A', 'celery_api',
+        '-A', 'apps/celery_api',
         '-l', LOG_LEVEL,
         '--pidfile', pid_file,
         '-c', str(WORKERS),
@@ -178,7 +178,7 @@ def start_celery_beat():
     scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
     cmd = [
         'celery', 'beat',
-        '-A', 'celery_api',
+        '-A', 'apps/celery_api',
         '-l', 'DEBUG',
         '--scheduler', scheduler,
         '--pidfile', pid_file,
@@ -198,7 +198,7 @@ def start_flower():
 
     cmd = [
         'celery', 'flower',
-        '-A', 'celery_api',
+        '-A', 'apps/celery_api',
         '-l', 'INFO',
         '--url_prefix=flower',
         '--auto_refresh=False',
