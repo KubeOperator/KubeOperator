@@ -2,7 +2,7 @@ import kubernetes.client
 import redis
 import json
 import logging
-import fit2ansible.settings
+import kubeoperator.settings
 import log.es
 import datetime
 from kubernetes.client.rest import ApiException
@@ -26,7 +26,7 @@ class ClusterMonitor():
         self.warn_containers = []
         self.error_pods = []
         # init redis
-        self.redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
+        self.redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST, port=kubeoperator.settings.REDIS_PORT)
         self.get_token()
         self.get_api_instance()
 
@@ -367,7 +367,7 @@ class ClusterMonitor():
 
 
 def delete_cluster_redis_data(cluster_name):
-    redis_cli = redis.StrictRedis(host=fit2ansible.settings.REDIS_HOST, port=fit2ansible.settings.REDIS_PORT)
+    redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST, port=kubeoperator.settings.REDIS_PORT)
     return redis_cli.delete(cluster_name)
 
 

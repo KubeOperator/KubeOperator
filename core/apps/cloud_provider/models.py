@@ -9,7 +9,7 @@ from django.db import models
 from ansible_api.models.mixins import AbstractExecutionModel
 from cloud_provider import get_cloud_client
 from common import models as common_models
-from fit2ansible import settings
+from kubeoperator import settings
 from django.utils.translation import ugettext_lazy as _
 from kubeops_api.models.host import Host
 

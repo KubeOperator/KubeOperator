@@ -4,7 +4,7 @@ import zipfile
 from download import download
 from jinja2 import FileSystemLoader, Environment
 
-from fit2ansible.settings import TERRAFORM_DIR
+from kubeoperator.settings import TERRAFORM_DIR
 
 
 def generate_terraform_file(target_path, cloud_path, mixin_vars, hosts_dict):

@@ -7,7 +7,7 @@ from pyVim import connect
 from pyVmomi import vim
 
 from cloud_provider.utils import download_plugins
-from fit2ansible.settings import CLOUDS_RESOURCE_DIR
+from kubeoperator.settings import CLOUDS_RESOURCE_DIR
 from kubeops_api.models.setting import Setting
 
 logger = logging.getLogger('cloud_provider')

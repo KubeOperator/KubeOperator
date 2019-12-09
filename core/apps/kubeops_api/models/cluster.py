@@ -9,7 +9,7 @@ from django.db import models
 
 import kubeops_api
 from ansible_api.models import Project, Playbook
-from fit2ansible.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR, WEBKUBECTL_URL
+from kubeoperator.settings import ANSIBLE_PROJECTS_DIR, CLUSTER_CONFIG_DIR, KUBEEASZ_DIR, WEBKUBECTL_URL
 from kubeops_api.adhoc import fetch_cluster_config, get_cluster_token
 from kubeops_api.cloud_provider import delete_hosts, create_compute_resource, scale_compute_resource
 from common import models as common_models

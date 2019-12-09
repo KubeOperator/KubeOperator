@@ -1,11 +1,11 @@
 from django.urls import include, path, re_path
 from django.contrib import admin
-from django.conf import settings
 from django.conf.urls.static import static
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from fit2ansible.celery_flower import celery_flower_view
+from kubeoperator import settings
+from kubeoperator.celery_flower import celery_flower_view
 from . import error_handler
 
 schema_view = get_schema_view(

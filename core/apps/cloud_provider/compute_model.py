@@ -3,7 +3,7 @@ import os
 
 import yaml
 
-from fit2ansible.settings import CLOUDS_RESOURCE_DIR
+from kubeoperator.settings import CLOUDS_RESOURCE_DIR
 
 logger = logging.getLogger(__name__)
 compute_models = []

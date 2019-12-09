@@ -6,7 +6,7 @@ import yaml
 from django.db import models
 from common.models import JsonTextField
 from django.utils.translation import ugettext_lazy as _
-from fit2ansible.settings import PACKAGE_DIR
+from kubeoperator.settings import PACKAGE_DIR
 from kubeops_api.package_manage import *
 
 logger = logging.getLogger('kubeops')

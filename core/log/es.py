@@ -3,7 +3,7 @@ import datetime
 from elasticsearch import Elasticsearch, helpers
 from elasticsearch_dsl import Search
 
-from fit2ansible.settings import ELASTICSEARCH_HOST
+from kubeoperator.settings import ELASTICSEARCH_HOST
 
 
 def search_log(params):

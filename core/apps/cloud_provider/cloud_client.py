@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from python_terraform import Terraform, IsNotFlagged
 
 from cloud_provider.utils import generate_terraform_file, create_terrafrom_working_dir
-from fit2ansible.settings import CLOUDS_RESOURCE_DIR
+from kubeoperator.settings import CLOUDS_RESOURCE_DIR
 
 
 def get_cloud_client(vars):

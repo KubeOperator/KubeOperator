@@ -5,7 +5,7 @@ import os
 from celery import Celery, platforms
 
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fit2ansible.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kubeoperator.settings')
 os.environ.setdefault('PYTHONOPTIMIZE', '1')
 os.environ.setdefault('C_FORCE_ROOT', '1')
 

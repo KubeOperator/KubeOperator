@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
-from fit2ansible.settings import NODE_CREDENTIAL
+from kubeoperator.settings import NODE_CREDENTIAL
 from kubeops_api.adhoc import gather_host_info
 from kubeops_api.models.credential import Credential
 from common import models as common_models

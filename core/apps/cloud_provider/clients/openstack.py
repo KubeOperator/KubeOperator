@@ -6,7 +6,7 @@ from urllib import request
 import json
 
 from cloud_provider.utils import download_plugins
-from fit2ansible.settings import CLOUDS_RESOURCE_DIR
+from kubeoperator.settings import CLOUDS_RESOURCE_DIR
 from kubeops_api.models.setting import Setting
 
 

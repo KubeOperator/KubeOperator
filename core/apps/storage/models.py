@@ -7,7 +7,7 @@ from common import models as common_models
 
 # Create your models here.
 from ansible_api.models import Project, Group, Playbook
-from fit2ansible.settings import KUBEEASZ_DIR
+from kubeoperator.settings import KUBEEASZ_DIR
 from kubeops_api.models.node import Node
 from kubeops_api.models.host import Host
 from kubeops_api.models.package import Package
@@ -67,6 +67,7 @@ class NfsStorage(Project):
             "repo_port": port,
             "nfs_name": self.name
         }
+        extra_vars.update(self.vars)
         extra_vars.update(settings)
         thread = threading.Thread(target=self.execute_playbook, args=(playbook, extra_vars))
         thread.start()
@@ -88,14 +89,14 @@ class NfsStorage(Project):
             self.create_playbooks()
             self.deploy_nfs()
 
-class CephStorage(models.Model):
 
+class CephStorage(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=255, null=False, unique=True, blank=False)
     vars = common_models.JsonDictTextField()
     date_created = models.DateTimeField(auto_now_add=True)
 
-class ClusterCephStorage(models.Model):
 
+class ClusterCephStorage(models.Model):
     cluster_id = models.UUIDField(default=uuid.uuid4)
     ceph_storage_id = models.UUIDField(default=uuid.uuid4)

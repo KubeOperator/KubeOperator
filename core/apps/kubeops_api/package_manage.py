@@ -2,7 +2,7 @@ import logging
 
 import docker
 
-from fit2ansible.settings import PACKAGE_IMAGE_NAME, PACKAGE_PATH_PREFIX
+from kubeoperator.settings import PACKAGE_IMAGE_NAME, PACKAGE_PATH_PREFIX
 
 Logger = logging.getLogger(__name__)
 

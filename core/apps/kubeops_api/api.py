@@ -14,7 +14,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from ansible_api.permissions import IsSuperUser
-from fit2ansible.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
+from kubeoperator.settings import VERSION_DIR, CLUSTER_CONFIG_DIR
 from kubeops_api.adhoc import test_host
 from kubeops_api.cluster_monitor import ClusterMonitor
 from kubeops_api.models.backup_storage import BackupStorage

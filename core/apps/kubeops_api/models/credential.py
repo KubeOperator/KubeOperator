@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common import models as common_models
 from common.utils import ssh_key_string_to_obj
-from fit2ansible import settings
+from kubeoperator import settings
 from hashlib import md5
 
 __all__ = ["Credential"]

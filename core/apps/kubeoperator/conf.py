@@ -25,7 +25,7 @@ def import_string(dotted_path):
     except AttributeError as err:
         raise ImportError('Module "%s" does not define a "%s" attribute/class' % (
             module_path, class_name)
-        ) from err
+                          ) from err
 
 
 class Config(dict):
@@ -345,7 +345,7 @@ def load_from_yml(config):
 
 
 def load_user_config():
-    config = Config(BASE_DIR, defaults)
+    config = Config(PROJECT_DIR, defaults)
 
     loaded = load_from_object(config)
     if not loaded:
