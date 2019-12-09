@@ -38,6 +38,15 @@
     src: external-ceph/storageclass.yaml.j2
     dest: "{{ base_dir }}/manifests/storage/external-ceph/storageclass.yaml"
 
+- name: get storageclass
+  command: "{{ bin_dir }}/kubectl get sc"
+  register: sc_info
+
+- name: delete default storageclass
+  shell: "{{ bin_dir }}/kubectl delete sc storageclass-default"
+  when: '"storageclass-default" in sc_info.stdout'
+  ignore_errors: true
+
 - name: begin deploying external-ceph storageclass
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/external-ceph/storageclass.yaml"
   ignore_errors: true
