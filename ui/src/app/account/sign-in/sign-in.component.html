@@ -19,7 +19,7 @@
       <div [class.visibility-hidden]="!isError" class="error active">
         {{message}}
       </div>
-      <button type="submit" class="btn btn-primary" (click)="signIn()">登录</button>
+      <button type="submit" class="btn btn-primary" (click)="signIn()" [disabled]="signInForm.invalid">登录</button>
     </div>
   </form>
 </div>
