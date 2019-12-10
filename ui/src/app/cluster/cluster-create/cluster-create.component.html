@@ -332,7 +332,7 @@
         </select>
       </clr-select-container>
       <clr-input-container>
-        <label>prometheus数据保留天数(单位小时)</label>
+        <label>prometheus数据保留时长(单位: 天)</label>
         <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
                name="prometheus" clrInput size=45
                required>
