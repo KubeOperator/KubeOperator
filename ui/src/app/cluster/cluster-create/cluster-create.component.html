@@ -181,7 +181,7 @@
     <form #networkForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
         <label>网络插件</label>
-        <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()">
+        <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()" required>
           <option [value]="">请选择</option>
           <option *ngFor="let network of networks" [value]="network.name">{{network.name}}</option>
         </select>
