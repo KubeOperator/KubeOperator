@@ -308,7 +308,7 @@
       <ng-template clrPageTitle>其他设置</ng-template>
       <clr-input-container>
         <label>可运行POD数量</label>
-        <input id="pod_count" type="number" [(ngModel)]="cluster.configs['MAX_PODS']"
+        <input id="pod_count" type="number" [(ngModel)]="cluster.configs['MAX_PODS']" max="110"
                name="pod_count" clrInput size=45 maxlength="15"
                required>
       </clr-input-container>
