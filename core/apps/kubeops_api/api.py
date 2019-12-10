@@ -410,12 +410,6 @@ class ClusterHealthView(APIView):
         if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         cluster_monitor = ClusterMonitor(cluster)
-        # host = "prometheus.apps." + cluster.name + "." + cluster.cluster_doamin_suffix
-        # config = {
-        #     'host': host
-        # }
-        # prometheus_client = PrometheusClient(config)
-        # result = prometheus_client.handle_targets_message(prometheus_client.targets())
         try:
             result = cluster_monitor.get_kubernetes_status()
         except Exception as e:
