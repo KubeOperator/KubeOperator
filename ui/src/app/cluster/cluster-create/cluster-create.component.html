@@ -318,6 +318,25 @@
                name="docker" clrInput size=45
                required>
       </clr-input-container>
+      <clr-input-container>
+        <label>Docker0 默认网段</label>
+        <input id="docker_addr" type="text" [(ngModel)]="cluster.configs['DOCKER_ADDR']"
+               name="docker_addr" clrInput size=45
+               required>
+      </clr-input-container>
+      <clr-select-container>
+        <label>kube-proxy 运行模式</label>
+        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>
+          <option value="iptables" selected>iptables</option>
+          <option value="ipvs">ipvs</option>
+        </select>
+      </clr-select-container>
+      <clr-input-container>
+        <label>prometheus数据保留天数(单位小时)</label>
+        <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
+               name="prometheus" clrInput size=45
+               required>
+      </clr-input-container>
     </form>
   </clr-wizard-page>
   <clr-wizard-page>
