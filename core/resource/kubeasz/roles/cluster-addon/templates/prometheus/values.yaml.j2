@@ -667,7 +667,7 @@ server:
 
   ## Prometheus data retention period (i.e 360h)
   ##
-  retention: 168h
+  retention: {{ PROMETHEUS_RETENTION }}
 
 pushgateway:
   ## If false, pushgateway will not be installed
