@@ -667,7 +667,12 @@ server:
 
   ## Prometheus data retention period (i.e 360h)
   ##
+
+{% if PROMETHEUS_RETENTION is defined %}
   retention: {{ PROMETHEUS_RETENTION }}
+{% else %}
+  retention: 168h
+{% endif %}
 
 pushgateway:
   ## If false, pushgateway will not be installed
