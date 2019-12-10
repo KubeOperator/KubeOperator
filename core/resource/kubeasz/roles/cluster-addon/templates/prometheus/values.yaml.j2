@@ -669,9 +669,9 @@ server:
   ##
 
 {% if PROMETHEUS_RETENTION is defined %}
-  retention: {{ PROMETHEUS_RETENTION }}
+  retention: {{ PROMETHEUS_RETENTION }}d
 {% else %}
-  retention: 168h
+  retention: 7d
 {% endif %}
 
 pushgateway:
