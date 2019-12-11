@@ -486,12 +486,4 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.reset();
     this.createClusterOpened = false;
   }
-
-  test(value) {
-    console.log(value);
-    console.log(this.cluster.configs);
-    console.log(this.cluster.worker_size);
-  }
-
-
 }
