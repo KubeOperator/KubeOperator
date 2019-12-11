@@ -18,12 +18,9 @@
   file: 'path="{{ item.strip().split()[0] }}" state=directory'
   with_items: "{{ nfs_exports }}"
 
-- name: Ensure directory exports exist
-  file: 'path="/etc/exports" state=directory'
-
 - name: Create exports file.
   file:
-    path: "/etc/exports/exports.j2"
+    path: "/etc/exports"
     owner: root
     group: root
     mode: 0644
@@ -31,7 +28,7 @@
 
 - name: Add export
   blockinfile:
-    path: "/etc/exports/exports.j2"
+    path: "/etc/exports"
     marker: "#{mark} {{nfs_name}}"
     block: "{{storage_nfs_server_path}} {{allow_ip}}(rw,sync,no_root_squash)"
     state: present
