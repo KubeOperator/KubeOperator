@@ -140,6 +140,10 @@ def create_cluster_hosts_dict(cluster):
         for i in range(1, size + 1):
             name = role + "{}.".format(i) + "{}".format(domain)
             zone = get_zone(cluster.plan.get_zones(), i)
+            ## 选择到了zone 后更新 zone参数
+            if zone:
+                cluster.configs.update(zone.vars)
+                cluster.save()
             if not zone:
                 raise RuntimeError('Can not find  available ip address!')
             host = {
