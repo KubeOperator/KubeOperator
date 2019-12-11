@@ -23,6 +23,12 @@
     port: "30000-32767/tcp"
     permanent: true
     state: enabled
+    
+- name: 打开ssh 端口
+  firewalld:
+    port: "{{ansible_ssh_port}}/tcp"
+    permanent: true
+    state: enabled
 
 - name: 生效防火墙配置
   shell: "firewall-cmd --reload"
