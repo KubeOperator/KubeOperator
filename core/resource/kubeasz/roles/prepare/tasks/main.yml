@@ -23,19 +23,7 @@
   connection: local
   run_once: true
 
-- name: 添加主 DNS 解析
-  lineinfile:
-    path: /etc/resolv.conf
-    line: "nameserver {{dns1}}"
-    regexp: "nameserver {{dns1}}"
-  when: 'dns1 is defined and dns1'
 
-- name: 添加副 DNS 解析
-  lineinfile:
-    path: /etc/resolv.conf
-    line: "nameserver {{dns2}}"
-    regexp: "nameserver {{dns2}}"
-  when: 'dns2 is defined and dns2'
 
 - name: 添加 kubens
   copy:
