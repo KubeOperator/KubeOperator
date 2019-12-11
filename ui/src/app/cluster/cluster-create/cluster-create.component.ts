@@ -79,8 +79,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   Manual = 'MANUAL';
   Automatic = 'AUTOMATIC';
   clusterNameChecker: Subject<string> = new Subject<string>();
-  name_pattern = globals.name_pattern;
-  name_pattern_tip = globals.name_pattern_tip;
+  name_pattern = globals.cluster_name_pattern;
+  name_pattern_tip = globals.cluster_name_pattern_tip;
 
   @Output() create = new EventEmitter<boolean>();
 
@@ -362,6 +362,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       return;
     }
     this.isSubmitGoing = true;
+    this.cluster.configs['PROMETHEUS_RETENTION'] = this.cluster.configs['PROMETHEUS_RETENTION'] + 'h';
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.cluster = data;
       if (this.nodes) {
