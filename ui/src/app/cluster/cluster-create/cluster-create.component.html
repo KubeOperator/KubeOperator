@@ -313,7 +313,7 @@
                required>
       </clr-input-container>
       <clr-input-container>
-        <label>Docker数据目录</label>
+        <label>Docker 数据目录</label>
         <input id="docker" type="text" [(ngModel)]="cluster.configs['STORAGE_DIR']"
                name="docker" clrInput size=45
                required>
@@ -332,7 +332,7 @@
         </select>
       </clr-select-container>
       <clr-input-container>
-        <label>prometheus数据保留时长(单位: 天)</label>
+        <label>Prometheus 监控数据保留时长(单位: 天)</label>
         <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
                name="prometheus" clrInput size=45
                required>
