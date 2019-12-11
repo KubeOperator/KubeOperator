@@ -362,7 +362,6 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       return;
     }
     this.isSubmitGoing = true;
-    this.cluster.configs['PROMETHEUS_RETENTION'] = this.cluster.configs['PROMETHEUS_RETENTION'] + 'h';
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.cluster = data;
       if (this.nodes) {
