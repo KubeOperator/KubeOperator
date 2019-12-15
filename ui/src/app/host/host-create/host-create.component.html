@@ -14,6 +14,8 @@
       <clr-input-container>
         <label>Ip:</label>
         <input clrInput size=45 type="text" [(ngModel)]="host.ip" name="ip" required>
+        <clr-control-helper>KubeOperator部署机不能作为kubernetes集群节点使用</clr-control-helper>
+        <clr-control-error>KubeOperator部署机不能作为kubernetes集群节点使用</clr-control-error>
       </clr-input-container>
 
       <clr-input-container>
