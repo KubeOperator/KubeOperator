@@ -192,7 +192,6 @@
             <clr-select-container *ngSwitchCase="'Select'">
               <label>{{config.alias}}</label>
               <select clrSelect [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
-                      (change)="test(config.name)"
                       required>
                 <option value="">请选择</option>
                 <option *ngFor="let opt of config.options"

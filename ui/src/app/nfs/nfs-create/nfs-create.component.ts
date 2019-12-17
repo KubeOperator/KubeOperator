@@ -51,9 +51,7 @@ export class NfsCreateComponent implements OnInit {
 
   listHosts() {
     this.hostService.listHosts().subscribe(data => {
-      this.hosts = data.filter(host => {
-        return !host.cluster;
-      });
+      this.hosts = data;
     });
   }
 
