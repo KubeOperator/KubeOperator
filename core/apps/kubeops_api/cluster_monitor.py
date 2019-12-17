@@ -406,7 +406,8 @@ def quick_sort_error_loki_container(containers):
 def put_cluster_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
                                       ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
-                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_ERROR))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_cluster_data()
@@ -417,7 +418,8 @@ def put_cluster_data_to_redis():
 def put_loki_data_to_redis():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
                                       ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
-                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_ERROR))
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
         success = cluster_monitor.set_loki_data_to_cluster()
@@ -428,7 +430,8 @@ def put_loki_data_to_redis():
 def put_event_data_to_es():
     clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
                                       ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
-                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+                                      ~Q(status=Cluster.CLUSTER_STATUS_DELETING),
+                                      ~Q(status=Cluster.CLUSTER_STATUS_ERROR))
 
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
