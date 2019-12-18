@@ -29,8 +29,8 @@ services:
         condition: service_healthy
 
   api:
-    build: api
-    image: kube-operator/api:2.2.0
+    build: core
+    image: kube-operator/core:2.2.0
     container_name: kubeops_api
     command: 'web'
     restart: always
@@ -55,7 +55,7 @@ services:
       elasticsearch:
         condition: service_healthy
   task:
-    image: kube-operator/api:2.2.0
+    image: kube-operator/core:2.2.0
     command: 'task'
     container_name: kubeops_task
     restart: always
@@ -107,7 +107,7 @@ services:
     environment:
       TZ: Asia/Shanghai
   webkubectl:
-    image: webkubectl/webkubectl:v1.6
+    image: webkubectl/webkubectl:v1.7
     container_name: kubeops_webkubectl
     restart: always
     privileged: true

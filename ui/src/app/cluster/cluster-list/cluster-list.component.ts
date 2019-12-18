@@ -17,6 +17,7 @@ export class ClusterListComponent implements OnInit {
   loading = true;
   clusters: Cluster[] = [];
   deleteModal = false;
+  hasHostname = false;
   selectedClusters: Cluster[] = [];
   @Output() addCluster = new EventEmitter<void>();
 
@@ -27,7 +28,14 @@ export class ClusterListComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.checkSetting();
     this.listCluster();
+  }
+
+  checkSetting() {
+    this.settingService.getSettings().subscribe(data => {
+      this.hasHostname = !!data['local_hostname'];
+    });
   }
 
   listCluster() {

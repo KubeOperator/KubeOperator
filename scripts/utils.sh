@@ -8,10 +8,10 @@ function get_images(){
        "docker.io/redis:alpine"
        "docker.io/mysql:5"
        "docker.io/nginx:alpine"
-       "kube-operator/api:2.2.0"
+       "kube-operator/core:2.2.0"
        "kube-operator/ui:2.2.0"
        "registry.fit2cloud.com/public/nexus-helm:3.15.2-01"
-       "webkubectl/webkubectl:v1.6"
+       "webkubectl/webkubectl:v1.7"
        "elasticsearch:7.4.1"
     )
     for image in ${images[@]};do

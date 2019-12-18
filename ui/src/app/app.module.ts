@@ -37,6 +37,9 @@ import { ClusterStorageComponent } from './cluster-storage/cluster-storage.compo
 import { ClusterEventComponent } from './cluster-event/cluster-event.component';
 import { ClusterEventListComponent } from './cluster-event/cluster-event-list/cluster-event-list.component';
 import { ClusterEventDetailComponent } from './cluster-event/cluster-event-detail/cluster-event-detail.component';
+import { CephComponent } from './ceph/ceph.component';
+import { CephListComponent } from './ceph/ceph-list/ceph-list.component';
+import { CephCreateComponent } from './ceph/ceph-create/ceph-create.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +53,9 @@ import { ClusterEventDetailComponent } from './cluster-event/cluster-event-detai
     ClusterEventComponent,
     ClusterEventListComponent,
     ClusterEventDetailComponent,
+    CephComponent,
+    CephListComponent,
+    CephCreateComponent,
   ],
   imports: [
     CredentialModule,

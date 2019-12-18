@@ -1,0 +1,143 @@
+- block:
+    - name:  生成 https 证书
+      shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj \"/CN={{APP_DOMAIN}}\""
+      args:
+        chdir: "/tmp/"
+      ignore_errors: true
+
+    - name: 生成 secret
+      shell: kubectl -n kube-system create secret tls traefik-tls-cert --key=tls.key --cert=tls.crt
+      args:
+        chdir: "/tmp/"
+      ignore_errors: true
+
+    - name: 生成 ingress 部署文件
+      template:
+        src: traefik/traefik-ingress.yaml.j2
+        dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+
+    - name: 创建 traefik部署
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+
+- block:
+    - name: 创建npd相关目录
+      file: path=/opt/kube/kube-system/npd/config state=directory
+
+    - name: 准备npd部署文件
+      template: src=npd/npd.yaml.j2 dest=/opt/kube/kube-system/npd/npd.yaml
+
+    - name: 准备abrt-adaptor部署文件
+      template: src=npd/config/abrt-adaptor.json.j2 dest=/opt/kube/kube-system/npd/config/abrt-adaptor.json
+
+    - name: 准备docker-monitor部署文件
+      template: src=npd/config/docker-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/docker-monitor.json
+
+    - name: 准备kernel-monitor部署文件
+      template: src=npd/config/kernel-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/kernel-monitor.json
+
+    - name: 准备systemd-monitor部署文件
+      template: src=npd/config/systemd-monitor.json.j2 dest=/opt/kube/kube-system/npd/config/systemd-monitor.json
+
+    - name: 创建 npd cm部署
+      shell: "{{ bin_dir }}/kubectl -n kube-system create configmap node-problem-detector-config --from-file=./config"
+      args:
+        chdir: "/opt/kube/kube-system/npd"
+      ignore_errors: true
+
+    - name: 创建 npd 部署
+      shell: "{{ bin_dir }}/kubectl apply -f npd.yaml"
+      args:
+        chdir: "/opt/kube/kube-system/npd"
+  when: 'npd_install is defined and npd_install'
+
+- block:
+    - name: 创建 dashboard 部署文件
+      template:
+        src: dashboard/kubernetes-dashboard.yaml.j2
+        dest: "{{ base_dir }}/manifests/dashboard/kubernetes-dashboard.yaml"
+
+    - name: 创建 metrics-server 部署文件
+      template:
+        src: dashboard/metrics-server.yaml.j2
+        dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
+      when: 'metrics_server_install is defined and metrics_server_install'
+
+    - name: 部署 dashboard
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+  when: 'dashboard_install '
+  ignore_errors: true
+
+- block:
+    - name: get all namespace
+      command: "{{ bin_dir }}/kubectl get ns"
+      register: ns_info
+
+    - name: create kube-operator namespace
+      shell: "kubectl create ns kube-operator"
+      when: '"kube-operator" not in ns_info.stdout'
+
+    - name: 创建 worker1节点标签
+      shell: kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent
+
+    - name: create etcd monitoring secrets
+      shell: "kubectl -n kube-operator create secret generic etcd-secret-files \
+          --from-file=/etc/kubernetes/ssl/ca.pem \
+          --from-file=/etc/etcd/ssl/etcd.pem \
+          --from-file=/etc/etcd/ssl/etcd-key.pem"
+  ignore_errors: true
+
+- block:
+    - name: 拷贝 prometheus values文件
+      template: src=prometheus/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prometheus/values.yaml
+
+    - name: 拷贝 prometheus setting文件
+      template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
+
+    - name: 部署 prometheus
+      shell: "helm upgrade f2c-prometheus --namespace=kube-operator --install --force --recreate-pods \
+          -f prom-settings.yaml \
+          -f prom-alertsmanager.yaml \
+          -f prom-alertrules.yaml \
+          ./prometheus"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+  ignore_errors: true
+
+- block:
+    - name: 拷贝 grafana values文件
+      template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
+
+    - name: 部署 grafana
+      shell: "helm upgrade f2c-grafana --namespace=kube-operator --install --force --recreate-pods \
+         -f grafana-settings.yaml \
+         -f grafana-dashboards.yaml \
+         ./grafana"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+  ignore_errors: true
+
+- block:
+    - name: 生成 scope weave 部署文件
+      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
+
+    - name: 部署 scope weave
+      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
+  ignore_errors: true
+
+- block:
+    - name: 生成 loki 部署文件
+      template: src=loki/loki/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/loki/values.yaml
+
+    - name: 生成 loki ingress部署文件
+      template: src=loki/loki/loki-ingress.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/loki/templates/ingress.yaml
+
+    - name: 生成 promtail 部署文件
+      template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
+
+    - name: 部署 loki-stack
+      shell: "helm upgrade f2c-loki --namespace=kube-operator --install --force --recreate-pods ./loki"
+      args:
+        chdir: "{{ base_dir }}/manifests/prometheus"
+  when: 'loki_install is defined and loki_install'
+  ignore_errors: true
+

@@ -181,8 +181,8 @@
     <form #networkForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
         <label>网络插件</label>
-        <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()">
-          <option value="">请选择</option>
+        <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()" required>
+          <option [value]="">请选择</option>
           <option *ngFor="let network of networks" [value]="network.name">{{network.name}}</option>
         </select>
       </clr-select-container>
@@ -192,7 +192,6 @@
             <clr-select-container *ngSwitchCase="'Select'">
               <label>{{config.alias}}</label>
               <select clrSelect [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
-                      (change)="test(config.name)"
                       required>
                 <option value="">请选择</option>
                 <option *ngFor="let opt of config.options"
@@ -249,6 +248,15 @@
           </select>
         </clr-select-container>
       </div>
+      <div *ngIf="cluster.persistent_storage==='external-ceph'">
+        <clr-select-container>
+          <label>Ceph:</label>
+          <select clrSelect name="external-ceph" [(ngModel)]="cluster.configs['external-ceph']" required>
+            <option value="">请选择</option>
+            <option *ngFor="let ceph of storageList" [value]="ceph.name">{{ceph.name}}</option>
+          </select>
+        </clr-select-container>
+      </div>
     </form>
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()" *ngIf="cluster.deploy_type === Manual">
@@ -299,14 +307,33 @@
       <ng-template clrPageTitle>其他设置</ng-template>
       <clr-input-container>
         <label>可运行POD数量</label>
-        <input id="pod_count" type="number" [(ngModel)]="cluster.configs['MAX_PODS']"
+        <input id="pod_count" type="number" [(ngModel)]="cluster.configs['MAX_PODS']" max="110"
                name="pod_count" clrInput size=45 maxlength="15"
                required>
       </clr-input-container>
       <clr-input-container>
-        <label>Docker数据目录</label>
+        <label>Docker 数据目录</label>
         <input id="docker" type="text" [(ngModel)]="cluster.configs['STORAGE_DIR']"
                name="docker" clrInput size=45
+               required>
+      </clr-input-container>
+      <clr-input-container>
+        <label>Docker0 默认网段</label>
+        <input id="docker_addr" type="text" [(ngModel)]="cluster.configs['DOCKER_ADDR']"
+               name="docker_addr" clrInput size=45
+               required>
+      </clr-input-container>
+<!--      <clr-select-container>-->
+<!--        <label>kube-proxy 运行模式</label>-->
+<!--        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>-->
+<!--          <option value="iptables" selected>iptables</option>-->
+<!--          <option value="ipvs">ipvs</option>-->
+<!--        </select>-->
+<!--      </clr-select-container>-->
+      <clr-input-container>
+        <label>Prometheus 监控数据保留时长(单位: 天)</label>
+        <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
+               name="prometheus" clrInput size=45
                required>
       </clr-input-container>
     </form>

@@ -53,7 +53,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="3">计算方案
         </td>
-        <td class="features-third-td-background-style">独立主机：支持自行准备的虚机和物理机
+        <td class="features-third-td-background-style">独立主机：支持自行准备的虚机、公有云主机和物理机
         </td>  
     </tr>    
     <tr class="subscription-level-tr-border">

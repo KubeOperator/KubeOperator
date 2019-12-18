@@ -76,7 +76,7 @@ export class ClusterStatusComponent implements OnInit {
 
   redirect(url: string) {
     if (url) {
-      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
+      const linkUrl = ['cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
   }

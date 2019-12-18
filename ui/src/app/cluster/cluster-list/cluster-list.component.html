@@ -14,7 +14,7 @@
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedClusters">
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()" [disabled]="!hasHostname">
         <clr-icon shape="plus" size="16"></clr-icon>
         添加
       </button>
@@ -45,7 +45,7 @@
     <clr-dg-cell>{{getDeployTypeComment(cluster.deploy_type)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.plan}}</clr-dg-cell>
-    <clr-dg-cell [ngStyle]="{'color':cluster.status | statusColor }" >{{cluster.status | status}}</clr-dg-cell>
+    <clr-dg-cell [ngStyle]="{'color':cluster.status | statusColor }">{{cluster.status | status}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
   </clr-dg-row>
 
