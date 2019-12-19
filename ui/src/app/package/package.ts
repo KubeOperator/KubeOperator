@@ -40,6 +40,7 @@ export class App {
   logo: string;
   url_key: string;
   describe: string;
+  display_on: string;
 }
 
 export class ClusterInfo {

@@ -4,6 +4,7 @@ import {App} from '../package/package';
 import {PackageService} from '../package/package.service';
 import {ActivatedRoute} from '@angular/router';
 import {ClusterService} from '../cluster/cluster.service';
+import {print} from 'util';
 
 @Component({
   selector: 'app-application',
@@ -24,7 +25,13 @@ export class ApplicationComponent implements OnInit {
       this.clusterService.getCluster(clusterName).subscribe(c => {
         this.currentCluster = c;
         this.clusterService.getClusterConfigs().subscribe(d => {
-          this.apps = d.apps;
+          this.apps = d.apps.filter(app => {
+            let result = true;
+            if (app.display_on != null) {
+              result = this.currentCluster.configs[app.display_on] != null;
+            }
+            return result;
+          });
         });
       });
     });
