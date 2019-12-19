@@ -1,0 +1,108 @@
+- block:
+    - name: 插入 kubeapps registry hosts 记录
+      lineinfile:
+        path: "/etc/hosts"
+        regexp: "{{ kubeapps_registry_hostname }}"
+        line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host'] }} {{ kubeapps_registry_hostname }}"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+    - name: 插入 kubeapps chartmuseum hosts 记录
+      lineinfile:
+        path: "/etc/hosts"
+        regexp: "{{ kubeapps_chartmuseum_hostname }}"
+        line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host'] }} {{ kubeapps_chartmuseum_hostname }}"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+    - name: 获取 docker insecure-registries 信息
+      shell: "cat /etc/docker/daemon.json"
+      register: daemon
+
+    - name: daemon 添加 kubeapps registry
+      shell: sed -i 's/"]/","{{ kubeapps_registry_hostname }}"]/g' /etc/docker/daemon.json
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+    - name: restart_docker
+      service:
+        name: "docker"
+        state: restarted
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+- block:
+    - name: 创建 kubeapps 目录
+      file: path=/opt/kube/kube-system/kubeapps state=directory
+
+    - name: 准备 kubeapps registry ingress 部署文件
+      template: src=kubeapps-registry.yaml.j2 dest=/opt/kube/kube-system/kubeapps/kubeapps-registry.yaml
+
+    - name: 创建 kubeapps registry ingress
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps/kubeapps-registry.yaml"
+
+    - name: get all namespace
+      command: "{{ bin_dir }}/kubectl get ns"
+      register: ns_info
+
+    - name: create kubeapps namespace
+      shell: "kubectl create ns kubeapps"
+      when: '"kubeapps" not in ns_info.stdout'
+
+- block:
+    - name: 准备 kubeapps chartmuseum 部署文件
+      template: src=kubeapps-chartmuseum.yaml.j2 dest=/opt/kube/kube-system/kubeapps/kubeapps-chartmuseum.yaml
+
+    - name: 创建 kubeapps chartmuseum
+      shell: "{{ bin_dir }}/kubectl -n kubeapps apply -f /opt/kube/kube-system/kubeapps/kubeapps-chartmuseum.yaml"
+
+- block:
+    - name: 等待 kubeapps chartmuseum running
+      shell: "{{ bin_dir }}/kubectl -n kubeapps get pod -o wide | grep chartmuseum | awk '{print $3}'"
+      register: pod_status
+      until: pod_status.stdout == "Running"
+      retries: 20
+      delay: 10
+
+    - name: helm init
+      shell: "helm init --client-only"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['kube-master'] }}"
+      run_once: true
+
+    - name: 添加 chartmuseum 仓库
+      shell: "helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['kube-master'] }}"
+      run_once: true
+
+- block:
+    - name: 尝试登陆 kubeapps registry
+      shell: "docker login {{ kubeapps_registry_hostname }} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
+      register: login_result
+      until: login_result.rc == 0
+      retries: 10
+      delay: 10
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+      ignore_errors: true
+
+- block:
+    - name: 拷贝 kubeapps values文件
+      template: src=values.yaml.j2 dest={{ base_dir }}/manifests/kubeapps/values.yaml
+
+    - name: 部署 kubeapps
+      shell: "helm upgrade kubeapps --namespace=kubeapps --install --force --recreate-pods ./kubeapps"
+      args:
+        chdir: "{{ base_dir }}/manifests"
+
+    - name: 提示
+      debug:
+        msg: "应用商店安装已完成，请在服务完全启动后访问 http://kubeapps.{{APP_DOMAIN}} 来使用"
