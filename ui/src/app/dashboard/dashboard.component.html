@@ -86,32 +86,37 @@
     <div class="card">
       <div class="card-block card-style">
         <h3 class="card-title">容量信息</h3>
-        <div class="clr-col-sm-12 clr-col-12">
-          <h5>CPU使用率 ({{cpuUsage | number: '1.0-2'}}%)</h5>
-        </div>
-        <div class="clr-col-sm-11 clr-col-12">
-          <div class="progress success labeled progress-dashboard"
-               data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{cpuUsage}}"></progress>
-            <span>{{cpuTotal}}核</span>
+        <div class="clr-col-sm-12 clr-col-12 progress-block">
+          <div class="progress-group">
+            <div class="clr-row">
+              <div class="clr-col-6">CPU使用率 ({{cpuUsage | number: '1.0-2'}}%)</div>
+              <div class="clr-col-6 text-right">{{cpuTotal}}核</div>
+            </div>
+            <div class="progress success" data-displayval="100%">
+              <progress class="progress-dashboard" max="100" value="{{cpuUsage}}"></progress>
+            </div>
           </div>
         </div>
-        <div class="clr-col-sm-12 clr-col-12">
-          <h5>内存使用率 ({{memUsage | number: '1.0-2'}}%)</h5>
-        </div>
-        <div class="clr-col-sm-11 clr-col-12">
-          <div class="progress success labeled progress-dashboard" data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{memUsage}}"></progress>
-            <span>{{memTotal | number: '1.0-2' }}G</span>
+        <div class="clr-col-sm-12 clr-col-12 progress-block">
+          <div class="progress-group">
+            <div class="clr-row">
+              <div class="clr-col-6">内存使用率 ({{memUsage | number: '1.0-2'}}%)</div>
+              <div class="clr-col-6 text-right">{{memTotal | number: '1.0-2' }}G</div>
+            </div>
+            <div class="progress success" data-displayval="100%">
+              <progress class="progress-dashboard" max="100" value="{{memUsage}}"></progress>
+            </div>
           </div>
         </div>
-        <div class="clr-col-sm-12 clr-col-12">
-          <h5>容器组 ({{containerUsage | number: '1.0-2'}}%)</h5>
-        </div>
-        <div class="clr-col-sm-11 clr-col-12">
-          <div class="progress success labeled progress-dashboard" data-displayval="100%">
-            <progress class="progress-dashboard" max="100" value="{{containerUsage}}"></progress>
-            <span>{{podCount}}/{{maxPodCount}}</span>
+        <div class="clr-col-sm-12 clr-col-12 progress-block">
+          <div class="progress-group">
+            <div class="clr-row">
+              <div class="clr-col-6">容器组 ({{containerUsage | number: '1.0-2'}}%)</div>
+              <div class="clr-col-6 text-right">{{podCount}}/{{maxPodCount}}</div>
+            </div>
+            <div class="progress success" data-displayval="100%">
+              <progress class="progress-dashboard" max="100" value="{{containerUsage}}"></progress>
+            </div>
           </div>
         </div>
       </div>

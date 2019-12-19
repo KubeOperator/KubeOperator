@@ -146,6 +146,8 @@ export class DashboardComponent implements OnInit {
       }
       this.containerUsage = this.podCount / this.maxPodCount * 100;
       this.loading = false;
+    }, error1 => {
+      this.loading = false;
     });
   }
 
