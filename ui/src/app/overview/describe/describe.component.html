@@ -145,6 +145,10 @@
                 <td>存储:</td>
                 <td>{{currentCluster.configs['nfs']}}</td>
               </tr>
+              <tr *ngIf="currentCluster.persistent_storage==='external-ceph'">
+                <td>存储:</td>
+                <td>{{currentCluster.configs['external-ceph']}}</td>
+              </tr>
               <tr>
                 <td>创建时间:</td>
                 <td>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</td>

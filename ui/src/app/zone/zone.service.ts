@@ -20,6 +20,10 @@ export class ZoneService {
     return this.http.post<Zone>(this.baseUrl, item);
   }
 
+  updateZones(item: Zone): Observable<Zone> {
+    return this.http.patch<Zone>(this.baseUrl + item.name + '/', item);
+  }
+
   getZone(name: string): Observable<Zone> {
     return this.http.get<Zone>(this.baseUrl + name + '/');
   }

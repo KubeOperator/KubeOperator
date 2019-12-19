@@ -28,7 +28,7 @@ export class LogDetailComponent implements OnInit {
       cols: 110,
       rows: 25,
       letterSpacing: 1,
-      fontSize: 16
+      scrollback: 9999999,
     });
     this.term.open(this.terminal.nativeElement);
   }

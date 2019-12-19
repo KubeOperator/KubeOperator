@@ -33,12 +33,12 @@ import {SystemLogComponent} from './system-log/system-log.component';
 import {DnsComponent} from './dns/dns.component';
 import {ClusterStorageComponent} from './cluster-storage/cluster-storage.component';
 import {ClusterEventComponent} from './cluster-event/cluster-event.component';
+import {CephComponent} from './ceph/ceph.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: 'kubeOperator', pathMatch: 'full'},
   {path: 'sign-in', component: SignInComponent},
   {
-    path: 'kubeOperator',
+    path: '',
     component: ShellComponent,
     canActivate: [AuthUserActiveService],
     canActivateChild: [AuthUserActiveService],
@@ -55,6 +55,7 @@ const routes: Routes = [
         children: [
           {path: '', redirectTo: 'nfs', pathMatch: 'full'},
           {path: 'nfs', component: NfsComponent},
+          {path: 'ceph', component: CephComponent},
         ]
       },
       {

@@ -1,0 +1,28 @@
+<clr-modal [(clrModalOpen)]="open" [clrModalClosable]=false>:
+  <h3 class="modal-title">编辑可用区</h3>
+  <div class="modal-body">
+    <div *ngIf="item">
+      <form clrForm #editForm='ngForm'>
+        <clr-input-container>
+          <label>起始IP</label>
+          <input clrInput type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
+          <clr-control-error>此字段为必填项</clr-control-error>
+        </clr-input-container>
+        <clr-input-container>
+          <label>终止IP</label>
+          <input clrInput type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
+          <clr-control-error>此字段为必填项</clr-control-error>
+        </clr-input-container>
+        <ul>
+          <li *ngFor="let error of networkErrors">{{error}}</li>
+        </ul>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn" (click)="onCancel()">取消</button>
+        <button type="button" class="btn" (click)="onConfirm()" [disabled]="editForm.invalid || !checkParams()">确认
+        </button>
+      </div>
+    </div>
+  </div>
+
+</clr-modal>
