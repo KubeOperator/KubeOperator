@@ -136,6 +136,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             try:
                 cluster.create_resource()
+                extra_vars.update(cluster.configs)
                 self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
             except RuntimeError as e:
                 self.update_current_step('create-resource', DeployExecution.STEP_STATUS_ERROR)
