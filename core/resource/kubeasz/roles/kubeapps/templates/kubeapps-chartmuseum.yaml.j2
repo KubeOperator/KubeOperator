@@ -50,7 +50,7 @@ spec:
           value: prov
         - name: STORAGE
           value: local
-        image: {{registry_prefix}}:{{registry_port}}/chartmuseum/{{ chartmuseum_image }}:{{ chartmuseum_version }}
+        image: {{registry_prefix}}:{{registry_port}}/{{ chartmuseum_image }}:{{ chartmuseum_version }}
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
