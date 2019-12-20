@@ -10,6 +10,3 @@ ENABLE_REMOTE_API: false
 
 # docker ip
 DOCKER_ADDR: "172.17.0.1/16"
-
-# kubeapps registry address
-kubeapps_registry_hostname: "registry.kubeapps.fit2cloud.com"
