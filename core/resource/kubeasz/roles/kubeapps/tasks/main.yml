@@ -38,6 +38,14 @@
       run_once: true
 
 - block:
+    - name: get all namespace
+      command: "{{ bin_dir }}/kubectl get ns"
+      register: ns_info
+
+    - name: create kubeapps namespace
+      shell: "kubectl create ns kubeapps"
+      when: '"kubeapps" not in ns_info.stdout'
+
     - name: 创建 kubeapps 目录
       file: path=/opt/kube/kube-system/kubeapps state=directory
 
@@ -46,14 +54,6 @@
 
     - name: 创建 kubeapps registry ingress
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps/kubeapps-registry.yaml"
-
-    - name: get all namespace
-      command: "{{ bin_dir }}/kubectl get ns"
-      register: ns_info
-
-    - name: create kubeapps namespace
-      shell: "kubectl create ns kubeapps"
-      when: '"kubeapps" not in ns_info.stdout'
 
 - block:
     - name: 准备 kubeapps chartmuseum 部署文件

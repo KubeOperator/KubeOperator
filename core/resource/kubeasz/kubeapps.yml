@@ -1,4 +1,0 @@
-- hosts: "{{groups['kube-master'][0]}}"
-  roles:
-    - manifests
-    - kubeapps
