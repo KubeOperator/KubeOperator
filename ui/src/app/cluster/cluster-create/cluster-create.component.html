@@ -343,6 +343,14 @@
                name="docker_addr" clrInput size=45
                required>
       </clr-input-container>
+
+      <clr-checkbox-container>
+        <label>安装 kubeapps</label>
+        <clr-checkbox-wrapper>
+          <input type="checkbox" clrCheckbox name="kubeapps" [(ngModel)]="cluster.configs['kubeapps_install']"/>
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+
       <!--      <clr-select-container>-->
       <!--        <label>kube-proxy 运行模式</label>-->
       <!--        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>-->

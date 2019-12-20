@@ -1,0 +1,3 @@
+kubeapps_registry_hostname: "registry.kubeapps.fit2cloud.com"
+kubeapps_registry_key: "kubeapps-registry-fit2cloud-com-key"
+kubeapps_chartmuseum_hostname: "chartmuseum.kubeapps.fit2cloud.com"

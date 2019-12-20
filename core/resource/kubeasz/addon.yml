@@ -7,15 +7,16 @@
   roles:
     - helm
 
+- hosts: "{{groups['kube-master'][0]}}"
+  roles:
+    - registry
+
 # to install cluster-addons
 - hosts:
     - "{{groups['kube-master'][0]}}"
   roles:
     - cluster-addon
-
-- hosts: "{{groups['kube-master'][0]}}"
-  roles:
-    - registry
+    - { role: kubeapps, when: "kubeapps_install is defined and kubeapps_install" }
 
 - hosts:
     - kube-master

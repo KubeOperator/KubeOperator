@@ -15,6 +15,7 @@ def get_component_urls(cluster):
             "dashboard": https_prefix + "dashboard." + app_url,
             "traefik": http_prefix + "traefik." + app_url,
             "scope": http_prefix + "scope.weave." + app_url,
-            "ceph": http_prefix + "ceph." + app_url
+            "ceph": http_prefix + "ceph." + app_url,
+            "kubeapps": http_prefix + "kubeapps." + app_url
         }
     return urls

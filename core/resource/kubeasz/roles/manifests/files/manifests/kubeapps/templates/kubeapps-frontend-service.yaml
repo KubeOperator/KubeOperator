@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "kubeapps.fullname" . }}
+  labels:
+    app: {{ template "kubeapps.name" . }}
+    chart: {{ template "kubeapps.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  {{- if .Values.frontend.service.annotations }}
+  annotations: {{- include "kubeapps.tplValue" (dict "value" .Values.frontend.service.annotations "context" $) | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  {{- if and (eq .Values.frontend.service.type "LoadBalancer") (not (empty .Values.frontend.service.loadBalancerIP)) }}
+  loadBalancerIP: {{ .Values.frontend.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      {{- if .Values.authProxy.enabled }}
+      targetPort: proxy
+      {{- else }}
+      targetPort: http
+      {{- end }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "kubeapps.fullname" . }}
+    release: {{ .Release.Name }}
