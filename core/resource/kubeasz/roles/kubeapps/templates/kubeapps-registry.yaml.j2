@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: kubeapps-registry-ingress
-  namespace: kubeapps
+  namespace: kube-system
 spec:
   rules:
   - host: {{ kubeapps_registry_hostname }}
