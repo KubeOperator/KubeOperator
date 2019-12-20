@@ -16,7 +16,6 @@
         - docker-proxy
       notify:
         restart_docker
-
   when: 'docker_ver.stdout < docker_version'
 
 - name: 获取 registry 信息
@@ -26,7 +25,16 @@
 - name: 添加 registry
   shell: sed -i 's/"]/","{{registry_prefix}}:{{registry_port}}"]/g' /etc/docker/daemon.json
   when: 'registry not in daemon.stdout'
-  notify: restart_docker
+
+- name: 添加 kubeapps registry
+  shell: sed -i 's/"]/","{{ kubeapps_registry_hostname }}"]/g' /etc/docker/daemon.json
+  when: 'kubeapps_registry_hostname not in daemon.stdout'
+
+- name: restart_docker
+  service:
+    name: "docker"
+    state: restarted
+  when: 'registry not in daemon.stdout or kubeapps_registry_hostname not in daemon.stdout'
 
 - name: 获取 kube-master 版本信息
   shell: "kubectl version --short | grep Server | awk '{print $3}' | tr -d 'a-zA-Z'"
@@ -52,6 +60,4 @@
       retries:  5
       delay: 6
       run_once: True
-
   when: 'kube_ver.stdout < kube_version'
-
