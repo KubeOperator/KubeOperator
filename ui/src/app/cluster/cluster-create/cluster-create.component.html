@@ -206,6 +206,26 @@
           </div>
         </div>
       </div>
+      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='vxlan'">
+        基于隧道，在任何网络环境下都可以正常工作
+        优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可
+        劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费
+      </span>
+      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='host-gw'">
+        基于路由，不适用于公有云环境
+        优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发
+        劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低
+      </span>
+      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">
+        基于隧道，在任何网络环境下都可以正常工作
+        优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可
+        劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费
+      </span>
+      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='off'">
+        基于路由，不适用于公有云环境
+        优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发
+        劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低
+      </span>
     </form>
   </clr-wizard-page>
   <clr-wizard-page (clrWizardPageOnLoad)="loadStorage()" [clrWizardPageNextDisabled]="storageForm.invalid">
@@ -323,13 +343,13 @@
                name="docker_addr" clrInput size=45
                required>
       </clr-input-container>
-<!--      <clr-select-container>-->
-<!--        <label>kube-proxy 运行模式</label>-->
-<!--        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>-->
-<!--          <option value="iptables" selected>iptables</option>-->
-<!--          <option value="ipvs">ipvs</option>-->
-<!--        </select>-->
-<!--      </clr-select-container>-->
+      <!--      <clr-select-container>-->
+      <!--        <label>kube-proxy 运行模式</label>-->
+      <!--        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>-->
+      <!--          <option value="iptables" selected>iptables</option>-->
+      <!--          <option value="ipvs">ipvs</option>-->
+      <!--        </select>-->
+      <!--      </clr-select-container>-->
       <clr-input-container>
         <label>Prometheus 监控数据保留时长(单位: 天)</label>
         <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
