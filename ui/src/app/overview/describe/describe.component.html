@@ -30,6 +30,7 @@
       {{workerIp}} registry-ui.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} dashboard.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} kubeapps.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
     <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
