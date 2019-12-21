@@ -34,6 +34,8 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
+-  应用商店：集成 KubeApp 应用商店，快速部署和管理常见应用；
+-  GPU 支持：支持多服务共享 GPU，充分利用 GPU 资源；
 
 ## 功能列表
 
