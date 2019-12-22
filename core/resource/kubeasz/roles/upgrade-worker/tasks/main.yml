@@ -29,13 +29,16 @@
 
 - name: 添加 kubeapps registry
   shell: sed -i 's/"]/","{{ kubeapps_registry_hostname }}"]/g' /etc/docker/daemon.json
-  when: 'kubeapps_registry_hostname not in daemon.stdout'
+  when:
+    - 'kubeapps_install is defined'
+    - 'kubeapps_install'
+    - 'kubeapps_registry_hostname not in daemon.stdout'
 
 - name: restart_docker
   service:
     name: "docker"
     state: restarted
-  when: 'registry not in daemon.stdout or kubeapps_registry_hostname not in daemon.stdout'
+  when: 'registry not in daemon.stdout or (kubeapps_install is defined and kubeapps_install and kubeapps_registry_hostname not in daemon.stdout)'
 
 - name: 获取 kube-worker 版本信息
   shell: "kubectl version --short | grep Client | awk '{print $3}' | tr -d 'a-zA-Z'"

@@ -44,10 +44,10 @@
 
 - block:
     - name: 等待 kubeapps chartmuseum running
-      shell: "{{ bin_dir }}/kubectl -n kubeapps get pod -o wide | grep chartmuseum | awk '{print $3}'"
-      register: pod_status
-      until: pod_status.stdout == "Running"
-      retries: 20
+      shell: "{{ bin_dir }}/kubectl -n kubeapps get deployment | grep chartmuseum | awk '{print $4}'"
+      register: deploy_status
+      until: deploy_status.stdout == "1"
+      retries: 30
       delay: 10
 
     - name: helm init
