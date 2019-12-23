@@ -34,14 +34,14 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
--  应用商店：集成 KubeApp 应用商店，快速部署和管理常见应用；
+-  应用商店：集成 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
 -  GPU 支持：支持多服务共享 GPU，充分利用 GPU 资源；
 
 ## 功能列表
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="13">集群 Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="14">集群 Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -98,6 +98,12 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         <td class="features-third-td-background-style">支持 CoreDNS
         </td>
     </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">GPU 方案
+        </td>
+        <td class="features-third-td-background-style">支持 NVIDIA GPU
+        </td>
+    </tr> 
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">操作系统
         </td>
@@ -185,7 +191,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
-         <td class="features-third-td-background-style">集成 KubeApps 应用商店
+         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店
         </td>
     </tr>     
  </table>
