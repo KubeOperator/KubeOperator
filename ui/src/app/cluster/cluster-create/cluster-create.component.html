@@ -13,7 +13,7 @@
         <label>集群名称</label>
         <input id="name" type="text" pattern="{{name_pattern}}"
                [(ngModel)]="cluster.name"
-               name="cluster_name" (keyup)="handleValidation()" clrInput size=45 maxlength="15"
+               name="cluster_name" (keyup)="handleValidation()" clrInput size=45 maxlength="25"
                required>
         <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>
         <clr-control-error>{{name_pattern_tip}}</clr-control-error>
