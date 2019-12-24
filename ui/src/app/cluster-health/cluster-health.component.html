@@ -54,7 +54,7 @@
         <clr-dg-action-bar>
           <div class="clr-select-wrapper">
             <select class="clr-select" [(ngModel)]="namespace" (ngModelChange)="getClusterHealth()">
-              <option value="all">所有Namespace</option>
+              <option value="all">所有</option>
               <option *ngFor="let n of namespaces" value="{{n}}">{{n}}</option>
             </select>
           </div>
