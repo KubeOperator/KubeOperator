@@ -1,5 +1,5 @@
 - block:
-    - name: 插入 kubeapps registry hosts 记录
+    - name: 插入 kubeapps-plus registry hosts 记录
       lineinfile:
         path: "/etc/hosts"
         regexp: "{{ kubeapps_registry_hostname }}"
@@ -8,7 +8,7 @@
       with_items: "{{ groups['cluster_nodes'] }}"
       run_once: true
 
-    - name: 插入 kubeapps chartmuseum hosts 记录
+    - name: 插入 kubeapps-plus chartmuseum hosts 记录
       lineinfile:
         path: "/etc/hosts"
         regexp: "{{ kubeapps_chartmuseum_hostname }}"
@@ -18,33 +18,33 @@
       run_once: true
 
 - block:
-    - name: 创建 kubeapps 目录
-      file: path=/opt/kube/kube-system/kubeapps state=directory
+    - name: 创建 kubeapps-plus 目录
+      file: path=/opt/kube/kube-system/kubeapps-plus state=directory
 
-    - name: 准备 kubeapps registry ingress 部署文件
-      template: src=kubeapps-registry.yaml.j2 dest=/opt/kube/kube-system/kubeapps/kubeapps-registry.yaml
+    - name: 准备 kubeapps-plus registry ingress 部署文件
+      template: src=kubeapps-registry.yaml.j2 dest=/opt/kube/kube-system/kubeapps-plus/kubeapps-registry.yaml
 
-    - name: 创建 kubeapps registry ingress
-      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps/kubeapps-registry.yaml"
+    - name: 创建 kubeapps-plus registry ingress
+      shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps-plus/kubeapps-registry.yaml"
 
 - block:
     - name: get all namespace
       command: "{{ bin_dir }}/kubectl get ns"
       register: ns_info
 
-    - name: create kubeapps namespace
-      shell: "kubectl create ns kubeapps"
-      when: '"kubeapps" not in ns_info.stdout'
+    - name: create kubeapps-plus namespace
+      shell: "kubectl create ns kubeapps-plus"
+      when: '"kubeapps-plus" not in ns_info.stdout'
 
-    - name: 准备 kubeapps chartmuseum 部署文件
-      template: src=kubeapps-chartmuseum.yaml.j2 dest=/opt/kube/kube-system/kubeapps/kubeapps-chartmuseum.yaml
+    - name: 准备 kubeapps-plus chartmuseum 部署文件
+      template: src=kubeapps-chartmuseum.yaml.j2 dest=/opt/kube/kube-system/kubeapps-plus/kubeapps-chartmuseum.yaml
 
-    - name: 创建 kubeapps chartmuseum
-      shell: "{{ bin_dir }}/kubectl -n kubeapps apply -f /opt/kube/kube-system/kubeapps/kubeapps-chartmuseum.yaml"
+    - name: 创建 kubeapps-plus chartmuseum
+      shell: "{{ bin_dir }}/kubectl -n kubeapps-plus apply -f /opt/kube/kube-system/kubeapps-plus/kubeapps-chartmuseum.yaml"
 
 - block:
-    - name: 等待 kubeapps chartmuseum running
-      shell: "{{ bin_dir }}/kubectl -n kubeapps get deployment | grep chartmuseum | awk '{print $4}'"
+    - name: 等待 kubeapps-plus chartmuseum running
+      shell: "{{ bin_dir }}/kubectl -n kubeapps-plus get deployment | grep chartmuseum | awk '{print $4}'"
       register: deploy_status
       until: deploy_status.stdout == "1"
       retries: 30
@@ -63,7 +63,7 @@
       run_once: true
 
 - block:
-    - name: 尝试登陆 kubeapps registry
+    - name: 尝试登陆 kubeapps-plus registry
       shell: "docker login {{ kubeapps_registry_hostname }} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
@@ -75,14 +75,14 @@
       ignore_errors: true
 
 - block:
-    - name: 拷贝 kubeapps values文件
-      template: src=values.yaml.j2 dest={{ base_dir }}/manifests/kubeapps/values.yaml
+    - name: 拷贝 kubeapps-plus values文件
+      template: src=values.yaml.j2 dest={{ base_dir }}/manifests/kubeapps-plus/values.yaml
 
-    - name: 部署 kubeapps
-      shell: "helm upgrade kubeapps --namespace=kubeapps --install --force --recreate-pods ./kubeapps"
+    - name: 部署 kubeapps-plus
+      shell: "helm upgrade kubeapps-plus --namespace=kubeapps-plus --install --force --recreate-pods ./kubeapps-plus"
       args:
         chdir: "{{ base_dir }}/manifests"
 
     - name: 提示
       debug:
-        msg: "应用商店安装已完成，请在服务完全启动后访问 http://kubeapps.{{APP_DOMAIN}} 来使用"
+        msg: "应用商店安装已完成，请在服务完全启动后访问 http://kubeapps-plus.{{APP_DOMAIN}} 来使用"

@@ -26,7 +26,7 @@ ingress:
 
   ## When the ingress is enabled, a host pointing to this will be created
   ##
-  hostname: kubeapps.{{APP_DOMAIN}}
+  hostname: kubeapps-plus.{{APP_DOMAIN}}
 
   ## Enable TLS configuration for the hostname defined at ingress.hostname parameter
   ## You can use the ingress.secrets parameter to create this TLS secret or relay on cert-manager to create it
@@ -79,7 +79,7 @@ ingress:
   ## Most likely this will be just one host, but in the event more hosts are needed, this is an array
   ##
   #hosts:
-  #  - name: kubeapps.{{APP_DOMAIN}}
+  #  - name: kubeapps-plus.{{APP_DOMAIN}}
   #    path: /
   #    ## Set this to true in order to enable TLS on the ingress record
   #    ##
