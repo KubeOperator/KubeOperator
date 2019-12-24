@@ -412,7 +412,7 @@ class ClusterHealthView(APIView):
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         cluster_monitor = ClusterMonitor(cluster)
         try:
-            result = cluster_monitor.list_pod_status(namespace)
+            result = cluster_monitor.get_kubernetes_status(namespace)
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -548,6 +548,19 @@ class SyncHostTimeView(APIView):
         if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         result = kubeops_api.cluster_monitor.sync_node_time(cluster)
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(result))
+        return response
+
+class ClusterNamespaceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        project_name = kwargs['project_name']
+        cluster = Cluster.objects.get(name=project_name)
+        if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        cluster_monitor = ClusterMonitor(cluster)
+        result = cluster_monitor.list_namespace()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
