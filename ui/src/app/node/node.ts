@@ -15,4 +15,5 @@ export class Node {
   volumes: string[] = [];
   status: string;
   conditions: Condition[] = [];
+  info: {} = {};
 }

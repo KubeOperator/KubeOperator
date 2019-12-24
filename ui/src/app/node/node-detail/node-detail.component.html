@@ -1,7 +1,15 @@
 <clr-modal [(clrModalOpen)]="showInfoModal" [clrModalSize]="'lg'" [clrModalClosable]=false>
-  <h3 class="modal-title">主机信息</h3>
+  <h3 class="modal-title">节点信息</h3>
   <div class="modal-body">
-    <div *ngIf="host!=null">
+    <div *ngIf="node!=null">
+      <h5>基本信息</h5>
+      <hr/>
+      容器引擎:{{node.info['container_runtime_version']}}<br/>
+      内核版本:{{node.info['kernel_version']}}<br/>
+      kube-proxy 版本:{{node.info['kube_proxy_version']}}<br/>
+      kubelet 版本: {{node.info['kubelet_version']}}<br/>
+      操作系统: {{node.info['os_image']}}<br/>
+      <br/>
       <h5>健康检查</h5>
       <hr/>
       <clr-datagrid>
