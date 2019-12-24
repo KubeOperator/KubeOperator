@@ -21,4 +21,7 @@ export class ClusterHealthService {
     return this.http.get<any>(this.baseUrl + project_name + '/namespace/');
   }
 
+  listComponent(project_name: string): Observable<any> {
+    return this.http.get<any>(this.baseUrl + project_name + '/component/');
+  }
 }
