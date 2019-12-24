@@ -1,11 +1,10 @@
-import uuid
-
 from django.db import models
 from ansible_api.models import Host as Ansible_Host
 
 
 class Node(Ansible_Host):
     host = models.ForeignKey('kubeops_api.Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
+    conditions = models.ManyToManyField("Condition")
 
     @property
     def roles(self):

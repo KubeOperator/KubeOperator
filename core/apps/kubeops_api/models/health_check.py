@@ -1,6 +1,6 @@
 from django.db import models
 
-__all__ = ['Condition','HealthChecker','HealthCheck']
+__all__ = ['Condition', 'HealthChecker', 'HealthCheck']
 
 
 class Condition(models.Model):
@@ -11,11 +11,11 @@ class Condition(models.Model):
     last_time = models.DateTimeField(auto_now_add=True)
 
 
-class HealthCheck(models.Model):
+class HealthCheck:
     def run(self):
         pass
 
 
-class HealthChecker():
+class HealthChecker:
     def check(self):
         pass

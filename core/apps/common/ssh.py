@@ -34,7 +34,7 @@ class SSHClient():
                 time.sleep(0.5)
             exit_code = session.recv_exit_status()
             if exit_code == 0:
-                result = session.recv(4096 * 1024).decode(encoding='UTF-8', errors='strict')
+                result = session.recv(4096 * 1024).decode(encoding='UTF-8', errors='strict').rstrip("\n")
             else:
                 result = session.recv_stderr(4096 * 1024).decode(encoding='UTF-8', errors='strict')
             return result, exit_code
