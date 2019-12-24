@@ -6,7 +6,6 @@ import {ScaleComponent} from '../scale/scale.component';
 import {Router} from '@angular/router';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
-import {ClusterHealth} from '../../cluster-health/cluster-health';
 import {AddWorkerComponent} from '../add-worker/add-worker.component';
 import {RemoveWorkerComponent} from '../remove-worker/remove-worker.component';
 import {ClusterService} from '../../cluster/cluster.service';

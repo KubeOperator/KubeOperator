@@ -116,9 +116,8 @@ export class ClusterBackupStrategyComponent implements OnInit {
     if (this.currentCluster.status === 'READY') {
       return;
     }
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      const clusterHealth = res.component;
-      for (const ch of clusterHealth) {
+    this.clusterHealthService.listComponent(this.currentCluster.name).subscribe(res => {
+      for (const ch of res) {
         if (ch.name.indexOf('etcd') !== -1 && ch.status !== 'RUNNING') {
           this.etcdHealth = false;
           break;
