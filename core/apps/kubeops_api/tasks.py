@@ -10,8 +10,6 @@ import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_health_utils
 from celery.schedules import crontab
 import kubeops_api.cluster_monitor
-from kubeops_api.models.host import Host
-from kubeops_api.models.package import Package
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +40,6 @@ def save_cluster_data():
 def get_loki_data_hour():
     kubeops_api.cluster_monitor.put_loki_data_to_redis()
 
-
-@periodic_task(run_every=crontab(minute="*/30"), name='task.refresh_host_info')
-def refresh_host_info():
-    hosts = Host.objects.all()
-    for host in hosts:
-        host.gather_info()
 
 @periodic_task(run_every=crontab(minute='*/3'), name='task.save_cluster_event')
 def save_cluster_event():

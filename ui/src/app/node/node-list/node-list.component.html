@@ -1,4 +1,4 @@
-<!--<p class="p1 prompt">集群中的节点是所有容器组运行所在的工作主机</p>-->
+<app-node-detail [(showInfoModal)]=showDetail></app-node-detail>
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
   </clr-dg-action-bar>
@@ -12,7 +12,7 @@
 
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
-    <clr-dg-cell>{{node.name}}</clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="openInfo(node)">{{node.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{node.ip}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>

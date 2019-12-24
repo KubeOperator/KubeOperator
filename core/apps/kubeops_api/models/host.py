@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from ansible_api.models.inventory import BaseHost
 from ansible_api.models.utils import name_validator
+from common.ssh import SshConfig
 from kubeoperator.settings import NODE_CREDENTIAL
 from kubeops_api.adhoc import gather_host_info
 from kubeops_api.models.credential import Credential
@@ -37,6 +38,7 @@ class Host(BaseHost):
     password = common_models.EncryptCharField(max_length=4096, blank=True, null=True,
                                               default=NODE_CREDENTIAL['password'])
     auto_gather_info = models.BooleanField(default=True, null=True)
+    conditions = models.ManyToManyField("Condition")
 
     def full_host_credential(self):
         if self.credential:
@@ -61,6 +63,20 @@ class Host(BaseHost):
         if self.zone:
             self.zone.recover_ip(self.ip)
         super().delete(using=None, keep_parents=False)
+
+    def to_ssh_config(self):
+        return SshConfig(
+            self.ip,
+            self.port,
+            self.username,
+            self.password,
+            10
+        )
+
+    def health_check(self):
+        from kubeops_api.models.health.host_health import HostHealthCheck
+        health_check = HostHealthCheck(host=self)
+        health_check.run()
 
     def gather_info(self, retry=1):
         try:
