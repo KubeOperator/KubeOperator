@@ -26,7 +26,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ## 技术优势
 
--  简单易用：提供可视化的 Web UI，极大降低部署和管理门槛；
+-  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
 -  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
@@ -34,7 +34,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
--  应用商店：集成 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
+-  应用商店：内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
 -  GPU 支持：支持多服务共享 GPU，充分利用 GPU 资源；
 
 ## 功能列表
