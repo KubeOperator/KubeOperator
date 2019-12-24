@@ -80,7 +80,7 @@ livenessProbe:
     port: http-metrics
   initialDelaySeconds: 45
 
-## Enable persistence using Persistent Volume Claims
+## ref: https://kubernetes.io/docs/concepts/services-networking/network-policies/
 networkPolicy:
   enabled: false
 
@@ -88,11 +88,11 @@ networkPolicy:
 client: {}
   # name:
 
-## ref: https://kubernetes.io/docs/user-guide/node-selection/
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 nodeSelector:
   nodetype: persistent
 
-## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 ## If you set enabled as "True", you need :
 ## - create a pv which above 10Gi and has same namespace with loki
 ## - keep storageClassName same with below setting
@@ -155,8 +155,9 @@ service:
 serviceAccount:
   create: true
   name:
+  annotations: {}
 
-terminationGracePeriodSeconds: 30
+terminationGracePeriodSeconds: 4800
 
 ## Tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -176,6 +177,12 @@ serviceMonitor:
   interval: ""
   additionalLabels: {}
   # scrapeTimeout: 10s
+
+initContainers: []
+## Init containers to be added to the loki pod.
+# - name: my-init-container
+#   image: busybox:latest
+#   command: ['sh', '-c', 'echo hello']
 
 extraContainers: []
 ## Additional containers to be added to the loki pod.
