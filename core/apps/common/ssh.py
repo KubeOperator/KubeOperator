@@ -1,20 +1,26 @@
 import datetime
+import os
 import time
 
 import paramiko
 from paramiko import SSHException
 
+from common.utils import ssh_key_string_to_obj
+from kubeoperator import settings
+from hashlib import md5
+
 
 class SshConfig:
-    def __init__(self, host, port, username, password, timeout):
+    def __init__(self, host, port, username, password, timeout, private_key=None):
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.timeout = timeout
+        self.private_key = private_key
 
 
-class SSHClient():
+class SSHClient:
     def __init__(self, config):
         self.config = config
 
@@ -26,7 +32,8 @@ class SSHClient():
                 self.config.host,
                 self.config.port,
                 self.config.username,
-                self.config.password
+                self.config.password,
+                key_filename=create_ssh_key(self.config.private_key)
             )
             session = client.get_transport().open_session()
             session.exec_command(cmd)
@@ -44,3 +51,18 @@ class SSHClient():
     def ping(self):
         out, code = self.run_cmd("pwd")
         return code == 0
+
+
+def create_ssh_key(key):
+    private_key_obj = ssh_key_string_to_obj(key, None)
+    if not private_key_obj:
+        return None
+    tmp_dir = os.path.join(settings.BASE_DIR, 'data', 'tmp')
+    if not os.path.isdir(tmp_dir):
+        os.makedirs(tmp_dir)
+    key_name = '.' + md5(key.encode('utf-8')).hexdigest()
+    key_path = os.path.join(tmp_dir, key_name)
+    if not os.path.exists(key_path):
+        private_key_obj.write_private_key_file(key_path)
+        os.chmod(key_path, 0o400)
+    return key_path
