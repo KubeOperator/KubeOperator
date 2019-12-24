@@ -102,8 +102,8 @@ export class ClusterStatusComponent implements OnInit {
 
   getClusterStatus() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      this.componentData = res.component;
+    this.clusterHealthService.listComponent(this.currentCluster.name).subscribe(res => {
+      this.componentData = res;
       this.loading = false;
     }, error1 => {
       this.loading = false;
