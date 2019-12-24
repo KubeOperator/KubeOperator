@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {ClusterHealth} from './cluster-health';
 import {HttpClient} from '@angular/common/http';
@@ -9,15 +9,16 @@ import {ClusterHealthHistory} from './cluster-health-history';
 })
 export class ClusterHealthService {
   baseUrl = '/api/v1/cluster/';
-  healthHistoryUrl = '/api/v1/clusterHealthHistory/';
 
-  constructor(private http: HttpClient) { }
-
-  listClusterHealth(project_name: string): Observable<any> {
-    return this.http.get<any>(this.baseUrl + project_name + '/health/');
+  constructor(private http: HttpClient) {
   }
 
-  listClusterHealthHistory(project_id: string): Observable<ClusterHealthHistory[]> {
-    return this.http.get<ClusterHealthHistory[]>(this.healthHistoryUrl + project_id + '/');
+  listClusterHealth(project_name: string, namespace: string): Observable<any> {
+    return this.http.get<any>(this.baseUrl + project_name + '/health/' + namespace + '/');
   }
+
+  listNamespace(project_name: string): Observable<any> {
+    return this.http.get<any>(this.baseUrl + project_name + '/namespace/');
+  }
+
 }

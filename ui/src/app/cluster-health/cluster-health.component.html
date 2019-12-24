@@ -51,6 +51,14 @@
   <div class="clr-row" *ngIf="!loading && !error">
     <div class="clr-col-12">
       <clr-datagrid>
+        <clr-dg-action-bar>
+          <div class="clr-select-wrapper">
+            <select class="clr-select" [(ngModel)]="namespace" (ngModelChange)="getClusterHealth()">
+              <option value="all">所有Namespace</option>
+              <option *ngFor="let n of namespaces" value="{{n}}">{{n}}</option>
+            </select>
+          </div>
+        </clr-dg-action-bar>
         <clr-dg-column>Namespace</clr-dg-column>
         <clr-dg-column>名称</clr-dg-column>
         <clr-dg-column>状态</clr-dg-column>

@@ -3,8 +3,7 @@ import {DatePipe, DecimalPipe} from '@angular/common';
 import {ClusterHealthService} from './cluster-health.service';
 import {Cluster} from '../cluster/cluster';
 import {ActivatedRoute} from '@angular/router';
-import {ClusterHealth, Data, HealthData} from './cluster-health';
-import {ClusterHealthHistory} from './cluster-health-history';
+import {ClusterHealth} from './cluster-health';
 
 @Component({
   selector: 'app-cluster-health',
@@ -22,18 +21,16 @@ export class ClusterHealthComponent implements OnInit {
   time: any;
   currentCluster: Cluster;
   projectName = '';
-  projectId = ''
+  projectId = '';
   clusterHealth: ClusterHealth = new ClusterHealth();
-  clusterHealthHistories: ClusterHealthHistory[] = [];
   loading = true;
-  totalRate = 0;
   error = false;
   timer;
   componentData = [];
-  kubeSystemData = [];
-  kubeOperatorData = [];
   healthData = [];
   errorMessage = '';
+  namespaces = [];
+  namespace = 'all';
 
   ngOnInit() {
     this.clusterHealth.data = [];
@@ -43,6 +40,7 @@ export class ClusterHealthComponent implements OnInit {
       this.projectName = this.currentCluster.name;
       this.projectId = this.currentCluster.id;
       this.getClusterHealth();
+      this.getClusterNamespace();
     });
     this.timer = setInterval(() => {
       this.getClusterHealth();
@@ -58,12 +56,10 @@ export class ClusterHealthComponent implements OnInit {
 
   getClusterHealth() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.projectName).subscribe(res => {
+    this.clusterHealthService.listClusterHealth(this.projectName,this.namespace).subscribe(res => {
 
       this.componentData = res.component;
-      this.kubeSystemData = res['kube-system'];
-      this.kubeOperatorData = res.monitoring;
-      this.healthData = this.kubeSystemData.concat(this.kubeOperatorData);
+      this.healthData = res.pod_data;
       this.loading = false;
       if (res.message !== '') {
         this.errorMessage = res.message;
@@ -77,4 +73,11 @@ export class ClusterHealthComponent implements OnInit {
     });
   }
 
+  getClusterNamespace() {
+    this.clusterHealthService.listNamespace(this.projectName).subscribe(res => {
+      this.namespaces = res;
+    }, error1 => {
+
+    });
+  }
 }

@@ -405,13 +405,14 @@ class ClusterHealthView(APIView):
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
+        namespace = self.kwargs['namespace']
         cluster = Cluster.objects.get(name=project_name)
         response = HttpResponse(content_type='application/json')
         if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         cluster_monitor = ClusterMonitor(cluster)
         try:
-            result = cluster_monitor.get_kubernetes_status()
+            result = cluster_monitor.get_kubernetes_status(namespace)
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -497,6 +498,19 @@ class ClusterEventView(APIView):
         project_name = kwargs['project_name']
         params = request.data
         result = log.es.search_event(params,project_name)
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(result))
+        return response
+
+class ClusterNamespaceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        project_name = kwargs['project_name']
+        cluster = Cluster.objects.get(name=project_name)
+        if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        cluster_monitor = ClusterMonitor(cluster)
+        result = cluster_monitor.list_namespace()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
