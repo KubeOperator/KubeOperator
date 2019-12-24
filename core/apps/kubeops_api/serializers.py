@@ -100,6 +100,7 @@ class NodeSerializer(AnsibleHostSerializer):
     )
     conditions = ConditionSerializer(required=False, many=True)
     meta = serializers.JSONField()
+    info = serializers.DictField()
 
     def get_field_names(self, declared_fields, info):
         names = super().get_field_names(declared_fields, info)
@@ -117,10 +118,10 @@ class NodeSerializer(AnsibleHostSerializer):
         fields = [
             'id', 'name', 'ip', 'port', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os',
             'host_os_version',
-            'status', 'conditions'
+            'status', 'conditions', "info"
         ]
         read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip', 'status',
-                            'conditions']
+                            'conditions', 'info']
 
 
 class RoleSerializer(GroupSerializer):

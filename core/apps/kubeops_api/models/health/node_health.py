@@ -32,6 +32,15 @@ class APIChecker(HealthChecker):
                         )
                         cond.save()
                         conditions.append(cond)
+                    info = item.status.node_info
+                    node.info = {
+                        "container_runtime_version": info.container_runtime_version,
+                        "kernel_version": info.kernel_version,
+                        "kube_proxy_version": info.kube_proxy_version,
+                        "kubelet_version": info.kubelet_version,
+                        "os_image": info.os_image
+                    }
+                    node.save()
                     node.conditions.set(conditions)
 
 
