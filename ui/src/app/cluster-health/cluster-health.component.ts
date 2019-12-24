@@ -56,7 +56,7 @@ export class ClusterHealthComponent implements OnInit {
 
   getClusterHealth() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.projectName,this.namespace).subscribe(res => {
+    this.clusterHealthService.listClusterHealth(this.projectName, this.namespace).subscribe(res => {
 
       this.componentData = res.component;
       this.healthData = res.pod_data;
