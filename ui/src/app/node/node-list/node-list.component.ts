@@ -1,7 +1,9 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {NodeService} from '../node.service';
 import {Node} from '../node';
 import {Cluster} from '../../cluster/cluster';
+import {NodeDetailComponent} from '../node-detail/node-detail.component';
+import {HostInfoComponent} from '../../host/host-info/host-info.component';
 
 @Component({
   selector: 'app-node-list',
@@ -12,6 +14,8 @@ export class NodeListComponent implements OnInit {
 
   loading = true;
   nodes: Node[] = [];
+  showDetail = false;
+  @ViewChild(NodeDetailComponent, {static: true}) child: NodeDetailComponent;
   @Input() currentCluster: Cluster;
 
   constructor(private nodeService: NodeService) {
@@ -34,6 +38,11 @@ export class NodeListComponent implements OnInit {
 
   refresh() {
     this.listNodes();
+  }
+
+  openInfo(node: Node) {
+    this.showDetail = true;
+    this.child.node = node;
   }
 
   toGrafana() {

@@ -1,11 +1,12 @@
-import uuid
-
 from django.db import models
 from ansible_api.models import Host as Ansible_Host
+from common import models as common_models
 
 
 class Node(Ansible_Host):
     host = models.ForeignKey('kubeops_api.Host', related_name='host', default=None, null=True, on_delete=models.CASCADE)
+    conditions = models.ManyToManyField("Condition")
+    info = common_models.JsonDictTextField(default={})
 
     @property
     def roles(self):

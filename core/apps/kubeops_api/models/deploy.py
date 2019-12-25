@@ -16,8 +16,6 @@ from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_monitor
 from django.utils import timezone
-from kubeops_api.cluster_monitor import ClusterMonitor
-
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
 

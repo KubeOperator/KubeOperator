@@ -383,6 +383,11 @@ class Cluster(Project):
             cluster_ceph = ClusterCephStorage(cluster_id=cluster.id, ceph_storage_id=ceph.id)
             cluster_ceph.save()
 
+    def node_health_check(self):
+        from kubeops_api.models.health.node_health import NodeHealthCheck
+        check = NodeHealthCheck(self)
+        check.run()
+
     def on_cluster_create(self):
         self.change_to()
         self.create_roles()
