@@ -7,18 +7,10 @@
 - name: install dependencies
   yum: name=dkms
 
-- name: add repo
-  yum_repository:
-    name: cuda
-    description: NVIDIA CUDA YUM Repo
-    baseurl: "{{ nvidia_driver_rhel_cuda_repo_baseurl }}"
-    gpgkey: "{{ nvidia_driver_rhel_cuda_repo_gpgkey }}"
-
 - name: install driver packages
   yum:
-    name: "{{ nvidia_driver_package_version | ternary('cuda-drivers='+nvidia_driver_package_version, 'cuda-drivers') }}"
-    state: "{{ nvidia_driver_package_state }}"
-    autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+    name: "cuda-drivers"
+    state: "present"
   register: install_driver
 
 - name: redhat family install tasks
