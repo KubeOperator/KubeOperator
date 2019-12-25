@@ -140,7 +140,7 @@ apps:
 
   - name: Kubeapps
     logo: kubeapps.png
-    url_key: kubeapps
+    url_key: kubeapps-plus
     describe: "应用市场,一键离线部署常见应用"
     display_on: "kubeapps_install"
 
