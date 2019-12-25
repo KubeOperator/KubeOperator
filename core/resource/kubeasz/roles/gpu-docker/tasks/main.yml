@@ -1,0 +1,52 @@
+---
+- name: check distro
+  fail:
+    msg: "distro {{ ansible_facts['distribution'] }} not supported"
+  when: ansible_facts['distribution'] != 'Ubuntu' and ansible_os_family != 'RedHat'
+
+- name: remove packages
+  yum:
+    name:
+      - nvidia-docker
+      - nvidia-docker2
+    state: absent
+    autoremove: yes
+
+- name: add repo
+  get_url:
+    url: "{{ nvidia_docker_repo_base_url }}/{{ _rhel_repo_dist_name }}/{{ _rhel_repo_file_name }}"
+    dest: "{{ _rhel_repo_file_path }}"
+    mode: 0644
+    owner: root
+    group: root
+  when: nvidia_docker_add_repo
+
+- name: install packages
+  yum:
+    name: nvidia-container-runtime
+    state: present
+    update_cache: yes
+  notify: reload docker
+
+- name: create /etc/docker
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: set docker daemon configuration
+  copy:
+    content: "{{ docker_daemon_json | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload docker
+
+- name: grab nvidia-docker wrapper
+  get_url:
+    url: "{{ nvidia_docker_wrapper_url }}"
+    dest: /usr/local/bin/nvidia-docker
+    mode: 0755
+    owner: root
+    group: root
