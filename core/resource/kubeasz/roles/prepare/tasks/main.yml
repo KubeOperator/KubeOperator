@@ -23,8 +23,6 @@
   connection: local
   run_once: true
 
-
-
 - name: 添加 kubens
   copy:
     src: kubens
