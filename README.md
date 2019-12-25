@@ -191,7 +191,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
-         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店
+         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店，快速部署 Harbor、GitLab、Jenkins、TensorFlow 等应用
         </td>
     </tr>     
  </table>
