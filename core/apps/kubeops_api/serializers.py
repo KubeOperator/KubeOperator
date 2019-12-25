@@ -82,10 +82,10 @@ class HostSerializer(HostReadSerializer):
         fields = [
             'id', 'name', 'ip', 'port', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes',
             'zone',
-            'region', 'status', 'conditions'
+            'region', 'status', 'conditions', 'gpu'
         ]
         read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region',
-                            'status', "conditions"]
+                            'status', "conditions", 'gpu']
 
 
 class ClusterConfigSerializer(serializers.Serializer):

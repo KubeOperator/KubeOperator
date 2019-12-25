@@ -8,6 +8,7 @@ from kubeoperator.settings import NODE_CREDENTIAL
 from kubeops_api.adhoc import gather_host_info
 from kubeops_api.models.credential import Credential
 from common import models as common_models
+from kubeops_api.utils.gpu import get_gpu_device
 
 __all__ = ['Host']
 logger = logging.getLogger('kubeops')
@@ -39,6 +40,9 @@ class Host(BaseHost):
                                               default=NODE_CREDENTIAL['password'])
     auto_gather_info = models.BooleanField(default=True, null=True)
     conditions = models.ManyToManyField("Condition")
+    gpu = models.BooleanField(default=False)
+    gpu_info = models.CharField(default="", max_length=128)
+    gpu_num = models.IntegerField(default=0)
 
     def full_host_credential(self):
         if self.credential:
@@ -78,8 +82,15 @@ class Host(BaseHost):
         health_check = HostHealthCheck(host=self)
         health_check.run()
 
+    def gather_gpu_info(self):
+        msg = get_gpu_device(self.to_ssh_config())
+        if msg:
+            self.gpu = True
+            self.gpu_info = msg
+
     def gather_info(self, retry=1):
         try:
+
             logger.info("host: {}  gather host info ".format(self.name))
             facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry,
                                      password=self.password,
@@ -105,6 +116,7 @@ class Host(BaseHost):
                     volumes.append(volume)
             self.volumes.set(volumes)
             self.status = Host.HOST_STATUS_RUNNING
+            self.gather_gpu_info()
             self.save()
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN
