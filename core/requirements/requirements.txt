@@ -76,7 +76,7 @@ djangorestframework-jwt==1.11.0
 mysqlclient==1.4.2
 passlib==1.7.1
 pyvmomi==6.7.1.2018.12
-git+https://github.com/KubeOperator/python-terraform.git@develop
+git+https://github.com/beelit94/python-terraform.git@develop
 download==0.3.4
 tqdm==4.33.0
 python-keystoneclient==3.20.0
