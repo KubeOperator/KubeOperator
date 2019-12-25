@@ -1,0 +1,60 @@
+- name: unload nouveau
+  modprobe:
+    name: nouveau
+    state: absent
+  ignore_errors: true
+
+- name: install dependencies
+  yum: name=dkms
+
+- name: add repo
+  yum_repository:
+    name: cuda
+    description: NVIDIA CUDA YUM Repo
+    baseurl: "{{ nvidia_driver_rhel_cuda_repo_baseurl }}"
+    gpgkey: "{{ nvidia_driver_rhel_cuda_repo_gpgkey }}"
+
+- name: install driver packages
+  yum:
+    name: "{{ nvidia_driver_package_version | ternary('cuda-drivers='+nvidia_driver_package_version, 'cuda-drivers') }}"
+    state: "{{ nvidia_driver_package_state }}"
+    autoremove: "{{ nvidia_driver_package_state == 'absent' }}"
+  register: install_driver
+
+- name: redhat family install tasks
+  include_tasks: install-redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: create persistenced override dir
+  file:
+    path: /etc/systemd/system/nvidia-persistenced.service.d/
+    state: directory
+    recurse: yes
+
+- name: configure persistenced service to turn on persistence mode
+  copy:
+    src: nvidia-persistenced-override.conf
+    dest: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
+  when: nvidia_driver_persistence_mode_on
+
+- name: remove persistenced service override
+  file:
+    path: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
+    state: absent
+  when: not nvidia_driver_persistence_mode_on
+
+- name: enable persistenced
+  systemd:
+    name: nvidia-persistenced
+    enabled: yes
+  when: nvidia_driver_package_state != 'absent'
+
+- name: set module parameters
+  template:
+    src: nvidia.conf.j2
+    dest: "{{ nvidia_driver_module_file }}"
+    mode: '0644'
+
+- name: reboot after driver install
+  reboot:
+  when: install_driver.changed and not nvidia_driver_skip_reboot

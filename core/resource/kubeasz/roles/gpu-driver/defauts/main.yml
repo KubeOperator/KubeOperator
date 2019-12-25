@@ -1,0 +1,5 @@
+nvidia_driver_package_state: present
+nvidia_driver_package_version: ''
+nvidia_driver_persistence_mode_on: yes
+nvidia_driver_module_file: /etc/modprobe.d/nvidia.conf
+nvidia_driver_module_params: ''
