@@ -36,6 +36,7 @@ class HostHealthCheck(HealthCheck):
         for checker in checkers:
             cond = checker.check()
             conditions.append(cond)
+            cond.save()
             if not cond.status:
                 self.host.status = Host.HOST_STATUS_UNKNOWN
         self.host.conditions.set(conditions)
