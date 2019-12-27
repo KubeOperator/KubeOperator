@@ -31,6 +31,7 @@ provider "openstack" {
            flavor_name          = "{{master_model}}"
           {% endif %}
           admin_pass = "KubeOperator@2019"
+          user_data = "#!/bin/sh \necho 'root:KubeOperator@2019' | chpasswd"
           security_groups = ["{{host.zone.openstack_security_group}}"]
           network {
             port = "${openstack_networking_port_v2.{{host.short_name}}.id}"
@@ -55,6 +56,7 @@ provider "openstack" {
            flavor_name          = "{{master_model}}"
           {% endif %}
           admin_pass = "KubeOperator@2019"
+          user_data = "#!/bin/sh \necho 'root:KubeOperator@2019' | chpasswd"
           security_groups = ["{{host.zone.openstack_security_group}}"]
           network {
             port = "${openstack_networking_port_v2.{{host.short_name}}.id}"
