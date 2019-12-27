@@ -1,4 +1,11 @@
 <div class="clr-row">
+  <div class="clr-col-12">
+    <p class="p7 prompt">
+      访问内置应用有两种方式<br>
+        1.本地hosts文件：复制集群概览页域名解析规则中的规则列表到你电脑的hosts文件中 hosts文件地址-> Windows：'C:\Windows\System32\drivers\etc\hosts' Mac：'/etc/hosts'<br>
+        2.F5：在'F5 BIG-IP'页面填写相关信息（需要有F5设备）
+    </p>
+  </div>
   <div class="clr-col-12 clr-col-sm-4" *ngFor="let app of apps">
     <div class="card">
       <div class="card-block">
