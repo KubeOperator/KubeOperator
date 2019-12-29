@@ -58,3 +58,5 @@
 - [ ] Traefik 2.0 支持；
 - [ ] 全容器化部署
 - [ ] 支持 CoreOS
+- [ ] Deprecate in-tree OpenStack and vSphere cloud controller
+
