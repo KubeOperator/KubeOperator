@@ -38,16 +38,17 @@ export class ApplicationComponent implements OnInit {
             return result;
           });
         });
-      });
-      this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
-        this.workers = data.filter((node) => {
-          return node.roles.includes('worker');
+        this.nodeService.listNodes(this.currentCluster.name).subscribe(d => {
+          this.workers = d.filter((node) => {
+            return node.roles.includes('worker');
+          });
+          if (this.workers.length > 0) {
+            this.workerIp = this.workers[0].ip;
+          }
         });
-        if (this.workers.length > 0) {
-          this.workerIp = this.workers[0].ip;
-        }
       });
     });
+
   }
 
 
