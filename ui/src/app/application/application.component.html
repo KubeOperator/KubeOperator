@@ -2,8 +2,8 @@
   <div class="clr-col-12">
     <p class="p7 prompt">
       访问内置应用有两种方式<br>
-        1.本地hosts文件：复制集群概览页域名解析规则中的规则列表到你电脑的hosts文件中 hosts文件地址-> Windows：'C:\Windows\System32\drivers\etc\hosts' Mac：'/etc/hosts'<br>
-        2.F5：在'F5 BIG-IP'页面填写相关信息（需要有F5设备）
+      &nbsp;&nbsp;1.本地hosts文件：复制域名解析规则 <a style="color: #0a6ebd" (click)="this.openHost = true;">（点此获取）</a>到你电脑的hosts文件中 hosts文件地址-> Windows：'C:\Windows\System32\drivers\etc\hosts' Mac：'/etc/hosts'<br>
+      &nbsp;&nbsp;2.F5：在'F5 BIG-IP'页面填写相关信息（需要有F5设备）
     </p>
   </div>
   <div class="clr-col-12 clr-col-sm-4" *ngFor="let app of apps">
@@ -27,3 +27,26 @@
     </div>
   </div>
 </div>
+<clr-modal [(clrModalOpen)]="openHost" clrModalSize="l">
+  <h3 class="modal-title">域名解析规则
+    <button class="btn btn-icon btn-link" (click)="copy(hosts.innerText)">
+      <clr-icon shape="copy"></clr-icon>
+      复制
+    </button>
+  </h3>
+  <div class="modal-body" #hosts>
+    <span>
+      {{workerIp}} grafana.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} prometheus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} registry-ui.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} dashboard.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+      {{workerIp}} kubeapps-plus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+    </span>
+    <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
+      {{workerIp}} ceph.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
+    </span>
+    <app-modal-alert #alertModal></app-modal-alert>
+  </div>
+</clr-modal>
