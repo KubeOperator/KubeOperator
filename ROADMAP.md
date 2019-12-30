@@ -59,4 +59,5 @@
 - [ ] 全容器化部署
 - [ ] 支持 CoreOS
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller
+- [ ] 已有集群导入
 
