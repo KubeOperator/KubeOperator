@@ -93,6 +93,7 @@ spec:
             - --web.console.libraries=/etc/prometheus/console_libraries
             - --web.console.templates=/etc/prometheus/consoles
             - --web.enable-lifecycle
+            - --storage.tsdb.no-lockfile
           {{- range $key, $value := .Values.server.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}
