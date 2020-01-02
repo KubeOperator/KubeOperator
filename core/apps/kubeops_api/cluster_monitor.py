@@ -5,6 +5,7 @@ import logging
 import kubeoperator.settings
 import log.es
 import datetime
+
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
 from kubeops_api.models.cluster import Cluster
@@ -13,6 +14,7 @@ from kubeops_api.models.host import Host
 from django.db.models import Q
 from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
+from ansible_api.models.inventory import Host as C_Host
 
 logger = logging.getLogger('kubeops')
 
@@ -227,10 +229,42 @@ class ClusterMonitor():
         else:
             return False
 
-    def get_kubernetes_status(self):
-        self.check_authorization(self.retry_count)
+    def list_pod_status(self, namespace):
+        # self.check_authorization(self.retry_count)
         message = ''
-        component_data, monitor_data, system_data = [], [], []
+        pod_data = []
+        try:
+            if namespace == 'all':
+                namespaces = self.api_instance.list_namespace()
+                for ns in namespaces.items:
+                    ns_name = ns.metadata.name
+                    pods = self.api_instance.list_namespaced_pod(ns_name)
+                    pod_d = self.get_pod_status(pods.items)
+                    if len(pod_d) > 0:
+                        pod_data = pod_data + pod_d
+            else:
+                pods = self.api_instance.list_namespaced_pod(namespace)
+                pod_data = self.get_pod_status(pods.items)
+        except ApiException as e:
+            message = e.reason
+            logger.error(msg='list pod error ' + e.reason, exc_info=True)
+        health_data = {
+            'pod_data': pod_data,
+            'message': message
+        }
+        return health_data
+
+    def list_namespace(self):
+        namespaces = self.api_instance.list_namespace()
+        ns_names = []
+        for ns in namespaces.items:
+            ns_name = ns.metadata.name
+            ns_names.append(ns_name)
+        return ns_names
+
+    def get_component_status(self):
+        delete_unused_node(self.cluster)
+        component_data = []
         try:
             components = self.api_instance.list_component_status()
             for c in components.items:
@@ -247,20 +281,10 @@ class ClusterMonitor():
                 component = ClusterHealthData(namespace='component', name=c.metadata.name, status=status,
                                               ready='1/1', age=0, msg=msg, restart_count=0)
                 component_data.append(component.__dict__)
-            system_pods = self.api_instance.list_namespaced_pod('kube-system')
-            system_data = self.get_pod_status(system_pods.items)
-            monitor_pods = self.api_instance.list_namespaced_pod('kube-operator')
-            monitor_data = self.get_pod_status(monitor_pods.items)
         except ApiException as e:
-            message = e.reason
-            logger.error(msg='list pod error ' + e.reason, exc_info=True)
-        health_data = {
-            'component': component_data,
-            'kube-system': system_data,
-            'monitoring': monitor_data,
-            'message': message
-        }
-        return health_data
+            logger.error(msg='list component error ' + e.reason, exc_info=True)
+
+        return component_data
 
     def get_pod_status(self, items):
         pod_data = []
@@ -502,3 +526,21 @@ def create_index(client, index):
         }
     }
     return log.es.create_index_and_mapping(client, index, 'event', index_mapping)
+
+
+def delete_unused_node(cluster):
+    cluster_monitor = ClusterMonitor(cluster)
+    nodes = cluster_monitor.list_nodes()
+    hosts = C_Host.objects.filter(
+        Q(project_id=cluster.id) & ~Q(name='localhost') & ~Q(name='127.0.0.1') & ~Q(name='::1'))
+    if len(nodes) > 0:
+
+        for host in hosts:
+            exist = False
+            delete_name = host.name
+            for node in nodes:
+                if delete_name == node['name']:
+                    exist = True
+            if exist is False and delete_name != '':
+                C_Host.objects.filter(name=delete_name).delete()
+    return True
