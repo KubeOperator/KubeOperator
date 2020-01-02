@@ -30,6 +30,15 @@
     permanent: true
     state: enabled
 
+- name: 打开postgresql 端口
+  firewalld:
+    port: "5432/tcp"
+    permanent: true
+    state: enabled
+  when:
+    - 'kubeapps_install is defined'
+    - 'kubeapps_install'
+
 - name: 生效防火墙配置
   shell: "firewall-cmd --reload"
 
