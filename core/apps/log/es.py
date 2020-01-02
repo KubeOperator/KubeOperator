@@ -81,6 +81,8 @@ def get_start_time(days):
 def get_index():
     year = datetime.datetime.now().year
     month = datetime.datetime.now().month
+    if month < 10:
+        month = "0" + str(month)
     return 'kubeoperator-{}.{}'.format(year, month)
 
 
@@ -103,7 +105,8 @@ def exists(client, index):
 
 def create_index_and_mapping(client, index, doc_type, mapping):
     client.indices.create(index=index)
-    result = client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping, params={'include_type_name': 'true'})
+    result = client.indices.put_mapping(doc_type=doc_type, index=index, body=mapping,
+                                        params={'include_type_name': 'true'})
     return result['acknowledged']
 
 
@@ -160,6 +163,7 @@ def search_event(params, cluster_name):
         "items": items,
         "total": s.count()
     }
+
 
 def get_event_uid_exist(client, index, uid):
     s = Search(index=index).using(client)
