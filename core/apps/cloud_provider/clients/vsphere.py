@@ -47,16 +47,16 @@ class VsphereCloudClient(CloudClient):
                 zone["cluster"] = entity.name
                 zone["resourcePool"] = []
                 zone["resourcePool"].append(entity.resourcePool.name)
-            for rp in entity.resourcePool.resourcePool:
-                zone["resourcePool"].append(rp.name)
-            for network in entity.network:
-                zone.get("networks").append(network.name)
-            for datastore in entity.datastore:
-                zone.get("storages").append({
-                    "name": datastore.name,
-                    "type": datastore.summary.type,
-                    "multipleHostAccess": datastore.summary.multipleHostAccess
-                })
+                for rp in entity.resourcePool.resourcePool:
+                    zone["resourcePool"].append(rp.name)
+                for network in entity.network:
+                    zone.get("networks").append(network.name)
+                for datastore in entity.datastore:
+                    zone.get("storages").append({
+                        "name": datastore.name,
+                        "type": datastore.summary.type,
+                        "multipleHostAccess": datastore.summary.multipleHostAccess
+                    })
             zones.append(zone)
         return zones
 
