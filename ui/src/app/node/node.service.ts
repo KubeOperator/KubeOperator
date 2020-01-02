@@ -14,6 +14,8 @@ const roleUrl = '/api/v1/clusters/{clusterName}/roles/';
 })
 export class NodeService {
 
+  checkNodeUrl = '/api/v1/cluster/';
+
   constructor(private http: HttpClient) {
   }
 
@@ -47,5 +49,9 @@ export class NodeService {
       return null;
     }
     return `${base}?orgId=1&var-server=${nodeIp}:9100`;
+  }
+
+  checkNodes(project_name: string): Observable<any> {
+    return this.http.get<any>(this.checkNodeUrl + project_name + '/checkNodes/');
   }
 }
