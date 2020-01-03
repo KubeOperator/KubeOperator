@@ -3,7 +3,8 @@ import {NodeService} from '../node.service';
 import {Node} from '../node';
 import {Cluster} from '../../cluster/cluster';
 import {NodeDetailComponent} from '../node-detail/node-detail.component';
-import {HostInfoComponent} from '../../host/host-info/host-info.component';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {CommonAlertService} from '../../base/header/common-alert.service';
 
 @Component({
   selector: 'app-node-list',
@@ -21,7 +22,7 @@ export class NodeListComponent implements OnInit {
   openView = false;
   loadingTime = false;
 
-  constructor(private nodeService: NodeService) {
+  constructor(private nodeService: NodeService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -61,6 +62,15 @@ export class NodeListComponent implements OnInit {
       this.loadingTime = false;
     }, error1 => {
       this.loadingTime = false;
+    });
+  }
+
+  checkNodes() {
+    this.nodeService.checkNodes(this.currentCluster.name).subscribe(data => {
+      this.alertService.showAlert('同步成功', AlertLevels.SUCCESS);
+      this.refresh();
+    }, error1 => {
+      this.alertService.showAlert('同步失败', AlertLevels.ERROR);
     });
   }
 }

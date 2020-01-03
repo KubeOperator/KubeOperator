@@ -5,7 +5,8 @@ import logging
 import kubeoperator.settings
 import log.es
 import datetime, time
-import core.apps.kubeops_api.adhoc
+import kubeops_api.adhoc
+import builtins
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -16,8 +17,6 @@ from django.db.models import Q
 from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
-import builtins
-
 
 logger = logging.getLogger('kubeops')
 
@@ -554,14 +553,14 @@ def sync_node_time(cluster):
     data = []
     times = []
     result = {
-        'success':True,
-        'data':[]
+        'success': True,
+        'data': []
     }
     for host in hosts:
-        gmt_date = core.apps.kubeops_api.adhoc.get_host_time(ip=host.ip, port=host.port, username=host.username,
-                                                           password=host.password,
-                                                           private_key_path=host.private_key_path)
-        GMT_FORMAT = '%a %b %d %H:%M:%S CST %Y'
+        gmt_date = kubeops_api.adhoc.get_host_time(ip=host.ip, port=host.port, username=host.username,
+                                                   password=host.password, hostname=host.name,
+                                                   private_key_path=host.private_key_path)
+        GMT_FORMAT = '%Y %b %d %a %H:%M:%S CST'
         date = time.strptime(gmt_date, GMT_FORMAT)
         timeStamp = int(time.mktime(date))
         times.append(timeStamp)
@@ -575,6 +574,6 @@ def sync_node_time(cluster):
     max = builtins.max(times)
     min = builtins.min(times)
     # 如果最大值减最小值超过5分钟 则判断有错
-    if (max-min) > 300000:
+    if (max - min) > 300000:
         result['success'] = False
     return result
