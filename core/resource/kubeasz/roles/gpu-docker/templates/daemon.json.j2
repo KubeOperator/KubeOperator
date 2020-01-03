@@ -4,7 +4,6 @@
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
-{% if has_gpu is and has_gpu %}
   "runtimes": {
     "nvidia": {
       "path": "/usr/bin/nvidia-container-runtime",
@@ -27,7 +26,6 @@
       "soft": 67108864
     }
   },
-{% endif %}
 {% if kubeapps_install is defined %}
   "insecure-registries":["{{registry_prefix}}:{{registry_port}}","registry.{{APP_DOMAIN}}","{{kubeapps_registry_hostname}}"],
 {% else %}
