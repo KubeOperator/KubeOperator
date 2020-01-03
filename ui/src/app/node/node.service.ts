@@ -54,4 +54,8 @@ export class NodeService {
   checkNodes(project_name: string): Observable<any> {
     return this.http.get<any>(this.checkNodeUrl + project_name + '/checkNodes/');
   }
+
+  syncHostTime(project_name: string): Observable<any> {
+    return this.http.get<any>(this.checkNodeUrl + project_name + '/syncNodeTime/');
+  }
 }

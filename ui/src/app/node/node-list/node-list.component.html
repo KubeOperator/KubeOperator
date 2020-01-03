@@ -1,6 +1,12 @@
 <app-node-detail [(showInfoModal)]=showDetail></app-node-detail>
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="syncTime()">
+        <clr-icon shape="sync" size="16"></clr-icon>
+        主机时间校验
+      </button>
+    </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>IP</clr-dg-column>
@@ -26,3 +32,27 @@
   </clr-dg-footer>
 
 </clr-datagrid>
+<clr-modal [(clrModalOpen)]="openView" clrModalSize="l">
+  <h3 class="modal-title">主机时间校验</h3>
+  <div class="modal-body" #hosts>
+    <div class="clr-col-12" align="center" *ngIf="loadingTime">
+        <span class="spinner spinner-lg loading">
+          Loading...
+        </span>
+    </div>
+    <table class="table" *ngIf="timeResult&&timeResult.data&&!loadingTime">
+      <thead>
+      <tr>
+        <th>主机名</th>
+        <th>时间</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of timeResult.data">
+        <td>{{data.hostname}}</td>
+        <td>{{data.date}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</clr-modal>
