@@ -539,3 +539,15 @@ class CheckNodeView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg':'检查完毕'}))
         return response
+
+class SyncHostTimeView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        project_name = kwargs['project_name']
+        cluster = Cluster.objects.get(name=project_name)
+        if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        result = kubeops_api.cluster_monitor.sync_node_time(cluster)
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(result))
+        return response
