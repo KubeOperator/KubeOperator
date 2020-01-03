@@ -1,9 +1,4 @@
 ---
-- name: check distro
-  fail:
-    msg: "distro {{ ansible_facts['distribution'] }} not supported"
-  when: ansible_facts['distribution'] != 'Ubuntu' and ansible_os_family != 'RedHat'
-
 - name: remove packages
   yum:
     name:
@@ -26,26 +21,23 @@
     name: nvidia-container-runtime
     state: present
     update_cache: yes
-  notify: reload docker
-
-- name: create /etc/docker
-  file:
-    path: /etc/docker
-    state: directory
-    mode: '0755'
 
 - name: set docker daemon configuration
-  copy:
-    content: "{{ docker_daemon_json | to_nice_json }}"
+  template:
+    src: daemon.json.j2
     dest: /etc/docker/daemon.json
     owner: root
     group: root
     mode: 0644
-  notify: reload docker
+
+- name: reload docker
+  service:
+    name: docker
+    state: reloaded
 
 - name: grab nvidia-docker wrapper
-  get_url:
-    url: "{{ nvidia_docker_wrapper_url }}"
+  copy:
+    src: nvidia-docker
     dest: /usr/local/bin/nvidia-docker
     mode: 0755
     owner: root

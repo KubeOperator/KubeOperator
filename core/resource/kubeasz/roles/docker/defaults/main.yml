@@ -1,12 +1,2 @@
-# docker日志相关
-
-LOG_DRIVER: "json-file"
-LOG_LEVEL: "warn"
-LOG_MAX_SIZE: "10m"
-LOG_MAX_FILE: 3
-
-# 开启Restful API
-ENABLE_REMOTE_API: false
-
 # docker ip
 DOCKER_ADDR: "172.17.0.1/16"
