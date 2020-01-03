@@ -39,7 +39,6 @@ export class ClusterStatusComponent implements OnInit {
       });
     });
     this.getClusterStatus();
-    this.checkNodes();
   }
 
   handleScale() {
@@ -111,8 +110,5 @@ export class ClusterStatusComponent implements OnInit {
     });
   }
 
-  checkNodes() {
-    this.nodeService.checkNodes(this.currentCluster.name).subscribe(data => {
-    });
-  }
+
 }

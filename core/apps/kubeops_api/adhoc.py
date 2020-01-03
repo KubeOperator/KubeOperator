@@ -74,17 +74,18 @@ def fetch_cluster_config(host, dest):
 def is_adhoc_success(result):
     return result.get('summary', {}).get('success', False)
 
-def get_host_time(ip, port, username,**kwargs):
+
+def get_host_time(ip, port, username, hostname, **kwargs, ):
     hosts = [{
         "ip": ip,
         "username": username,
         "password": kwargs.get('password', None),
         "private_key_path": kwargs.get('private_key_path', None),
-        "name": "default",
+        "name": hostname,
         "port": port
     }]
     shell = 'date'
-    result = run_im_adhoc(adhoc_data={'pattern': "default", 'module': 'shell','args': shell},
+    result = run_im_adhoc(adhoc_data={'pattern': hostname, 'module': 'shell', 'args': shell},
                           inventory_data={'hosts': hosts, 'vars': {}})
     if is_adhoc_success(result):
-        return result["raw"]["ok"]["default"]["command"]["stdout_lines"][0]
+        return result["raw"]["ok"][hostname]["command"]["stdout_lines"][0]
