@@ -86,6 +86,7 @@ class Host(BaseHost):
         msg = get_gpu_device(self.to_ssh_config())
         if msg:
             self.gpu = True
+            self.meta['has_gpu'] = True
             self.gpu_info = msg
 
     def gather_info(self, retry=1):
