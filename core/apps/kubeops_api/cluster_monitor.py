@@ -4,7 +4,8 @@ import json
 import logging
 import kubeoperator.settings
 import log.es
-import datetime
+import datetime, time
+import core.apps.kubeops_api.adhoc
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -15,6 +16,8 @@ from django.db.models import Q
 from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
+import builtins
+
 
 logger = logging.getLogger('kubeops')
 
@@ -263,7 +266,7 @@ class ClusterMonitor():
         return ns_names
 
     def get_component_status(self):
-        delete_unused_node(self.cluster)
+        sync_node_time(self.cluster)
         component_data = []
         try:
             components = self.api_instance.list_component_status()
@@ -534,7 +537,6 @@ def delete_unused_node(cluster):
     hosts = C_Host.objects.filter(
         Q(project_id=cluster.id) & ~Q(name='localhost') & ~Q(name='127.0.0.1') & ~Q(name='::1'))
     if len(nodes) > 0:
-
         for host in hosts:
             exist = False
             delete_name = host.name
@@ -544,3 +546,35 @@ def delete_unused_node(cluster):
             if exist is False and delete_name != '':
                 C_Host.objects.filter(name=delete_name).delete()
     return True
+
+
+def sync_node_time(cluster):
+    hosts = C_Host.objects.filter(
+        Q(project_id=cluster.id) & ~Q(name='localhost') & ~Q(name='127.0.0.1') & ~Q(name='::1'))
+    data = []
+    times = []
+    result = {
+        'success':True,
+        'data':[]
+    }
+    for host in hosts:
+        gmt_date = core.apps.kubeops_api.adhoc.get_host_time(ip=host.ip, port=host.port, username=host.username,
+                                                           password=host.password,
+                                                           private_key_path=host.private_key_path)
+        GMT_FORMAT = '%a %b %d %H:%M:%S CST %Y'
+        date = time.strptime(gmt_date, GMT_FORMAT)
+        timeStamp = int(time.mktime(date))
+        times.append(timeStamp)
+        show_time = time.strftime('%Y-%m-%d %H:%M:%S', date)
+        time_data = {
+            'hostname': host.name,
+            'date': show_time,
+        }
+        data.append(time_data)
+    result['data'] = data
+    max = builtins.max(times)
+    min = builtins.min(times)
+    # 如果最大值减最小值超过5分钟 则判断有错
+    if (max-min) > 300000:
+        result['success'] = False
+    return result
