@@ -412,7 +412,7 @@ class ClusterHealthView(APIView):
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         cluster_monitor = ClusterMonitor(cluster)
         try:
-            result = cluster_monitor.get_kubernetes_status(namespace)
+            result = cluster_monitor.list_pod_status(namespace)
         except Exception as e:
             logger.error(e, exc_info=True)
             return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

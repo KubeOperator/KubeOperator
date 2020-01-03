@@ -233,9 +233,6 @@ class ClusterMonitor():
             return False
 
     def list_pod_status(self, namespace):
-        # self.check_authorization(self.retry_count)
-    def get_kubernetes_status(self,namespace):
-        # self.check_authorization(self.retry_count)
         message = ''
         pod_data = []
         try:
@@ -268,9 +265,7 @@ class ClusterMonitor():
         return ns_names
 
     def get_component_status(self):
-        sync_node_time(self.cluster)
         component_data = []
-        component_data, pod_data = [], []
         try:
             components = self.api_instance.list_component_status()
             for c in components.items:
@@ -287,38 +282,10 @@ class ClusterMonitor():
                 component = ClusterHealthData(namespace='component', name=c.metadata.name, status=status,
                                               ready='1/1', age=0, msg=msg, restart_count=0)
                 component_data.append(component.__dict__)
-
-            if namespace == 'all':
-                namespaces =  self.api_instance.list_namespace()
-                for ns in namespaces.items:
-                    ns_name = ns.metadata.name
-                    pods = self.api_instance.list_namespaced_pod(ns_name)
-                    pod_d = self.get_pod_status(pods.items)
-                    if len(pod_d) > 0:
-                        pod_data =pod_data + pod_d
-            else:
-                pods = self.api_instance.list_namespaced_pod(namespace)
-                pod_data = self.get_pod_status(pods.items)
         except ApiException as e:
             logger.error(msg='list component error ' + e.reason, exc_info=True)
 
         return component_data
-            message = e.reason
-            logger.error(msg='list pod error ' + e.reason, exc_info=True)
-        health_data = {
-            'component': component_data,
-            'pod_data': pod_data,
-            'message': message
-        }
-        return health_data
-
-    def list_namespace(self):
-        namespaces = self.api_instance.list_namespace()
-        ns_names = []
-        for ns in namespaces.items:
-            ns_name = ns.metadata.name
-            ns_names.append(ns_name)
-        return  ns_names
 
     def get_pod_status(self, items):
         pod_data = []

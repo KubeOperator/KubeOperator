@@ -41,6 +41,7 @@ export class ClusterHealthComponent implements OnInit {
       this.projectId = this.currentCluster.id;
       this.getClusterHealth();
       this.getClusterNamespace();
+      this.getComponent();
     });
     this.timer = setInterval(() => {
       this.getClusterHealth();
@@ -56,9 +57,7 @@ export class ClusterHealthComponent implements OnInit {
 
   getClusterHealth() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.projectName,this.namespace).subscribe(res => {
-
-      this.componentData = res.component;
+    this.clusterHealthService.listClusterHealth(this.projectName, this.namespace).subscribe(res => {
       this.healthData = res.pod_data;
       this.loading = false;
       if (res.message !== '') {
@@ -76,6 +75,14 @@ export class ClusterHealthComponent implements OnInit {
   getClusterNamespace() {
     this.clusterHealthService.listNamespace(this.projectName).subscribe(res => {
       this.namespaces = res;
+    }, error1 => {
+
+    });
+  }
+
+  getComponent() {
+    this.clusterHealthService.listComponent(this.projectName).subscribe(res => {
+      this.componentData = res;
     }, error1 => {
 
     });
