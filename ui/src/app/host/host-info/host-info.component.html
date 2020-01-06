@@ -19,6 +19,16 @@
         </clr-dg-row>
       </clr-datagrid>
       <br/>
+      <div *ngIf="host.gpus.length>0">
+        <h5>显卡信息</h5>
+        <hr/>
+        <clr-datagrid>
+          <clr-dg-column>名称</clr-dg-column>
+          <clr-dg-row *clrDgItems="let gpu of host.gpus" [clrDgItem]="gpu">
+            <clr-dg-cell>{{gpu.name}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+      </div>
       <h5>健康检查</h5>
       <hr/>
       <clr-datagrid>

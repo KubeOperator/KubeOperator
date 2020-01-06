@@ -33,7 +33,7 @@
   <clr-dg-column>IP 地址</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
   <clr-dg-column>内存(MB)</clr-dg-column>
-  <clr-dg-column>GPU</clr-dg-column>
+  <clr-dg-column>GPU(个)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
 
@@ -46,7 +46,7 @@
     <clr-dg-cell>{{host.ip}}</clr-dg-cell>
     <clr-dg-cell>{{host.cpu_core}}</clr-dg-cell>
     <clr-dg-cell>{{host.memory}}</clr-dg-cell>
-    <clr-dg-cell>{{host.gpu}}</clr-dg-cell>
+    <clr-dg-cell>{{host.gpus.length}}</clr-dg-cell>
     <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
     <clr-dg-cell [ngStyle]="{'color': host.status | statusColor }">{{host.status | status}}</clr-dg-cell>
 
