@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {ClusterHealth} from './cluster-health';
 import {HttpClient} from '@angular/common/http';
-import {ClusterHealthHistory} from './cluster-health-history';
 
 @Injectable({
   providedIn: 'root'
