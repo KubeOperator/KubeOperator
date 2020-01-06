@@ -45,6 +45,7 @@
 - [ ] KubeApps Plus 应用商店；
 - [ ] GPU 支持
 - [ ] 支持 Local Persistent Volumes
+- [ ] 开放 REST API
 
  ##  v2.4 （计划中）
  
