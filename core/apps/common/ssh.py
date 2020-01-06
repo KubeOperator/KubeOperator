@@ -37,7 +37,7 @@ class SSHClient:
             )
             session = client.get_transport().open_session()
             session.exec_command(cmd)
-            while not session.recv_ready() and not session.recv_stderr_ready():
+            while not session.exit_status_ready():
                 time.sleep(0.5)
             exit_code = session.recv_exit_status()
             if exit_code == 0:
