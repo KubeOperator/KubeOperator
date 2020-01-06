@@ -20,7 +20,7 @@ export class PackageLogoService {
         logo = path + '/logo-okd.png';
         break;
       default:
-        logo = 'assets/images/favicon.ico';
+        logo = 'assets/images/nvidia.ico';
         break;
     }
     return logo;

@@ -39,7 +39,10 @@
 
 
   <clr-dg-row *clrDgItems="let host of hosts" [clrDgItem]="host">
-    <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="openInfo(host)">{{host.name}}</a></clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;color: #0079b8">
+      <a (click)="openInfo(host)">{{host.name}}</a>
+      &nbsp;<img *ngIf="host.gpus.length>0" src="assets/images/nvidia.ico" height="24px" width="24px">
+    </clr-dg-cell>
     <clr-dg-cell>{{getValueOrNone(host.cluster)}}</clr-dg-cell>
     <clr-dg-cell>{{getValueOrNone(host.region)}}</clr-dg-cell>
     <clr-dg-cell>{{getValueOrNone(host.zone)}}</clr-dg-cell>
