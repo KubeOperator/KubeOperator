@@ -1,12 +1,10 @@
 import kubernetes.client
-import numpy as np
 import redis
 import json
 import logging
 import kubeoperator.settings
 import log.es
 import datetime, time
-import kubeops_api.adhoc
 import builtins
 
 from kubernetes.client.rest import ApiException
