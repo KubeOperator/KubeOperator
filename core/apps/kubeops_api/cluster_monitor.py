@@ -556,7 +556,6 @@ def sync_node_time(cluster):
         'data': []
     }
     for host in hosts:
-        GMT_FORMAT = '%Y %b %d %a %H:%M:%S CST'
         ssh_config = SshConfig(host=host.ip, port=host.port, username=host.username, password=host.password, timeout=10,
                                private_key=None)
 
