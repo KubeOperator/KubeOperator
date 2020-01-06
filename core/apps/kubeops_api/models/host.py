@@ -33,6 +33,7 @@ class Host(BaseHost):
     os_version = models.fields.CharField(max_length=128, default="")
     cpu_core = models.fields.IntegerField(default=0)
     volumes = models.ManyToManyField('Volume')
+    gpus = models.ManyToManyField('GPU')
     zone = models.ForeignKey('cloud_provider.Zone', null=True, on_delete=models.CASCADE)
     status = models.CharField(choices=DEPLOY_TEMPLATE_CHOICES, default=HOST_STATUS_UNKNOWN, max_length=128)
     username = models.CharField(max_length=256, default=NODE_CREDENTIAL['username'])
@@ -57,6 +58,14 @@ class Host(BaseHost):
     def cluster(self):
         if self.node:
             return self.node.project.name
+
+    @property
+    def has_gpu(self):
+        gpus = self.gpus.all()
+        if gpus and len(gpus) > 0:
+            return True
+        else:
+            return False
 
     @property
     def region(self):
@@ -84,13 +93,19 @@ class Host(BaseHost):
 
     def gather_gpu_info(self):
         msg = get_gpu_device(self.to_ssh_config())
+        gpus = []
         if msg:
-            self.gpu = True
-            self.gpu_info = msg
+            host_gpus = str(msg).split('\n')
+            for hg in host_gpus:
+                g = GPU()
+                g.name = hg[hg.index("[") + 1:hg.index("]")]
+                g.save()
+                gpus.append(g)
+        self.gpus.set(gpus)
+        self.save()
 
     def gather_info(self, retry=1):
         try:
-
             logger.info("host: {}  gather host info ".format(self.name))
             facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry,
                                      password=self.password,
@@ -139,3 +154,8 @@ class Volume(models.Model):
 
     class Meta:
         ordering = ('size',)
+
+
+class GPU(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    name = models.CharField(max_length=256)

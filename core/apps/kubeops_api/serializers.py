@@ -4,7 +4,7 @@ from django.shortcuts import reverse
 from cloud_provider.models import Plan, Zone
 from kubeops_api.models import Condition
 from kubeops_api.models.credential import Credential
-from kubeops_api.models.host import Host
+from kubeops_api.models.host import Host, GPU
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
 from ansible_api.serializers.inventory import HostReadSerializer
@@ -55,6 +55,15 @@ class VolumeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'size', ]
 
 
+class GPUSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GPU
+        fields = [
+            'id', 'name',
+        ]
+        read_only_fields = ['id', 'name', ]
+
+
 class ConditionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Condition
@@ -74,6 +83,7 @@ class HostSerializer(HostReadSerializer):
         slug_field='name', required=False
     )
     volumes = VolumeSerializer(required=False, many=True)
+    gpus = GPUSerializer(required=False, many=True)
     conditions = ConditionSerializer(required=False, many=True)
 
     class Meta:
@@ -82,10 +92,10 @@ class HostSerializer(HostReadSerializer):
         fields = [
             'id', 'name', 'ip', 'port', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes',
             'zone',
-            'region', 'status', 'conditions', 'gpu'
+            'region', 'status', 'conditions', 'gpus', "has_gpu"
         ]
         read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region',
-                            'status', "conditions", 'gpu']
+                            'status', "conditions", 'gpus', "has_gpu"]
 
 
 class ClusterConfigSerializer(serializers.Serializer):
