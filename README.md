@@ -26,20 +26,22 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 ## 技术优势
 
--  简单易用：提供可视化的 Web UI，极大降低部署和管理门槛；
--  离线部署：持续更新包括 Kubernetes 及常用组件（即内置应用）的离线包；
+-  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
+-  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
 -  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
--  Multi-AZ 支持：通过把 Kubernetes 集群 Master 节点分布在不同的故障域上确保的高可用；
+-  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
+-  应用商店：内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
+-  GPU 支持：支持多服务共享 GPU，充分利用 GPU 资源；
 
 ## 功能列表
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="13">集群 Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="14">集群 Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -96,6 +98,12 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         <td class="features-third-td-background-style">支持 CoreDNS
         </td>
     </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">GPU 方案
+        </td>
+        <td class="features-third-td-background-style">支持 NVIDIA GPU
+        </td>
+    </tr> 
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">操作系统
         </td>
@@ -183,16 +191,17 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
-         <td class="features-third-td-background-style">集成 KubeApps 应用商店
+         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店，快速部署 Harbor、GitLab、Jenkins、TensorFlow 等应用
         </td>
     </tr>     
  </table>
 
 具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
 
- ## Demo 视频、使用文档
+ ## PPT、Demo 视频、使用文档
 
--  [:tv:8 分钟演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
+-  [:books: PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT。
+-  [:tv:8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
 -  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
 
  ## Kubernetes 离线安装包
@@ -211,6 +220,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [Clarity](https://github.com/vmware/clarity/): KubeOperator 采用 Clarity 作为前端 Web 框架；
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
 - [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
+- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 基于 Kubeapps 定制了应用商店；
 
 ## License
 

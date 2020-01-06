@@ -74,76 +74,17 @@ class OpenStackCloudClient(CloudClient):
         flavors = openstack_client.list_flavors()
         models = []
         for flavor in flavors:
-            if flavor.disk == 40 and flavor.vcpus == 2 and flavor.ram / 1024 == 4:
+            if flavor.disk >= 60 and flavor.vcpus >= 4 and flavor.ram / 1024 >=8:
                 model = {
                     'name': flavor.name,
                     'meta': {
                         'id': flavor.id,
-                        'cpu': 2,
-                        'memory': 4,
+                        'cpu': flavor.vcpus,
+                        'memory': flavor.ram / 1024,
                         'disk': 100
                     }
                 }
                 models.append(model)
-                continue
-            if flavor.disk == 100 and flavor.vcpus == 4 and flavor.ram / 1024 == 16:
-                model = {
-                    'name': flavor.name,
-                    'meta': {
-                        'id': flavor.id,
-                        'cpu': 4,
-                        'memory': 16,
-                        'disk': 100
-                    }
-                }
-                models.append(model)
-                continue
-            if flavor.disk == 100 and flavor.vcpus == 8 and flavor.ram / 1024 == 32:
-                model = {
-                    'name': flavor.name,
-                    'meta': {
-                        'id': flavor.id,
-                        'cpu': 8,
-                        'memory': 32,
-                        'disk': 100
-                    }
-                }
-                models.append(model)
-                continue
-            if flavor.disk == 100 and flavor.vcpus == 16 and flavor.ram / 1024 == 64:
-                model = {'name': flavor.name,
-                         'meta': {
-                             'id': flavor.id,
-                             'cpu': 16,
-                             'memory': 64,
-                             'disk': 100
-                         }}
-                models.append(model)
-                continue
-            if flavor.disk == 100 and flavor.vcpus == 22 and flavor.ram / 1024 == 128:
-                model = {
-                    'name': flavor.name,
-                    'meta': {
-                        'id': flavor.id,
-                        'cpu': 32,
-                        'memory': 128,
-                        'disk': 100
-                    }
-                }
-                models.append(model)
-                continue
-            if flavor.disk == 100 and flavor.vcpus == 64 and flavor.ram / 1024 == 256:
-                model = {
-                    'name': flavor.name,
-                    'meta': {
-                        'id': flavor.id,
-                        'cpu': 64,
-                        'memory': 256,
-                        'disk': 100
-                    }
-                }
-                models.append(model)
-                continue
         return models
 
     def init_terraform(self, cluster):

@@ -18,6 +18,8 @@ from django.db.models import Q
 from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
+from common.ssh import SSHClient, SshConfig
+
 
 logger = logging.getLogger('kubeops')
 
@@ -556,10 +558,14 @@ def sync_node_time(cluster):
         'data': []
     }
     for host in hosts:
-        gmt_date = kubeops_api.adhoc.get_host_time(ip=host.ip, port=host.port, username=host.username,
-                                                   password=host.password, hostname=host.name,
-                                                   private_key_path=host.private_key_path)
         GMT_FORMAT = '%Y %b %d %a %H:%M:%S CST'
+        ssh_config = SshConfig(host=host.ip, port=host.port, username=host.username, password=host.password, timeout=10,
+                               private_key=None)
+
+        ssh_client = SSHClient(ssh_config)
+        res = ssh_client.run_cmd('date')
+        gmt_date = res[0]
+        GMT_FORMAT = '%a %b %d %H:%M:%S CST %Y'
         date = time.strptime(gmt_date, GMT_FORMAT)
         timeStamp = int(time.mktime(date))
         times.append(timeStamp)

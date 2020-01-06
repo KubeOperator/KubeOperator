@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.shortcuts import reverse
 
 from cloud_provider.models import Plan, Zone
+from kubeops_api.models import Condition
 from kubeops_api.models.credential import Credential
 from kubeops_api.models.host import Host
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
@@ -54,6 +55,15 @@ class VolumeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'name', 'size', ]
 
 
+class ConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Condition
+        fields = [
+            "type", "status", "message", "reason", "last_time"
+        ]
+        read_only_fields = ["type", "status", "message", "reason", "last_time"]
+
+
 class HostSerializer(HostReadSerializer):
     credential = serializers.SlugRelatedField(
         queryset=Credential.objects.all(),
@@ -64,6 +74,7 @@ class HostSerializer(HostReadSerializer):
         slug_field='name', required=False
     )
     volumes = VolumeSerializer(required=False, many=True)
+    conditions = ConditionSerializer(required=False, many=True)
 
     class Meta:
         model = Host
@@ -71,10 +82,10 @@ class HostSerializer(HostReadSerializer):
         fields = [
             'id', 'name', 'ip', 'port', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes',
             'zone',
-            'region', 'status'
+            'region', 'status', 'conditions', 'gpu'
         ]
         read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region',
-                            'status']
+                            'status', "conditions", 'gpu']
 
 
 class ClusterConfigSerializer(serializers.Serializer):
@@ -87,8 +98,9 @@ class NodeSerializer(AnsibleHostSerializer):
         many=True, queryset=Role.objects.all(),
         slug_field='name', required=False
     )
-
+    conditions = ConditionSerializer(required=False, many=True)
     meta = serializers.JSONField()
+    info = serializers.DictField()
 
     def get_field_names(self, declared_fields, info):
         names = super().get_field_names(declared_fields, info)
@@ -106,9 +118,10 @@ class NodeSerializer(AnsibleHostSerializer):
         fields = [
             'id', 'name', 'ip', 'port', 'vars', 'roles', 'host', 'host_memory', 'host_cpu_core', 'host_os',
             'host_os_version',
-            'status'
+            'status', 'conditions', "info"
         ]
-        read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip', 'status']
+        read_only_fields = ['id', 'host_memory', 'host_cpu_core', 'host_os', 'host_os_version', 'ip', 'status',
+                            'conditions', 'info']
 
 
 class RoleSerializer(GroupSerializer):

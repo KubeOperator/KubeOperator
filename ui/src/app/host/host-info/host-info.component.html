@@ -18,6 +18,25 @@
           <clr-dg-cell>{{volume.size}}</clr-dg-cell>
         </clr-dg-row>
       </clr-datagrid>
+      <br/>
+      <h5>健康检查</h5>
+      <hr/>
+      <clr-datagrid>
+        <clr-dg-column>原因</clr-dg-column>
+        <clr-dg-column>采集时间</clr-dg-column>
+        <clr-dg-column>状态</clr-dg-column>
+        <clr-dg-column>消息</clr-dg-column>
+
+        <clr-dg-row *clrDgItems="let con of host.conditions" [clrDgItem]="con">
+          <clr-dg-cell>{{con.reason}}</clr-dg-cell>
+          <clr-dg-cell>{{con.last_time}}</clr-dg-cell>
+          <clr-dg-cell style="text-align: center">
+            <i class="fa fa-check" aria-hidden="true" *ngIf="con.status"></i>
+            <i class="fa fa-close" aria-hidden="true" *ngIf="!con.status"></i>
+          </clr-dg-cell>
+          <clr-dg-cell>{{con.message}}</clr-dg-cell>
+        </clr-dg-row>
+      </clr-datagrid>
     </div>
     <div *ngIf="loading" style="text-align: center">
       <clr-spinner></clr-spinner>

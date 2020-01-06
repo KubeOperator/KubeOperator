@@ -102,4 +102,7 @@ class CloudFlavorView(APIView):
         region_name = kwargs.get('region')
         region = get_object_or_404(Region, name=region_name)
         client = get_cloud_client(region.vars)
-        return HttpResponse(json.dumps(client.get_flavors(region.cloud_region)))
+        models = client.get_flavors(region.cloud_region)
+        if not models:
+            return Response(data={'msg': "没有合适的flavor规格！请添加大于4C8G60G的flavor."}, status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponse(json.dumps(models))

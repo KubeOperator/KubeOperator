@@ -30,7 +30,21 @@ export class ApplicationComponent implements OnInit {
       this.clusterService.getCluster(clusterName).subscribe(c => {
         this.currentCluster = c;
         this.clusterService.getClusterConfigs().subscribe(d => {
-          this.apps = d.apps;
+          this.apps = d.apps.filter(app => {
+            let result = true;
+            if (app.display_on != null) {
+              result = this.currentCluster.configs[app.display_on] != null;
+            }
+            return result;
+          });
+        });
+        this.nodeService.listNodes(this.currentCluster.name).subscribe(d => {
+          this.workers = d.filter((node) => {
+            return node.roles.includes('worker');
+          });
+          if (this.workers.length > 0) {
+            this.workerIp = this.workers[0].ip;
+          }
         });
         this.nodeService.listNodes(this.currentCluster.name).subscribe(d => {
           this.workers = d.filter((node) => {

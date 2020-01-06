@@ -16,8 +16,6 @@ from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_monitor
 from django.utils import timezone
-from kubeops_api.cluster_monitor import ClusterMonitor
-
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
 
@@ -136,6 +134,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         if cluster.deploy_type == Cluster.CLUSTER_DEPLOY_TYPE_AUTOMATIC:
             try:
                 cluster.create_resource()
+                cluster.refresh_from_db()
                 extra_vars.update(cluster.configs)
                 self.update_current_step('create-resource', DeployExecution.STEP_STATUS_SUCCESS)
             except RuntimeError as e:

@@ -136,31 +136,45 @@ apps:
     logo: k8s.png
     url_key: dashboard
     describe: "Kubernetes 管理控制台"
+    display_on:
+
+  - name: Kubeapps
+    logo: kubeapps.png
+    url_key: kubeapps-plus
+    describe: "应用市场,一键离线部署常见应用"
+    display_on: "kubeapps_install"
 
   - name: Grafana
     logo: grafana_icon.svg
     url_key: grafana
     describe: "集群监控展示面板"
+    display_on:
 
   - name: Prometheus
     logo: prometheus.ico
     url_key: prometheus
     describe: "集群监控采集工具"
+    display_on:
 
   - name: Registry-console
     logo: registry.png
     url_key: registry-ui
     describe: "Docker 镜像仓库"
+    display_on:
 
   - name: Traefik
     logo: traefik_logo.svg
     url_key: traefik
     describe: "HTTP 反向代理、负载均衡工具"
+    display_on:
 
   - name: Weave Scope
-    logo: weave-logo.png
+    logo: traefik_logo.svg
     url_key: scope
     describe: "实时交互展示和管理 Kubernetes 集群、主机、Pod 和容器"
+    display_on:
+
+
 
 cluster_infos:
   - name: 网络插件

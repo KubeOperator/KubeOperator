@@ -11,3 +11,5 @@
     - kube-apiserver
     - kube-controller-manager
     - kube-scheduler
+    - kubelet
+    - kube-proxy

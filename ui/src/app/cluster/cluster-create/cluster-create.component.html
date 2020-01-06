@@ -206,22 +206,26 @@
           </div>
         </div>
       </div>
-      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='vxlan'">
+      <span class="p7 prompt"
+            *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='vxlan'">
         基于隧道，在任何网络环境下都可以正常工作<br>
         优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
         劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
       </span>
-      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='host-gw'">
+      <span class="p7 prompt"
+            *ngIf="cluster.network_plugin == 'flannel' && cluster.configs['FLANNEL_BACKEND']==='host-gw'">
         基于路由，不适用于公有云环境<br>
         优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
         劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>
       </span>
-      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">
+      <span class="p7 prompt"
+            *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='Always'">
         基于隧道，在任何网络环境下都可以正常工作<br>
         优势是对物理网络环境没有特殊要求，只要宿主机IP层可以路由互通即可<br>
         劣势是封包和解包耗费CPU性能，且额外的封装导致带宽浪费<br>
       </span>
-      <span class="p7 prompt" *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='off'">
+      <span class="p7 prompt"
+            *ngIf="cluster.network_plugin == 'calico' && cluster.configs['CALICO_IPV4POOL_IPIP']==='off'">
         基于路由，不适用于公有云环境<br>
         优势是没有封包和解包过程，完全基于两端宿主机的路由表进行转发<br>
         劣势是要求宿主机在2层网络是互通，且路由表膨胀会导致性能降低<br>

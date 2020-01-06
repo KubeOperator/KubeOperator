@@ -40,13 +40,11 @@
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
 - [x] 支持在 Web UI 上面查看集群事件；
 
- ## v2.3 （进行中，2019.12.31 发布）
+ ## v2.3 （进行中，2019.01.31 发布）
 
-- [ ] KubeApps 应用商店；
-
- ## v2.4 （进行中，2019.01.31 发布）
-
+- [ ] KubeApps Plus 应用商店；
 - [ ] GPU 支持
+- [ ] 支持 Local Persistent Volumes
 
  ##  v3.0 （计划中）
  
@@ -61,3 +59,6 @@
 - [ ] Traefik 2.0 支持；
 - [ ] 全容器化部署
 - [ ] 支持 CoreOS
+- [ ] Deprecate in-tree OpenStack and vSphere cloud controller
+- [ ] 已有集群导入
+

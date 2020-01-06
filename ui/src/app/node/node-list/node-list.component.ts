@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {NodeService} from '../node.service';
 import {Node} from '../node';
 import {Cluster} from '../../cluster/cluster';
+import {NodeDetailComponent} from '../node-detail/node-detail.component';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 
@@ -14,6 +15,8 @@ export class NodeListComponent implements OnInit {
 
   loading = true;
   nodes: Node[] = [];
+  showDetail = false;
+  @ViewChild(NodeDetailComponent, {static: true}) child: NodeDetailComponent;
   @Input() currentCluster: Cluster;
   timeResult;
   openView = false;
@@ -39,6 +42,11 @@ export class NodeListComponent implements OnInit {
 
   refresh() {
     this.listNodes();
+  }
+
+  openInfo(node: Node) {
+    this.showDetail = true;
+    this.child.node = node;
   }
 
   toGrafana() {
