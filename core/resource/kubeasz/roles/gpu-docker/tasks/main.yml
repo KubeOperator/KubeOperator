@@ -5,7 +5,6 @@
       - nvidia-docker
       - nvidia-docker2
     state: absent
-    autoremove: yes
 
 - name: add repo
   get_url:

@@ -27,10 +27,6 @@
     state: "present"
   register: install_driver
 
-- name: redhat family install tasks
-  include_tasks: install-redhat.yml
-  when: ansible_os_family == 'RedHat'
-
 - name: create persistenced override dir
   file:
     path: /etc/systemd/system/nvidia-persistenced.service.d/
@@ -38,8 +34,8 @@
     recurse: yes
 
 - name: configure persistenced service to turn on persistence mode
-  copy:
-    src: nvidia-persistenced-override.conf
+  template:
+    src: nvidia.conf.j2
     dest: /etc/systemd/system/nvidia-persistenced.service.d/override.conf
   when: nvidia_driver_persistence_mode_on
 

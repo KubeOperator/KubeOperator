@@ -44,6 +44,7 @@
 
 - [ ] KubeApps Plus 应用商店；
 - [ ] GPU 支持
+- [ ] 支持 Local Persistent Volumes
 
  ##  v3.0 （计划中）
  
