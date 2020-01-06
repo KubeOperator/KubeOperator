@@ -93,7 +93,6 @@ class Host(BaseHost):
 
     def gather_gpu_info(self):
         msg = get_gpu_device(self.to_ssh_config())
-        print("----------------")
         gpus = []
         if msg:
             host_gpus = str(msg).split('\n')
