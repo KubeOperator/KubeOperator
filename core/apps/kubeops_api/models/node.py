@@ -44,6 +44,8 @@ class Node(Ansible_Host):
         self.private_key = self.host.private_key
         self.port = self.host.port
         self.host.node_id = self.id
+        if self.host.gpu:
+            self.vars['has_gpu'] = True
         self.host.save()
         self.save()
 
