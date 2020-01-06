@@ -265,7 +265,7 @@ class ClusterMonitor():
         return ns_names
 
     def get_component_status(self):
-        sync_node_time(self.cluster)
+        # sync_node_time(self.cluster)
         component_data = []
         try:
             components = self.api_instance.list_component_status()
