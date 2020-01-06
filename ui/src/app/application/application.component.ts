@@ -46,6 +46,14 @@ export class ApplicationComponent implements OnInit {
             this.workerIp = this.workers[0].ip;
           }
         });
+        this.nodeService.listNodes(this.currentCluster.name).subscribe(d => {
+          this.workers = d.filter((node) => {
+            return node.roles.includes('worker');
+          });
+          if (this.workers.length > 0) {
+            this.workerIp = this.workers[0].ip;
+          }
+        });
       });
     });
 

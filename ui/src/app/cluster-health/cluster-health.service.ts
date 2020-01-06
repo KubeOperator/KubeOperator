@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {ClusterHealth} from './cluster-health';
 import {HttpClient} from '@angular/common/http';
-import {ClusterHealthHistory} from './cluster-health-history';
 
 @Injectable({
   providedIn: 'root'
@@ -24,4 +22,5 @@ export class ClusterHealthService {
   listComponent(project_name: string): Observable<any> {
     return this.http.get<any>(this.baseUrl + project_name + '/component/');
   }
+
 }

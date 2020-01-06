@@ -551,3 +551,16 @@ class SyncHostTimeView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
+
+class ClusterNamespaceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        project_name = kwargs['project_name']
+        cluster = Cluster.objects.get(name=project_name)
+        if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        cluster_monitor = ClusterMonitor(cluster)
+        result = cluster_monitor.list_namespace()
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(result))
+        return response
