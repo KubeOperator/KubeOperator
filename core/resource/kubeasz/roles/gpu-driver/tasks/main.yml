@@ -56,7 +56,3 @@
     src: nvidia.conf.j2
     dest: "{{ nvidia_driver_module_file }}"
     mode: '0644'
-
-- name: reboot after driver install
-  reboot:
-  when: install_driver.changed and not nvidia_driver_skip_reboot
