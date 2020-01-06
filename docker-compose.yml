@@ -70,10 +70,10 @@ services:
     healthcheck:
       test: "ps axu | grep 'celery worker'"
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 20
     depends_on:
-      redis:
+      api:
         condition: service_healthy
 
   mysql:

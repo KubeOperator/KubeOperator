@@ -5,7 +5,6 @@ import logging
 import kubeoperator.settings
 import log.es
 import datetime, time
-import kubeops_api.adhoc
 import builtins
 
 from kubernetes.client.rest import ApiException
@@ -18,6 +17,7 @@ from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
 from common.ssh import SSHClient, SshConfig
+
 
 logger = logging.getLogger('kubeops')
 
@@ -233,7 +233,6 @@ class ClusterMonitor():
             return False
 
     def list_pod_status(self, namespace):
-        # self.check_authorization(self.retry_count)
         message = ''
         pod_data = []
         try:
@@ -557,6 +556,7 @@ def sync_node_time(cluster):
         'data': []
     }
     for host in hosts:
+        GMT_FORMAT = '%Y %b %d %a %H:%M:%S CST'
         ssh_config = SshConfig(host=host.ip, port=host.port, username=host.username, password=host.password, timeout=10,
                                private_key=None)
 
