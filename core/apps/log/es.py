@@ -79,11 +79,8 @@ def get_start_time(days):
 
 
 def get_index():
-    year = datetime.datetime.now().year
-    month = datetime.datetime.now().month
-    if month < 10:
-        month = "0" + str(month)
-    return 'kubeoperator-{}.{}'.format(year, month)
+    date = datetime.datetime.now().strftime('%Y.%m')
+    return 'kubeoperator-{}'.format(date)
 
 
 def get_es_client():
