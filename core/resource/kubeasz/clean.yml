@@ -166,6 +166,7 @@
     - name: cleanup networks1
       shell: "ip link del tunl0; \
         ip link del flannel.1; \
+        ip link del kube-ipvs0; \
 	    ip link del cni0; \
         ip link del mynet0;"
       ignore_errors: true
