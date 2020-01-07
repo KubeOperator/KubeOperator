@@ -24,6 +24,11 @@
     - 'storage_external_ceph_enabled is defined'
     - 'storage_external_ceph_enabled'
 
+- import_tasks: local-volume.yml
+  when:
+    - 'storage_local_volume_enabled is defined'
+    - 'storage_local_volume_enabled'
+
 - block:
     - name: copy test-sc.yaml
       template:
@@ -44,4 +49,6 @@
     - name: delete test-sc.yaml
       shell: "kubectl -n default delete -f /tmp/test-sc.yaml"
   delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+   - 'storage_local_volume_enabled is not defined'
   run_once: true

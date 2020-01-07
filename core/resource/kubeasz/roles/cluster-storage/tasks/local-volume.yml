@@ -1,0 +1,36 @@
+- name: prepare storageclass file
+  template:
+    src: local-volume/storageclass.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/rook/storageclass.yaml"
+
+- name: deploy rook-storageclass
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/rook/storageclass.yaml"
+  ignore_errors: true
+
+- name: set default storageClass
+  shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{ default_label }}'"
+
+- name: prepare local volume deploy directory
+  file: name={{ base_dir }}/manifests/storage/local-volume state=directory
+
+- name: prepare local-volume directory
+  file: name=/mnt/disk/{{ item }} state=directory
+  delegate_to: "worker1.{{cluster_name}}.{{cluster_domain}}"
+  with_items: "{{ local_volume_dirs }}"
+
+- name: chcon local volume directory
+  shell: "chcon -Rt svirt_sandbox_file_t /mnt/disk/{{ item }}"
+  with_items: "{{ local_volume_dirs }}"
+
+- name: chmod local volume directory
+  shell: "chmod 777 /mnt/disk/{{ item }}"
+  with_items: "{{ local_volume_dirs }}"
+
+- name: prepare local volume pv file
+  template:
+    src: local-volume/{{ item }}.yaml.j2
+    dest: "{{ base_dir }}/manifests/storage/local-volume/{{ item }}.yaml"
+  with_items: "{{ pv_files }}"
+
+- name: create local volume pv
+  shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/local-volume/"
