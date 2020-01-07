@@ -5,18 +5,12 @@
   ignore_errors: true
 
 - name: add repo
-  yum_repository:
-    name: cuda
-    description: NVIDIA CUDA YUM Repo
-    baseurl: "{{ nvidia_driver_rhel_cuda_repo_baseurl }}"
-    gpgkey: "{{ nvidia_driver_rhel_cuda_repo_gpgkey }}"
-
-- name: add epel repo
-  yum_repository:
-    name: epel
-    description: EPEL YUM repo
-    baseurl: "{{ nvidia_driver_rhel_epel_repo_baseurl }}"
-    gpgkey: "{{ nvidia_driver_rhel_epel_repo_gpgkey }}"
+  template:
+    src: gpu.repo.j2
+    dest: /etc/yum.repos.d/gpu.repo
+    mode: 0644
+    owner: root
+    group: root
 
 - name: install dependencies
   yum: name=dkms

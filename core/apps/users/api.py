@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from kombu.utils import json
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -22,6 +23,10 @@ class UserViewSet(ModelViewSet):
             return self.serializer_class_create
         else:
             return super().get_serializer_class()
+
+
+class GroupViewSet(ModelViewSet):
+    queryset = Group.objects.all()
 
 
 class UserProfileApi(RetrieveAPIView):

@@ -6,15 +6,6 @@
       - nvidia-docker2
     state: absent
 
-- name: add repo
-  get_url:
-    url: "{{ nvidia_docker_repo_base_url }}/{{ _rhel_repo_dist_name }}/{{ _rhel_repo_file_name }}"
-    dest: "{{ _rhel_repo_file_path }}"
-    mode: 0644
-    owner: root
-    group: root
-  when: nvidia_docker_add_repo
-
 - name: install packages
   yum:
     name: nvidia-container-runtime

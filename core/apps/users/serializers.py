@@ -7,13 +7,11 @@ from django.contrib.auth import get_user_model
 
 class ProfileSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
-    role = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
         exclude = [
             'password', 'first_name', 'last_name',
-            'user_permissions'
         ]
 
     @staticmethod
@@ -23,16 +21,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         else:
             return obj.username
 
-    @staticmethod
-    def get_role(obj):
-        if obj.is_superuser:
-            return 'Admin'
-        else:
-            return 'User'
-
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = get_user_model()
         fields = [

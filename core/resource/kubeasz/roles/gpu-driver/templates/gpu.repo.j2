@@ -1,0 +1,42 @@
+[Centos-Base]
+name=CentOS Base
+baseurl=http://{{local_hostname}}:9081/repository/centos-base/$releasever/os/$basearch/
+enabled=1
+gpgcheck=0
+
+[Centos-Extras]
+name=CentOS Extras
+baseurl=http://{{local_hostname}}:9081/repository/centos-base/$releasever/extras/$basearch/
+enabled=1
+gpgcheck=0
+
+[Centos-Epel]
+name=CentOS Epel
+baseurl=http://{{local_hostname}}:9081/repository/centos-epel/7/$basearch/
+enabled=1
+gpgcheck=0
+
+
+[Centos-CUDA]
+name=CentOS CUDA
+baseurl=http://{{local_hostname}}:9081/repository/centos-cuda/rhel7/$basearch/
+enabled=1
+gpgcheck=0
+
+[Centos-libnvidia-containe]
+name=CentOS libnvidia-containe
+baseurl=http://{{local_hostname}}:9081/repository/libnvidia-container/centos7/$basearch/
+enabled=1
+gpgcheck=0
+
+[Centos-nvidia-container-runtime]
+name=nvidia-container-runtime
+baseurl=http://{{local_hostname}}:9081/repository/nvidia-container-runtime/centos7/$basearch
+gpgcheck=0
+enabled=1
+
+[Centos-nvidia-docker]
+name=nvidia-docker
+baseurl=http://{{local_hostname}}:9081/repository/nvidia-docker/centos7/$basearch
+gpgcheck=0
+enabled=1
