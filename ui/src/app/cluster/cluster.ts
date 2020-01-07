@@ -34,7 +34,7 @@ export class Cluster {
     this.configs['CLUSTER_CIDR'] = '179.20.0.0/16';
     this.configs['STORAGE_DIR'] = '/var/lib/docker';
     this.configs['MAX_PODS'] = 110;
-    this.configs['DOCKER_ADDR'] = '172.17.0.1/16';
+    this.configs['DOCKER_ADDR'] = '179.30.0.1/24';
     this.configs['PROXY_MODE'] = 'iptables';
     this.configs['PROMETHEUS_RETENTION'] = '7';
   }
