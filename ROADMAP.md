@@ -45,12 +45,12 @@
 - [ ] KubeApps Plus 应用商店；
 - [ ] GPU 支持
 - [ ] 支持 Local Persistent Volumes
-- [ ] 开放 REST API
 
  ##  v2.4 （计划中）
  
 - [ ] 支持用户和权限管理；
 - [ ] AD / LDAP 支持
+- [ ] 开放 REST API
 - [ ] K8s 集群 API Server 的 高可用（ VIP ）
 
  ##  v3.0 （计划中）
