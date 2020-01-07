@@ -9,7 +9,7 @@ spec:
   resources:
     requests:
       storage: 100Gi
-  storageClassName: storageclass-default
+  storageClassName: {{ storageClassName }}
 ---
 apiVersion: apps/v1
 kind: Deployment

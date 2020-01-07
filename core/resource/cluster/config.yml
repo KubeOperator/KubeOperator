@@ -275,7 +275,10 @@ storages:
     vars:
       storage_rook_ceph_enabled: true
 
-
+  - name: local-volume
+    deploy_type: ['AUTOMATIC','MANUAL']
+    vars:
+      storage_local_volume_enabled: true
 
 public_config:
   - name: APP_DOMAIN

@@ -491,8 +491,8 @@ mongodb:
   ##
   persistence:
     enabled: true
-    storageClass: storageclass-default
-    size: 80Gi
+    storageClass: {{ storageClassName }}
+    size: 100Gi
   ## MongoDB credentials are handled by kubeapps to facilitate upgrades
   ##
   existingSecret: kubeapps-mongodb
