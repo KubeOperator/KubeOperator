@@ -25,7 +25,7 @@ spec:
           operator: Exists
           effect: NoSchedule
       containers:
-        - image: {{local_hostname}}:9091/nvidia/k8s-device-plugin:1.0.0-beta
+        - image: {{local_hostname}}:{{registry_port}}/nvidia/k8s-device-plugin:1.0.0-beta
           name: nvidia-device-plugin-ctr
           securityContext:
             allowPrivilegeEscalation: false

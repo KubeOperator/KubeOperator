@@ -4,14 +4,6 @@
     state: absent
   ignore_errors: true
 
-- name: add repo
-  template:
-    src: gpu.repo.j2
-    dest: /etc/yum.repos.d/gpu.repo
-    mode: 0644
-    owner: root
-    group: root
-
 - name: install dependencies
   yum: name=dkms
 
