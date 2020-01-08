@@ -20,6 +20,7 @@
     - firewall
     - prepare
     - rpm
+    - nameserver
     - ntp
     - docker
     - { role: kube-node, when: "DEPLOY_MODE != 'allinone'" }
