@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: nvidia-device-plugin-daemonset
@@ -6,6 +6,9 @@ metadata:
 spec:
   updateStrategy:
     type: RollingUpdate
+  selector:
+    matchLabels:
+      name: nvidia-device-plugin-ds
   template:
     metadata:
       # Mark this pod as a critical add-on; when enabled, the critical add-on scheduler
@@ -25,7 +28,7 @@ spec:
           operator: Exists
           effect: NoSchedule
       containers:
-        - image: {{local_hostname}}:{{registry_port}}/nvidia/k8s-device-plugin:1.0.0-beta
+        - image: {{registry_prefix}}:{{registry_port}}/nvidia/k8s-device-plugin:1.0.0-beta
           name: nvidia-device-plugin-ctr
           securityContext:
             allowPrivilegeEscalation: false
