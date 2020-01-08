@@ -42,7 +42,6 @@
       {{workerIp}} dashboard.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
-      {{workerIp}} kubeapps-plus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
     <span *ngIf="currentCluster && currentCluster.persistent_storage!=undefined && currentCluster.persistent_storage === 'rook-ceph'">
       {{workerIp}} ceph.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
