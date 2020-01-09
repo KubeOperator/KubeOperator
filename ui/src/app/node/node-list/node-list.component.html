@@ -38,7 +38,7 @@
         [outerStrokeWidth]="5"
         [innerStrokeWidth]="5"
         [space]="-5"
-        [outerStrokeColor]="'#00af00'"
+        [outerStrokeColor]="node.cpu_usage | progressColor"
         [innerStrokeColor]="'#A9A9A9'"
         [subtitleFontSize]="'0'"
         [titleFontSize]=10
@@ -55,7 +55,7 @@
         [outerStrokeWidth]="5"
         [innerStrokeWidth]="5"
         [space]="-5"
-        [outerStrokeColor]="'#00af00'"
+        [outerStrokeColor]="node.mem_usage | progressColor"
         [innerStrokeColor]="'#A9A9A9'"
         [subtitleFontSize]="'0'"
         [titleFontSize]=10
