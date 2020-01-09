@@ -296,6 +296,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
+  getPackageVars() {
+    let vars = null;
+    this.packages.forEach(p => {
+      if (p.name === this.cluster.package) {
+        vars = p.meta.vars;
+      }
+    });
+    return vars;
+  }
+
   onHostChange(node: Node) {
     if (node.host) {
       node.volumes = [];
