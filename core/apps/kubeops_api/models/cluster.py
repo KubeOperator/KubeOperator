@@ -194,7 +194,9 @@ class Cluster(Project):
             self.set_config_unlock(vars)
 
     def set_package_configs(self):
-        self.configs.update(self.package.meta['vars'])
+        pkg_vars = self.package.meta['vars']
+        pkg_vars.update(self.configs)
+        self.configs = pkg_vars
         self.save()
 
     def get_template_meta(self):
