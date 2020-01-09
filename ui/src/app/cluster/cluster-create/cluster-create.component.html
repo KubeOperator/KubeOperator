@@ -281,6 +281,13 @@
           </select>
         </clr-select-container>
       </div>
+      <div *ngIf="cluster.persistent_storage==='local-volume'">
+        <clr-input-container>
+          <label>路径</label>
+          <input clrInput [(ngModel)]="cluster.configs['local_volume_path']" name="local-volume" size="45" required/>
+          <clr-control-helper>例如: /opt/local-volume</clr-control-helper>
+        </clr-input-container>
+      </div>
     </form>
   </clr-wizard-page>
   <clr-wizard-page [clrWizardPageNextDisabled]="!canCheckNext()" *ngIf="cluster.deploy_type === Manual">
