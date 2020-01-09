@@ -29,8 +29,8 @@
           </tbody>
         </table>
       </div>
-      <div class="card-footer">
-        <button class="btn btn-sm btn-link" (click)="toHealth()">更多</button>
+      <div class="card-footer" style="text-align:right">
+        <button class="btn btn-sm btn-link"  (click)="toHealth()">更多</button>
       </div>
     </div>
   </div>
@@ -38,7 +38,7 @@
     <div class="card">
       <div class="card-header">
         Worker 状态
-        <span style="float: right">Worker 数量: {{workers.length}}</span>
+        <span style="float: right;font-size:12px">Worker 数量: {{workers.length}} </span>
       </div>
       <div class="card-block" style="height: 200px;overflow:auto">
         <table class="table">
@@ -50,7 +50,7 @@
           </tbody>
         </table>
       </div>
-      <div class="card-footer">
+      <div class="card-footer" style="text-align:right">
         <button *ngIf="currentCluster.deploy_type==='AUTOMATIC'" class="btn btn-sm btn-link" (click)="onScale()"
                 [disabled]="currentCluster.status !== 'RUNNING'">伸缩
         </button>
