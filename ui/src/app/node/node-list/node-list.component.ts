@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NodeService} from '../node.service';
 import {Node} from '../node';
 import {Cluster} from '../../cluster/cluster';
 import {NodeDetailComponent} from '../node-detail/node-detail.component';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
+import {DashboardService} from '../../dashboard/dashboard.service';
 
 @Component({
   selector: 'app-node-list',
@@ -21,8 +22,9 @@ export class NodeListComponent implements OnInit {
   timeResult;
   openView = false;
   loadingTime = false;
+  clusterData;
 
-  constructor(private nodeService: NodeService, private alertService: CommonAlertService) {
+  constructor(private nodeService: NodeService, private alertService: CommonAlertService, private dashboardService: DashboardService) {
   }
 
   ngOnInit() {
@@ -33,6 +35,18 @@ export class NodeListComponent implements OnInit {
     this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
       this.nodes = data.filter((node) => {
         return node.name !== 'localhost' && node.name !== '127.0.0.1' && node.name !== '::1';
+      });
+      this.dashboardService.getDashboard(this.currentCluster.name).subscribe(res => {
+        this.clusterData = res.data;
+        const nodeList = JSON.parse(res.data[0])['nodes'];
+        nodeList.forEach(n => {
+          this.nodes.forEach(node => {
+            if (n.name === node.name) {
+              node.cpu_usage = Number(n.cpu_usage) * 100;
+              node.mem_usage = Number(n.mem_usage) * 100;
+            }
+          });
+        });
       });
       this.loading = false;
     }, error => {
