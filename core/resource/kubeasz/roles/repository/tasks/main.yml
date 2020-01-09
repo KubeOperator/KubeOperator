@@ -1,3 +1,13 @@
+- name: 创建仓库备份目录
+  file:
+    path: /etc/yum.repos.d/bak
+    state: directory
+- name: 备份原仓库
+  shell: "mv -f /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak >/dev/null 2>&1  || ls /etc/yum.repos.d/ >/dev/null 2>&1"
+- name: 删除其他仓库
+  file:
+    path: /etc/yum.repos.d/*
+    state: absent
 - name: 添加离线仓库
   template:
     src: templates/kubeops.repo.j2
