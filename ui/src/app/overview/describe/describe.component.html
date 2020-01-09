@@ -90,11 +90,11 @@
   <div class="clr-col-12">
     <div class="card">
       <div class="card-header">
-        描述
+        详情
       </div>
       <div class="card-block">
         <div class="clr-row">
-          <div class="clr-col-lg-12 clr-col-12">
+          <div class="clr-col-lg-4 clr-col-4">
             <table>
               <tr>
                 <td>集群名称:</td>
@@ -156,7 +156,75 @@
               </tr>
             </table>
           </div>
-
+          <div style="float:left;margin-top: 0px;width: 1px;height: 240px; background: darkgray;"></div>
+          <div class="clr-col-lg-4 clr-col-4">
+            <div class="clr-col-md-12" style="text-align: center">
+              <h4>容量信息</h4> <br>
+            </div>
+            <div class="clr-col-md-12">
+              <circle-progress
+                [percent]="cpuUsage"
+                [radius]="52"
+                [outerStrokeWidth]="10"
+                [innerStrokeWidth]="10"
+                [space]="-10"
+                [outerStrokeColor]="cpuUsage | progressColor"
+                [innerStrokeColor]="'#e5e9f2'"
+                [titleFontSize]=20
+                [unitsFontSize]=20
+                [subtitleFontSize]="10"
+                [subtitle]="'CPU 使用率'"
+              ></circle-progress>
+              <circle-progress
+                [percent]="memUsage"
+                [radius]="52"
+                [outerStrokeWidth]="10"
+                [innerStrokeWidth]="10"
+                [space]="-10"
+                [outerStrokeColor]="memUsage | progressColor"
+                [innerStrokeColor]="'#e5e9f2'"
+                [titleFontSize]=20
+                [unitsFontSize]=20
+                [subtitleFontSize]="10"
+                [subtitle]="'内存 使用率'"
+              ></circle-progress>
+              <circle-progress
+                [percent]="containerPercent"
+                [radius]="52"
+                [outerStrokeWidth]="10"
+                [innerStrokeWidth]="10"
+                [space]="-10"
+                [outerStrokeColor]="containerPercent | progressColor"
+                [innerStrokeColor]="'#e5e9f2'"
+                [titleFontSize]=20
+                [unitsFontSize]=20
+                [subtitleFontSize]="10"
+                [subtitle]="'容器组'"
+              ></circle-progress>
+            </div>
+          </div>
+          <div style="float:left;margin-top: 0px;width: 1px;height: 240px; background: darkgray;"></div>
+          <div class="clr-col-lg-3 clr-col-3">
+            <div class="clr-row">
+              <div class="clr-col-md-12" style="text-align: center">
+                <h4>统计信息</h4> <br>
+              </div>
+              <div class="clr-col-lg-5  clr-col-12 count">
+                <span><b>{{nodeCount}}</b></span> <br>
+                <span><b>{{namespaceCount}}</b></span> <br>
+                <span><b>{{deploymentCount}}</b></span> <br>
+                <span><b>{{podCount}}</b></span> <br>
+                <span><b>{{containerCount}}</b></span> <br>
+              </div>
+              <div class="clr-col-lg-7 clr-col-12 type-face">
+                <span>Nodes</span> <br>
+                <span>Namespaces</span> <br>
+                <span>Deployments</span> <br>
+                <span>Pods</span> <br>
+                <span>Containers</span> <br>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="card-footer">
@@ -164,24 +232,37 @@
           <div class="clr-col-12">
             <button class="btn btn-outline" (click)="onInstall()"
                     [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
+              <clr-icon shape="install"></clr-icon>
             </button>
             <button class="btn btn-outline" (click)="onUninstall()"
                     [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">卸载
+              <clr-icon shape="uninstall"></clr-icon>
             </button>
             <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
+              <clr-icon shape="arrow"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="openChangeStatus=true">重置
+              <clr-icon shape="refresh"></clr-icon>
             </button>
             <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
-              获取Token
+              Token
+              <clr-icon shape="download"></clr-icon>
             </button>
             <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING'">
-              WEBKUBECTL
+              WebKubeCtl
+              <clr-icon shape="computer"></clr-icon>
             </button>
-            <button class="btn btn-outline" (click)="openChangeStatus=true">
-              重置状态
+            <button class="btn btn-outline" (click)="toApp('grafana')" [disabled]="currentCluster.status !== 'RUNNING'">
+              监控
+              <img height="15px" width="15px" src="assets/images/grafana_icon.svg">
             </button>
-            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">
-              域名解析规则
+            <button class="btn btn-outline" (click)="toApp('scope.weave')" [disabled]="currentCluster.status !== 'RUNNING'">
+              可视化
+              <img height="15px" width="15px" src="assets/images/traefik_logo.svg">
             </button>
+            <!--            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">-->
+            <!--              域名解析规则-->
+            <!--            </button>-->
             <button class="btn btn-sm btn-link" (click)="openConfigs=true" style="float:right;margin-top: 10px">详情
             </button>
           </div>
