@@ -52,7 +52,7 @@
       </thead>
       <tbody>
       <tr *ngFor="let config of currentCluster.configs | keys">
-        <td>{{config.key}}</td>
+        <td style="text-transform : uppercase">{{config.key}}</td>
         <td>{{config.value}}</td>
       </tr>
       </tbody>
@@ -60,7 +60,6 @@
 
   </div>
 </clr-modal>
-
 
 <clr-modal [(clrModalOpen)]="openChangeStatus" clrModalSize="lg">
   <h3 class="modal-title">重置状态</h3>
@@ -83,45 +82,86 @@
   </div>
 </clr-modal>
 
+
 <app-confirm-alert (confirm)="handleEvent()"></app-confirm-alert>
 <app-webkubectl></app-webkubectl>
 <app-upgrade (confirm)="handleUpgrade()"></app-upgrade>
+
 <div class="clr-row">
   <div class="clr-col-12">
     <div class="card">
       <div class="card-header">
-        详情
+        <div class="clr-row">
+          <div class="clr-col-12">
+            <button class="btn btn-outline" (click)="onInstall()"
+                    [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
+              <clr-icon shape="install"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="onUninstall()"
+                    [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">卸载
+              <clr-icon shape="uninstall"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
+              <clr-icon shape="arrow"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="openChangeStatus=true">重置
+              <clr-icon shape="refresh"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
+              Token
+              <clr-icon shape="download"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING'">
+              WebKubeCtl
+              <clr-icon shape="computer"></clr-icon>
+            </button>
+            <button class="btn btn-outline" (click)="toApp('grafana')" [disabled]="currentCluster.status !== 'RUNNING'">
+              监控/日志
+              <img height="15px" width="15px" src="assets/images/grafana_icon.svg">
+            </button>
+            <button class="btn btn-outline" (click)="toApp('scope.weave')"
+                    [disabled]="currentCluster.status !== 'RUNNING'">
+              洞察
+              <img height="15px" width="15px" src="assets/images/traefik_logo.svg">
+            </button>
+            <!--            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">-->
+            <!--              域名解析规则-->
+            <!--            </button>-->
+            <button class="btn btn-sm btn-link" (click)="openConfigs=true" style="float:right;margin-top: 10px">参数
+            </button>
+          </div>
+        </div>
       </div>
       <div class="card-block">
         <div class="clr-row">
-          <div class="clr-col-lg-4 clr-col-4">
+          <div class="clr-col-lg-4 clr-col-4" >
             <table>
               <tr>
-                <td>集群名称:</td>
+                <td>集群名称:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.name}}</td>
               </tr>
               <tr>
-                <td>Kubernetes版本:</td>
+                <td>版本:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.package}}</td>
               </tr>
               <tr *ngIf="currentCluster.plan">
-                <td>区域:</td>
+                <td>区域:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.region}}</td>
               </tr>
               <tr *ngIf="currentCluster.plan">
-                <td>可用区:</td>
+                <td>可用区:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.zones}}{{currentCluster.zone}}</td>
               </tr>
               <tr>
-                <td>部署模式:</td>
+                <td>部署模式:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{getDeployTypeComment(currentCluster.deploy_type)}}</td>
               </tr>
               <tr>
-                <td>网络插件:</td>
+                <td>网络插件:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.network_plugin}}</td>
               </tr>
               <tr>
-                <td>网络类型:</td>
+                <td>网络类型:&nbsp;&nbsp;&nbsp;</td>
                 <td
                   *ngIf="currentCluster.network_plugin == 'flannel' && currentCluster.configs['FLANNEL_BACKEND']">{{currentCluster.configs['FLANNEL_BACKEND']}}</td>
                 <td
@@ -134,7 +174,7 @@
                 </td>
               </tr>
               <tr>
-                <td>存储类型:</td>
+                <td>存储类型:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.persistent_storage}}
                   <span style="padding-left: 10px" *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
                   <a [href]="'http://ceph.'+currentCluster.configs['APP_DOMAIN']" target="_blank"><i
@@ -143,21 +183,20 @@
                 </td>
               </tr>
               <tr *ngIf="currentCluster.persistent_storage==='nfs'">
-                <td>存储:</td>
+                <td>存储:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.configs['nfs']}}</td>
               </tr>
               <tr *ngIf="currentCluster.persistent_storage==='external-ceph'">
-                <td>存储:</td>
+                <td>存储:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.configs['external-ceph']}}</td>
               </tr>
               <tr>
-                <td>创建时间:</td>
+                <td>创建时间:&nbsp;&nbsp;&nbsp;</td>
                 <td>{{currentCluster.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
               </tr>
             </table>
           </div>
-          <div style="float:left;margin-top: 0px;width: 1px;height: 240px; background: darkgray;"></div>
-          <div class="clr-col-lg-4 clr-col-4">
+          <div class="clr-col-lg-4 clr-col-4" style="border-left:1px solid #AAAAAA">
             <div class="clr-col-md-12" style="text-align: center">
               <h4>容量信息</h4> <br>
             </div>
@@ -203,8 +242,7 @@
               ></circle-progress>
             </div>
           </div>
-          <div style="float:left;margin-top: 0px;width: 1px;height: 240px; background: darkgray;"></div>
-          <div class="clr-col-lg-3 clr-col-3">
+          <div class="clr-col-lg-3 clr-col-3" style="border-left:1px solid #AAAAAA">
             <div class="clr-row">
               <div class="clr-col-md-12" style="text-align: center">
                 <h4>统计信息</h4> <br>
@@ -227,48 +265,6 @@
           </div>
         </div>
       </div>
-      <div class="card-footer">
-        <div class="clr-row">
-          <div class="clr-col-12">
-            <button class="btn btn-outline" (click)="onInstall()"
-                    [disabled]="currentCluster.status === 'RUNNING' || currentCluster.status == 'INSTALLING'">安装
-              <clr-icon shape="install"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="onUninstall()"
-                    [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING'">卸载
-              <clr-icon shape="uninstall"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING'">升级
-              <clr-icon shape="arrow"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="openChangeStatus=true">重置
-              <clr-icon shape="refresh"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING'">
-              Token
-              <clr-icon shape="download"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING'">
-              WebKubeCtl
-              <clr-icon shape="computer"></clr-icon>
-            </button>
-            <button class="btn btn-outline" (click)="toApp('grafana')" [disabled]="currentCluster.status !== 'RUNNING'">
-              监控
-              <img height="15px" width="15px" src="assets/images/grafana_icon.svg">
-            </button>
-            <button class="btn btn-outline" (click)="toApp('scope.weave')" [disabled]="currentCluster.status !== 'RUNNING'">
-              可视化
-              <img height="15px" width="15px" src="assets/images/traefik_logo.svg">
-            </button>
-            <!--            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">-->
-            <!--              域名解析规则-->
-            <!--            </button>-->
-            <button class="btn btn-sm btn-link" (click)="openConfigs=true" style="float:right;margin-top: 10px">详情
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
-
