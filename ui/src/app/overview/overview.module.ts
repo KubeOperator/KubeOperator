@@ -10,6 +10,7 @@ import {SharedModule} from '../shared/shared.module';
 import {WebkubectlComponent} from './webkubectl/webkubectl.component';
 import {AddWorkerComponent} from './add-worker/add-worker.component';
 import {RemoveWorkerComponent} from './remove-worker/remove-worker.component';
+import {NgCircleProgressModule} from "ng-circle-progress";
 
 @NgModule({
   declarations: [OverviewComponent, DescribeComponent, ClusterStatusComponent, UpgradeComponent, ScaleComponent,
@@ -17,7 +18,8 @@ import {RemoveWorkerComponent} from './remove-worker/remove-worker.component';
   imports: [
     CommonModule,
     CoreModule,
-    SharedModule
+    SharedModule,
+    NgCircleProgressModule
   ]
 })
 export class OverviewModule {

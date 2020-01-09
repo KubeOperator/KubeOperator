@@ -4,4 +4,10 @@ ul li b {
 table tr td:first-child {
   font-weight: bold
 }
+.count span {
+  float: right;
+}
 
+.type-face span {
+  color: #c1c5d3;
+}

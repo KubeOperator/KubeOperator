@@ -14,17 +14,17 @@
   shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{ default_label }}'"
 
 - name: prepare local-volume directory
-  file: name=/mnt/disk/{{ item }} state=directory
+  file: name={{ local_volume_path }}/{{ item }} state=directory
   delegate_to: "worker1.{{cluster_name}}.{{cluster_domain}}"
   with_items: "{{ local_volume_dirs }}"
 
 - name: chcon local volume directory
-  shell: "chcon -Rt svirt_sandbox_file_t /mnt/disk/{{ item }}"
+  shell: "chcon -Rt svirt_sandbox_file_t {{ local_volume_path }}/{{ item }}"
   delegate_to: "worker1.{{cluster_name}}.{{cluster_domain}}"
   with_items: "{{ local_volume_dirs }}"
 
-- name: chmod local volume directory
-  shell: "chmod 777 /mnt/disk/{{ item }}"
+- name: set local volume directory permissions
+  file: path={{ local_volume_path }}/{{ item }} state=directory mode=0755 recurse=yes
   delegate_to: "worker1.{{cluster_name}}.{{cluster_domain}}"
   with_items: "{{ local_volume_dirs }}"
 
