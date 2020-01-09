@@ -367,10 +367,14 @@
                name="prometheus" clrInput size=45
                required>
       </clr-input-container>
-      <clr-checkbox-wrapper *ngIf="package && package.meta.vars['gpu_install']">
-        <input type="checkbox" clrCheckbox name="gpu_install" [(ngModel)]="cluster.configs['gpu_install']"/>
-        <label>安装 GPU 套件</label>
-      </clr-checkbox-wrapper>
+      <clr-checkbox-container
+        *ngIf="getPackageVars()&&getPackageVars()['gpu_install'] && cluster.deploy_type==='MANUAL'">
+        <clr-checkbox-wrapper>
+          <input type="checkbox" clrCheckbox name="gpu_install" [(ngModel)]="cluster.configs['gpu_install']"/>
+          <label>安装 GPU 套件</label>
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+
     </form>
   </clr-wizard-page>
   <clr-wizard-page>
