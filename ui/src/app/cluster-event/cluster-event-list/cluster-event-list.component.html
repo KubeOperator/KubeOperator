@@ -35,7 +35,9 @@
     <clr-dg-cell style="cursor: pointer;color: #0079b8;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"
                  (click)="showDetail(item)">
       {{item.message}}</clr-dg-cell>
-    <clr-dg-cell [ngStyle]="{'color':item.type | statusColor }">{{item.type}}</clr-dg-cell>
+    <clr-dg-cell>
+            <span class="badge" [ngClass]="item.type | badgeClass">{{item.type}}</span>
+    </clr-dg-cell>
     <clr-dg-cell>{{item.component}}</clr-dg-cell>
     <clr-dg-cell>{{item.namespace}}</clr-dg-cell>
     <clr-dg-cell>{{item.reason}}</clr-dg-cell>

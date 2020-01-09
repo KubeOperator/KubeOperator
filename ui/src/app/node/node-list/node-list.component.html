@@ -15,19 +15,57 @@
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>IP</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
+  <clr-dg-column>CPU使用率(%)</clr-dg-column>
   <clr-dg-column>内存(MB)</clr-dg-column>
+  <clr-dg-column>内存使用率(%)</clr-dg-column>
   <clr-dg-column>操作系统</clr-dg-column>
-  <clr-dg-column>角色</clr-dg-column>
+<!--  <clr-dg-column>角色</clr-dg-column>-->
   <clr-dg-column>监控</clr-dg-column>
 
 
   <clr-dg-row *ngFor="let node of nodes" [clrDgItem]="node">
-    <clr-dg-cell style="cursor: pointer;color: #0079b8"><a (click)="openInfo(node)">{{node.name}}</a></clr-dg-cell>
-    <clr-dg-cell>{{node.ip}}</clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;color: #0079b8">
+      <span class="badge badge-info" *ngIf="node.roles[0]==='master'">M</span>
+      <span class="badge badge-success" *ngIf="node.roles[0]==='worker'">W</span>
+      <a (click)="openInfo(node)">{{node.name}}</a>
+    </clr-dg-cell>
+    <clr-dg-cell >{{node.ip}}</clr-dg-cell>
     <clr-dg-cell>{{node.host_cpu_core}}</clr-dg-cell>
+    <clr-dg-cell>
+      <circle-progress
+        [percent]="node.cpu_usage"
+        [radius]="15"
+        [outerStrokeWidth]="5"
+        [innerStrokeWidth]="5"
+        [space]="-5"
+        [outerStrokeColor]="node.cpu_usage | progressColor"
+        [innerStrokeColor]="'#A9A9A9'"
+        [subtitleFontSize]="'0'"
+        [titleFontSize]=10
+        [unitsFontSize]=10
+        [backgroundStrokeWidth]=-3
+        [showSubtitle]=false
+      ></circle-progress>
+    </clr-dg-cell>
     <clr-dg-cell>{{node.host_memory}}</clr-dg-cell>
+    <clr-dg-cell>
+      <circle-progress
+        [percent]="node.mem_usage"
+        [radius]="15"
+        [outerStrokeWidth]="5"
+        [innerStrokeWidth]="5"
+        [space]="-5"
+        [outerStrokeColor]="node.mem_usage | progressColor"
+        [innerStrokeColor]="'#A9A9A9'"
+        [subtitleFontSize]="'0'"
+        [titleFontSize]=10
+        [unitsFontSize]=10
+        [backgroundStrokeWidth]=-3
+        [showSubtitle]=false
+      ></circle-progress>
+    </clr-dg-cell>
     <clr-dg-cell>{{node.host_os}} {{node.host_os_version}}</clr-dg-cell>
-    <clr-dg-cell>{{node.roles}}</clr-dg-cell>
+<!--    <clr-dg-cell>{{node.roles}}</clr-dg-cell>-->
     <clr-dg-cell (click)="toGrafana()"><img src="assets/images/grafana.svg" width="15"></clr-dg-cell>
   </clr-dg-row>
 

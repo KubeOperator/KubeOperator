@@ -40,6 +40,7 @@ import { ClusterEventDetailComponent } from './cluster-event/cluster-event-detai
 import { CephComponent } from './ceph/ceph.component';
 import { CephListComponent } from './ceph/ceph-list/ceph-list.component';
 import { CephCreateComponent } from './ceph/ceph-create/ceph-create.component';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,13 @@ import { CephCreateComponent } from './ceph/ceph-create/ceph-create.component';
     NfsModule,
     StorageModule,
     SystemLogModule,
-    DnsModule
+    DnsModule,
+       NgCircleProgressModule.forRoot({
+      radius: 100,
+      outerStrokeWidth: 16,
+      innerStrokeWidth: 8,
+      animationDuration: 300,
+    })
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true}],
   bootstrap: [AppComponent]

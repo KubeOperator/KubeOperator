@@ -16,4 +16,6 @@ export class Node {
   status: string;
   conditions: Condition[] = [];
   info: {} = {};
+  cpu_usage: number;
+  mem_usage: number;
 }
