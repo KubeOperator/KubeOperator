@@ -10,7 +10,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: {{ storageClassName }}
   local:
-    path: /mnt/disk/f2c0
+    path: {{ local_volume_path }}/f2c0
   nodeAffinity:
     required:
       nodeSelectorTerms:
