@@ -91,19 +91,6 @@ class Host(BaseHost):
         health_check = HostHealthCheck(host=self)
         health_check.run()
 
-    def gather_gpu_info(self):
-        msg = get_gpu_device(self.to_ssh_config())
-        gpus = []
-        if msg:
-            host_gpus = str(msg).split('\n')
-            for hg in host_gpus:
-                g = GPU()
-                g.name = hg[hg.index("[") + 1:hg.index("]")]
-                g.save()
-                gpus.append(g)
-        self.gpus.set(gpus)
-        self.save()
-
     def gather_info(self, retry=1):
         try:
             logger.info("host: {}  gather host info ".format(self.name))
@@ -120,7 +107,6 @@ class Host(BaseHost):
                 self.cpu_core = int(cpu_cores) * int(cpu_count)
             self.os = facts["ansible_distribution"]
             self.os_version = facts["ansible_distribution_version"]
-            self.save()
             devices = facts["ansible_devices"]
             volumes = []
             for name in devices:
@@ -130,8 +116,17 @@ class Host(BaseHost):
                     volume.save()
                     volumes.append(volume)
             self.volumes.set(volumes)
+            msg = get_gpu_device(self.to_ssh_config())
+            gpus = []
+            if msg:
+                host_gpus = str(msg).split('\n')
+                for hg in host_gpus:
+                    g = GPU()
+                    g.name = hg[hg.index("[") + 1:hg.index("]")]
+                    g.save()
+                    gpus.append(g)
+            self.gpus.set(gpus)
             self.status = Host.HOST_STATUS_RUNNING
-            self.gather_gpu_info()
             self.save()
         except Exception as e:
             self.status = Host.HOST_STATUS_UNKNOWN

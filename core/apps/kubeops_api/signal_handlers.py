@@ -35,7 +35,6 @@ def on_node_save(sender, instance=None, created=False, **kwargs):
 def post_host_save(sender, instance=None, created=False, **kwargs):
     if created and instance.auto_gather_info:
         instance.full_host_credential()
-        instance.gather_info()
 
 
 def auto_lookup_packages():

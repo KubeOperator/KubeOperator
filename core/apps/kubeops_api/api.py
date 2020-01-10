@@ -36,7 +36,6 @@ from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
 
-
 logger = logging.getLogger('kubeops')
 
 
@@ -130,6 +129,8 @@ class HostViewSet(viewsets.ModelViewSet):
         if not connected:
             return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
         self.perform_create(serializer)
+        host = serializer.instance
+        host.gather_info(retry=1)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -479,6 +480,7 @@ class SettingView(APIView):
         Setting.set_settings(settings)
         return Response(settings, status=status.HTTP_201_CREATED)
 
+
 class ClusterStorageView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -492,15 +494,17 @@ class ClusterStorageView(APIView):
         response.write(json.dumps(result))
         return response
 
+
 class ClusterEventView(APIView):
 
     def post(self, request, *args, **kwargs):
         project_name = kwargs['project_name']
         params = request.data
-        result = log.es.search_event(params,project_name)
+        result = log.es.search_event(params, project_name)
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
+
 
 class ClusterNamespaceView(APIView):
 
@@ -515,6 +519,7 @@ class ClusterNamespaceView(APIView):
         response.write(json.dumps(result))
         return response
 
+
 class ClusterComponentView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -528,6 +533,7 @@ class ClusterComponentView(APIView):
         response.write(json.dumps(result))
         return response
 
+
 class CheckNodeView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -537,8 +543,9 @@ class CheckNodeView(APIView):
             return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         kubeops_api.cluster_monitor.delete_unused_node(cluster)
         response = HttpResponse(content_type='application/json')
-        response.write(json.dumps({'msg':'检查完毕'}))
+        response.write(json.dumps({'msg': '检查完毕'}))
         return response
+
 
 class SyncHostTimeView(APIView):
 
@@ -551,6 +558,7 @@ class SyncHostTimeView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
+
 
 class ClusterNamespaceView(APIView):
 
