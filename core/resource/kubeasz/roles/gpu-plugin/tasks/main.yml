@@ -1,10 +1,7 @@
-- block:
-    - name: copy nvidia-plugin
-      copy:
-        src: nvidia-plugin.yml
-        dest: /tmp/nvidia-plugin.yml
+- name: copy nvidia-plugin
+  template:
+    src: nvidia-plugin.yml.j2
+    dest: /tmp/nvidia-plugin.yml
 
-    - name: create nvidia-plugin
-      shell: "kubectl apply -f /tmp/nvidia-plugin.yml"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: true
+- name: create nvidia-plugin
+  shell: "kubectl apply -f /tmp/nvidia-plugin.yml"
