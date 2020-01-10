@@ -245,12 +245,6 @@ networks:
             value: Always
 
 storages:
-  - name: vSphere DataStore
-    deploy_type: ['AUTOMATIC',]
-    provider: ['vsphere']
-    vars:
-      storage_vsan_enabled: true
-
   - name: nfs
     deploy_type: ['AUTOMATIC','MANUAL']
     provider: ['vsphere','openstack']
@@ -258,27 +252,33 @@ storages:
       storage_nfs_enabled: true
       storage_nfs_provisioner_name: nfs-provisioner
 
+  - name: rook-ceph
+    deploy_type: ['MANUAL']
+    vars:
+      storage_rook_ceph_enabled: true
+
   - name: external-ceph
     deploy_type: ['AUTOMATIC','MANUAL']
     provider: ['vsphere','openstack']
     vars:
       storage_external_ceph_enabled: true
 
-  - name: Openstack Cinder
-    deploy_type: ['AUTOMATIC']
-    provider: ['openstack']
-    vars:
-      storage_cinder_enabled: true
-
-  - name: rook-ceph
-    deploy_type: ['MANUAL']
-    vars:
-      storage_rook_ceph_enabled: true
-
   - name: local-volume
     deploy_type: ['AUTOMATIC','MANUAL']
     vars:
       storage_local_volume_enabled: true
+
+  - name: vSphere DataStore
+    deploy_type: ['AUTOMATIC']
+    provider: ['vsphere']
+    vars:
+      storage_vsan_enabled: true
+
+  - name: openstack Cinder
+    deploy_type: ['AUTOMATIC']
+    provider: ['openstack']
+    vars:
+      storage_cinder_enabled: true
 
 public_config:
   - name: APP_DOMAIN

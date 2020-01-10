@@ -39,9 +39,9 @@
     - 'kubeapps_install is defined'
     - 'kubeapps_install'
 
-- name: 打开istio-galley 端口
+- name: 打开mongodb 端口
   firewalld:
-    port: "9901/tcp"
+    port: "27017/tcp"
     permanent: true
     state: enabled
   when:
