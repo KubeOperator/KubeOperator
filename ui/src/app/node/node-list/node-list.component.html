@@ -6,7 +6,7 @@
         <clr-icon shape="sync" size="16"></clr-icon>
         节点时间校验
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="checkNodes()">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="checkNodes()" [disabled]="currentCluster.status==='SCALING'">
         <clr-icon shape="sync" size="16"></clr-icon>
         节点状态同步
       </button>
