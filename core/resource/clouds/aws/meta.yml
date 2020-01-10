@@ -1,0 +1,5 @@
+name: AWS
+region:
+  vars:
+    provider: aws
+    ami_id: "ami_id"

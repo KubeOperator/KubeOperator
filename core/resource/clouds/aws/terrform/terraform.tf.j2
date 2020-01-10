@@ -1,0 +1,892 @@
+## {{ short_environment }} this param is short for environment 
+## FX: if environment is testing ,the short_environment is test 
+## if environment is sandbox, the short_environment is sand
+
+## {{ site }} just like 'fit2cloud.com'
+
+
+## ec2 status storage
+## this bucket should prepare first.
+terraform {
+  backend "s3" {
+    bucket  = "terraform-bucket-{{ short_environment }}"
+    key     = "terraform.tfstate"
+    region  = "cn-north-1"
+    encrypt = 1
+    profile = "{{ site }}"
+  }
+}
+
+## Prepare provider
+provider "aws" {
+  version     = "~> 2.0"
+  region      = "{{ region }}"
+  {% if assume_role == 'true' -%}
+  assume_role = {
+    role_arn     = "{{ aws_role_arn }}" 
+    session_name = "aws_{{ aws_account_name }}"
+  }
+  allowed_account_ids = ["{{ aws_account_id }}"]
+  {% endif -%}
+}
+
+## Aliyun provider China configurations because route53 is not good support in China
+provider "alicloud" {
+  region  = "{{ ali_region }}"
+}
+
+#######################   Variable declaration    ####################################
+
+######### if vpc exist we should get these params ########
+
+## String VPC 's identifier
+## {{ vpc_id }}
+
+## String aws route table gateway pulic identifiers
+## {{ public_route_table_ids }}
+
+## String aws route table private identifiers
+## {{ private_route_table_ids }}
+
+## String aws nat gateway public ips
+## {{ nat_cidr }}
+
+##########################################################
+
+## String, Full environment name (Fx 'testing' 'staging' 'production' 'sandbox')
+## {{ environment }}
+
+## Namae of the AWS key for ssh login always use public key
+## {{ key_name }}
+
+## The instance type the ASG should launch
+## {{ kubemaster_instance_type }} {{kubenode_instance_type }}
+
+## Instace profile, this is used by Kubernetes to access AWS to spawn EBS, Nodes, hostnames etc..
+## {{ instance_profile }}
+
+## String, White list for ips that can access (Fx '1.2.3.4/32,5.6.7.8/32,9.10.11.12/32')
+## {{ whitelist_ips }}
+
+## String, Class inter-domain routing range of IPv4 addresses
+## Fx "10.88.0.0/16"
+## {{ aws_cidr_block }}
+
+## String, comma separated list of EC2 availability zone ids
+## Fx "cn-north-1a,cn-north-1b"
+## {{ aws_availability_zones }}
+
+## Size of the root volume
+## {{ disksize }}
+
+## String, comma separated list of CIDR ranges for each public subnet (Public addressable).
+## The number of entries must match the number of availability_zones
+## Fx "10.88.1.0/24,10.88.2.0/24"
+#{{ public_subnets }}
+
+## String, comma separated list of CIDR ranges for each private subnet (Internal only).
+## The number of entries must match the number of availability_zones
+## Fx "10.88.10.0/24,10.88.11.0/24"
+## {{ private_subnets }}
+
+## Boolean should be true if you want to use private DNS within the VPC
+## {{ enable_dns_hostnames }}
+
+## Boolean should be true if you want to use private DNS within the VPC
+variable "enable_dns_support" {
+## {{ enable_dns_support }}
+
+## Boolean, should this VPC allow traffic between classic EC2 networks and this VPC
+## {{ enable_classiclink }}
+
+## Map for tags applied to the VPC resource
+## Usage: vpc_extra_tags = "${map("Name", "Some value")}" 
+## (optional) Extra AWS tags to be applied to created resources. default canbe ""
+## {{ vpc_extra_tags }}
+
+## Map for tags applied to the public subnet resource
+## Usage: public_subnet_extra_tags = "${map("Name", "Some value")}"
+## (optional) Extra AWS tags to be applied to the public subnet. default canbe ""
+## {{ public_subnet_extra_tags }}
+
+## Map for tags applied to the private subnet resource
+## Usage: private_subnet_extra_tags = "${map("Name", "Some value")}"
+## (optional) Extra AWS tags to be applied to the private subnet. default canbe ""
+## {{ private_subnet_extra_tags }}
+
+## String, comma separated array of application loadbalancers target group arns canbe ""
+## {{ alb_target_group_arns }}
+
+## Bastion SG id
+## {{ bastion_securitygroup_id }} this must required
+
+####################################################################################
+
+
+
+
+
+##################################### Create VPC ###################################
+{% if vpc_exists == 'false' -%}
+
+#
+# The AWS EC2 Virtual Private Cloud network
+#
+resource "aws_vpc" "stack" {
+  cidr_block = "{{ aws_cidr_block }}"
+  enable_dns_hostnames = "{{ enable_dns_hostnames }}"
+  enable_dns_support = "{{ enable_dns_support }}"
+  enable_classiclink = "{{ enable_classiclink }}"
+  tags = "${merge(map(
+      "Name", "{{ region }}.{{ short_environment }}.{{ site }}",
+      "Environment", "{{ environment }}"
+    ), {{ vpc_extra_tags }})}"
+}
+
+
+#
+# Control DHCP options (applies to all VPC subnets)
+#
+resource "aws_vpc_dhcp_options" "stack" {
+  domain_name = "{{ region }}.{{ short_environment }}.{{ site }} {{ short_environment }}.{{ site }}"
+  domain_name_servers = ["AmazonProvidedDNS"]
+  tags {
+    Name = "dhcp.{{ region }}.{{ short_environment }}.{{ site }}"
+    Environment = "{{ environment }}"
+  }
+}
+resource "aws_vpc_dhcp_options_association" "dns_resolver" {
+  vpc_id = "${aws_vpc.stack.id}"
+  dhcp_options_id = "${aws_vpc_dhcp_options.stack.id}"
+}
+
+
+#
+# Public (Auto-assigned public IP address) subnets
+#
+resource "aws_subnet" "public" {
+  vpc_id = "${aws_vpc.stack.id}"
+  cidr_block = "${element(split(",", {{ public_subnets }}), count.index)}"
+  availability_zone = "${element(split(",", {{ aws_availability_zones }}), count.index)}"
+  count = "${length(compact(split(",", {{ public_subnets }})))}"
+  tags = "${merge(map(
+      "Name", "public.{{ region }}.{{ short_environment }}.{{ site }}",
+      "Environment", "{{ environment }}"
+    ), {{ public_subnet_extra_tags }})}"
+  map_public_ip_on_launch = true
+}
+#
+# Routing configuratoin for public subnets (with EC2 Internet Gateway)
+#
+resource "aws_internet_gateway" "stack" {
+  vpc_id = "${aws_vpc.stack.id}"
+  tags {
+    Name = "{{ region }}.{{ short_environment }}.{{ site }}"
+  }
+}
+resource "aws_route_table" "public" {
+  vpc_id = "${aws_vpc.stack.id}"
+  tags {
+    Name = "public.{{ region }}.{{ short_environment }}.{{ site }}"
+    Environment = "{{ environment }}"
+  }
+}
+resource "aws_route" "public_internet_gateway" {
+  route_table_id = "${aws_route_table.public.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = "${aws_internet_gateway.stack.id}"
+}
+resource "aws_route_table_association" "public" {
+  count = "${length(compact(split(",", {{ public_subnets }})))}"
+  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  route_table_id = "${aws_route_table.public.id}"
+}
+
+#
+# Private (non-routable, no public IP address) subnets
+#
+resource "aws_subnet" "private" {
+  vpc_id = "${aws_vpc.stack.id}"
+  cidr_block = "${element(split(",", {{ private_subnets }}), count.index)}"
+  availability_zone = "${element(split(",", {{ aws_availability_zones }}), count.index)}"
+  count = "${length(compact(split(",", {{ private_subnets }})))}"
+  tags = "${merge(map(
+      "Name", "private.{{ region }}.{{ short_environment }}.{{ site }}",
+      "Environment", "{{ environment }}"
+    ), {{ private_subnet_extra_tags }})}"
+}
+#
+# Routing configuration for private subnets (with EC2 NAT Gateway)
+# Creates one NAT box for each VPC
+#
+resource "aws_route_table" "private_nat" {
+  count = "${length(split(",", {{ private_subnets }}))}"
+  vpc_id = "${aws_vpc.stack.id}"
+  tags {
+    Name = "private.{{ region }}.{{ short_environment }}.{{ site }}"
+    Environment = "{{ environment }}"
+  }
+}
+resource "aws_route_table_association" "private" {
+  count = "${length(split(",", {{ private_subnets }}))}"
+  subnet_id = "${element(aws_subnet.private.*.id, count.index)}"
+  route_table_id = "${element(aws_route_table.private_nat.*.id, count.index)}"
+}
+resource "aws_eip" "stack_nat" {
+  count = "${length(split(",", {{ private_subnets }}))}"
+  vpc = true
+}
+resource "aws_nat_gateway" "stack_nat" {
+  count = "${length(split(",", {{ private_subnets }}))}"
+  allocation_id = "${element(aws_eip.stack_nat.*.id, count.index)}"
+  subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
+  depends_on = ["aws_internet_gateway.stack"]
+}
+resource "aws_route" "nat_gateway" {
+  count = "${length(split(",", {{ private_subnets }}))}"
+  route_table_id = "${element(aws_route_table.private_nat.*.id, count.index)}"
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = "${element(aws_nat_gateway.stack_nat.*.id, count.index)}"
+
+  depends_on = ["aws_route_table.private_nat"]
+}
+
+variable "vpc_id" {
+  value = "${aws_vpc.stack.id}"
+}
+
+variable "public_route_table_ids" {
+  value = "${join(",", aws_route_table.public.*.id)}"
+}
+
+variable "private_route_table_ids" {
+  value = "${join(",", aws_route_table.private_nat.*.id)}"
+}
+
+variable "nat-cidr" {
+  value = "${join(",",aws_nat_gateway.stack_nat.*.public_ip)}"
+}
+{% else -%}
+
+variable "vpc_id" {
+  value = "{{ vpc_id }}"
+}
+
+variable "public_route_table_ids" {
+  value = "{{ public_route_table_ids }}"
+}
+
+variable "private_route_table_ids" {
+  value = "{{ private_route_table_ids }}"
+}
+
+variable "nat-cidr" {
+  value = "{{ nat_cidr }}"
+}
+{% endif -%}
+
+############################################################################################
+
+
+
+
+
+########################## Create Kubernetes node security group ###########################
+
+resource "aws_security_group" "kubernetes_node" {
+  name = "kubernetes_node-{{ short_environment }}"
+  description = "Group attached to all kubernetes nodes."
+  vpc_id = "${var.vpc_id}"
+
+  tags {
+    Name = "kubernetes_node"
+    Description = "Group attached to all kubernetes nodes."
+    Warning = "Managed by terraform, do not edit"
+    KubernetesCluster = "{{ short_environment }}"
+  }
+}
+
+##
+## permits traffic to k8s_node:22 from bastion
+##
+resource "aws_security_group_rule" "k8s-node-ssh-from-bastion" {
+  source_security_group_id = "{{ bastion_securitygroup_id }}"
+  security_group_id = "${aws_security_group.kubernetes_node.id}"
+
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+}
+
+##
+## permits traffic to k8s_node:0-65535 from vpc
+##
+resource "aws_security_group_rule" "kubernetes-node-access-from-vpc" {
+  type = "ingress"
+  from_port = 0
+  to_port = 65535
+  protocol = "-1"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.kubernetes_node.id}"
+}
+
+##
+## permits traffic from k8s_node to the world
+##
+resource "aws_security_group_rule" "outbound_all" {
+  type = "egress"
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+  cidr_blocks = [
+    "0.0.0.0/0"
+  ]
+
+  security_group_id = "${aws_security_group.kubernetes_node.id}"
+}
+
+variable "kubernetes_node_sg_id" {
+  value = "${aws_security_group.kubernetes_node.id}"
+}
+
+########################################################################################################
+
+
+
+
+
+
+#####################################  Create KubernetesCluster ########################################
+#
+# Public ELB
+#
+resource "aws_elb" "public_elb" {
+  name = "k8s-external-{{ short_environment }}-elb"
+
+  subnets = ["${split(",", {{ public_subnets }})}"]
+
+  security_groups = ["${aws_security_group.kubernetes-master-elb.id}"]
+
+  idle_timeout = 3600
+
+  listener {
+    instance_port     = 6443
+    instance_protocol = "tcp"
+    lb_port           = 443
+    lb_protocol       = "tcp"
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTPS:6443/healthz"
+    interval            = 30
+  }
+
+  cross_zone_load_balancing = true
+}
+
+resource "aws_security_group" "kubernetes-master-elb" {
+  name        = "kubernetes-external-elb-{{ short_environment }}"
+  description = "Allow access to the Kubernets ELB"
+  vpc_id      = "${var.vpc_id}"
+
+  tags {
+    KubernetesCluster = "{{ short_environment }}"
+    Name              = "kubernetes-master-{{ short_environment }}-elb"
+    Description       = "Allow access to the Kubernets ELB"
+    Warning           = "Managed by terraform, do not edit"
+  }
+}
+
+# Allow outgoing access to port 6443 in the VPC. This gives the
+# ELB access to the master nodes
+resource "aws_security_group_rule" "allow_acces_from_elb_to_world" {
+  type      = "egress"
+  from_port = 6443
+  to_port   = 6443
+  protocol  = "tcp"
+  cidr_blocks = [
+  "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.kubernetes-master-elb.id}"
+}
+
+# Allow incoming access on port 443 from a whitelist of IP's
+resource "aws_security_group_rule" "allow_access_to_elb" {
+  type      = "ingress"
+  from_port = 443
+  to_port   = 443
+  protocol  = "tcp"
+  cidr_blocks = [
+  "${split(",", {{ whitelist_ips }})}"]
+
+  security_group_id = "${aws_security_group.kubernetes-master-elb.id}"
+}
+
+# Public CNAME that points to the ELB auto generated name
+
+resource "alicloud_dns_record" "kubernetes-master-pubilc" {
+  count       = "1"
+  type        = "CNAME"
+  ttl         = "120"
+  name        = "{{ site }}"
+  host_record = "kubernetes-master.{{ region }}.{{ short_environment }}"
+  value       = "${aws_elb.public_elb.dns_name}"
+}
+
+#
+# Internal ELB
+#
+resource "aws_elb" "internal_elb" {
+  name = "k8s-internal-{{ short_environment }}-elb"
+
+  subnets = ["${split(",", ${element( split(",", {{ public_subnets }}) , 0)})}"]
+
+  security_groups = ["${aws_security_group.sg_internal_elb.id}"]
+
+  idle_timeout = 3600
+
+  internal = true
+    listener {
+    instance_port     = 22
+    instance_protocol = "tcp"
+    lb_port           = 22
+    lb_protocol       = "tcp"
+  }
+  listener {
+    instance_port     = 6443
+    instance_protocol = "tcp"
+    lb_port           = 443
+    lb_protocol       = "tcp"
+  }
+  listener {
+    instance_port     = 8080
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+  cross_zone_load_balancing = true
+}
+
+resource "aws_security_group" "sg_internal_elb" {
+  name = "kubernetes-internal-elb-{{ short_environment }}"
+  description = "Allow internal access to the Kubernets masters"
+  vpc_id = "${var.vpc_id}"
+
+  tags {
+    KubernetesCluster = "{{ short_environment }}"
+    Name = "kubernetes-master-elb"
+    Description = "Allow internal access to the Kubernets masters"
+    Warning = "Managed by terraform, do not edit"
+  }
+}
+
+# Allow access from ELB to the master nodes
+resource "aws_security_group_rule" "https_access_to_master_in_vpc" {
+  type = "egress"
+  from_port = 6443
+  to_port = 6443
+  protocol = "tcp"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.sg_internal_elb.id}"
+}
+
+# Allow access from ELB to the master nodes
+resource "aws_security_group_rule" "http_access_to_master_in_vpc" {
+  type = "egress"
+  from_port = 8080
+  to_port = 8080
+  protocol = "tcp"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.sg_internal_elb.id}"
+}
+
+# Allow incoming access on port 443, from the VPC since this
+# is an internal ELB
+resource "aws_security_group_rule" "incoming_access" {
+  type = "ingress"
+  from_port = 443
+  to_port = 443
+  protocol = "tcp"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.sg_internal_elb.id}"
+}
+
+resource "aws_security_group_rule" "http_to-elb-from-vpc" {
+  type = "ingress"
+  from_port = 80
+  to_port = 80
+  protocol = "tcp"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.sg_internal_elb.id}"
+}
+
+# Private CNAME that points to the ELB auto generated name
+resource "alicloud_dns_record" "kubernetes-master" {
+  count       = "1"
+  type        = "CNAME"
+  ttl         = "120"
+  name        = "{{ site }}"
+  host_record = "kubernetes-master-internal.{{ region }}.{{ short_environment }}"
+  value       = "${aws_elb.internal_elb.dns_name}"
+}
+
+## user-data for use in Cloud-Init
+data "template_file" "kubemaster-cloud-init" {
+  template = "${file("${path.module}/user-data/kubemaster-config.yaml")}"
+
+  vars {
+    HOSTNAME = "kube-master"
+    REGION_DNS = "{{ region }}.{{ short_environment }}.{{ site }}"
+  }
+}
+
+##
+## AWS Auto Scaling Group
+##
+resource "aws_autoscaling_group" "kubemaster_application_server_asg" {
+  name = "kube-master-asg.{{ region }}.{{ short_environment }}.{{ site }}"
+  max_size = "{{ kubemaster_asg_max }}"
+  min_size = "{{ kubemaster_asg_min }}"
+  # Auto Scaling Group desired number of instances
+  desired_capacity = "1"
+  force_delete = true
+  launch_configuration = "${aws_launch_configuration.kubemaster_application_server_lc.name}"
+  # Control how health checking is done
+  health_check_type = "EC2"
+  # Duration in seconds after instance comes into service before checking health
+  health_check_grace_period = 60
+  # Duration in seconds between each scaling activity
+  default_cooldown = 60
+  # disable_api_termination = false
+  termination_policies = [
+    "OldestInstance",
+    "Default"]
+  # A list of subnet IDs to launch resources into
+  vpc_zone_identifier = [
+    "${element( split(",", {{ public_subnets }}) , 0)}"]
+
+  # A list of loadbalancers
+  load_balancers = ["${aws_elb.public_elb.id}", "${aws_elb.internal_elb.id}"]
+
+  # A list of application loadbalancers target group arns
+  target_group_arns = [
+    "${compact(split(",", {{ alb_target_group_arns }}))}"]
+  tag {
+    key = "Name"
+    value = "kube-master-asg.{{ region }}.{{ short_environment }}.{{ site }}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "Purpose"
+    value = "Application server group for Kubernetes"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "Environment"
+    value = "{{ environment }}"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "Role"
+    value = "kube-master"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "Stackname"
+    value = "{{ short_environment }}"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "kubernetes.io/cluster/{{ short_environment }}"
+    value = "owned"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "os_release"
+    value = "centos"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "Warning"
+    value = "Managed by terraform, do not edit"
+    # We can have max 10 tags, and the ASG will add one, so we have to remove one
+    # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
+    propagate_at_launch = false
+  }
+}
+
+##
+## AWS Auto Scaling Group launch configuration
+##
+resource "aws_launch_configuration" "kubemaster_application_server_lc" {
+  name_prefix = "kube-master-lc.{{ region }}.{{ short_environment }}.{{ site }}"
+  image_id = "{{ ami_id }}"
+  instance_type = "{{ kubemaster_instance_type }}"
+
+  security_groups = [
+    "${aws_security_group.kubernetes-master.id}"]
+  iam_instance_profile = "{{ instance_profile }}"
+  user_data = "${data.template_file.kubemaster-cloud-init.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  key_name = "{{ key_name }}"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "{{ disksize }}"
+    delete_on_termination = "true"
+  }
+}
+
+output "name" {
+  value = "${aws_autoscaling_group.kubemaster_application_server_asg.name}"
+}
+
+resource "aws_security_group_rule" "kubernetes-master-ssh-from-bastion" {
+  source_security_group_id = "{{ bastion_securitygroup_id }}"
+  security_group_id = "${aws_security_group.kubernetes-master.id}"
+
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+}
+
+resource "aws_security_group_rule" "kubernetes-master-api-access-from-elb" {
+  type = "ingress"
+  from_port = 6443
+  to_port = 6443
+  protocol = "tcp"
+  source_security_group_id = "${aws_security_group.kubernetes-master-elb.id}"
+  security_group_id = "${aws_security_group.kubernetes-master.id}"
+}
+
+resource "aws_security_group_rule" "kubernetes-master-api-access-from-internal-elb" {
+  type = "ingress"
+  from_port = 8080
+  to_port = 8080
+  protocol = "tcp"
+  source_security_group_id = "${aws_security_group.sg_internal_elb.id}"
+  security_group_id = "${aws_security_group.kubernetes-master.id}"
+}
+
+resource "aws_security_group_rule" "kubernetes-master-access-from-vpc" {
+  type = "ingress"
+  from_port = 0
+  to_port = 65535
+  protocol = "-1"
+  cidr_blocks = [
+    "${split(",", {{ aws_cidr_block }})}"]
+
+  security_group_id = "${aws_security_group.kubernetes-master.id}"
+}
+
+resource "aws_security_group_rule" "kubernetes-master-outbound-all" {
+  type = "egress"
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+  cidr_blocks = [
+    "0.0.0.0/0"
+  ]
+
+  security_group_id = "${aws_security_group.kubernetes-master.id}"
+}
+
+resource "aws_security_group" "kubernetes-master" {
+  name = "kubernetes-master-{{ short_environment }}"
+  description = "Allow access from office and everything locally"
+  vpc_id = "${var.vpc_id}"
+
+  tags {
+    KubernetesCluster = "{{ short_environment }}"
+    Name = "kubernetes-master"
+    Description = "Allow access from office and everything locally"
+    Warning = "Managed by terraform, do not edit"
+  }
+}
+
+###############################################################################################
+
+
+
+############################ Create Kubernetes node ###########################################
+
+variable "availability_zones" {
+  type   = "list"
+  default = "${split(",", {{ aws_availability_zones }})}"
+}
+
+variable "subnets" {
+  type   = "list"
+  default = "${split(",", {{ private_subnets }})}"
+}
+
+# The minumum size of each ASG
+# Fx: if have 3 zones you should define it like this 1,1,1
+variable "asg_min" {
+  type = "list"
+  default = "${split(",", {{ kubenode_asg_min }})}"
+}
+
+# The maximum size of each ASG
+variable "asg_max" {
+  default = {{ kubenode_asg_max }}
+}
+
+# The number of instances that should be running for each ASG
+# Fx: if have 3 zones you should define it like this 1,1,1
+variable "desired_capacity" {
+  type = "list"
+  default = "${split(",", {{ kubenode_desired_capacity }})}"
+}
+
+## user-data for use in Cloud-Init
+data "template_file" "kubenode-cloud-init" {
+  template = "${file("${path.module}/user-data/kubenode-config.yaml")}"
+
+  vars {
+    HOSTNAME = "kube-node"
+    REGION_DNS = "{{ region }}.{{ short_environment }}.{{ site }}"
+  }
+}
+
+##
+## AWS Auto Scaling Group
+##
+resource "aws_autoscaling_group" "kubernetes_node_asg" {
+  count                     = "${length(var.subnets)}"
+  name                      = "kubenode-${substr(var.availability_zones[count.index], -2, 2)}-asg.{{ region }}.{{ short_environment }}.{{ site }}"
+  max_size                  = "${var.asg_max}"
+  min_size                  = "${var.asg_min[count.index]}"
+  desired_capacity          = "${var.desired_capacity[count.index]}"
+  force_delete              = true
+  launch_configuration      = "${aws_launch_configuration.kubernetes_node_lc.name}"
+  health_check_type         = "EC2"
+  health_check_grace_period = 120
+  default_cooldown          = 60
+  enabled_metrics           = [
+    "GroupTotalInstances", 
+    "GroupPendingInstances",
+    "GroupTerminatingInstances",
+    "GroupDesiredCapacity", 
+    "GroupInServiceInstances", 
+    "GroupMinSize", 
+    "GroupMaxSize"
+  ]
+
+  termination_policies = [
+    "OldestInstance",
+    "Default"
+  ]
+
+  vpc_zone_identifier = ["${var.subnets[count.index]}"]
+
+  lifecycle {
+    ignore_changes = ["desired_capacity"]
+  }
+
+  target_group_arns = [
+    "${compact(split(",", {{ alb_target_group_arns }}))}"
+  ]
+
+  tag {
+    key                 = "Name"
+    value               = "kube-node$-${substr(var.availability_zones[count.index], -2, 2)}-asg.${var.region_dns}"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Purpose"
+    value               = "Application server group for Kubernetes node"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Environment"
+    value               = "{{ environment }}"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Role"
+    value               = "kube-node"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "k8s.io/cluster-autoscaler/enabled"
+    value               = "yes"
+    propagate_at_launch = false
+  }
+  tag {
+    key                 = "kubernetes.io/cluster/{{ environment }}"
+    value               = "owned"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "kubernetes.io/cluster/{{ short_environment }}"
+    value               = "true"
+    propagate_at_launch = false
+  }
+  tag {
+    key = "os_release"
+    value = "centos"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Warning"
+    value               = "Managed by terraform, do not edit"
+    # We can have max 50 tags, and the ASG will add one, so we have to remove one
+    # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#tag-restrictions
+    propagate_at_launch = false
+  }
+}
+
+##
+## AWS Auto Scaling Group launch configuration
+##
+resource "aws_launch_configuration" "kubernetes_node_lc" {
+  name_prefix   = "kube-node-lc.{{ region }}.{{ short_environment }}.{{ site }}"
+  image_id      = "{{ ami_id }}"
+  instance_type = "{{ kubenode_instance_type}}"
+
+  security_groups = [
+    "${var.kubernetes_node_sg_id}",
+    "${var.security_groups}"
+  ]
+
+  iam_instance_profile = "{{ instance_profile }}"
+  user_data            = "${data.template_file.kubenode-cloud-init.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  key_name = "{{ key_name }}"
+
+  root_block_device {
+    volume_type           = "gp2"
+    volume_size           = "{{ disksize }}"
+    delete_on_termination = "true"
+  }
+}
+
+output "name" {
+  value = "${aws_autoscaling_group.kubernetes_node_asg.*.name}"
+}
