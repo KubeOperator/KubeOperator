@@ -169,7 +169,7 @@ apps:
     display_on:
 
   - name: Weave Scope
-    logo: weave-logo.svg
+    logo: weave-logo.png
     url_key: scope
     describe: "实时交互展示和管理 Kubernetes 集群、主机、Pod 和容器"
     display_on:
