@@ -50,12 +50,12 @@
  
 - [ ] 用户体系和权限管理；
 - [ ] 开放 REST API;
+- [ ] 消息中心；
 
  ##  v3.0 （计划中）
  
 - [ ] K8s 集群 API Server 的 高可用（ VIP ） 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 支持消息中心；
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
