@@ -5,7 +5,6 @@
     state: present
     exclusive: no
 
-
 - name: 忽略 ssh 登陆 key 校验
   lineinfile:
     path: /etc/ssh/sshd_config
