@@ -59,8 +59,8 @@ provider "alicloud" {
 ## Namae of the AWS key for ssh login always use public key
 ## {{ key_name }}
 
-## The instance type the ASG should launch
-## {{ kubemaster_instance_type }} {{kubenode_instance_type }}
+## The instance type should launch
+## {{ kubemaster_instance_type }} {{kubenode_instance_type }} {{ bastion_instance_type }}
 
 ## Instace profile, this is used by Kubernetes to access AWS to spawn EBS, Nodes, hostnames etc..
 ## {{ instance_profile }}
@@ -118,7 +118,7 @@ variable "enable_dns_support" {
 ## {{ alb_target_group_arns }}
 
 ## Bastion SG id
-## {{ bastion_securitygroup_id }} this must required
+## {{ bastion_securitygroup_id }} this must required if not exist should create it
 
 ####################################################################################
 
@@ -291,6 +291,139 @@ variable "nat-cidr" {
 
 
 
+######################### Create Bastion and security group ################################
+{% if bastion_exists == 'true' -%}
+variable "bastion_securitygroup_id" {
+  value = "{{ bastion_securitygroup_id }}"
+}
+{% else -%}
+resource "aws_security_group" "bastion_host" {
+  name        = "bastion_host"
+  description = "SG rules for bastion host"
+  vpc_id      = "${var.vpc_id}"
+
+  tags {
+    Name        = "bastion_host.{{ environment }}"
+    Description = "SG rules for bastion host"
+    Warning     = "Managed by terraform, do not edit"
+  }
+}
+variable "bastion_securitygroup_id" {
+  value = "${aws_security_group.bastion_host.id}"
+}
+#
+# ICMP from all VPC
+#
+resource "aws_security_group_rule" "incoming_icmp" {
+  security_group_id = "${var.target_security_group_id}"
+
+  type = "ingress"
+  from_port = -1
+  to_port = -1
+  protocol = "icmp"
+
+  cidr_blocks = ["${split(",", {{ aws_cidr_block }})}"]
+}
+
+#
+# ICMP from clients
+#
+resource "aws_security_group_rule" "incoming_icmp_client" {
+  security_group_id = "${aws_security_group.bastion_host.id}"
+
+  type = "ingress"
+  from_port = -1
+  to_port = -1
+  protocol = "icmp"
+
+  cidr_blocks = ["${split(",", {{ whitelist_ips }})}"]
+}
+
+#
+# SSH (22) access from bastion host
+resource "aws_security_group_rule" "ssh_bastion_host" {
+  security_group_id = "${aws_security_group.bastion_host.id}"
+
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+
+  cidr_blocks = ["${split(",", var.whitelist_ips)}"]
+}
+
+
+##
+## Outbound traffic (egress)
+##
+resource "aws_security_group_rule" "outbound_all" {
+  security_group_id = "${aws_security_group.bastion_host.id}"
+
+  type = "egress"
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+##
+## AWS Instance template
+##
+
+## user-data for use in Cloud-Init
+data "template_file" "cloud-init-bastion-host" {
+  template = "${file("${path.module}/user-data/bastion.yaml")}"
+
+  vars {
+    HOSTNAME = "bastion"
+    REGION_DNS = "{{ region }}.{{ short_environment }}.{{ site }}"
+  }
+}
+
+##
+## AWS instances
+resource "aws_instance" "bastion-host" {
+
+  instance_type = "{{ bastion_instance_type }}"
+  ami = "{{ ami_id }}"
+  vpc_security_group_ids = [ "${split(",", var.bastion_securitygroup_id)}" ]
+  subnet_id = "${element(split(",", {{ public_subnets }}), count.index)}"
+  disable_api_termination = "true"
+  key_name = "{{ key_name }}"
+  lifecycle {
+    ignore_changes = [ "user_data", "ami", "ebs_optimized", "root_block_device" ]
+  }
+  tags {
+    Name = "bastion.{{ region }}.{{ short_environment }}.{{ site }}"
+    Purpose = "Bastion host for allow engineers and operations access to internal network"
+    Environment = "{{ environment }}"
+    Role = "bastion"
+    Warning = "Managed by terraform, do not edit"
+  }
+
+  volume_tags {
+    Name = "bastion.{{ region }}.{{ short_environment }}.{{ site }}"
+    Purpose = "Bastion host for allow engineers and operations access to internal network"
+    Environment = "{{ environment }}"
+    Role = "bastion"
+    Warning = "Managed by terraform, do not edit"
+  }
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "40"
+    delete_on_termination = "true"
+  }
+
+  user_data = "${data.template_file.cloud-init-bastion-host.rendered}"
+}
+
+{% endif -%}
+
+
+
+
 ########################## Create Kubernetes node security group ###########################
 
 resource "aws_security_group" "kubernetes_node" {
@@ -310,7 +443,7 @@ resource "aws_security_group" "kubernetes_node" {
 ## permits traffic to k8s_node:22 from bastion
 ##
 resource "aws_security_group_rule" "k8s-node-ssh-from-bastion" {
-  source_security_group_id = "{{ bastion_securitygroup_id }}"
+  source_security_group_id = "${var.bastion_securitygroup_id}"
   security_group_id = "${aws_security_group.kubernetes_node.id}"
 
   type = "ingress"
@@ -662,7 +795,7 @@ output "name" {
 }
 
 resource "aws_security_group_rule" "kubernetes-master-ssh-from-bastion" {
-  source_security_group_id = "{{ bastion_securitygroup_id }}"
+  source_security_group_id = "${var.bastion_securitygroup_id}"
   security_group_id = "${aws_security_group.kubernetes-master.id}"
 
   type = "ingress"

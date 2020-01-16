@@ -1,0 +1,12 @@
+#cloud-config
+
+# This cloud init file is meant to be used by instances with no disks
+preserve_hostname: true
+manage_etc_hosts: false
+
+bootcmd:
+ - "echo ${HOSTNAME}-$INSTANCE_ID > /etc/hostname; hostname -F /etc/hostname"
+ - "sed -i -e '/^127.0.0.1/d' /etc/hosts; echo 127.0.0.1 ${HOSTNAME}-$INSTANCE_ID.${REGION_DNS} ${HOSTNAME}-$INSTANCE_ID localhost >> /etc/hosts"
+ - "echo 'root:KubeOperator@2019' | chpasswd"
+# Don't print the new SSH keys on the console
+no_ssh_fingerprints: true
