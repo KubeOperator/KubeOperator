@@ -43,20 +43,19 @@
  ## v2.3 （进行中，2019.01.31 发布）
 
 - [ ] KubeApps Plus 应用商店；
-- [ ] GPU 支持
-- [ ] 支持 Local Persistent Volumes
+- [ ] GPU 支持;
+- [ ] 支持 Local Persistent Volumes;
 
  ##  v2.4 （计划中）
  
-- [ ] 支持用户和权限管理；
-- [ ] AD / LDAP 支持
-- [ ] 开放 REST API
-- [ ] K8s 集群 API Server 的 高可用（ VIP ）
+- [ ] 用户体系和权限；
+- [ ] 开放 REST API;
+- [ ] 消息中心；
 
  ##  v3.0 （计划中）
  
+- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 支持消息中心；
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
@@ -67,6 +66,3 @@
 - [ ] 支持 CoreOS
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller
 - [ ] 已有集群导入
-
-
-
