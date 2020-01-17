@@ -180,6 +180,13 @@
     <ng-template clrPageTitle>配置网络</ng-template>
     <form #networkForm='ngForm' class="clr-form clr-form-compact">
       <clr-select-container>
+        <label>kube-proxy 运行模式</label>
+        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>
+          <option value="iptables" selected>iptables</option>
+          <option value="ipvs">ipvs(试验功能)</option>
+        </select>
+      </clr-select-container>
+      <clr-select-container>
         <label>网络插件</label>
         <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()" required>
           <option [value]="">请选择</option>
@@ -354,13 +361,6 @@
                name="docker_addr" clrInput size=45
                required>
       </clr-input-container>
-      <clr-select-container>
-        <label>kube-proxy 运行模式</label>
-        <select clrSelect name="kubeproxy" [(ngModel)]="cluster.configs['PROXY_MODE']" required>
-          <option value="iptables" selected>iptables</option>
-          <option value="ipvs">ipvs</option>
-        </select>
-      </clr-select-container>
       <clr-input-container>
         <label>Prometheus 监控数据保留时长(单位: 天)</label>
         <input id="prometheus" type="number" [(ngModel)]="cluster.configs['PROMETHEUS_RETENTION']"
