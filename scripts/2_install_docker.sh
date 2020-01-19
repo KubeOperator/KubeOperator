@@ -55,7 +55,7 @@ function install_docker-compose {
     if [[ -f "${OFFLINE_DOCKER_DIR}/docker-compose" ]];then
         install_docker-compose_offline
     else
-        install_docker-conpose_online
+        install_docker-compose_online
     fi
 }
 
