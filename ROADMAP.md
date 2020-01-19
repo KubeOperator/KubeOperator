@@ -42,9 +42,9 @@
 
  ## v2.3 （已发布）
 
-- [ ] KubeApps Plus 应用商店；
-- [ ] GPU 支持;
-- [ ] 支持 Local Persistent Volumes;
+- [x] KubeApps Plus 应用商店；
+- [x] GPU 支持;
+- [x] 支持 Local Persistent Volumes;
 
  ##  v2.4 （计划中，20120.02.28 发布）
  
