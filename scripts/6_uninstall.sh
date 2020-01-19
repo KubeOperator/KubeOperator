@@ -11,15 +11,28 @@ function remove_dir() {
 }
 function remove_service() {
     echo -e "停止 KubeOperator 服务进程"
-    systemctl stop kubeops
-    systemctl disable kubeops
-    rm -rf /etc/systemd/system/kubeops.service
+    if [ -a /etc/systemd/system/kubeops.serviced ] ;then
+        systemctl stop kubeops 2&> /dev/null
+        systemctl disable kubeops 2&> /dev/null
+        rm -rf /etc/systemd/system/kubeops.serviced
+    fi
+    if [ -a /opt/kubeoperator/kubeopsctl.sh ]; then
+        cd /opt/kubeoperator && docker-compose down -v 
+        docker ps |grep -i nexus|awk '{print $1}'|xargs docker rm -f 2&> /dev/null
+    else
+        read -p "强力卸载将会完全清除主机上的所有容器，是否继续： y/n : " yn
+        if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
+            docker stop  $(docker ps -q -a)
+            docker rm -f -v $(docker ps -q -a) 2&> /dev/null
+        else
+            exit 0
+        fi
+    fi
 }
 
 function remove_images() {
-    echo -e "删除 docker 镜像"
-    docker ps -a | grep 'nexus-helm' | awk  '{print $1}'|xargs docker rm -f 2&> /dev/null
-    docker images|grep -v IMAGE|awk '{print $3}'|xargs docker rmi 2&> /dev/null
+    echo -e "清理镜像中..."
+    docker images -q|xargs docker rmi -f 2&> /dev/null
 }
 
 function main() {
