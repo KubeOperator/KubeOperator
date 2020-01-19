@@ -138,7 +138,7 @@ apps:
     describe: "Kubernetes 管理控制台"
     display_on:
 
-  - name: Kubeapps
+  - name: Kubeapps Plus
     logo: kubeapps.png
     url_key: kubeapps-plus
     describe: "应用市场,一键离线部署常见应用"

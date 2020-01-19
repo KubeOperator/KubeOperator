@@ -501,6 +501,10 @@ mongodb:
   ##
   securityContext:
     enabled: false
+  ## Node selector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  nodeSelector:
+    nodetype: persistent
   ## MongoDB containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##

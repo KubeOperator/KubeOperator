@@ -33,6 +33,8 @@ spec:
         app: chartmuseum
       name: chartmuseum
     spec:
+      nodeSelector:
+        nodetype: persistent
       containers:
       - args:
         - --port=8080

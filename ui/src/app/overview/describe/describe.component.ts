@@ -180,7 +180,7 @@ export class DescribeComponent implements OnInit {
       if (max_pod === undefined) {
         max_pod = 110;
       }
-      this.containerPercent = this.containerCount / max_pod * 100;
+      this.containerPercent = this.containerCount / (max_pod * this.nodeList.length) * 100;
       this.podCount = data['pods'].length;
       this.namespaceCount = data['namespaces'].length;
       this.deploymentCount = data['deployments'].length;

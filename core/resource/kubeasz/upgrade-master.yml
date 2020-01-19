@@ -5,6 +5,7 @@
 - hosts: master
   serial: 1
   roles:
+    - ssh
     - upgrade-helm
     - upgrade-master
 
