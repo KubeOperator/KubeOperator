@@ -8,10 +8,13 @@
 
 - name: deploy local-volume storageclass
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/local-volume/storageclass.yaml"
+  run_once: true
   ignore_errors: true
 
 - name: set default storageClass
   shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{ default_label }}'"
+  run_once: true
+  ignore_errors: true
 
 - name: prepare local-volume directory
   file: name={{ local_volume_path }}/{{ item }} state=directory
@@ -36,3 +39,5 @@
 
 - name: create local volume pv
   shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/storage/local-volume/"
+  run_once: true
+  ignore_errors: true
