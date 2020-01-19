@@ -14,7 +14,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==2.3.1
 decorator==4.3.0
-Django==2.1.15
+Django==2.2.9
 django-celery-beat==1.1.1
 django-filter==2.0.0
 django-redis-cache==1.7.1
