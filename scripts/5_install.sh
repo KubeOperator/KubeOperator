@@ -6,6 +6,7 @@ function success(){
     echo -e "\033[31m kubeOperator 安装成功!\n 默认登陆信息: \033[0m"  
     echo -e "\033[32m username: admin \033[0m"  
     echo -e "\033[32m password: kubeoperator@admin123 \033[0m"  
+    echo -e "\033[33m [系统初始化中，请耐心等待5分钟再进行登录] \033[0m"
 }
 
 function start_service(){
