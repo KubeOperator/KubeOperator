@@ -35,7 +35,7 @@
 
         <clr-select-container>
           <label>版本 :</label>
-          <select clrSelect [(ngModel)]="item.vars['storage_nfs_server_version']" name="name" required>
+          <select clrSelect [(ngModel)]="item.vars['storage_nfs_server_version']" name="version" required>
             <option value="3">3</option>
             <option value="4">4</option>
           </select>
@@ -43,7 +43,7 @@
 
         <clr-input-container>
           <label>挂载路径 :</label>
-          <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server_path']" name="name" required>
+          <input clrInput size=45 type="text" [(ngModel)]="item.vars['storage_nfs_server_path']" name="path" required>
         </clr-input-container>
       </div>
       <div *ngIf="item.vars['option'] === 'new'">
