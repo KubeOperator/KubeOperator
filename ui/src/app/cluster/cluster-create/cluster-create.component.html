@@ -20,10 +20,10 @@
       </clr-input-container>
       <clr-input-container>
         <label>域名后缀</label>
-        <input id="domain" type="text" pattern="[a-z0-9.]([a-z0-9.]*[a-z0-9.])?"
+        <input id="domain" type="text" pattern="{{domain_pattern}}"
                [(ngModel)]="cluster.cluster_doamin_suffix" name="cluster_domain" clrInput
                size=45
-               maxlength="100"
+               maxlength="25"
                required>
         <clr-control-helper>输入集群域名的后缀,默认为全局域名后缀</clr-control-helper>
       </clr-input-container>

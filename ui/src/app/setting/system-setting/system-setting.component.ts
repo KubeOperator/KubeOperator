@@ -3,6 +3,7 @@ import {Settings} from '../setting';
 import {SettingService} from '../setting.service';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import * as globals from '../../globals';
 
 @Component({
   selector: 'app-system-setting',
@@ -12,6 +13,7 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 export class SystemSettingComponent implements OnInit {
 
 
+  domain_pattern = globals.domain_pattern;
   constructor(private  settingService: SettingService, private alert: CommonAlertService) {
   }
 
