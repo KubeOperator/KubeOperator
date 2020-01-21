@@ -60,7 +60,7 @@
       delay: 10
 
     - name: helm init
-      shell: "helm init --client-only"
+      shell: "helm init --client-only --skip-refresh"
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
       run_once: true
