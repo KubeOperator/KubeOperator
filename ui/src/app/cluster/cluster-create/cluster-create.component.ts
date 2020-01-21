@@ -80,6 +80,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   Automatic = 'AUTOMATIC';
   clusterNameChecker: Subject<string> = new Subject<string>();
   name_pattern = globals.cluster_name_pattern;
+  domain_pattern = globals.domain_pattern;
   name_pattern_tip = globals.cluster_name_pattern_tip;
 
   @Output() create = new EventEmitter<boolean>();

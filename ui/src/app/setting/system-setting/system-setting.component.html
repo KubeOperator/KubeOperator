@@ -9,7 +9,7 @@
       </clr-input-container>
       <clr-input-container>
         <label>域名后缀</label>
-        <input clrInput [(ngModel)]="settings['domain_suffix']" name="domain_suffix" required size=45/>
+        <input clrInput [(ngModel)]="settings['domain_suffix']" pattern="{{domain_pattern}}" name="domain_suffix" required size=45/>
         <clr-control-helper>必填,用于生成 Node 名称以及应用域名</clr-control-helper>
       </clr-input-container>
       <clr-input-container>
