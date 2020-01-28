@@ -1,5 +1,5 @@
 {{- if .Values.kubeStateMetrics.enabled -}}
-apiVersion: apps/v1
+apiVersion: {{ template "prometheus.deployment.apiVersion" . }}
 kind: Deployment
 metadata:
 {{- if .Values.kubeStateMetrics.deploymentAnnotations }}
@@ -7,18 +7,12 @@ metadata:
 {{ toYaml .Values.kubeStateMetrics.deploymentAnnotations | indent 4 }}
 {{- end }}
   labels:
-    app: {{ template "prometheus.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.kubeStateMetrics.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    {{- include "prometheus.kubeStateMetrics.labels" . | nindent 4 }}
   name: {{ template "prometheus.kubeStateMetrics.fullname" . }}
 spec:
   selector:
     matchLabels:
-      app: {{ template "prometheus.name" . }}
-      component: "{{ .Values.kubeStateMetrics.name }}"
-      release: {{ .Release.Name }}
+      {{- include "prometheus.kubeStateMetrics.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.kubeStateMetrics.replicaCount }}
   template:
     metadata:
@@ -27,9 +21,7 @@ spec:
 {{ toYaml .Values.kubeStateMetrics.podAnnotations | indent 8 }}
     {{- end }}
       labels:
-        app: {{ template "prometheus.name" . }}
-        component: "{{ .Values.kubeStateMetrics.name }}"
-        release: {{ .Release.Name }}
+        {{- include "prometheus.kubeStateMetrics.labels" . | nindent 8 }}
 {{- if .Values.kubeStateMetrics.pod.labels }}
 {{ toYaml .Values.kubeStateMetrics.pod.labels | indent 8 }}
 {{- end }}
@@ -51,8 +43,14 @@ spec:
           ports:
             - name: metrics
               containerPort: 8080
+            - name: telemetry
+              containerPort: 8081
           resources:
 {{ toYaml .Values.kubeStateMetrics.resources | indent 12 }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
     {{- if .Values.kubeStateMetrics.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.kubeStateMetrics.nodeSelector | indent 8 }}
