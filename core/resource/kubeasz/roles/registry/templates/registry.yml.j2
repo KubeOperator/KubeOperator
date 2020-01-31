@@ -67,6 +67,8 @@ spec:
           value: basic_realm
         - name: REGISTRY_AUTH_HTPASSWD_PATH
           value: /auth/htpasswd
+        - name: REGISTRY_STORAGE_DELETE_ENABLED
+          value: "true"
         volumeMounts:
         - name: image-store
           mountPath: /var/lib/registry
