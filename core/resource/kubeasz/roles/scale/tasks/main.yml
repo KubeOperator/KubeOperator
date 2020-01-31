@@ -7,3 +7,8 @@
   when:
     - 'storage_rook_ceph_enabled is defined'
     - 'storage_rook_ceph_enabled'
+
+- import_tasks: kubeapps.yml
+  when:
+    - 'kubeapps_install is defined'
+    - 'kubeapps_install'
