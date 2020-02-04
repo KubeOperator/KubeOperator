@@ -83,7 +83,8 @@ class Host(BaseHost):
             self.port,
             self.username,
             self.password,
-            10
+            10,
+            self.private_key,
         )
 
     def health_check(self):
