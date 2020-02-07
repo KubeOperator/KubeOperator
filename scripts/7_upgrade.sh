@@ -17,6 +17,11 @@ function stop_service() {
         echo "[ERROR]"
         exit 1
     fi
+    echo "停止 nexus 容器 ..."
+    container_id=(`docker ps -a | grep nexus-helm | awk '{print $1}'`)
+    for cid in ${container_id[@]}; do
+        docker rm -f $cid
+    done
 }
 
 function start_service() {
