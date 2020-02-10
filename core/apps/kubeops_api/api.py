@@ -35,6 +35,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
+from kubeops_api.models.item import Item
 
 logger = logging.getLogger('kubeops')
 
@@ -572,3 +573,11 @@ class ClusterNamespaceView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
+
+
+class ItemViewSet(viewsets.ModelViewSet):
+    queryset = Item.objects.all()
+    serializer_class = serializers.ItemSerializer
+    permission_classes = (IsSuperUser,)
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'

@@ -18,6 +18,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
+from kubeops_api.models.item import Item
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer', 'RoleSerializer', 'DeployExecutionSerializer',
@@ -237,3 +238,9 @@ class ClusterHeathHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClusterHealthHistory
         fields = ['id', 'project_id', 'available_rate', 'date_type', 'date_created', 'month']
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ['id', 'name', 'description', 'date_created']

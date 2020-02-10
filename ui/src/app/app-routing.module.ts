@@ -34,6 +34,7 @@ import {DnsComponent} from './dns/dns.component';
 import {ClusterStorageComponent} from './cluster-storage/cluster-storage.component';
 import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 import {CephComponent} from './ceph/ceph.component';
+import {ItemComponent} from "./item/item.component";
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -46,6 +47,12 @@ const routes: Routes = [
       {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
       {path: 'dashboard', component: DashboardComponent},
       {path: 'cluster', component: ClusterComponent},
+      {
+        path: 'item', component: ItemComponent,
+        children: [
+          {path: 'cluster', component: ClusterComponent},
+        ]
+      },
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},

@@ -41,6 +41,9 @@ import { CephComponent } from './ceph/ceph.component';
 import { CephListComponent } from './ceph/ceph-list/ceph-list.component';
 import { CephCreateComponent } from './ceph/ceph-create/ceph-create.component';
 import { NgCircleProgressModule } from 'ng-circle-progress';
+import { ItemComponent } from './item/item.component';
+import { ItemCreateComponent } from './item/item-create/item-create.component';
+import { ItemListComponent } from './item/item-list/item-list.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +60,9 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
     CephComponent,
     CephListComponent,
     CephCreateComponent,
+    ItemComponent,
+    ItemCreateComponent,
+    ItemListComponent,
   ],
   imports: [
     CredentialModule,

@@ -1,0 +1,44 @@
+<clr-modal [(clrModalOpen)]="deleteModal" [clrModalSize]="'lg'">
+  <h3 class="modal-title">确认删除</h3>
+  <div class="modal-body">
+    <p>删除操作不可恢复,确认要删除项目:
+      <span *ngFor="let item of selectedItems">{{item.name}}</span>
+    </p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" (click)="deleteModal = false">取消</button>
+    <button type="button" class="btn btn-primary" (click)="confirmDelete()">确认</button>
+  </div>
+</clr-modal>
+
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedItems">
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="addNewItem()">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        添加
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
+              [disabled]="selectedItems.length == 0">
+        <clr-icon shape="close"></clr-icon>
+        删除
+      </button>
+    </div>
+  </clr-dg-action-bar>
+  <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column>角色</clr-dg-column>
+  <clr-dg-column>描述</clr-dg-column>
+  <clr-dg-column>创建时间</clr-dg-column>
+
+  <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
+    <clr-dg-cell></clr-dg-cell>
+    <clr-dg-cell>{{item.description}}</clr-dg-cell>
+    <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>
+
+  </clr-dg-footer>
+
+</clr-datagrid>

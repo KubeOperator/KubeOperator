@@ -16,6 +16,7 @@ router.register('host', api.HostViewSet, 'host')
 router.register('backupStorage', api.BackupStorageViewSet, 'backupStorage')
 router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')
+router.register('items', api.ItemViewSet, 'item')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
