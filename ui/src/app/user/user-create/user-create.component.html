@@ -1,32 +1,20 @@
-<clr-modal [(clrModalOpen)]="createUserOpened" [clrModalStaticBackdrop]="staticBackdrop"
+<clr-modal [(clrModalOpen)]="opened" [clrModalStaticBackdrop]="staticBackdrop"
            [clrModalClosable]="closable">
   <h3 class="modal-title">添加用户</h3>
   <div class="modal-body modal-height">
-    <form #basicFrom='ngForm'>
-      <clr-input-container>
-        <label>Eamil:</label>
-        <input clrInput size=45 type="text" formControlName="email">
-      </clr-input-container>
-
+    <form clrForm #hostForm='ngForm'>
       <clr-input-container>
         <label>用户名:</label>
-        <input clrInput size=45 maxlength="100" type="text" formControlName="username">
+        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
       </clr-input-container>
-
-
-      <clr-password-container>
-        <label>password:</label>
-        <input clrPassword size=45 type="password" formControlName="password">
-      </clr-password-container>
-
-      <clr-textarea-container>
-        <label>描述:</label>
-        <textarea clrTextarea formControlName="comment"></textarea>
-      </clr-textarea-container>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()">提交</button>
-      </div>
+      <clr-input-container>
+        <label>邮箱:</label>
+        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
+      </clr-input-container>
+      <clr-input-container>
+        <label>密码:</label>
+        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
+      </clr-input-container>
     </form>
   </div>
 </clr-modal>

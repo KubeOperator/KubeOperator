@@ -11,7 +11,6 @@ export class UserListComponent implements OnInit {
 
   loading = true;
   users: User[] = [];
-  selectedRow: User[] = [];
   @Output() addUser = new EventEmitter();
 
   constructor(private userService: UserService) {
