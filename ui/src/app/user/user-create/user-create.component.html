@@ -2,19 +2,50 @@
            [clrModalClosable]="closable">
   <h3 class="modal-title">添加用户</h3>
   <div class="modal-body modal-height">
-    <form clrForm #hostForm='ngForm'>
+    <form clrForm #userForm='ngForm'>
       <clr-input-container>
         <label>用户名:</label>
-        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
+        <input clrInput size=45 maxlength="30" type="text" [(ngModel)]="user.username" name="username"
+               (focusout)="checkUsernameDuplicate()" required>
+        <clr-control-helper *ngIf="isUserNameDuplicate">此用户名已被使用!</clr-control-helper>
       </clr-input-container>
+
       <clr-input-container>
         <label>邮箱:</label>
-        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
+        <input clrInput type="email"
+               pattern="^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$" size=45
+               [(ngModel)]="user.email" name="email" required>
+        <clr-control-error>请输入正确格式的邮箱地址!</clr-control-error>
       </clr-input-container>
-      <clr-input-container>
+
+      <clr-password-container>
         <label>密码:</label>
-        <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="user.username" name="name" required>
-      </clr-input-container>
+        <input clrPassword size=40 maxlength="15" type="password" [(ngModel)]="user.password" name="name"
+               (change)="checkPassword()" required>
+        <clr-control-helper *ngIf="!isPasswordMatch && user.password &&user.ensurePassword">密码不一致！</clr-control-helper>
+      </clr-password-container>
+
+      <clr-password-container>
+        <label>确认密码:</label>
+        <input clrPassword size=40 maxlength="15" type="password" [(ngModel)]="user.ensurePassword" name="name"
+               (change)="checkPassword()" required>
+        <clr-control-helper *ngIf="!isPasswordMatch && user.password &&user.ensurePassword">密码不一致！</clr-control-helper>
+      </clr-password-container>
+
+      <clr-checkbox-container>
+        <label>管理员</label>
+        <clr-checkbox-wrapper>
+          <input clrToggle type="checkbox" name="admin" [(ngModel)]="user.is_superuser">
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isUserNameDuplicate || !isPasswordMatch||userFrom.invalid || isSubmitGoing">
+          <i *ngIf="isSubmitGoing" class="fa fa-spinner fa-pulse"></i>提交
+        </button>
+      </div>
     </form>
   </div>
 </clr-modal>
