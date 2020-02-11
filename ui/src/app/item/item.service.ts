@@ -17,6 +17,12 @@ export class ItemService {
     return this.http.get<Item[]>(this.baseUrl);
   }
 
+  getItem(itemName: string): Observable<Item> {
+    return this.http.get<Item>(this.baseUrl + itemName + '/').pipe(
+      catchError(err => throwError(err))
+    );
+  }
+
   deleteItem(itemName): Observable<any> {
     return this.http.delete(this.baseUrl + itemName + '/').pipe(
       catchError(error => throwError(error))
