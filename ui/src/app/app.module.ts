@@ -44,6 +44,9 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
 import { ItemComponent } from './item/item.component';
 import { ItemCreateComponent } from './item/item-create/item-create.component';
 import { ItemListComponent } from './item/item-list/item-list.component';
+import { ItemDetailComponent } from './item/item-detail/item-detail.component';
+import { ItemMemberComponent } from './item-member/item-member.component';
+import { ItemResourceComponent } from './item-resource/item-resource.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +66,9 @@ import { ItemListComponent } from './item/item-list/item-list.component';
     ItemComponent,
     ItemCreateComponent,
     ItemListComponent,
+    ItemDetailComponent,
+    ItemMemberComponent,
+    ItemResourceComponent,
   ],
   imports: [
     CredentialModule,

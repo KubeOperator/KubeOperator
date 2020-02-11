@@ -35,6 +35,10 @@ import {ClusterStorageComponent} from './cluster-storage/cluster-storage.compone
 import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 import {CephComponent} from './ceph/ceph.component';
 import {ItemComponent} from './item/item.component';
+import {ItemDetailComponent} from "./item/item-detail/item-detail.component";
+import {ItemRoutingResolverService} from "./item/item-routing-resolver.service";
+import {ItemMemberComponent} from "./item-member/item-member.component";
+import {ItemResourceComponent} from "./item-resource/item-resource.component";
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -47,12 +51,7 @@ const routes: Routes = [
       {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
       {path: 'dashboard', component: DashboardComponent},
       {path: 'cluster', component: ClusterComponent},
-      {
-        path: 'item', component: ItemComponent,
-        children: [
-          {path: 'cluster', component: ClusterComponent},
-        ]
-      },
+      {path: 'item', component: ItemComponent},
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},
       {path: 'host', component: HostComponent},
@@ -88,7 +87,7 @@ const routes: Routes = [
         ]
       },
       {
-        path: 'cluster/:name',
+        path: 'item/:itemName/cluster/:name',
         component: ClusterDetailComponent,
         resolve: {cluster: ClusterRoutingResolverService},
         children: [
@@ -103,6 +102,17 @@ const routes: Routes = [
           {path: 'backup', component: ClusterBackupComponent},
           {path: 'big-ip', component: F5BigIpComponent},
           {path: 'cluster-storage', component: ClusterStorageComponent}
+        ]
+      },
+      {
+        path: 'item/:name',
+        component: ItemDetailComponent,
+        resolve: {item: ItemRoutingResolverService},
+        children: [
+          {path: '', redirectTo: 'cluster', pathMatch: 'full'},
+          {path: 'cluster', component: ClusterComponent},
+          {path: 'members', component: ItemMemberComponent},
+          {path: 'resource', component: ItemResourceComponent},
         ]
       },
       {

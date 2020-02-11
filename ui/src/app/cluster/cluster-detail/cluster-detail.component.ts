@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Cluster} from '../cluster';
-import {ClusterService} from '../cluster.service';
 
 @Component({
   selector: 'app-cluster-detail',
@@ -22,7 +21,7 @@ export class ClusterDetailComponent implements OnInit {
   }
 
   backToCluster() {
-    this.router.navigate(['cluster']);
+    this.router.navigate(['item/' + this.route.params['_value']['itemName'] + '/cluster']);
   }
 
 }
