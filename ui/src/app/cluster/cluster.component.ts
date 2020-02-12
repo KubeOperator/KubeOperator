@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {Location} from '@angular/common';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {ClusterListComponent} from './cluster-list/cluster-list.component';
-import {Cluster} from './cluster';
 
 @Component({
   selector: 'app-cluster',
@@ -10,17 +10,22 @@ import {Cluster} from './cluster';
 })
 export class ClusterComponent implements OnInit {
 
-  @ViewChild(ClusterCreateComponent, { static: true })
+  @ViewChild(ClusterCreateComponent, {static: true})
   creationCluster: ClusterCreateComponent;
 
-  @ViewChild(ClusterListComponent, { static: true })
+  @ViewChild(ClusterListComponent, {static: true})
   listCluster: ClusterListComponent;
 
+  showTitle = true;
 
   constructor() {
   }
 
   ngOnInit() {
+    const url = location.pathname;
+    if (url.indexOf('item') > -1) {
+      this.showTitle = false;
+    }
   }
 
   openModal(): void {

@@ -15,7 +15,7 @@ export class ItemRoutingResolverService implements Resolve<Item> {
   }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Item> {
-    const itemName = route.params['name'];
+    const itemName = route.params['itemName'];
     return this.itemService.getItem(itemName).pipe(
       take(1),
       map(item => {
