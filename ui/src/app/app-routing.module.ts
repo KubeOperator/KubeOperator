@@ -35,10 +35,10 @@ import {ClusterStorageComponent} from './cluster-storage/cluster-storage.compone
 import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 import {CephComponent} from './ceph/ceph.component';
 import {ItemComponent} from './item/item.component';
-import {ItemDetailComponent} from "./item/item-detail/item-detail.component";
-import {ItemRoutingResolverService} from "./item/item-routing-resolver.service";
-import {ItemMemberComponent} from "./item-member/item-member.component";
-import {ItemResourceComponent} from "./item-resource/item-resource.component";
+import {ItemDetailComponent} from './item/item-detail/item-detail.component';
+import {ItemRoutingResolverService} from './item/item-routing-resolver.service';
+import {ItemMemberComponent} from './item-member/item-member.component';
+import {ItemResourceComponent} from './item-resource/item-resource.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},

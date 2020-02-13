@@ -9,7 +9,8 @@
       <a class="nav-link" routerLink="members" routerLinkActive="active">成员</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" routerLink="resource" routerLinkActive="active">资源</a>
+      <a class="nav-link" routerLink="resource" routerLinkActive="active"
+         [queryParams]='currentItem'>资源</a>
     </li>
   </ul>
 </nav>

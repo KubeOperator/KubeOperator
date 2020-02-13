@@ -45,5 +45,7 @@ urlpatterns = [
                   path('cluster/<project_name>/syncNodeTime/', api.SyncHostTimeView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
+                  path('resource/<item_name>/', api.ItemResourceView.as_view()),
+                  path('resource/<item_name>/<resource_type>/', api.ResourceView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),
               ] + router.urls + cluster_router.urls

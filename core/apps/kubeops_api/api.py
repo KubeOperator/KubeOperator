@@ -36,6 +36,9 @@ from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
 from kubeops_api.models.item import Item
+from kubeops_api.models.item_resource import ItemResource
+from kubeops_api.utils.json_cluster_encoder import JsonClusterEncoder
+from kubeops_api.models.item_resource_dto import Resource
 
 logger = logging.getLogger('kubeops')
 
@@ -581,3 +584,28 @@ class ItemViewSet(viewsets.ModelViewSet):
     permission_classes = (IsSuperUser,)
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+
+class ItemResourceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        item_name = kwargs['item_name']
+        item = Item.objects.get(name=item_name)
+
+
+class ResourceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        item_name = kwargs['item_name']
+        resource_type = kwargs['resource_type']
+        item = Item.objects.get(name=item_name)
+        data = []
+        resource_ids = ItemResource.objects.filter(item_id=item.id).values_list('resource_id', flat=True)
+        if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
+            result = Cluster.objects.exclude(id__in=resource_ids)
+            for re in result:
+                item_resource_dto = Resource(resource_id=re.id, resource_type=resource_type, data=re, checked=False)
+                data.append(item_resource_dto.__dict__)
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps(data, cls=JsonClusterEncoder))
+        return response

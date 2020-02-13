@@ -1,0 +1,142 @@
+<div class="row">
+  <div class="col-lg-12" align="center">
+    <h6 class="font-title">集群</h6>
+  </div>
+  <div class="clr-col-lg-12">
+    <clr-datagrid [clrDgLoading]="loading">
+      <clr-dg-action-bar>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('CLUSTER')">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            添加
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="close"></clr-icon>
+            取消授权
+          </button>
+        </div>
+      </clr-dg-action-bar>
+      <clr-dg-column>名称</clr-dg-column>
+      <clr-dg-column>离线包</clr-dg-column>
+      <clr-dg-column>部署模式</clr-dg-column>
+      <clr-dg-column>状态</clr-dg-column>
+      <clr-dg-row>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+  <!--    <clr-datagrid [clrDgLoading]="loading">-->
+  <!--      <clr-dg-column>Namespace</clr-dg-column>-->
+  <!--      <clr-dg-column>名称</clr-dg-column>-->
+  <!--      <clr-dg-column>容量</clr-dg-column>-->
+  <!--      <clr-dg-column>挂载状态</clr-dg-column>-->
+  <!--      <clr-dg-column>创建时间</clr-dg-column>-->
+  <!--      <clr-dg-row *clrDgItems="let p of s.pvcs" [clrDgItem]="p">-->
+  <!--        <clr-dg-cell>{{p.namespace}}</clr-dg-cell>-->
+  <!--        <clr-dg-cell>{{p.name}}</clr-dg-cell>-->
+  <!--        <clr-dg-cell>{{p.capacity}}</clr-dg-cell>-->
+  <!--        <clr-dg-cell>{{p.status}}</clr-dg-cell>-->
+  <!--        <clr-dg-cell>{{p.create_time | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>-->
+  <!--      </clr-dg-row>-->
+  <!--    </clr-datagrid>-->
+  <div class="col-lg-12" align="center">
+    <h6 class="font-title">主机</h6>
+  </div>
+  <div class="clr-col-lg-12">
+    <clr-datagrid [clrDgLoading]="loading">
+      <clr-dg-action-bar>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            添加
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="close"></clr-icon>
+            取消授权
+          </button>
+        </div>
+      </clr-dg-action-bar>
+      <clr-dg-column>名称</clr-dg-column>
+      <clr-dg-column>集群</clr-dg-column>
+      <clr-dg-column>IP地址</clr-dg-column>
+      <clr-dg-column>CPU(核)</clr-dg-column>
+      <clr-dg-column>内存(MB)</clr-dg-column>
+      <clr-dg-column>GPU(个)</clr-dg-column>
+      <clr-dg-column>状态</clr-dg-column>
+      <clr-dg-row>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+  <div class="col-lg-12" align="center">
+    <h6 class="font-title">存储</h6>
+  </div>
+  <div class="clr-col-lg-12">
+    <clr-datagrid [clrDgLoading]="loading">
+      <clr-dg-action-bar>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            添加
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="close"></clr-icon>
+            取消授权
+          </button>
+        </div>
+      </clr-dg-action-bar>
+      <clr-dg-column>名称</clr-dg-column>
+      <clr-dg-column>类型</clr-dg-column>
+      <clr-dg-row>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+  <div class="col-lg-12" align="center">
+    <h6 class="font-title">部署计划</h6>
+  </div>
+  <div class="clr-col-lg-12">
+    <clr-datagrid [clrDgLoading]="loading">
+      <clr-dg-action-bar>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            添加
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="close"></clr-icon>
+            取消授权
+          </button>
+        </div>
+      </clr-dg-action-bar>
+      <clr-dg-column>名称</clr-dg-column>
+      <clr-dg-column>部署模型</clr-dg-column>
+      <clr-dg-column>创建时间</clr-dg-column>
+      <clr-dg-row>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+  <div class="col-lg-12" align="center">
+    <h6 class="font-title">备份账号</h6>
+  </div>
+  <div class="clr-col-lg-12">
+    <clr-datagrid [clrDgLoading]="loading">
+      <clr-dg-action-bar>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            添加
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary">
+            <clr-icon shape="close"></clr-icon>
+            取消授权
+          </button>
+        </div>
+      </clr-dg-action-bar>
+      <clr-dg-column>名称</clr-dg-column>
+      <clr-dg-column>类型</clr-dg-column>
+      <clr-dg-column>桶/容器</clr-dg-column>
+      <clr-dg-column>创建时间</clr-dg-column>
+      <clr-dg-row>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+</div>
+
