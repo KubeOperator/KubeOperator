@@ -47,58 +47,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'meta', 'date_created']
 
 
-class VolumeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Volume
-        fields = [
-            'id', 'name', 'size',
-        ]
-        read_only_fields = ['id', 'name', 'size', ]
-
-
-class GPUSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GPU
-        fields = [
-            'id', 'name',
-        ]
-        read_only_fields = ['id', 'name', ]
-
-
-class ConditionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Condition
-        fields = [
-            "type", "status", "message", "reason", "last_time"
-        ]
-        read_only_fields = ["type", "status", "message", "reason", "last_time"]
-
-
-class HostSerializer(HostReadSerializer):
-    credential = serializers.SlugRelatedField(
-        queryset=Credential.objects.all(),
-        slug_field='name', required=False
-    )
-    zone = serializers.SlugRelatedField(
-        queryset=Zone.objects.all(),
-        slug_field='name', required=False
-    )
-    volumes = VolumeSerializer(required=False, many=True)
-    gpus = GPUSerializer(required=False, many=True)
-    conditions = ConditionSerializer(required=False, many=True)
-
-    class Meta:
-        model = Host
-        extra_kwargs = HostReadSerializer.Meta.extra_kwargs
-        fields = [
-            'id', 'name', 'ip', 'port', 'cluster', 'credential', 'memory', 'os', 'os_version', 'cpu_core', 'volumes',
-            'zone',
-            'region', 'status', 'conditions', 'gpus', "has_gpu"
-        ]
-        read_only_fields = ['id', 'comment', 'memory', 'os', 'os_version', 'cpu_core', 'volumes', 'zone', 'region',
-                            'status', "conditions", 'gpus', "has_gpu"]
-
-
 class ClusterConfigSerializer(serializers.Serializer):
     key = serializers.CharField(max_length=128)
     value = serializers.JSONField()
