@@ -1,9 +1,9 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import * as globals from '../../globals';
 import {Item} from '../item';
-import {AlertLevels} from "../../base/header/components/common-alert/alert";
-import {ItemService} from "../item.service";
-import {CommonAlertService} from "../../base/header/common-alert.service";
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {ItemService} from '../item.service';
+import {CommonAlertService} from '../../base/header/common-alert.service';
 
 
 @Component({
