@@ -609,3 +609,13 @@ class ResourceView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(data, cls=JsonClusterEncoder))
         return response
+
+    def post(self, request, *args, **kwargs):
+        item_name = kwargs['item_name']
+        resource_type = kwargs['resource_type']
+        item_resources = request.data
+        objs = [ItemResource(resource_type=item_resource['resource_type'],resource_id=item_resource['resource_id'],item_id=item_resource['item_id']) for item_resource in item_resources]
+        result = ItemResource.objects.bulk_create(objs)
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps({'msg': '授权成功'}))
+        return response
