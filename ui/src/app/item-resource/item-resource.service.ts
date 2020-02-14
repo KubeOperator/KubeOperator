@@ -19,8 +19,8 @@ export class ItemResourceService {
     return this.httpClient.get<ItemResourceDTO[]>(this.baseURL + itemName + '/' + resourceType + '/');
   }
 
-  createItemResources(itemName: string, resourceType: string, itemResources: ItemResource[]): Observable<any> {
-    return this.httpClient.post(this.baseURL + itemName + '/' + resourceType + '/', itemResources).pipe(
+  createItemResources(itemName: string, itemResources: ItemResource[]): Observable<any> {
+    return this.httpClient.post(this.baseURL + itemName + '/', itemResources).pipe(
       catchError(error => throwError(error))
     );
   }

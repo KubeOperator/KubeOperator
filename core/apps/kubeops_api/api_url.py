@@ -5,6 +5,7 @@ from django.urls import path
 from django.conf.urls import url
 
 from kubeops_api.apis import host
+from kubeops_api.apis import item
 
 app_name = "kubeops_api"
 router = DefaultRouter()
@@ -16,7 +17,7 @@ router.register('host', host.HostViewSet, 'host')
 router.register('backupStorage', api.BackupStorageViewSet, 'backupStorage')
 router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')
-router.register('items', api.ItemViewSet, 'item')
+router.register('items', item.ItemViewSet, 'item')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
@@ -45,7 +46,7 @@ urlpatterns = [
                   path('cluster/<project_name>/syncNodeTime/', api.SyncHostTimeView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
-                  path('resource/<item_name>/', api.ItemResourceView.as_view()),
-                  path('resource/<item_name>/<resource_type>/', api.ResourceView.as_view()),
+                  path('resource/<item_name>/',item.ItemResourceView.as_view()),
+                  path('resource/<item_name>/<resource_type>/', item.ResourceView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),
               ] + router.urls + cluster_router.urls

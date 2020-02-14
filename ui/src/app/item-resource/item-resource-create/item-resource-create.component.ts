@@ -65,7 +65,7 @@ export class ItemResourceCreateComponent implements OnInit {
     this.isSubmitGoing = true;
     this.loading = true;
 
-    this.itemResourceService.createItemResources(this.itemName, this.resourceType, itemResources).subscribe(res => {
+    this.itemResourceService.createItemResources(this.itemName, itemResources).subscribe(res => {
       this.alert.showAlert('授权成功', AlertLevels.SUCCESS);
       this.isSubmitGoing = false;
       this.createOpened = false;
