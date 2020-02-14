@@ -17,7 +17,7 @@ __all__ = [
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleReadSerializer
-    permission_classes = (IsSuperUser,)
+
 
 
 class ProjectRoleViewSet(ProjectResourceAPIMixin, RoleViewSet):

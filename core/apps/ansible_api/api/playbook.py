@@ -24,14 +24,14 @@ __all__ = [
 
 class ProjectPlaybookViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Playbook.objects.all()
-    permission_classes = (IsSuperUser,)
+
     serializer_class = PlaybookSerializer
     read_serializer_class = PlaybookReadSerializer
 
 
 class PlaybookExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = PlaybookExecution.objects.all()
-    permission_classes = (IsSuperUser,)
+
     serializer_class = PlaybookExecutionSerializer
     http_method_names = ['post', 'get', 'option', 'head']
 

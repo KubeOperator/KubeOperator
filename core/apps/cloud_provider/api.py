@@ -14,7 +14,7 @@ from kubeops_api.models.cluster import Cluster
 class CloudProviderTemplateViewSet(viewsets.ModelViewSet):
     queryset = CloudProviderTemplate.objects.all()
     serializer_class = serializers.CloudProviderTemplateSerializer
-    permission_classes = (IsSuperUser,)
+
     http_method_names = ['get', 'head', 'options']
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
@@ -28,7 +28,7 @@ class RegionViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[\u4e00-\u9fa50-9a-zA-Z._-]+'
     queryset = Region.objects.all()
     serializer_class = serializers.RegionSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -43,7 +43,7 @@ class ZoneViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[\u4e00-\u9fa50-9a-zA-Z._-]+'
     queryset = Zone.objects.all()
     serializer_class = serializers.ZoneSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -58,7 +58,7 @@ class PlanViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[\u4e00-\u9fa50-9a-zA-Z._-]+'
     queryset = Plan.objects.all()
     serializer_class = serializers.PlanSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 

@@ -11,12 +11,12 @@ from hashlib import md5
 
 
 class SshConfig:
-    def __init__(self, host, port, username, password, timeout, private_key=None):
+    def __init__(self, host, port, username, password, private_key=None):
         self.host = host
-        self.port = port
+        self.port = port or 22
         self.username = username
         self.password = password
-        self.timeout = timeout
+        self.timeout = 10
         self.private_key = private_key
 
 
@@ -49,7 +49,10 @@ class SSHClient:
             print("[%s] %s target failed, the reason is %s" % (datetime.datetime.now(), self.config.host, str(e)))
 
     def ping(self):
-        out, code = self.run_cmd("pwd")
+        try:
+            out, code = self.run_cmd("pwd")
+        except Exception:
+            return False
         return code == 0
 
 

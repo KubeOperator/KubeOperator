@@ -26,7 +26,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
-from . import serializers
+from . import s_serializers as serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
 from kubeops_api.storage_client import StorageClient
@@ -48,7 +48,7 @@ logger = logging.getLogger('kubeops')
 class ClusterViewSet(viewsets.ModelViewSet):
     queryset = Cluster.objects.all()
     serializer_class = serializers.ClusterSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -70,7 +70,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     serializer_class = serializers.PackageSerializer
-    permission_classes = (IsSuperUser,)
+
     http_method_names = ['get', 'head', 'options']
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
@@ -85,7 +85,7 @@ class PackageViewSet(viewsets.ModelViewSet):
 
 class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Role.objects.all()
-    permission_classes = (IsSuperUser,)
+
     serializer_class = serializers.RoleSerializer
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
@@ -94,7 +94,7 @@ class RoleViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     queryset = Node.objects.all()
     serializer_class = serializers.NodeSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -102,7 +102,7 @@ class NodeViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 class CredentialViewSet(viewsets.ModelViewSet):
     queryset = Credential.objects.all()
     serializer_class = serializers.CredentialSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -114,42 +114,9 @@ class CredentialViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
 
-class HostViewSet(viewsets.ModelViewSet):
-    queryset = Host.objects.all()
-    serializer_class = serializers.HostSerializer
-    permission_classes = (IsSuperUser,)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        if serializer.data['ip'] is not None:
-            host = Host.objects.filter(ip=serializer.data['ip'])
-            if len(host) > 0:
-                return Response(data={'msg': 'IP {} 已添加!不能重复添加!'.format(serializer.data['ip'])},
-                                status=status.HTTP_400_BAD_REQUEST)
-        credential = Credential.objects.get(name=serializer.data['credential'])
-        connected = test_host(ip=serializer.data['ip'], port=serializer.data['port'],
-                              username=credential.username,
-                              password=credential.password,
-                              private_key_path=credential.private_key_path)
-        if not connected:
-            return Response(data={'msg': "添加主机失败,无法连接指定主机！"}, status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer)
-        host = serializer.instance
-        host.gather_info(retry=1)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def retrieve(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        host = get_object_or_404(Host, pk=pk)
-        host.gather_info(retry=1)
-        return super().retrieve(request, *args, **kwargs)
-
-
 class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ClusterConfigSerializer
-    permission_classes = (IsSuperUser,)
+
     cluster = None
     lookup_url_kwarg = 'key'
 
@@ -199,7 +166,7 @@ class ClusterConfigViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
 class DeployExecutionViewSet(ClusterResourceAPIMixin, viewsets.ModelViewSet):
     queryset = DeployExecution.objects.all()
     serializer_class = serializers.DeployExecutionSerializer
-    permission_classes = (IsSuperUser,)
+
     read_serializer_class = serializers.DeployExecutionSerializer
 
     http_method_names = ['post', 'get', 'head', 'options']
@@ -284,7 +251,7 @@ class GetClusterConfigView(APIView):
 class BackupStorageViewSet(viewsets.ModelViewSet):
     queryset = BackupStorage.objects.all()
     serializer_class = serializers.BackupStorageSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
@@ -334,7 +301,7 @@ class GetBucketsView(APIView):
 class BackupStrategyViewSet(viewsets.ModelViewSet):
     queryset = BackupStrategy.objects.all()
     serializer_class = serializers.BackupStrategySerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
 
@@ -342,7 +309,7 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
     serializer_class = serializers.ClusterBackupSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
 
@@ -357,7 +324,6 @@ class ClusterBackupList(generics.ListAPIView):
 
 class ClusterBackupDelete(generics.DestroyAPIView):
     serializer_class = serializers.ClusterBackupSerializer
-    permission_classes = (IsSuperUser,)
 
     def destroy(self, request, *args, **kwargs):
         id = self.kwargs['id']
@@ -378,7 +344,6 @@ class ClusterBackupDelete(generics.DestroyAPIView):
 
 class ClusterBackupRestore(generics.UpdateAPIView):
     serializer_class = serializers.ClusterBackupSerializer
-    permission_classes = (IsSuperUser,)
 
     def put(self, request, *args, **kwargs):
         ok = kubeops_api.cluster_backup_utils.run_restore(request.data['id'])
@@ -398,7 +363,6 @@ class ClusterBackupRestore(generics.UpdateAPIView):
 
 class ClusterHealthHistoryView(generics.ListAPIView):
     serializer_class = serializers.ClusterHeathHistorySerializer
-    permission_classes = (IsSuperUser,)
 
     def get_queryset(self):
         project_id = str(self.kwargs['project_id'])
@@ -408,7 +372,6 @@ class ClusterHealthHistoryView(generics.ListAPIView):
 
 
 class ClusterHealthView(APIView):
-    permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
         project_name = self.kwargs['project_name']
@@ -428,7 +391,6 @@ class ClusterHealthView(APIView):
 
 
 class WebKubeCtrlToken(APIView):
-    permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
@@ -437,7 +399,6 @@ class WebKubeCtrlToken(APIView):
 
 
 class DashBoardView(APIView):
-    permission_classes = (IsSuperUser,)
 
     def get(self, request, *args, **kwargs):
         project_name = kwargs['project_name']
@@ -583,7 +544,7 @@ class ClusterNamespaceView(APIView):
 class ItemViewSet(viewsets.ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = serializers.ItemSerializer
-    permission_classes = (IsSuperUser,)
+
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 

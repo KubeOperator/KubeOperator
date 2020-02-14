@@ -11,7 +11,7 @@ Logger = logging.getLogger(__name__)
 
 
 class SearchSystemLog(APIView):
-    permission_classes = (IsSuperUser,)
+
 
     def post(self, request, *args, **kwargs):
         logs = search_log(request.data)

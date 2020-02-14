@@ -9,11 +9,10 @@ from .mixins import ProjectSerializerMixin, ReadSerializerMixin
 from ..models import Inventory, ClusterGroup, ClusterHost, Group, Host
 from ..ctx import current_project
 
-
 __all__ = [
     'ClusterHostSerializer', 'ClusterGroupSerializer',
     'HostSerializer', 'GroupSerializer',
-    'InventorySerializer',
+    'InventorySerializer', 'HostReadSerializer'
 ]
 
 
@@ -216,4 +215,3 @@ class InventorySerializer(serializers.Serializer):
             raise e
         transaction.savepoint_commit(self._save_point)
         return Inventory(hosts=hosts, groups=groups)
-

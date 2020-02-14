@@ -15,14 +15,14 @@ __all__ = [
 
 class AdHocViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = AdHoc.objects.all()
-    permission_classes = (IsSuperUser,)
+
     serializer_class = AdHocSerializer
     read_serializer_class = AdHocReadSerializer
 
 
 class AdHocExecutionViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     queryset = AdHocExecution.objects.all()
-    permission_classes = (IsSuperUser,)
+
     serializer_class = AdHocExecutionSerializer
 
     http_method_names = ['post', 'get', 'option', 'head']

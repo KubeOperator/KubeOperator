@@ -4,15 +4,15 @@ from kubeops_api import api
 from django.urls import path
 from django.conf.urls import url
 
+from kubeops_api.apis import host
+
 app_name = "kubeops_api"
 router = DefaultRouter()
 
 router.register('clusters', api.ClusterViewSet, 'cluster')
-
-# 注册离线包路由
 router.register('packages', api.PackageViewSet, 'package')
 router.register('credential', api.CredentialViewSet, 'credential')
-router.register('host', api.HostViewSet, 'host')
+router.register('host', host.HostViewSet, 'host')
 router.register('backupStorage', api.BackupStorageViewSet, 'backupStorage')
 router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')

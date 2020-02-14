@@ -15,7 +15,7 @@ __all__ = [
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
-    permission_classes = (IsSuperUser,)
+
     filter_fields = ('name',)
     serializer_class = ProjectSerializer
     lookup_url_kwarg = 'name'

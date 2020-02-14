@@ -10,7 +10,7 @@ from kubeops_api.models.credential import Credential
 from common import models as common_models
 from kubeops_api.utils.gpu import get_gpu_device
 
-__all__ = ['Host']
+__all__ = ['Host', 'Volume', 'GPU']
 logger = logging.getLogger('kubeops')
 
 
@@ -83,7 +83,6 @@ class Host(BaseHost):
             self.port,
             self.username,
             self.password,
-            10,
             self.private_key,
         )
 

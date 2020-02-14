@@ -19,6 +19,7 @@ from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.models.item import Item
+from kubeops_api.serializers.host import ConditionSerializer
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer', 'RoleSerializer', 'DeployExecutionSerializer',

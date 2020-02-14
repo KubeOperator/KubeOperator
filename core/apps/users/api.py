@@ -14,7 +14,6 @@ from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSeri
 
 class UserViewSet(ModelViewSet):
     queryset = get_user_model().objects.all()
-    permission_classes = (IsAdminUser,)
     serializer_class = UserSerializer
     serializer_class_create = UserCreateUpdateSerializer
 

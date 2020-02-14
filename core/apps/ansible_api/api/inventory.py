@@ -22,31 +22,31 @@ __all__ = [
 
 class HostViewSet(viewsets.ModelViewSet):
     serializer_class = ClusterHostSerializer
-    permission_classes = (IsSuperUser,)
+
     queryset = ClusterHost.objects.all()
 
 
 class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = ClusterGroupSerializer
     queryset = ClusterGroup.objects.all()
-    permission_classes = (IsSuperUser,)
+
 
 
 class ProjectHostViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = HostSerializer
-    permission_classes = (IsSuperUser,)
+
     queryset = Host.objects.all()
 
 
 class ProjectGroupViewSet(ProjectResourceAPIMixin, viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
-    permission_classes = (IsSuperUser,)
+
 
 
 class ProjectInventoryApi(ProjectResourceAPIMixin, RetrieveUpdateAPIView):
     serializer_class = InventorySerializer
-    permission_classes = (IsSuperUser,)
+
 
     def get_object(self):
         return self.project.inventory
