@@ -36,40 +36,26 @@
       <clr-dg-column>离线包</clr-dg-column>
       <clr-dg-column>部署模式</clr-dg-column>
       <clr-dg-column>状态</clr-dg-column>
-      <clr-dg-row *clrDgItems="let i of itemResources" [clrDgItem]="i">
-          <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
-          <clr-dg-cell>{{i.data.package}}</clr-dg-cell>
-          <clr-dg-cell>{{i.data.template}}</clr-dg-cell>
-          <clr-dg-cell>{{i.data.status}}</clr-dg-cell>
+      <clr-dg-row *clrDgItems="let i of itemResources | itemResource  : 'CLUSTER' " [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.package}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.template}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.status}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>
-  <!--    <clr-datagrid [clrDgLoading]="loading">-->
-  <!--      <clr-dg-column>Namespace</clr-dg-column>-->
-  <!--      <clr-dg-column>名称</clr-dg-column>-->
-  <!--      <clr-dg-column>容量</clr-dg-column>-->
-  <!--      <clr-dg-column>挂载状态</clr-dg-column>-->
-  <!--      <clr-dg-column>创建时间</clr-dg-column>-->
-  <!--      <clr-dg-row *clrDgItems="let p of s.pvcs" [clrDgItem]="p">-->
-  <!--        <clr-dg-cell>{{p.namespace}}</clr-dg-cell>-->
-  <!--        <clr-dg-cell>{{p.name}}</clr-dg-cell>-->
-  <!--        <clr-dg-cell>{{p.capacity}}</clr-dg-cell>-->
-  <!--        <clr-dg-cell>{{p.status}}</clr-dg-cell>-->
-  <!--        <clr-dg-cell>{{p.create_time | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>-->
-  <!--      </clr-dg-row>-->
-  <!--    </clr-datagrid>-->
   <div class="col-lg-12" align="center">
     <h6 class="font-title">主机</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading">
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">>
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length == 0">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>
@@ -82,7 +68,14 @@
       <clr-dg-column>内存(MB)</clr-dg-column>
       <clr-dg-column>GPU(个)</clr-dg-column>
       <clr-dg-column>状态</clr-dg-column>
-      <clr-dg-row>
+      <clr-dg-row *clrDgItems="let i of itemResources | itemResource  : 'HOST' " [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell></clr-dg-cell>
+        <clr-dg-cell>{{i.data.ip}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.cpu_core}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.memory}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.gpu_num}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.status}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>
@@ -105,7 +98,9 @@
       </clr-dg-action-bar>
       <clr-dg-column>名称</clr-dg-column>
       <clr-dg-column>类型</clr-dg-column>
-      <clr-dg-row>
+      <clr-dg-row *clrDgItems="let i of itemResources | itemResource  : 'STORAGE' " [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>
@@ -128,8 +123,9 @@
       </clr-dg-action-bar>
       <clr-dg-column>名称</clr-dg-column>
       <clr-dg-column>部署模型</clr-dg-column>
-      <clr-dg-column>创建时间</clr-dg-column>
-      <clr-dg-row>
+      <clr-dg-row *clrDgItems="let i of itemResources | itemResource  : 'PLAN' " [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.deploy_template}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>
@@ -153,8 +149,10 @@
       <clr-dg-column>名称</clr-dg-column>
       <clr-dg-column>类型</clr-dg-column>
       <clr-dg-column>桶/容器</clr-dg-column>
-      <clr-dg-column>创建时间</clr-dg-column>
-      <clr-dg-row>
+      <clr-dg-row *clrDgItems="let i of itemResources | itemResource  : 'BACKUP_STORAGE' " [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.type}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.region}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>

@@ -49,6 +49,7 @@ import { ItemMemberComponent } from './item-member/item-member.component';
 import { ItemResourceComponent } from './item-resource/item-resource.component';
 import { ItemResourceCreateComponent } from './item-resource/item-resource-create/item-resource-create.component';
 import { ItemResourceListComponent } from './item-resource/item-resource-list/item-resource-list.component';
+import { ItemResourcePipe } from './item-resource/item-resource.pipe';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { ItemResourceListComponent } from './item-resource/item-resource-list/it
     ItemResourceComponent,
     ItemResourceCreateComponent,
     ItemResourceListComponent,
+    ItemResourcePipe,
   ],
   imports: [
     CredentialModule,
