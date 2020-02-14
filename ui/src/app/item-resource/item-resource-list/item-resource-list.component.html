@@ -20,7 +20,11 @@
       <clr-dg-column>离线包</clr-dg-column>
       <clr-dg-column>部署模式</clr-dg-column>
       <clr-dg-column>状态</clr-dg-column>
-      <clr-dg-row>
+      <clr-dg-row *clrDgItems="let i of itemResources" [clrDgItem]="i">
+        <clr-dg-cell>{{i.data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.package}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.template}}</clr-dg-cell>
+        <clr-dg-cell>{{i.data.status}}</clr-dg-cell>
       </clr-dg-row>
     </clr-datagrid>
   </div>
