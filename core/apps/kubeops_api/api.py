@@ -590,6 +590,13 @@ class ItemResourceView(APIView):
         response.write(json.dumps(resources, cls=JsonResourceEncoder))
         return response
 
+    def delete(self, request, *args, **kwargs):
+        resource_id = kwargs['item_name']
+        ItemResource.objects.get(resource_id=resource_id).delete()
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps({'msg': '取消成功'}))
+        return response
+
 
 class ResourceView(APIView):
 

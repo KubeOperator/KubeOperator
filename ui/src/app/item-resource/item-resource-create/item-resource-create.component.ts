@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {ItemResourceService} from '../item-resource.service';
 import {ActivatedRoute} from '@angular/router';
 import {ItemResource, ItemResourceDTO} from '../item-resource';
@@ -19,6 +19,8 @@ export class ItemResourceCreateComponent implements OnInit {
   itemId;
   resourceType;
   @ViewChild('resourceAlert', {static: true}) resourceAlert;
+  loading = false;
+  @Output() create = new EventEmitter<boolean>();
 
 
   constructor(private itemResourceService: ItemResourceService, private route: ActivatedRoute, private alert: CommonAlertService) {
@@ -61,14 +63,19 @@ export class ItemResourceCreateComponent implements OnInit {
     }
 
     this.isSubmitGoing = true;
+    this.loading = true;
 
     this.itemResourceService.createItemResources(this.itemName, this.resourceType, itemResources).subscribe(res => {
       this.alert.showAlert('授权成功', AlertLevels.SUCCESS);
       this.isSubmitGoing = false;
       this.createOpened = false;
+      this.loading = false;
+      this.create.emit(true);
     }, error => {
       this.alert.showAlert('授权失败', AlertLevels.ERROR);
       this.isSubmitGoing = false;
+      this.loading = false;
+      this.create.emit(true);
     });
   }
 
@@ -78,4 +85,5 @@ export class ItemResourceCreateComponent implements OnInit {
         setTimeout(resolve, ms);
       });
   }
+
 }

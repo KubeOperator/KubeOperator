@@ -26,4 +26,13 @@ export class ItemResourceComponent implements OnInit {
     this.creation.createItemResource(event);
   }
 
+  create(event) {
+    if (event) {
+      this.refresh();
+    }
+  }
+
+  refresh() {
+    this.listItemResource.getItemResources();
+  }
 }
