@@ -40,17 +40,27 @@
 - [x] 支持操作系统版本扩大到：CentOS 7.4 / 7.5 / 7.6 / 7.7；
 - [x] 支持在 Web UI 上面查看集群事件；
 
+Release Note: https://blog.fit2cloud.com/?p=980
+
  ## v2.3 （已发布）
 
 - [x] KubeApps Plus 应用商店；
 - [x] GPU 支持;
 - [x] 支持 Local Persistent Volumes;
 
- ##  v2.4 （计划中，20120.02.28 发布）
+Release Note: https://blog.fit2cloud.com/?p=1032
+
+ ##  v2.4 （开发中，20120.02.28 发布）
  
 - [ ] 用户体系和权限；
 - [ ] 开放 REST API;
+- [ ] 支持 OpenID;
+
+ ##  v2.5 （计划中，20120.03.31 发布）
+ 
 - [ ] 消息中心；
+- [ ] 集群内应用合规扫描；
+- [ ] LDAP / AD 对接支持；
 
  ##  v3.0 （计划中）
  
@@ -62,7 +72,7 @@
 - [ ] 实现内置应用的统一认证；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] 全容器化部署
-- [ ] 支持 CoreOS
+- [ ] 全容器化部署 （CoreOS）
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller
 - [ ] 已有集群导入
+- [ ] 自定义证书支持
