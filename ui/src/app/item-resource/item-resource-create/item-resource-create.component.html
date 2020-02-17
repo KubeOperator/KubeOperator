@@ -6,7 +6,7 @@
         <label>集群</label>
         <clr-checkbox-wrapper *ngFor="let resource of resources">
           <input type="checkbox" clrCheckbox name="options" value="option1" [(ngModel)]="resource.checked"/>
-          <label>{{resource.data.name}}({{resource.data.template}}worker数量:{{resource.data['workSize']}})</label>
+          <label>{{resource.data.name}}({{resource.data.template}}worker数量:{{resource.data['workerSize']}})</label>
         </clr-checkbox-wrapper>
         <clr-control-helper>集群授权会把集群下的主机、存储、部署计划等一并授权到项目</clr-control-helper>
         <clr-control-error>最少选择一个集群</clr-control-error>

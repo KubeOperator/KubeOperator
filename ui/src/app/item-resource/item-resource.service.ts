@@ -29,7 +29,7 @@ export class ItemResourceService {
     return this.httpClient.get<ItemResourceDTO[]>(this.baseURL + itemName + '/');
   }
 
-  deleteItemResource(id: string): Observable<ItemResource> {
-    return this.httpClient.delete<ItemResource>(this.baseURL + id + '/');
+  deleteItemResource(itemName: string, resourceType: string, resourceId: string): Observable<ItemResource> {
+    return this.httpClient.delete<ItemResource>(this.baseURL + itemName + '/' + resourceType + '/' + resourceId + '/');
   }
 }

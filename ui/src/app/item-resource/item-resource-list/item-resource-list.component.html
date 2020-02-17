@@ -18,15 +18,15 @@
     <h6 class="font-title">集群</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="clusterSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('CLUSTER')">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length == 0"
-                  (click)="openDeleteModal('CLUSTER')">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="clusterSelected.length == 0"
+                  (click)="openDeleteModal(clusterSelected,'CLUSTER')">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>
@@ -48,14 +48,15 @@
     <h6 class="font-title">主机</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">>
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="hostSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length == 0">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="hostSelected.length == 0"
+                  (click)="openDeleteModal(hostSelected,'HOST')">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>
@@ -83,14 +84,15 @@
     <h6 class="font-title">存储</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading">
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="storageSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="storageSelected.length == 0"
+                  (click)="openDeleteModal(storageSelected,'STORAGE')">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>
@@ -108,14 +110,15 @@
     <h6 class="font-title">部署计划</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading">
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="planSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="planSelected.length == 0"
+                  (click)="openDeleteModal(planSelected,'PLAN')">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>
@@ -133,14 +136,15 @@
     <h6 class="font-title">备份账号</h6>
   </div>
   <div class="clr-col-lg-12">
-    <clr-datagrid [clrDgLoading]="loading">
+    <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="backupStorageSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
           <button type="button" class="btn btn-sm btn-secondary">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary">
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="backupStorageSelected.length == 0"
+                  (click)="openDeleteModal(backupStorageSelected,'BACKUP_STORAGE')">
             <clr-icon shape="close"></clr-icon>
             取消授权
           </button>

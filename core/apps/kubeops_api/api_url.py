@@ -48,5 +48,6 @@ urlpatterns = [
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
                   path('resource/<item_name>/',item.ItemResourceView.as_view()),
                   path('resource/<item_name>/<resource_type>/', item.ResourceView.as_view()),
+                  path('resource/<item_name>/<resource_type>/<resource_id>/', item.ItemResourceDeleteView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),
               ] + router.urls + cluster_router.urls

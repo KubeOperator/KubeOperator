@@ -1,9 +1,8 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ItemResourceService} from '../item-resource.service';
 import {ActivatedRoute} from '@angular/router';
-import {AlertLevels} from "../../base/header/components/common-alert/alert";
-import {BackupStorageService} from "../../setting/backup-storage-setting/backup-storage.service";
-import {CommonAlertService} from "../../base/header/common-alert.service";
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
+import {CommonAlertService} from '../../base/header/common-alert.service';
 
 @Component({
   selector: 'app-item-resource-list',
@@ -18,6 +17,11 @@ export class ItemResourceListComponent implements OnInit {
   itemId;
   itemResources;
   selected = [];
+  clusterSelected = [];
+  hostSelected = [];
+  storageSelected = [];
+  planSelected = [];
+  backupStorageSelected = [];
   showDelete = false;
   resourceTypeName = '资源';
   isSubmitGoing = false;
@@ -47,7 +51,7 @@ export class ItemResourceListComponent implements OnInit {
   deleteItemResource() {
     const promises: Promise<{}>[] = [];
     this.selected.forEach(item => {
-      promises.push(this.itemResourceService.deleteItemResource(item.resource_id).toPromise());
+      promises.push(this.itemResourceService.deleteItemResource(this.itemName, this.resourceType, item.resource_id).toPromise());
     });
 
     Promise.all(promises).then(data => {
@@ -67,8 +71,9 @@ export class ItemResourceListComponent implements OnInit {
     this.showDelete = false;
   }
 
-  openDeleteModal(resourceType) {
+  openDeleteModal(selected, resourceType) {
     this.resourceType = resourceType;
+    this.selected = selected;
     this.showDelete = true;
   }
 }
