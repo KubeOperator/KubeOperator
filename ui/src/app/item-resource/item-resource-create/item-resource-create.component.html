@@ -2,14 +2,42 @@
   <h3 class="modal-title">资源授权</h3>
   <div class="modal-body modal-height">
     <form clrForm #resourceForm="ngForm">
-      <clr-checkbox-container>
+      <clr-checkbox-container *ngIf="resourceType==='CLUSTER'">
         <label>集群</label>
         <clr-checkbox-wrapper *ngFor="let resource of resources">
-          <input type="checkbox" clrCheckbox name="options" value="option1" [(ngModel)]="resource.checked"/>
+          <input type="checkbox" clrCheckbox name="cluster"  [(ngModel)]="resource.checked"/>
           <label>{{resource.data.name}}({{resource.data.template}}worker数量:{{resource.data['workerSize']}})</label>
         </clr-checkbox-wrapper>
         <clr-control-helper>集群授权会把集群下的主机、存储、部署计划等一并授权到项目</clr-control-helper>
         <clr-control-error>最少选择一个集群</clr-control-error>
+      </clr-checkbox-container>
+      <clr-checkbox-container *ngIf="resourceType==='HOST'">
+        <label>主机</label>
+        <clr-checkbox-wrapper *ngFor="let resource of resources">
+          <input type="checkbox" clrCheckbox name="host"  [(ngModel)]="resource.checked"/>
+          <label>{{resource.data.name}}</label>
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+      <clr-checkbox-container *ngIf="resourceType==='PLAN'">
+        <label>部署计划</label>
+        <clr-checkbox-wrapper *ngFor="let resource of resources">
+          <input type="checkbox" clrCheckbox name="options"  [(ngModel)]="resource.checked"/>
+          <label>{{resource.data.name}}</label>
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+      <clr-checkbox-container *ngIf="resourceType==='STORAGE'">
+        <label>存储</label>
+        <clr-checkbox-wrapper *ngFor="let resource of resources">
+          <input type="checkbox" clrCheckbox name="storage"  [(ngModel)]="resource.checked"/>
+          <label>{{resource.data.name}}</label>
+        </clr-checkbox-wrapper>
+      </clr-checkbox-container>
+      <clr-checkbox-container *ngIf="resourceType==='BACKUP_STORAGE'">
+        <label>备份账号</label>
+        <clr-checkbox-wrapper *ngFor="let resource of resources">
+          <input type="checkbox" clrCheckbox name="backup_storage" [(ngModel)]="resource.checked"/>
+          <label>{{resource.data.name}}</label>
+        </clr-checkbox-wrapper>
       </clr-checkbox-container>
     </form>
     <app-modal-alert #resourceAlert></app-modal-alert>

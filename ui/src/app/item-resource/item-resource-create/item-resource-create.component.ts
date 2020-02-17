@@ -35,7 +35,11 @@ export class ItemResourceCreateComponent implements OnInit {
     this.resourceType = resourceType;
     this.itemResourceService.getResources(this.itemName, resourceType).subscribe(res => {
       this.resources = res;
-      this.createOpened = true;
+      if (this.resources.length > 0) {
+        this.createOpened = true;
+      } else {
+        this.alert.showAlert('没有资源可授权', AlertLevels.ERROR);
+      }
     });
   }
 

@@ -112,23 +112,29 @@ class ResourceView(APIView):
         item = Item.objects.get(name=item_name)
         data = []
         result = {}
+        result2 = None
         resource_ids = ItemResource.objects.filter(item_id=item.id).values_list('resource_id', flat=True)
         if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
             result = Cluster.objects.exclude(id__in=resource_ids)
         if resource_type == ItemResource.RESOURCE_TYPE_HOST:
-            result = Cluster.objects.exclude(id__in=resource_ids)
+            result = Host.objects.exclude(id__in=resource_ids).filter(node_id=None)
         if resource_type == ItemResource.RESOURCE_TYPE_PLAN:
-            result = Plan.objects.all()
+            result = Plan.objects.exclude(id__in=resource_ids)
+        if resource_type == ItemResource.RESOURCE_TYPE_STORAGE:
+            nfs = NfsStorage.objects.exclude(id__in=resource_ids)
+            result = nfs
+            ceph = CephStorage.objects.exclude(id__in=resource_ids)
+            result2 =  ceph
         if resource_type == ItemResource.RESOURCE_TYPE_BACKUP_STORAGE:
-            nfs = NfsStorage.objects.all()
-            ceph = CephStorage.objects.all()
-            result = nfs.extend(ceph)
-        if resource_type == ItemResource.RESOURCE_TYPE_BACKUP_STORAGE:
-            result = BackupStorage.objects.all()
+            result = BackupStorage.objects.exclude(id__in=resource_ids)
 
         for re in result:
             item_resource_dto = Resource(resource_id=re.id, resource_type=resource_type, data=re, checked=False)
             data.append(item_resource_dto.__dict__)
+        if result2 is not None:
+            for re in result2:
+                item_resource_dto = Resource(resource_id=re.id, resource_type=resource_type, data=re, checked=False)
+                data.append(item_resource_dto.__dict__)
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(data, cls=JsonResourceEncoder))
         return response
