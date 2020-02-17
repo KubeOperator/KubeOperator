@@ -11,11 +11,14 @@ from kubeops_api.models.host import Host
 from storage.models import NfsStorage, CephStorage
 from django.http import HttpResponse
 from kubeops_api.utils.json_resource_encoder import JsonResourceEncoder
-from rest_framework import viewsets
 from kubeops_api.serializers.item import ItemSerializer
 from kubeops_api.models.node import Node
 from storage.models import ClusterCephStorage
 from kubeops_api.models.cluster_backup import ClusterBackup
+from rest_framework.response import Response
+from rest_framework import viewsets, status
+
+
 
 __all__ = ["ItemResourceView"]
 
@@ -91,6 +94,8 @@ class ItemResourceDeleteView(APIView):
         resource_type = kwargs['resource_type']
         resource_id = kwargs['resource_id']
         item = Item.objects.get(name=item_name)
+        error =False
+        msg = {}
         if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
             cluster = Cluster.objects.get(id=resource_id)
             cluster_resource = get_cluster_resource(cluster, '')
@@ -99,6 +104,11 @@ class ItemResourceDeleteView(APIView):
                     ItemResource.objects.get(resource_id=c.resource_id, item_id=item.id).delete()
                 except ItemResource.DoesNotExist:
                     pass
+        if resource_type == ItemResource.RESOURCE_TYPE_HOST:
+            host = Host.objects.get(id=resource_id)
+            if host.node_id is not None:
+                return Response(data={'msg': host.name+'已经属于集群，不能单独取消授权'},
+                                status=status.HTTP_400_BAD_REQUEST)
         ItemResource.objects.get(resource_id=resource_id, item_id=item.id).delete()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg': '取消成功'}))

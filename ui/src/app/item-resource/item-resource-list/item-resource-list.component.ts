@@ -62,6 +62,10 @@ export class ItemResourceListComponent implements OnInit {
       () => {
         this.showDelete = false;
         this.selected = [];
+        this.hostSelected = [];
+        this.storageSelected = [];
+        this.planSelected = [];
+        this.backupStorageSelected = [];
         this.getItemResources();
       }
     );
@@ -72,6 +76,11 @@ export class ItemResourceListComponent implements OnInit {
   }
 
   openDeleteModal(selected, resourceType) {
+    if (selected.length === 0) {
+      this.alert.showAlert('请至少选择一行数据', AlertLevels.ERROR);
+      return;
+    }
+
     this.resourceType = resourceType;
     this.selected = selected;
     this.showDelete = true;
