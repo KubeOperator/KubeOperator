@@ -57,11 +57,11 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 
  ##  v2.5 （计划中，20120.03.31 发布）
  
+- [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
 - [ ] 集群内应用合规扫描；
-- [ ] LDAP/AD 对接; 
 
- ##  v3.0 （计划中）
+ ##  Backlog（计划中）
  
 - [ ] K8s 集群 API Server 的 高可用（ VIP ） 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
@@ -71,7 +71,8 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] 实现内置应用的统一认证；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] 全容器化部署 （CoreOS）
-- [ ] Deprecate in-tree OpenStack and vSphere cloud controller
-- [ ] 已有集群导入
-- [ ] 自定义证书支持
+- [ ] 全容器化部署 （CoreOS）;
+- [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
+- [ ] 已有集群导入；
+- [ ] 自定义证书支持；
+- [ ] 应用商店中增加持续部署（CD），完整覆盖 CI 到 CD 的场景。
