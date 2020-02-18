@@ -59,7 +59,7 @@ Release Note: https://blog.fit2cloud.com/?p=1032
  
 - [ ] 消息中心；
 - [ ] 集群内应用合规扫描；
-- [ ] LDAP / AD / OpenID 对接; 
+- [ ] LDAP/AD 对接; 
 
  ##  v3.0 （计划中）
  
