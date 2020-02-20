@@ -6,7 +6,8 @@
       <a class="nav-link" routerLink="cluster" routerLinkActive="active">集群</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" routerLink="members" routerLinkActive="active">成员</a>
+      <a class="nav-link" routerLink="members" routerLinkActive="active"
+         [queryParams]='currentItem'>成员</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" routerLink="resource" routerLinkActive="active"

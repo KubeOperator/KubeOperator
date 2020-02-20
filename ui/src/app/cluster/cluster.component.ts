@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Location} from '@angular/common';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {ClusterListComponent} from './cluster-list/cluster-list.component';
 
@@ -16,16 +15,10 @@ export class ClusterComponent implements OnInit {
   @ViewChild(ClusterListComponent, {static: true})
   listCluster: ClusterListComponent;
 
-  showTitle = true;
-
   constructor() {
   }
 
   ngOnInit() {
-    const url = location.pathname;
-    if (url.indexOf('item') > -1) {
-      this.showTitle = false;
-    }
   }
 
   openModal(): void {

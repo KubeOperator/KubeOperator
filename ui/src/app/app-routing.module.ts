@@ -110,7 +110,9 @@ const routes: Routes = [
         resolve: {item: ItemRoutingResolverService},
         children: [
           {path: '', redirectTo: 'cluster', pathMatch: 'full'},
-          {path: 'cluster', component: ClusterComponent},
+          {
+            path: 'cluster', component: ClusterComponent
+          },
           {path: 'members', component: ItemMemberComponent},
           {path: 'resource', component: ItemResourceComponent},
         ]

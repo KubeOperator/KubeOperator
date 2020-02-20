@@ -33,6 +33,10 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
+from kubeops_api.models.item import Item
+from kubeops_api.models.item_resource import ItemResource
+
+
 
 logger = logging.getLogger('kubeops')
 
@@ -57,6 +61,17 @@ class ClusterViewSet(viewsets.ModelViewSet):
             ClusterHealthHistory.objects.filter(project_id=instance.id).delete()
             ClusterCephStorage.objects.filter(cluster_id=instance.id).delete()
         return response
+
+    def list(self, request, *args, **kwargs):
+        if request.query_params['itemName']:
+            itemName = request.GET["itemName"]
+            item = Item.objects.get(name=itemName)
+            resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+            self.queryset = Cluster.objects.filter(id__in=resource_ids)
+            return super().list(self, request, *args, **kwargs)
+        else:
+            return super().list(self, request, *args, **kwargs)
+
 
 
 class PackageViewSet(viewsets.ModelViewSet):

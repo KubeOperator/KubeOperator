@@ -21,13 +21,7 @@ export class ClusterDetailComponent implements OnInit {
   }
 
   backToCluster() {
-    let routerUrl = '';
-    if (this.route.params['_value']['itemName']) {
-      routerUrl = 'item/' + this.route.params['_value']['itemName'] + '/cluster';
-    } else {
-      routerUrl = 'cluster';
-    }
-    this.router.navigate([routerUrl]);
+    this.router.navigate(['item/' + this.currentCluster.item_name + '/cluster'], {queryParams: {name: this.currentCluster.item_name}});
   }
 
 }

@@ -27,6 +27,7 @@ export class Cluster {
   zones: string[] = [];
   meta: {} = {};
   configs: {} = {};
+  item_name: string;
 
   constructor() {
     this.worker_size = 1;

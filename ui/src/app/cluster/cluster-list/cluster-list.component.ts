@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Cluster, Operation} from '../cluster';
 import {ClusterService} from '../cluster.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SettingService} from '../../setting/setting.service';
 import {PackageLogoService} from '../../package/package-logo.service';
 import {ClusterStatusService} from '../cluster-status.service';
@@ -20,14 +20,16 @@ export class ClusterListComponent implements OnInit {
   hasHostname = false;
   selectedClusters: Cluster[] = [];
   @Output() addCluster = new EventEmitter<void>();
+  itemName = '';
 
   constructor(private clusterService: ClusterService, private router: Router,
               private alertService: CommonAlertService, private settingService: SettingService,
-              private packageLogoService: PackageLogoService,
+              private packageLogoService: PackageLogoService, private route: ActivatedRoute,
               private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
+    this.itemName = this.route.snapshot.queryParams['name'];
     this.checkSetting();
     this.listCluster();
   }
@@ -39,7 +41,7 @@ export class ClusterListComponent implements OnInit {
   }
 
   listCluster() {
-    this.clusterService.listCluster().subscribe(data => {
+    this.clusterService.listItemClusters(this.itemName).subscribe(data => {
       this.clusters = data;
       this.loading = false;
     }, error => {

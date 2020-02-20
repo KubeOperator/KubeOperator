@@ -31,7 +31,7 @@
   <clr-dg-column>创建时间</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-    <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
+    <clr-dg-cell><a routerLink="{{item.name}}" [queryParams]='item'>{{item.name}}</a></clr-dg-cell>
     <clr-dg-cell></clr-dg-cell>
     <clr-dg-cell>{{item.description}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
