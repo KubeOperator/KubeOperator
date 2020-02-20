@@ -53,12 +53,12 @@ Release Note: https://blog.fit2cloud.com/?p=1032
  ##  v2.4 （开发中，20120.02.28 发布）
  
 - [ ] 用户体系和权限；
-- [ ] 开放 REST API;
 
  ##  v2.5 （计划中，20120.03.31 发布）
  
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
+- [ ] 开放 REST API;
 - [ ] 集群内应用合规扫描；
 
  ##  Backlog（计划中）
