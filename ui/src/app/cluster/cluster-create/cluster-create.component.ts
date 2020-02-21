@@ -82,6 +82,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   name_pattern = globals.cluster_name_pattern;
   domain_pattern = globals.domain_pattern;
   name_pattern_tip = globals.cluster_name_pattern_tip;
+  itemName: string;
 
   @Output() create = new EventEmitter<boolean>();
 
@@ -164,12 +165,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   onStorageChange() {
     if (this.cluster.persistent_storage === 'nfs') {
-      this.storageService.list(this.cluster.persistent_storage).subscribe(data => {
+      this.storageService.list(this.cluster.persistent_storage, this.itemName).subscribe(data => {
         this.storageList = data;
       });
     }
     if (this.cluster.persistent_storage === 'external-ceph') {
-      this.storageService.list('ceph').subscribe(data => {
+      this.storageService.list('ceph', this.itemName).subscribe(data => {
         this.storageList = data;
       });
     }
@@ -203,6 +204,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   newCluster(itemName) {
+    this.itemName = itemName;
     this.reset();
     this.createClusterOpened = true;
     this.listPackages();

@@ -8,12 +8,12 @@ import {Storage} from './cluster';
 })
 export class StorageService {
 
-  baseUrl = '/api/v1/storage/{type}/';
+  baseUrl = '/api/v1/storage/{type}';
 
   constructor(private http: HttpClient) {
   }
 
-  list(type: string): Observable<Storage[]> {
-    return this.http.get<Storage[]>(this.baseUrl.replace('{type}', type));
+  list(type: string, itemName: string): Observable<Storage[]> {
+    return this.http.get<Storage[]>(this.baseUrl.replace('{type}', type) + '?itemName=' + itemName);
   }
 }
