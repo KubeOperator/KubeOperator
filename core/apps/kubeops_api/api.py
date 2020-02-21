@@ -282,6 +282,16 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
         else:
             return super().destroy(self, request, *args, **kwargs)
 
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('itemName'):
+            itemName = request.query_params.get('itemName')
+            item = Item.objects.get(name=itemName)
+            resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+            self.queryset = BackupStrategy.objects.filter(id__in=resource_ids)
+            return super().list(self, request, *args, **kwargs)
+        else:
+            return super().list(self, request, *args, **kwargs)
+
 
 class CheckStorageView(APIView):
 
@@ -323,6 +333,8 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
 
     lookup_field = 'project_id'
     lookup_url_kwarg = 'project_id'
+
+
 
 
 class ClusterBackupViewSet(viewsets.ModelViewSet):

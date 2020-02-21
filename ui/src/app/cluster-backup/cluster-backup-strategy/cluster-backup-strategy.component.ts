@@ -66,7 +66,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
   }
 
   getBackupStorage() {
-    this.backupStorageService.listBackupStorage().subscribe(data => {
+    this.backupStorageService.listItemBackupStorage(this.currentCluster.item_name).subscribe(data => {
       this.loading = false;
       this.backupStorage = data;
     }, err => {

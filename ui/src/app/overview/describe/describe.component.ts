@@ -46,7 +46,7 @@ export class DescribeComponent implements OnInit {
   nodeCount = 0;
   namespaceCount = 0;
   deploymentCount = 0;
-  baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
+  baseRoute;
 
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
@@ -65,6 +65,7 @@ export class DescribeComponent implements OnInit {
       }
     });
     this.getClusterData();
+    this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
   }
 
 

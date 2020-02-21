@@ -25,7 +25,7 @@ export class ClusterBackupListComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
-  baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
+  baseRoute: string;
 
 
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
@@ -36,6 +36,7 @@ export class ClusterBackupListComponent implements OnInit {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectId = this.currentCluster.id;
+      this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
       this.listClusterBackups();
     });
   }
