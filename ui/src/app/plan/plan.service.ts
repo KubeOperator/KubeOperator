@@ -16,6 +16,10 @@ export class PlanService {
     return this.http.get<Plan[]>(this.baseUrl);
   }
 
+  listItemPlan(itemName: string): Observable<Plan[]> {
+    return this.http.get<Plan[]>(this.baseUrl + '?itemName=' + itemName);
+  }
+
   createPlan(item: Plan): Observable<Plan> {
     return this.http.post<Plan>(this.baseUrl, item);
   }

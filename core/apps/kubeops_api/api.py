@@ -63,8 +63,8 @@ class ClusterViewSet(viewsets.ModelViewSet):
         return response
 
     def list(self, request, *args, **kwargs):
-        if request.query_params['itemName']:
-            itemName = request.GET["itemName"]
+        if request.query_params.get('itemName'):
+            itemName = request.query_params.get('itemName')
             item = Item.objects.get(name=itemName)
             resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
             self.queryset = Cluster.objects.filter(id__in=resource_ids)

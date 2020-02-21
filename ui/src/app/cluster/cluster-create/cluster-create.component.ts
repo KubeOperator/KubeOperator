@@ -202,12 +202,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  newCluster() {
+  newCluster(itemName) {
     this.reset();
     this.createClusterOpened = true;
     this.listPackages();
     this.getAllHost();
-    this.listPlans();
+    this.listPlans(itemName);
     this.loadClusterConfig();
   }
 
@@ -230,8 +230,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  listPlans() {
-    this.planService.listPlan().subscribe(data => {
+  listPlans(itemName) {
+    this.planService.listItemPlan(itemName).subscribe(data => {
       this.plans = data;
     });
   }

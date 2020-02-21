@@ -4,12 +4,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ansible_api.permissions import IsSuperUser
 from cloud_provider import serializers, get_cloud_client
 from cloud_provider.compute_model import compute_models
 from cloud_provider.models import CloudProviderTemplate, Region, Zone, Plan
 from kubeops_api.models.cluster import Cluster
-
+from kubeops_api.models.item import Item
+from kubeops_api.models.item_resource import ItemResource
 
 class CloudProviderTemplateViewSet(viewsets.ModelViewSet):
     queryset = CloudProviderTemplate.objects.all()
@@ -69,6 +69,15 @@ class PlanViewSet(viewsets.ModelViewSet):
             return Response(data={'msg': '部署计划: {} 下资源不为空'.format(instance.name)}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('itemName'):
+            itemName = request.query_params.get('itemName')
+            item = Item.objects.get(name=itemName)
+            resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+            self.queryset = Plan.objects.filter(id__in=resource_ids)
+            return super().list(self, request, *args, **kwargs)
+        else:
+            return super().list(self, request, *args, **kwargs)
 
 class CloudRegionView(APIView):
 

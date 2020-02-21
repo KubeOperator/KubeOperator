@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ClusterCreateComponent} from './cluster-create/cluster-create.component';
 import {ClusterListComponent} from './cluster-list/cluster-list.component';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-cluster',
@@ -15,14 +16,17 @@ export class ClusterComponent implements OnInit {
   @ViewChild(ClusterListComponent, {static: true})
   listCluster: ClusterListComponent;
 
-  constructor() {
+  itemName: string;
+
+  constructor(private route: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.itemName = this.route.snapshot.queryParams['name'];
   }
 
   openModal(): void {
-    this.creationCluster.newCluster();
+    this.creationCluster.newCluster(this.itemName);
   }
 
   createCluster(created: boolean) {

@@ -3,7 +3,8 @@
 <nav class="subnav sub-nav-bg-color">
   <ul class="nav">
     <li class="nav-item">
-      <a class="nav-link" routerLink="cluster" routerLinkActive="active">集群</a>
+      <a class="nav-link" routerLink="cluster" routerLinkActive="active"
+      [queryParams]='currentItem'>集群</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" routerLink="members" routerLinkActive="active"
