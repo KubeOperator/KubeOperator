@@ -72,6 +72,17 @@ class ClusterViewSet(viewsets.ModelViewSet):
         else:
             return super().list(self, request, *args, **kwargs)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception = True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        if request.data.get('item_name'):
+            item=Item.objects.get(name=request.data.get('item_name'))
+            cluster = Cluster.objects.get(name=request.data.get('name'))
+            itemResource = ItemResource(item_id=item.id,resource_id=cluster.id,resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
+            itemResource.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class PackageViewSet(viewsets.ModelViewSet):

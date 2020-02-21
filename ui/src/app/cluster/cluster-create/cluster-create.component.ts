@@ -376,6 +376,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
       return;
     }
     this.isSubmitGoing = true;
+    this.cluster.item_name = this.itemName;
     this.clusterService.createCluster(this.cluster).subscribe(data => {
       this.cluster = data;
       if (this.nodes) {
