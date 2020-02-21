@@ -3,17 +3,17 @@
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from kombu.utils import json
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.generics import RetrieveAPIView, get_object_or_404, CreateAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveAPIView, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from django.contrib.auth import get_user_model
 
+from users.models import User
 from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer
 
 
 class UserViewSet(ModelViewSet):
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     serializer_class_create = UserCreateUpdateSerializer
 
@@ -41,7 +41,7 @@ class UserPasswordChangeApi(APIView):
         pk = kwargs.get('pk')
         password = request.data.get('password')
         new_password = request.data.get('new_password')
-        user = get_object_or_404(get_user_model(), pk=pk)
+        user = get_object_or_404(User, pk=pk)
         response = HttpResponse()
         response.write(json.dumps({'result': 'success'}))
         if user.check_password(password):

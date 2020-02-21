@@ -3,7 +3,7 @@
     <clr-icon shape="dashboard" clrVerticalNavIcon></clr-icon>
     概览
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/item">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/item" *ngIf="user.is_superuser">
     <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
     项目
   </a>
@@ -15,7 +15,7 @@
     <clr-icon shape="host" clrVerticalNavIcon></clr-icon>
     主机
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/package">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/package" *ngIf="user.is_superuser">
     <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
     离线包
   </a>
@@ -27,15 +27,15 @@
     <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
     部署计划
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/system/log">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/system/log" *ngIf="user.is_superuser">
     <clr-icon shape="align-left-text" clrVerticalNavIcon></clr-icon>
     系统日志
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/user">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/user" *ngIf="user.is_superuser">
     <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
     用户管理
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/setting">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/setting" *ngIf="user.is_superuser">
     <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>
     系统设置
   </a>

@@ -1,4 +1,4 @@
-DEBUG: false
+DEBUG: true
 DB_HOST: localhost
 DB_PORT: 3306
 DB_NAME: fit2openshift

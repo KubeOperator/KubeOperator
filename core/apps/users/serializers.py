@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
-#
-
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from kubeops_api.models import Item
+from users.models import User
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    current_item = serializers.SlugRelatedField(
+        many=False, required=False, slug_field='name', queryset=Item.objects.all()
+    )
 
     class Meta:
-        model = get_user_model()
-        exclude = [
-            'password', 'first_name', 'last_name',
-        ]
+        model = User
+        fields = ['id', 'name', 'current_item', 'last_login', 'is_superuser', 'email', 'is_staff', 'is_active',
+                  'date_joined', 'items']
 
     @staticmethod
     def get_name(obj):
@@ -23,11 +23,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    current_item = serializers.SlugRelatedField(
+        many=False, required=False, slug_field='name', queryset=Item.objects.all()
+    )
+
     class Meta:
-        model = get_user_model()
+        model = User
         fields = [
             'id', 'username', 'email',
-            'is_superuser', 'is_active', 'date_joined', 'last_login'
+            'is_superuser', 'is_active', 'date_joined', 'last_login', 'current_item', 'items'
         ]
         read_only_fields = ['date_joined', 'last_login']
 

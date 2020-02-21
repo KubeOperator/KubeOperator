@@ -1,0 +1,16 @@
+<clr-datagrid>
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary">
+        <clr-icon shape="plus" size="16"></clr-icon>
+        管理
+      </button>
+    </div>
+  </clr-dg-action-bar>
+  <clr-dg-column>用户名</clr-dg-column>
+  <clr-dg-column>角色</clr-dg-column>
+  <clr-dg-row *clrDgItems="let item of itemMember.users" [clrDgItem]="item">
+    <clr-dg-cell>{{item.username}}</clr-dg-cell>
+    <clr-dg-cell>{{item.is_superuser}}</clr-dg-cell>
+  </clr-dg-row>
+</clr-datagrid>

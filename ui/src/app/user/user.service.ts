@@ -28,4 +28,12 @@ export class UserService {
   deleteUser(userId): Observable<any> {
     return this.http.delete(userUrl + userId + '/');
   }
+
+  updateUser(user: User): Observable<User> {
+    return this.http.patch<User>(userUrl + user.id + '/', user);
+  }
+
+  getUser(id: number): Observable<User> {
+    return this.http.get<User>(userUrl + id + '/');
+  }
 }

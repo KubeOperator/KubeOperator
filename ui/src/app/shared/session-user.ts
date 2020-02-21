@@ -8,4 +8,6 @@ export class SessionUser {
   is_active: boolean;
   token: string;
   password: string;
+  items: string[] = [];
+  current_item: string;
 }

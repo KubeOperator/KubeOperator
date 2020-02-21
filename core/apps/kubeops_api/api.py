@@ -36,8 +36,6 @@ from storage.models import ClusterCephStorage
 from kubeops_api.models.item import Item
 from kubeops_api.models.item_resource import ItemResource
 
-
-
 logger = logging.getLogger('kubeops')
 
 
@@ -84,7 +82,6 @@ class ClusterViewSet(viewsets.ModelViewSet):
             itemResource = ItemResource(item_id=item.id,resource_id=cluster.id,resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
             itemResource.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
@@ -570,8 +567,3 @@ class ClusterNamespaceView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
         return response
-
-
-
-
-

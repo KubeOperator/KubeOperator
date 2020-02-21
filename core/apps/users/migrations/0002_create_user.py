@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 
 def add_default_admin(apps, schema_editor):
-    user_model = apps.get_model("auth", "User")
+    user_model = apps.get_model("users", "User")
     db_alias = schema_editor.connection.alias
     user_model.objects.using(db_alias).create(
         username="admin",
@@ -17,11 +17,10 @@ def add_default_admin(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0008_alter_user_username_max_length'),
+        ('users', '0001_initial'),
     ]
 
     operations = [

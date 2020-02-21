@@ -1,24 +1,22 @@
 import json
 
-from rest_framework.views import APIView
-from kubeops_api.models.item_resource import ItemResource
-from kubeops_api.models.item import Item
-from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.item_resource_dto import Resource
-from kubeops_api.models.backup_storage import BackupStorage
-from cloud_provider.models import Plan
-from kubeops_api.models.host import Host
-from storage.models import NfsStorage, CephStorage
 from django.http import HttpResponse
-from kubeops_api.utils.json_resource_encoder import JsonResourceEncoder
-from kubeops_api.serializers.item import ItemSerializer
-from kubeops_api.models.node import Node
-from storage.models import ClusterCephStorage
-from kubeops_api.models.cluster_backup import ClusterBackup
-from rest_framework.response import Response
 from rest_framework import viewsets, status
-
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from cloud_provider.models import Plan
+from kubeops_api.models.backup_storage import BackupStorage
+from kubeops_api.models.cluster import Cluster
+from kubeops_api.models.cluster_backup import ClusterBackup
+from kubeops_api.models.host import Host
+from kubeops_api.models.item import Item
+from kubeops_api.models.item_resource import ItemResource
+from kubeops_api.models.item_resource_dto import Resource
+from kubeops_api.models.node import Node
+from kubeops_api.serializers.item import ItemSerializer, ItemUserSerializer, ItemUserReadSerializer
+from kubeops_api.utils.json_resource_encoder import JsonResourceEncoder
+from storage.models import ClusterCephStorage
+from storage.models import NfsStorage, CephStorage
 
 __all__ = ["ItemResourceView"]
 
@@ -29,6 +27,21 @@ class ItemViewSet(viewsets.ModelViewSet):
 
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
+
+
+class ItemUserViewSet(viewsets.ModelViewSet):
+    queryset = Item.objects.all()
+    serializer_class = ItemUserSerializer
+    lookup_field = 'name'
+    lookup_url_kwarg = 'item_name'
+    http_method_names = ['patch', 'option', 'head']
+
+
+class ItemUserReadViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Item.objects.all()
+    serializer_class = ItemUserReadSerializer
+    lookup_field = 'name'
+    lookup_url_kwarg = 'item_name'
 
 
 class ItemResourceView(APIView):
@@ -87,6 +100,7 @@ class ItemResourceView(APIView):
         response.write(json.dumps({'msg': '授权成功'}))
         return response
 
+
 class ItemResourceDeleteView(APIView):
 
     def delete(self, request, *args, **kwargs):
@@ -94,7 +108,7 @@ class ItemResourceDeleteView(APIView):
         resource_type = kwargs['resource_type']
         resource_id = kwargs['resource_id']
         item = Item.objects.get(name=item_name)
-        error =False
+        error = False
         msg = {}
         if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
             cluster = Cluster.objects.get(id=resource_id)
@@ -107,12 +121,13 @@ class ItemResourceDeleteView(APIView):
         if resource_type == ItemResource.RESOURCE_TYPE_HOST:
             host = Host.objects.get(id=resource_id)
             if host.node_id is not None:
-                return Response(data={'msg': host.name+'已经属于集群，不能单独取消授权'},
+                return Response(data={'msg': host.name + '已经属于集群，不能单独取消授权'},
                                 status=status.HTTP_400_BAD_REQUEST)
         ItemResource.objects.get(resource_id=resource_id, item_id=item.id).delete()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg': '取消成功'}))
         return response
+
 
 class ResourceView(APIView):
 
@@ -134,7 +149,7 @@ class ResourceView(APIView):
             nfs = NfsStorage.objects.exclude(id__in=resource_ids)
             result = nfs
             ceph = CephStorage.objects.exclude(id__in=resource_ids)
-            result2 =  ceph
+            result2 = ceph
         if resource_type == ItemResource.RESOURCE_TYPE_BACKUP_STORAGE:
             result = BackupStorage.objects.exclude(id__in=resource_ids)
 
