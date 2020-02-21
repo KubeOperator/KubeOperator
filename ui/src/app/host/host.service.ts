@@ -19,6 +19,10 @@ export class HostService {
     return this.http.get<Host[]>(baseUrl);
   }
 
+  listItemHosts(itemName: string): Observable<Host[]> {
+    return this.http.get<Host[]>(baseUrl + '?itemName=' + itemName);
+  }
+
   getHost(hostId: string): Observable<Host> {
     return this.http.get<Host>(baseUrl + hostId + '/');
   }
