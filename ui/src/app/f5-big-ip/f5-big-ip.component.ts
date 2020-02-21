@@ -12,6 +12,7 @@ import {OperaterService} from '../deploy/component/operater/operater.service';
 export class F5BigIpComponent implements OnInit {
 
   currentCluster: Cluster;
+  baseRoute: string;
 
   constructor(private route: ActivatedRoute, private clusterService: ClusterService,
               private router: Router, private operaterService: OperaterService) {
@@ -21,6 +22,7 @@ export class F5BigIpComponent implements OnInit {
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
+      this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
       this.refreshCluster();
     });
   }
@@ -34,14 +36,14 @@ export class F5BigIpComponent implements OnInit {
   onCommit() {
     this.clusterService.updateCluster(this.currentCluster).subscribe(() => {
       this.operaterService.executeOperate(this.currentCluster.name, 'bigip-config').subscribe(data => {
-        this.redirect('deploy');
+        this.router.navigate([this.baseRoute + '/deploy']);
       });
     });
   }
 
   redirect(url: string) {
     if (url) {
-      const linkUrl = [ 'cluster', this.currentCluster.name, url];
+      const linkUrl = ['cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
   }

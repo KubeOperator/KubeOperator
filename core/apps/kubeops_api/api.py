@@ -60,6 +60,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
             kubeops_api.cluster_monitor.delete_cluster_redis_data(instance.name)
             ClusterHealthHistory.objects.filter(project_id=instance.id).delete()
             ClusterCephStorage.objects.filter(cluster_id=instance.id).delete()
+            ItemResource.objects.filter(resource_id=instance.id).delete()
         return response
 
     def list(self, request, *args, **kwargs):

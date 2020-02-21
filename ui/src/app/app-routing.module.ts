@@ -50,7 +50,7 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
       {path: 'dashboard', component: DashboardComponent},
-      {path: 'cluster', component: ClusterComponent},
+      // {path: 'cluster', component: ClusterComponent},
       {path: 'item', component: ItemComponent},
       {path: 'package', component: PackageComponent},
       {path: 'user', component: UserComponent},
@@ -86,24 +86,24 @@ const routes: Routes = [
           {path: 'dns', component: DnsComponent}
         ]
       },
-      {
-        path: 'cluster/:name',
-        component: ClusterDetailComponent,
-        resolve: {cluster: ClusterRoutingResolverService},
-        children: [
-          {path: '', redirectTo: 'overview', pathMatch: 'full'},
-          {path: 'overview', component: OverviewComponent},
-          {path: 'node', component: NodeComponent},
-          {path: 'deploy', component: DeployComponent},
-          {path: 'log', component: LogComponent},
-          {path: 'apps', component: ApplicationComponent},
-          {path: 'health', component: ClusterHealthComponent},
-          {path: 'event', component: ClusterEventComponent},
-          {path: 'backup', component: ClusterBackupComponent},
-          {path: 'big-ip', component: F5BigIpComponent},
-          {path: 'cluster-storage', component: ClusterStorageComponent}
-        ]
-      },
+      // {
+      //   path: 'cluster/:name',
+      //   component: ClusterDetailComponent,
+      //   resolve: {cluster: ClusterRoutingResolverService},
+      //   children: [
+      //     {path: '', redirectTo: 'overview', pathMatch: 'full'},
+      //     {path: 'overview', component: OverviewComponent},
+      //     {path: 'node', component: NodeComponent},
+      //     {path: 'deploy', component: DeployComponent},
+      //     {path: 'log', component: LogComponent},
+      //     {path: 'apps', component: ApplicationComponent},
+      //     {path: 'health', component: ClusterHealthComponent},
+      //     {path: 'event', component: ClusterEventComponent},
+      //     {path: 'backup', component: ClusterBackupComponent},
+      //     {path: 'big-ip', component: F5BigIpComponent},
+      //     {path: 'cluster-storage', component: ClusterStorageComponent}
+      //   ]
+      // },
       {
         path: 'item/:itemName',
         component: ItemDetailComponent,

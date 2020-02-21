@@ -25,7 +25,7 @@ export class ClusterStatusComponent implements OnInit {
   @ViewChild(RemoveWorkerComponent, {static: true}) removeWorker: RemoveWorkerComponent;
   componentData = [];
   loading = false;
-
+  baseRoute;
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
               private router: Router, private operaterService: OperaterService, private clusterService: ClusterService) {
@@ -38,12 +38,13 @@ export class ClusterStatusComponent implements OnInit {
       });
     });
     this.getClusterStatus();
+    this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
   }
 
   handleScale() {
     const params = {'num': this.scale.worker_size};
     this.operaterService.executeOperate(this.currentCluster.name, 'scale', params).subscribe(() => {
-      this.redirect('deploy');
+      this.router.navigate([this.baseRoute + '/deploy']);
     }, error => {
       this.scale.opened = false;
     });
@@ -58,7 +59,7 @@ export class ClusterStatusComponent implements OnInit {
   handleAddWorker() {
     const params = {'host': this.addWorker.host};
     this.operaterService.executeOperate(this.currentCluster.name, 'add-worker', params).subscribe(() => {
-      this.redirect('deploy');
+      this.router.navigate([this.baseRoute + '/deploy']);
     }, error => {
       this.scale.opened = false;
     });
@@ -67,7 +68,7 @@ export class ClusterStatusComponent implements OnInit {
   handleRemoveWorker() {
     const params = {'node': this.removeWorker.worker};
     this.operaterService.executeOperate(this.currentCluster.name, 'remove-worker', params).subscribe(() => {
-      this.redirect('deploy');
+      this.router.navigate([this.baseRoute + '/deploy']);
     }, error => {
       this.scale.opened = false;
     });
@@ -96,7 +97,7 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   toHealth() {
-    this.redirect('health');
+    this.router.navigate([this.baseRoute + '/health']);
   }
 
   getClusterStatus() {

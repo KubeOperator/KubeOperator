@@ -7,7 +7,7 @@ from kubeops_api.adhoc import drain_worker_node
 from kubeops_api.models.host import Host
 from kubeops_api.models.node import Node
 from time import sleep
-
+from kubeops_api.models.item_resource import ItemResource
 
 def create_compute_resource(cluster):
     hosts_dict = create_cluster_hosts_dict(cluster)
@@ -95,6 +95,9 @@ def create_nodes(cluster, hosts_dict):
             result = Host.objects.update_or_create(defaults, name=host_dict['name'])
             host = result[0]
             node = cluster.create_node(host_dict['role'], host)
+            item_resource = ItemResource.objects.get(resource_id=cluster.id)
+            item_r = ItemResource(item_id=item_resource.item_id,resource_id=host.id,resource_type=ItemResource.RESOURCE_TYPE_HOST)
+            item_r.save()
             new_nodes.append(node)
             hosts.append(host)
     client = get_cloud_client(cluster.plan.mixed_vars)
@@ -203,3 +206,4 @@ def delete_hosts(cluster):
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
             node.host.delete()
+            ItemResource.objects.filter(resource_id=node.host.id).delete()

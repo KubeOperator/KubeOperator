@@ -34,11 +34,13 @@ export class ClusterBackupStrategyComponent implements OnInit {
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   etcdHealth = true;
+  baseRoute;
 
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
+      this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
       this.projectId = this.currentCluster.id;
       this.getBackupStrategy();
       this.getBackupStorage();
@@ -149,7 +151,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
 
   handleEvent(params?) {
     this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
-      this.redirect('deploy');
+      this.router.navigate([this.baseRoute + '/deploy']);
     });
     this.confirmAlert.close();
   }

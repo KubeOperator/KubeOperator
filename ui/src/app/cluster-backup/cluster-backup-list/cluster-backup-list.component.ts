@@ -25,6 +25,7 @@ export class ClusterBackupListComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
+  baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
 
 
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
@@ -83,7 +84,7 @@ export class ClusterBackupListComponent implements OnInit {
 
   handleEvent(params?) {
     this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
-      this.redirect('deploy');
+      this.router.navigate([this.baseRoute + '/deploy']);
     });
     this.confirmAlert.close();
   }
