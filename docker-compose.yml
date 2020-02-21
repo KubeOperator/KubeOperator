@@ -78,8 +78,6 @@ services:
 
   mysql:
     container_name: kubeops_mysql
-    ports:
-      - 3306:3306
     image: mysql:5
     command: [
               '--character-set-server=utf8',
@@ -99,8 +97,6 @@ services:
 
   redis:
     image: redis:alpine
-    ports:
-      - 6379:6379
     container_name: kubeops_redis
     restart: always
     healthcheck:
