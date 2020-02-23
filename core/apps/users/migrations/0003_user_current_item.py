@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('kubeops_api', '0063_auto_20200221_0654'),
+        ('kubeops_api', '0062_auto_20200221_0510'),
         ('users', '0002_create_user'),
     ]
 

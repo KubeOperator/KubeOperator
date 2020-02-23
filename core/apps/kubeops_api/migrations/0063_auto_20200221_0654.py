@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('kubeops_api', '0058_auto_20200210_0618'),
+        ('kubeops_api', '0062_auto_20200221_0510'),
     ]
 
     operations = [
@@ -16,5 +16,10 @@ class Migration(migrations.Migration):
             model_name='item',
             name='users',
             field=models.ManyToManyField(to=settings.AUTH_USER_MODEL),
-        )
+        ),
+        migrations.AlterField(
+            model_name='clusterhealthhistory',
+            name='date_type',
+            field=models.CharField(choices=[('HOUR', 'HOUR'), ('DAY', 'DAY')], default='HOUR', max_length=255),
+        ),
     ]
