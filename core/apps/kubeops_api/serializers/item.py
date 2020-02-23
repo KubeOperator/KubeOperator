@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from kubeops_api.models.item import Item
-from users.models import User
+from users.models import Profile
 from users.serializers import UserSerializer
 
 
@@ -21,7 +21,7 @@ class ItemUserReadSerializer(serializers.ModelSerializer):
 class ItemUserSerializer(serializers.ModelSerializer):
     users = serializers.SlugRelatedField(
         many=True,
-        queryset=User.objects.all(),
+        queryset=Profile.objects.all(),
         required=True,
         slug_field='id'
     )
