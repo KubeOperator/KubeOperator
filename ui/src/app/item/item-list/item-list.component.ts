@@ -48,7 +48,9 @@ export class ItemListComponent implements OnInit {
     });
     Promise.all(promises).then(() => {
       this.listItem();
-      this.alertService.showAlert('删除项目成功！', AlertLevels.SUCCESS);
+      this.alertService.showAlert('删除成功！', AlertLevels.SUCCESS);
+    }, res => {
+      this.alertService.showAlert('删除失败' + res.error.msg, AlertLevels.ERROR);
     }).finally(() => {
       this.deleteModal = false;
       this.selectedItems = [];

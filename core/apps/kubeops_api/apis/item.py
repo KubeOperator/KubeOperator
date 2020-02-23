@@ -30,6 +30,14 @@ class ItemViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        resources = ItemResource.objects.filter(item_id=instance.id)
+        if len(resources) > 0:
+            return Response(data={'msg': '项目已有关联资源,不能删除'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(self, request, *args, **kwargs)
+
 
 class ItemResourceView(APIView):
 
