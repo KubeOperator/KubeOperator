@@ -33,7 +33,8 @@ class JsonResourceEncoder(json.JSONEncoder):
                 "memory": obj.memory,
                 "gpu": obj.gpu,
                 "gpu_num": obj.gpu_num,
-                "gpu_info": obj.gpu_info
+                "gpu_info": obj.gpu_info,
+                "cluster": obj.cluster
             }
             return host_data
         if isinstance(obj,Plan):
@@ -57,14 +58,16 @@ class JsonResourceEncoder(json.JSONEncoder):
                 "id": obj.id,
                 "name": obj.name,
                 "status":obj.status,
-                "vars": obj.vars
+                "vars": obj.vars,
+                "type": "NFS"
             }
             return nfs_data
         if isinstance(obj,CephStorage):
             ceph_data = {
                 "id": obj.id,
                 "name": obj.name,
-                "vars": obj.vars
+                "vars": obj.vars,
+                "type": "Ceph"
             }
             return ceph_data
 

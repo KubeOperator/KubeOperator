@@ -3,6 +3,7 @@ import {ItemResourceService} from '../item-resource.service';
 import {ActivatedRoute} from '@angular/router';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
+import {ClusterStatusService} from "../../cluster/cluster-status.service";
 
 @Component({
   selector: 'app-item-resource-list',
@@ -27,7 +28,8 @@ export class ItemResourceListComponent implements OnInit {
   isSubmitGoing = false;
   resourceType;
 
-  constructor(private itemResourceService: ItemResourceService, private route: ActivatedRoute, private alert: CommonAlertService) {
+  constructor(private itemResourceService: ItemResourceService, private route: ActivatedRoute,
+              private alert: CommonAlertService, private clusterStatusService: ClusterStatusService) {
   }
 
   ngOnInit() {
@@ -84,5 +86,17 @@ export class ItemResourceListComponent implements OnInit {
     this.resourceType = resourceType;
     this.selected = selected;
     this.showDelete = true;
+  }
+
+
+  getDeployName(name: string) {
+    switch (name) {
+      case 'SINGLE':
+        return '一主多节点';
+      case 'MULTIPLE':
+        return '多主多节点';
+      default:
+        return '无';
+    }
   }
 }
