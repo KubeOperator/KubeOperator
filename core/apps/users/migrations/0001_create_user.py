@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 from django.contrib.auth.hashers import make_password
-from django.db import migrations, models
+from django.db import migrations
 
 
 def add_default_admin(apps, schema_editor):
-    user_model = apps.get_model("users", "User")
+    user_model = apps.get_model("auth", "User")
     db_alias = schema_editor.connection.alias
     user_model.objects.using(db_alias).create(
         username="admin",
@@ -17,10 +17,11 @@ def add_default_admin(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),
+        ('auth', '0008_alter_user_username_max_length'),
     ]
 
     operations = [
