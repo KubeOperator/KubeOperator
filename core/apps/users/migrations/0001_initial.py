@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('kubeops_api', '0060_auto_20200221_0436'),
-        ('auth', '0011_update_proxy_permissions'),
+        ('kubeops_api', '0058_auto_20200210_0618'),
+        # ('auth', '0011_update_proxy_permissions'),
     ]
 
     operations = [
