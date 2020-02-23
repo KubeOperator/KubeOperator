@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('kubeops_api', '0058_auto_20200210_0618'),
-        # ('auth', '0011_update_proxy_permissions'),
+        ('auth', '0011_update_proxy_permissions'),
     ]
 
     operations = [
