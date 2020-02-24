@@ -4,6 +4,7 @@ import {Cluster} from '../cluster/cluster';
 import {Router} from '@angular/router';
 import {DashboardSearch} from './dashboardSearch';
 import {DashboardService} from './dashboard.service';
+import {ItemService} from '../item/item.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -40,14 +41,17 @@ export class DashboardComponent implements OnInit {
   maxPodCount = 0;
   containerUsage = 0;
   showWindow = true;
+  items = [];
 
-  constructor(private clusterService: ClusterService, private router: Router, private dashboardService: DashboardService) {
+  constructor(private clusterService: ClusterService, private router: Router,
+              private dashboardService: DashboardService, private itemService: ItemService) {
   }
 
   ngOnInit() {
     this.dashboardSearch.cluster = 'all';
+    this.dashboardSearch.item = 'all';
     this.dashboardSearch.dateLimit = 1;
-    this.search();
+    this.getItems();
     this.timer = setInterval(() => {
       this.search();
     }, 300000);
@@ -85,7 +89,7 @@ export class DashboardComponent implements OnInit {
   }
 
   listCluster() {
-    this.clusterService.listCluster().subscribe(data => {
+    this.clusterService.listItemClusters(this.dashboardSearch.item).subscribe(data => {
       this.clusters = data;
       this.selectClusters = data;
       this.getClusterData();
@@ -104,7 +108,7 @@ export class DashboardComponent implements OnInit {
 
   getClusterData() {
     this.dataInit();
-    this.dashboardService.getDashboard(this.dashboardSearch.cluster).subscribe(data => {
+    this.dashboardService.getDashboard(this.dashboardSearch.cluster, this.dashboardSearch.item).subscribe(data => {
       this.clusterData = data.data;
       this.restartPods = data.restartPods;
       this.warnContainers = data.warnContainers;
@@ -182,5 +186,18 @@ export class DashboardComponent implements OnInit {
         window.open(url, '_blank');
       }
     }
+  }
+
+  getItems() {
+    this.itemService.listItem().subscribe(data => {
+      this.items = data;
+      this.dashboardSearch.item = this.items[0].name;
+      this.search();
+    });
+  }
+
+  changeItem() {
+    this.dashboardSearch.cluster = 'all';
+    this.listCluster();
   }
 }

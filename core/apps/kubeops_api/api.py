@@ -430,15 +430,18 @@ class DashBoardView(APIView):
 
     def get(self, request, *args, **kwargs):
         project_name = kwargs['project_name']
+        item_name = kwargs['item_name']
         cluster_data = []
         restart_pods = []
         warn_containers = []
         error_loki_containers = []
         error_pods = []
         if project_name == 'all':
+            item = Item.objects.get(name=item_name)
+            resourceIds = ItemResource.objects.filter(item_id=item.id).values_list('resource_id')
             clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
                                               ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
-                                              ~Q(status=Cluster.CLUSTER_STATUS_DELETING))
+                                              ~Q(status=Cluster.CLUSTER_STATUS_DELETING)).filter(id__in=resourceIds)
             for c in clusters:
                 cluster_monitor = ClusterMonitor(c)
                 res = cluster_monitor.list_cluster_data()

@@ -20,6 +20,13 @@
       <!--        </select>-->
       <!--      </div>-->
       <div class="clr-select-wrapper">
+        <select class="clr-select" [(ngModel)]="dashboardSearch.item"(ngModelChange)="changeItem()">
+<!--          <option value="all">所有项目</option>-->
+          <option *ngFor="let i of items" value="{{i.name}}">{{i.name}}</option>
+        </select>
+      </div>
+      &nbsp;&nbsp;
+      <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.cluster" (ngModelChange)="search()">
           <option value="all">所有集群</option>
           <option *ngFor="let c of selectClusters" value="{{c.name}}">{{c.name}}</option>
@@ -51,7 +58,7 @@
         <div class="clr-col-sm-4 center">
           <img src="assets/images/dashboard_openstack.svg" class="img-responsive middle" width="88" height="88">
           <p class="card-text"><a href="https://docs.kubeoperator.io/KubeOperator-v2.3/userguide-openstack"
-               target="_blank">在OpenStack上创建集群</a>
+                                  target="_blank">在OpenStack上创建集群</a>
           </p>
         </div>
       </div>
@@ -77,7 +84,7 @@
         </table>
       </div>
       <div class="card-footer">
-        <a class="btn btn-sm btn-link" (click)="toPage('cluster')">详情</a>
+        <a class="btn btn-sm btn-link" style="visibility:hidden;" (click)="toPage('cluster')">详情</a>
       </div>
     </div>
   </div>
@@ -148,7 +155,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <a (click)="toPage('cluster')" class="btn btn-sm btn-link">详情</a>
+        <a (click)="toPage('cluster')" style="visibility:hidden;" class="btn btn-sm btn-link">详情</a>
       </div>
     </div>
   </div>
