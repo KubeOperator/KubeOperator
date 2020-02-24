@@ -4,6 +4,8 @@ import {ActivatedRoute} from '@angular/router';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {ClusterStatusService} from "../../cluster/cluster-status.service";
+import {ClusterHealthService} from "../../cluster-health/cluster-health.service";
+import {SessionService} from "../../shared/session.service";
 
 @Component({
   selector: 'app-item-resource-list',
@@ -27,14 +29,17 @@ export class ItemResourceListComponent implements OnInit {
   resourceTypeName = '资源';
   isSubmitGoing = false;
   resourceType;
+  permission;
 
   constructor(private itemResourceService: ItemResourceService, private route: ActivatedRoute,
-              private alert: CommonAlertService, private clusterStatusService: ClusterStatusService) {
+              private alert: CommonAlertService, private clusterStatusService: ClusterStatusService,
+              private sessionService: SessionService) {
   }
 
   ngOnInit() {
     this.itemName = this.route.snapshot.queryParams['name'];
     this.itemId = this.route.snapshot.queryParams['id'];
+    this.permission = this.sessionService.getItemPermission(this.itemName);
     this.getItemResources();
   }
 

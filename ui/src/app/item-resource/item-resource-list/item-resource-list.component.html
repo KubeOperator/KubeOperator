@@ -51,11 +51,11 @@
     <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="hostSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('HOST')">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('HOST')" [disabled]="permission==='VIEWER'">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="hostSelected.length == 0"
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="hostSelected.length == 0 || permission==='VIEWER'"
                   (click)="openDeleteModal(hostSelected,'HOST')">
             <clr-icon shape="close"></clr-icon>
             取消授权
@@ -87,11 +87,11 @@
     <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="storageSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('STORAGE')">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('STORAGE')" [disabled]="permission==='VIEWER'">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="storageSelected.length == 0"
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="storageSelected.length == 0 || permission==='VIEWER'"
                   (click)="openDeleteModal(storageSelected,'STORAGE')">
             <clr-icon shape="close"></clr-icon>
             取消授权
@@ -113,11 +113,11 @@
     <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="planSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('PLAN')">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('PLAN')" [disabled]="permission==='VIEWER'">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="planSelected.length == 0"
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="planSelected.length == 0 || permission==='VIEWER'"
                   (click)="openDeleteModal(planSelected,'PLAN')">
             <clr-icon shape="close"></clr-icon>
             取消授权
@@ -139,11 +139,11 @@
     <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="backupStorageSelected">
       <clr-dg-action-bar>
         <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('BACKUP_STORAGE')">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="createItemResource('BACKUP_STORAGE')" [disabled]="permission==='VIEWER'">
             <clr-icon shape="plus" size="16"></clr-icon>
             添加
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" [disabled]="backupStorageSelected.length == 0"
+          <button type="button" class="btn btn-sm btn-secondary" [disabled]="backupStorageSelected.length == 0 || permission==='VIEWER'"
                   (click)="openDeleteModal(backupStorageSelected,'BACKUP_STORAGE')">
             <clr-icon shape="close"></clr-icon>
             取消授权
