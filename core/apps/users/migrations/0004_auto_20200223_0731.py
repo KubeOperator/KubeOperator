@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         User = apps.get_model("auth", "User")
         db_alias = schema_editor.connection.alias
         admin = User.objects.using(db_alias).get(username='admin')
-        if not admin.profile:
+        if hasattr(admin,'profile') is False:
             Profile.objects.using(db_alias).create(user=admin)
 
     dependencies = [
