@@ -22,5 +22,5 @@
       <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
     </clr-input-container>
   </form>
-  <button class="btn btn-info-outline" (click)="onCommit()">保存</button>
+  <button class="btn btn-info-outline" (click)="onCommit()" [disabled]="permission==='VIEWER'">保存</button>
 </div>

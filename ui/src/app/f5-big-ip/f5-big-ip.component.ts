@@ -3,6 +3,8 @@ import {Cluster} from '../cluster/cluster';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ClusterService} from '../cluster/cluster.service';
 import {OperaterService} from '../deploy/component/operater/operater.service';
+import {SessionService} from '../shared/session.service';
+
 
 @Component({
   selector: 'app-f5-big-ip',
@@ -13,9 +15,12 @@ export class F5BigIpComponent implements OnInit {
 
   currentCluster: Cluster;
   baseRoute: string;
+  permission: string;
+
 
   constructor(private route: ActivatedRoute, private clusterService: ClusterService,
-              private router: Router, private operaterService: OperaterService) {
+              private router: Router, private operaterService: OperaterService,
+              private sessionService: SessionService) {
   }
 
 
@@ -23,6 +28,7 @@ export class F5BigIpComponent implements OnInit {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
+      this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
       this.refreshCluster();
     });
   }

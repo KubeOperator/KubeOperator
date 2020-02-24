@@ -7,6 +7,7 @@ import {PackageLogoService} from '../../package/package-logo.service';
 import {ClusterStatusService} from '../cluster-status.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
+import {SessionService} from '../../shared/session.service';
 
 @Component({
     selector: 'app-cluster-list',
@@ -21,15 +22,18 @@ export class ClusterListComponent implements OnInit {
     selectedClusters: Cluster[] = [];
     @Output() addCluster = new EventEmitter<void>();
     itemName = '';
+    permission: string;
+
 
     constructor(private clusterService: ClusterService, private router: Router,
                 private alertService: CommonAlertService, private settingService: SettingService,
                 private packageLogoService: PackageLogoService, private route: ActivatedRoute,
-                private clusterStatusService: ClusterStatusService) {
+                private clusterStatusService: ClusterStatusService, private sessionService: SessionService) {
     }
 
     ngOnInit() {
         this.itemName = this.route.snapshot.queryParams['name'];
+        this.permission = this.sessionService.getItemPermission(this.itemName);
         this.checkSetting();
         this.listCluster();
     }

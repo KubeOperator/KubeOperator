@@ -8,12 +8,12 @@
     <clr-dg-action-bar>
     <div class="btn-group">
        <button type="button" class="btn btn-sm btn-secondary"
-              [disabled]="selected.length == 0"
+              [disabled]="selected.length == 0 || permission==='VIEWER'"
               (click)="showDelete=true" >
         <clr-icon shape="close"></clr-icon>
         删除
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1 || this.currentCluster.status === 'Ready'" (click)="onRestore()">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="selected.length != 1 || this.currentCluster.status === 'Ready' || permission==='VIEWER'" (click)="onRestore()">
         <clr-icon shape="backup-restore" size="16" ></clr-icon>
         恢复
       </button>

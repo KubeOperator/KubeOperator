@@ -9,6 +9,7 @@ import {ClusterHealthService} from '../../cluster-health/cluster-health.service'
 import {AddWorkerComponent} from '../add-worker/add-worker.component';
 import {RemoveWorkerComponent} from '../remove-worker/remove-worker.component';
 import {ClusterService} from '../../cluster/cluster.service';
+import {SessionService} from '../../shared/session.service';
 
 
 @Component({
@@ -26,12 +27,15 @@ export class ClusterStatusComponent implements OnInit {
   componentData = [];
   loading = false;
   baseRoute;
+  permission;
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
-              private router: Router, private operaterService: OperaterService, private clusterService: ClusterService) {
+              private router: Router, private operaterService: OperaterService, private clusterService: ClusterService,
+              private sessionService: SessionService) {
   }
 
   ngOnInit() {
+    this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
     this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
       this.workers = data.filter((node) => {
         return node.roles.includes('worker');

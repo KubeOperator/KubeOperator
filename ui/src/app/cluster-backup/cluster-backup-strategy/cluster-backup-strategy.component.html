@@ -27,8 +27,8 @@
     </clr-select-container>
   </form>
   <div class="modal-footer clr-row clr-col-4">
-     <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == null">立即备份</button>
-      <button class="btn btn-info-outline clr-col-1" (click)="onCommit()" [disabled]="backupStrategyForm.invalid">保存</button>
+     <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == null || permission==='VIEWER'">立即备份</button>
+      <button class="btn btn-info-outline clr-col-1" (click)="onCommit()" [disabled]="backupStrategyForm.invalid || permission==='VIEWER'">保存</button>
   </div>
 
 </div>

@@ -12,6 +12,7 @@ import {UpgradeComponent} from '../upgrade/upgrade.component';
 import {WebkubectlComponent} from '../webkubectl/webkubectl.component';
 import * as clipboard from 'clipboard-polyfill';
 import {DashboardService} from '../../dashboard/dashboard.service';
+import {SessionService} from "../../shared/session.service";
 
 @Component({
   selector: 'app-describe',
@@ -47,15 +48,18 @@ export class DescribeComponent implements OnInit {
   namespaceCount = 0;
   deploymentCount = 0;
   baseRoute;
+  permission;
 
 
   constructor(private packageService: PackageService, private clusterService: ClusterService,
               private overviewService: OverviewService, private operaterService: OperaterService,
               private router: Router, private clusterStatusService: ClusterStatusService,
-              private nodeService: NodeService, private dashboardService: DashboardService) {
+              private nodeService: NodeService, private dashboardService: DashboardService,
+              private sessionService: SessionService) {
   }
 
   ngOnInit() {
+    this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
     this.nodeService.listNodes(this.currentCluster.name).subscribe(data => {
       this.workers = data.filter((node) => {
         return node.roles.includes('worker');
@@ -168,7 +172,7 @@ export class DescribeComponent implements OnInit {
   }
 
   getClusterData() {
-    this.dashboardService.getDashboard(this.currentCluster.name).subscribe(res => {
+    this.dashboardService.getDashboard(this.currentCluster.name, this.currentCluster.item_name).subscribe(res => {
       const clusterData = res.data;
       const data = JSON.parse(clusterData[0]);
       this.nodeList = data['nodes'];

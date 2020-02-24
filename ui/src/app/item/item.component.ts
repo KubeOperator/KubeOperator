@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ItemCreateComponent} from './item-create/item-create.component';
 import {ItemListComponent} from './item-list/item-list.component';
+import {SessionService} from '../shared/session.service';
 
 @Component({
   selector: 'app-item',
@@ -15,7 +16,9 @@ export class ItemComponent implements OnInit {
   @ViewChild(ItemListComponent, {static: true})
   listItem: ItemListComponent;
 
-  constructor() {
+  permission;
+
+  constructor(private sessionService: SessionService) {
   }
 
   ngOnInit() {

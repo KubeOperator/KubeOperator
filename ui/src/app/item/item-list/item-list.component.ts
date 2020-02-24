@@ -4,7 +4,8 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {Item} from '../item';
 import {SessionService} from '../../shared/session.service';
-import {Profile} from '../../shared/session-user';
+import {Profile, SessionUser} from '../../shared/session-user';
+
 
 @Component({
   selector: 'app-item-list',
@@ -23,8 +24,11 @@ export class ItemListComponent implements OnInit {
   selectedItems: any = [];
   deleteModal = false;
   profile: Profile;
+  user: SessionUser = new SessionUser();
 
   ngOnInit() {
+    this.user.is_superuser = false;
+    this.getProfile();
     this.listItem();
   }
 
@@ -61,8 +65,10 @@ export class ItemListComponent implements OnInit {
   }
 
   getProfile() {
+    this.loading = true;
     this.sessionService.getProfile().subscribe(data => {
       this.profile = data;
+      this.user = this.profile.user;
       this.loading = false;
     });
   }

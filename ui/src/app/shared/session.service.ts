@@ -67,4 +67,16 @@ export class SessionService {
     localStorage.removeItem('current_user');
   }
 
+  getItemPermission(itemName) {
+    const profile = this.getCacheProfile();
+    if (profile == null) {
+      return;
+    }
+    const role_mapping = profile.item_role_mappings;
+    for (const rm of role_mapping) {
+      if (rm['item_name'] === itemName) {
+        return rm['role'];
+      }
+    }
+  }
 }

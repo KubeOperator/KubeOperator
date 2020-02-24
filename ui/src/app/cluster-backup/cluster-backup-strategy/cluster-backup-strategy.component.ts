@@ -10,6 +10,7 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
+import {SessionService} from '../../shared/session.service';
 
 
 @Component({
@@ -22,7 +23,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
               private alertService: CommonAlertService, private operaterService: OperaterService,
               private backupStorageService: BackupStorageService, private router: Router,
-              private clusterHealthService: ClusterHealthService) {
+              private clusterHealthService: ClusterHealthService, private sessionService: SessionService) {
   }
 
   tipShow = false;
@@ -35,12 +36,14 @@ export class ClusterBackupStrategyComponent implements OnInit {
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   etcdHealth = true;
   baseRoute;
+  permission;
 
 
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
+      this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
       this.projectId = this.currentCluster.id;
       this.getBackupStrategy();
       this.getBackupStorage();

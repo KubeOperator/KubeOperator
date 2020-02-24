@@ -7,6 +7,7 @@ import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
+import {SessionService} from '../../shared/session.service';
 
 
 @Component({
@@ -26,10 +27,12 @@ export class ClusterBackupListComponent implements OnInit {
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   baseRoute: string;
+  permission: string;
 
 
   constructor(private route: ActivatedRoute, private clusterBackupService: ClusterBackupService,
-              private alertService: CommonAlertService, private operaterService: OperaterService, private router: Router) {
+              private alertService: CommonAlertService, private operaterService: OperaterService,
+              private router: Router, private sessionService: SessionService) {
   }
 
   ngOnInit() {
@@ -37,6 +40,7 @@ export class ClusterBackupListComponent implements OnInit {
       this.currentCluster = data['cluster'];
       this.projectId = this.currentCluster.id;
       this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
+      this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
       this.listClusterBackups();
     });
   }

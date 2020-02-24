@@ -11,7 +11,7 @@
 <!--    <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>-->
 <!--    集群-->
 <!--  </a>-->
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/host">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/host" *ngIf="user.is_superuser">
     <clr-icon shape="host" clrVerticalNavIcon></clr-icon>
     主机
   </a>
@@ -19,11 +19,11 @@
     <clr-icon shape="file-group" clrVerticalNavIcon></clr-icon>
     离线包
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/storage">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/storage" *ngIf="user.is_superuser">
     <clr-icon shape="hard-disk" clrVerticalNavIcon></clr-icon>
     外部存储
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/plan">
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/plan" *ngIf="user.is_superuser">
     <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
     部署计划
   </a>
