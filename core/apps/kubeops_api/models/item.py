@@ -18,10 +18,10 @@ class ItemRoleMapping(models.Model):
     ITEM_ROLE_MANAGER = 'MANAGER'
     ITEM_ROLE_CHOICES = (
         (ITEM_ROLE_VIEWER, "VIEWER"),
-        (ITEM_ROLE_MANAGER, "VIEWER"),
+        (ITEM_ROLE_MANAGER, "MANAGER"),
     )
     id = models.UUIDField(max_length=255, primary_key=True, default=uuid.uuid4)
-    role = models.CharField(max_length=128, null=False, blank=False, unique=True, choices=ITEM_ROLE_CHOICES,
+    role = models.CharField(max_length=128, null=False, blank=False, choices=ITEM_ROLE_CHOICES,
                             default=ITEM_ROLE_VIEWER)
     profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
     item = models.ForeignKey('Item', on_delete=models.CASCADE)
