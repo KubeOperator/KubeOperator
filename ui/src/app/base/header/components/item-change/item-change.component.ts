@@ -28,8 +28,8 @@ export class ItemChangeComponent implements OnInit {
     this.itemForm.resetForm();
     this.opened = true;
     this.loading = true;
-    const sessionUser = this.sessionService.getCacheUser();
-    this.userService.getUser(sessionUser.id).subscribe(data => {
+    const profile = this.sessionService.getCacheProfile();
+    this.userService.getUser(profile.user.id).subscribe(data => {
       this.user = data;
       this.loading = false;
     });

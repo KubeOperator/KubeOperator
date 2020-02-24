@@ -9,8 +9,8 @@ import {NgForm} from '@angular/forms';
 })
 export class PasswordComponent implements OnInit {
 
-  oldPassword: string;
-  newPassword: string;
+  original: string;
+  password: string;
   confirmPassword: string;
 
   constructor(private sessionService: SessionService) {
@@ -18,63 +18,38 @@ export class PasswordComponent implements OnInit {
 
   opened = false;
   submitGoing = false;
-  alertOpen = false;
-  msg = '';
-  level = '';
 
   @ViewChild('passform', {static: true}) passform: NgForm;
 
   ngOnInit() {
   }
 
-  checkOldPassword() {
-    const user = this.sessionService.getCacheUser();
-
-    this.sessionService.changePassword(user.id, this.oldPassword, this.newPassword).subscribe(data => {
-      this.showMsg('success', '修改成功');
-      this.onCancel();
-    }, error => {
-      this.showMsg('danger', '修改失败,原密码错误!');
-      this.clear();
-    });
-  }
-
   onSubmit() {
     if (this.submitGoing) {
       return;
     }
-    if (this.newPassword !== this.confirmPassword) {
-      this.showMsg('danger', '两次密码输入不一致!');
-      this.clear();
+    this.submitGoing = true;
+    if (this.password !== this.confirmPassword) {
+      this.submitGoing = false;
+      return;
     } else {
-      this.checkOldPassword();
+      this.sessionService.changePassword(this.original, this.password).subscribe(data => {
+      }, error => {
+        console.log(error);
+      });
     }
 
   }
 
   clear() {
-    this.oldPassword = null;
-    this.newPassword = null;
+    this.passform.resetForm();
+    this.original = null;
+    this.password = null;
     this.confirmPassword = null;
   }
 
   onCancel() {
     this.opened = false;
     this.clear();
-    this.msg = '';
-    this.alertOpen = false;
-    this.level = '';
-    this.passform.resetForm();
   }
-
-  showMsg(level, msg) {
-    this.level = level;
-    this.msg = msg;
-    this.alertOpen = true;
-    setInterval(() => {
-      this.alertOpen = false;
-    }, 2000);
-  }
-
-
 }

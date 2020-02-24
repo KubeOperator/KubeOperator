@@ -6,7 +6,7 @@
       <clr-input-container>
         <label>用户名:</label>
         <input clrInput size=45 maxlength="30" type="text" [(ngModel)]="user.username" name="username"
-               (focusout)="checkUsernameDuplicate()" required>
+               (change)="checkUsernameDuplicate()" required>
         <clr-control-helper *ngIf="isUserNameDuplicate">此用户名已被使用!</clr-control-helper>
       </clr-input-container>
 

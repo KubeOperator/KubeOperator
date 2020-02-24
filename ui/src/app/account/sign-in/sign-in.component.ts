@@ -6,7 +6,6 @@ import {SessionService} from '../../shared/session.service';
 import {CommonRoutes} from '../../shared/shared.const';
 
 
-
 export const signInStatusNormal = 0;
 export const signInStatusOnGoing = 1;
 export const signInStatusError = -1;
@@ -32,6 +31,26 @@ export class SignInComponent implements OnInit, AfterViewChecked {
   };
 
   constructor(private router: Router, private  route: ActivatedRoute, private session: SessionService) {
+  }
+
+  signIn(): void {
+    if (!this.isValid) {
+      this.signInStatus = signInStatusError;
+      return;
+    }
+
+    if (this.isOnGoing) {
+      return;
+    }
+    this.signInStatus = signInStatusOnGoing;
+    this.session.authUser(this.signInCredential).subscribe(profile => {
+      this.session.cacheProfile(profile);
+      if (this.redireUrl === '') {
+        this.router.navigateByUrl(CommonRoutes.F2O_DEFAULT);
+      } else {
+        this.router.navigateByUrl(this.redireUrl);
+      }
+    }, (error) => this.handleError(error));
   }
 
   ngAfterViewChecked(): void {
@@ -62,6 +81,8 @@ export class SignInComponent implements OnInit, AfterViewChecked {
       this.message = 'kubeOperator Api 连接失败！';
     } else if (error.status === 400) {
       this.message = '用户名或密码错误！';
+    } else {
+      this.message = `未知错误,code: ${error.status}`;
     }
   }
 
@@ -84,30 +105,6 @@ export class SignInComponent implements OnInit, AfterViewChecked {
     }
   }
 
-
-  signIn(): void {
-    if (!this.isValid) {
-      this.signInStatus = signInStatusError;
-      return;
-    }
-
-    if (this.isOnGoing) {
-      return;
-    }
-
-    this.signInStatus = signInStatusOnGoing;
-    this.session.authUser(this.signInCredential).subscribe(data => {
-      this.session.cacheToken(data);
-      if (this.redireUrl === '') {
-        this.router.navigateByUrl(CommonRoutes.F2O_DEFAULT);
-      } else {
-        this.router.navigateByUrl(this.redireUrl);
-      }
-    }, (error) => this.handleError(error));
-
-  }
-
-  // 设置主机名
 
 
 }

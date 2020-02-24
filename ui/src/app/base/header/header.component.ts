@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {SessionService} from '../../shared/session.service';
 import {Router} from '@angular/router';
 import {CommonRoutes} from '../../shared/shared.const';
-import {SessionUser} from '../../shared/session-user';
+import {Profile, SessionUser} from '../../shared/session-user';
 import {PasswordComponent} from './components/password/password.component';
 import {BaseService} from '../base.service';
 import {Version} from './version';
@@ -14,7 +14,7 @@ import {ItemChangeComponent} from './components/item-change/item-change.componen
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  user: SessionUser = new SessionUser();
+  profile: Profile = new Profile();
   username = 'guest';
   showVersionInfo = false;
   version: Version = new Version();
@@ -28,14 +28,14 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getCurrentUser();
+    this.getProfile();
     this.getVersionInfo();
   }
 
-  getCurrentUser() {
-    this.user = this.sessionService.getCacheUser();
-    if (this.user) {
-      this.username = this.user.username;
+  getProfile() {
+    this.profile = this.sessionService.getCacheProfile();
+    if (this.profile) {
+      this.username = this.profile.user.username;
     }
   }
 
@@ -63,9 +63,9 @@ export class HeaderComponent implements OnInit {
   }
 
   refreshCache() {
-    this.sessionService.getUser().subscribe(data => {
-      this.sessionService.setCacheUser(data);
-      this.getCurrentUser();
+    this.sessionService.getProfile().subscribe(data => {
+      // this.sessionService.setCacheUser(data);
+      this.getProfile()
     });
   }
 }

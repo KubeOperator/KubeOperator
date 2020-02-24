@@ -22,8 +22,8 @@ export class ItemMemberListComponent implements OnInit {
   }
 
   refresh() {
-    this.itemMemberService.getItemUsers(this.currentItem).forEach(data => {
-      this.itemMember = data;
-    });
+    // this.itemMemberService.getItemUsers(this.currentItem).forEach(data => {
+    //   this.itemMember = data;
+    // });
   }
 }

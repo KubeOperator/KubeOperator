@@ -15,15 +15,15 @@ export class InterceptorService implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let token = null;
-    const sessionUser = JSON.parse(localStorage.getItem('current_user'));
-    if (sessionUser) {
-      token = sessionUser.token;
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    if (profile) {
+      token = profile.user.token;
       const helper = new JwtHelperService();
       const expirationDate = helper.getTokenExpirationDate(token);
       const now = new Date();
       if (now.getTime() < expirationDate.getTime() && expirationDate.getTime() - now.getTime() <= 1000 * 10 * 60) {
         this.session.refreshToken(token).subscribe((data) => {
-          this.session.cacheToken(data);
+          this.session.cacheProfile(data);
         });
       }
     }

@@ -1,0 +1,29 @@
+<clr-modal [(clrModalOpen)]="opened" clrModalSize="lg">
+  <h3 class="modal-title">管理成员</h3>
+  <div class="modal-body">
+
+    <div class="clr-row">
+      <div class="clr-col-2">
+        <h5>管理员</h5>
+      </div>
+      <div class="clr-col-10">
+        <l-select2 [data]="options" [(ngModel)]="managers" [options]="ops" (valueChange)="userFilter()"></l-select2>
+      </div>
+    </div>
+    <br/>
+    <div class="clr-row">
+      <div class="clr-col-2">
+        <h5></h5>
+      </div>
+      <div class="clr-col-10">
+        <l-select2 [data]="options" [(ngModel)]="viewers" [options]="ops" (valueChange)="userFilter()"></l-select2>
+      </div>
+    </div>
+
+    <br/>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="opened = false">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="opened = false">Ok</button>
+  </div>
+</clr-modal>

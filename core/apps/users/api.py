@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 #
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from kombu.utils import json
-from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView
+from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
 
+from ansible_api.permissions import IsSuperUser
 from users.models import Profile
-from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer
+from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer, ChangeUserPasswordSerializer
+from rest_framework import status, viewsets
 
 
 class UserViewSet(ModelViewSet):
@@ -23,8 +23,16 @@ class UserViewSet(ModelViewSet):
         else:
             return super().get_serializer_class()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        serializer.data.pop("password")
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-class UserProfileRetrieveApi(RetrieveUpdateAPIView):
+
+class UserProfileApi(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 
@@ -33,20 +41,25 @@ class UserProfileRetrieveApi(RetrieveUpdateAPIView):
         return obj
 
 
-class UserPasswordChangeApi(APIView):
-    def post(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        password = request.data.get('password')
-        new_password = request.data.get('new_password')
-        user = get_object_or_404(User, pk=pk)
-        response = HttpResponse()
-        response.write(json.dumps({'result': 'success'}))
-        if user.check_password(password):
-            if new_password:
-                user.set_password(new_password)
-                user.save()
-            else:
-                raise Exception('新密码不能为空！')
-        else:
-            raise Exception('原密码错误!')
-        return response
+class UserProfileViewSets(viewsets.ModelViewSet):
+    permission_classes = (IsSuperUser,)
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    lookup_url_kwarg = "id"
+    lookup_field = "id"
+
+
+class UserPasswordChangeApi(UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChangeUserPasswordSerializer
+
+    def get_object(self):
+        obj = get_object_or_404(User, pk=self.request.user.id)
+        return obj
+
+    http_method_names = ["put", "option", "head"]
+
+    def update(self, request, *args, **kwargs):
+        instance = super().update(request, *args, **kwargs)
+        if instance:
+            return Response({"result": "ok"}, status=status.HTTP_202_ACCEPTED)
