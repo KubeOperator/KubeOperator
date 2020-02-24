@@ -36,7 +36,7 @@ export class NodeListComponent implements OnInit {
       this.nodes = data.filter((node) => {
         return node.name !== 'localhost' && node.name !== '127.0.0.1' && node.name !== '::1';
       });
-      this.dashboardService.getDashboard(this.currentCluster.name).subscribe(res => {
+      this.dashboardService.getDashboard(this.currentCluster.name, this.currentCluster.item_name).subscribe(res => {
         this.clusterData = res.data;
         const nodeList = JSON.parse(res.data[0])['nodes'];
         nodeList.forEach(n => {
