@@ -63,9 +63,6 @@ export class HeaderComponent implements OnInit {
   }
 
   refreshCache() {
-    this.sessionService.getProfile().subscribe(data => {
-      // this.sessionService.setCacheUser(data);
-      this.getProfile()
-    });
+    this.profile = this.sessionService.getCacheProfile();
   }
 }

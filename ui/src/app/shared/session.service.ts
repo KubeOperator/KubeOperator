@@ -55,7 +55,7 @@ export class SessionService {
   }
 
   changeItem(name: string): Observable<Profile> {
-    return this.http.patch<Profile>(profileUrl, {item: name});
+    return this.http.patch<Profile>(profileUrl, {current_item: name});
   }
 
 

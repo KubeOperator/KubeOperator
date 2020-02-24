@@ -2,12 +2,12 @@
   <h3 class="modal-title">切换项目</h3>
   <div class="modal-body">
     <form clrForm #itemForm='ngForm'>
-      <div *ngIf="!loading">
+      <div *ngIf="this.profile">
         <clr-select-container>
           <label>项目</label>
-          <select clrSelect name="item" [(ngModel)]="user.current_item" required>
+          <select clrSelect name="item" [(ngModel)]="profile.current_item" required>
             <option value="">请选择</option>
-            <option *ngFor="let item of user.items" [value]="item">{{item}}</option>
+            <option *ngFor="let item of profile.items" [value]="item.name">{{item.name}}</option>
           </select>
         </clr-select-container>
       </div>

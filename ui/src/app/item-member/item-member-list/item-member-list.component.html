@@ -1,16 +1,17 @@
 <clr-datagrid>
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary">
-        <clr-icon shape="plus" size="16"></clr-icon>
+      <button type="button" (click)="onAdd()" class="btn btn-sm btn-secondary">
         管理
       </button>
     </div>
   </clr-dg-action-bar>
   <clr-dg-column>用户名</clr-dg-column>
   <clr-dg-column>邮箱</clr-dg-column>
-  <clr-dg-row *clrDgItems="let item of itemMember.users" [clrDgItem]="item">
-    <clr-dg-cell>{{item.username}}</clr-dg-cell>
-    <clr-dg-cell>{{item.email}}</clr-dg-cell>
+  <clr-dg-column>角色</clr-dg-column>
+  <clr-dg-row *clrDgItems="let p of itemMember.profiles" [clrDgItem]="p">
+    <clr-dg-cell>{{p.user.username}}</clr-dg-cell>
+    <clr-dg-cell>{{p.user.email}}</clr-dg-cell>
+    <clr-dg-cell>{{formatRole(p)}}</clr-dg-cell>
   </clr-dg-row>
 </clr-datagrid>

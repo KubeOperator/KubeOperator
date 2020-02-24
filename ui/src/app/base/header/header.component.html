@@ -17,7 +17,7 @@
   </div>
   <div class="header-nav" *ngIf="!profile.user.is_superuser">
     <a href="javascript://" class="active nav-link nav-text"
-       (click)="openChangeItem()">当前项目:{{profile.user.current_item}}</a>
+       (click)="openChangeItem()">{{profile.current_item}}</a>
   </div>
   <div class="header-actions">
     <clr-dropdown>

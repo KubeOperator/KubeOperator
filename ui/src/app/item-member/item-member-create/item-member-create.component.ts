@@ -1,6 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ItemMemberService} from '../item-member.service';
 import {Profile} from '../../shared/session-user';
+
+const ROLE_NAME_MANAGER = 'MANAGER';
+const ROLE_NAME_VIEWER = 'VIEWER';
 
 
 @Component({
@@ -11,11 +14,16 @@ import {Profile} from '../../shared/session-user';
 
 
 export class ItemMemberCreateComponent implements OnInit {
-  opened = true;
+  opened = false;
+  loading = true;
+  isSubmitGoing = false;
+  @Input() currentItemName: string;
+  @Output() create = new EventEmitter<boolean>();
   ps: Profile[] = [];
   options = [];
   managers = [];
   viewers = [];
+  itemName: string;
   ops: any = {
     multiple: true,
     placeholder: '选择用户',
@@ -23,14 +31,14 @@ export class ItemMemberCreateComponent implements OnInit {
       return markup;
     },
     templateSelection: (data) => {
-      return `<span class="label label-purple select2-selection__choice__remove">${data['text']}</span>`;
-    }
+      return `<span class="label label-blue select2-selection__choice__remove">${data['text']}</span>`;
+    },
   };
 
   userFilter() {
     const all = this.managers.concat(this.viewers);
     const remove = [];
-    this.options = this.toOptions();
+    this.options = this.toOptions(this.ps);
     this.options.forEach(o => {
       all.forEach(a => {
         if (o['value'] === a['value']) {
@@ -41,31 +49,84 @@ export class ItemMemberCreateComponent implements OnInit {
     remove.forEach(r => {
       r['disabled'] = true;
     });
-    console.log(this.options);
   }
 
   constructor(private itemMemberService: ItemMemberService) {
   }
 
   ngOnInit() {
-    this.listUser();
   }
 
-  listUser() {
-    this.itemMemberService.getProfiles().subscribe(data => {
-      data.forEach(p => {
-        this.ps.push(p);
-      });
-      this.options = this.toOptions();
-      console.log(this.options);
+  onCancel() {
+    this.opened = false;
+  }
+
+  onSubmit() {
+    if (this.isSubmitGoing) {
+      return;
+    }
+    this.isSubmitGoing = true;
+    const submitData = {'role_map': {}, 'profiles': []};
+    const roleMap = {};
+    this.viewers.forEach(v => {
+      roleMap[v['value']] = ROLE_NAME_VIEWER;
+    });
+    this.managers.forEach(v => {
+      roleMap[v['value']] = ROLE_NAME_MANAGER;
+    });
+    this.viewers.concat(this.managers).forEach(p => {
+      submitData.profiles.push(p['value']);
+      submitData.role_map = roleMap;
+    });
+    this.itemMemberService.setItemProfiles(submitData, this.currentItemName).subscribe(() => {
+      this.isSubmitGoing = false;
+      this.create.emit(true);
+      this.opened = false;
     });
   }
 
-  toOptions(): any[] {
+  open(profiles: Profile[]) {
+    this.clear();
+    this.opened = true;
+    this.itemName = this.currentItemName;
+    this.itemMemberService.getProfiles().subscribe(data => {
+      data.filter((p) => {
+        return !p.user.is_superuser;
+      }).forEach(p => {
+        this.ps.push(p);
+      });
+      this.viewers = this.getOptionsByRole(profiles, ROLE_NAME_VIEWER);
+      this.managers = this.getOptionsByRole(profiles, ROLE_NAME_MANAGER);
+      this.userFilter();
+    });
+  }
+
+  clear() {
+    this.options = [];
+    this.managers = [];
+    this.viewers = [];
+    this.ps = [];
+  }
+
+  toOptions(profiles: Profile[]): any[] {
     const options = [];
-    this.ps.forEach(p => {
+    profiles.forEach(p => {
       options.push({'id': p.id, 'text': p.user.username, 'value': p.id});
     });
     return options;
   }
+
+  getOptionsByRole(profiles: Profile[], roleName: string): any[] {
+    const m = profiles.filter((p) => {
+      return this.formatRole(p) === roleName;
+    });
+    return this.toOptions(m);
+  }
+
+  formatRole(p: Profile) {
+    return p.item_role_mappings.find(mp => {
+      return mp.item_name = this.itemName;
+    })['role'];
+  }
+
 }

@@ -3,6 +3,7 @@ import {User} from '../../../../user/user';
 import {UserService} from '../../../../user/user.service';
 import {SessionService} from '../../../../shared/session.service';
 import {NgForm} from '@angular/forms';
+import {Profile} from '../../../../shared/session-user';
 
 @Component({
   selector: 'app-item-change',
@@ -10,10 +11,10 @@ import {NgForm} from '@angular/forms';
   styleUrls: ['./item-change.component.css']
 })
 export class ItemChangeComponent implements OnInit {
-  user: User;
+  profile: Profile;
   isSubmitGoing = false;
   opened = false;
-  loading = true;
+  loading = false;
   @ViewChild('itemForm', {static: true})
   itemForm: NgForm;
   @Output() changeItem = new EventEmitter();
@@ -27,12 +28,7 @@ export class ItemChangeComponent implements OnInit {
   open() {
     this.itemForm.resetForm();
     this.opened = true;
-    this.loading = true;
-    const profile = this.sessionService.getCacheProfile();
-    this.userService.getUser(profile.user.id).subscribe(data => {
-      this.user = data;
-      this.loading = false;
-    });
+    this.profile = this.sessionService.getCacheProfile();
   }
 
   onSubmit() {
@@ -40,7 +36,8 @@ export class ItemChangeComponent implements OnInit {
       return;
     }
     this.isSubmitGoing = true;
-    this.userService.updateUser(this.user).subscribe(() => {
+    this.sessionService.changeItem(this.profile.current_item).subscribe(() => {
+      this.sessionService.cacheProfile(this.profile);
       this.changeItem.emit();
       this.opened = false;
       this.isSubmitGoing = false;

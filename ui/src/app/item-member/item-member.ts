@@ -1,11 +1,6 @@
-import {User} from '../user/user';
-
-export class ItemMemberWrite {
-  name: string;
-  users: string[] = [];
-}
+import {Profile} from '../shared/session-user';
 
 export class ItemMember {
   name: string;
-  users: User[] = [];
+  profiles: Profile[] = [];
 }
