@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {SessionUser} from '../../shared/session-user';
+import {SessionService} from '../../shared/session.service';
 
 @Component({
   selector: 'app-navigator',
@@ -7,10 +9,18 @@ import {Component, OnInit} from '@angular/core';
 })
 export class NavigatorComponent implements OnInit {
 
-  constructor() {
+  user: SessionUser;
+
+  constructor(private sessionService: SessionService) {
+  }
+
+  getCurrentUser() {
+    this.user = this.sessionService.getCacheUser();
+    console.log(this.user);
   }
 
   ngOnInit() {
+    this.getCurrentUser();
   }
 
 }

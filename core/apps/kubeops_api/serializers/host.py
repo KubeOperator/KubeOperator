@@ -1,5 +1,3 @@
-from paramiko import SSHException
-
 from ansible_api.serializers.inventory import HostReadSerializer
 from rest_framework import serializers
 from cloud_provider.models import Zone

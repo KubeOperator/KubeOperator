@@ -18,6 +18,8 @@ router.register('backupStorage', api.BackupStorageViewSet, 'backupStorage')
 router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')
 router.register('items', item.ItemViewSet, 'item')
+router.register('item/users/update', item.ItemUserViewSet, 'item-user')
+router.register('item/users', item.ItemUserReadViewSet, 'item-user')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
@@ -46,7 +48,7 @@ urlpatterns = [
                   path('cluster/<project_name>/syncNodeTime/', api.SyncHostTimeView.as_view()),
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/', api.DashBoardView.as_view()),
-                  path('resource/<item_name>/',item.ItemResourceView.as_view()),
+                  path('resource/<item_name>/', item.ItemResourceView.as_view()),
                   path('resource/<item_name>/<resource_type>/', item.ResourceView.as_view()),
                   path('resource/<item_name>/<resource_type>/<resource_id>/', item.ItemResourceDeleteView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),

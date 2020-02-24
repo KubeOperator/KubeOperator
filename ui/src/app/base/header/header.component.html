@@ -1,4 +1,3 @@
-
 <clr-modal [(clrModalOpen)]="showVersionInfo" [clrModalClosable]=true>
   <h3 class="modal-title">版本信息</h3>
   <div class="modal-body">
@@ -9,12 +8,16 @@
   </div>
 
 </clr-modal>
+<app-password></app-password>
+<app-item-change (changeItem)="refreshCache()"></app-item-change>
 
 <clr-header class="header-6" [ngStyle]="{'background-color':'#2b415a'}">
   <div class="branding">
     <img src="assets/images/logo-white.png" height="40px" style="margin-top: 10px">
   </div>
-  <app-password></app-password>
+  <div class="header-nav" *ngIf="!user.is_superuser">
+    <a href="javascript://" class="active nav-link nav-text" (click)="openChangeItem()">当前项目:{{user.current_item}}</a>
+  </div>
   <div class="header-actions">
     <clr-dropdown>
       <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">

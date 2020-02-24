@@ -6,6 +6,7 @@ import {SessionUser} from '../../shared/session-user';
 import {PasswordComponent} from './components/password/password.component';
 import {BaseService} from '../base.service';
 import {Version} from './version';
+import {ItemChangeComponent} from './components/item-change/item-change.component';
 
 @Component({
   selector: 'app-header',
@@ -17,8 +18,11 @@ export class HeaderComponent implements OnInit {
   username = 'guest';
   showVersionInfo = false;
   version: Version = new Version();
-  @ViewChild(PasswordComponent, { static: true })
+  @ViewChild(PasswordComponent, {static: true})
   password: PasswordComponent;
+
+  @ViewChild(ItemChangeComponent, {static: true})
+  itemChange: ItemChangeComponent;
 
   constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService) {
   }
@@ -54,4 +58,14 @@ export class HeaderComponent implements OnInit {
     this.showVersionInfo = true;
   }
 
+  openChangeItem() {
+    this.itemChange.open();
+  }
+
+  refreshCache() {
+    this.sessionService.getUser().subscribe(data => {
+      this.sessionService.setCacheUser(data);
+      this.getCurrentUser();
+    });
+  }
 }

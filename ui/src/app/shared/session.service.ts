@@ -3,6 +3,7 @@ import {SignInCredential} from './signInCredential';
 import {Observable} from 'rxjs';
 import {SessionUser} from './session-user';
 import {HttpClient} from '@angular/common/http';
+import {stringify} from '@angular/compiler/src/util';
 
 const signUrl = '/login';
 const authUserUrl = '/api/v1/api-token-auth/';
@@ -34,6 +35,12 @@ export class SessionService {
 
   cacheToken(user: SessionUser) {
     localStorage.setItem('current_user', JSON.stringify(user));
+  }
+
+  setCacheUser(user: SessionUser) {
+    const session = JSON.parse(localStorage.getItem('current_user'));
+    session.user = user;
+    this.cacheToken(session);
   }
 
   getCacheUser(): SessionUser {

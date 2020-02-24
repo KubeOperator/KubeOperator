@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'cloud_provider.apps.CloudProviderConfig',
     'ansible_api.apps.AnsibleApiConfig',
     'celery_api.apps.CeleryApiConfig',
-    'users.apps.UsersConfig',
     'log.apps.LogConfig',
+    'users.apps.UsersConfig',
     'django_celery_beat',
     'rest_framework',
     'drf_yasg',
@@ -103,7 +103,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

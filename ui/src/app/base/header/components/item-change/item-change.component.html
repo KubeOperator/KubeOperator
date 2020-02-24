@@ -1,0 +1,23 @@
+<clr-modal [(clrModalOpen)]="opened">
+  <h3 class="modal-title">切换项目</h3>
+  <div class="modal-body">
+    <form clrForm #itemForm='ngForm'>
+      <div *ngIf="!loading">
+        <clr-select-container>
+          <label>项目</label>
+          <select clrSelect name="item" [(ngModel)]="user.current_item" required>
+            <option value="">请选择</option>
+            <option *ngFor="let item of user.items" [value]="item">{{item}}</option>
+          </select>
+        </clr-select-container>
+      </div>
+      <div *ngIf="loading">
+        <clr-spinner></clr-spinner>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
+    <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="itemForm.invalid">确定</button>
+  </div>
+</clr-modal>

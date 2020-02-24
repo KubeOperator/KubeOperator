@@ -7,4 +7,6 @@ export class User {
   email: string;
   is_active: boolean;
   is_superuser: boolean;
+  items: string[] = [];
+  current_item: string;
 }
