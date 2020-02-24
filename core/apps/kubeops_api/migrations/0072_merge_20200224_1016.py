@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('kubeops_api', '0070_auto_20200224_0741'),
-        ('kubeops_api', '0070_upgrade_item_resource'),
+        ('kubeops_api', '0071_upgrade_item_resource'),
     ]
 
     operations = [

@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('kubeops_api', '0069_auto_20200224_0323'),
+        ('kubeops_api', '0070_auto_20200224_0741'),
     ]
 
     def forwards_func(apps, schema_editor):
