@@ -40,16 +40,17 @@ class ItemViewSet(viewsets.ModelViewSet):
 class ItemUserViewSet(viewsets.ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemUserSerializer
+    serializer_class_read = ItemUserReadSerializer
     lookup_field = 'name'
     lookup_url_kwarg = 'item_name'
-    http_method_names = ['patch', 'option', 'head']
+    http_method_names = ['head', 'option', 'get', 'patch']
 
-
-class ItemUserReadViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Item.objects.all()
-    serializer_class = ItemUserReadSerializer
-    lookup_field = 'name'
-    lookup_url_kwarg = 'item_name'
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            print(234)
+            return self.serializer_class_read
+        else:
+            return super().get_serializer_class()
 
 
 class ItemResourceView(APIView):

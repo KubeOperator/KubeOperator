@@ -16,5 +16,5 @@ class Profile(models.Model):
         return self.item_set.all()
 
     @property
-    def item_roles(self):
-        return self.itemrole_set.all()
+    def item_role_mappings(self):
+        return self.itemrolemapping_set.all()

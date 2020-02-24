@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from kubeops_api.models import Item
-from kubeops_api.models.item import ItemRole
+from kubeops_api.models.item import ItemRoleMapping
 from users.models import Profile
 
 __all__ = ["UserSerializer", "ProfileSerializer", "UserCreateUpdateSerializer", "ChangeUserPasswordSerializer"]
@@ -52,21 +52,21 @@ class ItemReadSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class ItemRoleReadSerializer(serializers.ModelSerializer):
+class ItemRoleMappingReadSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ItemRole
-        fields = ['role']
+        model = ItemRoleMapping
+        fields = ['role', 'item_name']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     current_item = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Item.objects.all())
     user = UserSerializer(read_only=True)
     items = ItemReadSerializer(many=True, read_only=True)
-    item_roles = ItemRoleReadSerializer(many=True, read_only=True)
+    item_role_mappings = ItemRoleMappingReadSerializer(many=True, read_only=True, default={})
 
     class Meta:
         model = Profile
-        fields = ["id", "current_item", "user", "items", "item_roles"]
+        fields = ["id", "current_item", "user", "items", "item_role_mappings"]
         read_only_fields = ['user']
 
 
