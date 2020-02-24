@@ -30,7 +30,6 @@ import {SharedModule} from './shared/shared.module';
 import {NfsModule} from './nfs/nfs.module';
 import {StorageModule} from './storage/storage.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
-import {SystemLogComponent} from './system-log/system-log.component';
 import {SystemLogModule} from './system-log/system-log.module';
 import {DnsModule} from './dns/dns.module';
 import { ClusterStorageComponent } from './cluster-storage/cluster-storage.component';

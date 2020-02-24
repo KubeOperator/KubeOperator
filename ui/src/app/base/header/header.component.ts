@@ -6,7 +6,6 @@ import {Profile, SessionUser} from '../../shared/session-user';
 import {PasswordComponent} from './components/password/password.component';
 import {BaseService} from '../base.service';
 import {Version} from './version';
-import {ItemChangeComponent} from './components/item-change/item-change.component';
 
 @Component({
   selector: 'app-header',
@@ -21,8 +20,6 @@ export class HeaderComponent implements OnInit {
   @ViewChild(PasswordComponent, {static: true})
   password: PasswordComponent;
 
-  @ViewChild(ItemChangeComponent, {static: true})
-  itemChange: ItemChangeComponent;
 
   constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService) {
   }
@@ -56,10 +53,6 @@ export class HeaderComponent implements OnInit {
 
   showInfo() {
     this.showVersionInfo = true;
-  }
-
-  openChangeItem() {
-    this.itemChange.open();
   }
 
   refreshCache() {

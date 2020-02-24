@@ -8,11 +8,10 @@ import {CoreModule} from '../core/core.module';
 import {PasswordComponent} from './header/components/password/password.component';
 
 import {CommonAlertComponent} from './header/components/common-alert/common-alert.component';
-import { ItemChangeComponent } from './header/components/item-change/item-change.component';
 
 @NgModule({
   declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent,
-     PasswordComponent, CommonAlertComponent, ItemChangeComponent],
+    PasswordComponent, CommonAlertComponent],
   imports: [
     CommonModule,
     CoreModule,
