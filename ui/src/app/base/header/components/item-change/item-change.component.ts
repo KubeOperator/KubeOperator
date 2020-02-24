@@ -4,6 +4,7 @@ import {UserService} from '../../../../user/user.service';
 import {SessionService} from '../../../../shared/session.service';
 import {NgForm} from '@angular/forms';
 import {Profile} from '../../../../shared/session-user';
+import {ItemChangeService} from './item-change.service';
 
 @Component({
   selector: 'app-item-change',
@@ -19,7 +20,7 @@ export class ItemChangeComponent implements OnInit {
   itemForm: NgForm;
   @Output() changeItem = new EventEmitter();
 
-  constructor(private userService: UserService, private sessionService: SessionService) {
+  constructor(private userService: UserService, private sessionService: SessionService, private itemChangeService: ItemChangeService) {
   }
 
   ngOnInit() {
@@ -38,6 +39,7 @@ export class ItemChangeComponent implements OnInit {
     this.isSubmitGoing = true;
     this.sessionService.changeItem(this.profile.current_item).subscribe(() => {
       this.sessionService.cacheProfile(this.profile);
+      this.itemChangeService.subject.next(this.profile);
       this.changeItem.emit();
       this.opened = false;
       this.isSubmitGoing = false;
