@@ -28,6 +28,12 @@ class ItemViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     lookup_url_kwarg = 'name'
 
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        if user.profile.items:
+            self.queryset = user.profile.items
+        return super().list(self, request, *args, **kwargs)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         resources = ItemResource.objects.filter(item_id=instance.id)

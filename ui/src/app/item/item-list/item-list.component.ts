@@ -3,6 +3,8 @@ import {ItemService} from '../item.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {Item} from '../item';
+import {SessionService} from '../../shared/session.service';
+import {Profile} from '../../shared/session-user';
 
 @Component({
   selector: 'app-item-list',
@@ -13,13 +15,14 @@ export class ItemListComponent implements OnInit {
 
   @Output() addItem = new EventEmitter<void>();
 
-  constructor(private itemService: ItemService, private alertService: CommonAlertService) {
+  constructor(private itemService: ItemService, private alertService: CommonAlertService, private sessionService: SessionService) {
   }
 
   items: Item[] = [];
   loading = false;
   selectedItems: any = [];
   deleteModal = false;
+  profile: Profile;
 
   ngOnInit() {
     this.listItem();
@@ -29,7 +32,7 @@ export class ItemListComponent implements OnInit {
     this.loading = true;
     this.itemService.listItem().subscribe(res => {
       this.items = res;
-      this.loading = false;
+      this.getProfile();
     });
   }
 
@@ -55,5 +58,24 @@ export class ItemListComponent implements OnInit {
       this.deleteModal = false;
       this.selectedItems = [];
     });
+  }
+
+  getProfile() {
+    this.sessionService.getProfile().subscribe(data => {
+      this.profile = data;
+      this.loading = false;
+    });
+  }
+
+  getItemPermission(itemName) {
+    if (this.profile === undefined) {
+      return;
+    }
+    const role_mapping = this.profile.item_role_mappings;
+    for (const rm of role_mapping) {
+      if (rm['item_name'] === itemName) {
+        return rm['role'];
+      }
+    }
   }
 }

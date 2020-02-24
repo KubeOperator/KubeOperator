@@ -52,6 +52,7 @@ import { ItemResourcePipe } from './item-resource/item-resource.pipe';
 import { ItemMemberListComponent } from './item-member/item-member-list/item-member-list.component';
 import { ItemMemberCreateComponent } from './item-member/item-member-create/item-member-create.component';
 import { MemberFilterPipe } from './item-member/member-filter.pipe';
+import { PermissionNamePipe } from './item/permission-name.pipe';
 
 @NgModule({
   declarations: [
@@ -80,6 +81,7 @@ import { MemberFilterPipe } from './item-member/member-filter.pipe';
     ItemMemberListComponent,
     ItemMemberCreateComponent,
     MemberFilterPipe,
+    PermissionNamePipe,
   ],
   imports: [
     CredentialModule,
