@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 #
 from django.contrib.auth.models import User
-from rest_framework.generics import get_object_or_404, RetrieveUpdateAPIView, UpdateAPIView
+from rest_framework import status, viewsets
+from rest_framework.generics import get_object_or_404, UpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from ansible_api.permissions import IsSuperUser
 from users.models import Profile
 from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer, ChangeUserPasswordSerializer
-from rest_framework import status, viewsets
 
 
 class UserViewSet(ModelViewSet):
@@ -32,7 +32,7 @@ class UserViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class UserProfileApi(RetrieveUpdateAPIView):
+class UserProfileApi(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 

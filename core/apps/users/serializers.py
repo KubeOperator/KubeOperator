@@ -59,14 +59,13 @@ class ItemRoleMappingReadSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    current_item = serializers.SlugRelatedField(required=False, slug_field='name', queryset=Item.objects.all())
     user = UserSerializer(read_only=True)
     items = ItemReadSerializer(many=True, read_only=True)
     item_role_mappings = ItemRoleMappingReadSerializer(many=True, read_only=True, default={})
 
     class Meta:
         model = Profile
-        fields = ["id", "current_item", "user", "items", "item_role_mappings"]
+        fields = ["id", "user", "items", "item_role_mappings"]
         read_only_fields = ['user']
 
 

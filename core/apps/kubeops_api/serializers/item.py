@@ -33,9 +33,6 @@ class ItemUserSerializer(serializers.ModelSerializer):
         role_map = validated_data.pop('role_map')
         profiles = validated_data.get('profiles')
         for p in profiles:
-            if not p.current_item:
-                p.current_item = instance
-                p.save()
             role = ItemRoleMapping.ITEM_ROLE_VIEWER
             if str(p.id) in role_map:
                 role = role_map[str(p.id)]
