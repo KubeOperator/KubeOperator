@@ -127,13 +127,21 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="13">集群 Day 2 运营
+        <td class="features-first-td-background-style" rowspan="15">集群 Day 2 运营
         </td>
-        <td class="features-third-td-background-style" rowspan="4">管理
+        <td class="features-third-td-background-style" rowspan="6">管理
         </td>  
-        <td class="features-third-td-background-style">内置 K8s 官方的 Dashboard 管理应用
+        <td class="features-third-td-background-style">支持用户权限管理，并对接 LDAP/AD
         </td>         
     </tr>
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">对外开放 REST API
+        </td>
+    </tr>    
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">内置 K8s Dashboard 管理应用
+        </td>
+    </tr>     
      <tr class="subscription-level-tr-border">
          <td class="features-third-td-background-style">内置 Weave Scope 管理应用
         </td>
@@ -161,7 +169,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style"> 在 Web UI 上面查看集群事件，并可以通过钉钉、微信进行通知；
+        <td class="features-third-td-background-style">支持消息中心，通过钉钉、微信通知各种集群异常事件；
         </td>
     </tr>      
     <tr class="subscription-level-tr-border">
@@ -185,13 +193,13 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">合规
         </td>
-         <td class="features-third-td-background-style">使用 Sonobuoy 进行合规检查并可视化展示结果
+         <td class="features-third-td-background-style">支持集群合规检查并可视化展示结果
         </td>
     </tr>      
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
-         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店，快速部署 Harbor、GitLab、Jenkins、TensorFlow 等应用
+         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店，快速部署 CI/CD、AI 深度学习等应用
         </td>
     </tr>     
  </table>
