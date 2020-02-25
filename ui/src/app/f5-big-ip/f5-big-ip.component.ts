@@ -14,7 +14,6 @@ import {SessionService} from '../shared/session.service';
 export class F5BigIpComponent implements OnInit {
 
   currentCluster: Cluster;
-  baseRoute: string;
   permission: string;
 
 
@@ -27,7 +26,6 @@ export class F5BigIpComponent implements OnInit {
   ngOnInit() {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
-      this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
       this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
       this.refreshCluster();
     });
@@ -42,7 +40,7 @@ export class F5BigIpComponent implements OnInit {
   onCommit() {
     this.clusterService.updateCluster(this.currentCluster).subscribe(() => {
       this.operaterService.executeOperate(this.currentCluster.name, 'bigip-config').subscribe(data => {
-        this.router.navigate([this.baseRoute + '/deploy']);
+        this.redirect('deploy');
       });
     });
   }

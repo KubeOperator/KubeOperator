@@ -47,7 +47,6 @@ export class DescribeComponent implements OnInit {
   nodeCount = 0;
   namespaceCount = 0;
   deploymentCount = 0;
-  baseRoute;
   permission;
 
 
@@ -69,7 +68,6 @@ export class DescribeComponent implements OnInit {
       }
     });
     this.getClusterData();
-    this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
   }
 
 
@@ -134,7 +132,7 @@ export class DescribeComponent implements OnInit {
 
   handleEvent(params?) {
     this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
-      this.router.navigate([this.baseRoute + '/deploy']);
+      this.redirect('deploy');
     });
     this.confirmAlert.close();
   }

@@ -19,13 +19,18 @@ export class ClusterComponent implements OnInit {
 
   itemName: string;
   permission: string;
+  showTitle = false;
 
   constructor(private route: ActivatedRoute, private sessionService: SessionService) {
   }
 
   ngOnInit() {
     this.itemName = this.route.snapshot.queryParams['name'];
-    this.permission = this.sessionService.getItemPermission(this.itemName);
+    if (this.itemName !== undefined) {
+      this.permission = this.sessionService.getItemPermission(this.itemName);
+    } else {
+      this.showTitle = true;
+    }
   }
 
   openModal(): void {

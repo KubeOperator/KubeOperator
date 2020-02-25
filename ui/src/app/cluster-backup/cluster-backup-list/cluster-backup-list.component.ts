@@ -26,7 +26,6 @@ export class ClusterBackupListComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
-  baseRoute: string;
   permission: string;
 
 
@@ -39,7 +38,6 @@ export class ClusterBackupListComponent implements OnInit {
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.projectId = this.currentCluster.id;
-      this.baseRoute = 'item/' + this.currentCluster.item_name + '/cluster/' + this.currentCluster.name;
       this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
       this.listClusterBackups();
     });
@@ -89,7 +87,7 @@ export class ClusterBackupListComponent implements OnInit {
 
   handleEvent(params?) {
     this.operaterService.executeOperate(this.currentCluster.name, this.event, params).subscribe(() => {
-      this.router.navigate([this.baseRoute + '/deploy']);
+      this.redirect('deploy');
     });
     this.confirmAlert.close();
   }
