@@ -32,4 +32,8 @@ export class ItemResourceService {
   deleteItemResource(itemName: string, resourceType: string, resourceId: string): Observable<ItemResource> {
     return this.httpClient.delete<ItemResource>(this.baseURL + itemName + '/' + resourceType + '/' + resourceId + '/');
   }
+
+  getClusters() {
+    return this.httpClient.get<ItemResourceDTO[]>(this.baseURL + 'item/clusters/');
+  }
 }

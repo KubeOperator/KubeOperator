@@ -48,6 +48,7 @@ urlpatterns = [
                   path('clusterHealthHistory/<project_id>/', api.ClusterHealthHistoryView.as_view()),
                   path('dashboard/<project_name>/<item_name>/', api.DashBoardView.as_view()),
                   path('resource/<item_name>/', item.ItemResourceView.as_view()),
+                  path('resource/item/clusters/', item.ItemResourceClusterView.as_view()),
                   path('resource/<item_name>/<resource_type>/', item.ResourceView.as_view()),
                   path('resource/<item_name>/<resource_type>/<resource_id>/', item.ItemResourceDeleteView.as_view()),
                   url('settings', api.SettingView.as_view(), name='settings'),

@@ -62,14 +62,22 @@ class ClusterViewSet(viewsets.ModelViewSet):
         return response
 
     def list(self, request, *args, **kwargs):
+        user = request.user
         if request.query_params.get('itemName'):
             itemName = request.query_params.get('itemName')
             item = Item.objects.get(name=itemName)
             resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
+        elif user.profile.items:
+            resource_ids = []
+            for item in user.profile.items:
+                resource_ids.append(item.id)
+            self.queryset = Cluster.objects.filter(id__in=resource_ids)
+            return super().list(self, request, *args, **kwargs)
         else:
             return super().list(self, request, *args, **kwargs)
+
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

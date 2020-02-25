@@ -11,7 +11,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.host import Host
 from kubeops_api.models.item import Item
 from kubeops_api.models.item_resource import ItemResource
-from kubeops_api.models.item_resource_dto import Resource
+from kubeops_api.models.item_resource_dto import Resource, ItemResourceDTO
 from kubeops_api.models.node import Node
 from kubeops_api.serializers.item import ItemSerializer, ItemUserSerializer, ItemUserReadSerializer
 from kubeops_api.utils.json_resource_encoder import JsonResourceEncoder
@@ -114,6 +114,20 @@ class ItemResourceView(APIView):
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg': '授权成功'}))
         return response
+
+class ItemResourceClusterView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        item_resources = ItemResource.objects.filter(resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
+        items = Item.objects.all()
+        result = []
+        for item_resource in item_resources:
+            for item in items:
+                if item.id == item_resource.item_id:
+                    item_resource_dto = ItemResourceDTO(item_name=item.name,item_resource=item_resource)
+                    result.append(item_resource_dto.__dict__)
+        return Response({"data":result})
+
 
 
 class ItemResourceDeleteView(APIView):

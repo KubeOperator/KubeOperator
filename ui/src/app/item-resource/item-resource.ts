@@ -3,6 +3,7 @@ export class ItemResource {
   resource_id: string;
   item_id: string;
   resource_type: string;
+  item_name: string;
 }
 
 export class ItemResourceDTO extends ItemResource {

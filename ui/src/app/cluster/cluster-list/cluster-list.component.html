@@ -13,7 +13,7 @@
 
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedClusters">
   <clr-dg-action-bar>
-    <div class="btn-group">
+    <div class="btn-group" *ngIf="showItem">
       <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()" [disabled]="!hasHostname || permission==='VIEWER'">
         <clr-icon shape="plus" size="16"></clr-icon>
         添加
@@ -26,6 +26,7 @@
     </div>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
+  <clr-dg-column *ngIf="showItem">所属项目</clr-dg-column>
   <clr-dg-column>离线包</clr-dg-column>
   <clr-dg-column>节点</clr-dg-column>
   <clr-dg-column>云提供商</clr-dg-column>
@@ -36,7 +37,9 @@
   <clr-dg-column>创建时间</clr-dg-column>
 
   <clr-dg-row *clrDgItems="let cluster of clusters" [clrDgItem]="cluster">
-    <clr-dg-cell><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
+    <clr-dg-cell *ngIf="showItem"><a routerLink="{{cluster.name}}">{{cluster.name}}</a></clr-dg-cell>
+    <clr-dg-cell *ngIf="!showItem">{{cluster.name}}</clr-dg-cell>
+    <clr-dg-cell *ngIf="showItem">{{cluster.item_name}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.resource}}</clr-dg-cell>
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
     <clr-dg-cell>
