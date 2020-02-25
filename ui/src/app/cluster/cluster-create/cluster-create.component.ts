@@ -24,6 +24,8 @@ import {Storage as StorageItem} from '../cluster';
 import {StorageService} from '../storage.service';
 import * as globals from '../../globals';
 import {CephService} from '../../ceph/ceph.service';
+import {SessionService} from "../../shared/session.service";
+import {ItemService} from "../../item/item.service";
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -83,6 +85,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   domain_pattern = globals.domain_pattern;
   name_pattern_tip = globals.cluster_name_pattern_tip;
   itemName: string;
+  items = [];
 
   @Output() create = new EventEmitter<boolean>();
 
@@ -90,7 +93,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     , private packageService: PackageService, private relationService: RelationService,
               private hostService: HostService, private deviceCheckService: DeviceCheckService,
               private settingService: SettingService, private planService: PlanService, private storageService: StorageService,
-              private cephService: CephService) {
+              private cephService: CephService, private sessionService: SessionService, private itemService: ItemService) {
   }
 
   ngOnInit() {
@@ -113,6 +116,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
           }
         }
       }
+    });
+    this.itemService.listItem().subscribe(res=>{
+      this.items = res;
     });
   }
 
@@ -203,16 +209,22 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  newCluster(itemName) {
+  onChangeItem(itemName) {
     this.itemName = itemName;
+    this.getItemResources();
+  }
+
+  newCluster() {
     this.reset();
     this.createClusterOpened = true;
     this.listPackages();
-    this.getAllHost();
-    this.listPlans(itemName);
     this.loadClusterConfig();
   }
 
+  getItemResources() {
+    this.getAllHost();
+    this.listPlans();
+  }
 
   getAllHost() {
     this.hostService.listItemHosts(this.itemName).subscribe(data => {
@@ -232,8 +244,8 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  listPlans(itemName) {
-    this.planService.listItemPlan(itemName).subscribe(data => {
+  listPlans() {
+    this.planService.listItemPlan(this.itemName).subscribe(data => {
       this.plans = data;
     });
   }

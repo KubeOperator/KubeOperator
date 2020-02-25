@@ -12,7 +12,7 @@ import {UpgradeComponent} from '../upgrade/upgrade.component';
 import {WebkubectlComponent} from '../webkubectl/webkubectl.component';
 import * as clipboard from 'clipboard-polyfill';
 import {DashboardService} from '../../dashboard/dashboard.service';
-import {SessionService} from "../../shared/session.service";
+import {SessionService} from '../../shared/session.service';
 
 @Component({
   selector: 'app-describe',

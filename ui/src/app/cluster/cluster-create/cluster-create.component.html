@@ -9,6 +9,13 @@
     <form clrForm class="clr-form clr-form-compact" #basicFrom='ngForm'>
       <ng-template clrPageTitle>基本信息</ng-template>
       <app-modal-alert #alertModal></app-modal-alert>
+      <clr-select-container>
+        <label>项目</label>
+        <select clrSelect [(ngModel)]="cluster.item_name" name="itemName" (change)="onChangeItem(cluster.item_name)" required>
+          <option [value]="">请选择</option>
+          <option *ngFor="let item of items" [value]="item.name">{{item.name}}</option>
+        </select>
+      </clr-select-container>
       <clr-input-container>
         <label>集群名称</label>
         <input id="name" type="text" pattern="{{name_pattern}}"

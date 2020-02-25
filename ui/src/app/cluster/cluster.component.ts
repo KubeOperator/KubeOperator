@@ -34,7 +34,7 @@ export class ClusterComponent implements OnInit {
   }
 
   openModal(): void {
-    this.creationCluster.newCluster(this.itemName);
+    this.creationCluster.newCluster();
   }
 
   createCluster(created: boolean) {
