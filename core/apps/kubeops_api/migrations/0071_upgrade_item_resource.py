@@ -6,6 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         ('kubeops_api', '0070_auto_20200224_0741'),
+        ('storage', '0009_clustercephstorage'),
     ]
 
     def forwards_func(apps, schema_editor):
@@ -43,6 +44,7 @@ class Migration(migrations.Migration):
                                          resource_type='BACKUP_STORAGE')
             item_resources.append(item_resource)
         #nfs
+        print(apps)
         NfsStorage = apps.get_model("storage", "NfsStorage")
         nfs_list = NfsStorage.objects.using(db_alias).all()
         for nfs in nfs_list:
