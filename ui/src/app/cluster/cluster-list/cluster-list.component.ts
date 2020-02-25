@@ -43,7 +43,7 @@ export class ClusterListComponent implements OnInit {
       this.listItemCluster();
     } else {
       this.showItem = true;
-      this.lisItemAndCLuster();
+      this.lisItemAndCluster();
     }
 
     this.checkSetting();
@@ -58,13 +58,6 @@ export class ClusterListComponent implements OnInit {
   listItemCluster() {
     this.clusterService.listItemClusters(this.itemName).subscribe(data => {
       this.clusters = data;
-      for (const itemCluster of this.itemClusters) {
-        for (const i in this.clusters) {
-          if (itemCluster.resource_id === this.clusters[i].id) {
-            this.clusters[i].item_name = itemCluster.item_name;
-          }
-        }
-      }
       this.loading = false;
     }, error => {
       this.loading = false;
@@ -132,7 +125,7 @@ export class ClusterListComponent implements OnInit {
     return result;
   }
 
-  lisItemAndCLuster() {
+  lisItemAndCluster() {
     this.itemResourceService.getClusters().subscribe(res => {
       this.itemClusters = res['data'];
       this.listCluster();

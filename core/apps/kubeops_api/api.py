@@ -70,9 +70,10 @@ class ClusterViewSet(viewsets.ModelViewSet):
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         elif user.profile.items:
-            resource_ids = []
+            item_ids = []
             for item in user.profile.items:
-                resource_ids.append(item.id)
+                item_ids.append(item.id)
+            resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         else:

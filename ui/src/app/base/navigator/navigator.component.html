@@ -3,10 +3,6 @@
     <clr-icon shape="dashboard" clrVerticalNavIcon></clr-icon>
     概览
   </a>
-  <a clrVerticalNavLink routerLinkActive="active" routerLink="/item">
-    <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
-    项目管理
-  </a>
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/cluster">
     <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>
     集群
@@ -30,6 +26,10 @@
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/system/log" *ngIf="user.is_superuser">
     <clr-icon shape="align-left-text" clrVerticalNavIcon></clr-icon>
     系统日志
+  </a>
+  <a clrVerticalNavLink routerLinkActive="active" routerLink="/item" *ngIf="showItem">
+    <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
+    项目管理
   </a>
   <a clrVerticalNavLink routerLinkActive="active" routerLink="/user" *ngIf="user.is_superuser">
     <clr-icon shape="user" clrVerticalNavIcon></clr-icon>

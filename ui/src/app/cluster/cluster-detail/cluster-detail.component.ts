@@ -20,12 +20,11 @@ export class ClusterDetailComponent implements OnInit {
     this.route.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
-
     });
   }
 
   backToCluster() {
-    this.router.navigate(['item/' + this.currentCluster.item_name + '/cluster'], {queryParams: {name: this.currentCluster.item_name}});
+    this.router.navigate(['cluster']);
   }
 
 }

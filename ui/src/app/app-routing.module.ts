@@ -117,24 +117,6 @@ const routes: Routes = [
           {path: 'resource', component: ItemResourceComponent},
         ]
       },
-      // {
-      //   path: 'item/:itemName/cluster/:name',
-      //   component: ClusterDetailComponent,
-      //   resolve: {cluster: ClusterRoutingResolverService},
-      //   children: [
-      //     {path: '', redirectTo: 'overview', pathMatch: 'full'},
-      //     {path: 'overview', component: OverviewComponent},
-      //     {path: 'node', component: NodeComponent},
-      //     {path: 'deploy', component: DeployComponent},
-      //     {path: 'log', component: LogComponent},
-      //     {path: 'apps', component: ApplicationComponent},
-      //     {path: 'health', component: ClusterHealthComponent},
-      //     {path: 'event', component: ClusterEventComponent},
-      //     {path: 'backup', component: ClusterBackupComponent},
-      //     {path: 'big-ip', component: F5BigIpComponent},
-      //     {path: 'cluster-storage', component: ClusterStorageComponent}
-      //   ]
-      // },
       {
         path: 'system/log', component: SystemLogComponent
       }
