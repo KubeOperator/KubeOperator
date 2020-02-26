@@ -37,7 +37,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="14">集群 Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="14">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -107,7 +107,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="3">集群 Day 1 部署
+        <td class="features-first-td-background-style" rowspan="3">Day 1 部署
         </td>
         <td class="features-third-td-background-style" rowspan="3">部署
         </td>  
@@ -123,11 +123,11 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="15">集群 Day 2 运营
+        <td class="features-first-td-background-style" rowspan="15">Day 2 运营
         </td>
         <td class="features-third-td-background-style" rowspan="6">管理
         </td>  
-        <td class="features-third-td-background-style">支持用户权限管理，并对接 LDAP/AD
+        <td class="features-third-td-background-style">支持用户权限管理，支持对接 LDAP/AD
         </td>         
     </tr>
     <tr class="subscription-level-tr-border">
