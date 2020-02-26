@@ -68,7 +68,7 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
-- [ ] 实现内置应用的统一认证；
+- [ ] 将部分内置应用移到应用商店；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
 - [ ] 全容器化部署 （CoreOS）;
