@@ -42,7 +42,6 @@ class UserProfileApi(RetrieveAPIView):
 
 
 class UserProfileViewSets(viewsets.ModelViewSet):
-    permission_classes = (IsSuperUser,)
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     lookup_url_kwarg = "id"
