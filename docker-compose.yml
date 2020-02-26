@@ -36,12 +36,14 @@ services:
     restart: always
     privileged: true
     tty: true
+    environment: 
+      PACKAGE_PATH_PREFIX:
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/config.yml
+      - ./config.yml:/opt/kubeOperator-api/config.yml
     healthcheck:
       test: "curl localhost:8000"
       interval: 10s
@@ -61,12 +63,14 @@ services:
     restart: always
     privileged: true
     tty: true
+    environment: 
+      PACKAGE_PATH_PREFIX:
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - terraform_data:/opt/kubeOperator-api/data/terraform
       - celery_data:/opt/kubeOperator-api/data/celery
-      - /opt/kubeoperator/config.yml:/opt/kubeOperator-api/config.yml
+      - ./config.yml:/opt/kubeOperator-api/config.yml
     healthcheck:
       test: "ps axu | grep 'celery worker'"
       interval: 10s

@@ -3,21 +3,21 @@ BASE_DIR=$(dirname "$0")
 source ${BASE_DIR}/utils.sh
 
 function success(){
-    echo -e "\033[32m kubeOperator 卸载完成. \033[0m"
+    echo_green "kubeOperator 卸载完成."
 }
 function remove_dir() {
-    echo -e "删除 KubeOperator 工作目录"
-    rm -rf /opt/kubeoperator 2&> /dev/null
+    echo_green "删除 KubeOperator 工作目录"
+    rm -rf ${INSTALL_DIR}/kubeoperator 2&> /dev/null
 }
 function remove_service() {
-    echo -e "停止 KubeOperator 服务进程"
-    if [ -a /etc/systemd/system/kubeops.serviced ] ;then
+    echo_green "停止 KubeOperator 服务进程"
+    if [ -a /etc/systemd/system/kubeops.service ] ;then
         systemctl stop kubeops 2&> /dev/null
         systemctl disable kubeops 2&> /dev/null
-        rm -rf /etc/systemd/system/kubeops.serviced
+        rm -rf /etc/systemd/system/kubeops.service
     fi
-    if [ -a /opt/kubeoperator/kubeopsctl.sh ]; then
-        cd /opt/kubeoperator && docker-compose down -v 
+    if [ -a ${INSTALL_DIR}/kubeoperator/kubeopsctl.sh ]; then
+        cd ${INSTALL_DIR}/kubeoperator && docker-compose down -v 
         docker ps |grep -i nexus|awk '{print $1}'|xargs docker rm -f 2&> /dev/null
     else
         read -p "强力卸载将会完全清除主机上的所有容器，是否继续： y/n : " yn
@@ -31,7 +31,7 @@ function remove_service() {
 }
 
 function remove_images() {
-    echo -e "清理镜像中..."
+    echo_green "清理镜像中..."
     docker images -q|xargs docker rmi -f 2&> /dev/null
 }
 

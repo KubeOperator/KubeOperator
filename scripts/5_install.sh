@@ -3,14 +3,14 @@ BASE_DIR=$(dirname "$0")
 source ${BASE_DIR}/utils.sh
 
 function success(){
-    echo -e "\033[31m kubeOperator 安装成功!\n 默认登陆信息: \033[0m"  
-    echo -e "\033[32m username: admin \033[0m"  
-    echo -e "\033[32m password: kubeoperator@admin123 \033[0m"  
-    echo -e "\033[33m [系统初始化中，请耐心等待5分钟再进行登录] \033[0m"
+    echo_green "kubeOperator 安装成功!\n 默认登陆信息:"  
+    echo_green "username: admin"  
+    echo_green "password: kubeoperator@admin123"  
+    echo_green "[系统初始化中，请耐心等待5分钟再进行登录]"
 }
 
 function start_service(){
-    echo "start service......"
+    echo_green "start service......"
     systemctl restart docker.service
     systemctl enable kubeops.service
     systemctl start kubeops.service

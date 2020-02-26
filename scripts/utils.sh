@@ -2,6 +2,15 @@
 PROJECT_DIR=$(dirname $(cd $(dirname "$0");pwd))
 IMAGE_DIR="${PROJECT_DIR}/docker/images"
 SCRIPTS_DIR="${PROJECT_DIR}/scripts"
+export INSTALL_DIR="/opt"
+
+function echo_green(){
+    echo -e "\e[32m$@\e[0m"
+}
+
+function echo_red(){
+    echo -e "\e[31m$@\e[0m"
+}
 
 function get_images(){
     images=(

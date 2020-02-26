@@ -3,9 +3,10 @@ Description=KubeOperator service
 After=network.target docker.service
 [Service]
 Type=simple
-WorkingDirectory=/opt/kubeoperator
-ExecStart=/usr/bin/docker-compose -f /opt/kubeoperator/docker-compose.yml up
-ExecStop=/usr/bin/docker-compose -f /opt/kubeoperator/docker-compose.yml down
+WorkingDirectory=INSTALL_DIR/kubeoperator
+Environment=PACKAGE_PATH_PREFIX=INSTALL_DIR/kubeoperator/data/packages/
+ExecStart=export /usr/bin/docker-compose -f INSTALL_DIR/kubeoperator/docker-compose.yml up
+ExecStop=/usr/bin/docker-compose -f INSTALL_DIR/kubeoperator/docker-compose.yml down
 #Restart=always
 [Install]
 WantedBy=multi-user.target

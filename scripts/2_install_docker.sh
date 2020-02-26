@@ -34,9 +34,9 @@ function install_docker-compose_offline {
 }
 
 function install_docker {
-    echo ">> Install docker"
+    echo_green ">> Install docker"
     if [[ "${OS}" == "Darwin" ]];then
-        echo "Platform is MacOS, install manually"
+        echo_red "Platform is MacOS, install manually"
         return
     fi
     if [[ -f "${OFFLINE_DOCKER_DIR}/docker/dockerd" ]];then
@@ -47,9 +47,9 @@ function install_docker {
 }
 
 function install_docker-compose {
-    echo ">> Install docker-compose"
+    echo_green ">> Install docker-compose"
     if [[ "${OS}" == "Darwin" ]];then
-        echo "Platform is MacOS, install manually"
+        echo_red "Platform is MacOS, install manually"
         return
     fi
     if [[ -f "${OFFLINE_DOCKER_DIR}/docker-compose" ]];then

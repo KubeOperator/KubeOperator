@@ -20,7 +20,10 @@ CLUSTER_CONFIG_DIR = os.path.join(BASE_DIR, "resource", "cluster")
 KUBEEASZ_DIR = os.path.join(BASE_DIR, "resource", "kubeasz")
 WEBKUBECTL_URL = "http://webkubectl:8080/api/kube-config"
 PACKAGE_IMAGE_NAME = 'registry.fit2cloud.com/public/nexus-helm:3.15.2-01'
-PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
+if 'PACKAGE_PATH_REFIX' in os.environ:
+    PACKAGE_PATH_PREFIX = os.getenv('PACKAGE_PATH_PREFIX')
+else:
+    PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
 CONFIG = load_user_config()
 
