@@ -171,7 +171,8 @@ class ResourceView(APIView):
         if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
             result = Cluster.objects.exclude(id__in=resource_ids)
         if resource_type == ItemResource.RESOURCE_TYPE_HOST:
-            result = Host.objects.exclude(id__in=resource_ids).filter(node_id=None)
+            all_host_ids = ItemResource.objects.filter(resource_type=ItemResource.RESOURCE_TYPE_HOST).values_list('resource_id', flat=True)
+            result = Host.objects.exclude(id__in=all_host_ids).filter(node_id=None)
         if resource_type == ItemResource.RESOURCE_TYPE_PLAN:
             result = Plan.objects.exclude(id__in=resource_ids)
         if resource_type == ItemResource.RESOURCE_TYPE_STORAGE:
