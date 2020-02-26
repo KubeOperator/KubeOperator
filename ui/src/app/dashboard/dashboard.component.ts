@@ -191,7 +191,7 @@ export class DashboardComponent implements OnInit {
   getItems() {
     this.itemService.listItem().subscribe(data => {
       this.items = data;
-      this.dashboardSearch.item = this.items[0].name;
+      this.dashboardSearch.item = 'all';
       this.search();
     });
   }
