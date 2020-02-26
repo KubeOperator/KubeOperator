@@ -44,6 +44,12 @@ export class InterceptorService implements HttpInterceptor {
           msg = '权限不允许此操作或者Session过期！';
           this.alert.showAlert(msg, AlertLevels.ERROR);
         }
+        if (error.status === 400) {
+          msg = error.error['msg'];
+          if ((typeof msg) === 'string') {
+            this.alert.showAlert(msg, AlertLevels.ERROR);
+          }
+        }
         return throwError(error);
       }));
   }
