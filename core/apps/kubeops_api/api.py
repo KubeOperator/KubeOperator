@@ -65,8 +65,17 @@ class ClusterViewSet(viewsets.ModelViewSet):
         user = request.user
         if request.query_params.get('itemName'):
             itemName = request.query_params.get('itemName')
-            item = Item.objects.get(name=itemName)
-            resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+            if itemName == 'all' and user.profile.items:
+                item_ids = []
+                for item in user.profile.items:
+                    item_ids.append(item.id)
+                resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
+            elif itemName == 'all' and user.is_superuser:
+                item_ids = Item.objects.all().values_list("id")
+                resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
+            else:
+                item = Item.objects.get(name=itemName)
+                resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         elif user.profile.items:
@@ -79,18 +88,19 @@ class ClusterViewSet(viewsets.ModelViewSet):
         else:
             return super().list(self, request, *args, **kwargs)
 
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception = True)
+        serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         if request.data.get('item_name'):
-            item=Item.objects.get(name=request.data.get('item_name'))
+            item = Item.objects.get(name=request.data.get('item_name'))
             cluster = Cluster.objects.get(name=request.data.get('name'))
-            itemResource = ItemResource(item_id=item.id,resource_id=cluster.id,resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
+            itemResource = ItemResource(item_id=item.id, resource_id=cluster.id,
+                                        resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
             itemResource.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.all()
@@ -341,8 +351,6 @@ class BackupStrategyViewSet(viewsets.ModelViewSet):
     lookup_url_kwarg = 'project_id'
 
 
-
-
 class ClusterBackupViewSet(viewsets.ModelViewSet):
     queryset = ClusterBackup.objects.all()
     serializer_class = serializers.ClusterBackupSerializer
@@ -446,8 +454,13 @@ class DashBoardView(APIView):
         error_loki_containers = []
         error_pods = []
         if project_name == 'all':
-            item = Item.objects.get(name=item_name)
-            resourceIds = ItemResource.objects.filter(item_id=item.id).values_list('resource_id')
+            item_ids = []
+            if item_name == 'all':
+                item_ids = Item.objects.all().values_list('id')
+            else:
+                item = Item.objects.get(name=item_name)
+                item_ids.append(item.id)
+            resourceIds = ItemResource.objects.filter(item_id__in=item_ids).values_list('resource_id')
             clusters = Cluster.objects.filter(~Q(status=Cluster.CLUSTER_STATUS_READY),
                                               ~Q(status=Cluster.CLUSTER_STATUS_INSTALLING),
                                               ~Q(status=Cluster.CLUSTER_STATUS_DELETING)).filter(id__in=resourceIds)

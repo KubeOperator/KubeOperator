@@ -36,7 +36,10 @@ export class ItemListComponent implements OnInit {
     this.loading = true;
     this.itemService.listItem().subscribe(res => {
       this.items = res;
-      this.getProfile();
+      if (!this.user.is_superuser) {
+        this.items = this.sessionService.getManageItems(this.items);
+      }
+      this.loading = false;
     });
   }
 
@@ -65,12 +68,8 @@ export class ItemListComponent implements OnInit {
   }
 
   getProfile() {
-    this.loading = true;
-    this.sessionService.getProfile().subscribe(data => {
-      this.profile = data;
-      this.user = this.profile.user;
-      this.loading = false;
-    });
+    this.profile = this.sessionService.getCacheProfile();
+    this.user = this.profile.user;
   }
 
   getItemPermission(itemName) {

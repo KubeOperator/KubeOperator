@@ -21,7 +21,7 @@
       <!--      </div>-->
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="dashboardSearch.item"(ngModelChange)="changeItem()">
-<!--          <option value="all">所有项目</option>-->
+          <option value="all">所有项目</option>
           <option *ngFor="let i of items" value="{{i.name}}">{{i.name}}</option>
         </select>
       </div>
