@@ -31,7 +31,7 @@
   <clr-dg-column>启用</clr-dg-column>
 
 
-  <clr-dg-row *ngFor="let user of users" [clrDgItem]="user">
+  <clr-dg-row *ngFor="let user of users | filterCurrentUser:currentUser" [clrDgItem]="user">
     <clr-dg-cell>{{user.username}}</clr-dg-cell>
     <clr-dg-cell>{{user.email}}</clr-dg-cell>
     <clr-dg-cell><span *ngIf="user.is_superuser">是</span><span *ngIf="!user.is_superuser">否</span></clr-dg-cell>
