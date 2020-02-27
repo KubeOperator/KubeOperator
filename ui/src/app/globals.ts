@@ -6,3 +6,5 @@ export const cluster_name_pattern = '^[a-z0-9]+(?:[-][a-z0-9]+)*$';
 export const cluster_name_pattern_tip = '仅支持小写字母、数字和 "-" 最长25个字符';
 export const domain_pattern = '^[a-z0-9]+(?:[-.][a-z0-9]+)*$';
 export const domain_pattern_tip = '仅支持小写字母、数字 "-" 和 "." 最长15个字符';
+export const chinese_name_pattern = '^[\u4e00-\u9fa5_a-zA-Z0-9]+(?:[-][a-z0-9]+)*$';
+export const chinese_name_pattern_tip = '仅支持大小写字母、中文、数字和 "-" 最长25个字符';

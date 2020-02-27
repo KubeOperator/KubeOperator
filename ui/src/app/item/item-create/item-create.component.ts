@@ -20,8 +20,8 @@ export class ItemCreateComponent implements OnInit {
   createItemOpened: boolean;
   isSubmitGoing = false;
   item: Item = new Item();
-  name_pattern = globals.name_pattern;
-  name_pattern_tip = globals.name_pattern_tip;
+  name_pattern = globals.chinese_name_pattern;
+  name_pattern_tip = globals.chinese_name_pattern_tip;
   @Output() create = new EventEmitter<boolean>();
 
 

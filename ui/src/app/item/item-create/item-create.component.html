@@ -4,7 +4,7 @@
     <form clrForm #ItemForm="ngForm">
       <clr-input-container>
         <label>名称:</label>
-        <input clrInput size=45 maxlength="15" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name"
+        <input clrInput size=45 maxlength="25" type="text" pattern="{{name_pattern}}" [(ngModel)]="item.name"
                name="name" required>
         <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>
         <clr-control-error>{{name_pattern_tip}}</clr-control-error>
