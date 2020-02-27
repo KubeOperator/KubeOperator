@@ -11,7 +11,8 @@
       <app-modal-alert #alertModal></app-modal-alert>
       <clr-select-container>
         <label>项目</label>
-        <select clrSelect [(ngModel)]="cluster.item_name" name="itemName" (change)="onChangeItem(cluster.item_name)" required>
+        <select clrSelect [(ngModel)]="cluster.item_name" name="itemName" (change)="onChangeItem(cluster.item_name)"
+                required>
           <option [value]="" disabled>请选择</option>
           <option *ngFor="let item of items" [value]="item.name">{{item.name}}</option>
         </select>
@@ -152,7 +153,7 @@
     </form>
   </clr-wizard-page>
 
-  <clr-wizard-page [clrWizardPageNextDisabled]="canNodeNext()" (clrWizardPageNext)="fullNode()"
+  <clr-wizard-page [clrWizardPageNextDisabled]="!canNodeNext()" (clrWizardPageNext)="fullNode()"
                    *ngIf="cluster.deploy_type == Manual">
     <ng-template clrPageTitle>选择节点</ng-template>
     <form #nodeForm='ngForm' class="clr-form clr-form-compact">
@@ -169,7 +170,7 @@
                 <div class="clr-select-wrapper">
                   <select [id]="node.name+'host'" [(ngModel)]="node.host" name="node_host" (change)="onHostChange(node)"
                           class="clr-select" required>
-                    <option [value]="" disabled>请选择主机</option>
+                    <option value="" disabled>请选择主机</option>
                     <option *ngFor="let host of hosts | hostsFilter :nodes:node "
                             [value]="host.id">{{getHostInfo(host)}}
                     </option>

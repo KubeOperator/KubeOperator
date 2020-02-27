@@ -26,7 +26,7 @@ import * as globals from '../../globals';
 import {CephService} from '../../ceph/ceph.service';
 import {SessionService} from '../../shared/session.service';
 import {ItemService} from '../../item/item.service';
-import {SessionUser} from "../../shared/session-user";
+import {SessionUser} from '../../shared/session-user';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -417,14 +417,13 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   canNodeNext(): boolean {
-    let result = false;
+    let result = true;
     if (this.nodes) {
-      this.nodes.some(node => {
-        if (!node.host) {
-          result = true;
-          return true;
+      for (let i = 0; i < this.nodes.length; i++) {
+        if (!this.nodes[i].host || this.nodes[i].host === '') {
+          return result = false;
         }
-      });
+      }
     }
     return result;
   }
