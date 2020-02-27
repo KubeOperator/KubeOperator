@@ -148,7 +148,9 @@ export class DashboardComponent implements OnInit {
         this.cpuUsage = this.cpuUsage / count * 100;
         this.memUsage = this.memUsage / count * 100;
       }
-      this.containerUsage = this.podCount / this.maxPodCount * 100;
+      if (this.maxPodCount > 0) {
+        this.containerUsage = this.podCount / this.maxPodCount * 100;
+      }
       this.loading = false;
     }, error1 => {
       this.loading = false;
