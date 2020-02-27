@@ -24,8 +24,9 @@ import {Storage as StorageItem} from '../cluster';
 import {StorageService} from '../storage.service';
 import * as globals from '../../globals';
 import {CephService} from '../../ceph/ceph.service';
-import {SessionService} from "../../shared/session.service";
-import {ItemService} from "../../item/item.service";
+import {SessionService} from '../../shared/session.service';
+import {ItemService} from '../../item/item.service';
+import {SessionUser} from "../../shared/session-user";
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -117,8 +118,15 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.itemService.listItem().subscribe(res=>{
+
+    const profile = this.sessionService.getCacheProfile();
+    const user = profile.user;
+
+    this.itemService.listItem().subscribe(res => {
       this.items = res;
+      if (!user.is_superuser) {
+        this.items = this.sessionService.getManageItems(this.items);
+      }
     });
   }
 
