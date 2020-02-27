@@ -302,8 +302,8 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
         if request.query_params.get('itemName'):
             itemName = request.query_params.get('itemName')
             item = Item.objects.get(name=itemName)
-            resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
-            self.queryset = BackupStrategy.objects.filter(id__in=resource_ids)
+            resource_ids = ItemResource.objects.filter(item_id=item.id,resource_type=ItemResource.RESOURCE_TYPE_BACKUP_STORAGE).values_list("resource_id")
+            self.queryset = BackupStorage.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         else:
             return super().list(self, request, *args, **kwargs)
