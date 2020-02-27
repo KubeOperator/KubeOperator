@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ItemMemberService} from '../item-member.service';
 import {Profile} from '../../shared/session-user';
+import {ActivatedRoute} from '@angular/router';
 
 const ROLE_NAME_MANAGER = 'MANAGER';
 const ROLE_NAME_VIEWER = 'VIEWER';
@@ -17,8 +18,8 @@ export class ItemMemberCreateComponent implements OnInit {
   opened = false;
   loading = true;
   isSubmitGoing = false;
-  @Input() currentItemName: string;
   @Output() create = new EventEmitter<boolean>();
+  currentItem;
   ps: Profile[] = [];
   options = [];
   managers = [];
@@ -51,10 +52,11 @@ export class ItemMemberCreateComponent implements OnInit {
     });
   }
 
-  constructor(private itemMemberService: ItemMemberService) {
+  constructor(private itemMemberService: ItemMemberService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.currentItem = this.route.snapshot.queryParams['name'];
   }
 
   onCancel() {
@@ -78,7 +80,7 @@ export class ItemMemberCreateComponent implements OnInit {
       submitData.profiles.push(p['value']);
       submitData.role_map = roleMap;
     });
-    this.itemMemberService.setItemProfiles(submitData, this.currentItemName).subscribe(() => {
+    this.itemMemberService.setItemProfiles(submitData, this.currentItem).subscribe(() => {
       this.isSubmitGoing = false;
       this.create.emit(true);
       this.opened = false;
@@ -88,7 +90,7 @@ export class ItemMemberCreateComponent implements OnInit {
   open(profiles: Profile[]) {
     this.clear();
     this.opened = true;
-    this.itemName = this.currentItemName;
+    this.itemName = this.currentItem;
     this.itemMemberService.getProfiles().subscribe(data => {
       data.filter((p) => {
         return !p.user.is_superuser;

@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ItemMemberService} from '../item-member.service';
 import {ItemMember} from '../item-member';
-import {ActivatedRoute} from '@angular/router';
 import {Profile} from '../../shared/session-user';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-item-member-list',
@@ -11,16 +11,17 @@ import {Profile} from '../../shared/session-user';
 })
 export class ItemMemberListComponent implements OnInit {
 
-  constructor(private itemMemberService: ItemMemberService) {
+  constructor(private itemMemberService: ItemMemberService, private route: ActivatedRoute) {
   }
 
   itemMember: ItemMember = new ItemMember();
   loading = true;
   @Output() add = new EventEmitter<Profile[]>();
-  @Input() currentItemName: string;
+  currentItem;
 
   ngOnInit() {
     this.refresh();
+    this.currentItem = this.route.snapshot.queryParams['name'];
   }
 
   onAdd() {
@@ -29,7 +30,7 @@ export class ItemMemberListComponent implements OnInit {
 
   refresh() {
     this.loading = true;
-    this.itemMemberService.getItemProfiles(this.currentItemName).subscribe(data => {
+    this.itemMemberService.getItemProfiles(this.currentItem).subscribe(data => {
       this.loading = false;
       this.itemMember = data;
     });
@@ -37,7 +38,7 @@ export class ItemMemberListComponent implements OnInit {
 
   formatRole(p: Profile) {
     return p.item_role_mappings.find(mp => {
-      return mp.item_name = this.currentItemName;
+      return mp.item_name === this.currentItem;
     })['role'];
   }
 }
