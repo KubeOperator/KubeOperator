@@ -79,4 +79,23 @@ export class SessionService {
       }
     }
   }
+
+  getManageItems(user_items) {
+    const profile = this.getCacheProfile();
+    if (profile == null) {
+      return;
+    }
+    const items = [];
+    const role_mapping = profile.item_role_mappings;
+    for (const rm of role_mapping) {
+      if (rm.role === 'MANAGER') {
+        for (const item of user_items) {
+          if (item.name === rm.item_name) {
+            items.push(item);
+          }
+        }
+      }
+    }
+    return items;
+  }
 }
