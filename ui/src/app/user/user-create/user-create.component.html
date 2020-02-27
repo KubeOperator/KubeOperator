@@ -13,7 +13,7 @@
       <clr-input-container>
         <label>邮箱:</label>
         <input clrInput type="email"
-               pattern="^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$" size=45
+               pattern="[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?" size=45
                [(ngModel)]="user.email" name="email" required>
         <clr-control-error>请输入正确格式的邮箱地址!</clr-control-error>
       </clr-input-container>
