@@ -34,6 +34,8 @@ export class PasswordComponent implements OnInit {
       return;
     } else {
       this.sessionService.changePassword(this.original, this.password).subscribe(data => {
+        this.submitGoing = false;
+        this.opened = false;
       }, error => {
         console.log(error);
       });
@@ -45,10 +47,10 @@ export class PasswordComponent implements OnInit {
   }
 
   clear() {
-    this.passform.resetForm();
     this.original = null;
     this.password = null;
     this.confirmPassword = null;
+    this.passform.resetForm();
   }
 
   onCancel() {
