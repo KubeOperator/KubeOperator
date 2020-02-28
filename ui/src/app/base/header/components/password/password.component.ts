@@ -38,7 +38,10 @@ export class PasswordComponent implements OnInit {
         console.log(error);
       });
     }
+  }
 
+  checkPassword() {
+    return this.password === this.confirmPassword;
   }
 
   clear() {
