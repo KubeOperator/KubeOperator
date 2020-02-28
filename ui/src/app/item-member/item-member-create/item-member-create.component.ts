@@ -127,7 +127,7 @@ export class ItemMemberCreateComponent implements OnInit {
 
   formatRole(p: Profile) {
     return p.item_role_mappings.find(mp => {
-      return mp.item_name = this.itemName;
+      return mp.item_name === this.itemName;
     })['role'];
   }
 
