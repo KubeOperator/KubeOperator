@@ -8,7 +8,7 @@ const authUserUrl = '/api/v1/token/auth/';
 const profileUrl = '/api/v1/profile/';
 const refreshUrl = '/api/v1/token/refresh/';
 const userUrl = '/api/v1/users/';
-const changePassUrl = '/api/v1/password';
+const changePassUrl = '/api/v1/password/';
 const queryKey = 'profile';
 
 @Injectable({
@@ -60,7 +60,7 @@ export class SessionService {
 
 
   changePassword(original: string, password: string): Observable<any> {
-    return this.http.post<any>(changePassUrl, {'original': original, 'password': password});
+    return this.http.put<any>(changePassUrl, {'original': original, 'password': password});
   }
 
   clear(): void {
