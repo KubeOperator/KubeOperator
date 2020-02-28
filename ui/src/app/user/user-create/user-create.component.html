@@ -13,7 +13,8 @@
       <clr-input-container>
         <label>邮箱:</label>
         <input clrInput type="email"
-               pattern="[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?" size=45
+               pattern="[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?"
+               size=45
                [(ngModel)]="user.email" name="email" required>
         <clr-control-error>请输入正确格式的邮箱地址!</clr-control-error>
       </clr-input-container>
@@ -21,7 +22,7 @@
       <clr-password-container>
         <label>密码:</label>
         <input clrPassword size=40 maxlength="15" type="password" [(ngModel)]="user.password" name="name"
-               (change)="checkPassword()" required>
+               (change)="checkPassword()" pattern="^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$" required>
         <clr-control-helper *ngIf="!isPasswordMatch && user.password &&user.ensurePassword">密码不一致！</clr-control-helper>
       </clr-password-container>
 
