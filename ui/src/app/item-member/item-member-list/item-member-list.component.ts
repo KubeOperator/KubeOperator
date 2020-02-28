@@ -20,8 +20,8 @@ export class ItemMemberListComponent implements OnInit {
   currentItem;
 
   ngOnInit() {
-    this.refresh();
     this.currentItem = this.route.snapshot.queryParams['name'];
+    this.refresh();
   }
 
   onAdd() {
