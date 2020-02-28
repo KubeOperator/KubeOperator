@@ -146,9 +146,9 @@ class ClusterSerializer(ProjectSerializer):
                   'plan',
                   'comment', 'date_created', 'resource', 'resource_version', 'current_execution', 'status', 'nodes',
                   'apps', 'deploy_type', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'configs',
-                  'cluster_doamin_suffix']
+                  'cluster_doamin_suffix', 'item_name']
         read_only_fields = ['id', 'date_created', 'current_execution', 'resource', 'resource_version',
-                            'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider']
+                            'nodes', 'apps', 'zone', 'region', 'meta', 'zones', 'cloud_provider', 'item_name']
 
 
 class BackupStorageSerializer(serializers.ModelSerializer):
