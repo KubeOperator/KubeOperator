@@ -13,7 +13,7 @@
         <label>项目</label>
         <select clrSelect [(ngModel)]="cluster.item_name" name="itemName" (change)="onChangeItem(cluster.item_name)"
                 required>
-          <option [value]="" disabled>请选择</option>
+          <option value="" >请选择</option>
           <option *ngFor="let item of items" [value]="item.name">{{item.name}}</option>
         </select>
       </clr-select-container>
@@ -38,14 +38,14 @@
       <clr-select-container>
         <label>离线包</label>
         <select id="package" [(ngModel)]="cluster.package" name="package" class="clr-select" clrSelect required>
-          <option value="" disabled>请选择离线包</option>
+          <option value="" >请选择离线包</option>
           <option *ngFor="let pk of packages" [value]="pk.name">{{pk.meta.resource}}</option>
         </select>
       </clr-select-container>
       <clr-select-container>
         <label>部署模式</label>
         <select name="deploy_type" [(ngModel)]="cluster.deploy_type" clrSelect required>
-          <option value="" disabled>请选择</option>
+          <option value="" >请选择</option>
           <option value="MANUAL">手动模式</option>
           <option value="AUTOMATIC">自动模式</option>
         </select>
@@ -58,7 +58,7 @@
       <clr-select-container>
         <label>部署计划</label>
         <select clrSelect [(ngModel)]="cluster.plan" (change)="planOnChange()" name="plan" required>
-          <option value="" disabled>请选择</option>
+          <option value="" >请选择</option>
           <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
         </select>
       </clr-select-container>
@@ -197,7 +197,7 @@
       <clr-select-container>
         <label>网络插件</label>
         <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()" required>
-          <option [value]="" disabled>请选择</option>
+          <option value="" >请选择</option>
           <option *ngFor="let network of networks" [value]="network.name">{{network.name}}</option>
         </select>
       </clr-select-container>
@@ -208,7 +208,7 @@
               <label>{{config.alias}}</label>
               <select clrSelect [name]="config.name" [(ngModel)]="cluster.configs[config.name]"
                       required>
-                <option value="" disabled>请选择</option>
+                <option value="" >请选择</option>
                 <option *ngFor="let opt of config.options"
                         [value]="opt.value">{{opt.name}}
                 </option>
@@ -253,7 +253,7 @@
       <clr-select-container>
         <label>存储类型</label>
         <select clrSelect [(ngModel)]="cluster.persistent_storage" name="storage" (change)="onStorageChange()" required>
-          <option value="" disabled>请选择</option>
+          <option value="" >请选择</option>
           <option *ngFor="let s of storages" [value]="s.name">{{s.name}}</option>
         </select>
       </clr-select-container>
@@ -261,7 +261,7 @@
         <clr-select-container>
           <label>存储介质</label>
           <select clrSelect [(ngModel)]="cluster.configs['device_type']" name="device_type">
-            <option value="" disabled>请选择¬</option>
+            <option value="" >请选择¬</option>
             <option value="device">Device (建议生产环境使用)</option>
             <option value="path">Host Path (建议测试环境使用)</option>
           </select>
@@ -282,7 +282,7 @@
         <clr-select-container>
           <label>NFS:</label>
           <select clrSelect name="nfs" [(ngModel)]="cluster.configs['nfs']" required>
-            <option value="" disabled>请选择</option>
+            <option value="" >请选择</option>
             <option *ngFor="let nfs of storageList" [value]="nfs.name">{{nfs.name}}</option>
           </select>
         </clr-select-container>
@@ -291,7 +291,7 @@
         <clr-select-container>
           <label>Ceph:</label>
           <select clrSelect name="external-ceph" [(ngModel)]="cluster.configs['external-ceph']" required>
-            <option value="" disabled>请选择</option>
+            <option value="" >请选择</option>
             <option *ngFor="let ceph of storageList" [value]="ceph.name">{{ceph.name}}</option>
           </select>
         </clr-select-container>
