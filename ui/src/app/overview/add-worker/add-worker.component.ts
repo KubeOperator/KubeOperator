@@ -1,7 +1,8 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {HostService} from '../../host/host.service';
 import {Host} from '../../host/host';
 import {NgForm} from '@angular/forms';
+import {Cluster} from '../../cluster/cluster';
 
 @Component({
   selector: 'app-add-worker',
@@ -19,12 +20,14 @@ export class AddWorkerComponent implements OnInit {
   @Output() openedChange = new EventEmitter();
   @Output() confirm = new EventEmitter();
   @ViewChild('form', {static: true}) form: NgForm;
+  @Input() currentCluster: Cluster;
+
 
   ngOnInit() {
   }
 
   loadHosts() {
-    this.hostService.listHosts().subscribe(data => {
+    this.hostService.listItemHosts(this.currentCluster.item_name).subscribe(data => {
       this.hosts = data.filter(host => {
         return !host.cluster;
       });

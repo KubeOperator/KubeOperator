@@ -1,5 +1,5 @@
 <app-scale [cluster]="currentCluster" (confirm)="handleScale()"></app-scale>
-<app-add-worker (confirm)="handleAddWorker()"></app-add-worker>
+<app-add-worker (confirm)="handleAddWorker()" [currentCluster]="currentCluster" ></app-add-worker>
 <app-remove-worker (confirm)="handleRemoveWorker()"></app-remove-worker>
 <div class="clr-row">
   <div class="clr-col-lg-6 clr-col-md-6 clr-col-6">
@@ -54,11 +54,11 @@
         <button *ngIf="currentCluster.deploy_type==='AUTOMATIC'" class="btn btn-sm btn-link" (click)="onScale()"
                 [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">伸缩
         </button>
-        <button *ngIf="currentCluster.deploy_type==='MANUAL'" [disabled]="currentCluster.status !== 'RUNNING'"
+        <button *ngIf="currentCluster.deploy_type==='MANUAL'" [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'"
                 class="btn btn-sm btn-link" (click)="onAddWorker()">扩容
         </button>
         <button *ngIf="currentCluster.deploy_type==='MANUAL'"
-                [disabled]="(currentCluster.status !== 'RUNNING' || workers.length === 1 )"
+                [disabled]="(currentCluster.status !== 'RUNNING' || workers.length === 1 || permission==='VIEWER')"
                 class="btn btn-sm btn-link" (click)="onRemoveWorker()">缩容
         </button>
       </div>
