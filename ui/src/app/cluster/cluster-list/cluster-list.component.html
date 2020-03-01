@@ -15,12 +15,12 @@
   <clr-dg-action-bar>
     <div class="btn-group" *ngIf="showItem">
       <button type="button" class="btn btn-sm btn-secondary" (click)="addNewCluster()"
-              [disabled]="!hasHostname || permission==='VIEWER'">
+              [disabled]="!hasHostname || !canCreate">
         <clr-icon shape="plus" size="16"></clr-icon>
         添加
       </button>
       <button type="button" class="btn btn-sm btn-secondary" (click)="onDeleted()"
-              [disabled]="selectedClusters.length == 0 || permission==='VIEWER'">
+              [disabled]="selectedClusters.length == 0 || !canCreate">
         <clr-icon shape="close"></clr-icon>
         删除
       </button>

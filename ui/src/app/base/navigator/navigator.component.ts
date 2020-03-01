@@ -29,8 +29,6 @@ export class NavigatorComponent implements OnInit {
         }
       }
     }
-
-    console.log(this.user);
   }
 
   ngOnInit() {
