@@ -32,9 +32,8 @@ class ItemViewSet(viewsets.ModelViewSet):
         user = request.user
         if user.profile.items:
             item_ids = []
-            for item_role_m in user.profile.item_role_mappings:
-                if item_role_m.role == ItemRoleMapping.ITEM_ROLE_MANAGER:
-                    item_ids.append(item_role_m.item_id)
+            for item in user.profile.items:
+                item_ids.append(item.id)
             self.queryset = Item.objects.filter(id__in=item_ids).order_by('-date_created')
         else:
             self.queryset = Item.objects.all().order_by('-date_created')
