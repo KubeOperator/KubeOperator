@@ -9,7 +9,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.host import Host
-from kubeops_api.models.item import Item
+from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
 from kubeops_api.models.item_resource_dto import Resource, ItemResourceDTO
 from kubeops_api.models.node import Node
@@ -32,8 +32,9 @@ class ItemViewSet(viewsets.ModelViewSet):
         user = request.user
         if user.profile.items:
             item_ids = []
-            for item in user.profile.items:
-                item_ids.append(item.id)
+            for item_role_m in user.profile.item_role_mappings:
+                if item_role_m.role == ItemRoleMapping.ITEM_ROLE_MANAGER:
+                    item_ids.append(item_role_m.item_id)
             self.queryset = Item.objects.filter(id__in=item_ids).order_by('-date_created')
         else:
             self.queryset = Item.objects.all().order_by('-date_created')

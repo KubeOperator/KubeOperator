@@ -33,7 +33,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
-from kubeops_api.models.item import Item
+from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
 
 logger = logging.getLogger('kubeops')
@@ -67,8 +67,9 @@ class ClusterViewSet(viewsets.ModelViewSet):
             itemName = request.query_params.get('itemName')
             if itemName == 'all' and user.profile.items:
                 item_ids = []
-                for item in user.profile.items:
-                    item_ids.append(item.id)
+                for item_role_m in user.profile.item_role_mappings:
+                    if item_role_m.role == ItemRoleMapping.ITEM_ROLE_MANAGER:
+                        item_ids.append(item_role_m.item_id)
                 resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
             elif itemName == 'all' and user.is_superuser:
                 item_ids = Item.objects.all().values_list("id")
