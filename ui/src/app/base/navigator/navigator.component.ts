@@ -17,18 +17,24 @@ export class NavigatorComponent implements OnInit {
   }
 
   getProfile() {
-    const profile = this.sessionService.getCacheProfile();
-    this.user = profile.user;
-    if (this.user.is_superuser) {
-      this.showItem = true;
-    } else {
-      for (const rm of profile.item_role_mappings) {
-        if (rm.role !== 'VIEWER') {
-          this.showItem = true;
-          break;
+    this.user = this.sessionService.getCacheProfile().user;
+
+    this.sessionService.getProfile().subscribe(data => {
+      const profile = data;
+      this.user = profile.user;
+      if (this.user.is_superuser) {
+        this.showItem = true;
+      } else {
+        for (const item of profile.items) {
+          for (const rm of profile.item_role_mappings) {
+            if (item.name === rm.item_name && rm.role !== 'VIEWER') {
+              this.showItem = true;
+              break;
+            }
+          }
         }
       }
-    }
+    });
   }
 
   ngOnInit() {
