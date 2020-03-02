@@ -18,5 +18,5 @@ def parse_host_to_ssh_config(host):
         host.port,
         host.username,
         host.password,
-        10
+        host.private_key
     )

@@ -18,7 +18,6 @@ from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
 from common.ssh import SSHClient, SshConfig
 
-
 logger = logging.getLogger('kubeops')
 
 
@@ -556,7 +555,7 @@ def sync_node_time(cluster):
         'data': []
     }
     for host in hosts:
-        ssh_config = SshConfig(host=host.ip, port=host.port, username=host.username, password=host.password, timeout=10,
+        ssh_config = SshConfig(host=host.ip, port=host.port, username=host.username, password=host.password,
                                private_key=None)
 
         ssh_client = SSHClient(ssh_config)

@@ -16,7 +16,6 @@ class SshConfig:
         self.port = port or 22
         self.username = username
         self.password = password
-        self.timeout = 10
         self.private_key = private_key
 
 
