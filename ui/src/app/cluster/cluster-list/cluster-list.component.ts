@@ -10,6 +10,7 @@ import {CommonAlertService} from '../../base/header/common-alert.service';
 import {SessionService} from '../../shared/session.service';
 import {ItemResourceService} from '../../item-resource/item-resource.service';
 import {ItemResourceDTO} from '../../item-resource/item-resource';
+import {SessionUser} from '../../shared/session-user';
 
 @Component({
   selector: 'app-cluster-list',
@@ -27,6 +28,8 @@ export class ClusterListComponent implements OnInit {
   permission: string;
   itemClusters: ItemResourceDTO[] = [];
   showItem = false;
+  user: SessionUser;
+  canCreate = false;
 
 
   constructor(private clusterService: ClusterService, private router: Router,
@@ -43,9 +46,9 @@ export class ClusterListComponent implements OnInit {
       this.listItemCluster();
     } else {
       this.showItem = true;
-      this.lisItemAndCluster();
+      this.listItemAndCluster();
     }
-
+    this.getProfile();
     this.checkSetting();
   }
 
@@ -125,11 +128,26 @@ export class ClusterListComponent implements OnInit {
     return result;
   }
 
-  lisItemAndCluster() {
+  listItemAndCluster() {
     this.itemResourceService.getClusters().subscribe(res => {
       this.itemClusters = res['data'];
       this.listCluster();
     });
+  }
+
+  getProfile() {
+    const profile = this.sessionService.getCacheProfile();
+    this.user = profile.user;
+    if (this.user.is_superuser) {
+      this.canCreate = true;
+    } else {
+      for (const rm of profile.item_role_mappings) {
+        if (rm.role !== 'VIEWER') {
+          this.canCreate = true;
+          break;
+        }
+      }
+    }
   }
 
 }

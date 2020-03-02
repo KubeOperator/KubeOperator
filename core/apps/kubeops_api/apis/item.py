@@ -9,7 +9,7 @@ from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.host import Host
-from kubeops_api.models.item import Item
+from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
 from kubeops_api.models.item_resource_dto import Resource, ItemResourceDTO
 from kubeops_api.models.node import Node

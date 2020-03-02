@@ -3,20 +3,21 @@
   <div class="modal-body">
     <div *ngIf="this.options">
       <div class="clr-row">
-        <div class="clr-col-2">
-          <h5>管理员</h5>
+        <div class="clr-col-2" style="margin-top:8px;margin-left: 10px">
+          <label class="form-label">管理员</label>
         </div>
-        <div class="clr-col-10">
-          <l-select2 [data]="options" [(ngModel)]="managers" [options]="ops" (valueChange)="userFilter()"></l-select2>
+        <div class="clr-col-9">
+          <l-select2 class="form-control" [data]="options" [(ngModel)]="managers" [options]="ops"
+                     (valueChange)="userFilter()"></l-select2>
         </div>
       </div>
       <br/>
       <div class="clr-row">
-        <div class="clr-col-2">
-          <h5>只读用户</h5>
+        <div class="clr-col-2" style="margin-top:8px;margin-left: 10px">
+          <label class="form-label" >只读用户</label>
         </div>
-        <div class="clr-col-10">
-          <l-select2 [data]="options" [(ngModel)]="viewers" [options]="ops" (valueChange)="userFilter()"></l-select2>
+        <div class="clr-col-9">
+          <l-select2 class="form-control" [data]="options" [(ngModel)]="viewers" [options]="ops" (valueChange)="userFilter()"></l-select2>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster} from '../../cluster/cluster';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ClusterBackupService} from '../cluster-backup.service';
@@ -28,7 +28,6 @@ export class ClusterBackupStrategyComponent implements OnInit {
 
   tipShow = false;
   loading = false;
-  currentCluster: Cluster;
   backupStorage: BackupStorage[] = [];
   backupStrategy = new BackupStrategy();
   projectId = '';
@@ -36,17 +35,24 @@ export class ClusterBackupStrategyComponent implements OnInit {
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
   etcdHealth = true;
   permission;
+  @Input() currentCluster: Cluster;
 
 
   ngOnInit() {
-    this.route.parent.data.subscribe(data => {
-      this.currentCluster = data['cluster'];
-      this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
-      this.projectId = this.currentCluster.id;
-      this.getBackupStrategy();
-      this.getBackupStorage();
-      this.getClusterStatus();
-    });
+    // this.route.parent.data.subscribe(data => {
+    //   this.currentCluster = data['cluster'];
+    //   this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
+    //   this.projectId = this.currentCluster.id;
+    //   this.getBackupStrategy();
+    //   this.getBackupStorage();
+    //   this.getClusterStatus();
+    // });
+
+    this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
+    this.projectId = this.currentCluster.id;
+    this.getBackupStrategy();
+    this.getBackupStorage();
+    this.getClusterStatus();
   }
 
   getBackupStrategy() {

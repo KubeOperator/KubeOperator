@@ -33,7 +33,7 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from rest_framework import generics
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
-from kubeops_api.models.item import Item
+from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
 
 logger = logging.getLogger('kubeops')
@@ -302,7 +302,9 @@ class BackupStorageViewSet(viewsets.ModelViewSet):
         if request.query_params.get('itemName'):
             itemName = request.query_params.get('itemName')
             item = Item.objects.get(name=itemName)
-            resource_ids = ItemResource.objects.filter(item_id=item.id,resource_type=ItemResource.RESOURCE_TYPE_BACKUP_STORAGE).values_list("resource_id")
+            resource_ids = ItemResource.objects.filter(item_id=item.id,
+                                                       resource_type=ItemResource.RESOURCE_TYPE_BACKUP_STORAGE).values_list(
+                "resource_id")
             self.queryset = BackupStorage.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         else:

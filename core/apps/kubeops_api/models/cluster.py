@@ -19,6 +19,8 @@ from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from django.db.models import Q
 from storage.models import NfsStorage, CephStorage, ClusterCephStorage
+from kubeops_api.models.item import Item
+from kubeops_api.models.item_resource import ItemResource
 
 logger = logging.getLogger("kubeops")
 __all__ = ["Cluster"]
@@ -135,6 +137,15 @@ class Cluster(Project):
     def current_workers(selfs):
         selfs.change_to()
         return Node.objects.filter(groups__name__in=['worker'])
+
+    @property
+    def item_name(self):
+        self.change_to()
+        item_resource = ItemResource.objects.get(resource_id=self.id)
+        if item_resource:
+            return Item.objects.get(id=item_resource.item_id).name
+        else:
+            return None
 
     def scale_up_to(self, num):
         scale_compute_resource(self, num)
