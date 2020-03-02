@@ -417,16 +417,14 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   canNodeNext(): boolean {
-    let result = true;
-    if (this.nodes) {
-      for (let i = 0; i < this.nodes.length; i++) {
-        if (!this.nodes[i].host || this.nodes[i].host === '') {
-          return result = false;
-        }
+    for (const node of this.nodes) {
+      if (!node.host) {
+        return false;
       }
     }
-    return result;
+    return true;
   }
+
 
   finishForm() {
     this.isSubmitGoing = false;
