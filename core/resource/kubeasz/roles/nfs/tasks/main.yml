@@ -29,7 +29,7 @@
 - name: Add export
   blockinfile:
     path: "/etc/exports"
-    marker: "#{mark} {{nfs_name}}"
+    marker: "#{mark} {{storage_nfs_server_path}}"
     block: "{{storage_nfs_server_path}} {{allow_ip}}(rw,sync,no_root_squash)"
     state: present
   notify: reload nfs
