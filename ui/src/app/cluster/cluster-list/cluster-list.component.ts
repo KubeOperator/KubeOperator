@@ -141,10 +141,12 @@ export class ClusterListComponent implements OnInit {
     if (this.user.is_superuser) {
       this.canCreate = true;
     } else {
-      for (const rm of profile.item_role_mappings) {
-        if (rm.role !== 'VIEWER') {
-          this.canCreate = true;
-          break;
+      for (const item of profile.items) {
+        for (const rm of profile.item_role_mappings) {
+          if (item.name === rm.item_name && rm.role !== 'VIEWER') {
+            this.showItem = true;
+            break;
+          }
         }
       }
     }

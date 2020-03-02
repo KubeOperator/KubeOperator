@@ -2,11 +2,11 @@
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
     <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-secondary" (click)="syncTime()" [disabled]="currentCluster.status==='SCALING' || currentCluster.status==='INSTALLING'">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="syncTime()" [disabled]="currentCluster.status==='SCALING' || currentCluster.status==='INSTALLING' || permission==='VIEWER'">
         <clr-icon shape="sync" size="16"></clr-icon>
         节点时间校验
       </button>
-      <button type="button" class="btn btn-sm btn-secondary" (click)="checkNodes()" [disabled]="currentCluster.status==='SCALING' || currentCluster.status==='INSTALLING'">
+      <button type="button" class="btn btn-sm btn-secondary" (click)="checkNodes()" [disabled]="currentCluster.status==='SCALING' || currentCluster.status==='INSTALLING' || permission==='VIEWER'">
         <clr-icon shape="sync" size="16"></clr-icon>
         节点状态同步
       </button>

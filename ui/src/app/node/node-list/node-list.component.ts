@@ -6,6 +6,7 @@ import {NodeDetailComponent} from '../node-detail/node-detail.component';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
 import {DashboardService} from '../../dashboard/dashboard.service';
+import {SessionService} from "../../shared/session.service";
 
 @Component({
   selector: 'app-node-list',
@@ -23,11 +24,14 @@ export class NodeListComponent implements OnInit {
   openView = false;
   loadingTime = false;
   clusterData;
+  permission;
 
-  constructor(private nodeService: NodeService, private alertService: CommonAlertService, private dashboardService: DashboardService) {
+  constructor(private nodeService: NodeService, private alertService: CommonAlertService,
+              private dashboardService: DashboardService, private sessionService: SessionService) {
   }
 
   ngOnInit() {
+    this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
     this.listNodes();
   }
 
