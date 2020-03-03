@@ -35,8 +35,10 @@ class ItemViewSet(viewsets.ModelViewSet):
             for item in user.profile.items:
                 item_ids.append(item.id)
             self.queryset = Item.objects.filter(id__in=item_ids).order_by('-date_created')
-        else:
+        elif user.is_superuser:
             self.queryset = Item.objects.all().order_by('-date_created')
+        else:
+            self.queryset = []
         return super().list(self, request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):

@@ -74,8 +74,11 @@ class ClusterViewSet(viewsets.ModelViewSet):
                 item_ids = Item.objects.all().values_list("id")
                 resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
             else:
-                item = Item.objects.get(name=itemName)
-                resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+                try:
+                    item = Item.objects.get(name=itemName)
+                    resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
+                except Item.DoesNotExist:
+                    resource_ids = []
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         elif user.profile.items:
@@ -85,7 +88,10 @@ class ClusterViewSet(viewsets.ModelViewSet):
             resource_ids = ItemResource.objects.filter(item_id__in=item_ids).values_list("resource_id")
             self.queryset = Cluster.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
+        elif user.is_superuser:
+            return super().list(self, request, *args, **kwargs)
         else:
+            self.queryset =[]
             return super().list(self, request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -455,6 +461,11 @@ class DashBoardView(APIView):
         warn_containers = []
         error_loki_containers = []
         error_pods = []
+
+        if len(request.user.profile.items) == 0 and request.user.is_superuser is False:
+            return Response(data={'data': cluster_data, 'warnContainers': warn_containers, 'restartPods': restart_pods,
+                              'errorLokiContainers': error_loki_containers, 'errorPods': error_pods})
+
         if project_name == 'all':
             item_ids = []
             if item_name == 'all':
