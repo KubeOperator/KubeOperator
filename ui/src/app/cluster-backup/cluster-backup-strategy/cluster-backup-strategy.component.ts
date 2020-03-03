@@ -123,6 +123,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
 
   getClusterStatus() {
     if (this.currentCluster.status === 'READY') {
+      this.etcdHealth = false;
       return;
     }
     this.clusterHealthService.listComponent(this.currentCluster.name).subscribe(res => {
