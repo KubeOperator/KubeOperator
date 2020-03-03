@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ItemMemberService} from '../item-member.service';
 import {Profile} from '../../shared/session-user';
 import {ActivatedRoute} from '@angular/router';
-import {UserService} from '../../user/user.service';
 import {SessionService} from '../../shared/session.service';
 
 const ROLE_NAME_MANAGER = 'MANAGER';
@@ -27,6 +26,7 @@ export class ItemMemberCreateComponent implements OnInit {
   managers = [];
   viewers = [];
   itemName: string;
+  profile: Profile;
   ops: any = {
     multiple: true,
     placeholder: '选择用户',
@@ -58,6 +58,7 @@ export class ItemMemberCreateComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.profile = this.session.getCacheProfile();
     this.currentItem = this.route.snapshot.queryParams['name'];
   }
 
@@ -78,14 +79,6 @@ export class ItemMemberCreateComponent implements OnInit {
     this.managers.forEach(v => {
       roleMap[v['value']] = ROLE_NAME_MANAGER;
     });
-    const profile = this.session.getCacheProfile();
-    const mapping = profile.item_role_mappings.find((item) => {
-      if (item['item_name'] === this.currentItem) {
-        return item;
-      }
-    });
-    roleMap[profile.user.username] = mapping.role;
-    submitData.profiles.push(profile.id);
     this.viewers.concat(this.managers).forEach(p => {
       submitData.profiles.push(p['value']);
       submitData.role_map = roleMap;
@@ -121,20 +114,16 @@ export class ItemMemberCreateComponent implements OnInit {
   }
 
   toOptions(profiles: Profile[]): any[] {
-    const username = this.session.getCacheProfile().user.username;
     const options = [];
-    profiles.filter((p) => {
-      return p.user.username !== username;
-    }).forEach(p => {
+    profiles.forEach(p => {
       options.push({'id': p.id, 'text': p.user.username, 'value': p.id});
     });
     return options;
   }
 
   getOptionsByRole(profiles: Profile[], roleName: string): any[] {
-    const username = this.session.getCacheProfile().user.username;
     const m = profiles.filter((p) => {
-      return this.formatRole(p) === roleName && p.user.username !== username;
+      return this.formatRole(p) === roleName;
     });
     return this.toOptions(m);
   }
