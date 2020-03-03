@@ -2,7 +2,7 @@
   <h3 class="modal-title">管理成员</h3>
   <div class="modal-body">
     <div *ngIf="this.options">
-      <div class="clr-row">
+      <div *ngIf="profile.user.is_superuser" class="clr-row">
         <div class="clr-col-2" style="margin-top:8px;margin-left: 10px">
           <label class="form-label">管理员</label>
         </div>
@@ -14,10 +14,11 @@
       <br/>
       <div class="clr-row">
         <div class="clr-col-2" style="margin-top:8px;margin-left: 10px">
-          <label class="form-label" >只读用户</label>
+          <label class="form-label">只读用户</label>
         </div>
         <div class="clr-col-9">
-          <l-select2 class="form-control" [data]="options" [(ngModel)]="viewers" [options]="ops" (valueChange)="userFilter()"></l-select2>
+          <l-select2 class="form-control" [data]="options" [(ngModel)]="viewers" [options]="ops"
+                     (valueChange)="userFilter()"></l-select2>
         </div>
       </div>
     </div>
