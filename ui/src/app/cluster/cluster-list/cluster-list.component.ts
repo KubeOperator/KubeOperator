@@ -144,7 +144,6 @@ export class ClusterListComponent implements OnInit {
       for (const item of profile.items) {
         for (const rm of profile.item_role_mappings) {
           if (item.name === rm.item_name && rm.role !== 'VIEWER') {
-            this.showItem = true;
             this.canCreate = true;
             break;
           }
