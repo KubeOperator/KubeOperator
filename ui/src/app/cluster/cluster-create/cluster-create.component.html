@@ -139,7 +139,8 @@
 
     </form>
   </clr-wizard-page>
-  <clr-wizard-page *ngIf="cluster.deploy_type == Manual" [clrWizardPageNextDisabled]="workerForm.invalid"
+  <clr-wizard-page *ngIf="cluster.deploy_type == Manual"
+                   [clrWizardPageNextDisabled]="workerForm.invalid || hosts.length===0 || cluster.worker_size===0"
                    (clrWizardPageNext)="workerSizeOnChange()">
     <ng-template clrPageTitle>配置节点</ng-template>
     <form #workerForm='ngForm' clrForm class=" clr-form-compact">
