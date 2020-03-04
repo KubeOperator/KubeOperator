@@ -53,7 +53,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
             item_resource = ItemResource.objects.filter(resource_id=instance.id,resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
             if item_resource:
                 role_mappings = ItemRoleMapping.objects.filter(profile__id=request.user.profile.id,item_id=item_resource[0].item_id)
-                if len(role_mappings) > 0 and role_mappings[0].role is ItemRoleMapping.ITEM_ROLE_MANAGER :
+                if len(role_mappings) > 0 and role_mappings[0].role == ItemRoleMapping.ITEM_ROLE_MANAGER :
                     can_delete = True
             if can_delete is False:
                 return Response(data={'msg': '当前用户没有删除权限'},status=status.HTTP_400_BAD_REQUEST)
