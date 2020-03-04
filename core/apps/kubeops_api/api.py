@@ -48,6 +48,15 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        if request.user.is_superuser is False:
+            can_delete = False
+            item_resource = ItemResource.objects.filter(resource_id=instance.id,resource_type=ItemResource.RESOURCE_TYPE_CLUSTER)
+            if item_resource:
+                role_mappings = ItemRoleMapping.objects.filter(profile__id=request.user.profile.id,item_id=item_resource[0].item_id)
+                if len(role_mappings) > 0 and role_mappings[0].role is ItemRoleMapping.ITEM_ROLE_MANAGER :
+                    can_delete = True
+            if can_delete is False:
+                return Response(data={'msg': '当前用户没有删除权限'},status=status.HTTP_400_BAD_REQUEST)
         if not instance.status == Cluster.CLUSTER_STATUS_READY and not instance.status == Cluster.CLUSTER_STATUS_ERROR:
             return Response(data={'msg': '集群处于: {} 状态,不可删除'.format(instance.status)},
                             status=status.HTTP_400_BAD_REQUEST)
