@@ -46,7 +46,12 @@
     <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
     <clr-dg-cell>
       <img *ngIf="cluster.cloud_provider ==='vsphere'" width="24px" height="16px" src="assets/images/vsphere.png"/>
-      {{cluster.cloud_provider}}</clr-dg-cell>
+      <span [ngSwitch]="cluster.cloud_provider">
+          <span *ngSwitchCase="'vsphere'">vSphere</span>
+          <span *ngSwitchCase="'openstack'">OpenStack</span>
+          <span *ngSwitchDefault>{{cluster.cloud_provider}}</span>
+      </span>
+    </clr-dg-cell>
     <clr-dg-cell>{{getDeployTypeComment(cluster.deploy_type)}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.template}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.plan}}</clr-dg-cell>
