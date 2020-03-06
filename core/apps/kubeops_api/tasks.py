@@ -14,7 +14,7 @@ from celery.schedules import crontab
 import kubeops_api.cluster_monitor
 from kubeops_api.models.host import Host
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("kubeops")
 
 
 @shared_task
@@ -53,13 +53,18 @@ def save_cluster_event():
 def host_health_check():
     for host in Host.objects.all():
         logger.info("start host: {} health check".format(host.name))
-        t = threading.Thread(target=host.health_check())
-        t.start()
+        try:
+            host.health_check()
+        except Exception as e:
+            logger.error("host {} health check error".format(host.name))
+
 
 
 @periodic_task(run_every=crontab(minute="*/5"), name='task.node_health_check')
 def node_health_check():
-    for cluster in Cluster.objects.all():
+    for cluster in Cluster.objects.filter(status=Cluster.CLUSTER_STATUS_RUNNING):
         logger.info("start cluster: {} health check".format(cluster.name))
-        t = threading.Thread(target=cluster.node_health_check())
-        t.start()
+        try:
+            cluster.node_health_check()
+        except Exception as e:
+            logger.error("cluster {} health check error".format(cluster.name))
