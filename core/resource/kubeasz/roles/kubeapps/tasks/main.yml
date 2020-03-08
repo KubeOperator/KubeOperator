@@ -69,7 +69,8 @@
       shell: "helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
-      run_once: true
+      retries: 10
+      delay: 10
 
 - block:
     - name: 尝试登陆 kubeapps-plus registry
