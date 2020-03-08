@@ -59,7 +59,6 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
 - [ ] 开放 REST API;
-- [ ] 集群内应用合规扫描；
 - [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
 
@@ -77,3 +76,4 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
 - [ ] 已有集群导入；
 - [ ] 自定义证书支持；
+- [ ] 集群内应用合规扫描；
