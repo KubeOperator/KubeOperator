@@ -61,8 +61,9 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] 开放 REST API;
 - [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
+- [ ] 集群内应用合规扫描；；
 
- ##  Backlog（计划中）
+ ##  v3.0 Backlog（计划中）
  
 - [ ] K8s 集群 API Server 的 高可用（ VIP ） 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
@@ -75,5 +76,4 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 - [ ] 全容器化部署 （CoreOS）;
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
 - [ ] 已有集群导入；
-- [ ] 自定义证书支持；
-- [ ] 集群内应用合规扫描；
+- [ ] 自定义证书支持； 
