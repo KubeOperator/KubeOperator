@@ -23,10 +23,10 @@
         <label>
           密码:
         </label>
-        <input clrPassword size=40 minlength="6" maxlength="15" type="password" [(ngModel)]="user.password" name="name"
+        <input clrPassword size=40 minlength="6" maxlength="30" type="password" [(ngModel)]="user.password" name="name"
                (change)="checkPassword()" pattern="^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!@#$%^&*]{6,18}$" required>
         <clr-control-helper *ngIf="!isPasswordMatch && user.password &&user.ensurePassword">密码不一致！</clr-control-helper>
-        <clr-control-error>有效密码: 6-15位,英文字母+数字+特殊字符(可选)</clr-control-error>
+        <clr-control-error>有效密码:6-30位,英文字母+数字+特殊字符(可选)</clr-control-error>
 
       </clr-password-container>
 
@@ -34,13 +34,13 @@
         <label>
           确认密码:
         </label>
-        <input clrPassword size=40 minlength="6" maxlength="15" type="password" [(ngModel)]="user.ensurePassword"
+        <input clrPassword size=40 minlength="6" maxlength="30" type="password" [(ngModel)]="user.ensurePassword"
                name="name"
                (change)="checkPassword()"
                pattern="^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!@#$%^&*]{6,18}$"
                required>
         <clr-control-helper *ngIf="!isPasswordMatch && user.password &&user.ensurePassword">密码不一致！</clr-control-helper>
-        <clr-control-error>有效密码: 6-15位,英文字母+数字+特殊字符(可选)</clr-control-error>
+        <clr-control-error>有效密码:6-30位,英文字母+数字+特殊字符(可选)</clr-control-error>
       </clr-password-container>
 
       <clr-checkbox-container>
