@@ -1,11 +1,10 @@
-import index from '@angular/cli/lib/cli';
 import {Item} from '../item/item';
 
 export class Profile {
   id: string;
-  current_item: string;
   items: Item[] = [];
   user: SessionUser;
+  source: string;
   item_role_mappings: ItemRoleMapping[] = [];
 }
 

@@ -14,6 +14,7 @@ export class SystemSettingComponent implements OnInit {
 
 
   domain_pattern = globals.domain_pattern;
+
   constructor(private  settingService: SettingService, private alert: CommonAlertService) {
   }
 
@@ -24,7 +25,7 @@ export class SystemSettingComponent implements OnInit {
   }
 
   listSettings() {
-    this.settingService.getSettings().subscribe(data => {
+    this.settingService.getSettingsByTab('system').subscribe(data => {
       this.settings = data;
     });
   }
@@ -38,7 +39,7 @@ export class SystemSettingComponent implements OnInit {
     if (!this.validate(this.settings)) {
       return;
     }
-    this.settingService.updateSettings(this.settings).subscribe(data => {
+    this.settingService.updateSettings(this.settings, 'system').subscribe(data => {
       this.settings = data;
       this.alert.showAlert('修改成功！', AlertLevels.SUCCESS);
     });
