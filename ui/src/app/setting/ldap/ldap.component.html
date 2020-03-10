@@ -1,0 +1,35 @@
+<div>
+  <form clrForm #settingForm="ngForm">
+    <div>
+      <clr-input-container>
+        <label>LDAP 地址</label>
+        <input clrInput name="ldap_url" size=45/>
+      </clr-input-container>
+      <clr-input-container>
+        <label>绑定 DN</label>
+        <input clrInput name="bind_dn" size=45/>
+      </clr-input-container>
+      <clr-input-container>
+        <label>密码</label>
+        <input clrInput name="bind_password" size=45/>
+      </clr-input-container>
+      <clr-input-container>
+        <label>用户 OU</label>
+        <input clrInput name="user_ou" size=45/>
+        <clr-control-helper>使用 | 分隔 OU</clr-control-helper>
+      </clr-input-container>
+      <clr-input-container>
+        <label>用户过滤器</label>
+        <input clrInput name="user_ou" size=45/>
+        <clr-control-helper>可能的选项是(cn或uid或sAMAccountName=%(user)s)</clr-control-helper>
+      </clr-input-container>
+      <clr-textarea-container>
+        <label>LDAP 属性映射</label>
+        <textarea clrTextarea [rows]="5" [cols]="45"></textarea>
+        <clr-control-helper>用户属性映射代表怎样将 LDAP 中用户属性映射到 KubeOperator 用户上，username,email 是 KubeOperator 的属性</clr-control-helper>
+      </clr-textarea-container>
+    </div>
+  </form>
+  <button class="btn btn-info-outline" [disabled]="settingForm.invalid">保存</button>
+  <button class="btn btn-info-outline">取消</button>
+</div>
