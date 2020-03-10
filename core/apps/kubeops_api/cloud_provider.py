@@ -207,4 +207,4 @@ def delete_hosts(cluster):
         nodes = Node.objects.filter(~Q(name__in=['::1', '127.0.0.1', 'localhost']))
         for node in nodes:
             node.host.delete()
-            ItemResource.objects.filter(resource_id=node.host.id).delete()
+            ItemResource.objects.filter(resource_id=node.host.id.hex).delete()
