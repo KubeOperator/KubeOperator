@@ -43,6 +43,7 @@ def scale_compute_resource(cluster, num):
         host = Host.objects.get(name=host_dict['name'])
         if delete:
             host.delete()
+            ItemResource.objects.filter(resource_id=host.id).delete()
         if add:
             cluster.add_to_new_node(host.node)
 
