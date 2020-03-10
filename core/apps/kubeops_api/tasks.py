@@ -29,24 +29,36 @@ def start_deploy_execution(eid, **kwargs):
         return {"error": msg}
 
 
-@periodic_task(run_every=crontab(minute=0, hour=1), name='task.cluster_backup')
+@periodic_task(run_every=crontab(minute=0, hour=1), name='task.cluster_backup', time_limit=1200)
 def cluster_backup():
-    kubeops_api.cluster_backup_utils.cluster_backup()
+    try:
+        kubeops_api.cluster_backup_utils.cluster_backup()
+    except Exception as e:
+        logger.error("cluster_backup error")
 
 
-@periodic_task(run_every=crontab(minute='*/5'), name='task.save_cluster_data')
+@periodic_task(run_every=crontab(minute='*/5'), name='task.save_cluster_data', time_limit=360)
 def save_cluster_data():
-    kubeops_api.cluster_monitor.put_cluster_data_to_redis()
+    try:
+        kubeops_api.cluster_monitor.put_cluster_data_to_redis()
+    except Exception as e:
+        logger.error("save_cluster_data error")
 
 
-@periodic_task(run_every=crontab(minute=0, hour='*/1'), name='task.get_loki_data_hour')
+@periodic_task(run_every=crontab(minute=0, hour='*/1'), name='task.get_loki_data_hour', time_limit=1200)
 def get_loki_data_hour():
-    kubeops_api.cluster_monitor.put_loki_data_to_redis()
+    try:
+        kubeops_api.cluster_monitor.put_loki_data_to_redis()
+    except Exception as e:
+        logger.error("get_loki_data_hour error")
 
 
-@periodic_task(run_every=crontab(minute='*/3'), name='task.save_cluster_event')
+@periodic_task(run_every=crontab(minute='*/3'), name='task.save_cluster_event', time_limit=300)
 def save_cluster_event():
-    kubeops_api.cluster_monitor.put_event_data_to_es()
+    try:
+        kubeops_api.cluster_monitor.put_event_data_to_es()
+    except Exception as e:
+        logger.error("save_cluster_event error")
 
 
 @periodic_task(run_every=crontab(minute="*/5"), name='task.host_health_check')
@@ -57,7 +69,6 @@ def host_health_check():
             host.health_check()
         except Exception as e:
             logger.error("host {} health check error".format(host.name))
-
 
 
 @periodic_task(run_every=crontab(minute="*/5"), name='task.node_health_check')
