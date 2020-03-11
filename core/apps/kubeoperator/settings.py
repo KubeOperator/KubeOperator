@@ -5,9 +5,7 @@ KubeOperator  配置文件
 import os
 import datetime
 from celery.schedules import crontab
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from cmreslogging.handlers import CMRESHandler
-
 from .conf import load_user_config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -274,6 +272,19 @@ LOGGING = {
         },
     },
 }
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', 'users.authentication.ldap.LDAPAuthorizationBackend'
+]
+
+AUTH_LDAP_ENABLE = False
+AUTH_LDAP_START_TLS = False
+AUTH_LDAP_CONNECT_TIMEOUT = 30,
+AUTH_LDAP_SEARCH_PAGED_SIZE = 10000,
+AUTH_LDAP_SYNC_IS_PERIODIC = False
+AUTH_LDAP_SYNC_INTERVAL = None
+AUTH_LDAP_SYNC_CRONTAB = None
+AUTH_LDAP_USER_LOGIN_ONLY_IN_USERS = False
+AUTH_LDAP_OPTIONS_OPT_REFERRALS = -1
 
 NODE_CREDENTIAL = {
     'username': "root",
