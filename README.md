@@ -10,7 +10,7 @@ KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
-KubeOperator 内置 [KubeApps Plus]（https://github.com/KubeOperator/kubeapps-plus） 应用商店，以支撑各种基于 K8s 的应用场景，如：
+KubeOperator 内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，以支撑各种基于 K8s 的应用场景，如：
 
 - CI / CD 应用场景：GitLab、Jenkins、Harbor、Sonarqube、Argo CD 等；
 - GPU / AI 应用场景：Tensorflow、PyTorch 等;
