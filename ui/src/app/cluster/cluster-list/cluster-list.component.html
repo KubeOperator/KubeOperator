@@ -43,7 +43,8 @@
     <clr-dg-cell *ngIf="!showItem">{{cluster.name}}</clr-dg-cell>
     <clr-dg-cell *ngIf="showItem">{{cluster.item_name}}</clr-dg-cell>
     <clr-dg-cell>{{cluster.resource}}</clr-dg-cell>
-    <clr-dg-cell><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
+    <clr-dg-cell *ngIf="showItem"><a routerLink="{{cluster.name}}/node">{{cluster.nodes.length}}</a></clr-dg-cell>
+    <clr-dg-cell *ngIf="!showItem">{{cluster.nodes.length}}</clr-dg-cell>
     <clr-dg-cell>
       <img *ngIf="cluster.cloud_provider ==='vsphere'" width="24px" height="16px" src="assets/images/vsphere.png"/>
       <span [ngSwitch]="cluster.cloud_provider">
