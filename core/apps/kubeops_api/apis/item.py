@@ -98,7 +98,7 @@ class ItemResourceView(APIView):
             resources.append(resource.__dict__)
         ceph = CephStorage.objects.filter(id__in=resource_ids)
         for c in ceph:
-            resource = Resource(resource_id=c.id, resource_type=ItemResource.RESOURCE_TYPE_STORAGE, data=n,
+            resource = Resource(resource_id=c.id, resource_type=ItemResource.RESOURCE_TYPE_STORAGE, data=c,
                                 checked=True)
             resources.append(resource)
 
