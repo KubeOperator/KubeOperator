@@ -17,6 +17,8 @@ KubeOperator 内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plu
 - Serverless 应用场景：Knative 等；
 - 数据库应用场景：MySQL、Redis 等;
 
+KubeOperator 的整体架构如下图所示：
+
 ![Architecture](ko.png)
 
 > 注： KubeOperator 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io/selected=kube-operator)。
