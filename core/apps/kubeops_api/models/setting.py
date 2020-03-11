@@ -36,6 +36,9 @@ class Setting(models.Model):
 
     @classmethod
     def apply_settings(cls):
-        sts = cls.objects.all()
-        for setting in sts:
-            settings.__setattr__(setting.key, setting.value)
+        try:
+            sts = cls.objects.all()
+            for setting in sts:
+                settings.__setattr__(setting.key, setting.value)
+        except Exception as e:
+            pass
