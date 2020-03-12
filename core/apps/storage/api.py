@@ -47,7 +47,7 @@ class CephStorageViewSet(viewsets.ModelViewSet):
             itemName = request.query_params.get('itemName')
             item = Item.objects.get(name=itemName)
             resource_ids = ItemResource.objects.filter(item_id=item.id).values_list("resource_id")
-            self.queryset = ClusterCephStorage.objects.filter(id__in=resource_ids)
+            self.queryset = CephStorage.objects.filter(id__in=resource_ids)
             return super().list(self, request, *args, **kwargs)
         else:
             return super().list(self, request, *args, **kwargs)
