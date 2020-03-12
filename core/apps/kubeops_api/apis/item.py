@@ -100,7 +100,7 @@ class ItemResourceView(APIView):
         for c in ceph:
             resource = Resource(resource_id=c.id, resource_type=ItemResource.RESOURCE_TYPE_STORAGE, data=c,
                                 checked=True)
-            resources.append(resource)
+            resources.append(resource.__dict__)
 
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(resources, cls=JsonResourceEncoder))
