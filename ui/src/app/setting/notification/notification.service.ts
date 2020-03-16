@@ -16,4 +16,9 @@ export class NotificationService {
     const url = this.baseUrl + 'email/check/';
     return this.http.post<Settings>(url, email);
   }
+
+  workWeixinCheck(workWeixin: Settings): Observable<Settings> {
+    const url = this.baseUrl + 'workWeixin/check/';
+    return this.http.post<Settings>(url, workWeixin);
+  }
 }

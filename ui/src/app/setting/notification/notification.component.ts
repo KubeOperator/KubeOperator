@@ -20,6 +20,7 @@ export class NotificationComponent implements OnInit {
   workWeixin = {};
   loading = false;
   emailValid = false;
+  workWeixinInValid = true;
 
   ngOnInit() {
     this.listSettings('email');
@@ -44,8 +45,8 @@ export class NotificationComponent implements OnInit {
     });
   }
 
-  onSubmit(tab) {
-    this.settingService.updateSettings(this.email, tab).subscribe(data => {
+  onSubmit(data, tab) {
+    this.settingService.updateSettings(data, tab).subscribe(res => {
       this.alert.showAlert('修改成功！', AlertLevels.SUCCESS);
     });
   }
@@ -60,6 +61,16 @@ export class NotificationComponent implements OnInit {
       this.alert.showAlert(data['msg'], AlertLevels.SUCCESS);
     }, error => {
       this.emailValid = false;
+      this.alert.showAlert(error.error.msg, AlertLevels.ERROR);
+    });
+  }
+
+  checkWorkWeixin() {
+    this.notificationService.workWeixinCheck(this.workWeixin).subscribe(data => {
+      this.workWeixinInValid = false;
+      this.alert.showAlert(data['msg'], AlertLevels.SUCCESS);
+    }, error => {
+      this.workWeixinInValid = true;
       this.alert.showAlert(error.error.msg, AlertLevels.ERROR);
     });
   }

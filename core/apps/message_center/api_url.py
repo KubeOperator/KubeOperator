@@ -14,4 +14,5 @@ router = DefaultRouter()
 
 urlpatterns = [
                   path('notification/email/check/', api.EmailCheckView.as_view()),
+                  path('notification/workWeixin/check/', api.WorkWeixinCheckView.as_view()),
               ] + router.urls

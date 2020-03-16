@@ -30,15 +30,46 @@
           </select>
         </clr-select-container>
       </form>
-      <button class="btn btn-success-outline"[disabled]="emailForm.invalid" (click)="checkEmail()">校验</button>
-      <button class="btn btn-info-outline" (click)="onSubmit('email')" [disabled]="emailForm.invalid || !emailValid">保存</button>
+      <button class="btn btn-success-outline" [disabled]="emailForm.invalid" (click)="checkEmail()">校验</button>
+      <button class="btn btn-info-outline" (click)="onSubmit(email,'email')"
+              [disabled]="emailForm.invalid || !emailValid">
+        保存
+      </button>
       <button class="btn btn-info-outline" (click)="onCancel('email')">取消</button>
     </clr-tab-content>
   </clr-tab>
   <clr-tab>
     <button clrTabLink>微信</button>
     <clr-tab-content *clrIfActive>
-      微信
+      <form clrForm #wechatForm="ngForm">
+        <clr-input-container>
+          <label>corpid</label>
+          <input clrInput name="weixin_corp_id" [(ngModel)]="workWeixin['WEIXIN_CORP_ID']" size=45 required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>agentid</label>
+          <input clrInput name="weixin_agentid" [(ngModel)]="workWeixin['WEIXIN_AGENT_ID']" size=45 required/>
+        </clr-input-container>
+        <clr-password-container>
+          <label>secret</label>
+          <input clrPassword name="weixin_secret" [(ngModel)]="workWeixin['WEIXIN_CORP_SECRET']" size=45 required/>
+        </clr-password-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="workWeixin['WEIXIN_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90135/90665" target="_blank">企业微信基本概念</a>
+      </p><br>
+      <button class="btn btn-success-outline" [disabled]="wechatForm.invalid" (click)="checkWorkWeixin()">校验</button>
+      <button class="btn btn-info-outline" (click)="onSubmit(workWeixin,'workWeixin')"
+              [disabled]="wechatForm.invalid || workWeixinInValid">
+        保存
+      </button>
+      <button class="btn btn-info-outline" (click)="onCancel('workWeixin')">取消</button>
     </clr-tab-content>
   </clr-tab>
   <clr-tab>
