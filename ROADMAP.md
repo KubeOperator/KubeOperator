@@ -79,3 +79,4 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
 - [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
+- [ ] 支持 ingress-nginx
