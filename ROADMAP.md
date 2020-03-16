@@ -50,9 +50,11 @@ Release Note: https://blog.fit2cloud.com/?p=980
 
 Release Note: https://blog.fit2cloud.com/?p=1032
 
- ##  v2.4 （开发中，20120.03.16 发布）
+ ##  v2.4 （已发布）
  
-- [ ] 用户体系和权限；
+- [x] 用户体系和权限；
+
+Release Note:https://blog.fit2cloud.com/?p=1087
 
  ##  v2.5 （计划中，20120.04.20 发布）
  
