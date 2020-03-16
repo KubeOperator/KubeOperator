@@ -25,4 +25,5 @@ export class SettingService {
     const url = this.baseUrl.concat(`?tab=${t}`);
     return this.http.post<Settings>(url, settings);
   }
+
 }

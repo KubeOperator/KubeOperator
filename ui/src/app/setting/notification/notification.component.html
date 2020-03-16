@@ -1,0 +1,50 @@
+<br>
+<clr-tabs clrLayout="vertical" [clrLoading]="loading">
+  <clr-tab>
+    <button clrTabLink id="smtp">邮件</button>
+    <clr-tab-content id="email" *clrIfActive>
+      <form clrForm #emailForm="ngForm">
+        <clr-input-container>
+          <label>SMTP 地址</label>
+          <input clrInput name="smtp_address" [(ngModel)]="email['SMTP_ADDRESS']" size=45
+                 placeholder="smtp.sina.com" required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>端口</label>
+          <input clrInput name="smtp_port" [(ngModel)]="email['SMTP_PORT']" size=45
+                 placeholder="25" required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>用户名</label>
+          <input clrInput name="smtp_username" [(ngModel)]="email['SMTP_USERNAME']" size=45 required/>
+        </clr-input-container>
+        <clr-password-container>
+          <label>密码</label>
+          <input clrPassword name="smtp_password" [(ngModel)]="email['SMTP_PASSWORD']" size=45 required/>
+        </clr-password-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="email['SMTP_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <button class="btn btn-success-outline"[disabled]="emailForm.invalid" (click)="checkEmail()">校验</button>
+      <button class="btn btn-info-outline" (click)="onSubmit('email')" [disabled]="emailForm.invalid || !emailValid">保存</button>
+      <button class="btn btn-info-outline" (click)="onCancel('email')">取消</button>
+    </clr-tab-content>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink>微信</button>
+    <clr-tab-content *clrIfActive>
+      微信
+    </clr-tab-content>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink>钉钉</button>
+    <clr-tab-content *clrIfActive>
+      钉钉
+    </clr-tab-content>
+  </clr-tab>
+</clr-tabs>

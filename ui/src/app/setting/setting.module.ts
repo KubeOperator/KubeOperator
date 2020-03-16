@@ -8,9 +8,10 @@ import {BackupStorageSettingComponent } from './backup-storage-setting/backup-st
 import {ClusterBackupModule} from '../cluster-backup/cluster-backup.module';
 import {BackupStorageSettingModule} from './backup-storage-setting/backup-storage-setting.module';
 import { LdapComponent } from './ldap/ldap.component';
+import { NotificationComponent } from './notification/notification.component';
 
 @NgModule({
-  declarations: [SettingComponent, SystemSettingComponent, BackupStorageSettingComponent, LdapComponent],
+  declarations: [SettingComponent, SystemSettingComponent, BackupStorageSettingComponent, LdapComponent, NotificationComponent],
   imports: [
     CommonModule,
     CoreModule,

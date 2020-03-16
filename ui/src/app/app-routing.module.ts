@@ -40,6 +40,7 @@ import {ItemRoutingResolverService} from './item/item-routing-resolver.service';
 import {ItemMemberComponent} from './item-member/item-member.component';
 import {ItemResourceComponent} from './item-resource/item-resource.component';
 import {LdapComponent} from './setting/ldap/ldap.component';
+import {NotificationComponent} from './setting/notification/notification.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -84,7 +85,8 @@ const routes: Routes = [
           {path: 'system', component: SystemSettingComponent},
           {path: 'credential', component: CredentialComponent},
           {path: 'backup-storage', component: BackupStorageSettingComponent},
-          {path: 'ldap', component: LdapComponent}
+          {path: 'ldap', component: LdapComponent},
+          {path: 'notification', component: NotificationComponent}
         ]
       },
       {
