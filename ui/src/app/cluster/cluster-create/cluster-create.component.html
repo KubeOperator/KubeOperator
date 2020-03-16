@@ -61,6 +61,7 @@
           <option value="">请选择</option>
           <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
         </select>
+        <clr-control-helper *ngIf="plans.length===0">部署计划需要授权到项目</clr-control-helper>
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
