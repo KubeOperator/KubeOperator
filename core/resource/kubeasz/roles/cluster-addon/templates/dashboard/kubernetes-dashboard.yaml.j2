@@ -184,6 +184,11 @@ spec:
               port: 8443
             initialDelaySeconds: 30
             timeoutSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1001
+            runAsGroup: 2001
       volumes:
         - name: kubernetes-dashboard-certs
           secret:
@@ -191,6 +196,8 @@ spec:
         - name: tmp-volume
           emptyDir: {}
       serviceAccountName: kubernetes-dashboard
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
@@ -247,7 +254,14 @@ spec:
           volumeMounts:
           - mountPath: /tmp
             name: tmp-volume
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1001
+            runAsGroup: 2001
       serviceAccountName: kubernetes-dashboard
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
