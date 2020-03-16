@@ -75,7 +75,29 @@
   <clr-tab>
     <button clrTabLink>钉钉</button>
     <clr-tab-content *clrIfActive>
-      钉钉
+      <form clrForm #dingTalkForm="ngForm">
+        <clr-input-container>
+          <label>webhook地址</label>
+          <input clrInput name="dingtalk_webhook" [(ngModel)]="dingTalk['DINGTALK_WEBHOOK']" size=100 required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>secret</label>
+          <input clrInput name="dingtalk_secret" [(ngModel)]="dingTalk['DINGTALK_SECRET']" size=100 required/>
+        </clr-input-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="dingTalk['DINGTALK_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/26eaddd5" target="_blank">钉钉群机器人基本概念</a>
+      </p><br>
+      <button class="btn btn-info-outline" (click)="onSubmit(dingTalk,'dingTalk')" [disabled]="dingTalkForm.invalid">
+        保存
+      </button>
+      <button class="btn btn-info-outline" (click)="onCancel('dingTalk')">取消</button>
     </clr-tab-content>
   </clr-tab>
 </clr-tabs>
