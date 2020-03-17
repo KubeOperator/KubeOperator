@@ -61,7 +61,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
-- [ ] 集群内应用合规扫描;
+- [ ] 集群健康评分;
 
  ##  v2.* Backlog（计划中）
  
