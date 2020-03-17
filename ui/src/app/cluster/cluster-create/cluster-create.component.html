@@ -150,7 +150,10 @@
         <input clrInput size=45 type="number" min="1" [(ngModel)]="cluster.worker_size"
                name="worker"
                (change)="workerSizeOnChange()" required>
-        <clr-control-helper>当前可用最大主机数量:{{hosts.length}}</clr-control-helper>
+        <clr-control-helper>
+          当前可用最大主机数量:{{hosts.length}}<br>
+          <span *ngIf="hosts.length===0">需要先授权主机到项目</span>
+        </clr-control-helper>
       </clr-input-container>
     </form>
   </clr-wizard-page>
@@ -288,6 +291,7 @@
             <option *ngFor="let nfs of storageList" [value]="nfs.name">{{nfs.name}}</option>
           </select>
         </clr-select-container>
+        <clr-control-helper *ngIf="storageList.length===0">需要先授权主机到项目</clr-control-helper>
       </div>
       <div *ngIf="cluster.persistent_storage==='external-ceph'">
         <clr-select-container>
