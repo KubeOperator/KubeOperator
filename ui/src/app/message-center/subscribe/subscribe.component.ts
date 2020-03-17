@@ -10,7 +10,8 @@ export class SubscribeComponent implements OnInit {
 
   loading = false;
   subscribes = [];
-
+  showConfig = false;
+  subscribeConfig = {};
 
   constructor(private messageCenterService: MessageCenterService) {
   }
@@ -26,5 +27,15 @@ export class SubscribeComponent implements OnInit {
       this.subscribes = data;
       this.loading = false;
     });
+  }
+
+  openModal(subscribe) {
+    this.showConfig = true;
+    this.subscribeConfig = subscribe;
+  }
+
+  getData(showConfig) {
+    this.showConfig = showConfig;
+    this.listSubscribe();
   }
 }

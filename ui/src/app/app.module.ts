@@ -57,6 +57,7 @@ import { ItemRolePipe } from './item-member/item-role.pipe';
 import { MessageCenterComponent } from './message-center/message-center.component';
 import { LocalMailComponent } from './message-center/local-mail/local-mail.component';
 import { SubscribeComponent } from './message-center/subscribe/subscribe.component';
+import { SubscribeConfigComponent } from './message-center/subscribe/subscribe-config/subscribe-config.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import { SubscribeComponent } from './message-center/subscribe/subscribe.compone
     MessageCenterComponent,
     LocalMailComponent,
     SubscribeComponent,
+    SubscribeConfigComponent,
   ],
   imports: [
     CredentialModule,

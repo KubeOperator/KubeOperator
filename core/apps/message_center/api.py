@@ -47,7 +47,21 @@ class SubscribeViewSet(ModelViewSet):
     serializer_class = UserNotificationConfigSerializer
     queryset = UserNotificationConfig.objects.all()
 
+    http_method_names = ['post', 'get', 'head', 'options']
+
+    lookup_field = 'id'
+    lookup_url_kwarg = 'id'
+
     def list(self, request, *args, **kwargs):
         user = request.user
         self.queryset = UserNotificationConfig.objects.filter(user_id=user.id)
         return super().list(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        config = UserNotificationConfig.objects.get(id=kwargs['id'])
+        config.vars = request.data['vars']
+        config.save()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

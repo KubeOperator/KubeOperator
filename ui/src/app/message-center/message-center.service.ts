@@ -20,4 +20,10 @@ export class MessageCenterService {
       catchError(error => throwError(error))
     );
   }
+
+  updateSubscribe(subscribable): Observable<any> {
+    return this.httpClient.post<any>(this.baseUrl + 'subscribe/' + subscribable.id + '/', subscribable).pipe(
+      catchError(error => throwError(error))
+    );
+  }
 }
