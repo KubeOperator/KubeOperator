@@ -54,6 +54,9 @@ import { ItemMemberCreateComponent } from './item-member/item-member-create/item
 import { MemberFilterPipe } from './item-member/member-filter.pipe';
 import { PermissionNamePipe } from './item/permission-name.pipe';
 import { ItemRolePipe } from './item-member/item-role.pipe';
+import { MessageCenterComponent } from './message-center/message-center.component';
+import { LocalMailComponent } from './message-center/local-mail/local-mail.component';
+import { SubscribeComponent } from './message-center/subscribe/subscribe.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +87,9 @@ import { ItemRolePipe } from './item-member/item-role.pipe';
     MemberFilterPipe,
     PermissionNamePipe,
     ItemRolePipe,
+    MessageCenterComponent,
+    LocalMailComponent,
+    SubscribeComponent,
   ],
   imports: [
     CredentialModule,

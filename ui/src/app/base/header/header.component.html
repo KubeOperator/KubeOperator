@@ -16,6 +16,15 @@
   <div class="header-actions">
     <clr-dropdown>
       <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
+        <clr-icon shape="bell"></clr-icon>
+      </button>
+      <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+        <a clrDropdownItem>消息 &nbsp;<span class="badge badge-info">2</span></a>
+        <a clrDropdownItem>告警 &nbsp;<span class="badge badge-danger">2</span></a>
+      </clr-dropdown-menu>
+    </clr-dropdown>
+    <clr-dropdown>
+      <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
         <clr-icon shape="help" class="is-inverse" size="24"></clr-icon>
         <clr-icon shape="caret down"></clr-icon>
       </button>
@@ -38,3 +47,4 @@
     </clr-dropdown>
   </div>
 </clr-header>
+

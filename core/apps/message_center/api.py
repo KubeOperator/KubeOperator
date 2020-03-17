@@ -10,7 +10,10 @@ from rest_framework.views import APIView
 from ko_notification_utils.email_smtp import Email
 from ko_notification_utils.work_weixin import WorkWinXin
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
+from .serializers import UserNotificationConfigSerializer
+from .models import UserNotificationConfig
 
 
 class EmailCheckView(APIView):
@@ -39,3 +42,12 @@ class WorkWeixinCheckView(APIView):
         else:
             return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SubscribeViewSet(ModelViewSet):
+    serializer_class = UserNotificationConfigSerializer
+    queryset = UserNotificationConfig.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        self.queryset = UserNotificationConfig.objects.filter(user_id=user.id)
+        return super().list(self, request, *args, **kwargs)

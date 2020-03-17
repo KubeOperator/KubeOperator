@@ -1,0 +1,22 @@
+<!--<app-log-detail [(showLogModal)]=showDetail></app-log-detail>-->
+<clr-datagrid [clrDgLoading]="loading">
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary">标记为已读</button>
+      <button type="button" class="btn btn-sm btn-secondary">全部标记为已读</button>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary">全部</button>
+      <button type="button" class="btn btn-sm btn-secondary">系统消息</button>
+      <button type="button" class="btn btn-sm btn-secondary">集群消息</button>
+    </div>
+  </clr-dg-action-bar>
+  <clr-dg-column>消息内容</clr-dg-column>
+  <clr-dg-column>类别</clr-dg-column>
+  <clr-dg-column>级别</clr-dg-column>
+  <clr-dg-column>接收时间</clr-dg-column>
+  <!--  <clr-dg-row class="fixed-height" *ngFor="let execution of executions" [clrDgItem]="log">-->
+  <!--  </clr-dg-row>-->
+  <clr-dg-footer>
+  </clr-dg-footer>
+</clr-datagrid>
