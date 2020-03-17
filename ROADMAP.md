@@ -70,7 +70,6 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 国际化支持；
 - [ ] 支持 VMware NSX-T；
-- [ ] 将部分内置应用移到应用商店；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
 - [ ] 全容器化部署 （CoreOS）;
@@ -79,4 +78,6 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
 - [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
-- [ ] 支持 ingress-nginx
+- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
+- [ ] 支持 containerd，用户可选 docker 或者 containerd
+- [ ] 将部分内置应用移到应用商店；
