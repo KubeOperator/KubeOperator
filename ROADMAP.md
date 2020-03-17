@@ -72,15 +72,15 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 
  ##  v3.0 Backlog（计划中）
  
-- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
-- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
+- [ ] 已有集群导入；
 - [ ] 国际化支持；
-- [ ] 支持 VMware NSX-T；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] 全容器化部署 （CoreOS）;
+- [ ] 全容器化部署;
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
-- [ ] 已有集群导入；
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
+- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
+- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
+- [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
+- [ ] 支持 VMware NSX-T；
