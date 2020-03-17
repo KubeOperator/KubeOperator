@@ -56,12 +56,19 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 
 Release Note:https://blog.fit2cloud.com/?p=1087
 
- ##  v2.5 （计划中，20120.04.20 发布）
+ ##  v2.5 （开发中，20120.04.20 发布）
  
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
 - [ ] 集群内应用合规扫描;
+
+ ##  v2.* Backlog（计划中）
+ 
+- [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
+- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
+- [ ] 支持 containerd，用户可选 docker 或者 containerd
+- [ ] 将部分内置应用移到应用商店；
 
  ##  v3.0 Backlog（计划中）
  
@@ -77,7 +84,3 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 已有集群导入；
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
-- [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
-- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
-- [ ] 支持 containerd，用户可选 docker 或者 containerd
-- [ ] 将部分内置应用移到应用商店；
