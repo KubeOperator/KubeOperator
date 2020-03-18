@@ -12,8 +12,8 @@ from ko_notification_utils.work_weixin import WorkWinXin
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
-from .serializers import UserNotificationConfigSerializer
-from .models import UserNotificationConfig
+from .serializers import UserNotificationConfigSerializer, UserReceiverSerializer
+from .models import UserNotificationConfig, UserReceiver
 
 
 class EmailCheckView(APIView):
@@ -43,6 +43,7 @@ class WorkWeixinCheckView(APIView):
             return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class SubscribeViewSet(ModelViewSet):
     serializer_class = UserNotificationConfigSerializer
     queryset = UserNotificationConfig.objects.all()
@@ -61,6 +62,27 @@ class SubscribeViewSet(ModelViewSet):
         config = UserNotificationConfig.objects.get(id=kwargs['id'])
         config.vars = request.data['vars']
         config.save()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UserReceiverViewSet(ModelViewSet):
+    serializer_class = UserReceiverSerializer
+
+    lookup_field = 'id'
+    lookup_url_kwarg = 'id'
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        self.queryset = UserReceiver.objects.filter(user_id=user.id)
+        return super().list(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        receiver = UserReceiver.objects.get(id=kwargs['id'])
+        receiver.vars = request.data['vars']
+        receiver.save()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         headers = self.get_success_headers(serializer.data)

@@ -58,6 +58,7 @@ import { MessageCenterComponent } from './message-center/message-center.componen
 import { LocalMailComponent } from './message-center/local-mail/local-mail.component';
 import { SubscribeComponent } from './message-center/subscribe/subscribe.component';
 import { SubscribeConfigComponent } from './message-center/subscribe/subscribe-config/subscribe-config.component';
+import { ReceiverComponent } from './message-center/receiver/receiver.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +93,7 @@ import { SubscribeConfigComponent } from './message-center/subscribe/subscribe-c
     LocalMailComponent,
     SubscribeComponent,
     SubscribeConfigComponent,
+    ReceiverComponent,
   ],
   imports: [
     CredentialModule,

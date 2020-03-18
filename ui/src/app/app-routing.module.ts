@@ -45,6 +45,7 @@ import {MessageCenterComponent} from "./message-center/message-center.component"
 import {LocalMailComponent} from "./message-center/local-mail/local-mail.component";
 import {DescribeComponent} from "./overview/describe/describe.component";
 import {SubscribeComponent} from "./message-center/subscribe/subscribe.component";
+import {ReceiverComponent} from "./message-center/receiver/receiver.component";
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -133,7 +134,8 @@ const routes: Routes = [
         children: [
           {path: '', redirectTo: 'localMail', pathMatch: 'full'},
           {path: 'localMail', component: LocalMailComponent},
-          {path: 'subscribe', component: SubscribeComponent}
+          {path: 'subscribe', component: SubscribeComponent},
+          {path: 'receiver', component: ReceiverComponent},
         ]
       }
     ]

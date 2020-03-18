@@ -38,6 +38,13 @@ class UserViewSet(ModelViewSet):
         user = User.objects.get(username=serializer.data['username'])
         UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_CLUSTER).save()
         UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_SYSTEM).save()
+        vars2 = {
+            "EMAIL":  user.email,
+            "DINGTALK": "",
+            "WORKWEIXIN": "",
+        }
+        UserReceiver(vars=vars2,user=user).save()
+
         serializer.data.pop("password")
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

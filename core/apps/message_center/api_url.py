@@ -13,6 +13,7 @@ app_name = "message_center"
 router = DefaultRouter()
 
 router.register('notification/subscribe', api.SubscribeViewSet, 'subscribe')
+router.register('notification/receiver', api.UserReceiverViewSet, 'receiver')
 
 
 urlpatterns = [

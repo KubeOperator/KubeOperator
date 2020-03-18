@@ -87,8 +87,5 @@ class UserNotificationConfig(models.Model):
 
 
 class UserReceiver(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
-    type = models.CharField(max_length=64, choices=UserMessage.MESSAGE_SEND_TYPE_CHOICES,
-                            default=UserMessage.MESSAGE_SEND_TYPE_LOCAL,
-                            null=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, to_field='id')
     vars = common_models.JsonDictTextField(default={})

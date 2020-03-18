@@ -26,4 +26,16 @@ export class MessageCenterService {
       catchError(error => throwError(error))
     );
   }
+
+  listUserReceiver(): Observable<any> {
+    return this.httpClient.get<any>(this.baseUrl + 'receiver').pipe(
+      catchError(error => throwError(error))
+    );
+  }
+
+  updateUserReceiver(receiver): Observable<any> {
+    return this.httpClient.post<any>(this.baseUrl + 'receiver/' + receiver.id + '/', receiver).pipe(
+      catchError(error => throwError(error))
+    );
+  }
 }
