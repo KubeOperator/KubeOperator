@@ -46,7 +46,7 @@ KubeOperator 的整体架构如下图所示：
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="14">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="15">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -96,7 +96,7 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 Traefik
+        <td class="features-third-td-background-style">支持 Traefik / ingress-nginx
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
@@ -114,7 +114,13 @@ KubeOperator 的整体架构如下图所示：
         </td>
         <td class="features-third-td-background-style">支持 CentOS 7.4 / 7.5 / 7.6 / 7.7
         </td>
-    </tr>    
+    </tr>  
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">容器运行时
+        </td>
+        <td class="features-third-td-background-style">支持 Docker / containerd
+        </td>
+    </tr>     
     <tr class="subscription-level-tr-border">
         <td class="features-first-td-background-style" rowspan="3">Day 1 部署
         </td>
