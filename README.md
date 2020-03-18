@@ -204,7 +204,7 @@ KubeOperator 的整体架构如下图所示：
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">合规
         </td>
-         <td class="features-third-td-background-style">支持集群合规检查并可视化展示结果
+         <td class="features-third-td-background-style">支持集群合规检查（健康评分）并可视化展示结果
         </td>
     </tr>      
      <tr class="subscription-level-tr-border">
