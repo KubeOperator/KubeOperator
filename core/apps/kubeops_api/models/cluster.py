@@ -146,6 +146,14 @@ class Cluster(Project):
             return Item.objects.get(id=item_resource.item_id).name
         else:
             return None
+    @property
+    def item_id(self):
+        self.change_to()
+        item_resource = ItemResource.objects.get(resource_id=self.id)
+        if item_resource:
+            return Item.objects.get(id=item_resource.item_id).id
+        else:
+            return None
 
     def scale_up_to(self, num):
         scale_compute_resource(self, num)

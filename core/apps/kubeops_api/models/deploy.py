@@ -16,6 +16,8 @@ from kubeops_api.models.backup_storage import BackupStorage
 import kubeops_api.cluster_backup_utils
 import kubeops_api.cluster_monitor
 from django.utils import timezone
+from message_center.message_client import MessageClient
+
 __all__ = ['DeployExecution']
 logger = logging.getLogger('kubeops')
 
@@ -45,6 +47,14 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars.update(cluster.configs)
         ignore_errors = False
         return_running = False
+        message_client = MessageClient()
+        message = {
+            "item_id": cluster.item_id,
+            "title": self.get_operation_name(),
+            "content": "",
+            "level": "INFO",
+            "type": "SYSTEM"
+        }
         try:
             if self.operation == "install":
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
@@ -120,9 +130,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 if return_running:
                     cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
                 logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
+            message['content'] = self.get_content()
+            message_client.insert_message(message)
         except Exception as e:
             logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
             cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
+            message['content'] = self.get_content()
+            message_client.insert_message(message)
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
 
@@ -284,3 +298,26 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
     class Meta:
         get_latest_by = 'date_created'
         ordering = ('-date_created',)
+
+    def get_operation_name(self):
+        operation_name = {
+            "install": "集群安装",
+            "uninstall": "集群卸载",
+            "upgrade": "集群升级",
+            "scale": "集群伸缩",
+            "add-worker": "集群伸缩",
+            "remove-worker": "集群安装",
+            "restore": "集群恢复",
+            "backup": "集群备份",
+        }
+        return operation_name[self.operation]
+
+    def get_content(self):
+        cluster = self.get_cluster()
+        content = {
+            "item_name": cluster.item_name,
+            "resource": "集群",
+            "resource_name": cluster.name,
+            "status": cluster.status
+        }
+        return content

@@ -4,6 +4,7 @@
 @Author ：zk.wang
 @Date   ：2020/3/16 
 =================================================='''
+import json
 from django.contrib.auth.models import User
 from kubeops_api.models.item import Item
 from .models import Message, UserNotificationConfig, UserReceiver, UserMessage
@@ -17,11 +18,11 @@ class MessageClient():
     def get_receivers(self, item_id):
         receivers = []
         admin = User.objects.filter(is_superuser=1)
-        receivers.append(admin)
+        receivers.extend(list(admin))
 
         if item_id is not None:
             item = Item.objects.get(id=item_id)
-            profiles = item.profiles
+            profiles = item.profiles.all()
             for profile in profiles:
                 receivers.append(profile.user)
 
@@ -45,8 +46,13 @@ class MessageClient():
                     MessageReceiver(user=receiver, receive=user_receiver.vars['WORKWEIXIN'], send_type='WORKWEIXIN'))
         return messageReceivers
 
-    def insert_message(self, title, content, type, level, item_id):
-        message = Message.objects.create(title=title, content=content, type=type, level=level)
+    def insert_message(self, message):
+        title = message.get('title',None)
+        item_id = message.get('item_id',None)
+        content = message.get('content',None)
+        type = message.get('type',None)
+        level = message.get('level',None)
+        message = Message.objects.create(title=title, content=json.dumps(content), type=type, level=level)
         message_receivers = self.split_receiver_by_send_type(receivers=self.get_receivers(item_id), type=type)
         user_messages = []
         for message_receiver in message_receivers:
