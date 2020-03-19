@@ -38,6 +38,7 @@ export class Cluster {
     this.configs['DOCKER_ADDR'] = '179.30.0.1/24';
     this.configs['PROXY_MODE'] = 'iptables';
     this.configs['PROMETHEUS_RETENTION'] = '7';
+    this.configs['ingress_backend'] = 'traefik';
   }
 }
 
