@@ -38,4 +38,22 @@ export class MessageCenterService {
       catchError(error => throwError(error))
     );
   }
+
+  listUserMessageByPage(limit: number, page: number): Observable<any> {
+    return this.httpClient.get<any>(this.baseUrl + 'userMessage?limit=' + limit + '&page=' + page).pipe(
+      catchError(error => throwError(error))
+    );
+  }
+
+  updateUserMessage(userMessage): Observable<any> {
+    return this.httpClient.post<any>(this.baseUrl + 'userMessage/' + userMessage.id + '/', userMessage).pipe(
+      catchError(error => throwError(error))
+    );
+  }
+
+  updateAllUserMessage(): Observable<any> {
+    return this.httpClient.post<any>(this.baseUrl + 'userMessage/all/', {}).pipe(
+      catchError(error => throwError(error))
+    );
+  }
 }

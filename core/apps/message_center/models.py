@@ -1,8 +1,12 @@
 import uuid
+import json
 
+from uuid import UUID
 from django.db import models
 from django.contrib.auth.models import User
 from common import models as common_models
+from datetime import date
+from datetime import datetime
 
 
 # Create your models here.
@@ -78,6 +82,20 @@ class UserMessage(models.Model):
                                    default=MESSAGE_READ_STATUS_UNREAD)
     date_created = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def message_detail(self):
+        message = Message.objects.get(id=self.message_id)
+
+        detail = {
+            "title":str(message.title),
+            "sender":message.sender,
+            "content":str(message.content),
+            "date_created":message.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+            "type":message.type,
+            "level":message.level
+        }
+
+        return detail
 
 class UserNotificationConfig(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
@@ -89,3 +107,4 @@ class UserNotificationConfig(models.Model):
 class UserReceiver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, to_field='id')
     vars = common_models.JsonDictTextField(default={})
+

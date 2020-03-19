@@ -12,8 +12,9 @@ from ko_notification_utils.work_weixin import WorkWinXin
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
-from .serializers import UserNotificationConfigSerializer, UserReceiverSerializer
-from .models import UserNotificationConfig, UserReceiver
+from .m_serializers import UserNotificationConfigSerializer, UserReceiverSerializer, UserMessageSerializer
+from .models import UserNotificationConfig, UserReceiver, UserMessage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class EmailCheckView(APIView):
@@ -87,3 +88,40 @@ class UserReceiverViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UserMessageView(ModelViewSet):
+    serializer_class = UserMessageSerializer
+
+    lookup_field = 'id'
+    lookup_url_kwarg = 'id'
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        limit = request.query_params.get('limit')
+        page = request.query_params.get('page')
+        user_messages = UserMessage.objects.filter(user_id=user.id, send_type=UserMessage.MESSAGE_SEND_TYPE_LOCAL)
+        paginator = Paginator(user_messages, limit)
+        try:
+            user_messages = paginator.page(page)
+        except PageNotAnInteger:
+            user_messages = paginator.page(1)
+        except EmptyPage:
+            user_messages = paginator.page(paginator.num_pages)
+        self.queryset = user_messages
+        return super().list(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if kwargs['id'] == 'all':
+            user = request.user
+            UserMessage.objects.filter(user_id=user.id, send_type=UserMessage.MESSAGE_SEND_TYPE_LOCAL).update(
+                read_status=UserMessage.MESSAGE_READ_STATUS_READ)
+            return Response({"msg": "更新成功！"}, status=status.HTTP_200_OK)
+        else:
+            user_msg = UserMessage.objects.get(id=kwargs['id'])
+            user_msg.read_status = UserMessage.MESSAGE_READ_STATUS_READ
+            user_msg.save()
+            serializer = self.get_serializer(user_msg, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
