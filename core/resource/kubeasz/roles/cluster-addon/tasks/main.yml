@@ -1,23 +1,10 @@
-- block:
-    - name:  生成 https 证书
-      shell: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj \"/CN={{APP_DOMAIN}}\""
-      args:
-        chdir: "/tmp/"
-      ignore_errors: true
+- name: 获取所有已经创建的POD信息
+  command: "{{ bin_dir }}/kubectl -n kube-system get pod"
+  register: pod_info
+  run_once: true
 
-    - name: 生成 secret
-      shell: kubectl -n kube-system create secret tls traefik-tls-cert --key=tls.key --cert=tls.crt
-      args:
-        chdir: "/tmp/"
-      ignore_errors: true
-
-    - name: 生成 ingress 部署文件
-      template:
-        src: traefik/traefik-ingress.yaml.j2
-        dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
-
-    - name: 创建 traefik部署
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
+- import_tasks: ingress.yml
+  when: '"ingress-controller" not in pod_info.stdout'
 
 - block:
     - name: 创建npd相关目录
