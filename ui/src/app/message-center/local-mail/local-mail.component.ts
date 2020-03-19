@@ -10,24 +10,27 @@ import {CommonAlertService} from '../../base/header/common-alert.service';
 })
 export class LocalMailComponent implements OnInit {
 
-
   loading = false;
   messages = [];
   selectedMessages = [];
   limit = 10;
   page = 1;
+  type = 'ALL';
+  readStatus = 'ALL';
 
   constructor(private messageCenterService: MessageCenterService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
-    this.listMessage(this.limit);
+    this.listMessage(this.limit, this.type, this.readStatus);
   }
 
-  listMessage(limit) {
-    this.limit = limit
+  listMessage(limit, type, readStatus) {
+    this.limit = limit;
+    this.type = type;
+    this.readStatus = readStatus;
     this.loading = true;
-    this.messageCenterService.listUserMessageByPage(limit, this.page).subscribe(data => {
+    this.messageCenterService.listUserMessageByPage(limit, this.page, this.type, this.readStatus).subscribe(data => {
       this.messages = data;
       this.loading = false;
     });
@@ -39,7 +42,7 @@ export class LocalMailComponent implements OnInit {
       promises.push(this.messageCenterService.updateUserMessage(msg).toPromise());
     });
     Promise.all(promises).then(() => {
-      this.listMessage(this.limit);
+      this.listMessage(this.limit, this.type, this.readStatus);
       this.alertService.showAlert('更新成功', AlertLevels.SUCCESS);
     }, res => {
       this.alertService.showAlert('更新失败' + res.error.msg, AlertLevels.ERROR);
@@ -51,7 +54,7 @@ export class LocalMailComponent implements OnInit {
   updateAllMessage() {
     this.messageCenterService.updateAllUserMessage().subscribe(data => {
       this.alertService.showAlert('更新成功', AlertLevels.SUCCESS);
-      this.listMessage(this.limit);
+      this.listMessage(this.limit, this.type, this.readStatus);
     });
   }
 
