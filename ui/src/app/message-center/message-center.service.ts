@@ -53,7 +53,7 @@ export class MessageCenterService {
   }
 
   updateAllUserMessage(): Observable<any> {
-    return this.httpClient.post<any>(this.baseUrl + 'userMessage/all/', {}).pipe(
+    return this.httpClient.post<any>(this.baseUrl + 'userMessage/ALL/', {}).pipe(
       catchError(error => throwError(error))
     );
   }

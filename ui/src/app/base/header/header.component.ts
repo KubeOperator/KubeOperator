@@ -22,6 +22,7 @@ export class HeaderComponent implements OnInit {
   password: PasswordComponent;
   info;
   warning;
+  timer;
 
 
   constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService,
@@ -32,6 +33,17 @@ export class HeaderComponent implements OnInit {
     this.getProfile();
     this.getVersionInfo();
     this.getUnReadMessage();
+
+    this.timer = setInterval(() => {
+      this.getUnReadMessage();
+    }, 60000);
+  }
+
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   getProfile() {
