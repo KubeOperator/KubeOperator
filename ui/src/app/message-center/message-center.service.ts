@@ -39,9 +39,9 @@ export class MessageCenterService {
     );
   }
 
-  listUserMessageByPage(limit: number, page: number, type: string, readStatus: string): Observable<any> {
+  listUserMessageByPage(limit: number, page: number, type: string, readStatus: string, level: string): Observable<any> {
     return this.httpClient.get<any>(this.baseUrl + 'userMessage?limit=' + limit + '&page=' +
-      page + '&type=' + type + '&readStatus=' + readStatus).pipe(
+      page + '&type=' + type + '&readStatus=' + readStatus + '&level=' + level).pipe(
       catchError(error => throwError(error))
     );
   }

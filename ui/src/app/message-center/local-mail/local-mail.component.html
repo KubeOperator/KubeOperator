@@ -9,25 +9,36 @@
     </div>
     <div class="btn-group">
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='ALL'"
-              (click)="listMessage(pagination.pageSize,'ALL',readStatus)">全部
+              (click)="listMessage(pagination.pageSize,'ALL',readStatus,level)">全部
       </button>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='SYSTEM'"
-              (click)="listMessage(pagination.pageSize,'SYSTEM',readStatus)">系统消息
+              (click)="listMessage(pagination.pageSize,'SYSTEM',readStatus,level)">系统消息
       </button>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='CLUSTER'"
-              (click)="listMessage(pagination.pageSize,'CLUSTER',readStatus)">
+              (click)="listMessage(pagination.pageSize,'CLUSTER',readStatus,level)">
         集群消息
       </button>
     </div>
     <div class="btn-group">
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='ALL'"
-              (click)="listMessage(pagination.pageSize,type,'ALL')">全部
+              (click)="listMessage(pagination.pageSize,type,'ALL',level)">全部
       </button>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='READ'"
-              (click)="listMessage(pagination.pageSize,type,'READ')">全部已读
+              (click)="listMessage(pagination.pageSize,type,'READ',level)">全部已读
       </button>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='UNREAD'"
-              (click)="listMessage(pagination.pageSize,type,'UNREAD')">全部未读
+              (click)="listMessage(pagination.pageSize,type,'UNREAD',level)">全部未读
+      </button>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='ALL'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'ALL')">全部
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='WARNING'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'WARNING')">告警
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='INFO'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'INFO')">消息
       </button>
     </div>
   </clr-dg-action-bar>
@@ -48,7 +59,7 @@
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgTotalItems]="messages.length" [clrDgPageSize]="limit"
                        [(clrDgPage)]="page"
-                       (clrDgPageChange)="listMessage(pagination.pageSize,type,readStatus)">
+                       (clrDgPageChange)="listMessage(pagination.pageSize,type,readStatus,level)">
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
       共{{pagination.totalItems}} 个

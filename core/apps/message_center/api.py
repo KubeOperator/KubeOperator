@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from .m_serializers import UserNotificationConfigSerializer, UserReceiverSerializer, UserMessageSerializer
-from .models import UserNotificationConfig, UserReceiver, UserMessage ,Message
+from .models import UserNotificationConfig, UserReceiver, UserMessage, Message
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
@@ -101,13 +101,17 @@ class UserMessageView(ModelViewSet):
         limit = request.query_params.get('limit')
         page = request.query_params.get('page')
         type = request.query_params.get('type')
+        level = request.query_params.get('level')
         readStatus = request.query_params.get('readStatus')
         user_messages = UserMessage.objects.filter(user_id=user.id, send_type=UserMessage.MESSAGE_SEND_TYPE_LOCAL)
-        if readStatus!='ALL':
+        if readStatus != 'ALL':
             user_messages = user_messages.filter(read_status=readStatus)
-        if type!='ALL':
+        if type != 'ALL':
             ids = Message.objects.filter(type=type).values_list('id')
             user_messages = user_messages.filter(message_id__in=ids)
+        if level != 'ALL':
+            l_ids = Message.objects.filter(level=level).values_list('id')
+            user_messages = user_messages.filter(message_id__in=l_ids)
         paginator = Paginator(user_messages, limit)
         try:
             user_messages = paginator.page(page)
