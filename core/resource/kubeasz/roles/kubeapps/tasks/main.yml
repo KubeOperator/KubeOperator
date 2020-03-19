@@ -36,12 +36,17 @@
       shell: "kubectl create ns kubeapps-plus"
       when: '"kubeapps-plus" not in ns_info.stdout'
 
+    - name: get kubeapps-plus secrets
+      command: "{{ bin_dir }}/kubectl -n kubeapps-plus get secrets"
+      register: secrets_info
+
     - name: create kubeapps-plus ceph secret
       shell: "{{ bin_dir }}/kubectl create secret generic ceph-user-secret \
           --namespace=kubeapps-plus \
           --type=kubernetes.io/rbd \
           --from-literal=key={{ ceph_user_secret }}"
       when:
+        - '"ceph-user-secret" not in secrets_info.stdout'
         - 'storage_external_ceph_enabled is defined'
         - 'storage_external_ceph_enabled'
 

@@ -46,7 +46,7 @@ KubeOperator 的整体架构如下图所示：
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="14">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="15">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -96,7 +96,7 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 Traefik
+        <td class="features-third-td-background-style">支持 Traefik / ingress-nginx
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
@@ -114,7 +114,13 @@ KubeOperator 的整体架构如下图所示：
         </td>
         <td class="features-third-td-background-style">支持 CentOS 7.4 / 7.5 / 7.6 / 7.7
         </td>
-    </tr>    
+    </tr>  
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">容器运行时
+        </td>
+        <td class="features-third-td-background-style">支持 Docker / containerd
+        </td>
+    </tr>     
     <tr class="subscription-level-tr-border">
         <td class="features-first-td-background-style" rowspan="3">Day 1 部署
         </td>
@@ -132,23 +138,31 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="15">Day 2 运营
+        <td class="features-first-td-background-style" rowspan="18">Day 2 运营
         </td>
-        <td class="features-third-td-background-style" rowspan="6">管理
+        <td class="features-third-td-background-style" rowspan="8">管理
         </td>  
-        <td class="features-third-td-background-style">支持用户权限管理，支持对接 LDAP/AD
+        <td class="features-third-td-background-style">支持以项目为核心的分级授权管理
         </td>         
     </tr>
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">支持系统管理员、项目管理员和只读用户等三种角色
+        </td>
+    </tr> 
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">支持对接 LDAP/AD
+        </td>
+    </tr>    
     <tr class="subscription-level-tr-border">
          <td class="features-third-td-background-style">对外开放 REST API
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">内置 K8s Dashboard 管理应用
+         <td class="features-third-td-background-style">可通过应用商店安装 K8s Dashboard 管理应用
         </td>
     </tr>     
      <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">内置 Weave Scope 管理应用
+         <td class="features-third-td-background-style">可通过应用商店安装 Weave Scope 管理应用
         </td>
     </tr>  
     <tr class="subscription-level-tr-border">
@@ -198,7 +212,7 @@ KubeOperator 的整体架构如下图所示：
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">合规
         </td>
-         <td class="features-third-td-background-style">支持集群合规检查并可视化展示结果
+         <td class="features-third-td-background-style">支持集群合规检查（健康评分）并可视化展示结果
         </td>
     </tr>      
      <tr class="subscription-level-tr-border">
@@ -223,8 +237,8 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 ## 沟通交流
  
-- 技术支持邮箱：support@fit2cloud.com；
-- 微信群： 搜索微信号 wh_it0224，添加好友，备注（城市-github用户名）, 验证通过会加入群聊；
+- 微信群： 搜索微信号 wh_it0224，添加好友，备注（城市-github用户名）, 验证通过会加入群聊
+- 技术咨询：https://jinshuju.net/f/QrZJpt
 
 ## 致谢
 
