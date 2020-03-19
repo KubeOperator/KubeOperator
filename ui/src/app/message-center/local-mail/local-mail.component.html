@@ -49,7 +49,10 @@
   <clr-dg-column>状态</clr-dg-column>
   <clr-dg-column>接收时间</clr-dg-column>
   <clr-dg-row *ngFor="let message of messages" [clrDgItem]="message">
-    <clr-dg-cell>{{message.message_detail.title}}</clr-dg-cell>
+    <clr-dg-cell>
+      <clr-icon shape="folder" *ngIf="message.read_status==='UNREAD'"></clr-icon>
+      <clr-icon shape="folder-open" *ngIf="message.read_status==='READ'"></clr-icon>
+      {{message.message_detail.title}}</clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.content}}</clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.type}}</clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.level}}</clr-dg-cell>

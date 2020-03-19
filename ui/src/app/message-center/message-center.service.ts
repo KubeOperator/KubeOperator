@@ -57,4 +57,10 @@ export class MessageCenterService {
       catchError(error => throwError(error))
     );
   }
+
+  unReadMessage(): Observable<any> {
+    return this.httpClient.get<any>(this.baseUrl + 'userMessage/unread/').pipe(
+      catchError(error => throwError(error))
+    );
+  }
 }

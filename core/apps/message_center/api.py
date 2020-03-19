@@ -136,3 +136,22 @@ class UserMessageView(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+
+class UnReadMessageView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        info_ids = Message.objects.filter(level=Message.MESSAGE_LEVEL_INFO).values_list('id')
+        info_message = UserMessage.objects.filter(user_id=user.id, send_type=UserMessage.MESSAGE_SEND_TYPE_LOCAL,
+                                                  read_status=UserMessage.MESSAGE_READ_STATUS_UNREAD).filter(
+            message_id__in=info_ids)
+        warn_ids = Message.objects.filter(level=Message.MESSAGE_LEVEL_WARNING).values_list('id')
+        warn_message = UserMessage.objects.filter(user_id=user.id, send_type=UserMessage.MESSAGE_SEND_TYPE_LOCAL,
+                                                  read_status=UserMessage.MESSAGE_READ_STATUS_UNREAD).filter(
+            message_id__in=warn_ids)
+        result = {
+            "info": len(info_message),
+            "warning": len(warn_message)
+        }
+        return Response(result)
