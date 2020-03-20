@@ -23,7 +23,6 @@ from kubeops_api.serializers.host import ConditionSerializer
 
 __all__ = [
     'PackageSerializer', 'ClusterSerializer', 'NodeSerializer', 'RoleSerializer', 'DeployExecutionSerializer',
-    'HostSerializer',
     'CredentialSerializer', 'BackupStrategySerializer', 'BackupStorageSerializer'
 ]
 

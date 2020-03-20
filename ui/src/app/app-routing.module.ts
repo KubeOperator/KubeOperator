@@ -41,11 +41,12 @@ import {ItemMemberComponent} from './item-member/item-member.component';
 import {ItemResourceComponent} from './item-resource/item-resource.component';
 import {LdapComponent} from './setting/ldap/ldap.component';
 import {NotificationComponent} from './setting/notification/notification.component';
-import {MessageCenterComponent} from "./message-center/message-center.component";
-import {LocalMailComponent} from "./message-center/local-mail/local-mail.component";
-import {DescribeComponent} from "./overview/describe/describe.component";
-import {SubscribeComponent} from "./message-center/subscribe/subscribe.component";
-import {ReceiverComponent} from "./message-center/receiver/receiver.component";
+import {MessageCenterComponent} from './message-center/message-center.component';
+import {LocalMailComponent} from './message-center/local-mail/local-mail.component';
+import {DescribeComponent} from './overview/describe/describe.component';
+import {SubscribeComponent} from './message-center/subscribe/subscribe.component';
+import {ReceiverComponent} from './message-center/receiver/receiver.component';
+import {ClusterGradeComponent} from './cluster-grade/cluster-grade.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -108,6 +109,7 @@ const routes: Routes = [
           {path: 'health', component: ClusterHealthComponent},
           {path: 'event', component: ClusterEventComponent},
           {path: 'backup', component: ClusterBackupComponent},
+          {path: 'grade', component: ClusterGradeComponent},
           {path: 'big-ip', component: F5BigIpComponent},
           {path: 'cluster-storage', component: ClusterStorageComponent}
         ]

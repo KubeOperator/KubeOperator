@@ -5,6 +5,7 @@ import shutil
 
 import requests
 import yaml
+from django.core.cache import cache
 from django.db import models
 
 import kubeops_api
@@ -352,12 +353,15 @@ class Cluster(Project):
         return self.group_set.get(name='master').hosts.first()
 
     def get_cluster_token(self):
-        token = None
         if self.status == Cluster.CLUSTER_STATUS_RUNNING:
-            self.change_to()
-            master = self.group_set.get(name='master').hosts.first()
-            token = get_cluster_token(master)
-        return token
+            cache_key = "token-{}".format_map(self.id)
+            token = cache.get(cache_key)
+            if not token:
+                self.change_to()
+                master = self.group_set.get(name='master').hosts.first()
+                token = get_cluster_token(master)
+                cache.set(cache_key, token)
+            return token
 
     def delete_data(self):
         path = os.path.join(ANSIBLE_PROJECTS_DIR, self.name)
