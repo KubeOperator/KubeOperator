@@ -69,6 +69,8 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 支持 containerd，用户可选 docker 或者 containerd
 - [ ] 将部分内置应用移到应用商店；
 - [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
+- [ ] Excel批量导入主机；
+- [ ] 手动模式集群批量扩容；
 
  ##  v3.0 Backlog（计划中）
  
