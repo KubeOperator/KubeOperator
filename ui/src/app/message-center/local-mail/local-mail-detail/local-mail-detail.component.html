@@ -5,6 +5,7 @@
       <ul class="list-unstyled">
         <li><b>项目:</b>{{message.message_detail.content.item_name}}</li>
         <li><b>集群:</b>{{message.message_detail.content.resource_name}}</li>
+        <li><b>详情:</b>{{message.message_detail.content.detail}}</li>
         <li><b>状态:</b>{{message.message_detail.level}}</li>
         <li><b>时间:</b>{{message.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
         <li *ngIf="message.message_detail.level==='WARNING'">失败详情请到集群-历史页查看</li>

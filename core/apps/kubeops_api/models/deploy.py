@@ -125,17 +125,21 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 self.on_upload_backup_file(cluster_storage_id)
                 cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             if not result.get('summary', {}).get('success', False):
+                message['content'] = self.get_content(False)
+                message['level'] = 'WARNING'
                 if not ignore_errors:
                     cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
                 if return_running:
                     cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
                 logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
-            message['content'] = self.get_content()
+            else:
+                message['content'] = self.get_content(True)
             message_client.insert_message(message)
         except Exception as e:
             logger.error(msg=":cluster {} exec {} error".format(cluster, self.operation), exc_info=True)
             cluster.change_status(Cluster.CLUSTER_STATUS_ERROR)
-            message['content'] = self.get_content()
+            message['content'] = self.get_content(False)
+            message['level'] = 'WARNING'
             message_client.insert_message(message)
         post_deploy_execution_start.send(self.__class__, execution=self, result=result, ignore_errors=ignore_errors)
         return result
@@ -312,12 +316,24 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         }
         return operation_name[self.operation]
 
-    def get_content(self):
+    def get_content(self, success):
         cluster = self.get_cluster()
         content = {
             "item_name": cluster.item_name,
             "resource": "集群",
             "resource_name": cluster.name,
+            "resource_type": 'CLUSTER',
+            "detail": self.get_msg_detail(success),
             "status": cluster.status
         }
         return content
+
+    def get_msg_detail(self, success):
+        cluster = self.get_cluster()
+        operation = self.get_operation_name()
+        result = ""
+        if success:
+            result = "成功"
+        else:
+            result = "失败"
+        return operation + result

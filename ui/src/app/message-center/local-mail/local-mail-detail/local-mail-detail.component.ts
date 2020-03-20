@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 
 @Component({
   selector: 'app-local-mail-detail',
@@ -14,7 +14,6 @@ export class LocalMailDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.message);
   }
 
   cancel() {

@@ -10,13 +10,13 @@ export class MessageTypePipe implements PipeTransform {
     if (value) {
       switch (value) {
         case 'CLUSTER':
-          result = '集群';
+          result = '集群消息';
           break;
         case 'SYSTEM':
-          result = '系统';
+          result = '系统消息';
           break;
         default:
-          result = '系统';
+          result = '系统消息';
       }
     }
     return result;

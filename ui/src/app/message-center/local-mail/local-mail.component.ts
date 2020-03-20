@@ -73,6 +73,7 @@ export class LocalMailComponent implements OnInit {
   }
 
   updateSingleMessage(message) {
+    message.read_status = 'READ';
     this.messageCenterService.updateUserMessage(message).subscribe(data => {
     });
   }

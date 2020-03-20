@@ -1,25 +1,22 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'badgeClass'
+  name: 'messageLevel'
 })
-export class BadgeClassPipe implements PipeTransform {
+export class MessageLevelPipe implements PipeTransform {
 
   transform(value: any, ...args: any[]): any {
     let result = '';
     if (value) {
       switch (value) {
-        case 'Warning':
-          result = 'badge-danger';
+        case 'INFO':
+          result = '消息';
           break;
         case 'WARNING':
-          result = 'badge-danger';
+          result = '告警';
           break;
-        case 'INFO':
-          result = '';
-          break;
-        case 'Normal':
-          result = '';
+        case 'ERROR':
+          result = '错误';
           break;
       }
     }

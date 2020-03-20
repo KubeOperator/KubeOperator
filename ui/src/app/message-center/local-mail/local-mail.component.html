@@ -42,8 +42,7 @@
       </button>
     </div>
   </clr-dg-action-bar>
-  <clr-dg-column>标题</clr-dg-column>
-<!--  <clr-dg-column>消息内容</clr-dg-column>-->
+  <clr-dg-column>消息内容</clr-dg-column>
   <clr-dg-column>类别</clr-dg-column>
   <clr-dg-column>级别</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
@@ -55,10 +54,9 @@
       <clr-icon shape="folder-open" *ngIf="message.read_status==='READ'"></clr-icon>
       {{message.message_detail.title}}
     </clr-dg-cell>
-<!--    <clr-dg-cell>{{message.message_detail.content}}</clr-dg-cell>-->
-    <clr-dg-cell>{{message.message_detail.type}}</clr-dg-cell>
-    <clr-dg-cell>{{message.message_detail.level}}</clr-dg-cell>
-    <clr-dg-cell>{{message.read_status}}</clr-dg-cell>
+    <clr-dg-cell>{{message.message_detail.type | messageType}}</clr-dg-cell>
+    <clr-dg-cell> <span class="badge" [ngClass]="message.message_detail.level  | badgeClass">{{message.message_detail.level | messageLevel}} </span></clr-dg-cell>
+    <clr-dg-cell>{{message.read_status | readStatus}}</clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.date_created}}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
