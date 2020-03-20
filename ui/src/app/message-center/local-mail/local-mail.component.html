@@ -1,4 +1,4 @@
-<!--<app-log-detail [(showLogModal)]=showDetail></app-log-detail>-->
+<app-local-mail-detail></app-local-mail-detail>
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedMessages">
   <clr-dg-action-bar>
     <div class="btn-group">
@@ -43,17 +43,19 @@
     </div>
   </clr-dg-action-bar>
   <clr-dg-column>标题</clr-dg-column>
-  <clr-dg-column>消息内容</clr-dg-column>
+<!--  <clr-dg-column>消息内容</clr-dg-column>-->
   <clr-dg-column>类别</clr-dg-column>
   <clr-dg-column>级别</clr-dg-column>
   <clr-dg-column>状态</clr-dg-column>
   <clr-dg-column>接收时间</clr-dg-column>
   <clr-dg-row *ngFor="let message of messages" [clrDgItem]="message">
-    <clr-dg-cell>
+    <clr-dg-cell style="cursor: pointer;overflow: hidden;text-overflow:ellipsis;
+    white-space: nowrap;" [ngStyle]="{'color':message.read_status==='UNREAD'?'#0079b8':'#969696'}" (click)="showDetail(message)">
       <clr-icon shape="folder" *ngIf="message.read_status==='UNREAD'"></clr-icon>
       <clr-icon shape="folder-open" *ngIf="message.read_status==='READ'"></clr-icon>
-      {{message.message_detail.title}}</clr-dg-cell>
-    <clr-dg-cell>{{message.message_detail.content}}</clr-dg-cell>
+      {{message.message_detail.title}}
+    </clr-dg-cell>
+<!--    <clr-dg-cell>{{message.message_detail.content}}</clr-dg-cell>-->
     <clr-dg-cell>{{message.message_detail.type}}</clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.level}}</clr-dg-cell>
     <clr-dg-cell>{{message.read_status}}</clr-dg-cell>

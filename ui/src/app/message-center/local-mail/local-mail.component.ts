@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {MessageCenterService} from '../message-center.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
+import {LocalMailDetailComponent} from "./local-mail-detail/local-mail-detail.component";
 
 @Component({
   selector: 'app-local-mail',
@@ -18,6 +19,9 @@ export class LocalMailComponent implements OnInit {
   type = 'ALL';
   readStatus = 'ALL';
   level = 'ALL';
+
+  @ViewChild(LocalMailDetailComponent, {static: true})
+  detail: LocalMailDetailComponent;
 
   constructor(private messageCenterService: MessageCenterService, private alertService: CommonAlertService) {
   }
@@ -60,5 +64,16 @@ export class LocalMailComponent implements OnInit {
     });
   }
 
+  showDetail(message) {
+    this.updateSingleMessage(message);
+    const detailMessage = JSON.parse(JSON.stringify(message));
+    this.detail.message = detailMessage;
+    this.detail.message.message_detail.content = JSON.parse(detailMessage.message_detail.content);
+    this.detail.open = true;
+  }
 
+  updateSingleMessage(message) {
+    this.messageCenterService.updateUserMessage(message).subscribe(data => {
+    });
+  }
 }
