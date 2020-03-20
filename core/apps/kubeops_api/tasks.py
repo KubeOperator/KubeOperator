@@ -1,5 +1,6 @@
 import logging
 import threading
+import json
 
 from celery import shared_task
 from celery.task import periodic_task
@@ -58,7 +59,7 @@ def save_cluster_event():
     try:
         kubeops_api.cluster_monitor.put_event_data_to_es()
     except Exception as e:
-        logger.error("save_cluster_event error")
+        logger.error("save_cluster_event error"+json.dumps(e))
 
 
 @periodic_task(run_every=crontab(minute="*/5"), name='task.host_health_check')
