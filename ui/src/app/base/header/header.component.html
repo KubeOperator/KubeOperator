@@ -16,6 +16,15 @@
   <div class="header-actions">
     <clr-dropdown>
       <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
+        <clr-icon shape="bell" [ngClass]="{'has-badge':info>0 || warning>0}"></clr-icon>
+      </button>
+      <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+        <a clrDropdownItem (click)="toMessage()">信息 &nbsp;<span class="badge badge-info">{{info}}</span></a>
+        <a clrDropdownItem (click)="toMessage()">告警 &nbsp;<span class="badge badge-danger">{{warning}}</span></a>
+      </clr-dropdown-menu>
+    </clr-dropdown>
+    <clr-dropdown>
+      <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
         <clr-icon shape="help" class="is-inverse" size="24"></clr-icon>
         <clr-icon shape="caret down"></clr-icon>
       </button>
@@ -31,9 +40,11 @@
         <clr-icon shape="caret down"></clr-icon>
       </button>
       <clr-dropdown-menu [clrPosition]="'bottom-right'">
-        <a href="javascript:void(0)" clrDropdownItem (click)="changePassword()">修改密码</a>
+        <a href="javascript:void(0)" clrDropdownItem *ngIf="profile.source ==='local'"
+           (click)="changePassword()">修改密码</a>
         <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">退出登录</a>
       </clr-dropdown-menu>
     </clr-dropdown>
   </div>
 </clr-header>
+

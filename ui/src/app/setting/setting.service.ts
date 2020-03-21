@@ -7,7 +7,7 @@ import {Settings} from './setting';
   providedIn: 'root'
 })
 export class SettingService {
-  baseUrl = '/api/v1/settings/';
+  baseUrl = '/api/v1/settings';
 
   constructor(private http: HttpClient) {
   }
@@ -15,7 +15,15 @@ export class SettingService {
   getSettings(): Observable<Settings> {
     return this.http.get<Settings>(this.baseUrl);
   }
-  updateSettings(settings: Settings): Observable<Settings> {
-    return this.http.post<Settings>(this.baseUrl, settings);
+
+  getSettingsByTab(t: string): Observable<Settings> {
+    const url = this.baseUrl.concat(`?tab=${t}`);
+    return this.http.get<Settings>(url);
   }
+
+  updateSettings(settings: Settings, t: string): Observable<Settings> {
+    const url = this.baseUrl.concat(`?tab=${t}`);
+    return this.http.post<Settings>(url, settings);
+  }
+
 }

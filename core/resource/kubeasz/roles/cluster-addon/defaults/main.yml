@@ -3,3 +3,4 @@ CLUSTER_DNS_DOMAIN: "cluster.local"
 STORAGE_DIR: "/var/lib/docker"
 # kubernetes 大版本号
 kube_version_main: "{{ kube_version.split('.')[0] }}.{{ kube_version.split('.')[1] }}"
+ingress_backend: "traefik"

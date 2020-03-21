@@ -101,24 +101,32 @@
                     [disabled]="currentCluster.status === 'READY'  || currentCluster.status == 'INSTALLING' || permission==='VIEWER'">
               <clr-icon shape="uninstall"></clr-icon>&nbsp;卸载
             </button>
-            <button class="btn btn-outline" (click)="onUpgrade()" [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+            <button class="btn btn-outline" (click)="onUpgrade()"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <clr-icon shape="arrow"></clr-icon>&nbsp;升级
             </button>
             <button class="btn btn-outline" (click)="openChangeStatus=true" [disabled]="permission==='VIEWER'">
               <clr-icon shape="refresh"></clr-icon>&nbsp;重置
             </button>
-            <button class="btn btn-outline" (click)="onGetToken()" [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+            <button class="btn btn-outline" (click)="onGetToken()"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <clr-icon shape="download"></clr-icon>&nbsp;Token
             </button>
-            <button class="btn btn-outline" (click)="openWebkubectl()" [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+            <button class="btn btn-outline" (click)="openWebkubectl()"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <clr-icon shape="computer"></clr-icon>&nbsp;WebKubeCtl
             </button>
-            <button class="btn btn-outline" (click)="toApp('grafana')" [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+            <button class="btn btn-outline" (click)="toApp('grafana')"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <img height="15px" width="15px" src="assets/images/grafana_icon.svg">&nbsp;监控/日志
             </button>
-            <button class="btn btn-outline" (click)="toApp('scope.weave')"
+            <button class="btn btn-outline" (click)="toApp('kubeapps-plus')"
                     [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
-              <img height="15px" width="15px" src="assets/images/weave-logo.png">&nbsp;洞察
+              <img height="15px" width="15px" src="assets/images/kubeapps.png">&nbsp;应用商店
+            </button>
+            <button class="btn btn-outline" (click)="toApp('registry-ui')"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+              <img height="15px" width="15px" src="assets/images/registry.png">&nbsp;镜像仓库
             </button>
             <!--            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">-->
             <!--              域名解析规则-->
@@ -130,7 +138,7 @@
       </div>
       <div class="card-block">
         <div class="clr-row">
-          <div class="clr-col-lg-4 clr-col-4" >
+          <div class="clr-col-lg-4 clr-col-4">
             <table>
               <tr>
                 <td>集群名称:&nbsp;&nbsp;&nbsp;</td>

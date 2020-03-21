@@ -1,0 +1,28 @@
+<div>
+  <form clrForm #userConfigForm="ngForm">
+    <clr-input-container *ngIf="userConfig['vars']!=undefined">
+      <label>钉钉手机号</label>
+      <input clrInput name="tel" [(ngModel)]="userConfig['vars']['DINGTALK']" pattern="^1[34578]\d{9}$" size=45
+             required/>
+      <clr-control-helper>用于钉钉接收告警消息</clr-control-helper>
+      <clr-control-error>请填写正确的手机号</clr-control-error>
+    </clr-input-container>
+    <clr-input-container *ngIf="userConfig['vars']!=undefined">
+      <label style="white-space : nowrap">企业微信用户ID</label>
+      <input clrInput name="userid" [(ngModel)]="userConfig['vars']['WORKWEIXIN']" size=45 required/>
+      <clr-control-helper>用于企业微信接收告警消息 <br>
+        userid如何查找？https://work.weixin.qq.com/api/doc/90000/90135/90665
+      </clr-control-helper>
+    </clr-input-container>
+    <clr-input-container *ngIf="userConfig['vars']!=undefined">
+      <label style="white-space : nowrap">邮箱</label>
+      <input clrInput name="email" [(ngModel)]="userConfig['vars']['EMAIL']" size=45 required/>
+    </clr-input-container>
+  </form>
+  <div class="modal-footer clr-row clr-col-5">
+    <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
+    <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="userConfigForm.invalid">
+      <i *ngIf="submitGoing" class="fa fa-spinner fa-pulse"></i>提交
+    </button>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<app-subscribe-config [showConfigModal]="showConfig" [subscribeConfig]="subscribeConfig" (subscribeConfigChange)="getData($event)"></app-subscribe-config>
+<clr-datagrid [clrDgLoading]="loading" >
+  <clr-dg-column>消息类型</clr-dg-column>
+  <clr-dg-column>站内信</clr-dg-column>
+  <clr-dg-column>邮件</clr-dg-column>
+  <clr-dg-column>企业微信</clr-dg-column>
+  <clr-dg-column>钉钉</clr-dg-column>
+  <clr-dg-column>操作</clr-dg-column>
+  <clr-dg-row class="fixed-height" *ngFor="let subscribe of subscribes" [clrDgItem]="subscribe">
+    <clr-dg-cell>{{subscribe.type | messageType}}</clr-dg-cell>
+    <clr-dg-cell><img src="{{subscribe.vars['LOCAL']|done}}"></clr-dg-cell>
+    <clr-dg-cell><img src="{{subscribe.vars['EMAIL']|done}}"></clr-dg-cell>
+    <clr-dg-cell><img src="{{subscribe.vars['WORKWEIXIN']|done}}"></clr-dg-cell>
+    <clr-dg-cell><img src="{{subscribe.vars['DINGTALK'] | done}}"></clr-dg-cell>
+    <clr-dg-cell><a href="javascript:void(0)" (click)="openModal(subscribe)">设置</a></clr-dg-cell>
+  </clr-dg-row>
+  <clr-dg-footer>
+  </clr-dg-footer>
+</clr-datagrid>

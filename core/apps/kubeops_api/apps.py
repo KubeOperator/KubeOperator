@@ -6,3 +6,5 @@ class KubeOperatorApiConfig(AppConfig):
 
     def ready(self):
         from . import signal_handlers
+        from kubeops_api.models.setting import Setting
+        Setting.apply_settings()

@@ -200,6 +200,13 @@
         </select>
       </clr-select-container>
       <clr-select-container>
+        <label>ingress</label>
+        <select clrSelect name="ingress_backend" [(ngModel)]="cluster.configs['ingress_backend']" required>
+          <option value="traefik" selected>traefik</option>
+          <option value="nginx" >nginx</option>
+        </select>
+      </clr-select-container>
+      <clr-select-container>
         <label>网络插件</label>
         <select clrSelect [(ngModel)]="cluster.network_plugin" name="network" (change)="onNetworkChange()" required>
           <option value="">请选择</option>

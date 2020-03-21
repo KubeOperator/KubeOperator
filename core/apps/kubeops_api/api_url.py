@@ -6,6 +6,7 @@ from django.conf.urls import url
 
 from kubeops_api.apis import host
 from kubeops_api.apis import item
+from kubeops_api.apis import grade
 
 app_name = "kubeops_api"
 router = DefaultRouter()
@@ -30,6 +31,7 @@ urlpatterns = [
                   path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
                   path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view()),
                   path('cluster/<uuid:pk>/webkubectl/token/', api.WebKubeCtrlToken.as_view()),
+                  path('cluster/<uuid:pk>/grade/', grade.GradeRetrieveAPIView.as_view()),
                   path('cluster/config', api.GetClusterConfigView.as_view()),
                   path('version/', api.VersionView.as_view()),
                   path('version/', api.VersionView.as_view()),

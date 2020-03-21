@@ -1,0 +1,44 @@
+<clr-modal [(clrModalOpen)]="showConfigModal" [clrModalClosable]="false">
+  <h3 class="modal-title">订阅设置</h3>
+  <div class="modal-body modal-height">
+    <form clrForm #subscribeForm="ngForm">
+      <div class="clr-form-control">
+        <div class="clr-control-container clr-control-inline" *ngIf="subscribeConfig['vars']!=undefined">
+          <div class="clr-checkbox-wrapper">
+            <input type="checkbox" id="vertical-checkbox1" name="checkbox-full"
+                   [checked]="subscribeConfig['vars']['LOCAL'] | subscribeCheck"
+                   (change)="changeValue(subscribeConfig['vars']['LOCAL'],'LOCAL')" class="clr-checkbox">
+            <label for="vertical-checkbox1" class="clr-control-label" style="white-space : nowrap">站内信</label>
+          </div>
+          <div class="clr-checkbox-wrapper">
+            <input type="checkbox" id="vertical-checkbox2" name="checkbox-full"
+                   [checked]="subscribeConfig['vars']['EMAIL'] | subscribeCheck"
+                   (change)="changeValue(subscribeConfig['vars']['EMAIL'],'EMAIL')" class="clr-checkbox">
+            <label for="vertical-checkbox2" class="clr-control-label" style="white-space : nowrap">邮件</label>
+          </div>
+          <div class="clr-checkbox-wrapper">
+            <input type="checkbox" id="vertical-checkbox3" name="checkbox-full"
+                   [checked]="subscribeConfig['vars']['WORKWEIXIN'] | subscribeCheck"
+                   (change)="changeValue(subscribeConfig['vars']['WORKWEIXIN'],'WORKWEIXIN')" class="clr-checkbox">
+            <label for="vertical-checkbox3" class="clr-control-label" style="white-space : nowrap">企业微信</label>
+          </div>
+          <div class="clr-checkbox-wrapper">
+            <input type="checkbox" id="vertical-checkbox4" name="checkbox-full"
+                   [checked]="subscribeConfig['vars']['DINGTALK'] | subscribeCheck"
+                   (change)="changeValue(subscribeConfig['vars']['DINGTALK'],'DINGTALK')" class="clr-checkbox">
+            <label for="vertical-checkbox4" class="clr-control-label" style="white-space : nowrap">钉钉</label>
+          </div>
+          <div class="clr-subtext-wrapper">
+            <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+            <span class="clr-subtext">请先在接收源中填写相关信息</span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
+    <button type="submit" class="btn btn-primary" (click)="onSubmit(subscribeConfig)" [disabled]="subscribeForm.invalid">提交</button>
+  </div>
+</clr-modal>
+
