@@ -10,7 +10,7 @@ export class MessageLevelPipe implements PipeTransform {
     if (value) {
       switch (value) {
         case 'INFO':
-          result = '消息';
+          result = '信息';
           break;
         case 'WARNING':
           result = '告警';
