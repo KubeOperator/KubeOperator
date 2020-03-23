@@ -17,6 +17,9 @@ from kubeops_api.cluster_health_data import ClusterHealthData
 from django.utils import timezone
 from ansible_api.models.inventory import Host as C_Host
 from common.ssh import SSHClient, SshConfig
+from message_center.message_client import MessageClient
+from kubeops_api.utils.date_encoder import DateEncoder
+
 
 logger = logging.getLogger('kubeops')
 
@@ -387,7 +390,32 @@ class ClusterMonitor():
                     '_source': event.__dict__
                 }
                 actions.append(action)
+                if event.type == 'Warning':
+                    message_client = MessageClient()
+                    message = self.get_message(event)
+                    message_client.insert_message(message)
         return events, actions
+
+    def get_message(self, event):
+        message = {
+            "item_id": self.cluster.item_id,
+            "title": "集群事件告警",
+            "content": self.get_content(event),
+            "level": "WARNING",
+            "type": "CLUSTER"
+        }
+        return message
+
+    def get_content(self, event):
+        content = {
+            "item_name": self.cluster.item_name,
+            "resource": "集群",
+            "resource_name": self.cluster.name,
+            "resource_type": 'CLUSTER_EVENT',
+            "detail": json.dumps(event.__dict__,cls=DateEncoder),
+            "status": self.cluster.status,
+        }
+        return content
 
 
 def delete_cluster_redis_data(cluster_name):

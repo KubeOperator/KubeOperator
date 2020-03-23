@@ -329,7 +329,6 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         return content
 
     def get_msg_detail(self, success):
-        cluster = self.get_cluster()
         operation = self.get_operation_name()
         result = ""
         if success:

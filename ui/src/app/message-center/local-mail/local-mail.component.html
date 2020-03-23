@@ -38,7 +38,7 @@
               (click)="listMessage(pagination.pageSize,type,readStatus,'WARNING')">告警
       </button>
       <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='INFO'"
-              (click)="listMessage(pagination.pageSize,type,readStatus,'INFO')">消息
+              (click)="listMessage(pagination.pageSize,type,readStatus,'INFO')">信息
       </button>
     </div>
   </clr-dg-action-bar>
@@ -52,7 +52,7 @@
     white-space: nowrap;" [ngStyle]="{'color':message.read_status==='UNREAD'?'#0079b8':'#969696'}" (click)="showDetail(message)">
       <clr-icon shape="folder" *ngIf="message.read_status==='UNREAD'"></clr-icon>
       <clr-icon shape="folder-open" *ngIf="message.read_status==='READ'"></clr-icon>
-      {{message.message_detail.title}}
+      {{getTitle(message)}}
     </clr-dg-cell>
     <clr-dg-cell>{{message.message_detail.type | messageType}}</clr-dg-cell>
     <clr-dg-cell> <span class="badge" [ngClass]="message.message_detail.level  | badgeClass">{{message.message_detail.level | messageLevel}} </span></clr-dg-cell>
@@ -60,12 +60,12 @@
     <clr-dg-cell>{{message.message_detail.date_created}}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
-    <clr-dg-pagination #pagination [clrDgTotalItems]="messages.length" [clrDgPageSize]="limit"
+    <clr-dg-pagination #pagination [clrDgTotalItems]="total" [clrDgPageSize]="limit"
                        [(clrDgPage)]="page"
                        (clrDgPageChange)="listMessage(pagination.pageSize,type,readStatus,level)">
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-      共{{pagination.totalItems}} 个
+      共{{total}} 个
     </clr-dg-pagination>
   </clr-dg-footer>
 </clr-datagrid>

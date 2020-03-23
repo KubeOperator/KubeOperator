@@ -19,6 +19,7 @@ export class LocalMailComponent implements OnInit {
   type = 'ALL';
   readStatus = 'ALL';
   level = 'ALL';
+  total = 0;
 
   @ViewChild(LocalMailDetailComponent, {static: true})
   detail: LocalMailDetailComponent;
@@ -36,8 +37,10 @@ export class LocalMailComponent implements OnInit {
     this.readStatus = readStatus;
     this.level = level;
     this.loading = true;
-    this.messageCenterService.listUserMessageByPage(this.limit, this.page, this.type, this.readStatus, this.level).subscribe(data => {
-      this.messages = data;
+    this.messageCenterService.listUserMessageByPage(this.limit, this.page, this.type, this.readStatus, this.level).subscribe(res => {
+      this.messages = res.data;
+      this.total = res.total;
+      // this.page = res.page_num;
       this.loading = false;
     });
   }
@@ -69,6 +72,9 @@ export class LocalMailComponent implements OnInit {
     const detailMessage = JSON.parse(JSON.stringify(message));
     this.detail.message = detailMessage;
     this.detail.message.message_detail.content = JSON.parse(detailMessage.message_detail.content);
+    if (this.detail.message.message_detail.content.resource_type === 'CLUSTER_EVENT') {
+      this.detail.message.message_detail.content.detail = JSON.parse(this.detail.message.message_detail.content.detail);
+    }
     this.detail.open = true;
   }
 
@@ -76,5 +82,15 @@ export class LocalMailComponent implements OnInit {
     message.read_status = 'READ';
     this.messageCenterService.updateUserMessage(message).subscribe(data => {
     });
+  }
+
+  getTitle(message) {
+    const detailMessage = JSON.parse(JSON.stringify(message));
+    const content = JSON.parse(detailMessage.message_detail.content);
+    let title = message.message_detail.title;
+    if (content.resource_type === 'CLUSTER' || content.resource_type === 'CLUSTER_EVENT') {
+      title = title + '[集群:' + content.resource_name + ']';
+    }
+    return title;
   }
 }
