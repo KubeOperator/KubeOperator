@@ -97,6 +97,9 @@ class UserMessage(models.Model):
 
         return detail
 
+    class Meta:
+        ordering = ('-date_created',)
+
 class UserNotificationConfig(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
     vars = common_models.JsonDictTextField(default={})
