@@ -57,7 +57,7 @@
     <clr-dg-cell>{{message.message_detail.type | messageType}}</clr-dg-cell>
     <clr-dg-cell> <span class="badge" [ngClass]="message.message_detail.level  | badgeClass">{{message.message_detail.level | messageLevel}} </span></clr-dg-cell>
     <clr-dg-cell>{{message.read_status | readStatus}}</clr-dg-cell>
-    <clr-dg-cell>{{message.message_detail.date_created}}</clr-dg-cell>
+    <clr-dg-cell>{{message.message_detail.date_created  | date: 'yyyy-MM-dd HH:mm:ss' }}</clr-dg-cell>
   </clr-dg-row>
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgTotalItems]="total" [clrDgPageSize]="limit"

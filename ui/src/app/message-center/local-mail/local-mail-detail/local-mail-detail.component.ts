@@ -1,4 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-local-mail-detail',
@@ -10,7 +11,7 @@ export class LocalMailDetailComponent implements OnInit {
   open = false;
   message: any;
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   ngOnInit() {
@@ -18,5 +19,17 @@ export class LocalMailDetailComponent implements OnInit {
 
   cancel() {
     this.open = false;
+  }
+
+  toPage(url) {
+    this.redirect(url);
+  }
+
+
+  redirect(url: string) {
+    if (url) {
+      const linkUrl = [url];
+      this.router.navigate(linkUrl);
+    }
   }
 }
