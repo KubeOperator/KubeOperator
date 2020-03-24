@@ -64,15 +64,10 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 集群健康评分;
 - [ ] 将部分内置应用移到应用商店；
 - [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
-
- ##  v2.* Backlog（计划中）
- 
-- [ ] 支持 containerd，用户可选 docker 或者 containerd
-- [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
 - [ ] Excel批量导入主机；
 - [ ] 手动模式集群批量扩容；
 
- ##  v3.0 Backlog（计划中）
+ ##  Backlog（计划中）
  
 - [ ] 已有集群导入；
 - [ ] 国际化支持；
@@ -86,3 +81,5 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
 - [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 支持 VMware NSX-T；
+- [ ] 支持 containerd，用户可选 docker 或者 containerd
+- [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
