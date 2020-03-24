@@ -61,7 +61,7 @@
           <option value="">请选择</option>
           <option *ngFor="let plan of plans" [value]="plan.name">{{plan.name}}</option>
         </select>
-        <clr-control-helper *ngIf="plans.length===0">部署计划需要授权到项目</clr-control-helper>
+        <clr-control-helper >部署计划需要先授权到项目</clr-control-helper>
       </clr-select-container>
       <clr-input-container>
         <label>worker数量</label>
@@ -152,7 +152,7 @@
                (change)="workerSizeOnChange()" required>
         <clr-control-helper>
           当前可用最大主机数量:{{hosts.length}}<br>
-          <span *ngIf="hosts.length===0">需要先授权主机到项目</span>
+          <span>需要先授权主机到项目</span>
         </clr-control-helper>
       </clr-input-container>
     </form>
@@ -298,7 +298,7 @@
             <option *ngFor="let nfs of storageList" [value]="nfs.name">{{nfs.name}}</option>
           </select>
         </clr-select-container>
-        <clr-control-helper *ngIf="storageList.length===0">需要先授权主机到项目</clr-control-helper>
+        <clr-control-helper >需要先授权存储到项目</clr-control-helper>
       </div>
       <div *ngIf="cluster.persistent_storage==='external-ceph'">
         <clr-select-container>
