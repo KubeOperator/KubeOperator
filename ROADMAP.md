@@ -62,12 +62,12 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 消息中心；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
 - [ ] 集群健康评分;
+- [ ] 将部分内置应用移到应用商店；
+- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
 
  ##  v2.* Backlog（计划中）
  
-- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
 - [ ] 支持 containerd，用户可选 docker 或者 containerd
-- [ ] 将部分内置应用移到应用商店；
 - [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
 - [ ] Excel批量导入主机；
 - [ ] 手动模式集群批量扩容；
