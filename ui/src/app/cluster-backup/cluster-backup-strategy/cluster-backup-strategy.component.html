@@ -1,34 +1,41 @@
-<div >
+<div>
   <app-confirm-alert (confirm)="handleBackup()"></app-confirm-alert>
   <h3>备份策略</h3>
   <form clrForm #backupStrategyForm="ngForm">
     <clr-input-container>
       <label>备份间隔(天)</label>
-      <input class="input-width" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1" max="300" />
+      <input class="input-width" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1"
+             max="300"/>
       <clr-control-helper>1~300</clr-control-helper>
     </clr-input-container>
     <clr-input-container>
       <label>保留份数</label>
-      <input class="input-width" clrInput  type="number"  [(ngModel)]="backupStrategy.save_num" name="saveNum" required min="1" max="100"/>
+      <input class="input-width" clrInput type="number" [(ngModel)]="backupStrategy.save_num" name="saveNum" required
+             min="1" max="100"/>
       <clr-control-helper>1~100</clr-control-helper>
     </clr-input-container>
     <clr-select-container>
-        <label>备份账号</label>
-          <select  class="input-width" clrSelect  name="project" [(ngModel)]="backupStrategy.backup_storage_id"  required>
-              <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
-          </select>
+      <label>备份账号</label>
+      <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backup_storage_id" required>
+        <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
+      </select>
+      <clr-control-helper>备份账号需要先授权到项目</clr-control-helper>
     </clr-select-container>
     <clr-select-container>
-         <label>状态</label>
-         <select  class="input-width" clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
-              <option value="ENABLE">启用</option>
-              <option value="DISABLE">禁用</option>
-         </select>
+      <label>状态</label>
+      <select class="input-width" clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
+        <option value="ENABLE">启用</option>
+        <option value="DISABLE">禁用</option>
+      </select>
     </clr-select-container>
   </form>
   <div class="modal-footer clr-row clr-col-4">
-     <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == null || permission==='VIEWER' || backupStrategy.status=='DISABLE'">立即备份</button>
-      <button class="btn btn-info-outline clr-col-1" (click)="onCommit()" [disabled]="backupStrategyForm.invalid || permission==='VIEWER'">保存</button>
+    <button class="btn btn-info-outline" (click)="onBackup()"
+            [disabled]="backupStrategy.id == null || permission==='VIEWER' || backupStrategy.status=='DISABLE'">立即备份
+    </button>
+    <button class="btn btn-info-outline clr-col-1" (click)="onCommit()"
+            [disabled]="backupStrategyForm.invalid || permission==='VIEWER'">保存
+    </button>
   </div>
 
 </div>
