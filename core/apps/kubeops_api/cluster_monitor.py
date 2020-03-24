@@ -20,7 +20,6 @@ from common.ssh import SSHClient, SshConfig
 from message_center.message_client import MessageClient
 from kubeops_api.utils.date_encoder import DateEncoder
 
-
 logger = logging.getLogger('kubeops')
 
 
@@ -174,6 +173,10 @@ class ClusterMonitor():
             mem_usage = mem_usage + float(n['mem_usage'])
             if n['cpu_usage'] == 0 and n['mem_usage'] == 0:
                 count = count - 1
+            elif n['cpu_usage'] > 80 or  n['mem_usage'] > 80:
+                message_client = MessageClient()
+                message = self.get_event_message(n)
+                message_client.insert_message(message)
         if count > 0:
             cpu_usage = cpu_usage / count
             mem_usage = mem_usage / count
@@ -392,27 +395,48 @@ class ClusterMonitor():
                 actions.append(action)
                 if event.type == 'Warning':
                     message_client = MessageClient()
-                    message = self.get_message(event)
+                    message = self.get_event_message(event)
                     message_client.insert_message(message)
         return events, actions
 
-    def get_message(self, event):
+    def get_event_message(self, event):
         message = {
             "item_id": self.cluster.item_id,
             "title": "集群事件告警",
-            "content": self.get_content(event),
+            "content": self.get_event_content(event),
             "level": "WARNING",
             "type": "CLUSTER"
         }
         return message
 
-    def get_content(self, event):
+    def get_event_content(self, event):
         content = {
             "item_name": self.cluster.item_name,
             "resource": "集群",
             "resource_name": self.cluster.name,
             "resource_type": 'CLUSTER_EVENT',
-            "detail": json.dumps(event.__dict__,cls=DateEncoder),
+            "detail": json.dumps(event.__dict__, cls=DateEncoder),
+            "status": self.cluster.status,
+        }
+        return content
+
+    def get_usage_message(self, node):
+        message = {
+            "item_id": self.cluster.item_id,
+            "title": "集群资源告警",
+            "content": self.get_event_content(node),
+            "level": "WARNING",
+            "type": "CLUSTER"
+        }
+        return message
+
+    def get_usage_content(self, node):
+        content = {
+            "item_name": self.cluster.item_name,
+            "resource": "集群",
+            "resource_name": self.cluster.name,
+            "resource_type": 'CLUSTER_USAGE',
+            "detail": json.dumps(node.__dict__, cls=DateEncoder),
             "status": self.cluster.status,
         }
         return content

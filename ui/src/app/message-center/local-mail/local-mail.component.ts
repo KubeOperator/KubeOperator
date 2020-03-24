@@ -72,7 +72,8 @@ export class LocalMailComponent implements OnInit {
     const detailMessage = JSON.parse(JSON.stringify(message));
     this.detail.message = detailMessage;
     this.detail.message.message_detail.content = JSON.parse(detailMessage.message_detail.content);
-    if (this.detail.message.message_detail.content.resource_type === 'CLUSTER_EVENT') {
+    if (this.detail.message.message_detail.content.resource_type === 'CLUSTER_EVENT'
+      || this.detail.message.message_detail.content.resource_type === 'CLUSTER_USAGE') {
       this.detail.message.message_detail.content.detail = JSON.parse(this.detail.message.message_detail.content.detail);
     }
     this.detail.open = true;
@@ -88,7 +89,7 @@ export class LocalMailComponent implements OnInit {
     const detailMessage = JSON.parse(JSON.stringify(message));
     const content = JSON.parse(detailMessage.message_detail.content);
     let title = message.message_detail.title;
-    if (content.resource_type === 'CLUSTER' || content.resource_type === 'CLUSTER_EVENT') {
+    if (content.resource_type === 'CLUSTER' || content.resource_type === 'CLUSTER_EVENT' || content.resource_type === 'CLUSTER_USAGE') {
       title = title + '[集群:' + content.resource_name + ']';
     }
     return title;
