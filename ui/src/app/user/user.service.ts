@@ -25,12 +25,20 @@ export class UserService {
     return this.http.patch<User>(userUrl + user.id + '/', {is_active: user.is_active});
   }
 
+  supperUser(user: User): Observable<User> {
+    return this.http.patch<User>(userUrl + user.id + '/', {is_superuser: user.is_superuser});
+  }
+
   deleteUser(userId): Observable<any> {
     return this.http.delete(userUrl + userId + '/');
   }
 
   updateUser(user: User): Observable<User> {
     return this.http.patch<User>(userUrl + user.id + '/', user);
+  }
+
+  syncUserFromLDAP(): Observable<any> {
+    return this.http.post<any>(userUrl + 'sync/', {});
   }
 
   getUser(id: number): Observable<User> {

@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {User} from '../user';
 import {UserService} from '../user.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
-import {SessionService} from "../../shared/session.service";
-import {SessionUser} from "../../shared/session-user";
+import {SessionService} from '../../shared/session.service';
+import {SessionUser} from '../../shared/session-user';
+import {SettingService} from '../../setting/setting.service';
 
 @Component({
   selector: 'app-user-list',
@@ -20,7 +21,7 @@ export class UserListComponent implements OnInit {
   @Output() addUser = new EventEmitter();
   currentUser: SessionUser = new SessionUser();
 
-  constructor(private userService: UserService, private alertService: CommonAlertService, private  sessionService: SessionService) {
+  constructor(private userService: UserService, private alertService: CommonAlertService, private  sessionService: SessionService, private settingService: SettingService) {
   }
 
   ngOnInit() {
@@ -31,6 +32,12 @@ export class UserListComponent implements OnInit {
 
   toggleActiveUser(user: User) {
     this.userService.activeUser(user).subscribe(data => {
+      user = data;
+    });
+  }
+
+  toggleSupperUser(user: User) {
+    this.userService.supperUser(user).subscribe(data => {
       user = data;
     });
   }
@@ -47,6 +54,19 @@ export class UserListComponent implements OnInit {
 
   onDelete() {
     this.deleteModal = true;
+  }
+
+  onSyncLDAP() {
+    this.settingService.getSettingsByTab('ldap').subscribe(data => {
+      if (!data['AUTH_LDAP_ENABLE']) {
+        this.alertService.showAlert('ldap 设置无效！', AlertLevels.ERROR);
+        return;
+      } else {
+        this.userService.syncUserFromLDAP().subscribe(() => {
+          this.alertService.showAlert('开始同步从LDAP同步用户', AlertLevels.SUCCESS);
+        });
+      }
+    });
   }
 
   confirmDelete() {
