@@ -38,7 +38,7 @@ Jinja2==2.10.1
 jsonpointer==2.0
 kombu==4.2.1
 markdown2==2.3.6
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 openapi-codec==1.3.2
 paramiko==2.4.2
 parso==0.3.1
