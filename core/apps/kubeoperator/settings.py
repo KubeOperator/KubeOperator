@@ -244,33 +244,33 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'default'
         },
-        'elasticsearch': {
-            'level': 'INFO',
-            'class': 'cmreslogging.handlers.CMRESHandler',
-            'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
-            'es_index_name': 'kubeoperator',
-            'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
-            'auth_type': CMRESHandler.AuthType.NO_AUTH,
-            'use_ssl': False,
-        },
+        # 'elasticsearch': {
+        #     'level': 'INFO',
+        #     'class': 'cmreslogging.handlers.CMRESHandler',
+        #     'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
+        #     'es_index_name': 'kubeoperator',
+        #     'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
+        #     'auth_type': CMRESHandler.AuthType.NO_AUTH,
+        #     'use_ssl': False,
+        # },
     },
     'loggers': {
         "": {
             'handlers': ['console'],
             'level': 'INFO',
         },
-        'user': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
-        'kubeops': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
-        'cloud_provider': {
-            'handlers': ['console', 'elasticsearch'],
-            'level': 'INFO',
-        },
+        # 'user': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
+        # 'kubeops': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
+        # 'cloud_provider': {
+        #     'handlers': ['console', 'elasticsearch'],
+        #     'level': 'INFO',
+        # },
     },
 }
 AUTHENTICATION_BACKENDS = [
