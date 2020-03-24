@@ -54,7 +54,7 @@ def get_loki_data_hour():
         logger.error("get_loki_data_hour error")
 
 
-@periodic_task(run_every=crontab(minute='*/3'), name='task.save_cluster_event', time_limit=300)
+@periodic_task(run_every=crontab(minute='*/5'), name='task.save_cluster_event', time_limit=300)
 def save_cluster_event():
     try:
         kubeops_api.cluster_monitor.put_event_data_to_es()
