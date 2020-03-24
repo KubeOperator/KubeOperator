@@ -354,7 +354,7 @@ class Cluster(Project):
 
     def get_cluster_token(self):
         if self.status == Cluster.CLUSTER_STATUS_RUNNING:
-            cache_key = "token-{}".format_map(self.id)
+            cache_key = "token-{}".format(self.id)
             token = cache.get(cache_key)
             if not token:
                 self.change_to()
