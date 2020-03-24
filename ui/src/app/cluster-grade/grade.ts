@@ -45,4 +45,5 @@ export class ClusterResult {
   namespace_results: NamespaceResult[] = [];
   summary: ResultSummary;
   grade: string;
+  score: number;
 }

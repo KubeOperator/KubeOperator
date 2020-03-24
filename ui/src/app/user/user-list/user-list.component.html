@@ -23,7 +23,7 @@
         删除
       </clr-button>
     </clr-button-group>
-
+    <button class="btn btn-sm btn-secondary" (click)="onSyncLDAP()">同步LDAP</button>
   </clr-dg-action-bar>
   <clr-dg-column>用户名</clr-dg-column>
   <clr-dg-column>邮箱</clr-dg-column>
@@ -34,7 +34,9 @@
   <clr-dg-row *ngFor="let user of users | filterCurrentUser:currentUser" [clrDgItem]="user">
     <clr-dg-cell>{{user.username}}</clr-dg-cell>
     <clr-dg-cell>{{user.email}}</clr-dg-cell>
-    <clr-dg-cell><span *ngIf="user.is_superuser">是</span><span *ngIf="!user.is_superuser">否</span></clr-dg-cell>
+    <clr-dg-cell>
+      <input clrToggle type="checkbox" name="supper" [(ngModel)]="user.is_superuser" (change)="toggleSupperUser(user)"/>
+    </clr-dg-cell>
     <clr-dg-cell>
       <input clrToggle type="checkbox" name="active" [(ngModel)]="user.is_active" (change)="toggleActiveUser(user)"/>
     </clr-dg-cell>

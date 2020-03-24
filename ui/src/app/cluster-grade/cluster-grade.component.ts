@@ -12,7 +12,7 @@ const pieChartOptions = {
     left: 10,
     data: ['严重', '警告', '通过']
   },
-  color: ['hsl(9, 100%, 43%)', 'hsl(43, 100%, 42%)', 'hsl(93, 100%, 26%)'],
+  color: ['#F57660', '#F8B96A', '#90D072'],
   series: [
     {
       name: '访问来源',
@@ -56,7 +56,7 @@ const barChartOptions = {
   legend: {
     data: ['严重', '警告', '通过']
   },
-  color: ['hsl(9, 100%, 43%)', 'hsl(43, 100%, 42%)', 'hsl(93, 100%, 26%)'],
+  color: ['#F57660', '#F8B96A', '#90D072'],
   grid: {
     left: '3%',
     right: '4%',
@@ -129,6 +129,9 @@ export class ClusterGradeComponent implements OnInit {
         {value: this.data.summary.totals.successes, name: '通过'},
       ];
       this.barChartOptions.yAxis.data = [];
+      this.barChartOptions.series.forEach(s => {
+        s.data = [];
+      });
       for (const category in this.data.summary.by_category) {
         if (category) {
           this.barChartOptions.yAxis.data.push(category);
