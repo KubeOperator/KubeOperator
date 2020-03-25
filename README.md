@@ -237,7 +237,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 ## 沟通交流
  
-- 微信群： 搜索微信号 wh_it0224，添加好友，备注（城市-github用户名）, 验证通过会加入群聊
+- 微信群： 搜索微信号 wzk727912172，添加好友，备注（城市-github用户名）, 验证通过会加入群聊
 - 技术咨询：https://jinshuju.net/f/QrZJpt
 
 ## 致谢
