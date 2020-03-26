@@ -11,6 +11,7 @@ from .models import Message, UserNotificationConfig, UserReceiver, UserMessage
 from kubeops_api.models.setting import Setting
 from ko_notification_utils.email_smtp import Email
 from .message_thread import EmailThread
+from django.template import Template, Context, loader
 
 
 class MessageClient():
@@ -33,25 +34,31 @@ class MessageClient():
 
     def split_receiver_by_send_type(self, receivers, type):
         messageReceivers = []
-        setting_email_enable = Setting.objects.get(key='SMTP_STATUS').value = 'ENABLE'
+        setting_email_enable = False
+        if Setting.objects.get(key='SMTP_STATUS') and Setting.objects.get(key='SMTP_STATUS').value == 'ENABLE':
+            setting_email_enable = True
         email_receivers = ''
         for receiver in receivers:
             config = UserNotificationConfig.objects.get(type=type, user_id=receiver.id)
             user_receiver = UserReceiver.objects.get(user_id=receiver.id)
             if config.vars['LOCAL'] == 'ENABLE':
-                messageReceivers.append(MessageReceiver(user_id=receiver.id, receive=receiver.username, send_type='LOCAL'))
+                messageReceivers.append(
+                    MessageReceiver(user_id=receiver.id, receive=receiver.username, send_type='LOCAL'))
 
             if config.vars['DINGTALK'] == 'ENABLE' and user_receiver.vars['DINGTALK'] != '':
                 messageReceivers.append(
                     MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['DINGTALK'], send_type='DINGTALK'))
             if config.vars['WORKWEIXIN'] == 'ENABLE' and user_receiver.vars['WORKWEIXIN'] != '':
                 messageReceivers.append(
-                    MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['WORKWEIXIN'], send_type='WORKWEIXIN'))
+                    MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['WORKWEIXIN'],
+                                    send_type='WORKWEIXIN'))
             if setting_email_enable and config.vars['EMAIL'] == 'ENABLE' and user_receiver.vars['EMAIL'] != '':
-                email_receivers = email_receivers + ',' + receiver.email
+                if email_receivers != '':
+                    email_receivers = email_receivers + ',' + receiver.email
+                else:
+                    email_receivers = receiver.email
 
         if len(email_receivers) > 0:
-            email_receivers[0] = ''
             messageReceivers.append(
                 MessageReceiver(user_id=1, receive=email_receivers, send_type='EMAIL'))
 
@@ -73,19 +80,20 @@ class MessageClient():
                                        receive_status=UserMessage.MESSAGE_RECEIVE_STATUS_WAITING, message_id=message.id)
             user_messages.append(user_message)
         UserMessage.objects.bulk_create(user_messages)
-        thread = EmailThread(func=MessageClient.send_email,message_id=message.id)
+        thread = EmailThread(func=send_email, message_id=message.id)
         thread.start()
 
 
-    def send_email(self, message_id):
-        user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL)
-        setting_email = Setting.get_settings("email")
-        email = Email(address=setting_email['SMTP_ADDRESS'], port=setting_email['SMTP_PORT'],
-                      username=setting_email['SMTP_USERNAME'], password=setting_email['SMTP_PASSWORD'])
-        res = email.send_message(receiver=user_message.receive,title=user_message.message.title,content=user_message.message.content)
-        if res.success:
-            user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
-            user_message.save()
+def send_email(message_id):
+    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL)
+    setting_email = Setting.get_settings("email")
+    email = Email(address=setting_email['SMTP_ADDRESS'], port=setting_email['SMTP_PORT'],
+                  username=setting_email['SMTP_USERNAME'], password=setting_email['SMTP_PASSWORD'])
+    res = email.send_html_mail(receiver=user_message.receive, title=user_message.message.title,
+                                content=get_email_content(user_message))
+    if res.success:
+        user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
+        user_message.save()
 
 
 class MessageReceiver():
@@ -94,3 +102,25 @@ class MessageReceiver():
         self.user_id = user_id
         self.receive = receive
         self.send_type = send_type
+
+
+def get_email_content(userMessage):
+    content = json.loads(userMessage.message.content)
+    try:
+        template  = loader.get_template(get_email_template(content['resource_type']))
+        content['detail'] = json.loads(content['detail'])
+        content['title'] = userMessage.message.title
+        content['date'] = userMessage.message.date_created.strftime("%Y-%m-%d %H:%M:%S")
+        email_content = template.render(content)
+        return email_content
+    except Exception as e:
+        return ''
+
+
+def get_email_template(type):
+
+    templates = {
+        "CLUSTER":"cluster.html",
+        "CLUSTER_EVENT":"cluster-event.html",
+    }
+    return templates[type]

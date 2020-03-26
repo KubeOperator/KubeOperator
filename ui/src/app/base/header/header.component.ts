@@ -6,6 +6,7 @@ import {Profile, SessionUser} from '../../shared/session-user';
 import {PasswordComponent} from './components/password/password.component';
 import {BaseService} from '../base.service';
 import {Version} from './version';
+import {MessageCenterService} from '../../message-center/message-center.service';
 
 @Component({
   selector: 'app-header',
@@ -19,14 +20,30 @@ export class HeaderComponent implements OnInit {
   version: Version = new Version();
   @ViewChild(PasswordComponent, {static: true})
   password: PasswordComponent;
+  info;
+  warning;
+  timer;
 
 
-  constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService) {
+  constructor(private sessionService: SessionService, private router: Router, private baseService: BaseService,
+              private messageCenterService: MessageCenterService) {
   }
 
   ngOnInit() {
     this.getProfile();
     this.getVersionInfo();
+    this.getUnReadMessage();
+
+    this.timer = setInterval(() => {
+      this.getUnReadMessage();
+    }, 60000);
+  }
+
+  // tslint:disable-next-line:use-lifecycle-interface
+  ngOnDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   getProfile() {
@@ -57,5 +74,16 @@ export class HeaderComponent implements OnInit {
 
   refreshCache() {
     this.profile = this.sessionService.getCacheProfile();
+  }
+
+  getUnReadMessage() {
+    this.messageCenterService.unReadMessage().subscribe(res => {
+      this.info = res.info;
+      this.warning = res.warning;
+    });
+  }
+
+  toMessage() {
+    this.router.navigateByUrl('/messageCenter/localMail');
   }
 }

@@ -52,7 +52,7 @@ def test_host(ip, port, username, **kwargs):
 
 def get_cluster_token(host):
     hosts = [host.__dict__]
-    shell = "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kubernetes-dashboard | awk '{print $1}') | grep token: | awk '{print $2}'"
+    shell = "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep tiller | awk '{print $1}') | grep token: | awk '{print $2}'"
     result = run_im_adhoc(adhoc_data={'pattern': host.name, 'module': 'shell', 'args': shell},
                           inventory_data={'hosts': hosts, 'vars': {}})
     return result.get('raw').get('ok')[host.name]['command']['stdout']

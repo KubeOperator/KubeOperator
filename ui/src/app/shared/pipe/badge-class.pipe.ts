@@ -12,6 +12,12 @@ export class BadgeClassPipe implements PipeTransform {
         case 'Warning':
           result = 'badge-danger';
           break;
+        case 'WARNING':
+          result = 'badge-danger';
+          break;
+        case 'INFO':
+          result = '';
+          break;
         case 'Normal':
           result = '';
           break;

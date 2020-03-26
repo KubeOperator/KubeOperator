@@ -12,10 +12,15 @@ import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.co
 import {KeysPipe} from './pipe/keys.pipe';
 import { ProgressColorPipe } from './pipe/progress-color.pipe';
 import { BadgeClassPipe } from './pipe/badge-class.pipe';
+import { DonePipe } from './pipe/done.pipe';
+import { MessageTypePipe } from './pipe/message-type.pipe';
+import { SubscribeCheckPipe } from './pipe/subscribe-check.pipe';
+import { ReadStatusPipe } from './pipe/read-status.pipe';
+import { MessageLevelPipe } from './pipe/message-level.pipe';
 
 @NgModule({
   declarations: [NotFoundComponent, KeysPipe, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe,
-    StatusColorPipe, ModalAlertComponent, ProgressColorPipe, BadgeClassPipe],
+    StatusColorPipe, ModalAlertComponent, ProgressColorPipe, BadgeClassPipe, DonePipe, MessageTypePipe, SubscribeCheckPipe, ReadStatusPipe, MessageLevelPipe],
   imports: [
     CommonModule,
     CoreModule
@@ -29,7 +34,12 @@ import { BadgeClassPipe } from './pipe/badge-class.pipe';
     StatusColorPipe,
     KeysPipe,
     ProgressColorPipe,
-    BadgeClassPipe
+    BadgeClassPipe,
+    DonePipe,
+    MessageTypePipe,
+    SubscribeCheckPipe,
+    ReadStatusPipe,
+    MessageLevelPipe
   ], providers: [
     AuthUserActiveService,
   ]

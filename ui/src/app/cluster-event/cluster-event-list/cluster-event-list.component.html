@@ -1,6 +1,7 @@
 <app-cluster-event-detail></app-cluster-event-detail>
 <clr-datagrid [clrDgLoading]="loading">
   <clr-dg-action-bar>
+    <p class="p7 prompt">事件读取间隔为5分钟 防止收到过多的事件信息</p>
     <div style="float: right;margin-top: -2%">
       <div class="clr-input-wrapper">
         <input clrInput placeholder="关键字" name="name" [(ngModel)]="search.keywords"/>
@@ -36,7 +37,7 @@
                  (click)="showDetail(item)">
       {{item.message}}</clr-dg-cell>
     <clr-dg-cell>
-            <span class="badge" [ngClass]="item.type | badgeClass">{{item.type}}</span>
+      <span class="badge" [ngClass]="item.type | badgeClass">{{item.type}}</span>
     </clr-dg-cell>
     <clr-dg-cell>{{item.component}}</clr-dg-cell>
     <clr-dg-cell>{{item.namespace}}</clr-dg-cell>

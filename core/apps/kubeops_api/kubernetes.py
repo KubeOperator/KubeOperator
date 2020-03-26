@@ -28,7 +28,7 @@ class KubernetesApi:
         return token
 
     def gather_auth_token(self):
-        cmd = "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep kubernetes-dashboard | awk '{print $1}') | grep token: | awk '{print $2}'"
+        cmd = "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep tiller | awk '{print $1}') | grep token: | awk '{print $2}'"
         master = self.cluster.group_set.get(name='master').hosts.first()
         ssh_config = parse_host_to_ssh_config(master)
         ssh_client = SSHClient(ssh_config)

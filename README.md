@@ -8,7 +8,16 @@
 
 KubeOperator 是一个开源项目，在离线网络环境下，通过可视化 Web UI 在 VMware、Openstack 或者物理机上规划、部署和运营生产级别的 Kubernetes 集群。KubeOperator 是 [JumpServer](https://github.com/jumpserver/jumpserver) 明星开源团队在 Kubernetes 领域的的又一全新力作。
 
-KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
+KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理，实现 Kubernetes As a Service。
+
+KubeOperator 内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，以支撑各种基于 K8s 的应用场景，如：
+
+- CI / CD 应用场景：GitLab、Jenkins、Harbor、Sonarqube、Argo CD 等；
+- GPU / AI 应用场景：Tensorflow、PyTorch 等;
+- Serverless 应用场景：Knative 等；
+- 数据库应用场景：MySQL、Redis 等;
+
+KubeOperator 的整体架构如下图所示：
 
 ![Architecture](ko.png)
 
@@ -37,7 +46,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="14">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="15">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -87,7 +96,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持 Traefik
+        <td class="features-third-td-background-style">支持 Traefik / ingress-nginx
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
@@ -105,7 +114,13 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
         <td class="features-third-td-background-style">支持 CentOS 7.4 / 7.5 / 7.6 / 7.7
         </td>
-    </tr>    
+    </tr>  
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">容器运行时
+        </td>
+        <td class="features-third-td-background-style">支持 Docker / containerd
+        </td>
+    </tr>     
     <tr class="subscription-level-tr-border">
         <td class="features-first-td-background-style" rowspan="3">Day 1 部署
         </td>
@@ -123,23 +138,31 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="15">Day 2 运营
+        <td class="features-first-td-background-style" rowspan="18">Day 2 运营
         </td>
-        <td class="features-third-td-background-style" rowspan="6">管理
+        <td class="features-third-td-background-style" rowspan="8">管理
         </td>  
-        <td class="features-third-td-background-style">支持用户权限管理，支持对接 LDAP/AD
+        <td class="features-third-td-background-style">支持以项目为核心的分级授权管理
         </td>         
     </tr>
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">支持系统管理员、项目管理员和只读用户等三种角色
+        </td>
+    </tr> 
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">支持对接 LDAP/AD
+        </td>
+    </tr>    
     <tr class="subscription-level-tr-border">
          <td class="features-third-td-background-style">对外开放 REST API
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">内置 K8s Dashboard 管理应用
+         <td class="features-third-td-background-style">可通过应用商店安装 K8s Dashboard 管理应用
         </td>
     </tr>     
      <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">内置 Weave Scope 管理应用
+         <td class="features-third-td-background-style">可通过应用商店安装 Weave Scope 管理应用
         </td>
     </tr>  
     <tr class="subscription-level-tr-border">
@@ -189,7 +212,7 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">合规
         </td>
-         <td class="features-third-td-background-style">支持集群合规检查并可视化展示结果
+         <td class="features-third-td-background-style">支持集群合规检查和健康评分
         </td>
     </tr>      
      <tr class="subscription-level-tr-border">
@@ -214,9 +237,8 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 
 ## 沟通交流
  
-- 技术交流 QQ 群：825046920；
-- 技术支持邮箱：support@fit2cloud.com；
-- 微信群： 搜索微信号 wh_it0224，添加好友，备注（城市-github用户名）, 验证通过会加入群聊；
+- 微信群： 搜索微信号 wzk727912172，添加好友，备注（城市-github用户名）, 验证通过会加入群聊
+- 技术咨询：https://jinshuju.net/f/QrZJpt
 
 ## 致谢
 

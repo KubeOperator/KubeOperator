@@ -50,30 +50,36 @@ Release Note: https://blog.fit2cloud.com/?p=980
 
 Release Note: https://blog.fit2cloud.com/?p=1032
 
- ##  v2.4 （开发中，20120.03.16 发布）
+ ##  v2.4 （已发布）
  
-- [ ] 用户体系和权限；
+- [x] 用户体系和权限；
 
- ##  v2.5 （计划中，20120.04.20 发布）
+Release Note:https://blog.fit2cloud.com/?p=1087
+
+ ##  v2.5 （开发中，20120.04.20 发布）
  
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
 - [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
-- [ ] 集群内应用合规扫描;
-
- ##  v3.0 Backlog（计划中）
- 
-- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
-- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 离线环境下使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
-- [ ] 国际化支持；
-- [ ] 支持 VMware NSX-T；
+- [ ] 集群健康评分;
 - [ ] 将部分内置应用移到应用商店；
+- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
+- [ ] Excel批量导入主机；
+- [ ] 手动模式集群批量扩容；
+
+ ##  Backlog（计划中）
+ 
+- [ ] 已有集群导入；
+- [ ] 国际化支持；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] 全容器化部署 （CoreOS）;
+- [ ] 全容器化部署;
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
-- [ ] 已有集群导入；
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
-- [ ] 应用商店增加 [JumpServer 开源堡垒机](https://github.com/jumpserver/jumpserver)；
+- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
+- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
+- [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
+- [ ] 支持 VMware NSX-T；
+- [ ] 支持 containerd，用户可选 docker 或者 containerd
+- [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；

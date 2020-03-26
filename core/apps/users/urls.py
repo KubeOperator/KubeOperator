@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'password/', api.UserPasswordChangeApi.as_view(), name='change-password'),
     url(r'token/auth/', obtain_jwt_token),
     url(r'token/refresh/', refresh_jwt_token),
+    url(r'users/sync/', api.SyncUserFromLDAPApi.as_view(), name='sync-user')
 ]
 
 urlpatterns += router.urls

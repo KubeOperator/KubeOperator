@@ -91,3 +91,9 @@ elasticsearch-dsl==7.1.0
 CMRESHandler==1.0.0
 django-proxy==1.2.1
 flower==0.9.3
+django-auth-ldap==1.7.0
+python-ldap==3.2.0
+ko-notification-utils==0.0.7
+KubeGrade==0.0.2
+openpyxl==3.0.3
+ldap3==2.4
