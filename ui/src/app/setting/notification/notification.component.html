@@ -1,0 +1,103 @@
+<br>
+<clr-tabs clrLayout="vertical" [clrLoading]="loading">
+  <clr-tab>
+    <button clrTabLink id="smtp">邮件</button>
+    <clr-tab-content id="email" *clrIfActive>
+      <form clrForm #emailForm="ngForm">
+        <clr-input-container>
+          <label>SMTP 地址</label>
+          <input clrInput name="smtp_address" [(ngModel)]="email['SMTP_ADDRESS']" size=45
+                 placeholder="smtp.sina.com" required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>端口</label>
+          <input clrInput name="smtp_port" [(ngModel)]="email['SMTP_PORT']" size=45
+                 placeholder="25" required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>用户名</label>
+          <input clrInput name="smtp_username" [(ngModel)]="email['SMTP_USERNAME']" size=45 required/>
+        </clr-input-container>
+        <clr-password-container>
+          <label>密码</label>
+          <input clrPassword name="smtp_password" [(ngModel)]="email['SMTP_PASSWORD']" size=45 required/>
+        </clr-password-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="email['SMTP_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <button class="btn btn-success-outline" [disabled]="emailForm.invalid" (click)="checkEmail()">校验</button>
+      <button class="btn btn-info-outline" (click)="onSubmit(email,'email')"
+              [disabled]="emailForm.invalid || !emailValid">
+        保存
+      </button>
+      <button class="btn btn-info-outline" (click)="onCancel('email')">取消</button>
+    </clr-tab-content>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink>微信</button>
+    <clr-tab-content *clrIfActive>
+      <form clrForm #wechatForm="ngForm">
+        <clr-input-container>
+          <label>corpid</label>
+          <input clrInput name="weixin_corp_id" [(ngModel)]="workWeixin['WEIXIN_CORP_ID']" size=45 required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>agentid</label>
+          <input clrInput name="weixin_agentid" [(ngModel)]="workWeixin['WEIXIN_AGENT_ID']" size=45 required/>
+        </clr-input-container>
+        <clr-password-container>
+          <label>secret</label>
+          <input clrPassword name="weixin_secret" [(ngModel)]="workWeixin['WEIXIN_CORP_SECRET']" size=45 required/>
+        </clr-password-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="workWeixin['WEIXIN_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90135/90665" target="_blank">企业微信基本概念</a>
+      </p><br>
+      <button class="btn btn-success-outline" [disabled]="wechatForm.invalid" (click)="checkWorkWeixin()">校验</button>
+      <button class="btn btn-info-outline" (click)="onSubmit(workWeixin,'workWeixin')"
+              [disabled]="wechatForm.invalid || workWeixinInValid">
+        保存
+      </button>
+      <button class="btn btn-info-outline" (click)="onCancel('workWeixin')">取消</button>
+    </clr-tab-content>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink>钉钉</button>
+    <clr-tab-content *clrIfActive>
+      <form clrForm #dingTalkForm="ngForm">
+        <clr-input-container>
+          <label>webhook地址</label>
+          <input clrInput name="dingtalk_webhook" [(ngModel)]="dingTalk['DINGTALK_WEBHOOK']" size=100 required/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>secret</label>
+          <input clrInput name="dingtalk_secret" [(ngModel)]="dingTalk['DINGTALK_SECRET']" size=100 required/>
+        </clr-input-container>
+        <clr-select-container>
+          <label>状态</label>
+          <select class="input-width" clrSelect name="status" [(ngModel)]="dingTalk['DINGTALK_STATUS']" required>
+            <option value="ENABLE">启用</option>
+            <option value="DISABLE">禁用</option>
+          </select>
+        </clr-select-container>
+      </form>
+      <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/26eaddd5" target="_blank">钉钉群机器人基本概念</a>
+      </p><br>
+      <button class="btn btn-info-outline" (click)="onSubmit(dingTalk,'dingTalk')" [disabled]="dingTalkForm.invalid">
+        保存
+      </button>
+      <button class="btn btn-info-outline" (click)="onCancel('dingTalk')">取消</button>
+    </clr-tab-content>
+  </clr-tab>
+</clr-tabs>

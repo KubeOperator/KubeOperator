@@ -1,0 +1,71 @@
+<app-local-mail-detail></app-local-mail-detail>
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selectedMessages">
+  <clr-dg-action-bar>
+    <div class="btn-group">
+      <button type="button" [disabled]="selectedMessages.length===0" class="btn btn-sm btn-secondary"
+              (click)="updateMessage()">标记为已读
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" (click)="updateAllMessage()">全部标记为已读</button>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='ALL'"
+              (click)="listMessage(pagination.pageSize,'ALL',readStatus,level)">全部
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='SYSTEM'"
+              (click)="listMessage(pagination.pageSize,'SYSTEM',readStatus,level)">系统消息
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="type==='CLUSTER'"
+              (click)="listMessage(pagination.pageSize,'CLUSTER',readStatus,level)">
+        集群消息
+      </button>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='ALL'"
+              (click)="listMessage(pagination.pageSize,type,'ALL',level)">全部
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='READ'"
+              (click)="listMessage(pagination.pageSize,type,'READ',level)">全部已读
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="readStatus==='UNREAD'"
+              (click)="listMessage(pagination.pageSize,type,'UNREAD',level)">全部未读
+      </button>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='ALL'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'ALL')">全部
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='WARNING'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'WARNING')">告警
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary" [disabled]="level==='INFO'"
+              (click)="listMessage(pagination.pageSize,type,readStatus,'INFO')">信息
+      </button>
+    </div>
+  </clr-dg-action-bar>
+  <clr-dg-column>消息内容</clr-dg-column>
+  <clr-dg-column>类别</clr-dg-column>
+  <clr-dg-column>级别</clr-dg-column>
+  <clr-dg-column>状态</clr-dg-column>
+  <clr-dg-column>接收时间</clr-dg-column>
+  <clr-dg-row *ngFor="let message of messages" [clrDgItem]="message">
+    <clr-dg-cell style="cursor: pointer;overflow: hidden;text-overflow:ellipsis;
+    white-space: nowrap;" [ngStyle]="{'color':message.read_status==='UNREAD'?'#0079b8':'#969696'}" (click)="showDetail(message)">
+      <clr-icon shape="folder" *ngIf="message.read_status==='UNREAD'"></clr-icon>
+      <clr-icon shape="folder-open" *ngIf="message.read_status==='READ'"></clr-icon>
+      {{getTitle(message)}}
+    </clr-dg-cell>
+    <clr-dg-cell>{{message.message_detail.type | messageType}}</clr-dg-cell>
+    <clr-dg-cell> <span class="badge" [ngClass]="message.message_detail.level  | badgeClass">{{message.message_detail.level | messageLevel}} </span></clr-dg-cell>
+    <clr-dg-cell>{{message.read_status | readStatus}}</clr-dg-cell>
+    <clr-dg-cell>{{message.message_detail.date_created  | date: 'yyyy-MM-dd HH:mm:ss' }}</clr-dg-cell>
+  </clr-dg-row>
+  <clr-dg-footer>
+    <clr-dg-pagination #pagination [clrDgTotalItems]="total" [clrDgPageSize]="limit"
+                       [(clrDgPage)]="page"
+                       (clrDgPageChange)="listMessage(pagination.pageSize,type,readStatus,level)">
+      <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页个数</clr-dg-page-size>
+      {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+      共{{total}} 个
+    </clr-dg-pagination>
+  </clr-dg-footer>
+</clr-datagrid>

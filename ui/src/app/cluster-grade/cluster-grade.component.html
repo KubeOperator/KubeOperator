@@ -1,0 +1,107 @@
+<div *ngIf="loading" style="text-align: center">
+  <clr-spinner></clr-spinner>
+</div>
+<div class="clr-row" *ngIf="!loading">
+  <div class="clr-col-12">
+    <div class="card">
+      <div class="card-header">
+        概览
+      </div>
+      <div class="card-block">
+        <div class="clr-row" style="height: 260px">
+          <div class="clr-col-6" style="text-align: center">
+            <div class="clr-row">
+              <div class="clr-col-7" style="text-align: center;padding-top: 100px">
+                <span style="font-size: 144px">{{data.grade}}</span><br/><br/>
+                <span style="font-size: 24px">{{data.score | number:'2.0-1'}}</span>
+              </div>
+              <div class="clr-col-5">
+                <div echarts
+                     [autoResize]="true"
+                     [options]="pieChartOptions"
+                     class="demo-chart"
+                     style="width: 70%; height: 240px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="clr-col-6" style="border-left:1px solid #AAAAAA;text-align: center">
+            <div class="clr-row">
+              <div class="clr-col-2">
+
+              </div>
+              <div class="clr-col-10">
+                <div echarts
+                     [autoResize]="true"
+                     [options]="barChartOptions"
+                     class="demo-chart"
+                     style="width: 70%; height: 240px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="clr-row" *ngIf="data">
+  <div class="clr-col-12" *ngFor="let ns of data.namespace_results">
+
+
+    <div class="card" *ngIf="ns.summary">
+      <div class="card-header">
+        <div style="display: block;padding-bottom: 12px">
+          <div style="float: left">{{ns.name}}</div>
+        </div>
+
+      </div>
+      <div class="card-block">
+        <div class="clr-row">
+          <div class="clr-col-12">
+            <clr-stack-view>
+              <clr-stack-block *ngFor="let ctrl of ns.controller_results">
+                <clr-stack-label>{{ctrl.type}}:{{ctrl.name}}</clr-stack-label>
+                <clr-stack-block>
+                  <clr-stack-label>Pod Sec</clr-stack-label>
+                  <clr-stack-content>
+                    <ul class="list-unstyled">
+                      <li *ngFor="let pm of ctrl.pod_result.messages">
+                       <span style="color: hsl(93, 100%, 26%)">
+                         <clr-icon shape="check-circle" *ngIf="pm.type === 'success'"></clr-icon>
+                       </span>
+                        <span style="color: hsl(9, 100%, 43%)">
+                           <clr-icon shape="times" *ngIf="pm.type === 'error'"></clr-icon>
+                         </span>
+                        <span style="color:hsl(43, 100%, 42%)">
+                          <clr-icon shape="exclamation-circle" *ngIf="pm.type === 'warning'"></clr-icon>
+                        </span>
+                        {{pm.message}}</li>
+                    </ul>
+                  </clr-stack-content>
+                </clr-stack-block>
+                <clr-stack-block *ngFor="let cr of ctrl.pod_result.container_results">
+                  <clr-stack-label>Container: {{cr.name}}</clr-stack-label>
+                  <clr-stack-content>
+                    <ul class="list-unstyled">
+                      <li *ngFor="let cm of cr.messages">
+                       <span style="color: hsl(93, 100%, 26%)">
+                         <clr-icon shape="check-circle" *ngIf="cm.type === 'success'"></clr-icon>
+                       </span>
+                        <span style="color: hsl(9, 100%, 43%)">
+                           <clr-icon shape="times" *ngIf="cm.type === 'error'"></clr-icon>
+                         </span>
+                        <span style="color:hsl(43, 100%, 42%)">
+                          <clr-icon shape="exclamation-circle" *ngIf="cm.type === 'warning'"></clr-icon>
+                        </span>
+                        {{cm.message}}</li>
+                    </ul>
+                  </clr-stack-content>
+                </clr-stack-block>
+              </clr-stack-block>
+            </clr-stack-view>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

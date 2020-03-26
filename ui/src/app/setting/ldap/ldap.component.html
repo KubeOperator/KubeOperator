@@ -1,0 +1,52 @@
+<div>
+  <form clrForm #settingForm="ngForm">
+    <div>
+      <clr-toggle-container>
+        <label>启用 LDAP</label>
+        <clr-checkbox-wrapper>
+          <input type="checkbox" clrToggle name="ldap_enable" [(ngModel)]="settings['AUTH_LDAP_ENABLE']"/>
+        </clr-checkbox-wrapper>
+      </clr-toggle-container>
+      <div *ngIf="settings['AUTH_LDAP_ENABLE']">
+        <clr-input-container>
+          <label>LDAP 地址</label>
+          <input clrInput name="ldap_url" [(ngModel)]="settings['AUTH_LDAP_SERVER_URI']" size=45
+                 placeholder="ldap://172.16.10.142:389"/>
+        </clr-input-container>
+        <clr-input-container>
+          <label>绑定 DN</label>
+          <input clrInput name="bind_dn" [(ngModel)]="settings['AUTH_LDAP_BIND_DN']" size=45
+                 placeholder="cn=admin,dc=example,dc=org"/>
+        </clr-input-container>
+        <clr-password-container>
+          <label>密码</label>
+          <input clrPassword name="bind_password" [(ngModel)]="settings['AUTH_LDAP_BIND_PASSWORD']" size=45
+                 placeholder="ldap://172.16.10.142:389"/>
+        </clr-password-container>
+        <clr-input-container>
+          <label>用户 OU</label>
+          <input clrInput name="user_ou" [(ngModel)]="settings['AUTH_LDAP_SEARCH_OU']" size=45
+                 placeholder="ou=ko,dc=example,dc=org"/>
+          <clr-control-helper>使用 | 分隔 OU</clr-control-helper>
+        </clr-input-container>
+        <clr-input-container>
+          <label>用户过滤器</label>
+          <input clrInput name="user_filter" [(ngModel)]="settings['AUTH_LDAP_SEARCH_FILTER']" size=45
+                 placeholder="(cn=%(user)s)"/>
+          <clr-control-helper>可能的选项是(cn或uid或sAMAccountName=%(user)s)</clr-control-helper>
+        </clr-input-container>
+        <clr-textarea-container>
+          <label>LDAP 属性映射</label>
+          <textarea clrTextarea [rows]="5" [cols]="45" name="user_attr_map"
+                    [(ngModel)]="settings['AUTH_LDAP_USER_ATTR_MAP']"
+                    [defaultValue]='{"username": "cn", "email": "mail"}'></textarea>
+          <clr-control-helper>用户属性映射代表怎样将 LDAP 中用户属性映射到 KubeOperator 用户上，username,email 是 KubeOperator 的属性
+          </clr-control-helper>
+        </clr-textarea-container>
+      </div>
+
+    </div>
+  </form>
+  <button class="btn btn-info-outline" (click)="onSubmit()" [disabled]="settingForm.invalid">保存</button>
+  <button class="btn btn-info-outline" (click)="onCancel()">取消</button>
+</div>

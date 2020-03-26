@@ -1,0 +1,42 @@
+<clr-modal [(clrModalOpen)]="open" [clrModalClosable]=false>
+  <h3 class="modal-title" *ngIf="message">{{message.message_detail.title}}</h3>
+  <div class="modal-body" *ngIf="message">
+    <div class="card-block">
+      <ul class="list-unstyled" *ngIf="message.message_detail.content.resource_type==='CLUSTER'">
+        <li><b>项目:</b>{{message.message_detail.content.item_name}}</li>
+        <li><b>集群:</b>{{message.message_detail.content.resource_name}}</li>
+        <li><b>详情:</b>{{message.message_detail.content.detail}}</li>
+        <li><b>时间:</b>{{message.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+        <li *ngIf="message.message_detail.level==='WARNING'">失败详情请到集群-历史页查看
+          <button class="btn btn-sm btn-link"
+                  (click)="toPage('cluster/'+message.message_detail.content.resource_name+'/log')">跳转
+          </button>
+        </li>
+      </ul>
+      <ul class="list-unstyled" *ngIf="message.message_detail.content.resource_type==='CLUSTER_EVENT'">
+        <li><b>项目:</b>{{message.message_detail.content.item_name}}</li>
+        <li><b>集群:</b>{{message.message_detail.content.resource_name}}</li>
+        <li><b>详情:</b>
+          NameSpace:{{message.message_detail.content.detail.namespace}} <br>
+          &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;消息:{{message.message_detail.content.detail.message}} <br>
+        </li>
+        <li><b>时间:</b>{{message.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+        <li *ngIf="message.message_detail.level==='WARNING'">详细信息请到集群-事件页查看
+          <button class="btn btn-sm btn-link"
+                  (click)="toPage('cluster/'+message.message_detail.content.resource_name+'/event')">跳转
+          </button>
+        </li>
+      </ul>
+      <ul class="list-unstyled" *ngIf="message.message_detail.content.resource_type==='CLUSTER_USAGE'">
+        <li><b>项目:</b>{{message.message_detail.content.item_name}}</li>
+        <li><b>集群:</b>{{message.message_detail.content.resource_name}}</li>
+        <li><b>详情:节点{{message.message_detail.content.detail.name}}的CPU使用率为:{{message.message_detail.content.detail.cpu_usage}}内存使用率为：{{message.message_detail.content.detail.mem_usage}}</b>
+        </li>
+        <li><b>时间:</b>{{message.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+      </ul>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn" (click)="cancel()">取消</button>
+  </div>
+</clr-modal>
