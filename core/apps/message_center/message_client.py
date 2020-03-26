@@ -5,13 +5,17 @@
 @Date   ：2020/3/16 
 =================================================='''
 import json
+import logging
 from django.contrib.auth.models import User
 from kubeops_api.models.item import Item
 from .models import Message, UserNotificationConfig, UserReceiver, UserMessage
 from kubeops_api.models.setting import Setting
 from ko_notification_utils.email_smtp import Email
-from .message_thread import EmailThread
+from ko_notification_utils.ding_talk import DingTalk
+from .message_thread import MessageThread
 from django.template import Template, Context, loader
+
+logger = logging.getLogger('kubeops')
 
 
 class MessageClient():
@@ -35,9 +39,14 @@ class MessageClient():
     def split_receiver_by_send_type(self, receivers, type):
         messageReceivers = []
         setting_email_enable = False
+        email_receivers = ''
         if Setting.objects.get(key='SMTP_STATUS') and Setting.objects.get(key='SMTP_STATUS').value == 'ENABLE':
             setting_email_enable = True
-        email_receivers = ''
+        send_ding_talk_enable = False
+        ding_talk_receivers = ''
+        if Setting.objects.get('DINGTALK_STATUS') and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
+            send_ding_talk_enable = True
+
         for receiver in receivers:
             config = UserNotificationConfig.objects.get(type=type, user_id=receiver.id)
             user_receiver = UserReceiver.objects.get(user_id=receiver.id)
@@ -58,9 +67,20 @@ class MessageClient():
                 else:
                     email_receivers = receiver.email
 
+            if send_ding_talk_enable and config.vars['DINGTALK'] == 'ENABLE' and user_receiver.vars['DINGTALK'] != '':
+                if ding_talk_receivers != '':
+                    ding_talk_receivers = ding_talk_receivers + ',' + user_receiver.vars['DINGTALK']
+                else:
+                    ding_talk_receivers = user_receiver.vars['DINGTALK']
+
         if len(email_receivers) > 0:
             messageReceivers.append(
                 MessageReceiver(user_id=1, receive=email_receivers, send_type='EMAIL'))
+
+        if len(ding_talk_receivers) > 0:
+            messageReceivers.append(
+                MessageReceiver(user_id=1, receive=ding_talk_receivers, send_type='DINGTALK')
+            )
 
         return messageReceivers
 
@@ -80,8 +100,10 @@ class MessageClient():
                                        receive_status=UserMessage.MESSAGE_RECEIVE_STATUS_WAITING, message_id=message.id)
             user_messages.append(user_message)
         UserMessage.objects.bulk_create(user_messages)
-        thread = EmailThread(func=send_email, message_id=message.id)
+        thread = MessageThread(func=send_email, message_id=message.id)
         thread.start()
+        thread2 = MessageThread(func=send_ding_talk_msg, message_id=message.id)
+        thread2.start()
 
 
 def send_email(message_id):
@@ -90,10 +112,26 @@ def send_email(message_id):
     email = Email(address=setting_email['SMTP_ADDRESS'], port=setting_email['SMTP_PORT'],
                   username=setting_email['SMTP_USERNAME'], password=setting_email['SMTP_PASSWORD'])
     res = email.send_html_mail(receiver=user_message.receive, title=user_message.message.title,
-                                content=get_email_content(user_message))
+                               content=get_email_content(user_message))
     if res.success:
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
+    else:
+        logger.error(msg="send email error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
+                     exc_info=True)
+
+
+def send_ding_talk_msg(message_id):
+    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK)
+    setting_dingTalk = Setting.get_settings("dingTalk")
+    ding_talk = DingTalk(webhook=setting_dingTalk['DINGTALK_WEBHOOK'], secret=setting_dingTalk['DINGTALK_SECRET'])
+    res = ding_talk.send_message(receivers=user_message.receive.split(','), content=user_message.message.content)
+    if res.success:
+        user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
+        user_message.save()
+    else:
+        logger.error(msg="send dingtalk error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
+                     exc_info=True)
 
 
 class MessageReceiver():
@@ -107,20 +145,20 @@ class MessageReceiver():
 def get_email_content(userMessage):
     content = json.loads(userMessage.message.content)
     try:
-        template  = loader.get_template(get_email_template(content['resource_type']))
+        template = loader.get_template(get_email_template(content['resource_type']))
         content['detail'] = json.loads(content['detail'])
         content['title'] = userMessage.message.title
         content['date'] = userMessage.message.date_created.strftime("%Y-%m-%d %H:%M:%S")
         email_content = template.render(content)
         return email_content
     except Exception as e:
+        logger.error(msg="get email content error", exc_info=True)
         return ''
 
 
 def get_email_template(type):
-
     templates = {
-        "CLUSTER":"cluster.html",
-        "CLUSTER_EVENT":"cluster-event.html",
+        "CLUSTER": "cluster.html",
+        "CLUSTER_EVENT": "cluster-event.html",
     }
     return templates[type]

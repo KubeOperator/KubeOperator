@@ -6,7 +6,7 @@
 =================================================='''
 import threading
 
-class EmailThread(threading.Thread):
+class MessageThread(threading.Thread):
 
     def __init__(self, func, message_id):
         threading.Thread.__init__(self)
