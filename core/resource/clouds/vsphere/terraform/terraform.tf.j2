@@ -78,7 +78,7 @@ resource "vsphere_virtual_machine" "{{host.short_name}}" {
 
       network_interface {
         ipv4_address = "{{ host.ip }}"
-        ipv4_netmask = 24
+        ipv4_netmask = "{{host.zone.net_mask}}"
       }
       ipv4_gateway = "{{host.zone.vc_gateway}}"
     }
