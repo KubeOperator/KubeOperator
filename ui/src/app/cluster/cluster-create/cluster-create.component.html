@@ -309,6 +309,8 @@
             <option value="">请选择</option>
             <option *ngFor="let ceph of storageList" [value]="ceph.name">{{ceph.name}}</option>
           </select>
+          <clr-control-helper>需要先授权存储到项目</clr-control-helper>
+          <clr-control-error>需要先授权存储到项目</clr-control-error>
         </clr-select-container>
       </div>
       <div *ngIf="cluster.persistent_storage==='local-volume'">
