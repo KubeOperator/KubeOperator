@@ -6,7 +6,6 @@
 =================================================='''
 import threading
 
-
 class EmailThread(threading.Thread):
 
     def __init__(self, func, message_id):

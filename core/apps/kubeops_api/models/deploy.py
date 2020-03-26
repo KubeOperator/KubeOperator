@@ -330,9 +330,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
 
     def get_msg_detail(self, success):
         operation = self.get_operation_name()
-        result = ""
         if success:
             result = "成功"
         else:
             result = "失败"
-        return operation + result
+        return  {"message":operation + result}

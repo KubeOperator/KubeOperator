@@ -15,9 +15,9 @@ from rest_framework.viewsets import ModelViewSet
 from .m_serializers import UserNotificationConfigSerializer, UserReceiverSerializer, UserMessageSerializer
 from .models import UserNotificationConfig, UserReceiver, UserMessage, Message
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core import serializers
-from django.http import HttpResponse, JsonResponse
-
+from django.http import JsonResponse
+from django.template import Template, Context ,loader
+from message_center.message_client import send_email
 
 class EmailCheckView(APIView):
 
@@ -27,6 +27,9 @@ class EmailCheckView(APIView):
                       username=email_config['SMTP_USERNAME'], password=email_config['SMTP_PASSWORD'])
 
         result = email.login()
+        send_email('53529260134048b0b777796d532db645')
+
+
         if result.success:
             return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
         else:
@@ -115,7 +118,7 @@ class UserMessageView(ModelViewSet):
         if level != 'ALL':
             l_ids = Message.objects.filter(level=level).values_list('id')
             user_messages = user_messages.filter(message_id__in=l_ids)
-        for user_message in user_messages :
+        for user_message in user_messages:
             user_message['message_detail'] = Message.objects.filter(id=user_message['message_id']).values()[0]
         paginator = Paginator(user_messages, limit)
         try:
@@ -127,7 +130,7 @@ class UserMessageView(ModelViewSet):
         # self.queryset = user_messages
 
         return JsonResponse(data={"total": paginator.count,
-                                  "page_num":paginator.num_pages,
+                                  "page_num": paginator.num_pages,
                                   "data": list(user_messages.object_list)})
 
     def post(self, request, *args, **kwargs):
