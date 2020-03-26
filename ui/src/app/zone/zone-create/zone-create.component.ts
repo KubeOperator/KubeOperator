@@ -91,9 +91,9 @@ export class ZoneCreateComponent implements OnInit {
     if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
       const start = ipaddr.parse(ipStart);
       const end = ipaddr.parse(ipEnd);
-      if (start > end) {
+      if (start >= end) {
         result = false;
-        this.networkError.push('截止IP不可大于起始IP!');
+        this.networkError.push('截止IP必须大于起始IP!');
       }
     }
     if (this.region.template === 'vsphere') {
@@ -115,7 +115,6 @@ export class ZoneCreateComponent implements OnInit {
       }
     }
     this.networkValid = result;
-    console.log()
   }
 
   listRegion() {
