@@ -44,7 +44,7 @@ class MessageClient():
             setting_email_enable = True
         send_ding_talk_enable = False
         ding_talk_receivers = ''
-        if Setting.objects.get('DINGTALK_STATUS') and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
+        if Setting.objects.get(key='DINGTALK_STATUS') and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
             send_ding_talk_enable = True
 
         for receiver in receivers:
@@ -54,9 +54,6 @@ class MessageClient():
                 messageReceivers.append(
                     MessageReceiver(user_id=receiver.id, receive=receiver.username, send_type='LOCAL'))
 
-            if config.vars['DINGTALK'] == 'ENABLE' and user_receiver.vars['DINGTALK'] != '':
-                messageReceivers.append(
-                    MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['DINGTALK'], send_type='DINGTALK'))
             if config.vars['WORKWEIXIN'] == 'ENABLE' and user_receiver.vars['WORKWEIXIN'] != '':
                 messageReceivers.append(
                     MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['WORKWEIXIN'],
@@ -121,27 +118,6 @@ def send_email(message_id):
                      exc_info=True)
 
 
-def send_ding_talk_msg(message_id):
-    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK)
-    setting_dingTalk = Setting.get_settings("dingTalk")
-    ding_talk = DingTalk(webhook=setting_dingTalk['DINGTALK_WEBHOOK'], secret=setting_dingTalk['DINGTALK_SECRET'])
-    res = ding_talk.send_message(receivers=user_message.receive.split(','), content=user_message.message.content)
-    if res.success:
-        user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
-        user_message.save()
-    else:
-        logger.error(msg="send dingtalk error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
-                     exc_info=True)
-
-
-class MessageReceiver():
-
-    def __init__(self, user_id, receive, send_type):
-        self.user_id = user_id
-        self.receive = receive
-        self.send_type = send_type
-
-
 def get_email_content(userMessage):
     content = json.loads(userMessage.message.content)
     try:
@@ -162,3 +138,49 @@ def get_email_template(type):
         "CLUSTER_EVENT": "cluster-event.html",
     }
     return templates[type]
+
+
+def send_ding_talk_msg(message_id):
+    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK)
+    setting_dingTalk = Setting.get_settings("dingTalk")
+    ding_talk = DingTalk(webhook=setting_dingTalk['DINGTALK_WEBHOOK'], secret=setting_dingTalk['DINGTALK_SECRET'])
+    res = ding_talk.send_markdown_msg(receivers=user_message.receive.split(','), content=get_msg_content(user_message))
+    if res.success:
+        user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
+        user_message.save()
+    else:
+        logger.error(msg="send dingtalk error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
+                     exc_info=True)
+
+def get_msg_content(userMessage):
+    content = json.loads(userMessage.message.content)
+    type = content['resource_type']
+    content['detail'] = json.loads(content['detail'])
+    text = ''
+    if type == 'CLUSTER_EVENT':
+        text = "### " + userMessage.message.title + "\n - 项目:" + content['item_name'] + \
+               "\n - 集群:" + content['resource_name'] + \
+               "\n- 名称:" + content['detail']['name'] + \
+               "\n- 类别:" + content['detail']['type'] + \
+               "\n- 原因:" + content['detail']['reason'] + \
+               "\n- 组件:" + content['detail']['component'] + \
+               "\n- NameSpace:" + content['detail']['namespace'] + \
+               "\n- 主机:" + content['detail']['host'] + \
+               "\n- 告警时间:" + content['detail']['last_timestamp'] + \
+               "\n- 详情:" + content['detail']['message']+\
+               "本消息由KubeOperator自动发送"
+
+    if type == 'CLUSTER':
+        text = "### " + userMessage.message.title + "\n - 项目:" + content['item_name'] + \
+               "\n - 集群:" + content['resource_name'] + \
+               "\n - 信息:" + content['detail']['message'] + \
+               "本消息由KubeOperator自动发送"
+    return {"title":userMessage.message.title, "text": text}
+
+
+class MessageReceiver():
+
+    def __init__(self, user_id, receive, send_type):
+        self.user_id = user_id
+        self.receive = receive
+        self.send_type = send_type
