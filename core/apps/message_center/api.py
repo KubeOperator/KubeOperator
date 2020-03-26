@@ -27,8 +27,6 @@ class EmailCheckView(APIView):
                       username=email_config['SMTP_USERNAME'], password=email_config['SMTP_PASSWORD'])
 
         result = email.login()
-        send_email('53529260134048b0b777796d532db645')
-
 
         if result.success:
             return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
