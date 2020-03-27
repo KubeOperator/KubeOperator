@@ -20,7 +20,9 @@
       </form>
       <div class="modal-footer">
         <button type="button" class="btn" (click)="onCancel()">取消</button>
-        <button type="button" class="btn" (click)="onConfirm()" [disabled]="editForm.invalid ">确认
+        <button type="button" class="btn" (click)="onConfirm()"
+                [disabled]="editForm.invalid || networkErrors.length!==0">
+          确认
         </button>
       </div>
     </div>
