@@ -1,10 +1,10 @@
 <clr-modal [(clrModalOpen)]='opened'>
   <h3 class="modal-title">导入主机</h3>
   <div class="modal-body">
-    <app-upload></app-upload>
+    <app-upload (uploaded)="onUploaded($event)"></app-upload>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline">Cancel</button>
-    <button type="button" class="btn btn-primary">Ok</button>
+    <button type="button" class="btn btn-outline" (click)="onCancel()">取消</button>
+    <button type="button" class="btn btn-primary" (click)="onSubmit()">确认</button>
   </div>
 </clr-modal>

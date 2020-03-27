@@ -25,7 +25,7 @@ export class HostInfoComponent implements OnInit {
 
   refresh() {
     this.loading = true;
-    this.hostService.getHost(this.host.id).subscribe(data => {
+    this.hostService.get(this.host.id).subscribe(data => {
       this.loading = false;
       this.host = data;
     });

@@ -1,39 +1,53 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
 import {Host} from './host';
+import {ModelService} from '../shared/class/model-service';
+import {Observable} from 'rxjs';
 
-
-const baseUrl = '/api/v1/host/';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HostService {
+export class HostService extends ModelService<Host> {
 
-  constructor(private http: HttpClient) {
+  baseUrl = '/api/v1/host/';
+  importUrl = 'import/';
 
+  constructor(http: HttpClient) {
+    super(http);
   }
 
-  listHosts(): Observable<Host[]> {
-    return this.http.get<Host[]>(baseUrl);
+  import(file_names: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}${this.importUrl}`, {'source': file_names});
   }
 
-  listItemHosts(itemName: string): Observable<Host[]> {
-    return this.http.get<Host[]>(baseUrl + '?itemName=' + itemName);
+  byItem(itemName: string): Observable<Host[]> {
+    return this.http.get<Host[]>(`${this.baseUrl}?item=${itemName}`);
   }
 
-  getHost(hostId: string): Observable<Host> {
-    return this.http.get<Host>(baseUrl + hostId + '/');
-  }
-
-  createHost(host: Host): Observable<Host> {
-    return this.http.post<Host>(baseUrl, host);
-  }
-
-  deleteHost(hostId: string): Observable<any> {
-    return this.http.delete<any>(baseUrl + hostId + '/');
-  }
+  // listHosts(): Observable<Host[]> {
+  //   return this.http.get<Host[]>(baseUrl);
+  // }
+  //
+  // listItemHosts(itemName: string): Observable<Host[]> {
+  //   return this.http.get<Host[]>(baseUrl + '?itemName=' + itemName);
+  // }
+  //
+  // getHost(hostId: string): Observable<Host> {
+  //   return this.http.get<Host>(baseUrl + hostId + '/');
+  // }
+  //
+  // createHost(host: Host): Observable<Host> {
+  //   return this.http.post<Host>(baseUrl, host);
+  // }
+  //
+  // deleteHost(hostId: string): Observable<any> {
+  //   return this.http.delete<any>(baseUrl + hostId + '/');
+  // }
+  //
+  // importHost(source: string[]): Observable<any> {
+  //   return this.http.post<any>(baseUrl + 'import/', {'source': source});
+  // }
 
 
 }

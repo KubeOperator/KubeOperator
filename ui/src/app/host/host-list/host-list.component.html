@@ -25,11 +25,22 @@
         删除
       </button>
     </div>
+    <button type="button" class="btn btn-sm btn-secondary" (click)="importNewHost()">
+      导入
+    </button>
   </clr-dg-action-bar>
   <clr-dg-column>名称</clr-dg-column>
   <clr-dg-column>集群</clr-dg-column>
-  <clr-dg-column>区域</clr-dg-column>
-  <clr-dg-column>可用区</clr-dg-column>
+  <clr-dg-column>
+    <ng-container *clrDgHideableColumn="{hidden:true}">
+      区域
+    </ng-container>
+  </clr-dg-column>
+  <clr-dg-column>
+    <ng-container *clrDgHideableColumn="{hidden:true}">
+      可用区
+    </ng-container>
+  </clr-dg-column>
   <clr-dg-column>IP 地址</clr-dg-column>
   <clr-dg-column>CPU(核)</clr-dg-column>
   <clr-dg-column>内存(MB)</clr-dg-column>
@@ -52,11 +63,18 @@
     <clr-dg-cell>{{host.gpus.length}}</clr-dg-cell>
     <clr-dg-cell>{{host.os}} {{host.os_version}}</clr-dg-cell>
     <clr-dg-cell [ngStyle]="{'color': host.status | statusColor }">{{host.status | status}}</clr-dg-cell>
-
   </clr-dg-row>
 
   <clr-dg-footer>
-
+    <clr-dg-column-toggle>
+      <clr-dg-column-toggle-title>显示列</clr-dg-column-toggle-title>
+      <clr-dg-column-toggle-button>全部</clr-dg-column-toggle-button>
+    </clr-dg-column-toggle>
+    <clr-dg-pagination #pagination [clrDgPageSize]=size [clrDgTotalItems]="total" (clrDgPageChange)="listHost()">
+      <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
+      {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+      总共 {{pagination.totalItems}} 主机
+    </clr-dg-pagination>
   </clr-dg-footer>
 
 </clr-datagrid>

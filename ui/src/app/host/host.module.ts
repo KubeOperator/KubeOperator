@@ -7,12 +7,12 @@ import {HostListComponent} from './host-list/host-list.component';
 import {HostCreateComponent} from './host-create/host-create.component';
 import {HostInfoComponent} from './host-info/host-info.component';
 import {SharedModule} from '../shared/shared.module';
+import {HostImportComponent} from './host-import/host-import.component';
 
 @NgModule({
-  declarations: [HostComponent, HostListComponent, HostCreateComponent, HostInfoComponent],
+  declarations: [HostComponent, HostListComponent, HostCreateComponent, HostInfoComponent, HostImportComponent],
   imports: [
     CommonModule,
-
     CoreModule,
     SharedModule
   ]

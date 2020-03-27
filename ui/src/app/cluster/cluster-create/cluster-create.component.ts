@@ -235,7 +235,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   }
 
   getAllHost() {
-    this.hostService.listItemHosts(this.itemName).subscribe(data => {
+    this.hostService.byItem(this.itemName).subscribe(data => {
       this.hosts = data.filter(host => {
         return !host.cluster;
       });

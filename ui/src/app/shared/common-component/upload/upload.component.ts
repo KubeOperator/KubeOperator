@@ -17,14 +17,14 @@ export class UploadComponent implements OnInit {
   @Output() uploaded: EventEmitter<any>;
 
   ngOnInit(): void {
+  }
+
+  constructor() {
     this.options = {concurrency: 5, maxUploads: 10, maxFileSize: 1000000};
     this.files = [];
     this.uploadInput = new EventEmitter<UploadInput>();
     this.uploaded = new EventEmitter<string[]>();
     this.humanizeBytes = humanizeBytes;
-  }
-
-  constructor() {
   }
 
   onUploadOutput(output: UploadOutput): void {
