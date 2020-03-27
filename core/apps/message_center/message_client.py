@@ -12,6 +12,7 @@ from .models import Message, UserNotificationConfig, UserReceiver, UserMessage
 from kubeops_api.models.setting import Setting
 from ko_notification_utils.email_smtp import Email
 from ko_notification_utils.ding_talk import DingTalk
+from ko_notification_utils.work_weixin import WorkWeiXin
 from .message_thread import MessageThread
 from django.template import Template, Context, loader
 
@@ -118,13 +119,13 @@ def send_email(message_id):
                      exc_info=True)
 
 
-def get_email_content(userMessage):
-    content = json.loads(userMessage.message.content)
+def get_email_content(user_message):
+    content = json.loads(user_message.message.content)
     try:
         template = loader.get_template(get_email_template(content['resource_type']))
         content['detail'] = json.loads(content['detail'])
-        content['title'] = userMessage.message.title
-        content['date'] = userMessage.message.date_created.strftime("%Y-%m-%d %H:%M:%S")
+        content['title'] = user_message.message.title
+        content['date'] = user_message.message.date_created.strftime("%Y-%m-%d %H:%M:%S")
         email_content = template.render(content)
         return email_content
     except Exception as e:
@@ -141,10 +142,15 @@ def get_email_template(type):
 
 
 def send_ding_talk_msg(message_id):
-    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK)
+    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+                                           user_id=1)
     setting_dingTalk = Setting.get_settings("dingTalk")
     ding_talk = DingTalk(webhook=setting_dingTalk['DINGTALK_WEBHOOK'], secret=setting_dingTalk['DINGTALK_SECRET'])
-    res = ding_talk.send_markdown_msg(receivers=user_message.receive.split(','), content=get_msg_content(user_message))
+
+    text = get_msg_content(user_message)
+    content = {"title": user_message.message.title, "text": text}
+
+    res = ding_talk.send_markdown_msg(receivers=user_message.receive.split(','), content=content)
     if res.success:
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
@@ -152,30 +158,51 @@ def send_ding_talk_msg(message_id):
         logger.error(msg="send dingtalk error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
                      exc_info=True)
 
-def get_msg_content(userMessage):
-    content = json.loads(userMessage.message.content)
+
+def send_work_weixin_msg(message_id):
+    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
+                                           user_id=1)
+    workWeixin = Setting.get_settings("workWeixin")
+    weixin = WorkWeiXin(corp_id=workWeixin['WEIXIN_CORP_ID'], corp_secret=workWeixin['WEIXIN_CORP_SECRET'],
+                        agent_id=workWeixin['WEIXIN_AGENT_ID'])
+    text = get_msg_content(user_message)
+    content = {'content': text}
+    token = weixin.get_token()
+
+    res = weixin.send_markdown_msg(receivers=user_message.receive.replace(',', '|'), content=content, token=token.data['access_token'])
+    if res.success:
+        user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
+        user_message.save()
+    else:
+        logger.error(msg="send workweixin error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
+                     exc_info=True)
+
+
+def get_msg_content(user_message):
+    content = json.loads(user_message.message.content)
     type = content['resource_type']
     content['detail'] = json.loads(content['detail'])
     text = ''
     if type == 'CLUSTER_EVENT':
-        text = "### " + userMessage.message.title + "\n - 项目:" + content['item_name'] + \
-               "\n - 集群:" + content['resource_name'] + \
-               "\n- 名称:" + content['detail']['name'] + \
-               "\n- 类别:" + content['detail']['type'] + \
-               "\n- 原因:" + content['detail']['reason'] + \
-               "\n- 组件:" + content['detail']['component'] + \
-               "\n- NameSpace:" + content['detail']['namespace'] + \
-               "\n- 主机:" + content['detail']['host'] + \
-               "\n- 告警时间:" + content['detail']['last_timestamp'] + \
-               "\n- 详情:" + content['detail']['message']+\
-               "本消息由KubeOperator自动发送"
+        text = "### " + user_message.message.title + "\n " + \
+               "> **项目**:" + content['item_name']  + "\n "+ \
+               "> **集群**:" + content['resource_name']  + "\n "+ \
+               "> **名称**:" + content['detail']['name']  + "\n "+ \
+               "> **类别**:" + content['detail']['type']  + "\n "+ \
+               "> **原因**:" + content['detail']['reason']  + "\n "+ \
+               "> **组件**:" + content['detail']['component']  + "\n "+ \
+               "> **NameSpace**:" + content['detail']['namespace'] + "\n " + \
+               "> **主机**:" + content['detail']['host']  + "\n "+ \
+               "> **告警时间**:" + content['detail']['last_timestamp']  + "\n "+ \
+               "> **详情**:" + content['detail']['message'] + "\n " + \
+               "<font color=\"info\">本消息由KubeOperator自动发送</font>"
 
     if type == 'CLUSTER':
-        text = "### " + userMessage.message.title + "\n - 项目:" + content['item_name'] + \
-               "\n - 集群:" + content['resource_name'] + \
-               "\n - 信息:" + content['detail']['message'] + \
-               "本消息由KubeOperator自动发送"
-    return {"title":userMessage.message.title, "text": text}
+        text = "### " + user_message.message.title + "\n - **项目**:" + content['item_name'] + \
+               "\n > **集群**:" + content['resource_name'] + \
+               "\n > **信息**:" + content['detail']['message'] + \
+               "\n <font color=\"info\">本消息由KubeOperator自动发送</font>"
+    return text
 
 
 class MessageReceiver():
