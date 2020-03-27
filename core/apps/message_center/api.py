@@ -8,7 +8,7 @@ import json
 
 from rest_framework.views import APIView
 from ko_notification_utils.email_smtp import Email
-from ko_notification_utils.work_weixin import WorkWinXin
+from ko_notification_utils.work_weixin import WorkWeiXin
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
@@ -38,7 +38,7 @@ class WorkWeixinCheckView(APIView):
 
     def post(self, request, *args, **kwargs):
         weixin_config = request.data
-        weixin = WorkWinXin(corp_id=weixin_config['WEIXIN_CORP_ID'], corp_secret=weixin_config['WEIXIN_CORP_SECRET'],
+        weixin = WorkWeiXin(corp_id=weixin_config['WEIXIN_CORP_ID'], corp_secret=weixin_config['WEIXIN_CORP_SECRET'],
                             agent_id=weixin_config['WEIXIN_AGENT_ID'])
         result = weixin.get_token()
         if result.success:
