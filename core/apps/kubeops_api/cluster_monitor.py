@@ -171,9 +171,9 @@ class ClusterMonitor():
             cpu_usage = cpu_usage + float(n['cpu_usage'])
             mem_total = mem_total + float(n['mem'])
             mem_usage = mem_usage + float(n['mem_usage'])
-            if n['cpu_usage'] == 0 and n['mem_usage'] == 0:
+            if float(n['cpu_usage']) == 0 and float(n['mem_usage']) == 0:
                 count = count - 1
-            elif n['cpu_usage'] > 80 or  n['mem_usage'] > 80:
+            elif float(n['cpu_usage']) > 0.8 or  float(n['mem_usage']) > 0.8:
                 message_client = MessageClient()
                 message = self.get_event_message(n)
                 message_client.insert_message(message)
