@@ -63,8 +63,11 @@ export class ZoneListComponent implements OnInit {
   }
 
   onEdit(item: Zone) {
-    this.childEdit.item = item;
-    this.showEdit = true;
+    this.zoneService.getZone(item.name).subscribe(data => {
+      this.childEdit.item = data;
+      this.childEdit.networkErrors = [];
+      this.showEdit = true;
+    });
   }
 
   refresh() {

@@ -12,6 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 ANSIBLE_PROJECTS_DIR = os.path.join(BASE_DIR, 'data', 'ansible', 'projects')
 TERRAFORM_DIR = os.path.join(BASE_DIR, 'data', 'terraform', 'projects')
 BASE_LOG_DIR = os.path.join(BASE_DIR, "data", "log")
+MEDIA_DIR = os.path.join(BASE_DIR, "data", "media")
 VERSION_DIR = os.path.join(BASE_DIR, "build", "version")
 CLOUDS_RESOURCE_DIR = os.path.join(BASE_DIR, "resource", "clouds")
 CLUSTER_CONFIG_DIR = os.path.join(BASE_DIR, "resource", "cluster")
@@ -73,7 +74,7 @@ ASGI_APPLICATION = 'kubeoperator.routing.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),],
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates').replace('\\', '/'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -244,33 +245,33 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'default'
         },
-        # 'elasticsearch': {
-        #     'level': 'INFO',
-        #     'class': 'cmreslogging.handlers.CMRESHandler',
-        #     'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
-        #     'es_index_name': 'kubeoperator',
-        #     'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
-        #     'auth_type': CMRESHandler.AuthType.NO_AUTH,
-        #     'use_ssl': False,
-        # },
+        'elasticsearch': {
+            'level': 'INFO',
+            'class': 'cmreslogging.handlers.CMRESHandler',
+            'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
+            'es_index_name': 'kubeoperator',
+            'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
+            'auth_type': CMRESHandler.AuthType.NO_AUTH,
+            'use_ssl': False,
+        },
     },
     'loggers': {
         "": {
             'handlers': ['console'],
             'level': 'INFO',
         },
-        # 'user': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
-        # 'kubeops': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
-        # 'cloud_provider': {
-        #     'handlers': ['console', 'elasticsearch'],
-        #     'level': 'INFO',
-        # },
+        'user': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'kubeops': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'cloud_provider': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
     },
 }
 AUTHENTICATION_BACKENDS = [

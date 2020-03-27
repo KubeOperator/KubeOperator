@@ -5,12 +5,13 @@
       <form clrForm #editForm='ngForm'>
         <clr-input-container>
           <label>起始IP</label>
-          <input clrInput type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" required>
+          <input clrInput type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start" (change)="checkParams()"
+                 required>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-input-container>
         <clr-input-container>
           <label>终止IP</label>
-          <input clrInput type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
+          <input clrInput type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" (change)="checkParams()" required>
           <clr-control-error>此字段为必填项</clr-control-error>
         </clr-input-container>
         <ul>
@@ -19,7 +20,7 @@
       </form>
       <div class="modal-footer">
         <button type="button" class="btn" (click)="onCancel()">取消</button>
-        <button type="button" class="btn" (click)="onConfirm()" [disabled]="editForm.invalid || !checkParams()">确认
+        <button type="button" class="btn" (click)="onConfirm()" [disabled]="editForm.invalid ">确认
         </button>
       </div>
     </div>

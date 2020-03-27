@@ -155,6 +155,13 @@ class Zone(models.Model):
             "ip_pool": self.ip_pools()
         }
         dic.update(self.vars)
+        ip_start = ip_address(self.vars['ip_start'])
+        net_mask = self.vars.get('net_mask', None)
+        if net_mask:
+            interface = ip_interface("{}/{}".format(str(ip_start), net_mask))
+            dic["net_mask"] = interface.network.prefixlen
+        else:
+            dic["net_mask"] = 24
         return dic
 
     def ip_pools(self):

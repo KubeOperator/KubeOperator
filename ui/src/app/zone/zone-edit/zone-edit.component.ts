@@ -51,7 +51,7 @@ export class ZoneEditComponent implements OnInit {
       const end = ipaddr.parse(end_ip);
       if (start > end) {
         result = false;
-        this.networkErrors.push('截止IP不可大于起始IP!');
+        this.networkErrors.push('截止IP必须大于起始IP!');
       }
     }
     return result;

@@ -1,0 +1,41 @@
+<div>
+  <div style="display: none">
+    <input #selector type="file" ngFileSelect [options]="options" (uploadOutput)="onUploadOutput($event)"
+           [uploadInput]="uploadInput" multiple>
+  </div>
+  <div>
+    <button class="btn btn-link" (click)="selector.click()">添加</button>
+    <button class="btn btn-link" (click)="startUpload()">上传</button>
+  </div>
+  <div>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>文件名</th>
+        <th>大小</th>
+        <th>进度</th>
+        <th>状态</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let file of files">
+        <td>{{file.name}}</td>
+        <td>{{file.size}}</td>
+        <td>
+          <div class="progress">
+            <progress max="100" value="{{file.progress.data.percentage}}" data-displayval="0%"></progress>
+          </div>
+        </td>
+        <td>{{file.progress.status.valueOf()| uploadStatus}}</td>
+        <td>
+          <clr-icon shape="trash" (click)="removeFile(file.id)"></clr-icon>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+  </div>
+</div>
+
