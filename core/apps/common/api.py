@@ -1,12 +1,19 @@
 import os
 import uuid
 
-from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from .serializers import OutputSerializer
+
+
+class Pagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 100
+    page_size_query_param = 'size'
+    page_query_param = 'page'
 
 
 class LogTailApi(generics.RetrieveAPIView):

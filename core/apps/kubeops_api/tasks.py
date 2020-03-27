@@ -1,10 +1,7 @@
 import logging
-import threading
 import json
-
 from celery import shared_task
 from celery.task import periodic_task
-
 from common.utils import get_object_or_none
 from ansible_api.ctx import change_to_root
 from kubeops_api.models.cluster import Cluster
@@ -16,6 +13,16 @@ import kubeops_api.cluster_monitor
 from kubeops_api.models.host import Host
 
 logger = logging.getLogger("kubeops")
+
+
+@shared_task
+def sync_host_info(host_id):
+    host = Host.objects.get(id=host_id)
+    try:
+        print("gather info ...")
+        host.gather_info()
+    except Exception as e:
+        logger.error("refresh host {} status error: {}".format(host.name, e.args))
 
 
 @shared_task
@@ -59,7 +66,7 @@ def save_cluster_event():
     try:
         kubeops_api.cluster_monitor.put_event_data_to_es()
     except Exception as e:
-        logger.error("save_cluster_event error"+json.dumps(e))
+        logger.error("save_cluster_event error" + json.dumps(e))
 
 
 @periodic_task(run_every=crontab(minute="*/5"), name='task.host_health_check')
