@@ -175,7 +175,7 @@ class ClusterMonitor():
                 count = count - 1
             elif float(n['cpu_usage']) > 0.8 or  float(n['mem_usage']) > 0.8:
                 message_client = MessageClient()
-                message = self.get_event_message(n)
+                message = self.get_usage_message(n)
                 message_client.insert_message(message)
         if count > 0:
             cpu_usage = cpu_usage / count
@@ -424,7 +424,7 @@ class ClusterMonitor():
         message = {
             "item_id": self.cluster.item_id,
             "title": "集群资源告警",
-            "content": self.get_event_content(node),
+            "content": self.get_usage_content(node),
             "level": "WARNING",
             "type": "CLUSTER"
         }
@@ -436,7 +436,7 @@ class ClusterMonitor():
             "resource": "集群",
             "resource_name": self.cluster.name,
             "resource_type": 'CLUSTER_USAGE',
-            "detail": json.dumps(node.__dict__, cls=DateEncoder),
+            "detail": json.dumps(node, cls=DateEncoder),
             "status": self.cluster.status,
         }
         return content

@@ -8,10 +8,10 @@ import threading
 
 class MessageThread(threading.Thread):
 
-    def __init__(self, func, message_id):
+    def __init__(self, func, user_message):
         threading.Thread.__init__(self)
         self.func = func
-        self.message_id = message_id
+        self.user_message = user_message
 
     def run(self):
-        self.func(self.message_id)
+        self.func(self.user_message)

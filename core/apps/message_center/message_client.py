@@ -47,6 +47,10 @@ class MessageClient():
         ding_talk_receivers = ''
         if Setting.objects.get(key='DINGTALK_STATUS') and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
             send_ding_talk_enable = True
+        send_weixin_enable = False
+        weixin_receivers = ''
+        if Setting.objects.get(key='WEIXIN_STATUS') and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
+            send_weixin_enable = True
 
         for receiver in receivers:
             config = UserNotificationConfig.objects.get(type=type, user_id=receiver.id)
@@ -55,10 +59,6 @@ class MessageClient():
                 messageReceivers.append(
                     MessageReceiver(user_id=receiver.id, receive=receiver.username, send_type='LOCAL'))
 
-            if config.vars['WORKWEIXIN'] == 'ENABLE' and user_receiver.vars['WORKWEIXIN'] != '':
-                messageReceivers.append(
-                    MessageReceiver(user_id=receiver.id, receive=user_receiver.vars['WORKWEIXIN'],
-                                    send_type='WORKWEIXIN'))
             if setting_email_enable and config.vars['EMAIL'] == 'ENABLE' and user_receiver.vars['EMAIL'] != '':
                 if email_receivers != '':
                     email_receivers = email_receivers + ',' + receiver.email
@@ -71,6 +71,12 @@ class MessageClient():
                 else:
                     ding_talk_receivers = user_receiver.vars['DINGTALK']
 
+            if send_weixin_enable and config.vars['WORKWEIXIN'] == 'ENABLE' and user_receiver.vars['WORKWEIXIN'] != '':
+                if weixin_receivers != '':
+                    weixin_receivers = weixin_receivers + '|' + user_receiver.vars['WORKWEIXIN']
+                else:
+                    weixin_receivers = user_receiver.vars['WORKWEIXIN']
+
         if len(email_receivers) > 0:
             messageReceivers.append(
                 MessageReceiver(user_id=1, receive=email_receivers, send_type='EMAIL'))
@@ -78,6 +84,10 @@ class MessageClient():
         if len(ding_talk_receivers) > 0:
             messageReceivers.append(
                 MessageReceiver(user_id=1, receive=ding_talk_receivers, send_type='DINGTALK')
+            )
+        if len(weixin_receivers) > 0:
+            messageReceivers.append(
+                MessageReceiver(user_id=1, receive=weixin_receivers, send_type='WORKWEIXIN')
             )
 
         return messageReceivers
@@ -98,14 +108,26 @@ class MessageClient():
                                        receive_status=UserMessage.MESSAGE_RECEIVE_STATUS_WAITING, message_id=message.id)
             user_messages.append(user_message)
         UserMessage.objects.bulk_create(user_messages)
-        thread = MessageThread(func=send_email, message_id=message.id)
-        thread.start()
-        thread2 = MessageThread(func=send_ding_talk_msg, message_id=message.id)
-        thread2.start()
+        email_message = UserMessage.objects.get(message_id=message.id, send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
+                                                user_id=1)
+        if email_message:
+            thread = MessageThread(func=send_email, user_message=email_message)
+            thread.start()
+        ding_talk_message = UserMessage.objects.get(message_id=message.id,
+                                                    send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+                                                    user_id=1)
+        if ding_talk_message:
+            thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_message)
+            thread2.start()
+        work_weixin_message = UserMessage.objects.get(message_id=message.id,
+                                                      send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
+                                                      user_id=1)
+        if work_weixin_message:
+            thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_message)
+            thread3.start()
 
 
-def send_email(message_id):
-    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL)
+def send_email(user_message):
     setting_email = Setting.get_settings("email")
     email = Email(address=setting_email['SMTP_ADDRESS'], port=setting_email['SMTP_PORT'],
                   username=setting_email['SMTP_USERNAME'], password=setting_email['SMTP_PASSWORD'])
@@ -137,13 +159,12 @@ def get_email_template(type):
     templates = {
         "CLUSTER": "cluster.html",
         "CLUSTER_EVENT": "cluster-event.html",
+        "CLUSTER_USAGE": "cluster-usage.html",
     }
     return templates[type]
 
 
-def send_ding_talk_msg(message_id):
-    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
-                                           user_id=1)
+def send_ding_talk_msg(user_message):
     setting_dingTalk = Setting.get_settings("dingTalk")
     ding_talk = DingTalk(webhook=setting_dingTalk['DINGTALK_WEBHOOK'], secret=setting_dingTalk['DINGTALK_SECRET'])
 
@@ -159,9 +180,7 @@ def send_ding_talk_msg(message_id):
                      exc_info=True)
 
 
-def send_work_weixin_msg(message_id):
-    user_message = UserMessage.objects.get(message_id=message_id, send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
-                                           user_id=1)
+def send_work_weixin_msg(user_message):
     workWeixin = Setting.get_settings("workWeixin")
     weixin = WorkWeiXin(corp_id=workWeixin['WEIXIN_CORP_ID'], corp_secret=workWeixin['WEIXIN_CORP_SECRET'],
                         agent_id=workWeixin['WEIXIN_AGENT_ID'])
@@ -169,7 +188,7 @@ def send_work_weixin_msg(message_id):
     content = {'content': text}
     token = weixin.get_token()
 
-    res = weixin.send_markdown_msg(receivers=user_message.receive.replace(',', '|'), content=content, token=token.data['access_token'])
+    res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token.data['access_token'])
     if res.success:
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
@@ -184,24 +203,34 @@ def get_msg_content(user_message):
     content['detail'] = json.loads(content['detail'])
     text = ''
     if type == 'CLUSTER_EVENT':
-        text = "### " + user_message.message.title + "\n " + \
-               "> **项目**:" + content['item_name']  + "\n "+ \
-               "> **集群**:" + content['resource_name']  + "\n "+ \
-               "> **名称**:" + content['detail']['name']  + "\n "+ \
-               "> **类别**:" + content['detail']['type']  + "\n "+ \
-               "> **原因**:" + content['detail']['reason']  + "\n "+ \
-               "> **组件**:" + content['detail']['component']  + "\n "+ \
-               "> **NameSpace**:" + content['detail']['namespace'] + "\n " + \
-               "> **主机**:" + content['detail']['host']  + "\n "+ \
-               "> **告警时间**:" + content['detail']['last_timestamp']  + "\n "+ \
-               "> **详情**:" + content['detail']['message'] + "\n " + \
+        text = "### " + user_message.message.title + " \n\n " + \
+               "> **项目**:" + content['item_name'] + " \n\n " + \
+               "> **集群**:" + content['resource_name'] + " \n\n" + \
+               "> **名称**:" + content['detail']['name'] + " \n\n " + \
+               "> **类别**:" + content['detail']['type'] + " \n\n " + \
+               "> **原因**:" + content['detail']['reason'] + " \n\n " + \
+               "> **组件**:" + content['detail']['component'] + " \n\n " + \
+               "> **NameSpace**:" + content['detail']['namespace'] + " \n\n " + \
+               "> **主机**:" + content['detail']['host'] + " \n\n " + \
+               "> **告警时间**:" + content['detail']['last_timestamp'] + " \n\n " + \
+               "> **详情**:" + content['detail']['message'] + " \n\n " + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
 
     if type == 'CLUSTER':
-        text = "### " + user_message.message.title + "\n - **项目**:" + content['item_name'] + \
-               "\n > **集群**:" + content['resource_name'] + \
-               "\n > **信息**:" + content['detail']['message'] + \
-               "\n <font color=\"info\">本消息由KubeOperator自动发送</font>"
+        text = "### " + user_message.message.title + "\n\n" + \
+               "> **项目**:" + content['item_name'] + "\n\n" + \
+               "> **集群**:" + content['resource_name'] + "\n\n" + \
+               "> **信息**:" + content['detail']['message'] + "\n\n" + \
+               "<font color=\"info\">本消息由KubeOperator自动发送</font>"
+
+    if type == 'CLUSTER_USAGE':
+        text = "### " + user_message.message.title + "\n\n" + \
+               "> **项目**:" + content['item_name'] + "\n\n" + \
+               "> **集群**:" + content['resource_name'] + "\n\n" + \
+               "> **节点**:" + content['detail']['name'] + "\n\n" + \
+               "> **CPU使用率**:" + content['detail']['cpu_usage'] + "\n\n" + \
+               "> **内存使用率**:" + content['detail']['mem_usage'] + "\n\n" + \
+               "<font color=\"info\">本消息由KubeOperator自动发送</font>"
     return text
 
 
