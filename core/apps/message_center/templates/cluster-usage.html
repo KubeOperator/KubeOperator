@@ -27,14 +27,16 @@
             <td align="left">集群: {{ resource_name }}</td>
         </tr>
         <tr>
-            <td align="left">节点:{{ detail.name }}</td>
+            <td align="left">详情:
+               <span>{{ detail.message }}</span>
+            </td>
         </tr>
-        <tr>
-            <td align="left">CPU使用率:{{ detail.cpu_usage }}%</td>
-        </tr>
-        <tr>
-            <td align="left">内存使用率:{{ detail.mem_usage }}%</td>
-        </tr>
+{#        <tr>#}
+{#            <td align="left">CPU使用率:{{ detail.cpu_usage }}%</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td align="left">内存使用率:{{ detail.mem_usage }}%</td>#}
+{#        </tr>#}
         <tr>
             <td align="left">时间: {{ date }}
             </td>

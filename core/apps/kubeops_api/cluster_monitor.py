@@ -165,6 +165,7 @@ class ClusterMonitor():
         mem_total = 0
         mem_usage = 0
         count = len(nodes)
+        warn_nodes = []
         for n in nodes:
             # 不计算异常node数据
             cpu_total = cpu_total + float(n['cpu'])
@@ -173,13 +174,16 @@ class ClusterMonitor():
             mem_usage = mem_usage + float(n['mem_usage'])
             if float(n['cpu_usage']) == 0 and float(n['mem_usage']) == 0:
                 count = count - 1
-            elif float(n['cpu_usage']) > 0.8 or  float(n['mem_usage']) > 0.8:
-                message_client = MessageClient()
-                message = self.get_usage_message(n)
-                message_client.insert_message(message)
+            elif float(n['cpu_usage']) > 0.2 or float(n['mem_usage']) > 0.2:
+                warn_nodes.append(n)
         if count > 0:
             cpu_usage = cpu_usage / count
             mem_usage = mem_usage / count
+        if len(warn_nodes) > 0:
+            message_client = MessageClient()
+            message = self.get_usage_message(warn_nodes)
+            message_client.insert_message(message)
+
         sort_restart_pod_list = quick_sort_pods(self.restart_pods)
         error_pods = quick_sort_pods(self.error_pods)
 
@@ -420,23 +424,33 @@ class ClusterMonitor():
         }
         return content
 
-    def get_usage_message(self, node):
+    def get_usage_message(self, nodes):
         message = {
             "item_id": self.cluster.item_id,
             "title": "集群资源告警",
-            "content": self.get_usage_content(node),
+            "content": self.get_usage_content(nodes),
             "level": "WARNING",
             "type": "CLUSTER"
         }
         return message
 
-    def get_usage_content(self, node):
+    def get_usage_content(self, nodes):
+        message = ''
+        for n in nodes:
+            cpu_usage = round(float(n['cpu_usage']),2) * 100
+            mem_usage = round(float(n['mem_usage']),2) * 100
+            m = '主机{0}的CPU使用率为:{1}%,内存使用率为{2}% \n\n'.format(n['name'], cpu_usage, mem_usage)
+            if len(message)>0:
+                message = message +'> '+m
+            else:
+                message = m
+
         content = {
             "item_name": self.cluster.item_name,
             "resource": "集群",
             "resource_name": self.cluster.name,
             "resource_type": 'CLUSTER_USAGE',
-            "detail": json.dumps(node, cls=DateEncoder),
+            "detail":json.dumps({'message': message}) ,
             "status": self.cluster.status,
         }
         return content

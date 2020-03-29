@@ -227,9 +227,7 @@ def get_msg_content(user_message):
         text = "### " + user_message.message.title + "\n\n" + \
                "> **项目**:" + content['item_name'] + "\n\n" + \
                "> **集群**:" + content['resource_name'] + "\n\n" + \
-               "> **节点**:" + content['detail']['name'] + "\n\n" + \
-               "> **CPU使用率**:" + content['detail']['cpu_usage'] + "\n\n" + \
-               "> **内存使用率**:" + content['detail']['mem_usage'] + "\n\n" + \
+               "> **详情**:" + content['detail']['message'] + "\n\n" + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
     return text
 

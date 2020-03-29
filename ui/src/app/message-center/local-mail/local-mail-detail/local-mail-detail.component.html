@@ -33,9 +33,10 @@
         <li><b>集群:</b>{{message.message_detail.content.resource_name}}</li>
         <li><b>详情:
           <br>
-          <span>节点{{message.message_detail.content.detail.name}}的</span>
-          <span>CPU使用率为:{{message.message_detail.content.detail.cpu_usage}}%</span>
-          <span>内存使用率为：{{message.message_detail.content.detail.mem_usage}}%</span>
+          <span style="color: green">{{message.message_detail.content.detail.message }}</span>
+<!--          <span>节点{{message.message_detail.content.detail.name}}的</span>-->
+<!--          <span>CPU使用率为:{{message.message_detail.content.detail.cpu_usage}}%</span>-->
+<!--          <span>内存使用率为：{{message.message_detail.content.detail.mem_usage}}%</span>-->
         </b>
         </li>
         <li><b>时间:</b>{{message.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>

@@ -19,33 +19,35 @@ import {ReadStatusPipe} from './pipe/read-status.pipe';
 import {MessageLevelPipe} from './pipe/message-level.pipe';
 import {UploadStatusPipe} from './pipe/upload-status.pipe';
 import {UploadComponent} from './common-component/upload/upload.component';
+import { MessageDetailPipe } from './pipe/message-detail.pipe';
 
 @NgModule({
   declarations: [NotFoundComponent, KeysPipe, NullFilterPipe, DeleteAlertComponent,
     ConfirmAlertComponent, StatusPipe, StatusColorPipe, ModalAlertComponent, ProgressColorPipe,
-    BadgeClassPipe, DonePipe, MessageTypePipe, SubscribeCheckPipe, ReadStatusPipe, MessageLevelPipe, UploadComponent, UploadStatusPipe],
+    BadgeClassPipe, DonePipe, MessageTypePipe, SubscribeCheckPipe, ReadStatusPipe, MessageLevelPipe, UploadComponent, UploadStatusPipe, MessageDetailPipe],
   imports: [
     CommonModule,
     CoreModule
   ], exports: [
-    CoreModule,
-    NullFilterPipe,
-    StatusPipe,
-    DeleteAlertComponent,
-    ConfirmAlertComponent,
-    ModalAlertComponent,
-    StatusColorPipe,
-    KeysPipe,
-    ProgressColorPipe,
-    BadgeClassPipe,
-    DonePipe,
-    MessageTypePipe,
-    SubscribeCheckPipe,
-    ReadStatusPipe,
-    MessageLevelPipe,
-    UploadComponent,
-    UploadStatusPipe
-  ], providers: [
+        CoreModule,
+        NullFilterPipe,
+        StatusPipe,
+        DeleteAlertComponent,
+        ConfirmAlertComponent,
+        ModalAlertComponent,
+        StatusColorPipe,
+        KeysPipe,
+        ProgressColorPipe,
+        BadgeClassPipe,
+        DonePipe,
+        MessageTypePipe,
+        SubscribeCheckPipe,
+        ReadStatusPipe,
+        MessageLevelPipe,
+        UploadComponent,
+        UploadStatusPipe,
+        MessageDetailPipe
+    ], providers: [
     AuthUserActiveService,
   ]
 })
