@@ -5,6 +5,8 @@
 @Date   ：2020/3/13 
 =================================================='''
 import json
+import redis
+import kubeoperator.settings
 
 from rest_framework.views import APIView
 from ko_notification_utils.email_smtp import Email
@@ -27,7 +29,6 @@ class EmailCheckView(APIView):
                       username=email_config['SMTP_USERNAME'], password=email_config['SMTP_PASSWORD'])
 
         result = email.login()
-
         if result.success:
             return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
         else:
@@ -42,6 +43,10 @@ class WorkWeixinCheckView(APIView):
                             agent_id=weixin_config['WEIXIN_AGENT_ID'])
         result = weixin.get_token()
         if result.success:
+            redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST,
+                                               port=kubeoperator.settings.REDIS_PORT)
+            redis_cli.set('WORK_WEIXIN_TOKEN',result.data['access_token'],result.data['expires_in'])
+
             return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
         else:
             return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
@@ -125,7 +130,6 @@ class UserMessageView(ModelViewSet):
             user_messages = paginator.page(1)
         except EmptyPage:
             user_messages = paginator.page(paginator.num_pages)
-        # self.queryset = user_messages
 
         return JsonResponse(data={"total": paginator.count,
                                   "page_num": paginator.num_pages,

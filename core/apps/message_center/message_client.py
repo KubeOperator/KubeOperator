@@ -6,6 +6,9 @@
 =================================================='''
 import json
 import logging
+import kubeoperator.settings
+import redis
+
 from django.contrib.auth.models import User
 from kubeops_api.models.item import Item
 from .models import Message, UserNotificationConfig, UserReceiver, UserMessage
@@ -186,9 +189,9 @@ def send_work_weixin_msg(user_message):
                         agent_id=workWeixin['WEIXIN_AGENT_ID'])
     text = get_msg_content(user_message)
     content = {'content': text}
-    token = weixin.get_token()
+    token = get_work_weixin_token()
 
-    res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token.data['access_token'])
+    res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token)
     if res.success:
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
@@ -230,6 +233,18 @@ def get_msg_content(user_message):
                "> **详情**:" + content['detail']['message'] + "\n\n" + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
     return text
+
+def get_work_weixin_token():
+    redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST, port=kubeoperator.settings.REDIS_PORT)
+    if redis_cli.exists('WORK_WEIXIN_TOKEN'):
+        return redis_cli.get('WORK_WEIXIN_TOKEN')
+    else:
+        workWeixin = Setting.get_settings("workWeixin")
+        weixin = WorkWeiXin(corp_id=workWeixin['WEIXIN_CORP_ID'], corp_secret=workWeixin['WEIXIN_CORP_SECRET'],
+                            agent_id=workWeixin['WEIXIN_AGENT_ID'])
+        result = weixin.get_token()
+        redis_cli.set('WORK_WEIXIN_TOKEN', result.data['access_token'], result.data['expires_in'])
+        return result.data['access_token']
 
 
 class MessageReceiver():
