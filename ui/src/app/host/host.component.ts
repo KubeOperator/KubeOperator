@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {HostCreateComponent} from './host-create/host-create.component';
 import {HostListComponent} from './host-list/host-list.component';
+import {HostImportComponent} from './host-import/host-import.component';
 
 @Component({
   selector: 'app-host',
@@ -9,11 +10,14 @@ import {HostListComponent} from './host-list/host-list.component';
 })
 export class HostComponent implements OnInit {
 
-  @ViewChild(HostCreateComponent, { static: true })
+  @ViewChild(HostCreateComponent, {static: true})
   creationHost: HostCreateComponent;
 
-  @ViewChild(HostListComponent, { static: true })
+  @ViewChild(HostListComponent, {static: true})
   listHost: HostListComponent;
+
+  @ViewChild(HostImportComponent, {static: true})
+  importHost: HostImportComponent;
 
   constructor() {
   }
@@ -21,14 +25,12 @@ export class HostComponent implements OnInit {
   ngOnInit() {
   }
 
-  openModal() {
+  openCreate() {
     this.creationHost.newHost();
   }
 
-  createHost(created: boolean) {
-    if (created) {
-      this.refresh();
-    }
+  openImport() {
+    this.importHost.open();
   }
 
   refresh() {

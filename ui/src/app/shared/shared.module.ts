@@ -10,17 +10,20 @@ import {StatusPipe} from './pipe/status.pipe';
 import {StatusColorPipe} from './pipe/status-color.pipe';
 import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.component';
 import {KeysPipe} from './pipe/keys.pipe';
-import { ProgressColorPipe } from './pipe/progress-color.pipe';
-import { BadgeClassPipe } from './pipe/badge-class.pipe';
-import { DonePipe } from './pipe/done.pipe';
-import { MessageTypePipe } from './pipe/message-type.pipe';
-import { SubscribeCheckPipe } from './pipe/subscribe-check.pipe';
-import { ReadStatusPipe } from './pipe/read-status.pipe';
-import { MessageLevelPipe } from './pipe/message-level.pipe';
+import {ProgressColorPipe} from './pipe/progress-color.pipe';
+import {BadgeClassPipe} from './pipe/badge-class.pipe';
+import {DonePipe} from './pipe/done.pipe';
+import {MessageTypePipe} from './pipe/message-type.pipe';
+import {SubscribeCheckPipe} from './pipe/subscribe-check.pipe';
+import {ReadStatusPipe} from './pipe/read-status.pipe';
+import {MessageLevelPipe} from './pipe/message-level.pipe';
+import {UploadStatusPipe} from './pipe/upload-status.pipe';
+import {UploadComponent} from './common-component/upload/upload.component';
 
 @NgModule({
-  declarations: [NotFoundComponent, KeysPipe, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe,
-    StatusColorPipe, ModalAlertComponent, ProgressColorPipe, BadgeClassPipe, DonePipe, MessageTypePipe, SubscribeCheckPipe, ReadStatusPipe, MessageLevelPipe],
+  declarations: [NotFoundComponent, KeysPipe, NullFilterPipe, DeleteAlertComponent,
+    ConfirmAlertComponent, StatusPipe, StatusColorPipe, ModalAlertComponent, ProgressColorPipe,
+    BadgeClassPipe, DonePipe, MessageTypePipe, SubscribeCheckPipe, ReadStatusPipe, MessageLevelPipe, UploadComponent, UploadStatusPipe],
   imports: [
     CommonModule,
     CoreModule
@@ -39,7 +42,9 @@ import { MessageLevelPipe } from './pipe/message-level.pipe';
     MessageTypePipe,
     SubscribeCheckPipe,
     ReadStatusPipe,
-    MessageLevelPipe
+    MessageLevelPipe,
+    UploadComponent,
+    UploadStatusPipe
   ], providers: [
     AuthUserActiveService,
   ]

@@ -35,6 +35,7 @@
     "ngx-cookie": "^4.1.2",
     "ngx-echarts": "^4.0.1",
     "ngx-select2": "^0.3.0",
+    "ngx-uploader": "^8.0.0",
     "node-sass": "^4.10.0",
     "npm": "^6.13.4",
     "rxjs": "~6.5.3",

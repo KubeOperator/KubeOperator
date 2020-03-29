@@ -18,10 +18,12 @@ class Host(BaseHost):
     HOST_STATUS_RUNNING = "RUNNING"
     HOST_STATUS_CREATING = "CREATING"
     HOST_STATUS_UNKNOWN = "UNKNOWN"
+    HOST_STATUS_UPDATING = "UPDATING"
     DEPLOY_TEMPLATE_CHOICES = (
         (HOST_STATUS_RUNNING, 'running'),
         (HOST_STATUS_CREATING, 'creating'),
-        (HOST_STATUS_UNKNOWN, "unknown")
+        (HOST_STATUS_UNKNOWN, "unknown"),
+        (HOST_STATUS_UPDATING, "updating")
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -92,6 +94,7 @@ class Host(BaseHost):
         health_check.run()
 
     def gather_info(self, retry=1):
+        self.host.status = Host.HOST_STATUS_UPDATING
         try:
             logger.info("host: {}  gather host info ".format(self.name))
             facts = gather_host_info(ip=self.ip, port=self.port, username=self.username, retry=retry,

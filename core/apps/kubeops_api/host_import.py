@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 
 from kubeops_api.models import Credential
 from kubeops_api.models.host import Host
+from kubeops_api.tasks import sync_host_info
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ class HostImporter:
                 if created:
                     log.debug("import a host: {}".format(h.name))
                     counter["success"] = counter["success"] + 1
+                    sync_host_info.apply_async(args=(h.id,), host_id=h.id)
                 else:
                     log.debug("host {} already exists skipped".format(h.name))
                     counter["skip"] = counter["skip"] + 1
