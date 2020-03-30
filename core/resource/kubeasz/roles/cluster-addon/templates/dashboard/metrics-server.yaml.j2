@@ -96,6 +96,13 @@ spec:
         - name: main-port
           containerPort: 4443
           protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 300Mi
         securityContext:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
