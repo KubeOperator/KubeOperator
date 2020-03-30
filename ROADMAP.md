@@ -56,7 +56,7 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 
 Release Note:https://blog.fit2cloud.com/?p=1087
 
- ##  v2.5 （开发中，20120.04.20 发布）
+ ##  v2.5 （开发中，20120.04.13 发布）
  
 - [ ] LDAP/AD 对接; 
 - [ ] 消息中心；
