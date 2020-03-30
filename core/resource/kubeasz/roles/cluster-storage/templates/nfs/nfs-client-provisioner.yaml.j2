@@ -38,19 +38,26 @@ spec:
     spec:
       serviceAccountName: nfs-client-provisioner
       containers:
-        - name: nfs-client-provisioner
-          image: {{registry_prefix}}:{{registry_port}}/quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: nfs-client-root
-              mountPath: /persistentvolumes
-          env:
-            - name: PROVISIONER_NAME
-              value: {{ storage_nfs_provisioner_name }}
-            - name: NFS_SERVER
-              value: {{ storage_nfs_server }}
-            - name: NFS_PATH
-              value: {{ storage_nfs_server_path}}
+      - name: nfs-client-provisioner
+        image: {{registry_prefix}}:{{registry_port}}/quay.io/external_storage/nfs-client-provisioner:v3.1.0-k8s1.11
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: nfs-client-root
+            mountPath: /persistentvolumes
+        env:
+          - name: PROVISIONER_NAME
+            value: {{ storage_nfs_provisioner_name }}
+          - name: NFS_SERVER
+            value: {{ storage_nfs_server }}
+          - name: NFS_PATH
+            value: {{ storage_nfs_server_path}}
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: 200m
+            memory: 300Mi
       volumes:
         - name: nfs-client-root
           nfs:
