@@ -52,7 +52,7 @@ class MessageClient():
             send_ding_talk_enable = True
         send_weixin_enable = False
         weixin_receivers = ''
-        if len(Setting.objects.get(key='WEIXIN_STATUS')) > 0 and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='WEIXIN_STATUS')) > 0 and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
             send_weixin_enable = True
 
         for receiver in receivers:
