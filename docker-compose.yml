@@ -16,7 +16,7 @@ services:
 
   ui:
     build: ui
-    image: kube-operator/ui:2.4.0
+    image: kube-operator/ui:2.5.0
     container_name: kubeops_ui
     restart: always
     healthcheck:
@@ -30,7 +30,7 @@ services:
 
   api:
     build: core
-    image: kube-operator/core:2.4.0
+    image: kube-operator/core:2.5.0
     container_name: kubeops_api
     command: 'web'
     restart: always
@@ -55,7 +55,7 @@ services:
       elasticsearch:
         condition: service_healthy
   task:
-    image: kube-operator/core:2.4.0
+    image: kube-operator/core:2.5.0
     command: 'task'
     container_name: kubeops_task
     restart: always
@@ -107,7 +107,7 @@ services:
     environment:
       TZ: Asia/Shanghai
   webkubectl:
-    image: kubeoperator/webkubectl:v1.9
+    image: kubeoperator/webkubectl:v2.0
     container_name: kubeops_webkubectl
     restart: always
     privileged: true

@@ -38,20 +38,15 @@
   when: 'npd_install is defined and npd_install'
 
 - block:
-    - name: 创建 dashboard 部署文件
-      template:
-        src: dashboard/kubernetes-dashboard.yaml.j2
-        dest: "{{ base_dir }}/manifests/dashboard/kubernetes-dashboard.yaml"
-
     - name: 创建 metrics-server 部署文件
       template:
         src: dashboard/metrics-server.yaml.j2
         dest: "{{ base_dir }}/manifests/dashboard/metrics-server.yaml"
       when: 'metrics_server_install is defined and metrics_server_install'
 
-    - name: 部署 dashboard
+    - name: 部署 metrics-server
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
-  when: 'dashboard_install '
+  when: 'metrics_server_install '
   ignore_errors: true
 
 - block:
@@ -101,14 +96,6 @@
          ./grafana"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
-  ignore_errors: true
-
-- block:
-    - name: 生成 scope weave 部署文件
-      template: src=weave-scope/scope.yml.j2 dest={{ base_dir }}/manifests/weave-scope/scope.yml
-
-    - name: 部署 scope weave
-      shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/weave-scope/scope.yml"
   ignore_errors: true
 
 - block:
