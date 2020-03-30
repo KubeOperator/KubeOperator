@@ -334,4 +334,4 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             result = "成功"
         else:
             result = "失败"
-        return  json.dumps({"message":operation + result}.__dict__)
+        return  json.dumps({"message":operation + result})

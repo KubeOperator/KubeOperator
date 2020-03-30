@@ -111,22 +111,24 @@ class MessageClient():
                                        receive_status=UserMessage.MESSAGE_RECEIVE_STATUS_WAITING, message_id=message.id)
             user_messages.append(user_message)
         UserMessage.objects.bulk_create(user_messages)
-        email_message = UserMessage.objects.get(message_id=message.id, send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
-                                                user_id=1)
-        if email_message:
-            thread = MessageThread(func=send_email, user_message=email_message)
-            thread.start()
-        ding_talk_message = UserMessage.objects.get(message_id=message.id,
-                                                    send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+        email_messages = UserMessage.objects.filter(message_id=message.id,
+                                                    send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
                                                     user_id=1)
-        if ding_talk_message:
-            thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_message)
+        if len(email_messages) > 0:
+            thread = MessageThread(func=send_email, user_message=email_messages[0])
+            thread.start()
+        ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
+                                                     send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+                                                     user_id=1)
+        if len(ding_talk_messages) > 0:
+            thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_messages[0])
             thread2.start()
-        work_weixin_message = UserMessage.objects.get(message_id=message.id,
-                                                      send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
-                                                      user_id=1)
-        if work_weixin_message:
-            thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_message)
+
+        work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
+                                                       send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
+                                                       user_id=1)
+        if len(work_weixin_messages) > 0:
+            thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_messages[0])
             thread3.start()
 
 
@@ -176,6 +178,7 @@ def send_ding_talk_msg(user_message):
 
     res = ding_talk.send_markdown_msg(receivers=user_message.receive.split(','), content=content)
     if res.success:
+        print("send ding talk success")
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
     else:
@@ -193,6 +196,7 @@ def send_work_weixin_msg(user_message):
 
     res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token)
     if res.success:
+        print("send work weixin success")
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
     else:
@@ -233,6 +237,7 @@ def get_msg_content(user_message):
                "> **详情**:" + content['detail']['message'] + "\n\n" + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
     return text
+
 
 def get_work_weixin_token():
     redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST, port=kubeoperator.settings.REDIS_PORT)
