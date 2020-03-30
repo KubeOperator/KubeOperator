@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ClusterGradeService} from './cluster-grade.service';
 import {ClusterResult} from './grade';
+import {ActivatedRoute} from '@angular/router';
+import {Cluster} from '../cluster/cluster';
 
 const pieChartOptions = {
   tooltip: {
@@ -108,38 +110,41 @@ const barChartOptions = {
 })
 export class ClusterGradeComponent implements OnInit {
 
-  constructor(private service: ClusterGradeService) {
+  constructor(private service: ClusterGradeService, private route: ActivatedRoute) {
   }
 
   data: ClusterResult;
   pieChartOptions = {};
   barChartOptions;
   loading = true;
+  currentCluster: Cluster;
 
   ngOnInit() {
-    const id = 'd6e0af80-e3fb-42fe-8542-76159fdb9226';
-    this.service.getGradeData(id).subscribe(data => {
-      this.data = data;
-      this.loading = false;
-      this.pieChartOptions = pieChartOptions;
-      this.barChartOptions = barChartOptions;
-      this.pieChartOptions['series'][0].data = [
-        {value: this.data.summary.totals.errors, name: '严重'},
-        {value: this.data.summary.totals.warnings, name: '警告'},
-        {value: this.data.summary.totals.successes, name: '通过'},
-      ];
-      this.barChartOptions.yAxis.data = [];
-      this.barChartOptions.series.forEach(s => {
-        s.data = [];
-      });
-      for (const category in this.data.summary.by_category) {
-        if (category) {
-          this.barChartOptions.yAxis.data.push(category);
-          this.barChartOptions.series[0].data.push(this.data.summary.by_category[category]['errors']);
-          this.barChartOptions.series[1].data.push(this.data.summary.by_category[category]['warnings']);
-          this.barChartOptions.series[2].data.push(this.data.summary.by_category[category]['successes']);
+    this.route.parent.data.subscribe(d => {
+      this.currentCluster = d['cluster'];
+      this.service.getGradeData(this.currentCluster.name).subscribe(data => {
+        this.data = data;
+        this.loading = false;
+        this.pieChartOptions = pieChartOptions;
+        this.barChartOptions = barChartOptions;
+        this.pieChartOptions['series'][0].data = [
+          {value: this.data.summary.totals.errors, name: '严重'},
+          {value: this.data.summary.totals.warnings, name: '警告'},
+          {value: this.data.summary.totals.successes, name: '通过'},
+        ];
+        this.barChartOptions.yAxis.data = [];
+        this.barChartOptions.series.forEach(s => {
+          s.data = [];
+        });
+        for (const category in this.data.summary.by_category) {
+          if (category) {
+            this.barChartOptions.yAxis.data.push(category);
+            this.barChartOptions.series[0].data.push(this.data.summary.by_category[category]['errors']);
+            this.barChartOptions.series[1].data.push(this.data.summary.by_category[category]['warnings']);
+            this.barChartOptions.series[2].data.push(this.data.summary.by_category[category]['successes']);
+          }
         }
-      }
+      });
     });
   }
 

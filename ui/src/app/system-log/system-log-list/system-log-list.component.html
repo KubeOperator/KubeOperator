@@ -6,7 +6,7 @@
         <input clrInput placeholder="关键字" name="name" [(ngModel)]="keywords"/>
       </div>
       <div class="clr-select-wrapper">
-        <select class="clr-select" [(ngModel)]="limit_days">
+        <select class="clr-select" [(ngModel)]="limit">
           <option value=1>过去一天</option>
           <option value=7>过去一周</option>
           <option value=30>过去一月</option>
@@ -15,9 +15,9 @@
       &nbsp;
       <div class="clr-select-wrapper">
         <select class="clr-select" [(ngModel)]="level">
-          <option value="all">全部等级</option>
-          <option value="INFO">INFO</option>
           <option value="DEBUG">DEBUG</option>
+          <option value="INFO">INFO</option>
+          <option value="WARNING">WARNING</option>
           <option value="ERROR">ERROR</option>
         </select>
       </div>
@@ -39,7 +39,8 @@
   <clr-dg-footer>
     <clr-dg-pagination #pagination [clrDgTotalItems]="totalItems" [(clrDgPage)]="currentPage"
                        (clrDgPageChange)="onPageChange()"
-                       [clrDgPageSize]="10">
+                       [clrDgPageSize]="size">
+      <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
       of {{pagination.totalItems}} items
     </clr-dg-pagination>

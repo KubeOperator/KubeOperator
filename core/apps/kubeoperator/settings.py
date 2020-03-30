@@ -23,18 +23,10 @@ PACKAGE_PATH_PREFIX = "/opt/kubeoperator/data/packages/"
 PACKAGE_DIR = "/data/packages"
 CONFIG = load_user_config()
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG.SECRET_KEY
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG.DEBUG
-
 ALLOWED_HOSTS = ['*']
 
-# Application definition
 INSTALLED_APPS = [
     'message_center.apps.MessageCenterConfig',
     'storage.apps.StorageConfig',
@@ -87,9 +79,6 @@ TEMPLATES = [
     },
 ]
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-# read conf
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -101,8 +90,6 @@ DATABASES = {
     }
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -117,22 +104,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Internationalization
-# https://docs.djangoproject.com/en/2.1/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "data", "static")
@@ -249,7 +220,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'cmreslogging.handlers.CMRESHandler',
             'hosts': [{'host': ELASTICSEARCH_HOST, 'port': ELASTICSEARCH_PORT}],
-            'es_index_name': 'kubeoperator',
+            'es_index_name': 'ko-log',
             'index_name_frequency': CMRESHandler.IndexNameFrequency.MONTHLY,
             'auth_type': CMRESHandler.AuthType.NO_AUTH,
             'use_ssl': False,
@@ -264,7 +235,15 @@ LOGGING = {
             'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
         },
-        'kubeops': {
+        'cluster': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'host': {
+            'handlers': ['console', 'elasticsearch'],
+            'level': 'INFO',
+        },
+        'log': {
             'handlers': ['console', 'elasticsearch'],
             'level': 'INFO',
         },

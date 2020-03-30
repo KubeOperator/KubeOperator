@@ -7,12 +7,12 @@ import {ClusterResult} from './grade';
   providedIn: 'root'
 })
 export class ClusterGradeService {
-  baseUrl = '/api/v1/cluster/{cluster_id}/grade/';
+  baseUrl = '/api/v1/cluster/{cluster_name}/grade/';
 
   constructor(private http: HttpClient) {
   }
 
-  getGradeData(id: string): Observable<ClusterResult> {
-    return this.http.get<ClusterResult>(this.baseUrl.replace('{cluster_id}', id));
+  getGradeData(name: string): Observable<ClusterResult> {
+    return this.http.get<ClusterResult>(this.baseUrl.replace('{cluster_name}', name));
   }
 }

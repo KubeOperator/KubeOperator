@@ -40,7 +40,6 @@ class Package(models.Model):
 
     @classmethod
     def lookup(cls):
-        logger.info('lookup package...')
         for d in os.listdir(cls.packages_dir):
             full_path = os.path.join(cls.packages_dir, d)
             meta_path = os.path.join(full_path, 'meta.yml')
@@ -49,8 +48,7 @@ class Package(models.Model):
             with open(meta_path) as f:
                 metadata = yaml.load(f)
             defaults = {'name': d, 'meta': metadata}
-            logger.info('save package  {}...'.format(d))
-            instance = cls.objects.update_or_create(defaults=defaults, name=d)[0]
+            instance, _ = cls.objects.update_or_create(defaults=defaults, name=d)
             thread = threading.Thread(target=cls.start_container(instance))
             thread.start()
 

@@ -17,9 +17,10 @@ export class SystemLogListComponent implements OnInit {
   currentPage = 1;
   totalItems: number;
   keywords = '';
-  level = 'all';
+  level = 'INFO';
   loading = true;
-  limit_days = '1';
+  limit = '1';
+  size = 10;
   @ViewChild(SystemLogDetailComponent, {static: true})
   detail: SystemLogDetailComponent;
 
@@ -32,11 +33,13 @@ export class SystemLogListComponent implements OnInit {
       this.currentPage = 1;
     }
     const params = {
-      level: this.level,
-      currentPage: this.currentPage,
-      keywords: this.keywords,
-      limit_days: this.limit_days
-    };
+        level: this.level,
+        page: this.currentPage,
+        size: this.size,
+        keywords: this.keywords,
+        limit: this.limit,
+      }
+    ;
     this.loading = true;
     this.systemLogService.searchLog(params).subscribe(data => {
       this.logs = data.items;

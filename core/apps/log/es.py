@@ -1,55 +1,33 @@
 import datetime
+import logging
 
+from django.conf import settings
 from elasticsearch import Elasticsearch, helpers
 from elasticsearch_dsl import Search
 
-from kubeoperator.settings import ELASTICSEARCH_HOST
+logging.getLogger("requests").setLevel(logging.ERROR)
+logging.getLogger("elasticsearch").setLevel(logging.ERROR)
 
 
-def search_log(params):
-    level = params.get('level', None)
-    page = params.get('currentPage', None)
-    keywords = params.get('keywords', None)
-    limit_days = params.get('limit_days', None)
+def get_es_client():
+    es_host = settings.ELASTICSEARCH_HOST
+    return Elasticsearch(["{}.".format(es_host)])
 
-    size = 10
-    time_start = get_start_time(limit_days)
-    time_end = get_time_now()
-    index = get_index()
 
-    client = get_es_client()
-    s = Search(using=client, index=index)
-    s = s.using(client)
-    if level and not level == 'all':
-        s = s.query("match", levelname=level)
-    s = s.query("range", timestamp={"gte": time_start, "lte": time_end})
-    if page and size:
-        s = s[(page - 1) * size:page * size]
-    if keywords:
-        s = s.query("match", message=keywords)
-    s = s.sort({"timestamp": {"order": "desc"}})
-    print(s.to_dict())
-    s.execute()
-    items = []
-    for hit in s:
-        items.append(
-            {
-                "name": hit.name,
-                "level": hit.levelname,
-                "timestamp": format_tz_time(hit.timestamp),
-                "filename": hit.filename,
-                "funcName": hit.funcName,
-                "lineno": hit.lineno,
-                "message": hit.message,
-                "host_ip": hit.host_ip,
-                "exc_text": hit.exc_text
-            }
-        )
-    print(len(items))
-    return {
-        "items": items,
-        "total": s.count()
-    }
+def ensure_index_exists(client: Elasticsearch, name):
+    if not client.indices.exists(name):
+        client.indices.create(name)
+
+
+def perform_query(search: Search):
+    r = search.execute()
+    return r.hits
+
+
+def get_time_now():
+    now = datetime.datetime.now()
+    format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    return datetime.datetime.strftime(now, format)
 
 
 def format_tz_time(tz_time):
@@ -57,19 +35,6 @@ def format_tz_time(tz_time):
     format = "%Y-%m-%d %H:%M:%S"
     local_time = datetime.datetime.strptime(tz_time, _format) + datetime.timedelta(hours=8)
     return datetime.datetime.strftime(local_time, format)
-
-
-def format_local_time(local_time):
-    _format = "%Y-%m-%d %H:%M:%S"
-    format = "%Y-%m-%dT%H:%M:%S.%fZ"
-    tz_time = datetime.datetime.strptime(local_time, _format) - datetime.timedelta(hours=8)
-    return datetime.datetime.strftime(tz_time, format)
-
-
-def get_time_now():
-    now = datetime.datetime.now()
-    format = "%Y-%m-%dT%H:%M:%S.%fZ"
-    return datetime.datetime.strftime(now, format)
 
 
 def get_start_time(days):
@@ -81,11 +46,6 @@ def get_start_time(days):
 def get_index():
     date = datetime.datetime.now().strftime('%Y.%m')
     return 'kubeoperator-{}'.format(date)
-
-
-def get_es_client():
-    client = Elasticsearch(hosts=[ELASTICSEARCH_HOST])
-    return client
 
 
 def index(client, index, doc_type, body):
