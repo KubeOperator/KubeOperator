@@ -107,7 +107,7 @@ services:
     environment:
       TZ: Asia/Shanghai
   webkubectl:
-    image: kubeoperator/webkubectl:v1.9
+    image: kubeoperator/webkubectl:v2.0
     container_name: kubeops_webkubectl
     restart: always
     privileged: true
