@@ -44,15 +44,15 @@ class MessageClient():
         messageReceivers = []
         setting_email_enable = False
         email_receivers = ''
-        if Setting.objects.get(key='SMTP_STATUS') and Setting.objects.get(key='SMTP_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='SMTP_STATUS')) > 0 and Setting.objects.get(key='SMTP_STATUS').value == 'ENABLE':
             setting_email_enable = True
         send_ding_talk_enable = False
         ding_talk_receivers = ''
-        if Setting.objects.get(key='DINGTALK_STATUS') and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='DINGTALK_STATUS')) > 0 and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
             send_ding_talk_enable = True
         send_weixin_enable = False
         weixin_receivers = ''
-        if Setting.objects.get(key='WEIXIN_STATUS') and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
+        if len(Setting.objects.get(key='WEIXIN_STATUS')) > 0 and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
             send_weixin_enable = True
 
         for receiver in receivers:
@@ -118,15 +118,15 @@ class MessageClient():
             thread = MessageThread(func=send_email, user_message=email_messages[0])
             thread.start()
         ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
-                                                     send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
-                                                     user_id=1)
+                                                        send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+                                                        user_id=1)
         if len(ding_talk_messages) > 0:
             thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_messages[0])
             thread2.start()
 
         work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
-                                                       send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
-                                                       user_id=1)
+                                                          send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
+                                                          user_id=1)
         if len(work_weixin_messages) > 0:
             thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_messages[0])
             thread3.start()
