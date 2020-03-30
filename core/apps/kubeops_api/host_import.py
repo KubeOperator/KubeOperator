@@ -6,7 +6,7 @@ from kubeops_api.models import Credential
 from kubeops_api.models.host import Host
 from kubeops_api.tasks import sync_host_info
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("host")
 
 
 class HostImporter:

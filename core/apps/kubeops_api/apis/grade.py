@@ -7,7 +7,7 @@ from validator.base import ClusterResultJsonEncoder
 
 class GradeRetrieveAPIView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get("pk")
-        cluster = get_object_or_404(Cluster, pk=pk)
+        name = kwargs.get("cluster_name")
+        cluster = get_object_or_404(Cluster, name=name)
         data = query_cluster_grade(cluster)
         return JsonResponse(status=201, data=data, safe=False, encoder=ClusterResultJsonEncoder)
