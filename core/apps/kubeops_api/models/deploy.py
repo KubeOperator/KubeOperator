@@ -106,10 +106,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 if not result.get('summary', {}).get('success', False):
                     cluster.exit_new_node()
                 else:
-                    node_name = self.params.get('node', None)
+                    node_names = self.params.get('nodes', None)
                     cluster.change_to()
-                    node = Node.objects.get(name=node_name)
-                    node.delete()
+                    nodes = Node.objects.filter(name__in=node_names)
+                    for node in nodes:
+                        node.delete()
                     cluster.change_status(Cluster.CLUSTER_STATUS_RUNNING)
             elif self.operation == 'restore':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
