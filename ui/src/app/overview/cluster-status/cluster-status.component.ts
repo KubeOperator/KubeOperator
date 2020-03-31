@@ -75,7 +75,7 @@ export class ClusterStatusComponent implements OnInit {
     handleRemoveWorker() {
         const nodes = [];
         this.removeWorker.worker_names.forEach(w => {
-            nodes.push(w);
+            nodes.push(w['value']);
         });
         const params = {'nodes': nodes};
         this.operaterService.executeOperate(this.currentCluster.name, 'remove-worker', params).subscribe(() => {
