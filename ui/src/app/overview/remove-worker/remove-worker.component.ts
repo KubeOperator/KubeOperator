@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core'
 import {NgForm} from '@angular/forms';
 import {NodeService} from '../../node/node.service';
 import {Node} from '../../node/node';
+import {Host} from '../../host/host';
 
 @Component({
   selector: 'app-remove-worker',
@@ -13,12 +14,23 @@ export class RemoveWorkerComponent implements OnInit {
   constructor(private nodeService: NodeService) {
   }
 
-  worker: string;
   opened = false;
+  worker_names = [];
   workers: Node[] = [];
+  options: any[] = [];
   @Output() openedChange = new EventEmitter();
   @Output() confirm = new EventEmitter();
   @ViewChild('form', {static: true}) form: NgForm;
+  ops: any = {
+    multiple: true,
+    placeholder: '选择节点',
+    escapeMarkup: function (markup) {
+      return markup;
+    },
+    templateSelection: (data) => {
+      return `<span class="label label-blue select2-selection__choice__remove">${data['text']}</span>`;
+    },
+  };
 
   ngOnInit() {
   }
@@ -30,6 +42,7 @@ export class RemoveWorkerComponent implements OnInit {
       }).filter(worker => {
         return !worker.name.includes('worker1');
       });
+      this.options = this.toOptions(this.workers);
     });
   }
 
@@ -40,5 +53,13 @@ export class RemoveWorkerComponent implements OnInit {
 
   onConfirm() {
     this.confirm.emit();
+  }
+
+  private toOptions(nodes: Node[]): any[] {
+    const options = [];
+    nodes.forEach(n => {
+      options.push({'id': n.id, 'text': n.name, 'value': n.name});
+    });
+    return options;
   }
 }
