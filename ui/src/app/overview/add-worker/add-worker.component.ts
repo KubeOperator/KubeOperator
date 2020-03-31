@@ -23,6 +23,16 @@ export class AddWorkerComponent implements OnInit {
   @Output() confirm = new EventEmitter();
   @ViewChild('form', {static: true}) form: NgForm;
   @Input() currentCluster: Cluster;
+  ops: any = {
+    multiple: true,
+    placeholder: '选择节点',
+    escapeMarkup: function (markup) {
+      return markup;
+    },
+    templateSelection: (data) => {
+      return `<span class="label label-blue select2-selection__choice__remove">${data['text']}</span>`;
+    },
+  };
 
 
   ngOnInit() {

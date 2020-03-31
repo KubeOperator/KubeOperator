@@ -147,6 +147,7 @@ class Cluster(Project):
             return Item.objects.get(id=item_resource.item_id).name
         else:
             return None
+
     @property
     def item_id(self):
         self.change_to()
@@ -323,15 +324,19 @@ class Cluster(Project):
         node.set_groups(group_names=[role])
         return node
 
-    def add_worker(self, host):
+    def add_worker(self, hosts):
         num = len(self.current_workers)
-        node = Node.objects.create(
-            name="worker{}.{}.{}".format(num + 1, self.name, self.cluster_doamin_suffix),
-            host=host,
-            project=self
-        )
-        node.set_groups(group_names=['worker', 'new_node'])
-        return node
+        nodes = []
+        for host in hosts:
+            num += 1
+            node = Node.objects.create(
+                name="worker{}.{}.{}".format(num, self.name, self.cluster_doamin_suffix),
+                host=host,
+                project=self
+            )
+            node.set_groups(group_names=['worker', 'new_node'])
+            nodes.append(node)
+        return nodes
 
     def create_resource(self):
         create_compute_resource(self)
