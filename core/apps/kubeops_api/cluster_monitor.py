@@ -365,6 +365,9 @@ class ClusterMonitor():
         index = (self.cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
         for item in event_response.items:
+            # 过滤kubeapps-plus的同步事件
+            if "apprepo-sync-chartmuseum" in item.metadata.name:
+                continue
             component, host = '', ''
             if item.source is not None and item.source.component is not None:
                 component = item.source.component
