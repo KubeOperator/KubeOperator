@@ -19,8 +19,13 @@
 
     - name: 部署 registry
       shell: kubectl --namespace=kube-system apply -f /tmp/registry.yml
+
+    - name: add f2c-registry-ui-ingress annotate
+      shell: "kubectl -n kube-system annotate --overwrite ingress f2c-registry-ui-ingress nginx.ingress.kubernetes.io/proxy-body-size=10g"
+      when: 'ingress_backend == "nginx"'
+
+    - name: add f2c-registry-ingress annotate
+      shell: "kubectl -n kube-system annotate --overwrite ingress f2c-registry-ingress nginx.ingress.kubernetes.io/proxy-body-size=10g"
+      when: 'ingress_backend == "nginx"'
   when: '"kube-registry" not in pod_info.stdout'
   ignore_errors: true
-
-
-

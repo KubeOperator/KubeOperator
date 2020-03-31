@@ -27,6 +27,10 @@
     - name: 创建 kubeapps-plus registry ingress
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps-plus/kubeapps-registry.yaml"
 
+    - name: add nginx-ingress annotate
+      shell: "kubectl -n kube-system annotate --overwrite ingress kubeapps-registry-ingress nginx.ingress.kubernetes.io/proxy-body-size=10g"
+      when: 'ingress_backend == "nginx"'
+
 - block:
     - name: get all namespace
       command: "{{ bin_dir }}/kubectl get ns"
