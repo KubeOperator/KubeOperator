@@ -4,14 +4,12 @@
         path: "/etc/hosts"
         regexp: "{{ kubeapps_registry_hostname }}"
         line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host'] }} {{ kubeapps_registry_hostname }}"
-      run_once: true
 
     - name: 插入 kubeapps-plus chartmuseum hosts 记录
       lineinfile:
         path: "/etc/hosts"
         regexp: "{{ kubeapps_chartmuseum_hostname }}"
         line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host'] }} {{ kubeapps_chartmuseum_hostname }}"
-      run_once: true
 
 - block:
     - name: 尝试登陆 kubeapps-plus registry
@@ -20,5 +18,4 @@
       until: login_result.rc == 0
       retries: 10
       delay: 10
-      run_once: true
       ignore_errors: true
