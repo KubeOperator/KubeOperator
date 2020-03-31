@@ -57,6 +57,6 @@ spec:
           {{- if .Values.chartsvc.readinessProbe }}
           readinessProbe: {{- toYaml .Values.chartsvc.readinessProbe | nindent 12 }}
           {{- end }}
-          {{- if .Values.chartsvc.resource }}
+          {{- if .Values.chartsvc.resources }}
           resources: {{- toYaml .Values.chartsvc.resources | nindent 12 }}
           {{- end }}
