@@ -155,6 +155,7 @@ class ClusterMonitor():
         return deployment_list
 
     def set_cluster_data(self):
+        self.check_authorization(3)
         nodes = self.list_nodes()
         pods = self.list_pods()
         namespaces = self.list_namespaces()
