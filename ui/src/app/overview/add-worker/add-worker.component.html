@@ -2,13 +2,7 @@
   <h3 class="modal-title">添加节点</h3>
   <div class="modal-body">
     <form clrForm #form='ngForm'>
-      <clr-select-container>
-        <label>选择主机</label>
-        <select clrSelect [(ngModel)]="host" name="host">
-          <option value="">请选择</option>
-          <option *ngFor="let host of hosts" [value]="host.name">{{host.name}}</option>
-        </select>
-      </clr-select-container>
+      <l-select2 class="form-control" name="hosts" [data]="options" [(ngModel)]="host_names"></l-select2>
     </form>
   </div>
   <div class="modal-footer">

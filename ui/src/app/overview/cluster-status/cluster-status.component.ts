@@ -59,12 +59,12 @@ export class ClusterStatusComponent implements OnInit {
   }
 
   handleAddWorker() {
-    const params = {'host': this.addWorker.host};
-    this.operaterService.executeOperate(this.currentCluster.name, 'add-worker', params).subscribe(() => {
-      this.redirect('deploy');
-    }, error => {
-      this.scale.opened = false;
-    });
+    // const params = {'host': this.addWorker.host};
+    // this.operaterService.executeOperate(this.currentCluster.name, 'add-worker', params).subscribe(() => {
+    //   this.redirect('deploy');
+    // }, error => {
+    //   this.scale.opened = false;
+    // });
   }
 
   handleRemoveWorker() {

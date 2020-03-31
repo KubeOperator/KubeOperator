@@ -3,6 +3,7 @@ import {HostService} from '../../host/host.service';
 import {Host} from '../../host/host';
 import {NgForm} from '@angular/forms';
 import {Cluster} from '../../cluster/cluster';
+import {Profile} from '../../shared/session-user';
 
 @Component({
   selector: 'app-add-worker',
@@ -15,7 +16,8 @@ export class AddWorkerComponent implements OnInit {
   }
 
   hosts: Host[] = [];
-  host: string;
+  options: any[] = [];
+  host_names: string[];
   opened = false;
   @Output() openedChange = new EventEmitter();
   @Output() confirm = new EventEmitter();
@@ -31,6 +33,7 @@ export class AddWorkerComponent implements OnInit {
       this.hosts = data.filter(host => {
         return !host.cluster;
       });
+      this.options = this.toOptions(this.hosts);
     });
   }
 
@@ -41,5 +44,13 @@ export class AddWorkerComponent implements OnInit {
 
   onConfirm() {
     this.confirm.emit();
+  }
+
+  private toOptions(hosts: Host[]): any[] {
+    const options = [];
+    hosts.forEach(h => {
+      options.push({'id': h.id, 'text': h.name, 'value': h.name});
+    });
+    return options;
   }
 }
