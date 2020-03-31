@@ -2,7 +2,8 @@
   <h3 class="modal-title">添加节点</h3>
   <div class="modal-body">
     <form clrForm #form='ngForm'>
-      <l-select2 class="form-control" name="hosts" [data]="options" [(ngModel)]="host_names"></l-select2>
+      <l-select2 class="form-control" name="hosts" [data]="options" [(ngModel)]="host_names"
+                 [options]="ops"></l-select2>
     </form>
   </div>
   <div class="modal-footer">
