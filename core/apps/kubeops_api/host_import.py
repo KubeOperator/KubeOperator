@@ -59,5 +59,5 @@ class HostImporter:
             except Exception as e:
                 log.error("host {}: import error: {}".format(host["name"], e.args))
                 counter["fail"] = counter["fail"] + 1
-            log.info("import host result: {} success {} skip {} fail".format(counter["success"], counter["skip"],
-                                                                             counter["fail"]))
+        log.info("import host result: {} success {} skip {} fail".format(counter["success"], counter["skip"],
+                                                                         counter["fail"]))

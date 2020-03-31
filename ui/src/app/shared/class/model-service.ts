@@ -9,7 +9,7 @@ export class ModelService<T> {
   }
 
   list(page: number, size: number): Observable<Page<T>> {
-    return this.http.get<Page<T>>(this.baseUrl);
+    return this.http.get<Page<T>>(`${this.baseUrl}?page=${page}&size=${size}`);
   }
 
   listAll(): Observable<T[]> {

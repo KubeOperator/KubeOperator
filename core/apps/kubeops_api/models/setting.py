@@ -13,6 +13,14 @@ class Setting(models.Model):
     value = models.CharField(max_length=255, blank=True, default=None, null=True)
 
     @classmethod
+    def get_db_settings(cls):
+        sts = cls.objects.all()
+        result = {}
+        for s in sts:
+            result[s.key] = s.value
+        return result
+
+    @classmethod
     def get_settings(cls, tab=None):
         sts = cls.objects.all()
         result = {}

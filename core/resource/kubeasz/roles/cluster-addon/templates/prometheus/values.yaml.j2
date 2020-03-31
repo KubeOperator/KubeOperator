@@ -338,7 +338,13 @@ configmapReload:
   ## configmap-reload resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources: {}
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
 
 kubeStateMetrics:
   ## If false, kube-state-metrics will not be installed
