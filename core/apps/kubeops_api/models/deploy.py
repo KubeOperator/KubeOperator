@@ -197,10 +197,11 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         self.steps = cluster.get_steps('remove-worker')
         self.set_step_default()
-        node_name = self.params.get('node', None)
+        node_names = self.params.get('nodes', None)
         cluster.change_to()
-        node = Node.objects.get(name=node_name)
-        node.set_groups(['new_node', 'worker'])
+        nodes = Node.objects.filter(name__in=node_names)
+        for node in nodes:
+            node.set_groups(['new_node', 'worker'])
         return self.run_playbooks(extra_vars)
 
     def on_uninstall(self, extra_vars):
