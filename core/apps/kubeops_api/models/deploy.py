@@ -188,9 +188,9 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         cluster = self.get_cluster()
         self.steps = cluster.get_steps('add-worker')
         self.set_step_default()
-        host_name = self.params.get('host', None)
-        host = Host.objects.get(name=host_name)
-        cluster.add_worker(host)
+        host_names = self.params.get('hosts', None)
+        hosts = Host.objects.filter(name__in=host_names)
+        cluster.add_worker(hosts)
         return self.run_playbooks(extra_vars)
 
     def on_remove_worker(self, extra_vars):
