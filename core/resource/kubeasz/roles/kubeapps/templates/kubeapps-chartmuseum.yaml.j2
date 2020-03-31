@@ -69,6 +69,13 @@ spec:
         - containerPort: 8080
           name: http
           protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 160Mi
+          requests:
+            cpu: 100m
+            memory: 160Mi
         readinessProbe:
           failureThreshold: 3
           httpGet:

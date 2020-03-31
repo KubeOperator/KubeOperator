@@ -53,13 +53,13 @@ readinessProbe:
   successThreshold: 1
   timeoutSeconds: 1
 
-resources: {}
-#  limits:
-#    cpu: 200m
-#    memory: 128Mi
-#  requests:
-#    cpu: 100m
-#    memory: 128Mi
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 # Custom scrape_configs to override the default ones in the configmap
 scrapeConfigs: []

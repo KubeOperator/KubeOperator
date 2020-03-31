@@ -174,7 +174,7 @@ class ClusterMonitor():
             mem_usage = mem_usage + float(n['mem_usage'])
             if float(n['cpu_usage']) == 0 and float(n['mem_usage']) == 0:
                 count = count - 1
-            elif float(n['cpu_usage']) > 0.2 or float(n['mem_usage']) > 0.2:
+            elif float(n['cpu_usage']) > 0.8 or float(n['mem_usage']) > 0.8:
                 warn_nodes.append(n)
         if count > 0:
             cpu_usage = cpu_usage / count
