@@ -38,7 +38,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         result = {"raw": {}, "summary": {}}
         pre_deploy_execution_start.send(self.__class__, execution=self)
         cluster = self.get_cluster()
-        settings = Setting.get_settings()
+        settings = Setting.get_db_settings()
         extra_vars = {
             "cluster_name": cluster.name,
             "cluster_domain": cluster.cluster_doamin_suffix
@@ -334,4 +334,4 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             result = "成功"
         else:
             result = "失败"
-        return  json.dumps({"message":operation + result})
+        return json.dumps({"message": operation + result})
