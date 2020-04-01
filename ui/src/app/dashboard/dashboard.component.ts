@@ -137,7 +137,7 @@ export class DashboardComponent implements OnInit {
           if (cluster.name === d['name']) {
             let max_pod = cluster.configs['MAX_PODS'];
             if (max_pod === undefined) {
-              max_pod = 110;
+              max_pod = 100;
             }
             const all_max_pod = max_pod * cluster.nodes.length;
             this.maxPodCount = this.maxPodCount + all_max_pod;

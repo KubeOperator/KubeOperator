@@ -183,7 +183,7 @@ export class DescribeComponent implements OnInit {
       }
       let max_pod = this.currentCluster.configs['MAX_PODS'];
       if (max_pod === undefined) {
-        max_pod = 110;
+        max_pod = 100;
       }
       this.containerPercent = this.containerCount / (max_pod * this.nodeList.length) * 100;
       this.podCount = data['pods'].length;
