@@ -13,7 +13,8 @@
     <form clrForm #basicForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput size=45 type="text" maxlength="15" pattern="{{name_pattern}}" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 type="text" maxlength="15" pattern="{{name_pattern}}" [(ngModel)]="item.name"
+               name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.invalid">{{name_pattern_tip}}</clr-control-error>
@@ -35,6 +36,14 @@
           <option value="MULTIPLE">多主多节点</option>
         </select>
         <clr-control-error>此字段为必填项</clr-control-error>
+      </clr-select-container>
+      <clr-select-container>
+        <label>项目</label>
+        <select clrSelect [(ngModel)]="item.item_id" name="item" multiple>
+          <option [value]="" disabled>请选择</option>
+          <option *ngFor="let item of items" [value]="item.id">{{item.name}}</option>
+        </select>
+        <clr-control-helper>部署计划需要授权到项目才可用（非必填）</clr-control-helper>
       </clr-select-container>
     </form>
   </clr-wizard-page>

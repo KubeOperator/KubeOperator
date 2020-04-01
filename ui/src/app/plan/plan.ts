@@ -8,6 +8,7 @@ export class Plan {
   zones: string[] = [];
   provider: string;
   deploy_template: string;
+  item_id: [];
 }
 
 export class ComputeModel {

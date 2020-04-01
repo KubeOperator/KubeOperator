@@ -10,6 +10,7 @@ import {NgForm} from '@angular/forms';
 import {ClrWizard} from '@clr/angular';
 import {catchError} from 'rxjs/operators';
 import * as globals from '../../globals';
+import {ItemService} from "../../item/item.service";
 
 
 @Component({
@@ -34,9 +35,11 @@ export class PlanCreateComponent implements OnInit {
   @ViewChild('wizard', {static: true}) wizard: ClrWizard;
   name_pattern = globals.host_name_pattern;
   name_pattern_tip = globals.host_name_pattern_tip;
+  items = [];
 
   constructor(private regionService: RegionService,
-              private cloudService: CloudService, private zoneService: ZoneService, private planService: PlanService) {
+              private cloudService: CloudService, private zoneService: ZoneService,
+              private planService: PlanService, private itemService: ItemService) {
   }
 
   ngOnInit() {
@@ -54,6 +57,7 @@ export class PlanCreateComponent implements OnInit {
     this.listRegion();
     this.listComputeModel();
     this.createOpened = true;
+    this.listItems();
   }
 
   listRegion() {
@@ -129,4 +133,9 @@ export class PlanCreateComponent implements OnInit {
     this.createOpened = false;
   }
 
+  listItems() {
+    this.itemService.listItem().subscribe(data => {
+      this.items = data;
+    });
+  }
 }
