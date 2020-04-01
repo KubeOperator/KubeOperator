@@ -1,5 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MessageCenterService} from '../../message-center.service';
+import {CommonAlertService} from '../../../base/header/common-alert.service';
+import {AlertLevels} from '../../../base/header/components/common-alert/alert';
+
 
 @Component({
   selector: 'app-subscribe-config',
@@ -13,7 +16,7 @@ export class SubscribeConfigComponent implements OnInit {
   @Output() subscribeConfigChange = new EventEmitter();
 
 
-  constructor(private  messageCenterService: MessageCenterService) {
+  constructor(private  messageCenterService: MessageCenterService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -26,6 +29,7 @@ export class SubscribeConfigComponent implements OnInit {
 
   onSubmit(subscribable) {
     this.messageCenterService.updateSubscribe(subscribable).subscribe(res => {
+      this.alertService.showAlert('更新成功', AlertLevels.SUCCESS);
       this.onCancel();
     });
   }

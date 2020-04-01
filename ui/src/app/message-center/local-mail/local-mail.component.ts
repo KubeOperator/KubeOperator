@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {MessageCenterService} from '../message-center.service';
 import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {CommonAlertService} from '../../base/header/common-alert.service';
-import {LocalMailDetailComponent} from "./local-mail-detail/local-mail-detail.component";
+import {LocalMailDetailComponent} from './local-mail-detail/local-mail-detail.component';
 
 @Component({
   selector: 'app-local-mail',

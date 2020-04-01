@@ -1,5 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {MessageCenterService} from '../message-center.service';
+import {CommonAlertService} from '../../base/header/common-alert.service';
+import {AlertLevels} from '../../base/header/components/common-alert/alert';
+
 
 @Component({
   selector: 'app-receiver',
@@ -12,7 +15,7 @@ export class ReceiverComponent implements OnInit {
   submitGoing = false;
 
 
-  constructor(private messageCenterService: MessageCenterService) {
+  constructor(private messageCenterService: MessageCenterService, private alertService: CommonAlertService) {
   }
 
   ngOnInit() {
@@ -25,7 +28,7 @@ export class ReceiverComponent implements OnInit {
 
   onSubmit() {
     this.messageCenterService.updateUserReceiver(this.userConfig).subscribe(res => {
-
+      this.alertService.showAlert('更新成功', AlertLevels.SUCCESS);
     });
   }
 
