@@ -311,7 +311,7 @@ class ClusterMonitor():
                         ready = ready + 1
                 ready_status = str(ready) + '/' + str(count)
                 # 计算存活时间
-                now = timezone.now().replace(tzinfo=pytz.timezone('UTC'))
+                now = timezone.now()
                 age_time = now - s.status.start_time
                 age = ''
                 if age_time.days > 0:
