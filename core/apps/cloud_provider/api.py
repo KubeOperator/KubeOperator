@@ -11,6 +11,7 @@ from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.item import Item
 from kubeops_api.models.item_resource import ItemResource
 
+
 class CloudProviderTemplateViewSet(viewsets.ModelViewSet):
     queryset = CloudProviderTemplate.objects.all()
     serializer_class = serializers.CloudProviderTemplateSerializer
@@ -78,6 +79,23 @@ class PlanViewSet(viewsets.ModelViewSet):
             return super().list(self, request, *args, **kwargs)
         else:
             return super().list(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        item_ids = request.data.get('item_id', None)
+        if item_ids and len(item_ids) > 0:
+            item_resources = []
+            for item_id in item_ids:
+                item_resources.append(ItemResource(item_id=item_id, resource_id=serializer.data['id'],
+                                                   resource_type=ItemResource.RESOURCE_TYPE_PLAN))
+            ItemResource.objects.bulk_create(item_resources)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class CloudRegionView(APIView):
 

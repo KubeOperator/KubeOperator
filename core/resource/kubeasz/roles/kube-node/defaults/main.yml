@@ -9,7 +9,7 @@ SANDBOX_IMAGE: "{{registry_prefix}}:{{registry_port}}/{{SANDBOX_IMAGE_NAME}}:{{S
 KUBELET_ROOT_DIR: "/var/lib/kubelet"
 
 # node节点最大pod 数
-MAX_PODS: 110
+MAX_PODS: 100
 
 # 配置为kube组件（kubelet,kube-proxy,dockerd等）预留的资源量
 KUBE_RESERVED_ENABLED: "yes"
