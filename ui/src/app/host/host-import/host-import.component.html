@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]='opened'>
   <h3 class="modal-title">导入主机</h3>
   <div class="modal-body">
-    <span style="font-size: 12px">请上传包含主机信息的 *.xlsx 表格文件。 <a (click)="onDownloadExample()git ">下载模版</a></span>
+    <span style="font-size: 12px">请上传包含主机信息的 *.xlsx 表格文件。 <a (click)="onDownloadExample()">下载模版</a></span>
     <app-upload (uploaded)="onUploaded($event)"></app-upload>
   </div>
   <div class="modal-footer">
