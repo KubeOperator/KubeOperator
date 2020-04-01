@@ -22,6 +22,15 @@ export class LdapComponent implements OnInit {
 
   listSettings() {
     this.settingService.getSettingsByTab('ldap').subscribe(data => {
+      for (const k in data) {
+        if (k) {
+          if (data[k] === 'False') {
+            data[k] = false;
+          } else if (data[k] === 'True') {
+            data[k] = true;
+          }
+        }
+      }
       this.settings = data;
     });
   }
