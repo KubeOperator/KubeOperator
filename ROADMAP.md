@@ -67,7 +67,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] Excel批量导入主机；
 - [ ] 手动模式集群批量扩容；
 
- ##  Backlog（计划中）
+ ##  Backlog
  
 - [ ] 已有集群导入；
 - [ ] 国际化支持；
