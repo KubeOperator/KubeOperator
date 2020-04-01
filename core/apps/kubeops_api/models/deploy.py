@@ -315,6 +315,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             "remove-worker": "集群安装",
             "restore": "集群恢复",
             "backup": "集群备份",
+            "bigip-config":"F5服务暴露"
         }
         return operation_name[self.operation]
 

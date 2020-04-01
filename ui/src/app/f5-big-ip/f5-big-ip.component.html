@@ -4,6 +4,7 @@
     <clr-input-container>
       <label>BIG-IP URL</label>
       <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+      <clr-control-helper>例:172.16.10.185</clr-control-helper>
     </clr-input-container>
     <clr-input-container>
       <label>BIG-IP 用户名</label>
@@ -20,6 +21,7 @@
     <clr-input-container>
       <label>外网 IP</label>
       <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
+      <clr-control-helper>例:192.168.1.2</clr-control-helper>
     </clr-input-container>
   </form>
   <button class="btn btn-info-outline" (click)="onCommit()" [disabled]="permission==='VIEWER'">保存</button>

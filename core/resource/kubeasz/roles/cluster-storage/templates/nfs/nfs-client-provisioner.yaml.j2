@@ -51,13 +51,6 @@ spec:
             value: {{ storage_nfs_server }}
           - name: NFS_PATH
             value: {{ storage_nfs_server_path}}
-        resources:
-          limits:
-            cpu: 500m
-            memory: 500Mi
-          requests:
-            cpu: 200m
-            memory: 300Mi
       volumes:
         - name: nfs-client-root
           nfs:

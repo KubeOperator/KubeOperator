@@ -225,13 +225,6 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
-          resources:
-            limits:
-              cpu: 500m
-              memory: 500Mi
-            requests:
-              cpu: 200m
-              memory: 300Mi
           livenessProbe:
             failureThreshold: 3
             httpGet:

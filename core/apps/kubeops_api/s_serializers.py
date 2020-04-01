@@ -132,7 +132,7 @@ class ClusterSerializer(ProjectSerializer):
     )
     plan = serializers.SlugRelatedField(
         queryset=Plan.objects.all(),
-        slug_field='name', required=False
+        slug_field='name', required=False, allow_null=True
     )
     meta = serializers.DictField(required=False)
     configs = serializers.DictField(required=False)
