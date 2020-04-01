@@ -92,6 +92,13 @@ spec:
         args:
           - --cert-dir=/tmp
           - --secure-port=4443
+        resources:
+          limits:
+            cpu: 60m
+            memory: 100Mi
+          requests:
+            cpu: 60m
+            memory: 100Mi
         ports:
         - name: main-port
           containerPort: 4443

@@ -43,6 +43,13 @@ spec:
       - image: {{registry_prefix}}:{{registry_port}}/{{traefik_ingress_image}}:{{traefik_ingress_version}}
         imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
         ports:
         - name: http
           containerPort: 80
