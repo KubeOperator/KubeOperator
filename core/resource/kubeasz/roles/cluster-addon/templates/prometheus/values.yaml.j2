@@ -265,13 +265,13 @@ alertmanager:
   ## alertmanager resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources: {}
-    #limits:
-    #  cpu: 10m
-    #  memory: 32Mi
-    #requests:
-    #  cpu: 10m
-    #  memory: 32Mi
+  resources:
+    limits:
+      cpu: 10m
+      memory: 32Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
 
   ## Security context to be added to alertmanager pods
   ##
@@ -411,13 +411,13 @@ kubeStateMetrics:
   ## kube-state-metrics resource requests and limits
   ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources: {}
-    #limits:
-    #  cpu: 10m
-    #  memory: 16Mi
-    #requests:
-    #  cpu: 10m
-    #  memory: 16Mi
+  resources:
+    limits:
+      cpu: 30m
+      memory: 50Mi
+    requests:
+      cpu: 30m
+      memory: 50Mi
 
   ## Security context to be added to kube-state-metrics pods
   ##
@@ -545,13 +545,13 @@ nodeExporter:
   ## node-exporter resource limits & requests
   ## Ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources: {}
-    #limits:
-    #  cpu: 200m
-    #  memory: 50Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 30Mi
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
 
   ## Security context to be added to node-exporter pods
   ##
