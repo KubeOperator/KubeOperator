@@ -43,4 +43,8 @@ export class HostImportComponent implements OnInit {
       this.opened = false;
     });
   }
+
+  onDownloadExample() {
+    window.open('/api/v1/host/import/example/');
+  }
 }

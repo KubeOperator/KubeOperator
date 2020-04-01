@@ -67,7 +67,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] Excel批量导入主机；
 - [ ] 手动模式集群批量扩容；
 
- ##  Backlog（计划中）
+ ##  Backlog
  
 - [ ] 已有集群导入；
 - [ ] 国际化支持；
@@ -86,3 +86,4 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 支持 ARM 64（鲲鹏） 
 - [ ] K8s 跨版本升级（应用可能会受影响）
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
+- [ ] 集群运维 - 执行脚本
