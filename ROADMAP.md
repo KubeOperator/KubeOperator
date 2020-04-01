@@ -84,3 +84,5 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 支持 containerd，用户可选 docker 或者 containerd
 - [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
 - [ ] 支持 ARM 64（鲲鹏） 
+- [ ] K8s 跨版本升级（应用可能会受影响）
+- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
