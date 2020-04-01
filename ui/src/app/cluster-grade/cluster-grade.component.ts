@@ -10,8 +10,6 @@ const pieChartOptions = {
     formatter: '{a} <br/>{b}: {c} ({d}%)'
   },
   legend: {
-    orient: 'vertical',
-    left: 10,
     data: ['严重', '警告', '通过']
   },
   color: ['#F57660', '#F8B96A', '#90D072'],
