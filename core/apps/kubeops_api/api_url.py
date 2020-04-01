@@ -30,6 +30,7 @@ cluster_router.register(r'executions', api.DeployExecutionViewSet, 'cluster-depl
 
 urlpatterns = [
                   path('host/import/', host.HostImportAPIView.as_view()),
+                  path('host/import/example/', host.DownloadHostImportTemplate.as_view()),
                   path('file/upload/', file.FileUploadAPIView.as_view()),
                   path('cluster/<uuid:pk>/download/', api.DownloadView.as_view()),
                   path('cluster/<uuid:pk>/token/', api.GetClusterTokenView.as_view()),
