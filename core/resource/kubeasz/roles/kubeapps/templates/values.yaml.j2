@@ -135,16 +135,16 @@ frontend:
   ## NGINX containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
   ## Affinity for pod assignment
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ##
@@ -220,16 +220,16 @@ apprepository:
   ## AppRepository Controller containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
   ## Affinity for pod assignment
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ##
@@ -305,16 +305,16 @@ tillerProxy:
   ## Tiller Proxy containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 256Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 256Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
   ## Tiller Proxy containers' liveness and readiness probes
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
   ##
@@ -364,16 +364,16 @@ chartsvc:
   ## Chartsvc containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
   ## Chartsvc containers' liveness and readiness probes
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
   ##
@@ -439,16 +439,16 @@ dashboard:
   ## Dashboard containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
   ## Affinity for Dashboard pods assignment
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ##
@@ -508,16 +508,16 @@ mongodb:
   ## MongoDB containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 50m
-      memory: 256Mi
+    #limits:
+    #  cpu: 500m
+    #  memory: 512Mi
+    #requests:
+    #  cpu: 50m
+    #  memory: 256Mi
 
 ## RBAC paramters
 ##
@@ -576,13 +576,13 @@ authProxy:
   ## OAuth2 Proxy containers' resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
-  resources:
+  resources: {}
     ## Default values set based on usage data from running Kubeapps instances
     ## ref: https://github.com/kubeapps/kubeapps/issues/478#issuecomment-422979262
     ##
-    limits:
-      cpu: 250m
-      memory: 128Mi
-    requests:
-      cpu: 25m
-      memory: 32Mi
+    #limits:
+    #  cpu: 250m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 25m
+    #  memory: 32Mi
