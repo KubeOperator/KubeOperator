@@ -178,7 +178,6 @@ def send_ding_talk_msg(user_message):
 
     res = ding_talk.send_markdown_msg(receivers=user_message.receive.split(','), content=content)
     if res.success:
-        print("send ding talk success")
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
     else:
@@ -196,7 +195,6 @@ def send_work_weixin_msg(user_message):
 
     res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token)
     if res.success:
-        print("send work weixin success")
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
     else:
