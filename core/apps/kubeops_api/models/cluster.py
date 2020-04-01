@@ -329,8 +329,16 @@ class Cluster(Project):
         nodes = []
         for host in hosts:
             num += 1
+            name = "worker{}.{}.{}".format(num, self.name, self.cluster_doamin_suffix)
+            while True:
+                q = Node.objects.filter(name=name)
+                if q:
+                    num += 1
+                    name = "worker{}.{}.{}".format(num, self.name, self.cluster_doamin_suffix)
+                else:
+                    break
             node = Node.objects.create(
-                name="worker{}.{}.{}".format(num, self.name, self.cluster_doamin_suffix),
+                name=name,
                 host=host,
                 project=self
             )

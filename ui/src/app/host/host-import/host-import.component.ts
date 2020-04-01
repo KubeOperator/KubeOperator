@@ -24,6 +24,7 @@ export class HostImportComponent implements OnInit {
 
   open() {
     this.uploader.removeAllFiles();
+    this.uploader.files = [];
     this.file_names = [];
     this.opened = true;
   }

@@ -2,13 +2,8 @@
   <h3 class="modal-title">移除节点</h3>
   <div class="modal-body">
     <form clrForm #form='ngForm'>
-      <clr-select-container>
-        <label>选择节点</label>
-        <select clrSelect [(ngModel)]="worker" name="host">
-          <option value="">请选择</option>
-          <option *ngFor="let node of workers" [value]="node.name">{{node.name}}</option>
-        </select>
-      </clr-select-container>
+      <l-select2 class="form-control" name="wrokers" [data]="options" [(ngModel)]="worker_names"
+                 [options]="ops"></l-select2>
     </form>
   </div>
   <div class="modal-footer">
