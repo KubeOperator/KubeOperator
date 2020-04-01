@@ -6,6 +6,7 @@ import kubeoperator.settings
 import log.es
 import datetime, time
 import builtins
+import pytz
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -310,7 +311,7 @@ class ClusterMonitor():
                         ready = ready + 1
                 ready_status = str(ready) + '/' + str(count)
                 # 计算存活时间
-                now = timezone.now()
+                now = timezone.now().replace(tzinfo=pytz.timezone('UTC'))
                 age_time = now - s.status.start_time
                 age = ''
                 if age_time.days > 0:
