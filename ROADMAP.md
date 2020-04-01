@@ -86,3 +86,4 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 支持 ARM 64（鲲鹏） 
 - [ ] K8s 跨版本升级（应用可能会受影响）
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
+- [ ] 集群运维 - 执行脚本
