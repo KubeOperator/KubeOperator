@@ -28,9 +28,7 @@
       {{workerIp}} grafana.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} prometheus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} registry-ui.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
-      {{workerIp}} dashboard.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
-      {{workerIp}} scope.weave.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} kubeapps-plus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
     <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">
@@ -120,17 +118,17 @@
                     [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <img height="15px" width="15px" src="assets/images/grafana_icon.svg">&nbsp;监控/日志
             </button>
-            <button class="btn btn-outline" (click)="toApp('kubeapps-plus')"
-                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
-              <img height="15px" width="15px" src="assets/images/kubeapps.png">&nbsp;应用商店
-            </button>
             <button class="btn btn-outline" (click)="toApp('registry-ui')"
                     [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
               <img height="15px" width="15px" src="assets/images/registry.png">&nbsp;镜像仓库
             </button>
-            <!--            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">-->
-            <!--              域名解析规则-->
-            <!--            </button>-->
+            <button class="btn btn-outline" (click)="toApp('kubeapps-plus')"
+                    [disabled]="currentCluster.status !== 'RUNNING' || permission==='VIEWER'">
+              <img height="15px" width="15px" src="assets/images/kubeapps.png">&nbsp;应用商店
+            </button>
+            <button class="btn btn-outline" (click)="openHost=true" [disabled]="workers.length === 0">
+              域名解析
+            </button>
             <button class="btn btn-sm btn-link" (click)="openConfigs=true" style="float:right;margin-top: 10px">参数
             </button>
           </div>
