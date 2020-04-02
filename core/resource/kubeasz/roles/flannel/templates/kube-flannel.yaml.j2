@@ -186,10 +186,10 @@ spec:
         - --ip-masq
         - --kube-subnet-mgr
         resources:
-          requests:
+          limits:
             cpu: "500m"
             memory: "512Mi"
-          limits:
+          requests:
             cpu: "100m"
             memory: "128Mi"
         securityContext:
