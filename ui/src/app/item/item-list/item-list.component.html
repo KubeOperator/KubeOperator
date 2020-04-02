@@ -29,12 +29,16 @@
   <clr-dg-column>角色</clr-dg-column>
   <clr-dg-column>描述</clr-dg-column>
   <clr-dg-column>创建时间</clr-dg-column>
+  <clr-dg-column>操作</clr-dg-column>
 
-  <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+  <clr-dg-row class="fixed-height" *clrDgItems="let item of items" [clrDgItem]="item">
     <clr-dg-cell><a routerLink="{{item.name}}" [queryParams]='item'>{{item.name}}</a></clr-dg-cell>
     <clr-dg-cell>{{getItemPermission(item.name) | permissionName}}</clr-dg-cell>
     <clr-dg-cell>{{item.description}}</clr-dg-cell>
     <clr-dg-cell>{{item.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
+    <clr-dg-cell>
+      <button class="btn btn-sm sm-button" (click)="updateItem(item)">编辑</button>
+    </clr-dg-cell>
   </clr-dg-row>
 
   <clr-dg-footer>

@@ -61,6 +61,7 @@ import { SubscribeConfigComponent } from './message-center/subscribe/subscribe-c
 import { ReceiverComponent } from './message-center/receiver/receiver.component';
 import { ClusterGradeComponent } from './cluster-grade/cluster-grade.component';
 import { LocalMailDetailComponent } from './message-center/local-mail/local-mail-detail/local-mail-detail.component';
+import { ItemEditComponent } from './item/item-edit/item-edit.component';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { LocalMailDetailComponent } from './message-center/local-mail/local-mail
     ReceiverComponent,
     LocalMailDetailComponent,
     ClusterGradeComponent,
+    ItemEditComponent,
   ],
   imports: [
     CredentialModule,
