@@ -47,7 +47,7 @@
     - name: 部署 metrics-server
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
 
-    - name: 轮询等待 metrics apiservices 结果为True
+    - name: 轮询等待 metrics apiservice 可用
       shell: "{{ bin_dir }}/kubectl get apiservices | grep metrics | awk '{print $3}'"
       register: apiservices_status
       until: apiservices_status.stdout == "True"
