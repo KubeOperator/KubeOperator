@@ -67,7 +67,7 @@ class LDAPSync:
         user_dicts = self.user_entries_to_dict(user_entries)
         for ud in user_dicts:
             defaults = {
-                "username": ud.get("username", None),
+                "username": ud.get("username", None).strip(),
                 "email": ud.get("email", None)
             }
             if not defaults["username"] or not defaults["email"]:
