@@ -118,21 +118,18 @@ class MessageClient():
                                                     send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
                                                     user_id=1)
         if len(email_messages) > 0:
-            thread = MessageThread(func=send_email, user_message=email_messages[0])
-            thread.start()
+            send_email(email_messages[0])
         ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
                                                         send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
                                                         user_id=1)
         if len(ding_talk_messages) > 0:
-            thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_messages[0])
-            thread2.start()
+            send_ding_talk_msg(ding_talk_messages[0])
 
         work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
                                                           send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
                                                           user_id=1)
         if len(work_weixin_messages) > 0:
-            thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_messages[0])
-            thread3.start()
+            send_work_weixin_msg(work_weixin_messages[0])
 
 
 def send_email(user_message):
