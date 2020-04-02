@@ -73,9 +73,9 @@ class ClusterMonitor():
             self.storage_v1_Api = kubernetes.client.StorageV1Api(kubernetes.client.ApiClient(configuration))
 
     def check_authorization(self, retry_count):
-        if retry_count > 2:
+        if retry_count == 0:
             raise Exception('init k8s client failed! retry_count=' + str(retry_count))
-        self.retry_count = retry_count + 1
+        self.retry_count = retry_count - 1
         try:
             self.api_instance.list_node()
         except ApiException as e:
@@ -156,7 +156,7 @@ class ClusterMonitor():
         return deployment_list
 
     def set_cluster_data(self):
-        self.check_authorization(3)
+        self.check_authorization(2)
         nodes = self.list_nodes()
         pods = self.list_pods()
         namespaces = self.list_namespaces()
@@ -198,6 +198,7 @@ class ClusterMonitor():
         return self.redis_cli.set(self.cluster.name, json.dumps(cluster_data.__dict__))
 
     def list_cluster_data(self):
+        self.set_cluster_data()
         cluster_data = self.redis_cli.get(self.cluster.name)
         result = {}
         if cluster_data is not None:
