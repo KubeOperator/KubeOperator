@@ -46,6 +46,14 @@
 
     - name: 部署 metrics-server
       shell: "{{ bin_dir }}/kubectl apply -f {{ base_dir }}/manifests/dashboard"
+
+    - name: 轮询等待 metrics apiservices 结果为True
+      shell: "{{ bin_dir }}/kubectl get apiservices | grep metrics | awk '{print $3}'"
+      register: apiservices_status
+      until: apiservices_status.stdout == "True"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      retries: 10
+      delay: 10
   when: 'metrics_server_install '
   ignore_errors: true
 
@@ -114,4 +122,3 @@
         chdir: "{{ base_dir }}/manifests/prometheus"
   when: 'loki_install is defined and loki_install'
   ignore_errors: true
-

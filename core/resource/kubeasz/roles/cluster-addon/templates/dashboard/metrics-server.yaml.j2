@@ -94,11 +94,11 @@ spec:
           - --secure-port=4443
         resources:
           limits:
-            cpu: 60m
-            memory: 100Mi
+            cpu: 500m
+            memory: 256Mi
           requests:
-            cpu: 60m
-            memory: 100Mi
+            cpu: 100m
+            memory: 128Mi
         ports:
         - name: main-port
           containerPort: 4443

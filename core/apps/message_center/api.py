@@ -121,8 +121,6 @@ class UserMessageView(ModelViewSet):
         if level != 'ALL':
             l_ids = Message.objects.filter(level=level).values_list('id')
             user_messages = user_messages.filter(message_id__in=l_ids)
-        for user_message in user_messages:
-            user_message['message_detail'] = Message.objects.filter(id=user_message['message_id']).values()[0]
         paginator = Paginator(user_messages, limit)
         try:
             user_messages = paginator.page(page)
@@ -130,6 +128,8 @@ class UserMessageView(ModelViewSet):
             user_messages = paginator.page(1)
         except EmptyPage:
             user_messages = paginator.page(paginator.num_pages)
+        for user_message in user_messages:
+            user_message['message_detail'] = Message.objects.filter(id=user_message['message_id']).values()[0]
 
         return JsonResponse(data={"total": paginator.count,
                                   "page_num": paginator.num_pages,

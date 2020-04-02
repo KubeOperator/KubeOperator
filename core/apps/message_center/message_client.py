@@ -44,15 +44,18 @@ class MessageClient():
         messageReceivers = []
         setting_email_enable = False
         email_receivers = ''
-        if len(Setting.objects.filter(key='SMTP_STATUS')) > 0 and Setting.objects.get(key='SMTP_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='SMTP_STATUS')) > 0 and Setting.objects.get(
+                key='SMTP_STATUS').value == 'ENABLE':
             setting_email_enable = True
         send_ding_talk_enable = False
         ding_talk_receivers = ''
-        if len(Setting.objects.filter(key='DINGTALK_STATUS')) > 0 and Setting.objects.get(key='DINGTALK_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='DINGTALK_STATUS')) > 0 and Setting.objects.get(
+                key='DINGTALK_STATUS').value == 'ENABLE':
             send_ding_talk_enable = True
         send_weixin_enable = False
         weixin_receivers = ''
-        if len(Setting.objects.filter(key='WEIXIN_STATUS')) > 0 and Setting.objects.get(key='WEIXIN_STATUS').value == 'ENABLE':
+        if len(Setting.objects.filter(key='WEIXIN_STATUS')) > 0 and Setting.objects.get(
+                key='WEIXIN_STATUS').value == 'ENABLE':
             send_weixin_enable = True
 
         for receiver in receivers:
@@ -115,21 +118,18 @@ class MessageClient():
                                                     send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
                                                     user_id=1)
         if len(email_messages) > 0:
-            thread = MessageThread(func=send_email, user_message=email_messages[0])
-            thread.start()
+            send_email(email_messages[0])
         ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
                                                         send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
                                                         user_id=1)
         if len(ding_talk_messages) > 0:
-            thread2 = MessageThread(func=send_ding_talk_msg, user_message=ding_talk_messages[0])
-            thread2.start()
+            send_ding_talk_msg(ding_talk_messages[0])
 
         work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
                                                           send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
                                                           user_id=1)
         if len(work_weixin_messages) > 0:
-            thread3 = MessageThread(func=send_work_weixin_msg, user_message=work_weixin_messages[0])
-            thread3.start()
+            send_work_weixin_msg(work_weixin_messages[0])
 
 
 def send_email(user_message):
@@ -191,12 +191,18 @@ def send_work_weixin_msg(user_message):
                         agent_id=workWeixin['WEIXIN_AGENT_ID'])
     text = get_msg_content(user_message)
     content = {'content': text}
-    token = get_work_weixin_token()
+    token = get_work_weixin_token(False)
 
     res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token)
     if res.success:
         user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
         user_message.save()
+    elif res.data['errcode'] == 40014:
+        token = get_work_weixin_token(True)
+        res = weixin.send_markdown_msg(receivers=user_message.receive, content=content, token=token)
+        if res.success:
+            user_message.receive_status = UserMessage.MESSAGE_RECEIVE_STATUS_SUCCESS
+            user_message.save()
     else:
         logger.error(msg="send workweixin error message_id=" + str(user_message.message_id) + "reason:" + str(res.data),
                      exc_info=True)
@@ -237,17 +243,17 @@ def get_msg_content(user_message):
     return text
 
 
-def get_work_weixin_token():
+def get_work_weixin_token(force):
     redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST, port=kubeoperator.settings.REDIS_PORT)
-    if redis_cli.exists('WORK_WEIXIN_TOKEN'):
-        return redis_cli.get('WORK_WEIXIN_TOKEN')
-    else:
+    if redis_cli.exists('WORK_WEIXIN_TOKEN') == False or force == True:
         workWeixin = Setting.get_settings("workWeixin")
         weixin = WorkWeiXin(corp_id=workWeixin['WEIXIN_CORP_ID'], corp_secret=workWeixin['WEIXIN_CORP_SECRET'],
                             agent_id=workWeixin['WEIXIN_AGENT_ID'])
         result = weixin.get_token()
         redis_cli.set('WORK_WEIXIN_TOKEN', result.data['access_token'], result.data['expires_in'])
         return result.data['access_token']
+    else:
+        return redis_cli.get('WORK_WEIXIN_TOKEN')
 
 
 class MessageReceiver():
