@@ -267,8 +267,8 @@ alertmanager:
   ##
   resources:
     limits:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 100m
+      memory: 128Mi
     requests:
       cpu: 10m
       memory: 32Mi
@@ -340,11 +340,11 @@ configmapReload:
   ##
   resources:
     limits:
-      cpu: 30m
-      memory: 50Mi
+      cpu: 100m
+      memory: 128Mi
     requests:
       cpu: 30m
-      memory: 50Mi
+      memory: 64Mi
 
 kubeStateMetrics:
   ## If false, kube-state-metrics will not be installed
@@ -419,11 +419,11 @@ kubeStateMetrics:
   ##
   resources:
     limits:
-      cpu: 30m
-      memory: 50Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
-      cpu: 30m
-      memory: 50Mi
+      cpu: 100m
+      memory: 128Mi
 
   ## Security context to be added to kube-state-metrics pods
   ##
@@ -553,11 +553,11 @@ nodeExporter:
   ##
   resources:
     limits:
-      cpu: 100m
-      memory: 200Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
       cpu: 100m
-      memory: 200Mi
+      memory: 256Mi
 
   ## Security context to be added to node-exporter pods
   ##
