@@ -28,7 +28,6 @@
       {{workerIp}} grafana.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} prometheus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} registry-ui.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
-      {{workerIp}} traefik.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
       {{workerIp}} kubeapps-plus.apps.{{currentCluster.name}}.{{currentCluster.cluster_doamin_suffix}} <br>
     </span>
     <span *ngIf="currentCluster.persistent_storage === 'rook-ceph'">

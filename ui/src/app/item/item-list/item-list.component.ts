@@ -15,6 +15,7 @@ import {Profile, SessionUser} from '../../shared/session-user';
 export class ItemListComponent implements OnInit {
 
   @Output() addItem = new EventEmitter<void>();
+  @Output() editItem = new EventEmitter<void>();
 
   constructor(private itemService: ItemService, private alertService: CommonAlertService, private sessionService: SessionService) {
   }
@@ -45,6 +46,10 @@ export class ItemListComponent implements OnInit {
 
   addNewItem() {
     this.addItem.emit();
+  }
+
+  updateItem(item) {
+    this.editItem.emit(item);
   }
 
   onDeleted() {

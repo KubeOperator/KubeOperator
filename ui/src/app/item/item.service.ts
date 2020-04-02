@@ -34,4 +34,10 @@ export class ItemService {
       catchError(error => throwError(error))
     );
   }
+
+  updateItem(item: Item, oldName: string): Observable<any> {
+    return this.http.patch(this.baseUrl + oldName + '/', item).pipe(
+      catchError(error => throwError(error))
+    );
+  }
 }
