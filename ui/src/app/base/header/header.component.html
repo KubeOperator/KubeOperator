@@ -15,8 +15,8 @@
   </div>
   <div class="header-actions">
     <clr-dropdown>
-      <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
-        <clr-icon shape="bell" [ngClass]="{'has-badge':info>0 || warning>0}"></clr-icon>
+      <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu" style="color: red">
+        <clr-icon class="is-solid" shape="bell" [ngClass]="{'has-badge':info>0 || warning>0}"></clr-icon>
       </button>
       <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
         <a clrDropdownItem (click)="toMessage()">信息 &nbsp;<span class="badge badge-info">{{info}}</span></a>
