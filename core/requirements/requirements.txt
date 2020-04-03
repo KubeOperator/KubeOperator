@@ -94,6 +94,6 @@ flower==0.9.3
 django-auth-ldap==1.7.0
 python-ldap==3.2.0
 ko-notification-utils==0.0.11
-KubeGrade==0.0.3
+KubeGrade==0.0.5
 openpyxl==3.0.3
 ldap3==2.4
