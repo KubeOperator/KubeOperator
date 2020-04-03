@@ -8,6 +8,7 @@ import json
 import logging
 import kubeoperator.settings
 import redis
+from pytz import timezone
 
 from django.contrib.auth.models import User
 from kubeops_api.models.item import Item
@@ -16,8 +17,8 @@ from kubeops_api.models.setting import Setting
 from ko_notification_utils.email_smtp import Email
 from ko_notification_utils.ding_talk import DingTalk
 from ko_notification_utils.work_weixin import WorkWeiXin
-from .message_thread import MessageThread
-from django.template import Template, Context, loader
+from django.template import loader
+from datetime import datetime,timezone,timedelta
 
 logger = logging.getLogger('kubeops')
 
@@ -210,10 +211,12 @@ def send_work_weixin_msg(user_message):
 
 def get_msg_content(user_message):
     content = json.loads(user_message.message.content)
+    date = user_message.date_created.astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
     type = content['resource_type']
     content['detail'] = json.loads(content['detail'])
     text = ''
     if type == 'CLUSTER_EVENT':
+        event_time = datetime.strptime(content['detail']['last_timestamp'],'%Y-%m-%d %H:%M:%S').astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
         text = "### " + user_message.message.title + " \n\n " + \
                "> **项目**:" + content['item_name'] + " \n\n " + \
                "> **集群**:" + content['resource_name'] + " \n\n" + \
@@ -223,7 +226,7 @@ def get_msg_content(user_message):
                "> **组件**:" + content['detail']['component'] + " \n\n " + \
                "> **NameSpace**:" + content['detail']['namespace'] + " \n\n " + \
                "> **主机**:" + content['detail']['host'] + " \n\n " + \
-               "> **告警时间**:" + content['detail']['last_timestamp'] + " \n\n " + \
+               "> **告警时间**:" + event_time+ " \n\n " + \
                "> **详情**:" + content['detail']['message'] + " \n\n " + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
 
@@ -232,6 +235,7 @@ def get_msg_content(user_message):
                "> **项目**:" + content['item_name'] + "\n\n" + \
                "> **集群**:" + content['resource_name'] + "\n\n" + \
                "> **信息**:" + content['detail']['message'] + "\n\n" + \
+               "> **时间**:" + date + "\n\n" + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
 
     if type == 'CLUSTER_USAGE':
@@ -239,6 +243,7 @@ def get_msg_content(user_message):
                "> **项目**:" + content['item_name'] + "\n\n" + \
                "> **集群**:" + content['resource_name'] + "\n\n" + \
                "> **详情**:" + content['detail']['message'] + "\n\n" + \
+               "> **时间**:" + date + "\n\n" + \
                "<font color=\"info\">本消息由KubeOperator自动发送</font>"
     return text
 
