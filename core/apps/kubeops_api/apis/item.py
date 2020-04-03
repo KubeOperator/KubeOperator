@@ -17,6 +17,7 @@ from kubeops_api.serializers.item import ItemSerializer, ItemUserSerializer, Ite
 from kubeops_api.utils.json_resource_encoder import JsonResourceEncoder
 from storage.models import ClusterCephStorage
 from storage.models import NfsStorage, CephStorage
+from kubeops_api.models.backup_strategy import BackupStrategy
 
 __all__ = ["ItemResourceView"]
 
@@ -122,6 +123,7 @@ class ItemResourceView(APIView):
         response.write(json.dumps({'msg': '授权成功'}))
         return response
 
+
 class ItemResourceClusterView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -131,10 +133,9 @@ class ItemResourceClusterView(APIView):
         for item_resource in item_resources:
             for item in items:
                 if item.id == item_resource.item_id:
-                    item_resource_dto = ItemResourceDTO(item_name=item.name,item_resource=item_resource)
+                    item_resource_dto = ItemResourceDTO(item_name=item.name, item_resource=item_resource)
                     result.append(item_resource_dto.__dict__)
-        return Response({"data":result})
-
+        return Response({"data": result})
 
 
 class ItemResourceDeleteView(APIView):
@@ -159,6 +160,20 @@ class ItemResourceDeleteView(APIView):
             if host.node_id is not None:
                 return Response(data={'msg': host.name + '已经属于集群，不能单独取消授权'},
                                 status=status.HTTP_400_BAD_REQUEST)
+        if resource_type == ItemResource.RESOURCE_TYPE_BACKUP_STORAGE:
+            backup_storage = BackupStorage.objects.get(id=resource_id)
+            strategies = BackupStrategy.objects.filter(backup_storage_id=backup_storage.id)
+            can_delete = True
+            for strategy in strategies:
+                if strategy.status == BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE:
+                    can_delete = False
+                    break
+            if can_delete == False:
+                return Response(data={'msg': '有集群备份策略使用此备份账号，不能取消授权！如要取消，请先禁用备份策略！'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                strategies.delete()
+
         ItemResource.objects.get(resource_id=resource_id, item_id=item.id).delete()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg': '取消成功'}))
@@ -178,7 +193,8 @@ class ResourceView(APIView):
         if resource_type == ItemResource.RESOURCE_TYPE_CLUSTER:
             result = Cluster.objects.exclude(id__in=resource_ids)
         if resource_type == ItemResource.RESOURCE_TYPE_HOST:
-            all_host_ids = ItemResource.objects.filter(resource_type=ItemResource.RESOURCE_TYPE_HOST).values_list('resource_id', flat=True)
+            all_host_ids = ItemResource.objects.filter(resource_type=ItemResource.RESOURCE_TYPE_HOST).values_list(
+                'resource_id', flat=True)
             result = Host.objects.exclude(id__in=all_host_ids).filter(node_id=None)
         if resource_type == ItemResource.RESOURCE_TYPE_PLAN:
             result = Plan.objects.exclude(id__in=resource_ids)
