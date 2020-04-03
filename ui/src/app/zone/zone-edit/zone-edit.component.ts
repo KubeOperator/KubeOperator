@@ -47,11 +47,14 @@ export class ZoneEditComponent implements OnInit {
       this.networkErrors.push('截止IP不是有效的IPV4地址!');
     }
     if (ipaddr.isValid(start_ip) && ipaddr.isValid(end_ip)) {
-      const start = ipaddr.parse(start_ip);
-      const end = ipaddr.parse(end_ip);
-      if (start > end) {
-        result = false;
-        this.networkErrors.push('截止IP必须大于起始IP!');
+      const start = ipaddr.parse(start_ip).toByteArray();
+      const end = ipaddr.parse(end_ip).toByteArray();
+      for (let i = 0; i < 4; i++) {
+        if (start[i] > end[i]) {
+          result = false;
+          this.networkErrors.push('截止IP必须大于起始IP!');
+          break;
+        }
       }
     }
     return result;
