@@ -67,9 +67,9 @@ class MessageClient():
 
             if setting_email_enable and config.vars['EMAIL'] == 'ENABLE' and user_receiver.vars['EMAIL'] != '':
                 if email_receivers != '':
-                    email_receivers = email_receivers + ',' + receiver.email
+                    email_receivers = email_receivers + ',' + user_receiver.vars['EMAIL']
                 else:
-                    email_receivers = receiver.email
+                    email_receivers = user_receiver.vars['EMAIL']
 
             if send_ding_talk_enable and config.vars['DINGTALK'] == 'ENABLE' and user_receiver.vars['DINGTALK'] != '':
                 if ding_talk_receivers != '':
