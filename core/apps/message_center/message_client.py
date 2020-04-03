@@ -118,19 +118,22 @@ class MessageClient():
         email_messages = UserMessage.objects.filter(message_id=message.id,
                                                     send_type=UserMessage.MESSAGE_SEND_TYPE_EMAIL,
                                                     user_id=1)
-        if len(email_messages) > 0:
-            send_email(email_messages[0])
-        ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
-                                                        send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
-                                                        user_id=1)
-        if len(ding_talk_messages) > 0:
-            send_ding_talk_msg(ding_talk_messages[0])
+        try:
+            if len(email_messages) > 0:
+                send_email(email_messages[0])
+            ding_talk_messages = UserMessage.objects.filter(message_id=message.id,
+                                                            send_type=UserMessage.MESSAGE_SEND_TYPE_DINGTALK,
+                                                            user_id=1)
+            if len(ding_talk_messages) > 0:
+                send_ding_talk_msg(ding_talk_messages[0])
 
-        work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
-                                                          send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
-                                                          user_id=1)
-        if len(work_weixin_messages) > 0:
-            send_work_weixin_msg(work_weixin_messages[0])
+            work_weixin_messages = UserMessage.objects.filter(message_id=message.id,
+                                                              send_type=UserMessage.MESSAGE_SEND_TYPE_WORKWEIXIN,
+                                                              user_id=1)
+            if len(work_weixin_messages) > 0:
+                send_work_weixin_msg(work_weixin_messages[0])
+        except Exception as e:
+            logger.error(msg="send message error",exc_info=True)
 
 
 def send_email(user_message):
