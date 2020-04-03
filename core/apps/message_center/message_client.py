@@ -21,7 +21,7 @@ from django.template import loader
 from datetime import datetime,timezone,timedelta
 
 logger = logging.getLogger('kubeops')
-
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 class MessageClient():
 
