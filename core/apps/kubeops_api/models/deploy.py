@@ -311,8 +311,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             "uninstall": "集群卸载",
             "upgrade": "集群升级",
             "scale": "集群伸缩",
-            "add-worker": "集群伸缩",
-            "remove-worker": "集群安装",
+            "add-worker": "集群扩容",
+            "remove-worker": "集群缩容",
             "restore": "集群恢复",
             "backup": "集群备份",
             "bigip-config":"F5服务暴露"
