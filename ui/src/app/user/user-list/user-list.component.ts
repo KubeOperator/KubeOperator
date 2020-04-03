@@ -63,7 +63,7 @@ export class UserListComponent implements OnInit {
         return;
       } else {
         this.userService.syncUserFromLDAP().subscribe(() => {
-          this.alertService.showAlert('开始同步从LDAP同步用户', AlertLevels.SUCCESS);
+          this.alertService.showAlert('开始同步用户', AlertLevels.SUCCESS);
         });
       }
     });
