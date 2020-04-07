@@ -20,7 +20,7 @@ from ko_notification_utils.work_weixin import WorkWeiXin
 from django.template import loader
 from datetime import datetime,timezone,timedelta
 
-logger = logging.getLogger('kubeops')
+logger = logging.getLogger('message_center')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
 class MessageClient():
