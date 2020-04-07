@@ -67,6 +67,7 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 result = self.on_uninstall(extra_vars)
                 cluster.change_status(Cluster.CLUSTER_STATUS_READY)
                 kubeops_api.cluster_monitor.delete_cluster_redis_data(cluster.name)
+                kubeops_api.cluster_monitor.delete_es_event_data(cluster.name)
             elif self.operation == 'bigip-config':
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
