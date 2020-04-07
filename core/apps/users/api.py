@@ -83,8 +83,7 @@ class UserPasswordChangeApi(UpdateAPIView):
 
 
 class SyncUserFromLDAPApi(CreateAPIView):
-    permission_classes = (IsSuperUser,)
-
+    # permission_classes = (IsSuperUser,)
     def post(self, request, *args, **kwargs):
         start_sync_user_form_ldap.apply_async()
         return Response({"result": "ok"}, status=status.HTTP_201_CREATED)

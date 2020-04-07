@@ -61,7 +61,6 @@ class ItemUserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            print(234)
             return self.serializer_class_read
         else:
             return super().get_serializer_class()
