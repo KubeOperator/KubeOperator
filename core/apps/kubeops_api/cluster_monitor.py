@@ -6,7 +6,6 @@ import kubeoperator.settings
 import log.es
 import datetime, time
 import builtins
-import pytz
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -442,11 +441,11 @@ class ClusterMonitor():
     def get_usage_content(self, nodes):
         message = ''
         for n in nodes:
-            cpu_usage = round(float(n['cpu_usage']),2) * 100
-            mem_usage = round(float(n['mem_usage']),2) * 100
+            cpu_usage = round(float(n['cpu_usage']), 2) * 100
+            mem_usage = round(float(n['mem_usage']), 2) * 100
             m = '主机{0}的CPU使用率为:{1}%,内存使用率为{2}% \n\n'.format(n['name'], cpu_usage, mem_usage)
-            if len(message)>0:
-                message = message +'> '+m
+            if len(message) > 0:
+                message = message + '> ' + m
             else:
                 message = m
 
@@ -455,7 +454,7 @@ class ClusterMonitor():
             "resource": "集群",
             "resource_name": self.cluster.name,
             "resource_type": 'CLUSTER_USAGE',
-            "detail":json.dumps({'message': message}) ,
+            "detail": json.dumps({'message': message}),
             "status": self.cluster.status,
         }
         return content
@@ -649,3 +648,16 @@ def sync_node_time(cluster):
     if (max - min) > 300000:
         result['success'] = False
     return result
+
+
+def delete_es_event_data(cluster_name):
+    es_client = log.es.get_es_client()
+    keys = list(es_client.indices.get_alias().keys())
+    try:
+
+        for key in keys:
+            index_name = cluster_name + '-'
+            if index_name in key:
+                es_client.indices.delete(index=key)
+    except Exception as e:
+        logger.error(msg='delete event data failed')
