@@ -7,10 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from ansible_api.permissions import IsSuperUser
 from users.models import Profile
 from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer, ChangeUserPasswordSerializer
-from message_center.models import UserNotificationConfig, UserReceiver, Message
+from message_center.models import UserNotificationConfig,UserReceiver,UserMessage
 from .tasks import start_sync_user_form_ldap
 
 
@@ -30,23 +29,11 @@ class UserViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        vars = {
-            "LOCAL": "ENABLE",
-            "EMAIL": "DISABLE",
-            "DINGTALK": "DISABLE",
-            "WORKWEIXIN": "DISABLE",
-        }
-        user = User.objects.get(username=serializer.data['username'])
-        UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_CLUSTER).save()
-        UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_SYSTEM).save()
-        vars2 = {
-            "EMAIL": user.email,
-            "DINGTALK": "",
-            "WORKWEIXIN": "",
-        }
-        UserReceiver(vars=vars2, user=user).save()
-
         serializer.data.pop("password")
+
+        config = UserNotificationConfig()
+        config.create_config_by_username(username=serializer.data['username'])
+
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
