@@ -12,6 +12,16 @@ def get_docker_client():
     return client
 
 
+def list_package_containers():
+    client = get_docker_client()
+    containers = client.containers.list()
+    result = []
+    for container in containers:
+        if PACKAGE_IMAGE_NAME in container.image.tags:
+            result.append(container.name)
+    return result
+
+
 def is_package_container_exists(package_name):
     result = False
     client = get_docker_client()
