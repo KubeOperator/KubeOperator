@@ -7,7 +7,6 @@ from kubeops_api.models.setting import Setting
 from message_center.models import UserNotificationConfig, UserReceiver, Message
 
 
-
 class LDAPSync:
     def __init__(self):
         self._conn = None
@@ -74,19 +73,20 @@ class LDAPSync:
             }
             if not defaults["username"] or not defaults["email"]:
                 continue
-            User.objects.get_or_create(defaults, username=defaults.get("username"))
-            vars = {
-                "LOCAL": "ENABLE",
-                "EMAIL": "DISABLE",
-                "DINGTALK": "DISABLE",
-                "WORKWEIXIN": "DISABLE",
-            }
-            user = User.objects.get(username=defaults["username"])
-            UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_CLUSTER).save()
-            UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_SYSTEM).save()
-            vars2 = {
-                "EMAIL": user.email,
-                "DINGTALK": "",
-                "WORKWEIXIN": "",
-            }
-            UserReceiver(vars=vars2, user=user).save()
+            obj, create = User.objects.get_or_create(defaults, username=defaults.get("username"))
+            if create:
+                vars = {
+                    "LOCAL": "ENABLE",
+                    "EMAIL": "DISABLE",
+                    "DINGTALK": "DISABLE",
+                    "WORKWEIXIN": "DISABLE",
+                }
+                user = User.objects.get(username=defaults["username"])
+                UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_CLUSTER).save()
+                UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_SYSTEM).save()
+                vars2 = {
+                    "EMAIL": user.email,
+                    "DINGTALK": "",
+                    "WORKWEIXIN": "",
+                }
+                UserReceiver(vars=vars2, user=user).save()
