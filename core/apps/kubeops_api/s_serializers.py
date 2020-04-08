@@ -43,8 +43,8 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        read_only_fields = ['id', 'name', 'meta', 'date_created']
-        fields = ['id', 'name', 'meta', 'date_created']
+        read_only_fields = ['id', 'name', 'meta', 'date_created', 'state']
+        fields = ['id', 'name', 'meta', 'date_created', 'state']
 
 
 class ClusterConfigSerializer(serializers.Serializer):

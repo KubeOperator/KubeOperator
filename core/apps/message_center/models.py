@@ -87,12 +87,12 @@ class UserMessage(models.Model):
         message = Message.objects.get(id=self.message_id)
 
         detail = {
-            "title":str(message.title),
-            "sender":message.sender,
-            "content":str(message.content),
-            "date_created":message.date_created.strftime("%Y-%m-%d %H:%M:%S"),
-            "type":message.type,
-            "level":message.level
+            "title": str(message.title),
+            "sender": message.sender,
+            "content": str(message.content),
+            "date_created": message.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+            "type": message.type,
+            "level": message.level
         }
 
         return detail
@@ -100,14 +100,31 @@ class UserMessage(models.Model):
     class Meta:
         ordering = ('-date_created',)
 
+
 class UserNotificationConfig(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, to_field='id')
     vars = common_models.JsonDictTextField(default={})
     type = models.CharField(max_length=128, choices=Message.MESSAGE_TYPE_CHOICES, default=Message.MESSAGE_TYPE_SYSTEM,
                             null=False)
 
+    def create_config_by_username(self, username):
+        vars = {
+            "LOCAL": "ENABLE",
+            "EMAIL": "DISABLE",
+            "DINGTALK": "DISABLE",
+            "WORKWEIXIN": "DISABLE",
+        }
+        user = User.objects.get(username=username)
+        UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_CLUSTER).save()
+        UserNotificationConfig(vars=vars, user=user, type=Message.MESSAGE_TYPE_SYSTEM).save()
+        vars2 = {
+            "EMAIL": user.email,
+            "DINGTALK": "",
+            "WORKWEIXIN": "",
+        }
+        UserReceiver(vars=vars2, user=user).save()
+
 
 class UserReceiver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, to_field='id')
     vars = common_models.JsonDictTextField(default={})
-
