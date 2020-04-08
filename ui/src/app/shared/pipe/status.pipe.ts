@@ -54,6 +54,12 @@ export class StatusPipe implements PipeTransform {
         case 'True':
           result = '运行中';
           break;
+        case 'online':
+          result = '在线';
+          break;
+        case 'offline':
+          result = '离线';
+          break;
         default:
           result = value;
       }
