@@ -1,9 +1,14 @@
+import logging
+import threading
 import uuid
-
 from django.conf import settings
 from django.db import models
 
 __all__ = ['Setting']
+
+logger = logging.getLogger(__name__)
+
+from kubeops_api.utils.redis import RedisHelper
 
 
 class Setting(models.Model):
@@ -11,6 +16,8 @@ class Setting(models.Model):
     tab = models.CharField(max_length=128, default="system")
     key = models.CharField(max_length=128, blank=False)
     value = models.CharField(max_length=255, blank=True, default=None, null=True)
+    __helper = RedisHelper()
+    __channel_name = "setting_change"
 
     @classmethod
     def get_db_settings(cls):
@@ -40,13 +47,25 @@ class Setting(models.Model):
             if tab:
                 defaults.update({"tab": tab})
             cls.objects.update_or_create(defaults=defaults, key=k)
-            Setting.apply_settings()
+            cls.__helper.publish(cls.__channel_name, "1")
+            logger.debug("send a message to channel")
 
     @classmethod
-    def apply_settings(cls):
-        try:
-            sts = cls.objects.all()
-            for setting in sts:
-                settings.__setattr__(setting.key, setting.value)
-        except Exception as e:
-            pass
+    def __apply_settings(cls):
+        sts = Setting.objects.all()
+        for setting in sts:
+            settings.__setattr__(setting.key, setting.value)
+
+    @classmethod
+    def subscribe_setting_change(cls):
+        cls.__apply_settings()
+        sub = cls.__helper.subscribe(cls.__channel_name)
+
+        def listen(s):
+            while True:
+                _ = s.parse_response()
+                cls.__apply_settings()
+
+        t = threading.Thread(target=listen, args=(sub,))
+        t.daemon = True
+        t.start()

@@ -44,7 +44,7 @@ class SystemLog:
             now = datetime.now()
             start_time = now - timedelta(days=int(limit))
             s = s.query("range", timestamp={"gte": format_date(start_time), "lte": format_date(now)})
-        s = s.sort({"last_timestamp": {"order": "desc"}})
+        s = s.sort({"timestamp": {"order": "desc"}})
         return s
 
 
