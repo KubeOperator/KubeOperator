@@ -246,8 +246,9 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
 
   listPackages() {
     this.packageService.listPackage().subscribe(data => {
-      this.packages = data;
-      console.log(data);
+      this.packages = data.filter((p) => {
+        return p.state === 'online';
+      });
     }, error => {
       this.alertService.showAlert('加载离线包错误!: \n' + error, AlertLevels.ERROR);
     });
