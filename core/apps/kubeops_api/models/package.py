@@ -14,9 +14,17 @@ __all__ = ['Package']
 
 
 class Package(models.Model):
+    PACKAGE_STATE_OFFLINE = "offline"
+    PACKAGE_STATE_ONLINE = "online"
+    PACKAGE_STATE_CHOICES = (
+        (PACKAGE_STATE_OFFLINE, 'offline'),
+        (PACKAGE_STATE_ONLINE, 'online'),
+    )
+
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
     meta = JsonTextField(blank=True, null=True, verbose_name=_('Meta'))
+    state = models.CharField(max_length=32, default=PACKAGE_STATE_OFFLINE, choices=PACKAGE_STATE_CHOICES)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
     packages_dir = PACKAGE_DIR
 
@@ -50,12 +58,25 @@ class Package(models.Model):
             defaults = {'name': d, 'meta': metadata}
             instance, _ = cls.objects.update_or_create(defaults=defaults, name=d)
             thread = threading.Thread(target=cls.start_container(instance))
+            thread.daemon = True
             thread.start()
 
     @classmethod
     def start_container(cls, package):
+        cls.check_package_health()
         if not is_package_container_exists(package.name):
             create_package_container(package)
             return
         if not is_package_container_start(package.name):
             start_package_container(package)
+        package.state = Package.PACKAGE_STATE_ONLINE
+        package.save()
+
+    @classmethod
+    def check_package_health(cls):
+        ps = cls.objects.all()
+        cs = list_package_containers()
+        for p in ps:
+            if p not in cs:
+                p.state = Package.PACKAGE_STATE_OFFLINE
+                p.save()
