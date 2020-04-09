@@ -56,16 +56,23 @@ Release Note: https://blog.fit2cloud.com/?p=1032
 
 Release Note:https://blog.fit2cloud.com/?p=1087
 
- ##  v2.5 （开发中，20120.04.13 发布）
+ ##  v2.5 （已发布）
  
-- [ ] LDAP/AD 对接; 
-- [ ] 消息中心；
-- [ ] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
-- [ ] 集群健康评分;
-- [ ] 将部分内置应用移到应用商店；
-- [ ] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
-- [ ] Excel批量导入主机；
-- [ ] 手动模式集群批量扩容；
+- [x] LDAP/AD 对接; 
+- [x] 消息中心；
+- [x] 应用商店增加 [Argo CD](https://github.com/argoproj/argo-cd)，完整覆盖 CI 到 CD 的场景；
+- [x] 集群健康评分;
+- [x] 将部分内置应用移到应用商店；
+- [x] 支持 ingress-nginx，用户可选 ingress-nginx 或者 Traefik
+- [x] Excel批量导入主机；
+- [x] 手动模式集群批量扩容；
+
+ ##  v2.6 （开发中，预计 2020.5.14 发布）
+
+- [ ] K8s 集群 API Server 的 高可用（ VIP ）
+- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
+- [ ] 集群运维 - 执行脚本
+- [ ] 应用商店改成可选安装
 
  ##  Backlog
  
@@ -77,14 +84,10 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
-- [ ] K8s 集群 API Server 的 高可用（ VIP ） 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
 - [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 支持 VMware NSX-T；
-- [ ] 支持 containerd，用户可选 docker 或者 containerd
 - [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
+- [ ] 支持 containerd，用户可选 docker 或者 containerd
 - [ ] 支持 ARM 64（鲲鹏） 
 - [ ] K8s 跨版本升级（应用可能会受影响）
-- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
-- [ ] 集群运维 - 执行脚本
-- [ ] 应用商店改成可选安装
