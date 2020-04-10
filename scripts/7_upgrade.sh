@@ -68,7 +68,7 @@ function upgrade_service() {
     if [ ! ${package_name} ]; then
         echo -ne "无k8s安装包 跳过此步骤 ... "
     else
-      rm -rf ${KUBEOPS_DIR}/data/packages/${}package_name
+      rm -rf ${KUBEOPS_DIR}/data/packages/${package_name}
     fi
     \cp -rf ${PROJECT_DIR}/* ${KUBEOPS_DIR}/
     chmod -R 777 ${KUBEOPS_DIR}/data
