@@ -57,6 +57,7 @@ class Package(models.Model):
                 metadata = yaml.load(f)
             defaults = {'name': d, 'meta': metadata}
             instance, _ = cls.objects.update_or_create(defaults=defaults, name=d)
+            cls.check_package_health()
             thread = threading.Thread(target=cls.start_container(instance))
             thread.daemon = True
             thread.start()
@@ -66,11 +67,8 @@ class Package(models.Model):
         cls.check_package_health()
         if not is_package_container_exists(package.name):
             create_package_container(package)
-            return
         if not is_package_container_start(package.name):
             start_package_container(package)
-        package.state = Package.PACKAGE_STATE_ONLINE
-        package.save()
 
     @classmethod
     def check_package_health(cls):
@@ -79,4 +77,6 @@ class Package(models.Model):
         for p in ps:
             if p not in cs:
                 p.state = Package.PACKAGE_STATE_OFFLINE
-                p.save()
+            else:
+                p.state = Package.PACKAGE_STATE_ONLINE
+            p.save()
