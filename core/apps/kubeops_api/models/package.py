@@ -75,7 +75,7 @@ class Package(models.Model):
         ps = cls.objects.all()
         cs = list_package_containers()
         for p in ps:
-            if p not in cs:
+            if p.name not in cs:
                 p.state = Package.PACKAGE_STATE_OFFLINE
             else:
                 p.state = Package.PACKAGE_STATE_ONLINE
