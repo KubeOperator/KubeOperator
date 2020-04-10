@@ -47,6 +47,7 @@ import {DescribeComponent} from './overview/describe/describe.component';
 import {SubscribeComponent} from './message-center/subscribe/subscribe.component';
 import {ReceiverComponent} from './message-center/receiver/receiver.component';
 import {ClusterGradeComponent} from './cluster-grade/cluster-grade.component';
+import {ClusterOpsComponent} from './cluster-ops/cluster-ops.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -111,7 +112,8 @@ const routes: Routes = [
           {path: 'backup', component: ClusterBackupComponent},
           {path: 'grade', component: ClusterGradeComponent},
           {path: 'big-ip', component: F5BigIpComponent},
-          {path: 'cluster-storage', component: ClusterStorageComponent}
+          {path: 'cluster-storage', component: ClusterStorageComponent},
+          {path: 'ops', component: ClusterOpsComponent}
         ]
       },
       {

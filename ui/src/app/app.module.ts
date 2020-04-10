@@ -62,6 +62,9 @@ import { ReceiverComponent } from './message-center/receiver/receiver.component'
 import { ClusterGradeComponent } from './cluster-grade/cluster-grade.component';
 import { LocalMailDetailComponent } from './message-center/local-mail/local-mail-detail/local-mail-detail.component';
 import { ItemEditComponent } from './item/item-edit/item-edit.component';
+import { ClusterOpsComponent } from './cluster-ops/cluster-ops.component';
+import { OpsListComponent } from './cluster-ops/ops-list/ops-list.component';
+import { OpsCreateComponent } from './cluster-ops/ops-create/ops-create.component';
 
 @NgModule({
   declarations: [
@@ -100,6 +103,9 @@ import { ItemEditComponent } from './item/item-edit/item-edit.component';
     LocalMailDetailComponent,
     ClusterGradeComponent,
     ItemEditComponent,
+    ClusterOpsComponent,
+    OpsListComponent,
+    OpsCreateComponent,
   ],
   imports: [
     CredentialModule,
