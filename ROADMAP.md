@@ -73,6 +73,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
 - [ ] 集群运维 - 执行脚本
 - [ ] 应用商店改成可选安装
+- [ ] vSphere 创建虚机时支持选用自有模板
 
  ##  Backlog
  
