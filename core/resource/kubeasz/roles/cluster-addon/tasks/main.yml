@@ -4,7 +4,7 @@
   run_once: true
 
 - import_tasks: ingress.yml
-  when: '"ingress-controller" not in pod_info.stdout'
+  when: '"ingress" not in pod_info.stdout'
 
 - block:
     - name: 创建npd相关目录

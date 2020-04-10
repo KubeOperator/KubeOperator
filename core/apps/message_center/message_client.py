@@ -21,7 +21,7 @@ from django.template import loader
 from datetime import datetime,timezone,timedelta
 
 logger = logging.getLogger('message_center')
-logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.ERROR)
 
 class MessageClient():
 
