@@ -1,3 +1,6 @@
+- import_tasks: calico.yml
+  when: 'CLUSTER_NETWORK == "calico"'
+
 - import_tasks: scale-vsan.yml
   when:
     - 'storage_vsan_enabled is defined'
