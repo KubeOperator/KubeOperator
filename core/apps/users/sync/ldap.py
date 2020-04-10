@@ -6,11 +6,10 @@ from ldap3 import Server, Connection
 from kubeops_api.models.setting import Setting
 from message_center.models import UserNotificationConfig
 
-
 class LDAPSync:
     def __init__(self):
         self._conn = None
-        settings = Setting.get_settings(tab='ldap')
+        settings = Setting.get_db_settings()
         self.ldap_enable = settings.get("AUTH_LDAP_ENABLE", False)
         if not self.ldap_enable:
             return
@@ -77,4 +76,3 @@ class LDAPSync:
             if create:
                 config = UserNotificationConfig()
                 config.create_config_by_username(username=defaults["username"])
-
