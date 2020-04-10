@@ -69,11 +69,11 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 
  ##  v2.6 （开发中，预计 2020.5.14 发布）
 
-- [ ] K8s 集群 API Server 的 高可用（ VIP ）
-- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)
-- [ ] 集群运维 - 执行脚本
-- [ ] 应用商店改成可选安装
-- [ ] vSphere 创建虚机时支持选用自有模板
+- [ ] K8s 集群 API Server 的 高可用（ VIP ）；
+- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
+- [ ] 集群作业中心，通过 Ansible 来执行脚本，提供常见任务脚本库；
+- [ ] 应用商店改成可选安装；
+- [ ] vSphere 创建虚机时支持选用自有模板。
 
  ##  Backlog
  
@@ -89,6 +89,6 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 支持 VMware NSX-T；
 - [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
-- [ ] 支持 containerd，用户可选 docker 或者 containerd
-- [ ] 支持 ARM 64（鲲鹏） 
-- [ ] K8s 跨版本升级（应用可能会受影响）
+- [ ] 支持 containerd，用户可选 docker 或者 containerd；
+- [ ] 支持 ARM 64（鲲鹏） ；
+- [ ] K8s 跨版本升级（应用可能会受影响）。
