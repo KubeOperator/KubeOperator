@@ -17,7 +17,7 @@ def list_package_containers():
     containers = client.containers.list()
     result = []
     for container in containers:
-        if PACKAGE_IMAGE_NAME in container.image.tags:
+        if PACKAGE_IMAGE_NAME in container.image.tags and str(container.status) == 'running':
             result.append(container.name)
     return result
 
