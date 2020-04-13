@@ -29,6 +29,7 @@ def get_api_v1_urlpatterns():
         path('', include('storage.api_url')),
         path('', include('log.api_url')),
         path('', include('message_center.api_url')),
+        path('', include("ops.api_url"))
 
     ]
     return _urlpatterns
