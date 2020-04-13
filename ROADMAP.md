@@ -73,7 +73,9 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
 - [ ] 集群作业中心，通过 Ansible 来执行脚本，提供常见任务脚本库；
 - [ ] 应用商店改成可选安装；
-- [ ] vSphere 创建虚机时支持选用自有模板。
+- [ ] vSphere 创建虚机时支持选用自有模板；
+- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持使用 helm3 进行部署)。
+
 
  ##  Backlog
  
