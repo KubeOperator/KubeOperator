@@ -42,10 +42,10 @@
     <button clrTabLink>微信</button>
     <clr-tab-content *clrIfActive>
       <form clrForm #wechatForm="ngForm">
-        <clr-input-container>
+        <clr-password-container>
           <label>corpid</label>
-          <input clrInput name="weixin_corp_id" [(ngModel)]="workWeixin['WEIXIN_CORP_ID']" size=45 required/>
-        </clr-input-container>
+          <input clrPassword name="weixin_corp_id" [(ngModel)]="workWeixin['WEIXIN_CORP_ID']" size=45 required/>
+        </clr-password-container>
         <clr-input-container>
           <label>agentid</label>
           <input clrInput name="weixin_agentid" [(ngModel)]="workWeixin['WEIXIN_AGENT_ID']" size=45 required/>
