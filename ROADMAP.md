@@ -67,6 +67,8 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [x] Excel批量导入主机；
 - [x] 手动模式集群批量扩容；
 
+Release Note:https://blog.fit2cloud.com/?p=1126
+
  ##  v2.6 （开发中，预计 2020.5.14 发布）
 
 - [ ] K8s 集群 API Server 的 高可用（ VIP ）；
@@ -74,23 +76,20 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [ ] 集群作业中心，通过 Ansible 来执行脚本，提供常见任务脚本库；
 - [ ] 应用商店改成可选安装；
 - [ ] vSphere 创建虚机时支持选用自有模板；
-- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持使用 helm3 进行部署)。
-
+- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
 
  ##  Backlog
  
+- [ ] 全容器化部署;
 - [ ] 已有集群导入；
 - [ ] 国际化支持；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] 全容器化部署;
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
 - [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
-- [ ] 使用 [Sonobuoy](https://github.com/vmware-tanzu/sonobuoy) 进行 Kubernetes 集群合规检查并可视化展示结果；
 - [ ] 支持 VMware NSX-T；
-- [ ] 应用商店增加 [JumpServer 堡垒机](https://github.com/jumpserver/jumpserver)；
-- [ ] 支持 containerd，用户可选 docker 或者 containerd；
-- [ ] 支持 ARM 64（鲲鹏） ；
-- [ ] K8s 跨版本升级（应用可能会受影响）。
+- [ ] 支持 containerd；
+- [ ] 支持 ARM 64（鲲鹏）；
+- [ ] K8s 跨版本升级。
