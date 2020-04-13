@@ -1,7 +1,7 @@
 - block:
     - name: 生成 traefik-ingress 部署文件
       template:
-        src: ingress/traefik/traefik-ingress.yaml.j2
+        src: traefik/traefik-ingress.yaml.j2
         dest: "{{ base_dir }}/manifests/ingress/traefik/traefik-ingress.yaml"
 
     - name: 创建 traefik 部署
@@ -12,7 +12,7 @@
 - block:
     - name: 生成 nginx-ingress 部署文件
       template:
-        src: ingress/nginx/nginx-ingress.yaml.j2
+        src: nginx-ingress/nginx-ingress.yaml.j2
         dest: "{{ base_dir }}/manifests/ingress/nginx/nginx-ingress.yaml"
 
     - name: 创建 nginx 部署

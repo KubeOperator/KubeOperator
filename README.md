@@ -14,7 +14,6 @@ KubeOperator 内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plu
 
 - CI / CD 应用场景：GitLab、Jenkins、Harbor、Sonarqube、Argo CD 等；
 - GPU / AI 应用场景：Tensorflow、PyTorch 等;
-- Serverless 应用场景：Knative 等；
 - 数据库应用场景：MySQL、Redis 等;
 
 KubeOperator 的整体架构如下图所示：
