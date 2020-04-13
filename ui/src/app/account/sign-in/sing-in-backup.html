@@ -1,0 +1,39 @@
+<div id="parent" style="background-color: #f3f3f3">
+  <div id="child" class="clr-row" style="background-color: #ffffff">
+    <div class="clr-col-sm-6">
+      <div class="clr-row" style="height: 40px;position: relative;top: 10%;">
+        <img src="assets/images/logo-login.png" style=" margin-left:40px;">
+      </div>
+      <div style="position: relative;top: 20%; text-align: center;font-size: 32px;letter-spacing: 0;">
+        <span class="welcome">登录 KubeOperator</span>
+      </div>
+      <div style="margin-left: 40px;position: relative;top: 30%;">
+        <form clrForm #signInForm="ngForm">
+          <clr-input-container>
+            <label>用户名</label>
+            <input type="text" name="username" size="60" clrInput placeholder="Username"
+                   [(ngModel)]="signInCredential.principal"
+                   required/>
+          </clr-input-container>
+          <clr-password-container>
+            <label>密码</label>
+            <input type="password" name="password" size="60" clrPassword placeholder="Password"
+                   [(ngModel)]="signInCredential.password" required/>
+          </clr-password-container>
+          <div [class.visibility-hidden]="!isError" style="text-align: center;color: red">
+            {{message}}
+          </div>
+        </form>
+      </div>
+      <div style="margin-left: 40px;position: relative;top: 40%;text-align: center;">
+        <button type="submit" style="width: 100%" class="btn btn-primary" (click)="signIn()"
+                [disabled]="signInForm.invalid">登录
+        </button>
+      </div>
+    </div>
+    <div class="clr-col-sm-6 " style="padding: 0;">
+      <div class="login-image" >
+      </div>
+    </div>
+  </div>
+</div>
