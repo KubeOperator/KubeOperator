@@ -40,7 +40,7 @@ spec:
       hostNetwork: true
       restartPolicy: Always
       containers:
-      - image: {{registry_prefix}}:{{registry_port}}/{{traefik_ingress_image}}:{{traefik_ingress_version}}
+      - image: {{registry_prefix}}:{{registry_port}}/{{traefik_image}}:{{traefik_version}}
         imagePullPolicy: IfNotPresent
         name: traefik-ingress-lb
         resources:

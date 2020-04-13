@@ -64,8 +64,12 @@ function upgrade_service() {
     \mv -f ${compose_file} ${compose_bak}
 
     echo -ne "更新升级文件 ... "
-    package_name=`ls -l ${PROJECT_DIR}/data/packages/ | grep -v total | awk '{print $9}'`
-    rm -rf ${KUBEOPS_DIR}/data/packages/${package_name}
+    package_name=$(ls ${PROJECT_DIR}/data/packages/ -l | awk '/^d/{print $NF}' |  sed 's/ //g')
+    if [ ! ${package_name} ]; then
+        echo -ne "无k8s安装包 跳过此步骤 ... "
+    else
+      rm -rf ${KUBEOPS_DIR}/data/packages/${package_name}
+    fi
     \cp -rf ${PROJECT_DIR}/* ${KUBEOPS_DIR}/
     chmod -R 777 ${KUBEOPS_DIR}/data
     echo "[OK]"
