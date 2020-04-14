@@ -48,6 +48,7 @@ import {SubscribeComponent} from './message-center/subscribe/subscribe.component
 import {ReceiverComponent} from './message-center/receiver/receiver.component';
 import {ClusterGradeComponent} from './cluster-grade/cluster-grade.component';
 import {ClusterOpsComponent} from './cluster-ops/cluster-ops.component';
+import {ScriptComponent} from './script/script.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -141,6 +142,10 @@ const routes: Routes = [
           {path: 'subscribe', component: SubscribeComponent},
           {path: 'receiver', component: ReceiverComponent},
         ]
+      },
+      {
+        path: 'script',
+        component: ScriptComponent
       }
     ]
   },

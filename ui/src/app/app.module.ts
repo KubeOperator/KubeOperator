@@ -32,39 +32,40 @@ import {StorageModule} from './storage/storage.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SystemLogModule} from './system-log/system-log.module';
 import {DnsModule} from './dns/dns.module';
-import { ClusterStorageComponent } from './cluster-storage/cluster-storage.component';
-import { ClusterEventComponent } from './cluster-event/cluster-event.component';
-import { ClusterEventListComponent } from './cluster-event/cluster-event-list/cluster-event-list.component';
-import { ClusterEventDetailComponent } from './cluster-event/cluster-event-detail/cluster-event-detail.component';
-import { CephComponent } from './ceph/ceph.component';
-import { CephListComponent } from './ceph/ceph-list/ceph-list.component';
-import { CephCreateComponent } from './ceph/ceph-create/ceph-create.component';
-import { NgCircleProgressModule } from 'ng-circle-progress';
-import { ItemComponent } from './item/item.component';
-import { ItemCreateComponent } from './item/item-create/item-create.component';
-import { ItemListComponent } from './item/item-list/item-list.component';
-import { ItemDetailComponent } from './item/item-detail/item-detail.component';
-import { ItemMemberComponent } from './item-member/item-member.component';
-import { ItemResourceComponent } from './item-resource/item-resource.component';
-import { ItemResourceCreateComponent } from './item-resource/item-resource-create/item-resource-create.component';
-import { ItemResourceListComponent } from './item-resource/item-resource-list/item-resource-list.component';
-import { ItemResourcePipe } from './item-resource/item-resource.pipe';
-import { ItemMemberListComponent } from './item-member/item-member-list/item-member-list.component';
-import { ItemMemberCreateComponent } from './item-member/item-member-create/item-member-create.component';
-import { MemberFilterPipe } from './item-member/member-filter.pipe';
-import { PermissionNamePipe } from './item/permission-name.pipe';
-import { ItemRolePipe } from './item-member/item-role.pipe';
-import { MessageCenterComponent } from './message-center/message-center.component';
-import { LocalMailComponent } from './message-center/local-mail/local-mail.component';
-import { SubscribeComponent } from './message-center/subscribe/subscribe.component';
-import { SubscribeConfigComponent } from './message-center/subscribe/subscribe-config/subscribe-config.component';
-import { ReceiverComponent } from './message-center/receiver/receiver.component';
-import { ClusterGradeComponent } from './cluster-grade/cluster-grade.component';
-import { LocalMailDetailComponent } from './message-center/local-mail/local-mail-detail/local-mail-detail.component';
-import { ItemEditComponent } from './item/item-edit/item-edit.component';
-import { ClusterOpsComponent } from './cluster-ops/cluster-ops.component';
-import { OpsListComponent } from './cluster-ops/ops-list/ops-list.component';
-import { OpsCreateComponent } from './cluster-ops/ops-create/ops-create.component';
+import {ClusterStorageComponent} from './cluster-storage/cluster-storage.component';
+import {ClusterEventComponent} from './cluster-event/cluster-event.component';
+import {ClusterEventListComponent} from './cluster-event/cluster-event-list/cluster-event-list.component';
+import {ClusterEventDetailComponent} from './cluster-event/cluster-event-detail/cluster-event-detail.component';
+import {CephComponent} from './ceph/ceph.component';
+import {CephListComponent} from './ceph/ceph-list/ceph-list.component';
+import {CephCreateComponent} from './ceph/ceph-create/ceph-create.component';
+import {NgCircleProgressModule} from 'ng-circle-progress';
+import {ItemComponent} from './item/item.component';
+import {ItemCreateComponent} from './item/item-create/item-create.component';
+import {ItemListComponent} from './item/item-list/item-list.component';
+import {ItemDetailComponent} from './item/item-detail/item-detail.component';
+import {ItemMemberComponent} from './item-member/item-member.component';
+import {ItemResourceComponent} from './item-resource/item-resource.component';
+import {ItemResourceCreateComponent} from './item-resource/item-resource-create/item-resource-create.component';
+import {ItemResourceListComponent} from './item-resource/item-resource-list/item-resource-list.component';
+import {ItemResourcePipe} from './item-resource/item-resource.pipe';
+import {ItemMemberListComponent} from './item-member/item-member-list/item-member-list.component';
+import {ItemMemberCreateComponent} from './item-member/item-member-create/item-member-create.component';
+import {MemberFilterPipe} from './item-member/member-filter.pipe';
+import {PermissionNamePipe} from './item/permission-name.pipe';
+import {ItemRolePipe} from './item-member/item-role.pipe';
+import {MessageCenterComponent} from './message-center/message-center.component';
+import {LocalMailComponent} from './message-center/local-mail/local-mail.component';
+import {SubscribeComponent} from './message-center/subscribe/subscribe.component';
+import {SubscribeConfigComponent} from './message-center/subscribe/subscribe-config/subscribe-config.component';
+import {ReceiverComponent} from './message-center/receiver/receiver.component';
+import {ClusterGradeComponent} from './cluster-grade/cluster-grade.component';
+import {LocalMailDetailComponent} from './message-center/local-mail/local-mail-detail/local-mail-detail.component';
+import {ItemEditComponent} from './item/item-edit/item-edit.component';
+import {ClusterOpsComponent} from './cluster-ops/cluster-ops.component';
+import {OpsListComponent} from './cluster-ops/ops-list/ops-list.component';
+import {OpsCreateComponent} from './cluster-ops/ops-create/ops-create.component';
+import {ScriptModule} from './script/script.module';
 
 @NgModule({
   declarations: [
@@ -132,8 +133,9 @@ import { OpsCreateComponent } from './cluster-ops/ops-create/ops-create.componen
     NfsModule,
     StorageModule,
     SystemLogModule,
+    ScriptModule,
     DnsModule,
-       NgCircleProgressModule.forRoot({
+    NgCircleProgressModule.forRoot({
       radius: 100,
       outerStrokeWidth: 16,
       innerStrokeWidth: 8,
