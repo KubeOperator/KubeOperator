@@ -26,6 +26,10 @@
               "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/@clr/ui/clr-ui.min.css",
               "node_modules/xterm/dist/xterm.css",
+              "node_modules/codemirror/lib/codemirror.css",
+              "node_modules/codemirror/theme/idea.css",
+              "node_modules/codemirror/mode/shell/shell.js",
+              "node_modules/codemirror/mode/python/python.js",
               "src/styles.css",
               "src/assets/css/select2.min.css",
               "src/assets/css/icon/css/font-awesome.css"
