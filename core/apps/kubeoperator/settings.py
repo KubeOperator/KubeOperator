@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'ansible_api.apps.AnsibleApiConfig',
     'celery_api.apps.CeleryApiConfig',
     'log.apps.LogConfig',
+    'ops.apps.OpsConfig',
     'users.apps.UsersConfig',
     'django_celery_beat',
     'rest_framework',
@@ -277,4 +278,3 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
