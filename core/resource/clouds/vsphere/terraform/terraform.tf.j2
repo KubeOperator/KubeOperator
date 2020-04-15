@@ -31,12 +31,22 @@ data "vsphere_datastore" "{{zone.key}}" {
   name = "{{ zone.vc_storage }}"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
-{% endfor %}
 
+{% if zone.template_type == undefined or zone.template_type == 'default'%}
 data "vsphere_virtual_machine" "template" {
   name = "kubeoperator/{{ image_name }}"
   datacenter_id = "${data.vsphere_datacenter.dc.id}"
 }
+{% endif %}
+
+{% if zone.template_type != undefined and  zone.template_type == 'customize'%}
+data "vsphere_virtual_machine" "template" {
+  name = "{{ zone.image_name }}"
+  datacenter_id = "${data.vsphere_datacenter.dc.id}"
+}
+{% endif %}
+
+{% endfor %}
 
 {% for host in hosts %}
 resource "vsphere_virtual_machine" "{{host.short_name}}" {
@@ -46,7 +56,13 @@ resource "vsphere_virtual_machine" "{{host.short_name}}" {
   datastore_id = "${data.vsphere_datastore.{{host.zone.key}}.id}"
   num_cpus = {{ host.cpu }}
   memory = {{ host.memory }}
+  {% if host.guest_id == undefined %}
   guest_id = "otherLinux64Guest"
+  {% endif %}
+
+  {% if host.guest_id != undefined %}
+  guest_id = "{{ host.guest_id }}"
+  {% endif %}
 
   network_interface {
     network_id = "${data.vsphere_network.{{host.zone.key}}.id}"

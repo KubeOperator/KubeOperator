@@ -9,6 +9,7 @@ from kubeops_api.models.node import Node
 from time import sleep
 from kubeops_api.models.item_resource import ItemResource
 
+
 def create_compute_resource(cluster):
     hosts_dict = create_cluster_hosts_dict(cluster)
     create_nodes(cluster, hosts_dict)
@@ -92,12 +93,16 @@ def create_nodes(cluster, hosts_dict):
             "status": Host.HOST_STATUS_CREATING,
             "auto_gather_info": False
         }
+        if zone.vars['template_type'] and zone.vars['template_type'] == 'customize' and  zone.vars['template_password']:
+            defaults['password'] = zone.vars['template_password']
+
         if host_dict.get('new', False):
             result = Host.objects.update_or_create(defaults, name=host_dict['name'])
             host = result[0]
             node = cluster.create_node(host_dict['role'], host)
             item_resource = ItemResource.objects.get(resource_id=cluster.id)
-            item_r = ItemResource(item_id=item_resource.item_id,resource_id=host.id,resource_type=ItemResource.RESOURCE_TYPE_HOST)
+            item_r = ItemResource(item_id=item_resource.item_id, resource_id=host.id,
+                                  resource_type=ItemResource.RESOURCE_TYPE_HOST)
             item_r.save()
             new_nodes.append(node)
             hosts.append(host)
@@ -160,6 +165,10 @@ def create_cluster_hosts_dict(cluster):
                 "zone": zone.to_dict(),
                 "zone_name": zone.name,
             }
+            # 自定义模板处理
+            if zone.vars['template_type'] and zone.vars['template_type'] == 'customize' and zone.vars['guest_id'] != '':
+                host['guest_id'] = zone.vars['guest_id']
+
             host_set = Host.objects.filter(name=name)
             if host_set:
                 host.update({
