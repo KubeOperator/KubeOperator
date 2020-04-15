@@ -71,6 +71,43 @@
               <clr-control-error>此字段为必填项</clr-control-error>
               <clr-control-helper>选择用于运行虚拟机的存储器,如要在k8s集群中使用vsan动态创建pv请选择支持vsan类型的存储器</clr-control-helper>
             </clr-select-container>
+          </div>
+          <div *ngIf="item.vars['vc_storage']">
+            <h3>模板</h3>
+            <hr/>
+            <clr-radio-container clrInline>
+              <label>模板类型</label>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="template_type" required value="default" checked="checked"
+                       [(ngModel)]="item.vars['template_type']"/>
+                <label>默认</label>
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="template_type" required value="customize"
+                       [(ngModel)]="item.vars['template_type']"
+                       (ngModelChange)="list_templates()"/>
+                <label>自定义</label>
+              </clr-radio-wrapper>
+            </clr-radio-container>
+            <div *ngIf="item.vars['template_type'] === 'customize'">
+              <clr-spinner *ngIf="templateLoading">loading</clr-spinner>
+              <div  *ngIf="!templateLoading">
+                <clr-select-container>
+                  <label>模板</label>
+                  <select [(ngModel)]="item.template" name="template" required clrSelect
+                          (ngModelChange)="change_template(item.template)">
+                    <option value="">请选择</option>
+                    <option *ngFor="let temp of templates" [value]=temp.image_name>{{temp.image_name}}</option>
+                  </select>
+                  <clr-control-error>此字段为必填项</clr-control-error>
+                </clr-select-container>
+                <clr-input-container>
+                  <label>模板密码</label>
+                  <input clrInput size=45 type="text" [(ngModel)]="item.vars['template_password']"
+                         name="template_password" required>
+                </clr-input-container>
+              </div>
+            </div>
             <h3>网络</h3>
             <hr/>
             <clr-select-container>

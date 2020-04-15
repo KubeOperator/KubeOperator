@@ -133,3 +133,13 @@ class CloudFlavorView(APIView):
         if not models:
             return Response(data={'msg': "没有合适的flavor规格！请添加大于4C8G60G的flavor."}, status=status.HTTP_400_BAD_REQUEST)
         return HttpResponse(json.dumps(models))
+
+class CloudTemplateView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        region_name = kwargs.get('region')
+        region = get_object_or_404(Region, name=region_name)
+        region.vars['provider'] = region.template.name
+        client = get_cloud_client(region.vars)
+        data = client.list_templates(region.cloud_region)
+        return HttpResponse(json.dumps(data))

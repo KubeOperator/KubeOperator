@@ -12,4 +12,5 @@ export class Zone {
   host_size: string;
   ip_available_size: number;
   provider: string;
+  template: {};
 }

@@ -58,7 +58,40 @@ class VsphereCloudClient(CloudClient):
                         "multipleHostAccess": datastore.summary.multipleHostAccess
                     })
             zones.append(zone)
+
         return zones
+
+    def list_templates(self, region):
+        params = replace_params(self.vars)
+        st = get_service_instance(params)
+        content = st.RetrieveContent()
+        container = content.rootFolder
+        viewType = [vim.Datacenter]
+        region = get_obj(content, viewType, container, region)
+        templates = self.get_templates(region.vmFolder)
+        return templates
+
+    def get_templates(self, entity):
+        templates = []
+        if isinstance(entity, vim.Folder):
+            for obj in entity.childEntity:
+                if isinstance(obj, vim.VirtualMachine) and obj.config.template:
+                    template = {
+                        "image_name": obj.name,
+                        "guest_id": obj.guest.guestId
+                    }
+                    templates.append(template)
+
+                if isinstance(obj, vim.Folder):
+                    tem = self.get_templates(obj)
+                    if len(tem) > 0:
+                        templates.extend(tem)
+            return templates
+        else:
+            return []
+
+    def check_compatibility(self):
+        vim.vm.check.CompatibilityChecker()
 
     def init_terraform(self, cluster):
         plugin_dir = os.path.join(self.working_path, '.terraform', 'plugins')
@@ -157,6 +190,10 @@ def get_service_instance(kwargs):
                      exc_info=True)
         raise Exception('Could not connect to the specified host using specified username and password')
     return service_instance
+
+def get_profile(self, profile_name, pbm_content):
+    pm = pbm_content.profileManager
+
 
 
 def get_ovf_descriptor(ovf_path):

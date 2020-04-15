@@ -36,6 +36,8 @@ export class ZoneCreateComponent implements OnInit {
   @ViewChild('wizard', {static: true}) wizard: ClrWizard;
   name_pattern = globals.host_name_pattern;
   name_pattern_tip = globals.host_name_pattern_tip;
+  templates = [];
+  templateLoading = false;
 
   constructor(private regionService: RegionService,
               private cloudService: CloudService,
@@ -157,6 +159,25 @@ export class ZoneCreateComponent implements OnInit {
       this.loading = false;
       this.cloudZones = data;
     });
+
+  }
+
+  list_templates() {
+    this.templateLoading = true;
+    this.cloudService.listTemplates(this.item.region).subscribe(data => {
+      this.templates = data;
+      this.templateLoading = false;
+    });
+  }
+
+  change_template(template) {
+    for (const temp of this.templates) {
+      if (template === temp.image_name) {
+        this.item.vars['image_name'] = temp['image_name'];
+        this.item.vars['guest_id'] = temp['guest_id'];
+        break;
+      }
+    }
   }
 
   onSubmit() {
