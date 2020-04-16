@@ -78,6 +78,7 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  Backlog
  
+- [ ] 容器化部署；
 - [ ] 支持导入已有集群；
 - [ ] 国际化支持；
 - [ ] 开放 REST API; 
