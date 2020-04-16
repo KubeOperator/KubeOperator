@@ -71,12 +71,10 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  v2.6 （开发中，预计 2020.5.14 发布）
 
-- [ ] K8s 集群 API Server 的 高可用（ VIP ）；
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
-- [ ] 集群作业中心，通过 Ansible 来执行脚本，提供常见任务脚本库；
 - [ ] 应用商店改成可选安装；
 - [ ] vSphere 创建虚机时支持选用自有模板；
-- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
+- [ ] 支持更新证书；
 
  ##  Backlog
  
@@ -86,10 +84,11 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
 - [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
-- [ ] 自定义证书支持；
 - [ ] 开放 REST API; 
 - [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
 - [ ] 支持 VMware NSX-T；
 - [ ] 支持 containerd；
 - [ ] 支持 ARM 64（鲲鹏）；
 - [ ] K8s 跨版本升级。
+- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
+
