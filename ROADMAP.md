@@ -78,7 +78,6 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  Backlog
  
-- [ ] 全容器化部署;
 - [ ] 已有集群导入；
 - [ ] 国际化支持；
 - [ ] Helm 3.0 支持；
