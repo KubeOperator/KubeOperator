@@ -78,16 +78,14 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  Backlog
  
-- [ ] 已有集群导入；
+- [ ] 支持导入已有集群；
 - [ ] 国际化支持；
+- [ ] 开放 REST API; 
+- [ ] 使用 out-of-tree 的 OpenStack / vSphere cloud controller；
 - [ ] Helm 3.0 支持；
 - [ ] Traefik 2.0 支持；
-- [ ] Deprecate in-tree OpenStack and vSphere cloud controller；
-- [ ] 开放 REST API; 
-- [ ] 外部存储支持 NetApp 存储（通过 [Trident](https://github.com/NetApp/trident)）； 
 - [ ] 支持 VMware NSX-T；
 - [ ] 支持 containerd；
 - [ ] 支持 ARM 64（鲲鹏）；
-- [ ] K8s 跨版本升级。
+- [ ] K8s 跨版本升级支持；
 - [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
-
