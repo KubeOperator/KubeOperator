@@ -86,6 +86,6 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] Traefik 2.0 支持；
 - [ ] 支持 VMware NSX-T；
 - [ ] 支持 containerd；
-- [ ] 支持 ARM 64（鲲鹏）；
+- [ ] 支持 ARM 64；
 - [ ] K8s 跨版本升级支持；
 - [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
