@@ -137,7 +137,7 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="18">Day 2 运营
+        <td class="features-first-td-background-style" rowspan="19">Day 2 运营
         </td>
         <td class="features-third-td-background-style" rowspan="8">管理
         </td>  
@@ -209,11 +209,15 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr>  
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">合规
+        <td class="features-third-td-background-style"  rowspan="2">安全合规
         </td>
-         <td class="features-third-td-background-style">支持集群合规检查和健康评分
+         <td class="features-third-td-background-style">支持集群健康评分
         </td>
-    </tr>      
+    </tr>   
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持 CSI 安全扫描
+        </td>
+    </tr>    
      <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">应用商店
         </td>
