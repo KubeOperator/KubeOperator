@@ -111,7 +111,7 @@ KubeOperator 的整体架构如下图所示：
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">操作系统
         </td>
-        <td class="features-third-td-background-style">支持 CentOS 7.4 / 7.5 / 7.6 / 7.7
+        <td class="features-third-td-background-style">支持 RHEL/CentOS 7.4 以上版本
         </td>
     </tr>  
     <tr class="subscription-level-tr-border">
