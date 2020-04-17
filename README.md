@@ -137,7 +137,7 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="20">Day 2 运营
+        <td class="features-first-td-background-style" rowspan="21">Day 2 运营
         </td>
         <td class="features-third-td-background-style" rowspan="9">管理
         </td>  
@@ -223,11 +223,15 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr>    
      <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">应用商店
+        <td class="features-third-td-background-style" rowspan="2">应用商店
         </td>
-         <td class="features-third-td-background-style">集成 KubeApps Plus 应用商店，快速部署 CI/CD、AI 深度学习等应用
+         <td class="features-third-td-background-style">提供 GitLab、Jenkins、Harbor、Argo CD 等 CI/CD 工具
         </td>
-    </tr>     
+    </tr> 
+     <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">提供深度学习AI 应用，比如 TensorFlow
+        </td>
+    </tr>    
  </table>
 
 具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
