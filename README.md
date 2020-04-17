@@ -137,9 +137,9 @@ KubeOperator 的整体架构如下图所示：
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="19">Day 2 运营
+        <td class="features-first-td-background-style" rowspan="20">Day 2 运营
         </td>
-        <td class="features-third-td-background-style" rowspan="8">管理
+        <td class="features-third-td-background-style" rowspan="9">管理
         </td>  
         <td class="features-third-td-background-style">支持以项目为核心的分级授权管理
         </td>         
@@ -172,6 +172,10 @@ KubeOperator 的整体架构如下图所示：
          <td class="features-third-td-background-style">内置 Helm 
         </td>
     </tr>   
+    <tr class="subscription-level-tr-border">
+         <td class="features-third-td-background-style">支持更新证书
+        </td>
+    </tr>     
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">可观察性
         </td>
