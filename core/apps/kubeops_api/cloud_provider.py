@@ -93,7 +93,8 @@ def create_nodes(cluster, hosts_dict):
             "status": Host.HOST_STATUS_CREATING,
             "auto_gather_info": False
         }
-        if zone.vars['template_type'] and zone.vars['template_type'] == 'customize' and  zone.vars['template_password']:
+        if zone.vars.get('template_type') is not None and zone.vars['template_type'] == 'customize' and zone.vars[
+            'template_password']:
             defaults['password'] = zone.vars['template_password']
 
         if host_dict.get('new', False):
@@ -166,7 +167,7 @@ def create_cluster_hosts_dict(cluster):
                 "zone_name": zone.name,
             }
             # 自定义模板处理
-            if zone.vars['template_type'] and zone.vars['template_type'] == 'customize' and zone.vars['guest_id'] != '':
+            if zone.vars.get('template_type') is not None and zone.vars['template_type'] == 'customize' and zone.vars['guest_id'] != '':
                 host['guest_id'] = zone.vars['guest_id']
 
             host_set = Host.objects.filter(name=name)
