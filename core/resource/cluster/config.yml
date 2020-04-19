@@ -309,6 +309,12 @@ templates:
                 - "7.5"
                 - "7.6"
                 - "7.7"
+            - name: RedHat
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -341,6 +347,12 @@ templates:
           hidden: false
           allow_os:
             - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+                - "7.7"
+            - name: RedHat
               version:
                 - "7.4"
                 - "7.5"
@@ -389,6 +401,12 @@ templates:
                 - "7.5"
                 - "7.6"
                 - "7.7"
+            - name: RedHat
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+                - "7.7"
           node_vars: []
           requires:
             nodes_require:
@@ -421,6 +439,12 @@ templates:
           hidden: false
           allow_os:
             - name: CentOS
+              version:
+                - "7.4"
+                - "7.5"
+                - "7.6"
+                - "7.7"
+            - name: RedHat
               version:
                 - "7.4"
                 - "7.5"
