@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: kube-bench
+  name: f2c-kube-bench
+  namespace: kube-operator
+spec:
+  containers:
+  - command:
+    - kube-bench
+    image: aquasec/kube-bench:latest
+    name: kube-bench
+    volumeMounts:
+    - mountPath: /var/lib/etcd
+      name: var-lib-etcd
+    - mountPath: /var/lib/kubelet
+      name: var-lib-kubelet
+    - mountPath: /etc/systemd
+      name: etc-systemd
+    - mountPath: /etc/kubernetes
+      name: etc-kubernetes
+    - mountPath: /usr/local/mount-from-host/bin
+      name: usr-bin
+  hostPID: true
+  volumes:
+  - hostPath:
+      path: /var/lib/etcd
+      type: ""
+    name: var-lib-etcd
+  - hostPath:
+      path: /var/lib/kubelet
+      type: ""
+    name: var-lib-kubelet
+  - hostPath:
+      path: /etc/systemd
+      type: ""
+    name: etc-systemd
+  - hostPath:
+      path: /etc/kubernetes
+      type: ""
+    name: etc-kubernetes
+  - hostPath:
+      path: /usr/bin
+      type: ""
+    name: usr-bin

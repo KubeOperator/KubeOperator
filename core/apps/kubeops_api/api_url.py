@@ -21,6 +21,7 @@ router.register('backupStrategy', api.BackupStrategyViewSet, 'backupStrategy')
 router.register('clusterBackup', api.ClusterBackupViewSet, 'clusterBackup')
 router.register('items', item.ItemViewSet, 'item')
 router.register('item/profiles', item.ItemUserViewSet, 'item-profiles')
+router.register(r'cisLog', api.CisLogViewSet, 'cisLog')
 
 cluster_router = routers.NestedDefaultRouter(router, r'clusters', lookup='cluster')
 cluster_router.register(r'configs', api.ClusterConfigViewSet, 'cluster-config')
@@ -44,6 +45,8 @@ urlpatterns = [
                   path('clusterBackup/<uuid:project_id>/', api.ClusterBackupList.as_view()),
                   path('clusterBackup/<uuid:id>/delete/', api.ClusterBackupDelete.as_view()),
                   path('clusterBackup/restore/', api.ClusterBackupRestore.as_view()),
+                  path('cluster/<uuid:cluster_id>/cisLog/', api.CisLogViewList.as_view()),
+                  path('cluster/<uuid:cluster_id>/cisLog/run/', api.RunCisView.as_view()),
                   path('cluster/<project_name>/health/<namespace>/', api.ClusterHealthView.as_view()),
                   path('cluster/<project_name>/component/', api.ClusterComponentView.as_view()),
                   path('cluster/<project_name>/namespace/', api.ClusterNamespaceView.as_view()),

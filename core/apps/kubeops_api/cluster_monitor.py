@@ -6,6 +6,8 @@ import kubeoperator.settings
 import log.es
 import datetime, time
 import builtins
+import yaml
+import os
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -19,6 +21,8 @@ from ansible_api.models.inventory import Host as C_Host
 from common.ssh import SSHClient, SshConfig
 from message_center.message_client import MessageClient
 from kubeops_api.utils.date_encoder import DateEncoder
+from kubeoperator.settings import KUBEEASZ_DIR
+from kubeops_api.models.cis_log import CisLog
 
 logger = logging.getLogger('kubeops')
 
@@ -406,6 +410,121 @@ class ClusterMonitor():
                     message = self.get_event_message(event)
                     message_client.insert_message(message)
         return events, actions
+
+    def create_kube_bench(self):
+
+        try:
+            self.api_instance.delete_namespaced_pod(name='f2c-kube-bench', namespace='kube-operator')
+        except ApiException as e:
+            if e.status == 404:
+                pass
+        count = 5
+        while count > 0:
+            count = count - 1
+            try:
+                pod_status = self.api_instance.read_namespaced_pod_status(name='f2c-kube-bench',
+                                                                          namespace='kube-operator',
+                                                                          pretty=True)
+                if pod_status.status.phase:
+                    time.sleep(60)
+                    continue
+
+            except ApiException as e:
+                if e.status == 404 :
+                    break
+
+        with open(os.path.join(KUBEEASZ_DIR, "kube-bench.yml")) as f:
+            pod_manifest = yaml.load(f)
+        create_response = self.api_instance.create_namespaced_pod(namespace='kube-operator', body=pod_manifest)
+
+        self.get_kube_bench_log()
+
+    def get_kube_bench_log(self):
+
+        count = 5
+        while count > 0:
+            count = count - 1
+            pod_status = self.api_instance.read_namespaced_pod_status(name='f2c-kube-bench', namespace='kube-operator',
+                                                                      pretty=True)
+            if pod_status.status.phase in ['Pending', 'Completed']:
+                break
+            else:
+                time.sleep(60)
+                continue
+
+        log_response = self.api_instance.read_namespaced_pod_log(name='f2c-kube-bench', namespace='kube-operator',
+                                                                 pretty=True)
+
+        log_array = log_response.split('\n')
+        details = []
+        index = 'start'
+        remediation = ''
+        re_id = ''
+        result = {
+            'PASS': 0,
+            'FAIL': 0,
+            'WARN': 0,
+            'INFO': 0,
+        }
+        for log in log_array:
+            if log.find(']') > -1:
+                index = 'start'
+            if log.find('Remediations') > -1:
+                index = 'Remediations'
+                continue
+            if log.find('Summary') > -1:
+                index = 'Summary'
+                continue
+
+            if index == 'start':
+                detail = {
+                    'id': '',
+                    'state': '',
+                    'description': '',
+                    'remediation': '',
+                }
+                begin = log.find('[')
+                end = log.find(']')
+                if begin > -1 and end > -1:
+                    detail['state'] = log[begin + 1:end]
+                    index1 = log.find(" ")
+                    index2 = log.find(" ", index1 + 1)
+                    detail['id'] = log[index1 + 1:index2]
+                    detail['description'] = log[index2 + 1:]
+                    if detail['id'].find('.') > 0:
+                        details.append(detail)
+                    continue
+            if index == 'Remediations':
+                end = log.find(" ")
+                id = log[0:end]
+                if id.find('.') > -1:
+                    re_id = id
+                    remediation = log[end + 1:]
+                elif id != '':
+                    remediation = remediation + log[end + 1:]
+                elif id == '' and remediation != '' and re_id != '':
+                    for detail in details:
+                        if detail['id'] == re_id:
+                            detail['remediation'] = remediation
+                            break
+                    remediation = ''
+                    re_id = ''
+                continue
+
+            if index == 'Summary' and log.find('checks') > -1:
+                checks = log.split(" ")
+                if checks[2] in ['PASS', 'FAIL', 'WARN', 'INFO']:
+                    num = int(checks[0])
+                    result[checks[2]] = num + result[checks[2]]
+                continue
+        now = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+        name = self.cluster.name + '-' + now
+        if result['FAIL'] == 0:
+            success = CisLog.CIS_STATUS_SUCCESS
+        else:
+            success = CisLog.CIS_STATUS_FAILED
+        CisLog(name=name, cluster_id=self.cluster.id, detail=details, result=result, status=success).save()
+        return log_response
 
     def get_event_message(self, event):
         message = {

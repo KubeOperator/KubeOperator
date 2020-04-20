@@ -30,7 +30,6 @@ import {NfsComponent} from './nfs/nfs.component';
 import {StorageComponent} from './storage/storage.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SystemLogComponent} from './system-log/system-log.component';
-import {DnsComponent} from './dns/dns.component';
 import {ClusterStorageComponent} from './cluster-storage/cluster-storage.component';
 import {ClusterEventComponent} from './cluster-event/cluster-event.component';
 import {CephComponent} from './ceph/ceph.component';
@@ -43,12 +42,12 @@ import {LdapComponent} from './setting/ldap/ldap.component';
 import {NotificationComponent} from './setting/notification/notification.component';
 import {MessageCenterComponent} from './message-center/message-center.component';
 import {LocalMailComponent} from './message-center/local-mail/local-mail.component';
-import {DescribeComponent} from './overview/describe/describe.component';
 import {SubscribeComponent} from './message-center/subscribe/subscribe.component';
 import {ReceiverComponent} from './message-center/receiver/receiver.component';
 import {ClusterGradeComponent} from './cluster-grade/cluster-grade.component';
 import {ClusterOpsComponent} from './cluster-ops/cluster-ops.component';
 import {ScriptComponent} from './script/script.component';
+import {CisComponent} from './cis/cis.component';
 
 const routes: Routes = [
   {path: 'sign-in', component: SignInComponent},
@@ -114,7 +113,8 @@ const routes: Routes = [
           {path: 'grade', component: ClusterGradeComponent},
           {path: 'big-ip', component: F5BigIpComponent},
           {path: 'cluster-storage', component: ClusterStorageComponent},
-          {path: 'ops', component: ClusterOpsComponent}
+          {path: 'ops', component: ClusterOpsComponent},
+          {path: 'cis', component: CisComponent},
         ]
       },
       {

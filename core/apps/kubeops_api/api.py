@@ -24,6 +24,7 @@ from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
 from kubeops_api.models.setting import Setting
+from kubeops_api.models.cis_log import CisLog
 from . import s_serializers as serializers
 from .mixin import ClusterResourceAPIMixin
 from .tasks import start_deploy_execution
@@ -35,6 +36,7 @@ from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from storage.models import ClusterCephStorage
 from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
+from kubeops_api.cis_thread import CisThread
 
 logger = logging.getLogger('kubeops')
 
@@ -619,4 +621,33 @@ class ClusterNamespaceView(APIView):
         result = cluster_monitor.list_namespace()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps(result))
+        return response
+
+
+class CisLogViewSet(viewsets.ModelViewSet):
+    queryset = CisLog.objects.all()
+    serializer_class = serializers.CisLogSerializer
+
+    lookup_field = 'name'
+    lookup_url_kwarg = 'name'
+
+
+class CisLogViewList(generics.ListAPIView):
+    serializer_class = serializers.CisLogSerializer
+
+    def get_queryset(self):
+        cluster_id = self.kwargs['cluster_id']
+        return CisLog.objects.filter(cluster_id=cluster_id)
+
+
+class RunCisView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        id = kwargs['cluster_id']
+        cluster = Cluster.objects.get(id=id)
+        cluster_monitor = ClusterMonitor(cluster)
+        cis_thread = CisThread(cluster_monitor.create_kube_bench)
+        cis_thread.start()
+        response = HttpResponse(content_type='application/json')
+        response.write(json.dumps({'msg': '已运行检查 请稍后查看结果'}))
         return response

@@ -1,16 +1,12 @@
 from rest_framework import serializers
 from django.shortcuts import reverse
 
-from cloud_provider.models import Plan, Zone
-from kubeops_api.models import Condition
+from cloud_provider.models import Plan
 from kubeops_api.models.credential import Credential
-from kubeops_api.models.host import Host, GPU
 from ansible_api.serializers import GroupSerializer, ProjectSerializer
 from ansible_api.serializers import HostSerializer as AnsibleHostSerializer
-from ansible_api.serializers.inventory import HostReadSerializer
 from kubeops_api.models.cluster import Cluster
 from kubeops_api.models.deploy import DeployExecution
-from kubeops_api.models.host import Volume
 from kubeops_api.models.node import Node
 from kubeops_api.models.package import Package
 from kubeops_api.models.role import Role
@@ -19,6 +15,7 @@ from kubeops_api.models.backup_strategy import BackupStrategy
 from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.cluster_health_history import ClusterHealthHistory
 from kubeops_api.models.item import Item
+from kubeops_api.models.cis_log import CisLog
 from kubeops_api.serializers.host import ConditionSerializer
 
 __all__ = [
@@ -192,3 +189,13 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['id', 'name', 'description', 'date_created']
+
+
+class CisLogSerializer(serializers.ModelSerializer):
+
+    result = serializers.DictField(required=False)
+
+    class Meta:
+        model = CisLog
+
+        fields = ['id', 'name', 'status', 'cluster_id', 'result', 'detail', 'date_created']

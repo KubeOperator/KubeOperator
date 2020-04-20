@@ -5,4 +5,5 @@ from .cluster_health_history import *
 from .health_check import *
 from .item import *
 from .item_resource import *
+from .cis_log import *
 from . import *
