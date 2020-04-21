@@ -665,6 +665,7 @@ class CisLogExcelOutput(RetrieveAPIView):
 
         def create_template_wb():
             wb = Workbook()
+
             s = wb.create_sheet(index=0, title=cis_log.name)
             s.cell(1, 1, "id")
             s.cell(1, 2, "description")
@@ -677,6 +678,9 @@ class CisLogExcelOutput(RetrieveAPIView):
                 s.cell(i, 3, d['remediation'])
                 s.cell(i, 4, d['state'])
                 i = i+1
+
+            s.column_dimensions['B'].width = 100.0
+            s.column_dimensions['C'].width = 100.0
             return wb
 
         def file_iterator(file_name, chunk_size=512):
