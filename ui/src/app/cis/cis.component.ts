@@ -66,4 +66,8 @@ export class CisComponent implements OnInit {
       this.alert.showAlert(res.msg, AlertLevels.SUCCESS);
     });
   }
+
+  download(id) {
+    window.open('/api/v1/cluster/{id}/cisLog/download/'.replace('{id}', id));
+  }
 }

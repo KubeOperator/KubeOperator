@@ -37,6 +37,9 @@ from storage.models import ClusterCephStorage
 from kubeops_api.models.item import Item, ItemRoleMapping
 from kubeops_api.models.item_resource import ItemResource
 from kubeops_api.cis_thread import CisThread
+from rest_framework.generics import RetrieveAPIView
+from openpyxl import Workbook
+from django.conf import settings
 
 logger = logging.getLogger('kubeops')
 
@@ -650,4 +653,46 @@ class RunCisView(APIView):
         cis_thread.start()
         response = HttpResponse(content_type='application/json')
         response.write(json.dumps({'msg': '已运行检查 请稍后查看结果'}))
+        return response
+
+
+class CisLogExcelOutput(RetrieveAPIView):
+
+    def retrieve(self, request, *args, **kwargs):
+
+        id = kwargs['id']
+        cis_log = CisLog.objects.get(id=id.hex)
+
+        def create_template_wb():
+            wb = Workbook()
+            s = wb.create_sheet(index=0, title=cis_log.name)
+            s.cell(1, 1, "id")
+            s.cell(1, 2, "description")
+            s.cell(1, 3, "remediation")
+            s.cell(1, 4, "state")
+            i = 2
+            for d in cis_log.detail:
+                s.cell(i, 1, d['id'])
+                s.cell(i, 2, d['description'])
+                s.cell(i, 3, d['remediation'])
+                s.cell(i, 4, d['state'])
+                i = i+1
+            return wb
+
+        def file_iterator(file_name, chunk_size=512):
+            with open(file_name, 'rb') as file:
+                while True:
+                    c = file.read(chunk_size)
+                    if c:
+                        yield c
+                    else:
+                        break
+
+        cis_dir = settings.CIS_DIR
+        template_path = os.path.join(cis_dir, cis_log.name+'.xlsx')
+        w = create_template_wb()
+        w.save(template_path)
+        response = HttpResponse(file_iterator(template_path))
+        response["content_type"] = 'application/octet-stream'
+        response['Content-Disposition'] = "attachment; filename="+cis_log.name+".xlsx"
         return response

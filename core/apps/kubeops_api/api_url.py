@@ -47,6 +47,7 @@ urlpatterns = [
                   path('clusterBackup/restore/', api.ClusterBackupRestore.as_view()),
                   path('cluster/<uuid:cluster_id>/cisLog/', api.CisLogViewList.as_view()),
                   path('cluster/<uuid:cluster_id>/cisLog/run/', api.RunCisView.as_view()),
+                  path('cluster/<uuid:id>/cisLog/download/', api.CisLogExcelOutput.as_view()),
                   path('cluster/<project_name>/health/<namespace>/', api.ClusterHealthView.as_view()),
                   path('cluster/<project_name>/component/', api.ClusterComponentView.as_view()),
                   path('cluster/<project_name>/namespace/', api.ClusterNamespaceView.as_view()),
