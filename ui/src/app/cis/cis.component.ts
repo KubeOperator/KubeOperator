@@ -19,6 +19,9 @@ export class CisComponent implements OnInit {
   currentCluster: Cluster;
   showDelete = false;
   resourceTypeName = 'CIS 扫描结果';
+  page = 1;
+  size = 10;
+  total = 100;
 
   constructor(private cisService: CisService, private clusterService: ClusterService,
               private route: ActivatedRoute, private alert: CommonAlertService) {
@@ -36,7 +39,7 @@ export class CisComponent implements OnInit {
 
   listCis() {
     this.loading = true;
-    this.cisService.listCis(this.currentCluster.id).subscribe(data => {
+    this.cisService.listCis(this.currentCluster.id, this.page, this.size).subscribe(data => {
       this.cises = data;
       this.loading = false;
     });

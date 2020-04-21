@@ -8,6 +8,8 @@ import datetime, time
 import builtins
 import yaml
 import os
+import re
+
 
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
@@ -23,6 +25,8 @@ from message_center.message_client import MessageClient
 from kubeops_api.utils.date_encoder import DateEncoder
 from kubeoperator.settings import KUBEEASZ_DIR
 from kubeops_api.models.cis_log import CisLog
+from datetime import datetime,timezone,timedelta
+
 
 logger = logging.getLogger('kubeops')
 
@@ -338,6 +342,7 @@ class ClusterMonitor():
 
     def list_storage_class(self):
         sc_response = self.storage_v1_Api.list_storage_class()
+        self.get_kube_bench_log()
         scs = []
         for item in sc_response.items:
             if item.parameters:
@@ -466,8 +471,9 @@ class ClusterMonitor():
             'WARN': 0,
             'INFO': 0,
         }
+        pattern = re.compile(r'^[0-9.]+$')
         for log in log_array:
-            if log.find(']') > -1:
+            if log.find('[') == 0:
                 index = 'start'
             if log.find('Remediations') > -1:
                 index = 'Remediations'
@@ -494,10 +500,18 @@ class ClusterMonitor():
                     if detail['id'].find('.') > 0:
                         details.append(detail)
                     continue
+
             if index == 'Remediations':
                 end = log.find(" ")
                 id = log[0:end]
-                if id.find('.') > -1:
+                if id == '5.1.1':
+                    print("test")
+                if pattern.match(id) != None:
+                    if re_id != '':
+                        for detail in details:
+                            if detail['id'] == re_id:
+                                detail['remediation'] = remediation
+                                break
                     re_id = id
                     remediation = log[end + 1:]
                 elif id != '':
@@ -517,7 +531,8 @@ class ClusterMonitor():
                     num = int(checks[0])
                     result[checks[2]] = num + result[checks[2]]
                 continue
-        now = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+        now = datetime.now().astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%d-%H-%M-%S')
+
         name = self.cluster.name + '-' + now
         if result['FAIL'] == 0:
             success = CisLog.CIS_STATUS_SUCCESS

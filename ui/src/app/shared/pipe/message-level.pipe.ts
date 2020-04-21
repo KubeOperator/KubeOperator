@@ -18,6 +18,12 @@ export class MessageLevelPipe implements PipeTransform {
         case 'ERROR':
           result = '错误';
           break;
+        case 'FAILED':
+          result = '失败';
+          break;
+        case 'SUCCESS':
+          result = '成功';
+          break;
       }
     }
     return result;

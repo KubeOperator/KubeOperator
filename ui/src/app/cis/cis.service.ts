@@ -17,8 +17,8 @@ export class CisService {
   cisUrl = '/api/v1/cluster/{cluster_id}/cisLog/';
 
 
-  listCis(cluster_id: string): Observable<any> {
-    return this.httpClient.get<any>(this.cisUrl.replace('{cluster_id}', cluster_id)).pipe(
+  listCis(cluster_id: string, page: number, size: number): Observable<any> {
+    return this.httpClient.get<any>(this.cisUrl.replace('{cluster_id}', cluster_id) + '?page=' + page + '&size=' + size).pipe(
       catchError(error => throwError(error))
     );
   }

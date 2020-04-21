@@ -31,3 +31,6 @@ class CisLog(models.Model):
     result = JsonDictTextField(default={})
     status = models.CharField(max_length=64, choices=CIS_STATUS_CHOICES, default=CIS_STATUS_FAILED)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name=_('Date created'))
+
+    class Meta:
+        ordering = ('-date_created',)
