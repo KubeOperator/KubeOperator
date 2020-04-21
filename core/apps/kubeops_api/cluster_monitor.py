@@ -430,13 +430,13 @@ class ClusterMonitor():
                     continue
 
             except ApiException as e:
-                if e.status == 404 :
+                if e.status == 404:
                     break
 
         with open(os.path.join(KUBEEASZ_DIR, "kube-bench.yml")) as f:
             pod_manifest = yaml.load(f)
         create_response = self.api_instance.create_namespaced_pod(namespace='kube-operator', body=pod_manifest)
-
+        time.sleep(60)
         self.get_kube_bench_log()
 
     def get_kube_bench_log(self):
@@ -446,7 +446,7 @@ class ClusterMonitor():
             count = count - 1
             pod_status = self.api_instance.read_namespaced_pod_status(name='f2c-kube-bench', namespace='kube-operator',
                                                                       pretty=True)
-            if pod_status.status.phase in ['Pending', 'Completed']:
+            if pod_status.status.phase in ['Pending', 'Completed', 'Running']:
                 break
             else:
                 time.sleep(60)
