@@ -10,7 +10,6 @@ import yaml
 import os
 import re
 
-
 from kubernetes.client.rest import ApiException
 from kubeops_api.cluster_data import ClusterData, Pod, NameSpace, Node, Container, Deployment, StorageClass, PVC, Event
 from kubeops_api.models.cluster import Cluster
@@ -25,8 +24,7 @@ from message_center.message_client import MessageClient
 from kubeops_api.utils.date_encoder import DateEncoder
 from kubeoperator.settings import KUBEEASZ_DIR
 from kubeops_api.models.cis_log import CisLog
-from datetime import datetime,timezone,timedelta
-
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger('kubeops')
 
@@ -746,6 +744,9 @@ def delete_unused_node(cluster):
                     exist = True
             if exist is False and delete_name != '':
                 C_Host.objects.filter(name=delete_name).delete()
+                if host.groups.filter(name='worker'):
+                    cluster.worker_size = cluster.worker_size - 1
+                    cluster.save()
     return True
 
 
