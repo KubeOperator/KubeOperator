@@ -67,19 +67,13 @@
       until: deploy_status.stdout == "1"
       retries: 30
       delay: 10
+      ignore_errors: true
 
     - name: helm init
       shell: "helm init --client-only --skip-refresh"
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
       run_once: true
-
-    - name: 添加 chartmuseum 仓库
-      shell: "helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
-      delegate_to: "{{ item }}"
-      with_items: "{{ groups['kube-master'] }}"
-      retries: 10
-      delay: 10
 
 - block:
     - name: 尝试登陆 kubeapps-plus registry
@@ -91,6 +85,12 @@
       delegate_to: "{{ item }}"
       with_items: "{{ groups['cluster_nodes'] }}"
       run_once: true
+      ignore_errors: true
+
+    - name: 添加 chartmuseum 仓库
+      shell: "helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['kube-master'] }}"
       ignore_errors: true
 
 - block:
