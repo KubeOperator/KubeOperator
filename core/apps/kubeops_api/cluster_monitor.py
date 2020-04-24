@@ -613,7 +613,7 @@ def delete_unused_node(cluster):
                 if delete_name == node['name']:
                     exist = True
             if exist is False and delete_name != '':
-                if host.groups.filter(name='worker') > 0:
+                if  len(host.groups.filter(name='worker')) > 0:
                     cluster.worker_size = cluster.worker_size - 1
                     cluster.save()
                 C_Host.objects.filter(name=delete_name).delete()
