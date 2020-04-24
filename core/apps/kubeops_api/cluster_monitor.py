@@ -20,7 +20,6 @@ from common.ssh import SSHClient, SshConfig
 from message_center.message_client import MessageClient
 from kubeops_api.utils.date_encoder import DateEncoder
 
-
 logger = logging.getLogger('kubeops')
 
 
@@ -408,7 +407,6 @@ class ClusterMonitor():
                     message_client.insert_message(message)
         return events, actions
 
-
     def get_event_message(self, event):
         message = {
             "item_id": self.cluster.item_id,
@@ -613,7 +611,7 @@ def delete_unused_node(cluster):
                 if delete_name == node['name']:
                     exist = True
             if exist is False and delete_name != '':
-                if  len(host.groups.filter(name='worker')) > 0:
+                if len(host.groups.filter(name='worker')) > 0:
                     cluster.worker_size = cluster.worker_size - 1
                     cluster.save()
                 C_Host.objects.filter(name=delete_name).delete()
