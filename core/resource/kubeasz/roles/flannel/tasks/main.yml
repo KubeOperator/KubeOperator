@@ -32,6 +32,11 @@
 - name: 删除默认cni配置
   file: path=/etc/cni/net.d/10-default.conf state=absent
 
+# 删除原有cni插件网卡mynet0
+- name: 删除默认cni插件网卡mynet0
+  shell: "ip link del mynet0"
+  ignore_errors: true
+
 # 等待网络插件部署成功，视下载镜像速度而定
 - name: 轮询等待flannel 运行，视下载镜像速度而定
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system -o wide|grep 'flannel'|grep ' {{ inventory_hostname }} '|awk '{print $3}'"
