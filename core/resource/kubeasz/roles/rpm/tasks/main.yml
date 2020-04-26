@@ -1,6 +1,0 @@
-- name: 安装基础软件包
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{packages}}"
-

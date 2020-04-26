@@ -1,2 +1,0 @@
-dns_repository_hostname: "registry.kubeops.io"
-dns_registry_hostname: "registry.{{APP_DOMAIN}}"

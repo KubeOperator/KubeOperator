@@ -1,9 +1,0 @@
-apiVersion: ceph.rook.io/v1
-kind: CephBlockPool
-metadata:
-  name: {{ cluster_name }}
-  namespace: rook-ceph
-spec:
-  failureDomain: host
-  replicated:
-    size: {{ groups['kube-node'] | length }}

@@ -1,8 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: {{ storageClassName }}
-provisioner: kubernetes.io/cinder
-reclaimPolicy: Delete
-parameters:
-  type: "{{ zones[0]['openstack_storage_type'] }}"

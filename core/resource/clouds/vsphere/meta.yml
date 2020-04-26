@@ -1,7 +1,0 @@
-name: Vshpere
-region:
-  vars:
-    provider: vsphere
-    image_ovf_path: "/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf"
-    image_vmdk_path: "/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk"
-    image_name: "kubeoperator_centos_7.6.1810"

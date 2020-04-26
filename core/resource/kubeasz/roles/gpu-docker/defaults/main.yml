@@ -1,8 +1,0 @@
-_rhel_repo_dist_name: "{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}"
-_rhel_repo_file_name: "nvidia-docker.repo"
-_rhel_repo_file_path: "/etc/yum.repos.d/{{ _rhel_repo_file_name }}"
-
-nvidia_container_runtime_package_version: ''
-nvidia_docker_repo_base_url: "https://nvidia.github.io/nvidia-docker"
-nvidia_docker_repo_gpg_url: "{{ nvidia_docker_repo_base_url }}/gpgkey"
-nvidia_docker_add_repo: true

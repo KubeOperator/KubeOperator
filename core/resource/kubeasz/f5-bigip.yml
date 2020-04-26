@@ -1,3 +1,0 @@
-- hosts: kube-master
-  roles:
-    - f5

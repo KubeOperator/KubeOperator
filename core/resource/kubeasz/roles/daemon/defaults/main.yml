@@ -1,6 +1,0 @@
-packages:
-  - chrony
-  - ntpdate
-services:
-  - chronyd
-dns_repository_hostname: registry.kubeops.io

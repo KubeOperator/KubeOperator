@@ -1,4 +1,0 @@
-nfs_server_daemon: nfs-server
-nfs_exports: ['{{storage_nfs_server_path}} {{allow_ip}}(rw,sync,no_root_squash)']
-nfs_rpcbind_state: started
-nfs_rpcbind_enabled: true

@@ -1,9 +1,0 @@
-DEBUG: false
-DB_HOST: mysql
-DB_USER: root
-DB_PASSWORD: SuMk2lH20ocmvyu1p38m40
-DB_NAME: kube-operator
-REDIS_HOST: redis
-ELASTICSEARCH_HOST: elasticsearch
-ELASTICSEARCH_PORT: 9200
-SECRET_KEY: "33h+(k@zm7o#@j%7_1(8q8dlzn9%5ajml2_frgp5e2ikxzfw$8"

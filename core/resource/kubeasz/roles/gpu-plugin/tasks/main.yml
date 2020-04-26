@@ -1,7 +1,0 @@
-- name: copy nvidia-plugin
-  template:
-    src: nvidia-plugin.yml.j2
-    dest: /tmp/nvidia-plugin.yml
-
-- name: create nvidia-plugin
-  shell: "kubectl apply -f /tmp/nvidia-plugin.yml"
