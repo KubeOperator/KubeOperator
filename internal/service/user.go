@@ -15,12 +15,12 @@ var (
 
 func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {
 	var user model.User
-	if notFound := db.DB.Where("name = ?", name).First(&user).RecordNotFound(); notFound {
+	if db.DB.Where("name = ?", name).First(&user).RecordNotFound() {
 		return nil, UserNotFound
 	}
-	if err := bcrypt.CompareHashAndPassword(
-		[]byte(user.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, PasswordNotMatch
 	}
 	return user.ToSessionUser(), nil
 }
+

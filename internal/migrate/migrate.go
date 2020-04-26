@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	migrateDir = "/Users/shenchenyang/go/src/ko3-gin/resource/migration"
+	migrateDir = "resource/migration"
 	phaseName  = "migrate"
 )
 
