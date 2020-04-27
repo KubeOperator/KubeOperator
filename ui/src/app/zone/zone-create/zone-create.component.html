@@ -88,10 +88,11 @@
                        (ngModelChange)="list_templates()"/>
                 <label>自定义</label>
               </clr-radio-wrapper>
+              <clr-control-helper>自定义模板仅支持 CentOS/RedHat 7.4 及以上版本的纯净系统</clr-control-helper>
             </clr-radio-container>
             <div *ngIf="item.vars['template_type'] === 'customize'">
               <clr-spinner *ngIf="templateLoading">loading</clr-spinner>
-              <div  *ngIf="!templateLoading">
+              <div *ngIf="!templateLoading">
                 <clr-select-container>
                   <label>模板</label>
                   <select [(ngModel)]="item.template" name="template" required clrSelect
