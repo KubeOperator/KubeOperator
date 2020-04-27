@@ -1,14 +1,15 @@
-package host
+package serializer
+
+import "ko3-gin/pkg/model"
 
 type CreatHostRequest struct {
 	Name           string `json:"name"`
 	Ip             string `json:"ip"`
-	Port           string `json:"port"`
+	Port           int    `json:"port"`
 	CredentialName string `json:"credential_name"`
 }
 
 type UpdateHostRequest struct {
-	Id             string
 	Name           string `json:"name"`
 	Ip             string `json:"ip"`
 	Port           string `json:"port"`
@@ -17,5 +18,5 @@ type UpdateHostRequest struct {
 
 type PageHostResponse struct {
 	Total int
-	Items []Host
+	Items []model.Host
 }

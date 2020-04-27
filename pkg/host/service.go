@@ -4,13 +4,14 @@ import (
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	"ko3-gin/internal/db"
+	"ko3-gin/pkg/model"
 )
 
-var Service = &serviceManger{}
+var Service = &service{}
 
-type serviceManger struct{}
+type service struct{}
 
-func (d *serviceManger) Create(host Host) error {
+func (d *service) Create(host model.Host) error {
 	host.Id = uuid.NewV4().String()
 	if err := db.DB.Create(&host).Error; err != nil {
 		return err
@@ -18,21 +19,21 @@ func (d *serviceManger) Create(host Host) error {
 	return nil
 }
 
-func (d *serviceManger) Update(host Host) error {
+func (d *service) Update(host model.Host) error {
 	if err := db.DB.Update(&host).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *serviceManger) List() []Host {
-	var hosts []Host
+func (d *service) List() []model.Host {
+	var hosts []model.Host
 	db.DB.Find(&hosts)
 	return hosts
 }
 
-func (d *serviceManger) Page(num, size int) (hosts []Host, total int) {
-	db.DB.Model(Host{}).
+func (d *service) Page(num, size int) (hosts []model.Host, total int) {
+	db.DB.Model(model.Host{}).
 		Find(&hosts).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -40,15 +41,15 @@ func (d *serviceManger) Page(num, size int) (hosts []Host, total int) {
 	return
 }
 
-func (d *serviceManger) Get(id string) (h *Host, error error) {
-	var host Host
+func (d *service) Get(id string) (h *model.Host, error error) {
+	var host model.Host
 	if db.DB.First(&host, id).RecordNotFound() {
 		return nil, gorm.ErrRecordNotFound
 	}
 	return &host, nil
 }
 
-func (d *serviceManger) Delete(id string) error {
+func (d *service) Delete(id string) error {
 	host, err := d.Get(id)
 	if err != nil {
 		return err

@@ -1,1 +1,0 @@
-delete table if  exists users

@@ -1,0 +1,68 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "KubeOperator Restful API",
+        "termsOfService": "http://kubeoperator.io",
+        "contact": {
+            "name": "Fit2cloud Support",
+            "url": "https://www.fit2cloud.com",
+            "email": "support@fit2cloud.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/hosts/": {
+            "post": {
+                "description": "Create a Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a Host",
+                "parameters": [
+                    {
+                        "description": "create host request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.CreatHostRequest"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "serializer.CreatHostRequest": {
+            "type": "object",
+            "properties": {
+                "credential_name": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

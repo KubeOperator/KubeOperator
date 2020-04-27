@@ -1,4 +1,4 @@
-package host
+package model
 
 type Host struct {
 	Id   string `gorm:"primary_key size:64"`
@@ -6,3 +6,4 @@ type Host struct {
 	Ip   string `gorm:"size:128"`
 	Port int
 }
+

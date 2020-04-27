@@ -1,1 +1,0 @@
-delete table if not exists hosts
