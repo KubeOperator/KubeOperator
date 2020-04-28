@@ -1,0 +1,2 @@
+CLUSTER_VIP: "172.16.10.123"
+CLUSTER_KUBERNETES_SVC_IP: "{{ SERVICE_CIDR | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"

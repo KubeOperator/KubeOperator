@@ -1,0 +1,3 @@
+- hosts: kube-master
+  roles:
+    - vip-certificate

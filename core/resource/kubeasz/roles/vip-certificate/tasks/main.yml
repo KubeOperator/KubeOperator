@@ -1,0 +1,35 @@
+- name: 创建 kubernetes 证书备份目录
+  file: name=/etc/kubernetes/ssl-bak state=directory
+
+- name: 备份 kubernetes 证书
+  copy:
+    src: "{{ ca_dir }}/{{ item }}"
+    dest: "/etc/kubernetes/ssl-bak/{{ item }}"
+    remote_src: true
+  with_items:
+    - kubernetes.pem
+    - kubernetes-key.pem
+    - kubernetes.csr
+    - kubernetes-csr.json
+
+- name: 创建 kubernetes 证书签名请求
+  template: src=kubernetes-csr.json.j2 dest={{ ca_dir }}/kubernetes-csr.json
+
+- name: 创建 kubernetes 证书和私钥
+  shell: "cd {{ ca_dir }} && {{ bin_dir }}/cfssl gencert \
+        -ca={{ ca_dir }}/ca.pem \
+        -ca-key={{ ca_dir }}/ca-key.pem \
+        -config={{ ca_dir }}/ca-config.json \
+        -profile=kubernetes kubernetes-csr.json | {{ bin_dir }}/cfssljson -bare kubernetes"
+
+- name: 重启 kube-apiserver 服务
+  shell: "systemctl restart kube-apiserver"
+
+- name: 以轮询的方式等待master服务启动完成
+  command: "{{ bin_dir }}/kubectl get node"
+  register: result
+  until:    result.rc == 0
+  retries:  5
+  delay: 6
+  delegate_to: "{{ groups['kube-master'][0]}}"
+  run_once: True
