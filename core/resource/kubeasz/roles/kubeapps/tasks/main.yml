@@ -28,7 +28,7 @@
       shell: "{{ bin_dir }}/kubectl apply -f /opt/kube/kube-system/kubeapps-plus/kubeapps-registry.yaml"
 
     - name: add nginx-ingress annotate
-      shell: "kubectl -n kube-system annotate --overwrite ingress kubeapps-registry-ingress nginx.ingress.kubernetes.io/proxy-body-size=10g"
+      shell: "{{ bin_dir }}/kubectl -n kube-system annotate --overwrite ingress kubeapps-registry-ingress nginx.ingress.kubernetes.io/proxy-body-size=10g"
       when: 'ingress_backend == "nginx"'
 
 - block:
@@ -37,7 +37,7 @@
       register: ns_info
 
     - name: create kubeapps-plus namespace
-      shell: "kubectl create ns kubeapps-plus"
+      shell: "{{ bin_dir }}/kubectl create ns kubeapps-plus"
       when: '"kubeapps-plus" not in ns_info.stdout'
 
     - name: get kubeapps-plus secrets
