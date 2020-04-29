@@ -29,7 +29,7 @@ require (
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd // indirect
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	golang.org/x/tools v0.0.0-20200425043458-8463f397d07c // indirect
-	k8s.io/api v0.18.2 // indirect
+	k8s.io/api v0.18.2
 	k8s.io/apimachinery v0.18.2
 	k8s.io/cluster-bootstrap v0.18.2 // indirect
 	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect

@@ -1,10 +1,8 @@
 package api
 
 import (
-	"crypto/x509"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/kubernetes/cmd/kubeadm/app/features"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -229,7 +227,7 @@ type Networking struct {
 type BootstrapToken struct {
 	// Token is used for establishing bidirectional trust between nodes and control-planes.
 	// Used for joining nodes in the cluster.
-	Token *BootstrapTokenString
+	//Token *BootstrapTokenString
 	// Description sets a human-friendly message why this token exists and what it's used
 	// for, so other administrators can know its purpose.
 	Description string
@@ -386,13 +384,13 @@ func (cfg *ClusterConfiguration) GetControlPlaneImageRepository() string {
 }
 
 // PublicKeyAlgorithm returns the type of encryption keys used in the cluster.
-func (cfg *ClusterConfiguration) PublicKeyAlgorithm() x509.PublicKeyAlgorithm {
-	if features.Enabled(cfg.FeatureGates, features.PublicKeysECDSA) {
-		return x509.ECDSA
-	}
-
-	return x509.RSA
-}
+//func (cfg *ClusterConfiguration) PublicKeyAlgorithm() x509.PublicKeyAlgorithm {
+//	if features.Enabled(cfg.FeatureGates, features.PublicKeysECDSA) {
+//		return x509.ECDSA
+//	}
+//
+//	return x509.RSA
+//}
 
 // HostPathMount contains elements describing volumes that are mounted from the
 // host.
