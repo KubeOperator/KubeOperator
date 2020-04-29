@@ -70,7 +70,7 @@
       ignore_errors: true
 
     - name: helm init
-      shell: "helm init --client-only --skip-refresh"
+      shell: "{{ bin_dir }}/helm init --client-only --skip-refresh"
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
       run_once: true
@@ -88,7 +88,7 @@
       ignore_errors: true
 
     - name: 添加 chartmuseum 仓库
-      shell: "helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
+      shell: "{{ bin_dir }}/helm repo add chartmuseum http://{{ kubeapps_chartmuseum_hostname }}"
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
       ignore_errors: true
@@ -98,7 +98,7 @@
       template: src=values.yaml.j2 dest={{ base_dir }}/manifests/kubeapps-plus/values.yaml
 
     - name: 部署 kubeapps-plus
-      shell: "helm upgrade kubeapps-plus --namespace=kubeapps-plus --install --force --recreate-pods ./kubeapps-plus"
+      shell: "{{ bin_dir }}/helm upgrade kubeapps-plus --namespace=kubeapps-plus --install --force --recreate-pods ./kubeapps-plus"
       args:
         chdir: "{{ base_dir }}/manifests"
 

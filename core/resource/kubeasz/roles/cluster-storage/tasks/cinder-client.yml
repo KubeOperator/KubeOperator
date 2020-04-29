@@ -52,7 +52,7 @@
       dest: "/tmp/default-sc.yaml"
 
   - name: create cinder default storageclass
-    shell: "kubectl apply -f /tmp/default-sc.yaml"
+    shell: "{{ bin_dir }}/kubectl apply -f /tmp/default-sc.yaml"
 
   - name: 设置default storageClass
     shell: "{{ bin_dir }}/kubectl patch storageclass '{{ storageClassName }}' -p '{{default_label}}'"

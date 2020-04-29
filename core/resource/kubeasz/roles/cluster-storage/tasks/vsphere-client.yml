@@ -61,7 +61,7 @@
         dest: "/tmp/default-sc.yaml"
 
     - name: create vsan default storageclass
-      shell: "kubectl apply -f /tmp/default-sc.yaml"
+      shell: "{{ bin_dir }}/kubectl apply -f /tmp/default-sc.yaml"
       ignore_errors: true
 
     - name: 设置default storageClass

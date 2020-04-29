@@ -63,14 +63,14 @@
       register: ns_info
 
     - name: create kube-operator namespace
-      shell: "kubectl create ns kube-operator"
+      shell: "{{ bin_dir }}/kubectl create ns kube-operator"
       when: '"kube-operator" not in ns_info.stdout'
 
     - name: 创建 worker1节点标签
-      shell: kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent
+      shell: "{{ bin_dir }}/kubectl label node worker1.{{cluster_name}}.{{cluster_domain}} nodetype=persistent"
 
     - name: create etcd monitoring secrets
-      shell: "kubectl -n kube-operator create secret generic etcd-secret-files \
+      shell: "{{ bin_dir }}/kubectl -n kube-operator create secret generic etcd-secret-files \
           --from-file=/etc/kubernetes/ssl/ca.pem \
           --from-file=/etc/etcd/ssl/etcd.pem \
           --from-file=/etc/etcd/ssl/etcd-key.pem"
@@ -84,7 +84,7 @@
       template: src=prometheus/prom-settings.yaml.j2 dest={{ base_dir }}/manifests/prometheus/prom-settings.yaml
 
     - name: 部署 prometheus
-      shell: "helm upgrade f2c-prometheus --namespace=kube-operator --install --force --recreate-pods \
+      shell: "{{ bin_dir }}/helm upgrade f2c-prometheus --namespace=kube-operator --install --force --recreate-pods \
           -f prom-settings.yaml \
           -f prom-alertsmanager.yaml \
           -f prom-alertrules.yaml \
@@ -98,7 +98,7 @@
       template: src=grafana/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/grafana/values.yaml
 
     - name: 部署 grafana
-      shell: "helm upgrade f2c-grafana --namespace=kube-operator --install --force --recreate-pods \
+      shell: "{{ bin_dir }}/helm upgrade f2c-grafana --namespace=kube-operator --install --force --recreate-pods \
          -f grafana-settings.yaml \
          -f grafana-dashboards.yaml \
          ./grafana"
@@ -117,7 +117,7 @@
       template: src=loki/promtail/values.yaml.j2 dest={{ base_dir }}/manifests/prometheus/loki/charts/promtail/values.yaml
 
     - name: 部署 loki-stack
-      shell: "helm upgrade f2c-loki --namespace=kube-operator --install --force --recreate-pods ./loki"
+      shell: "{{ bin_dir }}/helm upgrade f2c-loki --namespace=kube-operator --install --force --recreate-pods ./loki"
       args:
         chdir: "{{ base_dir }}/manifests/prometheus"
   when: 'loki_install is defined and loki_install'

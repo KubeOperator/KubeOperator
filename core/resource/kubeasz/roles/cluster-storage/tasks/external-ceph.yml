@@ -21,7 +21,7 @@
       ignore_errors: true
 
     - name: create kube-operator namespace
-      shell: "kubectl create ns kube-operator"
+      shell: "{{ bin_dir }}/kubectl create ns kube-operator"
       ignore_errors: true
 
     - name: create kube-operator ceph secret
