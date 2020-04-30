@@ -24,6 +24,7 @@ require (
 	github.com/spf13/viper v1.6.3
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
+	github.com/thoas/go-funk v0.6.0 // indirect
 	github.com/urfave/cli v1.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20200423211502-4bdfaf469ed5
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd // indirect
@@ -31,6 +32,7 @@ require (
 	golang.org/x/tools v0.0.0-20200425043458-8463f397d07c // indirect
 	k8s.io/api v0.18.2
 	k8s.io/apimachinery v0.18.2
+	k8s.io/client-go v11.0.0+incompatible // indirect
 	k8s.io/cluster-bootstrap v0.18.2 // indirect
 	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
 )

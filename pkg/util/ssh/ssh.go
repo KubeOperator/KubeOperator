@@ -48,7 +48,7 @@ type Config struct {
 type Interface interface {
 	Ping() error
 	Exec(cmd ...string) (stdout string, stderr string, exit int, err error)
-	Run(cmd ...string)
+	Run(cmd ...string) error
 	CombinedOutput(cmd ...string) ([]byte, error)
 	CopyFile(src, dst string) error
 	WriteFile(src io.Reader, dst string) error

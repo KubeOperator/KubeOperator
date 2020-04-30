@@ -7,15 +7,16 @@ import (
 	_ "ko3-gin/docs"
 	"ko3-gin/internal/middleware"
 	pkg_api "ko3-gin/pkg/api"
+	"net/http"
 	"os"
 )
-
 
 func Server() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	f, _ := os.Open(os.DevNull)
 	gin.DefaultWriter = f
 	server := gin.Default()
+	server.StaticFS("static", http.Dir("resource/static"))
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	server.Use(middleware.LoggerMiddleware())
 	jwtMiddleware := middleware.JWTMiddleware()

@@ -5,6 +5,6 @@ import (
 )
 
 type Host struct {
-	client *ssh.SSH
+	Client *ssh.SSH
 }
 
