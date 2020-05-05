@@ -1,5 +1,5 @@
 - name: 获取 helm 版本信息
-  shell: "helm version -c --short | awk '{print substr($2,2,6)}'"
+  shell: "{{ bin_dir }}/helm version -c --short | awk '{print substr($2,2,6)}'"
   register: helm_ver
 
 - block:

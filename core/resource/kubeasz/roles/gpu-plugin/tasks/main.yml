@@ -4,4 +4,4 @@
     dest: /tmp/nvidia-plugin.yml
 
 - name: create nvidia-plugin
-  shell: "kubectl apply -f /tmp/nvidia-plugin.yml"
+  shell: "{{ bin_dir }}/kubectl apply -f /tmp/nvidia-plugin.yml"

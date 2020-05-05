@@ -36,7 +36,7 @@
         dest: "/tmp/test-sc.yaml"
 
     - name: verify storageclass availability
-      shell: "kubectl -n default apply -f /tmp/test-sc.yaml"
+      shell: "{{ bin_dir }}/kubectl -n default apply -f /tmp/test-sc.yaml"
 
     - name: 轮询等待 storageclass验证结果
       shell: "{{ bin_dir }}/kubectl -n default get pod -o wide | grep {{ cluster_name }}-pod | awk '{print $3}'"
@@ -47,7 +47,7 @@
       delay: 10
 
     - name: delete test-sc.yaml
-      shell: "kubectl -n default delete -f /tmp/test-sc.yaml"
+      shell: "{{ bin_dir }}/kubectl -n default delete -f /tmp/test-sc.yaml"
   delegate_to: "{{ groups['kube-master'][0] }}"
   when:
    - 'storage_local_volume_enabled is not defined'
