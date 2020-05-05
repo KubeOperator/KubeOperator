@@ -1,28 +1,51 @@
-<div *ngIf="currentCluster">
-  <p class="p7 prompt">注:F5不是必配项。如果您有现成F5并想通过F5来对外暴露服务，请填写以下信息。</p>
-  <form clrForm>
-    <clr-input-container>
-      <label>BIG-IP URL</label>
-      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
-      <clr-control-helper>例:172.16.10.185</clr-control-helper>
-    </clr-input-container>
-    <clr-input-container>
-      <label>BIG-IP 用户名</label>
-      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_username']" name="username"/>
-    </clr-input-container>
-    <clr-password-container>
-      <label>BIG-IP 密码</label>
-      <input clrPassword size=45 type="password" [(ngModel)]="currentCluster.meta['bigip_password']" name="password"/>
-    </clr-password-container>
-    <clr-input-container>
-      <label>Partition</label>
-      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_partition']" name="part"/>
-    </clr-input-container>
-    <clr-input-container>
-      <label>外网 IP</label>
-      <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
-      <clr-control-helper>例:192.168.1.2</clr-control-helper>
-    </clr-input-container>
-  </form>
-  <button class="btn btn-info-outline" (click)="onCommit()" [disabled]="permission==='VIEWER'">保存</button>
-</div>
+<br>
+<clr-tabs clrLayout="vertical" [clrLoading]="loading">
+  <clr-tab>
+    <button clrTabLink>F5</button>
+    <clr-tab-content *clrIfActive>
+      <div *ngIf="currentCluster">
+        <p class="p7 prompt">注:F5不是必配项。如果您有现成F5并想通过F5来对外暴露服务，请填写以下信息。</p>
+        <form clrForm>
+          <clr-input-container>
+            <label>BIG-IP URL</label>
+            <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_url']" name="url"/>
+            <clr-control-helper>例:172.16.10.185</clr-control-helper>
+          </clr-input-container>
+          <clr-input-container>
+            <label>BIG-IP 用户名</label>
+            <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_username']" name="username"/>
+          </clr-input-container>
+          <clr-password-container>
+            <label>BIG-IP 密码</label>
+            <input clrPassword size=45 type="password" [(ngModel)]="currentCluster.meta['bigip_password']"
+                   name="password"/>
+          </clr-password-container>
+          <clr-input-container>
+            <label>Partition</label>
+            <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['bigip_partition']" name="part"/>
+          </clr-input-container>
+          <clr-input-container>
+            <label>外网 IP</label>
+            <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['public_ip']" name="public_ip"/>
+            <clr-control-helper>例:192.168.1.2</clr-control-helper>
+          </clr-input-container>
+        </form>
+        <button class="btn btn-info-outline" (click)="onCommit()" [disabled]="permission==='VIEWER'">保存</button>
+      </div>
+    </clr-tab-content>
+  </clr-tab>
+  <clr-tab>
+    <button clrTabLink>ApiServer</button>
+    <clr-tab-content *clrIfActive>
+      <p class="p7 prompt">注:只有多master的情况才可用</p>
+      <form clrForm>
+        <clr-input-container>
+          <label>VIP</label>
+          <input clrInput size=45 type="text" [(ngModel)]="currentCluster.meta['CLUSTER_VIP']" name="vip"/>
+          <clr-control-helper>例:172.16.10.185</clr-control-helper>
+        </clr-input-container>
+      </form>
+      <button class="btn btn-info-outline" (click)="vipCommit()" [disabled]="permission==='VIEWER'">保存</button>
+    </clr-tab-content>
+  </clr-tab>
+</clr-tabs>

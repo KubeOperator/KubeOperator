@@ -11,6 +11,8 @@ playbooks:
     alias: addon.yml
   - name:  bigip-config
     alias: f5-bigip.yml
+  - name:  vip-certificate
+    alias: vip-certificate.yml
   - name:  uninstall
     alias: clean.yml
   - name:  upgrade-worker
@@ -58,6 +60,11 @@ operations:
       - name: bigip-config
         playbook: bigip-config
         flow: 配置 F5
+  - name: vip-certificate
+    steps:
+      - name: vip-certificate
+        playbook: vip-certificate
+        flow: 配置 ApiServer
 
   - name: upgrade
     steps:

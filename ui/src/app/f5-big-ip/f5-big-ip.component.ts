@@ -15,7 +15,7 @@ export class F5BigIpComponent implements OnInit {
 
   currentCluster: Cluster;
   permission: string;
-
+  loading = false;
 
   constructor(private route: ActivatedRoute, private clusterService: ClusterService,
               private router: Router, private operaterService: OperaterService,
@@ -24,6 +24,7 @@ export class F5BigIpComponent implements OnInit {
 
 
   ngOnInit() {
+    this.loading = true;
     this.route.parent.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
@@ -32,8 +33,10 @@ export class F5BigIpComponent implements OnInit {
   }
 
   refreshCluster() {
+    this.loading = true;
     this.clusterService.getCluster(this.currentCluster.name).subscribe(cluster => {
       this.currentCluster = cluster;
+      this.loading = false;
     });
   }
 
@@ -50,5 +53,13 @@ export class F5BigIpComponent implements OnInit {
       const linkUrl = ['cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
+  }
+
+  vipCommit() {
+    this.clusterService.updateCluster(this.currentCluster).subscribe(() => {
+      this.operaterService.executeOperate(this.currentCluster.name, 'vip-certificate').subscribe(data => {
+        this.redirect('deploy');
+      });
+    });
   }
 }
