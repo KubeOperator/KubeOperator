@@ -81,9 +81,10 @@ Release Note:https://blog.fit2cloud.com/?p=1126
  
 - [ ] 开放 REST API;
 - [ ] 支持 i18n；
-- [ ] 支持在线安装模式；
 - [ ] 支持 kubeadm 部署；
-- [ ] 使用 out-of-tree 的 OpenStack / VSphere Cloud Provider；
+- [ ] 使用 out-of-tree 的 OpenStack / vSphere Cloud Provider；
+- [ ] 使用 out-of-tree 的网络和存储插件；
+- [ ] 支持在线安装模式；
 - [ ] 支持 Helm 3.x；
 - [ ] 支持 Traefik 2.x；
 - [ ] 集成 cert-manager；
