@@ -79,7 +79,6 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  V3.x
  
-- [ ] 支持已有集群导入；
 - [ ] 开放 REST API;
 - [ ] 支持 i18n；
 - [ ] 支持在线安装模式；
@@ -91,4 +90,5 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] 支持 containerd；
 - [ ] 支持 kubernetes 跨版本升级；
 - [ ] 升级 kubeapps-plus 应用商店 (支持 Helm 3.x);
-- [ ] 支持 Open vSwitch (OVS)。
+- [ ] 支持 Open vSwitch (OVS)；
+- [ ] 支持已有集群导入。
