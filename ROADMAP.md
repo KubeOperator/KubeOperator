@@ -79,15 +79,20 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  Backlog
  
-- [ ] 容器化部署；
-- [ ] 支持导入已有集群；
-- [ ] 国际化支持；
-- [ ] 开放 REST API; 
-- [ ] 使用 out-of-tree 的 OpenStack / vSphere cloud controller；
-- [ ] Helm 3.0 支持；
-- [ ] Traefik 2.0 支持；
-- [ ] 支持 VMware NSX-T；
+- [ ] 支持在线安装；
+- [ ] 支持 kubeadm 部署；
+- [ ] 支持已有集群导入；
+- [ ] 支持 master 节点扩容；
+- [ ] 支持 etcd 节点扩容；
+- [ ] 支持 helm 3.x；
+- [ ] 支持 traefik 2.x；
+- [ ] 支持 cert-manager；
+- [ ] 支持 kube-ovn；
+- [ ] 开放 rest api;
 - [ ] 支持 containerd；
-- [ ] 支持 ARM 64；
-- [ ] K8s 跨版本升级支持；
-- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
+- [ ] 支持国际化；
+- [ ] 支持 kubernetes 跨版本升级（只能升一个版本）；
+- [ ] 升级 kubeapps-plus 应用商店 (支持 Helm 3.x)；
+- [ ] 使用 out-of-tree 的 OpenStack / VSphere Cloud Provider；
+- [ ] 支持 VMware NSX-T；
+- [ ] 支持 ARM 64。
