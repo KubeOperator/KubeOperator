@@ -194,7 +194,7 @@ export class DescribeComponent implements OnInit {
   }
 
   toApp(app) {
-    if (app === 'kubeapps-plus' && this.currentCluster.configs['kubeapps_install'] === true) {
+    if (app === 'kubeapps-plus' && this.currentCluster.configs['kubeapps_install'] === false) {
 
       this.onInstallKubeApps();
       return;
