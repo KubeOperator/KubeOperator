@@ -43,8 +43,6 @@ ExecStart={{ bin_dir }}/kubelet \
   --kube-reserved-cgroup=/system.slice/kubelet.service \
 {% endif %}
   --eviction-hard={{ HARD_EVICTION }} \
-  --protect-kernel-defaults=true \
-  --feature-gates=RotateKubeletServerCertificate=true \
   --v=2
 Restart=on-failure
 RestartSec=5
