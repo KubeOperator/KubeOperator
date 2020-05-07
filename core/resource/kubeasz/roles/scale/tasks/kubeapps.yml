@@ -12,6 +12,21 @@
         line: "{{ hostvars[groups['worker'][0]]['ansible_ssh_host'] }} {{ kubeapps_chartmuseum_hostname }}"
 
 - block:
+    - name: 获取 registry 信息
+      shell: "cat /etc/docker/daemon.json"
+      register: daemon
+
+    - name: 添加 kubeapps registry
+      shell: sed -i 's/"]/","{{ kubeapps_registry_hostname }}"]/g' /etc/docker/daemon.json
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+
+    - name: restart_docker
+      service:
+        name: "docker"
+        state: restarted
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+
+- block:
     - name: 尝试登陆 kubeapps-plus registry
       shell: "docker login {{ kubeapps_registry_hostname }} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result

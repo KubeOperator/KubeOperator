@@ -18,6 +18,27 @@
       run_once: true
 
 - block:
+    - name: 获取 registry 信息
+      shell: "cat /etc/docker/daemon.json"
+      register: daemon
+
+    - name: 添加 kubeapps registry
+      shell: sed -i 's/"]/","{{ kubeapps_registry_hostname }}"]/g' /etc/docker/daemon.json
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+    - name: restart_docker
+      service:
+        name: "docker"
+        state: restarted
+      when: 'kubeapps_registry_hostname not in daemon.stdout'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['cluster_nodes'] }}"
+      run_once: true
+
+- block:
     - name: 创建 kubeapps-plus 目录
       file: path=/opt/kube/kube-system/kubeapps-plus state=directory
 
