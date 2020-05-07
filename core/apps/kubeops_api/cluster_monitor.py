@@ -438,6 +438,7 @@ class ClusterMonitor():
 
         with open(os.path.join(KUBEEASZ_DIR, "kube-bench.yml")) as f:
             pod_manifest = yaml.load(f)
+            pod_manifest['spec']['containers'][0]['image'] = self.cluster.configs['registry_prefix']+":"+str(self.cluster.configs['registry_port'])+"/aquasec/kube-bench:latest"
         create_response = self.api_instance.create_namespaced_pod(namespace='kube-operator', body=pod_manifest)
         time.sleep(60)
         self.get_kube_bench_log()
