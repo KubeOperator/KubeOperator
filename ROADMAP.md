@@ -77,17 +77,19 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] vSphere 创建虚机时支持选用自有模板；
 - [ ] 支持更新证书；
 
- ##  Backlog
+ ##  V3.x
  
-- [ ] 容器化部署；
-- [ ] 支持导入已有集群；
-- [ ] 国际化支持；
-- [ ] 开放 REST API; 
-- [ ] 使用 out-of-tree 的 OpenStack / vSphere cloud controller；
-- [ ] Helm 3.0 支持；
-- [ ] Traefik 2.0 支持；
-- [ ] 支持 VMware NSX-T；
+- [ ] 开放 REST API;
+- [ ] 支持 i18n；
+- [ ] 支持 kubeadm 部署；
+- [ ] 使用 out-of-tree 的 OpenStack / vSphere Cloud Provider；
+- [ ] 使用 out-of-tree 的网络和存储插件；
+- [ ] 支持在线安装模式；
+- [ ] 支持 Helm 3.x；
+- [ ] 支持 Traefik 2.x；
+- [ ] 集成 cert-manager；
 - [ ] 支持 containerd；
-- [ ] 支持 ARM 64；
-- [ ] K8s 跨版本升级支持；
-- [ ] 升级 Kubeapps-plus 应用商店到 v1.8.2 (支持 Helm 3)。
+- [ ] 支持 kubernetes 跨版本升级；
+- [ ] 升级 kubeapps-plus 应用商店 (支持 Helm 3.x);
+- [ ] 支持 Open vSwitch (OVS)；
+- [ ] 支持已有集群导入。
