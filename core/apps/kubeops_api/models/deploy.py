@@ -134,8 +134,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 result = self.on_install_kubeapps(extra_vars)
-                if not result.get('summary', {}).get('success', False):
-                    cluster.set_config('kubeapps_install', True)
+                if result.get('summary', {}).get('success', False):
+                    cluster.set_config_unlock({'kubeapps_install': True})
 
             if not result.get('summary', {}).get('success', False):
                 message['content'] = self.get_content(False)
