@@ -4,11 +4,7 @@
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
-{% if kubeapps_install is defined %}
-  "insecure-registries":["{{registry_prefix}}:{{registry_port}}","registry.{{APP_DOMAIN}}","{{kubeapps_registry_hostname}}"],
-{% else %}
   "insecure-registries":["{{registry_prefix}}:{{registry_port}}","registry.{{APP_DOMAIN}}"],
-{% endif %}
   "max-concurrent-downloads": 10,
   "log-driver": "json-file",
   "log-level": "warn",

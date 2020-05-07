@@ -10,7 +10,6 @@ spec:
   - command:
     - kube-bench
     image: aquasec/kube-bench:latest
-#    image: {{registry_prefix}}:{{registry_port}}/aquasec/kube-bench:latest
     name: kube-bench
     volumeMounts:
     - mountPath: /var/lib/etcd
