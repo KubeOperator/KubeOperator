@@ -130,6 +130,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
                 logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
                 ignore_errors = True
                 result = self.on_vip_certificate(extra_vars)
+            elif self.operation == 'kubeapps':
+                logger.info(msg="cluster: {} exec: {} ".format(cluster, self.operation))
+                ignore_errors = True
+                result = self.on_install_kubeapps(extra_vars)
+                if not result.get('summary', {}).get('success', False):
+                    cluster.set_config('kubeapps_install', True)
+
             if not result.get('summary', {}).get('success', False):
                 message['content'] = self.get_content(False)
                 message['level'] = 'WARNING'
@@ -246,6 +253,13 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
         extra_vars.update(cluster.meta)
         return self.run_playbooks(extra_vars)
 
+    def on_install_kubeapps(self, extra_vars):
+        cluster = self.get_cluster()
+        self.steps = cluster.get_steps('kubeapps')
+        self.set_step_default()
+        extra_vars.update(cluster.meta)
+        return self.run_playbooks(extra_vars)
+
     def on_restore(self, extra_vars, cluster_backup_id):
         cluster_backup = ClusterBackup.objects.get(id=cluster_backup_id)
         backup_storage = BackupStorage.objects.get(id=cluster_backup.backup_storage_id)
@@ -328,7 +342,8 @@ class DeployExecution(AbstractProjectResourceModel, AbstractExecutionModel):
             "restore": "集群恢复",
             "backup": "集群备份",
             "bigip-config": "F5服务暴露",
-            "vip-certificate": "ApiServer配置"
+            "vip-certificate": "ApiServer配置",
+            "kubeapps": "安装应用商店"
         }
         return operation_name[self.operation]
 

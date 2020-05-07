@@ -194,7 +194,20 @@ export class DescribeComponent implements OnInit {
   }
 
   toApp(app) {
+    if (app === 'kubeapps-plus' && this.currentCluster.configs['kubeapps_install'] === true) {
+
+      this.onInstallKubeApps();
+      return;
+    }
+
     const url = 'http://' + app + '.apps.' + this.currentCluster.name + '.' + this.currentCluster.cluster_doamin_suffix;
     window.open(url, '_blank');
+  }
+
+  onInstallKubeApps() {
+    this.confirmAlert.setTitle('确认安装应用商店');
+    this.confirmAlert.setComment('集群尚未安装应用商店 是否安装？');
+    this.event = 'kubeapps';
+    this.confirmAlert.opened = true;
   }
 }
