@@ -86,8 +86,6 @@ export class DescribeComponent implements OnInit {
     this.webKubeCtrl.loading = true;
     this.webKubeCtrl.opened = true;
     this.clusterService.getWebkubectlToken(this.currentCluster.id).subscribe(data => {
-      const protocol = window.location.protocol;
-      const host = window.location.host;
       this.webKubeCtrl.url =  '/webkubectl/terminal/?token=' + data['token'];
       this.webKubeCtrl.open();
     });
