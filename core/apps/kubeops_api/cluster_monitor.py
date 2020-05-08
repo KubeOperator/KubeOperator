@@ -17,7 +17,7 @@ from kubeops_api.prometheus_client import PrometheusClient
 from kubeops_api.models.host import Host
 from django.db.models import Q
 from kubeops_api.cluster_health_data import ClusterHealthData
-from django.utils import timezone
+from django.utils import timezone as dj_timezone
 from ansible_api.models.inventory import Host as C_Host
 from common.ssh import SSHClient, SshConfig
 from message_center.message_client import MessageClient
@@ -316,7 +316,7 @@ class ClusterMonitor():
                         ready = ready + 1
                 ready_status = str(ready) + '/' + str(count)
                 # 计算存活时间
-                now = timezone.now()
+                now = dj_timezone.now()
                 age_time = now - s.status.start_time
                 age = ''
                 if age_time.days > 0:
