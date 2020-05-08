@@ -43,7 +43,7 @@
       register: pod_status
       until: pod_status.stdout == "Completed"
       delegate_to: "{{ groups['kube-master'][0] }}"
-      retries: 10
+      retries: 30
       delay: 10
 
     - name: delete test-sc.yaml

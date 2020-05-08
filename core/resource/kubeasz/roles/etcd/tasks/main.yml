@@ -48,6 +48,6 @@
   shell: "systemctl status etcd.service|grep Active"
   register: etcd_status
   until: '"running" in etcd_status.stdout'
-  retries: 8
+  retries: 15
   delay: 8
   tags: upgrade_etcd

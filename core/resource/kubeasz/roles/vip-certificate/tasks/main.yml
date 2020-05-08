@@ -29,7 +29,7 @@
   command: "{{ bin_dir }}/kubectl get node"
   register: result
   until:    result.rc == 0
-  retries:  5
+  retries: 15
   delay: 6
   delegate_to: "{{ groups['kube-master'][0]}}"
   run_once: True

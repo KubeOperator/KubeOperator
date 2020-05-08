@@ -30,6 +30,6 @@
       shell: "docker login registry.{{APP_DOMAIN}} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
-      retries: 6
+      retries: 15
       delay: 10
       ignore_errors: true

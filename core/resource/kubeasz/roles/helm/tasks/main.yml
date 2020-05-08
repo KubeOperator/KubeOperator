@@ -17,8 +17,8 @@
   shell: "{{ bin_dir }}/kubectl get pod -n kube-system | grep 'tiller' | awk '{print $3}'"
   register: tiller_status
   until: tiller_status.stdout == 'Running'
-  retries: 40
-  delay: 2
+  retries: 30
+  delay: 5
 
 - name: 配置helm tls环境变量
   lineinfile:

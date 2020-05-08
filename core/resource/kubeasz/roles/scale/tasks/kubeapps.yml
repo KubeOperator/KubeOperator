@@ -31,6 +31,6 @@
       shell: "docker login {{ kubeapps_registry_hostname }} -u {{REGISTRY_ACCOUNT_NAME}} -p {{REGISTRY_ACCOUNT_PASSWORD}}"
       register: login_result
       until: login_result.rc == 0
-      retries: 10
+      retries: 15
       delay: 10
       ignore_errors: true

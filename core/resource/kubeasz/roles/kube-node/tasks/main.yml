@@ -122,16 +122,16 @@
   shell: "systemctl status kubelet.service|grep Active"
   register: kubelet_status
   until: '"running" in kubelet_status.stdout'
-  retries: 8
-  delay: 2
+  retries: 15
+  delay: 5
 
 - name: 轮询等待node达到Ready状态
   shell: "{{ bin_dir }}/kubectl get node {{ inventory_hostname }}|awk 'NR>1{print $2}'"
   register: node_status
   delegate_to: "{{ groups['kube-master'][0] }}"
   until: node_status.stdout == "Ready" or node_status.stdout == "Ready,SchedulingDisabled"
-  retries: 8
-  delay: 8
+  retries: 15
+  delay: 5
   tags: upgrade_k8s, restart_node
 
 - name: 设置node节点role

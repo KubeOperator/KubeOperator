@@ -52,7 +52,7 @@
       register: apiservices_status
       until: apiservices_status.stdout == "True"
       delegate_to: "{{ groups['kube-master'][0] }}"
-      retries: 10
+      retries: 15
       delay: 10
   when: 'metrics_server_install '
   ignore_errors: true

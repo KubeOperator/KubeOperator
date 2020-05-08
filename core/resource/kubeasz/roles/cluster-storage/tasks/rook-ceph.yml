@@ -40,7 +40,7 @@
       shell: "{{ bin_dir }}/kubectl -n rook-ceph get pod -o wide | grep rook-discover | grep '{{ inventory_hostname }}' | awk '{print $3}'"
       register: pod_status
       until: pod_status.stdout == "Running"
-      retries: 20
+      retries: 30
       delay: 15
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: true

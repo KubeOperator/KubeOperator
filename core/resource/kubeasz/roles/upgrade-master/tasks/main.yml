@@ -60,7 +60,7 @@
       command: "{{ bin_dir }}/kubectl get node"
       register: result
       until:    result.rc == 0
-      retries:  5
-      delay: 6
+      retries: 15
+      delay: 5
       run_once: True
   when: 'kube_ver.stdout < kube_version'

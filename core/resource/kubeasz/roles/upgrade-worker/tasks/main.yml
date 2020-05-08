@@ -61,6 +61,6 @@
       shell: "systemctl status kubelet.service|grep Active"
       register: kubelet_status
       until: '"running" in kubelet_status.stdout'
-      retries: 8
-      delay: 2
+      retries: 15
+      delay: 5
   when: 'kube_ver.stdout < kube_version'

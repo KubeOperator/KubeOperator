@@ -15,7 +15,7 @@
       shell: "{{ bin_dir }}/kubectl get pod -n kube-system | grep 'bigip' | awk '{print $3}'"
       register: f5_status
       until: f5_status.stdout == 'Running'
-      retries: 20
+      retries: 15
       delay: 5
 
     - name: attach a virtual server to kubernetes http ingress

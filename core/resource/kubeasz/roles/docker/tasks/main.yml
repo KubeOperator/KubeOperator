@@ -80,5 +80,5 @@
       shell: "systemctl status docker.service|grep Active"
       register: docker_status
       until: '"running" in docker_status.stdout'
-      retries: 8
-      delay: 2
+      retries: 15
+      delay: 5
