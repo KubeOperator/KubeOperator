@@ -124,10 +124,13 @@ class Host(BaseHost):
             if msg:
                 host_gpus = str(msg).split('\n')
                 for hg in host_gpus:
-                    g = GPU()
-                    g.name = hg[hg.index("[") + 1:hg.index("]")]
-                    g.save()
-                    gpus.append(g)
+                    if hg.find("[") > -1:
+                        g = GPU()
+                        g.name = hg[hg.index("[") + 1:hg.index("]")]
+                        g.save()
+                        gpus.append(g)
+                    else:
+                        continue
             self.gpus.set(gpus)
             self.status = Host.HOST_STATUS_RUNNING
             self.save()
