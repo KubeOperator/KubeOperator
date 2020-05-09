@@ -12,6 +12,7 @@ export class ClusterDetailComponent implements OnInit {
 
   currentCluster: Cluster;
   permission;
+  showCis = true;
 
   constructor(private router: Router, private route: ActivatedRoute, private sessionService: SessionService) {
   }
@@ -20,6 +21,10 @@ export class ClusterDetailComponent implements OnInit {
     this.route.data.subscribe(data => {
       this.currentCluster = data['cluster'];
       this.permission = this.sessionService.getItemPermission(this.currentCluster.item_name);
+      const versions = this.currentCluster.package.split('-');
+      if ( Number(versions[1]) <= 16 &&  Number(versions[2]) < 9) {
+          this.showCis = false;
+      }
     });
   }
 

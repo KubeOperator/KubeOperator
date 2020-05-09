@@ -25,7 +25,7 @@
     <li class="nav-item">
       <a class="nav-link" routerLink="health" routerLinkActive="active">组件状态</a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item" *ngIf="showCis">
       <a class="nav-link" routerLink="cis" routerLinkActive="active">CIS扫描</a>
     </li>
     <li class="nav-item">
