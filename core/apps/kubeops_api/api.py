@@ -694,8 +694,14 @@ class CisLogExcelOutput(RetrieveAPIView):
 
         cis_dir = settings.CIS_DIR
         template_path = os.path.join(cis_dir, cis_log.name+'.xlsx')
-        w = create_template_wb()
-        w.save(template_path)
+
+        if not os.path.exists(cis_dir):
+            os.mkdir(cis_dir)
+
+        if not os.path.exists(template_path):
+            w = create_template_wb()
+            w.save(template_path)
+
         response = HttpResponse(file_iterator(template_path))
         response["content_type"] = 'application/octet-stream'
         response['Content-Disposition'] = "attachment; filename="+cis_log.name+".xlsx"
