@@ -105,7 +105,7 @@ class VsphereCloudClient(CloudClient):
     def apply_terraform(self, cluster, hosts_dict):
         vars = cluster.plan.mixed_vars
         st = connect.SmartConnectNoSSL(host=vars['vc_host'], user=vars['vc_username'],
-                                       pwd=vars['vc_password'], port=int(443))
+                                       pwd=vars['vc_password'], port=vars['vc_port'])
         content = st.RetrieveContent()
         container = content.rootFolder
         dc = get_obj(content, [vim.Datacenter], container, vars['region'])
@@ -184,7 +184,8 @@ def get_service_instance(kwargs):
     host = kwargs.get('host')
     username = kwargs.get('username')
     password = kwargs.get('password')
-    service_instance = connect.SmartConnectNoSSL(host=host, user=username, pwd=password, port=int(443))
+    port = kwargs.get('port')
+    service_instance = connect.SmartConnectNoSSL(host=host, user=username, pwd=password, port=port)
     if not service_instance:
         logger.error(msg='Could not connect to the specified host using specified username and password',
                      exc_info=True)
@@ -226,4 +227,5 @@ def replace_params(vars):
         "host": vars.get('vc_host', None),
         "username": vars.get('vc_username', None),
         "password": vars.get('vc_password', None),
+        "port": vars.get('vc_port', None),
     }
