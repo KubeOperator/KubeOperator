@@ -340,7 +340,6 @@ class ClusterMonitor():
 
     def list_storage_class(self):
         sc_response = self.storage_v1_Api.list_storage_class()
-        self.get_kube_bench_log()
         scs = []
         for item in sc_response.items:
             if item.parameters:
