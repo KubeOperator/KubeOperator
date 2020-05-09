@@ -23,7 +23,7 @@ class StorageClient():
         if self.client is None:
             return False
         # 上传文件测试可用性
-        return self.client.is_valid('Dockerfile', 'kube-operator-test')
+        return self.client.is_valid('upload_test.txt', 'kube-operator-test')
 
     def cover_to_config(self,credentials):
         storage_config = {}
