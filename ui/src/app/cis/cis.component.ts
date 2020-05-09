@@ -41,6 +41,7 @@ export class CisComponent implements OnInit {
     this.loading = true;
     this.cisService.listCis(this.currentCluster.id, this.page, this.size).subscribe(data => {
       this.cises = data;
+      this.total = this.cises.length;
       this.loading = false;
     });
   }
