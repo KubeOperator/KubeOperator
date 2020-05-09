@@ -65,7 +65,6 @@ import {ItemEditComponent} from './item/item-edit/item-edit.component';
 import {ClusterOpsComponent} from './cluster-ops/cluster-ops.component';
 import {OpsListComponent} from './cluster-ops/ops-list/ops-list.component';
 import {OpsCreateComponent} from './cluster-ops/ops-create/ops-create.component';
-import {ScriptModule} from './script/script.module';
 import { CisComponent } from './cis/cis.component';
 
 @NgModule({
@@ -135,7 +134,6 @@ import { CisComponent } from './cis/cis.component';
     NfsModule,
     StorageModule,
     SystemLogModule,
-    ScriptModule,
     DnsModule,
     NgCircleProgressModule.forRoot({
       radius: 100,
