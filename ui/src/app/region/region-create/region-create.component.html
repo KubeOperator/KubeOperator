@@ -12,7 +12,8 @@
     <form clrForm #regionForm="ngForm">
       <clr-input-container>
         <label>名称</label>
-        <input clrInput size=45 type="text" maxlength="15" pattern="{{name_pattern}}" [(ngModel)]="item.name" name="name" (blur)="nameOnBlur()" required>
+        <input clrInput size=45 type="text" maxlength="15" pattern="{{name_pattern}}" [(ngModel)]="item.name"
+               name="name" (blur)="nameOnBlur()" required>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>
         <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.invalid">{{name_pattern_tip}}</clr-control-error>
@@ -76,7 +77,8 @@
         <div>
           <clr-input-container>
             <label>Identity</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['openstack_identity']" name="openstack_identity" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_identity']" name="openstack_identity"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>OpenStack keystone地址</clr-control-helper>
           </clr-input-container>
@@ -84,15 +86,17 @@
         <div>
           <clr-input-container>
             <label>用户名</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['openstack_username']" name="openstack_username" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_username']" name="openstack_username"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>访问 OpenStack 的用户名</clr-control-helper>
           </clr-input-container>
         </div>
         <div>
-           <clr-password-container>
+          <clr-password-container>
             <label>用户密码</label>
-            <input clrPassword type="text" [(ngModel)]="item.vars['openstack_password']" name="openstack_password" required>
+            <input clrPassword type="text" [(ngModel)]="item.vars['openstack_password']" name="openstack_password"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>访问 OpenStack 的密码</clr-control-helper>
           </clr-password-container>
@@ -100,7 +104,8 @@
         <div>
           <clr-input-container>
             <label>项目ID</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['openstack_projectId']" name="openstack_projectId" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_projectId']" name="openstack_projectId"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>OpenStack 项目ID</clr-control-helper>
           </clr-input-container>
@@ -108,7 +113,8 @@
         <div>
           <clr-input-container>
             <label>Domain Name</label>
-            <input clrInput type="text" [(ngModel)]="item.vars['openstack_domain_name']" name="openstack_domain_name" required>
+            <input clrInput type="text" [(ngModel)]="item.vars['openstack_domain_name']" name="openstack_domain_name"
+                   required>
             <clr-control-error>此字段为必填项</clr-control-error>
             <clr-control-helper>OpenStack Domain Name</clr-control-helper>
           </clr-input-container>
@@ -127,12 +133,11 @@
     <form clrForm #dtFrom='ngForm'>
       <clr-select-container>
         <label>数据中心</label>
-        <select clrSelect *ngFor="let c_region of cloudRegions" [(ngModel)]="item.cloud_region" name="cloud-region"
-                required>
+        <select clrSelect  [(ngModel)]="item.cloud_region" name="cloud-region" required>
           <option value="">请选择</option>
-          <option [value]="c_region">{{c_region}}</option>
-          <clr-control-error>此字段为必填项</clr-control-error>
+          <option [value]="c_region" *ngFor="let c_region of cloudRegions" >{{c_region}}</option>
         </select>
+        <clr-control-error>此字段为必填项</clr-control-error>
       </clr-select-container>
     </form>
   </clr-wizard-page>
