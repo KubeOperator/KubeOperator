@@ -86,7 +86,7 @@ export class DescribeComponent implements OnInit {
     this.webKubeCtrl.loading = true;
     this.webKubeCtrl.opened = true;
     this.clusterService.getWebkubectlToken(this.currentCluster.id).subscribe(data => {
-      this.webKubeCtrl.url =  '/webkubectl/terminal/?token=' + data['token'];
+      this.webKubeCtrl.url = '/webkubectl/terminal/?token=' + data['token'];
       this.webKubeCtrl.open();
     });
   }
@@ -194,12 +194,22 @@ export class DescribeComponent implements OnInit {
   }
 
   toApp(app) {
-    if (app === 'kubeapps-plus' && this.currentCluster.configs['kubeapps_install'] === false) {
-
-      this.onInstallKubeApps();
-      return;
+    if (app === 'kubeapps-plus') {
+      this.clusterService.checkNameSpace(this.currentCluster.name, app).subscribe(result => {
+        if (result === false) {
+          this.onInstallKubeApps();
+          return;
+        } else {
+          this.openApp(app);
+        }
+      });
+    } else {
+      this.openApp(app);
     }
+  }
 
+
+  openApp(app) {
     const url = 'http://' + app + '.apps.' + this.currentCluster.name + '.' + this.currentCluster.cluster_doamin_suffix;
     window.open(url, '_blank');
   }

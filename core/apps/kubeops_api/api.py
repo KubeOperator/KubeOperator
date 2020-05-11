@@ -677,7 +677,7 @@ class CisLogExcelOutput(RetrieveAPIView):
                 s.cell(i, 2, d['description'])
                 s.cell(i, 3, d['remediation'])
                 s.cell(i, 4, d['state'])
-                i = i+1
+                i = i + 1
 
             s.column_dimensions['B'].width = 100.0
             s.column_dimensions['C'].width = 100.0
@@ -693,7 +693,7 @@ class CisLogExcelOutput(RetrieveAPIView):
                         break
 
         cis_dir = settings.CIS_DIR
-        template_path = os.path.join(cis_dir, cis_log.name+'.xlsx')
+        template_path = os.path.join(cis_dir, cis_log.name + '.xlsx')
 
         if not os.path.exists(cis_dir):
             os.mkdir(cis_dir)
@@ -704,5 +704,24 @@ class CisLogExcelOutput(RetrieveAPIView):
 
         response = HttpResponse(file_iterator(template_path))
         response["content_type"] = 'application/octet-stream'
-        response['Content-Disposition'] = "attachment; filename="+cis_log.name+".xlsx"
+        response['Content-Disposition'] = "attachment; filename=" + cis_log.name + ".xlsx"
+        return response
+
+
+class CheckNameSpaceView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        project_name = self.kwargs['project_name']
+        namespace = self.kwargs['namespace']
+        cluster = Cluster.objects.get(name=project_name)
+        response = HttpResponse(content_type='application/json')
+        if cluster.status == Cluster.CLUSTER_STATUS_READY or cluster.status == Cluster.CLUSTER_STATUS_INSTALLING:
+            return Response(data={'msg': ': 集群未创建'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        cluster_monitor = ClusterMonitor(cluster)
+        try:
+            result = cluster_monitor.check_namespace_exist(namespace)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return Response(data={'msg': ': 数据读取失败！'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        response.write(json.dumps(result))
         return response

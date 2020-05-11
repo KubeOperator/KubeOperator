@@ -413,6 +413,15 @@ class ClusterMonitor():
                     message_client.insert_message(message)
         return events, actions
 
+    def check_namespace_exist(self, name):
+        namespaces = self.list_namespaces()
+        exist = False
+        for n in namespaces:
+            if n['name'] == name:
+                exist = True
+                break
+        return exist
+
     def create_kube_bench(self):
 
         try:
@@ -437,7 +446,9 @@ class ClusterMonitor():
 
         with open(os.path.join(KUBEEASZ_DIR, "kube-bench.yml")) as f:
             pod_manifest = yaml.load(f)
-            pod_manifest['spec']['containers'][0]['image'] = self.cluster.configs['registry_prefix']+":" + str(self.cluster.configs['registry_port']) + "/" + self.cluster.configs['kube_bench_image'] + ":"  +self.cluster.configs['kube_bench_version']
+            pod_manifest['spec']['containers'][0]['image'] = self.cluster.configs['registry_prefix'] + ":" + str(
+                self.cluster.configs['registry_port']) + "/" + self.cluster.configs['kube_bench_image'] + ":" + \
+                                                             self.cluster.configs['kube_bench_version']
         create_response = self.api_instance.create_namespaced_pod(namespace='kube-operator', body=pod_manifest)
         time.sleep(60)
         self.get_kube_bench_log()
