@@ -86,10 +86,9 @@ export class HostListComponent implements OnInit {
 
   listHost() {
     this.loading = true;
-    this.hostService.list(this.page, this.size).subscribe(data => {
-      this.hosts = data.results;
+    this.hostService.listAll().subscribe(data => {
       this.loading = false;
-      this.total = data.count;
+      this.hosts = data;
     });
   }
 

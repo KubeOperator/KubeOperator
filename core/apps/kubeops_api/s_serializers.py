@@ -55,7 +55,6 @@ class NodeSerializer(AnsibleHostSerializer):
         slug_field='name', required=False
     )
     conditions = ConditionSerializer(required=False, many=True)
-    meta = serializers.JSONField()
     info = serializers.DictField()
 
     def get_field_names(self, declared_fields, info):
