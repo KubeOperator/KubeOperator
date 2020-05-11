@@ -70,7 +70,7 @@
       <clr-dg-column-toggle-title>显示列</clr-dg-column-toggle-title>
       <clr-dg-column-toggle-button>全部</clr-dg-column-toggle-button>
     </clr-dg-column-toggle>
-    <clr-dg-pagination #pagination [clrDgPageSize]=size [clrDgTotalItems]="total" (clrDgPageChange)="listHost()">
+    <clr-dg-pagination #pagination>
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
       总共 {{pagination.totalItems}} 主机
