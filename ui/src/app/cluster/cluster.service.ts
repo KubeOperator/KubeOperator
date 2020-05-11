@@ -8,6 +8,7 @@ import {HostService} from '../host/host.service';
 
 const baseClusterUrl = '/api/v1/clusters/';
 const webKubeCtlUrl = '/api/v1/cluster/{id}/webkubectl/token/';
+const checkNameSpaceUrl = '/api/v1/cluster/{project_name}/check/{namespace}/';
 
 
 @Injectable({
@@ -60,5 +61,9 @@ export class ClusterService {
 
   changeStatus(status: string, name: string): Observable<Cluster> {
     return this.http.patch<Cluster>(`${baseClusterUrl}${name}/`, {'status': status});
+  }
+
+  checkNameSpace(name: string, namespace: string): Observable<Boolean> {
+    return this.http.get<Boolean>(checkNameSpaceUrl.replace('{project_name}', name).replace('{namespace}', namespace));
   }
 }
