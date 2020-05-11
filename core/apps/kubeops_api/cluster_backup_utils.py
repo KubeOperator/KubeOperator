@@ -3,11 +3,11 @@ from kubeops_api.models.cluster_backup import ClusterBackup
 from kubeops_api.models.backup_strategy import BackupStrategy
 from ansible_api.models.project import Project
 from kubeops_api.models.cluster import Cluster
-from kubeops_api.models.setting import Setting
 from kubeops_api.models.backup_storage import BackupStorage
 from kubeops_api.storage_client import StorageClient
-import datetime
 import time
+from datetime import datetime,timezone,timedelta
+
 
 def cluster_backup():
     backup_strategies = BackupStrategy.objects.filter(status=BackupStrategy.BACKUP_STRATEGY_STATUS_ENABLE)
@@ -16,12 +16,12 @@ def cluster_backup():
         backup_storage_id = str(b.backup_storage_id)
         cluster_backups = ClusterBackup.objects.filter(backup_storage_id=backup_storage_id).order_by('-date_created')
         if cluster_backups:
-            time_now = datetime.datetime.now().strftime('%Y-%m-%d')
+            time_now = datetime.now().strftime('%Y-%m-%d')
             date1 = time.strptime(time_now,'%Y-%m-%d')
             time_backup = cluster_backups[0].date_created.strftime('%Y-%m-%d')
             date2 = time.strptime(time_backup,'%Y-%m-%d')
-            d1 = datetime.datetime(date1[0], date1[1], date1[2])
-            d2 = datetime.datetime(date2[0], date2[1], date2[2])
+            d1 = datetime(date1[0], date1[1], date1[2])
+            d2 = datetime(date2[0], date2[1], date2[2])
             day = (d1-d2).days
             if day >= b.cron:
                 success = run_backup(project_id,backup_storage_id)
@@ -40,7 +40,7 @@ def run_backup(project_id,backup_storage_id):
     }
     extra_vars.update(cluster.configs)
     run_playbooks(steps,extra_vars,project)
-    now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     client = StorageClient(backup_storage)
     client.check_valid()
     file_name = cluster.name+'-'+str(now)+'.zip'
@@ -55,7 +55,7 @@ def run_backup(project_id,backup_storage_id):
 def upload_backup_file(project_id,backup_storage_id):
     cluster = Cluster.objects.get(id=project_id)
     backup_storage = BackupStorage.objects.get(id=backup_storage_id)
-    now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    now =datetime.now().astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
     client = StorageClient(backup_storage)
     client.check_valid()
     file_name = cluster.name+'-'+str(now)+'.zip'
