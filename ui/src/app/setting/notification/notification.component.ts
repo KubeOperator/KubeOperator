@@ -21,6 +21,7 @@ export class NotificationComponent implements OnInit {
   loading = false;
   emailValid = false;
   workWeixinInValid = true;
+  dingTalkInValid = true;
 
   ngOnInit() {
     this.listSettings('email');
@@ -71,6 +72,16 @@ export class NotificationComponent implements OnInit {
       this.alert.showAlert(data['msg'], AlertLevels.SUCCESS);
     }, error => {
       this.workWeixinInValid = true;
+      this.alert.showAlert(error.error.msg, AlertLevels.ERROR);
+    });
+  }
+
+  checkDingTalk() {
+    this.notificationService.dingTalkCheck(this.dingTalk).subscribe(data => {
+      this.dingTalkInValid = false;
+      this.alert.showAlert(data['msg'], AlertLevels.SUCCESS);
+    }, error => {
+      this.dingTalkInValid = true;
       this.alert.showAlert(error.error.msg, AlertLevels.ERROR);
     });
   }

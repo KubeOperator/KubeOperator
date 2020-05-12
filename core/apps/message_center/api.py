@@ -11,6 +11,7 @@ import kubeoperator.settings
 from rest_framework.views import APIView
 from ko_notification_utils.email_smtp import Email
 from ko_notification_utils.work_weixin import WorkWeiXin
+from ko_notification_utils.ding_talk import DingTalk
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
@@ -18,8 +19,6 @@ from .m_serializers import UserNotificationConfigSerializer, UserReceiverSeriali
 from .models import UserNotificationConfig, UserReceiver, UserMessage, Message
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
-from django.template import Template, Context, loader
-from message_center.message_client import send_email
 
 
 class EmailCheckView(APIView):
@@ -61,6 +60,21 @@ class WorkWeixinCheckView(APIView):
             return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class DingTalkCheckView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        ding_talk_config = request.data
+        ding_talk = DingTalk(webhook=ding_talk_config['DINGTALK_WEBHOOK'],secret=ding_talk_config['DINGTALK_SECRET'])
+        if ding_talk_config.get('DING_TALK_TEST_USER') is not None and ding_talk_config['DING_TALK_TEST_USER'] != '':
+            result = ding_talk.send_markdown_msg(receivers=ding_talk_config['DING_TALK_TEST_USER'],content={'title':'测试','text':'测试消息'})
+            if result.success:
+                return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
+            else:
+                return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(data={'msg': '校验失败！参数不全！'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SubscribeViewSet(ModelViewSet):
     serializer_class = UserNotificationConfigSerializer

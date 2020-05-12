@@ -21,4 +21,9 @@ export class NotificationService {
     const url = this.baseUrl + 'workWeixin/check/';
     return this.http.post<Settings>(url, workWeixin);
   }
+
+  dingTalkCheck(dingTalk: Settings): Observable<Settings> {
+    const url = this.baseUrl + 'dingTalk/check/';
+    return this.http.post<Settings>(url, dingTalk);
+  }
 }
