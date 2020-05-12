@@ -18,8 +18,9 @@ from .m_serializers import UserNotificationConfigSerializer, UserReceiverSeriali
 from .models import UserNotificationConfig, UserReceiver, UserMessage, Message
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
-from django.template import Template, Context ,loader
+from django.template import Template, Context, loader
 from message_center.message_client import send_email
+
 
 class EmailCheckView(APIView):
 
@@ -44,10 +45,18 @@ class WorkWeixinCheckView(APIView):
         result = weixin.get_token()
         if result.success:
             redis_cli = redis.StrictRedis(host=kubeoperator.settings.REDIS_HOST,
-                                               port=kubeoperator.settings.REDIS_PORT)
-            redis_cli.set('WORK_WEIXIN_TOKEN',result.data['access_token'],result.data['expires_in'])
-
-            return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
+                                          port=kubeoperator.settings.REDIS_PORT)
+            redis_cli.set('WORK_WEIXIN_TOKEN', result.data['access_token'], result.data['expires_in'])
+            if weixin_config.get('WEIXIN_TEST_USER') is not None and weixin_config['WEIXIN_TEST_USER'] != '':
+                res = weixin.send_markdown_msg(receivers=weixin_config['WEIXIN_TEST_USER'], content={'content': '测试消息'},
+                                               token=result.data['access_token'])
+                if res.success:
+                    return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
+                else:
+                    return Response(data={'msg': '校验失败！' + json.dumps(res.data)},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return Response(data={'msg': '校验成功！'}, status=status.HTTP_200_OK)
         else:
             return Response(data={'msg': '校验失败！' + json.dumps(result.data)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
