@@ -4,7 +4,7 @@ import json
 import logging
 import kubeoperator.settings
 import log.es
-import datetime, time
+import time
 import builtins
 import yaml
 import os
@@ -367,8 +367,8 @@ class ClusterMonitor():
         event_response = self.api_instance.list_event_for_all_namespaces()
         events = []
         actions = []
-        year = datetime.datetime.now().year
-        month = datetime.datetime.now().month
+        year = datetime.now().year
+        month = datetime.now().month
         index = (self.cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
         for item in event_response.items:
@@ -672,8 +672,8 @@ def put_event_data_to_es():
 
     for cluster in clusters:
         cluster_monitor = ClusterMonitor(cluster)
-        year = datetime.datetime.now().year
-        month = datetime.datetime.now().month
+        year = datetime.now().year
+        month = datetime.now().month
         index = (cluster.name + '-{}.{}').format(year, month)
         es_client = log.es.get_es_client()
         index_exists = log.es.exists(es_client, index)
