@@ -15,6 +15,7 @@
         <li><b style="margin-right: 16px">网关:</b>{{currentZone.vars['vc_gateway']}}</li>
         <li><b style="margin-right: 16px">DNS1:</b>{{currentZone.vars['dns1']}}</li>
         <li><b style="margin-right: 16px">DNS2:</b>{{currentZone.vars['dns2']}}</li>
+        <li *ngIf="currentZone.vars['template_type'] === 'customize'"><b style="margin-right: 16px">模板:</b>{{currentZone.vars['image_name']}}</li>
         <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
       </ul>
     </div>
