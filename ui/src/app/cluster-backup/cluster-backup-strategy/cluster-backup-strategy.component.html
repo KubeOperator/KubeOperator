@@ -17,7 +17,7 @@
     <clr-select-container>
       <label>备份账号</label>
       <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backup_storage_id" required>
-        <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{b.credentials.bucket}})</option>
+        <option *ngFor="let b of backupStorage" value="{{b.id}}">{{b.name}}({{ b.type!= 'AZURE' ? b.credentials.bucket : b.credentials.container}})</option>
       </select>
       <clr-control-helper>备份账号需要先授权到项目</clr-control-helper>
     </clr-select-container>
