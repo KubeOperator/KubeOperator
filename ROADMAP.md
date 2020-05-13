@@ -75,7 +75,7 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] 应用商店改成可选安装；
 - [ ] 支持 RHEL 7.4 以上操作系统；
 - [ ] vSphere 创建虚机时支持选用自有模板；
-- [ ] 支持更新证书；
+- [ ] 支持更新apiserver证书；
 
  ##  V3.x
  
