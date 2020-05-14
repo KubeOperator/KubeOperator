@@ -40,7 +40,7 @@
     <clr-dg-pagination #pagination [clrDgPageSize]=size [clrDgTotalItems]="total" (clrDgPageChange)="listCis()">
       <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
       {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-      总共 {{pagination.totalItems}} 主机
+      总共 {{pagination.totalItems}} 个
     </clr-dg-pagination>
   </clr-dg-footer>
 
