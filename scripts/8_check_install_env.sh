@@ -21,7 +21,7 @@ if [ -f /etc/redhat-release ];then
   majorVersion=`echo $osVersion | awk -F. '{print $1}'`
   minorVersion=`echo $osVersion | awk -F. '{print $2}'`
   if [ "x$majorVersion" == "x" ];then
-    echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 64 位版本"
+    echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 / 7.8 64 位版本"
     validationPassed=0
   else
     if [[ $majorVersion == 7 ]] && [[ $minorVersion > 3 ]];then
@@ -33,12 +33,12 @@ if [ -f /etc/redhat-release ];then
          validationPassed=0
       fi
     else
-      echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 版本"
+      echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 / 7.8 版本"
       validationPassed=0
     fi
   fi
 else
-    echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 版本"
+    echo "[ERROR] 操作系统类型版本不符合要求，请使用 CentOS 7.4 / 7.5 / 7.6 / 7.7 / 7.8 版本"
     validationPassed=0
 fi
 
