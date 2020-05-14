@@ -69,7 +69,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 
 Release Note:https://blog.fit2cloud.com/?p=1126
 
- ##  v2.6 （开发中，预计 2020.5.14 发布）
+ ##  v2.6 （已发布）
 
 - [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
 - [ ] 应用商店改成可选安装；
@@ -77,7 +77,7 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] vSphere 创建虚机时支持选用自有模板；
 - [ ] 支持更新apiserver证书；
 
- ##  V3.x
+ ##  V3.0 （开发中）
  
 - [ ] 开放 REST API;
 - [ ] 支持 i18n；
