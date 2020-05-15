@@ -71,11 +71,11 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
  ##  v2.6 （已发布）
 
-- [ ] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
-- [ ] 应用商店改成可选安装；
-- [ ] 支持 RHEL 7.4 以上操作系统；
-- [ ] vSphere 创建虚机时支持选用自有模板；
-- [ ] 支持更新apiserver证书；
+- [x] 集成 [CIS 安全扫描](https://github.com/aquasecurity/kube-bench)；
+- [x] 应用商店改成可选安装；
+- [x] 支持 RHEL 7.4 以上操作系统；
+- [x] vSphere 创建虚机时支持选用自有模板；
+- [x] 支持更新apiserver证书；
 
  ##  V3.0 （开发中）
  
