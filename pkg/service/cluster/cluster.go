@@ -30,9 +30,5 @@ func Save(item *clusterModel.Cluster) error {
 func Delete(name string) error {
 	var c clusterModel.Cluster
 	c.Name = name
-	err := db.DB.First(&c).Error
-	if err != nil {
-		return err
-	}
 	return db.DB.Delete(&c).Error
 }
