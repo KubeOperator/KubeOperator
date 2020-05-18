@@ -57,17 +57,17 @@ func Create(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	b := clusterModel.Cluster{
+	model := clusterModel.Cluster{
 		BaseModel: commonModel.BaseModel{
 			Name: req.Name,
 		},
 	}
-	item, err := clusterService.Save(b)
+	err = clusterService.Save(&model)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		_ = ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusCreated, CreateResponse{Item: FromModel(item)})
+	ctx.JSON(http.StatusCreated, CreateResponse{Item: FromModel(model)})
 }
 
 func Update(ctx *gin.Context) {
@@ -77,14 +77,14 @@ func Update(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	b := clusterModel.Cluster{
+	model := clusterModel.Cluster{
 		BaseModel: commonModel.BaseModel{
 			Name: req.Name,
 		},
 	}
-	model, err := clusterService.Save(b)
+	err = clusterService.Save(&model)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(http.StatusOK, UpdateResponse{Item: FromModel(model)})
@@ -97,10 +97,10 @@ func Delete(ctx *gin.Context) {
 	if err != nil {
 		_ = ctx.Error(err)
 	}
-	model, err := clusterService.Delete(req.Name)
+	err = clusterService.Delete(req.Name)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		_ = ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusOK, DeleteResponse{Item: FromModel(model)})
+	ctx.JSON(http.StatusOK, DeleteResponse{})
 }

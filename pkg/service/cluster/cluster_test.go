@@ -32,8 +32,37 @@ func TestSave(t *testing.T) {
 			Name: "test",
 		},
 	}
-	err := db.DB.Create(&item).Error
+	err := Save(&item)
 	if err != nil {
-		log.Fatalf("can not create item,%s", err)
+		t.Fatalf("can not create item,%s", err)
 	}
 }
+
+func TestList(t *testing.T) {
+	Init()
+	items, err := List()
+	if err != nil {
+		t.Fatalf("can not list item,%s", err)
+	}
+	t.Log(items)
+}
+
+func TestPage(t *testing.T) {
+	Init()
+	items, total, err := Page(1, 10)
+	if err != nil {
+		t.Fatalf("can not page item,%s", err)
+	}
+	t.Log(items)
+	t.Log(total)
+}
+
+
+func TestDelete(t *testing.T) {
+	Init()
+	err := Delete("test")
+	if err != nil {
+		t.Fatalf("can not delete item,%s", err)
+	}
+}
+

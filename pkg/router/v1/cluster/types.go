@@ -31,7 +31,6 @@ type DeleteRequest struct {
 }
 
 type DeleteResponse struct {
-	Item Cluster
 }
 
 type UpdateRequest struct {
