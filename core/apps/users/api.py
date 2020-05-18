@@ -9,8 +9,9 @@ from rest_framework.viewsets import ModelViewSet
 
 from users.models import Profile
 from .serializers import ProfileSerializer, UserSerializer, UserCreateUpdateSerializer, ChangeUserPasswordSerializer
-from message_center.models import UserNotificationConfig,UserReceiver,UserMessage
+from message_center.models import UserNotificationConfig, UserReceiver, UserMessage
 from .tasks import start_sync_user_form_ldap
+from rest_framework.exceptions import ValidationError
 
 
 class UserViewSet(ModelViewSet):
@@ -64,9 +65,12 @@ class UserPasswordChangeApi(UpdateAPIView):
     http_method_names = ["put", "option", "head"]
 
     def update(self, request, *args, **kwargs):
-        instance = super().update(request, *args, **kwargs)
-        if instance:
-            return Response({"result": "ok"}, status=status.HTTP_202_ACCEPTED)
+        try:
+            instance = super().update(request, *args, **kwargs)
+            if instance:
+                return Response({"result": "ok"}, status=status.HTTP_202_ACCEPTED)
+        except ValidationError as e:
+            return Response(data={'msg': '原密码错误！'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SyncUserFromLDAPApi(CreateAPIView):

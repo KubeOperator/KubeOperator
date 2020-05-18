@@ -8,14 +8,16 @@ import {CoreModule} from '../core/core.module';
 import {PasswordComponent} from './header/components/password/password.component';
 
 import {CommonAlertComponent} from './header/components/common-alert/common-alert.component';
+import {SharedModule} from "../shared/shared.module";
 
 @NgModule({
   declarations: [FooterComponent, HeaderComponent, NavigatorComponent, ShellComponent,
     PasswordComponent, CommonAlertComponent],
-  imports: [
-    CommonModule,
-    CoreModule,
-  ],
+    imports: [
+        CommonModule,
+        CoreModule,
+        SharedModule,
+    ],
   exports: [NavigatorComponent]
 })
 export class BaseModule {
