@@ -8,6 +8,7 @@ import (
 
 type Cluster struct {
 	common.BaseModel
+	Nodes []Node
 }
 
 func (c *Cluster) BeforeCreate() error {
