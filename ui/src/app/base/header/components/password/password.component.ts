@@ -12,6 +12,7 @@ export class PasswordComponent implements OnInit {
   original: string;
   password: string;
   confirmPassword: string;
+  @ViewChild('passwordModal', {static: true}) alertModal;
 
   constructor(private sessionService: SessionService) {
   }
@@ -37,6 +38,8 @@ export class PasswordComponent implements OnInit {
         this.submitGoing = false;
         this.opened = false;
       }, error => {
+        this.submitGoing = false;
+        this.alertModal.showTip(true, error.error.msg);
         console.log(error);
       });
     }
