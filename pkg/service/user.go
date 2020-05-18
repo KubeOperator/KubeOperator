@@ -23,4 +23,3 @@ func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err 
 	}
 	return user.ToSessionUser(), nil
 }
-
