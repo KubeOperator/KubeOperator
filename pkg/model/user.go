@@ -1,6 +1,6 @@
 package model
 
-import "ko3-gin/internal/auth"
+import "ko3-gin/pkg/auth"
 
 type User struct {
 	Id       string `gorm:"primary_key size:64" `

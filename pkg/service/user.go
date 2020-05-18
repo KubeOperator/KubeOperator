@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
-	"ko3-gin/internal/auth"
-	"ko3-gin/internal/db"
-	"ko3-gin/internal/model"
+	"ko3-gin/pkg/auth"
+	"ko3-gin/pkg/db"
+	"ko3-gin/pkg/model"
 )
 
 var (

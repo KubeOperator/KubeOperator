@@ -5,8 +5,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	_ "ko3-gin/docs"
-	"ko3-gin/internal/middleware"
-	pkg_api "ko3-gin/pkg/api"
+	"ko3-gin/pkg/middleware"
 	"net/http"
 	"os"
 )
@@ -25,10 +24,10 @@ func Server() *gin.Engine {
 		auth.POST("/login", jwtMiddleware.LoginHandler)
 		auth.GET("/refresh", jwtMiddleware.RefreshHandler)
 	}
-	api := server.Group("/api")
-	api.Use(jwtMiddleware.MiddlewareFunc())
-	{
-		pkg_api.V1(api)
-	}
+	//api := server.Group("/api")
+	//api.Use(jwtMiddleware.MiddlewareFunc())
+	//{
+	//	pkg_api.V1(api)
+	//}
 	return server
 }

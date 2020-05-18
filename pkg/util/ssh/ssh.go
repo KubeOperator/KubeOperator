@@ -13,7 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"ko3-gin/internal/logger"
+	"ko3-gin/pkg/logger"
 	"ko3-gin/pkg/util/hash"
 	"net"
 	"os"

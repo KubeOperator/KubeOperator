@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"ko3-gin/internal/logger"
+	"ko3-gin/pkg/logger"
 	"time"
 )
 

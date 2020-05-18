@@ -19,7 +19,6 @@ func SumWithFile(h hash.Hash, filename string) (string, error) {
 		return "", err
 	}
 	defer f.Close()
-
 	return Sum(h, f)
 }
 

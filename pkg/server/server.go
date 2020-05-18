@@ -3,12 +3,12 @@ package server
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"ko3-gin/internal/config"
-	"ko3-gin/internal/db"
-	"ko3-gin/internal/logger"
-	"ko3-gin/internal/migrate"
-	"ko3-gin/internal/redis"
-	"ko3-gin/internal/router"
+	"ko3-gin/pkg/config"
+	"ko3-gin/pkg/db"
+	"ko3-gin/pkg/logger"
+	"ko3-gin/pkg/migrate"
+	"ko3-gin/pkg/redis"
+	"ko3-gin/pkg/router"
 )
 
 type Phase interface {
