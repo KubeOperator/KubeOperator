@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"ko3-gin/pkg/constant"
 	"ko3-gin/pkg/db"
 	clusterModel "ko3-gin/pkg/model/cluster"
 	"ko3-gin/pkg/model/common"
@@ -42,6 +43,23 @@ func Delete(name string) error {
 	var c clusterModel.Cluster
 	c.Name = name
 	return db.DB.Delete(&c).Error
+}
+
+func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Cluster, error) {
+	switch operation {
+	case constant.BatchOperationDelete:
+		tx := db.DB.Begin()
+		for _, item := range items {
+			err := db.DB.Model(clusterModel.Cluster{}).Delete(&item).Error
+			if err != nil {
+				tx.Rollback()
+			}
+		}
+		tx.Commit()
+	default:
+		return nil, constant.NotSupportedBatchOperation
+	}
+	return items, nil
 }
 
 func Nodes(clusterName string) (nodes []clusterModel.Node, err error) {

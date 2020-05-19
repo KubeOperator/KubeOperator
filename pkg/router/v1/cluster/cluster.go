@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"ko3-gin/pkg/constant"
 	clusterModel "ko3-gin/pkg/model/cluster"
@@ -11,6 +12,18 @@ import (
 )
 
 func List(ctx *gin.Context) {
+	models, err := clusterService.List()
+	items := make([]Cluster, 0)
+	for _, model := range models {
+		items = append(items, FromModel(model))
+	}
+	if err != nil {
+		_ = ctx.Error(err)
+	}
+	ctx.JSON(http.StatusOK, ListResponse{Items: items})
+}
+
+func Page(ctx *gin.Context) {
 	page := ctx.GetBool("page")
 	if page {
 		pageNum := ctx.GetInt(constant.PageNumQueryKey)
@@ -19,25 +32,32 @@ func List(ctx *gin.Context) {
 		if err != nil {
 			_ = ctx.Error(err)
 		}
-		items := make([]Cluster, 0)
-		for _, model := range models {
-			items = append(items, FromModel(model))
-		}
-		ctx.JSON(http.StatusOK, common.PageResponse{
-			Items: items,
+		var resp = common.PageResponse{
+			Items: []interface{}{},
 			Total: total,
-		})
-	} else {
-		models, err := clusterService.List()
-		items := make([]Cluster, 0)
+		}
 		for _, model := range models {
-			items = append(items, FromModel(model))
+			resp.Items = append(resp.Items, model)
 		}
-		if err != nil {
-			_ = ctx.Error(err)
-		}
-		ctx.JSON(http.StatusOK, ListResponse{items: items})
+		ctx.JSON(http.StatusOK, resp)
+	} else {
+		_ = ctx.Error(common.InvalidPageParam)
 	}
+}
+
+var invalidClusterName = errors.New("invalid cluster name")
+
+func Get(ctx *gin.Context) {
+	name := ctx.Query("name")
+	if name == "" {
+		_ = ctx.Error(invalidClusterName)
+	}
+	model, err := clusterService.Get(name)
+	if err != nil {
+		_ = ctx.Error(err)
+	}
+	ctx.JSON(http.StatusOK, GetResponse{Item: FromModel(model)})
+
 }
 
 func Create(ctx *gin.Context) {
@@ -93,4 +113,28 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, DeleteResponse{})
+}
+
+func Batch(ctx *gin.Context) {
+	var req BatchRequest
+	err := ctx.ShouldBind(&req)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	models := make([]clusterModel.Cluster, 0)
+	for _, item := range req.Items {
+		models = append(models, ToModel(item))
+	}
+	models, err = clusterService.Batch(req.Operation, models)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	var resp BatchResponse
+
+	for _, model := range models {
+		resp.Items = append(resp.Items, FromModel(model))
+	}
+	ctx.JSON(http.StatusOK, resp)
 }

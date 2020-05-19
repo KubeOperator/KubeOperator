@@ -1,6 +1,7 @@
 package common
 
 type PageResponse struct {
-	Items interface{}
+	Items []interface{}
 	Total int
 }
+

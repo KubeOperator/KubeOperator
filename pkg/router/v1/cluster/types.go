@@ -1,6 +1,9 @@
 package cluster
 
-import "ko3-gin/pkg/model/cluster"
+import (
+	"ko3-gin/pkg/model/cluster"
+	"ko3-gin/pkg/model/common"
+)
 
 type Cluster struct {
 	Name   string
@@ -14,8 +17,20 @@ func FromModel(model cluster.Cluster) Cluster {
 	}
 }
 
+func ToModel(c Cluster) cluster.Cluster {
+	return cluster.Cluster{
+		BaseModel: common.BaseModel{
+			Name: c.Name,
+		},
+	}
+}
+
 type ListResponse struct {
-	items []Cluster
+	Items []Cluster
+}
+
+type GetResponse struct {
+	Item Cluster
 }
 
 type CreateRequest struct {
@@ -39,4 +54,12 @@ type UpdateRequest struct {
 
 type UpdateResponse struct {
 	Item Cluster
+}
+type BatchRequest struct {
+	Operation string
+	Items     []Cluster
+}
+
+type BatchResponse struct {
+	Items []Cluster
 }
