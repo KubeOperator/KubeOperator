@@ -13,7 +13,6 @@ import (
 
 var (
 	invalidClusterNameError = errors.New("invalid cluster name")
-	clusterNotFound         = errors.New("cluster not found")
 )
 
 // ListCluster
@@ -85,7 +84,7 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.GetResponse{Item: serializer.FromModel(model)})
+	ctx.JSON(http.StatusOK, serializer.GetResponse{Item: serializer.FromModel(*model)})
 }
 
 // CreateCluster
@@ -105,13 +104,6 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-	if req.Name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": invalidClusterNameError.Error(),
-		})
-		return
-	}
-
 	model := clusterModel.Cluster{
 		BaseModel: commonModel.BaseModel{
 			Name: req.Name,
@@ -145,11 +137,7 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	model := clusterModel.Cluster{
-		BaseModel: commonModel.BaseModel{
-			Name: req.Name,
-		},
-	}
+	model := serializer.ToModel(req.Item)
 	err = clusterService.Save(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

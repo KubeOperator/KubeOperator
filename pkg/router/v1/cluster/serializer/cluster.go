@@ -35,7 +35,7 @@ type GetResponse struct {
 }
 
 type CreateRequest struct {
-	Name string `json:"name"`
+	Name string ` json:"name" binding:"required"`
 }
 
 type CreateResponse struct {
@@ -50,15 +50,15 @@ type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Name string `json:"name"`
+	Item Cluster `json:"item" binding:"required"`
 }
 
 type UpdateResponse struct {
 	Item Cluster `json:"item"`
 }
 type BatchRequest struct {
-	Operation string    `json:"operation"`
-	Items     []Cluster `json:"items"`
+	Operation string    `json:"operation" binding:"required"`
+	Items     []Cluster `json:"items" binding:"required"`
 }
 
 type BatchResponse struct {

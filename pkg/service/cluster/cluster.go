@@ -4,7 +4,6 @@ import (
 	"ko3-gin/pkg/constant"
 	"ko3-gin/pkg/db"
 	clusterModel "ko3-gin/pkg/model/cluster"
-	"ko3-gin/pkg/model/common"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -21,14 +20,13 @@ func List() (clusters []clusterModel.Cluster, err error) {
 	return
 }
 
-func Get(name string) (cluster clusterModel.Cluster, err error) {
-	err = db.DB.Model(clusterModel.Cluster{}).
-		Where(&clusterModel.Cluster{
-			BaseModel: common.BaseModel{
-				Name: name,
-			},
-		}).First(&cluster).Error
-	return
+func Get(name string) (*clusterModel.Cluster, error) {
+	var result clusterModel.Cluster
+	err := db.DB.Model(clusterModel.Cluster{}).
+		Where(&result).
+		First(&result).
+		Error
+	return &result, err
 }
 
 func Save(item *clusterModel.Cluster) error {
@@ -60,31 +58,4 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 		return nil, constant.NotSupportedBatchOperation
 	}
 	return items, nil
-}
-
-func Nodes(clusterName string) (nodes []clusterModel.Node, err error) {
-	err = db.DB.Model(clusterModel.Node{}).
-		Where(&clusterModel.Node{ClusterID: clusterName}).
-		Find(&nodes).Error
-	return
-}
-
-func DeleteNode(clusterName, nodeName string) error {
-	cluster, err := Get(clusterName)
-	if err != nil {
-		return err
-	}
-	var node clusterModel.Node
-	node.Name = nodeName
-	node.ClusterID = cluster.ID
-	return db.DB.Delete(&node).Error
-}
-
-func AddNode(clusterName string, node *clusterModel.Node) error {
-	cluster, err := Get(clusterName)
-	if err != nil {
-		return err
-	}
-	node.ClusterID = cluster.ID
-	return db.DB.Create(&cluster).Error
 }
