@@ -6,7 +6,6 @@ import (
 	"ko3-gin/pkg/config"
 	"ko3-gin/pkg/db"
 	"ko3-gin/pkg/logger"
-	"ko3-gin/pkg/migrate"
 	"ko3-gin/pkg/redis"
 	"ko3-gin/pkg/router"
 )
@@ -18,13 +17,13 @@ type Phase interface {
 
 func Phases() []Phase {
 	return []Phase{
-		&migrate.InitMigrateDBPhase{
-			Host:     viper.GetString("db.host"),
-			Port:     viper.GetInt("db.port"),
-			Name:     viper.GetString("db.name"),
-			User:     viper.GetString("db.user"),
-			Password: viper.GetString("db.password"),
-		},
+		//&migrate.InitMigrateDBPhase{
+		//	Host:     viper.GetString("db.host"),
+		//	Port:     viper.GetInt("db.port"),
+		//	Name:     viper.GetString("db.name"),
+		//	User:     viper.GetString("db.user"),
+		//	Password: viper.GetString("db.password"),
+		//},
 		&db.InitDBPhase{
 			Host:     viper.GetString("db.host"),
 			Port:     viper.GetInt("db.port"),

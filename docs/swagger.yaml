@@ -1,15 +1,29 @@
+basePath: /api/v1
 definitions:
-  serializer.CreatHostRequest:
+  serializer.Cluster:
     properties:
-      credential_name:
-        type: string
-      ip:
-        type: string
       name:
         type: string
-      port:
+      status:
         type: string
     type: object
+  serializer.ListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Cluster'
+        type: array
+    type: object
+  serializer.PageResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Cluster'
+        type: array
+      total:
+        type: integer
+    type: object
+host: localhost:8080
 info:
   contact:
     email: support@fit2cloud.com
@@ -20,23 +34,33 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://kubeoperator.io
   title: KubeOperator Restful API
-  version: "1.0"
 paths:
-  /hosts/:
-    post:
+  /clusters/:
+    get:
       consumes:
       - application/json
-      description: Create a Host
-      parameters:
-      - description: create host request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/serializer.CreatHostRequest'
+      description: List all clusters
       produces:
       - application/json
-      summary: Create a Host
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.ListResponse'
+      summary: Cluster
+  /clusters/page/:
+    get:
+      consumes:
+      - application/json
+      description: List all clusters with page
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.PageResponse'
+      summary: Cluster
 securityDefinitions:
   ApiKeyAuth:
     in: header

@@ -19,6 +19,6 @@ import (
 // @name Authorization
 func main() {
 	if err := server.Start(); err != nil {
-		panic("")
+		panic(err)
 	}
 }

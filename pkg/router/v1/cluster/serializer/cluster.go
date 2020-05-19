@@ -1,7 +1,7 @@
-package cluster
+package serializer
 
 import (
-	"ko3-gin/pkg/model/cluster"
+	clusterModel "ko3-gin/pkg/model/cluster"
 	"ko3-gin/pkg/model/common"
 )
 
@@ -10,15 +10,15 @@ type Cluster struct {
 	Status string
 }
 
-func FromModel(model cluster.Cluster) Cluster {
+func FromModel(model clusterModel.Cluster) Cluster {
 	return Cluster{
 		Name:   model.Name,
 		Status: model.Status,
 	}
 }
 
-func ToModel(c Cluster) cluster.Cluster {
-	return cluster.Cluster{
+func ToModel(c Cluster) clusterModel.Cluster {
+	return clusterModel.Cluster{
 		BaseModel: common.BaseModel{
 			Name: c.Name,
 		},
@@ -27,6 +27,7 @@ func ToModel(c Cluster) cluster.Cluster {
 
 type ListResponse struct {
 	Items []Cluster
+	Total int
 }
 
 type GetResponse struct {
@@ -63,3 +64,4 @@ type BatchRequest struct {
 type BatchResponse struct {
 	Items []Cluster
 }
+

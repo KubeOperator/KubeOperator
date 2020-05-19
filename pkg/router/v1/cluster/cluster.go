@@ -6,43 +6,51 @@ import (
 	"ko3-gin/pkg/constant"
 	clusterModel "ko3-gin/pkg/model/cluster"
 	commonModel "ko3-gin/pkg/model/common"
-	"ko3-gin/pkg/router/v1/common"
+	"ko3-gin/pkg/router/v1/cluster/serializer"
 	clusterService "ko3-gin/pkg/service/cluster"
 	"net/http"
 )
 
+// PageCluster
+// @Summary Cluster
+// @Description List all clusters with page
+// @Accept  json
+// @Produce json
+// @Param pageNum query string false "page num"
+// @Param pageSize query string false "page size"
+// @Success 200 {object} serializer.ListResponse
+// @Router /clusters/ [get]
 func List(ctx *gin.Context) {
-	models, err := clusterService.List()
-	items := make([]Cluster, 0)
-	for _, model := range models {
-		items = append(items, FromModel(model))
-	}
-	if err != nil {
-		_ = ctx.Error(err)
-	}
-	ctx.JSON(http.StatusOK, ListResponse{Items: items})
-}
-
-func Page(ctx *gin.Context) {
 	page := ctx.GetBool("page")
+	var models []clusterModel.Cluster
+	total := 0
 	if page {
 		pageNum := ctx.GetInt(constant.PageNumQueryKey)
 		pageSize := ctx.GetInt(constant.PageSizeQueryKey)
-		models, total, err := clusterService.Page(pageNum, pageSize)
+		m, t, err := clusterService.Page(pageNum, pageSize)
+		models = m
+		total = t
 		if err != nil {
 			_ = ctx.Error(err)
+			return
 		}
-		var resp = common.PageResponse{
-			Items: []interface{}{},
-			Total: total,
-		}
-		for _, model := range models {
-			resp.Items = append(resp.Items, model)
-		}
-		ctx.JSON(http.StatusOK, resp)
 	} else {
-		_ = ctx.Error(common.InvalidPageParam)
+		ms, err := clusterService.List()
+		models = ms
+		total = len(ms)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
 	}
+	var resp = serializer.ListResponse{
+		Items: []serializer.Cluster{},
+		Total: total,
+	}
+	for _, model := range models {
+		resp.Items = append(resp.Items, serializer.FromModel(model))
+	}
+	ctx.JSON(http.StatusOK, resp)
 }
 
 var invalidClusterName = errors.New("invalid cluster name")
@@ -56,12 +64,12 @@ func Get(ctx *gin.Context) {
 	if err != nil {
 		_ = ctx.Error(err)
 	}
-	ctx.JSON(http.StatusOK, GetResponse{Item: FromModel(model)})
+	ctx.JSON(http.StatusOK, serializer.GetResponse{Item: serializer.FromModel(model)})
 
 }
 
 func Create(ctx *gin.Context) {
-	var req CreateRequest
+	var req serializer.CreateRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		_ = ctx.Error(err)
@@ -77,11 +85,11 @@ func Create(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusCreated, CreateResponse{Item: FromModel(model)})
+	ctx.JSON(http.StatusCreated, serializer.CreateResponse{Item: serializer.FromModel(model)})
 }
 
 func Update(ctx *gin.Context) {
-	var req UpdateRequest
+	var req serializer.UpdateRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		_ = ctx.Error(err)
@@ -97,26 +105,22 @@ func Update(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusOK, UpdateResponse{Item: FromModel(model)})
+	ctx.JSON(http.StatusOK, serializer.UpdateResponse{Item: serializer.FromModel(model)})
 
 }
 
 func Delete(ctx *gin.Context) {
-	var req DeleteRequest
-	err := ctx.ShouldBind(&req)
-	if err != nil {
-		_ = ctx.Error(err)
-	}
-	err = clusterService.Delete(req.Name)
+	name := ctx.Param("name")
+	err := clusterService.Delete(name)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusOK, DeleteResponse{})
+	ctx.JSON(http.StatusOK, serializer.DeleteResponse{})
 }
 
 func Batch(ctx *gin.Context) {
-	var req BatchRequest
+	var req serializer.BatchRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		_ = ctx.Error(err)
@@ -124,17 +128,17 @@ func Batch(ctx *gin.Context) {
 	}
 	models := make([]clusterModel.Cluster, 0)
 	for _, item := range req.Items {
-		models = append(models, ToModel(item))
+		models = append(models, serializer.ToModel(item))
 	}
 	models, err = clusterService.Batch(req.Operation, models)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
 	}
-	var resp BatchResponse
+	var resp serializer.BatchResponse
 
 	for _, model := range models {
-		resp.Items = append(resp.Items, FromModel(model))
+		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
