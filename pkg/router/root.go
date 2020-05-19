@@ -19,6 +19,7 @@ func Server() *gin.Engine {
 	server.StaticFS("static", http.Dir("resource/static"))
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	server.Use(middleware.LoggerMiddleware())
+	server.Use(middleware.PagerMiddleware())
 	api := server.Group("/api")
 	{
 		v1.V1(api)

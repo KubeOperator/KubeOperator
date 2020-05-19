@@ -8,23 +8,13 @@ import (
 	"ko3-gin/pkg/router/v1/common"
 	clusterService "ko3-gin/pkg/service/cluster"
 	"net/http"
-	"strconv"
 )
 
 func List(ctx *gin.Context) {
-	num := ctx.Query(constant.PageNum)
-	size := ctx.Query(constant.PageSize)
-	if num != "" && size != "" {
-		pageNum, err := strconv.Atoi(num)
-		if err != nil {
-			_ = ctx.Error(common.InvalidPageParam)
-			return
-		}
-		pageSize, err := strconv.Atoi(size)
-		if err != nil {
-			_ = ctx.Error(common.InvalidPageParam)
-			return
-		}
+	page := ctx.GetBool("page")
+	if page {
+		pageNum := ctx.GetInt(constant.PageNumQueryKey)
+		pageSize := ctx.GetInt(constant.PageSizeQueryKey)
 		models, total, err := clusterService.Page(pageNum, pageSize)
 		if err != nil {
 			_ = ctx.Error(err)
