@@ -11,9 +11,14 @@ import (
 	"net/http"
 )
 
-// PageCluster
+var (
+	invalidClusterNameError = errors.New("invalid cluster name")
+	clusterNotFound         = errors.New("cluster not found")
+)
+
+// ListCluster
 // @Summary Cluster
-// @Description List all clusters with page
+// @Description List clusters
 // @Accept  json
 // @Produce json
 // @Param pageNum query string false "page num"
@@ -31,7 +36,9 @@ func List(ctx *gin.Context) {
 		models = m
 		total = t
 		if err != nil {
-			_ = ctx.Error(err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"msg": err.Error(),
+			})
 			return
 		}
 	} else {
@@ -39,7 +46,9 @@ func List(ctx *gin.Context) {
 		models = ms
 		total = len(ms)
 		if err != nil {
-			_ = ctx.Error(err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"msg": err.Error(),
+			})
 			return
 		}
 	}
@@ -53,28 +62,56 @@ func List(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-var invalidClusterName = errors.New("invalid cluster name")
-
+// GetCluster
+// @Summary Cluster
+// @Description Get Cluster
+// @Accept  json
+// @Produce json
+// @Param cluster_name path string true "cluster name"
+// @Success 200 {object} serializer.GetResponse
+// @Router /clusters/{cluster_name} [get]
 func Get(ctx *gin.Context) {
-	name := ctx.Query("name")
+	name := ctx.Param("name")
 	if name == "" {
-		_ = ctx.Error(invalidClusterName)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": invalidClusterNameError,
+		})
+		return
 	}
 	model, err := clusterService.Get(name)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
 	}
 	ctx.JSON(http.StatusOK, serializer.GetResponse{Item: serializer.FromModel(model)})
-
 }
 
+// CreateCluster
+// @Summary Cluster
+// @Description Create a Cluster
+// @Accept  json
+// @Produce json
+// @Param request body serializer.CreateRequest true "cluster"
+// @Success 201 {object} serializer.CreateResponse
+// @Router /clusters/ [post]
 func Create(ctx *gin.Context) {
 	var req serializer.CreateRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
+	if req.Name == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": invalidClusterNameError.Error(),
+		})
+		return
+	}
+
 	model := clusterModel.Cluster{
 		BaseModel: commonModel.BaseModel{
 			Name: req.Name,
@@ -82,17 +119,30 @@ func Create(ctx *gin.Context) {
 	}
 	err = clusterService.Save(&model)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	ctx.JSON(http.StatusCreated, serializer.CreateResponse{Item: serializer.FromModel(model)})
 }
 
+// UpdateCluster
+// @Summary Cluster
+// @Description Update a Cluster
+// @Accept  json
+// @Produce json
+// @Param request body serializer.UpdateRequest true "cluster"
+// @Param cluster_name path string true "cluster name"
+// @Success 200 {object} serializer.UpdateResponse
+// @Router /clusters/{cluster_name} [patch]
 func Update(ctx *gin.Context) {
 	var req serializer.UpdateRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	model := clusterModel.Cluster{
@@ -102,28 +152,56 @@ func Update(ctx *gin.Context) {
 	}
 	err = clusterService.Save(&model)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	ctx.JSON(http.StatusOK, serializer.UpdateResponse{Item: serializer.FromModel(model)})
 
 }
 
+// DeleteCluster
+// @Summary Cluster
+// @Description Delete a Cluster
+// @Accept  json
+// @Produce json
+// @Param cluster_name path string true "cluster name"
+// @Success 200 {object} serializer.DeleteResponse
+// @Router /clusters/{cluster_name} [delete]
 func Delete(ctx *gin.Context) {
 	name := ctx.Param("name")
+	if name == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": invalidClusterNameError.Error(),
+		})
+		return
+	}
 	err := clusterService.Delete(name)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	ctx.JSON(http.StatusOK, serializer.DeleteResponse{})
 }
 
+// BatchCluster
+// @Summary Cluster
+// @Description Batch Clusters
+// @Accept  json
+// @Produce json
+// @Param request body serializer.BatchRequest true "Batch"
+// @Success 200 {object} serializer.BatchResponse
+// @Router /clusters/batch/ [post]
 func Batch(ctx *gin.Context) {
 	var req serializer.BatchRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	models := make([]clusterModel.Cluster, 0)
@@ -132,11 +210,12 @@ func Batch(ctx *gin.Context) {
 	}
 	models, err = clusterService.Batch(req.Operation, models)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
 		return
 	}
 	var resp serializer.BatchResponse
-
 	for _, model := range models {
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}

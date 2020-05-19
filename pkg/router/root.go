@@ -18,6 +18,7 @@ func Server() *gin.Engine {
 	server := gin.Default()
 	server.StaticFS("static", http.Dir("resource/static"))
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	server.NoRoute(NotFoundResponse)
 	server.Use(middleware.LoggerMiddleware())
 	server.Use(middleware.PagerMiddleware())
 	api := server.Group("/api")
@@ -37,4 +38,11 @@ func Server() *gin.Engine {
 	//	pkg_api.V1(api)
 	//}
 	return server
+}
+
+func NotFoundResponse(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{
+		"status": 404,
+		"error":  "not found",
+	})
 }

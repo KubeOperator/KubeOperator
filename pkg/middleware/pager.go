@@ -22,7 +22,7 @@ func PagerMiddleware() gin.HandlerFunc {
 		}
 		ctx.Set("page", true)
 		ctx.Set(constant.PageNumQueryKey, numInt)
-		ctx.Set(constant.PageNumQueryKey, limitInt)
+		ctx.Set(constant.PageSizeQueryKey, limitInt)
 		ctx.Next()
 	}
 }

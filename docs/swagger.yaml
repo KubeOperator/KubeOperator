@@ -1,5 +1,21 @@
 basePath: /api/v1
 definitions:
+  serializer.BatchRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Cluster'
+        type: array
+      operation:
+        type: string
+    type: object
+  serializer.BatchResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Cluster'
+        type: array
+    type: object
   serializer.Cluster:
     properties:
       name:
@@ -7,14 +23,26 @@ definitions:
       status:
         type: string
     type: object
-  serializer.ListResponse:
+  serializer.CreateRequest:
     properties:
-      items:
-        items:
-          $ref: '#/definitions/serializer.Cluster'
-        type: array
+      name:
+        type: string
     type: object
-  serializer.PageResponse:
+  serializer.CreateResponse:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Cluster'
+        type: object
+    type: object
+  serializer.DeleteResponse:
+    type: object
+  serializer.GetResponse:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Cluster'
+        type: object
+    type: object
+  serializer.ListResponse:
     properties:
       items:
         items:
@@ -22,6 +50,17 @@ definitions:
         type: array
       total:
         type: integer
+    type: object
+  serializer.UpdateRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  serializer.UpdateResponse:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Cluster'
+        type: object
     type: object
 host: localhost:8080
 info:
@@ -39,7 +78,16 @@ paths:
     get:
       consumes:
       - application/json
-      description: List all clusters
+      description: List clusters
+      parameters:
+      - description: page num
+        in: query
+        name: pageNum
+        type: string
+      - description: page size
+        in: query
+        name: pageSize
+        type: string
       produces:
       - application/json
       responses:
@@ -48,18 +96,105 @@ paths:
           schema:
             $ref: '#/definitions/serializer.ListResponse'
       summary: Cluster
-  /clusters/page/:
-    get:
+    post:
       consumes:
       - application/json
-      description: List all clusters with page
+      description: Create a Cluster
+      parameters:
+      - description: cluster
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/serializer.CreateResponse'
+      summary: Cluster
+  /clusters/{cluster_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Cluster
+      parameters:
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.PageResponse'
+            $ref: '#/definitions/serializer.DeleteResponse'
+      summary: Cluster
+    get:
+      consumes:
+      - application/json
+      description: Get Cluster
+      parameters:
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.GetResponse'
+      summary: Cluster
+    patch:
+      consumes:
+      - application/json
+      description: Update a Cluster
+      parameters:
+      - description: cluster
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.UpdateRequest'
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.UpdateResponse'
+      summary: Cluster
+  /clusters/batch/:
+    post:
+      consumes:
+      - application/json
+      description: Batch Clusters
+      parameters:
+      - description: Batch
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.BatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.BatchResponse'
       summary: Cluster
 securityDefinitions:
   ApiKeyAuth:

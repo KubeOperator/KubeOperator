@@ -20,7 +20,7 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 		}
 		v1ClusterApi := v1Api.Group("/clusters")
 		{
-			v1ClusterApi.POST("/", cluster.List)
+			v1ClusterApi.GET("/", cluster.List)
 			v1ClusterApi.POST("/", cluster.Create)
 			v1ClusterApi.GET("/:name/", cluster.Get)
 			v1ClusterApi.PATCH("/:name/", cluster.Update)

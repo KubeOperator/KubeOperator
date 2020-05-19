@@ -6,8 +6,8 @@ import (
 )
 
 type Cluster struct {
-	Name   string
-	Status string
+	Name   string `json:"name"`
+	Status string `json:"status"`
 }
 
 func FromModel(model clusterModel.Cluster) Cluster {
@@ -26,42 +26,41 @@ func ToModel(c Cluster) clusterModel.Cluster {
 }
 
 type ListResponse struct {
-	Items []Cluster
-	Total int
+	Items []Cluster `json:"items"`
+	Total int       `json:"total"`
 }
 
 type GetResponse struct {
-	Item Cluster
+	Item Cluster `json:"item"`
 }
 
 type CreateRequest struct {
-	Name string
+	Name string `json:"name"`
 }
 
 type CreateResponse struct {
-	Item Cluster
+	Item Cluster `json:"item"`
 }
 
 type DeleteRequest struct {
-	Name string
+	Name string `json:"name"`
 }
 
 type DeleteResponse struct {
 }
 
 type UpdateRequest struct {
-	Name string
+	Name string `json:"name"`
 }
 
 type UpdateResponse struct {
-	Item Cluster
+	Item Cluster `json:"item"`
 }
 type BatchRequest struct {
-	Operation string
-	Items     []Cluster
+	Operation string    `json:"operation"`
+	Items     []Cluster `json:"items"`
 }
 
 type BatchResponse struct {
-	Items []Cluster
+	Items []Cluster `json:"items"`
 }
-
