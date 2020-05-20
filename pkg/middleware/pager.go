@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"ko3-gin/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"strconv"
 )
 

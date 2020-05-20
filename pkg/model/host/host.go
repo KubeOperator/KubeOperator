@@ -1,8 +1,8 @@
 package host
 
 import (
-	"ko3-gin/pkg/model/common"
-	"ko3-gin/pkg/model/credential"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/model/credential"
 )
 
 type Host struct {

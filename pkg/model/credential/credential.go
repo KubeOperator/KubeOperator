@@ -1,6 +1,6 @@
 package credential
 
-import "ko3-gin/pkg/model/common"
+import "github.com/KubeOperator/KubeOperator/pkg/model/common"
 
 type Credential struct {
 	common.BaseModel

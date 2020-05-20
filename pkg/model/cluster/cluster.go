@@ -1,8 +1,8 @@
 package cluster
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
-	"ko3-gin/pkg/model/common"
 	"time"
 )
 

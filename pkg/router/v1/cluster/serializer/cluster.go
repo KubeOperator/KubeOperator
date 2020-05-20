@@ -1,8 +1,8 @@
 package serializer
 
 import (
-	clusterModel "ko3-gin/pkg/model/cluster"
-	"ko3-gin/pkg/model/common"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 )
 
 type Cluster struct {

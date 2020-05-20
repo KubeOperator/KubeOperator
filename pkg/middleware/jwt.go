@@ -4,9 +4,9 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"ko3-gin/pkg/auth"
-	"ko3-gin/pkg/logger"
-	"ko3-gin/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/auth"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"time"
 )
 

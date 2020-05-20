@@ -3,11 +3,11 @@ package server
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"ko3-gin/pkg/config"
-	"ko3-gin/pkg/db"
-	"ko3-gin/pkg/logger"
-	"ko3-gin/pkg/redis"
-	"ko3-gin/pkg/router"
+	"github.com/KubeOperator/KubeOperator/pkg/config"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/redis"
+	"github.com/KubeOperator/KubeOperator/pkg/router"
 )
 
 type Phase interface {

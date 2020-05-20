@@ -3,11 +3,11 @@ package cluster
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"ko3-gin/pkg/constant"
-	clusterModel "ko3-gin/pkg/model/cluster"
-	commonModel "ko3-gin/pkg/model/common"
-	"ko3-gin/pkg/router/v1/cluster/serializer"
-	clusterService "ko3-gin/pkg/service/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	commonModel "github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster/serializer"
+	clusterService "github.com/KubeOperator/KubeOperator/pkg/service/cluster"
 	"net/http"
 )
 

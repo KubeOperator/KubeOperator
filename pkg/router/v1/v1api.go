@@ -2,8 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"ko3-gin/pkg/router/v1/cluster"
-	"ko3-gin/pkg/router/v1/host"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/host"
 )
 
 func V1(root *gin.RouterGroup) *gin.RouterGroup {

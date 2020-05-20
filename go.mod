@@ -1,4 +1,4 @@
-module ko3-gin
+module github.com/KubeOperator/KubeOperator
 
 go 1.14
 

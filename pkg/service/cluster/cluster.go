@@ -1,9 +1,9 @@
 package cluster
 
 import (
-	"ko3-gin/pkg/constant"
-	"ko3-gin/pkg/db"
-	clusterModel "ko3-gin/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {

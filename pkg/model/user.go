@@ -1,6 +1,6 @@
 package model
 
-import "ko3-gin/pkg/auth"
+import "github.com/KubeOperator/KubeOperator/pkg/auth"
 
 type User struct {
 	Id       string `gorm:"primary_key size:64" `

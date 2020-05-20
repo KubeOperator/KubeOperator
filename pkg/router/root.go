@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
-	_ "ko3-gin/docs"
-	"ko3-gin/pkg/middleware"
-	v1 "ko3-gin/pkg/router/v1"
+	_ "github.com/KubeOperator/KubeOperator/docs"
+	"github.com/KubeOperator/KubeOperator/pkg/middleware"
+	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
 	"net/http"
 	"os"
 )
