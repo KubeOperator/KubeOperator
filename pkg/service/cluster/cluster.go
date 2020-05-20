@@ -4,6 +4,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	adm2 "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	"log"
+	"time"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -58,4 +61,25 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 		return nil, constant.NotSupportedBatchOperation
 	}
 	return items, nil
+}
+
+func InitCluster(c clusterModel.Cluster) {
+	adm, err := adm2.NewClusterAdm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for {
+		//start := time.Now()
+		resp, err := adm.OnInitialize(c)
+		if err != nil {
+		}
+		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
+		switch condition.Status {
+		case constant.ConditionFalse:
+		case constant.ConditionUnknown:
+		case constant.ConditionTrue:
+		default:
+		}
+		time.Sleep(5 * time.Second)
+	}
 }

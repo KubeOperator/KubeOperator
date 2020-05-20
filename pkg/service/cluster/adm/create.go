@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/docker"
+	"os"
 	"time"
 )
 
@@ -50,6 +52,21 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	return nil
 }
 
-func (ca *ClusterAdm) EnsureCopyFiles(c *Cluster) error {
+func (ca *ClusterAdm) EnsureDockerInstall(c *Cluster) error {
+	taskId, err := docker.Install(c.Kobe)
+	if err != nil {
+		return err
+	}
+	err = c.Kobe.Watch(os.Stdout, taskId)
+	if err != nil {
+		return err
+	}
+	result, err := c.Kobe.GetResult(taskId)
+	if err != nil {
+		return err
+	}
+	if result.Success {
+		return nil
+	}
 	return nil
 }

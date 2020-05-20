@@ -73,7 +73,7 @@ type ClusterAdm struct {
 func NewClusterAdm() (*ClusterAdm, error) {
 	ca := new(ClusterAdm)
 	ca.createHandlers = []Handler{
-		ca.EnsureCopyFiles,
+		ca.EnsureDockerInstall,
 	}
 	return ca, nil
 }
