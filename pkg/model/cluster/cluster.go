@@ -6,8 +6,18 @@ import (
 	"time"
 )
 
+type Spec struct {
+	Version     string
+	NetworkType string
+	ClusterCIDR string
+	ServiceCIDR string
+}
+
+
+
 type Cluster struct {
 	common.BaseModel
+	Spec
 	Nodes []Node
 }
 

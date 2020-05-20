@@ -9,6 +9,7 @@ type Host struct {
 	common.BaseModel
 	credential.Credential
 	CredentialId string
+	Status       string
 	Volumes      []Volume
 }
 
