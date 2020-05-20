@@ -8,6 +8,10 @@ import (
 type Host struct {
 	common.BaseModel
 	credential.Credential
+	Ip       string
+	User     string
+	Password string
+	Port     int
 	CredentialId string
 	Status       string
 	Volumes      []Volume
