@@ -1,4 +1,8 @@
 {
   "APP_TITLE": "Welcome to use Angular",
-  "APP_NAV_HOST": "Hosts"
+  "APP_NAV_HOST": "Hosts",
+  "APP_ACTION_ADD": "ADD",
+  "APP_ACTION_DELETE": "DELETE",
+  "APP_CLUSTER": "Cluster",
+  "APP_CLUSTER_FIELD_NAME": "name"
 }

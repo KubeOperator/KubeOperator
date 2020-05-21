@@ -4,7 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	adm2 "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"log"
 	"time"
 )
@@ -64,13 +64,13 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 }
 
 func InitCluster(c clusterModel.Cluster) {
-	adm, err := adm2.NewClusterAdm()
+	ad, err := adm.NewClusterAdm()
 	if err != nil {
 		log.Fatal(err)
 	}
 	for {
 		//start := time.Now()
-		resp, err := adm.OnInitialize(c)
+		resp, err := ad.OnInitialize(c)
 		if err != nil {
 		}
 		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]

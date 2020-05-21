@@ -1,4 +1,8 @@
 {
   "APP_TITLE": "欢迎使用Angular",
-  "APP_NAV_HOST": "主机"
+  "APP_NAV_HOST": "主机",
+  "APP_ACTION_ADD": "添加",
+  "APP_ACTION_DELETE": "删除",
+  "APP_CLUSTER": "集群",
+  "APP_CLUSTER_FIELD_NAME": "名称"
 }

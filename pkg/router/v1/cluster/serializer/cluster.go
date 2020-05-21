@@ -12,7 +12,7 @@ type Cluster struct {
 
 func FromModel(model clusterModel.Cluster) Cluster {
 	return Cluster{
-		Name: model.Name,
+		Name:   model.Name,
 	}
 }
 
