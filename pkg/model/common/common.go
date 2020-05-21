@@ -7,5 +7,4 @@ type BaseModel struct {
 	Name        string
 	CreatedDate time.Time
 	UpdatedDate time.Time
-	Status      string
 }

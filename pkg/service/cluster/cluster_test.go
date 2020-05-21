@@ -1,11 +1,11 @@
 package cluster
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/config"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/spf13/viper"
-	"ko3-gin/pkg/config"
-	"ko3-gin/pkg/db"
-	clusterModel "ko3-gin/pkg/model/cluster"
-	"ko3-gin/pkg/model/common"
 	"log"
 	"testing"
 )
@@ -57,7 +57,6 @@ func TestPage(t *testing.T) {
 	t.Log(total)
 }
 
-
 func TestDelete(t *testing.T) {
 	Init()
 	err := Delete("test")
@@ -65,4 +64,3 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("can not delete item,%s", err)
 	}
 }
-

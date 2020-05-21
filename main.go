@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ko3-gin/pkg/server"
+	"github.com/KubeOperator/KubeOperator/pkg/server"
 )
 
 // @title KubeOperator Restful API

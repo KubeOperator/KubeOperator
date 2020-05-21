@@ -1,6 +1,6 @@
 package model
 
-import "ko3-gin/pkg/auth"
+import "github.com/KubeOperator/KubeOperator/pkg/auth"
 
 type User struct {
 	Id       string `gorm:"primary_key size:64" `
@@ -8,7 +8,7 @@ type User struct {
 	Password string `gorm:"size:256"`
 }
 
-func (u *User)ToSessionUser() *auth.SessionUser  {
+func (u *User) ToSessionUser() *auth.SessionUser {
 	return &auth.SessionUser{
 		UserId: u.Id,
 		Name:   u.Name,

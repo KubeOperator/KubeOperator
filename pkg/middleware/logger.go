@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"ko3-gin/pkg/logger"
 	"time"
 )
 
