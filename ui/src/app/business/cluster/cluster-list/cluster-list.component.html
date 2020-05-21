@@ -1,0 +1,29 @@
+<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
+    <clr-dg-action-bar>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+                <clr-icon shape="plus" size="16"></clr-icon>
+                {{"APP_ACTION_ADD"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()">
+                <clr-icon shape="close"></clr-icon>
+                {{"APP_ACTION_DELETE"|translate}}
+            </button>
+        </div>
+    </clr-dg-action-bar>
+    <clr-dg-column>{{"APP_CLUSTER_FIELD_NAME"|translate}}</clr-dg-column>
+
+
+    <clr-dg-row *ngFor="let item of items">
+        <clr-dg-cell>{{item.name}}</clr-dg-cell>
+    </clr-dg-row>
+
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination>
+            <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            总共 {{pagination.totalItems}} 主机
+        </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>
+
