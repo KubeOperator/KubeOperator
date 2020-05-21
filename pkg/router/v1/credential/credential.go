@@ -3,7 +3,6 @@ package credential
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	commonModel "github.com/KubeOperator/KubeOperator/pkg/model/common"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
 	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
@@ -113,9 +112,7 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := credentialModel.Credential{
-		BaseModel: commonModel.BaseModel{
 			Name: req.Name,
-		},
 	}
 	err = credentialService.Save(&model)
 	if err != nil {

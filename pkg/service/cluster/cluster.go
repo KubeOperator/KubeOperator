@@ -46,7 +46,7 @@ func Save(item *clusterModel.Cluster) error {
 		if err != nil {
 			return err
 		}
-		go initCluster(*item)
+		//go initCluster(*item)
 		return nil
 	} else {
 		return db.DB.Save(&item).Error
@@ -93,12 +93,12 @@ func initCluster(c clusterModel.Cluster) {
 		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
 		switch condition.Status {
 		case constant.ConditionFalse:
-			log.Debug("cluster %s init fail, message:%s", c.Name, c.Status.Message)
+			log.Debugf("cluster %s init fail, message:%s", c.Name, c.Status.Message)
 			return
 		case constant.ConditionUnknown:
 			log.Debugf("cluster %s init...", c.Name)
 		case constant.ConditionTrue:
-			log.Debug("cluster %s init success")
+			log.Debugf("cluster %s init success", c.Name)
 			return
 		}
 		err = Save(&resp)

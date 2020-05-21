@@ -1,10 +1,10 @@
 package migrate
 
 import (
-	"errors"
-	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
@@ -23,23 +23,10 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
-	url := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8",
-		i.User,
-		i.Password,
-		i.Host,
-		i.Port,
-		i.Name)
-	filePath := fmt.Sprintf("file://%s", migrateDir)
-	m, err := migrate.New(
-		filePath, url)
-	if err != nil {
-		return err
-	}
-	if err := m.Up(); err != nil {
-		if errors.Is(err, migrate.ErrNoChange) {
-			return nil
-		}
-		return err
+	var log = logger.Default
+	for _, m := range model.Models {
+		log.Infof("migrate table: %s", m.TableName())
+		db.DB.AutoMigrate(m)
 	}
 	return nil
 }

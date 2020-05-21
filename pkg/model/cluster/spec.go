@@ -2,31 +2,19 @@ package cluster
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type Spec struct {
 	common.BaseModel
+	ID          string
+	ClusterID   string
 	Version     string
 	NetworkType string
-	ClusterCIDR string
-	ServiceCIDR string
+	ClusterCIDR string `gorm:"column:cluster_cidr"`
+	ServiceCIDR string `gorm:"column:service_cidr"`
 	Nodes       []Node
 }
 
-func (n *Spec) BeforeCreate() error {
-	n.ID = uuid.NewV4().String()
-	n.CreatedDate = time.Now()
-	n.UpdatedDate = time.Now()
-	return nil
-}
-
-func (n *Spec) BeforeUpdate() error {
-	n.UpdatedDate = time.Now()
-	return nil
-}
-
-func (n Spec) TableName() string {
+func (s Spec) TableName() string {
 	return "ko_cluster_spec"
 }

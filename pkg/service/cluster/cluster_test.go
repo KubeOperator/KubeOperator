@@ -4,9 +4,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
-	"log"
 	"testing"
 )
 
@@ -28,8 +27,15 @@ func Init() {
 func TestSave(t *testing.T) {
 	Init()
 	item := clusterModel.Cluster{
-		BaseModel: common.BaseModel{
-			Name: "test",
+		ID:   uuid.NewV4().String(),
+		Name: "test",
+		Spec: clusterModel.Spec{
+			ID:          uuid.NewV4().String(),
+			Version:     "v1.18.2",
+			NetworkType: "calico",
+			ClusterCIDR: "172.16.10.142/8",
+			ServiceCIDR: "172.16.10.142/8",
+			Nodes:       []clusterModel.Node{},
 		},
 	}
 	err := Save(&item)

@@ -4,28 +4,14 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/kobe/api"
-	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type Cluster struct {
 	common.BaseModel
-	Spec     Spec
-	SpecID   string
-	Status   Status
-	StatusID string
-}
-
-func (c *Cluster) BeforeCreate() error {
-	c.ID = uuid.NewV4().String()
-	c.CreatedDate = time.Now()
-	c.UpdatedDate = time.Now()
-	return nil
-}
-
-func (c *Cluster) BeforeUpdate() error {
-	c.UpdatedDate = time.Now()
-	return nil
+	ID     string
+	Name   string
+	Spec   Spec
+	Status Status
 }
 
 func (c Cluster) TableName() string {

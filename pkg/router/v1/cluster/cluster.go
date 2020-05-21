@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	commonModel "github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster/serializer"
 	clusterService "github.com/KubeOperator/KubeOperator/pkg/service/cluster"
 	"github.com/gin-gonic/gin"
@@ -108,9 +107,7 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := clusterModel.Cluster{
-		BaseModel: commonModel.BaseModel{
-			Name: req.Name,
-		},
+		Name: req.Name,
 	}
 	err = clusterService.Save(&model)
 	if err != nil {

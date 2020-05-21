@@ -1,7 +1,6 @@
 package serializer
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 )
 
@@ -19,9 +18,7 @@ func FromModel(model credentialModel.Credential) Credential {
 
 func ToModel(c Credential) credentialModel.Credential {
 	return credentialModel.Credential{
-		BaseModel: common.BaseModel{
-			Name: c.Name,
-		},
+		Name: c.Name,
 	}
 }
 

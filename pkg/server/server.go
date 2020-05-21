@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/redis"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/spf13/viper"
@@ -17,14 +18,14 @@ type Phase interface {
 
 func Phases() []Phase {
 	return []Phase{
-		//&migrate.InitMigrateDBPhase{
-		//	Host:     viper.GetString("db.host"),
-		//	Port:     viper.GetInt("db.port"),
-		//	Name:     viper.GetString("db.name"),
-		//	User:     viper.GetString("db.user"),
-		//	Password: viper.GetString("db.password"),
-		//},
 		&db.InitDBPhase{
+			Host:     viper.GetString("db.host"),
+			Port:     viper.GetInt("db.port"),
+			Name:     viper.GetString("db.name"),
+			User:     viper.GetString("db.user"),
+			Password: viper.GetString("db.password"),
+		},
+		&migrate.InitMigrateDBPhase{
 			Host:     viper.GetString("db.host"),
 			Port:     viper.GetInt("db.port"),
 			Name:     viper.GetString("db.name"),

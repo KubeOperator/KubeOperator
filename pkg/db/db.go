@@ -30,9 +30,9 @@ func (i *InitDBPhase) Init() error {
 		return err
 	}
 	DB = db
+	DB.LogMode(true)
 	return nil
 }
-
 
 func (i *InitDBPhase) PhaseName() string {
 	return phaseName

@@ -2,7 +2,6 @@ package serializer
 
 import (
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 )
 
 type Cluster struct {
@@ -24,9 +23,7 @@ func FromModel(model clusterModel.Cluster) Cluster {
 }
 func ToModel(c Cluster) clusterModel.Cluster {
 	return clusterModel.Cluster{
-		BaseModel: common.BaseModel{
-			Name: c.Name,
-		},
+		Name: c.Name,
 		Spec: clusterModel.Spec{
 			Version: c.Spec.Version,
 		},
@@ -51,7 +48,7 @@ type DeleteClusterRequest struct {
 	Name string `json:"name"`
 }
 
-type DeleteClusterResponse struct {}
+type DeleteClusterResponse struct{}
 
 type UpdateClusterRequest struct {
 	Item Cluster `json:"item" binding:"required"`
