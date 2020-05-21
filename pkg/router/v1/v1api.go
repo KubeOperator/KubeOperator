@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"ko3-gin/pkg/router/v1/cluster"
+	"ko3-gin/pkg/router/v1/credential"
 	"ko3-gin/pkg/router/v1/host"
 )
 
@@ -26,6 +27,15 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1ClusterApi.PATCH("/:name/", cluster.Update)
 			v1ClusterApi.DELETE("/:name/", cluster.Delete)
 			v1ClusterApi.POST("/batch/", cluster.Batch)
+		}
+		v1CredentialApi := v1Api.Group("/credentials")
+		{
+			v1CredentialApi.GET("/", credential.List)
+			v1CredentialApi.POST("/", credential.Create)
+			v1CredentialApi.GET("/:name/", credential.Get)
+			v1CredentialApi.PATCH("/:name/", credential.Update)
+			v1CredentialApi.DELETE("/:name/", credential.Delete)
+			v1CredentialApi.POST("/batch/", credential.Batch)
 		}
 	}
 	return v1Api
