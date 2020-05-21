@@ -1,11 +1,11 @@
 package credential
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/config"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 	"github.com/spf13/viper"
-	"ko3-gin/pkg/config"
-	"ko3-gin/pkg/db"
-	"ko3-gin/pkg/model/common"
-	credentialModel "ko3-gin/pkg/model/credential"
 	"log"
 	"testing"
 )

@@ -1,8 +1,8 @@
 package credential
 
 import (
-	"ko3-gin/pkg/model/common"
-	credentialModel "ko3-gin/pkg/model/credential"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 )
 
 type Credential struct {
@@ -13,8 +13,7 @@ type Credential struct {
 
 func FromModel(model credentialModel.Credential) Credential {
 	return Credential{
-		Name:   model.Name,
-		Status: model.Status,
+		Name: model.Name,
 	}
 }
 

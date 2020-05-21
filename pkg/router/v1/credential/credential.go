@@ -2,12 +2,12 @@ package credential
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	commonModel "github.com/KubeOperator/KubeOperator/pkg/model/common"
+	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
+	serializer "github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
+	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
 	"github.com/gin-gonic/gin"
-	"ko3-gin/pkg/constant"
-	commonModel "ko3-gin/pkg/model/common"
-	credentialModel "ko3-gin/pkg/model/credential"
-	serializer "ko3-gin/pkg/router/v1/credential/serializer"
-	credentialService "ko3-gin/pkg/service/credential"
 	"net/http"
 )
 

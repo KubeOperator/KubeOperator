@@ -1,9 +1,9 @@
 package credential
 
 import (
-	"ko3-gin/pkg/constant"
-	"ko3-gin/pkg/db"
-	credentialModel "ko3-gin/pkg/model/credential"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 )
 
 func Page(num, size int) (credentials []credentialModel.Credential, total int, err error) {
