@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  serializer.BatchRequest:
+  serializer.BatchClusterRequest:
     properties:
       items:
         items:
@@ -8,41 +8,82 @@ definitions:
         type: array
       operation:
         type: string
+    required:
+    - items
+    - operation
     type: object
-  serializer.BatchResponse:
+  serializer.BatchClusterResponse:
     properties:
       items:
         items:
           $ref: '#/definitions/serializer.Cluster'
         type: array
     type: object
+  serializer.BatchCredentialRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Credential'
+        type: array
+      operation:
+        type: string
+    required:
+    - operation
+    type: object
+  serializer.BatchCredentialResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Credential'
+        type: array
+    type: object
   serializer.Cluster:
+    properties:
+      name:
+        type: string
+      spec:
+        $ref: '#/definitions/serializer.Spec'
+        type: object
+    type: object
+  serializer.CreateClusterRequest:
+    properties:
+      name:
+        type: string
+      version:
+        type: string
+    required:
+    - name
+    - version
+    type: object
+  serializer.CreateCredentialRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  serializer.Credential:
     properties:
       name:
         type: string
       status:
         type: string
-    type: object
-  serializer.CreateRequest:
-    properties:
-      name:
+      username:
         type: string
     type: object
-  serializer.CreateResponse:
+  serializer.GetClusterResponse:
     properties:
       item:
         $ref: '#/definitions/serializer.Cluster'
         type: object
     type: object
-  serializer.DeleteResponse:
-    type: object
-  serializer.GetResponse:
+  serializer.GetCredentialResponse:
     properties:
       item:
-        $ref: '#/definitions/serializer.Cluster'
+        $ref: '#/definitions/serializer.Credential'
         type: object
     type: object
-  serializer.ListResponse:
+  serializer.ListClusterResponse:
     properties:
       items:
         items:
@@ -51,16 +92,35 @@ definitions:
       total:
         type: integer
     type: object
-  serializer.UpdateRequest:
+  serializer.ListCredentialResponse:
     properties:
-      name:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Credential'
+        type: array
+      total:
+        type: integer
+    type: object
+  serializer.Spec:
+    properties:
+      version:
         type: string
     type: object
-  serializer.UpdateResponse:
+  serializer.UpdateClusterRequest:
     properties:
       item:
         $ref: '#/definitions/serializer.Cluster'
         type: object
+    required:
+    - item
+    type: object
+  serializer.UpdateCredentialRequest:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Credential'
+        type: object
+    required:
+    - item
     type: object
 host: localhost:8080
 info:
@@ -94,8 +154,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.ListResponse'
+            $ref: '#/definitions/serializer.ListClusterResponse'
       summary: Cluster
+      tags:
+      - Cluster
     post:
       consumes:
       - application/json
@@ -106,15 +168,17 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/serializer.CreateRequest'
+          $ref: '#/definitions/serializer.CreateClusterRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/serializer.CreateResponse'
+            $ref: '#/definitions/serializer.Cluster'
       summary: Cluster
+      tags:
+      - Cluster
   /clusters/{cluster_name}:
     delete:
       consumes:
@@ -132,8 +196,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.DeleteResponse'
+            type: string
       summary: Cluster
+      tags:
+      - Cluster
     get:
       consumes:
       - application/json
@@ -150,8 +216,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.GetResponse'
+            $ref: '#/definitions/serializer.GetClusterResponse'
       summary: Cluster
+      tags:
+      - Cluster
     patch:
       consumes:
       - application/json
@@ -162,7 +230,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/serializer.UpdateRequest'
+          $ref: '#/definitions/serializer.UpdateClusterRequest'
       - description: cluster name
         in: path
         name: cluster_name
@@ -174,8 +242,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.UpdateResponse'
+            $ref: '#/definitions/serializer.Cluster'
       summary: Cluster
+      tags:
+      - Cluster
   /clusters/batch/:
     post:
       consumes:
@@ -187,15 +257,151 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/serializer.BatchRequest'
+          $ref: '#/definitions/serializer.BatchClusterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.BatchResponse'
+            $ref: '#/definitions/serializer.BatchClusterResponse'
       summary: Cluster
+      tags:
+      - Cluster
+  /credentials/:
+    get:
+      consumes:
+      - application/json
+      description: List credentials
+      parameters:
+      - description: page num
+        in: query
+        name: pageNum
+        type: string
+      - description: page size
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.ListCredentialResponse'
+      summary: Credential
+      tags:
+      - Credential
+    post:
+      consumes:
+      - application/json
+      description: Create a Credential
+      parameters:
+      - description: credential
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.CreateCredentialRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/serializer.Credential'
+      summary: Credential
+      tags:
+      - Credential
+  /credentials/{credential_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Credential
+      parameters:
+      - description: credential name
+        in: path
+        name: credential_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Credential
+      tags:
+      - Credential
+    get:
+      consumes:
+      - application/json
+      description: Get Credential
+      parameters:
+      - description: credential name
+        in: path
+        name: credential_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.GetCredentialResponse'
+      summary: Credential
+      tags:
+      - Credential
+    patch:
+      consumes:
+      - application/json
+      description: Update a Credential
+      parameters:
+      - description: credential
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.UpdateCredentialRequest'
+      - description: credential name
+        in: path
+        name: credential_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.Credential'
+      summary: Credential
+      tags:
+      - Credential
+  /credentials/batch/:
+    post:
+      consumes:
+      - application/json
+      description: Batch Credentials
+      parameters:
+      - description: Batch
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.BatchCredentialRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.BatchCredentialResponse'
+      summary: Credential
+      tags:
+      - Credential
 securityDefinitions:
   ApiKeyAuth:
     in: header

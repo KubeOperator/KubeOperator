@@ -1,4 +1,4 @@
-package credential
+package serializer
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -25,43 +25,32 @@ func ToModel(c Credential) credentialModel.Credential {
 	}
 }
 
-type ListResponse struct {
+type ListCredentialResponse struct {
 	Items []Credential `json:"items"`
 	Total int          `json:"total"`
 }
 
-type GetResponse struct {
+type GetCredentialResponse struct {
 	Item Credential `json:"item"`
 }
 
-type CreateRequest struct {
+type CreateCredentialRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-type CreateResponse struct {
-	Item Credential `json:"item"`
-}
-
-type DeleteRequest struct {
+type DeleteCredentialRequest struct {
 	Name string `json:"name"`
 }
 
-type DeleteResponse struct {
-}
-
-type UpdateRequest struct {
+type UpdateCredentialRequest struct {
 	Item Credential `json:"item" binding:"required"`
 }
 
-type UpdateResponse struct {
-	Item Credential `json:"item"`
-}
-
-type BatchRequest struct {
+type BatchCredentialRequest struct {
 	Operation string       `json:"operation" binding:"required"`
 	Items     []Credential `json:"items"`
 }
 
-type BatchResponse struct {
+type BatchCredentialResponse struct {
 	Items []Credential `json:"items"`
 }

@@ -16,13 +16,14 @@ var (
 )
 
 // ListCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description List clusters
 // @Accept  json
 // @Produce json
 // @Param pageNum query string false "page num"
 // @Param pageSize query string false "page size"
-// @Success 200 {object} serializer.ListResponse
+// @Success 200 {object} serializer.ListClusterResponse
 // @Router /clusters/ [get]
 func List(ctx *gin.Context) {
 	page := ctx.GetBool("page")
@@ -51,7 +52,7 @@ func List(ctx *gin.Context) {
 			return
 		}
 	}
-	var resp = serializer.ListResponse{
+	var resp = serializer.ListClusterResponse{
 		Items: []serializer.Cluster{},
 		Total: total,
 	}
@@ -62,12 +63,13 @@ func List(ctx *gin.Context) {
 }
 
 // GetCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description Get Cluster
 // @Accept  json
 // @Produce json
 // @Param cluster_name path string true "cluster name"
-// @Success 200 {object} serializer.GetResponse
+// @Success 200 {object} serializer.GetClusterResponse
 // @Router /clusters/{cluster_name} [get]
 func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
@@ -84,19 +86,20 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.GetResponse{Item: serializer.FromModel(*model)})
+	ctx.JSON(http.StatusOK, serializer.GetClusterResponse{Item: serializer.FromModel(*model)})
 }
 
 // CreateCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description Create a Cluster
 // @Accept  json
 // @Produce json
-// @Param request body serializer.CreateRequest true "cluster"
-// @Success 201 {object} serializer.CreateResponse
+// @Param request body serializer.CreateClusterRequest true "cluster"
+// @Success 201 {object} serializer.Cluster
 // @Router /clusters/ [post]
 func Create(ctx *gin.Context) {
-	var req serializer.CreateRequest
+	var req serializer.CreateClusterRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -116,20 +119,21 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusCreated, serializer.CreateResponse{Item: serializer.FromModel(model)})
+	ctx.JSON(http.StatusCreated, serializer.FromModel(model))
 }
 
 // UpdateCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description Update a Cluster
 // @Accept  json
 // @Produce json
-// @Param request body serializer.UpdateRequest true "cluster"
+// @Param request body serializer.UpdateClusterRequest true "cluster"
 // @Param cluster_name path string true "cluster name"
-// @Success 200 {object} serializer.UpdateResponse
+// @Success 200 {object} serializer.Cluster
 // @Router /clusters/{cluster_name} [patch]
 func Update(ctx *gin.Context) {
-	var req serializer.UpdateRequest
+	var req serializer.UpdateClusterRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -145,17 +149,18 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.UpdateResponse{Item: serializer.FromModel(model)})
+	ctx.JSON(http.StatusOK, serializer.FromModel(model))
 
 }
 
 // DeleteCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description Delete a Cluster
 // @Accept  json
 // @Produce json
 // @Param cluster_name path string true "cluster name"
-// @Success 200 {object} serializer.DeleteResponse
+// @Success 200 {string} string
 // @Router /clusters/{cluster_name} [delete]
 func Delete(ctx *gin.Context) {
 	name := ctx.Param("name")
@@ -172,19 +177,20 @@ func Delete(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.DeleteResponse{})
+	ctx.JSON(http.StatusOK, name)
 }
 
 // BatchCluster
+// @Tags Cluster
 // @Summary Cluster
 // @Description Batch Clusters
 // @Accept  json
 // @Produce json
-// @Param request body serializer.BatchRequest true "Batch"
-// @Success 200 {object} serializer.BatchResponse
+// @Param request body serializer.BatchClusterRequest true "Batch"
+// @Success 200 {object} serializer.BatchClusterResponse
 // @Router /clusters/batch/ [post]
 func Batch(ctx *gin.Context) {
-	var req serializer.BatchRequest
+	var req serializer.BatchClusterRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -203,7 +209,7 @@ func Batch(ctx *gin.Context) {
 		})
 		return
 	}
-	var resp serializer.BatchResponse
+	var resp serializer.BatchClusterResponse
 	for _, model := range models {
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}

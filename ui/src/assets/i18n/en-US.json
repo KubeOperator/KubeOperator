@@ -4,5 +4,7 @@
   "APP_ACTION_ADD": "ADD",
   "APP_ACTION_DELETE": "DELETE",
   "APP_CLUSTER": "Cluster",
-  "APP_CLUSTER_FIELD_NAME": "name"
+  "APP_CLUSTER_FIELD_NAME": "name",
+  "APP_CLUSTER_FIELD_CREATED_DATE": "created date",
+  "APP_CLUSTER_FIELD_UPDATED_DATE": "updated date"
 }

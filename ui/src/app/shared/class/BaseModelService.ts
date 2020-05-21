@@ -1,10 +1,10 @@
-import {BaseModel} from './BaseModel';
+import {BaseModel, BaseRequest} from './BaseModel';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Page} from './Page';
 import {Batch} from './Batch';
 
-export abstract class BaseModelService<T extends BaseModel> {
+export abstract class BaseModelService<T extends BaseModel, R extends BaseRequest> {
 
     baseUrl = '';
 
@@ -16,7 +16,7 @@ export abstract class BaseModelService<T extends BaseModel> {
     }
 
     page(page, size): Observable<Page<T>> {
-        const pageUrl = `${this.baseUrl}/${page}/${size}/`;
+        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<T>>(pageUrl);
     }
 
@@ -25,11 +25,11 @@ export abstract class BaseModelService<T extends BaseModel> {
         return this.http.get<T>(itemUrl);
     }
 
-    create(item: T): Observable<T> {
+    create(item: R): Observable<T> {
         return this.http.post<T>(this.baseUrl, item);
     }
 
-    update(name: string, item: T): Observable<T> {
+    update(name: string, item: R): Observable<T> {
         const itemUrl = `${this.baseUrl}/${name}/`;
         return this.http.patch<T>(itemUrl, item);
     }

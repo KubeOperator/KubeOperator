@@ -1,6 +1,10 @@
 export abstract class BaseModel {
-    id: string;
     name: string;
+    createdDate: string;
+    updatedDate: string;
 }
 
 
+export abstract class BaseRequest {
+    name: string;
+}

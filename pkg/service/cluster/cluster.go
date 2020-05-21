@@ -3,11 +3,13 @@ package cluster
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"log"
 	"time"
 )
+
+var log = logger.Default
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
 	err = db.DB.Model(clusterModel.Cluster{}).
@@ -34,7 +36,18 @@ func Get(name string) (*clusterModel.Cluster, error) {
 
 func Save(item *clusterModel.Cluster) error {
 	if db.DB.NewRecord(item) {
-		return db.DB.Create(&item).Error
+		item.Status = clusterModel.Status{
+			Version:    item.Spec.Version,
+			Message:    "",
+			Phase:      constant.ClusterWaiting,
+			Conditions: nil,
+		}
+		err := db.DB.Create(&item).Error
+		if err != nil {
+			return err
+		}
+		go initCluster(*item)
+		return nil
 	} else {
 		return db.DB.Save(&item).Error
 	}
@@ -63,22 +76,34 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	return items, nil
 }
 
-func InitCluster(c clusterModel.Cluster) {
+func initCluster(c clusterModel.Cluster) {
 	ad, err := adm.NewClusterAdm()
 	if err != nil {
 		log.Fatal(err)
 	}
+	c.Status.Phase = constant.ClusterWaiting
+	err = Save(&c)
+	if err != nil {
+		log.Debugf("can not save cluster status, msg: %s", err.Error())
+	}
 	for {
-		//start := time.Now()
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
 		}
 		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
 		switch condition.Status {
 		case constant.ConditionFalse:
+			log.Debug("cluster %s init fail, message:%s", c.Name, c.Status.Message)
+			return
 		case constant.ConditionUnknown:
+			log.Debugf("cluster %s init...", c.Name)
 		case constant.ConditionTrue:
-		default:
+			log.Debug("cluster %s init success")
+			return
+		}
+		err = Save(&resp)
+		if err != nil {
+			log.Debugf("can not save cluster status, msg: %s", err.Error())
 		}
 		time.Sleep(5 * time.Second)
 	}

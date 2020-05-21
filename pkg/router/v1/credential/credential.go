@@ -5,7 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	commonModel "github.com/KubeOperator/KubeOperator/pkg/model/common"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
-	serializer "github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
 	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,13 +16,14 @@ var (
 )
 
 // ListCredential
+// @Tags Credential
 // @Summary Credential
 // @Description List credentials
 // @Accept  json
 // @Produce json
 // @Param pageNum query string false "page num"
 // @Param pageSize query string false "page size"
-// @Success 200 {object} serializer.ListResponse
+// @Success 200 {object} serializer.ListCredentialResponse
 // @Router /credentials/ [get]
 func List(ctx *gin.Context) {
 	page := ctx.GetBool("page")
@@ -53,7 +54,7 @@ func List(ctx *gin.Context) {
 
 	}
 
-	var resp = serializer.ListResponse{
+	var resp = serializer.ListCredentialResponse{
 		Items: []serializer.Credential{},
 		Total: total,
 	}
@@ -65,12 +66,13 @@ func List(ctx *gin.Context) {
 }
 
 // GetCredential
+// @Tags Credential
 // @Summary Credential
 // @Description Get Credential
 // @Accept  json
 // @Produce json
 // @Param credential_name path string true "credential name"
-// @Success 200 {object} serializer.GetResponse
+// @Success 200 {object} serializer.GetCredentialResponse
 // @Router /credentials/{credential_name} [get]
 func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
@@ -87,21 +89,22 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.GetResponse{
+	ctx.JSON(http.StatusOK, serializer.GetCredentialResponse{
 		Item: serializer.FromModel(*model),
 	})
 }
 
 // CreateCredential
+// @Tags Credential
 // @Summary Credential
 // @Description Create a Credential
 // @Accept  json
 // @Produce json
-// @Param request body serializer.CreateRequest true "credential"
-// @Success 201 {object} serializer.CreateResponse
+// @Param request body serializer.CreateCredentialRequest true "credential"
+// @Success 201 {object} serializer.Credential
 // @Router /credentials/ [post]
 func Create(ctx *gin.Context) {
-	var req serializer.CreateRequest
+	var req serializer.CreateCredentialRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -121,20 +124,21 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusCreated, serializer.CreateResponse{Item: serializer.FromModel(model)})
+	ctx.JSON(http.StatusCreated, serializer.FromModel(model))
 }
 
 // UpdateCredential
+// @Tags Credential
 // @Summary Credential
 // @Description Update a Credential
 // @Accept  json
 // @Produce json
-// @Param request body serializer.UpdateRequest true "credential"
+// @Param request body serializer.UpdateCredentialRequest true "credential"
 // @Param credential_name path string true "credential name"
-// @Success 200 {object} serializer.UpdateResponse
+// @Success 200 {object} serializer.Credential
 // @Router /credentials/{credential_name} [patch]
 func Update(ctx *gin.Context) {
-	var req serializer.UpdateRequest
+	var req serializer.UpdateCredentialRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -150,18 +154,17 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.UpdateResponse{
-		Item: serializer.FromModel(model),
-	})
+	ctx.JSON(http.StatusOK, serializer.FromModel(model))
 }
 
 // DeleteCredential
-// @Summary Cluster
+// @Tags Credential
+// @Summary Credential
 // @Description Delete a Credential
 // @Accept  json
 // @Produce json
 // @Param credential_name path string true "credential name"
-// @Success 200 {object} serializer.DeleteResponse
+// @Success 200 {string} string
 // @Router /credentials/{credential_name} [delete]
 func Delete(ctx *gin.Context) {
 	name := ctx.Param("name")
@@ -178,19 +181,20 @@ func Delete(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.DeleteResponse{})
+	ctx.JSON(http.StatusOK, name)
 }
 
 // BatchCredential
-// @Summary Cluster
+// @Tags Credential
+// @Summary Credential
 // @Description Batch Credentials
 // @Accept  json
 // @Produce json
-// @Param request body serializer.BatchRequest true "Batch"
-// @Success 200 {object} serializer.BatchResponse
+// @Param request body serializer.BatchCredentialRequest true "Batch"
+// @Success 200 {object} serializer.BatchCredentialResponse
 // @Router /credentials/batch/ [post]
 func Batch(ctx *gin.Context) {
-	var req serializer.BatchRequest
+	var req serializer.BatchCredentialRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -209,7 +213,7 @@ func Batch(ctx *gin.Context) {
 		})
 		return
 	}
-	var resp serializer.BatchResponse
+	var resp serializer.BatchCredentialResponse
 	for _, model := range models {
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}

@@ -25,6 +25,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -44,7 +47,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.ListResponse"
+                            "$ref": "#/definitions/serializer.ListClusterResponse"
                         }
                     }
                 }
@@ -57,6 +60,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -65,7 +71,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/serializer.CreateRequest"
+                            "$ref": "#/definitions/serializer.CreateClusterRequest"
                         }
                     }
                 ],
@@ -73,7 +79,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/serializer.CreateResponse"
+                            "$ref": "#/definitions/serializer.Cluster"
                         }
                     }
                 }
@@ -88,6 +94,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -96,7 +105,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/serializer.BatchRequest"
+                            "$ref": "#/definitions/serializer.BatchClusterRequest"
                         }
                     }
                 ],
@@ -104,7 +113,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.BatchResponse"
+                            "$ref": "#/definitions/serializer.BatchClusterResponse"
                         }
                     }
                 }
@@ -119,6 +128,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -133,7 +145,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.GetResponse"
+                            "$ref": "#/definitions/serializer.GetClusterResponse"
                         }
                     }
                 }
@@ -146,6 +158,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -160,7 +175,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.DeleteResponse"
+                            "type": "string"
                         }
                     }
                 }
@@ -173,6 +188,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Cluster"
+                ],
                 "summary": "Cluster",
                 "parameters": [
                     {
@@ -181,7 +199,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/serializer.UpdateRequest"
+                            "$ref": "#/definitions/serializer.UpdateClusterRequest"
                         }
                     },
                     {
@@ -196,7 +214,211 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.UpdateResponse"
+                            "$ref": "#/definitions/serializer.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/credentials/": {
+            "get": {
+                "description": "List credentials",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "page num",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.ListCredentialResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a Credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "description": "credential",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.CreateCredentialRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.Credential"
+                        }
+                    }
+                }
+            }
+        },
+        "/credentials/batch/": {
+            "post": {
+                "description": "Batch Credentials",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "description": "Batch",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchCredentialRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchCredentialResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/credentials/{credential_name}": {
+            "get": {
+                "description": "Get Credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "credential name",
+                        "name": "credential_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.GetCredentialResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a Credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "credential name",
+                        "name": "credential_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a Credential",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credential"
+                ],
+                "summary": "Credential",
+                "parameters": [
+                    {
+                        "description": "credential",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.UpdateCredentialRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "credential name",
+                        "name": "credential_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.Credential"
                         }
                     }
                 }
@@ -204,8 +426,12 @@
         }
     },
     "definitions": {
-        "serializer.BatchRequest": {
+        "serializer.BatchClusterRequest": {
             "type": "object",
+            "required": [
+                "items",
+                "operation"
+            ],
             "properties": {
                 "items": {
                     "type": "array",
@@ -218,7 +444,7 @@
                 }
             }
         },
-        "serializer.BatchResponse": {
+        "serializer.BatchClusterResponse": {
             "type": "object",
             "properties": {
                 "items": {
@@ -229,7 +455,73 @@
                 }
             }
         },
+        "serializer.BatchCredentialRequest": {
+            "type": "object",
+            "required": [
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Credential"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.BatchCredentialResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Credential"
+                    }
+                }
+            }
+        },
         "serializer.Cluster": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Spec"
+                }
+            }
+        },
+        "serializer.CreateClusterRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "version"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.CreateCredentialRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.Credential": {
             "type": "object",
             "properties": {
                 "name": {
@@ -237,18 +529,13 @@
                 },
                 "status": {
                     "type": "string"
-                }
-            }
-        },
-        "serializer.CreateRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
+                },
+                "username": {
                     "type": "string"
                 }
             }
         },
-        "serializer.CreateResponse": {
+        "serializer.GetClusterResponse": {
             "type": "object",
             "properties": {
                 "item": {
@@ -257,19 +544,16 @@
                 }
             }
         },
-        "serializer.DeleteResponse": {
-            "type": "object"
-        },
-        "serializer.GetResponse": {
+        "serializer.GetCredentialResponse": {
             "type": "object",
             "properties": {
                 "item": {
                     "type": "object",
-                    "$ref": "#/definitions/serializer.Cluster"
+                    "$ref": "#/definitions/serializer.Credential"
                 }
             }
         },
-        "serializer.ListResponse": {
+        "serializer.ListClusterResponse": {
             "type": "object",
             "properties": {
                 "items": {
@@ -283,20 +567,49 @@
                 }
             }
         },
-        "serializer.UpdateRequest": {
+        "serializer.ListCredentialResponse": {
             "type": "object",
             "properties": {
-                "name": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Credential"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.Spec": {
+            "type": "object",
+            "properties": {
+                "version": {
                     "type": "string"
                 }
             }
         },
-        "serializer.UpdateResponse": {
+        "serializer.UpdateClusterRequest": {
             "type": "object",
+            "required": [
+                "item"
+            ],
             "properties": {
                 "item": {
                     "type": "object",
                     "$ref": "#/definitions/serializer.Cluster"
+                }
+            }
+        },
+        "serializer.UpdateCredentialRequest": {
+            "type": "object",
+            "required": [
+                "item"
+            ],
+            "properties": {
+                "item": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Credential"
                 }
             }
         }

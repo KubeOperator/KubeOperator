@@ -8,32 +8,12 @@ import (
 	"time"
 )
 
-type Spec struct {
-	Version     string
-	NetworkType string
-	ClusterCIDR string
-	ServiceCIDR string
-	Nodes       []Node
-}
-
-type Condition struct {
-	Name          string
-	Status        string
-	Message       string
-	LastProbeTime time.Time
-}
-
-type Status struct {
-	Version    string
-	Message    string
-	Phase      string
-	Conditions []Condition
-}
-
 type Cluster struct {
 	common.BaseModel
-	Spec   Spec
-	Status Status
+	Spec     Spec
+	SpecID   string
+	Status   Status
+	StatusID string
 }
 
 func (c *Cluster) BeforeCreate() error {

@@ -10,15 +10,19 @@ import (
 
 type Node struct {
 	common.BaseModel
-	Cluster   Cluster
-	ClusterID string
-	Host      host.Host
-	HostID    string
-	Labels    map[string]string
+	Host   host.Host
+	HostID string
+	Labels []Label
 }
 
-func (n Node) LabelValue(key string) string {
-	return n.Labels[key]
+func (n Node) LabelValue(name string) string {
+	result := ""
+	for _, label := range n.Labels {
+		if n.Name == name {
+			result = label.Value
+		}
+	}
+	return result
 }
 
 func (n Node) ToKobeHost() *api.Host {
@@ -44,5 +48,5 @@ func (n *Node) BeforeUpdate() error {
 }
 
 func (n Node) TableName() string {
-	return "ko_node"
+	return "ko_cluster_node"
 }
