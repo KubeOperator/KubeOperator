@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"testing"
 )
@@ -27,10 +26,8 @@ func Init() {
 func TestSave(t *testing.T) {
 	Init()
 	item := clusterModel.Cluster{
-		ID:   uuid.NewV4().String(),
 		Name: "test",
 		Spec: clusterModel.Spec{
-			ID:          uuid.NewV4().String(),
 			Version:     "v1.18.2",
 			NetworkType: "calico",
 			ClusterCIDR: "172.16.10.142/8",
