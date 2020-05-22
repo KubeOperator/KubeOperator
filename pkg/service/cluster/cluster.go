@@ -28,10 +28,9 @@ func List() (clusters []clusterModel.Cluster, err error) {
 
 func Get(name string) (*clusterModel.Cluster, error) {
 	var result clusterModel.Cluster
-	err := db.DB.Model(clusterModel.Cluster{}).
-		Where(&result).
-		First(&result).
-		Error
+	err := db.DB.First(&result).
+		Related(&result.Spec).
+		Related(&result.Status).Error
 	return &result, err
 }
 
@@ -57,16 +56,11 @@ func Save(item *clusterModel.Cluster) error {
 	}
 }
 
-func Delete(name string) (err error) {
-	var c clusterModel.Cluster
-	c.Name = name
-	tx := db.DB.Begin()
-	err = db.DB.Delete(&c.Spec).Delete(&c.Status).Delete(&c).Error
-	if err != nil {
-		tx.Rollback()
-		return err
+func Delete(name string) error {
+	c := clusterModel.Cluster{
+		Name: name,
 	}
-	return nil
+	return db.DB.First(&c).Delete(&c).Error
 }
 
 func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Cluster, error) {

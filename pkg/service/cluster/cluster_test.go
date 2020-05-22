@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
@@ -58,6 +59,16 @@ func TestPage(t *testing.T) {
 	}
 	t.Log(items)
 	t.Log(total)
+}
+
+func TestGet(t *testing.T) {
+	Init()
+	c, err := Get("test")
+	if err != nil {
+		t.Fatalf("get item error: %s", err.Error())
+	}
+	fmt.Println(c.Spec)
+
 }
 
 func TestDelete(t *testing.T) {
