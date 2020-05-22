@@ -718,12 +718,22 @@
         "serializer.Cluster": {
             "type": "object",
             "properties": {
+                "createAt": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "spec": {
                     "type": "object",
                     "$ref": "#/definitions/serializer.Spec"
+                },
+                "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Status"
+                },
+                "updateAt": {
+                    "type": "string"
                 }
             }
         },
@@ -734,7 +744,19 @@
                 "version"
             ],
             "properties": {
+                "clusterCIDR": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "serviceCIDR": {
                     "type": "string"
                 },
                 "version": {
@@ -897,7 +919,27 @@
         "serializer.Spec": {
             "type": "object",
             "properties": {
+                "clusterCIDR": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "serviceCIDR": {
+                    "type": "string"
+                },
                 "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.Status": {
+            "type": "object",
+            "properties": {
+                "phase": {
                     "type": "string"
                 }
             }

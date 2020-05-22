@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {Page} from './Page';
 import {Batch} from './Batch';
 
-export abstract class BaseModelService<T extends BaseModel, R extends BaseRequest> {
+export abstract class BaseModelService<T extends BaseModel> {
 
     baseUrl = '';
 
@@ -25,11 +25,11 @@ export abstract class BaseModelService<T extends BaseModel, R extends BaseReques
         return this.http.get<T>(itemUrl);
     }
 
-    create(item: R): Observable<T> {
+    create(item: BaseRequest): Observable<T> {
         return this.http.post<T>(this.baseUrl, item);
     }
 
-    update(name: string, item: R): Observable<T> {
+    update(name: string, item: BaseRequest): Observable<T> {
         const itemUrl = `${this.baseUrl}/${name}/`;
         return this.http.patch<T>(itemUrl, item);
     }

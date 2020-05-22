@@ -14,6 +14,8 @@ var log = logger.Default
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
 	err = db.DB.Model(clusterModel.Cluster{}).
+		Preload("Spec").
+		Preload("Status").
 		Find(&clusters).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -22,7 +24,10 @@ func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error)
 }
 
 func List() (clusters []clusterModel.Cluster, err error) {
-	err = db.DB.Model(clusterModel.Cluster{}).Find(&clusters).Error
+	err = db.DB.Model(clusterModel.Cluster{}).
+		Preload("Spec").
+		Preload("Status").
+		Find(&clusters).Error
 	return
 }
 

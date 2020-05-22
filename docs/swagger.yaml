@@ -57,15 +57,30 @@ definitions:
     type: object
   serializer.Cluster:
     properties:
+      createAt:
+        type: string
       name:
         type: string
       spec:
         $ref: '#/definitions/serializer.Spec'
         type: object
+      status:
+        $ref: '#/definitions/serializer.Status'
+        type: object
+      updateAt:
+        type: string
     type: object
   serializer.CreateClusterRequest:
     properties:
+      clusterCIDR:
+        type: string
       name:
+        type: string
+      networkType:
+        type: string
+      runtimeType:
+        type: string
+      serviceCIDR:
         type: string
       version:
         type: string
@@ -174,7 +189,20 @@ definitions:
     type: object
   serializer.Spec:
     properties:
+      clusterCIDR:
+        type: string
+      networkType:
+        type: string
+      runtimeType:
+        type: string
+      serviceCIDR:
+        type: string
       version:
+        type: string
+    type: object
+  serializer.Status:
+    properties:
+      phase:
         type: string
     type: object
   serializer.UpdateClusterRequest:

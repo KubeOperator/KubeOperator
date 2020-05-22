@@ -10,9 +10,9 @@ type Spec struct {
 	ClusterID   string
 	Version     string
 	NetworkType string
+	RuntimeType string
 	ClusterCIDR string `gorm:"column:cluster_cidr"`
 	ServiceCIDR string `gorm:"column:service_cidr"`
-	Nodes       []Node
 }
 
 func (s Spec) TableName() string {

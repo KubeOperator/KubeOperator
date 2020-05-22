@@ -2,15 +2,27 @@ package serializer
 
 import (
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"time"
 )
 
 type Cluster struct {
-	Name string `json:"name"`
-	Spec Spec   `json:"spec"`
+	Name     string    `json:"name"`
+	Spec     Spec      `json:"spec"`
+	Status   Status    `json:"status"`
+	CreateAt time.Time `json:"createAt"`
+	UpdateAt time.Time `json:"updateAt"`
 }
 
 type Spec struct {
-	Version string `json:"version"`
+	Version     string `json:"version"`
+	NetworkType string `json:"networkType"`
+	RuntimeType string `json:"runtimeType"`
+	ClusterCIDR string `json:"clusterCIDR"`
+	ServiceCIDR string `json:"serviceCIDR"`
+}
+
+type Status struct {
+	Phase string `json:"phase"`
 }
 
 func FromModel(model clusterModel.Cluster) Cluster {
@@ -19,6 +31,11 @@ func FromModel(model clusterModel.Cluster) Cluster {
 		Spec: Spec{
 			Version: model.Spec.Version,
 		},
+		Status: Status{
+			Phase: model.Status.Phase,
+		},
+		CreateAt: model.CreatedAt,
+		UpdateAt: model.UpdatedAt,
 	}
 }
 func ToModel(c Cluster) clusterModel.Cluster {
@@ -40,8 +57,12 @@ type GetClusterResponse struct {
 }
 
 type CreateClusterRequest struct {
-	Name    string `json:"name" binding:"required"`
-	Version string `json:"version" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Version     string `json:"version" binding:"required"`
+	NetworkType string `json:"networkType"`
+	RuntimeType string `json:"runtimeType"`
+	ClusterCIDR string `json:"clusterCIDR"`
+	ServiceCIDR string `json:"serviceCIDR"`
 }
 
 type DeleteClusterRequest struct {

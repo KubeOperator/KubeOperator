@@ -12,6 +12,7 @@ type Cluster struct {
 	Name   string
 	Spec   Spec
 	Status Status
+	Nodes  []Node
 }
 
 func (c Cluster) TableName() string {
@@ -22,7 +23,7 @@ func (c Cluster) ParseInventory() api.Inventory {
 	var masters []string
 	var workers []string
 	var hosts []*api.Host
-	for _, node := range c.Spec.Nodes {
+	for _, node := range c.Nodes {
 		hosts = append(hosts, node.ToKobeHost())
 		switch node.LabelValue(constant.NodeRoleLabelKey) {
 		case constant.NodeRoleNameMaster:
