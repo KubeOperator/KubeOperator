@@ -11,8 +11,6 @@ type Host struct {
 	ID           string
 	Name         string
 	Ip           string
-	User         string
-	Password     string
 	Port         int
 	CredentialId string
 	Status       string
