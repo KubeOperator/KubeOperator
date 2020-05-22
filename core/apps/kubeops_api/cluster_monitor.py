@@ -548,6 +548,7 @@ class ClusterMonitor():
         else:
             success = CisLog.CIS_STATUS_FAILED
         CisLog(name=name, cluster_id=self.cluster.id, detail=details, result=result, status=success).save()
+        self.api_instance.delete_namespaced_pod(name='f2c-kube-bench', namespace='kube-operator')
         return log_response
 
     def get_event_message(self, event):
