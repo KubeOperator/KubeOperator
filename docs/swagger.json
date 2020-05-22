@@ -423,6 +423,210 @@
                     }
                 }
             }
+        },
+        "/hosts/": {
+            "get": {
+                "description": "List hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "page num",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.ListHostResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "description": "host",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.CreateHostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.Host"
+                        }
+                    }
+                }
+            }
+        },
+        "/hosts/batch/": {
+            "post": {
+                "description": "Batch Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "description": "Batch",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchHostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchHostResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/hosts/{host_name}": {
+            "get": {
+                "description": "Get Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "host name",
+                        "name": "host_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.GetHostResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "host name",
+                        "name": "host_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a Host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "description": "host",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.UpdateHostRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "host_name",
+                        "name": "host_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.Host"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -483,6 +687,34 @@
                 }
             }
         },
+        "serializer.BatchHostRequest": {
+            "type": "object",
+            "required": [
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Host"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.BatchHostResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Host"
+                    }
+                }
+            }
+        },
         "serializer.Cluster": {
             "type": "object",
             "properties": {
@@ -511,6 +743,17 @@
             }
         },
         "serializer.CreateCredentialRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.CreateHostRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -553,6 +796,62 @@
                 }
             }
         },
+        "serializer.GetHostResponse": {
+            "type": "object",
+            "properties": {
+                "item": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Host"
+                }
+            }
+        },
+        "serializer.Host": {
+            "type": "object",
+            "properties": {
+                "cluster_id": {
+                    "type": "string"
+                },
+                "cpu_core": {
+                    "type": "integer"
+                },
+                "cpu_num": {
+                    "type": "integer"
+                },
+                "credential_id": {
+                    "type": "string"
+                },
+                "gpu_info": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "memory": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "serializer.ListClusterResponse": {
             "type": "object",
             "properties": {
@@ -574,6 +873,20 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/serializer.Credential"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.ListHostResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Host"
                     }
                 },
                 "total": {
@@ -610,6 +923,18 @@
                 "item": {
                     "type": "object",
                     "$ref": "#/definitions/serializer.Credential"
+                }
+            }
+        },
+        "serializer.UpdateHostRequest": {
+            "type": "object",
+            "required": [
+                "item"
+            ],
+            "properties": {
+                "item": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Host"
                 }
             }
         }
