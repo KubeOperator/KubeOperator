@@ -37,6 +37,24 @@ definitions:
           $ref: '#/definitions/serializer.Credential'
         type: array
     type: object
+  serializer.BatchHostRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Host'
+        type: array
+      operation:
+        type: string
+    required:
+    - operation
+    type: object
+  serializer.BatchHostResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Host'
+        type: array
+    type: object
   serializer.Cluster:
     properties:
       name:
@@ -56,6 +74,13 @@ definitions:
     - version
     type: object
   serializer.CreateCredentialRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  serializer.CreateHostRequest:
     properties:
       name:
         type: string
@@ -82,6 +107,43 @@ definitions:
       item:
         $ref: '#/definitions/serializer.Credential'
         type: object
+    type: object
+  serializer.GetHostResponse:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Host'
+        type: object
+    type: object
+  serializer.Host:
+    properties:
+      cluster_id:
+        type: string
+      cpu_core:
+        type: integer
+      cpu_num:
+        type: integer
+      credential_id:
+        type: string
+      gpu_info:
+        type: string
+      id:
+        type: string
+      ip:
+        type: string
+      memory:
+        type: string
+      name:
+        type: string
+      node_id:
+        type: string
+      os:
+        type: string
+      os_version:
+        type: string
+      port:
+        type: integer
+      status:
+        type: string
     type: object
   serializer.ListClusterResponse:
     properties:
@@ -118,6 +180,14 @@ definitions:
     properties:
       item:
         $ref: '#/definitions/serializer.Credential'
+        type: object
+    required:
+    - item
+    type: object
+  serializer.UpdateHostRequest:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.Host'
         type: object
     required:
     - item
@@ -402,6 +472,117 @@ paths:
       summary: Credential
       tags:
       - Credential
+  /host/:
+    post:
+      consumes:
+      - application/json
+      description: Create a Host
+      parameters:
+      - description: host
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.CreateHostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/serializer.Host'
+      summary: Host
+      tags:
+      - Host
+  /host/{host_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Host
+      parameters:
+      - description: host name
+        in: path
+        name: host_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Host
+      tags:
+      - Host
+    get:
+      consumes:
+      - application/json
+      description: Get Host
+      parameters:
+      - description: host name
+        in: path
+        name: host_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.GetHostResponse'
+      summary: Host
+      tags:
+      - Host
+    patch:
+      consumes:
+      - application/json
+      description: Update a Host
+      parameters:
+      - description: host
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.UpdateHostRequest'
+      - description: host_name
+        in: path
+        name: host_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.Host'
+      summary: Host
+      tags:
+      - Host
+  /host/batch/:
+    post:
+      consumes:
+      - application/json
+      description: Batch Host
+      parameters:
+      - description: Batch
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.BatchHostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.BatchHostResponse'
+      summary: Host
+      tags:
+      - Host
 securityDefinitions:
   ApiKeyAuth:
     in: header

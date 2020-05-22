@@ -7,14 +7,20 @@ import (
 
 type Host struct {
 	common.BaseModel
-	credential.Credential
+	Credential   credential.Credential
 	ID           string
 	Name         string
+	Memory       string
+	CpuCore      int
+	Os           string
+	OsVersion    string
+	GpuNum       int
+	GpuInfo      string
 	Ip           string
-	User         string
-	Password     string
 	Port         int
 	CredentialId string
+	ClusterId    string
+	nodeId       string
 	Status       string
 	Volumes      []Volume
 }
@@ -25,5 +31,5 @@ type Volume struct {
 }
 
 func (h Host) TableName() string {
-	return "ko_credential"
+	return "ko_host"
 }

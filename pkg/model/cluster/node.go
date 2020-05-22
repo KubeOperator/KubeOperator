@@ -30,8 +30,8 @@ func (n Node) ToKobeHost() *api.Host {
 		Ip:       n.Host.Ip,
 		Name:     n.Host.Name,
 		Port:     int32(n.Host.Port),
-		User:     n.Host.User,
-		Password: n.Host.Password,
+		User:     n.Host.Credential.Username,
+		Password: n.Host.Credential.Password,
 	}
 }
 
