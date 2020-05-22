@@ -1,0 +1,10 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_CLUSTER_DELETE_TITLE"|translate}}</h3>
+    <div class="modal-body">
+        <p>{{"APP_DELETE_WARNING"|translate}}</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn">{{"APP_MODAL_CANCEL"|translate}}</button>
+        <button class="btn btn-primary">{{"APP_MODAL_COMMIT"|translate}}</button>
+    </div>
+</clr-modal>

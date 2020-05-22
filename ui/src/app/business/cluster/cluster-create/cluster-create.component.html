@@ -1,0 +1,56 @@
+<clr-wizard [(clrWizardOpen)]="opened" clrWizardSize="xl">
+    <clr-wizard-title>{{"APP_CLUSTER_CREATE_TITLE"|translate}}</clr-wizard-title>
+
+    <clr-wizard-button [type]="'cancel'">{{"APP_MODAL_CANCEL"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'previous'">{{"APP_MODAL_BACK"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'next'">{{"APP_MODAL_NEXT"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'finish'">{{"APP_MODAL_FINISH"|translate}}</clr-wizard-button>
+
+    <clr-wizard-page>
+        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_CLUSTER_INFO"|translate}}</ng-template>
+        <form clrForm #clusterForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</label>
+                <input clrInput [size]="32"/>
+            </clr-input-container>
+
+            <clr-select-container>
+                <label>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</label>
+                <select clrSelect>
+                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option>v1.18.0</option>
+                    <option>v1.18.2</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container>
+                <label>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</label>
+                <select clrSelect>
+                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option>{{"APP_CLUSTER_PROVIDER_OPTION_BARE_METAL"|translate}}</option>
+                    <option>{{"APP_CLUSTER_PROVIDER_OPTION_VSPHERE"|translate}}</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container>
+                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
+                <select clrSelect>
+                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_DOCKER"|translate}}</option>
+                    <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD"|translate}}</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container>
+                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
+                <select clrSelect>
+                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_FLANNEL"|translate}}</option>
+                    <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_CALICO"|translate}}</option>
+                </select>
+            </clr-select-container>
+        </form>
+    </clr-wizard-page>
+    <!--    <clr-wizard-page>-->
+    <!--        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_NODE_INFO"|translate}}</ng-template>-->
+    <!--    </clr-wizard-page>-->
+
+</clr-wizard>
