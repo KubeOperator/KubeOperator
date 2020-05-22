@@ -441,7 +441,42 @@ var doc = `{
                 }
             }
         },
-        "/host/": {
+        "/hosts/": {
+            "get": {
+                "description": "List hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Host"
+                ],
+                "summary": "Host",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "page num",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.ListHostResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a Host",
                 "consumes": [
@@ -475,7 +510,7 @@ var doc = `{
                 }
             }
         },
-        "/host/batch/": {
+        "/hosts/batch/": {
             "post": {
                 "description": "Batch Host",
                 "consumes": [
@@ -509,7 +544,7 @@ var doc = `{
                 }
             }
         },
-        "/host/{host_name}": {
+        "/hosts/{host_name}": {
             "get": {
                 "description": "Get Host",
                 "consumes": [
@@ -855,6 +890,20 @@ var doc = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/serializer.Credential"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.ListHostResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Host"
                     }
                 },
                 "total": {

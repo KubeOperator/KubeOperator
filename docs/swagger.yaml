@@ -163,6 +163,15 @@ definitions:
       total:
         type: integer
     type: object
+  serializer.ListHostResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Host'
+        type: array
+      total:
+        type: integer
+    type: object
   serializer.Spec:
     properties:
       version:
@@ -472,7 +481,30 @@ paths:
       summary: Credential
       tags:
       - Credential
-  /host/:
+  /hosts/:
+    get:
+      consumes:
+      - application/json
+      description: List hosts
+      parameters:
+      - description: page num
+        in: query
+        name: pageNum
+        type: string
+      - description: page size
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.ListHostResponse'
+      summary: Host
+      tags:
+      - Host
     post:
       consumes:
       - application/json
@@ -494,7 +526,7 @@ paths:
       summary: Host
       tags:
       - Host
-  /host/{host_name}:
+  /hosts/{host_name}:
     delete:
       consumes:
       - application/json
@@ -561,7 +593,7 @@ paths:
       summary: Host
       tags:
       - Host
-  /host/batch/:
+  /hosts/batch/:
     post:
       consumes:
       - application/json

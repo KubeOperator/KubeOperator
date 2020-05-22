@@ -15,15 +15,15 @@ var (
 )
 
 // ListHost
+// @Tags Host
 // @Summary Host
-// @Description List host
+// @Description List hosts
 // @Accept  json
 // @Produce json
 // @Param pageNum query string false "page num"
 // @Param pageSize query string false "page size"
-// @Success 200 {object} serializer.ListResponse
-// @Router /host/ [get]
-
+// @Success 200 {object} serializer.ListHostResponse
+// @Router /hosts/ [get]
 func List(ctx *gin.Context) {
 	page := ctx.GetBool("page")
 	var models []hostModel.Host
@@ -71,7 +71,7 @@ func List(ctx *gin.Context) {
 // @Produce json
 // @Param host_name path string true "host name"
 // @Success 200 {object} serializer.GetHostResponse
-// @Router /host/{host_name} [get]
+// @Router /hosts/{host_name} [get]
 func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if name == "" {
@@ -100,7 +100,7 @@ func Get(ctx *gin.Context) {
 // @Produce json
 // @Param request body serializer.CreateHostRequest true "host"
 // @Success 201 {object} serializer.Host
-// @Router /host/ [post]
+// @Router /hosts/ [post]
 func Create(ctx *gin.Context) {
 	var req serializer.CreateHostRequest
 	err := ctx.ShouldBind(&req)
@@ -132,7 +132,7 @@ func Create(ctx *gin.Context) {
 // @Param request body serializer.UpdateHostRequest true "host"
 // @Param host_name path string true "host_name"
 // @Success 200 {object} serializer.Host
-// @Router /host/{host_name} [patch]
+// @Router /hosts/{host_name} [patch]
 func Update(ctx *gin.Context) {
 	var req serializer.UpdateHostRequest
 	err := ctx.ShouldBind(&req)
@@ -161,7 +161,7 @@ func Update(ctx *gin.Context) {
 // @Produce json
 // @Param host_name path string true "host name"
 // @Success 200 {string} string
-// @Router /host/{host_name} [delete]
+// @Router /hosts/{host_name} [delete]
 func Delete(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if name == "" {
@@ -188,7 +188,7 @@ func Delete(ctx *gin.Context) {
 // @Produce json
 // @Param request body serializer.BatchHostRequest true "Batch"
 // @Success 200 {object} serializer.BatchHostResponse
-// @Router /host/batch/ [post]
+// @Router /hosts/batch/ [post]
 func Batch(ctx *gin.Context) {
 	var req serializer.BatchHostRequest
 	err := ctx.ShouldBind(&req)
