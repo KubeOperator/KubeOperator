@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -27,16 +28,18 @@ func List() (clusters []clusterModel.Cluster, err error) {
 
 func Get(name string) (*clusterModel.Cluster, error) {
 	var result clusterModel.Cluster
-	err := db.DB.Model(clusterModel.Cluster{}).
-		Where(&result).
-		First(&result).
-		Error
+	err := db.DB.First(&result).
+		Related(&result.Spec).
+		Related(&result.Status).Error
 	return &result, err
 }
 
 func Save(item *clusterModel.Cluster) error {
 	if db.DB.NewRecord(item) {
+		item.ID = uuid.NewV4().String()
+		item.Spec.ID = uuid.NewV4().String()
 		item.Status = clusterModel.Status{
+			ID:         uuid.NewV4().String(),
 			Version:    item.Spec.Version,
 			Message:    "",
 			Phase:      constant.ClusterWaiting,
@@ -54,9 +57,10 @@ func Save(item *clusterModel.Cluster) error {
 }
 
 func Delete(name string) error {
-	var c clusterModel.Cluster
-	c.Name = name
-	return db.DB.Delete(&c).Error
+	c := clusterModel.Cluster{
+		Name: name,
+	}
+	return db.DB.First(&c).Delete(&c).Error
 }
 
 func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Cluster, error) {
