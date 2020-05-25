@@ -108,7 +108,15 @@ func Create(ctx *gin.Context) {
 	}
 	model := clusterModel.Cluster{
 		Name: req.Name,
+		Spec: clusterModel.Spec{
+			Version:     req.Version,
+			RuntimeType: req.RuntimeType,
+			NetworkType: req.NetworkType,
+		},
+		Status: clusterModel.Status{},
+		Nodes:  nil,
 	}
+
 	err = clusterService.Save(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

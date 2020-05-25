@@ -8,11 +8,12 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID     string
-	Name   string
-	Spec   Spec
-	Status Status
-	Nodes  []Node
+	ID         string
+	Name       string
+	Spec       Spec
+	Status     Status
+	Nodes      []Node
+	Conditions []Condition
 }
 
 func (c Cluster) TableName() string {

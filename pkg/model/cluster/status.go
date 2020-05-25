@@ -11,7 +11,6 @@ type Status struct {
 	Version    string
 	Message    string
 	Phase      string
-	Conditions []Condition
 }
 
 func (s Status) TableName() string {

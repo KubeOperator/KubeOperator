@@ -14,12 +14,13 @@ var log = logger.Default
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
 	err = db.DB.Model(clusterModel.Cluster{}).
-		Preload("Spec").
-		Preload("Status").
-		Find(&clusters).
+		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).
-		Count(&total).Error
+		Preload("Status").
+		Preload("Spec").
+		Find(&clusters).
+		Error
 	return
 }
 
@@ -44,11 +45,10 @@ func Save(item *clusterModel.Cluster) error {
 		item.ID = uuid.NewV4().String()
 		item.Spec.ID = uuid.NewV4().String()
 		item.Status = clusterModel.Status{
-			ID:         uuid.NewV4().String(),
-			Version:    item.Spec.Version,
-			Message:    "",
-			Phase:      constant.ClusterWaiting,
-			Conditions: nil,
+			ID:      uuid.NewV4().String(),
+			Version: item.Spec.Version,
+			Message: "",
+			Phase:   constant.ClusterWaiting,
 		}
 		err := db.DB.Create(&item).Error
 		if err != nil {
@@ -73,9 +73,10 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for _, item := range items {
-			err := db.DB.Model(clusterModel.Cluster{}).Delete(&item).Error
+			err := db.DB.Model(clusterModel.Cluster{}).First(&item).Delete(&item).Error
 			if err != nil {
 				tx.Rollback()
+				return nil, err
 			}
 		}
 		tx.Commit()
@@ -99,7 +100,7 @@ func initCluster(c clusterModel.Cluster) {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
 		}
-		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
+		condition := resp.Conditions[len(resp.Conditions)-1]
 		switch condition.Status {
 		case constant.ConditionFalse:
 			log.Debugf("cluster %s init fail, message:%s", c.Name, c.Status.Message)

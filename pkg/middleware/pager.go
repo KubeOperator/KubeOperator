@@ -9,7 +9,7 @@ import (
 func PagerMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		num := ctx.Query(constant.PageNumQueryKey)
-		limit := ctx.Query(constant.PageNumQueryKey)
+		limit := ctx.Query(constant.PageSizeQueryKey)
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil || limitInt < 0 {
 			ctx.Set("page", false)

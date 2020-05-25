@@ -1,6 +1,7 @@
 package kobe
 
 import (
+	"fmt"
 	"github.com/KubeOperator/kobe/api"
 	kobeClient "github.com/KubeOperator/kobe/pkg/client"
 	"io"
@@ -32,16 +33,26 @@ func NewAnsible(c *Config) *Kobe {
 	}
 }
 
-func (a *Kobe) RunPlaybook(name string) (string, error) {
-	result, err := a.client.RunPlaybook(a.Project, name, a.Inventory)
+func (k *Kobe) RunPlaybook(name string) (string, error) {
+	fmt.Println(k.Inventory)
+
+	result, err := k.client.RunPlaybook(k.Project, name, k.Inventory)
 	if err != nil {
 		return "", err
 	}
 	return result.Id, nil
 }
 
-func (a *Kobe) Watch(writer io.Writer, taskId string) error {
-	err := a.client.WatchRunPlaybook(taskId, writer)
+func (k *Kobe) RunAdhoc(pattern, module, param string) (string, error) {
+	result, err := k.client.RunAdhoc(pattern, module, param, k.Inventory)
+	if err != nil {
+		return "", nil
+	}
+	return result.Id, nil
+}
+
+func (k *Kobe) Watch(writer io.Writer, taskId string) error {
+	err := k.client.WatchRun(taskId, writer)
 	if err != nil {
 		return err
 	}

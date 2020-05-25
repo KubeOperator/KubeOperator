@@ -8,21 +8,16 @@ import (
 
 type Node struct {
 	common.BaseModel
-	ID     string
-	Name   string
-	Host   host.Host
-	HostID string
-	Labels []Label
+	ID        string
+	Name      string
+	Host      host.Host
+	HostID    string
+	ClusterID string
+	Labels    map[string]string `gorm:"-"`
 }
 
 func (n Node) LabelValue(name string) string {
-	result := ""
-	for _, label := range n.Labels {
-		if n.Name == name {
-			result = label.Value
-		}
-	}
-	return result
+	return n.Labels[name]
 }
 
 func (n Node) ToKobeHost() *api.Host {

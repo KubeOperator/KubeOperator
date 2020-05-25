@@ -14,4 +14,7 @@ const (
 	NodeRoleLabelKey   = "kubernetes.io/role"
 	NodeRoleNameMaster = "master"
 	NodeRoleNameWorker = "worker"
+
+	ClusterProviderBareMetal = "bareMetal"
+	ClusterProviderVSphere   = "vSphere"
 )

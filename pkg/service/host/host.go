@@ -8,10 +8,10 @@ import (
 
 func Page(num, size int) (host []hostModel.Host, total int, err error) {
 	err = db.DB.Model(hostModel.Host{}).
-		Find(&host).
+		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).
-		Count(&total).
+		Find(&host).
 		Error
 	return
 }

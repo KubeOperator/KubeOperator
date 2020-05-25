@@ -9,6 +9,7 @@ type Spec struct {
 	ID          string
 	ClusterID   string
 	Version     string
+	Provider    string
 	NetworkType string
 	RuntimeType string
 	ClusterCIDR string `gorm:"column:cluster_cidr"`

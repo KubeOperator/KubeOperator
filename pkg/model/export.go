@@ -13,9 +13,9 @@ type Interface interface {
 var Models = []Interface{
 	cluster.Cluster{},
 	cluster.Condition{},
-	cluster.Label{},
 	cluster.Spec{},
 	cluster.Status{},
+	cluster.Node{},
 	credential.Credential{},
 	host.Host{},
 }

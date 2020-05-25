@@ -3,7 +3,7 @@ module github.com/KubeOperator/KubeOperator
 go 1.14
 
 require (
-	github.com/KubeOperator/kobe v0.0.0-20200520032150-4cb9e9cd626f
+	github.com/KubeOperator/kobe v0.0.0-20200525102505-fb19aef08741
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/gin-gonic/gin v1.6.2

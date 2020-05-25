@@ -34,7 +34,7 @@ type Cluster struct {
 func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
 	var conditions []clusterModel.Condition
 	exist := false
-	for _, condition := range c.Status.Conditions {
+	for _, condition := range c.Conditions {
 		if condition.Name == newCondition.Name {
 			exist = true
 			if newCondition.Status != condition.Status {
@@ -55,7 +55,7 @@ func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
 		}
 		conditions = append(conditions, newCondition)
 	}
-	c.Status.Conditions = conditions
+	c.Conditions = conditions
 
 }
 
@@ -132,7 +132,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condi
 		return nil, errors.New("no create handlers")
 	}
 
-	if len(c.Status.Conditions) == 0 {
+	if len(c.Conditions) == 0 {
 		return &clusterModel.Condition{
 			Name:          ca.createHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
@@ -141,7 +141,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condi
 		}, nil
 	}
 
-	for _, condition := range c.Status.Conditions {
+	for _, condition := range c.Conditions {
 		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
 			return &condition, nil
 		}

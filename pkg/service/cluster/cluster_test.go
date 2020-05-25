@@ -26,20 +26,22 @@ func Init() {
 
 func TestSave(t *testing.T) {
 	Init()
-	item := clusterModel.Cluster{
-		Name: "test",
-		Spec: clusterModel.Spec{
-			Version:     "v1.18.2",
-			NetworkType: "calico",
-			ClusterCIDR: "172.16.10.142/8",
-			ServiceCIDR: "172.16.10.142/8",
-			Nodes:       []clusterModel.Node{},
-		},
+	for i := 0; i < 100; i++ {
+		item := clusterModel.Cluster{
+			Name: "test" + string(i),
+			Spec: clusterModel.Spec{
+				Version:     "v1.18.2",
+				NetworkType: "calico",
+				ClusterCIDR: "172.16.10.142/8",
+				ServiceCIDR: "172.16.10.142/8",
+			},
+		}
+		err := Save(&item)
+		if err != nil {
+			t.Fatalf("can not create item,%s", err)
+		}
 	}
-	err := Save(&item)
-	if err != nil {
-		t.Fatalf("can not create item,%s", err)
-	}
+
 }
 
 func TestList(t *testing.T) {

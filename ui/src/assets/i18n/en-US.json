@@ -10,6 +10,8 @@
   "APP_MODAL_FINISH": "Finish",
   "APP_SELECT_DEFAULT_OPTION_TITLE": "select",
   "APP_DELETE_WARNING": "The delete operation cannot be rolled back. Do you want to continue?",
+  "APP_PAGER_TOTAL": "total",
+  "APP_PAGER_PER_PAGE": "per page",
   "APP_CLUSTER": "Cluster",
   "APP_CLUSTER_FIELD_NAME": "name",
   "APP_CLUSTER_FIELD_VERSION": "version",
@@ -31,5 +33,4 @@
   "APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_DOCKER": "Docker",
   "APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD": "Containerd",
   "APP_CLUSTER_DELETE_TITLE": "Delete Cluster"
-
 }

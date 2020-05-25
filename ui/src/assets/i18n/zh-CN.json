@@ -10,6 +10,8 @@
   "APP_MODAL_FINISH": "完成",
   "APP_SELECT_DEFAULT_OPTION_TITLE": "请选择",
   "APP_DELETE_WARNING": "删除操作不可回滚，确认继续?",
+  "APP_PAGER_TOTAL": "总共",
+  "APP_PAGER_PER_PAGE": "每页",
   "APP_CLUSTER": "集群",
   "APP_CLUSTER_FIELD_NAME": "名称",
   "APP_CLUSTER_FIELD_VERSION": "版本",
