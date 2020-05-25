@@ -4,7 +4,7 @@
         <p>{{"APP_DELETE_WARNING"|translate}}</p>
     </div>
     <div class="modal-footer">
-        <button class="btn">{{"APP_MODAL_CANCEL"|translate}}</button>
-        <button class="btn btn-primary">{{"APP_MODAL_COMMIT"|translate}}</button>
+        <button class="btn" (click)="onCancel()">{{"APP_MODAL_CANCEL"|translate}}</button>
+        <button class="btn btn-primary" (click)="onSubmit()">{{"APP_MODAL_COMMIT"|translate}}</button>
     </div>
 </clr-modal>

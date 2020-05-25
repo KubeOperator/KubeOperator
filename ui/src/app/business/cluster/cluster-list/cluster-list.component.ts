@@ -15,6 +15,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     }
 
     ngOnInit(): void {
+        console.log(this.selected);
         super.ngOnInit();
     }
 

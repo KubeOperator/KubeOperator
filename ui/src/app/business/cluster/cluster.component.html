@@ -3,6 +3,6 @@
         <h2> {{ 'APP_CLUSTER' | translate }}</h2>
     </div>
     <app-cluster-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"></app-cluster-list>
-    <app-cluster-create></app-cluster-create>
-    <app-cluster-delete></app-cluster-delete>
+    <app-cluster-create (created)="refresh()"></app-cluster-create>
+    <app-cluster-delete (deleted)="refresh()"></app-cluster-delete>
 </div>

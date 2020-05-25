@@ -1,4 +1,5 @@
-<clr-wizard [(clrWizardOpen)]="opened" clrWizardSize="xl">
+<clr-wizard #wizard [(clrWizardOpen)]="opened" clrWizardSize="xl" (clrWizardOnFinish)="onSubmit()"
+            (clrWizardOnCancel)="onCancel()">
     <clr-wizard-title>{{"APP_CLUSTER_CREATE_TITLE"|translate}}</clr-wizard-title>
 
     <clr-wizard-button [type]="'cancel'">{{"APP_MODAL_CANCEL"|translate}}</clr-wizard-button>
@@ -11,12 +12,12 @@
         <form clrForm #clusterForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</label>
-                <input clrInput [size]="32"/>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name"/>
             </clr-input-container>
 
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</label>
-                <select clrSelect>
+                <select clrSelect name="version" [(ngModel)]="item.version">
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
                     <option>v1.18.0</option>
                     <option>v1.18.2</option>
@@ -25,7 +26,7 @@
 
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</label>
-                <select clrSelect>
+                <select clrSelect name="provider" [(ngModel)]="item.provider">
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
                     <option>{{"APP_CLUSTER_PROVIDER_OPTION_BARE_METAL"|translate}}</option>
                     <option>{{"APP_CLUSTER_PROVIDER_OPTION_VSPHERE"|translate}}</option>
@@ -33,7 +34,7 @@
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
-                <select clrSelect>
+                <select clrSelect name="runtime" [(ngModel)]="item.runtimeType">
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
                     <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_DOCKER"|translate}}</option>
                     <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD"|translate}}</option>
@@ -41,7 +42,7 @@
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
-                <select clrSelect>
+                <select clrSelect name="network" [(ngModel)]="item.networkType">
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
                     <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_FLANNEL"|translate}}</option>
                     <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_CALICO"|translate}}</option>
@@ -51,6 +52,12 @@
     </clr-wizard-page>
     <!--    <clr-wizard-page>-->
     <!--        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_NODE_INFO"|translate}}</ng-template>-->
+    <!--        <form>-->
+    <!--            <div *ngIf="item.provider == 'BareMetal'">-->
+    <!--               -->
+    <!--            </div>-->
+    <!--        </form>-->
+
     <!--    </clr-wizard-page>-->
 
 </clr-wizard>

@@ -29,6 +29,10 @@ export abstract class BaseModelComponent<T extends BaseModel> implements OnInit 
         this.deleteEvent.emit(this.selected);
     }
 
+    reset() {
+        this.selected = [];
+    }
+
     onUpdate(item: T) {
         this.updateEvent.emit(item);
     }
@@ -36,7 +40,6 @@ export abstract class BaseModelComponent<T extends BaseModel> implements OnInit 
     refresh() {
         this.loading = true;
         this.service.page(this.page, this.size).subscribe(data => {
-            console.log(data);
             this.items = data.items;
             this.total = data.total;
             this.loading = false;

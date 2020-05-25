@@ -31,10 +31,11 @@ export class ClusterComponent implements OnInit {
     }
 
     openDelete(items: Cluster[]) {
-        this.delete.open();
+        this.delete.open(items);
     }
 
     refresh() {
+        this.list.reset();
         this.list.refresh();
     }
 

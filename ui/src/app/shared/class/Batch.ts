@@ -1,11 +1,11 @@
 import {BaseModel} from './BaseModel';
 
 export class Batch<T extends BaseModel> {
-    constructor(method: string, items: T[]) {
-        this.method = method;
+    constructor(operation: string, items: T[]) {
+        this.operation = operation;
         this.items = items;
     }
 
-    method: string;
+    operation: string;
     items: T [] = [];
 }

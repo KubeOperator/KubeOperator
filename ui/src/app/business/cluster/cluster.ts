@@ -18,6 +18,7 @@ export class Status {
 export class ClusterCreateRequest extends BaseModel {
     name: string;
     version: string;
+    provider: string;
     networkType: string;
     runtimeType: string;
     clusterCIDR: string;

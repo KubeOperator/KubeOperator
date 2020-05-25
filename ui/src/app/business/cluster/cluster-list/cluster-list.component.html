@@ -18,8 +18,8 @@
     <clr-dg-column>{{"APP_CLUSTER_FIELD_UPDATED_DATE"|translate}}</clr-dg-column>
 
 
-    <clr-dg-row *ngFor="let item of items">
-        <clr-dg-cell>{{item.name}}</clr-dg-cell>
+    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+        <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{item.spec.version}}</clr-dg-cell>
         <clr-dg-cell>{{item.status.phase}}</clr-dg-cell>
         <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
@@ -27,10 +27,10 @@
     </clr-dg-row>
 
     <clr-dg-footer>
-        <clr-dg-pagination #pagination>
-            <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">每页</clr-dg-page-size>
+        <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
+                           (clrDgPageChange)="refresh()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-            总共 {{pagination.totalItems}} 主机
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_CLUSTER"|translate}}
         </clr-dg-pagination>
     </clr-dg-footer>
 </clr-datagrid>
