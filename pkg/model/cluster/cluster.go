@@ -14,7 +14,6 @@ type Cluster struct {
 	Spec       Spec        `gorm:"save_associations:false"`
 	Status     Status      `gorm:"save_associations:false"`
 	Nodes      []Node      `gorm:"save_associations:false"`
-	Conditions []Condition `gorm:"save_associations:false"`
 }
 
 func (c *Cluster) BeforeCreate() (err error) {

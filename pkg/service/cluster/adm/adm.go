@@ -34,7 +34,7 @@ type Cluster struct {
 func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
 	var conditions []clusterModel.Condition
 	exist := false
-	for _, condition := range c.Conditions {
+	for _, condition := range c.Status.Conditions {
 		if condition.Name == newCondition.Name {
 			exist = true
 			if newCondition.Status != condition.Status {
@@ -55,7 +55,7 @@ func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
 		}
 		conditions = append(conditions, newCondition)
 	}
-	c.Conditions = conditions
+	c.Status.Conditions = conditions
 
 }
 
@@ -74,6 +74,7 @@ func NewClusterAdm() (*ClusterAdm, error) {
 	ca := new(ClusterAdm)
 	ca.createHandlers = []Handler{
 		ca.EnsureDockerInstall,
+		ca.EnsureKubeletInstall,
 	}
 	return ca, nil
 }
@@ -84,7 +85,7 @@ func (ca *ClusterAdm) OnInitialize(cluster clusterModel.Cluster) (clusterModel.C
 		return cluster, err
 	}
 	err = ca.Create(c)
-	return cluster, err
+	return c.Cluster, err
 }
 
 func (ca *ClusterAdm) OnJoin(cluster clusterModel.Cluster) (clusterModel.Cluster, error) {
@@ -120,7 +121,6 @@ func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
 		return ConditionTypeDone
 	}
 	next := ca.createHandlers[i+1]
-
 	return next.name()
 }
 
@@ -132,16 +132,17 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condi
 		return nil, errors.New("no create handlers")
 	}
 
-	if len(c.Conditions) == 0 {
-		return &clusterModel.Condition{
-			Name:          ca.createHandlers[0].name(),
-			Status:        constant.ConditionUnknown,
-			LastProbeTime: time.Now(),
-			Message:       "waiting process",
-		}, nil
+	if len(c.Status.Conditions) == 0 {
+		for _, f := range ca.createHandlers {
+			c.setCondition(clusterModel.Condition{
+				Name:    f.name(),
+				Status:  constant.ConditionUnknown,
+				Message: "wait for process",
+			})
+		}
 	}
 
-	for _, condition := range c.Conditions {
+	for _, condition := range c.Status.Conditions {
 		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
 			return &condition, nil
 		}

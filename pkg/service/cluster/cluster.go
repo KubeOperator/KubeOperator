@@ -1,15 +1,14 @@
 package cluster
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	"log"
 	"time"
 )
-
-var log = logger.Default
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
 	err = db.DB.Model(clusterModel.Cluster{}).
@@ -33,6 +32,7 @@ func List() (clusters []clusterModel.Cluster, err error) {
 
 func Get(name string) (*clusterModel.Cluster, error) {
 	var result clusterModel.Cluster
+	result.Name = name
 	err := db.DB.First(&result).
 		Related(&result.Spec).
 		Related(&result.Status).Error
@@ -51,7 +51,11 @@ func Save(item *clusterModel.Cluster) error {
 			tx.Rollback()
 			return err
 		}
-		item.Status.ClusterID = item.ID
+		item.Status = clusterModel.Status{
+			ClusterID: item.ID,
+			Message:   "",
+			Phase:     constant.ClusterWaiting,
+		}
 		if err := db.DB.Create(&item.Status).Error; err != nil {
 			tx.Rollback()
 			return err
@@ -83,15 +87,18 @@ func Delete(name string) error {
 		tx.Rollback()
 		return err
 	}
-	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Spec{ClusterID: c.ID,}).Delete(clusterModel.Spec{}).Error; err != nil {
+	if err := db.DB.Where(clusterModel.Spec{ClusterID: c.ID,}).
+		Delete(clusterModel.Spec{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Status{ClusterID: c.ID,}).Delete(clusterModel.Status{}).Error; err != nil {
+	if err := db.DB.Where(clusterModel.Status{ClusterID: c.ID,}).
+		Delete(clusterModel.Status{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Node{ClusterID: c.ID,}).Delete(clusterModel.Node{}).Error; err != nil {
+	if err := db.DB.Where(clusterModel.Node{ClusterID: c.ID,}).
+		Delete(clusterModel.Node{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -103,9 +110,23 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	switch operation {
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
-		for _, item := range items {
-			err := db.DB.Model(clusterModel.Cluster{}).First(&item).Delete(&item).Error
-			if err != nil {
+		for _, c := range items {
+			if err := db.DB.First(&c).Delete(&c).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			if err := db.DB.Where(clusterModel.Spec{ClusterID: c.ID,}).
+				Delete(clusterModel.Spec{}).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			if err := db.DB.Where(clusterModel.Status{ClusterID: c.ID,}).
+				Delete(clusterModel.Status{}).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			if err := db.DB.Where(clusterModel.Node{ClusterID: c.ID,}).
+				Delete(clusterModel.Node{}).Error; err != nil {
 				tx.Rollback()
 				return nil, err
 			}
@@ -117,34 +138,40 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	return items, nil
 }
 
-func initCluster(c clusterModel.Cluster) {
+func InitCluster(c clusterModel.Cluster) {
 	ad, err := adm.NewClusterAdm()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-	c.Status.Phase = constant.ClusterWaiting
-	err = Save(&c)
+	c.Status.Phase = constant.ClusterInitializing
+	err = db.DB.Save(&c.Status).Error
 	if err != nil {
-		log.Debugf("can not save cluster status, msg: %s", err.Error())
+		log.Printf("can not save cluster status, msg: %s", err.Error())
 	}
+	c.Status.Conditions = []clusterModel.Condition{}
 	for {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
+			log.Fatal(err)
 		}
-		condition := resp.Conditions[len(resp.Conditions)-1]
+		finished := false
+		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
 		switch condition.Status {
 		case constant.ConditionFalse:
-			log.Debugf("cluster %s init fail, message:%s", c.Name, c.Status.Message)
-			return
+			log.Printf("cluster %s init fail, message:%s", c.Name, c.Status.Message)
+			finished = true
 		case constant.ConditionUnknown:
-			log.Debugf("cluster %s init...", c.Name)
+			log.Printf("cluster %s init...", c.Name)
 		case constant.ConditionTrue:
-			log.Debugf("cluster %s init success", c.Name)
-			return
+			log.Printf("cluster %s init success", c.Name)
+			finished = true
 		}
-		err = Save(&resp)
-		if err != nil {
-			log.Debugf("can not save cluster status, msg: %s", err.Error())
+		c.Status = resp.Status
+		for _, c := range c.Status.Conditions {
+			fmt.Println(c.Status)
+		}
+		if finished {
+			return
 		}
 		time.Sleep(5 * time.Second)
 	}

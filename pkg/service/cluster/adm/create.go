@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/docker"
-	"os"
+	"log"
 	"time"
 )
 
@@ -53,20 +52,11 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 }
 
 func (ca *ClusterAdm) EnsureDockerInstall(c *Cluster) error {
-	taskId, err := docker.Install(c.Kobe)
-	if err != nil {
-		return err
-	}
-	err = c.Kobe.Watch(os.Stdout, taskId)
-	if err != nil {
-		return err
-	}
-	result, err := c.Kobe.GetResult(taskId)
-	if err != nil {
-		return err
-	}
-	if result.Success {
-		return nil
-	}
+	log.Println("install docker...")
+	return nil
+}
+
+func (ca *ClusterAdm) EnsureKubeletInstall(c *Cluster) error {
+	log.Println("install kubelet...")
 	return nil
 }

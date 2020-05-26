@@ -7,11 +7,12 @@ import (
 
 type Status struct {
 	commonModel.BaseModel
-	ID        string
-	ClusterID string
-	Version   string
-	Message   string
-	Phase     string
+	ID         string
+	ClusterID  string
+	Version    string
+	Message    string
+	Phase      string
+	Conditions []Condition `gorm:"save_associations:false"`
 }
 
 func (s *Status) BeforeCreate() (err error) {

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"log"
 	"testing"
 )
 
@@ -86,4 +88,14 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Fatalf("can not delete item,%s", err)
 	}
+}
+
+func TestInitCluster(t *testing.T) {
+	Init()
+	logger.Init()
+	c, err := Get("test")
+	if err != nil {
+		t.Error(err)
+	}
+	InitCluster(*c)
 }
