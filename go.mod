@@ -28,6 +28,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200423211502-4bdfaf469ed5
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd // indirect
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
+	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20200425043458-8463f397d07c // indirect
 	k8s.io/apimachinery v0.18.2
 )
