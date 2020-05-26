@@ -11,7 +11,6 @@ const (
 	ConditionFalse   = "False"
 	ConditionUnknown = "Unknown"
 
-	NodeRoleLabelKey   = "kubernetes.io/role"
 	NodeRoleNameMaster = "master"
 	NodeRoleNameWorker = "worker"
 

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ClusterService} from '../cluster.service';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Cluster} from '../cluster';
@@ -14,9 +14,14 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         super(clusterService);
     }
 
+    @Output() statusDetailEvent = new EventEmitter<string>();
+
     ngOnInit(): void {
-        console.log(this.selected);
         super.ngOnInit();
+    }
+
+    onStatusDetail(name: string) {
+        this.statusDetailEvent.emit(name);
     }
 
 }

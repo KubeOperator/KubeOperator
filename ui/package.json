@@ -28,6 +28,7 @@
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
+    "xterm": "^4.6.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

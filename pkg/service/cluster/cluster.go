@@ -42,13 +42,10 @@ func Get(name string) (*clusterModel.Cluster, error) {
 
 func Save(item *clusterModel.Cluster) error {
 	if db.DB.NewRecord(item) {
-		item.ID = uuid.NewV4().String()
 		item.Spec.ID = uuid.NewV4().String()
-		item.Status = clusterModel.Status{
-			ID:      uuid.NewV4().String(),
-			Version: item.Spec.Version,
-			Message: "",
-			Phase:   constant.ClusterWaiting,
+		item.Status.ID = uuid.NewV4().String()
+		for _, node := range item.Nodes {
+			node.ID = uuid.NewV4().String()
 		}
 		err := db.DB.Create(&item).Error
 		if err != nil {

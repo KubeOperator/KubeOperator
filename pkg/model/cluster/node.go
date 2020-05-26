@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/model/host"
 	"github.com/KubeOperator/kobe/api"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Node struct {
@@ -13,13 +14,13 @@ type Node struct {
 	Host      host.Host
 	HostID    string
 	ClusterID string
-	Labels    map[string]string `gorm:"-"`
+	Role      string
 }
 
-func (n Node) LabelValue(name string) string {
-	return n.Labels[name]
+func (n *Node) BeforeCreate() (err error) {
+	n.ID = uuid.NewV4().String()
+	return nil
 }
-
 func (n Node) ToKobeHost() *api.Host {
 	return &api.Host{
 		Ip:       n.Host.Ip,

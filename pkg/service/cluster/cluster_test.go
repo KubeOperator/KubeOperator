@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"testing"
 )
@@ -26,22 +27,29 @@ func Init() {
 
 func TestSave(t *testing.T) {
 	Init()
-	for i := 0; i < 100; i++ {
-		item := clusterModel.Cluster{
-			Name: "test" + string(i),
-			Spec: clusterModel.Spec{
-				Version:     "v1.18.2",
-				NetworkType: "calico",
-				ClusterCIDR: "172.16.10.142/8",
-				ServiceCIDR: "172.16.10.142/8",
+	item := clusterModel.Cluster{
+		Name: "test",
+		Spec: clusterModel.Spec{
+			Version:     "v1.18.2",
+			NetworkType: "calico",
+			ClusterCIDR: "172.16.10.142/8",
+			ServiceCIDR: "172.16.10.142/8",
+		},
+		Nodes: []clusterModel.Node{
+			{
+				ID:   uuid.NewV4().String(),
+				Name: "node-1",
 			},
-		}
-		err := Save(&item)
-		if err != nil {
-			t.Fatalf("can not create item,%s", err)
-		}
+			{
+				ID:   uuid.NewV4().String(),
+				Name: "node-2",
+			},
+		},
 	}
-
+	err := Save(&item)
+	if err != nil {
+		t.Fatalf("can not create item,%s", err)
+	}
 }
 
 func TestList(t *testing.T) {

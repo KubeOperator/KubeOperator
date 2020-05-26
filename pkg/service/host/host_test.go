@@ -31,7 +31,7 @@ func TestSave(t *testing.T) {
 		ID:   uuid.NewV4().String(),
 		Name: "test",
 		Ip:   "1.1.1.1",
-		Port: 20,
+		Port: 22,
 	}
 	err := Save(&item)
 	if err != nil {

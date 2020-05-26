@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster/serializer"
 	clusterService "github.com/KubeOperator/KubeOperator/pkg/service/cluster"
 	"github.com/gin-gonic/gin"
@@ -114,9 +115,15 @@ func Create(ctx *gin.Context) {
 			NetworkType: req.NetworkType,
 		},
 		Status: clusterModel.Status{},
-		Nodes:  nil,
+		Nodes:  []clusterModel.Node{},
 	}
-
+	for _, n := range req.Nodes {
+		model.Nodes = append(model.Nodes, clusterModel.Node{
+			Name: n.Name,
+			Role: n.Role,
+			Host: hostModel.Host{Name: n.HostName},
+		})
+	}
 	err = clusterService.Save(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
