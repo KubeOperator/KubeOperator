@@ -3,6 +3,7 @@ package credential
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
 	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	invalidCredentialName = errors.New("invalid credential name")
+	invalidCredentialName = errors.New(i18n.Tr("invalid_credential_name", nil))
 )
 
 // ListCredential
@@ -75,7 +76,7 @@ func List(ctx *gin.Context) {
 // @Router /credentials/{credential_name} [get]
 func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
-	if name == "" {
+	if name == "test" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": invalidCredentialName.Error(),
 		})
@@ -112,7 +113,7 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := credentialModel.Credential{
-			Name: req.Name,
+		Name: req.Name,
 	}
 	err = credentialService.Save(&model)
 	if err != nil {
