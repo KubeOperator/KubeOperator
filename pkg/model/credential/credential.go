@@ -8,7 +8,7 @@ import (
 type Credential struct {
 	common.BaseModel
 	ID         string
-	Name       string
+	Name       string `gorm:"not null;unique"`
 	Username   string
 	Password   string
 	PrivateKey string

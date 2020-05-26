@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
-	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"log"
 	"testing"
@@ -28,10 +27,10 @@ func Init() {
 func TestSave(t *testing.T) {
 	Init()
 	item := hostModel.Host{
-		ID:   uuid.NewV4().String(),
-		Name: "test",
-		Ip:   "1.1.1.1",
-		Port: 22,
+		Name:         "test",
+		Ip:           "172.16.10.63",
+		Port:         22,
+		CredentialID: "4d73cc9e-2342-4628-b4aa-7461ef04ebca",
 	}
 	err := Save(&item)
 	if err != nil {

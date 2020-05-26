@@ -10,11 +10,11 @@ import (
 type Cluster struct {
 	common.BaseModel
 	ID         string
-	Name       string
-	Spec       Spec
-	Status     Status
-	Nodes      []Node
-	Conditions []Condition
+	Name       string      `gorm:"not null;unique"`
+	Spec       Spec        `gorm:"save_associations:false"`
+	Status     Status      `gorm:"save_associations:false"`
+	Nodes      []Node      `gorm:"save_associations:false"`
+	Conditions []Condition `gorm:"save_associations:false"`
 }
 
 func (c *Cluster) BeforeCreate() (err error) {

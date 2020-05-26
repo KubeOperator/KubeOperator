@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"testing"
@@ -39,10 +40,8 @@ func TestSave(t *testing.T) {
 			{
 				ID:   uuid.NewV4().String(),
 				Name: "node-1",
-			},
-			{
-				ID:   uuid.NewV4().String(),
-				Name: "node-2",
+				Role: "master",
+				Host: hostModel.Host{Name: "test"},
 			},
 		},
 	}
