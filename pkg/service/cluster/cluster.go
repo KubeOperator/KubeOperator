@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -42,15 +41,34 @@ func Get(name string) (*clusterModel.Cluster, error) {
 
 func Save(item *clusterModel.Cluster) error {
 	if db.DB.NewRecord(item) {
-		item.Spec.ID = uuid.NewV4().String()
-		item.Status.ID = uuid.NewV4().String()
-		for _, node := range item.Nodes {
-			node.ID = uuid.NewV4().String()
-		}
-		err := db.DB.Create(&item).Error
-		if err != nil {
+		tx := db.DB.Begin()
+		if err := db.DB.Create(&item).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
+		item.Spec.ClusterID = item.ID
+		if err := db.DB.Create(&item.Spec).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		item.Status.ClusterID = item.ID
+		if err := db.DB.Create(&item.Status).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, node := range item.Nodes {
+			node.ClusterID = item.ID
+			if err := db.DB.First(&node.Host).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			node.HostID = node.Host.ID
+			if err := db.DB.Create(&node).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		tx.Commit()
 		//go initCluster(*item)
 		return nil
 	} else {
@@ -59,10 +77,26 @@ func Save(item *clusterModel.Cluster) error {
 }
 
 func Delete(name string) error {
-	c := clusterModel.Cluster{
-		Name: name,
+	tx := db.DB.Begin()
+	c := clusterModel.Cluster{Name: name,}
+	if err := db.DB.First(&c).Delete(&c).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
-	return db.DB.First(&c).Delete(&c).Error
+	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Spec{ClusterID: c.ID,}).Delete(clusterModel.Spec{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Status{ClusterID: c.ID,}).Delete(clusterModel.Status{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := db.DB.First(&c).Delete(&c).Where(clusterModel.Node{ClusterID: c.ID,}).Delete(clusterModel.Node{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
 func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Cluster, error) {

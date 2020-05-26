@@ -10,7 +10,7 @@ type Host struct {
 	common.BaseModel
 	Credential   credential.Credential
 	ID           string
-	Name         string
+	Name         string `gorm:"not null;unique"`
 	Memory       string
 	CpuCore      int
 	Os           string
@@ -19,9 +19,7 @@ type Host struct {
 	GpuInfo      string
 	Ip           string
 	Port         int
-	CredentialId string
-	ClusterId    string
-	nodeId       string
+	CredentialID string
 	Status       string
 	Volumes      []Volume
 }

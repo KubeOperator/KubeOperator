@@ -10,8 +10,8 @@ import (
 type Node struct {
 	common.BaseModel
 	ID        string
-	Name      string
-	Host      host.Host
+	Name      string    `gorm:"not null;unique"`
+	Host      host.Host `gorm:"save_associations:false"`
 	HostID    string
 	ClusterID string
 	Role      string
