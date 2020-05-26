@@ -3,7 +3,6 @@ package credential
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 	"github.com/spf13/viper"
 	"log"
@@ -28,9 +27,7 @@ func Init() {
 func TestSave(t *testing.T) {
 	Init()
 	item := credentialModel.Credential{
-		BaseModel: common.BaseModel{
-			Name: "test",
-		},
+		Name:     "test",
 		Username: "root",
 		Password: "Calong@2015",
 	}

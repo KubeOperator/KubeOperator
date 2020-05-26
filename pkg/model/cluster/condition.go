@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -13,6 +14,11 @@ type Condition struct {
 	Status        string
 	Message       string
 	LastProbeTime time.Time
+}
+
+func (c *Condition) BeforeCreate() (err error) {
+	c.ID = uuid.NewV4().String()
+	return nil
 }
 
 func (c Condition) TableName() string {

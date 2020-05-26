@@ -3,6 +3,7 @@ package host
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/model/credential"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Host struct {
@@ -28,6 +29,11 @@ type Host struct {
 type Volume struct {
 	common.BaseModel
 	size string
+}
+
+func (h *Host) BeforeCreate() (err error) {
+	h.ID = uuid.NewV4().String()
+	return err
 }
 
 func (h Host) TableName() string {

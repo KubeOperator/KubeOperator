@@ -1,0 +1,31 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_CLUSTER_STATUS_DETAIL_TITLE"| translate}}</h3>
+    <div class="modal-body">
+        <ul class="clr-timeline clr-timeline-vertical">
+            <li class="clr-timeline-step">
+                <div class="clr-timeline-step-header">11:59 am</div>
+                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
+                <div class="clr-timeline-step-body">
+                    <span class="clr-timeline-step-title">Add KMS</span>
+                </div>
+            </li>
+            <li class="clr-timeline-step">
+                <div class="clr-timeline-step-header">11:59 am</div>
+                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
+                <div class="clr-timeline-step-body">
+                    <span class="clr-timeline-step-title">Add KMS</span>
+                </div>
+            </li>
+            <li class="clr-timeline-step">
+                <div class="clr-timeline-step-header">11:59 am</div>
+                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
+                <div class="clr-timeline-step-body">
+                    <span class="clr-timeline-step-title">Add KMS</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" (click)="onCancel()">{{"APP_MODAL_CANCEL"|translate}}</button>
+    </div>
+</clr-modal>

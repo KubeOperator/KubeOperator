@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/kobe/api"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Cluster struct {
@@ -16,6 +17,11 @@ type Cluster struct {
 	Conditions []Condition
 }
 
+func (c *Cluster) BeforeCreate() (err error) {
+	c.ID = uuid.NewV4().String()
+	return nil
+}
+
 func (c Cluster) TableName() string {
 	return "ko_cluster"
 }
@@ -26,7 +32,7 @@ func (c Cluster) ParseInventory() api.Inventory {
 	var hosts []*api.Host
 	for _, node := range c.Nodes {
 		hosts = append(hosts, node.ToKobeHost())
-		switch node.LabelValue(constant.NodeRoleLabelKey) {
+		switch node.Role {
 		case constant.NodeRoleNameMaster:
 			masters = append(masters, node.Name)
 		case constant.NodeRoleNameWorker:

@@ -21,7 +21,8 @@
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{item.spec.version}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status.phase}}</clr-dg-cell>
+        <clr-dg-cell><a (click)="onStatusDetail(item.name)" href="javascript:viod(0)">{{item.status.phase}}</a>
+        </clr-dg-cell>
         <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
         <clr-dg-cell>{{item.updateAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>

@@ -25,6 +25,12 @@ type Status struct {
 	Phase string `json:"phase"`
 }
 
+type Node struct {
+	Role     string `json:"role"`
+	Name     string `json:"name"`
+	HostName string `json:"hostName"`
+}
+
 func FromModel(model clusterModel.Cluster) Cluster {
 	return Cluster{
 		Name: model.Name,
@@ -63,6 +69,7 @@ type CreateClusterRequest struct {
 	RuntimeType string `json:"runtimeType"`
 	ClusterCIDR string `json:"clusterCIDR"`
 	ServiceCIDR string `json:"serviceCIDR"`
+	Nodes       []Node `json:"nodes"`
 }
 
 type DeleteClusterRequest struct {
