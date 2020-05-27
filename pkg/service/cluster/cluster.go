@@ -1,13 +1,9 @@
 package cluster
 
 import (
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"log"
-	"time"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -30,13 +26,19 @@ func List() (clusters []clusterModel.Cluster, err error) {
 	return
 }
 
-func Get(name string) (*clusterModel.Cluster, error) {
+func Get(name string) (clusterModel.Cluster, error) {
 	var result clusterModel.Cluster
 	result.Name = name
-	err := db.DB.First(&result).
+	if err := db.DB.Where(result).First(&result).Error; err != nil {
+		return result, err
+	}
+	if err := db.DB.First(&result).
 		Related(&result.Spec).
-		Related(&result.Status).Error
-	return &result, err
+		Related(&result.Status).Error; err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
 func Save(item *clusterModel.Cluster) error {
@@ -73,7 +75,7 @@ func Save(item *clusterModel.Cluster) error {
 			}
 		}
 		tx.Commit()
-		//go initCluster(*item)
+		go InitCluster(*item)
 		return nil
 	} else {
 		return db.DB.Save(&item).Error
@@ -138,41 +140,25 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	return items, nil
 }
 
-func InitCluster(c clusterModel.Cluster) {
-	ad, err := adm.NewClusterAdm()
-	if err != nil {
-		log.Println(err)
+func GetStatus(clusterName string) (clusterModel.Status, error) {
+	var cluster clusterModel.Cluster
+	var status clusterModel.Status
+	if err := db.DB.
+		Where(&clusterModel.Cluster{Name: clusterName}).
+		First(&cluster).Error; err != nil {
+		return status, err
 	}
-	c.Status.Phase = constant.ClusterInitializing
-	err = db.DB.Save(&c.Status).Error
-	if err != nil {
-		log.Printf("can not save cluster status, msg: %s", err.Error())
+	status.ClusterID = cluster.ID
+	if err := db.DB.
+		Where(status).
+		First(&status).Error; err != nil {
+		return status, err
 	}
-	c.Status.Conditions = []clusterModel.Condition{}
-	for {
-		resp, err := ad.OnInitialize(c)
-		if err != nil {
-			log.Fatal(err)
-		}
-		finished := false
-		condition := resp.Status.Conditions[len(resp.Status.Conditions)-1]
-		switch condition.Status {
-		case constant.ConditionFalse:
-			log.Printf("cluster %s init fail, message:%s", c.Name, c.Status.Message)
-			finished = true
-		case constant.ConditionUnknown:
-			log.Printf("cluster %s init...", c.Name)
-		case constant.ConditionTrue:
-			log.Printf("cluster %s init success", c.Name)
-			finished = true
-		}
-		c.Status = resp.Status
-		for _, c := range c.Status.Conditions {
-			fmt.Println(c.Status)
-		}
-		if finished {
-			return
-		}
-		time.Sleep(5 * time.Second)
+	if err := db.DB.
+		First(&status).
+		Order("last_probe_time asc").
+		Related(&status.Conditions).Error; err != nil {
+		return status, err
 	}
+	return status, nil
 }

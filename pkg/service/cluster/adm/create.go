@@ -1,9 +1,10 @@
 package adm
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"log"
 	"time"
 )
@@ -20,7 +21,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	err = f(c)
 	if err != nil {
-		c.setCondition(cluster.Condition{
+		c.setCondition(clusterModel.Condition{
 			Name:          condition.Name,
 			Status:        constant.ConditionFalse,
 			LastProbeTime: now,
@@ -30,7 +31,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 		return nil
 	}
 
-	c.setCondition(cluster.Condition{
+	c.setCondition(clusterModel.Condition{
 		Name:          condition.Name,
 		Status:        constant.ConditionTrue,
 		LastProbeTime: now,
@@ -40,10 +41,10 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	if nextConditionType == ConditionTypeDone {
 		c.Status.Phase = constant.ClusterRunning
 	} else {
-		c.setCondition(cluster.Condition{
+		c.setCondition(clusterModel.Condition{
 			Name:          nextConditionType,
 			Status:        constant.ConditionUnknown,
-			LastProbeTime: now,
+			LastProbeTime: time.Now(),
 			Message:       "waiting process",
 		})
 
@@ -53,10 +54,18 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsureDockerInstall(c *Cluster) error {
 	log.Println("install docker...")
+	time.Sleep(5 * time.Second)
 	return nil
 }
 
 func (ca *ClusterAdm) EnsureKubeletInstall(c *Cluster) error {
 	log.Println("install kubelet...")
+	time.Sleep(5 * time.Second)
+	return errors.New("aaabbbccc")
+}
+
+func (ca *ClusterAdm) EnsureClusterInit(c *Cluster) error {
+	log.Println("install cluster...")
+	time.Sleep(5 * time.Second)
 	return nil
 }

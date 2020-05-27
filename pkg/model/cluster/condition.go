@@ -13,6 +13,7 @@ type Condition struct {
 	StatusID      string
 	Status        string
 	Message       string
+	OrderNum      int
 	LastProbeTime time.Time
 }
 

@@ -17,11 +17,10 @@
     <clr-dg-column>{{"APP_CLUSTER_FIELD_CREATED_DATE"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_CLUSTER_FIELD_UPDATED_DATE"|translate}}</clr-dg-column>
 
-
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{item.spec.version}}</clr-dg-cell>
-        <clr-dg-cell><a (click)="onStatusDetail(item.name)" href="javascript:viod(0)">{{item.status.phase}}</a>
+        <clr-dg-cell><a (click)="onStatusDetail(item.name)" href="javascript:void(0)">{{item.status}}</a>
         </clr-dg-cell>
         <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
         <clr-dg-cell>{{item.updateAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>

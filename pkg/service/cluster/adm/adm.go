@@ -75,6 +75,7 @@ func NewClusterAdm() (*ClusterAdm, error) {
 	ca.createHandlers = []Handler{
 		ca.EnsureDockerInstall,
 		ca.EnsureKubeletInstall,
+		ca.EnsureClusterInit,
 	}
 	return ca, nil
 }
@@ -131,17 +132,14 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condi
 	if len(ca.createHandlers) == 0 {
 		return nil, errors.New("no create handlers")
 	}
-
 	if len(c.Status.Conditions) == 0 {
-		for _, f := range ca.createHandlers {
-			c.setCondition(clusterModel.Condition{
-				Name:    f.name(),
-				Status:  constant.ConditionUnknown,
-				Message: "wait for process",
-			})
-		}
+		return &clusterModel.Condition{
+			Name:          ca.createHandlers[0].name(),
+			Status:        constant.ConditionUnknown,
+			LastProbeTime: time.Now(),
+			Message:       "waiting process",
+		}, nil
 	}
-
 	for _, condition := range c.Status.Conditions {
 		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
 			return &condition, nil
