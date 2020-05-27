@@ -1,7 +1,6 @@
 package adm
 
 import (
-	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
@@ -55,13 +54,14 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 func (ca *ClusterAdm) EnsureDockerInstall(c *Cluster) error {
 	log.Println("install docker...")
 	time.Sleep(5 * time.Second)
+
 	return nil
 }
 
 func (ca *ClusterAdm) EnsureKubeletInstall(c *Cluster) error {
 	log.Println("install kubelet...")
 	time.Sleep(5 * time.Second)
-	return errors.New("aaabbbccc")
+	return nil
 }
 
 func (ca *ClusterAdm) EnsureClusterInit(c *Cluster) error {
