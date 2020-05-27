@@ -7,6 +7,7 @@ import (
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential/serializer"
 	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -58,7 +59,8 @@ func List(ctx *gin.Context) {
 		Items: []serializer.Credential{},
 		Total: total,
 	}
-	for _, model := range models {
+	for i, model := range models {
+		models[i].Password, _ = encrypt.StringDecrypt(model.Password)
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}
 
@@ -89,6 +91,13 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
+	model.Password, err = encrypt.StringDecrypt(model.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(http.StatusOK, serializer.GetCredentialResponse{
 		Item: serializer.FromModel(*model),
 	})
@@ -112,9 +121,16 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	model := credentialModel.Credential{
 		Name:       req.Name,
-		Password:   req.Password,
+		Password:   password,
 		PrivateKey: req.PrivateKey,
 		Type:       req.Type,
 		Username:   req.Username,
@@ -148,11 +164,18 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	c := serializer.Credential{
 		ID:         req.ID,
 		Name:       req.Name,
 		Username:   req.Username,
-		Password:   req.Password,
+		Password:   password,
 		PrivateKey: req.PrivateKey,
 		Type:       req.Type,
 	}
