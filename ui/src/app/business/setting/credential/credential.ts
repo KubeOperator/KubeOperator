@@ -11,6 +11,8 @@ export class Credential extends BaseModel {
 
 
 export class CredentialCreateRequest extends BaseRequest {
+    id: string;
+    name: string;
     username: string;
     password: string;
     privateKey: string;

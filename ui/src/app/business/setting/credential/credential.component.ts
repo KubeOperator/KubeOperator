@@ -5,6 +5,7 @@ import {CredentialDeleteComponent} from './credential-delete/credential-delete.c
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Credential} from './credential';
 import {CredentialService} from './credential.service';
+import {CredentialEditComponent} from './credential-edit/credential-edit.component';
 
 @Component({
     selector: 'app-credential',
@@ -23,6 +24,8 @@ export class CredentialComponent extends BaseModelComponent<Credential> implemen
     @ViewChild(CredentialDeleteComponent, {static: true})
     delete: CredentialDeleteComponent;
 
+    @ViewChild(CredentialEditComponent, {static: true})
+    edit: CredentialEditComponent;
 
     constructor(private credentialService: CredentialService) {
         super(credentialService);
@@ -37,6 +40,10 @@ export class CredentialComponent extends BaseModelComponent<Credential> implemen
 
     openDelete(items: Credential[]) {
         this.delete.open(items);
+    }
+
+    openEdit(item: Credential) {
+        this.edit.open(item);
     }
 
     refresh() {

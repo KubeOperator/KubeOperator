@@ -148,7 +148,15 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	model := serializer.ToModel(req.Item)
+	c := serializer.Credential{
+		ID:         req.ID,
+		Name:       req.Name,
+		Username:   req.Username,
+		Password:   req.Password,
+		PrivateKey: req.PrivateKey,
+		Type:       req.Type,
+	}
+	model := serializer.ToModel(c)
 	err = credentialService.Save(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

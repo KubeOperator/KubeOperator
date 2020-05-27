@@ -3,6 +3,7 @@
   "APP_NAV_HOST": "主机",
   "APP_ACTION_ADD": "添加",
   "APP_ACTION_DELETE": "删除",
+  "APP_ACTION_EDIT": "修改",
   "APP_MODAL_CANCEL": "取消",
   "APP_MODAL_COMMIT": "提交",
   "APP_MODAL_BACK": "上一步",

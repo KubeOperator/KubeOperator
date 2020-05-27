@@ -6,6 +6,7 @@ import (
 )
 
 type Credential struct {
+	ID         string    `json:"id"`
 	Name       string    `json:"name"`
 	Username   string    `json:"username"`
 	Password   string    `json:"password"`
@@ -17,6 +18,7 @@ type Credential struct {
 
 func FromModel(model credentialModel.Credential) Credential {
 	return Credential{
+		ID:         model.ID,
 		Name:       model.Name,
 		Username:   model.Username,
 		Password:   model.Password,
@@ -29,6 +31,7 @@ func FromModel(model credentialModel.Credential) Credential {
 
 func ToModel(c Credential) credentialModel.Credential {
 	return credentialModel.Credential{
+		ID:         c.ID,
 		Name:       c.Name,
 		Username:   c.Username,
 		Password:   c.Password,
@@ -59,7 +62,12 @@ type DeleteCredentialRequest struct {
 }
 
 type UpdateCredentialRequest struct {
-	Item Credential `json:"item" binding:"required"`
+	ID         string `json:"id"`
+	Name       string `json:"name" binding:"required"`
+	Type       string `json:"type"`
+	Password   string `json:"password"`
+	PrivateKey string `json:"privateKey"`
+	Username   string `json:"username"`
 }
 
 type BatchCredentialRequest struct {

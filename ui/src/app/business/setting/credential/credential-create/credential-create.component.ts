@@ -12,7 +12,6 @@ export class CredentialCreateComponent implements OnInit {
 
     opened = false;
     isSubmitGoing = false;
-
     item: CredentialCreateRequest = new CredentialCreateRequest();
     @ViewChild('credentialForm') credentialForm: NgForm;
     @Output() created = new EventEmitter();

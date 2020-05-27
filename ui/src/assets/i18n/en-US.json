@@ -3,6 +3,7 @@
   "APP_NAV_HOST": "Hosts",
   "APP_ACTION_ADD": "ADD",
   "APP_ACTION_DELETE": "DELETE",
+  "APP_ACTION_EDIT": "EDIT",
   "APP_MODAL_CANCEL": "Cancel",
   "APP_MODAL_COMMIT": "Commit",
   "APP_MODAL_BACK": "Back",
