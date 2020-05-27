@@ -12,6 +12,8 @@
   "APP_DELETE_WARNING": "The delete operation cannot be rolled back. Do you want to continue?",
   "APP_PAGER_TOTAL": "total",
   "APP_PAGER_PER_PAGE": "per page",
+  "APP_CREATED_DATE": "created date",
+  "APP_UPDATED_DATE": "updated date",
   "APP_CLUSTER": "Cluster",
   "APP_CLUSTER_FIELD_NAME": "name",
   "APP_CLUSTER_FIELD_VERSION": "version",
@@ -33,5 +35,10 @@
   "APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_DOCKER": "Docker",
   "APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD": "Containerd",
   "APP_CLUSTER_DELETE_TITLE": "Delete Cluster",
-  "APP_CLUSTER_STATUS_DETAIL_TITLE": "Status Detail"
+  "APP_CLUSTER_STATUS_DETAIL_TITLE": "Status Detail",
+  "APP_SYSTEM_SETTING": "System Setting",
+  "APP_CREDENTIAL": "Credential",
+  "APP_CREDENTIAL_NAME": "Name",
+  "APP_CREDENTIAL_USERNAME": "Username",
+  "APP_CREDENTIAL_TYPE": "Type",
 }
