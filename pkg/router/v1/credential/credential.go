@@ -113,7 +113,11 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := credentialModel.Credential{
-		Name: req.Name,
+		Name:       req.Name,
+		Password:   req.Password,
+		PrivateKey: req.PrivateKey,
+		Type:       req.Type,
+		Username:   req.Username,
 	}
 	err = credentialService.Save(&model)
 	if err != nil {

@@ -2,23 +2,38 @@ package serializer
 
 import (
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
+	"time"
 )
 
 type Credential struct {
-	Name     string `json:"name"`
-	Status   string `json:"status"`
-	Username string `json:"username"`
+	Name       string    `json:"name"`
+	Username   string    `json:"username"`
+	Password   string    `json:"password"`
+	PrivateKey string    `json:"privateKey"`
+	Type       string    `json:"type"`
+	CreateAt   time.Time `json:"createAt"`
+	UpdateAt   time.Time `json:"updateAt"`
 }
 
 func FromModel(model credentialModel.Credential) Credential {
 	return Credential{
-		Name: model.Name,
+		Name:       model.Name,
+		Username:   model.Username,
+		Password:   model.Password,
+		PrivateKey: model.PrivateKey,
+		Type:       model.Type,
+		CreateAt:   model.CreatedAt,
+		UpdateAt:   model.UpdatedAt,
 	}
 }
 
 func ToModel(c Credential) credentialModel.Credential {
 	return credentialModel.Credential{
-		Name: c.Name,
+		Name:       c.Name,
+		Username:   c.Username,
+		Password:   c.Password,
+		PrivateKey: c.PrivateKey,
+		Type:       c.Type,
 	}
 }
 
@@ -32,7 +47,11 @@ type GetCredentialResponse struct {
 }
 
 type CreateCredentialRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name       string `json:"name" binding:"required"`
+	Type       string `json:"type"`
+	Password   string `json:"password"`
+	PrivateKey string `json:"privateKey"`
+	Username   string `json:"username"`
 }
 
 type DeleteCredentialRequest struct {

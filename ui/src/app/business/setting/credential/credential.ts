@@ -1,4 +1,4 @@
-import {BaseModel} from '../../../shared/class/BaseModel';
+import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 
 export class Credential extends BaseModel {
     id: string;
@@ -7,4 +7,12 @@ export class Credential extends BaseModel {
     password: string;
     privateKey: string;
     type = 'password';
+}
+
+
+export class CredentialCreateRequest extends BaseRequest {
+    username: string;
+    password: string;
+    privateKey: string;
+    type: string;
 }

@@ -17,8 +17,4 @@ export class CredentialListComponent extends BaseModelComponent<Credential> impl
     ngOnInit(): void {
         super.ngOnInit();
     }
-
-    onCreate() {
-
-    }
 }

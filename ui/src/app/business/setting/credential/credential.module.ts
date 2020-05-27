@@ -6,6 +6,9 @@ import { CredentialDeleteComponent } from './credential-delete/credential-delete
 
 @NgModule({
   declarations: [CredentialDeleteComponent],
+  exports: [
+    CredentialDeleteComponent
+  ],
   imports: [
     CommonModule
   ]
