@@ -8,10 +8,10 @@ import (
 
 func Page(num, size int) (credentials []credentialModel.Credential, total int, err error) {
 	err = db.DB.Model(credentialModel.Credential{}).
+		Count(&total).
 		Find(&credentials).
 		Offset((num - 1) * size).
 		Limit(size).
-		Count(&total).
 		Error
 	return
 }
