@@ -36,11 +36,12 @@
   "APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD": "Containerd",
   "APP_CLUSTER_DELETE_TITLE": "Delete Cluster",
   "APP_CLUSTER_STATUS_DETAIL_TITLE": "Status Detail",
-  "APP_SYSTEM_SETTING": "System Setting",
+  "APP_SETTING": "System Setting",
   "APP_CREDENTIAL": "Credential",
   "APP_CREDENTIAL_NAME": "Name",
   "APP_CREDENTIAL_USERNAME": "Username",
   "APP_CREDENTIAL_TYPE": "Type",
   "APP_CREDENTIAL_PASSWORD": "Password",
   "APP_CREDENTIAL_PRIVATE_KEY": "Private Key",
+  "APP_CREDENTIAL_DELETE_TITLE": "Delete Credential",
 }

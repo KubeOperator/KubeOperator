@@ -35,12 +35,13 @@ export class CredentialComponent extends BaseModelComponent<Credential> implemen
         this.create.open();
     }
 
-    openDelete() {
-
+    openDelete(items: Credential[]) {
+        this.delete.open(items);
     }
 
     refresh() {
         this.list.reset();
         this.list.refresh();
     }
+
 }

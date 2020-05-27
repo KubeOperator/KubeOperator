@@ -46,9 +46,10 @@ func Batch(operation string, items []credentialModel.Credential) ([]credentialMo
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for _, item := range items {
-			err := db.DB.Model(credentialModel.Credential{}).Delete(&item).Error
+			err := db.DB.Model(credentialModel.Credential{}).First(&item).Delete(&item).Error
 			if err != nil {
 				tx.Rollback()
+				return nil, err
 			}
 		}
 		tx.Commit()
