@@ -21,12 +21,14 @@ type Host struct {
 	Port         int
 	CredentialID string
 	Status       string
+	NodeID       string
 	Volumes      []Volume
 }
 
 type Volume struct {
 	common.BaseModel
 	size string
+	name string
 }
 
 func (h *Host) BeforeCreate() (err error) {

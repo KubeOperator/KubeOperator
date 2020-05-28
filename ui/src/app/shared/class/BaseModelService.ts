@@ -11,8 +11,8 @@ export abstract class BaseModelService<T extends BaseModel> {
     protected constructor(protected http: HttpClient) {
     }
 
-    list(): Observable<T[]> {
-        return this.http.get<T[]>(this.baseUrl);
+    list(): Observable<Page<T>> {
+        return this.http.get<Page<T>>(this.baseUrl);
     }
 
     page(page, size): Observable<Page<T>> {

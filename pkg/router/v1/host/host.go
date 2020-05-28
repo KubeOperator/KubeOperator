@@ -111,7 +111,10 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := hostModel.Host{
-		Name: req.Name,
+		Name:         req.Name,
+		Ip:           req.Ip,
+		Port:         req.Port,
+		CredentialID: req.CredentialID,
 	}
 	err = hostService.Save(&model)
 	if err != nil {

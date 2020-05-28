@@ -1,1 +1,48 @@
-<p>host-list works!</p>
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
+    <clr-dg-action-bar>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+                <clr-icon shape="plus" size="16"></clr-icon>
+                {{"APP_ACTION_ADD"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
+                    [disabled]="selected.length!==1">
+                <clr-icon shape="note"></clr-icon>
+                {{"APP_ACTION_EDIT"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+                <clr-icon shape="close"></clr-icon>
+                {{"APP_ACTION_DELETE"|translate}}
+            </button>
+        </div>
+    </clr-dg-action-bar>
+    <clr-dg-column>{{'APP_HOST_NAME'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_CLUSTER'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_IP'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_CPU'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_MEMORY'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_GPU'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_OS'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_HOST_STATUS'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
+
+
+    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+        <clr-dg-cell>{{item.name}}</clr-dg-cell>
+        <clr-dg-cell>{{item.name}}</clr-dg-cell>
+        <clr-dg-cell>{{item.ip}}</clr-dg-cell>
+        <clr-dg-cell>{{item.cpuCore}}</clr-dg-cell>
+        <clr-dg-cell>{{item.memory}}</clr-dg-cell>
+        <clr-dg-cell>{{item.gpuNum}}</clr-dg-cell>
+        <clr-dg-cell>{{item.os}} {{item.osVersion}}</clr-dg-cell>
+        <clr-dg-cell>{{item.status}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
+                           (clrDgPageChange)="refresh()">
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_CREDENTIAL"|translate}}
+        </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>
