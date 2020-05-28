@@ -31,7 +31,7 @@ export class HostComponent implements OnInit {
     }
 
     openDelete(items: Host[]) {
-        // this.delete.open(items);
+        this.delete.open(items);
     }
 
     openEdit(item: Host) {
