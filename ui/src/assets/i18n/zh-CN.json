@@ -46,5 +46,13 @@
   "APP_CREDENTIAL_PASSWORD": "密码",
   "APP_CREDENTIAL_PRIVATE_KEY": "秘钥",
   "APP_CREDENTIAL_DELETE_TITLE": "删除秘钥",
-  "APP_HOST": "主机"
+  "APP_HOST": "主机",
+  "APP_HOST_NAME": "名称",
+  "APP_HOST_IP": "IP",
+  "APP_HOST_PORT": "端口",
+  "APP_HOST_CPU": "CPU(核)",
+  "APP_HOST_MEMORY": "内存(MB)",
+  "APP_HOST_GPU": "GPU(个)",
+  "APP_HOST_OS": "操作系统",
+  "APP_HOST_STATUS": "状态"
 }

@@ -46,5 +46,13 @@
   "APP_CREDENTIAL_PASSWORD": "Password",
   "APP_CREDENTIAL_PRIVATE_KEY": "Private Key",
   "APP_CREDENTIAL_DELETE_TITLE": "Delete Credential",
-  "APP_HOST": "Host"
+  "APP_HOST": "Host",
+  "APP_HOST_NAME": "Name",
+  "APP_HOST_IP": "IP",
+  "APP_HOST_PORT": "Port",
+  "APP_HOST_CPU": "Cpu",
+  "APP_HOST_MEMORY": "Memory",
+  "APP_HOST_GPU": "Gpu",
+  "APP_HOST_OS": "Operating System",
+  "APP_HOST_STATUS": "Status"
 }

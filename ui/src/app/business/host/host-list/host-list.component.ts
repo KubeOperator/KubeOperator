@@ -1,15 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {HostService} from '../host.service';
+import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {Host} from '../host';
 
 @Component({
-  selector: 'app-host-list',
-  templateUrl: './host-list.component.html',
-  styleUrls: ['./host-list.component.css']
+    selector: 'app-host-list',
+    templateUrl: './host-list.component.html',
+    styleUrls: ['./host-list.component.css']
 })
-export class HostListComponent implements OnInit {
+export class HostListComponent extends BaseModelComponent<Host> implements OnInit {
 
-  constructor() { }
+    constructor(private hostService: HostService) {
+        super(hostService);
+    }
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+        super.ngOnInit();
+    }
 
 }
