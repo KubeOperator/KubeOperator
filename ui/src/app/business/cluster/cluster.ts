@@ -3,15 +3,26 @@ import {BaseModel} from '../../shared/class/BaseModel';
 export class Cluster extends BaseModel {
     name: string;
     spec: Spec;
-    status: Status;
+    status: string;
 }
 
 export class Spec {
     version: string;
 }
 
+export class ClusterStatusResponse {
+    status: Status;
+}
+
 export class Status {
     phase: string;
+    conditions: Condition[] = [];
+}
+
+export class Condition {
+    status: string;
+    message: string;
+    name: string;
 }
 
 export class CreateNodeRequest {
@@ -30,4 +41,8 @@ export class ClusterCreateRequest extends BaseModel {
     clusterCIDR: string;
     serviceCIDR: string;
     Nodes: CreateNodeRequest[] = [];
+}
+
+export class InitClusterResponse {
+    message: string;
 }

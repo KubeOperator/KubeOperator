@@ -1,31 +1,29 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
     <h3 class="modal-title">{{"APP_CLUSTER_STATUS_DETAIL_TITLE"| translate}}</h3>
     <div class="modal-body">
+
         <ul class="clr-timeline clr-timeline-vertical">
-            <li class="clr-timeline-step">
+            <li class="clr-timeline-step" *ngFor="let condition of item.conditions" [ngSwitch]="condition.status">
                 <div class="clr-timeline-step-header">11:59 am</div>
-                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
+                <clr-icon shape="success-standard" aria-label="Completed" *ngSwitchCase="'True'"></clr-icon>
+                <clr-icon shape="error-standard" aria-label="Error" *ngSwitchCase="'False'"></clr-icon>
+                <clr-spinner clrMedium aria-label="In progress"
+                             *ngIf="getCurrentCondition()&&condition.name === getCurrentCondition().name">
+                    Fetching data
+                </clr-spinner>
+                <span *ngIf="getCurrentCondition()&&condition.name !== getCurrentCondition().name">
+                    <clr-icon shape="circle" aria-label="Not started" *ngSwitchCase="'Unknown'"></clr-icon>
+                </span>
                 <div class="clr-timeline-step-body">
-                    <span class="clr-timeline-step-title">Add KMS</span>
-                </div>
-            </li>
-            <li class="clr-timeline-step">
-                <div class="clr-timeline-step-header">11:59 am</div>
-                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
-                <div class="clr-timeline-step-body">
-                    <span class="clr-timeline-step-title">Add KMS</span>
-                </div>
-            </li>
-            <li class="clr-timeline-step">
-                <div class="clr-timeline-step-header">11:59 am</div>
-                <clr-icon shape="circle" aria-label="Not started"></clr-icon>
-                <div class="clr-timeline-step-body">
-                    <span class="clr-timeline-step-title">Add KMS</span>
+                    <span class="clr-timeline-step-title">{{condition.name}}</span>
+                    {{condition.message}}
                 </div>
             </li>
         </ul>
     </div>
     <div class="modal-footer">
         <button class="btn" (click)="onCancel()">{{"APP_MODAL_CANCEL"|translate}}</button>
+        <button *ngIf="item.phase ==='Failed'" class="btn btn-primary"
+                (click)="onInit()">{{"APP_MODAL_RETRY"|translate}}</button>
     </div>
 </clr-modal>

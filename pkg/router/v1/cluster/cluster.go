@@ -86,7 +86,7 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.GetClusterResponse{Item: serializer.FromModel(*model)})
+	ctx.JSON(http.StatusOK, serializer.GetClusterResponse{Item: serializer.FromModel(model)})
 }
 
 // CreateCluster
@@ -227,3 +227,44 @@ func Batch(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
+
+// GetClusterStatus
+// @Tags Cluster
+// @Summary Cluster
+// @Description Get Clusters Status
+// @Accept  json
+// @Produce json
+// @Param cluster_name path string true "cluster name"
+// @Success 200 {object} serializer.ClusterStatusResponse
+// @Router /clusters/{cluster_name}/status/ [get]
+func Status(ctx *gin.Context) {
+	clusterName := ctx.Param("name")
+	if clusterName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": invalidClusterNameError.Error(),
+		})
+		return
+	}
+	model, err := clusterService.GetStatus(clusterName)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	var resp serializer.ClusterStatusResponse
+	resp.Status = serializer.Status{
+		Phase:      model.Phase,
+		Conditions: make([]serializer.Condition, 0),
+	}
+	for _, condition := range model.Conditions {
+		resp.Status.Conditions = append(resp.Status.Conditions, serializer.Condition{
+			Name:    condition.Name,
+			Status:  condition.Status,
+			Message: condition.Message,
+		})
+	}
+	ctx.JSON(http.StatusOK, resp)
+}
+
+

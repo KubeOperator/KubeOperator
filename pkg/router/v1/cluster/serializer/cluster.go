@@ -8,7 +8,7 @@ import (
 type Cluster struct {
 	Name     string    `json:"name"`
 	Spec     Spec      `json:"spec"`
-	Status   Status    `json:"status"`
+	Status   string    `json:"status"`
 	CreateAt time.Time `json:"createAt"`
 	UpdateAt time.Time `json:"updateAt"`
 }
@@ -21,8 +21,15 @@ type Spec struct {
 	ServiceCIDR string `json:"serviceCIDR"`
 }
 
+type Condition struct {
+	Message string `json:"message"`
+	Status  string `json:"status"`
+	Name    string `json:"name"`
+}
+
 type Status struct {
-	Phase string `json:"phase"`
+	Phase      string      `json:"phase"`
+	Conditions []Condition `json:"conditions"`
 }
 
 type Node struct {
@@ -37,9 +44,7 @@ func FromModel(model clusterModel.Cluster) Cluster {
 		Spec: Spec{
 			Version: model.Spec.Version,
 		},
-		Status: Status{
-			Phase: model.Status.Phase,
-		},
+		Status:   model.Status.Phase,
 		CreateAt: model.CreatedAt,
 		UpdateAt: model.UpdatedAt,
 	}
@@ -89,4 +94,12 @@ type BatchClusterRequest struct {
 
 type BatchClusterResponse struct {
 	Items []Cluster `json:"items"`
+}
+
+type ClusterStatusResponse struct {
+	Status Status `json:"status"`
+}
+
+type InitClusterResponse struct {
+	Message string
 }

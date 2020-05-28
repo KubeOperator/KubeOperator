@@ -9,6 +9,7 @@
   "APP_MODAL_BACK": "Back",
   "APP_MODAL_NEXT": "Next",
   "APP_MODAL_FINISH": "Finish",
+  "APP_MODAL_RETRY": "Retry",
   "APP_SELECT_DEFAULT_OPTION_TITLE": "select",
   "APP_DELETE_WARNING": "The delete operation cannot be rolled back. Do you want to continue?",
   "APP_PAGER_TOTAL": "total",

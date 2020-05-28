@@ -13,7 +13,6 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
         "/clusters/": {
@@ -215,6 +214,70 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/serializer.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster_name}/init/": {
+            "post": {
+                "description": "Init Cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cluster"
+                ],
+                "summary": "Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "cluster_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.InitClusterResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{cluster_name}/status/": {
+            "get": {
+                "description": "Get Clusters Status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cluster"
+                ],
+                "summary": "Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "cluster_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.ClusterStatusResponse"
                         }
                     }
                 }
@@ -729,10 +792,32 @@
                     "$ref": "#/definitions/serializer.Spec"
                 },
                 "status": {
-                    "type": "object",
-                    "$ref": "#/definitions/serializer.Status"
+                    "type": "string"
                 },
                 "updateAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.ClusterStatusResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.Status"
+                }
+            }
+        },
+        "serializer.Condition": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -752,6 +837,12 @@
                 },
                 "networkType": {
                     "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Node"
+                    }
                 },
                 "runtimeType": {
                     "type": "string"
@@ -874,6 +965,14 @@
                 }
             }
         },
+        "serializer.InitClusterResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "serializer.ListClusterResponse": {
             "type": "object",
             "properties": {
@@ -916,6 +1015,20 @@
                 }
             }
         },
+        "serializer.Node": {
+            "type": "object",
+            "properties": {
+                "hostName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "serializer.Spec": {
             "type": "object",
             "properties": {
@@ -939,6 +1052,12 @@
         "serializer.Status": {
             "type": "object",
             "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Condition"
+                    }
+                },
                 "phase": {
                     "type": "string"
                 }

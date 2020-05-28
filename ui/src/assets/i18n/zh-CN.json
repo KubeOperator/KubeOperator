@@ -9,6 +9,7 @@
   "APP_MODAL_BACK": "上一步",
   "APP_MODAL_NEXT": "下一步",
   "APP_MODAL_FINISH": "完成",
+  "APP_MODAL_RETRY": "重试",
   "APP_SELECT_DEFAULT_OPTION_TITLE": "请选择",
   "APP_DELETE_WARNING": "删除操作不可回滚，确认继续?",
   "APP_PAGER_TOTAL": "总共",

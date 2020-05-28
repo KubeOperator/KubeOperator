@@ -65,9 +65,23 @@ definitions:
         $ref: '#/definitions/serializer.Spec'
         type: object
       status:
+        type: string
+      updateAt:
+        type: string
+    type: object
+  serializer.ClusterStatusResponse:
+    properties:
+      status:
         $ref: '#/definitions/serializer.Status'
         type: object
-      updateAt:
+    type: object
+  serializer.Condition:
+    properties:
+      message:
+        type: string
+      name:
+        type: string
+      status:
         type: string
     type: object
   serializer.CreateClusterRequest:
@@ -78,6 +92,10 @@ definitions:
         type: string
       networkType:
         type: string
+      nodes:
+        items:
+          $ref: '#/definitions/serializer.Node'
+        type: array
       runtimeType:
         type: string
       serviceCIDR:
@@ -160,6 +178,11 @@ definitions:
       status:
         type: string
     type: object
+  serializer.InitClusterResponse:
+    properties:
+      message:
+        type: string
+    type: object
   serializer.ListClusterResponse:
     properties:
       items:
@@ -187,6 +210,15 @@ definitions:
       total:
         type: integer
     type: object
+  serializer.Node:
+    properties:
+      hostName:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
   serializer.Spec:
     properties:
       clusterCIDR:
@@ -202,6 +234,10 @@ definitions:
     type: object
   serializer.Status:
     properties:
+      conditions:
+        items:
+          $ref: '#/definitions/serializer.Condition'
+        type: array
       phase:
         type: string
     type: object
@@ -229,7 +265,6 @@ definitions:
     required:
     - item
     type: object
-host: localhost:8080
 info:
   contact:
     email: support@fit2cloud.com
@@ -350,6 +385,48 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/serializer.Cluster'
+      summary: Cluster
+      tags:
+      - Cluster
+  /clusters/{cluster_name}/init/:
+    post:
+      consumes:
+      - application/json
+      description: Init Cluster
+      parameters:
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.InitClusterResponse'
+      summary: Cluster
+      tags:
+      - Cluster
+  /clusters/{cluster_name}/status/:
+    get:
+      consumes:
+      - application/json
+      description: Get Clusters Status
+      parameters:
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.ClusterStatusResponse'
       summary: Cluster
       tags:
       - Cluster
