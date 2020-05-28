@@ -8,6 +8,7 @@ import {ClusterRoutingResolverService} from './business/cluster/cluster-routing-
 import {OverviewComponent} from './business/cluster/cluster-detail/overview/overview.component';
 import {SettingComponent} from './business/setting/setting.component';
 import {CredentialComponent} from './business/setting/credential/credential.component';
+import {HostComponent} from './business/host/host.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -28,6 +29,10 @@ const routes: Routes = [
                     {path: '', redirectTo: 'overview', pathMatch: 'full'},
                     {path: 'overview', component: OverviewComponent},
                 ],
+            },
+            {
+                path: 'hosts',
+                component: HostComponent,
             },
             {
                 path: 'setting',

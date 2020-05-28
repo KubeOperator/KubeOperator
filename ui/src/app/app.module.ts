@@ -9,9 +9,6 @@ import {LayoutModule} from './layout/layout.module';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {BusinessModule} from './business/business.module';
-import { CredentialComponent } from './business/setting/credential/credential.component';
-import { CredentialListComponent } from './business/setting/credential/credential-list/credential-list.component';
-import { CredentialCreateComponent } from './business/setting/credential/credential-create/credential-create.component';
 import {ClrCommonFormsModule, ClrDatagridModule, ClrIconModule, ClrModalModule} from '@clr/angular';
 import {CoreModule} from './core/core.module';
 
@@ -22,10 +19,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 
 @NgModule({
     declarations: [
-        AppComponent,
-        CredentialComponent,
-        CredentialListComponent,
-        CredentialCreateComponent,
+        AppComponent
     ],
     imports: [
         BrowserModule,

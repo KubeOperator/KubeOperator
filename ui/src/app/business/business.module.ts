@@ -1,8 +1,8 @@
 import {NgModule} from '@angular/core';
 import {CoreModule} from '../core/core.module';
 import {ClusterModule} from './cluster/cluster.module';
-import {CredentialModule} from './setting/credential/credential.module';
 import {SettingModule} from './setting/setting.module';
+import {HostModule} from './host/host.module';
 
 
 @NgModule({
@@ -10,13 +10,13 @@ import {SettingModule} from './setting/setting.module';
     imports: [
         CoreModule,
         ClusterModule,
-        CredentialModule,
         SettingModule,
+        HostModule,
     ],
     exports: [
         ClusterModule,
         SettingModule,
-        CredentialModule,
+        HostModule,
     ]
 })
 export class BusinessModule {

@@ -45,4 +45,5 @@
   "APP_CREDENTIAL_PASSWORD": "Password",
   "APP_CREDENTIAL_PRIVATE_KEY": "Private Key",
   "APP_CREDENTIAL_DELETE_TITLE": "Delete Credential",
+  "APP_HOST": "Host"
 }

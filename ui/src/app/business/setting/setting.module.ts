@@ -1,16 +1,16 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {RouterModule} from '@angular/router';
-import {TranslateModule} from '@ngx-translate/core';
+import {CoreModule} from '../../core/core.module';
+import {CredentialModule} from './credential/credential.module';
 
 
 @NgModule({
     declarations: [SettingComponent],
     imports: [
-        CommonModule,
         RouterModule,
-        TranslateModule
+        CoreModule,
+        CredentialModule,
     ]
 })
 
