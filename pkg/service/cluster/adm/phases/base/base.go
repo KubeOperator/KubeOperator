@@ -16,10 +16,6 @@ func (s SystemConfigPhase) Name() string {
 	return "ConfigSystem"
 }
 
-func (s SystemConfigPhase) Run(b kobe.Interface) error {
-	_, err := phases.RunPlaybookAndGetResult(b, playbookNameBase)
-	if err != nil {
-		return err
-	}
-	return nil
+func (s SystemConfigPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+	return phases.RunPlaybookAndGetResult(b, playbookNameBase)
 }

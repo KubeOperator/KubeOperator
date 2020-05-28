@@ -16,10 +16,6 @@ func (s DockerRuntimePhase) Name() string {
 	return "Install Docker"
 }
 
-func (s DockerRuntimePhase) Run(b kobe.Interface) error {
-	_, err := phases.RunPlaybookAndGetResult(b, playbookNameDocker)
-	if err != nil {
-		return err
-	}
-	return nil
+func (s DockerRuntimePhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+	return phases.RunPlaybookAndGetResult(b, playbookNameDocker)
 }

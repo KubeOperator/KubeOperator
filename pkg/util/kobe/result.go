@@ -32,10 +32,32 @@ type Play struct {
 	Duration Duration `json:"duration"`
 	Tasks    []Task   `json:"tasks"`
 }
+type HostFailedInfo map[string]string
 
 type Result struct {
-	Stats map[string]Stat `json:"stats"`
-	Plays []Play          `json:"plays"`
+	Stats          map[string]Stat `json:"stats"`
+	Plays          []Play          `json:"plays"`
+	HostFailedInfo HostFailedInfo  `json:"-"`
+}
+
+func (r *Result) GatherFailedInfo() {
+	hostFailed := make(map[string]string)
+	for _, play := range r.Plays {
+		for _, task := range play.Tasks {
+			for name := range task.Hosts {
+				hostResult := task.Hosts[name]
+				val, ok := hostResult["failed"]
+				hostFailed[name] = ""
+				if ok && val.(bool) {
+					val, ok := hostResult["stderr"]
+					if ok {
+						hostFailed[name] = val.(string)
+					}
+				}
+			}
+		}
+	}
+	r.HostFailedInfo = hostFailed
 }
 
 func ParseResult(content string) (result Result, err error) {
