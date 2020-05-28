@@ -14,6 +14,21 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 	if c.Status.Phase != constant.ClusterFailed {
 		return errors.New("cluster status is not failed")
 	}
+	db.DB.
+		First(&c.Status).
+		Order("last_probe_time asc").
+		Related(&c.Status.Conditions)
+	if len(c.Status.Conditions) > 0 {
+		for i, _ := range c.Status.Conditions {
+			if c.Status.Conditions[i].Status == constant.ConditionFalse {
+				c.Status.Conditions[i].Status = constant.ConditionUnknown
+			}
+			err := db.DB.Save(&c.Status.Conditions[i]).Error
+			if err != nil {
+				log.Println(err.Error())
+			}
+		}
+	}
 	go InitCluster(c)
 	return nil
 }

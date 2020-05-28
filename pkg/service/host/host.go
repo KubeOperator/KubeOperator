@@ -57,3 +57,5 @@ func Batch(operation string, items []hostModel.Host) ([]hostModel.Host, error) {
 	}
 	return items, nil
 }
+
+

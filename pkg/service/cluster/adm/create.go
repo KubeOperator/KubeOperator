@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"log"
+	phase "github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/base"
 	"time"
 )
 
@@ -51,21 +51,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	return nil
 }
 
-func (ca *ClusterAdm) EnsureDockerInstall(c *Cluster) error {
-	log.Println("install docker...")
-	time.Sleep(5 * time.Second)
-
-	return nil
-}
-
-func (ca *ClusterAdm) EnsureKubeletInstall(c *Cluster) error {
-	log.Println("install kubelet...")
-	time.Sleep(5 * time.Second)
-	return nil
-}
-
-func (ca *ClusterAdm) EnsureClusterInit(c *Cluster) error {
-	log.Println("install cluster...")
-	time.Sleep(5 * time.Second)
-	return nil
+func (ca *ClusterAdm) EnsureSystemConfig(c *Cluster) error {
+	ph := phase.SystemConfigPhase{}
+	return ph.Run(c.Kobe)
 }

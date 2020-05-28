@@ -94,8 +94,17 @@ func Delete(name string) error {
 		tx.Rollback()
 		return err
 	}
-	if err := db.DB.Where(clusterModel.Status{ClusterID: c.ID,}).
+	var status clusterModel.Status
+	if err := db.DB.
+		Where(clusterModel.Status{ClusterID: c.ID,}).
+		First(&status).
 		Delete(clusterModel.Status{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := db.DB.
+		Where(clusterModel.Condition{StatusID: status.ID}).
+		Delete(clusterModel.Condition{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -122,8 +131,17 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 				tx.Rollback()
 				return nil, err
 			}
-			if err := db.DB.Where(clusterModel.Status{ClusterID: c.ID,}).
+			var status clusterModel.Status
+			if err := db.DB.
+				Where(clusterModel.Status{ClusterID: c.ID,}).
+				First(&status).
 				Delete(clusterModel.Status{}).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			if err := db.DB.
+				Where(clusterModel.Condition{StatusID: status.ID}).
+				Delete(clusterModel.Condition{}).Error; err != nil {
 				tx.Rollback()
 				return nil, err
 			}
