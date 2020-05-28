@@ -65,18 +65,19 @@ export class ClusterConditionComponent implements OnInit {
                     this.item.phase = data.status.phase;
                 }
                 if (data.status.phase !== 'running' || this.item.phase !== 'Failed') {
-                    data.status.conditions.forEach((n) => {
-                        this.item.conditions.forEach(condition => {
-                            if (condition.name === n.name) {
-                                if (condition.status !== n.status) {
-                                    condition.status = n.status;
-                                }
-                                if (condition.message !== n.message) {
-                                    condition.message = n.message;
-                                }
-                            }
-                        });
-                    });
+                    // data.status.conditions.forEach((n) => {
+                    //     this.item.conditions.forEach(condition => {
+                    //         if (condition.name === n.name) {
+                    //             if (condition.status !== n.status) {
+                    //                 condition.status = n.status;
+                    //             }
+                    //             if (condition.message !== n.message) {
+                    //                 condition.message = n.message;
+                    //             }
+                    //         }
+                    //     });
+                    // });
+                    this.item.conditions = data.status.conditions;
                 } else {
                     clearInterval(this.timer);
                 }

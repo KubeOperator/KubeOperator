@@ -43,7 +43,6 @@ func TestKobe_RunAdhoc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	println(res.Success)
 	println(res.Content)
 }
 
@@ -81,9 +80,5 @@ func TestKobe_RunPlaybook(t *testing.T) {
 		t.Fatal(err)
 	}
 	res, err := ansible.GetResult(resultId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	println(res.Success)
 	println(res.Content)
 }

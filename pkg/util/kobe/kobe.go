@@ -62,3 +62,4 @@ func (k *Kobe) Watch(writer io.Writer, taskId string) error {
 func (a *Kobe) GetResult(taskId string) (*api.Result, error) {
 	return a.client.GetResult(taskId)
 }
+
