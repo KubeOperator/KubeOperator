@@ -29,6 +29,8 @@ github.com/KubeOperator/kobe v0.0.0-20200520032150-4cb9e9cd626f h1:WmGrvLb6dxLQA
 github.com/KubeOperator/kobe v0.0.0-20200520032150-4cb9e9cd626f/go.mod h1:e652pKzmJGTag+nCxfAOHjBdqCMw0d61ScrW9ZFZSqs=
 github.com/KubeOperator/kobe v0.0.0-20200525102505-fb19aef08741 h1:xZ7+0ui/zaYxF7SnUq8TekKlfBFkTG8cpVJ7cSla2h4=
 github.com/KubeOperator/kobe v0.0.0-20200525102505-fb19aef08741/go.mod h1:1R40WrJtCEa93Jfs+4HGRZRGaOBjySHUq6pIvijB34U=
+github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589 h1:yiEUOtIUGKu+/hwhfFHZvkx2jB76rWvmF0PCcnUclcs=
+github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589/go.mod h1:1R40WrJtCEa93Jfs+4HGRZRGaOBjySHUq6pIvijB34U=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/Microsoft/go-winio v0.4.11/go.mod h1:VhR8bwka0BXejwEJY73c50VrPtXAaKcyvVC4A4RozmA=

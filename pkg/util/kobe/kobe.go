@@ -1,7 +1,6 @@
 package kobe
 
 import (
-	"fmt"
 	"github.com/KubeOperator/kobe/api"
 	kobeClient "github.com/KubeOperator/kobe/pkg/client"
 	"io"
@@ -11,6 +10,7 @@ type Interface interface {
 	RunPlaybook(name string) (string, error)
 	Watch(writer io.Writer, taskId string) error
 	GetResult(taskId string) (*api.Result, error)
+	SetVar(key string, value string)
 }
 
 type Config struct {
@@ -26,6 +26,7 @@ type Kobe struct {
 }
 
 func NewAnsible(c *Config) *Kobe {
+	c.Inventory.Vars = map[string]string{}
 	return &Kobe{
 		Project:   "ko",
 		Inventory: c.Inventory,
@@ -34,13 +35,15 @@ func NewAnsible(c *Config) *Kobe {
 }
 
 func (k *Kobe) RunPlaybook(name string) (string, error) {
-	fmt.Println(k.Inventory)
-
 	result, err := k.client.RunPlaybook(k.Project, name, k.Inventory)
 	if err != nil {
 		return "", err
 	}
 	return result.Id, nil
+}
+
+func (k *Kobe) SetVar(key string, value string) {
+	k.Inventory.Vars[key] = value
 }
 
 func (k *Kobe) RunAdhoc(pattern, module, param string) (string, error) {
@@ -62,4 +65,3 @@ func (k *Kobe) Watch(writer io.Writer, taskId string) error {
 func (a *Kobe) GetResult(taskId string) (*api.Result, error) {
 	return a.client.GetResult(taskId)
 }
-

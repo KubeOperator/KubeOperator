@@ -71,6 +71,9 @@ func TestKobe_RunPlaybook(t *testing.T) {
 			},
 		},
 	})
+
+	ansible.SetVar("bin_dir","/usr/local/bin")
+
 	resultId, err := ansible.RunPlaybook("01-base.yml")
 	if err != nil {
 		t.Fatal(err)
