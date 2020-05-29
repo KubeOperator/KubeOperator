@@ -6,6 +6,7 @@ import {NavigationComponent} from './navigation/navigation.component';
 import {AppAlertComponent} from './app-alert/app-alert.component';
 import {CoreModule} from '../core/core.module';
 import {RouterModule} from '@angular/router';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import {RouterModule} from '@angular/router';
     imports: [
         CoreModule,
         RouterModule,
+        SharedModule,
     ]
 })
 export class LayoutModule {

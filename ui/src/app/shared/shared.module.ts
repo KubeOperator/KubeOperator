@@ -1,11 +1,15 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {DatagridComponent} from './component/datagrid/datagrid.component';
 import {CoreModule} from '../core/core.module';
+import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.component';
+import { CommonAlertComponent } from './common-component/common-alert/common-alert.component';
 
 
 @NgModule({
-    declarations: [DatagridComponent],
+    declarations: [ModalAlertComponent, CommonAlertComponent],
+    exports: [
+        CommonAlertComponent
+    ],
     imports: [
         CommonModule,
         CoreModule
