@@ -21,10 +21,22 @@ func List() (credentials []credentialModel.Credential, err error) {
 	return
 }
 
-func Get(name string) (*credentialModel.Credential, error) {
+func Get(name string) (credentialModel.Credential, error) {
 	var result credentialModel.Credential
-	err := db.DB.Model(credentialModel.Credential{}).Where(&result).First(&result).Error
-	return &result, err
+	result.Name = name
+	if err := db.DB.Where(result).First(&result).Error; err != nil {
+		return result, err
+	}
+	return result, nil
+}
+
+func GetById(id string) (credentialModel.Credential, error) {
+	var result credentialModel.Credential
+	result.ID = id
+	if err := db.DB.Where(result).First(&result).Error; err != nil {
+		return result, err
+	}
+	return result, nil
 }
 
 func Save(item *credentialModel.Credential) error {

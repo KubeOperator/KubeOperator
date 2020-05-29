@@ -11,7 +11,7 @@ type Host struct {
 	Credential   credential.Credential
 	ID           string
 	Name         string `gorm:"not null;unique"`
-	Memory       string
+	Memory       int
 	CpuCore      int
 	Os           string
 	OsVersion    string

@@ -8,7 +8,7 @@ import (
 type Host struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
-	Memory       string    `json:"memory"`
+	Memory       int       `json:"memory"`
 	CpuCore      int       `json:"cpuCore"`
 	Os           string    `json:"os"`
 	OsVersion    string    `json:"osVersion"`

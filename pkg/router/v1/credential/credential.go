@@ -61,7 +61,7 @@ func List(ctx *gin.Context) {
 	}
 	for i, model := range models {
 		models[i].Password, _ = encrypt.StringDecrypt(model.Password)
-		resp.Items = append(resp.Items, serializer.FromModel(model))
+		resp.Items = append(resp.Items, serializer.FromModel(models[i]))
 	}
 
 	ctx.JSON(http.StatusOK, resp)
@@ -78,7 +78,7 @@ func List(ctx *gin.Context) {
 // @Router /credentials/{credential_name} [get]
 func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
-	if name == "test" {
+	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": invalidCredentialName.Error(),
 		})
@@ -99,7 +99,7 @@ func Get(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, serializer.GetCredentialResponse{
-		Item: serializer.FromModel(*model),
+		Item: serializer.FromModel(model),
 	})
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/host/serializer"
+	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
 	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -110,12 +111,29 @@ func Create(ctx *gin.Context) {
 		})
 		return
 	}
+	credential, err := credentialService.GetById(req.CredentialID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	model := hostModel.Host{
 		Name:         req.Name,
 		Ip:           req.Ip,
 		Port:         req.Port,
 		CredentialID: req.CredentialID,
+		Credential:   credential,
 	}
+	err = hostService.GetHostGpu(&model)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	go hostService.GetHostConfig(&model)
+
 	err = hostService.Save(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
