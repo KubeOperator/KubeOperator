@@ -4,6 +4,11 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
+	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
+)
+
+var (
+	deleteCredentialError = "delete credential error, %s"
 )
 
 func Page(num, size int) (credentials []credentialModel.Credential, total int, err error) {
@@ -54,19 +59,30 @@ func Delete(name string) error {
 }
 
 func Batch(operation string, items []credentialModel.Credential) ([]credentialModel.Credential, error) {
+	var deleteItems []credentialModel.Credential
 	switch operation {
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for _, item := range items {
-			err := db.DB.Model(credentialModel.Credential{}).First(&item).Delete(&item).Error
+			host, err := hostService.ListHostByCredentialID(item.ID)
+			if err != nil {
+				break
+				return nil, err
+			}
+			if len(host) > 0 {
+				//log.Fatalf(deleteCredentialError, err.Error())
+				continue
+			}
+			err = db.DB.Model(credentialModel.Credential{}).First(&item).Delete(&item).Error
 			if err != nil {
 				tx.Rollback()
 				return nil, err
 			}
+			deleteItems = append(deleteItems, item)
 		}
 		tx.Commit()
 	default:
 		return nil, constant.NotSupportedBatchOperation
 	}
-	return items, nil
+	return deleteItems, nil
 }

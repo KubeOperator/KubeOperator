@@ -1,2 +1,3 @@
 #credential
 invalid_credential_name: "invalid credential name"
+delete_credential_failed: "delete credential failed , credential has associated resources!"

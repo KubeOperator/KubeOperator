@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	getHostConfigError = "get host config error"
+	getHostConfigError = "get host config error,%s"
 )
 
 func Page(num, size int) (host []hostModel.Host, total int, err error) {
@@ -32,10 +32,13 @@ func List() (host []hostModel.Host, err error) {
 	return
 }
 
-func Get(name string) (*hostModel.Host, error) {
+func Get(name string) (hostModel.Host, error) {
 	var result hostModel.Host
-	err := db.DB.Model(hostModel.Host{}).Where(&result).First(&result).Error
-	return &result, err
+	result.Name = name
+	if err := db.DB.Where(result).First(&result).Error; err != nil {
+		return result, err
+	}
+	return result, nil
 }
 
 func Save(item *hostModel.Host) error {
@@ -71,7 +74,7 @@ func Batch(operation string, items []hostModel.Host) ([]hostModel.Host, error) {
 
 func GetHostGpu(host *hostModel.Host) error {
 
-	password, privateKey, err := getHostPasswordAndPrivateKey(host)
+	password, privateKey, err := GetHostPasswordAndPrivateKey(host)
 	if err != nil {
 		return err
 	}
@@ -98,9 +101,9 @@ func GetHostGpu(host *hostModel.Host) error {
 func GetHostConfig(host *hostModel.Host) error {
 
 	//TODO
-	password, _, err := getHostPasswordAndPrivateKey(host)
+	password, _, err := GetHostPasswordAndPrivateKey(host)
 	if err != nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 
@@ -130,32 +133,32 @@ func GetHostConfig(host *hostModel.Host) error {
 	})
 	resultId, err := ansible.RunAdhoc("master", "setup", "")
 	if err != nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 	err = ansible.Watch(os.Stdout, resultId)
 	if err != nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 	res, err := ansible.GetResult(resultId)
 	if err != nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 	result, err := kobe.ParseResult(res.Content)
 	if err != nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 	facts := result.Plays[0].Tasks[0].Hosts[host.Name]["ansible_facts"]
 	if facts == nil {
-		log.Fatal(getHostConfigError, err)
+		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	} else {
 		result, ok := facts.(map[string]interface{})
 		if !ok {
-			log.Fatal(getHostConfigError, err)
+			log.Fatalf(getHostConfigError, err.Error())
 			return err
 		}
 		host.Os = result["ansible_distribution"].(string)
@@ -164,14 +167,14 @@ func GetHostConfig(host *hostModel.Host) error {
 		host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
 		err = Save(host)
 		if err != nil {
-			log.Fatal(getHostConfigError, err)
+			log.Fatalf(getHostConfigError, err.Error())
 			return err
 		}
 	}
 	return nil
 }
 
-func getHostPasswordAndPrivateKey(host *hostModel.Host) (string, []byte, error) {
+func GetHostPasswordAndPrivateKey(host *hostModel.Host) (string, []byte, error) {
 	var err error = nil
 	password := ""
 	privateKey := []byte("")
@@ -179,7 +182,7 @@ func getHostPasswordAndPrivateKey(host *hostModel.Host) (string, []byte, error) 
 		pwd, err := encrypt.StringDecrypt(host.Credential.Password)
 		password = pwd
 		if err != nil {
-			log.Fatal(getHostConfigError, err)
+			log.Fatalf(getHostConfigError, err.Error())
 			return password, privateKey, err
 		}
 	}
@@ -187,4 +190,12 @@ func getHostPasswordAndPrivateKey(host *hostModel.Host) (string, []byte, error) 
 		privateKey = []byte(host.Credential.PrivateKey)
 	}
 	return password, privateKey, err
+}
+
+func ListHostByCredentialID(credentialID string) ([]hostModel.Host, error) {
+	var host []hostModel.Host
+	err := db.DB.Model(hostModel.Host{
+		CredentialID: credentialID,
+	}).Find(&host).Error
+	return host, err
 }

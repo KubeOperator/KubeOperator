@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	invalidCredentialName = errors.New(i18n.Tr("invalid_credential_name", nil))
+	invalidCredentialName  = errors.New(i18n.Tr("invalid_credential_name", nil))
+	deleteCredentialFailed = errors.New(i18n.Tr("invalid_credential_name", nil))
 )
 
 // ListCredential
@@ -243,6 +244,12 @@ func Batch(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
+		})
+		return
+	}
+	if len(models) == 0 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": deleteCredentialFailed.Error(),
 		})
 		return
 	}

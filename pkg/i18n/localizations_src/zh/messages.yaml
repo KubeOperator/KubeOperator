@@ -1,2 +1,3 @@
 #credential
 invalid_credential_name: "秘钥名称错误"
+delete_credential_failed: "删除秘钥失败，秘钥有关联资源!"

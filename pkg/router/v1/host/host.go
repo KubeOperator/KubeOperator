@@ -89,7 +89,7 @@ func Get(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, serializer.GetHostResponse{
-		Item: serializer.FromModel(*model),
+		Item: serializer.FromModel(model),
 	})
 }
 
