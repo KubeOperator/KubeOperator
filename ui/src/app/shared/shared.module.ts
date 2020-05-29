@@ -8,7 +8,8 @@ import { CommonAlertComponent } from './common-component/common-alert/common-ale
 @NgModule({
     declarations: [ModalAlertComponent, CommonAlertComponent],
     exports: [
-        CommonAlertComponent
+        CommonAlertComponent,
+        ModalAlertComponent
     ],
     imports: [
         CommonModule,

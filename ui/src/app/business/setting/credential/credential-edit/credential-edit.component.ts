@@ -1,8 +1,11 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {CredentialService} from '../credential.service';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {Credential} from '../credential';
 import {NgForm} from '@angular/forms';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {AlertLevels} from '../../../../shared/common-component/common-alert/alert';
+import {CommonAlertService} from '../../../../shared/common-component/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-credential-edit',
@@ -17,7 +20,8 @@ export class CredentialEditComponent implements OnInit {
     @ViewChild('credentialEditForm') credentialForm: NgForm;
     @Output() edit = new EventEmitter();
 
-    constructor(private service: CredentialService) {
+    constructor(private service: CredentialService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
@@ -36,9 +40,13 @@ export class CredentialEditComponent implements OnInit {
     onSubmit() {
         this.isSubmitGoing = true;
         this.service.update(this.item.name, this.item).subscribe(data => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_RES_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;
             this.isSubmitGoing = false;
             this.edit.emit();
+        }, error => {
+            this.isSubmitGoing = false;
+            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
         });
     }
 }

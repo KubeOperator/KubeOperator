@@ -6,13 +6,15 @@ import {CredentialEditComponent} from './credential-edit/credential-edit.compone
 import {CredentialListComponent} from './credential-list/credential-list.component';
 import {CredentialComponent} from './credential.component';
 import {CredentialCreateComponent} from './credential-create/credential-create.component';
+import {SharedModule} from '../../../shared/shared.module';
 
 
 @NgModule({
     declarations: [CredentialDeleteComponent, CredentialEditComponent, CredentialListComponent, CredentialComponent, CredentialCreateComponent],
     imports: [
         CommonModule,
-        CoreModule
+        CoreModule,
+        SharedModule
     ]
 })
 export class CredentialModule {
