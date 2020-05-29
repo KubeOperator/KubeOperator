@@ -34,6 +34,10 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) (result kobe
 				}
 			} else {
 				if res.Content != "" {
+					result, err = kobe.ParseResult(res.Content)
+					if err != nil {
+						return true, err
+					}
 					result.GatherFailedInfo()
 				}
 			}

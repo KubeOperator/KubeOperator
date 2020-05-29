@@ -7,17 +7,17 @@
     <clr-wizard-button [type]="'next'">{{"APP_MODAL_NEXT"|translate}}</clr-wizard-button>
     <clr-wizard-button [type]="'finish'">{{"APP_MODAL_FINISH"|translate}}</clr-wizard-button>
 
-    <clr-wizard-page>
+    <clr-wizard-page [clrWizardPageNextDisabled]="clusterForm.invalid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_CLUSTER_INFO"|translate}}</ng-template>
         <form clrForm #clusterForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.name"/>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
 
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</label>
-                <select clrSelect name="version" [(ngModel)]="item.version">
+                <select clrSelect name="version" [(ngModel)]="item.version" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
                     <option>v1.18.0</option>
                     <option>v1.18.2</option>
@@ -26,38 +26,78 @@
 
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</label>
-                <select clrSelect name="provider" [(ngModel)]="item.provider">
+                <select clrSelect name="provider" [(ngModel)]="item.provider" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>{{"APP_CLUSTER_PROVIDER_OPTION_BARE_METAL"|translate}}</option>
-                    <option>{{"APP_CLUSTER_PROVIDER_OPTION_VSPHERE"|translate}}</option>
+                    <option>Bare Metal</option>
+                    <option>vSphere</option>
                 </select>
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
-                <select clrSelect name="runtime" [(ngModel)]="item.runtimeType">
+                <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_DOCKER"|translate}}</option>
-                    <option>{{"APP_CLUSTER_CONTAINER_RUNTIME_TYPE_OPTION_CONTAINERD"|translate}}</option>
+                    <option>Docker</option>
+                    <option>Containerd</option>
                 </select>
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
-                <select clrSelect name="network" [(ngModel)]="item.networkType">
+                <select clrSelect name="network" [(ngModel)]="item.networkType" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_FLANNEL"|translate}}</option>
-                    <option>{{"APP_CLUSTER_CONTAINER_NETWORK_TYPE_OPTION_CALICO"|translate}}</option>
+                    <option>flannel</option>
+                    <option>calico</option>
                 </select>
             </clr-select-container>
         </form>
     </clr-wizard-page>
-    <clr-wizard-page>
+    <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
+                     (clrWizardPageNext)="fullNodes()">
         <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_NODE_INFO"|translate}}</ng-template>
         <form>
-            <div *ngIf="item.provider == 'BareMetal'">
-
+            <div>
+                <h3>masters</h3>
+                <hr/>
+                <l-select2 name="masters" [(ngModel)]="masters" [data]="hosts" [options]="options"
+                           (valueChange)="toggle('master')"></l-select2>
+            </div>
+            <div>
+                <h3>workers</h3>
+                <hr/>
+                <l-select2 name="workers" [(ngModel)]="workers" [data]="hosts" [options]="options"
+                           (valueChange)="toggle('worker')"></l-select2>
             </div>
         </form>
-
+    </clr-wizard-page>
+    <clr-wizard-page>
+        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_CONFIRM"|translate}}</ng-template>
+        <form>
+            <div>
+                <table class="table table-vertical">
+                    <tbody>
+                    <tr>
+                        <th>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</th>
+                        <td>{{item.name}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</th>
+                        <td>{{item.version}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</th>
+                        <td>{{item.provider}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</th>
+                        <td>{{item.networkType}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</th>
+                        <td>{{item.runtimeType}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
     </clr-wizard-page>
 
 </clr-wizard>

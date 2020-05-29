@@ -119,7 +119,6 @@ func Create(ctx *gin.Context) {
 	}
 	for _, n := range req.Nodes {
 		model.Nodes = append(model.Nodes, clusterModel.Node{
-			Name: n.Name,
 			Role: n.Role,
 			Host: hostModel.Host{Name: n.HostName},
 		})

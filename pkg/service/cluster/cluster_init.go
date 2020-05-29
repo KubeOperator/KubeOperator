@@ -35,7 +35,6 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 }
 
 func InitCluster(c clusterModel.Cluster) {
-	c.Nodes = []clusterModel.Node{}
 	ad, err := adm.NewClusterAdm()
 	if err != nil {
 		log.Println(err)
@@ -44,6 +43,11 @@ func InitCluster(c clusterModel.Cluster) {
 		First(&c.Status).
 		Order("last_probe_time asc").
 		Related(&c.Status.Conditions)
+	nodes, err := GetClusterNodes(c.Name)
+	if err != nil {
+		log.Println(err)
+	}
+	c.Nodes = nodes
 	if c.Status.Phase == constant.ClusterInitializing {
 		return
 	}

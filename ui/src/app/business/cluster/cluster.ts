@@ -26,7 +26,6 @@ export class Condition {
 }
 
 export class CreateNodeRequest {
-    name: string;
     role: string;
     hostName: string;
 }
@@ -40,7 +39,7 @@ export class ClusterCreateRequest extends BaseModel {
     runtimeType: string;
     clusterCIDR: string;
     serviceCIDR: string;
-    Nodes: CreateNodeRequest[] = [];
+    nodes: CreateNodeRequest[] = [];
 }
 
 export class InitClusterResponse {
