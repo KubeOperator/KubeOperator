@@ -1,6 +1,8 @@
 package adm
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
@@ -53,5 +55,13 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsureSystemConfig(c *Cluster) error {
 	ph := phase.SystemConfigPhase{}
-	return ph.Run(c.Kobe)
+	resp, err := ph.Run(c.Kobe)
+	if err != nil {
+		return err
+	}
+	if resp.HostFailedInfo != nil && len(resp.HostFailedInfo) > 0 {
+		by, _ := json.Marshal(resp.HostFailedInfo)
+		return errors.New(string(by))
+	}
+	return nil
 }

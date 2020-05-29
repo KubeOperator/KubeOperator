@@ -9,11 +9,11 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID         string
-	Name       string      `gorm:"not null;unique"`
-	Spec       Spec        `gorm:"save_associations:false"`
-	Status     Status      `gorm:"save_associations:false"`
-	Nodes      []Node      `gorm:"save_associations:false"`
+	ID     string
+	Name   string `gorm:"not null;unique"`
+	Spec   Spec   `gorm:"save_associations:false"`
+	Status Status `gorm:"save_associations:false"`
+	Nodes  []Node `gorm:"save_associations:false"`
 }
 
 func (c *Cluster) BeforeCreate() (err error) {
@@ -43,10 +43,8 @@ func (c Cluster) ParseInventory() api.Inventory {
 		Groups: []*api.Group{
 			{
 				Name:     constant.NodeRoleNameMaster,
-				Children: masters,
-			}, {
-				Name:     constant.NodeRoleNameWorker,
-				Children: workers,
+				Hosts:    masters,
+				Children: []string{},
 			},
 		},
 	}

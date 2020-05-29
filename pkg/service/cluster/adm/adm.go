@@ -63,6 +63,11 @@ func NewCluster(cluster clusterModel.Cluster) (*Cluster, error) {
 	c := &Cluster{
 		Cluster: cluster,
 	}
+	c.Kobe = kobe.NewAnsible(&kobe.Config{
+		Host:      "localhost",
+		Port:      8081,
+		Inventory: c.ParseInventory(),
+	})
 	return c, nil
 }
 

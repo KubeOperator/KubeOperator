@@ -9,7 +9,7 @@ import (
 func TestKobe_RunAdhoc(t *testing.T) {
 	ansible := NewAnsible(&Config{
 		Host: "localhost",
-		Port: 8081,
+		Port: 8080,
 		Inventory: api.Inventory{
 			Hosts: []*api.Host{
 				{
@@ -71,7 +71,10 @@ func TestKobe_RunPlaybook(t *testing.T) {
 			},
 		},
 	})
-	resultId, err := ansible.RunPlaybook("test.yml")
+
+	ansible.SetVar("bin_dir","/usr/local/bin")
+
+	resultId, err := ansible.RunPlaybook("01-base.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,5 +83,15 @@ func TestKobe_RunPlaybook(t *testing.T) {
 		t.Fatal(err)
 	}
 	res, err := ansible.GetResult(resultId)
-	println(res.Content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, _ := os.Create("a.json")
+	_, _ = f.Write([]byte(res.Content))
+	result, err := ParseResult(res.Content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result.GatherFailedInfo()
+	f.Close()
 }

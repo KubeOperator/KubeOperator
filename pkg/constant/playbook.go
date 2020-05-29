@@ -3,7 +3,7 @@ package constant
 var (
 	PlaybookBase                   = "01-base.yml"
 	PlaybookContainerd             = "02-containerd.yml"
-	PlaybookDocker                 = "02-docker.yml"
+	PlaybookDocker                 = "02-runtime.yml"
 	PlaybookKubernetesComponent    = "03-kubernetes-component.yml"
 	PlaybookLoadBalancer           = "04-load-balancer.yml"
 	PlaybookETCD                   = "05-etcd.yml"

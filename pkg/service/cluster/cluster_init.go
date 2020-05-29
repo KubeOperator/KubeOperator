@@ -22,6 +22,7 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 		for i, _ := range c.Status.Conditions {
 			if c.Status.Conditions[i].Status == constant.ConditionFalse {
 				c.Status.Conditions[i].Status = constant.ConditionUnknown
+				c.Status.Conditions[i].Message = ""
 			}
 			err := db.DB.Save(&c.Status.Conditions[i]).Error
 			if err != nil {
@@ -34,6 +35,7 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 }
 
 func InitCluster(c clusterModel.Cluster) {
+	c.Nodes = []clusterModel.Node{}
 	ad, err := adm.NewClusterAdm()
 	if err != nil {
 		log.Println(err)
