@@ -26,7 +26,10 @@
     "@ngx-translate/core": "^12.1.2",
     "@ngx-translate/http-loader": "^4.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",
+    "jquery": "^3.5.1",
+    "ngx-select2": "^0.3.0",
     "rxjs": "~6.5.4",
+    "select2": "^4.0.13",
     "tslib": "^1.10.0",
     "xterm": "^4.6.0",
     "zone.js": "~0.10.2"

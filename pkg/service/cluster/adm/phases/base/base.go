@@ -18,6 +18,6 @@ func (s SystemConfigPhase) Name() string {
 }
 
 func (s SystemConfigPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
-	b.SetVar("bin_dir", defaultBinDir)
+	//b.SetVar("bin_dir", defaultBinDir)
 	return phases.RunPlaybookAndGetResult(b, playbookNameBase)
 }

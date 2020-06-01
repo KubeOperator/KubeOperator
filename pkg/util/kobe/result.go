@@ -49,10 +49,11 @@ func (r *Result) GatherFailedInfo() {
 				val, ok := hostResult["failed"]
 				hostFailed[name] = ""
 				if ok && val.(bool) {
-					val, ok := hostResult["stderr"]
-					if ok {
-						hostFailed[name] = val.(string)
+					b, err := json.Marshal(hostResult)
+					if err != nil {
+						hostFailed[name] = err.Error()
 					}
+					hostFailed[name] = string(b)
 				}
 			}
 		}

@@ -10,7 +10,7 @@ import (
 type Cluster struct {
 	common.BaseModel
 	ID     string
-	Name   string `gorm:"not null;unique"`
+	Name   string
 	Spec   Spec   `gorm:"save_associations:false"`
 	Status Status `gorm:"save_associations:false"`
 	Nodes  []Node `gorm:"save_associations:false"`

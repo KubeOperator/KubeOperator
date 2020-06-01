@@ -4,6 +4,7 @@ import {AppRoutingModule} from '../app-routing.module';
 import {ClarityModule} from '@clr/angular';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
+import {LSelect2Module} from 'ngx-select2';
 
 
 @NgModule({
@@ -12,13 +13,15 @@ import {TranslateModule} from '@ngx-translate/core';
         CommonModule,
         FormsModule,
         ClarityModule,
-        TranslateModule
+        TranslateModule,
+        LSelect2Module,
     ],
     exports: [
         CommonModule,
         FormsModule,
         ClarityModule,
-        TranslateModule
+        TranslateModule,
+        LSelect2Module
     ]
 })
 export class CoreModule {

@@ -53,7 +53,7 @@ func TestKobe_RunPlaybook(t *testing.T) {
 		Inventory: api.Inventory{
 			Hosts: []*api.Host{
 				{
-					Ip:       "47.244.14.164",
+					Ip:       "172.16.10.142",
 					Name:     "test",
 					Port:     22,
 					User:     "root",
@@ -72,7 +72,7 @@ func TestKobe_RunPlaybook(t *testing.T) {
 		},
 	})
 
-	ansible.SetVar("bin_dir","/usr/local/bin")
+	//ansible.SetVar("bin_dir","/usr/local/bin")
 
 	resultId, err := ansible.RunPlaybook("01-base.yml")
 	if err != nil {

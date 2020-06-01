@@ -1,9 +1,11 @@
 package cluster
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -62,14 +64,28 @@ func Save(item *clusterModel.Cluster) error {
 			tx.Rollback()
 			return err
 		}
+		workerNo := 1
+		masterNo := 1
 		for _, node := range item.Nodes {
 			node.ClusterID = item.ID
+			switch node.Role {
+			case constant.NodeRoleNameMaster:
+				node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameMaster, masterNo)
+				masterNo++
+			case constant.NodeRoleNameWorker:
+				node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameWorker, workerNo)
+				workerNo++
+			}
 			if err := db.DB.First(&node.Host).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
-			node.HostID = node.Host.ID
 			if err := db.DB.Create(&node).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			node.Host.NodeID = node.ID
+			if err := db.DB.Save(&node.Host).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
@@ -156,6 +172,26 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 		return nil, constant.NotSupportedBatchOperation
 	}
 	return items, nil
+}
+
+func GetClusterNodes(name string) ([]clusterModel.Node, error) {
+	var cluster clusterModel.Cluster
+	if err := db.DB.
+		Where(clusterModel.Cluster{Name: name}).
+		Preload("Nodes").
+		First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	for i, _ := range cluster.Nodes {
+		if err := db.DB.
+			Preload("Credential").
+			Where(hostModel.Host{
+				NodeID: cluster.Nodes[i].ID,
+			}).First(&cluster.Nodes[i].Host).Error; err != nil {
+			return nil, err
+		}
+	}
+	return cluster.Nodes, nil
 }
 
 func GetStatus(clusterName string) (clusterModel.Status, error) {
