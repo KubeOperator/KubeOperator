@@ -90,12 +90,25 @@ func GetHostGpu(host *hostModel.Host) error {
 		Retry:       3,
 	})
 	if err != nil {
+		host.Status = hostModel.SshError
 		return err
 	}
 	if err := client.Ping(); err != nil {
+		host.Status = hostModel.Disconnect
 		return err
 	}
 	return err
+}
+
+func RunGetHostConfig(host *hostModel.Host) {
+	err := GetHostConfig(host)
+	if err != nil {
+		if sErr := Save(host); sErr != nil {
+		}
+		log.Fatalf("get host [%s] config failed reason: %s", host.Name, err.Error())
+	}
+	if sErr := Save(host); sErr != nil {
+	}
 }
 
 func GetHostConfig(host *hostModel.Host) error {
@@ -103,7 +116,6 @@ func GetHostConfig(host *hostModel.Host) error {
 	//TODO
 	password, _, err := GetHostPasswordAndPrivateKey(host)
 	if err != nil {
-		log.Fatalf(getHostConfigError, err.Error())
 		return err
 	}
 
@@ -133,41 +145,38 @@ func GetHostConfig(host *hostModel.Host) error {
 	})
 	resultId, err := ansible.RunAdhoc("master", "setup", "")
 	if err != nil {
-		log.Fatalf(getHostConfigError, err.Error())
+		host.Status = hostModel.AnsibleError
 		return err
 	}
-	err = ansible.Watch(os.Stdout, resultId)
-	if err != nil {
-		log.Fatalf(getHostConfigError, err.Error())
+	if err = ansible.Watch(os.Stdout, resultId); err != nil {
+		host.Status = hostModel.AnsibleError
 		return err
 	}
 	res, err := ansible.GetResult(resultId)
 	if err != nil {
-		log.Fatalf(getHostConfigError, err.Error())
+		host.Status = hostModel.AnsibleError
 		return err
 	}
 	result, err := kobe.ParseResult(res.Content)
 	if err != nil {
-		log.Fatalf(getHostConfigError, err.Error())
+		host.Status = hostModel.AnsibleError
 		return err
 	}
 	facts := result.Plays[0].Tasks[0].Hosts[host.Name]["ansible_facts"]
 	if facts == nil {
-		log.Fatalf(getHostConfigError, err.Error())
+		host.Status = hostModel.AnsibleError
 		return err
 	} else {
 		result, ok := facts.(map[string]interface{})
 		if !ok {
-			log.Fatalf(getHostConfigError, err.Error())
 			return err
 		}
 		host.Os = result["ansible_distribution"].(string)
 		host.OsVersion = result["ansible_distribution_version"].(string)
 		host.Memory = int(result["ansible_memtotal_mb"].(float64))
 		host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
-		err = Save(host)
-		if err != nil {
-			log.Fatalf(getHostConfigError, err.Error())
+
+		if err = Save(host); err != nil {
 			return err
 		}
 	}

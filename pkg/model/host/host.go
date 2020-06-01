@@ -6,6 +6,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const (
+	Running      string = "Running"
+	Waring       string = "Warning"
+	Disconnect   string = "DisConnect"
+	SshError     string = "SshError"
+	AnsibleError string = "AnsibleError"
+)
+
 type Host struct {
 	common.BaseModel
 	Credential   credential.Credential

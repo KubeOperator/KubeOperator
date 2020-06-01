@@ -1,6 +1,7 @@
 package credential
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	credentialModel "github.com/KubeOperator/KubeOperator/pkg/model/credential"
@@ -62,4 +63,12 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Fatalf("can not delete item,%s", err)
 	}
+}
+
+func TestSomething(t *testing.T) {
+	test := "123"
+	if test = "222"; test != "" {
+		fmt.Println("success")
+	}
+	fmt.Println(test)
 }

@@ -124,15 +124,20 @@ func Create(ctx *gin.Context) {
 		Port:         req.Port,
 		CredentialID: req.CredentialID,
 		Credential:   credential,
+		Status:       hostModel.Running,
 	}
 	err = hostService.GetHostGpu(&model)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
+		err := hostService.Save(&model)
+		if err != nil {
+			return
+		}
 		return
 	}
-	go hostService.GetHostConfig(&model)
+	go hostService.RunGetHostConfig(&model)
 
 	err = hostService.Save(&model)
 	if err != nil {
