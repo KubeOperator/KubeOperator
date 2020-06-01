@@ -25,18 +25,12 @@ type Host struct {
 	OsVersion    string
 	GpuNum       int
 	GpuInfo      string
-	Ip           string
+	Ip           string `gorm:"not null;unique"`
 	Port         int
 	CredentialID string
 	Status       string
 	NodeID       string
 	Volumes      []Volume
-}
-
-type Volume struct {
-	common.BaseModel
-	size string
-	name string
 }
 
 func (h *Host) BeforeCreate() (err error) {

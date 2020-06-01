@@ -19,5 +19,6 @@ var Models = []Interface{
 	cluster.Node{},
 	credential.Credential{},
 	host.Host{},
+	host.Volume{},
 	user.User{},
 }

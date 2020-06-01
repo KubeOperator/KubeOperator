@@ -1,6 +1,7 @@
 package host
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
@@ -8,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
+	uuid "github.com/satori/go.uuid"
 	"log"
 	"os"
 	"time"
@@ -50,9 +52,19 @@ func Save(item *hostModel.Host) error {
 }
 
 func Delete(name string) error {
+	tx := db.DB.Begin()
 	var h hostModel.Host
 	h.Name = name
-	return db.DB.Delete(&h).Error
+	if err := db.DB.Delete(&h).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := db.DB.Where(hostModel.Volume{HostID: h.ID}).Delete(hostModel.Volume{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
 func Batch(operation string, items []hostModel.Host) ([]hostModel.Host, error) {
@@ -107,6 +119,7 @@ func RunGetHostConfig(host *hostModel.Host) {
 		}
 		log.Fatalf("get host [%s] config failed reason: %s", host.Name, err.Error())
 	}
+	fmt.Println(host)
 	if sErr := Save(host); sErr != nil {
 	}
 }
@@ -176,6 +189,22 @@ func GetHostConfig(host *hostModel.Host) error {
 		host.Memory = int(result["ansible_memtotal_mb"].(float64))
 		host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
 
+		devices := result["ansible_devices"].(map[string]interface{})
+
+		var volumes []hostModel.Volume
+		for index, _ := range devices {
+			device := devices[index].(map[string]interface{})
+			if "Virtual disk" == device["model"] {
+				v := hostModel.Volume{
+					ID:     uuid.NewV4().String(),
+					Name:   index,
+					Size:   device["size"].(string),
+					HostID: host.ID,
+				}
+				volumes = append(volumes, v)
+			}
+		}
+		host.Volumes = volumes
 		if err = Save(host); err != nil {
 			return err
 		}

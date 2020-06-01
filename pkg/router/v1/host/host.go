@@ -8,6 +8,7 @@ import (
 	credentialService "github.com/KubeOperator/KubeOperator/pkg/service/credential"
 	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
 )
 
@@ -119,6 +120,7 @@ func Create(ctx *gin.Context) {
 		return
 	}
 	model := hostModel.Host{
+		ID:           uuid.NewV4().String(),
 		Name:         req.Name,
 		Ip:           req.Ip,
 		Port:         req.Port,
@@ -131,10 +133,6 @@ func Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
 		})
-		err := hostService.Save(&model)
-		if err != nil {
-			return
-		}
 		return
 	}
 	go hostService.RunGetHostConfig(&model)
