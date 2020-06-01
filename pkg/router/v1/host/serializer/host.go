@@ -125,7 +125,8 @@ type DeleteHostResponse struct {
 }
 
 type UpdateHostRequest struct {
-	Item Host `json:"item" binding:"required"`
+	Name         string `json:"name" binding:"required"`
+	CredentialID string `json:"credentialId" binding:"required"`
 }
 
 type UpdateHostResponse struct {

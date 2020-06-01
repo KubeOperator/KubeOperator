@@ -166,15 +166,15 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
-	model := serializer.ToModel(req.Item)
-	err = hostService.Save(&model)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"msg": err.Error(),
-		})
-		return
-	}
-	ctx.JSON(http.StatusOK, serializer.FromModel(model))
+	//model := serializer.ToModel(req)
+	//err = hostService.Save(&model)
+	//if err != nil {
+	//	ctx.JSON(http.StatusInternalServerError, gin.H{
+	//		"msg": err.Error(),
+	//	})
+	//	return
+	//}
+	//ctx.JSON(http.StatusOK, serializer.FromModel(model))
 }
 
 // DeleteHost
@@ -238,4 +238,54 @@ func Batch(ctx *gin.Context) {
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}
 	ctx.JSON(http.StatusOK, resp)
+}
+
+// SyncHost
+// @Tags Host
+// @Summary Host
+// @Description sync Host
+// @Accept  json
+// @Produce json
+// @Param request body serializer.UpdateHostRequest true "host"
+// @Success 200 {object} serializer.Host
+// @Router /hosts/ [post]
+func Sync(ctx *gin.Context) {
+	var req serializer.UpdateHostRequest
+	err := ctx.ShouldBind(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	model, err := hostService.Get(req.Name)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	credential, err := credentialService.GetById(model.CredentialID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	model.Credential = credential
+	err = hostService.GetHostConfig(&model)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	err = hostService.Save(&model)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, serializer.FromModel(model))
 }

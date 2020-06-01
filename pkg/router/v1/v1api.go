@@ -18,6 +18,7 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1HostApi.PATCH("/:name/", host.Update)
 			v1HostApi.DELETE("/:name/", host.Delete)
 			v1HostApi.POST("/batch/", host.Batch)
+			v1HostApi.PATCH("/:name/sync/", host.Sync)
 		}
 		v1ClusterApi := v1Api.Group("/clusters")
 		{

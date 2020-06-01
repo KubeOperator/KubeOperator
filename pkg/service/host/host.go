@@ -1,6 +1,7 @@
 package host
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -179,7 +180,13 @@ func GetHostConfig(host *hostModel.Host) error {
 		host.Status = hostModel.AnsibleError
 		return err
 	}
-	facts := result.Plays[0].Tasks[0].Hosts[host.Name]["ansible_facts"]
+	var facts interface{}
+	if len(result.Plays) > 0 && len(result.Plays[0].Tasks) > 0 {
+		facts = result.Plays[0].Tasks[0].Hosts[host.Name]["ansible_facts"]
+	} else {
+		return errors.New("no result return")
+	}
+
 	if facts == nil {
 		host.Status = hostModel.AnsibleError
 		return err
