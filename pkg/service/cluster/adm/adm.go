@@ -85,6 +85,7 @@ func NewClusterAdm() (*ClusterAdm, error) {
 		ca.EnsurePrepareBaseSystemConfig,
 		ca.EnsurePrepareContainerRuntime,
 		ca.EnsurePrepareKubernetesComponent,
+		ca.EnsurePrepareLoadBalancer,
 		ca.EnsurePrepareCertificates,
 		ca.EnsureInitEtcd,
 		ca.EnsureInitKubeConfig,
@@ -101,6 +102,3 @@ func (ca *ClusterAdm) OnInitialize(cluster clusterModel.Cluster) (clusterModel.C
 	err = ca.Create(c)
 	return c.Cluster, err
 }
-
-
-

@@ -132,6 +132,12 @@ func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(c *Cluster) (kobe.Result,
 	phase := prepare.KubernetesComponentPhase{}
 	return phase.Run(c.Kobe)
 }
+
+func (ca *ClusterAdm) EnsurePrepareLoadBalancer(c *Cluster) (kobe.Result, error) {
+	phase := prepare.LoadBalancerPhase{}
+	return phase.Run(c.Kobe)
+}
+
 func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) (kobe.Result, error) {
 	phase := prepare.CertificatesPhase{}
 	return phase.Run(c.Kobe)
