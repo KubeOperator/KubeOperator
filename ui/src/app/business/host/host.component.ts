@@ -34,10 +34,6 @@ export class HostComponent implements OnInit {
         this.delete.open(items);
     }
 
-    openEdit(item: Host) {
-        // this.edit.open(item);
-    }
-
     refresh() {
         this.list.reset();
         this.list.refresh();

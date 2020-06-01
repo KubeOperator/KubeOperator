@@ -5,11 +5,6 @@
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ACTION_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
-                    [disabled]="selected.length!==1">
-                <clr-icon shape="note"></clr-icon>
-                {{"APP_ACTION_EDIT"|translate}}
-            </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_ACTION_DELETE"|translate}}
