@@ -101,12 +101,4 @@ type Cluster struct {
 	ID string
 }
 
-func TestInitCluster(t *testing.T) {
-	Init()
-	inventory, err := GetKobeInventory("test")
-	if err != nil {
-		t.Error(err.Error())
-	}
-	fmt.Println(inventory)
 
-}
