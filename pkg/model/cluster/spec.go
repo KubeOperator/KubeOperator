@@ -7,14 +7,16 @@ import (
 
 type Spec struct {
 	common.BaseModel
-	ID          string
-	ClusterID   string
-	Version     string
-	Provider    string
-	NetworkType string
-	RuntimeType string
-	ClusterCIDR string `gorm:"column:cluster_cidr"`
-	ServiceCIDR string `gorm:"column:service_cidr"`
+	ID                   string
+	ClusterID            string
+	Version              string
+	Provider             string
+	NetworkType          string
+	RuntimeType          string
+	DockerStorageDir     string
+	ContainerdStorageDir string
+	ClusterCIDR          string `gorm:"column:cluster_cidr"`
+	ServiceCIDR          string `gorm:"column:service_cidr"`
 }
 
 func (s *Spec) BeforeCreate() (err error) {

@@ -3,6 +3,7 @@ package kobe
 import (
 	"github.com/KubeOperator/kobe/api"
 	kobeClient "github.com/KubeOperator/kobe/pkg/client"
+	"github.com/spf13/viper"
 	"io"
 )
 
@@ -14,8 +15,6 @@ type Interface interface {
 }
 
 type Config struct {
-	Host      string
-	Port      int
 	Inventory api.Inventory
 }
 
@@ -27,10 +26,12 @@ type Kobe struct {
 
 func NewAnsible(c *Config) *Kobe {
 	c.Inventory.Vars = map[string]string{}
+	host := viper.GetString("kobe.host")
+	port := viper.GetInt("kobe.port")
 	return &Kobe{
 		Project:   "ko",
 		Inventory: c.Inventory,
-		client:    kobeClient.NewKobeClient(c.Host, c.Port),
+		client:    kobeClient.NewKobeClient(host, port),
 	}
 }
 

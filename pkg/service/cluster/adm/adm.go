@@ -63,8 +63,6 @@ func NewCluster(cluster clusterModel.Cluster) (*Cluster, error) {
 		Cluster: cluster,
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
-		Host:      "localhost",
-		Port:      8081,
 		Inventory: c.ParseInventory(),
 	})
 	// set default vars

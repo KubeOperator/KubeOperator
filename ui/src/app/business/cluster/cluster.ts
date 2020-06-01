@@ -37,6 +37,8 @@ export class ClusterCreateRequest extends BaseModel {
     provider: string;
     networkType: string;
     runtimeType: string;
+    dockerStorageDir: string;
+    containerdStorageDir: string;
     clusterCIDR: string;
     serviceCIDR: string;
     nodes: CreateNodeRequest[] = [];

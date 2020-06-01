@@ -238,7 +238,7 @@ var doc = `{
                 }
             }
         },
-        "/clusters/{cluster_name}/init/": {
+        "/clusters/{cluster_name}/initial/": {
             "post": {
                 "description": "Init Cluster",
                 "consumes": [

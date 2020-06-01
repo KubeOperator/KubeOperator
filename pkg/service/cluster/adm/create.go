@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/init"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"reflect"
@@ -144,14 +144,14 @@ func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) (kobe.Result, error)
 }
 
 func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) (kobe.Result, error) {
-	phase := init.EtcdPhase{}
+	phase := initial.EtcdPhase{}
 	return phase.Run(c.Kobe)
 }
 func (ca *ClusterAdm) EnsureInitKubeConfig(c *Cluster) (kobe.Result, error) {
-	phase := init.KubeConfigPhase{}
+	phase := initial.KubeConfigPhase{}
 	return phase.Run(c.Kobe)
 }
 func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) (kobe.Result, error) {
-	phase := init.MasterPhase{}
+	phase := initial.MasterPhase{}
 	return phase.Run(c.Kobe)
 }

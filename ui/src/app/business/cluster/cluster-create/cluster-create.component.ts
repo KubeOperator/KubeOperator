@@ -34,11 +34,11 @@ export class ClusterCreateComponent implements OnInit {
 
     reset() {
         this.clusterForm.resetForm();
-        this.item = new ClusterCreateRequest();
         this.hosts = [];
         this.masters = [];
         this.workers = [];
         this.wizard.reset();
+        this.item = new ClusterCreateRequest();
     }
 
     open() {

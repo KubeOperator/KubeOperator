@@ -28,24 +28,34 @@
                 <label>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</label>
                 <select clrSelect name="provider" [(ngModel)]="item.provider" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>Bare Metal</option>
-                    <option>vSphere</option>
+                    <option value="bareMetal">Bare Metal</option>
+                    <option value="vSphere">vSphere</option>
                 </select>
             </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>Docker</option>
-                    <option>Containerd</option>
+                    <option value="docker">Docker</option>
+                    <option value="containerd">Containerd</option>
                 </select>
             </clr-select-container>
+
+            <clr-input-container *ngIf="item.runtimeType == 'docker'">
+                <label>{{"APP_CLUSTER_CREATE_FORM_DOCKER_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.dockerStorageDir"/>
+            </clr-input-container>
+            <clr-input-container *ngIf="item.runtimeType == 'containerd'">
+                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINERD_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.containerdStorageDir"/>
+            </clr-input-container>
+
             <clr-select-container>
                 <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
                 <select clrSelect name="network" [(ngModel)]="item.networkType" required>
                     <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
-                    <option>flannel</option>
-                    <option>calico</option>
+                    <option value="flannel">flannel</option>
+                    <option value="calico">calico</option>
                 </select>
             </clr-select-container>
         </form>

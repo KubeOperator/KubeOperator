@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Param cluster_name path string true "cluster name"
 // @Success 200 {object} serializer.InitClusterResponse
-// @Router /clusters/init/{cluster_name}/ [post]
+// @Router /clusters/initial/{cluster_name}/ [post]
 func Init(ctx *gin.Context) {
 	clusterName := ctx.Param("name")
 	if clusterName == "" {
@@ -37,5 +37,5 @@ func Init(ctx *gin.Context) {
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, serializer.InitClusterResponse{Message: "cluster init running"})
+	ctx.JSON(http.StatusOK, serializer.InitClusterResponse{Message: "cluster initial running"})
 }

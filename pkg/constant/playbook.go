@@ -12,7 +12,7 @@ var (
 	PlaybookKubernetesWorker       = "08-kubernetes-worker.yml"
 	PlaybookPost                   = "09-post.yml"
 	PlaybookNetworkPlugin          = "10-network-plugin.yml"
-	PlaybookInitCluster            = "90-init-cluster.yml"
+	PlaybookInitCluster            = "90-initial-cluster.yml"
 	PlaybookAddWorker              = "91-add-worker.yml"
 	PlaybookUpgradeCluster         = "92-upgrade-cluster.yml"
 	PlaybookCertificatesRenew      = "93-certificates-renew.yml"

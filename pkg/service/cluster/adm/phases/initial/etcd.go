@@ -1,4 +1,4 @@
-package init
+package initial
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"

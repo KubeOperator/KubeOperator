@@ -138,8 +138,6 @@ func GetHostConfig(host *hostModel.Host) error {
 	}
 
 	ansible := kobe.NewAnsible(&kobe.Config{
-		Host: "localhost",
-		Port: 8088,
 		Inventory: api.Inventory{
 			Hosts: []*api.Host{
 				{

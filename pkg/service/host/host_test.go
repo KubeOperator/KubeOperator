@@ -20,7 +20,7 @@ func Init() {
 	}
 	err := phase.Init()
 	if err != nil {
-		log.Fatalf("can not init db,%s", err)
+		log.Fatalf("can not initial db,%s", err)
 	}
 }
 

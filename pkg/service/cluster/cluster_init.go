@@ -65,13 +65,13 @@ func InitCluster(c clusterModel.Cluster) {
 		current := resp.Status.Conditions[len(resp.Status.Conditions)-1]
 		switch current.Status {
 		case constant.ConditionFalse:
-			log.Printf("cluster %s init fail, message:%s", c.Name, c.Status.Message)
+			log.Printf("cluster %s initial fail, message:%s", c.Name, c.Status.Message)
 			resp.Status.Phase = constant.ClusterFailed
 			finished = true
 		case constant.ConditionUnknown:
-			log.Printf("cluster %s init...", c.Name)
+			log.Printf("cluster %s initial...", c.Name)
 		case constant.ConditionTrue:
-			log.Printf("cluster %s init success", c.Name)
+			log.Printf("cluster %s initial success", c.Name)
 			finished = true
 		}
 		c.Status = resp.Status
