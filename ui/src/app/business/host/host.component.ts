@@ -3,6 +3,7 @@ import {HostListComponent} from './host-list/host-list.component';
 import {HostCreateComponent} from './host-create/host-create.component';
 import {HostDeleteComponent} from './host-delete/host-delete.component';
 import {Host} from './host';
+import {HostDetailComponent} from './host-detail/host-detail.component';
 
 @Component({
     selector: 'app-host',
@@ -19,6 +20,9 @@ export class HostComponent implements OnInit {
 
     @ViewChild(HostDeleteComponent, {static: true})
     delete: HostDeleteComponent;
+
+    @ViewChild(HostDetailComponent, {static: true})
+    detail: HostDetailComponent;
 
     constructor() {
     }
@@ -38,4 +42,9 @@ export class HostComponent implements OnInit {
         this.list.reset();
         this.list.refresh();
     }
+
+    openDetail(item) {
+        this.detail.open(item);
+    }
+
 }

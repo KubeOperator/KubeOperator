@@ -24,13 +24,14 @@ func Page(num, size int) (host []hostModel.Host, total int, err error) {
 		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).
+		Preload("Volumes").
 		Find(&host).
 		Error
 	return
 }
 
 func List() (host []hostModel.Host, err error) {
-	err = db.DB.Model(hostModel.Host{}).Find(&host).Error
+	err = db.DB.Model(hostModel.Host{}).Preload("Volumes").Find(&host).Error
 	return
 }
 
@@ -38,6 +39,9 @@ func Get(name string) (hostModel.Host, error) {
 	var result hostModel.Host
 	result.Name = name
 	if err := db.DB.Where(result).First(&result).Error; err != nil {
+		return result, err
+	}
+	if err := db.DB.First(&result).Related(&result.Volumes).Error; err != nil {
 		return result, err
 	}
 	return result, nil
@@ -197,7 +201,7 @@ func GetHostConfig(host *hostModel.Host) error {
 			if "Virtual disk" == device["model"] {
 				v := hostModel.Volume{
 					ID:     uuid.NewV4().String(),
-					Name:   index,
+					Name:   "/dev/" + index,
 					Size:   device["size"].(string),
 					HostID: host.ID,
 				}

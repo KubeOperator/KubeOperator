@@ -22,6 +22,13 @@ type Host struct {
 	Status       string    `json:"status"`
 	CreateAt     time.Time `json:"createAt"`
 	UpdateAt     time.Time `json:"updateAt"`
+	Volumes      []Volume  `json:"volumes"`
+}
+type Volume struct {
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Size   string `json:"size"`
+	HostID string `json:"hostId"`
 }
 
 func FromModel(h hostModel.Host) Host {
@@ -41,6 +48,7 @@ func FromModel(h hostModel.Host) Host {
 		GpuInfo:      h.GpuInfo,
 		CreateAt:     h.CreatedAt,
 		UpdateAt:     h.UpdatedAt,
+		Volumes:      FromVolumes(h.Volumes),
 	}
 }
 
@@ -59,7 +67,34 @@ func ToModel(h Host) hostModel.Host {
 		Status:       h.Status,
 		GpuNum:       h.GpuNum,
 		GpuInfo:      h.GpuInfo,
+		Volumes:      ToVolumes(h.Volumes),
 	}
+}
+
+func FromVolumes(vs []hostModel.Volume) []Volume {
+	var volumes []Volume
+	for _, v := range vs {
+		volumes = append(volumes, Volume{
+			ID:     v.ID,
+			Name:   v.Name,
+			Size:   v.Size,
+			HostID: v.HostID,
+		})
+	}
+	return volumes
+}
+
+func ToVolumes(vs []Volume) []hostModel.Volume {
+	var volumes []hostModel.Volume
+	for _, v := range vs {
+		volumes = append(volumes, hostModel.Volume{
+			ID:     v.ID,
+			Name:   v.Name,
+			Size:   v.Size,
+			HostID: v.HostID,
+		})
+	}
+	return volumes
 }
 
 type ListHostResponse struct {

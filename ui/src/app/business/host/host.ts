@@ -20,8 +20,10 @@ export class Host extends BaseModel {
 }
 
 export class Volume extends BaseModel {
+    ID: string;
     size: string;
     name: string;
+    hostId: string;
 }
 
 export class HostCreateRequest extends BaseRequest {
