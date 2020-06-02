@@ -116,6 +116,10 @@ func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
 	return next.name()
 }
 
+func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) (kobe.Result, error) {
+	return kobe.Result{}, nil
+}
+
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) (kobe.Result, error) {
 	phase := prepare.BaseSystemConfigPhase{}
 	return phase.Run(c.Kobe)

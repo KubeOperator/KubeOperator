@@ -12,7 +12,7 @@ type Condition struct {
 	Name          string
 	StatusID      string
 	Status        string
-	Message       string
+	Message       string `gorm:"type:text"`
 	OrderNum      int
 	LastProbeTime time.Time
 }

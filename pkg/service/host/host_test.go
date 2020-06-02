@@ -27,10 +27,10 @@ func Init() {
 func TestSave(t *testing.T) {
 	Init()
 	item := hostModel.Host{
-		Name:         "test",
-		Ip:           "172.16.10.63",
+		Name:         "node-3",
+		Ip:           "172.16.10.159",
 		Port:         22,
-		CredentialID: "4d73cc9e-2342-4628-b4aa-7461ef04ebca",
+		CredentialID: "fb31f1b5-be06-4839-be0f-acb513376791",
 	}
 	err := Save(&item)
 	if err != nil {

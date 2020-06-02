@@ -47,6 +47,9 @@ func (r *Result) GatherFailedInfo() {
 			for name := range task.Hosts {
 				hostResult := task.Hosts[name]
 				val, ok := hostResult["failed"]
+				if !ok {
+					val, ok = hostResult["unreachable"]
+				}
 				hostFailed[name] = ""
 				if ok && val.(bool) {
 					b, err := json.Marshal(hostResult)

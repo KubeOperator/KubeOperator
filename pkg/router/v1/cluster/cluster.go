@@ -244,7 +244,7 @@ func Status(ctx *gin.Context) {
 		})
 		return
 	}
-	model, err := clusterService.GetStatus(clusterName)
+	model, err := clusterService.GetClusterStatus(clusterName)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": err.Error(),
@@ -265,5 +265,3 @@ func Status(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
-
-

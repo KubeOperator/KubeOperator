@@ -80,6 +80,7 @@ type ClusterAdm struct {
 func NewClusterAdm() (*ClusterAdm, error) {
 	ca := new(ClusterAdm)
 	ca.createHandlers = []Handler{
+		ca.EnsureInitTaskStart,
 		ca.EnsurePrepareBaseSystemConfig,
 		ca.EnsurePrepareContainerRuntime,
 		ca.EnsurePrepareKubernetesComponent,
