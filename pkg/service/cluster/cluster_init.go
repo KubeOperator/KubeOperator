@@ -34,28 +34,28 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 	return nil
 }
 
-func InitCluster(c clusterModel.Cluster) {
-	ad, err := adm.NewClusterAdm()
+func InitCluster(c clusterModel.Cluster) error {
+	status, err := GetClusterStatus(c.Name)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
-	db.DB.
-		First(&c.Status).
-		Order("last_probe_time asc").
-		Related(&c.Status.Conditions)
+	c.Status = status
 	nodes, err := GetClusterNodes(c.Name)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	c.Nodes = nodes
-	if c.Status.Phase == constant.ClusterInitializing {
-		return
-	}
 	c.Status.Phase = constant.ClusterInitializing
 	err = db.DB.Save(&c.Status).Error
 	if err != nil {
-		log.Printf("can not save cluster status, msg: %s", err.Error())
+		return err
 	}
+	go Do(c)
+	return nil
+}
+
+func Do(c clusterModel.Cluster) {
+	ad, _ := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
@@ -78,20 +78,6 @@ func InitCluster(c clusterModel.Cluster) {
 		err = db.DB.Save(&c.Status).Error
 		if err != nil {
 			log.Println(err.Error())
-		}
-		for i, _ := range c.Status.Conditions {
-			c.Status.Conditions[i].StatusID = c.Status.ID
-			if db.DB.NewRecord(c.Status.Conditions[i]) {
-				err := db.DB.Create(&c.Status.Conditions[i]).Error
-				if err != nil {
-					log.Println(err.Error())
-				}
-			} else {
-				err := db.DB.Save(&c.Status.Conditions[i]).Error
-				if err != nil {
-					log.Println(err.Error())
-				}
-			}
 		}
 		if finished {
 			return
