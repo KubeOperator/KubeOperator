@@ -51,6 +51,7 @@
         <div *ngIf="loading" style="text-align: center">
             <clr-spinner></clr-spinner>
         </div>
+        <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn" (click)="onCancel()" [disabled]="loading">取消</button>

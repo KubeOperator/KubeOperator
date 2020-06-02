@@ -2,6 +2,8 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Host} from '../host';
 import {HostService} from '../host.service';
+import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
+import {AlertLevels} from '../../../shared/common-component/common-alert/alert';
 
 @Component({
     selector: 'app-host-detail',
@@ -15,7 +17,7 @@ export class HostDetailComponent extends BaseModelComponent<Host> implements OnI
     loading = false;
     @Output() detail = new EventEmitter();
 
-    constructor(private hostService: HostService) {
+    constructor(private hostService: HostService, private modalAlertService: ModalAlertService) {
         super(hostService);
     }
 
@@ -37,6 +39,9 @@ export class HostDetailComponent extends BaseModelComponent<Host> implements OnI
         this.loading = true;
         this.hostService.sync(this.item.name, this.item).subscribe(data => {
             this.item = data;
+            this.loading = false;
+        }, res => {
+            this.modalAlertService.showAlert(res.error.msg, AlertLevels.ERROR);
             this.loading = false;
         });
     }

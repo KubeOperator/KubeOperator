@@ -131,6 +131,7 @@ func RunGetHostConfig(host *hostModel.Host) {
 
 func GetHostConfig(host *hostModel.Host) error {
 
+	host.Status = hostModel.AnsibleError
 	//TODO
 	password, _, err := GetHostPasswordAndPrivateKey(host)
 	if err != nil {
@@ -161,21 +162,17 @@ func GetHostConfig(host *hostModel.Host) error {
 	})
 	resultId, err := ansible.RunAdhoc("master", "setup", "")
 	if err != nil {
-		host.Status = hostModel.AnsibleError
 		return err
 	}
 	if err = ansible.Watch(os.Stdout, resultId); err != nil {
-		host.Status = hostModel.AnsibleError
 		return err
 	}
 	res, err := ansible.GetResult(resultId)
 	if err != nil {
-		host.Status = hostModel.AnsibleError
 		return err
 	}
 	result, err := kobe.ParseResult(res.Content)
 	if err != nil {
-		host.Status = hostModel.AnsibleError
 		return err
 	}
 	var facts interface{}
@@ -186,7 +183,6 @@ func GetHostConfig(host *hostModel.Host) error {
 	}
 
 	if facts == nil {
-		host.Status = hostModel.AnsibleError
 		return err
 	} else {
 		result, ok := facts.(map[string]interface{})
@@ -214,9 +210,7 @@ func GetHostConfig(host *hostModel.Host) error {
 			}
 		}
 		host.Volumes = volumes
-		if err = Save(host); err != nil {
-			return err
-		}
+		host.Status = hostModel.Running
 	}
 	return nil
 }
