@@ -9,6 +9,7 @@ type Cluster struct {
 	Name     string    `json:"name"`
 	Spec     Spec      `json:"spec"`
 	Status   string    `json:"status"`
+	NodeSize int       `json:"nodeSize"`
 	CreateAt time.Time `json:"createAt"`
 	UpdateAt time.Time `json:"updateAt"`
 }
@@ -44,6 +45,7 @@ func FromModel(model clusterModel.Cluster) Cluster {
 		Spec: Spec{
 			Version: model.Spec.Version,
 		},
+		NodeSize: len(model.Nodes),
 		Status:   model.Status.Phase,
 		CreateAt: model.CreatedAt,
 		UpdateAt: model.UpdatedAt,
@@ -58,9 +60,21 @@ func ToModel(c Cluster) clusterModel.Cluster {
 	}
 }
 
+func FromNodeModel(node clusterModel.Node) Node {
+	return Node{
+		Role: node.Role,
+		Name: node.Name,
+	}
+}
+
 type ListClusterResponse struct {
 	Items []Cluster `json:"items"`
 	Total int       `json:"total"`
+}
+
+type ListNodeResponse struct {
+	Items []Node `json:"items"`
+	Total int    `json:"total"`
 }
 
 type GetClusterResponse struct {

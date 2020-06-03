@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
-	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -14,6 +13,7 @@ func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error)
 		Limit(size).
 		Preload("Status").
 		Preload("Spec").
+		Preload("Nodes").
 		Find(&clusters).
 		Error
 	return
@@ -23,6 +23,7 @@ func List() (clusters []clusterModel.Cluster, err error) {
 	err = db.DB.Model(clusterModel.Cluster{}).
 		Preload("Spec").
 		Preload("Status").
+		Preload("Nodes").
 		Find(&clusters).Error
 	return
 }
@@ -78,26 +79,6 @@ func Batch(operation string, items []clusterModel.Cluster) ([]clusterModel.Clust
 	return items, nil
 }
 
-func GetClusterNodes(name string) ([]clusterModel.Node, error) {
-	var cluster clusterModel.Cluster
-	if err := db.DB.
-		Where(clusterModel.Cluster{Name: name}).
-		Preload("Nodes").
-		First(&cluster).Error; err != nil {
-		return nil, err
-	}
-	for i, _ := range cluster.Nodes {
-		if err := db.DB.
-			Preload("Credential").
-			Where(hostModel.Host{
-				NodeID: cluster.Nodes[i].ID,
-			}).First(&cluster.Nodes[i].Host).Error; err != nil {
-			return nil, err
-		}
-	}
-	return cluster.Nodes, nil
-}
-
 func GetClusterStatus(clusterName string) (clusterModel.Status, error) {
 	var cluster clusterModel.Cluster
 	var status clusterModel.Status
@@ -107,7 +88,7 @@ func GetClusterStatus(clusterName string) (clusterModel.Status, error) {
 		return status, err
 	}
 	if err := db.DB.
-		Where(status).
+		Where(clusterModel.Status{ID: cluster.StatusID}).
 		First(&status).Error; err != nil {
 		return status, err
 	}

@@ -133,37 +133,6 @@ func Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, serializer.FromModel(model))
 }
 
-// UpdateCluster
-// @Tags Cluster
-// @Summary Cluster
-// @Description Update a Cluster
-// @Accept  json
-// @Produce json
-// @Param request body serializer.UpdateClusterRequest true "cluster"
-// @Param cluster_name path string true "cluster name"
-// @Success 200 {object} serializer.Cluster
-// @Router /clusters/{cluster_name} [patch]
-func Update(ctx *gin.Context) {
-	var req serializer.UpdateClusterRequest
-	err := ctx.ShouldBind(&req)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": err.Error(),
-		})
-		return
-	}
-	model := serializer.ToModel(req.Item)
-	err = clusterService.Save(&model)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"msg": err.Error(),
-		})
-		return
-	}
-	ctx.JSON(http.StatusOK, serializer.FromModel(model))
-
-}
-
 // DeleteCluster
 // @Tags Cluster
 // @Summary Cluster

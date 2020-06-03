@@ -25,7 +25,6 @@ type Cluster struct {
 func (c Cluster) TableName() string {
 	return "ko_cluster"
 }
-
 func (c *Cluster) BeforeCreate(scope *gorm.Scope) error {
 	c.ID = uuid.NewV4().String()
 	c.Spec.ID = uuid.NewV4().String()

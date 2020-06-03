@@ -3,6 +3,7 @@ import {BaseModel} from '../../shared/class/BaseModel';
 export class Cluster extends BaseModel {
     name: string;
     spec: Spec;
+    nodeSize: string;
     status: string;
 }
 
