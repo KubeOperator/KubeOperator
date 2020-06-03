@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
@@ -38,10 +39,17 @@ func InitCluster(c clusterModel.Cluster) error {
 	if err != nil {
 		return err
 	}
+
+	if status.Phase == constant.ClusterRunning || status.Phase == constant.ClusterInitializing {
+		return errors.New(fmt.Sprintf("invalid status: %s", status.Phase))
+	}
 	c.Status = status
 	nodes, err := GetClusterNodes(c.Name)
 	if err != nil {
 		return err
+	}
+	if len(nodes) < 1 {
+		return errors.New(fmt.Sprintf("node size is : %d", len(nodes)))
 	}
 	c.Nodes = nodes
 	c.Status.Phase = constant.ClusterInitializing
