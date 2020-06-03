@@ -17,6 +17,6 @@ export class HostService extends BaseModelService<any> {
 
     sync(name: string, item: HostCreateRequest): Observable<Host> {
         const itemUrl = `${this.baseUrl}/${name}/sync/`;
-        return this.http.patch<Host>(itemUrl, item);
+        return this.http.post<Host>(itemUrl, item);
     }
 }
