@@ -82,7 +82,7 @@ export class ClusterConditionComponent implements OnInit {
                     clearInterval(this.timer);
                 }
             });
-        }, 1000);
+        }, 3000);
     }
 
 }

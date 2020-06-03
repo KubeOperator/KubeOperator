@@ -7,10 +7,10 @@ import {AppAlertComponent} from './app-alert/app-alert.component';
 import {CoreModule} from '../core/core.module';
 import {RouterModule} from '@angular/router';
 import {SharedModule} from '../shared/shared.module';
-
+import {CommonAlertComponent} from './common-alert/common-alert.component';
 
 @NgModule({
-    declarations: [HeaderComponent, FooterComponent, LayoutComponent, NavigationComponent, AppAlertComponent],
+    declarations: [HeaderComponent, FooterComponent, LayoutComponent, NavigationComponent, AppAlertComponent, CommonAlertComponent],
     exports: [
         LayoutComponent
     ],

@@ -82,16 +82,12 @@ func TestGet(t *testing.T) {
 
 func TestGetStatus(t *testing.T) {
 	Init()
-	c, err := GetStatus("test")
-	if err != nil {
-		t.Fatalf("get item error: %s", err.Error())
-	}
-	fmt.Println(c)
+
 }
 
 func TestDelete(t *testing.T) {
 	Init()
-	err := Delete("test")
+	err := Delete("cds")
 	if err != nil {
 		t.Fatalf("can not delete item,%s", err)
 	}

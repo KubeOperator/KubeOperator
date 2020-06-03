@@ -8,7 +8,6 @@ import (
 type Spec struct {
 	common.BaseModel
 	ID                   string
-	ClusterID            string
 	Version              string
 	Provider             string
 	NetworkType          string

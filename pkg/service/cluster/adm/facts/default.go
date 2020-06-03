@@ -33,7 +33,11 @@ const (
 	EtcdDataDirFactName = "etcd_data_dir"
 	EtcdImageFactName   = "etcd_image"
 
-	BinDirFactName = "bin_dir"
+	BinDirFactName  = "bin_dir"
+	BaseDirFactName = "base_dir"
+
+	LocalHostnameFactName = "local_hostname"
+	RepoPortFactName      = "repo_port"
 )
 
 var DefaultFacts = map[string]string{
@@ -55,6 +59,9 @@ var DefaultFacts = map[string]string{
 	EtcdDataDirFactName:                  "/var/lib/etcd",
 	EtcdImageFactName:                    "docker.io/kubeoperator/etcd:3.4.3-",
 	BinDirFactName:                       "/usr/local/bin",
+	BaseDirFactName:                      "/opt/kubeoperator",
+	LocalHostnameFactName:                "172.16.10.64",
+	RepoPortFactName:                     "8081",
 	KubeImageRepositoryFactName:          "docker.io/kubeoperator",
 	PodInfraContainerImageFactName:       "docker.io/kubeoperator/pause:3.1",
 	CertsExpiredFactName:                 "36500",

@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
@@ -30,72 +31,67 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 			}
 		}
 	}
-	go InitCluster(c)
+	return InitCluster(c)
+}
+
+func InitCluster(c clusterModel.Cluster) error {
+	status, err := GetClusterStatus(c.Name)
+	if err != nil {
+		return err
+	}
+
+	if status.Phase == constant.ClusterRunning || status.Phase == constant.ClusterInitializing {
+		return errors.New(fmt.Sprintf("invalid status: %s", status.Phase))
+	}
+	c.Status = status
+	nodes, err := GetClusterNodes(c.Name)
+	if err != nil {
+		return err
+	}
+	if len(nodes) < 1 {
+		return errors.New(fmt.Sprintf("node size is : %d", len(nodes)))
+	}
+	c.Nodes = nodes
+	c.Status.Phase = constant.ClusterInitializing
+	if err := SaveClusterStatus(&(c.Status)); err != nil {
+		return err
+	}
+	statusChan := make(chan *clusterModel.Status, 0)
+	stopChan := make(chan int, 0)
+	go DoInitCluster(c, statusChan, stopChan)
+	go SyncStatus(statusChan, stopChan)
 	return nil
 }
 
-func InitCluster(c clusterModel.Cluster) {
-	ad, err := adm.NewClusterAdm()
-	if err != nil {
-		log.Println(err)
-	}
-	db.DB.
-		First(&c.Status).
-		Order("last_probe_time asc").
-		Related(&c.Status.Conditions)
-	nodes, err := GetClusterNodes(c.Name)
-	if err != nil {
-		log.Println(err)
-	}
-	c.Nodes = nodes
-	if c.Status.Phase == constant.ClusterInitializing {
-		return
-	}
-	c.Status.Phase = constant.ClusterInitializing
-	err = db.DB.Save(&c.Status).Error
-	if err != nil {
-		log.Printf("can not save cluster status, msg: %s", err.Error())
-	}
+func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status, stopChan chan int) {
+	ad, _ := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
 			log.Fatal(err)
 		}
-		finished := false
-		current := resp.Status.Conditions[len(resp.Status.Conditions)-1]
-		switch current.Status {
-		case constant.ConditionFalse:
-			log.Printf("cluster %s initial fail, message:%s", c.Name, c.Status.Message)
-			resp.Status.Phase = constant.ClusterFailed
-			finished = true
-		case constant.ConditionUnknown:
-			log.Printf("cluster %s initial...", c.Name)
-		case constant.ConditionTrue:
-			log.Printf("cluster %s initial success", c.Name)
-			finished = true
-		}
 		c.Status = resp.Status
-		err = db.DB.Save(&c.Status).Error
-		if err != nil {
-			log.Println(err.Error())
-		}
-		for i, _ := range c.Status.Conditions {
-			c.Status.Conditions[i].StatusID = c.Status.ID
-			if db.DB.NewRecord(c.Status.Conditions[i]) {
-				err := db.DB.Create(&c.Status.Conditions[i]).Error
-				if err != nil {
-					log.Println(err.Error())
-				}
-			} else {
-				err := db.DB.Save(&c.Status.Conditions[i]).Error
-				if err != nil {
-					log.Println(err.Error())
-				}
-			}
-		}
-		if finished {
+		select {
+		case <-stopChan:
 			return
+		default:
+			statusChan <- &(c.Status)
 		}
 		time.Sleep(5 * time.Second)
+	}
+}
+
+func SyncStatus(statusChan chan *clusterModel.Status, stopChan chan int) {
+	for {
+		status := <-statusChan
+		if err := db.DB.Save(status).Error; err != nil {
+			stopChan <- 1
+			return
+		}
+		switch status.Phase {
+		case constant.ClusterFailed, constant.ClusterRunning:
+			stopChan <- 1
+			return
+		}
 	}
 }

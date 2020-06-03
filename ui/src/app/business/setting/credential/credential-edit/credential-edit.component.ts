@@ -3,8 +3,8 @@ import {CredentialService} from '../credential.service';
 import {Credential} from '../credential';
 import {NgForm} from '@angular/forms';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
-import {AlertLevels} from '../../../../shared/common-component/common-alert/alert';
-import {CommonAlertService} from '../../../../shared/common-component/common-alert/common-alert.service';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 
 @Component({

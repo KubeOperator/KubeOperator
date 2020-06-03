@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Router} from '@angular/router';
 
 @Component({
     selector: 'app-cluster-detail',
@@ -8,7 +8,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 })
 export class ClusterDetailComponent implements OnInit {
 
-    constructor(private router: Router, private route: ActivatedRoute) {
+    constructor(private router: Router) {
     }
 
     ngOnInit(): void {

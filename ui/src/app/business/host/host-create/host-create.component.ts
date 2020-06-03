@@ -6,7 +6,7 @@ import {NgForm} from '@angular/forms';
 import {CredentialService} from '../../setting/credential/credential.service';
 import {Credential} from '../../setting/credential/credential';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
-import {AlertLevels} from '../../../shared/common-component/common-alert/alert';
+import {AlertLevels} from '../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-host-create',
