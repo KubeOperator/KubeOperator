@@ -11,7 +11,8 @@ type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	IsActive bool   `json:"is_active"`
+	IsActive bool   `json:"isActive"`
+	Language string `json:"language"`
 }
 
 func FromModel(u userModel.User) User {
@@ -21,6 +22,7 @@ func FromModel(u userModel.User) User {
 		Password: u.Password,
 		Email:    u.Email,
 		IsActive: u.IsActive,
+		Language: u.Language,
 	}
 }
 
@@ -30,7 +32,7 @@ func ToModel(u User) userModel.User {
 		Name:     u.Name,
 		Password: u.Password,
 		Email:    u.Email,
-		IsActive: u.IsActive,
+		Language: u.Language,
 	}
 }
 
@@ -44,7 +46,9 @@ type GetUserResponse struct {
 }
 
 type CreateUserRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 }
 
 type CreateUserResponse struct {
@@ -59,7 +63,11 @@ type DeleteUserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	Item User `json:"item" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	IsActive bool   `json:"isActive"`
+	Language string `json:"language"`
 }
 
 type UpdateUserResponse struct {
