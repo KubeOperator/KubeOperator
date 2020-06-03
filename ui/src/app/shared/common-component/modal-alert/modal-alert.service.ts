@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
-import {Alert, AlertLevels} from '../common-alert/alert';
+import {Alert, AlertLevels} from '../../../layout/common-alert/alert';
 
 @Injectable({
     providedIn: 'root'

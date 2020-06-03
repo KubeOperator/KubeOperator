@@ -24,7 +24,7 @@ func (s *Status) BeforeCreate() (err error) {
 func (s *Status) AfterSave() error {
 	if len(s.Conditions) > 0 {
 		for i, _ := range s.Conditions {
-			s.Conditions[i].Status = s.ID
+			s.Conditions[i].StatusID = s.ID
 			if db.DB.NewRecord(s.Conditions[i]) {
 				s.Conditions[i].ID = uuid.NewV4().String()
 				if err := db.DB.

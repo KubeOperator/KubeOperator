@@ -45,8 +45,7 @@ func Save(item *clusterModel.Cluster) error {
 	if err := db.DB.Create(&item).Error; err != nil {
 		return err
 	}
-	//go InitCluster(*item)
-	return nil
+	return InitCluster(*item)
 }
 
 func Delete(name string) error {
@@ -119,4 +118,8 @@ func GetClusterStatus(clusterName string) (clusterModel.Status, error) {
 		return status, err
 	}
 	return status, nil
+}
+
+func SaveClusterStatus(status *clusterModel.Status) error {
+	return db.DB.Save(status).Error
 }

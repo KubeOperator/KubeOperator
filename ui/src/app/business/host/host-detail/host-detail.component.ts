@@ -3,7 +3,7 @@ import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Host} from '../host';
 import {HostService} from '../host.service';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
-import {AlertLevels} from '../../../shared/common-component/common-alert/alert';
+import {AlertLevels} from '../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-host-detail',

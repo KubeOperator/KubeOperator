@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Alert, AlertLevels} from '../common-alert/alert';
+import {Alert, AlertLevels} from '../../../layout/common-alert/alert';
 import {ModalAlertService} from './modal-alert.service';
 
 @Component({

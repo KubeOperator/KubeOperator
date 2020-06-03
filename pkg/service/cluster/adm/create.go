@@ -33,6 +33,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 			LastProbeTime: now,
 			Message:       err.Error(),
 		})
+		c.Status.Phase = constant.ClusterFailed
 		c.Status.Message = err.Error()
 		return nil
 	}
@@ -44,6 +45,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 			LastProbeTime: now,
 			Message:       string(by),
 		})
+		c.Status.Phase = constant.ClusterFailed
 		c.Status.Message = string(by)
 		return nil
 	}

@@ -30,8 +30,7 @@ func RetryInitCluster(c clusterModel.Cluster) error {
 			}
 		}
 	}
-	go InitCluster(c)
-	return nil
+	return InitCluster(c)
 }
 
 func InitCluster(c clusterModel.Cluster) error {
@@ -46,42 +45,45 @@ func InitCluster(c clusterModel.Cluster) error {
 	}
 	c.Nodes = nodes
 	c.Status.Phase = constant.ClusterInitializing
-	err = db.DB.Save(&c.Status).Error
-	if err != nil {
+	if err := SaveClusterStatus(&(c.Status)); err != nil {
 		return err
 	}
-	go Do(c)
+	statusChan := make(chan *clusterModel.Status, 0)
+	stopChan := make(chan int, 0)
+	go DoInitCluster(c, statusChan, stopChan)
+	go SyncStatus(statusChan, stopChan)
 	return nil
 }
 
-func Do(c clusterModel.Cluster) {
+func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status, stopChan chan int) {
 	ad, _ := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
 			log.Fatal(err)
 		}
-		finished := false
-		current := resp.Status.Conditions[len(resp.Status.Conditions)-1]
-		switch current.Status {
-		case constant.ConditionFalse:
-			log.Printf("cluster %s initial fail, message:%s", c.Name, c.Status.Message)
-			resp.Status.Phase = constant.ClusterFailed
-			finished = true
-		case constant.ConditionUnknown:
-			log.Printf("cluster %s initial...", c.Name)
-		case constant.ConditionTrue:
-			log.Printf("cluster %s initial success", c.Name)
-			finished = true
-		}
 		c.Status = resp.Status
-		err = db.DB.Save(&c.Status).Error
-		if err != nil {
-			log.Println(err.Error())
-		}
-		if finished {
+		select {
+		case <-stopChan:
 			return
+		default:
+			statusChan <- &(c.Status)
 		}
 		time.Sleep(5 * time.Second)
+	}
+}
+
+func SyncStatus(statusChan chan *clusterModel.Status, stopChan chan int) {
+	for {
+		status := <-statusChan
+		if err := db.DB.Save(status).Error; err != nil {
+			stopChan <- 1
+			return
+		}
+		switch status.Phase {
+		case constant.ClusterFailed, constant.ClusterRunning:
+			stopChan <- 1
+			return
+		}
 	}
 }

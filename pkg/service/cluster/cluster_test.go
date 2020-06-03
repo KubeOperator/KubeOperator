@@ -87,7 +87,7 @@ func TestGetStatus(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	Init()
-	err := Delete("test")
+	err := Delete("cds")
 	if err != nil {
 		t.Fatalf("can not delete item,%s", err)
 	}
