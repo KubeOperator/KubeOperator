@@ -118,24 +118,30 @@ func GetClusterKubernetesApiEndpoint(clusterName string) (string, error) {
 	var node clusterModel.Node
 	if err := db.DB.
 		Where(clusterModel.Node{Role: constant.NodeRoleNameMaster}).
-		First(node).
-		Related(&(node.Host)).Error; err != nil {
+		First(&node).Error; err != nil {
 		return "", err
 	}
+
+	if err := db.DB.
+		First(&node).
+		Related(&node.Host).Error; err != nil {
+		return "", err
+	}
+
 	return KubernetesApiEndpointFromIp(node.Host.Ip), nil
 }
 
 func KubernetesApiEndpointFromIp(ip string) string {
-	return fmt.Sprintf("https://%s:%d", ip, facts.DefaultFacts[facts.LbKubeApiserverPortFactName])
+	return fmt.Sprintf("https://%s:%s", ip, facts.DefaultFacts[facts.LbKubeApiserverPortFactName])
 }
 
 func GetClusterSecret(name string) (secret clusterModel.Secret, err error) {
 	var cluster clusterModel.Cluster
-	if err := db.DB.Where(clusterModel.Cluster{Name: name}).
+	if err = db.DB.Where(clusterModel.Cluster{Name: name}).
 		First(&cluster).Error; err != nil {
 		return
 	}
-	if err := db.DB.Where(clusterModel.Secret{ID: cluster.SecretID}).
+	if err = db.DB.Where(clusterModel.Secret{ID: cluster.SecretID}).
 		First(&secret).Error; err != nil {
 		return
 	}
