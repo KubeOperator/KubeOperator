@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/host"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/user"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,6 +40,15 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1CredentialApi.PATCH("/:name/", credential.Update)
 			v1CredentialApi.DELETE("/:name/", credential.Delete)
 			v1CredentialApi.POST("/batch/", credential.Batch)
+		}
+		v1UserApi := v1Api.Group("/users")
+		{
+			v1UserApi.GET("/", user.List)
+			v1UserApi.POST("/", user.Create)
+			v1UserApi.GET("/:name/", user.Get)
+			v1UserApi.PATCH("/:name/", user.Update)
+			v1UserApi.DELETE("/:name/", user.Delete)
+			v1UserApi.POST("/batch/", user.Batch)
 		}
 	}
 	return v1Api
