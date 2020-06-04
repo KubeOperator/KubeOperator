@@ -1,9 +1,11 @@
 package cluster
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -103,4 +105,39 @@ func GetClusterStatus(clusterName string) (clusterModel.Status, error) {
 
 func SaveClusterStatus(status *clusterModel.Status) error {
 	return db.DB.Save(status).Error
+}
+
+func GetClusterKubernetesApiEndpoint(clusterName string) (string, error) {
+	c, err := Get(clusterName)
+	if err != nil {
+		return "", err
+	}
+	if c.Spec.LbKubeApiserverIp != "" {
+		return KubernetesApiEndpointFromIp(c.Spec.LbKubeApiserverIp), nil
+	}
+	var node clusterModel.Node
+	if err := db.DB.
+		Where(clusterModel.Node{Role: constant.NodeRoleNameMaster}).
+		First(node).
+		Related(&(node.Host)).Error; err != nil {
+		return "", err
+	}
+	return KubernetesApiEndpointFromIp(node.Host.Ip), nil
+}
+
+func KubernetesApiEndpointFromIp(ip string) string {
+	return fmt.Sprintf("https://%s:%d", ip, facts.DefaultFacts[facts.LbKubeApiserverPortFactName])
+}
+
+func GetClusterSecret(name string) (secret clusterModel.Secret, err error) {
+	var cluster clusterModel.Cluster
+	if err := db.DB.Where(clusterModel.Cluster{Name: name}).
+		First(&cluster).Error; err != nil {
+		return
+	}
+	if err := db.DB.Where(clusterModel.Secret{ID: cluster.SecretID}).
+		First(&secret).Error; err != nil {
+		return
+	}
+	return
 }

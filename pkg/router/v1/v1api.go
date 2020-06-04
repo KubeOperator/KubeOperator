@@ -56,7 +56,7 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 		}
 		v1ProxyApi := v1Api.Group("/proxy/")
 		{
-			v1ProxyApi.GET("/*path", proxy.KubernetesClientProxy)
+			v1ProxyApi.GET("/:name/*path", proxy.KubernetesClientProxy)
 		}
 	}
 	return v1Api

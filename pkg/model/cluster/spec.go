@@ -14,6 +14,7 @@ type Spec struct {
 	RuntimeType          string
 	DockerStorageDir     string
 	ContainerdStorageDir string
+	LbKubeApiserverIp    string
 	ClusterCIDR          string `gorm:"column:cluster_cidr"`
 	ServiceCIDR          string `gorm:"column:service_cidr"`
 }

@@ -16,15 +16,18 @@ type Cluster struct {
 	ID       string
 	Name     string
 	SpecID   string
+	SecretID string
 	StatusID string
 	Status   Status `gorm:"save_associations:false"`
 	Spec     Spec   `gorm:"save_associations:false"`
+	Secret   Secret `gorm:"save_associations:false"`
 	Nodes    []Node `gorm:"save_associations:false"`
 }
 
 func (c Cluster) TableName() string {
 	return "ko_cluster"
 }
+
 func (c *Cluster) BeforeCreate(scope *gorm.Scope) error {
 	c.ID = uuid.NewV4().String()
 	c.Spec.ID = uuid.NewV4().String()
@@ -140,4 +143,24 @@ func (c Cluster) ParseInventory() api.Inventory {
 			},
 		},
 	}
+}
+
+func (c *Cluster) SetSecret(secret Secret) error {
+	c.Secret = secret
+	if db.DB.NewRecord(secret) {
+		if err := db.DB.
+			Create(&(c.Secret)).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := db.DB.
+			Save(&(c.Secret)).Error; err != nil {
+			return err
+		}
+	}
+	c.SecretID = c.Secret.ID
+	if err := db.DB.Save(&c).Error; err != nil {
+		return err
+	}
+	return nil
 }
