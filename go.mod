@@ -19,7 +19,6 @@ require (
 	github.com/pkg/sftp v1.11.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.5.0
-	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/viper v1.6.3
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
@@ -29,5 +28,5 @@ require (
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20200425043458-8463f397d07c // indirect
 	k8s.io/apimachinery v0.18.2
-	k8s.io/client-go v0.17.0 // indirect
+	k8s.io/client-go v0.18.2
 )
