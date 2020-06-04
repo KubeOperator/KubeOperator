@@ -9,6 +9,7 @@ import {OverviewComponent} from './business/cluster/cluster-detail/overview/over
 import {SettingComponent} from './business/setting/setting.component';
 import {CredentialComponent} from './business/setting/credential/credential.component';
 import {HostComponent} from './business/host/host.component';
+import {NodeComponent} from './business/cluster/cluster-detail/node/node.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -28,6 +29,7 @@ const routes: Routes = [
                 children: [
                     {path: '', redirectTo: 'overview', pathMatch: 'full'},
                     {path: 'overview', component: OverviewComponent},
+                    {path: 'nodes', component: NodeComponent},
                 ],
             },
             {

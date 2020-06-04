@@ -31,18 +31,19 @@ const (
 	ContainerdStorageDirFactName = "containerd_storage_dir"
 
 	EtcdDataDirFactName = "etcd_data_dir"
-	EtcdImageFactName   = "etcd_image"
 
 	BinDirFactName  = "bin_dir"
 	BaseDirFactName = "base_dir"
 
 	LocalHostnameFactName = "local_hostname"
 	RepoPortFactName      = "repo_port"
+	CorednsImageFactName  = "coredns_image"
 )
 
 var DefaultFacts = map[string]string{
 	KubeVersionFactName:                  "1.18.0",
-	ContainerRuntimeFactName:             "containerd",
+	ContainerRuntimeFactName:             "docker",
+	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",
 	LbModeFactName:                       "haproxy",
 	LbKubeApiserverPortFactName:          "8443",
 	KubeDnsDomainFactName:                "cluster.local",
@@ -57,7 +58,6 @@ var DefaultFacts = map[string]string{
 	DockerStorageDirFactName:             "/var/lib/docker",
 	ContainerdStorageDirFactName:         "/var/lib/containerd",
 	EtcdDataDirFactName:                  "/var/lib/etcd",
-	EtcdImageFactName:                    "docker.io/kubeoperator/etcd:3.4.3-",
 	BinDirFactName:                       "/usr/local/bin",
 	BaseDirFactName:                      "/opt/kubeoperator",
 	LocalHostnameFactName:                "172.16.10.64",

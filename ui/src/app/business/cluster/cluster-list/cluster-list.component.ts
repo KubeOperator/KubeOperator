@@ -37,6 +37,14 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         }
     }
 
+    onNodeDetail(item: Cluster) {
+        if (item.status !== 'Running') {
+            this.commonAlert.showAlert('cluster is not ready', AlertLevels.ERROR);
+        } else {
+            this.router.navigate(['clusters', item.name, 'nodes']).then();
+        }
+    }
+
 
     onStatusDetail(name: string) {
         this.statusDetailEvent.emit(name);

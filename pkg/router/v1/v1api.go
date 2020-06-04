@@ -26,11 +26,14 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1ClusterApi.GET("/", cluster.List)
 			v1ClusterApi.POST("/", cluster.Create)
 			v1ClusterApi.GET("/:name/", cluster.Get)
-			v1ClusterApi.PATCH("/:name/", cluster.Update)
 			v1ClusterApi.DELETE("/:name/", cluster.Delete)
 			v1ClusterApi.POST("/batch/", cluster.Batch)
 			v1ClusterApi.GET("/:name/status/", cluster.Status)
 			v1ClusterApi.POST("/init/:name/", cluster.Init)
+		}
+		v1ClusterNodeApi := v1ClusterApi.Group("/:name/nodes")
+		{
+			v1ClusterNodeApi.GET("/:name/nodes/", cluster.ListNodes)
 		}
 		v1CredentialApi := v1Api.Group("/credentials")
 		{

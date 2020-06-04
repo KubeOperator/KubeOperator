@@ -23,6 +23,7 @@
   "APP_CLUSTER_FIELD_NAME": "name",
   "APP_CLUSTER_FIELD_VERSION": "version",
   "APP_CLUSTER_FIELD_STATUS": "status",
+  "APP_CLUSTER_FIELD_NODE_SIZE": "node size",
   "APP_CLUSTER_FIELD_CREATED_DATE": "created date",
   "APP_CLUSTER_FIELD_UPDATED_DATE": "updated date",
   "APP_CLUSTER_CREATE_TITLE": "Create Cluster",
