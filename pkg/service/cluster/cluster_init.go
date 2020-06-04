@@ -60,6 +60,8 @@ func InitCluster(c clusterModel.Cluster) error {
 	stopChan := make(chan int, 0)
 	go DoInitCluster(c, statusChan, stopChan)
 	go SyncStatus(statusChan, stopChan)
+
+	println("adsfssssssssss")
 	return nil
 }
 
@@ -67,9 +69,7 @@ func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status,
 	ad, _ := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(c)
-		if err != nil {
-			log.Fatal(err)
-		}
+		c.Status.Message = err.Error()
 		c.Status = resp.Status
 		select {
 		case <-stopChan:

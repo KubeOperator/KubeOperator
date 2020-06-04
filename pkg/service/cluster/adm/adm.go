@@ -81,14 +81,14 @@ func NewClusterAdm() (*ClusterAdm, error) {
 	ca := new(ClusterAdm)
 	ca.createHandlers = []Handler{
 		ca.EnsureInitTaskStart,
-		ca.EnsurePrepareBaseSystemConfig,
-		ca.EnsurePrepareContainerRuntime,
-		ca.EnsurePrepareKubernetesComponent,
-		ca.EnsurePrepareLoadBalancer,
-		ca.EnsurePrepareCertificates,
-		ca.EnsureInitEtcd,
-		ca.EnsureInitKubeConfig,
-		ca.EnsureInitMaster,
+		//ca.EnsurePrepareBaseSystemConfig,
+		//ca.EnsurePrepareContainerRuntime,
+		//ca.EnsurePrepareKubernetesComponent,
+		//ca.EnsurePrepareLoadBalancer,
+		//ca.EnsurePrepareCertificates,
+		//ca.EnsureInitEtcd,
+		//ca.EnsureInitKubeConfig,
+		//ca.EnsureInitMaster,
 	}
 	return ca, nil
 }

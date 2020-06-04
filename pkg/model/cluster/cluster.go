@@ -132,6 +132,12 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Children: []string{},
 				Vars:     map[string]string{},
 			},
+			{
+				Name:     "etcd",
+				Hosts:    masters,
+				Children: []string{"master"},
+				Vars:     map[string]string{},
+			},
 		},
 	}
 }

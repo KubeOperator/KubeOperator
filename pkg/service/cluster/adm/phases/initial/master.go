@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	initMaster = "08-master.yml"
+	initMaster = "08-kubernetes-master.yml"
 )
 
 type MasterPhase struct {

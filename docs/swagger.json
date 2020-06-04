@@ -118,6 +118,38 @@
                 }
             }
         },
+        "/clusters/initial/{cluster_name}/": {
+            "post": {
+                "description": "Init Cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cluster"
+                ],
+                "summary": "Cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "cluster_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.InitClusterResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/clusters/{cluster_name}": {
             "get": {
                 "description": "Get Cluster",
@@ -178,9 +210,11 @@
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "Update a Cluster",
+            }
+        },
+        "/clusters/{cluster_name}/nodes/": {
+            "get": {
+                "description": "List ClusterNodes",
                 "consumes": [
                     "application/json"
                 ],
@@ -188,64 +222,28 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Cluster"
+                    "ClusterNode"
                 ],
-                "summary": "Cluster",
+                "summary": "ClusterNode",
                 "parameters": [
                     {
-                        "description": "cluster",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/serializer.UpdateClusterRequest"
-                        }
+                        "type": "string",
+                        "description": "page num",
+                        "name": "pageNum",
+                        "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "cluster name",
-                        "name": "cluster_name",
-                        "in": "path",
-                        "required": true
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/serializer.Cluster"
-                        }
-                    }
-                }
-            }
-        },
-        "/clusters/{cluster_name}/init/": {
-            "post": {
-                "description": "Init Cluster",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cluster"
-                ],
-                "summary": "Cluster",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "cluster name",
-                        "name": "cluster_name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/serializer.InitClusterResponse"
+                            "$ref": "#/definitions/serializer.ListNodeResponse"
                         }
                     }
                 }
@@ -524,7 +522,7 @@
                 }
             },
             "post": {
-                "description": "Create a Host",
+                "description": "sync Host",
                 "consumes": [
                     "application/json"
                 ],
@@ -542,13 +540,13 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/serializer.CreateHostRequest"
+                            "$ref": "#/definitions/serializer.UpdateHostRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/serializer.Host"
                         }
@@ -690,6 +688,210 @@
                     }
                 }
             }
+        },
+        "/users/": {
+            "get": {
+                "description": "List users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "page num",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.ListUserResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "description": "user",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/batch/": {
+            "post": {
+                "description": "Batch users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "description": "Batch",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.BatchUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_name}": {
+            "get": {
+                "description": "Get User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user name",
+                        "name": "credential_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.GetUserResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user name",
+                        "name": "user_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a User",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User",
+                "parameters": [
+                    {
+                        "description": "user",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/serializer.UpdateUserRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "user name",
+                        "name": "user_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/serializer.User"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -778,6 +980,34 @@
                 }
             }
         },
+        "serializer.BatchUserRequest": {
+            "type": "object",
+            "required": [
+                "operation"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.User"
+                    }
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.BatchUserResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.User"
+                    }
+                }
+            }
+        },
         "serializer.Cluster": {
             "type": "object",
             "properties": {
@@ -786,6 +1016,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "nodeSize": {
+                    "type": "integer"
                 },
                 "spec": {
                     "type": "object",
@@ -863,16 +1096,59 @@
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
         "serializer.CreateHostRequest": {
             "type": "object",
             "required": [
-                "name"
+                "credentialId",
+                "ip",
+                "name",
+                "port"
             ],
             "properties": {
+                "credentialId": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }
@@ -880,10 +1156,25 @@
         "serializer.Credential": {
             "type": "object",
             "properties": {
+                "createAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
-                "status": {
+                "password": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateAt": {
                     "type": "string"
                 },
                 "username": {
@@ -918,23 +1209,35 @@
                 }
             }
         },
+        "serializer.GetUserResponse": {
+            "type": "object",
+            "properties": {
+                "item": {
+                    "type": "object",
+                    "$ref": "#/definitions/serializer.User"
+                }
+            }
+        },
         "serializer.Host": {
             "type": "object",
             "properties": {
-                "cluster_id": {
+                "clusterId": {
                     "type": "string"
                 },
-                "cpu_core": {
+                "cpuCore": {
                     "type": "integer"
                 },
-                "cpu_num": {
+                "createAt": {
+                    "type": "string"
+                },
+                "credentialId": {
+                    "type": "string"
+                },
+                "gpuInfo": {
+                    "type": "string"
+                },
+                "gpuNum": {
                     "type": "integer"
-                },
-                "credential_id": {
-                    "type": "string"
-                },
-                "gpu_info": {
-                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -943,18 +1246,18 @@
                     "type": "string"
                 },
                 "memory": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
-                "node_id": {
+                "nodeId": {
                     "type": "string"
                 },
                 "os": {
                     "type": "string"
                 },
-                "os_version": {
+                "osVersion": {
                     "type": "string"
                 },
                 "port": {
@@ -962,6 +1265,15 @@
                 },
                 "status": {
                     "type": "string"
+                },
+                "updateAt": {
+                    "type": "string"
+                },
+                "volumes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Volume"
+                    }
                 }
             }
         },
@@ -1008,6 +1320,34 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/serializer.Host"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.ListNodeResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.Node"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "serializer.ListUserResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/serializer.User"
                     }
                 },
                 "total": {
@@ -1063,39 +1403,113 @@
                 }
             }
         },
-        "serializer.UpdateClusterRequest": {
-            "type": "object",
-            "required": [
-                "item"
-            ],
-            "properties": {
-                "item": {
-                    "type": "object",
-                    "$ref": "#/definitions/serializer.Cluster"
-                }
-            }
-        },
         "serializer.UpdateCredentialRequest": {
             "type": "object",
             "required": [
-                "item"
+                "name"
             ],
             "properties": {
-                "item": {
-                    "type": "object",
-                    "$ref": "#/definitions/serializer.Credential"
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
         "serializer.UpdateHostRequest": {
             "type": "object",
             "required": [
-                "item"
+                "credentialId",
+                "name"
             ],
             "properties": {
-                "item": {
-                    "type": "object",
-                    "$ref": "#/definitions/serializer.Host"
+                "credentialId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.UpdateUserRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "serializer.Volume": {
+            "type": "object",
+            "properties": {
+                "hostId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
                 }
             }
         }
