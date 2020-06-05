@@ -23,6 +23,7 @@
     "@clr/angular": "^3.1.2",
     "@clr/icons": "^3.0.0",
     "@clr/ui": "^3.0.0",
+    "@kubernetes/client-node": "^0.12.0",
     "@ngx-translate/core": "^12.1.2",
     "@ngx-translate/http-loader": "^4.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",

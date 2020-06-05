@@ -45,9 +45,7 @@ func KubernetesClientProxy(ctx *gin.Context) {
 	}
 	token := fmt.Sprintf("%s %s", keyPrefix, secret.KubernetesToken)
 	ctx.Request.Header.Add(AuthorizationHeader, token)
-	ctx.Request.URL = &url.URL{
-		Path: path,
-	}
+	ctx.Request.URL.Path = path
 	proxy.ServeHTTP(ctx.Writer, ctx.Request)
 
 }
