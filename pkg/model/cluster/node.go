@@ -5,9 +5,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
 	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"log"
+	"time"
 )
 
 type Node struct {
@@ -39,10 +40,7 @@ func (n Node) AfterDelete() error {
 }
 
 func (n Node) ToKobeHost() *api.Host {
-	password, _, err := hostService.GetHostPasswordAndPrivateKey(&n.Host)
-	if err != nil {
-		log.Println(err)
-	}
+	password, _, _ := hostService.GetHostPasswordAndPrivateKey(&n.Host)
 	return &api.Host{
 		Ip:       n.Host.Ip,
 		Name:     n.Name,
@@ -52,6 +50,17 @@ func (n Node) ToKobeHost() *api.Host {
 	}
 }
 
+func (n Node) ToSSHConfig() ssh.Config {
+	password, _, _ := hostService.GetHostPasswordAndPrivateKey(&n.Host)
+	return ssh.Config{
+		User:        n.Host.Credential.Username,
+		Host:        n.Host.Ip,
+		Port:        n.Host.Port,
+		Password:    password,
+		DialTimeOut: 5 * time.Second,
+		Retry:       3,
+	}
+}
 func (n Node) TableName() string {
 	return "ko_cluster_node"
 }

@@ -16,15 +16,18 @@ type Cluster struct {
 	ID       string
 	Name     string
 	SpecID   string
+	SecretID string
 	StatusID string
 	Status   Status `gorm:"save_associations:false"`
 	Spec     Spec   `gorm:"save_associations:false"`
+	Secret   Secret `gorm:"save_associations:false"`
 	Nodes    []Node `gorm:"save_associations:false"`
 }
 
 func (c Cluster) TableName() string {
 	return "ko_cluster"
 }
+
 func (c *Cluster) BeforeCreate(scope *gorm.Scope) error {
 	c.ID = uuid.NewV4().String()
 	c.Spec.ID = uuid.NewV4().String()
@@ -86,7 +89,9 @@ func (c Cluster) AfterDelete(scope *gorm.Scope) error {
 	if err != nil {
 		return err
 	}
-	if err := scope.DB().Where(Node{ClusterID: c.ID}).Delete(Node{}).Error; err != nil {
+	if err := scope.DB().
+		Where(Node{ClusterID: c.ID}).
+		Delete(Node{}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -95,6 +100,7 @@ func (c Cluster) AfterDelete(scope *gorm.Scope) error {
 func (c Cluster) ParseInventory() api.Inventory {
 	var masters []string
 	var workers []string
+	var chrony []string
 	var hosts []*api.Host
 	for _, node := range c.Nodes {
 		hosts = append(hosts, node.ToKobeHost())
@@ -105,6 +111,10 @@ func (c Cluster) ParseInventory() api.Inventory {
 			workers = append(workers, node.Name)
 		}
 	}
+	if len(masters) > 0 {
+		chrony = append(chrony, masters[0])
+	}
+
 	return api.Inventory{
 		Hosts: hosts,
 		Groups: []*api.Group{
@@ -132,6 +142,48 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Children: []string{},
 				Vars:     map[string]string{},
 			},
+			{
+				Name:     "etcd",
+				Hosts:    masters,
+				Children: []string{"master"},
+				Vars:     map[string]string{},
+			}, {
+				Name:     "chrony",
+				Hosts:    chrony,
+				Children: []string{},
+				Vars:     map[string]string{},
+			},
 		},
 	}
+}
+
+func (c *Cluster) SetSecret(secret Secret) error {
+	c.Secret = secret
+	if db.DB.NewRecord(secret) {
+		if err := db.DB.
+			Create(&(c.Secret)).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := db.DB.
+			Save(&(c.Secret)).Error; err != nil {
+			return err
+		}
+	}
+	c.SecretID = c.Secret.ID
+	if err := db.DB.Save(&c).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c Cluster) FistMaster() Node {
+	var master Node
+	for i, _ := range c.Nodes {
+		if c.Nodes[i].Role == constant.NodeRoleNameMaster {
+			master = c.Nodes[i]
+			break
+		}
+	}
+	return master
 }

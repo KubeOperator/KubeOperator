@@ -55,12 +55,32 @@ definitions:
           $ref: '#/definitions/serializer.Host'
         type: array
     type: object
+  serializer.BatchUserRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.User'
+        type: array
+      operation:
+        type: string
+    required:
+    - operation
+    type: object
+  serializer.BatchUserResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.User'
+        type: array
+    type: object
   serializer.Cluster:
     properties:
       createAt:
         type: string
       name:
         type: string
+      nodeSize:
+        type: integer
       spec:
         $ref: '#/definitions/serializer.Spec'
         type: object
@@ -110,21 +130,61 @@ definitions:
     properties:
       name:
         type: string
+      password:
+        type: string
+      privateKey:
+        type: string
+      type:
+        type: string
+      username:
+        type: string
     required:
     - name
     type: object
   serializer.CreateHostRequest:
     properties:
+      credentialId:
+        type: string
+      ip:
+        type: string
       name:
         type: string
+      port:
+        type: integer
     required:
+    - credentialId
+    - ip
     - name
+    - port
+    type: object
+  serializer.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
     type: object
   serializer.Credential:
     properties:
+      createAt:
+        type: string
+      id:
+        type: string
       name:
         type: string
-      status:
+      password:
+        type: string
+      privateKey:
+        type: string
+      type:
+        type: string
+      updateAt:
         type: string
       username:
         type: string
@@ -147,36 +207,50 @@ definitions:
         $ref: '#/definitions/serializer.Host'
         type: object
     type: object
+  serializer.GetUserResponse:
+    properties:
+      item:
+        $ref: '#/definitions/serializer.User'
+        type: object
+    type: object
   serializer.Host:
     properties:
-      cluster_id:
+      clusterId:
         type: string
-      cpu_core:
+      cpuCore:
         type: integer
-      cpu_num:
+      createAt:
+        type: string
+      credentialId:
+        type: string
+      gpuInfo:
+        type: string
+      gpuNum:
         type: integer
-      credential_id:
-        type: string
-      gpu_info:
-        type: string
       id:
         type: string
       ip:
         type: string
       memory:
-        type: string
+        type: integer
       name:
         type: string
-      node_id:
+      nodeId:
         type: string
       os:
         type: string
-      os_version:
+      osVersion:
         type: string
       port:
         type: integer
       status:
         type: string
+      updateAt:
+        type: string
+      volumes:
+        items:
+          $ref: '#/definitions/serializer.Volume'
+        type: array
     type: object
   serializer.InitClusterResponse:
     properties:
@@ -206,6 +280,24 @@ definitions:
       items:
         items:
           $ref: '#/definitions/serializer.Host'
+        type: array
+      total:
+        type: integer
+    type: object
+  serializer.ListNodeResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.Node'
+        type: array
+      total:
+        type: integer
+    type: object
+  serializer.ListUserResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/serializer.User'
         type: array
       total:
         type: integer
@@ -241,29 +333,77 @@ definitions:
       phase:
         type: string
     type: object
-  serializer.UpdateClusterRequest:
-    properties:
-      item:
-        $ref: '#/definitions/serializer.Cluster'
-        type: object
-    required:
-    - item
-    type: object
   serializer.UpdateCredentialRequest:
     properties:
-      item:
-        $ref: '#/definitions/serializer.Credential'
-        type: object
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      privateKey:
+        type: string
+      type:
+        type: string
+      username:
+        type: string
     required:
-    - item
+    - name
     type: object
   serializer.UpdateHostRequest:
     properties:
-      item:
-        $ref: '#/definitions/serializer.Host'
-        type: object
+      credentialId:
+        type: string
+      name:
+        type: string
     required:
-    - item
+    - credentialId
+    - name
+    type: object
+  serializer.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      isActive:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    type: object
+  serializer.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  serializer.Volume:
+    properties:
+      hostId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      size:
+        type: string
     type: object
 info:
   contact:
@@ -362,21 +502,19 @@ paths:
       summary: Cluster
       tags:
       - Cluster
-    patch:
+  /clusters/{cluster_name}/nodes/:
+    get:
       consumes:
       - application/json
-      description: Update a Cluster
+      description: List ClusterNodes
       parameters:
-      - description: cluster
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/serializer.UpdateClusterRequest'
-      - description: cluster name
-        in: path
-        name: cluster_name
-        required: true
+      - description: page num
+        in: query
+        name: pageNum
+        type: string
+      - description: page size
+        in: query
+        name: pageSize
         type: string
       produces:
       - application/json
@@ -384,31 +522,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/serializer.Cluster'
-      summary: Cluster
+            $ref: '#/definitions/serializer.ListNodeResponse'
+      summary: ClusterNode
       tags:
-      - Cluster
-  /clusters/{cluster_name}/init/:
-    post:
-      consumes:
-      - application/json
-      description: Init Cluster
-      parameters:
-      - description: cluster name
-        in: path
-        name: cluster_name
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/serializer.InitClusterResponse'
-      summary: Cluster
-      tags:
-      - Cluster
+      - ClusterNode
   /clusters/{cluster_name}/status/:
     get:
       consumes:
@@ -449,6 +566,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/serializer.BatchClusterResponse'
+      summary: Cluster
+      tags:
+      - Cluster
+  /clusters/initial/{cluster_name}/:
+    post:
+      consumes:
+      - application/json
+      description: Init Cluster
+      parameters:
+      - description: cluster name
+        in: path
+        name: cluster_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.InitClusterResponse'
       summary: Cluster
       tags:
       - Cluster
@@ -613,19 +751,19 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a Host
+      description: sync Host
       parameters:
       - description: host
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/serializer.CreateHostRequest'
+          $ref: '#/definitions/serializer.UpdateHostRequest'
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/serializer.Host'
       summary: Host
@@ -720,6 +858,140 @@ paths:
       summary: Host
       tags:
       - Host
+  /users/:
+    get:
+      consumes:
+      - application/json
+      description: List users
+      parameters:
+      - description: page num
+        in: query
+        name: pageNum
+        type: string
+      - description: page size
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.ListUserResponse'
+      summary: User
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create a User
+      parameters:
+      - description: user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/serializer.User'
+      summary: User
+      tags:
+      - User
+  /users/{user_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a User
+      parameters:
+      - description: user name
+        in: path
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: User
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Get User
+      parameters:
+      - description: user name
+        in: path
+        name: credential_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.GetUserResponse'
+      summary: User
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Update a User
+      parameters:
+      - description: user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.UpdateUserRequest'
+      - description: user name
+        in: path
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.User'
+      summary: User
+      tags:
+      - User
+  /users/batch/:
+    post:
+      consumes:
+      - application/json
+      description: Batch users
+      parameters:
+      - description: Batch
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/serializer.BatchUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/serializer.BatchUserResponse'
+      summary: User
+      tags:
+      - User
 securityDefinitions:
   ApiKeyAuth:
     in: header

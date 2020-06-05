@@ -7,6 +7,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"log"
 	"time"
 )
@@ -39,7 +41,13 @@ func InitCluster(c clusterModel.Cluster) error {
 	if err != nil {
 		return err
 	}
-
+	err = c.SetSecret(clusterModel.Secret{
+		KubeadmToken:    "abcdefg",
+		KubernetesToken: "",
+	})
+	if err != nil {
+		return err
+	}
 	if status.Phase == constant.ClusterRunning || status.Phase == constant.ClusterInitializing {
 		return errors.New(fmt.Sprintf("invalid status: %s", status.Phase))
 	}
@@ -68,9 +76,15 @@ func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status,
 	for {
 		resp, err := ad.OnInitialize(c)
 		if err != nil {
-			log.Fatal(err)
+			c.Status.Message = err.Error()
 		}
 		c.Status = resp.Status
+		if c.Status.Phase == constant.ClusterRunning {
+			err := GetAndSaveClusterApiToken(c)
+			if err != nil {
+				c.Status.Message = err.Error()
+			}
+		}
 		select {
 		case <-stopChan:
 			return
@@ -94,4 +108,27 @@ func SyncStatus(statusChan chan *clusterModel.Status, stopChan chan int) {
 			return
 		}
 	}
+}
+
+func GetAndSaveClusterApiToken(c clusterModel.Cluster) error {
+	secret, err := GetClusterSecret(c.Name)
+	if err != nil {
+		return err
+	}
+	master := c.FistMaster()
+	sshConfig := master.ToSSHConfig()
+	client, err := ssh.New(&sshConfig)
+	if err != nil {
+		return err
+	}
+	token, err := clusterUtil.GetClusterToken(client)
+	if err != nil {
+		return err
+	}
+	secret.KubernetesToken = token
+	err = c.SetSecret(secret)
+	if err != nil {
+		return err
+	}
+	return nil
 }

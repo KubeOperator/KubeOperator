@@ -161,3 +161,8 @@ func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) (kobe.Result, error) {
 	phase := initial.MasterPhase{}
 	return phase.Run(c.Kobe)
 }
+
+func (ca *ClusterAdm) EnsurePostInit(c *Cluster) (kobe.Result, error) {
+	phase := initial.PostPhase{}
+	return phase.Run(c.Kobe)
+}

@@ -37,11 +37,13 @@ const (
 
 	LocalHostnameFactName = "local_hostname"
 	RepoPortFactName      = "repo_port"
+	RegistryPortFactName  = "registry_port"
 	CorednsImageFactName  = "coredns_image"
+	KubeadmTokenFactName  = "kubeadm_token"
 )
 
 var DefaultFacts = map[string]string{
-	KubeVersionFactName:                  "1.18.0",
+	KubeVersionFactName:                  "v1.18.3",
 	ContainerRuntimeFactName:             "docker",
 	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",
 	LbModeFactName:                       "haproxy",
@@ -62,6 +64,7 @@ var DefaultFacts = map[string]string{
 	BaseDirFactName:                      "/opt/kubeoperator",
 	LocalHostnameFactName:                "172.16.10.64",
 	RepoPortFactName:                     "8081",
+	RegistryPortFactName:                 "8082",
 	KubeImageRepositoryFactName:          "docker.io/kubeoperator",
 	PodInfraContainerImageFactName:       "docker.io/kubeoperator/pause:3.1",
 	CertsExpiredFactName:                 "36500",
@@ -69,7 +72,7 @@ var DefaultFacts = map[string]string{
 	EvictionHardMemoryAvailableFactName:  "100Mi",
 	EvictionHardNodefsAvailableFactName:  "10%",
 	EvictionHardNodefsInodesFreeFactName: "5%",
-
+	KubeadmTokenFactName:                 "abcdef.0123456789abcdef",
 	KubeCpuReservedFactName:              "100m",
 	KubeMemoryReservedFactName:           "256M",
 	KubeEphemeralStorageReservedFactName: "1G",

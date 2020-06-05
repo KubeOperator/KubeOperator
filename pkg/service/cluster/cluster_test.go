@@ -98,5 +98,10 @@ type Cluster struct {
 }
 
 func TestInitCluster(t *testing.T) {
-
+	Init()
+	var c clusterModel.Cluster
+	if err := db.DB.First(&c).Error; err != nil {
+		t.Error(err)
+	}
+	_ = InitCluster(c)
 }

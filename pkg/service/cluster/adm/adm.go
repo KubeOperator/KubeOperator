@@ -89,6 +89,7 @@ func NewClusterAdm() (*ClusterAdm, error) {
 		ca.EnsureInitEtcd,
 		ca.EnsureInitKubeConfig,
 		ca.EnsureInitMaster,
+		ca.EnsurePostInit,
 	}
 	return ca, nil
 }
