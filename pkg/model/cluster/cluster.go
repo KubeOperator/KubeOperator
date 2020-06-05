@@ -89,7 +89,9 @@ func (c Cluster) AfterDelete(scope *gorm.Scope) error {
 	if err != nil {
 		return err
 	}
-	if err := scope.DB().Where(Node{ClusterID: c.ID}).Delete(Node{}).Error; err != nil {
+	if err := scope.DB().
+		Where(Node{ClusterID: c.ID}).
+		Delete(Node{}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -98,6 +100,7 @@ func (c Cluster) AfterDelete(scope *gorm.Scope) error {
 func (c Cluster) ParseInventory() api.Inventory {
 	var masters []string
 	var workers []string
+	var chrony []string
 	var hosts []*api.Host
 	for _, node := range c.Nodes {
 		hosts = append(hosts, node.ToKobeHost())
@@ -108,6 +111,10 @@ func (c Cluster) ParseInventory() api.Inventory {
 			workers = append(workers, node.Name)
 		}
 	}
+	if len(masters) > 0 {
+		chrony = append(chrony, masters[0])
+	}
+
 	return api.Inventory{
 		Hosts: hosts,
 		Groups: []*api.Group{
@@ -140,6 +147,11 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Hosts:    masters,
 				Children: []string{"master"},
 				Vars:     map[string]string{},
+			}, {
+				Name:     "chrony",
+				Hosts:    chrony,
+				Children: []string{},
+				Vars:     map[string]string{},
 			},
 		},
 	}
@@ -163,4 +175,15 @@ func (c *Cluster) SetSecret(secret Secret) error {
 		return err
 	}
 	return nil
+}
+
+func (c Cluster) FistMaster() Node {
+	var master Node
+	for i, _ := range c.Nodes {
+		if c.Nodes[i].Role == constant.NodeRoleNameMaster {
+			master = c.Nodes[i]
+			break
+		}
+	}
+	return master
 }
