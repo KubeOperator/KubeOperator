@@ -46,22 +46,6 @@ func (k *Kube) getPodsByNamespace(namespace string) ([]v1.Pod, error) {
 	return podList.Items, err
 }
 
-func (k *Kube) getAllPods() ([]v1.Pod, error) {
-	var pods []v1.Pod
-	namespaceList, err := k.client.CoreV1().Namespaces().List(context.TODO(), metaV1.ListOptions{})
-	if err != nil {
-		return pods, err
-	}
-	for _, namespace := range namespaceList.Items {
-		podList, err := k.client.CoreV1().Pods(namespace.Name).List(context.TODO(), metaV1.ListOptions{})
-		if err != nil {
-			break
-		}
-		pods = append(pods, podList.Items...)
-	}
-	return pods, err
-}
-
 func (k *Kube) GetEvents() ([]v1.Event, error) {
 	var events []v1.Event
 	namespaceList, err := k.client.CoreV1().Namespaces().List(context.TODO(), metaV1.ListOptions{})
