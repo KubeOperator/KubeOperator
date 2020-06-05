@@ -68,10 +68,6 @@ func InitCluster(c clusterModel.Cluster) error {
 	stopChan := make(chan int, 0)
 	go DoInitCluster(c, statusChan, stopChan)
 	go SyncStatus(statusChan, stopChan)
-	err = GetAndSaveClusterApiToken(c)
-	if err != nil {
-		log.Println(err.Error())
-	}
 	return nil
 }
 
