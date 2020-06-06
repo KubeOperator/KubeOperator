@@ -20,7 +20,7 @@ export class NamespaceListComponent implements OnInit {
     page = 1;
     currentCluster: Cluster;
 
-    constructor(private service: KubernetesService, private route: ActivatedRoute,) {
+    constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
 
 

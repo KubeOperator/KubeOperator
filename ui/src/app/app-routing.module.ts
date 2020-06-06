@@ -11,6 +11,9 @@ import {CredentialComponent} from './business/setting/credential/credential.comp
 import {HostComponent} from './business/host/host.component';
 import {NodeComponent} from './business/cluster/cluster-detail/node/node.component';
 import {NamespaceComponent} from "./business/cluster/cluster-detail/namespace/namespace.component";
+import {StorageComponent} from "./business/cluster/cluster-detail/storage/storage.component";
+import {PersistentVolumeComponent} from "./business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component";
+import {PersistentVolumeClaimComponent} from "./business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -32,6 +35,15 @@ const routes: Routes = [
                     {path: 'overview', component: OverviewComponent},
                     {path: 'nodes', component: NodeComponent},
                     {path: 'namespaces', component: NamespaceComponent},
+                    {
+                        path: 'storages',
+                        component: StorageComponent,
+                        children: [
+                            {path: '', redirectTo: 'pv', pathMatch: 'full'},
+                            {path: 'pv', component: PersistentVolumeComponent},
+                            {path: 'pvc', component: PersistentVolumeClaimComponent},
+                        ],
+                    }
                 ],
             },
             {
