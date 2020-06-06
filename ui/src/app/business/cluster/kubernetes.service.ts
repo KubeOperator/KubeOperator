@@ -4,7 +4,7 @@ import {V1NamespaceList} from '@kubernetes/client-node/dist/gen/model/v1Namespac
 import {Observable} from 'rxjs';
 // @ts-ignore
 import {IncomingMessage} from 'http';
-import {V1PersistentVolume, V1PersistentVolumeList} from "@kubernetes/client-node";
+import {V1NodeList, V1PersistentVolume, V1PersistentVolumeList} from "@kubernetes/client-node";
 
 @Injectable({
     providedIn: 'root'
@@ -21,6 +21,16 @@ export class KubernetesService {
 
     namespaceUrl = '/api/v1/namespaces';
     persistentVolumesUrl = '/api/v1/persistentvolumes';
+    nodesUrl = '/api/v1/nodes';
+
+    listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodesUrl);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        return this.client.get<V1NodeList>(url);
+    }
 
     listNamespaces(clusterName: string, continueToken?: string): Observable<V1NamespaceList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);

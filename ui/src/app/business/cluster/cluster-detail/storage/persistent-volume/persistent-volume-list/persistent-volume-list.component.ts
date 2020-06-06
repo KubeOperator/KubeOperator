@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {Cluster} from "../../../../cluster";
-import {V1Namespace, V1PersistentVolume} from "@kubernetes/client-node";
-import {KubernetesService} from "../../../../kubernetes.service";
+import {ActivatedRoute} from '@angular/router';
+import {Cluster} from '../../../../cluster';
+import {V1Namespace, V1PersistentVolume} from '@kubernetes/client-node';
+import {KubernetesService} from '../../../../kubernetes.service';
 
 @Component({
     selector: 'app-persistent-volume-list',
