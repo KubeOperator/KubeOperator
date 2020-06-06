@@ -10,6 +10,7 @@ import {SettingComponent} from './business/setting/setting.component';
 import {CredentialComponent} from './business/setting/credential/credential.component';
 import {HostComponent} from './business/host/host.component';
 import {NodeComponent} from './business/cluster/cluster-detail/node/node.component';
+import {NamespaceComponent} from "./business/cluster/cluster-detail/namespace/namespace.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -30,6 +31,7 @@ const routes: Routes = [
                     {path: '', redirectTo: 'overview', pathMatch: 'full'},
                     {path: 'overview', component: OverviewComponent},
                     {path: 'nodes', component: NodeComponent},
+                    {path: 'namespaces', component: NamespaceComponent},
                 ],
             },
             {
