@@ -1,10 +1,22 @@
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
     <clr-dg-action-bar>
     </clr-dg-action-bar>
-    <clr-dg-column>{{"APP_CLUSTER_NAMESPACE_FIELD_NAME"|translate}}</clr-dg-column>
-    <clr-dg-column>{{"APP_CLUSTER_FIELD_CREATED_DATE"|translate}}</clr-dg-column>
+    <clr-dg-column>{{"APP_CLUSTER_NODE_FIELD_NAME"|translate}}</clr-dg-column>
+    <clr-dg-column>{{"APP_CLUSTER_NODE_FIELD_IP"|translate}}</clr-dg-column>
+    <clr-dg-column>{{"APP_CLUSTER_NODE_FIELD_VERSION"|translate}}</clr-dg-column>
+    <clr-dg-column>Roles</clr-dg-column>
+    <clr-dg-column>CPU</clr-dg-column>
+    <clr-dg-column>RAM</clr-dg-column>
+    <clr-dg-column>{{"APP_CLUSTER_NODE_FIELD_STATUS"|translate}}</clr-dg-column>
+    <clr-dg-column>{{"APP_CLUSTER_NODE_FIELD_CREATED_DATE"|translate}}</clr-dg-column>
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell>{{item.metadata.name}}</clr-dg-cell>
+        <clr-dg-cell><a href="javascript:void(0)" (click)="onDetail(item)">{{item.metadata.name}}</a></clr-dg-cell>
+        <clr-dg-cell>{{getInternalIp(item)}}</clr-dg-cell>
+        <clr-dg-cell>{{item.status.nodeInfo.kubeletVersion}}</clr-dg-cell>
+        <clr-dg-cell>{{getNodeRoles(item)}}</clr-dg-cell>
+        <clr-dg-cell>{{item.status.capacity["cpu"]}}</clr-dg-cell>
+        <clr-dg-cell>{{formatRAM(item.status.capacity["memory"])}}</clr-dg-cell>
+        <clr-dg-cell>{{isNodeReady(item)}}</clr-dg-cell>
         <clr-dg-cell>{{item.metadata.creationTimestamp|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>

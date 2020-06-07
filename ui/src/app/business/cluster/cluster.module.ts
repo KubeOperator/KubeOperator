@@ -18,10 +18,11 @@ import { PersistentVolumeClaimComponent } from './cluster-detail/storage/persist
 import { StorageClassComponent } from './cluster-detail/storage/storage-class/storage-class.component';
 import { PersistentVolumeListComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-list/persistent-volume-list.component';
 import { NodeListComponent } from './cluster-detail/node/node-list/node-list.component';
+import { NodeDetailComponent } from './cluster-detail/node/node-detail/node-detail.component';
 
 
 @NgModule({
-    declarations: [ClusterComponent, ClusterListComponent, ClusterCreateComponent, ClusterDeleteComponent, ClusterDetailComponent, OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent, StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent, NodeListComponent],
+    declarations: [ClusterComponent, ClusterListComponent, ClusterCreateComponent, ClusterDeleteComponent, ClusterDetailComponent, OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent, StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent, NodeListComponent, NodeDetailComponent],
     imports: [
         CoreModule,
         RouterModule,
