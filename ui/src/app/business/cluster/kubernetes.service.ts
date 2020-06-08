@@ -17,7 +17,7 @@ import {
 
 export class KubernetesService {
 
-    proxyUrl = '/api/v1/proxy/{cluster_name}/{resource_url}';
+    proxyUrl = '/api/v1/proxy/kubernetes/{cluster_name}/{resource_url}';
     limit = 10;
     continueTokenKey = 'continue';
 
