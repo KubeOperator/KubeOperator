@@ -66,5 +66,11 @@
   "APP_HOST_MEMORY": "Memory",
   "APP_HOST_GPU": "Gpu",
   "APP_HOST_OS": "Operating System",
-  "APP_HOST_STATUS": "Status"
+  "APP_HOST_STATUS": "Status",
+  "APP_USER": "User",
+  "APP_USER_MANAGEMENT": "User Management",
+  "APP_USER_NAME": "User Name",
+  "APP_USER_EMAIL": "Email",
+  "APP_USER_PASSWORD": "Password",
+  "APP_ACTIVE": "Enable"
 }

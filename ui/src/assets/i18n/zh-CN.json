@@ -69,5 +69,11 @@
   "APP_HOST_MEMORY": "内存(MB)",
   "APP_HOST_GPU": "GPU(个)",
   "APP_HOST_OS": "操作系统",
-  "APP_HOST_STATUS": "状态"
+  "APP_HOST_STATUS": "状态",
+  "APP_USER": "用户",
+  "APP_USER_MANAGEMENT": "用户管理",
+  "APP_USER_NAME": "用户名",
+  "APP_USER_EMAIL": "邮箱",
+  "APP_USER_PASSWORD": "密码",
+  "APP_ACTIVE": "启用"
 }

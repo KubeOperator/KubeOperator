@@ -10,10 +10,11 @@ import {SettingComponent} from './business/setting/setting.component';
 import {CredentialComponent} from './business/setting/credential/credential.component';
 import {HostComponent} from './business/host/host.component';
 import {NodeComponent} from './business/cluster/cluster-detail/node/node.component';
-import {NamespaceComponent} from "./business/cluster/cluster-detail/namespace/namespace.component";
-import {StorageComponent} from "./business/cluster/cluster-detail/storage/storage.component";
-import {PersistentVolumeComponent} from "./business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component";
-import {PersistentVolumeClaimComponent} from "./business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component";
+import {NamespaceComponent} from './business/cluster/cluster-detail/namespace/namespace.component';
+import {StorageComponent} from './business/cluster/cluster-detail/storage/storage.component';
+import {PersistentVolumeComponent} from './business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component';
+import {PersistentVolumeClaimComponent} from './business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component';
+import {UserComponent} from './business/user/user.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -56,6 +57,10 @@ const routes: Routes = [
                 children: [
                     {path: 'credential', component: CredentialComponent}
                 ]
+            },
+            {
+                path: 'users',
+                component: UserComponent,
             }
         ]
     }
