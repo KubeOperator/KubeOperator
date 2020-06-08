@@ -5,6 +5,7 @@ const (
 	ClusterInitializing = "Initializing"
 	ClusterFailed       = "Failed"
 	ClusterTerminating  = "Terminating"
+	ClusterTerminated   = "Terminated"
 	ClusterWaiting      = "Waiting"
 
 	ConditionTrue    = "True"

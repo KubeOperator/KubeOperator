@@ -42,6 +42,18 @@ func (s *Status) AfterSave() error {
 	return nil
 }
 
+func (s *Status) ClearConditions() error {
+	if len(s.Conditions) > 0 {
+		err := db.DB.Where(Condition{StatusID: s.ID}).
+			Delete(Condition{}).Error
+		if err != nil {
+			return err
+		}
+		s.Conditions = []Condition{}
+	}
+	return nil
+}
+
 func (s Status) BeforeDelete(scope *gorm.Scope) error {
 	return scope.DB().
 		Where(Condition{StatusID: s.ID}).

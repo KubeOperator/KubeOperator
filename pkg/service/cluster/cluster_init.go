@@ -64,14 +64,14 @@ func InitCluster(c clusterModel.Cluster) error {
 	if err := SaveClusterStatus(&(c.Status)); err != nil {
 		return err
 	}
-	statusChan := make(chan *clusterModel.Status, 0)
+	statusChan := make(chan *clusterModel.Cluster, 0)
 	stopChan := make(chan int, 0)
 	go DoInitCluster(c, statusChan, stopChan)
-	go SyncStatus(statusChan, stopChan)
+	go SyncInitStatus(statusChan, stopChan)
 	return nil
 }
 
-func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status, stopChan chan int) {
+func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Cluster, stopChan chan int) {
 	ad, _ := adm.NewClusterAdm()
 	for {
 		resp, err := ad.OnInitialize(c)
@@ -79,32 +79,35 @@ func DoInitCluster(c clusterModel.Cluster, statusChan chan *clusterModel.Status,
 			c.Status.Message = err.Error()
 		}
 		c.Status = resp.Status
-		if c.Status.Phase == constant.ClusterRunning {
-			err := GetAndSaveClusterApiToken(c)
-			if err != nil {
-				c.Status.Message = err.Error()
-			}
-		}
 		select {
 		case <-stopChan:
 			return
 		default:
-			statusChan <- &(c.Status)
+			statusChan <- &c
 		}
 		time.Sleep(5 * time.Second)
 	}
 }
 
-func SyncStatus(statusChan chan *clusterModel.Status, stopChan chan int) {
+func SyncInitStatus(statusChan chan *clusterModel.Cluster, stopChan chan int) {
 	for {
-		status := <-statusChan
-		if err := db.DB.Save(status).Error; err != nil {
+		c := <-statusChan
+		db.DB.Save(&(c.Status))
+		switch c.Status.Phase {
+		case constant.ClusterFailed:
 			stopChan <- 1
 			return
-		}
-		switch status.Phase {
-		case constant.ClusterFailed, constant.ClusterRunning:
+		case constant.ClusterRunning:
 			stopChan <- 1
+			err := GetAndSaveClusterApiToken(*c)
+			if err != nil {
+				c.Status.Message = err.Error()
+			}
+			err = c.Status.ClearConditions()
+			if err != nil {
+				c.Status.Message = err.Error()
+			}
+			db.DB.Save(&(c.Status))
 			return
 		}
 	}

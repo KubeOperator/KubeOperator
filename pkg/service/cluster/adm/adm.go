@@ -75,6 +75,7 @@ func NewCluster(cluster clusterModel.Cluster) (*Cluster, error) {
 
 type ClusterAdm struct {
 	createHandlers []Handler
+	resetHandlers  []Handler
 }
 
 func NewClusterAdm() (*ClusterAdm, error) {
@@ -91,6 +92,11 @@ func NewClusterAdm() (*ClusterAdm, error) {
 		ca.EnsureInitMaster,
 		ca.EnsurePostInit,
 	}
+	ca.resetHandlers = []Handler{
+		ca.EnsureRestTaskStart,
+		ca.EnsureRestCluster,
+	}
+
 	return ca, nil
 }
 
@@ -100,5 +106,14 @@ func (ca *ClusterAdm) OnInitialize(cluster clusterModel.Cluster) (clusterModel.C
 		return cluster, err
 	}
 	err = ca.Create(c)
+	return c.Cluster, err
+}
+
+func (ca *ClusterAdm) OnReset(cluster clusterModel.Cluster) (clusterModel.Cluster, error) {
+	c, err := NewCluster(cluster)
+	if err != nil {
+		return cluster, err
+	}
+	err = ca.Reset(c)
 	return c.Cluster, err
 }
