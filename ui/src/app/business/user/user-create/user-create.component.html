@@ -1,0 +1,45 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_ACTION_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #userForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_USER_NAME"|translate}}</label>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{"APP_USER_EMAIL"|translate}}</label>
+                <input clrInput [size]="32" name="email" [(ngModel)]="item.email"
+                       [email]="true"
+                       required/>
+                <clr-control-error>{{'APP_USER_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+            </clr-input-container>
+            <clr-password-container>
+                <label>{{"APP_USER_PASSWORD"|translate}}</label>
+                <input style="display:none">
+                <input clrPassword [size]="32" name="password" [(ngModel)]="item.password"
+                       pattern="{{passwordPattern}}"
+                       required/>
+                <clr-control-helper
+                        *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_USER_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_USER_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+            </clr-password-container>
+            <clr-password-container>
+                <label>{{"APP_USER_PASSWORD_CONFIRM"|translate}}</label>
+                <input style="display:none">
+                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword"
+                       pattern="{{passwordPattern}}" required/>
+                <clr-control-helper
+                        *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_USER_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_USER_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+            </clr-password-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_MODAL_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="userForm.invalid ">{{'APP_MODAL_COMMIT'|translate}}
+        </button>
+    </div>
+</clr-modal>

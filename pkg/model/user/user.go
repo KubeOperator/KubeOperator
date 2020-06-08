@@ -15,7 +15,7 @@ type User struct {
 	ID       string
 	Name     string `gorm:"not null;unique"`
 	Password string
-	Email    string
+	Email    string `gorm:"not null;unique"`
 	IsActive bool
 	Language string
 }

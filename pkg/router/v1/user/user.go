@@ -7,6 +7,7 @@ import (
 	userModel "github.com/KubeOperator/KubeOperator/pkg/model/user"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/user/serializer"
 	userService "github.com/KubeOperator/KubeOperator/pkg/service/user"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -57,8 +58,9 @@ func List(ctx *gin.Context) {
 		Items: []serializer.User{},
 		Total: total,
 	}
-	for _, model := range models {
-		resp.Items = append(resp.Items, serializer.FromModel(model))
+	for i, model := range models {
+		models[i].Password, _ = encrypt.StringDecrypt(model.Password)
+		resp.Items = append(resp.Items, serializer.FromModel(models[i]))
 	}
 
 	ctx.JSON(http.StatusOK, resp)
@@ -87,6 +89,13 @@ func Get(ctx *gin.Context) {
 		})
 		return
 	}
+	model.Password, err = encrypt.StringDecrypt(model.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(http.StatusOK, serializer.GetUserResponse{
 		Item: serializer.FromModel(model),
 	})
@@ -103,16 +112,24 @@ func Get(ctx *gin.Context) {
 // @Router /users/ [post]
 func Create(ctx *gin.Context) {
 	var req serializer.CreateUserRequest
-	err := ctx.ShouldBind(req)
+	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": err.Error(),
 		})
 		return
 	}
+
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	model := userModel.User{
 		Name:     req.Name,
-		Password: req.Password,
+		Password: password,
 		Email:    req.Email,
 		IsActive: true,
 		Language: userModel.ZH,
@@ -147,9 +164,17 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	user := serializer.User{
+		ID:       req.ID,
 		Name:     req.Name,
-		Password: req.Password,
+		Password: password,
 		Email:    req.Email,
 		IsActive: req.IsActive,
 		Language: req.Language,
@@ -203,7 +228,7 @@ func Delete(ctx *gin.Context) {
 // @Router /users/batch/ [post]
 func Batch(ctx *gin.Context) {
 	var req serializer.BatchUserRequest
-	err := ctx.ShouldBind(req)
+	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": err.Error(),

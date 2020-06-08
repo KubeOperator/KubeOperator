@@ -23,6 +23,7 @@ import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-
 import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-route/service-route.component';
 import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
 import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
+import {UserComponent} from './business/user/user.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -86,6 +87,10 @@ const routes: Routes = [
                 children: [
                     {path: 'credential', component: CredentialComponent}
                 ]
+            },
+            {
+                path: 'users',
+                component: UserComponent,
             }
         ]
     }
