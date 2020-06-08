@@ -66,6 +66,7 @@ type DeleteUserResponse struct {
 }
 
 type UpdateUserRequest struct {
+	ID       string `json:"id" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password"`
 	Email    string `json:"email"`

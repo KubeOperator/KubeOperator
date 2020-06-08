@@ -60,7 +60,7 @@ func List(ctx *gin.Context) {
 	}
 	for i, model := range models {
 		models[i].Password, _ = encrypt.StringDecrypt(model.Password)
-		resp.Items = append(resp.Items, serializer.FromModel(model))
+		resp.Items = append(resp.Items, serializer.FromModel(models[i]))
 	}
 
 	ctx.JSON(http.StatusOK, resp)
@@ -164,9 +164,17 @@ func Update(ctx *gin.Context) {
 		})
 		return
 	}
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
 	user := serializer.User{
+		ID:       req.ID,
 		Name:     req.Name,
-		Password: req.Password,
+		Password: password,
 		Email:    req.Email,
 		IsActive: req.IsActive,
 		Language: req.Language,

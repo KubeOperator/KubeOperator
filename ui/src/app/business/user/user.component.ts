@@ -43,4 +43,8 @@ export class UserComponent implements OnInit {
         this.delete.open(items);
     }
 
+    openUpdate(item) {
+        this.update.open(item);
+    }
+
 }
