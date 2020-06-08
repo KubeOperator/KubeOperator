@@ -45,7 +45,7 @@ export class HostCreateComponent extends BaseModelComponent<Host> implements OnI
 
     onSubmit() {
         this.isSubmitGoing = true;
-        this.service.create(this.item).subscribe(data => {
+        this.hostService.create(this.item).subscribe(data => {
             this.opened = false;
             this.isSubmitGoing = false;
             this.created.emit();

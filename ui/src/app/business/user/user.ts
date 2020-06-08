@@ -1,4 +1,4 @@
-import {BaseModel} from '../../shared/class/BaseModel';
+import {BaseModel, BaseRequest} from '../../shared/class/BaseModel';
 
 export class User extends BaseModel {
     name: string;
@@ -7,4 +7,12 @@ export class User extends BaseModel {
     email: string;
     language: string;
     isActive: string;
+    confirmPassword: string;
+}
+
+export class UserCreateRequest extends BaseRequest {
+    name: string;
+    password: string;
+    email: string;
+    confirmPassword: string;
 }

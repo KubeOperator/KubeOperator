@@ -35,4 +35,8 @@ export class UserComponent implements OnInit {
         this.list.refresh();
     }
 
+    openCreate() {
+        this.create.open();
+    }
+
 }

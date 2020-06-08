@@ -8,6 +8,7 @@ import { UserCreateComponent } from './user/user-create/user-create.component';
 import { UserListComponent } from './user/user-list/user-list.component';
 import { UserUpdateComponent } from './user/user-update/user-update.component';
 import { UserDeleteComponent } from './user/user-delete/user-delete.component';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -17,6 +18,7 @@ import { UserDeleteComponent } from './user/user-delete/user-delete.component';
         ClusterModule,
         SettingModule,
         HostModule,
+        SharedModule,
     ],
     exports: [
         ClusterModule,

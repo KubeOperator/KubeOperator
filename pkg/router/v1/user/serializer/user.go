@@ -1,18 +1,19 @@
 package serializer
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	userModel "github.com/KubeOperator/KubeOperator/pkg/model/user"
+	"time"
 )
 
 type User struct {
-	common.BaseModel
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	IsActive bool   `json:"isActive"`
-	Language string `json:"language"`
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Password string    `json:"password"`
+	Email    string    `json:"email"`
+	IsActive bool      `json:"isActive"`
+	Language string    `json:"language"`
+	CreateAt time.Time `json:"createAt"`
+	UpdateAt time.Time `json:"updateAt"`
 }
 
 func FromModel(u userModel.User) User {
@@ -23,6 +24,8 @@ func FromModel(u userModel.User) User {
 		Email:    u.Email,
 		IsActive: u.IsActive,
 		Language: u.Language,
+		CreateAt: u.CreatedAt,
+		UpdateAt: u.UpdatedAt,
 	}
 }
 

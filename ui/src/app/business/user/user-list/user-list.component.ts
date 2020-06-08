@@ -9,7 +9,7 @@ import {UserService} from '../user.service';
     styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent extends BaseModelComponent<User> implements OnInit {
-    
+
     constructor(private userService: UserService) {
         super(userService);
     }

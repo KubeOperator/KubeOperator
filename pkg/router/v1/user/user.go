@@ -103,7 +103,7 @@ func Get(ctx *gin.Context) {
 // @Router /users/ [post]
 func Create(ctx *gin.Context) {
 	var req serializer.CreateUserRequest
-	err := ctx.ShouldBind(req)
+	err := ctx.ShouldBind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"msg": err.Error(),

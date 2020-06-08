@@ -72,5 +72,9 @@
   "APP_USER_NAME": "User Name",
   "APP_USER_EMAIL": "Email",
   "APP_USER_PASSWORD": "Password",
-  "APP_ACTIVE": "Enable"
+  "APP_ACTIVE": "Enable",
+  "APP_USER_PASSWORD_CONFIRM": "Confirm Password",
+  "APP_USER_PASSWORD_ERROR_MSG": "Valid password: 6-30 digits, English letters + numbers + special characters (optional)",
+  "APP_USER_PASSWORD_HELP_MSG": "Passwords are inconsistent"
+
 }
