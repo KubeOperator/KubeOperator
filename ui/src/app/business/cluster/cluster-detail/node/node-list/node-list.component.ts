@@ -1,8 +1,8 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {KubernetesService} from "../../../kubernetes.service";
-import {V1Namespace, V1Node} from "@kubernetes/client-node";
-import {Cluster} from "../../../cluster";
-import {ActivatedRoute} from "@angular/router";
+import {KubernetesService} from '../../../kubernetes.service';
+import {V1Namespace, V1Node} from '@kubernetes/client-node';
+import {Cluster} from '../../../cluster';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
     selector: 'app-node-list',
@@ -70,6 +70,9 @@ export class NodeListComponent implements OnInit {
                         break;
                     case 'node-role.kubernetes.io/etcd':
                         roles.push('etcd');
+                        break;
+                    case 'node-role.kubernetes.io/worker':
+                        roles.push('worker');
                         break;
                 }
             }

@@ -2,11 +2,26 @@
     <div class="clr-col-12 ">
         <div class="card">
             <div class="card-block">
-                <h4 class="card-title">Card title</h4>
-                <p class="card-text">Here is a progress bar at the very top of a card.</p>
-            </div>
-            <div class="card-footer">
-                <a href="..." class="card-link">Click</a>
+                <div class="clr-row">
+                    <div class="clr-col-4" style="padding: 0 5% 0 1%; border-right:1px solid">
+                        <table class="table table-vertical">
+                            <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <td>{{currentCluster.name}}</td>
+                            </tr>
+                            <tr>
+                                <th>Version</th>
+                                <td>{{currentCluster.spec.version}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="clr-col-4" style="padding: 0 5% 0 1%; border-right:1px solid">
+                    </div>
+                    <div class="clr-col-4" style="padding: 0 5% 0 1%">
+                    </div>
+                </div>
             </div>
         </div>
     </div>

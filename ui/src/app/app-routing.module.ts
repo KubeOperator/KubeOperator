@@ -20,6 +20,9 @@ import {StatefulSetComponent} from './business/cluster/cluster-detail/workload/s
 import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/daemon-set/daemon-set.component';
 import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
 import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
+import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-route/service-route.component';
+import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
+import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -61,7 +64,16 @@ const routes: Routes = [
                             {path: 'job', component: JobComponent},
                             {path: 'cornjob', component: CornJobComponent},
                         ],
-                    }
+                    },
+                    {
+                        path: 'serviceroute',
+                        component: ServiceRouteComponent,
+                        children: [
+                            {path: '', redirectTo: 'svc', pathMatch: 'full'},
+                            {path: 'svc', component: ServiceComponent},
+                            {path: 'ingress', component: IngressComponent},
+                        ],
+                    },
                 ],
             },
             {

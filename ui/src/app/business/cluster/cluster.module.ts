@@ -34,10 +34,12 @@ import { StatefulSetListComponent } from './cluster-detail/workload/stateful-set
 import { JobListComponent } from './cluster-detail/workload/job/job-list/job-list.component';
 import { CornJobListComponent } from './cluster-detail/workload/corn-job/corn-job-list/corn-job-list.component';
 import { DaemonSetListComponent } from './cluster-detail/workload/daemon-set/daemon-set-list/daemon-set-list.component';
+import { ServiceComponent } from './cluster-detail/service-route/service/service.component';
+import { IngressComponent } from './cluster-detail/service-route/ingress/ingress.component';
 
 
 @NgModule({
-    declarations: [ClusterComponent, ClusterListComponent, ClusterCreateComponent, ClusterDeleteComponent, ClusterDetailComponent, OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent, StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent, NodeListComponent, NodeDetailComponent, ConfigComponent, ServiceRouteComponent, PersistentVolumeClaimListComponent, StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent, CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent, DaemonSetListComponent],
+    declarations: [ClusterComponent, ClusterListComponent, ClusterCreateComponent, ClusterDeleteComponent, ClusterDetailComponent, OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent, StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent, NodeListComponent, NodeDetailComponent, ConfigComponent, ServiceRouteComponent, PersistentVolumeClaimListComponent, StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent, CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent, DaemonSetListComponent, ServiceComponent, IngressComponent],
     imports: [
         CoreModule,
         RouterModule,
