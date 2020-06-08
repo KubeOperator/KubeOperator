@@ -1,0 +1,25 @@
+<div class="login-wrapper background">
+    <form class="login" #loginForm="ngForm">
+        <section class="title">
+            <h3 class="welcome">欢迎使用</h3>
+            KubeOperator 容器平台
+        </section>
+        <div class="login-group">
+            <clr-input-container>
+                <label class="clr-sr-only">用户名</label>
+                <input type="text" name="username" clrInput placeholder="Username"
+                       [(ngModel)]="loginCredential.username"
+                       required/>
+            </clr-input-container>
+            <clr-password-container>
+                <label class="clr-sr-only">密码</label>
+                <input type="password" name="password" clrPassword placeholder="Password"
+                       [(ngModel)]="loginCredential.password" required/>
+            </clr-password-container>
+<!--            <div [class.visibility-hidden]="!isError" class="error active">-->
+<!--                {{message}}-->
+<!--            </div>-->
+            <button type="submit" class="btn btn-primary" (click)="login()" [disabled]="loginForm.invalid">登录</button>
+        </div>
+    </form>
+</div>
