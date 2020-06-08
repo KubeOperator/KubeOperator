@@ -39,4 +39,8 @@ export class UserComponent implements OnInit {
         this.create.open();
     }
 
+    openDelete(items) {
+        this.delete.open(items);
+    }
+
 }
