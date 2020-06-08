@@ -1,1 +1,28 @@
-<p>service-route works!</p>
+<div class="content-container" style="height: 100%;">
+    <nav class="sidenav">
+        <section class="sidenav-content">
+            <section class="nav-group">
+                <ul class="nav-list">
+                    <li>
+                        <a class="nav-link" routerLink="svc" routerLinkActive="active">
+                            <div class="nav-slide-item">
+                               Service
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" routerLink="ingress" routerLinkActive="active">
+                            <div class="nav-slide-item">
+                                Ingress
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </section>
+    </nav>
+    <div class="content-area">
+        <router-outlet></router-outlet>
+    </div>
+</div>
+`

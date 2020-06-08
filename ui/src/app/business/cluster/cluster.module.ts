@@ -36,6 +36,8 @@ import {StatefulSetListComponent} from './cluster-detail/workload/stateful-set/s
 import {JobListComponent} from './cluster-detail/workload/job/job-list/job-list.component';
 import {CornJobListComponent} from './cluster-detail/workload/corn-job/corn-job-list/corn-job-list.component';
 import {DaemonSetListComponent} from './cluster-detail/workload/daemon-set/daemon-set-list/daemon-set-list.component';
+import { ServiceListComponent } from './cluster-detail/service-route/service/service-list/service-list.component';
+import { IngressListComponent } from './cluster-detail/service-route/ingress/ingress-list/ingress-list.component';
 
 
 @NgModule({
@@ -45,7 +47,7 @@ import {DaemonSetListComponent} from './cluster-detail/workload/daemon-set/daemo
         NodeListComponent, NodeDetailComponent, ConfigComponent, ServiceRouteComponent, PersistentVolumeClaimListComponent,
         StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent,
         CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent,
-        DaemonSetListComponent, ServiceComponent, IngressComponent],
+        DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent],
     imports: [
         CoreModule,
         RouterModule,

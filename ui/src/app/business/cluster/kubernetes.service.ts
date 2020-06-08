@@ -3,11 +3,12 @@ import {HttpClient} from '@angular/common/http';
 import {V1NamespaceList} from '@kubernetes/client-node/dist/gen/model/v1NamespaceList';
 import {Observable} from 'rxjs';
 import {
+    NetworkingV1beta1Ingress, NetworkingV1beta1IngressList,
     V1beta1CronJobList, V1DaemonSetList,
     V1DeploymentList, V1JobList,
     V1NodeList,
     V1PersistentVolumeClaimList,
-    V1PersistentVolumeList, V1StatefulSet, V1StatefulSetList
+    V1PersistentVolumeList, V1Service, V1ServiceList, V1StatefulSet, V1StatefulSetList
 } from '@kubernetes/client-node';
 
 @Injectable({
@@ -24,6 +25,8 @@ export class KubernetesService {
     }
 
     namespaceUrl = '/api/v1/namespaces';
+    serviceUrl = 'api/v1/services';
+    namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
     persistentVolumesUrl = '/api/v1/persistentvolumes';
     persistentVolumeClaimsUrl = '/api/v1/persistentvolumeclaims';
     namespacePersistentVolumeClaimsUrl = '/api/v1/namespaces/{namespace}/deployments';
@@ -37,6 +40,8 @@ export class KubernetesService {
     namespaceCornJobUrl = 'apis/batch/v1beta1/namespaces/{namespace}/cronjobs';
     jobUrl = '/apis/batch/v1/jobs';
     namespaceJobUrl = '/apis/batch/v1/namespaces/{namespace}/jobs';
+    ingressUrl = '/apis/networking.k8s.io/v1beta1/ingresses';
+    namespaceIngressUrl = '/apis/networking.k8s.io/v1beta1/namespaces/{namespace}/ingresses';
     nodesUrl = '/api/v1/nodes';
 
     listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
@@ -153,5 +158,33 @@ export class KubernetesService {
             url = url.replace('{resource_url}', this.cornJobUrl);
         }
         return this.client.get<V1beta1CronJobList>(url);
+    }
+
+    listService(clusterName: string, continueToken?: string, namespace?: string): Observable<V1ServiceList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        if (namespace) {
+            url = url.replace('{resource_url}', this.namespaceServiceUrl).replace('{namespace}', namespace);
+        } else {
+            url = url.replace('{resource_url}', this.serviceUrl);
+        }
+        return this.client.get<V1ServiceList>(url);
+    }
+
+    listIngress(clusterName: string, continueToken?: string, namespace?: string): Observable<NetworkingV1beta1IngressList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        if (namespace) {
+            url = url.replace('{resource_url}', this.namespaceIngressUrl).replace('{namespace}', namespace);
+        } else {
+            url = url.replace('{resource_url}', this.ingressUrl);
+        }
+        return this.client.get<NetworkingV1beta1IngressList>(url);
     }
 }
