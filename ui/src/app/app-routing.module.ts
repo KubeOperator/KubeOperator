@@ -10,10 +10,16 @@ import {SettingComponent} from './business/setting/setting.component';
 import {CredentialComponent} from './business/setting/credential/credential.component';
 import {HostComponent} from './business/host/host.component';
 import {NodeComponent} from './business/cluster/cluster-detail/node/node.component';
-import {NamespaceComponent} from "./business/cluster/cluster-detail/namespace/namespace.component";
-import {StorageComponent} from "./business/cluster/cluster-detail/storage/storage.component";
-import {PersistentVolumeComponent} from "./business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component";
-import {PersistentVolumeClaimComponent} from "./business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component";
+import {NamespaceComponent} from './business/cluster/cluster-detail/namespace/namespace.component';
+import {StorageComponent} from './business/cluster/cluster-detail/storage/storage.component';
+import {PersistentVolumeComponent} from './business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component';
+import {PersistentVolumeClaimComponent} from './business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component';
+import {WorkloadComponent} from './business/cluster/cluster-detail/workload/workload.component';
+import {DeploymentComponent} from './business/cluster/cluster-detail/workload/deployment/deployment.component';
+import {StatefulSetComponent} from './business/cluster/cluster-detail/workload/stateful-set/stateful-set.component';
+import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/daemon-set/daemon-set.component';
+import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
+import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -42,6 +48,18 @@ const routes: Routes = [
                             {path: '', redirectTo: 'pv', pathMatch: 'full'},
                             {path: 'pv', component: PersistentVolumeComponent},
                             {path: 'pvc', component: PersistentVolumeClaimComponent},
+                        ],
+                    },
+                    {
+                        path: 'workloads',
+                        component: WorkloadComponent,
+                        children: [
+                            {path: '', redirectTo: 'deployment', pathMatch: 'full'},
+                            {path: 'deployment', component: DeploymentComponent},
+                            {path: 'statefulset', component: StatefulSetComponent},
+                            {path: 'daemonset', component: DaemonSetComponent},
+                            {path: 'job', component: JobComponent},
+                            {path: 'cornjob', component: CornJobComponent},
                         ],
                     }
                 ],
