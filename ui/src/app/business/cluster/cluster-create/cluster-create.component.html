@@ -1,59 +1,59 @@
 <clr-wizard #wizard [(clrWizardOpen)]="opened" clrWizardSize="xl" (clrWizardOnFinish)="onSubmit()"
             (clrWizardOnCancel)="onCancel()">
-    <clr-wizard-title>{{"APP_CLUSTER_CREATE_TITLE"|translate}}</clr-wizard-title>
+    <clr-wizard-title>{{"APP_CLUSTER_TITLE"|translate}}</clr-wizard-title>
 
-    <clr-wizard-button [type]="'cancel'">{{"APP_MODAL_CANCEL"|translate}}</clr-wizard-button>
-    <clr-wizard-button [type]="'previous'">{{"APP_MODAL_BACK"|translate}}</clr-wizard-button>
-    <clr-wizard-button [type]="'next'">{{"APP_MODAL_NEXT"|translate}}</clr-wizard-button>
-    <clr-wizard-button [type]="'finish'">{{"APP_MODAL_FINISH"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'cancel'">{{"APP_CANCEL"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'previous'">{{"APP_BACK"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'next'">{{"APP_NEXT"|translate}}</clr-wizard-button>
+    <clr-wizard-button [type]="'finish'">{{"APP_FINISH"|translate}}</clr-wizard-button>
 
     <clr-wizard-page [clrWizardPageNextDisabled]="clusterForm.invalid">
-        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_CLUSTER_INFO"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CLUSTER__CLUSTER_INFO"|translate}}</ng-template>
         <form clrForm #clusterForm='ngForm'>
             <clr-input-container>
-                <label>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
 
             <clr-select-container>
-                <label>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_VERSION"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.version" required>
-                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option>v1.18.0</option>
                     <option>v1.18.2</option>
                 </select>
             </clr-select-container>
 
             <clr-select-container>
-                <label>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_PROVIDER"|translate}}</label>
                 <select clrSelect name="provider" [(ngModel)]="item.provider" required>
-                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="bareMetal">Bare Metal</option>
                     <option value="vSphere">vSphere</option>
                 </select>
             </clr-select-container>
             <clr-select-container>
-                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
-                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="docker">Docker</option>
                     <option value="containerd">Containerd</option>
                 </select>
             </clr-select-container>
 
             <clr-input-container *ngIf="item.runtimeType == 'docker'">
-                <label>{{"APP_CLUSTER_CREATE_FORM_DOCKER_STORAGE_DIR"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_DOCKER_STORAGE_DIR"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.dockerStorageDir"/>
             </clr-input-container>
             <clr-input-container *ngIf="item.runtimeType == 'containerd'">
-                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINERD_STORAGE_DIR"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_CONTAINERD_STORAGE_DIR"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.containerdStorageDir"/>
             </clr-input-container>
 
             <clr-select-container>
-                <label>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
+                <label>{{"APP_CLUSTER_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
                 <select clrSelect name="network" [(ngModel)]="item.networkType" required>
-                    <option value="">{{"APP_SELECT_DEFAULT_OPTION_TITLE"|translate}}</option>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="flannel">flannel</option>
                     <option value="calico">calico</option>
                 </select>
@@ -62,7 +62,7 @@
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
                      (clrWizardPageNext)="fullNodes()">
-        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_NODE_INFO"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CLUSTER__NODE_INFO"|translate}}</ng-template>
         <form>
             <div>
                 <h3>masters</h3>
@@ -79,29 +79,29 @@
         </form>
     </clr-wizard-page>
     <clr-wizard-page>
-        <ng-template clrPageTitle>{{"APP_CLUSTER_CREATE_WIZARD_CONFIRM"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CLUSTER__CONFIRM"|translate}}</ng-template>
         <form>
             <div>
                 <table class="table table-vertical">
                     <tbody>
                     <tr>
-                        <th>{{"APP_CLUSTER_CREATE_FORM_NAME"|translate}}</th>
+                        <th>{{"APP_CLUSTER_FORM_NAME"|translate}}</th>
                         <td>{{item.name}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_CREATE_FORM_VERSION"|translate}}</th>
+                        <th>{{"APP_CLUSTER_FORM_VERSION"|translate}}</th>
                         <td>{{item.version}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_CREATE_FORM_PROVIDER"|translate}}</th>
+                        <th>{{"APP_CLUSTER_FORM_PROVIDER"|translate}}</th>
                         <td>{{item.provider}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_NETWORK_TYPE"|translate}}</th>
+                        <th>{{"APP_CLUSTER_FORM_CONTAINER_NETWORK_TYPE"|translate}}</th>
                         <td>{{item.networkType}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_CREATE_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</th>
+                        <th>{{"APP_CLUSTER_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</th>
                         <td>{{item.runtimeType}}</td>
                     </tr>
                     </tbody>

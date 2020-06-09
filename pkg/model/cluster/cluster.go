@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -79,6 +80,14 @@ func (c *Cluster) AfterCreate(scope *gorm.Scope) error {
 }
 
 func (c Cluster) BeforeDelete(scope *gorm.Scope) error {
+	err := db.DB.Where(Status{ID: c.StatusID}).First(&(c.Status)).Error
+	if err != nil {
+		return err
+	}
+	if c.Status.Phase != constant.ClusterTerminated &&
+		c.Status.Phase != constant.ClusterFailed {
+		return errors.New(fmt.Sprintf("cluster %s in invalid status: %s", c.Name, c.Status.Phase))
+	}
 	return nil
 }
 

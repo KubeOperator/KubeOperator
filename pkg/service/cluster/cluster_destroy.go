@@ -69,7 +69,6 @@ func SyncDestroyStatus(statusChan chan *clusterModel.Cluster, stopChan chan int)
 			return
 		case constant.ClusterTerminated:
 			stopChan <- 1
-			db.DB.Delete(&c)
 			return
 		}
 	}

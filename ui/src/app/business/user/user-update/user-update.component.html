@@ -1,26 +1,26 @@
 <clr-modal [(clrModalOpen)]="opened">
-    <h3 class="modal-title">{{'APP_ACTION_EDIT'|translate}}</h3>
+    <h3 class="modal-title">{{'APP_EDIT'|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #userForm='ngForm'>
             <clr-input-container>
-                <label>{{"APP_USER_NAME"|translate}}</label>
+                <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
             <clr-input-container>
-                <label>{{"APP_USER_EMAIL"|translate}}</label>
+                <label>{{"APP_EMAIL"|translate}}</label>
                 <input clrInput [size]="32" name="email" [(ngModel)]="item.email"
                        [email]="true"
                        required/>
-                <clr-control-error>{{'APP_USER_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+                <clr-control-error>{{'APP_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
             </clr-input-container>
         </form>
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()"
-                [disabled]="isSubmitGoing">{{'APP_MODAL_CANCEL'|translate}}</button>
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="userForm.invalid ">{{'APP_MODAL_COMMIT'|translate}}
+                [disabled]="userForm.invalid ">{{'APP_COMMIT'|translate}}
         </button>
     </div>
 </clr-modal>

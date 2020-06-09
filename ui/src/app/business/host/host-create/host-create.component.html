@@ -1,17 +1,17 @@
 <clr-modal [(clrModalOpen)]="opened">
-    <h3 class="modal-title">{{'APP_ACTION_ADD'|translate}}</h3>
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #hostForm='ngForm'>
             <clr-input-container>
-                <label>{{"APP_HOST_NAME"|translate}}</label>
+                <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
             <clr-input-container>
-                <label>{{"APP_HOST_IP"|translate}}</label>
+                <label>{{"APP_IP"|translate}}</label>
                 <input clrInput [size]="32" name="ip" [(ngModel)]="item.ip" required/>
             </clr-input-container>
             <clr-input-container>
-                <label>{{"APP_HOST_PORT"|translate}}</label>
+                <label>{{"APP_PORT"|translate}}</label>
                 <input clrInput type="number" [size]="32" name="port" [(ngModel)]="item.port" required/>
             </clr-input-container>
             <clr-select-container>
@@ -25,9 +25,9 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()"
-                [disabled]="isSubmitGoing">{{'APP_MODAL_CANCEL'|translate}}</button>
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="hostForm.invalid">{{'APP_MODAL_COMMIT'|translate}}
+                [disabled]="hostForm.invalid">{{'APP_COMMIT'|translate}}
         </button>
     </div>
 </clr-modal>

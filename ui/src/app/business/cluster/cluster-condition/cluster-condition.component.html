@@ -1,5 +1,5 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="xl">
-    <h3 class="modal-title">{{"APP_CLUSTER_STATUS_DETAIL_TITLE"| translate}}</h3>
+    <h3 class="modal-title">{{"APP_STATUS_DETAIL"| translate}}</h3>
     <div class="modal-body">
 
         <ul class="clr-timeline clr-timeline-vertical">
@@ -22,8 +22,8 @@
         </ul>
     </div>
     <div class="modal-footer">
-        <button class="btn" (click)="onCancel()">{{"APP_MODAL_CANCEL"|translate}}</button>
+        <button class="btn" (click)="onCancel()">{{"APP_CANCEL"|translate}}</button>
         <button *ngIf="item.phase ==='Failed'" class="btn btn-primary"
-                (click)="onInit()">{{"APP_MODAL_RETRY"|translate}}</button>
+                (click)="onInit()">{{"APP_RETRY"|translate}}</button>
     </div>
 </clr-modal>

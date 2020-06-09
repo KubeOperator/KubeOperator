@@ -3,22 +3,22 @@
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                 <clr-icon shape="plus" size="16"></clr-icon>
-                {{"APP_ACTION_ADD"|translate}}
+                {{"APP_ADD"|translate}}
             </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
                     [disabled]="selected.length!==1">
                 <clr-icon shape="note"></clr-icon>
-                {{"APP_ACTION_EDIT"|translate}}
+                {{"APP_EDIT"|translate}}
             </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
-                {{"APP_ACTION_DELETE"|translate}}
+                {{"APP_DELETE"|translate}}
             </button>
         </div>
     </clr-dg-action-bar>
-    <clr-dg-column>{{'APP_USER_NAME'|translate}}</clr-dg-column>
-    <clr-dg-column>{{'APP_USER_EMAIL'|translate}}</clr-dg-column>
-    <clr-dg-column>{{'APP_ACTIVE'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_EMAIL'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_ENABLE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">

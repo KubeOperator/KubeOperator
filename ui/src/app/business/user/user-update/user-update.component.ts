@@ -43,7 +43,7 @@ export class UserUpdateComponent extends BaseModelComponent<User> implements OnI
     onSubmit() {
         this.isSubmitGoing = true;
         this.userService.update(this.item.name, this.item).subscribe(data => {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_RES_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
+            this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;
             this.isSubmitGoing = false;
             this.update.emit();

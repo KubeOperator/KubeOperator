@@ -40,7 +40,7 @@ export class CredentialEditComponent implements OnInit {
     onSubmit() {
         this.isSubmitGoing = true;
         this.service.update(this.item.name, this.item).subscribe(data => {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_RES_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
+            this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.opened = false;
             this.isSubmitGoing = false;
             this.edit.emit();
