@@ -6,6 +6,9 @@ type Credential struct {
 }
 
 type SessionUser struct {
-	UserId string
-	Name   string
+	UserId   string
+	Name     string
+	Email    string
+	Language string
+	IsActive bool
 }

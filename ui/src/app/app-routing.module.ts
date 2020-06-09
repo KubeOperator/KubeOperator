@@ -21,12 +21,15 @@ import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/dae
 import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
 import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
 import {UserComponent} from './business/user/user.component';
+import {AuthUserService} from './shared/auth-user.service';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
     {
         path: '',
         component: LayoutComponent,
+        canActivate: [AuthUserService],
+        canActivateChild: [AuthUserService],
         children: [
             {path: '', redirectTo: 'clusters', pathMatch: 'full'},
             {

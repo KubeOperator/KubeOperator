@@ -32,7 +32,10 @@ func (u User) TableName() string {
 
 func (u *User) ToSessionUser() *auth.SessionUser {
 	return &auth.SessionUser{
-		UserId: u.ID,
-		Name:   u.Name,
+		UserId:   u.ID,
+		Name:     u.Name,
+		Email:    u.Email,
+		Language: u.Language,
+		IsActive: u.IsActive,
 	}
 }

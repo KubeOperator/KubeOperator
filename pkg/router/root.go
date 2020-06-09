@@ -21,23 +21,16 @@ func Server() *gin.Engine {
 	server.NoRoute(NotFoundResponse)
 	server.Use(middleware.LoggerMiddleware())
 	server.Use(middleware.PagerMiddleware())
+	jwtMiddleware := middleware.JWTMiddleware()
 	api := server.Group("/api")
+	api.POST("/login", jwtMiddleware.LoginHandler)
+	api.Use(jwtMiddleware.MiddlewareFunc())
 	{
 		v1.V1(api)
+		api.GET("/v1/profile", middleware.GetAuthUser)
+		api.GET("/v1/refresh", jwtMiddleware.RefreshHandler)
 	}
 
-	jwtMiddleware := middleware.JWTMiddleware()
-	auth := server.Group("/auth")
-	{
-		auth.POST("/login", jwtMiddleware.LoginHandler)
-		auth.GET("/refresh", jwtMiddleware.RefreshHandler)
-	}
-	auth.Use(jwtMiddleware.MiddlewareFunc())
-	//api := server.Group("/api")
-	//api.Use(jwtMiddleware.MiddlewareFunc())
-	//{
-	//	PkgApi.V1(api)
-	//}
 	return server
 }
 
