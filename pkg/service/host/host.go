@@ -52,6 +52,10 @@ func Save(item *hostModel.Host) error {
 	if db.DB.NewRecord(item) {
 		return db.DB.Create(&item).Error
 	} else {
+		err := db.DB.Where(hostModel.Volume{HostID: item.ID}).Delete(hostModel.Volume{}).Error
+		if err != nil {
+			return err
+		}
 		return db.DB.Save(&item).Error
 	}
 }
