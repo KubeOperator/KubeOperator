@@ -54,9 +54,11 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1UserApi.DELETE("/:name/", user.Delete)
 			v1UserApi.POST("/batch/", user.Batch)
 		}
-		v1ProxyApi := v1Api.Group("/proxy/")
+		v1ProxyApi := v1Api.Group("/proxy")
 		{
-			v1ProxyApi.GET("/:name/*path", proxy.KubernetesClientProxy)
+			v1ProxyApi.GET("/kubernetes/:name/*path", proxy.KubernetesClientProxy)
+			v1ProxyApi.GET("/logging/:name/*path", proxy.LoggingProxy)
+			v1ProxyApi.POST("/logging/:name/*path", proxy.LoggingProxy)
 		}
 	}
 	return v1Api

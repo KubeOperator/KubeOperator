@@ -20,8 +20,15 @@ import {StatefulSetComponent} from './business/cluster/cluster-detail/workload/s
 import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/daemon-set/daemon-set.component';
 import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
 import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
+import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-route/service-route.component';
+import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
+import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
 import {UserComponent} from './business/user/user.component';
 import {AuthUserService} from './shared/auth-user.service';
+import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
+import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
+import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
+import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -65,7 +72,26 @@ const routes: Routes = [
                             {path: 'job', component: JobComponent},
                             {path: 'cornjob', component: CornJobComponent},
                         ],
-                    }
+                    },
+                    {
+                        path: 'serviceroute',
+                        component: ServiceRouteComponent,
+                        children: [
+                            {path: '', redirectTo: 'svc', pathMatch: 'full'},
+                            {path: 'svc', component: ServiceComponent},
+                            {path: 'ingress', component: IngressComponent},
+                        ],
+                    },
+                    {
+                        path: 'config',
+                        component: ConfigComponent,
+                        children: [
+                            {path: '', redirectTo: 'cm', pathMatch: 'full'},
+                            {path: 'cm', component: ConfigMapComponent},
+                            {path: 'secret', component: SecretComponent},
+                        ],
+                    },
+                    {path: 'logging', component: LoggingComponent},
                 ],
             },
             {

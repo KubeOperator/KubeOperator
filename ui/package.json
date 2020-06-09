@@ -27,6 +27,7 @@
     "@ngx-translate/core": "^12.1.2",
     "@ngx-translate/http-loader": "^4.0.0",
     "@webcomponents/webcomponentsjs": "^2.0.0",
+    "date-fns": "^2.14.0",
     "jquery": "^3.5.1",
     "ngx-select2": "^0.3.0",
     "rxjs": "~6.5.4",

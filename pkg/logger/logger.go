@@ -6,23 +6,14 @@ import (
 )
 
 var (
-	Level   logrus.Level
-	Default *logrus.Logger
+	Default = logrus.New()
 )
 
 func Init() {
 	l := viper.GetString("logging.level")
 	level, err := logrus.ParseLevel(l)
-	if err != nil {
-		Level=logrus.InfoLevel
-	} else {
-		Level=level
+	if err != nil && l == "" {
+		Default.SetLevel(logrus.InfoLevel)
 	}
-	initDefault()
+	logrus.SetLevel(level)
 }
-
-func initDefault()  {
-	Default =logrus.New()
-	Default.SetLevel(Level)
-}
-
