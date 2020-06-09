@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
-	"github.com/KubeOperator/KubeOperator/pkg/redis"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/spf13/viper"
 )
@@ -31,12 +30,6 @@ func Phases() []Phase {
 			Name:     viper.GetString("db.name"),
 			User:     viper.GetString("db.user"),
 			Password: viper.GetString("db.password"),
-		},
-		&redis.InitRedisPhase{
-			Host:       viper.GetString("redis.host"),
-			Port:       viper.GetInt("redis.port"),
-			DB:         viper.GetInt("db"),
-			MaxRetries: 3,
 		},
 	}
 }
