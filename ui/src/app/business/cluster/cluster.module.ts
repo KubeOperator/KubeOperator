@@ -38,6 +38,10 @@ import {CornJobListComponent} from './cluster-detail/workload/corn-job/corn-job-
 import {DaemonSetListComponent} from './cluster-detail/workload/daemon-set/daemon-set-list/daemon-set-list.component';
 import { ServiceListComponent } from './cluster-detail/service-route/service/service-list/service-list.component';
 import { IngressListComponent } from './cluster-detail/service-route/ingress/ingress-list/ingress-list.component';
+import { ConfigMapComponent } from './cluster-detail/config/config-map/config-map.component';
+import { SecretComponent } from './cluster-detail/config/secret/secret.component';
+import { ConfigMapListComponent } from './cluster-detail/config/config-map/config-map-list/config-map-list.component';
+import { SecretListComponent } from './cluster-detail/config/secret/secret-list/secret-list.component';
 
 
 @NgModule({
@@ -47,7 +51,7 @@ import { IngressListComponent } from './cluster-detail/service-route/ingress/ing
         NodeListComponent, NodeDetailComponent, ConfigComponent, ServiceRouteComponent, PersistentVolumeClaimListComponent,
         StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent,
         CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent,
-        DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent],
+        DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent, SecretComponent, ConfigMapListComponent, SecretListComponent],
     imports: [
         CoreModule,
         RouterModule,

@@ -24,6 +24,9 @@ import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-r
 import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
 import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
 import {UserComponent} from './business/user/user.component';
+import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
+import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
+import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -73,6 +76,15 @@ const routes: Routes = [
                             {path: '', redirectTo: 'svc', pathMatch: 'full'},
                             {path: 'svc', component: ServiceComponent},
                             {path: 'ingress', component: IngressComponent},
+                        ],
+                    },
+                    {
+                        path: 'config',
+                        component: ConfigComponent,
+                        children: [
+                            {path: '', redirectTo: 'cm', pathMatch: 'full'},
+                            {path: 'cm', component: ConfigMapComponent},
+                            {path: 'secret', component: SecretComponent},
                         ],
                     },
                 ],

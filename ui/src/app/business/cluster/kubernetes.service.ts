@@ -3,12 +3,12 @@ import {HttpClient} from '@angular/common/http';
 import {V1NamespaceList} from '@kubernetes/client-node/dist/gen/model/v1NamespaceList';
 import {Observable} from 'rxjs';
 import {
-    NetworkingV1beta1Ingress, NetworkingV1beta1IngressList,
-    V1beta1CronJobList, V1DaemonSetList,
+    NetworkingV1beta1IngressList,
+    V1beta1CronJobList, V1ConfigMapList, V1DaemonSetList,
     V1DeploymentList, V1JobList,
     V1NodeList,
     V1PersistentVolumeClaimList,
-    V1PersistentVolumeList, V1Service, V1ServiceList, V1StatefulSet, V1StatefulSetList
+    V1PersistentVolumeList, V1SecretList, V1ServiceList, V1StatefulSetList
 } from '@kubernetes/client-node';
 
 @Injectable({
@@ -42,6 +42,10 @@ export class KubernetesService {
     namespaceJobUrl = '/apis/batch/v1/namespaces/{namespace}/jobs';
     ingressUrl = '/apis/networking.k8s.io/v1beta1/ingresses';
     namespaceIngressUrl = '/apis/networking.k8s.io/v1beta1/namespaces/{namespace}/ingresses';
+    configMapUrl = '/api/v1/configmaps';
+    namespaceConfigMapUrl = '/api/v1/namespaces/{namespace}/configmaps';
+    secretUrl = '/api/v1/secrets';
+    namespaceSecretUrl = '/api/v1/secrets';
     nodesUrl = '/api/v1/nodes';
 
     listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
@@ -186,5 +190,33 @@ export class KubernetesService {
             url = url.replace('{resource_url}', this.ingressUrl);
         }
         return this.client.get<NetworkingV1beta1IngressList>(url);
+    }
+
+    listConfigMap(clusterName: string, continueToken?: string, namespace?: string): Observable<V1ConfigMapList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        if (namespace) {
+            url = url.replace('{resource_url}', this.namespaceConfigMapUrl).replace('{namespace}', namespace);
+        } else {
+            url = url.replace('{resource_url}', this.configMapUrl);
+        }
+        return this.client.get<V1ConfigMapList>(url);
+    }
+
+    listSecret(clusterName: string, continueToken?: string, namespace?: string): Observable<V1SecretList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        if (namespace) {
+            url = url.replace('{resource_url}', this.namespaceSecretUrl).replace('{namespace}', namespace);
+        } else {
+            url = url.replace('{resource_url}', this.secretUrl);
+        }
+        return this.client.get<V1SecretList>(url);
     }
 }
