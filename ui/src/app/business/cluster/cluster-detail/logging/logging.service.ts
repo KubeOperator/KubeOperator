@@ -9,7 +9,7 @@ import format from 'date-fns/format';
 })
 export class LoggingService {
 
-    baseUrl = '/api/v1/proxy/logging/{cluster_name}/{index_name}/_search';
+    baseUrl = '/proxy/logging/{cluster_name}/{index_name}/_search';
 
     constructor(private http: HttpClient) {
     }
