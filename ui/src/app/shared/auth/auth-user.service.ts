@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {CommonRoutes} from '../globals';
+import {CommonRoutes} from '../../constant/route';
 import {
     ActivatedRouteSnapshot,
     CanActivate,

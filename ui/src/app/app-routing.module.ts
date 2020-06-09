@@ -24,7 +24,7 @@ import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-r
 import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
 import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
 import {UserComponent} from './business/user/user.component';
-import {AuthUserService} from './shared/auth-user.service';
+import {AuthUserService} from './shared/auth/auth-user.service';
 import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
 import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
 import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';

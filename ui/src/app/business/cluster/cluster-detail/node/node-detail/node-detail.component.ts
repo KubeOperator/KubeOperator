@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {V1Node} from "@kubernetes/client-node";
+import {V1Node} from '@kubernetes/client-node';
 
 @Component({
     selector: 'app-node-detail',

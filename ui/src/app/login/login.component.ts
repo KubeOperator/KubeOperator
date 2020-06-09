@@ -3,8 +3,8 @@ import {NgForm} from '@angular/forms';
 import {LoginCredential} from './login-credential';
 import {LoginService} from './login.service';
 import {Router} from '@angular/router';
-import {SessionService} from '../shared/session.service';
-import {CommonRoutes} from '../globals';
+import {SessionService} from '../shared/auth/session.service';
+import {CommonRoutes} from '../constant/route';
 import {TranslateService} from '@ngx-translate/core';
 
 @Component({
@@ -19,7 +19,6 @@ export class LoginComponent implements OnInit {
     message: string;
     isError = false;
 
-
     constructor(private loginService: LoginService, private router: Router, private sessionService: SessionService,
                 private translateService: TranslateService) {
     }
@@ -27,23 +26,26 @@ export class LoginComponent implements OnInit {
     ngOnInit(): void {
     }
 
-
     login() {
         this.loginService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
             this.sessionService.cacheProfile(res);
-            this.router.navigateByUrl(CommonRoutes.F2O_ROOT, {skipLocationChange: true}).then(r => console.log('login success'));
+            this.router.navigateByUrl(CommonRoutes.KO_ROOT, {skipLocationChange: true}).then(r => console.log('login success'));
         }, error => this.handleError(error));
     }
 
     handleError(error: any) {
         this.isError = true;
-        if (error.status === 504 || error.status === 502) {
-            this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
-        } else if (error.status === 401) {
-            this.message = this.translateService.instant('APP_LOGIN_CONNECT_CREDENTIAL_ERROR');
-        } else {
-            this.message = this.translateService.instant('APP_LOGIN_CONNECT_UNKNOWN_ERROR') + `${error.status}`;
+        switch (error.status) {
+            case 502:
+            case 504:
+                this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
+                break;
+            case 401:
+                this.message = this.translateService.instant('APP_LOGIN_CONNECT_CREDENTIAL_ERROR');
+                break;
+            default:
+                this.message = this.translateService.instant('APP_LOGIN_CONNECT_UNKNOWN_ERROR') + `${error.status}`;
         }
     }
 }

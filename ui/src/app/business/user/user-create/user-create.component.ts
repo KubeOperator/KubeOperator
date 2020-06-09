@@ -2,10 +2,11 @@ import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core'
 import {User, UserCreateRequest} from '../user';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {UserService} from '../user.service';
-import {passwordPattern} from '../../../globals';
 import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
+import {PasswordPattern} from '../../../constant/pattern';
+
 
 @Component({
     selector: 'app-user-create',
@@ -17,7 +18,7 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
     opened = false;
     isSubmitGoing = false;
     item: UserCreateRequest = new UserCreateRequest();
-    passwordPattern = passwordPattern;
+    passwordPattern = PasswordPattern;
 
     @ViewChild('userForm') userForm: NgForm;
     @Output() created = new EventEmitter();

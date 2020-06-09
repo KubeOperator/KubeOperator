@@ -17,7 +17,7 @@ import {
 
 export class KubernetesService {
 
-    proxyUrl = '/api/v1/proxy/kubernetes/{cluster_name}/{resource_url}';
+    proxyUrl = '/proxy/kubernetes/{cluster_name}/{resource_url}';
     limit = 10;
     continueTokenKey = 'continue';
 
@@ -48,7 +48,7 @@ export class KubernetesService {
     namespaceSecretUrl = '/api/v1/secrets';
     podUrl = '/api/v1/pods';
     namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
-    nodesUrl = '/api/v1/nodes';
+    nodesUrl = 'api/v1/nodes';
 
     listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodesUrl);
@@ -56,11 +56,12 @@ export class KubernetesService {
         if (continueToken) {
             url += '&continue=' + continueToken;
         }
+        console.log(url);
         return this.client.get<V1NodeList>(url);
     }
 
     listNamespaces(clusterName: string): Observable<V1NamespaceList> {
-        let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
         return this.client.get<V1NamespaceList>(url);
     }
 

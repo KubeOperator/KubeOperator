@@ -11,8 +11,8 @@ import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {BusinessModule} from './business/business.module';
 import {ClrCommonFormsModule, ClrDatagridModule, ClrIconModule, ClrModalModule} from '@clr/angular';
 import {CoreModule} from './core/core.module';
-import {AddHeaderInterceptor} from './shared/add-header-interceptor';
-import {AppGlobalErrorHandler} from './shared/app-global-error-handler';
+import {SessionInterceptor} from './shared/auth/session-interceptor';
+import {AppGlobalErrorHandler} from './shared/handler/app-global-error-handler';
 
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -47,7 +47,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     providers: [
         {
             provide: HTTP_INTERCEPTORS,
-            useClass: AddHeaderInterceptor,
+            useClass: SessionInterceptor,
             multi: true,
         },
         {provide: ErrorHandler, useClass: AppGlobalErrorHandler}

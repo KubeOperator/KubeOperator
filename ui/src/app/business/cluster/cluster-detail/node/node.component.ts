@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {NodeListComponent} from "./node-list/node-list.component";
-import {NodeDetailComponent} from "./node-detail/node-detail.component";
-import {V1Node} from "@kubernetes/client-node";
+import {NodeListComponent} from './node-list/node-list.component';
+import {NodeDetailComponent} from './node-detail/node-detail.component';
+import {V1Node} from '@kubernetes/client-node';
 
 @Component({
     selector: 'app-node',
