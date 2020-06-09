@@ -8,7 +8,7 @@ import {
     V1DeploymentList, V1JobList,
     V1NodeList,
     V1PersistentVolumeClaimList,
-    V1PersistentVolumeList, V1SecretList, V1ServiceList, V1StatefulSetList
+    V1PersistentVolumeList, V1PodList, V1SecretList, V1ServiceList, V1StatefulSetList
 } from '@kubernetes/client-node';
 
 @Injectable({
@@ -46,6 +46,8 @@ export class KubernetesService {
     namespaceConfigMapUrl = '/api/v1/namespaces/{namespace}/configmaps';
     secretUrl = '/api/v1/secrets';
     namespaceSecretUrl = '/api/v1/secrets';
+    podUrl = '/api/v1/pods';
+    namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
     nodesUrl = '/api/v1/nodes';
 
     listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
@@ -57,12 +59,8 @@ export class KubernetesService {
         return this.client.get<V1NodeList>(url);
     }
 
-    listNamespaces(clusterName: string, continueToken?: string): Observable<V1NamespaceList> {
+    listNamespaces(clusterName: string): Observable<V1NamespaceList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
-        url += '?limit=' + this.limit;
-        if (continueToken) {
-            url += '&continue=' + continueToken;
-        }
         return this.client.get<V1NamespaceList>(url);
     }
 
@@ -218,5 +216,15 @@ export class KubernetesService {
             url = url.replace('{resource_url}', this.secretUrl);
         }
         return this.client.get<V1SecretList>(url);
+    }
+
+    listPod(clusterName: string, continueToken?: string, namespace?: string): Observable<V1PodList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        if (namespace) {
+            url = url.replace('{resource_url}', this.namespacePodUrl).replace('{namespace}', namespace);
+        } else {
+            url = url.replace('{resource_url}', this.podUrl);
+        }
+        return this.client.get<V1PodList>(url);
     }
 }

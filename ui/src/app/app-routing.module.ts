@@ -27,6 +27,7 @@ import {UserComponent} from './business/user/user.component';
 import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
 import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
 import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
+import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -87,6 +88,7 @@ const routes: Routes = [
                             {path: 'secret', component: SecretComponent},
                         ],
                     },
+                    {path: 'logging', component: LoggingComponent},
                 ],
             },
             {

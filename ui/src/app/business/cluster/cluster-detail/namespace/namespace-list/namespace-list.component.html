@@ -9,11 +9,5 @@
         <clr-dg-cell>{{item.status.phase}}</clr-dg-cell>
         <clr-dg-cell>{{item.metadata.creationTimestamp|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
-    <clr-dg-footer>
-        <app-k8s-pagination [(continueToken)]="continueToken"
-                            [nextToken]="nextToken"
-                            [previousToken]="previousToken"
-                            (pageChange)="list()"></app-k8s-pagination>
-    </clr-dg-footer>
 </clr-datagrid>
 

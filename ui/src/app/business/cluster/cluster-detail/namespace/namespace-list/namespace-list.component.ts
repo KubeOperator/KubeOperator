@@ -14,9 +14,6 @@ export class NamespaceListComponent implements OnInit {
     loading = true;
     selected = [];
     items: V1Namespace[] = [];
-    nextToken = '';
-    previousToken = '';
-    continueToken = '';
     page = 1;
     currentCluster: Cluster;
 
@@ -33,10 +30,9 @@ export class NamespaceListComponent implements OnInit {
 
     list() {
         this.loading = true;
-        this.service.listNamespaces(this.currentCluster.name, this.continueToken).subscribe(data => {
+        this.service.listNamespaces(this.currentCluster.name).subscribe(data => {
             this.loading = false;
             this.items = data.items;
-            this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';
         });
     }
 }
