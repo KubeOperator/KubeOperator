@@ -1,35 +1,25 @@
-<div class="login-wrapper">
-    <form class="login">
+<div class="login-wrapper background">
+    <form class="login" #loginForm="ngForm">
         <section class="title">
-            <h3 class="welcome">Welcome to</h3>
-            Company Product Name
-            <h5 class="hint">Use your Company ID to sign in or create one now</h5>
+            <h3 class="welcome">欢迎使用</h3>
+            KubeOperator 容器平台
         </section>
         <div class="login-group">
-            <clr-select-container>
-                <label class="clr-sr-only">User Role</label>
-                <select clrSelect name="type">
-                    <option value="local">Local Users</option>
-                    <option value="admin">Administrator</option>
-                </select>
-            </clr-select-container>
             <clr-input-container>
-                <label class="clr-sr-only">Username</label>
-                <input type="text" name="username" clrInput placeholder="Username">
+                <label class="clr-sr-only">用户名</label>
+                <input type="text" name="username" clrInput placeholder="Username"
+                       [(ngModel)]="loginCredential.username"
+                       required/>
             </clr-input-container>
             <clr-password-container>
-                <label class="clr-sr-only">Password</label>
-                <input type="password" name="password" clrPassword placeholder="Password"/>
+                <label class="clr-sr-only">密码</label>
+                <input type="password" name="password" clrPassword placeholder="Password"
+                       [(ngModel)]="loginCredential.password" required/>
             </clr-password-container>
-            <clr-checkbox-wrapper>
-                <label>Remember me</label>
-                <input type="checkbox" name="rememberMe" clrCheckbox/>
-            </clr-checkbox-wrapper>
-            <div class="error active">
-                Invalid user name or password
-            </div>
-            <button type="submit" class="btn btn-primary">NEXT</button>
-            <a href="javascript://" class="signup">Sign up for a Company ID</a>
+            <!--            <div [class.visibility-hidden]="!isError" class="error active">-->
+            <!--                {{message}}-->
+            <!--            </div>-->
+            <button type="submit" class="btn btn-primary" (click)="login()" [disabled]="loginForm.invalid">登录</button>
         </div>
     </form>
 </div>

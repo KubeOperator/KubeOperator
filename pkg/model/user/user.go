@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
@@ -27,4 +28,11 @@ func (u *User) BeforeCreate() (err error) {
 
 func (u User) TableName() string {
 	return "ko_user"
+}
+
+func (u *User) ToSessionUser() *auth.SessionUser {
+	return &auth.SessionUser{
+		UserId: u.ID,
+		Name:   u.Name,
+	}
 }

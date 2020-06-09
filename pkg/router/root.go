@@ -26,16 +26,17 @@ func Server() *gin.Engine {
 		v1.V1(api)
 	}
 
-	//jwtMiddleware := middleware.JWTMiddleware()
-	//auth := server.Group("/auth")
-	//{
-	//	auth.POST("/login", jwtMiddleware.LoginHandler)
-	//	auth.GET("/refresh", jwtMiddleware.RefreshHandler)
-	//}
+	jwtMiddleware := middleware.JWTMiddleware()
+	auth := server.Group("/auth")
+	{
+		auth.POST("/login", jwtMiddleware.LoginHandler)
+		auth.GET("/refresh", jwtMiddleware.RefreshHandler)
+	}
+	auth.Use(jwtMiddleware.MiddlewareFunc())
 	//api := server.Group("/api")
 	//api.Use(jwtMiddleware.MiddlewareFunc())
 	//{
-	//	pkg_api.V1(api)
+	//	PkgApi.V1(api)
 	//}
 	return server
 }

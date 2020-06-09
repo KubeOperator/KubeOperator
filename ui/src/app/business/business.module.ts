@@ -9,11 +9,10 @@ import { UserListComponent } from './user/user-list/user-list.component';
 import { UserUpdateComponent } from './user/user-update/user-update.component';
 import { UserDeleteComponent } from './user/user-delete/user-delete.component';
 import {SharedModule} from '../shared/shared.module';
-import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
-    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent, LoginComponent],
+    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent],
     imports: [
         CoreModule,
         ClusterModule,

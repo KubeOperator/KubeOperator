@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/KubeOperator/KubeOperator/pkg/model/user"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 var (
@@ -14,12 +14,16 @@ var (
 )
 
 func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {
-	var user model.User
-	if db.DB.Where("name = ?", name).First(&user).RecordNotFound() {
+	var dbUser user.User
+	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
 		return nil, UserNotFound
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	password, err = encrypt.StringEncrypt(password)
+	if err != nil {
+		return nil, err
+	}
+	if dbUser.Password != password {
 		return nil, PasswordNotMatch
 	}
-	return user.ToSessionUser(), nil
+	return dbUser.ToSessionUser(), nil
 }
