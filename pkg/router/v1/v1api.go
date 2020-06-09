@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/host"
-	"github.com/KubeOperator/KubeOperator/pkg/router/v1/proxy"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/user"
 	"github.com/gin-gonic/gin"
 )
@@ -53,12 +52,6 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1UserApi.PATCH("/:name/", user.Update)
 			v1UserApi.DELETE("/:name/", user.Delete)
 			v1UserApi.POST("/batch/", user.Batch)
-		}
-		v1ProxyApi := v1Api.Group("/proxy")
-		{
-			v1ProxyApi.GET("/kubernetes/:name/*path", proxy.KubernetesClientProxy)
-			v1ProxyApi.GET("/logging/:name/*path", proxy.LoggingProxy)
-			v1ProxyApi.POST("/logging/:name/*path", proxy.LoggingProxy)
 		}
 	}
 	return v1Api

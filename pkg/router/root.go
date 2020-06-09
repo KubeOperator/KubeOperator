@@ -3,6 +3,7 @@ package router
 import (
 	_ "github.com/KubeOperator/KubeOperator/docs"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
+	"github.com/KubeOperator/KubeOperator/pkg/router/proxy"
 	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -23,14 +24,15 @@ func Server() *gin.Engine {
 	server.Use(middleware.PagerMiddleware())
 	jwtMiddleware := middleware.JWTMiddleware()
 	api := server.Group("/api")
-	api.POST("/login", jwtMiddleware.LoginHandler)
+	proxyApi := server.Group("/proxy")
+	proxy.Proxy(proxyApi)
+	api.POST("/auth/login", jwtMiddleware.LoginHandler)
 	api.Use(jwtMiddleware.MiddlewareFunc())
 	{
+		api.GET("/auth/profile", middleware.GetAuthUser)
+		api.GET("/auth/refresh", jwtMiddleware.RefreshHandler)
 		v1.V1(api)
-		api.GET("/v1/profile", middleware.GetAuthUser)
-		api.GET("/v1/refresh", jwtMiddleware.RefreshHandler)
 	}
-
 	return server
 }
 
