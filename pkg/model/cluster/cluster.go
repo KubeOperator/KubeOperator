@@ -128,13 +128,13 @@ func (c Cluster) ParseInventory() api.Inventory {
 		Hosts: hosts,
 		Groups: []*api.Group{
 			{
-				Name:     "kube-master",
+				Name:     "kubernetes-master",
 				Hosts:    masters,
 				Children: []string{},
 				Vars:     map[string]string{},
 			},
 			{
-				Name:     "kube-worker",
+				Name:     "kubernetes-worker",
 				Hosts:    workers,
 				Children: []string{},
 				Vars:     map[string]string{},
