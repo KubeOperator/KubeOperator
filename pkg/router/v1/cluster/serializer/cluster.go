@@ -82,13 +82,16 @@ type GetClusterResponse struct {
 }
 
 type CreateClusterRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Version     string `json:"version" binding:"required"`
-	NetworkType string `json:"networkType"`
-	RuntimeType string `json:"runtimeType"`
-	ClusterCIDR string `json:"clusterCIDR"`
-	ServiceCIDR string `json:"serviceCIDR"`
-	Nodes       []Node `json:"nodes"`
+	Name                 string `json:"name" binding:"required"`
+	Version              string `json:"version" binding:"required"`
+	NetworkType          string `json:"networkType"`
+	RuntimeType          string `json:"runtimeType"`
+	DockerStorageDIr     string `json:"dockerStorageDIr"`
+	ContainerdStorageDIr string `json:"containerdStorageDIr"`
+	AppDomain            string `json:"appDomain"`
+	ClusterCIDR          string `json:"clusterCIDR"`
+	ServiceCIDR          string `json:"serviceCIDR"`
+	Nodes                []Node `json:"nodes"`
 }
 
 type DeleteClusterRequest struct {

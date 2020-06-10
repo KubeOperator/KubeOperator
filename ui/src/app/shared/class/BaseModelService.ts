@@ -7,43 +7,60 @@ import {Batch} from './Batch';
 export abstract class BaseModelService<T extends BaseModel> {
 
     baseUrl = '';
+    variable = new Map<string, string>();
 
     protected constructor(protected http: HttpClient) {
     }
 
     list(): Observable<Page<T>> {
-        return this.http.get<Page<T>>(this.baseUrl);
+        const url = this.urlHandler();
+        return this.http.get<Page<T>>(url);
     }
 
     page(page, size): Observable<Page<T>> {
-        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}`;
+        const url = this.urlHandler();
+        const pageUrl = `${url}/?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<T>>(pageUrl);
     }
 
     get(name: string): Observable<T> {
-        const itemUrl = `${this.baseUrl}/${name}/`;
+        const url = this.urlHandler();
+        const itemUrl = `${url}/${name}/`;
         return this.http.get<T>(itemUrl);
     }
 
     create(item: BaseRequest): Observable<T> {
-        return this.http.post<T>(this.baseUrl, item);
+        const url = this.urlHandler();
+        return this.http.post<T>(url, item);
     }
 
     update(name: string, item: BaseRequest): Observable<T> {
-        const itemUrl = `${this.baseUrl}/${name}/`;
+        const url = this.urlHandler();
+        const itemUrl = `${url}/${name}/`;
         return this.http.patch<T>(itemUrl, item);
     }
 
     delete(name: string): Observable<any> {
-        const itemUrl = `${this.baseUrl}/${name}/`;
+        const url = this.urlHandler();
+        const itemUrl = `${url}/${name}/`;
         return this.http.delete<any>(itemUrl);
     }
 
     batch(method: string, items: T[]): Observable<any> {
-        const batchUrl = `${this.baseUrl}/batch/`;
+        const url = this.urlHandler();
+        const batchUrl = `${url}/batch/`;
         const b = new Batch<T>(method, items);
         return this.http.post(batchUrl, b);
     }
 
+    private urlHandler() {
+        let url = this.baseUrl;
+        this.variable.forEach(((k, v) => {
+            if (url.indexOf(`{${k}}`) !== -1) {
+                url = url.replace(`{${k}}`, v);
+            }
+        }));
+        return url;
+    }
 }
 

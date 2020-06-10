@@ -26,6 +26,8 @@
   "APP_CREATE_CLUSTER": "Create Cluster",
   "APP_CLUSTER_INFO": "Cluster Info",
   "APP_NODE_INFO": "Node Info",
+  "APP_CONFIRM_INFO": "Confirm Info",
+  "APP_DOMAIN_SUFFIX": "Domain",
   "APP_PROVIDER": "Provider",
   "APP_CONTAINER_NETWORK_TYPE": "Container Network",
   "APP_CONTAINER_RUNTIME_TYPE": "Container Runtime",

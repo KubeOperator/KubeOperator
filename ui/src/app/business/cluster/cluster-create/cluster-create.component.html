@@ -1,6 +1,6 @@
 <clr-wizard #wizard [(clrWizardOpen)]="opened" clrWizardSize="xl" (clrWizardOnFinish)="onSubmit()"
-            (clrWizardOnCancel)="onCancel()">
-    <clr-wizard-title>{{"APP_CLUSTER_TITLE"|translate}}</clr-wizard-title>
+            (clrWizardOnCancel)="onCancel()" [clrWizardClosable]="false">
+    <clr-wizard-title>{{"APP_CREATE_CLUSTER"|translate}}</clr-wizard-title>
 
     <clr-wizard-button [type]="'cancel'">{{"APP_CANCEL"|translate}}</clr-wizard-button>
     <clr-wizard-button [type]="'previous'">{{"APP_BACK"|translate}}</clr-wizard-button>
@@ -8,15 +8,20 @@
     <clr-wizard-button [type]="'finish'">{{"APP_FINISH"|translate}}</clr-wizard-button>
 
     <clr-wizard-page [clrWizardPageNextDisabled]="clusterForm.invalid">
-        <ng-template clrPageTitle>{{"APP_CLUSTER__CLUSTER_INFO"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CLUSTER_INFO"|translate}}</ng-template>
         <form clrForm #clusterForm='ngForm'>
             <clr-input-container>
-                <label>{{"APP_CLUSTER_FORM_NAME"|translate}}</label>
+                <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
 
+            <clr-input-container>
+                <label>{{"APP_DOMAIN_SUFFIX"|translate}}</label>
+                <input clrInput [size]="32" name="appDomain" [(ngModel)]="item.appDomain" required>
+            </clr-input-container>
+
             <clr-select-container>
-                <label>{{"APP_CLUSTER_FORM_VERSION"|translate}}</label>
+                <label>{{"APP_VERSION"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.version" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option>v1.18.0</option>
@@ -25,7 +30,7 @@
             </clr-select-container>
 
             <clr-select-container>
-                <label>{{"APP_CLUSTER_FORM_PROVIDER"|translate}}</label>
+                <label>{{"APP_PROVIDER"|translate}}</label>
                 <select clrSelect name="provider" [(ngModel)]="item.provider" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="bareMetal">Bare Metal</option>
@@ -33,7 +38,7 @@
                 </select>
             </clr-select-container>
             <clr-select-container>
-                <label>{{"APP_CLUSTER_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</label>
+                <label>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</label>
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="docker">Docker</option>
@@ -42,16 +47,16 @@
             </clr-select-container>
 
             <clr-input-container *ngIf="item.runtimeType == 'docker'">
-                <label>{{"APP_CLUSTER_FORM_DOCKER_STORAGE_DIR"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.dockerStorageDir"/>
+                <label>{{"APP_DOCKER_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.dockerStorageDir"/>
             </clr-input-container>
             <clr-input-container *ngIf="item.runtimeType == 'containerd'">
-                <label>{{"APP_CLUSTER_FORM_CONTAINERD_STORAGE_DIR"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.containerdStorageDir"/>
+                <label>{{"APP_CONTAINERD_STORAGE_DIR"|translate}}</label>
+                <input clrInput [size]="32" name="storage_dir" [(ngModel)]="item.containerdStorageDir"/>
             </clr-input-container>
 
             <clr-select-container>
-                <label>{{"APP_CLUSTER_FORM_CONTAINER_NETWORK_TYPE"|translate}}</label>
+                <label>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</label>
                 <select clrSelect name="network" [(ngModel)]="item.networkType" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="flannel">flannel</option>
@@ -62,7 +67,7 @@
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
                      (clrWizardPageNext)="fullNodes()">
-        <ng-template clrPageTitle>{{"APP_CLUSTER__NODE_INFO"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <form>
             <div>
                 <h3>masters</h3>
@@ -79,29 +84,29 @@
         </form>
     </clr-wizard-page>
     <clr-wizard-page>
-        <ng-template clrPageTitle>{{"APP_CLUSTER__CONFIRM"|translate}}</ng-template>
+        <ng-template clrPageTitle>{{"APP_CONFIRM_INFO"|translate}}</ng-template>
         <form>
             <div>
                 <table class="table table-vertical">
                     <tbody>
                     <tr>
-                        <th>{{"APP_CLUSTER_FORM_NAME"|translate}}</th>
+                        <th>{{"APP_NAME"|translate}}</th>
                         <td>{{item.name}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_FORM_VERSION"|translate}}</th>
+                        <th>{{"APP_VERSION"|translate}}</th>
                         <td>{{item.version}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_FORM_PROVIDER"|translate}}</th>
+                        <th>{{"APP_PROVIDER"|translate}}</th>
                         <td>{{item.provider}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_FORM_CONTAINER_NETWORK_TYPE"|translate}}</th>
+                        <th>{{"APP_CONTAINER_NETWORK_TYPE"|translate}}</th>
                         <td>{{item.networkType}}</td>
                     </tr>
                     <tr>
-                        <th>{{"APP_CLUSTER_FORM_CONTAINER_RUNTIME_TYPE"|translate}}</th>
+                        <th>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</th>
                         <td>{{item.runtimeType}}</td>
                     </tr>
                     </tbody>
