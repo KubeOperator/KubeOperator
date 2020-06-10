@@ -27,9 +27,10 @@ require (
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20200425043458-8463f397d07c // indirect
-	helm.sh/helm/v3 v3.2.3 // indirect
+	helm.sh/helm/v3 v3.2.3
 	k8s.io/api v0.18.2
 	k8s.io/apimachinery v0.18.2
+	k8s.io/cli-runtime v0.18.0
 	k8s.io/client-go v0.18.2
 	sigs.k8s.io/controller-runtime v0.6.0
 )
