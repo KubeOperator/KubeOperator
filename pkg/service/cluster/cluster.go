@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
+	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 )
 
 func Page(num, size int) (clusters []clusterModel.Cluster, total int, err error) {
@@ -154,4 +155,23 @@ func GetDefaultClusterEndpoint(clusterName string) (string, error) {
 		return "", err
 	}
 	return node.Host.Ip, nil
+}
+
+func GetHelmClient(clusterName string) (*helm.Client, error) {
+	endpoint, err := GetClusterKubernetesApiEndpoint(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	secret, err := GetClusterSecret(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	client, err := helm.NewClient(helm.Config{
+		ApiServer:   endpoint,
+		BearerToken: secret.KubernetesToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
 }
