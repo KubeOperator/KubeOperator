@@ -5,13 +5,15 @@ import (
 	"time"
 )
 
+
+
 type Cluster struct {
-	Name     string    `json:"name"`
-	Spec     Spec      `json:"spec"`
-	Status   string    `json:"status"`
-	NodeSize int       `json:"nodeSize"`
-	CreateAt time.Time `json:"createAt"`
-	UpdateAt time.Time `json:"updateAt"`
+	Name       string     `json:"name"`
+	Spec       Spec       `json:"spec"`
+	Status     string     `json:"status"`
+	NodeSize   int        `json:"nodeSize"`
+	CreateAt   time.Time  `json:"createAt"`
+	UpdateAt   time.Time  `json:"updateAt"`
 }
 
 type Spec struct {
@@ -29,8 +31,9 @@ type Condition struct {
 }
 
 type Status struct {
-	Phase      string      `json:"phase"`
-	Conditions []Condition `json:"conditions"`
+	Phase         string      `json:"phase"`
+	IngressStatus string      `json:"ingressStatus"`
+	Conditions    []Condition `json:"conditions"`
 }
 
 type Node struct {

@@ -1,6 +1,9 @@
 package constant
 
-import "errors"
+import (
+	"errors"
+	"path"
+)
 
 const (
 	PageNumQueryKey  = "pageNum"
@@ -13,4 +16,9 @@ const (
 
 var (
 	NotSupportedBatchOperation = errors.New("not supported operation")
+)
+
+var (
+	ResourceDir = "resource"
+	ChartsDir   = path.Join(ResourceDir, "charts")
 )

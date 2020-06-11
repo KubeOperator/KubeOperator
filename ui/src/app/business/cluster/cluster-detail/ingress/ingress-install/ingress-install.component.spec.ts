@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ServiceRouteComponent } from './service-route.component';
+import { IngressInstallComponent } from './ingress-install.component';
 
-describe('ServiceRouteComponent', () => {
-  let component: ServiceRouteComponent;
-  let fixture: ComponentFixture<ServiceRouteComponent>;
+describe('IngressInstallComponent', () => {
+  let component: IngressInstallComponent;
+  let fixture: ComponentFixture<IngressInstallComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ServiceRouteComponent ]
+      declarations: [ IngressInstallComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ServiceRouteComponent);
+    fixture = TestBed.createComponent(IngressInstallComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

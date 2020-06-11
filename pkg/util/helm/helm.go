@@ -9,21 +9,22 @@ import (
 )
 
 const (
-	defaultNamespace = "default"
+	defaultNamespace = "kube-operator"
 	helmDriver       = "configmap"
 )
 
 func nolog(format string, v ...interface{}) {}
 
 type Interface interface {
-	Install(name string, chart *chart.Chart, values map[string]interface{})
+	Install(name string, chart *chart.Chart, values map[string]interface{}) (*release.Release, error)
 	Uninstall(name string) (*release.UninstallReleaseResponse, error)
-	List(name string) ([]*release.Release, error)
+	List() ([]*release.Release, error)
 }
 
 type Config struct {
 	ApiServer   string
 	BearerToken string
+	Namespace   string
 }
 type Client struct {
 	actionConfig *action.Configuration
@@ -36,8 +37,11 @@ func NewClient(config Config) (*Client, error) {
 	cf.APIServer = &config.ApiServer
 	cf.BearerToken = &config.BearerToken
 	cf.Insecure = &inscure
+	if config.Namespace == "" {
+		config.Namespace = defaultNamespace
+	}
 	actionConfig := new(action.Configuration)
-	err := actionConfig.Init(cf, defaultNamespace, helmDriver, nolog)
+	err := actionConfig.Init(cf, config.Namespace, helmDriver, nolog)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +63,7 @@ func (c Client) Uninstall(name string) (*release.UninstallReleaseResponse, error
 	return client.Run(name)
 }
 
-func (c Client) List(name string) ([]*release.Release, error) {
+func (c Client) List() ([]*release.Release, error) {
 	client := action.NewList(c.actionConfig)
 	client.All = true
 	return client.Run()

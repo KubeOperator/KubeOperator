@@ -17,4 +17,8 @@ const (
 
 	ClusterProviderBareMetal = "bareMetal"
 	ClusterProviderVSphere   = "vSphere"
+
+	ToolRunning      = "Running"
+	ToolInitializing = "Initializing"
+	ToolFailed       = "Failed"
 )

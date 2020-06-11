@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {Cluster} from '../../../../cluster';
+import {Cluster} from '../../../cluster';
 import {V1beta1CronJob, V1Namespace, V1Service} from '@kubernetes/client-node';
-import {KubernetesService} from '../../../../kubernetes.service';
+import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
@@ -25,7 +25,7 @@ export class ServiceListComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.route.parent.parent.data.subscribe(data => {
+        this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster.item;
             this.listNamespace();
             this.list();

@@ -1,9 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {Cluster} from '../../../../cluster';
-import {NetworkingV1beta1Ingress, V1Namespace, V1Service} from '@kubernetes/client-node';
-import {KubernetesService} from '../../../../kubernetes.service';
+import {Cluster} from '../../../cluster';
+import {NetworkingV1beta1Ingress, V1Namespace} from '@kubernetes/client-node';
+import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
-import {ignoreDiagnostics} from '@angular/compiler-cli/src/ngtsc/typecheck/src/diagnostics';
 
 @Component({
     selector: 'app-ingress-list',
@@ -26,7 +25,7 @@ export class IngressListComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.route.parent.parent.data.subscribe(data => {
+        this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster.item;
             this.listNamespace();
             this.list();

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/router/v1/cluster/tools"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/credential"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/host"
 	"github.com/KubeOperator/KubeOperator/pkg/router/v1/user"
@@ -31,6 +32,14 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1ClusterApi.GET("/:name/status/", cluster.Status)
 			v1ClusterApi.POST("/init/:name/", cluster.Init)
 		}
+		v1ToolsApi := v1ClusterApi.Group("/:name/tools")
+		{
+			//query ingress tools status
+			v1ToolsApi.GET("/ingress", tools.GetIngress)
+			// install ingress tools
+			v1ToolsApi.POST("/ingress", tools.InstallIngress)
+		}
+
 		v1ClusterNodeApi := v1ClusterApi.Group("/:name/nodes")
 		{
 			v1ClusterNodeApi.GET("/:name/nodes/", cluster.ListNodes)

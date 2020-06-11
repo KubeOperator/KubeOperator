@@ -9,11 +9,10 @@ import (
 
 type Status struct {
 	commonModel.BaseModel
-	ID         string
-	Version    string
-	Message    string `gorm:"type:text(65535)"`
-	Phase      string
-	Conditions []Condition `gorm:"save_associations:false"`
+	ID           string
+	Message      string `gorm:"type:text(65535)"`
+	Phase        string
+	Conditions   []Condition `gorm:"save_associations:false"`
 }
 
 func (s *Status) BeforeCreate() (err error) {

@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {Component, NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {LoginComponent} from './login/login.component';
 import {LayoutComponent} from './layout/layout.component';
@@ -20,9 +20,8 @@ import {StatefulSetComponent} from './business/cluster/cluster-detail/workload/s
 import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/daemon-set/daemon-set.component';
 import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
 import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
-import {ServiceRouteComponent} from './business/cluster/cluster-detail/service-route/service-route.component';
-import {ServiceComponent} from './business/cluster/cluster-detail/service-route/service/service.component';
-import {IngressComponent} from './business/cluster/cluster-detail/service-route/ingress/ingress.component';
+import {ServiceComponent} from './business/cluster/cluster-detail/service/service.component';
+import {IngressComponent} from './business/cluster/cluster-detail/ingress/ingress.component';
 import {UserComponent} from './business/user/user.component';
 import {AuthUserService} from './shared/auth/auth-user.service';
 import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
@@ -75,13 +74,12 @@ const routes: Routes = [
                         ],
                     },
                     {
-                        path: 'serviceroute',
-                        component: ServiceRouteComponent,
-                        children: [
-                            {path: '', redirectTo: 'svc', pathMatch: 'full'},
-                            {path: 'svc', component: ServiceComponent},
-                            {path: 'ingress', component: IngressComponent},
-                        ],
+                        path: 'service',
+                        component: ServiceComponent,
+                    },
+                    {
+                        path: 'ingress',
+                        component: IngressComponent,
                     },
                     {
                         path: 'config',
