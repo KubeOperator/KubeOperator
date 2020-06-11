@@ -1,18 +1,18 @@
 <div class="login-wrapper background">
     <form class="login" #loginForm="ngForm">
         <section class="title">
-            <h3 class="welcome">欢迎使用</h3>
-            KubeOperator 容器平台
+            <h3 class="welcome">{{'APP_LOGIN_TITLE_WELCOME'|translate}}</h3>
+            {{'APP_LOGIN_TITLE_KO'|translate}}
         </section>
         <div class="login-group">
             <clr-input-container>
-                <label class="clr-sr-only">用户名</label>
+                <label class="clr-sr-only">{{'APP_USERNAME'|translate}}</label>
                 <input type="text" name="username" clrInput placeholder="Username"
                        [(ngModel)]="loginCredential.username"
                        required/>
             </clr-input-container>
             <clr-password-container>
-                <label class="clr-sr-only">密码</label>
+                <label class="clr-sr-only">{{'APP_PASSWORD'|translate}}</label>
                 <input type="password" name="password" clrPassword placeholder="Password"
                        [(ngModel)]="loginCredential.password" required/>
             </clr-password-container>
