@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type Handler func(*Task) error
+type Handler func(*Tool) error
 
 type CLusterToolsAdm struct {
 	ingressHandlers []Handler
