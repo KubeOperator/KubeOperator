@@ -13,6 +13,7 @@ import {ClrCommonFormsModule, ClrDatagridModule, ClrIconModule, ClrModalModule} 
 import {CoreModule} from './core/core.module';
 import {SessionInterceptor} from './shared/auth/session-interceptor';
 import {AppGlobalErrorHandler} from './shared/handler/app-global-error-handler';
+import {NgCircleProgressModule} from 'ng-circle-progress';
 
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -42,7 +43,13 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
         ClrIconModule,
         ClrModalModule,
         ClrCommonFormsModule,
-        CoreModule
+        CoreModule,
+        NgCircleProgressModule.forRoot({
+            radius: 100,
+            outerStrokeWidth: 16,
+            innerStrokeWidth: 8,
+            animationDuration: 300,
+        })
     ],
     providers: [
         {

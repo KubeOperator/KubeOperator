@@ -3,23 +3,93 @@
         <div class="card">
             <div class="card-block">
                 <div class="clr-row">
-                    <div class="clr-col-4" style="padding: 0 5% 0 1%; border-right:1px solid">
-                        <table class="table table-vertical">
-                            <tbody>
-                            <tr>
-                                <th>Name</th>
-                                <td>{{currentCluster.name}}</td>
-                            </tr>
-                            <tr>
-                                <th>Version</th>
-                                <td>{{currentCluster.spec.version}}</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="clr-col-3">
+                        <div class="clr-row">
+                            <div class="clr-col-md-12" style="text-align: center">
+                                <h4>{{'APP_BASIC_INFORMATION'|translate}}</h4> <br>
+                            </div>
+                            <div class="clr-col-lg-6  clr-col-12 count">
+                                <span><b>{{'APP_NAME'|translate}}</b></span> <br>
+                                <!--                            <span><b>{{namespaceCount}}</b></span> <br>-->
+                                <!--                            <span><b>{{deploymentCount}}</b></span> <br>-->
+                                <!--                            <span><b>{{podCount}}</b></span> <br>-->
+                                <!--                            <span><b>{{containerCount}}</b></span> <br>-->
+                            </div>
+                            <div class="clr-col-lg-6 clr-col-12 type-face">
+                                <span>{{currentCluster.name}}</span> <br>
+                                <!--                            <span>Namespaces</span> <br>-->
+                                <!--                            <span>Deployments</span> <br>-->
+                                <!--                            <span>Pods</span> <br>-->
+                                <!--                            <span>Containers</span> <br>-->
+                            </div>
+                        </div>
                     </div>
-                    <div class="clr-col-4" style="padding: 0 5% 0 1%; border-right:1px solid">
+                    <div class="clr-col-6 solid">
+                        <div class="clr-col-md-12" style="text-align: center">
+                            <h4>{{'APP_CAPACITY_INFORMATION'|translate}}</h4> <br>
+                        </div>
+                        <div class="clr-col-md-12" style="text-align: center">
+                            <circle-progress
+                                [percent]="20"
+                                [radius]="80"
+                                [outerStrokeWidth]="15"
+                                [innerStrokeWidth]="15"
+                                [space]="-15"
+                                [outerStrokeColor]="'#00FF00'"
+                                [innerStrokeColor]="'#e5e9f2'"
+                                [titleFontSize]=20
+                                [unitsFontSize]=20
+                                [subtitleFontSize]="15"
+                                [subtitle]="'CPU 使用率'"
+                            ></circle-progress>
+                            <circle-progress
+                                    [percent]="20"
+                                    [radius]="80"
+                                    [outerStrokeWidth]="15"
+                                    [innerStrokeWidth]="15"
+                                    [space]="-15"
+                                    [outerStrokeColor]="'#00FF00'"
+                                    [innerStrokeColor]="'#e5e9f2'"
+                                    [titleFontSize]=20
+                                    [unitsFontSize]=20
+                                    [subtitleFontSize]="15"
+                                    [subtitle]="'内存 使用率'"
+                            ></circle-progress>
+                            <circle-progress
+                                    [percent]="20"
+                                    [radius]="80"
+                                    [outerStrokeWidth]="15"
+                                    [innerStrokeWidth]="15"
+                                    [space]="-15"
+                                    [outerStrokeColor]="'#00FF00'"
+                                    [innerStrokeColor]="'#e5e9f2'"
+                                    [titleFontSize]=20
+                                    [unitsFontSize]=20
+                                    [subtitleFontSize]="15"
+                                    [subtitle]="'容器组'"
+                            ></circle-progress>
+                        </div>
                     </div>
-                    <div class="clr-col-4" style="padding: 0 5% 0 1%">
+                    <div class="clr-col-3 solid">
+                        <div class="clr-row">
+                            <div class="clr-col-md-12" style="text-align: center">
+                                <h4>{{'APP_STATISTICS'|translate}}</h4> <br>
+                            </div>
+                            <div class="clr-col-lg-6 clr-col-12 count">
+                                <span><b>1</b></span> <br>
+                                <span><b>1</b></span> <br>
+                                <span><b>1</b></span> <br>
+                                <span><b>1</b></span> <br>
+                                <span><b>1</b></span> <br>
+                            </div>
+                            <div class="clr-col-lg-6 clr-col-12 type-face">
+                                <span>Nodes</span> <br>
+                                <span>Namespaces</span> <br>
+                                <span>Deployments</span> <br>
+                                <span>Pods</span> <br>
+                                <span>Containers</span> <br>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

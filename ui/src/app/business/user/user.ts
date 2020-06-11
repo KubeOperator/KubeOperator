@@ -16,3 +16,9 @@ export class UserCreateRequest extends BaseRequest {
     email: string;
     confirmPassword: string;
 }
+
+export class ChangePasswordRequest extends BaseRequest {
+    name: string;
+    password: string;
+    original: string;
+}

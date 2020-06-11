@@ -1,3 +1,9 @@
 #credential
 invalid_credential_name: "秘钥名称错误"
 delete_credential_failed: "删除秘钥失败，秘钥有关联资源!"
+
+#user
+user_not_found: "找不到用户"
+password_not_match: "密码错误"
+user_is_not_active: "用户被禁用 请联系管理员"
+old_password_check_failed: "原密码错误"

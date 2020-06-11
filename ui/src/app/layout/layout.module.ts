@@ -8,9 +8,11 @@ import {CoreModule} from '../core/core.module';
 import {RouterModule} from '@angular/router';
 import {SharedModule} from '../shared/shared.module';
 import {CommonAlertComponent} from './common-alert/common-alert.component';
+import {PasswordComponent} from './header/password/password.component';
 
 @NgModule({
-    declarations: [HeaderComponent, FooterComponent, LayoutComponent, NavigationComponent, AppAlertComponent, CommonAlertComponent],
+    declarations: [HeaderComponent, FooterComponent, LayoutComponent,
+        NavigationComponent, AppAlertComponent, CommonAlertComponent, PasswordComponent],
     exports: [
         LayoutComponent
     ],

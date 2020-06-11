@@ -30,7 +30,11 @@ func JWTMiddleware() *jwt.GinJWTMiddleware {
 			}
 			sUser, err := service.UserAuth(credential.Username, credential.Password)
 			if err != nil {
-				return nil, jwt.ErrFailedAuthentication
+				if sUser != nil && sUser.IsActive == false {
+					return nil, err
+				} else {
+					return nil, err
+				}
 			}
 			return sUser, nil
 		},

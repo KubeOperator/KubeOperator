@@ -46,6 +46,9 @@ import {LoggingQueryComponent} from './cluster-detail/logging/logging-query/logg
 import {TaskComponent} from './cluster-detail/task/task.component';
 import {TaskListComponent} from './cluster-detail/task/task-list/task-list.component';
 import {IngressInstallComponent} from './cluster-detail/ingress/ingress-install/ingress-install.component';
+import {TaskComponent} from './cluster-detail/task/task.component';
+import {TaskListComponent} from './cluster-detail/task/task-list/task-list.component';
+import {NgCircleProgressModule} from 'ng-circle-progress';
 
 
 @NgModule({
@@ -58,10 +61,13 @@ import {IngressInstallComponent} from './cluster-detail/ingress/ingress-install/
         DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent,
         SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, TaskComponent,
         TaskListComponent, IngressInstallComponent],
+        SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, TaskComponent,
+        TaskListComponent],
     imports: [
         CoreModule,
         RouterModule,
         SharedModule,
+        NgCircleProgressModule,
     ]
 })
 export class ClusterModule {

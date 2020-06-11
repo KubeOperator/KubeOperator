@@ -1,6 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
+import {Host, HostCreateRequest} from '../host/host';
+import {Observable} from 'rxjs';
+import {ChangePasswordRequest} from './user';
 
 @Injectable({
     providedIn: 'root'
@@ -14,4 +17,8 @@ export class UserService extends BaseModelService<any> {
         super(http);
     }
 
+    changePassword(name: string, item: ChangePasswordRequest): Observable<Host> {
+        const itemUrl = `${this.baseUrl}/changePassword/${name}/`;
+        return this.http.post<Host>(itemUrl, item);
+    }
 }
