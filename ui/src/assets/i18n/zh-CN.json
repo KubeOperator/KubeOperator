@@ -71,5 +71,8 @@
   "APP_CHANGE_PASSWORD": "修改密码",
   "APP_OLD_PASSWORD": "原密码",
   "APP_NEW_PASSWORD": "新密码",
-  "APP_CONFIRM_NEW_PASSWORD": "确认新密码"
+  "APP_CONFIRM_NEW_PASSWORD": "确认新密码",
+  "APP_BASIC_INFORMATION": "基本信息",
+  "APP_CAPACITY_INFORMATION": "容量信息",
+  "APP_STATISTICS": "统计信息"
 }

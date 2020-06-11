@@ -1,0 +1,20 @@
+
+table tr td:first-child {
+    font-weight: bold
+}
+
+.count span {
+    float: right;
+}
+
+.type-face span {
+    color: #c1c5d3;
+}
+
+tr td:nth-child(2) {
+    color: #969696;
+}
+
+.solid {
+    border-left:1px solid #AAAAAA
+}
