@@ -21,7 +21,7 @@ func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err 
 		return nil, UserNotFound
 	}
 	if dbUser.IsActive == false {
-		return nil, UserIsNotActive
+		return dbUser.ToSessionUser(), UserIsNotActive
 	}
 	password, err = encrypt.StringEncrypt(password)
 	if err != nil {
