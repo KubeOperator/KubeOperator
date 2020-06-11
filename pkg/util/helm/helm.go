@@ -1,46 +1,66 @@
 package helm
 
 import (
+	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
-	"k8s.io/client-go/kubernetes"
+	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/release"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
+const (
+	defaultNamespace = "default"
+	helmDriver       = "configmap"
+)
+
+func nolog(format string, v ...interface{}) {}
+
 type Interface interface {
-	Install(chart *chart.Chart, values map[string]interface{})
+	Install(name string, chart *chart.Chart, values map[string]interface{})
+	Uninstall(name string) (*release.UninstallReleaseResponse, error)
+	List(name string) ([]*release.Release, error)
 }
 
 type Config struct {
-	KubeClientSet kubernetes.Clientset
+	ApiServer   string
+	BearerToken string
 }
-
 type Client struct {
-	Config Config
+	actionConfig *action.Configuration
 }
 
-func (c Client) Install(chart *chart.Chart, values map[string]interface{}) {
-	//cf := genericclioptions.NewConfigFlags(true)
-	//apiServer := "https://172.16.10.184:8443"
-	//token := "eyJhbGciOiJSUzI1NiIsImtpZCI6Im5QWVVaVDhONmFMVXBTTHZtRjdERk1aY1lEcTUtQURBZ19UODRLOHhlNncifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrby1hZG1pbi10b2tlbi1iODQ0ZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrby1hZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImJjZjY5MjA2LTcwOWEtNDBmYS04NTZlLWNjZGMwNzJlNGEzMiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTprby1hZG1pbiJ9.ugvH3kXa87OvxnNQaenSyyCQYYkE7VZ3wbuV6RAL3QfuUZvj-2CI4SJY6thLddEjD9dQ7r-tyq4FQIYOl0uj1-oqm_pNCC6Ya2Hby2O296d6StPHKzVsiG-sYDKW9nengc_GJptMZF9S51Jlb5MvNpkx6pFw1Gty8n9jpdBN_5l7qyeBwGGoJSa0sgcJPnOgSy5j8Y905fv_eT6tcJSBY0q-cptNEMsLTngZ_ikZqye5UoM6P8EvT7GtWYMPHqv8DYXVb_BEu97Xv9vC9ZF8sT9GVkbQIJLN1E_Tt9CvqlVKEPUEAEhdiWeds8-FLcutDP_x56AtMG2Lk7ltRJHszg"
-	//inscure := true
-	//cf.APIServer = &apiServer
-	//cf.BearerToken = &token
-	//cf.Insecure = &inscure
-	//cfg, err := cf.ToRESTConfig()
-	//if err != nil {
-	//	return
-	//}
-	//api, err := kubernetes.NewForConfig(cfg)
-	//if err!=nil{
-	//	return
-	//}
-	//ns, err := api.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-	//fmt.Println()
-	//
-	//installClient := action.NewInstall(&action.Configuration{
-	//	KubeClient:     nil,
-	//	RegistryClient: nil,
-	//	Capabilities:   nil,
-	//	Log:            nil,
-	//})
-	//_, _ = installClient.Run(chart, values)
+func NewClient(config Config) (*Client, error) {
+	client := Client{}
+	cf := genericclioptions.NewConfigFlags(true)
+	inscure := true
+	cf.APIServer = &config.ApiServer
+	cf.BearerToken = &config.BearerToken
+	cf.Insecure = &inscure
+	actionConfig := new(action.Configuration)
+	err := actionConfig.Init(cf, defaultNamespace, helmDriver, nolog)
+	if err != nil {
+		return nil, err
+	}
+	client.actionConfig = actionConfig
+	return &client, nil
+}
+
+func LoadCharts(path string) (*chart.Chart, error) {
+	return loader.Load(path)
+}
+
+func (c Client) Install(name string, chart *chart.Chart, values map[string]interface{}) (*release.Release, error) {
+	client := action.NewInstall(c.actionConfig)
+	client.ReleaseName = name
+	return client.Run(chart, values)
+}
+func (c Client) Uninstall(name string) (*release.UninstallReleaseResponse, error) {
+	client := action.NewUninstall(c.actionConfig)
+	return client.Run(name)
+}
+
+func (c Client) List(name string) ([]*release.Release, error) {
+	client := action.NewList(c.actionConfig)
+	client.All = true
+	return client.Run()
 }
