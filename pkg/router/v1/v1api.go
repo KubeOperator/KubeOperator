@@ -52,6 +52,7 @@ func V1(root *gin.RouterGroup) *gin.RouterGroup {
 			v1UserApi.PATCH("/:name/", user.Update)
 			v1UserApi.DELETE("/:name/", user.Delete)
 			v1UserApi.POST("/batch/", user.Batch)
+			v1UserApi.POST("/changePassword/:name/", user.ChangeUserPassword)
 		}
 	}
 	return v1Api

@@ -29,4 +29,8 @@ export class SessionService {
     getProfile(): Observable<Profile> {
         return this.http.get<Profile>(profileUrl);
     }
+
+    clear() {
+        localStorage.removeItem(queryKey);
+    }
 }

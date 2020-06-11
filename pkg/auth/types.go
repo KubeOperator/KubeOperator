@@ -6,9 +6,9 @@ type Credential struct {
 }
 
 type SessionUser struct {
-	UserId   string
-	Name     string
-	Email    string
-	Language string
-	IsActive bool
+	UserId   string `json:"userId"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Language string `json:"language"`
+	IsActive bool   `json:"isActive"`
 }

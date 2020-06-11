@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	invalidUserName  = errors.New(i18n.Tr("invalid_user_name", nil))
-	deleteUserFailed = errors.New(i18n.Tr("delete_user_failed", nil))
+	InvalidUserName        = errors.New(i18n.Tr("invalid_user_name", nil))
+	DeleteUserFailed       = errors.New(i18n.Tr("delete_user_failed", nil))
+	OldPasswordCheckFailed = errors.New(i18n.Tr("old_password_check_failed", nil))
 )
 
 // ListUser
@@ -79,7 +80,7 @@ func Get(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": invalidUserName.Error(),
+			"msg": InvalidUserName.Error(),
 		})
 	}
 	model, err := userService.Get(name)
@@ -203,7 +204,7 @@ func Delete(ctx *gin.Context) {
 	name := ctx.Param("name")
 	if name == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": invalidUserName.Error(),
+			"msg": InvalidUserName.Error(),
 		})
 		return
 	}
@@ -248,7 +249,7 @@ func Batch(ctx *gin.Context) {
 	}
 	if len(models) == 0 {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"msg": deleteUserFailed.Error(),
+			"msg": DeleteUserFailed.Error(),
 		})
 		return
 	}
@@ -257,4 +258,72 @@ func Batch(ctx *gin.Context) {
 		resp.Items = append(resp.Items, serializer.FromModel(model))
 	}
 	ctx.JSON(http.StatusOK, resp)
+}
+
+// ChangeUserPassword
+// @Tags User
+// @Summary User
+// @Description change user password
+// @Accept  json
+// @Produce json
+// @Param request body serializer.ChangePasswordRequest true "user"
+// @Success 200 {object} serializer.User
+// @Router /users/ [post]
+func ChangeUserPassword(ctx *gin.Context) {
+	var req serializer.ChangePasswordRequest
+	err := ctx.ShouldBind(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	oldUser, err := userService.Get(req.Name)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	oldPassword, err := encrypt.StringDecrypt(oldUser.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+
+	if oldPassword != req.Original {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": OldPasswordCheckFailed.Error(),
+		})
+		return
+	}
+
+	password, err := encrypt.StringEncrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	model := userModel.User{
+		ID:       oldUser.ID,
+		Name:     req.Name,
+		Password: password,
+		Email:    oldUser.Email,
+		IsActive: oldUser.IsActive,
+		Language: oldUser.Language,
+	}
+
+	err = userService.Save(&model)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, serializer.FromModel(model))
 }

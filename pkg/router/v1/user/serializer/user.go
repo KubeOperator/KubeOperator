@@ -86,3 +86,9 @@ type BatchUserRequest struct {
 type BatchUserResponse struct {
 	Items []User `json:"items"`
 }
+
+type ChangePasswordRequest struct {
+	Name     string `json:"name" binding:"required"`
+	Original string `json:"original"`
+	Password string `json:"password" binding:"required"`
+}
