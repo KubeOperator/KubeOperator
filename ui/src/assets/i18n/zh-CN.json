@@ -62,5 +62,10 @@
   "APP_ENABLE": "启用",
   "APP_CONFIRM_PASSWORD": "确认密码",
   "APP_PASSWORD_ERROR_MSG": "有效密码:6-30位,英文字母+数字+特殊字符(可选)",
-  "APP_PASSWORD_HELP_MSG": "密码不一致"
+  "APP_PASSWORD_HELP_MSG": "密码不一致",
+  "APP_LOGIN_TITLE_WELCOME": "欢迎使用",
+  "APP_LOGIN_TITLE_KO": "KubeOperator 容器平台",
+  "APP_LOGIN_CONNECT_ERROR": "连接失败",
+  "APP_LOGIN_CONNECT_CREDENTIAL_ERROR": "用户名或密码错误",
+  "APP_LOGIN_CONNECT_UNKNOWN_ERROR": "未知错误"
 }
