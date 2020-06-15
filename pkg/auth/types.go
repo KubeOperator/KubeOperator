@@ -12,3 +12,8 @@ type SessionUser struct {
 	Language string `json:"language"`
 	IsActive bool   `json:"isActive"`
 }
+
+type JwtResponse struct {
+	User  SessionUser `json:"user"`
+	Token string      `json:"token"`
+}

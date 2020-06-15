@@ -11,6 +11,6 @@ func (d *Demo) BeforeCreate() {
 	d.ID = uuid.NewV4().String()
 }
 
-func TableName() string {
+func (d Demo) TableName() string {
 	return "ko_demo"
 }

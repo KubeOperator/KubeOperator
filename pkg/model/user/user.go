@@ -20,6 +20,9 @@ type User struct {
 	IsActive bool
 	Language string
 }
+type Token struct {
+	Token string `json:"access_token"`
+}
 
 func (u *User) BeforeCreate() (err error) {
 	u.ID = uuid.NewV4().String()
