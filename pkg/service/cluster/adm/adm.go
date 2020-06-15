@@ -1,8 +1,9 @@
 package adm
 
 import (
-	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
+	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"reflect"
 	"runtime"
@@ -25,13 +26,8 @@ func (h Handler) name() string {
 	return strings.TrimSuffix(name[i:], "-fm")
 }
 
-type Cluster struct {
-	clusterModel.Cluster
-	Kobe kobe.Interface
-}
-
-func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
-	var conditions []clusterModel.Condition
+func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
+	var conditions []model.ClusterStatusCondition
 	exist := false
 	for _, condition := range c.Status.Conditions {
 		if condition.Name == newCondition.Name {
@@ -58,19 +54,24 @@ func (c *Cluster) setCondition(newCondition clusterModel.Condition) {
 
 }
 
-func NewCluster(cluster clusterModel.Cluster) (*Cluster, error) {
+type Cluster struct {
+	dto.Cluster
+	Status dto.ClusterStatus
+	Kobe   kobe.Interface
+}
+
+func NewCluster(cluster dto.Cluster, status dto.ClusterStatus) *Cluster {
 	c := &Cluster{
 		Cluster: cluster,
+		Status:  status,
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: c.ParseInventory(),
 	})
-	// set default vars
 	for name, _ := range facts.DefaultFacts {
 		c.Kobe.SetVar(name, facts.DefaultFacts[name])
 	}
-
-	return c, nil
+	return c
 }
 
 type ClusterAdm struct {
@@ -78,7 +79,7 @@ type ClusterAdm struct {
 	resetHandlers  []Handler
 }
 
-func NewClusterAdm() (*ClusterAdm, error) {
+func NewClusterAdm() *ClusterAdm {
 	ca := new(ClusterAdm)
 	ca.createHandlers = []Handler{
 		ca.EnsureInitTaskStart,
@@ -97,23 +98,10 @@ func NewClusterAdm() (*ClusterAdm, error) {
 		ca.EnsureRestCluster,
 	}
 
-	return ca, nil
+	return ca
 }
 
-func (ca *ClusterAdm) OnInitialize(cluster clusterModel.Cluster) (clusterModel.Cluster, error) {
-	c, err := NewCluster(cluster)
-	if err != nil {
-		return cluster, err
-	}
-	err = ca.Create(c)
-	return c.Cluster, err
-}
-
-func (ca *ClusterAdm) OnReset(cluster clusterModel.Cluster) (clusterModel.Cluster, error) {
-	c, err := NewCluster(cluster)
-	if err != nil {
-		return cluster, err
-	}
-	err = ca.Reset(c)
-	return c.Cluster, err
+func (ca *ClusterAdm) OnInitialize(c Cluster) (Cluster, error) {
+	err := ca.Create(&c)
+	return c, err
 }

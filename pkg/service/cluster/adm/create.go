@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
@@ -27,7 +27,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	resp, err := f(c)
 	if err != nil {
-		c.setCondition(clusterModel.Condition{
+		c.setCondition(model.ClusterStatusCondition{
 			Name:          condition.Name,
 			Status:        constant.ConditionFalse,
 			LastProbeTime: now,
@@ -39,7 +39,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	if resp.HostFailedInfo != nil && len(resp.HostFailedInfo) > 0 {
 		by, _ := json.Marshal(resp.HostFailedInfo)
-		c.setCondition(clusterModel.Condition{
+		c.setCondition(model.ClusterStatusCondition{
 			Name:          condition.Name,
 			Status:        constant.ConditionFalse,
 			LastProbeTime: now,
@@ -49,7 +49,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 		c.Status.Message = string(by)
 		return nil
 	}
-	c.setCondition(clusterModel.Condition{
+	c.setCondition(model.ClusterStatusCondition{
 		Name:          condition.Name,
 		Status:        constant.ConditionTrue,
 		LastProbeTime: now,
@@ -59,7 +59,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	if nextConditionType == ConditionTypeDone {
 		c.Status.Phase = constant.ClusterRunning
 	} else {
-		c.setCondition(clusterModel.Condition{
+		c.setCondition(model.ClusterStatusCondition{
 			Name:          nextConditionType,
 			Status:        constant.ConditionUnknown,
 			LastProbeTime: time.Now(),
@@ -69,7 +69,7 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	return nil
 }
-func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condition, error) {
+func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*model.ClusterStatusCondition, error) {
 	if c.Status.Phase == constant.ClusterRunning {
 		return nil, errors.New("cluster phase is running now")
 	}
@@ -77,7 +77,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*clusterModel.Condi
 		return nil, errors.New("no create handlers")
 	}
 	if len(c.Status.Conditions) == 0 {
-		return &clusterModel.Condition{
+		return &model.ClusterStatusCondition{
 			Name:          ca.createHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
 			LastProbeTime: time.Now(),
