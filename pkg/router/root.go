@@ -9,6 +9,7 @@ import (
 
 func Server() *iris.Application {
 	app := iris.New()
+	app.Post("/api/auth/login", middleware.LoginHandler)
 	app.Use(middleware.LogMiddleware)
 	app.Use(middleware.JWTMiddleware().Serve)
 	api := app.Party("/api")

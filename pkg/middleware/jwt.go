@@ -2,22 +2,32 @@ package middleware
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
-	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	"github.com/dgrijalva/jwt-go"
 	jwtmiddleware "github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12/context"
+	"github.com/spf13/viper"
 )
 
-var log = logger.Default
-var sessionUser = auth.SessionUser{}
+var (
+	secretKey []byte
+	exp       int64
+)
+
+//func GetJwtConfig()  {
+//	v := viper.New()
+//
+//}
 
 func JWTMiddleware() *jwtmiddleware.Middleware {
+	secretKey = []byte(viper.GetString("jwt.secret"))
+	exp = viper.GetInt64("jwt.exp")
 	return jwtmiddleware.New(jwtmiddleware.Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			//自己加密的秘钥或者说盐值
-			return []byte("My Secret"), nil
+			return secretKey, nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
 	})
@@ -27,7 +37,7 @@ func ErrorHandler() {
 
 }
 
-func LoginHandler(ctx iris.Context) {
+func LoginHandler(ctx context.Context) {
 	aul := new(auth.Credential)
 	if err := ctx.ReadJSON(&aul); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
@@ -51,7 +61,7 @@ func CheckLogin(username string, password string) (*auth.JwtResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	token, err := CreateJWTToken(user)
+	token, err := CreateToken(user)
 	if err != nil {
 		return nil, err
 	}
@@ -61,31 +71,18 @@ func CheckLogin(username string, password string) (*auth.JwtResponse, error) {
 	return resp, err
 }
 
-func CreateJWTToken(user *auth.SessionUser) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-		"name":     user.Name,
-		"email":    user.Email,
-		"language": user.Language,
-		"isActive": user.IsActive,
-		"userId":   user.UserId,
+func CreateToken(user *auth.SessionUser) (string, error) {
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"name":   user.Name,
+		"email":  user.Email,
+		"userId": user.UserId,
 	})
-	tokenString, err := token.SignedString([]byte("My Secret"))
+	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		return "", err
 	}
 	return tokenString, err
-}
-
-func myAuthenticatedHandler(ctx iris.Context) {
-	user := ctx.Values().Get("jwt").(*jwt.Token)
-
-	ctx.Writef("This is an authenticated request\n")
-	ctx.Writef("Claim content:\n")
-
-	foobar := user.Claims.(jwt.MapClaims)
-	for key, value := range foobar {
-		ctx.Writef("%s = %s", key, value)
-	}
 }
 
 //func JWTMiddleware() *jwt.GinJWTMiddleware {
