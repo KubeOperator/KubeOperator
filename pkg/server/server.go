@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
+	"github.com/kataras/iris"
 	"github.com/spf13/viper"
 )
 
@@ -51,7 +52,7 @@ func Start() error {
 	bind := fmt.Sprintf("%s:%d",
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))
-	if err := s.Run(bind); err != nil {
+	if err := s.Run(iris.Addr(bind)); err != nil {
 		return err
 	}
 	return nil

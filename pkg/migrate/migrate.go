@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	migrateDir = "resource/migration"
 	phaseName  = "migrate"
 )
 
