@@ -22,4 +22,5 @@ var Models = []Interface{
 	host.Host{},
 	host.Volume{},
 	user.User{},
+	Demo{},
 }
