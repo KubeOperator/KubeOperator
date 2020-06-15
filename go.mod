@@ -30,7 +30,6 @@ require (
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/golog v0.0.18 // indirect
-	github.com/kataras/iris v11.1.1+incompatible
 	github.com/kataras/iris/v12 v12.1.2
 	github.com/klauspost/compress v1.10.8 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect

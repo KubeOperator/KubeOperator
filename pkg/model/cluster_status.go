@@ -10,6 +10,7 @@ type ClusterStatus struct {
 	ID      string
 	Message string `gorm:"type:text(65535)"`
 	Phase   string
+	Conditions []ClusterStatusCondition
 }
 
 func (s *ClusterStatus) BeforeCreate() (err error) {

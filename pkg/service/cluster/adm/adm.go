@@ -55,15 +55,13 @@ func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
 }
 
 type Cluster struct {
-	dto.Cluster
-	Status dto.ClusterStatus
-	Kobe   kobe.Interface
+	model.Cluster
+	Kobe kobe.Interface
 }
 
-func NewCluster(cluster dto.Cluster, status dto.ClusterStatus) *Cluster {
+func NewCluster(cluster model.Cluster) *Cluster {
 	c := &Cluster{
 		Cluster: cluster,
-		Status:  status,
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: c.ParseInventory(),
