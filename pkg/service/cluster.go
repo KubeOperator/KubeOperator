@@ -18,6 +18,7 @@ type ClusterService interface {
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
+	Page(num, size int) (int, []dto.Cluster, error)
 }
 
 //func NewClusterService() ClusterService {
@@ -35,24 +36,37 @@ type clusterService struct {
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
-	var cluster dto.Cluster
+	var clusterDTO dto.Cluster
 	mo, err := c.clusterRepo.Get(name)
 	if err != nil {
-		return cluster, err
+		return clusterDTO, err
 	}
-	spec, err := c.clusterSpecRepo.Get(mo.SpecID)
-	if err != nil {
-		return cluster, err
-	}
-	status, err := c.clusterStatusRepo.Get(mo.SpecID)
-	if err != nil {
-		return cluster, err
-	}
+	clusterDTO.Cluster = mo
+	return clusterDTO, nil
+}
 
-	cluster.Cluster = mo
-	cluster.Spec = spec
-	cluster.Status = status
-	return cluster, nil
+func (c clusterService) List() ([]dto.Cluster, error) {
+	var clusterDTOS []dto.Cluster
+	mos, err := c.clusterRepo.List()
+	if err != nil {
+		return clusterDTOS, nil
+	}
+	for _, mo := range mos {
+		clusterDTOS = append(clusterDTOS, dto.Cluster{Cluster: mo})
+	}
+	return clusterDTOS, err
+}
+
+func (c clusterService) Page(num, size int) (int, []dto.Cluster, error) {
+	var clusterDTOS []dto.Cluster
+	total, mos, err := c.clusterRepo.Page(num, size)
+	if err != nil {
+		return total, clusterDTOS, nil
+	}
+	for _, mo := range mos {
+		clusterDTOS = append(clusterDTOS, dto.Cluster{Cluster: mo})
+	}
+	return total, clusterDTOS, err
 }
 
 func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
@@ -80,12 +94,7 @@ func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
 	if err != nil {
 		return status, err
 	}
-	conditions, err := c.clusterStatusConditionRepo.List(cluster.StatusID)
-	if err != nil {
-		return status, err
-	}
 	status.ClusterStatus = cs
-	status.Conditions = conditions
 	return status, nil
 
 }

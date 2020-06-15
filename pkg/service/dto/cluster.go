@@ -4,15 +4,10 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Cluster struct {
 	model.Cluster
-	Spec   model.ClusterSpec   `json:"spec"`
-	Status model.ClusterStatus `json:"status"`
-	Secret model.ClusterSecret `json:"secret"`
-	Nodes  []model.ClusterNode `json:"nodes"`
 }
 
 type ClusterStatus struct {
 	model.ClusterStatus
-	Conditions []model.ClusterStatusCondition
 }
 
 type ClusterSecret struct {

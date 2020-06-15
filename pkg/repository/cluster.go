@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 )
 
 type ClusterRepository interface {
@@ -10,7 +11,7 @@ type ClusterRepository interface {
 	List() ([]model.Cluster, error)
 	Save(cluster *model.Cluster) error
 	Delete(name string) error
-
+	Page(num, size int) (int, []model.Cluster, error)
 }
 
 func NewClusterRepository() ClusterRepository {
@@ -21,7 +22,12 @@ type clusterRepository struct{}
 
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
 	var cluster model.Cluster
-	if err := db.DB.Where(model.Cluster{Name: name}).Find(&cluster).Error; err != nil {
+	if err := db.DB.
+		Where(model.Cluster{Name: name}).
+		Preload("Status").
+		Preload("Spec").
+		Preload("Nodes").
+		Find(&cluster).Error; err != nil {
 		return cluster, err
 	}
 	return cluster, nil
@@ -29,10 +35,31 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
-	if err := db.DB.Find(&clusters).Error; err != nil {
+	db.DB.Model(model.Cluster{})
+	if err := db.DB.Model(clusterModel.Cluster{}).
+		Preload("Status").
+		Preload("Spec").
+		Preload("Nodes").
+		Find(&clusters).Error; err != nil {
 		return clusters, err
 	}
 	return clusters, nil
+}
+
+func (c clusterRepository) Page(num, size int) (int, []model.Cluster, error) {
+	var total int
+	var clusters []model.Cluster
+	if err := db.DB.Model(clusterModel.Cluster{}).
+		Count(&total).
+		Offset((num - 1) * size).
+		Limit(size).
+		Preload("Status").
+		Preload("Spec").
+		Preload("Nodes").
+		Find(&clusters).Error; err != nil {
+		return total, clusters, err
+	}
+	return total, clusters, nil
 }
 
 func (c clusterRepository) Save(cluster *model.Cluster) error {

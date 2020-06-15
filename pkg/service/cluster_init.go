@@ -13,18 +13,17 @@ type ClusterInitService interface {
 }
 
 type clusterInitService struct {
-	clusterService             ClusterService
 	clusterRepo                repository.ClusterRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 }
 
 func (c clusterInitService) Init(name string) error {
-	cluster, err := c.clusterService.Get(name)
+	cluster, err := c.clusterRepo.Get(name)
 	if err != nil {
 		return err
 	}
-	status, err := c.clusterService.GetStatus(cluster.StatusID)
+	status, err := c.clusterStatusRepo.Get(cluster.StatusID)
 	if err != nil {
 		return err
 	}
@@ -41,11 +40,11 @@ func (c clusterInitService) Init(name string) error {
 		}
 	}
 	status.Phase = constant.ClusterInitializing
-	if err := c.clusterStatusRepo.Save(&status.ClusterStatus); err != nil {
+	if err := c.clusterStatusRepo.Save(&status); err != nil {
 		return err
 	}
 	ctx := context.Background()
-	admCluster := adm.NewCluster(cluster, status)
+	admCluster := adm.NewCluster(cluster)
 	statusChan := make(chan adm.Cluster, 0)
 	go c.do(ctx, *admCluster, statusChan)
 	go c.pollingStatus(ctx, statusChan)
@@ -75,7 +74,7 @@ func (c clusterInitService) pollingStatus(ctx context.Context, statusChan chan a
 
 	for {
 		cluster := <-statusChan
-		_ = c.clusterStatusRepo.Save(&cluster.Status.ClusterStatus, cluster.Status.Conditions...)
+		_ = c.clusterStatusRepo.Save(&cluster.Status)
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
 			ctx.Done()

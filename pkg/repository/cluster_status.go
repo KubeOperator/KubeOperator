@@ -25,7 +25,9 @@ func (c clusterStatusRepository) Get(id string) (model.ClusterStatus, error) {
 	status := model.ClusterStatus{
 		ID: id,
 	}
-	if err := db.DB.First(&status).Error; err != nil {
+	if err := db.DB.
+		First(&status).
+		Related(&status.Conditions).Error; err != nil {
 		return status, err
 	}
 	return status, nil
