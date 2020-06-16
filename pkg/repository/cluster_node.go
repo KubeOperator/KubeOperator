@@ -8,6 +8,7 @@ import (
 
 type ClusterNodeRepository interface {
 	List(clusterName string) ([]model.ClusterNode, error)
+	Save(node *model.ClusterNode) error
 	FistMaster(ClusterId string) (model.ClusterNode, error)
 	Delete(id string) error
 }
@@ -59,5 +60,18 @@ func (c clusterNodeRepository) Delete(id string) error {
 		return err
 	}
 	tx.Commit()
+	return nil
+}
+
+func (c clusterNodeRepository) Save(node *model.ClusterNode) error {
+	if db.DB.NewRecord(node) {
+		if err := db.DB.Create(node).Error; err != nil {
+			return err
+		}
+	} else {
+		if err := db.DB.Save(node).Error; err != nil {
+			return nil
+		}
+	}
 	return nil
 }

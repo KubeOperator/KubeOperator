@@ -7,8 +7,8 @@ import (
 )
 
 func PagerMiddleware(ctx context.Context) {
-	num := ctx.Params().Get(constant.PageNumQueryKey)
-	limit := ctx.Params().Get(constant.PageSizeQueryKey)
+	num := ctx.URLParam(constant.PageNumQueryKey)
+	limit := ctx.URLParam(constant.PageSizeQueryKey)
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil || limitInt < 0 {
 		ctx.Values().Set("page", false)

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -39,6 +40,7 @@ type clusterService struct {
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
+	hostRepo                   repository.HostRepository
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -144,6 +146,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		tx.Rollback()
 		return err
 	}
+
 	cluster := model.Cluster{
 		BaseModel: common.BaseModel{},
 		Name:      creation.Name,
@@ -154,6 +157,33 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		tx.Rollback()
 		return err
+	}
+	workerNo := 1
+	masterNo := 1
+	for _, nc := range creation.Nodes {
+		node := model.ClusterNode{
+			ClusterID: cluster.ID,
+			Role:      nc.Role,
+		}
+		switch node.Role {
+		case constant.NodeRoleNameMaster:
+			node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameMaster, masterNo)
+			masterNo++
+		case constant.NodeRoleNameWorker:
+			node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameWorker, workerNo)
+			workerNo++
+		}
+		host, err := c.hostRepo.Get(nc.HostName)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		node.HostID = host.ID
+		if err := c.clusterNodeRepo.Save(&node); err != nil {
+			tx.Rollback()
+			return err
+		}
+		cluster.Nodes = append(cluster.Nodes, node)
 	}
 	tx.Commit()
 	return nil

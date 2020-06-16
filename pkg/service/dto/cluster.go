@@ -25,15 +25,20 @@ type ClusterNode struct {
 	model.ClusterNode
 }
 
+type NodeCreate struct {
+	HostName string `json:"hostName"`
+	Role     string `json:"role"`
+}
+
 type ClusterCreate struct {
-	Name                 string                  `json:"name" binding:"required"`
-	Version              string                  `json:"version" binding:"required"`
-	NetworkType          string                  `json:"networkType"`
-	RuntimeType          string                  `json:"runtimeType"`
-	DockerStorageDIr     string                  `json:"dockerStorageDIr"`
-	ContainerdStorageDIr string                  `json:"containerdStorageDIr"`
-	AppDomain            string                  `json:"appDomain"`
-	ClusterCIDR          string                  `json:"clusterCIDR"`
-	ServiceCIDR          string                  `json:"serviceCIDR"`
-	Nodes                []struct{ Host string } `json:"nodes"`
+	Name                 string       `json:"name" binding:"required"`
+	Version              string       `json:"version" binding:"required"`
+	NetworkType          string       `json:"networkType"`
+	RuntimeType          string       `json:"runtimeType"`
+	DockerStorageDIr     string       `json:"dockerStorageDIr"`
+	ContainerdStorageDIr string       `json:"containerdStorageDIr"`
+	AppDomain            string       `json:"appDomain"`
+	ClusterCIDR          string       `json:"clusterCIDR"`
+	ServiceCIDR          string       `json:"serviceCIDR"`
+	Nodes                []NodeCreate `json:"nodes"`
 }
