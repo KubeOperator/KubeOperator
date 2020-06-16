@@ -32,6 +32,10 @@ type hostService struct {
 	hostRepo repository.HostRepository
 }
 
+func NewHostService() HostService {
+	return &hostService{}
+}
+
 func (h hostService) Get(name string) (dto.Host, error) {
 	var hostDTO dto.Host
 	mo, err := h.hostRepo.Get(name)
