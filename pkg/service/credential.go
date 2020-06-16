@@ -21,9 +21,14 @@ type CredentialService interface {
 	Batch(operation string, items []dto.Credential) ([]dto.Credential, error)
 	GetById(id string) (dto.Credential, error)
 }
+
 type credentialService struct {
 	credentialRepo repository.CredentialRepository
 	hostRepo       repository.HostRepository
+}
+
+func NewCredentialService() CredentialService {
+	return &credentialService{}
 }
 
 func (c credentialService) Get(name string) (dto.Credential, error) {

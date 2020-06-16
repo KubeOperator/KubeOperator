@@ -1,4 +1,4 @@
-package user
+package model
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
@@ -20,6 +20,7 @@ type User struct {
 	IsActive bool
 	Language string
 }
+
 type Token struct {
 	Token string `json:"access_token"`
 }
