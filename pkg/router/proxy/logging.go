@@ -3,41 +3,42 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
-	clusterService "github.com/KubeOperator/KubeOperator/pkg/service/cluster"
-	"github.com/gin-gonic/gin"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 )
 
-func LoggingProxy(ctx *gin.Context) {
-	clusterName := ctx.Param("name")
-	path := ctx.Param("path")
+func LoggingProxy(ctx context.Context) {
+	var clusterService service.ClusterService
+	clusterName := ctx.URLParam("cluster_name")
+	proxyPath := ctx.URLParam("p")
 	if clusterName == "" {
-		ctx.JSON(http.StatusBadRequest, invalidClusterNameError)
+		_, _ = ctx.JSON(http.StatusBadRequest)
 		return
 	}
 	c, err := clusterService.Get(clusterName)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
 
-	endpoint, err := clusterService.GetDefaultClusterEndpoint(clusterName)
+	endpoint, err := clusterService.GetEndpoint(clusterName)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
 	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	proxy.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	ctx.Request.Host = fmt.Sprintf("logging.%s", c.Spec.AppDomain)
-	ctx.Request.URL.Path = path
-	proxy.ServeHTTP(ctx.Writer, ctx.Request)
+	ctx.Request().Host = fmt.Sprintf("logging.%s", c.Spec.AppDomain)
+	ctx.Request().URL.Path = proxyPath
+	proxy.ServeHTTP(ctx.ResponseWriter(), ctx.Request())
 }

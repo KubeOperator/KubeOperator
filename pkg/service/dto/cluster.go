@@ -14,6 +14,10 @@ type ClusterSecret struct {
 	model.ClusterSecret
 }
 
+type ClusterNode struct {
+	model.ClusterNode
+}
+
 type ClusterCreate struct {
 	Name                 string                  `json:"name" binding:"required"`
 	Version              string                  `json:"version" binding:"required"`

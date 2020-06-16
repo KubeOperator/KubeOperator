@@ -4,8 +4,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	clusterService "github.com/KubeOperator/KubeOperator/pkg/service/cluster"
-	"github.com/gin-gonic/gin"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -17,35 +18,31 @@ var (
 	AuthorizationHeader     = "Authorization"
 )
 
-func KubernetesClientProxy(ctx *gin.Context) {
-	clusterName := ctx.Param("name")
-	path := ctx.Param("path")
-	if clusterName == "" {
-		ctx.JSON(http.StatusBadRequest, invalidClusterNameError)
-		return
-	}
-	api, err := clusterService.GetClusterKubernetesApiEndpoint(clusterName)
+func KubernetesClientProxy(ctx context.Context) {
+	clusterName := ctx.URLParam("cluster_name")
+	proxyPath := ctx.URLParam("p")
+	var clusterService service.ClusterService
+	api, err := clusterService.GetEndpoint(clusterName)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
 	u, err := url.Parse(api)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	proxy.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	secret, err := clusterService.GetClusterSecret(clusterName)
+	secret, err := clusterService.GetSecrets(clusterName)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
 	token := fmt.Sprintf("%s %s", keyPrefix, secret.KubernetesToken)
-	ctx.Request.Header.Add(AuthorizationHeader, token)
-	ctx.Request.URL.Path = path
-	proxy.ServeHTTP(ctx.Writer, ctx.Request)
-
+	ctx.Request().Header.Add(AuthorizationHeader, token)
+	ctx.Request().URL.Path = proxyPath
+	proxy.ServeHTTP(ctx.ResponseWriter(), ctx.Request())
 }

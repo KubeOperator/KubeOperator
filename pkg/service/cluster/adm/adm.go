@@ -3,7 +3,6 @@ package adm
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"reflect"
 	"runtime"

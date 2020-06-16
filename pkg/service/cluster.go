@@ -14,22 +14,28 @@ type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
-	//GetNodes(name string)
+	GetEndpoint(name string) (string, error)
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
 	Page(num, size int) (int, []dto.Cluster, error)
 }
 
-//func NewClusterService() ClusterService {
-//	return &clusterService{
-//		repo: repository.NewClusterRepository(),
-//	}
-//}
+func NewClusterService() ClusterService {
+	return &clusterService{
+		clusterRepo:                repository.NewClusterRepository(),
+		clusterSpecRepo:            repository.NewClusterSpecRepository(),
+		clusterNodeRepo:            repository.NewClusterNodeRepository(),
+		clusterStatusRepo:          repository.NewClusterStatusRepository(),
+		clusterSecretRepo:          repository.NewClusterSecretRepository(),
+		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+	}
+}
 
 type clusterService struct {
 	clusterRepo                repository.ClusterRepository
 	clusterSpecRepo            repository.ClusterSpecRepository
+	clusterNodeRepo            repository.ClusterNodeRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
@@ -140,4 +146,23 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c clusterService) GetEndpoint(name string) (string, error) {
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return "", nil
+	}
+	if cluster.Spec.LbKubeApiserverIp != "" {
+		return cluster.Spec.LbKubeApiserverIp, nil
+	}
+	master, err := c.clusterNodeRepo.FistMaster(cluster.ID)
+	if err != nil {
+		return "", err
+	}
+	return master.Host.Ip, nil
+}
+
+func (c clusterService) Delete(name string) error {
+	return c.clusterRepo.Delete(name)
 }

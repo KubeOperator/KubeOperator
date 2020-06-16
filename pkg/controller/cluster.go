@@ -3,12 +3,18 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
-	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 )
 
 type clusterController struct {
-	Ctx            iris.Context
+	Ctx            context.Context
 	clusterService service.ClusterService
+}
+
+func NewClusterController() *clusterController {
+	return &clusterController{
+		clusterService: service.NewClusterService(),
+	}
 }
 
 func (c clusterController) Get() ([]dto.Cluster, error) {

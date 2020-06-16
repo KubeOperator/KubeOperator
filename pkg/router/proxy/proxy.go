@@ -1,10 +1,11 @@
 package proxy
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/kataras/iris/v12"
+)
 
-func Proxy(proxyRoot *gin.RouterGroup) *gin.RouterGroup {
-	proxyRoot.GET("/kubernetes/:name/*path", KubernetesClientProxy)
-	proxyRoot.GET("/logging/:name/*path", LoggingProxy)
-	proxyRoot.POST("/logging/:name/*path", LoggingProxy)
-	return proxyRoot
+func RegisterProxy(parent iris.Party) {
+	proxy := parent.Party("/proxy")
+	proxy.Any("/kubernetes/{cluster_name}/{p:path}", KubernetesClientProxy)
+	proxy.Any("/logging/{cluster_name}/{p:path}", LoggingProxy)
 }
