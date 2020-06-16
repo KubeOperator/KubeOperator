@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
-	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
@@ -125,7 +124,7 @@ func (h hostService) Sync(name string) error {
 
 func (h hostService) GetHostGpu(host *model.Host) error {
 
-	password, privateKey, err := h.GetHostPasswordAndPrivateKey(*host)
+	password, privateKey, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
 	}
@@ -165,7 +164,7 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 
 	host.Status = model.AnsibleError
 	//TODO
-	password, _, err := h.GetHostPasswordAndPrivateKey(*host)
+	password, _, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
 	}
@@ -244,22 +243,4 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		host.Status = model.Running
 	}
 	return nil
-}
-
-func (h hostService) GetHostPasswordAndPrivateKey(host model.Host) (string, []byte, error) {
-	var err error = nil
-	password := ""
-	privateKey := []byte("")
-	if "password" == host.Credential.Type {
-		pwd, err := encrypt.StringDecrypt(host.Credential.Password)
-		password = pwd
-		if err != nil {
-			log.Fatalf(getHostConfigError, err.Error())
-			return password, privateKey, err
-		}
-	}
-	if "privateKey" == host.Credential.Type {
-		privateKey = []byte(host.Credential.PrivateKey)
-	}
-	return password, privateKey, err
 }

@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -30,6 +31,23 @@ type Host struct {
 	Status       string
 	NodeID       string
 	Volumes      []Volume
+}
+
+func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {
+	var err error = nil
+	password := ""
+	privateKey := []byte("")
+	if "password" == h.Credential.Type {
+		pwd, err := encrypt.StringDecrypt(h.Credential.Password)
+		password = pwd
+		if err != nil {
+			return password, privateKey, err
+		}
+	}
+	if "privateKey" == h.Credential.Type {
+		privateKey = []byte(h.Credential.PrivateKey)
+	}
+	return password, privateKey, err
 }
 
 func (h *Host) BeforeCreate() (err error) {
