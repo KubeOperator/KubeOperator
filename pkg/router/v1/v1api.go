@@ -9,4 +9,5 @@ import (
 func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
 	mvc.New(v1.Party("/clusters")).Handle(controller.NewClusterController())
+	mvc.New(v1.Party("/credentials")).Handle(controller.NewCredentialController())
 }

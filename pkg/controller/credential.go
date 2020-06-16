@@ -1,38 +1,69 @@
 package controller
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
-	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 )
 
-type credentialController struct {
-	ctx               iris.Context
-	credentialService service.CredentialService
+type CredentialController struct {
+	Ctx               context.Context
+	CredentialService service.CredentialService
 }
 
-func (c credentialController) Get() ([]dto.Credential, error) {
-	return c.credentialService.List()
+func NewCredentialController() *CredentialController {
+	return &CredentialController{
+		CredentialService: service.NewCredentialService(),
+	}
 }
 
-func (c credentialController) GetBy(name string) (dto.Credential, error) {
-	return c.credentialService.Get(name)
+func (c CredentialController) Get() (dto.CredentialPage, error) {
+
+	page, _ := c.Ctx.Values().GetBool("page")
+	if page {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return c.CredentialService.Page(num, size)
+	} else {
+		var page dto.CredentialPage
+		items, err := c.CredentialService.List()
+		if err != nil {
+			return page, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return page, nil
+	}
 }
 
-func (c credentialController) Post() error {
+func (c CredentialController) GetBy(name string) (dto.Credential, error) {
+	return c.CredentialService.Get(name)
+}
+
+func (c CredentialController) Post() error {
 	var req dto.CredentialCreate
-	err := c.ctx.ReadJSON(&req)
+	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return err
 	}
-	return c.credentialService.Create(req)
+	return c.CredentialService.Create(req)
 }
 
-func (c credentialController) Delete(name string) error {
-	return c.credentialService.Delete(name)
+func (c CredentialController) Delete(name string) error {
+	return c.CredentialService.Delete(name)
 }
 
-func (c credentialController) Batch(operation string, items []dto.Credential) error {
-	_, err := c.credentialService.Batch(operation, items)
+func (c CredentialController) Patch() error {
+	var req dto.CredentialUpdate
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	return c.CredentialService.Update(req)
+}
+
+func (c CredentialController) Batch(operation string, items []dto.Credential) error {
+	_, err := c.CredentialService.Batch(operation, items)
 	return err
 }

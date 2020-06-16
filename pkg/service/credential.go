@@ -15,11 +15,12 @@ var (
 type CredentialService interface {
 	Get(name string) (dto.Credential, error)
 	List() ([]dto.Credential, error)
-	Page(num, size int) (int, []dto.Credential, error)
+	Page(num, size int) (dto.CredentialPage, error)
 	Create(creation dto.CredentialCreate) error
 	Delete(name string) error
 	Batch(operation string, items []dto.Credential) ([]dto.Credential, error)
 	GetById(id string) (dto.Credential, error)
+	Update(update dto.CredentialUpdate) error
 }
 
 type credentialService struct {
@@ -28,7 +29,10 @@ type credentialService struct {
 }
 
 func NewCredentialService() CredentialService {
-	return &credentialService{}
+	return &credentialService{
+		credentialRepo: repository.NewCredentialRepository(),
+		hostRepo:       repository.NewHostRepository(),
+	}
 }
 
 func (c credentialService) Get(name string) (dto.Credential, error) {
@@ -63,17 +67,22 @@ func (c credentialService) List() ([]dto.Credential, error) {
 	return credentialDTOS, err
 }
 
-func (c credentialService) Page(num, size int) (int, []dto.Credential, error) {
+func (c credentialService) Page(num, size int) (dto.CredentialPage, error) {
+
+	var page dto.CredentialPage
+
 	var total int
 	var credentialDTOS []dto.Credential
 	total, mos, err := c.credentialRepo.Page(num, size)
 	if err != nil {
-		return total, credentialDTOS, err
+		return page, err
 	}
 	for _, mo := range mos {
 		credentialDTOS = append(credentialDTOS, dto.Credential{Credential: mo})
 	}
-	return total, credentialDTOS, err
+	page.Total = total
+	page.Items = credentialDTOS
+	return page, err
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) error {
@@ -84,6 +93,22 @@ func (c credentialService) Create(creation dto.CredentialCreate) error {
 		Username:   creation.Username,
 		PrivateKey: creation.PrivateKey,
 		Type:       creation.Type,
+	}
+	err := c.credentialRepo.Save(&credential)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c credentialService) Update(update dto.CredentialUpdate) error {
+	credential := model.Credential{
+		ID:         update.ID,
+		Name:       update.Name,
+		Password:   update.Password,
+		Username:   update.Username,
+		PrivateKey: update.PrivateKey,
+		Type:       update.Type,
 	}
 	err := c.credentialRepo.Save(&credential)
 	if err != nil {
