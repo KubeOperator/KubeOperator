@@ -20,7 +20,7 @@ export class TaskListComponent extends BaseModelComponent<Task> implements OnIni
 
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster.item;
+            this.currentCluster =data.cluster;
             this.service.variable.set('cluster_name', this.currentCluster.name);
         });
     }

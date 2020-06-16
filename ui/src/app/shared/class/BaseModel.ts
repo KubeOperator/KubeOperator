@@ -1,6 +1,6 @@
 export abstract class BaseModel {
-    createAt: string;
-    updateAt: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 

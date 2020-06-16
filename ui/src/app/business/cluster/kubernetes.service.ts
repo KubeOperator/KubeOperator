@@ -62,6 +62,7 @@ export class KubernetesService {
 
     listNamespaces(clusterName: string): Observable<V1NamespaceList> {
         const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
+        console.log(url);
         return this.client.get<V1NamespaceList>(url);
     }
 
