@@ -3,8 +3,6 @@ package model
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
-	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
