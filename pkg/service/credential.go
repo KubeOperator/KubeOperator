@@ -16,9 +16,10 @@ type CredentialService interface {
 	Get(name string) (dto.Credential, error)
 	List() ([]dto.Credential, error)
 	Page(num, size int) (int, []dto.Credential, error)
-	Create(creation dto.Credential) error
+	Create(creation dto.CredentialCreate) error
 	Delete(name string) error
 	Batch(operation string, items []dto.Credential) ([]dto.Credential, error)
+	GetById(id string) (dto.Credential, error)
 }
 type credentialService struct {
 	credentialRepo repository.CredentialRepository
@@ -28,6 +29,16 @@ type credentialService struct {
 func (c credentialService) Get(name string) (dto.Credential, error) {
 	var credentialDTO dto.Credential
 	mo, err := c.credentialRepo.Get(name)
+	if err != nil {
+		return credentialDTO, err
+	}
+	credentialDTO.Credential = mo
+	return credentialDTO, err
+}
+
+func (c credentialService) GetById(id string) (dto.Credential, error) {
+	var credentialDTO dto.Credential
+	mo, err := c.credentialRepo.GetById(id)
 	if err != nil {
 		return credentialDTO, err
 	}
@@ -60,7 +71,7 @@ func (c credentialService) Page(num, size int) (int, []dto.Credential, error) {
 	return total, credentialDTOS, err
 }
 
-func (c credentialService) Create(creation dto.Credential) error {
+func (c credentialService) Create(creation dto.CredentialCreate) error {
 	credential := model.Credential{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,

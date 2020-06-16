@@ -25,7 +25,7 @@ func (c credentialController) Post() error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return c.credentialService.Create(req)
 }
 
 func (c credentialController) Delete(name string) error {

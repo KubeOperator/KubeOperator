@@ -25,9 +25,13 @@ func (h HostController) Post() error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return h.hostService.Create(req)
 }
 
 func (h HostController) Delete(name string) error {
 	return h.hostService.Delete(name)
+}
+
+func (h HostController) Sync(name string) error {
+	return h.hostService.Sync(name)
 }
