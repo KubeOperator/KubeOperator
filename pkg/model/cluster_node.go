@@ -13,11 +13,11 @@ import (
 
 type ClusterNode struct {
 	common.BaseModel
-	ID        string
-	Name      string         `gorm:"not null;unique"`
+	ID        string         `json:"_"`
+	Name      string         `gorm:"not null;unique" json:"name"`
 	Host      hostModel.Host `gorm:"save_associations:false"`
-	ClusterID string
-	Role      string
+	ClusterID string         `json:"clusterId"`
+	Role      string         `json:"role"`
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {

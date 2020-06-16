@@ -73,7 +73,6 @@ func NewCluster(cluster model.Cluster) *Cluster {
 
 type ClusterAdm struct {
 	createHandlers []Handler
-	resetHandlers  []Handler
 }
 
 func NewClusterAdm() *ClusterAdm {
@@ -90,10 +89,7 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitMaster,
 		ca.EnsurePostInit,
 	}
-	ca.resetHandlers = []Handler{
-		ca.EnsureRestTaskStart,
-		ca.EnsureRestCluster,
-	}
+
 
 	return ca
 }

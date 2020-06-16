@@ -11,9 +11,9 @@ func Server() *iris.Application {
 	_ = app.I18n.Load("../pkg/locales/*/*", "en-US", "zh-CN")
 	app.I18n.SetDefault("zh-CN")
 	app.Post("/api/auth/login", middleware.LoginHandler)
-	app.Use(middleware.LogMiddleware)
-	app.Use(middleware.JWTMiddleware().Serve)
 	api := app.Party("/api")
+	//api.Use(middleware.LogMiddleware)
+	//api.Use(middleware.JWTMiddleware().Serve)
 	v1.V1(api)
 	return app
 }

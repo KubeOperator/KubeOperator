@@ -4,6 +4,8 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Cluster struct {
 	model.Cluster
+	NodeSize int    `json:"nodeSize"`
+	Status   string `json:"status"`
 }
 
 type ClusterStatus struct {
