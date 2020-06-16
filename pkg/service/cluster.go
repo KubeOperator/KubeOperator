@@ -18,7 +18,7 @@ type ClusterService interface {
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
-	Page(num, size int) (int, []dto.Cluster, error)
+	Page(num, size int) (dto.ClusterPage, error)
 }
 
 func NewClusterService() ClusterService {
@@ -69,20 +69,21 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	return clusterDTOS, err
 }
 
-func (c clusterService) Page(num, size int) (int, []dto.Cluster, error) {
-	var clusterDTOS []dto.Cluster
+func (c clusterService) Page(num, size int) (dto.ClusterPage, error) {
+	var page dto.ClusterPage
 	total, mos, err := c.clusterRepo.Page(num, size)
 	if err != nil {
-		return total, clusterDTOS, nil
+		return page, nil
 	}
 	for _, mo := range mos {
-		clusterDTOS = append(clusterDTOS, dto.Cluster{
+		page.Items = append(page.Items, dto.Cluster{
 			Cluster:  mo,
 			NodeSize: len(mo.Nodes),
 			Status:   mo.Status.Phase,
 		})
 	}
-	return total, clusterDTOS, err
+	page.Total = total
+	return page, err
 }
 
 func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
@@ -161,7 +162,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 func (c clusterService) GetEndpoint(name string) (string, error) {
 	cluster, err := c.clusterRepo.Get(name)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	if cluster.Spec.LbKubeApiserverIp != "" {
 		return cluster.Spec.LbKubeApiserverIp, nil

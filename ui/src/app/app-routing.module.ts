@@ -35,8 +35,8 @@ const routes: Routes = [
     {
         path: '',
         component: LayoutComponent,
-        canActivate: [AuthUserService],
-        canActivateChild: [AuthUserService],
+        // canActivate: [AuthUserService],
+        // canActivateChild: [AuthUserService],
         children: [
             {path: '', redirectTo: 'clusters', pathMatch: 'full'},
             {

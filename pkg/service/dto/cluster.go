@@ -8,6 +8,11 @@ type Cluster struct {
 	Status   string `json:"status"`
 }
 
+type ClusterPage struct {
+	Items []Cluster `json:"items"`
+	Total int       `json:"total"`
+}
+
 type ClusterStatus struct {
 	model.ClusterStatus
 }

@@ -1,7 +1,14 @@
 package proxy
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12"
+)
+
+var (
+	keyPrefix           = "Bearer"
+	AuthorizationHeader = "Authorization"
+	clusterService      = service.NewClusterService()
 )
 
 func RegisterProxy(parent iris.Party) {

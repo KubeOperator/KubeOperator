@@ -1,5 +1,7 @@
 package model
 
+import ()
+
 type Interface interface {
 	TableName() string
 }

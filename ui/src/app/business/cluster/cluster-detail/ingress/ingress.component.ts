@@ -16,7 +16,7 @@ export class IngressComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster.item;
+            this.currentCluster =data.cluster;
         });
     }
 

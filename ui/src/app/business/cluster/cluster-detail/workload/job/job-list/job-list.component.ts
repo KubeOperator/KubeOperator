@@ -26,7 +26,7 @@ export class JobListComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.parent.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster.item;
+            this.currentCluster =data.cluster;
             this.listNamespace();
             this.list();
         });

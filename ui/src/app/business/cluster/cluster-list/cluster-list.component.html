@@ -23,7 +23,7 @@
         <clr-dg-cell><a href="javascript:void(0)" (click)="onNodeDetail(item)">{{item.nodeSize}}</a></clr-dg-cell>
         <clr-dg-cell><a (click)="onStatusDetail(item.name)" href="javascript:void(0)">{{item.status}}</a>
         </clr-dg-cell>
-        <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
 
     <clr-dg-footer>
