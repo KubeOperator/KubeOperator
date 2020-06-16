@@ -11,6 +11,7 @@ type HostRepository interface {
 	Page(num, size int) (int, []model.Host, error)
 	Save(host *model.Host) error
 	Delete(name string) error
+	ListByCredentialID(credentialID string) ([]model.Host, error)
 }
 
 func NewHostRepository() HostRepository {
@@ -59,4 +60,12 @@ func (h hostRepository) Delete(name string) error {
 	var host model.Host
 	host.Name = name
 	return db.DB.Delete(&host).Error
+}
+
+func (h hostRepository) ListByCredentialID(credentialID string) ([]model.Host, error) {
+	var host []model.Host
+	err := db.DB.Model(model.Host{
+		CredentialID: credentialID,
+	}).Find(&host).Error
+	return host, err
 }

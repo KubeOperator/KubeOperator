@@ -31,3 +31,8 @@ func (c credentialController) Post() error {
 func (c credentialController) Delete(name string) error {
 	return c.credentialService.Delete(name)
 }
+
+func (c credentialController) Batch(operation string, items []dto.Credential) error {
+	_, err := c.credentialService.Batch(operation, items)
+	return err
+}

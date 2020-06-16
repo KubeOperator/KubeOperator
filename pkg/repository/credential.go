@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -12,6 +13,7 @@ type CredentialRepository interface {
 	Save(credential *model.Credential) error
 	Delete(name string) error
 	GetById(id string) (model.Credential, error)
+	Batch(operation string, items []model.Credential) ([]model.Credential, error)
 }
 
 func NewCredentialRepository() CredentialRepository {
@@ -69,4 +71,31 @@ func (c credentialRepository) GetById(id string) (model.Credential, error) {
 		return credential, err
 	}
 	return credential, nil
+}
+
+func (c credentialRepository) Batch(operation string, items []model.Credential) ([]model.Credential, error) {
+	var deleteItems []model.Credential
+	switch operation {
+	case constant.BatchOperationDelete:
+		tx := db.DB.Begin()
+		for _, item := range items {
+			host, err := NewHostRepository().ListByCredentialID(item.ID)
+			if err != nil {
+				break
+			}
+			if len(host) > 0 {
+				continue
+			}
+			err = db.DB.Model(model.Credential{}).First(&item).Delete(&item).Error
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			deleteItems = append(deleteItems, item)
+		}
+		tx.Commit()
+	default:
+		return nil, constant.NotSupportedBatchOperation
+	}
+	return deleteItems, nil
 }
