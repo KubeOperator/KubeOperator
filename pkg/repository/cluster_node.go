@@ -9,6 +9,7 @@ import (
 type ClusterNodeRepository interface {
 	List(clusterName string) ([]model.ClusterNode, error)
 	FistMaster(ClusterId string) (model.ClusterNode, error)
+	Delete(id string) error
 }
 
 func NewClusterNodeRepository() ClusterNodeRepository {
@@ -37,8 +38,26 @@ func (c clusterNodeRepository) FistMaster(ClusterId string) (model.ClusterNode, 
 	var master model.ClusterNode
 	if err := db.DB.
 		Where(model.ClusterNode{ClusterID: ClusterId, Role: constant.NodeRoleNameMaster}).
-		First(&master).Error; err != nil {
+		Preload("Host").
+		First(&master).
+		Error; err != nil {
 		return master, err
 	}
 	return master, nil
+}
+
+func (c clusterNodeRepository) Delete(id string) error {
+	node := model.ClusterNode{ID: id}
+	tx := db.DB.Begin()
+	if err := db.DB.
+		First(&node).
+		Related(&node.Host).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&node).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }

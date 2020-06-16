@@ -1,8 +1,6 @@
 package model
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/model/credential"
-	"github.com/KubeOperator/KubeOperator/pkg/model/host"
 	"github.com/KubeOperator/KubeOperator/pkg/model/user"
 )
 
@@ -17,9 +15,9 @@ var Models = []Interface{
 	ClusterStatus{},
 	ClusterNode{},
 	ClusterSecret{},
-	credential.Credential{},
-	host.Host{},
-	host.Volume{},
+	Credential{},
+	Host{},
+	Volume{},
 	user.User{},
 	Demo{},
 }

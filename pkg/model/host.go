@@ -29,7 +29,6 @@ type Host struct {
 	Port         int
 	CredentialID string
 	Status       string
-	NodeID       string
 	Volumes      []Volume
 }
 

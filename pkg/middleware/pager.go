@@ -2,27 +2,25 @@ package middleware
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/gin-gonic/gin"
+	"github.com/kataras/iris/v12/context"
 	"strconv"
 )
 
-func PagerMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		num := ctx.Query(constant.PageNumQueryKey)
-		limit := ctx.Query(constant.PageSizeQueryKey)
-		limitInt, err := strconv.Atoi(limit)
-		if err != nil || limitInt < 0 {
-			ctx.Set("page", false)
-			ctx.Next()
-		}
-		numInt, err := strconv.Atoi(num)
-		if err != nil || numInt < 0 {
-			ctx.Set("page", false)
-			ctx.Next()
-		}
-		ctx.Set("page", true)
-		ctx.Set(constant.PageNumQueryKey, numInt)
-		ctx.Set(constant.PageSizeQueryKey, limitInt)
+func PagerMiddleware(ctx context.Context) {
+	num := ctx.Params().Get(constant.PageNumQueryKey)
+	limit := ctx.Params().Get(constant.PageSizeQueryKey)
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil || limitInt < 0 {
+		ctx.Values().Set("page", false)
 		ctx.Next()
 	}
+	numInt, err := strconv.Atoi(num)
+	if err != nil || numInt < 0 {
+		ctx.Values().Set("page", false)
+		ctx.Next()
+	}
+	ctx.Values().Set("page", true)
+	ctx.Values().Set(constant.PageNumQueryKey, numInt)
+	ctx.Values().Set(constant.PageSizeQueryKey, limitInt)
+	ctx.Next()
 }

@@ -12,7 +12,8 @@ type ClusterNode struct {
 	common.BaseModel
 	ID        string `json:"_"`
 	Name      string `gorm:"not null;unique" json:"name"`
-	Host      Host   `gorm:"save_associations:false"`
+	HostID    string `json:"_"`
+	Host      Host   `json:"_" gorm:"save_associations:false"`
 	ClusterID string `json:"clusterId"`
 	Role      string `json:"role"`
 }

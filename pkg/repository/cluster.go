@@ -14,10 +14,17 @@ type ClusterRepository interface {
 }
 
 func NewClusterRepository() ClusterRepository {
-	return &clusterRepository{}
+	return &clusterRepository{
+		specRepo: NewClusterSpecRepository(),
+	}
 }
 
-type clusterRepository struct{}
+type clusterRepository struct {
+	specRepo   ClusterSpecRepository
+	secretRepo ClusterSecretRepository
+	nodeRepo   ClusterNodeRepository
+	statusRepo ClusterStatusRepository
+}
 
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
 	var cluster model.Cluster
@@ -74,13 +81,44 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 	return nil
 }
 
-func (c clusterRepository) Delete(id string) error {
-	cluster := model.Cluster{ID: id}
+func (c clusterRepository) Delete(name string) error {
+	var cluster model.Cluster
+	if err := db.DB.
+		Where(model.Cluster{Name: name}).
+		Preload("Status").
+		Preload("Spec").
+		Preload("Nodes").
+		Find(&cluster).Error; err != nil {
+		return err
+	}
+
 	if err := db.DB.First(&cluster).Error; err != nil {
 		return err
+	}
+	tx := db.DB.Begin()
+	if err := c.specRepo.Delete(cluster.SpecID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := c.statusRepo.Delete(cluster.StatusID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := c.secretRepo.Delete(cluster.SecretID); err != nil {
+		tx.Rollback()
+		return err
+	}
+	for _, node := range cluster.Nodes {
+		if err := c.nodeRepo.Delete(node.ID); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		return err
 	}
+	tx.Commit()
 	return nil
 }
