@@ -49,7 +49,6 @@ func (c clusterInitService) Init(name string) error {
 	go c.do(ctx, *admCluster, statusChan)
 	go c.pollingStatus(ctx, statusChan)
 	return nil
-
 }
 
 func (c clusterInitService) do(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {

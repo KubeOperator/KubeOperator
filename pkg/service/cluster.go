@@ -48,6 +48,8 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 		return clusterDTO, err
 	}
 	clusterDTO.Cluster = mo
+	clusterDTO.NodeSize = len(mo.Nodes)
+	clusterDTO.Status = mo.Status.Phase
 	return clusterDTO, nil
 }
 
@@ -58,7 +60,11 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 		return clusterDTOS, nil
 	}
 	for _, mo := range mos {
-		clusterDTOS = append(clusterDTOS, dto.Cluster{Cluster: mo})
+		clusterDTOS = append(clusterDTOS, dto.Cluster{
+			Cluster:  mo,
+			NodeSize: len(mo.Nodes),
+			Status:   mo.Status.Phase,
+		})
 	}
 	return clusterDTOS, err
 }
@@ -70,7 +76,11 @@ func (c clusterService) Page(num, size int) (int, []dto.Cluster, error) {
 		return total, clusterDTOS, nil
 	}
 	for _, mo := range mos {
-		clusterDTOS = append(clusterDTOS, dto.Cluster{Cluster: mo})
+		clusterDTOS = append(clusterDTOS, dto.Cluster{
+			Cluster:  mo,
+			NodeSize: len(mo.Nodes),
+			Status:   mo.Status.Phase,
+		})
 	}
 	return total, clusterDTOS, err
 }

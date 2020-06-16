@@ -3,7 +3,6 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	clusterModel "github.com/KubeOperator/KubeOperator/pkg/model/cluster"
 )
 
 type ClusterRepository interface {
@@ -36,7 +35,7 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 func (c clusterRepository) List() ([]model.Cluster, error) {
 	var clusters []model.Cluster
 	db.DB.Model(model.Cluster{})
-	if err := db.DB.Model(clusterModel.Cluster{}).
+	if err := db.DB.Model(model.Cluster{}).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
@@ -49,7 +48,7 @@ func (c clusterRepository) List() ([]model.Cluster, error) {
 func (c clusterRepository) Page(num, size int) (int, []model.Cluster, error) {
 	var total int
 	var clusters []model.Cluster
-	if err := db.DB.Model(clusterModel.Cluster{}).
+	if err := db.DB.Model(model.Cluster{}).
 		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).

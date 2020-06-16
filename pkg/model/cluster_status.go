@@ -7,10 +7,10 @@ import (
 
 type ClusterStatus struct {
 	commonModel.BaseModel
-	ID      string
-	Message string `gorm:"type:text(65535)"`
-	Phase   string
-	Conditions []ClusterStatusCondition
+	ID         string
+	Message    string                   `json:"message" gorm:"type:text(65535)"`
+	Phase      string                   `json:"phase"`
+	Conditions []ClusterStatusCondition `json:"conditions" gorm:"save_associations:false"`
 }
 
 func (s *ClusterStatus) BeforeCreate() (err error) {

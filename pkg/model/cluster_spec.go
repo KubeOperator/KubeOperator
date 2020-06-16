@@ -7,17 +7,17 @@ import (
 
 type ClusterSpec struct {
 	common.BaseModel
-	ID                    string
-	Version               string
-	Provider              string
-	NetworkType           string
-	RuntimeType           string
-	DockerStorageDir      string
-	ContainerdStorageDir  string
-	LbKubeApiserverIp     string
-	AppDomain             string
-	ClusterCIDR           string `gorm:"column:cluster_cidr"`
-	ServiceCIDR           string `gorm:"column:service_cidr"`
+	ID                   string `json:"_"`
+	Version              string `json:"version"`
+	Provider             string `json:"provider"`
+	NetworkType          string `json:"networkType"`
+	RuntimeType          string `json:"runtimeType"`
+	DockerStorageDir     string `json:"dockerStorageDir"`
+	ContainerdStorageDir string `json:"containerdStorageDir"`
+	LbKubeApiserverIp    string `json:"lbKubeApiserverIp"`
+	AppDomain            string `json:"appDomain"`
+	ClusterCIDR          string `json:"clusterCidr" gorm:"column:cluster_cidr"`
+	ServiceCIDR          string `json:"serviceCidr" gorm:"column:service_cidr"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {
