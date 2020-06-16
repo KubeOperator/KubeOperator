@@ -3,8 +3,6 @@ package model
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	hostModel "github.com/KubeOperator/KubeOperator/pkg/model/host"
-	hostService "github.com/KubeOperator/KubeOperator/pkg/service/host"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
@@ -13,11 +11,11 @@ import (
 
 type ClusterNode struct {
 	common.BaseModel
-	ID        string         `json:"_"`
-	Name      string         `gorm:"not null;unique" json:"name"`
-	Host      hostModel.Host `gorm:"save_associations:false"`
-	ClusterID string         `json:"clusterId"`
-	Role      string         `json:"role"`
+	ID        string     `json:"_"`
+	Name      string     `gorm:"not null;unique" json:"name"`
+	Host      Host `gorm:"save_associations:false"`
+	ClusterID string     `json:"clusterId"`
+	Role      string     `json:"role"`
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {
