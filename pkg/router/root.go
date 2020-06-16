@@ -1,10 +1,9 @@
 package router
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/controller"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
+	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/mvc"
 )
 
 func Server() *iris.Application {
@@ -15,7 +14,6 @@ func Server() *iris.Application {
 	app.Use(middleware.LogMiddleware)
 	app.Use(middleware.JWTMiddleware().Serve)
 	api := app.Party("/api")
-	v1 := api.Party("/v1")
-	mvc.New(v1.Party("/demo")).Handle(controller.NewDemoController())
+	v1.V1(api)
 	return app
 }
