@@ -8,7 +8,7 @@ import (
 
 const (
 	Running      string = "Running"
-	Waring       string = "Warning"
+	Warning      string = "Warning"
 	Disconnect   string = "DisConnect"
 	SshError     string = "SshError"
 	AnsibleError string = "AnsibleError"
