@@ -41,11 +41,11 @@ func (c CredentialController) GetBy(name string) (dto.Credential, error) {
 	return c.CredentialService.Get(name)
 }
 
-func (c CredentialController) Post() error {
+func (c CredentialController) Post() (dto.Credential, error) {
 	var req dto.CredentialCreate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return err
+		return dto.Credential{}, err
 	}
 	return c.CredentialService.Create(req)
 }
@@ -54,16 +54,24 @@ func (c CredentialController) Delete(name string) error {
 	return c.CredentialService.Delete(name)
 }
 
-func (c CredentialController) PatchBy(name string) error {
+func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 	var req dto.CredentialUpdate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return err
+		return dto.Credential{}, err
 	}
 	return c.CredentialService.Update(req)
 }
 
-func (c CredentialController) Batch(operation string, items []dto.Credential) error {
-	_, err := c.CredentialService.Batch(operation, items)
+func (c CredentialController) PostBatch() error {
+	var req dto.CredentialBatchOp
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	err = c.CredentialService.Batch(req)
+	if err != nil {
+		return err
+	}
 	return err
 }

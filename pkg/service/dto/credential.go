@@ -27,3 +27,8 @@ type CredentialUpdate struct {
 	PrivateKey string
 	Type       string `json:"type" binding:"required"`
 }
+
+type CredentialBatchOp struct {
+	Operation string       `json:"operation"`
+	Items     []Credential `json:"items"`
+}

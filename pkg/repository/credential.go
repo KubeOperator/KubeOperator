@@ -13,7 +13,7 @@ type CredentialRepository interface {
 	Save(credential *model.Credential) error
 	Delete(name string) error
 	GetById(id string) (model.Credential, error)
-	Batch(operation string, items []model.Credential) ([]model.Credential, error)
+	Batch(operation string, items []model.Credential) error
 }
 
 func NewCredentialRepository() CredentialRepository {
@@ -73,29 +73,19 @@ func (c credentialRepository) GetById(id string) (model.Credential, error) {
 	return credential, nil
 }
 
-func (c credentialRepository) Batch(operation string, items []model.Credential) ([]model.Credential, error) {
-	var deleteItems []model.Credential
+func (c credentialRepository) Batch(operation string, items []model.Credential) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		tx := db.DB.Begin()
+		var names []string
 		for _, item := range items {
-			host, err := NewHostRepository().ListByCredentialID(item.ID)
-			if err != nil {
-				break
-			}
-			if len(host) > 0 {
-				continue
-			}
-			err = db.DB.Model(model.Credential{}).First(&item).Delete(&item).Error
-			if err != nil {
-				tx.Rollback()
-				return nil, err
-			}
-			deleteItems = append(deleteItems, item)
+			names = append(names, item.Name)
 		}
-		tx.Commit()
+		err := db.DB.Where("name in (?)", names).Find(&items).Error
+		if err != nil {
+			return err
+		}
 	default:
-		return nil, constant.NotSupportedBatchOperation
+		return constant.NotSupportedBatchOperation
 	}
-	return deleteItems, nil
+	return nil
 }

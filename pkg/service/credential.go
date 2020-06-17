@@ -16,11 +16,11 @@ type CredentialService interface {
 	Get(name string) (dto.Credential, error)
 	List() ([]dto.Credential, error)
 	Page(num, size int) (dto.CredentialPage, error)
-	Create(creation dto.CredentialCreate) error
+	Create(creation dto.CredentialCreate) (dto.Credential, error)
 	Delete(name string) error
-	Batch(operation string, items []dto.Credential) ([]dto.Credential, error)
+	Batch(op dto.CredentialBatchOp) error
 	GetById(id string) (dto.Credential, error)
-	Update(update dto.CredentialUpdate) error
+	Update(update dto.CredentialUpdate) (dto.Credential, error)
 }
 
 type credentialService struct {
@@ -85,7 +85,7 @@ func (c credentialService) Page(num, size int) (dto.CredentialPage, error) {
 	return page, err
 }
 
-func (c credentialService) Create(creation dto.CredentialCreate) error {
+func (c credentialService) Create(creation dto.CredentialCreate) (dto.Credential, error) {
 	credential := model.Credential{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,
@@ -96,12 +96,12 @@ func (c credentialService) Create(creation dto.CredentialCreate) error {
 	}
 	err := c.credentialRepo.Save(&credential)
 	if err != nil {
-		return err
+		return dto.Credential{}, err
 	}
-	return nil
+	return dto.Credential{Credential: credential}, nil
 }
 
-func (c credentialService) Update(update dto.CredentialUpdate) error {
+func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
 	credential := model.Credential{
 		ID:         update.ID,
 		Name:       update.Name,
@@ -112,9 +112,9 @@ func (c credentialService) Update(update dto.CredentialUpdate) error {
 	}
 	err := c.credentialRepo.Save(&credential)
 	if err != nil {
-		return err
+		return dto.Credential{}, err
 	}
-	return nil
+	return dto.Credential{Credential: credential}, nil
 }
 
 func (c credentialService) Delete(name string) error {
@@ -137,23 +137,18 @@ func (c credentialService) Delete(name string) error {
 	return nil
 }
 
-func (c credentialService) Batch(operation string, items []dto.Credential) ([]dto.Credential, error) {
+func (c credentialService) Batch(op dto.CredentialBatchOp) error {
 	var deleteItems []model.Credential
-	var notOpItems []model.Credential
-	for _, item := range items {
+	for _, item := range op.Items {
 		deleteItems = append(deleteItems, model.Credential{
 			BaseModel: common.BaseModel{},
 			ID:        item.ID,
 			Name:      item.Name,
 		})
 	}
-	notOpItems, err := c.credentialRepo.Batch(operation, deleteItems)
+	err := c.credentialRepo.Batch(op.Operation, deleteItems)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var resultItems []dto.Credential
-	for _, item := range notOpItems {
-		resultItems = append(resultItems, dto.Credential{Credential: item})
-	}
-	return resultItems, nil
+	return nil
 }
