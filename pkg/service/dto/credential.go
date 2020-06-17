@@ -20,12 +20,12 @@ type CredentialCreate struct {
 }
 
 type CredentialUpdate struct {
-	ID         string `json:"id" binding:"required"`
-	Name       string `json:"name" binding:"required"`
-	Username   string `json:"username" binding:"required"`
+	ID         string `json:"id" validate:"required"`
+	Name       string `json:"name" validate:"required"`
+	Username   string `json:"username" validate:"required"`
 	Password   string
 	PrivateKey string
-	Type       string `json:"type" binding:"required"`
+	Type       string `json:"type" validate:"required"`
 }
 
 type CredentialBatchOp struct {
