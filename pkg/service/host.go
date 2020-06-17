@@ -17,7 +17,7 @@ import (
 type HostService interface {
 	Get(name string) (dto.Host, error)
 	List() ([]dto.Host, error)
-	Page(num, size int) (int, []dto.Host, error)
+	Page(num, size int) (dto.HostPage, error)
 	Create(creation dto.HostCreate) error
 	Delete(name string) error
 	Sync(name string) error
@@ -32,7 +32,9 @@ type hostService struct {
 }
 
 func NewHostService() HostService {
-	return &hostService{}
+	return &hostService{
+		hostRepo: repository.NewHostRepository(),
+	}
 }
 
 func (h hostService) Get(name string) (dto.Host, error) {
@@ -57,17 +59,19 @@ func (h hostService) List() ([]dto.Host, error) {
 	return hostDTOs, err
 }
 
-func (h hostService) Page(num, size int) (int, []dto.Host, error) {
-	var total int
+func (h hostService) Page(num, size int) (dto.HostPage, error) {
+	var page dto.HostPage
 	var hostDTOs []dto.Host
 	total, mos, err := h.hostRepo.Page(num, size)
 	if err != nil {
-		return total, hostDTOs, err
+		return page, err
 	}
 	for _, mo := range mos {
 		hostDTOs = append(hostDTOs, dto.Host{Host: mo})
 	}
-	return total, hostDTOs, err
+	page.Total = total
+	page.Items = hostDTOs
+	return page, err
 }
 
 func (h hostService) Delete(name string) error {

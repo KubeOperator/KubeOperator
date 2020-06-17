@@ -12,3 +12,8 @@ type HostCreate struct {
 	Port         int    `json:"port" binding:"required"`
 	CredentialID string `json:"credentialId" binding:"required"`
 }
+
+type HostPage struct {
+	Items []Host `json:"items"`
+	Total int    `json:"total"`
+}

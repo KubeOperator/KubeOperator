@@ -1,37 +1,59 @@
 package controller
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
-	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 )
 
 type HostController struct {
-	ctx         iris.Context
-	hostService service.HostService
+	Ctx         context.Context
+	HostService service.HostService
 }
 
-func (h HostController) Get() ([]dto.Host, error) {
-	return h.hostService.List()
+func NewHostController() *HostController {
+	return &HostController{
+		HostService: service.NewHostService(),
+	}
+}
+
+func (h HostController) Get() (dto.HostPage, error) {
+
+	page, _ := h.Ctx.Values().GetBool("page")
+	if page {
+		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		return h.HostService.Page(num, size)
+	} else {
+		var page dto.HostPage
+		items, err := h.HostService.List()
+		if err != nil {
+			return page, err
+		}
+		page.Items = items
+		page.Total = len(items)
+		return page, nil
+	}
 }
 
 func (h HostController) GetBy(name string) (dto.Host, error) {
-	return h.hostService.Get(name)
+	return h.HostService.Get(name)
 }
 
 func (h HostController) Post() error {
 	var req dto.HostCreate
-	err := h.ctx.ReadJSON(&req)
+	err := h.Ctx.ReadJSON(&req)
 	if err != nil {
 		return err
 	}
-	return h.hostService.Create(req)
+	return h.HostService.Create(req)
 }
 
 func (h HostController) Delete(name string) error {
-	return h.hostService.Delete(name)
+	return h.HostService.Delete(name)
 }
 
 func (h HostController) Sync(name string) error {
-	return h.hostService.Sync(name)
+	return h.HostService.Sync(name)
 }
