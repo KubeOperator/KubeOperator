@@ -16,6 +16,6 @@ func (s PostPhase) Name() string {
 	return "Post Init"
 }
 
-func (s PostPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s PostPhase) Run(b kobe.Interface) error {
 	return phases.RunPlaybookAndGetResult(b, initPost)
 }

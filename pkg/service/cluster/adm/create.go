@@ -1,14 +1,10 @@
 package adm
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"reflect"
 	"runtime"
 	"strings"
@@ -16,17 +12,10 @@ import (
 )
 
 func (ca *ClusterAdm) Create(c *Cluster) error {
-	condition, err := ca.getCreateCurrentCondition(c)
-	if err != nil {
-		return err
-	}
+	condition := ca.getCreateCurrentCondition(c)
 	now := time.Now()
 	f := ca.getCreateHandler(condition.Name)
-	if f == nil {
-		return fmt.Errorf("can't get handler by %s", condition.Name)
-	}
-	resp, err := f(c)
-	if err != nil {
+	if err := f(c); err != nil {
 		c.setCondition(model.ClusterStatusCondition{
 			Name:          condition.Name,
 			Status:        constant.ConditionFalse,
@@ -35,18 +24,6 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 		})
 		c.Status.Phase = constant.ClusterFailed
 		c.Status.Message = err.Error()
-		return nil
-	}
-	if resp.HostFailedInfo != nil && len(resp.HostFailedInfo) > 0 {
-		by, _ := json.Marshal(resp.HostFailedInfo)
-		c.setCondition(model.ClusterStatusCondition{
-			Name:          condition.Name,
-			Status:        constant.ConditionFalse,
-			LastProbeTime: now,
-			Message:       string(by),
-		})
-		c.Status.Phase = constant.ClusterFailed
-		c.Status.Message = string(by)
 		return nil
 	}
 	c.setCondition(model.ClusterStatusCondition{
@@ -69,27 +46,21 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	}
 	return nil
 }
-func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*model.ClusterStatusCondition, error) {
-	if c.Status.Phase == constant.ClusterRunning {
-		return nil, errors.New("cluster phase is running now")
-	}
-	if len(ca.createHandlers) == 0 {
-		return nil, errors.New("no create handlers")
-	}
+func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) *model.ClusterStatusCondition {
 	if len(c.Status.ClusterStatusConditions) == 0 {
 		return &model.ClusterStatusCondition{
 			Name:          ca.createHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
 			LastProbeTime: time.Now(),
 			Message:       "waiting process",
-		}, nil
+		}
 	}
 	for _, condition := range c.Status.ClusterStatusConditions {
 		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
-			return &condition, nil
+			return &condition
 		}
 	}
-	return nil, errors.New("no condition need process")
+	return nil
 }
 
 func (ca *ClusterAdm) getCreateHandler(conditionName string) Handler {
@@ -118,51 +89,51 @@ func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
 	return next.name()
 }
 
-func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) (kobe.Result, error) {
-	return kobe.Result{}, nil
+func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
+	return nil
 }
 
-func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{
 		ContainerRuntime: c.Spec.RuntimeType,
 	}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePrepareKubernetesComponent(c *Cluster) error {
 	phase := prepare.KubernetesComponentPhase{}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsurePrepareLoadBalancer(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePrepareLoadBalancer(c *Cluster) error {
 	phase := prepare.LoadBalancerPhase{}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePrepareCertificates(c *Cluster) error {
 	phase := prepare.CertificatesPhase{}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) error {
 	phase := initial.EtcdPhase{}
 	return phase.Run(c.Kobe)
 }
-func (ca *ClusterAdm) EnsureInitKubeConfig(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsureInitKubeConfig(c *Cluster) error {
 	phase := initial.KubeConfigPhase{}
 	return phase.Run(c.Kobe)
 }
-func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) error {
 	phase := initial.MasterPhase{}
 	return phase.Run(c.Kobe)
 }
 
-func (ca *ClusterAdm) EnsurePostInit(c *Cluster) (kobe.Result, error) {
+func (ca *ClusterAdm) EnsurePostInit(c *Cluster) error {
 	phase := initial.PostPhase{}
 	return phase.Run(c.Kobe)
 }

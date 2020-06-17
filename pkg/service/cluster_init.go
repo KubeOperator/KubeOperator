@@ -3,8 +3,11 @@ package service
 import (
 	"context"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"time"
 )
 
@@ -15,14 +18,18 @@ type ClusterInitService interface {
 func NewClusterInitService() ClusterInitService {
 	return &clusterInitService{
 		clusterRepo:                repository.NewClusterRepository(),
+		clusterNodeRepo:            repository.NewClusterNodeRepository(),
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
+		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 	}
 }
 
 type clusterInitService struct {
 	clusterRepo                repository.ClusterRepository
+	clusterNodeRepo            repository.ClusterNodeRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
+	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 }
 
@@ -51,11 +58,11 @@ func (c clusterInitService) Init(name string) error {
 	if err := c.clusterStatusRepo.Save(&status); err != nil {
 		return err
 	}
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	admCluster := adm.NewCluster(cluster)
 	statusChan := make(chan adm.Cluster, 0)
 	go c.do(ctx, *admCluster, statusChan)
-	go c.pollingStatus(ctx, statusChan)
+	go c.pollingStatus(cancel, statusChan)
 	return nil
 }
 
@@ -77,19 +84,44 @@ func (c clusterInitService) do(ctx context.Context, cluster adm.Cluster, statusC
 	}
 }
 
-func (c clusterInitService) pollingStatus(ctx context.Context, statusChan chan adm.Cluster) {
-
+func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan chan adm.Cluster) {
 	for {
 		cluster := <-statusChan
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
-			ctx.Done()
+			cancel()
 			return
 		case constant.ClusterRunning:
-			ctx.Done()
+			cancel()
+			err := c.gatherKubernetesToken(cluster.Cluster)
+			if err != nil {
+				cluster.Status.Phase = constant.ClusterNotConnected
+				cluster.Status.Message = err.Error()
+			}
 			return
 		}
-
 	}
+}
+
+func (c clusterInitService) gatherKubernetesToken(cluster model.Cluster) error {
+	secret, err := c.clusterSecretRepo.Get(cluster.SecretID)
+	if err != nil {
+		return err
+	}
+	master, err := c.clusterNodeRepo.FistMaster(cluster.ID)
+	if err != nil {
+		return err
+	}
+	sshConfig := master.ToSSHConfig()
+	client, err := ssh.New(&sshConfig)
+	if err != nil {
+		return err
+	}
+	token, err := clusterUtil.GetClusterToken(client)
+	if err != nil {
+		return err
+	}
+	secret.KubernetesToken = token
+	return c.clusterSecretRepo.Save(&secret)
 }

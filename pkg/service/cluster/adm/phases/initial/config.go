@@ -16,6 +16,6 @@ func (KubeConfigPhase) Name() string {
 	return "InitKubernetesConfig"
 }
 
-func (s KubeConfigPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s KubeConfigPhase) Run(b kobe.Interface) error {
 	return phases.RunPlaybookAndGetResult(b, initKubeConfig)
 }

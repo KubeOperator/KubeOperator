@@ -16,6 +16,6 @@ func (s ResetClusterPhase) Name() string {
 	return "ResetCluster"
 }
 
-func (s ResetClusterPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s ResetClusterPhase) Run(b kobe.Interface) error {
 	return phases.RunPlaybookAndGetResult(b, resetCluster)
 }

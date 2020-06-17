@@ -23,7 +23,7 @@ func (MasterPhase) Name() string {
 	return "InitEtcd"
 }
 
-func (s MasterPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s MasterPhase) Run(b kobe.Interface) error {
 	if s.KubePodSubnet != "" {
 		b.SetVar(facts.KubePodSubnetFactName, s.KubePodSubnet)
 	}

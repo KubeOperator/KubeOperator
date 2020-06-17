@@ -1,6 +1,8 @@
 package phases
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
@@ -16,10 +18,11 @@ type Interface interface {
 	Run(p kobe.Interface) (kobe.Result, error)
 }
 
-func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) (result kobe.Result, err error) {
+func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) error {
 	taskId, err := b.RunPlaybook(playbookName)
+	var result kobe.Result
 	if err != nil {
-		return
+		return err
 	}
 	err = wait.Poll(PhaseInterval, PhaseTimeout, func() (done bool, err error) {
 		res, err := b.GetResult(taskId)
@@ -39,11 +42,15 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) (result kobe
 						return true, err
 					}
 					result.GatherFailedInfo()
+					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
+						by, _ := json.Marshal(&result.HostFailedInfo)
+						return true, errors.New(string(by))
+					}
 				}
 			}
 			return true, nil
 		}
 		return false, nil
 	})
-	return
+	return nil
 }

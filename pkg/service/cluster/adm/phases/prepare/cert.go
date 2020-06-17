@@ -18,7 +18,7 @@ func (c CertificatesPhase) Name() string {
 	return "GenerateCertificates"
 }
 
-func (c CertificatesPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (c CertificatesPhase) Run(b kobe.Interface) error {
 	if c.CertsExpired != "" {
 		b.SetVar(facts.CertsExpiredFactName, c.CertsExpired)
 	}

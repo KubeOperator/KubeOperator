@@ -18,7 +18,7 @@ func (s LoadBalancerPhase) Name() string {
 	return "Install Load Balancer"
 }
 
-func (s LoadBalancerPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s LoadBalancerPhase) Run(b kobe.Interface) error {
 	if s.LbKubeApiserverIp != "" {
 		b.SetVar(facts.LbKubeApiserverPortFactName, s.LbKubeApiserverIp)
 	}

@@ -20,7 +20,7 @@ func (s ContainerRuntimePhase) Name() string {
 	return "Install Container Runtime"
 }
 
-func (s ContainerRuntimePhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s ContainerRuntimePhase) Run(b kobe.Interface) error {
 	if s.ContainerRuntime != "" {
 		b.SetVar(facts.ContainerRuntimeFactName, s.ContainerRuntime)
 	}

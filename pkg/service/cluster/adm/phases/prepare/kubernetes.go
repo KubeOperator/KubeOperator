@@ -16,6 +16,6 @@ func (s KubernetesComponentPhase) Name() string {
 	return "Prepare Kubernetes Component"
 }
 
-func (s KubernetesComponentPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s KubernetesComponentPhase) Run(b kobe.Interface) error {
 	return phases.RunPlaybookAndGetResult(b, prepareKubernetesComponents)
 }

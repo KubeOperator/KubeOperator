@@ -16,6 +16,6 @@ func (s BaseSystemConfigPhase) Name() string {
 	return "BasicConfigSystem"
 }
 
-func (s BaseSystemConfigPhase) Run(b kobe.Interface) (result kobe.Result, err error) {
+func (s BaseSystemConfigPhase) Run(b kobe.Interface) (err error) {
 	return phases.RunPlaybookAndGetResult(b, prepareBase)
 }

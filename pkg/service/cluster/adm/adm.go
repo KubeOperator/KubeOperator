@@ -14,7 +14,7 @@ const (
 	ConditionTypeDone = "EnsureDone"
 )
 
-type Handler func(*Cluster) (kobe.Result, error)
+type Handler func(*Cluster) error
 
 func (h Handler) name() string {
 	name := runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()
@@ -89,7 +89,6 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitMaster,
 		ca.EnsurePostInit,
 	}
-
 	return ca
 }
 

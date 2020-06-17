@@ -3,6 +3,7 @@ package constant
 const (
 	ClusterRunning      = "Running"
 	ClusterInitializing = "Initializing"
+	ClusterNotConnected = "NotConnected"
 	ClusterFailed       = "Failed"
 	ClusterTerminating  = "Terminating"
 	ClusterTerminated   = "Terminated"
