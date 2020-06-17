@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	EN string = "en"
-	ZH string = "zh"
+	EN string = "en-US"
+	ZH string = "zh-CN"
 )
 
 type User struct {
 	common.BaseModel
-	ID       string
-	Name     string `gorm:"not null;unique"`
-	Password string
-	Email    string `gorm:"not null;unique"`
-	IsActive bool
-	Language string
+	ID       string `json:"id" gorm:"type:varchar(64)"`
+	Name     string `json:"name" gorm:"type:varchar(256);not null;unique"`
+	Password string `json:"password" gorm:"type:varchar(256)"`
+	Email    string `json:"email" gorm:"type:varchar(256);not null;unique"`
+	IsActive bool   `json:"isActive" gorm:"type:int(1)"`
+	Language string `json:"language" gorm:"type:varchar(64)"`
 }
 
 type Token struct {
