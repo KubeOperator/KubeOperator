@@ -16,20 +16,20 @@ const (
 
 type Host struct {
 	common.BaseModel
-	Credential   Credential
-	ID           string   `json:"id"`
-	Name         string   `gorm:"not null;unique"`
-	Memory       int      `json:"memory"`
-	CpuCore      int      `json:"cpuCore"`
-	Os           string   `json:"os"`
-	OsVersion    string   `json:"osVersion"`
-	GpuNum       int      `json:"gpuNum"`
-	GpuInfo      string   `json:"gpuInfo"`
-	Ip           string   `gorm:"not null;unique"`
-	Port         int      `json:"port"`
-	CredentialID string   `json:"credentialId"`
-	Status       string   `json:"status"`
-	Volumes      []Volume `json:"volumes"`
+	ID           string     `json:"id"`
+	Name         string     `json:"name" gorm:"not null;unique"`
+	Memory       int        `json:"memory"`
+	CpuCore      int        `json:"cpuCore"`
+	Os           string     `json:"os"`
+	OsVersion    string     `json:"osVersion"`
+	GpuNum       int        `json:"gpuNum"`
+	GpuInfo      string     `json:"gpuInfo"`
+	Ip           string     `json:"ip" gorm:"not null;unique"`
+	Port         int        `json:"port"`
+	CredentialID string     `json:"credentialId"`
+	Status       string     `json:"status"`
+	Volumes      []Volume   `json:"volumes"`
+	Credential   Credential `json:"credential"`
 }
 
 func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {
