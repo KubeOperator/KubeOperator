@@ -2,9 +2,9 @@ package model
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/kobe/api"
-	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,8 +25,69 @@ func (c Cluster) TableName() string {
 	return "ko_cluster"
 }
 
-func (c *Cluster) BeforeCreate(scope *gorm.Scope) error {
+func (c *Cluster) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
+	tx := db.DB.Begin()
+	if err := tx.Create(&c.Spec).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Create(&c.Status).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Create(&c.Secret).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	c.SpecID = c.Spec.ID
+	c.StatusID = c.Status.ID
+	c.SecretID = c.Secret.ID
+	for i, _ := range c.Nodes {
+		c.Nodes[i].ClusterID = c.ID
+		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
+}
+
+func (c Cluster) BeforeDelete() error {
+	var cluster Cluster
+	if err := db.DB.
+		First(&Cluster{ID: c.ID}).
+		Preload("Status").
+		Preload("Spec").
+		Preload("Nodes").
+		Find(&cluster).Error; err != nil {
+		return err
+	}
+	tx := db.DB.Begin()
+	if err := tx.Where(ClusterSpec{ID: cluster.SpecID}).
+		Delete(ClusterSpec{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where(ClusterStatus{ID: cluster.StatusID}).
+		Delete(ClusterStatus{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where(ClusterSecret{ID: cluster.SecretID}).
+		Delete(ClusterSecret{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	for _, node := range cluster.Nodes {
+		if err := tx.Where(ClusterNode{ID: node.ID}).
+			Delete(ClusterNode{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
 	return nil
 }
 

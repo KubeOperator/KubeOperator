@@ -3,9 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
@@ -20,6 +18,7 @@ type ClusterService interface {
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
 	Page(num, size int) (dto.ClusterPage, error)
+	Batch(batch dto.ClusterBatch) error
 }
 
 func NewClusterService() ClusterService {
@@ -30,6 +29,8 @@ func NewClusterService() ClusterService {
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		hostRepo:                   repository.NewHostRepository(),
+		clusterInitService:         NewClusterInitService(),
 	}
 }
 
@@ -41,6 +42,7 @@ type clusterService struct {
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	hostRepo                   repository.HostRepository
+	clusterInitService         ClusterInitService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -119,7 +121,9 @@ func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
 }
 
 func (c clusterService) Create(creation dto.ClusterCreate) error {
-	tx := db.DB.Begin()
+	cluster := model.Cluster{
+		Name: creation.Name,
+	}
 	spec := model.ClusterSpec{
 		RuntimeType:          creation.RuntimeType,
 		DockerStorageDir:     creation.DockerStorageDIr,
@@ -130,34 +134,13 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		Version:              creation.Version,
 		AppDomain:            creation.AppDomain,
 	}
-	if err := c.clusterSpecRepo.Save(&spec); err != nil {
-		tx.Rollback()
-		return err
-	}
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
-	if err := c.clusterStatusRepo.Save(&status); err != nil {
-		tx.Rollback()
-		return err
-	}
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}
-	if err := c.clusterSecretRepo.Save(&secret); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	cluster := model.Cluster{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
-		SpecID:    spec.ID,
-		StatusID:  status.ID,
-		SecretID:  secret.ID,
-	}
-	if err := c.clusterRepo.Save(&cluster); err != nil {
-		tx.Rollback()
-		return err
-	}
+	cluster.Spec = spec
+	cluster.Status = status
+	cluster.Secret = secret
 	workerNo := 1
 	masterNo := 1
 	for _, nc := range creation.Nodes {
@@ -175,17 +158,18 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		}
 		host, err := c.hostRepo.Get(nc.HostName)
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 		node.HostID = host.ID
-		if err := c.clusterNodeRepo.Save(&node); err != nil {
-			tx.Rollback()
-			return err
-		}
 		cluster.Nodes = append(cluster.Nodes, node)
 	}
-	tx.Commit()
+	if err := c.clusterRepo.Save(&cluster); err != nil {
+		return err
+	}
+	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
 	return nil
 }
 
@@ -206,4 +190,18 @@ func (c clusterService) GetEndpoint(name string) (string, error) {
 
 func (c clusterService) Delete(name string) error {
 	return c.clusterRepo.Delete(name)
+}
+
+func (c clusterService) Batch(batch dto.ClusterBatch) error {
+	switch batch.Operation {
+	case constant.BatchOperationDelete:
+		var names []string
+		for _, item := range batch.Items {
+			names = append(names, item.Name)
+		}
+		if err := c.clusterRepo.BatchDelete(names...); err != nil {
+			return err
+		}
+	}
+	return nil
 }

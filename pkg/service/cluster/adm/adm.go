@@ -28,7 +28,7 @@ func (h Handler) name() string {
 func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
 	var conditions []model.ClusterStatusCondition
 	exist := false
-	for _, condition := range c.Status.Conditions {
+	for _, condition := range c.Status.ClusterStatusConditions {
 		if condition.Name == newCondition.Name {
 			exist = true
 			if newCondition.Status != condition.Status {
@@ -49,7 +49,7 @@ func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
 		}
 		conditions = append(conditions, newCondition)
 	}
-	c.Status.Conditions = conditions
+	c.Status.ClusterStatusConditions = conditions
 
 }
 
@@ -89,7 +89,6 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitMaster,
 		ca.EnsurePostInit,
 	}
-
 
 	return ca
 }

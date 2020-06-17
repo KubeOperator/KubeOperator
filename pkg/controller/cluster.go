@@ -40,7 +40,7 @@ func (c ClusterController) GetBy(name string) (dto.Cluster, error) {
 	return c.ClusterService.Get(name)
 }
 
-func (c ClusterController) GetStatus(name string) (dto.ClusterStatus, error) {
+func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
 	return c.ClusterService.GetStatus(name)
 }
 
@@ -55,4 +55,15 @@ func (c ClusterController) Post() error {
 
 func (c ClusterController) Delete(name string) error {
 	return c.ClusterService.Delete(name)
+}
+
+func (c ClusterController) PostBatch() error {
+	var batch dto.ClusterBatch
+	if err := c.Ctx.ReadJSON(&batch); err != nil {
+		return err
+	}
+	if err := c.ClusterService.Batch(batch); err != nil {
+		return err
+	}
+	return nil
 }

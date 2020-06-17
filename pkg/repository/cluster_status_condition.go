@@ -19,7 +19,7 @@ type clusterStatusConditionRepository struct{}
 
 func (c clusterStatusConditionRepository) List(clusterStatusId string) ([]model.ClusterStatusCondition, error) {
 	var clusterStatusConditions []model.ClusterStatusCondition
-	if err := db.DB.Where(model.ClusterStatusCondition{StatusID: clusterStatusId}).
+	if err := db.DB.Where(model.ClusterStatusCondition{ClusterStatusID: clusterStatusId}).
 		Find(&clusterStatusConditions).Error; err != nil {
 		return nil, err
 	}

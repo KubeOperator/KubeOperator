@@ -76,7 +76,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*model.ClusterStatu
 	if len(ca.createHandlers) == 0 {
 		return nil, errors.New("no create handlers")
 	}
-	if len(c.Status.Conditions) == 0 {
+	if len(c.Status.ClusterStatusConditions) == 0 {
 		return &model.ClusterStatusCondition{
 			Name:          ca.createHandlers[0].name(),
 			Status:        constant.ConditionUnknown,
@@ -84,7 +84,7 @@ func (ca *ClusterAdm) getCreateCurrentCondition(c *Cluster) (*model.ClusterStatu
 			Message:       "waiting process",
 		}, nil
 	}
-	for _, condition := range c.Status.Conditions {
+	for _, condition := range c.Status.ClusterStatusConditions {
 		if condition.Status == constant.ConditionFalse || condition.Status == constant.ConditionUnknown {
 			return &condition, nil
 		}

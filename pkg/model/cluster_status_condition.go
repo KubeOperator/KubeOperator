@@ -8,13 +8,13 @@ import (
 
 type ClusterStatusCondition struct {
 	common.BaseModel
-	ID            string `json:"_"`
-	Name          string `json:"name"`
-	StatusID      string `json:"_"`
-	Status        string `json:"status"`
-	Message       string `json:"message"gorm:"type:text"`
-	OrderNum      int    `json:"_"`
-	LastProbeTime time.Time
+	ID              string `json:"_"`
+	Name            string `json:"name"`
+	ClusterStatusID string `json:"_"`
+	Status          string `json:"status"`
+	Message         string `json:"message"gorm:"type:text"`
+	OrderNum        int    `json:"_"`
+	LastProbeTime   time.Time
 }
 
 func (c *ClusterStatusCondition) BeforeCreate() (err error) {
