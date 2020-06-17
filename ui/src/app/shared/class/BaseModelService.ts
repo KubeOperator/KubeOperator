@@ -36,7 +36,7 @@ export abstract class BaseModelService<T extends BaseModel> {
 
     update(name: string, item: BaseRequest): Observable<T> {
         const url = this.urlHandler();
-        const itemUrl = `${url}/`;
+        const itemUrl = `${url}/${name}/`;
         return this.http.patch<T>(itemUrl, item);
     }
 

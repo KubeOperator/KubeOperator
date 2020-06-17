@@ -54,7 +54,7 @@ func (c CredentialController) Delete(name string) error {
 	return c.CredentialService.Delete(name)
 }
 
-func (c CredentialController) Patch() error {
+func (c CredentialController) PatchBy(name string) error {
 	var req dto.CredentialUpdate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
