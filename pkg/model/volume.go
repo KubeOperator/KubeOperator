@@ -7,10 +7,10 @@ import (
 
 type Volume struct {
 	common.BaseModel
-	ID     string
-	HostID string
-	Size   string
-	Name   string
+	ID     string `json:"id" gorm:"type:varchar(64)"`
+	HostID string `json:"hostId" gorm:"type:varchar(64)"`
+	Size   string `json:"size" gorm:"type:varchar(64)"`
+	Name   string `json:"name" gorm:"type:varchar(256)"`
 }
 
 func (v *Volume) BeforeCreate() (err error) {
