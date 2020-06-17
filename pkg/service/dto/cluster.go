@@ -42,3 +42,8 @@ type ClusterCreate struct {
 	ServiceCIDR          string       `json:"serviceCIDR"`
 	Nodes                []NodeCreate `json:"nodes"`
 }
+
+type ClusterBatch struct {
+	Items     []Cluster
+	Operation string
+}

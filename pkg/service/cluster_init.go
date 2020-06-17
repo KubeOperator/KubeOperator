@@ -12,6 +12,14 @@ type ClusterInitService interface {
 	Init(name string) error
 }
 
+func NewClusterInitService() ClusterInitService {
+	return &clusterInitService{
+		clusterRepo:                repository.NewClusterRepository(),
+		clusterStatusRepo:          repository.NewClusterStatusRepository(),
+		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+	}
+}
+
 type clusterInitService struct {
 	clusterRepo                repository.ClusterRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
@@ -27,12 +35,12 @@ func (c clusterInitService) Init(name string) error {
 	if err != nil {
 		return err
 	}
-	if len(status.Conditions) > 0 {
-		for i, _ := range status.Conditions {
-			if status.Conditions[i].Status == constant.ConditionFalse {
-				status.Conditions[i].Status = constant.ConditionUnknown
-				status.Conditions[i].Message = ""
-				err := c.clusterStatusConditionRepo.Save(&status.Conditions[i])
+	if len(status.ClusterStatusConditions) > 0 {
+		for i, _ := range status.ClusterStatusConditions {
+			if status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
+				status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
+				status.ClusterStatusConditions[i].Message = ""
+				err := c.clusterStatusConditionRepo.Save(&status.ClusterStatusConditions[i])
 				if err != nil {
 					return err
 				}

@@ -27,7 +27,7 @@ func (c clusterStatusRepository) Get(id string) (model.ClusterStatus, error) {
 	}
 	if err := db.DB.
 		First(&status).
-		Related(&status.Conditions).Error; err != nil {
+		Related(&status.ClusterStatusConditions).Error; err != nil {
 		return status, err
 	}
 	return status, nil
@@ -45,7 +45,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus, conditions ..
 		}
 	}
 	for i, _ := range conditions {
-		conditions[i].StatusID = status.ID
+		conditions[i].ClusterStatusID = status.ID
 		err := c.conditionRepo.Save(&conditions[i])
 		if err != nil {
 			tx.Rollback()
@@ -57,25 +57,10 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus, conditions ..
 }
 
 func (c clusterStatusRepository) Delete(id string) error {
-	status := model.ClusterStatus{ID: id}
-	tx := db.DB.Begin()
 	if err := db.DB.
-		First(&status).
-		Related(&status.Conditions).Error; err != nil {
+		First(&model.Cluster{ID: id}).
+		Delete(model.Cluster{}).Error; err != nil {
 		return err
 	}
-	if len(status.Conditions) > 0 {
-		if err := db.DB.
-			Where(model.ClusterStatusCondition{StatusID: status.ID}).
-			Delete(model.ClusterStatusCondition{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	if err := db.DB.Delete(&status).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	tx.Commit()
 	return nil
 }

@@ -10,20 +10,15 @@ type ClusterRepository interface {
 	List() ([]model.Cluster, error)
 	Save(cluster *model.Cluster) error
 	Delete(name string) error
+	BatchDelete(names ...string) error
 	Page(num, size int) (int, []model.Cluster, error)
 }
 
 func NewClusterRepository() ClusterRepository {
-	return &clusterRepository{
-		specRepo: NewClusterSpecRepository(),
-	}
+	return &clusterRepository{}
 }
 
 type clusterRepository struct {
-	specRepo   ClusterSpecRepository
-	secretRepo ClusterSecretRepository
-	nodeRepo   ClusterNodeRepository
-	statusRepo ClusterStatusRepository
 }
 
 func (c clusterRepository) Get(name string) (model.Cluster, error) {
@@ -83,41 +78,24 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 
 func (c clusterRepository) Delete(name string) error {
 	var cluster model.Cluster
-	if err := db.DB.
-		Where(model.Cluster{Name: name}).
-		Preload("Status").
-		Preload("Spec").
-		Preload("Nodes").
-		Find(&cluster).Error; err != nil {
+	if err := db.DB.Where(model.Cluster{Name: name}).
+		First(&cluster).
+		Delete(model.Cluster{}).Error; err != nil {
 		return err
 	}
+	return nil
+}
 
-	if err := db.DB.First(&cluster).Error; err != nil {
-		return err
-	}
+func (c clusterRepository) BatchDelete(names ...string) error {
 	tx := db.DB.Begin()
-	if err := c.specRepo.Delete(cluster.SpecID); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := c.statusRepo.Delete(cluster.StatusID); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := c.secretRepo.Delete(cluster.SecretID); err != nil {
-		tx.Rollback()
-		return err
-	}
-	for _, node := range cluster.Nodes {
-		if err := c.nodeRepo.Delete(node.ID); err != nil {
+	var cluster model.Cluster
+	for _, name := range names {
+		if err := tx.Where(model.Cluster{Name: name}).
+			First(&cluster).
+			Delete(model.Cluster{}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
-	}
-	if err := db.DB.Delete(&cluster).Error; err != nil {
-		return err
 	}
 	tx.Commit()
 	return nil
