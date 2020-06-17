@@ -9,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
+	uuid "github.com/satori/go.uuid"
 	"log"
 	"os"
 	"time"
@@ -18,9 +19,9 @@ type HostService interface {
 	Get(name string) (dto.Host, error)
 	List() ([]dto.Host, error)
 	Page(num, size int) (dto.HostPage, error)
-	Create(creation dto.HostCreate) error
+	Create(creation dto.HostCreate) (dto.Host, error)
 	Delete(name string) error
-	Sync(name string) error
+	Sync(name string) (dto.Host, error)
 }
 
 var (
@@ -82,11 +83,11 @@ func (h hostService) Delete(name string) error {
 	return nil
 }
 
-func (h hostService) Create(creation dto.HostCreate) error {
+func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 
-	credential, err := credentialService{}.credentialRepo.GetById(creation.CredentialID)
+	credential, err := repository.NewCredentialRepository().GetById(creation.CredentialID)
 	if err != nil {
-		return err
+		return dto.Host{}, err
 	}
 
 	host := model.Host{
@@ -97,33 +98,29 @@ func (h hostService) Create(creation dto.HostCreate) error {
 		CredentialID: creation.CredentialID,
 		Credential:   credential,
 	}
-	err = h.GetHostGpu(&host)
-	if err != nil {
-		return err
-	}
-	go h.RunGetHostConfig(host)
 
 	err = h.hostRepo.Save(&host)
 	if err != nil {
-		return err
+		return dto.Host{}, err
 	}
-	return err
+	go h.RunGetHostConfig(host)
+	return dto.Host{Host: host}, err
 }
 
-func (h hostService) Sync(name string) error {
+func (h hostService) Sync(name string) (dto.Host, error) {
 	host, err := h.hostRepo.Get(name)
 	if err != nil {
-		return err
+		return dto.Host{Host: host}, err
 	}
 	err = h.GetHostConfig(&host)
 	if err != nil {
-		return err
+		return dto.Host{Host: host}, err
 	}
 	err = h.hostRepo.Save(&host)
 	if err != nil {
-		return err
+		return dto.Host{Host: host}, err
 	}
-	return nil
+	return dto.Host{Host: host}, nil
 }
 
 func (h hostService) GetHostGpu(host *model.Host) error {
@@ -236,6 +233,7 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 			device := devices[index].(map[string]interface{})
 			if "Virtual disk" == device["model"] {
 				v := model.Volume{
+					ID:     uuid.NewV4().String(),
 					Name:   "/dev/" + index,
 					Size:   device["size"].(string),
 					HostID: host.ID,

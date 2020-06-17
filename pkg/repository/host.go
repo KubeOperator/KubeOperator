@@ -27,12 +27,18 @@ func (h hostRepository) Get(name string) (model.Host, error) {
 	if err := db.DB.Where(host).First(&host).Error; err != nil {
 		return host, err
 	}
+	if err := db.DB.First(&host).Related(&host.Volumes).Error; err != nil {
+		return host, err
+	}
+	if err := db.DB.First(&host).Related(&host.Credential).Error; err != nil {
+		return host, err
+	}
 	return host, nil
 }
 
 func (h hostRepository) List() ([]model.Host, error) {
 	var hosts []model.Host
-	err := db.DB.Model(model.Host{}).Find(&hosts).Error
+	err := db.DB.Model(model.Host{}).Preload("Volumes").Find(&hosts).Error
 	return hosts, err
 }
 
@@ -41,6 +47,7 @@ func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 	var hosts []model.Host
 	err := db.DB.Model(model.Host{}).
 		Count(&total).
+		Preload("Volumes").
 		Find(&hosts).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -52,6 +59,10 @@ func (h hostRepository) Save(host *model.Host) error {
 	if db.DB.NewRecord(host) {
 		return db.DB.Create(&host).Error
 	} else {
+		err := db.DB.Where(model.Volume{HostID: host.ID}).Delete(model.Volume{}).Error
+		if err != nil {
+			return err
+		}
 		return db.DB.Save(&host).Error
 	}
 }

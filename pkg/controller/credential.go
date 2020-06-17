@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
@@ -49,6 +48,11 @@ func (c CredentialController) Post() (dto.Credential, error) {
 	if err != nil {
 		return dto.Credential{}, err
 	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return dto.Credential{}, err
+	}
 	return c.CredentialService.Create(req)
 }
 
@@ -74,7 +78,12 @@ func (c CredentialController) PostBatch() error {
 	var req dto.CredentialBatchOp
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return errors.New(c.Ctx.Tr("invalid"))
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
 	}
 	err = c.CredentialService.Batch(req)
 	if err != nil {
