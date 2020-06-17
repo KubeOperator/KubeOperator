@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
@@ -20,6 +21,7 @@ func JWTMiddleware() *jwtmiddleware.Middleware {
 	secretKey = []byte(viper.GetString("jwt.secret"))
 	exp = viper.GetInt64("jwt.exp")
 	return jwtmiddleware.New(jwtmiddleware.Config{
+		Extractor: jwtmiddleware.FromAuthHeader,
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			//自己加密的秘钥或者说盐值
 			return secretKey, nil
@@ -35,8 +37,7 @@ func ErrorHandler(ctx context.Context, err error) {
 	}
 	ctx.StopExecution()
 	response := &dto.Response{
-		Status: false,
-		Msg:    err.Error(),
+		Msg: err.Error(),
 	}
 	ctx.JSON(response)
 }
@@ -45,18 +46,18 @@ func LoginHandler(ctx context.Context) {
 	aul := new(auth.Credential)
 	if err := ctx.ReadJSON(&aul); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
-		_, _ = ctx.JSON(dto.Response{Status: false, Msg: "", Data: "请求参数错误"})
+		_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
 		return
 	}
 
 	data, err := CheckLogin(aul.Username, aul.Password)
 	if err != nil {
 		ctx.StatusCode(iris.StatusInternalServerError)
-		_, _ = ctx.JSON(dto.Response{Status: false, Msg: "校验失败", Data: nil})
+		_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
 		return
 	}
 	ctx.StatusCode(iris.StatusOK)
-	_, _ = ctx.JSON(dto.Response{Msg: "success", Data: data, Status: true})
+	_, _ = ctx.JSON(data)
 	return
 }
 
@@ -78,13 +79,28 @@ func CheckLogin(username string, password string) (*auth.JwtResponse, error) {
 func CreateToken(user *auth.SessionUser) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name":   user.Name,
-		"email":  user.Email,
-		"userId": user.UserId,
+		"name":     user.Name,
+		"email":    user.Email,
+		"userId":   user.UserId,
+		"isActive": user.IsActive,
+		"language": user.Language,
 	})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		return "", err
 	}
 	return tokenString, err
+}
+
+func GetAuthUser(ctx context.Context) {
+	user := ctx.Values().Get("jwt").(*jwt.Token)
+	foobar := user.Claims.(jwt.MapClaims)
+	sessionUserJson, _ := json.Marshal(foobar)
+	sessionUserJsonStr := string(sessionUserJson)
+	var sessionUser auth.SessionUser
+	json.Unmarshal([]byte(sessionUserJsonStr), &sessionUser)
+	resp := new(auth.JwtResponse)
+	resp.User = sessionUser
+	resp.Token = user.Raw
+	ctx.JSON(resp)
 }

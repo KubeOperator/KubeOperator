@@ -16,11 +16,12 @@ func Server() *iris.Application {
 	}
 	app.I18n.SetDefault("zh-CN")
 	app.Post("/api/auth/login", middleware.LoginHandler)
+	app.Get("/api/auth/profile", middleware.JWTMiddleware().Serve, middleware.GetAuthUser)
 	proxy.RegisterProxy(app)
 	api := app.Party("/api")
 	api.Use(middleware.PagerMiddleware)
 	//api.Use(middleware.LogMiddleware)
-	//api.Use(middleware.JWTMiddleware().Serve)
+	api.Use(middleware.JWTMiddleware().Serve)
 	v1.V1(api)
 	return app
 }
