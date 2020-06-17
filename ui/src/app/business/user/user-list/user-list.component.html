@@ -25,7 +25,7 @@
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.email}}</clr-dg-cell>
         <clr-dg-cell>{{item.isActive}}</clr-dg-cell>
-        <clr-dg-cell>{{item.createAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"

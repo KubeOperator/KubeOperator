@@ -20,9 +20,10 @@ var (
 type UserService interface {
 	Get(name string) (dto.User, error)
 	List() ([]dto.User, error)
-	Create(creation dto.UserCreate) error
-	Page(num, size int) (int, []dto.User, error)
+	Create(creation dto.UserCreate) (dto.User, error)
+	Page(num, size int) (dto.UserPage, error)
 	Delete(name string) error
+	Update(update dto.UserUpdate) (dto.User, error)
 	//Batch(operation string, items []model.User) ([]model.User, error)
 }
 
@@ -31,7 +32,9 @@ type userService struct {
 }
 
 func NewUserService() UserService {
-	return &userService{}
+	return &userService{
+		userRepo: repository.NewUserRepository(),
+	}
 }
 
 func (u userService) Get(name string) (dto.User, error) {
@@ -45,6 +48,7 @@ func (u userService) Get(name string) (dto.User, error) {
 }
 
 func (u userService) List() ([]dto.User, error) {
+
 	var userDTOS []dto.User
 	mos, err := u.userRepo.List()
 	if err != nil {
@@ -56,30 +60,51 @@ func (u userService) List() ([]dto.User, error) {
 	return userDTOS, err
 }
 
-func (u userService) Create(creation dto.UserCreate) error {
+func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
+
 	user := model.User{
 		Name:     creation.Name,
 		Email:    creation.Email,
 		Password: creation.Password,
+		IsActive: true,
+		Language: model.ZH,
 	}
 	err := u.userRepo.Save(&user)
 	if err != nil {
-		return err
+		return dto.User{}, err
 	}
-	return err
+	return dto.User{User: user}, err
 }
 
-func (u userService) Page(num, size int) (int, []dto.User, error) {
-	var total int
+func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
+	user := model.User{
+		ID:       update.ID,
+		Name:     update.Name,
+		Email:    update.Email,
+		IsActive: update.IsActive,
+		Language: update.Language,
+	}
+	err := u.userRepo.Save(&user)
+	if err != nil {
+		return dto.User{}, err
+	}
+	return dto.User{User: user}, err
+}
+
+func (u userService) Page(num, size int) (dto.UserPage, error) {
+
+	var page dto.UserPage
 	var userDTOs []dto.User
 	total, mos, err := u.userRepo.Page(num, size)
 	if err != nil {
-		return total, userDTOs, err
+		return page, err
 	}
 	for _, mo := range mos {
 		userDTOs = append(userDTOs, dto.User{User: mo})
 	}
-	return total, userDTOs, err
+	page.Total = total
+	page.Items = userDTOs
+	return page, err
 }
 
 func (u userService) Delete(name string) error {
