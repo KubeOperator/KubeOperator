@@ -10,16 +10,17 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/spf13/viper"
+	"time"
 )
 
 var (
 	secretKey []byte
-	exp       int64
+	exp       int
 )
 
 func JWTMiddleware() *jwtmiddleware.Middleware {
 	secretKey = []byte(viper.GetString("jwt.secret"))
-	exp = viper.GetInt64("jwt.exp")
+	exp = viper.GetInt("jwt.exp")
 	return jwtmiddleware.New(jwtmiddleware.Config{
 		Extractor: jwtmiddleware.FromAuthHeader,
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
@@ -84,6 +85,8 @@ func CreateToken(user *auth.SessionUser) (string, error) {
 		"userId":   user.UserId,
 		"isActive": user.IsActive,
 		"language": user.Language,
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(time.Minute * time.Duration(exp)).Unix(),
 	})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
