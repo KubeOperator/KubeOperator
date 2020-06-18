@@ -1,4 +1,4 @@
-package errors
+package warp
 
 import "encoding/json"
 
