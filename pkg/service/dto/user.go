@@ -29,3 +29,10 @@ type UserOp struct {
 	Operation string `json:"operation"`
 	Items     []User `json:"items"`
 }
+
+type UserChangePassword struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	Original string `json:"original"`
+}

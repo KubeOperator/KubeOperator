@@ -48,7 +48,7 @@ export class PasswordComponent implements OnInit {
             name: this.user.name
         };
 
-        this.userService.changePassword(this.user.name, this.changePasswordRequest).subscribe(res => {
+        this.userService.changePassword(this.changePasswordRequest).subscribe(res => {
             this.submitGoing = false;
             this.opened = false;
         }, error => {

@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -42,4 +43,15 @@ func (u *User) ToSessionUser() *auth.SessionUser {
 		Language: u.Language,
 		IsActive: u.IsActive,
 	}
+}
+
+func (u *User) ValidateOldPassword(password string) (bool, error) {
+	oldPassword, err := encrypt.StringDecrypt(u.Password)
+	if err != nil {
+		return false, err
+	}
+	if oldPassword != password {
+		return false, err
+	}
+	return true, err
 }

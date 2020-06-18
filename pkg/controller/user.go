@@ -89,3 +89,21 @@ func (u UserController) PostBatch() error {
 	}
 	return err
 }
+
+func (u UserController) PostChangePassword() error {
+	var req dto.UserChangePassword
+	err := u.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = u.UserService.ChangePassword(req)
+	if err != nil {
+		return warp.NewControllerError(errors.New(u.Ctx.Tr(err.Error())))
+	}
+	return err
+}

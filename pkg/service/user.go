@@ -5,7 +5,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
@@ -13,9 +12,9 @@ import (
 )
 
 var (
-	UserNotFound     = errors.New(i18n.Tr("user_not_found", nil))
-	PasswordNotMatch = errors.New(i18n.Tr("password_not_match", nil))
-	UserIsNotActive  = errors.New(i18n.Tr("user_is_not_active", nil))
+	PasswordNotMatch = errors.New("PASSWORD_NOT_MATCH")
+	UserNotFound     = errors.New("PASSWORD_NOT_MATCH")
+	UserIsNotActive  = errors.New("PASSWORD_NOT_MATCH")
 )
 
 type UserService interface {
@@ -26,6 +25,7 @@ type UserService interface {
 	Delete(name string) error
 	Update(update dto.UserUpdate) (dto.User, error)
 	Batch(op dto.UserOp) error
+	ChangePassword(ch dto.UserChangePassword) error
 }
 
 type userService struct {
@@ -121,6 +121,29 @@ func (u userService) Batch(op dto.UserOp) error {
 		})
 	}
 	return u.userRepo.Batch(op.Operation, deleteItems)
+}
+
+func (u userService) ChangePassword(ch dto.UserChangePassword) error {
+	user, err := u.userRepo.Get(ch.Name)
+	if err != nil {
+		return err
+	}
+	success, err := user.ValidateOldPassword(ch.Original)
+	if err != nil {
+		return err
+	}
+	if success == false {
+		return PasswordNotMatch
+	}
+	user.Password, err = encrypt.StringEncrypt(ch.Password)
+	if err != nil {
+		return err
+	}
+	err = u.userRepo.Save(&user)
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {

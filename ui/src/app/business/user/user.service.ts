@@ -17,8 +17,8 @@ export class UserService extends BaseModelService<any> {
         super(http);
     }
 
-    changePassword(name: string, item: ChangePasswordRequest): Observable<Host> {
-        const itemUrl = `${this.baseUrl}/changePassword/${name}/`;
+    changePassword(item: ChangePasswordRequest): Observable<Host> {
+        const itemUrl = `${this.baseUrl}/change/password/`;
         return this.http.post<Host>(itemUrl, item);
     }
 }

@@ -8,3 +8,7 @@ DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"
 
 #host
 DELETE_HOST_FAILED: "删除失败！该主机已经关联集群"
+
+
+#user
+PASSWORD_NOT_MATCH: "原密码错误"
