@@ -7,6 +7,8 @@ import {CredentialService} from '../../setting/credential/credential.service';
 import {Credential} from '../../setting/credential/credential';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-host-create',
@@ -23,7 +25,8 @@ export class HostCreateComponent extends BaseModelComponent<Host> implements OnI
     @Output() created = new EventEmitter();
 
     constructor(private hostService: HostService, private credentialService: CredentialService,
-                private modalAlertService: ModalAlertService) {
+                private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
         super(hostService);
     }
 
@@ -49,6 +52,7 @@ export class HostCreateComponent extends BaseModelComponent<Host> implements OnI
             this.opened = false;
             this.isSubmitGoing = false;
             this.created.emit();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

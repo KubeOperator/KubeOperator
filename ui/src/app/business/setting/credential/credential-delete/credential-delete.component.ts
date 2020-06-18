@@ -1,6 +1,10 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Credential} from '../credential';
 import {CredentialService} from '../credential.service';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-credential-delete',
@@ -13,7 +17,8 @@ export class CredentialDeleteComponent implements OnInit {
     items: Credential[] = [];
     @Output() deleted = new EventEmitter();
 
-    constructor(private service: CredentialService) {
+    constructor(private service: CredentialService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
@@ -33,6 +38,9 @@ export class CredentialDeleteComponent implements OnInit {
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
         });
     }
 }

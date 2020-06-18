@@ -2,6 +2,10 @@ import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {User} from '../user';
 import {UserService} from '../user.service';
+import {AlertLevels} from '../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-user-delete',
@@ -16,7 +20,8 @@ export class UserDeleteComponent extends BaseModelComponent<User> implements OnI
     @Output()
     deleted = new EventEmitter();
 
-    constructor(private userService: UserService) {
+    constructor(private userService: UserService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
         super(userService);
     }
 
@@ -36,6 +41,9 @@ export class UserDeleteComponent extends BaseModelComponent<User> implements OnI
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

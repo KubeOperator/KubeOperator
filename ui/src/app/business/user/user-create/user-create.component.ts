@@ -6,6 +6,8 @@ import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
 import {PasswordPattern} from '../../../constant/pattern';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 
 @Component({
@@ -24,7 +26,8 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
     @Output() created = new EventEmitter();
 
 
-    constructor(private userService: UserService, private modalAlertService: ModalAlertService) {
+    constructor(private userService: UserService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
         super(userService);
     }
 
@@ -48,6 +51,7 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
             this.opened = false;
             this.isSubmitGoing = false;
             this.created.emit();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
