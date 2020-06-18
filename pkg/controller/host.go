@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	"github.com/go-playground/validator/v10"
@@ -19,15 +22,15 @@ func NewHostController() *HostController {
 	}
 }
 
-func (h HostController) Get() (dto.HostPage, error) {
+func (h HostController) Get() (page.Page, error) {
 
-	page, _ := h.Ctx.Values().GetBool("page")
-	if page {
+	p, _ := h.Ctx.Values().GetBool("page")
+	if p {
 		num, _ := h.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := h.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return h.HostService.Page(num, size)
 	} else {
-		var page dto.HostPage
+		var page page.Page
 		items, err := h.HostService.List()
 		if err != nil {
 			return page, err
@@ -62,4 +65,22 @@ func (h HostController) Delete(name string) error {
 
 func (h HostController) PostSyncBy(name string) (dto.Host, error) {
 	return h.HostService.Sync(name)
+}
+
+func (h HostController) PostBatch() error {
+	var req dto.HostOp
+	err := h.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = h.HostService.Batch(req)
+	if err != nil {
+		return warp.NewControllerError(errors.New(h.Ctx.Tr(err.Error())))
+	}
+	return err
 }

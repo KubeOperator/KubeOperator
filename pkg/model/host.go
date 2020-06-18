@@ -28,8 +28,10 @@ type Host struct {
 	Port         int        `json:"port" gorm:"type:varchar(64)"`
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`
 	Status       string     `json:"status" gorm:"type:varchar(64)"`
+	ClusterID    string     `json:"clusterId" gorm:"type:varchar(64)"`
 	Volumes      []Volume   `json:"volumes"`
 	Credential   Credential `json:"credential"`
+	Cluster      Cluster    `json:"cluster"`
 }
 
 func (h Host) GetHostPasswordAndPrivateKey() (string, []byte, error) {

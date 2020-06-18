@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+)
+
+var (
+	DeleteFailedError = "DELETE_FAILED_RESOURCE"
 )
 
 type CredentialRepository interface {
@@ -59,8 +64,18 @@ func (c credentialRepository) Save(credential *model.Credential) error {
 }
 
 func (c credentialRepository) Delete(name string) error {
-	var credential model.Credential
-	credential.Name = name
+	credential, err := c.Get(name)
+	if err != nil {
+		return err
+	}
+	var hosts []model.Host
+	err = db.DB.Where("credential_id = ?", credential.ID).Find(&hosts).Error
+	if err != nil {
+		return err
+	}
+	if len(hosts) > 0 {
+		return errors.New("delete failed")
+	}
 	return db.DB.Delete(&credential).Error
 }
 
@@ -76,11 +91,19 @@ func (c credentialRepository) GetById(id string) (model.Credential, error) {
 func (c credentialRepository) Batch(operation string, items []model.Credential) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		var names []string
+		var ids []string
 		for _, item := range items {
-			names = append(names, item.Name)
+			ids = append(ids, item.ID)
 		}
-		err := db.DB.Where("name in (?)", names).Find(&items).Error
+		var hosts []model.Host
+		err := db.DB.Where("credential_id in (?)", ids).Find(&hosts).Error
+		if err != nil {
+			return err
+		}
+		if len(hosts) > 0 {
+			return errors.New(DeleteFailedError)
+		}
+		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
 			return err
 		}

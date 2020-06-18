@@ -7,13 +7,18 @@ type Host struct {
 }
 
 type HostCreate struct {
-	Name         string `json:"name" binding:"required"`
-	Ip           string `json:"ip" binding:"required"`
-	Port         int    `json:"port" binding:"required"`
-	CredentialID string `json:"credentialId" binding:"required"`
+	Name         string `json:"name" validate:"required"`
+	Ip           string `json:"ip" validate:"required"`
+	Port         int    `json:"port" validate:"required"`
+	CredentialID string `json:"credentialId" validate:"required"`
 }
 
 type HostPage struct {
 	Items []Host `json:"items"`
 	Total int    `json:"total"`
+}
+
+type HostOp struct {
+	Operation string `json:"operation" validate:"required"`
+	Items     []Host `json:"items" validate:"required"`
 }

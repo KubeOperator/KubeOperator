@@ -1,8 +1,14 @@
 package repository
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+)
+
+var (
+	DeleteHostFailed = "DELETE_HOST_FAILED"
 )
 
 type HostRepository interface {
@@ -12,6 +18,7 @@ type HostRepository interface {
 	Save(host *model.Host) error
 	Delete(name string) error
 	ListByCredentialID(credentialID string) ([]model.Host, error)
+	Batch(operation string, items []model.Host) error
 }
 
 func NewHostRepository() HostRepository {
@@ -68,8 +75,13 @@ func (h hostRepository) Save(host *model.Host) error {
 }
 
 func (h hostRepository) Delete(name string) error {
-	var host model.Host
-	host.Name = name
+	host, err := h.Get(name)
+	if err != nil {
+		return err
+	}
+	if host.ClusterID != "" {
+		return errors.New(DeleteHostFailed)
+	}
 	return db.DB.Delete(&host).Error
 }
 
@@ -79,4 +91,33 @@ func (h hostRepository) ListByCredentialID(credentialID string) ([]model.Host, e
 		CredentialID: credentialID,
 	}).Find(&host).Error
 	return host, err
+}
+
+func (h hostRepository) Batch(operation string, items []model.Host) error {
+	switch operation {
+	case constant.BatchOperationDelete:
+		var clusterIds []string
+		for _, item := range items {
+			clusterIds = append(clusterIds, item.ClusterID)
+		}
+		var clusters []model.Cluster
+		err := db.DB.Where("id in (?)", clusterIds).Find(&clusters).Error
+		if err != nil {
+			return err
+		}
+		if len(clusters) > 0 {
+			return errors.New(DeleteFailedError)
+		}
+		var ids []string
+		for _, item := range items {
+			ids = append(ids, item.ID)
+		}
+		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
+		if err != nil {
+			return err
+		}
+	default:
+		return constant.NotSupportedBatchOperation
+	}
+	return nil
 }

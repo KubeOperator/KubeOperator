@@ -2,10 +2,13 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
+	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 )
 
 type CredentialController struct {
@@ -19,15 +22,15 @@ func NewCredentialController() *CredentialController {
 	}
 }
 
-func (c CredentialController) Get() (dto.CredentialPage, error) {
+func (c CredentialController) Get() (page.Page, error) {
 
-	page, _ := c.Ctx.Values().GetBool("page")
-	if page {
+	p, _ := c.Ctx.Values().GetBool("page")
+	if p {
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		return c.CredentialService.Page(num, size)
 	} else {
-		var page dto.CredentialPage
+		var page page.Page
 		items, err := c.CredentialService.List()
 		if err != nil {
 			return page, err
@@ -87,7 +90,7 @@ func (c CredentialController) PostBatch() error {
 	}
 	err = c.CredentialService.Batch(req)
 	if err != nil {
-		return err
+		return warp.NewControllerError(errors.New(c.Ctx.Tr(err.Error())))
 	}
 	return err
 }

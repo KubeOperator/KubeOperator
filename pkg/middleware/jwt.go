@@ -40,6 +40,7 @@ func ErrorHandler(ctx context.Context, err error) {
 	response := &dto.Response{
 		Msg: err.Error(),
 	}
+	ctx.StatusCode(iris.StatusInternalServerError)
 	ctx.JSON(response)
 }
 

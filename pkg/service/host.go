@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -18,10 +19,11 @@ import (
 type HostService interface {
 	Get(name string) (dto.Host, error)
 	List() ([]dto.Host, error)
-	Page(num, size int) (dto.HostPage, error)
+	Page(num, size int) (page.Page, error)
 	Create(creation dto.HostCreate) (dto.Host, error)
 	Delete(name string) error
 	Sync(name string) (dto.Host, error)
+	Batch(op dto.HostOp) error
 }
 
 var (
@@ -60,8 +62,8 @@ func (h hostService) List() ([]dto.Host, error) {
 	return hostDTOs, err
 }
 
-func (h hostService) Page(num, size int) (dto.HostPage, error) {
-	var page dto.HostPage
+func (h hostService) Page(num, size int) (page.Page, error) {
+	var page page.Page
 	var hostDTOs []dto.Host
 	total, mos, err := h.hostRepo.Page(num, size)
 	if err != nil {
@@ -121,6 +123,22 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 		return dto.Host{Host: host}, err
 	}
 	return dto.Host{Host: host}, nil
+}
+
+func (h hostService) Batch(op dto.HostOp) error {
+	var deleteItems []model.Host
+	for _, item := range op.Items {
+		deleteItems = append(deleteItems, model.Host{
+			BaseModel: common.BaseModel{},
+			ID:        item.ID,
+			Name:      item.Name,
+		})
+	}
+	err := h.hostRepo.Batch(op.Operation, deleteItems)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h hostService) GetHostGpu(host *model.Host) error {

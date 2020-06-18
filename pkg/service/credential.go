@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -15,7 +16,7 @@ var (
 type CredentialService interface {
 	Get(name string) (dto.Credential, error)
 	List() ([]dto.Credential, error)
-	Page(num, size int) (dto.CredentialPage, error)
+	Page(num, size int) (page.Page, error)
 	Create(creation dto.CredentialCreate) (dto.Credential, error)
 	Delete(name string) error
 	Batch(op dto.CredentialBatchOp) error
@@ -67,9 +68,9 @@ func (c credentialService) List() ([]dto.Credential, error) {
 	return credentialDTOS, err
 }
 
-func (c credentialService) Page(num, size int) (dto.CredentialPage, error) {
+func (c credentialService) Page(num, size int) (page.Page, error) {
 
-	var page dto.CredentialPage
+	var page page.Page
 
 	var total int
 	var credentialDTOS []dto.Credential

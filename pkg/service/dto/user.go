@@ -24,3 +24,8 @@ type UserUpdate struct {
 	IsActive bool   `json:"isActive"`
 	Language string `json:"language"`
 }
+
+type UserOp struct {
+	Operation string `json:"operation"`
+	Items     []User `json:"items"`
+}

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -21,10 +22,10 @@ type UserService interface {
 	Get(name string) (dto.User, error)
 	List() ([]dto.User, error)
 	Create(creation dto.UserCreate) (dto.User, error)
-	Page(num, size int) (dto.UserPage, error)
+	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Update(update dto.UserUpdate) (dto.User, error)
-	//Batch(operation string, items []model.User) ([]model.User, error)
+	Batch(op dto.UserOp) error
 }
 
 type userService struct {
@@ -91,9 +92,9 @@ func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
 	return dto.User{User: user}, err
 }
 
-func (u userService) Page(num, size int) (dto.UserPage, error) {
+func (u userService) Page(num, size int) (page.Page, error) {
 
-	var page dto.UserPage
+	var page page.Page
 	var userDTOs []dto.User
 	total, mos, err := u.userRepo.Page(num, size)
 	if err != nil {
@@ -111,26 +112,16 @@ func (u userService) Delete(name string) error {
 	return u.userRepo.Delete(name)
 }
 
-//func (u userService) Batch(operation string, items []dto.User) ([]dto.User, error) {
-//	var deleteItems []model.User
-//	var notOpItems []model.User
-//	switch operation {
-//	case constant.BatchOperationDelete:
-//		tx := db.DB.Begin()
-//		for _, item := range items {
-//			err := db.DB.Model(model.User{}).First(&item).Delete(&item).Error
-//			if err != nil {
-//				tx.Rollback()
-//				return nil, err
-//			}
-//			deleteItems = append(deleteItems, item)
-//			tx.Commit()
-//		}
-//	default:
-//		return nil, constant.NotSupportedBatchOperation
-//	}
-//	return deleteItems, nil
-//}
+func (u userService) Batch(op dto.UserOp) error {
+	var deleteItems []model.User
+	for _, item := range op.Items {
+		deleteItems = append(deleteItems, model.User{
+			ID:   item.ID,
+			Name: item.Name,
+		})
+	}
+	return u.userRepo.Batch(op.Operation, deleteItems)
+}
 
 func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {
 	var dbUser model.User

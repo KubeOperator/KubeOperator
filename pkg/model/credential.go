@@ -8,7 +8,7 @@ import (
 type Credential struct {
 	common.BaseModel
 	ID         string `json:"id"`
-	Name       string `json:"name"gorm:"not null;unique"`
+	Name       string `json:"name" gorm:"not null;unique"`
 	Username   string `json:"username"`
 	Password   string `json:"password"`
 	PrivateKey string `json:"private_key"`

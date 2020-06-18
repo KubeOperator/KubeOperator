@@ -12,7 +12,7 @@ type UserRepository interface {
 	Get(name string) (model.User, error)
 	Save(item *model.User) error
 	Delete(name string) error
-	Batch(operation string, items []model.User) ([]model.User, error)
+	Batch(operation string, items []model.User) error
 }
 
 type userRepository struct {
@@ -58,22 +58,20 @@ func (u userRepository) Delete(name string) error {
 	return db.DB.Delete(&user).Error
 }
 
-func (u userRepository) Batch(operation string, items []model.User) ([]model.User, error) {
-	var deleteItems []model.User
+func (u userRepository) Batch(operation string, items []model.User) error {
 	switch operation {
 	case constant.BatchOperationDelete:
 		tx := db.DB.Begin()
 		for _, item := range items {
-			err := db.DB.Model(model.User{}).First(&item).Delete(&item).Error
+			err := db.DB.Model(model.User{}).Delete(&item).Error
 			if err != nil {
 				tx.Rollback()
-				return nil, err
+				return err
 			}
-			deleteItems = append(deleteItems, item)
 			tx.Commit()
 		}
 	default:
-		return nil, constant.NotSupportedBatchOperation
+		return constant.NotSupportedBatchOperation
 	}
-	return deleteItems, nil
+	return nil
 }
