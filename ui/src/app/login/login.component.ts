@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
         this.loginService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
             this.sessionService.cacheProfile(res);
-            this.router.navigateByUrl(CommonRoutes.KO_ROOT, {skipLocationChange: true}).then(r => console.log('login success'));
+            this.router.navigateByUrl(CommonRoutes.KO_ROOT).then(r => console.log('login success'));
         }, error => this.handleError(error));
     }
 
