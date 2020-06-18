@@ -166,10 +166,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
-	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
-	//	tx.Rollback()
-	//	return err
-	//}
+	if err := c.clusterInitService.Init(cluster.Name); err != nil {
+		return err
+	}
 	return nil
 }
 

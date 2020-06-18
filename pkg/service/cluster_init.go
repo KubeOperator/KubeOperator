@@ -8,11 +8,11 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
-	"time"
 )
 
 type ClusterInitService interface {
 	Init(name string) error
+	GatherKubernetesToken(cluster model.Cluster) error
 }
 
 func NewClusterInitService() ClusterInitService {
@@ -38,24 +38,24 @@ func (c clusterInitService) Init(name string) error {
 	if err != nil {
 		return err
 	}
-	status, err := c.clusterStatusRepo.Get(cluster.StatusID)
+	cluster.Status, err = c.clusterStatusRepo.Get(cluster.StatusID)
 	if err != nil {
 		return err
 	}
-	if len(status.ClusterStatusConditions) > 0 {
-		for i, _ := range status.ClusterStatusConditions {
-			if status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
-				status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
-				status.ClusterStatusConditions[i].Message = ""
-				err := c.clusterStatusConditionRepo.Save(&status.ClusterStatusConditions[i])
+	if len(cluster.Status.ClusterStatusConditions) > 0 {
+		for i, _ := range cluster.Status.ClusterStatusConditions {
+			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
+				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
+				cluster.Status.ClusterStatusConditions[i].Message = ""
+				err := c.clusterStatusConditionRepo.Save(&cluster.Status.ClusterStatusConditions[i])
 				if err != nil {
 					return err
 				}
 			}
 		}
 	}
-	status.Phase = constant.ClusterInitializing
-	if err := c.clusterStatusRepo.Save(&status); err != nil {
+	cluster.Status.Phase = constant.ClusterInitializing
+	if err := c.clusterStatusRepo.Save(&cluster.Status); err != nil {
 		return err
 	}
 	ctx, cancel := context.WithCancel(context.Background())
@@ -69,18 +69,16 @@ func (c clusterInitService) Init(name string) error {
 func (c clusterInitService) do(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
 	ad := adm.NewClusterAdm()
 	for {
+		select {
+		case <-ctx.Done():
+			return
+		case statusChan <- cluster:
+		}
 		resp, err := ad.OnInitialize(cluster)
 		if err != nil {
 			cluster.Status.Message = err.Error()
 		}
 		cluster.Status = resp.Status
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			statusChan <- cluster
-		}
-		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -94,7 +92,7 @@ func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan 
 			return
 		case constant.ClusterRunning:
 			cancel()
-			err := c.gatherKubernetesToken(cluster.Cluster)
+			err := c.GatherKubernetesToken(cluster.Cluster)
 			if err != nil {
 				cluster.Status.Phase = constant.ClusterNotConnected
 				cluster.Status.Message = err.Error()
@@ -104,7 +102,7 @@ func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan 
 	}
 }
 
-func (c clusterInitService) gatherKubernetesToken(cluster model.Cluster) error {
+func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
 	secret, err := c.clusterSecretRepo.Get(cluster.SecretID)
 	if err != nil {
 		return err

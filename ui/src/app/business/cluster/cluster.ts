@@ -12,14 +12,11 @@ export class Spec {
     version: string;
 }
 
-export class ClusterStatusResponse {
-    status: Status;
-}
-
-export class Status {
+export class ClusterStatus {
     phase: string;
     conditions: Condition[] = [];
 }
+
 
 export class Condition {
     status: string;

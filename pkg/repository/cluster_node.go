@@ -40,6 +40,7 @@ func (c clusterNodeRepository) FistMaster(ClusterId string) (model.ClusterNode, 
 	if err := db.DB.
 		Where(model.ClusterNode{ClusterID: ClusterId, Role: constant.NodeRoleNameMaster}).
 		Preload("Host").
+		Preload("Host.Credential").
 		First(&master).
 		Error; err != nil {
 		return master, err

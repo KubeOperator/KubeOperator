@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	initPost = "11-post.yml"
+	initPost = "09-post.yml"
 )
 
 type PostPhase struct {

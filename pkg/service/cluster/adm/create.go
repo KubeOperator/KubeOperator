@@ -13,36 +13,37 @@ import (
 
 func (ca *ClusterAdm) Create(c *Cluster) error {
 	condition := ca.getCreateCurrentCondition(c)
-	now := time.Now()
-	f := ca.getCreateHandler(condition.Name)
-	if err := f(c); err != nil {
+	if condition != nil {
+		now := time.Now()
+		f := ca.getCreateHandler(condition.Name)
+		if err := f(c); err != nil {
+			c.setCondition(model.ClusterStatusCondition{
+				Name:          condition.Name,
+				Status:        constant.ConditionFalse,
+				LastProbeTime: now,
+				Message:       err.Error(),
+			})
+			c.Status.Phase = constant.ClusterFailed
+			c.Status.Message = err.Error()
+			return nil
+		}
 		c.setCondition(model.ClusterStatusCondition{
 			Name:          condition.Name,
-			Status:        constant.ConditionFalse,
+			Status:        constant.ConditionTrue,
 			LastProbeTime: now,
-			Message:       err.Error(),
-		})
-		c.Status.Phase = constant.ClusterFailed
-		c.Status.Message = err.Error()
-		return nil
-	}
-	c.setCondition(model.ClusterStatusCondition{
-		Name:          condition.Name,
-		Status:        constant.ConditionTrue,
-		LastProbeTime: now,
-	})
-
-	nextConditionType := ca.getNextConditionName(condition.Name)
-	if nextConditionType == ConditionTypeDone {
-		c.Status.Phase = constant.ClusterRunning
-	} else {
-		c.setCondition(model.ClusterStatusCondition{
-			Name:          nextConditionType,
-			Status:        constant.ConditionUnknown,
-			LastProbeTime: time.Now(),
-			Message:       "waiting process",
 		})
 
+		nextConditionType := ca.getNextConditionName(condition.Name)
+		if nextConditionType == ConditionTypeDone {
+			c.Status.Phase = constant.ClusterRunning
+		} else {
+			c.setCondition(model.ClusterStatusCondition{
+				Name:          nextConditionType,
+				Status:        constant.ConditionUnknown,
+				LastProbeTime: time.Now(),
+				Message:       "waiting process",
+			})
+		}
 	}
 	return nil
 }
@@ -90,12 +91,14 @@ func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
 }
 
 func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
+	time.Sleep(1 * time.Second)
 	return nil
 }
 
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}
-	return phase.Run(c.Kobe)
+	err := phase.Run(c.Kobe)
+	return err
 }
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
@@ -124,12 +127,18 @@ func (ca *ClusterAdm) EnsureInitEtcd(c *Cluster) error {
 	phase := initial.EtcdPhase{}
 	return phase.Run(c.Kobe)
 }
-func (ca *ClusterAdm) EnsureInitKubeConfig(c *Cluster) error {
-	phase := initial.KubeConfigPhase{}
-	return phase.Run(c.Kobe)
-}
+
 func (ca *ClusterAdm) EnsureInitMaster(c *Cluster) error {
 	phase := initial.MasterPhase{}
+	return phase.Run(c.Kobe)
+}
+
+func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
+	phase := initial.WorkerPhase{}
+	return phase.Run(c.Kobe)
+}
+func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
+	phase := initial.NetworkPhase{}
 	return phase.Run(c.Kobe)
 }
 

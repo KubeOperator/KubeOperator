@@ -8,13 +8,15 @@ import (
 )
 
 type ClusterController struct {
-	Ctx            context.Context
-	ClusterService service.ClusterService
+	Ctx                context.Context
+	ClusterService     service.ClusterService
+	ClusterInitService service.ClusterInitService
 }
 
 func NewClusterController() *ClusterController {
 	return &ClusterController{
-		ClusterService: service.NewClusterService(),
+		ClusterService:     service.NewClusterService(),
+		ClusterInitService: service.NewClusterInitService(),
 	}
 }
 
@@ -51,6 +53,10 @@ func (c ClusterController) Post() error {
 		return err
 	}
 	return c.ClusterService.Create(req)
+}
+
+func (c ClusterController) PostInitBy(name string) error {
+	return c.ClusterInitService.Init(name)
 }
 
 func (c ClusterController) Delete(name string) error {

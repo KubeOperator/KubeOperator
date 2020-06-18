@@ -28,6 +28,8 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Preload("Nodes.Host").
+		Preload("Nodes.Host.Credential").
 		Find(&cluster).Error; err != nil {
 		return cluster, err
 	}
@@ -41,6 +43,8 @@ func (c clusterRepository) List() ([]model.Cluster, error) {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Preload("Nodes.Host").
+		Preload("Nodes.Host.Credential").
 		Find(&clusters).Error; err != nil {
 		return clusters, err
 	}

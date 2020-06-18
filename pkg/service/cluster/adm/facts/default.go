@@ -1,6 +1,7 @@
 package facts
 
 const (
+	ArchitecturesFactName            = "architectures"
 	KubeVersionFactName              = "kube_version"
 	ContainerRuntimeFactName         = "container_runtime"
 	LbModeFactName                   = "lb_mode"
@@ -43,6 +44,7 @@ const (
 )
 
 var DefaultFacts = map[string]string{
+	ArchitecturesFactName:                "amd64",
 	KubeVersionFactName:                  "v1.18.3",
 	ContainerRuntimeFactName:             "docker",
 	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",

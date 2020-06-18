@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ClusterService} from '../cluster.service';
-import {Condition, Status} from '../cluster';
-import {throwIfEmpty} from 'rxjs/operators';
+import {ClusterStatus, Condition} from '../cluster';
 
 @Component({
     selector: 'app-cluster-condition',
@@ -12,7 +11,7 @@ export class ClusterConditionComponent implements OnInit {
 
     opened = false;
     clusterName: string;
-    item: Status = new Status();
+    item: ClusterStatus = new ClusterStatus();
     loading = false;
     timer;
 
@@ -36,7 +35,7 @@ export class ClusterConditionComponent implements OnInit {
     getStatus() {
         this.opened = true;
         this.service.status(this.clusterName).subscribe(data => {
-            this.item = data.status;
+            this.item = data;
             this.loading = false;
         });
     }
@@ -61,10 +60,10 @@ export class ClusterConditionComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             this.service.status(this.clusterName).subscribe(data => {
-                if (this.item.phase !== data.status.phase) {
-                    this.item.phase = data.status.phase;
+                if (this.item.phase !== data.phase) {
+                    this.item.phase = data.phase;
                 }
-                if (data.status.phase !== 'running' || this.item.phase !== 'Failed') {
+                if (this.item.phase !== 'Running') {
                     // data.status.conditions.forEach((n) => {
                     //     this.item.conditions.forEach(condition => {
                     //         if (condition.name === n.name) {
@@ -77,7 +76,7 @@ export class ClusterConditionComponent implements OnInit {
                     //         }
                     //     });
                     // });
-                    this.item.conditions = data.status.conditions;
+                    this.item.conditions = data.conditions;
                 } else {
                     clearInterval(this.timer);
                 }

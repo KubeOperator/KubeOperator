@@ -73,3 +73,13 @@ func TestClusterService_Delete(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestClusterService_Get(t *testing.T) {
+	Init()
+	service := NewClusterService()
+	c, err := service.Get("test")
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(c.ParseInventory())
+}

@@ -52,5 +52,5 @@ func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) error {
 		}
 		return false, nil
 	})
-	return nil
+	return err
 }

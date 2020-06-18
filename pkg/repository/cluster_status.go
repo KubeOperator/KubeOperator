@@ -7,7 +7,7 @@ import (
 
 type ClusterStatusRepository interface {
 	Get(id string) (model.ClusterStatus, error)
-	Save(status *model.ClusterStatus, conditions ...model.ClusterStatusCondition) error
+	Save(status *model.ClusterStatus) error
 	Delete(id string) error
 }
 
@@ -27,13 +27,15 @@ func (c clusterStatusRepository) Get(id string) (model.ClusterStatus, error) {
 	}
 	if err := db.DB.
 		First(&status).
-		Related(&status.ClusterStatusConditions).Error; err != nil {
+		Order("last_probe_time asc").
+		Related(&status.ClusterStatusConditions).
+		Error; err != nil {
 		return status, err
 	}
 	return status, nil
 }
 
-func (c clusterStatusRepository) Save(status *model.ClusterStatus, conditions ...model.ClusterStatusCondition) error {
+func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 	tx := db.DB.Begin()
 	if db.DB.NewRecord(status) {
 		if err := db.DB.Create(&status).Error; err != nil {
@@ -44,9 +46,9 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus, conditions ..
 			return err
 		}
 	}
-	for i, _ := range conditions {
-		conditions[i].ClusterStatusID = status.ID
-		err := c.conditionRepo.Save(&conditions[i])
+	for i, _ := range status.ClusterStatusConditions {
+		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
+		err := c.conditionRepo.Save(&status.ClusterStatusConditions[i])
 		if err != nil {
 			tx.Rollback()
 			return err
