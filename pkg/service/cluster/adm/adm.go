@@ -87,8 +87,8 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitEtcd,
 		ca.EnsureInitMaster,
 		ca.EnsureInitWorker,
-		ca.EnsureInitNetwork,
 		ca.EnsurePostInit,
+		ca.EnsureInitNetwork,
 	}
 	return ca
 }

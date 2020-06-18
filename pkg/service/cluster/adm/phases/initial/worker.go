@@ -16,6 +16,6 @@ func (WorkerPhase) Name() string {
 }
 
 func (s WorkerPhase) Run(b kobe.Interface) error {
-	return phases.RunPlaybookAndGetResult(b, initMaster)
+	return phases.RunPlaybookAndGetResult(b, initWorker)
 }
 
