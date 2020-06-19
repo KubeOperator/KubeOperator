@@ -10,6 +10,7 @@ export class Cluster extends BaseModel {
 
 export class Spec {
     version: string;
+    networkType: string;
 }
 
 export class ClusterStatus {

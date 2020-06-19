@@ -4,7 +4,7 @@ import {V1NamespaceList} from '@kubernetes/client-node/dist/gen/model/v1Namespac
 import {Observable} from 'rxjs';
 import {
     NetworkingV1beta1IngressList,
-    V1beta1CronJobList, V1ConfigMapList, V1DaemonSetList,
+    V1beta1CronJobList, V1beta1CSINodeList, V1ConfigMapList, V1CSINodeList, V1DaemonSetList,
     V1DeploymentList, V1JobList,
     V1NodeList,
     V1PersistentVolumeClaimList,
@@ -49,6 +49,18 @@ export class KubernetesService {
     podUrl = '/api/v1/pods';
     namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
     nodesUrl = 'api/v1/nodes';
+    nodeStatsSummaryUrl = 'apis/metrics.k8s.io/v1beta1/nodes';
+
+    listNodesUsage(clusterName: string, continueToken?: string): Observable<any> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodeStatsSummaryUrl);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        console.log(url);
+        return this.client.get<any>(url);
+    }
+
 
     listNodes(clusterName: string, continueToken?: string): Observable<V1NodeList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodesUrl);

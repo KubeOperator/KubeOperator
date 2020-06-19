@@ -10,6 +10,8 @@
                             </div>
                             <div class="clr-col-lg-6  clr-col-12 count">
                                 <span><b>{{'APP_NAME'|translate}}</b></span> <br>
+                                <span><b>{{'APP_VERSION'|translate}}</b></span> <br>
+                                <span><b>{{'APP_NETWORK_TYPE'|translate}}</b></span> <br>
                                 <!--                            <span><b>{{namespaceCount}}</b></span> <br>-->
                                 <!--                            <span><b>{{deploymentCount}}</b></span> <br>-->
                                 <!--                            <span><b>{{podCount}}</b></span> <br>-->
@@ -17,6 +19,8 @@
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 type-face">
                                 <span>{{currentCluster.name}}</span> <br>
+                                <span>{{currentCluster.spec.version}}</span> <br>
+                                <span>{{currentCluster.spec.networkType}}</span> <br>
                                 <!--                            <span>Namespaces</span> <br>-->
                                 <!--                            <span>Deployments</span> <br>-->
                                 <!--                            <span>Pods</span> <br>-->
@@ -30,25 +34,25 @@
                         </div>
                         <div class="clr-col-md-12" style="text-align: center">
                             <circle-progress
-                                [percent]="20"
-                                [radius]="80"
-                                [outerStrokeWidth]="15"
-                                [innerStrokeWidth]="15"
-                                [space]="-15"
-                                [outerStrokeColor]="'#00FF00'"
-                                [innerStrokeColor]="'#e5e9f2'"
-                                [titleFontSize]=20
-                                [unitsFontSize]=20
-                                [subtitleFontSize]="15"
-                                [subtitle]="'CPU 使用率'"
-                            ></circle-progress>
-                            <circle-progress
-                                    [percent]="20"
+                                    [percent]="cpuUsagePercent"
                                     [radius]="80"
                                     [outerStrokeWidth]="15"
                                     [innerStrokeWidth]="15"
                                     [space]="-15"
-                                    [outerStrokeColor]="'#00FF00'"
+                                    [outerStrokeColor]="'#00af00'"
+                                    [innerStrokeColor]="'#e5e9f2'"
+                                    [titleFontSize]=20
+                                    [unitsFontSize]=20
+                                    [subtitleFontSize]="15"
+                                    [subtitle]="'CPU 使用率'"
+                            ></circle-progress>
+                            <circle-progress
+                                    [percent]="memUsagePercent"
+                                    [radius]="80"
+                                    [outerStrokeWidth]="15"
+                                    [innerStrokeWidth]="15"
+                                    [space]="-15"
+                                    [outerStrokeColor]="'#00af00'"
                                     [innerStrokeColor]="'#e5e9f2'"
                                     [titleFontSize]=20
                                     [unitsFontSize]=20
@@ -56,12 +60,12 @@
                                     [subtitle]="'内存 使用率'"
                             ></circle-progress>
                             <circle-progress
-                                    [percent]="20"
+                                    [percent]="podUsagePercent"
                                     [radius]="80"
                                     [outerStrokeWidth]="15"
                                     [innerStrokeWidth]="15"
                                     [space]="-15"
-                                    [outerStrokeColor]="'#00FF00'"
+                                    [outerStrokeColor]="'#00af00'"
                                     [innerStrokeColor]="'#e5e9f2'"
                                     [titleFontSize]=20
                                     [unitsFontSize]=20
@@ -76,11 +80,11 @@
                                 <h4>{{'APP_STATISTICS'|translate}}</h4> <br>
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 count">
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
+                                <span><b>{{nodes.length}}</b></span> <br>
+                                <span><b>{{namespaces.length}}</b></span> <br>
+                                <span><b>{{deployments.length}}</b></span> <br>
+                                <span><b>{{pods.length}}</b></span> <br>
+                                <span><b>{{containerNumber}}</b></span> <br>
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 type-face">
                                 <span>Nodes</span> <br>
