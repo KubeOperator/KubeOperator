@@ -30,25 +30,25 @@
                         </div>
                         <div class="clr-col-md-12" style="text-align: center">
                             <circle-progress
-                                [percent]="20"
-                                [radius]="80"
-                                [outerStrokeWidth]="15"
-                                [innerStrokeWidth]="15"
-                                [space]="-15"
-                                [outerStrokeColor]="'#00FF00'"
-                                [innerStrokeColor]="'#e5e9f2'"
-                                [titleFontSize]=20
-                                [unitsFontSize]=20
-                                [subtitleFontSize]="15"
-                                [subtitle]="'CPU 使用率'"
-                            ></circle-progress>
-                            <circle-progress
-                                    [percent]="20"
+                                    [percent]="cpuUsagePercent"
                                     [radius]="80"
                                     [outerStrokeWidth]="15"
                                     [innerStrokeWidth]="15"
                                     [space]="-15"
-                                    [outerStrokeColor]="'#00FF00'"
+                                    [outerStrokeColor]="'#00af00'"
+                                    [innerStrokeColor]="'#e5e9f2'"
+                                    [titleFontSize]=20
+                                    [unitsFontSize]=20
+                                    [subtitleFontSize]="15"
+                                    [subtitle]="'CPU 使用率'"
+                            ></circle-progress>
+                            <circle-progress
+                                    [percent]="memUsagePercent"
+                                    [radius]="80"
+                                    [outerStrokeWidth]="15"
+                                    [innerStrokeWidth]="15"
+                                    [space]="-15"
+                                    [outerStrokeColor]="'#00af00'"
                                     [innerStrokeColor]="'#e5e9f2'"
                                     [titleFontSize]=20
                                     [unitsFontSize]=20
@@ -56,12 +56,12 @@
                                     [subtitle]="'内存 使用率'"
                             ></circle-progress>
                             <circle-progress
-                                    [percent]="20"
+                                    [percent]="podUsagePercent"
                                     [radius]="80"
                                     [outerStrokeWidth]="15"
                                     [innerStrokeWidth]="15"
                                     [space]="-15"
-                                    [outerStrokeColor]="'#00FF00'"
+                                    [outerStrokeColor]="'#00af00'"
                                     [innerStrokeColor]="'#e5e9f2'"
                                     [titleFontSize]=20
                                     [unitsFontSize]=20
@@ -76,11 +76,11 @@
                                 <h4>{{'APP_STATISTICS'|translate}}</h4> <br>
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 count">
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
-                                <span><b>1</b></span> <br>
+                                <span><b>{{nodes.length}}</b></span> <br>
+                                <span><b>{{namespaces.length}}</b></span> <br>
+                                <span><b>{{deployments.length}}</b></span> <br>
+                                <span><b>{{pods.length}}</b></span> <br>
+                                <span><b>{{containerNumber}}</b></span> <br>
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 type-face">
                                 <span>Nodes</span> <br>
