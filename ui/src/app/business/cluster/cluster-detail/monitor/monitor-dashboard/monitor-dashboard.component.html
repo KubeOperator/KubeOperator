@@ -1,0 +1,7 @@
+<clr-spinner *ngIf="loading"></clr-spinner>
+
+<div style="padding-top: 10px">
+    <iframe [hidden]="loading" #frame
+            src="/proxy/prometheus/d/hb7fSE0Zz/1-node-exporter-for-prometheus-dashboard-en-v20191102?orgId=1&kiosk"
+            style="width: 91vw; height:960px" (load)="onFrameLoad()"></iframe>
+</div>
