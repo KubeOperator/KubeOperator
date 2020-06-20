@@ -12,13 +12,13 @@ KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也�
 
 KubeOperator 的整体架构如下图所示：
 
-![Architecture](ko.png)
+![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
 > 注： KubeOperator 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io/selected=kube-operator)。
 
 ## Web UI 展示
 
-![Web UI](kubeoperator-ui.jpg)
+![Web UI](https://kubeoperator.io/images/screenshot/6.png)
 
 >更多功能截屏点击：[这里](https://docs.kubeoperator.io/kubeoperator-v2.2/screenshot)
 
