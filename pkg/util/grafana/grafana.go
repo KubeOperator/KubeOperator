@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"net/http"
 	"strings"
 )
 
 type Interface interface {
-	CreateDataSource(source DataSource) error
+	CreateDataSource(name string, url string) error
 	DeleteDataSource(name string) error
 	CreateDashboard(dataSourceName string) error
 	DeleteDashboard(name string) error
@@ -30,17 +31,18 @@ type Client struct {
 	Password string
 }
 
-func NewClient(config Config) *Client {
+func NewClient() *Client {
 	return &Client{
-		Host:     config.Host,
-		Port:     config.Port,
-		Username: config.Username,
-		Password: config.Password,
+		Host:     viper.GetString("grafana.host"),
+		Port:     viper.GetInt("grafana.port"),
+		Username: viper.GetString("grafana.username"),
+		Password: viper.GetString("grafana.password"),
 	}
 }
 
-func (c Client) CreateDataSource(source DataSource) error {
+func (c Client) CreateDataSource(name string, prometheusUrl string) error {
 	url := fmt.Sprintf("http://%s:%s@%s:%d/api/datasources/", c.Username, c.Password, c.Host, c.Port)
+	source := NewDataSource(name, prometheusUrl)
 	data, err := json.Marshal(&source)
 	if err != nil {
 		return err

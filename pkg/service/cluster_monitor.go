@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"k8s.io/api/networking/v1beta1"
@@ -81,6 +82,13 @@ func (c clusterMonitorService) Do(endpoint string, secret dto.ClusterSecret, mon
 		c.errorHandler(err, monitor)
 		return
 	}
+	grafanaClient := grafana.NewClient()
+	if err := createGrafanaDataSource("", grafanaClient); err != nil {
+		c.errorHandler(err, monitor)
+	}
+	if err := createGrafanaDashboard("", grafanaClient); err != nil {
+		c.errorHandler(err, monitor)
+	}
 	monitor.Status = constant.ClusterRunning
 	_ = c.ClusterMonitorRepo.Save(monitor)
 }
@@ -153,6 +161,21 @@ func createMonitorIngress(client *kubernetes.Clientset, domain string) error {
 		},
 	}
 	_, err = client.NetworkingV1beta1().Ingresses(constant.DefaultNamespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createGrafanaDataSource(clusterName string, grafanaClient grafana.Interface) error {
+	err := grafanaClient.CreateDataSource(clusterName, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func createGrafanaDashboard(clusterName string, grafanaClient grafana.Interface) error {
+	err := grafanaClient.CreateDashboard(clusterName)
 	if err != nil {
 		return err
 	}

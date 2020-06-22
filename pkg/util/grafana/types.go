@@ -7,19 +7,19 @@ import (
 )
 
 type Dashboard struct {
-	Templating map[string][]map[string]interface{} `json:"templating"`
-	Annotations   map[string]interface{}   `json:"annotations"`
-	Time          map[string]interface{}   `json:"time"`
-	Timepicker    map[string]interface{}   `json:"timepicker"`
-	Timezone      string                   `json:"timezone"`
-	Title         string                   `json:"title"`
-	Uid           string                   `json:"uid"`
-	Editable      bool                     `json:"editable"`
-	Links         []interface{}            `json:"links"`
-	Panels        []map[string]interface{} `json:"panels"`
-	Version       int                      `json:"version"`
-	SchemaVersion int                      `json:"schema_version"`
-	Tags          []string                 `json:"tags"`
+	Templating    map[string][]map[string]interface{} `json:"templating"`
+	Annotations   map[string]interface{}              `json:"annotations"`
+	Time          map[string]interface{}              `json:"time"`
+	Timepicker    map[string]interface{}              `json:"timepicker"`
+	Timezone      string                              `json:"timezone"`
+	Title         string                              `json:"title"`
+	Uid           string                              `json:"uid"`
+	Editable      bool                                `json:"editable"`
+	Links         []interface{}                       `json:"links"`
+	Panels        []map[string]interface{}            `json:"panels"`
+	Version       int                                 `json:"version"`
+	SchemaVersion int                                 `json:"schema_version"`
+	Tags          []string                            `json:"tags"`
 }
 
 func NewDashboard(dataSourceName string) *Dashboard {
@@ -44,6 +44,16 @@ type DataSource struct {
 	Url       string `json:"url"`
 	Access    string `json:"access"`
 	BasicAuth bool   `json:"basic_auth"`
+}
+
+func NewDataSource(name string, url string) *DataSource {
+	return &DataSource{
+		Name:      name,
+		Type:      "prometheus",
+		Url:       url,
+		Access:    "proxy",
+		BasicAuth: false,
+	}
 }
 
 type CreateDashboardRequest struct {
