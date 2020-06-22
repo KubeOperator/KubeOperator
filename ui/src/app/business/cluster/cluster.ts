@@ -18,6 +18,12 @@ export class ClusterStatus {
     conditions: Condition[] = [];
 }
 
+export class ClusterMonitor {
+    enable: boolean;
+    domain: string;
+    status: string;
+}
+
 
 export class Condition {
     status: string;

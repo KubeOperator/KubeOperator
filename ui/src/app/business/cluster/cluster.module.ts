@@ -49,6 +49,7 @@ import {TaskListComponent} from './cluster-detail/task/task-list/task-list.compo
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import { MonitorComponent } from './cluster-detail/monitor/monitor.component';
 import { MonitorDashboardComponent } from './cluster-detail/monitor/monitor-dashboard/monitor-dashboard.component';
+import { MonitorEnableComponent } from './cluster-detail/monitor/monitor-enable/monitor-enable.component';
 
 
 @NgModule({
@@ -60,7 +61,7 @@ import { MonitorDashboardComponent } from './cluster-detail/monitor/monitor-dash
         CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent,
         DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent,
         SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, TaskComponent,
-        TaskListComponent, IngressInstallComponent, MonitorComponent, MonitorDashboardComponent],
+        TaskListComponent, IngressInstallComponent, MonitorComponent, MonitorDashboardComponent, MonitorEnableComponent],
     imports: [
         CoreModule,
         RouterModule,
