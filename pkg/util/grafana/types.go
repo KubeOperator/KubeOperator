@@ -3,10 +3,11 @@ package grafana
 import (
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Dashboard struct {
-	Templating    map[string]interface{}   `json:"templating"`
+	Templating map[string][]map[string]interface{} `json:"templating"`
 	Annotations   map[string]interface{}   `json:"annotations"`
 	Time          map[string]interface{}   `json:"time"`
 	Timepicker    map[string]interface{}   `json:"timepicker"`
@@ -25,8 +26,15 @@ func NewDashboard(dataSourceName string) *Dashboard {
 	var dashboard Dashboard
 	_ = json.Unmarshal([]byte(constant.DefaultDashboardTemplate), &dashboard)
 	for i, _ := range dashboard.Panels {
-		dashboard.Panels[i]["datasorce"] = dataSourceName
+		dashboard.Panels[i]["datasource"] = dataSourceName
 	}
+	for _, v := range dashboard.Templating {
+		for i, _ := range v {
+			v[i]["datasource"] = dataSourceName
+		}
+	}
+	dashboard.Title = dataSourceName
+	dashboard.Uid = uuid.NewV4().String()
 	return &dashboard
 }
 

@@ -27,3 +27,28 @@ func TestClient_CreateDataSource(t *testing.T) {
 		fmt.Println(err.Error())
 	}
 }
+
+func TestClient_CreateDashboard(t *testing.T) {
+	c := GetClient()
+	err := c.CreateDashboard("cluster_3")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func TestClient_DeleteDataSource(t *testing.T) {
+	c := GetClient()
+	err := c.DeleteDataSource("cluster_3")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestClient_DeleteDashboard(t *testing.T) {
+	c := GetClient()
+	err := c.DeleteDashboard("cluster_3")
+	if err != nil {
+		fmt.Println(err.Error())
+		t.Error(err)
+	}
+}
