@@ -13,6 +13,7 @@ var Models = []Interface{
 	ClusterStatus{},
 	ClusterNode{},
 	ClusterSecret{},
+	ClusterMonitor{},
 	Credential{},
 	Host{},
 	Volume{},

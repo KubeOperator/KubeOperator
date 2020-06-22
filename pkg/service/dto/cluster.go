@@ -25,6 +25,10 @@ type ClusterNode struct {
 	model.ClusterNode
 }
 
+type ClusterMonitor struct {
+	model.ClusterMonitor
+}
+
 type NodeCreate struct {
 	HostName string `json:"hostName"`
 	Role     string `json:"role"`

@@ -22,4 +22,6 @@ const (
 	ToolRunning      = "Running"
 	ToolInitializing = "Initializing"
 	ToolFailed       = "Failed"
+
+	DefaultNamespace = "kube-operator"
 )

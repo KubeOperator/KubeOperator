@@ -46,6 +46,10 @@ func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
 	return c.ClusterService.GetStatus(name)
 }
 
+func (c ClusterController) GetMonitorBy(name string) (dto.ClusterMonitor, error) {
+	return c.ClusterService.GetMonitor(name)
+}
+
 func (c ClusterController) Post() error {
 	var req dto.ClusterCreate
 	err := c.Ctx.ReadJSON(&req)

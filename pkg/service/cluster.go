@@ -13,6 +13,7 @@ type ClusterService interface {
 	Get(name string) (dto.Cluster, error)
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
+	GetMonitor(name string) (dto.ClusterMonitor, error)
 	GetEndpoint(name string) (string, error)
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
@@ -28,6 +29,7 @@ func NewClusterService() ClusterService {
 		clusterNodeRepo:            repository.NewClusterNodeRepository(),
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
+		clusterMonitorRepo:         repository.NewClusterMonitorRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		hostRepo:                   repository.NewHostRepository(),
 		clusterInitService:         NewClusterInitService(),
@@ -40,6 +42,7 @@ type clusterService struct {
 	clusterNodeRepo            repository.ClusterNodeRepository
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
+	clusterMonitorRepo         repository.ClusterMonitorRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	hostRepo                   repository.HostRepository
 	clusterInitService         ClusterInitService
@@ -117,7 +120,20 @@ func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
 	}
 	status.ClusterStatus = cs
 	return status, nil
+}
 
+func (c clusterService) GetMonitor(name string) (dto.ClusterMonitor, error) {
+	var monitor dto.ClusterMonitor
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return monitor, err
+	}
+	cm, err := c.clusterMonitorRepo.Get(cluster.MonitorID)
+	if err != nil {
+		return monitor, err
+	}
+	monitor.ClusterMonitor = cm
+	return monitor, nil
 }
 
 func (c clusterService) Create(creation dto.ClusterCreate) error {
@@ -138,9 +154,11 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}
+	monitor := model.ClusterMonitor{Enable: false}
 	cluster.Spec = spec
 	cluster.Status = status
 	cluster.Secret = secret
+	cluster.Monitor = monitor
 	workerNo := 1
 	masterNo := 1
 	for _, nc := range creation.Nodes {

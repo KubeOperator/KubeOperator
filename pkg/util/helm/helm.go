@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -9,7 +10,6 @@ import (
 )
 
 const (
-	defaultNamespace = "kube-operator"
 	helmDriver       = "configmap"
 )
 
@@ -28,6 +28,7 @@ type Config struct {
 }
 type Client struct {
 	actionConfig *action.Configuration
+	Namespace    string
 }
 
 func NewClient(config Config) (*Client, error) {
@@ -38,10 +39,12 @@ func NewClient(config Config) (*Client, error) {
 	cf.BearerToken = &config.BearerToken
 	cf.Insecure = &inscure
 	if config.Namespace == "" {
-		config.Namespace = defaultNamespace
+		client.Namespace = constant.DefaultNamespace
+	} else {
+		client.Namespace = config.Namespace
 	}
 	actionConfig := new(action.Configuration)
-	err := actionConfig.Init(cf, config.Namespace, helmDriver, nolog)
+	err := actionConfig.Init(cf, client.Namespace, helmDriver, nolog)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +59,7 @@ func LoadCharts(path string) (*chart.Chart, error) {
 func (c Client) Install(name string, chart *chart.Chart, values map[string]interface{}) (*release.Release, error) {
 	client := action.NewInstall(c.actionConfig)
 	client.ReleaseName = name
+	client.Namespace = c.Namespace
 	return client.Run(chart, values)
 }
 func (c Client) Uninstall(name string) (*release.UninstallReleaseResponse, error) {

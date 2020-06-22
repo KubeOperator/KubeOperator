@@ -10,15 +10,17 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID       string        `json:"_"`
-	Name     string        `json:"name"`
-	SpecID   string        `json:"_"`
-	SecretID string        `json:"_"`
-	StatusID string        `json:"_"`
-	Spec     ClusterSpec   `gorm:"save_associations:false" json:"spec"`
-	Secret   ClusterSecret `gorm:"save_associations:false" json:"_"`
-	Status   ClusterStatus `gorm:"save_associations:false" json:"_"`
-	Nodes    []ClusterNode `gorm:"save_associations:false" json:"_"`
+	ID        string         `json:"_"`
+	Name      string         `json:"name"`
+	SpecID    string         `json:"_"`
+	SecretID  string         `json:"_"`
+	StatusID  string         `json:"_"`
+	MonitorID string         `json:"_"`
+	Spec      ClusterSpec    `gorm:"save_associations:false" json:"spec"`
+	Monitor   ClusterMonitor `gorm:"save_associations:false" json:"monitor"`
+	Secret    ClusterSecret  `gorm:"save_associations:false" json:"_"`
+	Status    ClusterStatus  `gorm:"save_associations:false" json:"_"`
+	Nodes     []ClusterNode  `gorm:"save_associations:false" json:"_"`
 }
 
 func (c Cluster) TableName() string {
@@ -40,9 +42,15 @@ func (c *Cluster) BeforeCreate() error {
 		tx.Rollback()
 		return err
 	}
+
+	if err := tx.Create(&c.Monitor).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	c.SpecID = c.Spec.ID
 	c.StatusID = c.Status.ID
 	c.SecretID = c.Secret.ID
+	c.MonitorID = c.Monitor.ID
 	for i, _ := range c.Nodes {
 		c.Nodes[i].ClusterID = c.ID
 		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
@@ -61,6 +69,7 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Preload("Monitor").
 		Find(&cluster).Error; err != nil {
 		return err
 	}
@@ -77,6 +86,11 @@ func (c Cluster) BeforeDelete() error {
 	}
 	if err := tx.Where(ClusterSecret{ID: cluster.SecretID}).
 		Delete(ClusterSecret{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where(ClusterMonitor{ID: cluster.MonitorID}).
+		Delete(ClusterMonitor{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
