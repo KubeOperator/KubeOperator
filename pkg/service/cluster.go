@@ -14,6 +14,7 @@ type ClusterService interface {
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetMonitor(name string) (dto.ClusterMonitor, error)
+	GetSpec(name string) (dto.ClusterSpec, error)
 	GetEndpoint(name string) (string, error)
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
@@ -120,6 +121,20 @@ func (c clusterService) GetStatus(name string) (dto.ClusterStatus, error) {
 	}
 	status.ClusterStatus = cs
 	return status, nil
+}
+
+func (c clusterService) GetSpec(name string) (dto.ClusterSpec, error) {
+	var spec dto.ClusterSpec
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return spec, err
+	}
+	cs, err := c.clusterSpecRepo.Get(cluster.SpecID)
+	if err != nil {
+		return spec, err
+	}
+	spec.ClusterSpec = cs
+	return spec, nil
 }
 
 func (c clusterService) GetMonitor(name string) (dto.ClusterMonitor, error) {

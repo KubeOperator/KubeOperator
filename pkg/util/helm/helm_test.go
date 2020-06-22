@@ -22,7 +22,7 @@ func TestClient_List(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(len(r))
+	fmt.Println(r[0].Name)
 }
 
 func TestClient_Uninstall(t *testing.T) {
@@ -30,7 +30,7 @@ func TestClient_Uninstall(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	r, err := h.Uninstall("test")
+	r, err := h.Uninstall("monitor")
 	if err != nil {
 		t.Error(err)
 	}

@@ -13,16 +13,16 @@ type Config struct {
 }
 
 func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
+	var clientSet kubernetes.Clientset
 	kubeConf, err := config.GetConfig()
 	if err != nil {
-		return nil, err
+		return &clientSet, err
 	}
-	address := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	kubeConf.Host = address
+	kubeConf.Host = fmt.Sprintf("%s:%d", c.Host, c.Port)
 	kubeConf.BearerToken = c.Token
 	api, err := kubernetes.NewForConfig(kubeConf)
 	if err != nil {
-		return nil, err
+		return &clientSet, err
 	}
 	return api, err
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -16,7 +17,7 @@ import (
 )
 
 type ClusterMonitorService interface {
-	Init(clusterName string, monitor dto.ClusterMonitor) error
+	Init(clusterName string) error
 }
 
 func NewClusterMonitorService() ClusterMonitorService {
@@ -31,7 +32,11 @@ type clusterMonitorService struct {
 	ClusterService     ClusterService
 }
 
-func (c clusterMonitorService) Init(clusterName string, monitor dto.ClusterMonitor) error {
+func (c clusterMonitorService) Init(clusterName string) error {
+	monitor, err := c.ClusterService.GetMonitor(clusterName)
+	if err != nil {
+		return err
+	}
 	endpoint, err := c.ClusterService.GetEndpoint(clusterName)
 	if err != nil {
 		return err
@@ -40,18 +45,23 @@ func (c clusterMonitorService) Init(clusterName string, monitor dto.ClusterMonit
 	if err != nil {
 		return err
 	}
+	spec, err := c.ClusterService.GetSpec(clusterName)
+	if err != nil {
+		return err
+	}
 	m := monitor.ClusterMonitor
+	m.Domain = fmt.Sprintf("prometheus.%s", spec.AppDomain)
 	m.Status = constant.ClusterInitializing
 	if err := c.ClusterMonitorRepo.Save(&m); err != nil {
 		return err
 	}
-	go c.Do(endpoint, secret, &m)
+	c.Do(endpoint, secret, &m)
 	return nil
 }
 
 func (c clusterMonitorService) Do(endpoint string, secret dto.ClusterSecret, monitor *model.ClusterMonitor) {
 	helmClient, err := helm.NewClient(helm.Config{
-		ApiServer:   endpoint,
+		ApiServer:   fmt.Sprintf("https://%s:%d", endpoint, 8443),
 		BearerToken: secret.KubernetesToken,
 	})
 	if err != nil {
@@ -67,7 +77,7 @@ func (c clusterMonitorService) Do(endpoint string, secret dto.ClusterSecret, mon
 		Token: secret.KubernetesToken,
 		Port:  8443,
 	})
-	if err := createMonitorIngress(k8sClient, ""); err != nil {
+	if err := createMonitorIngress(k8sClient, monitor.Domain); err != nil {
 		c.errorHandler(err, monitor)
 		return
 	}
@@ -82,7 +92,7 @@ func (c clusterMonitorService) errorHandler(err error, monitor *model.ClusterMon
 }
 
 func installMonitor(helmClient helm.Interface) error {
-	chart, err := helm.LoadCharts("resource/charts/prometheus-11.6.0.tgz")
+	chart, err := helm.LoadCharts("../../resource/charts/prometheus-11.6.0.tgz")
 	if err != nil {
 		return err
 	}
