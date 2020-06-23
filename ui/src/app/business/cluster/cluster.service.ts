@@ -23,6 +23,10 @@ export class ClusterService extends BaseModelService<Cluster> {
         return this.http.get<ClusterMonitor>(`${this.baseUrl}/monitor/${clusterName}`);
     }
 
+    createMonitor(clusterName: string): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/monitor/${clusterName}`, {});
+    }
+
     init(clusterName: string): Observable<InitClusterResponse> {
         return this.http.post<InitClusterResponse>(`${this.baseUrl}/init/${clusterName}/`, {});
     }

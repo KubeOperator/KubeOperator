@@ -42,7 +42,7 @@ func TestClient_Install(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	chart, err := LoadCharts(path.Join("../../../resource/charts/prometheus-11.6.0.tgz"))
+	chart, err := LoadCharts(path.Join("resource/charts/prometheus-11.6.0.tgz"))
 	if err != nil {
 		t.Error(err)
 	}

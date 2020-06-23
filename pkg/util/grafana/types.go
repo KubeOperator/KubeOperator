@@ -51,7 +51,7 @@ func NewDataSource(name string, url string) *DataSource {
 		Name:      name,
 		Type:      "prometheus",
 		Url:       url,
-		Access:    "proxy",
+		Access:    "direct",
 		BasicAuth: false,
 	}
 }

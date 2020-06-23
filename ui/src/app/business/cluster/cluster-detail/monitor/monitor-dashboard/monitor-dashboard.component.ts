@@ -1,4 +1,8 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Cluster, ClusterMonitor} from '../../../cluster';
+import {ActivatedRoute} from '@angular/router';
+import {ClusterService} from '../../../cluster.service';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
     selector: 'app-monitor-dashboard',
@@ -7,16 +11,31 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 })
 export class MonitorDashboardComponent implements OnInit {
 
-    constructor() {
-    }
 
     @ViewChild('frame') frame: ElementRef;
     loading = true;
+    currentCluster: Cluster;
+    monitor: ClusterMonitor;
+    url: any;
 
-
-    ngOnInit(): void {
+    constructor(private route: ActivatedRoute, private clusterService: ClusterService, private sanitizer: DomSanitizer) {
     }
 
+    ngOnInit(): void {
+        this.route.parent.data.subscribe(data => {
+            this.currentCluster = data.cluster;
+            this.refresh();
+        });
+    }
+
+    refresh() {
+        this.clusterService.monitor(this.currentCluster.name).subscribe(data => {
+            const url = '/proxy/grafana' + data.dashboardUrl + '?orgId=1&kiosk';
+            this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+            console.log(url);
+            this.monitor = data;
+        });
+    }
     onFrameLoad() {
         this.frame.nativeElement.contentWindow.Mousetrap.unbindGlobal('esc');
         this.loading = false;

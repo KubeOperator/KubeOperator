@@ -19,14 +19,15 @@ export class MonitorComponent implements OnInit {
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.getMonitor();
+            this.refresh();
         });
     }
 
-    getMonitor() {
+
+    refresh() {
         this.clusterService.monitor(this.currentCluster.name).subscribe(data => {
-            console.log(data);
             this.monitor = data;
+            console.log(this.monitor);
         });
     }
 

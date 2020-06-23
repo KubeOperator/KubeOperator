@@ -1,2 +1,4 @@
-<!--<app-monitor-dashboard></app-monitor-dashboard>-->
-<app-monitor-enable></app-monitor-enable>
+<app-monitor-dashboard *ngIf="monitor.enable && monitor.status === 'Running'"></app-monitor-dashboard>
+<app-monitor-status (completed)="refresh()"
+                    *ngIf="monitor.enable && monitor.status === 'Initializing'"></app-monitor-status>
+<app-monitor-enable (created)="refresh()" *ngIf="!monitor.enable"></app-monitor-enable>

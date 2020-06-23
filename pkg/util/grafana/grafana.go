@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -13,7 +14,7 @@ import (
 type Interface interface {
 	CreateDataSource(name string, url string) error
 	DeleteDataSource(name string) error
-	CreateDashboard(dataSourceName string) error
+	CreateDashboard(dataSourceName string) (string, error)
 	DeleteDashboard(name string) error
 }
 
@@ -78,7 +79,7 @@ func (c Client) DeleteDataSource(name string) error {
 	return nil
 }
 
-func (c Client) CreateDashboard(dataSourceName string) error {
+func (c Client) CreateDashboard(dataSourceName string) (string, error) {
 	dashboard := NewDashboard(dataSourceName)
 	req := CreateDashboardRequest{
 		Dashboard: *dashboard,
@@ -87,18 +88,24 @@ func (c Client) CreateDashboard(dataSourceName string) error {
 	url := fmt.Sprintf("http://%s:%s@%s:%d/api/dashboards/db/", c.Username, c.Password, c.Host, c.Port)
 	data, err := json.Marshal(&req)
 	if err != nil {
-		return err
+		return "", err
 	}
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
 	if err != nil {
-		return err
+		return "", err
 	}
+	body, err := ioutil.ReadAll(resp.Body)
+	msg := string(body)
 	if resp.StatusCode != 200 {
-		var buf []byte
-		_, _ = resp.Body.Read(buf)
-		return errors.New(string(buf))
+		return "", errors.New(msg)
 	}
-	return nil
+	var respMap map[string]interface{}
+	err = json.Unmarshal([]byte(msg), &respMap)
+	if err != nil {
+		return "", err
+	}
+	u := respMap["url"].(string)
+	return u, nil
 }
 
 func (c Client) DeleteDashboard(name string) error {

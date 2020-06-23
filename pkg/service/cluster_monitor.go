@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"strings"
+	"time"
 )
 
 type ClusterMonitorService interface {
@@ -34,6 +35,10 @@ type clusterMonitorService struct {
 }
 
 func (c clusterMonitorService) Init(clusterName string) error {
+	cluster, err := c.ClusterService.Get(clusterName)
+	if err != nil {
+		return err
+	}
 	monitor, err := c.ClusterService.GetMonitor(clusterName)
 	if err != nil {
 		return err
@@ -46,25 +51,24 @@ func (c clusterMonitorService) Init(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	spec, err := c.ClusterService.GetSpec(clusterName)
-	if err != nil {
-		return err
-	}
+
 	m := monitor.ClusterMonitor
-	m.Domain = fmt.Sprintf("prometheus.%s", spec.AppDomain)
+	m.Domain = fmt.Sprintf("prometheus.%s", cluster.Spec.AppDomain)
 	m.Status = constant.ClusterInitializing
+	m.Enable = true
 	if err := c.ClusterMonitorRepo.Save(&m); err != nil {
 		return err
 	}
-	c.Do(endpoint, secret, &m)
+	go c.Do(cluster.Cluster, endpoint, secret, &m)
 	return nil
 }
 
-func (c clusterMonitorService) Do(endpoint string, secret dto.ClusterSecret, monitor *model.ClusterMonitor) {
+func (c clusterMonitorService) Do(cluster model.Cluster, endpoint string, secret dto.ClusterSecret, monitor *model.ClusterMonitor) {
 	helmClient, err := helm.NewClient(helm.Config{
 		ApiServer:   fmt.Sprintf("https://%s:%d", endpoint, 8443),
 		BearerToken: secret.KubernetesToken,
 	})
+	time.Sleep(10 * time.Second)
 	if err != nil {
 		c.errorHandler(err, monitor)
 		return
@@ -83,11 +87,15 @@ func (c clusterMonitorService) Do(endpoint string, secret dto.ClusterSecret, mon
 		return
 	}
 	grafanaClient := grafana.NewClient()
-	if err := createGrafanaDataSource("", grafanaClient); err != nil {
+	if err := createGrafanaDataSource(cluster.Name, grafanaClient); err != nil {
 		c.errorHandler(err, monitor)
+		return
 	}
-	if err := createGrafanaDashboard("", grafanaClient); err != nil {
+	url, err := createGrafanaDashboard(cluster.Name, grafanaClient)
+	monitor.DashboardUrl = url
+	if err != nil {
 		c.errorHandler(err, monitor)
+		return
 	}
 	monitor.Status = constant.ClusterRunning
 	_ = c.ClusterMonitorRepo.Save(monitor)
@@ -100,7 +108,7 @@ func (c clusterMonitorService) errorHandler(err error, monitor *model.ClusterMon
 }
 
 func installMonitor(helmClient helm.Interface) error {
-	chart, err := helm.LoadCharts("../../resource/charts/prometheus-11.6.0.tgz")
+	chart, err := helm.LoadCharts("resource/charts/prometheus-11.6.0.tgz")
 	if err != nil {
 		return err
 	}
@@ -168,16 +176,10 @@ func createMonitorIngress(client *kubernetes.Clientset, domain string) error {
 }
 
 func createGrafanaDataSource(clusterName string, grafanaClient grafana.Interface) error {
-	err := grafanaClient.CreateDataSource(clusterName, "")
-	if err != nil {
-		return err
-	}
-	return nil
+	url := fmt.Sprintf("http://localhost:8080/proxy/prometheus/%s/", clusterName)
+	return grafanaClient.CreateDataSource(clusterName, url)
+
 }
-func createGrafanaDashboard(clusterName string, grafanaClient grafana.Interface) error {
-	err := grafanaClient.CreateDashboard(clusterName)
-	if err != nil {
-		return err
-	}
-	return nil
+func createGrafanaDashboard(clusterName string, grafanaClient grafana.Interface) (string, error) {
+	return grafanaClient.CreateDashboard(clusterName)
 }

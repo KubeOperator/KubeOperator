@@ -2,38 +2,22 @@ package grafana
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"testing"
 )
 
 func GetClient() *Client {
-	return NewClient(Config{
-		Host:     "localhost",
-		Port:     3000,
-		Username: "admin",
-		Password: "admin",
-	})
-}
-
-func TestClient_CreateDataSource(t *testing.T) {
-	c := GetClient()
-	err := c.CreateDataSource(DataSource{
-		Name:      "cluster_3",
-		Type:      "prometheus",
-		Url:       "http://prometheus.apps.zxv.com/",
-		Access:    "proxy",
-		BasicAuth: false,
-	})
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	config.Init()
+	return NewClient()
 }
 
 func TestClient_CreateDashboard(t *testing.T) {
 	c := GetClient()
-	err := c.CreateDashboard("cluster_3")
+	url, err := c.CreateDashboard("zxv")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(url)
 }
 
 func TestClient_DeleteDataSource(t *testing.T) {
@@ -46,7 +30,7 @@ func TestClient_DeleteDataSource(t *testing.T) {
 
 func TestClient_DeleteDashboard(t *testing.T) {
 	c := GetClient()
-	err := c.DeleteDashboard("cluster_3")
+	err := c.DeleteDashboard("zxv")
 	if err != nil {
 		fmt.Println(err.Error())
 		t.Error(err)

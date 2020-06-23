@@ -22,6 +22,7 @@ export class ClusterMonitor {
     enable: boolean;
     domain: string;
     status: string;
+    dashboardUrl: string;
 }
 
 

@@ -8,15 +8,17 @@ import (
 )
 
 type ClusterController struct {
-	Ctx                context.Context
-	ClusterService     service.ClusterService
-	ClusterInitService service.ClusterInitService
+	Ctx                   context.Context
+	ClusterService        service.ClusterService
+	ClusterInitService    service.ClusterInitService
+	ClusterMonitorService service.ClusterMonitorService
 }
 
 func NewClusterController() *ClusterController {
 	return &ClusterController{
-		ClusterService:     service.NewClusterService(),
-		ClusterInitService: service.NewClusterInitService(),
+		ClusterService:        service.NewClusterService(),
+		ClusterInitService:    service.NewClusterInitService(),
+		ClusterMonitorService: service.NewClusterMonitorService(),
 	}
 }
 
@@ -48,6 +50,10 @@ func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
 
 func (c ClusterController) GetMonitorBy(name string) (dto.ClusterMonitor, error) {
 	return c.ClusterService.GetMonitor(name)
+}
+
+func (c ClusterController) PostMonitorBy(name string) error {
+	return c.ClusterMonitorService.Init(name)
 }
 
 func (c ClusterController) Post() error {

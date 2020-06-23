@@ -26,7 +26,6 @@ func Init() {
 func TestClusterMonitorService_Init(t *testing.T) {
 	Init()
 	service := NewClusterMonitorService()
-
 	err := service.Init("zxv")
 	if err != nil {
 		t.Error(err)

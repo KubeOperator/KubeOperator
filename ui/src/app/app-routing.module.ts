@@ -28,7 +28,6 @@ import {ConfigMapComponent} from './business/cluster/cluster-detail/config/confi
 import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
 import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
 import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
-import {TaskComponent} from './business/cluster/cluster-detail/task/task.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
 
 const routes: Routes = [
@@ -93,7 +92,6 @@ const routes: Routes = [
                     },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
-                    {path: 'tasks', component: TaskComponent},
                 ],
             },
             {

@@ -7,11 +7,12 @@ import (
 
 type ClusterMonitor struct {
 	common.BaseModel
-	ID      string
-	Enable  bool
-	Domain  string
-	Status  string
-	Message string
+	ID           string `json:"id"`
+	Enable       bool   `json:"enable"`
+	Domain       string `json:"domain"`
+	Status       string `json:"status"`
+	Message      string `json:"message"`
+	DashboardUrl string `json:"dashboardUrl"`
 }
 
 func (c *ClusterMonitor) BeforeCreate() (err error) {

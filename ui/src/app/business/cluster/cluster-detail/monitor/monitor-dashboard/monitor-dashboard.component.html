@@ -1,7 +1,11 @@
-<clr-spinner *ngIf="loading"></clr-spinner>
-
-<div style="padding-top: 10px">
-    <iframe [hidden]="loading" #frame
-            src="/proxy/prometheus/d/hb7fSE0Zz/1-node-exporter-for-prometheus-dashboard-en-v20191102?orgId=1&kiosk"
-            style="width: 85.5vw; height:960px" (load)="onFrameLoad()"></iframe>
+<div class="clr-row">
+    <div class="clr-col-1"></div>
+    <div class="clr-col-10" style="text-align: center">
+        <clr-spinner *ngIf="loading"></clr-spinner>
+        <div style="padding-top: 10px" *ngIf="monitor" [hidden]="loading">
+            <iframe #frame [src]="url"
+                    style="width: 100%;height: 1024px;" (load)="onFrameLoad()"></iframe>
+        </div>
+    </div>
+    <div class="clr-col-1"></div>
 </div>
