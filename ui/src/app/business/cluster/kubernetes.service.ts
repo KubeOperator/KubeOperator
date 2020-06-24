@@ -8,7 +8,7 @@ import {
     V1DeploymentList, V1JobList,
     V1NodeList,
     V1PersistentVolumeClaimList,
-    V1PersistentVolumeList, V1PodList, V1SecretList, V1ServiceList, V1StatefulSetList
+    V1PersistentVolumeList, V1PodList, V1SecretList, V1ServiceList, V1StatefulSetList, V1StorageClass, V1StorageClassList
 } from '@kubernetes/client-node';
 
 @Injectable({
@@ -28,6 +28,7 @@ export class KubernetesService {
     serviceUrl = 'api/v1/services';
     namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
     persistentVolumesUrl = '/api/v1/persistentvolumes';
+    storageClassUrl = '/apis/storage.k8s.io/v1/storageclasses';
     persistentVolumeClaimsUrl = '/api/v1/persistentvolumeclaims';
     namespacePersistentVolumeClaimsUrl = '/api/v1/namespaces/{namespace}/deployments';
     deploymentUrl = 'apis/apps/v1/deployments';
@@ -86,6 +87,15 @@ export class KubernetesService {
             url += '&continue=' + continueToken;
         }
         return this.client.get<V1PersistentVolumeList>(url);
+    }
+
+    listStorageClass(clusterName: string, continueToken?: string): Observable<V1StorageClassList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.storageClassUrl);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        return this.client.get<V1StorageClassList>(url);
     }
 
     listPersistentVolumeClaims(clusterName: string, continueToken?: string, namespace?: string): Observable<V1PersistentVolumeClaimList> {

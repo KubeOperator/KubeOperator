@@ -13,3 +13,4 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/hosts")).Handle(controller.NewHostController())
 	mvc.New(v1.Party("/users")).Handle(controller.NewUserController())
 }
+

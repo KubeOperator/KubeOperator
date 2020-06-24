@@ -60,7 +60,8 @@ import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/mo
         StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent,
         CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent,
         DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent,
-        SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, IngressInstallComponent, MonitorComponent, MonitorDashboardComponent, MonitorEnableComponent,
+        SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, IngressInstallComponent,
+        MonitorComponent, MonitorDashboardComponent, MonitorEnableComponent,
         MonitorStatusComponent],
     imports: [
         CoreModule,

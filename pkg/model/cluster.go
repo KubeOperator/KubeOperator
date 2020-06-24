@@ -12,6 +12,7 @@ type Cluster struct {
 	common.BaseModel
 	ID        string         `json:"_"`
 	Name      string         `json:"name"`
+	Source    string         `json:"source"`
 	SpecID    string         `json:"_"`
 	SecretID  string         `json:"_"`
 	StatusID  string         `json:"_"`

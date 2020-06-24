@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
+	"github.com/KubeOperator/KubeOperator/pkg/plugin"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
@@ -32,6 +33,7 @@ func Phases() []Phase {
 			User:     viper.GetString("db.user"),
 			Password: viper.GetString("db.password"),
 		},
+		&plugin.InitPluginDBPhase{},
 	}
 }
 

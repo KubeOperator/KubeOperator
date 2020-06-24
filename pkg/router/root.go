@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/KubeOperator/KubeOperator/pkg/router/proxy"
 	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
+	"github.com/KubeOperator/KubeOperator/pkg/router/xpack"
 	"github.com/kataras/iris/v12"
 )
 
@@ -23,5 +24,6 @@ func Server() *iris.Application {
 	//api.Use(middleware.LogMiddleware)
 	api.Use(middleware.JWTMiddleware().Serve)
 	v1.V1(api)
+	xpack.XPack(api)
 	return app
 }

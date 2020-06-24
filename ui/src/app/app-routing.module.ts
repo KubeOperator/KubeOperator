@@ -29,6 +29,7 @@ import {SecretComponent} from './business/cluster/cluster-detail/config/secret/s
 import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
 import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
+import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -59,6 +60,7 @@ const routes: Routes = [
                             {path: '', redirectTo: 'pv', pathMatch: 'full'},
                             {path: 'pv', component: PersistentVolumeComponent},
                             {path: 'pvc', component: PersistentVolumeClaimComponent},
+                            {path: 'sc', component: StorageClassComponent},
                         ],
                     },
                     {

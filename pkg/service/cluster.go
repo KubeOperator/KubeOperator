@@ -153,7 +153,8 @@ func (c clusterService) GetMonitor(name string) (dto.ClusterMonitor, error) {
 
 func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster := model.Cluster{
-		Name: creation.Name,
+		Name:   creation.Name,
+		Source: constant.ClusterSourceLocal,
 	}
 	spec := model.ClusterSpec{
 		RuntimeType:          creation.RuntimeType,

@@ -9,6 +9,9 @@ const (
 	ClusterTerminated   = "Terminated"
 	ClusterWaiting      = "Waiting"
 
+	ClusterSourceLocal  = "local"
+	ClusterSourceImport = "external"
+
 	ConditionTrue    = "True"
 	ConditionFalse   = "False"
 	ConditionUnknown = "Unknown"
