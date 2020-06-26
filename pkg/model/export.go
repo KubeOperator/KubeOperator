@@ -24,6 +24,7 @@ var Models = []Interface{
 	User{},
 	Demo{},
 	CloudProvider{},
+	Region{},
 }
 
 var InitData = []Interface{
@@ -32,19 +33,17 @@ var InitData = []Interface{
 			UpdatedAt: time.Now(),
 			CreatedAt: time.Now(),
 		},
-		ID:       uuid.NewV4().String(),
-		Name:     "OpenStack",
-		Vars:     "{\"provider\": \"openstack\", \"imageVmdkPath\": \"/data/iso/openstack/kubeoperator_centos_7.6.1810-1.qcow2\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
-		Provider: "openstack",
+		ID:   uuid.NewV4().String(),
+		Name: "OpenStack",
+		Vars: "{\"provider\": \"OpenStack\", \"imageVmdkPath\": \"/data/iso/openstack/kubeoperator_centos_7.6.1810-1.qcow2\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
 	},
 	CloudProvider{
 		BaseModel: common.BaseModel{
 			UpdatedAt: time.Now(),
 			CreatedAt: time.Now(),
 		},
-		ID:       uuid.NewV4().String(),
-		Name:     "vSphere",
-		Vars:     "{\"provider\": \"vsphere\", \"imageOvfPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf\", \"imageVmdkPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
-		Provider: "vsphere",
+		ID:   uuid.NewV4().String(),
+		Name: "vSphere",
+		Vars: "{\"provider\": \"vSphere\", \"imageOvfPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf\", \"imageVmdkPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
 	},
 }

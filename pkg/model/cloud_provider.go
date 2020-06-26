@@ -7,10 +7,9 @@ import (
 
 type CloudProvider struct {
 	common.BaseModel
-	ID       string `json:"id" gorm:"type:varchar(64)"`
-	Name     string `json:"name" gorm:"type:varchar(64)"`
-	Vars     string `json:"vars" gorm:"type longtext(0)"`
-	Provider string `json:"provider"  gorm:"type:varchar(64)"`
+	ID   string `json:"id" gorm:"type:varchar(64)"`
+	Name string `json:"name" gorm:"type:varchar(64)"`
+	Vars string `json:"vars" gorm:"type longtext(0)"`
 }
 
 func (c *CloudProvider) BeforeCreate() (err error) {

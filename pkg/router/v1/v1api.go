@@ -12,5 +12,5 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/credentials")).Handle(controller.NewCredentialController())
 	mvc.New(v1.Party("/hosts")).Handle(controller.NewHostController())
 	mvc.New(v1.Party("/users")).Handle(controller.NewUserController())
+	mvc.New(v1.Party("/regions")).Handle(controller.NewRegionController())
 }
-
