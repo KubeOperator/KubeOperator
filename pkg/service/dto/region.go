@@ -7,9 +7,10 @@ type Region struct {
 }
 
 type RegionCreate struct {
-	Name       string `json:"name" validate:"required"`
-	Vars       string `json:"vars" validate:"required"`
-	Datacenter string `json:"datacenter" validate:"required"`
+	Name       string      `json:"name" validate:"required"`
+	RegionVars interface{} `json:"regionVars" validate:"required"`
+	Datacenter string      `json:"datacenter" validate:"required"`
+	Vars       string      `json:"vars" validate:"required"`
 }
 
 type RegionOp struct {

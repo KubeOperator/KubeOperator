@@ -72,5 +72,8 @@
   "APP_BASIC_INFORMATION": "Basic Information",
   "APP_CAPACITY_INFORMATION": "Capacity information",
   "APP_STATISTICS": "Statistics",
-  "APP_NETWORK_TYPE": "Network Type"
+  "APP_NETWORK_TYPE": "Network Type",
+  "APP_DEPLOY_PLAN": "Deploy Plan",
+  "APP_REGION": "Region",
+  "APP_REGION_PROMPT": "Region: Similar to the concept of a region in a public cloud, such as Alibaba Cloud North China1. For vSphere, the region corresponds to Datacenter."
 }

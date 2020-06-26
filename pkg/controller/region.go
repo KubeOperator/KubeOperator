@@ -80,3 +80,17 @@ func (r RegionController) PostBatch() error {
 	}
 	return err
 }
+
+func (r RegionController) PostCheckValid() error {
+	var req dto.RegionCreate
+	err := r.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+
+	err = r.RegionService.CheckValid(req)
+	if err != nil {
+		return err
+	}
+	return nil
+}

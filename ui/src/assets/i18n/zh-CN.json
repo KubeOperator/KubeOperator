@@ -75,5 +75,8 @@
   "APP_BASIC_INFORMATION": "基本信息",
   "APP_CAPACITY_INFORMATION": "容量信息",
   "APP_STATISTICS": "统计信息",
-  "APP_NETWORK_TYPE": "网络类型"
+  "APP_NETWORK_TYPE": "网络类型",
+  "APP_DEPLOY_PLAN": "部署计划",
+  "APP_REGION": "区域",
+  "APP_REGION_PROMPT": "区域(Region)：与公有云中的区域（Region）概念相似，比如阿里云华北 1。对于 vSphere，区域对应于 Datacenter。"
 }

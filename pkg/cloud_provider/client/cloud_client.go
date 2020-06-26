@@ -1,23 +1,20 @@
 package client
 
 import (
-	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 )
 
 type CloudClient interface {
-	listZones() string
+	ListZones() string
+	ListDatacenter() ([]string, error)
 }
 
-func NewCloudClient(vars string) CloudClient {
-	var cloudVars map[string]interface{}
-	if err := json.Unmarshal([]byte(vars), &cloudVars); err == nil {
-		if cloudVars["provider"] == constant.OpenStack {
-			return NewOpenStackClient(cloudVars)
-		}
-		if cloudVars["provider"] == constant.VSphere {
-			return NewVSphereClient(cloudVars)
-		}
+func NewCloudClient(vars map[string]interface{}) CloudClient {
+	if vars["provider"] == constant.OpenStack {
+		return NewOpenStackClient(vars)
+	}
+	if vars["provider"] == constant.VSphere {
+		return NewVSphereClient(vars)
 	}
 	return nil
 }

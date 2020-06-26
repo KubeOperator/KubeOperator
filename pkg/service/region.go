@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -15,6 +16,7 @@ type RegionService interface {
 	Delete(name string) error
 	Create(creation dto.RegionCreate) (dto.Region, error)
 	Batch(op dto.RegionOp) error
+	CheckValid(creation dto.RegionCreate) error
 }
 
 type regionService struct {
@@ -74,9 +76,9 @@ func (r regionService) Delete(name string) error {
 func (r regionService) Create(creation dto.RegionCreate) (dto.Region, error) {
 
 	region := model.Region{
-		BaseModel:  common.BaseModel{},
-		Name:       creation.Name,
-		Vars:       creation.Vars,
+		BaseModel: common.BaseModel{},
+		Name:      creation.Name,
+		//Vars:       creation.Vars,
 		Datacenter: creation.Datacenter,
 	}
 
@@ -99,6 +101,17 @@ func (r regionService) Batch(op dto.RegionOp) error {
 	err := r.regionRepo.Batch(op.Operation, deleteItems)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (r regionService) CheckValid(creation dto.RegionCreate) error {
+	cloudClient := client.NewCloudClient(creation.RegionVars.(map[string]interface{}))
+	if cloudClient != nil {
+		_, err := cloudClient.ListDatacenter()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

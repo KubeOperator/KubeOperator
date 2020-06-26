@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -33,7 +32,7 @@ var InitData = []Interface{
 			UpdatedAt: time.Now(),
 			CreatedAt: time.Now(),
 		},
-		ID:   uuid.NewV4().String(),
+		ID:   "065ca3f7-3208-4bce-bf0d-a5d30253f39c",
 		Name: "OpenStack",
 		Vars: "{\"provider\": \"OpenStack\", \"imageVmdkPath\": \"/data/iso/openstack/kubeoperator_centos_7.6.1810-1.qcow2\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
 	},
@@ -42,7 +41,7 @@ var InitData = []Interface{
 			UpdatedAt: time.Now(),
 			CreatedAt: time.Now(),
 		},
-		ID:   uuid.NewV4().String(),
+		ID:   "214516d3-eccf-4275-bc65-e8b941738488",
 		Name: "vSphere",
 		Vars: "{\"provider\": \"vSphere\", \"imageOvfPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf\", \"imageVmdkPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
 	},

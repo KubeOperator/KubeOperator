@@ -1,15 +1,71 @@
 package client
 
-type VSphereClient struct {
-	Vars map[string]interface{}
+import (
+	"context"
+	"github.com/vmware/govmomi"
+	"github.com/vmware/govmomi/view"
+	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/govmomi/vim25/soap"
+	"net/url"
+)
+
+type vSphereClient struct {
+	Vars    map[string]interface{}
+	Connect Connect
 }
 
-func NewVSphereClient(vars map[string]interface{}) *VSphereClient {
-	return &VSphereClient{
+type Connect struct {
+	Client govmomi.Client
+	Ctx    context.Context
+}
+
+func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
+	return &vSphereClient{
 		Vars: vars,
 	}
 }
 
-func (v *VSphereClient) listZones() string {
+func (v *vSphereClient) ListZones() string {
 	return ""
+}
+
+func (v *vSphereClient) ListDatacenter() ([]string, error) {
+	_, err := v.GetConnect()
+	if err != nil {
+		return nil, err
+	}
+	m := view.NewManager(v.Connect.Client.Client)
+	var data []string
+	view, err := m.CreateContainerView(v.Connect.Ctx, v.Connect.Client.Client.ServiceContent.RootFolder, []string{"Datacenter"}, true)
+	if err != nil {
+		return data, err
+	}
+	var datacenters []mo.Datacenter
+	err = view.Retrieve(v.Connect.Ctx, []string{"Datacenter"}, []string{"summary"}, &datacenters)
+	if err != nil {
+		return data, err
+	}
+	for _, d := range datacenters {
+		data = append(data, d.Name)
+	}
+	return data, nil
+}
+
+func (v *vSphereClient) GetConnect() (Connect, error) {
+	ctx, _ := context.WithCancel(context.Background())
+	u, err := soap.ParseURL(v.Vars["vcHost"].(string))
+	if err != nil {
+		return Connect{}, err
+	}
+	u.User = url.UserPassword(v.Vars["vcUsername"].(string), v.Vars["vcPassword"].(string))
+	c, err := govmomi.NewClient(ctx, u, true)
+	if err != nil {
+		return Connect{}, err
+	}
+	connect := &Connect{
+		Client: *c,
+		Ctx:    ctx,
+	}
+	v.Connect = *connect
+	return *connect, nil
 }
