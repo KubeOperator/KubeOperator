@@ -17,3 +17,7 @@ type RegionOp struct {
 	Operation string   `json:"operation" validate:"required"`
 	Items     []Region `json:"items" validate:"required"`
 }
+
+type CloudRegionResponse struct {
+	Result interface{}
+}

@@ -9,7 +9,7 @@ import {Observable} from "rxjs";
 })
 export class RegionService extends BaseModelService<Region> {
 
-    baseUrl = '/api/v1/regions'
+    baseUrl = '/api/v1/regions';
 
     constructor(http: HttpClient) {
         super(http);
@@ -17,6 +17,11 @@ export class RegionService extends BaseModelService<Region> {
 
     checkValid(item: RegionCreateRequest): Observable<any> {
         const itemUrl = `${this.baseUrl}/check/valid/`;
+        return this.http.post<any>(itemUrl, item);
+    }
+
+    listDatacenter(item: RegionCreateRequest): Observable<any> {
+        const itemUrl = `${this.baseUrl}/datacenter/`;
         return this.http.post<any>(itemUrl, item);
     }
 }

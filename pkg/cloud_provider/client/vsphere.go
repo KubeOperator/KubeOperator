@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 	"github.com/vmware/govmomi"
-	"github.com/vmware/govmomi/view"
-	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/soap"
 	"net/url"
 )
@@ -34,19 +34,27 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	m := view.NewManager(v.Connect.Client.Client)
+	client := v.Connect.Client.Client
+	//m := view.NewManager(client)
 	var data []string
-	view, err := m.CreateContainerView(v.Connect.Ctx, v.Connect.Client.Client.ServiceContent.RootFolder, []string{"Datacenter"}, true)
+	//view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"Datastore"}, true)
+	//if err != nil {
+	//	return data, err
+	//}
+	//var datacenters []mo.Datastore
+	//err = view.Retrieve(v.Connect.Ctx, []string{"Datastore"}, []string{"summary"}, &datacenters)
+	//if err != nil {
+	//	return data, err
+	//}
+	var datacenters []*object.Datacenter
+	f := find.NewFinder(client, true)
+	datacenters, err = f.DatacenterList(v.Connect.Ctx, "*")
 	if err != nil {
-		return data, err
+		return nil, err
 	}
-	var datacenters []mo.Datacenter
-	err = view.Retrieve(v.Connect.Ctx, []string{"Datacenter"}, []string{"summary"}, &datacenters)
-	if err != nil {
-		return data, err
-	}
+
 	for _, d := range datacenters {
-		data = append(data, d.Name)
+		data = append(data, d.Common.InventoryPath)
 	}
 	return data, nil
 }

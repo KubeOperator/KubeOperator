@@ -17,6 +17,7 @@ type RegionService interface {
 	Create(creation dto.RegionCreate) (dto.Region, error)
 	Batch(op dto.RegionOp) error
 	CheckValid(creation dto.RegionCreate) error
+	ListDatacenter(creation dto.RegionCreate) ([]string, error)
 }
 
 type regionService struct {
@@ -114,4 +115,16 @@ func (r regionService) CheckValid(creation dto.RegionCreate) error {
 		}
 	}
 	return nil
+}
+
+func (r regionService) ListDatacenter(creation dto.RegionCreate) ([]string, error) {
+	cloudClient := client.NewCloudClient(creation.RegionVars.(map[string]interface{}))
+	var result []string
+	if cloudClient != nil {
+		result, err := cloudClient.ListDatacenter()
+		if err != nil {
+			return result, err
+		}
+	}
+	return result, nil
 }

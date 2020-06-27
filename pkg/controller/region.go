@@ -94,3 +94,17 @@ func (r RegionController) PostCheckValid() error {
 	}
 	return nil
 }
+
+func (r RegionController) PostDatacenter() (dto.CloudRegionResponse, error) {
+	var req dto.RegionCreate
+	err := r.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.CloudRegionResponse{}, err
+	}
+
+	data, err := r.RegionService.ListDatacenter(req)
+	if err != nil {
+		return dto.CloudRegionResponse{Result: data}, err
+	}
+	return dto.CloudRegionResponse{}, err
+}
