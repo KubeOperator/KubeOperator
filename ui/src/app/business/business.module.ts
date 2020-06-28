@@ -9,16 +9,12 @@ import { UserListComponent } from './user/user-list/user-list.component';
 import { UserUpdateComponent } from './user/user-update/user-update.component';
 import { UserDeleteComponent } from './user/user-delete/user-delete.component';
 import {SharedModule} from '../shared/shared.module';
-import { DeployPlanComponent } from './deploy-plan/deploy-plan.component';
-import { RegionComponent } from './deploy-plan/region/region.component';
-import {RouterModule} from "@angular/router";
-import { RegionListComponent } from './deploy-plan/region/region-list/region-list.component';
-import { RegionCreateComponent } from './deploy-plan/region/region-create/region-create.component';
-import { RegionDeleteComponent } from './deploy-plan/region/region-delete/region-delete.component';
+import {RouterModule} from '@angular/router';
+import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
 
 
 @NgModule({
-    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent, DeployPlanComponent, RegionComponent, RegionListComponent, RegionCreateComponent, RegionDeleteComponent],
+    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent],
     imports: [
         CoreModule,
         ClusterModule,
@@ -26,11 +22,13 @@ import { RegionDeleteComponent } from './deploy-plan/region/region-delete/region
         HostModule,
         SharedModule,
         RouterModule,
+        DeployPlanModule,
     ],
     exports: [
         ClusterModule,
         SettingModule,
         HostModule,
+        DeployPlanModule,
     ]
 })
 export class BusinessModule {

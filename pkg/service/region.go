@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -16,8 +17,7 @@ type RegionService interface {
 	Delete(name string) error
 	Create(creation dto.RegionCreate) (dto.Region, error)
 	Batch(op dto.RegionOp) error
-	CheckValid(creation dto.RegionCreate) error
-	ListDatacenter(creation dto.RegionCreate) ([]string, error)
+	ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error)
 }
 
 type regionService struct {
@@ -76,10 +76,12 @@ func (r regionService) Delete(name string) error {
 
 func (r regionService) Create(creation dto.RegionCreate) (dto.Region, error) {
 
+	vars, _ := json.Marshal(creation.RegionVars)
+
 	region := model.Region{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
-		//Vars:       creation.Vars,
+		BaseModel:  common.BaseModel{},
+		Name:       creation.Name,
+		Vars:       string(vars),
 		Datacenter: creation.Datacenter,
 	}
 
@@ -106,18 +108,7 @@ func (r regionService) Batch(op dto.RegionOp) error {
 	return nil
 }
 
-func (r regionService) CheckValid(creation dto.RegionCreate) error {
-	cloudClient := client.NewCloudClient(creation.RegionVars.(map[string]interface{}))
-	if cloudClient != nil {
-		_, err := cloudClient.ListDatacenter()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (r regionService) ListDatacenter(creation dto.RegionCreate) ([]string, error) {
+func (r regionService) ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error) {
 	cloudClient := client.NewCloudClient(creation.RegionVars.(map[string]interface{}))
 	var result []string
 	if cloudClient != nil {
@@ -125,6 +116,7 @@ func (r regionService) ListDatacenter(creation dto.RegionCreate) ([]string, erro
 		if err != nil {
 			return result, err
 		}
+		return result, err
 	}
 	return result, nil
 }

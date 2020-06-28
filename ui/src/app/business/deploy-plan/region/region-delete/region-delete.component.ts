@@ -1,15 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {Region} from '../region';
+import {RegionService} from '../region.service';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
 
 @Component({
-  selector: 'app-region-delete',
-  templateUrl: './region-delete.component.html',
-  styleUrls: ['./region-delete.component.css']
+    selector: 'app-region-delete',
+    templateUrl: './region-delete.component.html',
+    styleUrls: ['./region-delete.component.css']
 })
-export class RegionDeleteComponent implements OnInit {
+export class RegionDeleteComponent extends BaseModelComponent<Region> implements OnInit {
 
-  constructor() { }
+    opened = false;
+    items: Region[] = [];
+    @Output() deleted = new EventEmitter();
 
-  ngOnInit(): void {
-  }
+    constructor(private regionService: RegionService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
+        super(regionService);
+    }
 
+    ngOnInit(): void {
+    }
+
+    open(items: Region[]) {
+        this.items = items;
+        this.opened = true;
+    }
+
+    onCancel() {
+        this.opened = false;
+    }
+
+    onSubmit() {
+        this.regionService.batch('delete', this.items).subscribe(data => {
+            this.deleted.emit();
+            this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+        });
+    }
 }

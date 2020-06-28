@@ -7,6 +7,7 @@
         "statements"
       ]
     },
+    "no-string-literal": false,
     "array-type": false,
     "arrow-return-shorthand": true,
     "curly": true,

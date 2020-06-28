@@ -30,8 +30,8 @@ import {ConfigComponent} from './business/cluster/cluster-detail/config/config.c
 import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
 import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
-import {RegionComponent} from "./business/deploy-plan/region/region.component";
-import {DeployPlanComponent} from "./business/deploy-plan/deploy-plan.component";
+import {RegionComponent} from './business/deploy-plan/region/region.component';
+import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -110,10 +110,10 @@ const routes: Routes = [
                 ]
             },
             {
-                path: "plan",
+                path: 'deploy',
                 component: DeployPlanComponent,
                 children: [
-                    {path: '', redirectTo: 'region', pathMatch: 'full'},
+                    // {path: '', redirectTo: 'region', pathMatch: 'full'},
                     {path: 'region', component: RegionComponent}
                 ]
             },

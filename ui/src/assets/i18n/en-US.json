@@ -75,5 +75,18 @@
   "APP_NETWORK_TYPE": "Network Type",
   "APP_DEPLOY_PLAN": "Deploy Plan",
   "APP_REGION": "Region",
-  "APP_REGION_PROMPT": "Region: Similar to the concept of a region in a public cloud, such as Alibaba Cloud North China1. For vSphere, the region corresponds to Datacenter."
+  "APP_REGION_PROMPT": "Region: Similar to the concept of a region in a public cloud, such as Alibaba Cloud North China1. For vSphere, the region corresponds to Datacenter.",
+  "APP_DELETE_REGION": "Delete Region",
+  "APP_CREATE_REGION": "Create Region",
+  "APP_REGION_PARAM_CONFIG": "Configuration parameter",
+  "APP_REGION_VCENTER_HOST": "vCenter Host",
+  "APP_REGION_VCENTER_API": "vCenter API address",
+  "APP_REGION_VCENTER_PORT": "vCenter API Port",
+  "APP_REGION_VCENTER_PORT_HELP": "Port to access the vCenter API, for example https: 443",
+  "APP_REGION_VCENTER_USER_HELP": "User name to access vCenter, for example administrator@vsphere.local",
+  "APP_REGION_VCENTER_PASSWORD_HELP": "Password to access vCenter",
+  "APP_REGION_VCENTER_CHECK": "Verification",
+  "APP_REGION_VCENTER_PARAM_VALID": "Verified",
+  "APP_REGION_VCENTER_PARAM_INVALID": "Verification failed, please check vCenter connection information",
+  "APP_REGION_VCENTER_DATACENTER": "Datacenter"
 }
