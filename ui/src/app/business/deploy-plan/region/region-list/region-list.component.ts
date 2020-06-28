@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {BaseModelComponent} from "../../../../shared/class/BaseModelComponent";
-import {Region} from "../region";
-import {RegionService} from "../region.service";
+import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {Region} from '../region';
+import {RegionService} from '../region.service';
 
 @Component({
     selector: 'app-region-list',
@@ -11,7 +11,7 @@ import {RegionService} from "../region.service";
 export class RegionListComponent extends BaseModelComponent<Region> implements OnInit {
 
     constructor(private regionService: RegionService) {
-        super(regionService)
+        super(regionService);
     }
 
     ngOnInit(): void {

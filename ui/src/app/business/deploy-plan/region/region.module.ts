@@ -10,6 +10,9 @@ import {SharedModule} from '../../../shared/shared.module';
 
 @NgModule({
     declarations: [RegionComponent, RegionCreateComponent, RegionListComponent, RegionDeleteComponent],
+    exports: [
+        RegionListComponent
+    ],
     imports: [
         CommonModule,
         CoreModule,

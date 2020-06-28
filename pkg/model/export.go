@@ -24,6 +24,7 @@ var Models = []Interface{
 	Demo{},
 	CloudProvider{},
 	Region{},
+	Zone{},
 }
 
 var InitData = []Interface{

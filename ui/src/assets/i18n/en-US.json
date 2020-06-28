@@ -88,5 +88,7 @@
   "APP_REGION_VCENTER_CHECK": "Verification",
   "APP_REGION_VCENTER_PARAM_VALID": "Verified",
   "APP_REGION_VCENTER_PARAM_INVALID": "Verification failed, please check vCenter connection information",
-  "APP_REGION_VCENTER_DATACENTER": "Datacenter"
+  "APP_REGION_VCENTER_DATACENTER": "Datacenter",
+  "APP_ZONE": "Zone",
+  "APP_ZONE_PROMPT": "Zone: Similar to the concept of AZ in the public cloud, it can be understood as a specific computer room in the region, such as Beijing 1 and Beijing 2. For vSphere, the Availability Zone corresponds to the cluster, and can also correspond to the resource pool under the cluster"
 }
