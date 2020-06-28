@@ -32,6 +32,7 @@ import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monito
 import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
 import {RegionComponent} from './business/deploy-plan/region/region.component';
 import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component';
+import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -113,8 +114,9 @@ const routes: Routes = [
                 path: 'deploy',
                 component: DeployPlanComponent,
                 children: [
-                    // {path: '', redirectTo: 'region', pathMatch: 'full'},
-                    {path: 'region', component: RegionComponent}
+                    {path: '', redirectTo: 'region', pathMatch: 'full'},
+                    {path: 'region', component: RegionComponent},
+                    {path: 'zone', component: ZoneComponent}
                 ]
             },
             {
