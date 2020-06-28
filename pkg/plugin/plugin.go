@@ -23,7 +23,7 @@ type InitPluginDBPhase struct {
 
 func (i *InitPluginDBPhase) Init() error {
 	var log = logger.Default
-	fs, err := ioutil.ReadDir("plugin")
+	fs, err := ioutil.ReadDir("pkg/plugin")
 	if err != nil {
 		return err
 	}

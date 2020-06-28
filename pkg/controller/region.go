@@ -81,22 +81,8 @@ func (r RegionController) PostBatch() error {
 	return err
 }
 
-func (r RegionController) PostCheckValid() error {
-	var req dto.RegionCreate
-	err := r.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-
-	err = r.RegionService.CheckValid(req)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (r RegionController) PostDatacenter() (dto.CloudRegionResponse, error) {
-	var req dto.RegionCreate
+	var req dto.RegionDatacenterRequest
 	err := r.Ctx.ReadJSON(&req)
 	if err != nil {
 		return dto.CloudRegionResponse{}, err
@@ -104,7 +90,7 @@ func (r RegionController) PostDatacenter() (dto.CloudRegionResponse, error) {
 
 	data, err := r.RegionService.ListDatacenter(req)
 	if err != nil {
-		return dto.CloudRegionResponse{Result: data}, err
+		return dto.CloudRegionResponse{}, warp.NewControllerError(errors.New(r.Ctx.Tr(err.Error())))
 	}
-	return dto.CloudRegionResponse{}, err
+	return dto.CloudRegionResponse{Result: data}, err
 }

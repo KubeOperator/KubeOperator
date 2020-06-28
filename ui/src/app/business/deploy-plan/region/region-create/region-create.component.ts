@@ -1,13 +1,15 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from "../../../../shared/class/BaseModelComponent";
-import {Region, RegionCreateRequest} from "../region";
-import {RegionService} from "../region.service";
-import {ModalAlertService} from "../../../../shared/common-component/modal-alert/modal-alert.service";
-import {CommonAlertService} from "../../../../layout/common-alert/common-alert.service";
-import {NgForm} from "@angular/forms";
-import {CloudProviderService} from "../cloud-provider.service";
-import {CloudProvider} from "../cloud-provider";
-import {AlertLevels} from "../../../../layout/common-alert/alert";
+import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {Region, RegionCreateRequest} from '../region';
+import {RegionService} from '../region.service';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import {NgForm} from '@angular/forms';
+import {CloudProviderService} from '../cloud-provider.service';
+import {CloudProvider} from '../cloud-provider';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {ClrWizard, ClrWizardPage} from '@clr/angular';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-region-create',
@@ -20,12 +22,19 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
     isSubmitGoing = false;
     item: RegionCreateRequest = new RegionCreateRequest();
     cloudProviders: CloudProvider[] = [];
+    isParamsValid = true;
+    isParamsCheckGoing = false;
+    cloudRegions: [] = [];
     @Output() created = new EventEmitter();
     @ViewChild('regionForm', {static: true}) regionForm: NgForm;
     @ViewChild('paramsForm', {static: true}) paramsForm: NgForm;
+    @ViewChild('dtFrom', {static: true}) dtFrom: NgForm;
+    @ViewChild('wizard') wizard: ClrWizard;
+    @ViewChild('finishPage') finishPage: ClrWizardPage;
 
 
     constructor(private regionService: RegionService, private modalAlertService: ModalAlertService,
+                private translateService: TranslateService,
                 private commonAlertService: CommonAlertService, private cloudProviderService: CloudProviderService) {
         super(regionService);
     }
@@ -39,21 +48,54 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
             this.opened = true;
             this.item = new RegionCreateRequest();
         }, error => {
-            this.modalAlertService.showAlert("", AlertLevels.ERROR);
-        })
-
+            this.modalAlertService.showAlert('', AlertLevels.ERROR);
+        });
     }
 
     onCancel() {
         this.opened = false;
+        this.resetWizard();
+    }
+
+    resetWizard(): void {
+        this.wizard.reset();
+        this.item = new RegionCreateRequest();
+    }
+
+    doFinish(): void {
+        this.wizard.forceFinish();
     }
 
     onCheckParams() {
-        this.item.regionVars['provider'] = this.item.cloudProvider
-        this.regionService.checkValid(this.item).subscribe(data => {
-            console.log("success")
+        if (this.isParamsCheckGoing) {
+            return;
+        }
+        this.isParamsValid = false;
+        this.isParamsCheckGoing = true;
+        this.item.regionVars['provider'] = this.item.cloudProvider;
+        this.regionService.listDatacenter(this.item).subscribe(data => {
+            this.isParamsValid = true;
+            this.isParamsCheckGoing = false;
+            this.cloudRegions = data.result;
+            this.paramsForm.valueChanges.subscribe(() => {
+                this.isParamsValid = undefined;
+            });
         }, error => {
-            console.log("failed")
-        })
+            this.isParamsValid = false;
+            this.isParamsCheckGoing = false;
+        });
     }
+
+
+    async onSubmit() {
+        this.regionService.create(this.item).subscribe(res => {
+            this.opened = false;
+            this.created.emit();
+            this.doFinish();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
 }

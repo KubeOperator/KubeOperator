@@ -1,7 +1,5 @@
 package main
 
-//go:generate go-localize -input pkg/i18n/localizations_src -output pkg/i18n/localizations
-
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/server"
 	_ "golang.org/x/text/message"
@@ -25,5 +23,4 @@ func main() {
 	if err := server.Start(); err != nil {
 		panic(err)
 	}
-
 }

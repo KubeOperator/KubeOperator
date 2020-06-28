@@ -1,4 +1,4 @@
-import {BaseModel, BaseRequest} from "../../../shared/class/BaseModel";
+import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 
 export class Region extends BaseModel {
     id: string;

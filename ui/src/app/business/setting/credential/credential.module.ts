@@ -10,7 +10,8 @@ import {SharedModule} from '../../../shared/shared.module';
 
 
 @NgModule({
-    declarations: [CredentialDeleteComponent, CredentialEditComponent, CredentialListComponent, CredentialComponent, CredentialCreateComponent],
+    declarations: [CredentialDeleteComponent, CredentialEditComponent, CredentialListComponent,
+        CredentialComponent, CredentialCreateComponent],
     imports: [
         CommonModule,
         CoreModule,

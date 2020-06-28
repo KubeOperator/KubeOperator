@@ -79,5 +79,20 @@
   "APP_NETWORK_TYPE": "网络类型",
   "APP_DEPLOY_PLAN": "部署计划",
   "APP_REGION": "区域",
-  "APP_REGION_PROMPT": "区域(Region)：与公有云中的区域（Region）概念相似，比如阿里云华北 1。对于 vSphere，区域对应于 Datacenter。"
+  "APP_REGION_PROMPT": "区域(Region)：与公有云中的区域（Region）概念相似，比如阿里云华北 1。对于 vSphere，区域对应于 Datacenter。",
+  "APP_DELETE_REGION": "删除区域",
+  "APP_CREATE_REGION": "创建区域",
+  "APP_REGION_PARAM_CONFIG": "配置参数",
+  "APP_REGION_VCENTER_HOST": "vCenter Host",
+  "APP_REGION_VCENTER_API": "vCenter API地址",
+  "APP_REGION_VCENTER_PORT": "vCenter API端口",
+  "APP_REGION_VCENTER_PORT_HELP": "访问 vCenter API的端口，例如 https: 443",
+  "APP_REGION_VCENTER_USER_HELP": "访问 vCenter 的用户名，例如 administrator@vsphere.local",
+  "APP_REGION_VCENTER_PASSWORD_HELP": "访问 vCenter 的密码",
+  "APP_REGION_VCENTER_CHECK": "验证",
+  "APP_REGION_VCENTER_PARAM_VALID": "验证通过",
+  "APP_REGION_VCENTER_PARAM_INVALID": "验证未通过,请检查 vCenter 连接信息",
+  "APP_REGION_VCENTER_DATACENTER": "数据中心",
+  "APP_ZONE": "可用区",
+  "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池"
 }
