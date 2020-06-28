@@ -39,4 +39,8 @@ export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
         this.list.reset();
         this.list.refresh();
     }
+
+    openCreate(){
+        this.create.open();
+    }
 }

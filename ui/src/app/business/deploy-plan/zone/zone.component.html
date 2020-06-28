@@ -1,2 +1,3 @@
 <p class="p7 prompt">{{'APP_ZONE_PROMPT'|translate}}</p>
-<app-zone-list></app-zone-list>
+<app-zone-list (createEvent)="openCreate()"></app-zone-list>
+<app-zone-create (created)="refresh()"></app-zone-create>

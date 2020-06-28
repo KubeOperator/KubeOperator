@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -15,6 +17,7 @@ type ZoneService interface {
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (dto.Zone, error)
 	Batch(op dto.ZoneOp) error
+	ListClusters(creation dto.CloudZoneRequest) ([]string, error)
 }
 
 type zoneService struct {
@@ -102,4 +105,20 @@ func (z zoneService) Batch(op dto.ZoneOp) error {
 		return err
 	}
 	return nil
+}
+
+func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]string, error) {
+	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	var result []string
+	if cloudClient != nil {
+		result, err := cloudClient.ListClusters(creation.Datacenter)
+		if err != nil {
+			return result, err
+		}
+		if result == nil {
+			return result, errors.New("cluster is null")
+		}
+		return result, err
+	}
+	return result, nil
 }

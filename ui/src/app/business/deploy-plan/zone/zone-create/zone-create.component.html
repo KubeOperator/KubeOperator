@@ -7,7 +7,7 @@
     <clr-wizard-button [type]="'next'">下一步</clr-wizard-button>
     <clr-wizard-button [type]="'finish'">完成</clr-wizard-button>
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid">
+    <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid" (clrWizardPageOnCommit)="onBasicFormCommit()">
         <ng-template clrPageTitle>基本信息</ng-template>
         <form clrForm #basicForm="ngForm">
             <clr-input-container>
@@ -21,7 +21,7 @@
             </clr-input-container>
             <clr-select-container>
                 <label>区域</label>
-                <select clrSelect [(ngModel)]="item.region" name="provider" required>
+                <select clrSelect [(ngModel)]="item.region" name="provider" required (ngModelChange)="changeRegion()">
                     <option value="">请选择</option>
                     <option *ngFor="let region of regions" [value]="region.name">{{region.name}}</option>
                 </select>
@@ -29,134 +29,134 @@
             </clr-select-container>
         </form>
     </clr-wizard-page>
-    <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid || !networkValid">
+    <clr-wizard-page [clrWizardPageNextDisabled]="paramsForm.invalid">
         <ng-template clrPageTitle>配置参数</ng-template>
         <clr-spinner *ngIf="loading">loading</clr-spinner>
         <form clrForm #paramsForm="ngForm">
             <div *ngIf="cloudZones.length>0">
 
-                <div *ngIf="region.template === 'vsphere'">
+                <div *ngIf="region.regionVars['provider'] === 'vSphere'">
                     <h3>计算</h3>
                     <hr/>
                     <clr-select-container>
                         <label>集群</label>
-                        <select [(ngModel)]="item.cluster" name="compute" (change)="onComputeChange()" required clrSelect>
-                            <option [value]="">请选择</option>
-                            <option *ngFor="let zone of cloudZones" [value]="zone.cluster">{{zone.cluster}}</option>
+                        <select [(ngModel)]="item.cloudVars['vcCluster']" name="compute"  required clrSelect>
+                            <option value="">请选择</option>
+                            <option *ngFor="let zone of cloudZones" [value]="zone">{{zone}}</option>
                         </select>
                         <clr-control-error>此字段为必填项</clr-control-error>
                         <clr-control-helper>选择用于运行虚拟机的计算集群</clr-control-helper>
                     </clr-select-container>
-                    <div *ngIf="cloudZone">
-                        <clr-select-container>
-                            <label>资源池</label>
-                            <select [(ngModel)]="item.cloud_zone" name="resourcePoll" required clrSelect>
-                                <option value="">请选择</option>
-                                <option *ngFor="let rp of cloudZone.resourcePool" [value]='rp'>{{rp}}</option>
-                            </select>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>选择用于运行虚拟机的资源池, Resource 为 cluster 下默认资源池</clr-control-helper>
-                        </clr-select-container>
-                    </div>
-                    <div *ngIf="item.cloud_zone">
-                        <h3>存储</h3>
-                        <hr/>
-                        <clr-select-container>
-                            <label>存储器</label>
-                            <select [(ngModel)]="item.vars['vc_storage']" name="storage" required clrSelect>
-                                <option value="">请选择</option>
-                                <option *ngFor="let storage of cloudZone.storages" [value]="storage.name">{{storage.name}}</option>
-                            </select>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>选择用于运行虚拟机的存储器,如要在k8s集群中使用vsan动态创建pv请选择支持vsan类型的存储器</clr-control-helper>
-                        </clr-select-container>
-                    </div>
-                    <div *ngIf="item.vars['vc_storage']">
-                        <h3>模板</h3>
-                        <hr/>
-                        <clr-radio-container clrInline>
-                            <label>模板类型</label>
-                            <clr-radio-wrapper>
-                                <input type="radio" clrRadio name="template_type" required value="default" checked="checked"
-                                       [(ngModel)]="item.vars['template_type']"/>
-                                <label>默认</label>
-                            </clr-radio-wrapper>
-                            <clr-radio-wrapper>
-                                <input type="radio" clrRadio name="template_type" required value="customize"
-                                       [(ngModel)]="item.vars['template_type']"
-                                       (ngModelChange)="list_templates()"/>
-                                <label>自定义</label>
-                            </clr-radio-wrapper>
-                            <clr-control-helper>自定义模板仅支持 CentOS/RedHat 7.4 及以上版本的纯净系统</clr-control-helper>
-                        </clr-radio-container>
-                        <div *ngIf="item.vars['template_type'] === 'customize'">
-                            <clr-spinner *ngIf="templateLoading">loading</clr-spinner>
-                            <div *ngIf="!templateLoading">
-                                <clr-select-container>
-                                    <label>模板</label>
-                                    <select [(ngModel)]="item.template" name="template" required clrSelect
-                                            (ngModelChange)="change_template(item.template)">
-                                        <option value="">请选择</option>
-                                        <option *ngFor="let temp of templates" [value]=temp.image_name>{{temp.image_name}}</option>
-                                    </select>
-                                    <clr-control-error>此字段为必填项</clr-control-error>
-                                </clr-select-container>
-                                <clr-input-container>
-                                    <label>模板密码</label>
-                                    <input clrInput size=45 type="text" [(ngModel)]="item.vars['template_password']"
-                                           name="template_password" required>
-                                </clr-input-container>
-                            </div>
-                        </div>
-                        <h3>网络</h3>
-                        <hr/>
-                        <clr-select-container>
-                            <label>网络适配器</label>
-                            <select [(ngModel)]="item.vars['vc_network']" name="network" required clrSelect>
-                                <option value="">请选择</option>
-                                <option *ngFor="let network of cloudZone.networks" [value]="network">{{network}}</option>
-                            </select>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>选择用于连接虚拟机的网络适配器</clr-control-helper>
-                        </clr-select-container>
-                        <clr-input-container>
-                            <label>起始IP</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start"
-                                   required>
-                            <clr-control-helper>例如: 172.16.10.1</clr-control-helper>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>截止IP</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>例如: 172.16.10.50</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>子网掩码</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="mask" required>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>例如: 255.255.255.0</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>网关IP</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>DNS 1</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns1']" name="dns1" required>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>例如: 114.114.114.114</clr-control-helper>
-                        </clr-input-container>
+<!--                    <div *ngIf="cloudZone">-->
+<!--                        <clr-select-container>-->
+<!--                            <label>资源池</label>-->
+<!--                            <select [(ngModel)]="item.cloud_zone" name="resourcePoll" required clrSelect>-->
+<!--                                <option value="">请选择</option>-->
+<!--                                <option *ngFor="let rp of cloudZone.resourcePool" [value]='rp'>{{rp}}</option>-->
+<!--                            </select>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>选择用于运行虚拟机的资源池, Resource 为 cluster 下默认资源池</clr-control-helper>-->
+<!--                        </clr-select-container>-->
+<!--                    </div>-->
+<!--                    <div *ngIf="item.cloud_zone">-->
+<!--                        <h3>存储</h3>-->
+<!--                        <hr/>-->
+<!--                        <clr-select-container>-->
+<!--                            <label>存储器</label>-->
+<!--                            <select [(ngModel)]="item.vars['vc_storage']" name="storage" required clrSelect>-->
+<!--                                <option value="">请选择</option>-->
+<!--                                <option *ngFor="let storage of cloudZone.storages" [value]="storage.name">{{storage.name}}</option>-->
+<!--                            </select>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>选择用于运行虚拟机的存储器,如要在k8s集群中使用vsan动态创建pv请选择支持vsan类型的存储器</clr-control-helper>-->
+<!--                        </clr-select-container>-->
+<!--                    </div>-->
+<!--                    <div *ngIf="item.vars['vc_storage']">-->
+<!--                        <h3>模板</h3>-->
+<!--                        <hr/>-->
+<!--                        <clr-radio-container clrInline>-->
+<!--                            <label>模板类型</label>-->
+<!--                            <clr-radio-wrapper>-->
+<!--                                <input type="radio" clrRadio name="template_type" required value="default" checked="checked"-->
+<!--                                       [(ngModel)]="item.vars['template_type']"/>-->
+<!--                                <label>默认</label>-->
+<!--                            </clr-radio-wrapper>-->
+<!--                            <clr-radio-wrapper>-->
+<!--                                <input type="radio" clrRadio name="template_type" required value="customize"-->
+<!--                                       [(ngModel)]="item.vars['template_type']"-->
+<!--                                       (ngModelChange)="list_templates()"/>-->
+<!--                                <label>自定义</label>-->
+<!--                            </clr-radio-wrapper>-->
+<!--                            <clr-control-helper>自定义模板仅支持 CentOS/RedHat 7.4 及以上版本的纯净系统</clr-control-helper>-->
+<!--                        </clr-radio-container>-->
+<!--                        <div *ngIf="item.vars['template_type'] === 'customize'">-->
+<!--                            <clr-spinner *ngIf="templateLoading">loading</clr-spinner>-->
+<!--                            <div *ngIf="!templateLoading">-->
+<!--                                <clr-select-container>-->
+<!--                                    <label>模板</label>-->
+<!--                                    <select [(ngModel)]="item.template" name="template" required clrSelect-->
+<!--                                            (ngModelChange)="change_template(item.template)">-->
+<!--                                        <option value="">请选择</option>-->
+<!--                                        <option *ngFor="let temp of templates" [value]=temp.image_name>{{temp.image_name}}</option>-->
+<!--                                    </select>-->
+<!--                                    <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                                </clr-select-container>-->
+<!--                                <clr-input-container>-->
+<!--                                    <label>模板密码</label>-->
+<!--                                    <input clrInput size=45 type="text" [(ngModel)]="item.vars['template_password']"-->
+<!--                                           name="template_password" required>-->
+<!--                                </clr-input-container>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <h3>网络</h3>-->
+<!--                        <hr/>-->
+<!--                        <clr-select-container>-->
+<!--                            <label>网络适配器</label>-->
+<!--                            <select [(ngModel)]="item.vars['vc_network']" name="network" required clrSelect>-->
+<!--                                <option value="">请选择</option>-->
+<!--                                <option *ngFor="let network of cloudZone.networks" [value]="network">{{network}}</option>-->
+<!--                            </select>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>选择用于连接虚拟机的网络适配器</clr-control-helper>-->
+<!--                        </clr-select-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>起始IP</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_start']" name="ip_start"-->
+<!--                                   required>-->
+<!--                            <clr-control-helper>例如: 172.16.10.1</clr-control-helper>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>截止IP</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['ip_end']" name="ip_end" required>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>例如: 172.16.10.50</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>子网掩码</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['net_mask']" name="mask" required>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>例如: 255.255.255.0</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>网关IP</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['vc_gateway']" name="gateway" required>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>DNS 1</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns1']" name="dns1" required>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>例如: 114.114.114.114</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
-                        <clr-input-container>
-                            <label>DNS 2</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns2']" name="dns2" required>
-                            <clr-control-error>此字段为必填项</clr-control-error>
-                            <clr-control-helper>例如: 114.114.114.114</clr-control-helper>
-                        </clr-input-container>
-                    </div>
+<!--                        <clr-input-container>-->
+<!--                            <label>DNS 2</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.vars['dns2']" name="dns2" required>-->
+<!--                            <clr-control-error>此字段为必填项</clr-control-error>-->
+<!--                            <clr-control-helper>例如: 114.114.114.114</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                    </div>-->
                 </div>
 
 <!--                <div *ngIf="region.template === 'openstack'">-->

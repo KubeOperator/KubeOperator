@@ -80,3 +80,18 @@ func (z ZoneController) PostBatch() error {
 	}
 	return err
 }
+
+func (z ZoneController) PostClusters() (dto.CloudZoneResponse, error) {
+	var req dto.CloudZoneRequest
+	err := z.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.CloudZoneResponse{}, err
+	}
+
+	data, err := z.ZoneService.ListClusters(req)
+	if err != nil {
+		return dto.CloudZoneResponse{}, warp.NewControllerError(errors.New(z.Ctx.Tr(err.Error())))
+	}
+
+	return dto.CloudZoneResponse{Result: data}, err
+}

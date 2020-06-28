@@ -7,6 +7,7 @@ import (
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/soap"
 	"net/url"
+	"strings"
 )
 
 type vSphereClient struct {
@@ -55,6 +56,43 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 
 	for _, d := range datacenters {
 		data = append(data, d.Common.InventoryPath)
+	}
+	return data, nil
+}
+
+func (v *vSphereClient) ListClusters(datacenter string) ([]string, error) {
+	_, err := v.GetConnect()
+	if err != nil {
+		return nil, err
+	}
+	client := v.Connect.Client.Client
+	//m := view.NewManager(client)
+	var data []string
+	//view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
+	//if err != nil {
+	//	return data,err
+	//}
+	//
+	//var clusters []object.ClusterComputeResource
+	//err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary"}, &clusters)
+	//if err != nil {
+	//	return data,err
+	//}
+
+	var clusters []*object.ComputeResource
+	var dc *object.Datacenter
+	f := find.NewFinder(client, true)
+	dc, _ = f.Datacenter(v.Connect.Ctx, datacenter)
+	f.SetDatacenter(dc)
+	clusters, err = f.ComputeResourceList(v.Connect.Ctx, "*")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range clusters {
+		var name string
+		name = strings.Replace(d.Common.InventoryPath, datacenter+"/host/", "", -1)
+		data = append(data, name)
 	}
 	return data, nil
 }

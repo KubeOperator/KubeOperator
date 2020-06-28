@@ -7,10 +7,10 @@ type Zone struct {
 }
 
 type ZoneCreate struct {
-	Name      string `json:"name" validate:"required"`
-	Vars      string `json:"vars" validate:"required"`
-	CloudZone string `json:"cloudZone" validate:"required"`
-	RegionID  string `json:"regionID" validate:"required"`
+	Name      string      `json:"name" validate:"required"`
+	Vars      string      `json:"vars" validate:"required"`
+	CloudVars interface{} `json:"cloudVars" validate:"required"`
+	RegionID  string      `json:"regionID" validate:"required"`
 }
 
 type ZoneOp struct {
@@ -19,5 +19,10 @@ type ZoneOp struct {
 }
 
 type CloudZoneResponse struct {
-	Result interface{}
+	Result interface{} `json:"result"`
+}
+
+type CloudZoneRequest struct {
+	CloudVars  interface{} `json:"cloudVars" validate:"required"`
+	Datacenter string      `json:"datacenter" validate:"required"`
 }
