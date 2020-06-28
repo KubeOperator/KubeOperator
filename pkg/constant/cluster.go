@@ -9,8 +9,8 @@ const (
 	ClusterTerminated   = "Terminated"
 	ClusterWaiting      = "Waiting"
 
-	ClusterSourceLocal  = "local"
-	ClusterSourceImport = "external"
+	ClusterSourceLocal    = "local"
+	ClusterSourceExternal = "external"
 
 	ConditionTrue    = "True"
 	ConditionFalse   = "False"
@@ -26,5 +26,6 @@ const (
 	ToolInitializing = "Initializing"
 	ToolFailed       = "Failed"
 
-	DefaultNamespace = "kube-operator"
+	DefaultNamespace     = "kube-operator"
+	DefaultApiServerPort = 8443
 )

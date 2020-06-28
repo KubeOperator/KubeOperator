@@ -52,6 +52,13 @@ export class ClusterCreateRequest extends BaseModel {
     nodes: CreateNodeRequest[] = [];
 }
 
+export class CLusterImportRequest {
+    name: string;
+    apiServer: string;
+    token: string;
+    router: string;
+}
+
 export class InitClusterResponse {
     message: string;
 }

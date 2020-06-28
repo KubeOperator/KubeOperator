@@ -22,12 +22,12 @@ func LoggingProxy(ctx context.Context) {
 		return
 	}
 
-	endpoint, err := clusterService.GetEndpoint(clusterName)
+	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
-	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint))
+	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint.Address))
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return

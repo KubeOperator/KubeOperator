@@ -3,8 +3,9 @@
         <h2> {{ 'APP_CLUSTER' | translate }}</h2>
     </div>
     <app-cluster-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-                      (statusDetailEvent)="openStatusDetail($event)"></app-cluster-list>
+                      (statusDetailEvent)="openStatusDetail($event)" (importEvent)="openImport()"></app-cluster-list>
     <app-cluster-create (created)="refresh()"></app-cluster-create>
     <app-cluster-delete (deleted)="refresh()"></app-cluster-delete>
+    <app-cluster-import (imported)="refresh()"></app-cluster-import>
     <app-cluster-condition></app-cluster-condition>
 </div>

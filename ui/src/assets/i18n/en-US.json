@@ -2,6 +2,7 @@
   "APP_TITLE": "Welcome to use Angular",
   "APP_HOSTS": "Hosts",
   "APP_ADD": "Add",
+  "APP_IMPORT": "Import",
   "APP_DELETE": "Delete",
   "APP_EDIT": "Edit",
   "APP_CANCEL": "Cancel",

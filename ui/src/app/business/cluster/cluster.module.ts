@@ -50,6 +50,7 @@ import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
 import {MonitorDashboardComponent} from './cluster-detail/monitor/monitor-dashboard/monitor-dashboard.component';
 import {MonitorEnableComponent} from './cluster-detail/monitor/monitor-enable/monitor-enable.component';
 import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/monitor-status.component';
+import { ClusterImportComponent } from './cluster-import/cluster-import.component';
 
 
 @NgModule({
@@ -62,7 +63,8 @@ import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/mo
         DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent,
         SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, IngressInstallComponent,
         MonitorComponent, MonitorDashboardComponent, MonitorEnableComponent,
-        MonitorStatusComponent],
+        MonitorStatusComponent,
+        ClusterImportComponent],
     imports: [
         CoreModule,
         RouterModule,

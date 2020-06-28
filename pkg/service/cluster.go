@@ -15,7 +15,8 @@ type ClusterService interface {
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetMonitor(name string) (dto.ClusterMonitor, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
-	GetEndpoint(name string) (string, error)
+	GetApiServerEndpoint(name string) (dto.Endpoint, error)
+	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
@@ -165,6 +166,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		ServiceCIDR:          creation.ServiceCIDR,
 		Version:              creation.Version,
 		AppDomain:            creation.AppDomain,
+		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
 	secret := model.ClusterSecret{
@@ -195,30 +197,48 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 			return err
 		}
 		node.HostID = host.ID
+		node.Host = host
 		cluster.Nodes = append(cluster.Nodes, node)
+	}
+	if len(cluster.Nodes) > 0 {
+		cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 	}
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
-	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return err
-	}
+	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
+	//	return err
+	//}
 	return nil
 }
 
-func (c clusterService) GetEndpoint(name string) (string, error) {
+func (c clusterService) GetApiServerEndpoint(name string) (dto.Endpoint, error) {
 	cluster, err := c.clusterRepo.Get(name)
+	var endpoint dto.Endpoint
 	if err != nil {
-		return "", err
+		return endpoint, err
 	}
+	endpoint.Port = cluster.Spec.KubeApiServerPort
 	if cluster.Spec.LbKubeApiserverIp != "" {
-		return cluster.Spec.LbKubeApiserverIp, nil
+		endpoint.Address = cluster.Spec.LbKubeApiserverIp
+		return endpoint, nil
 	}
 	master, err := c.clusterNodeRepo.FistMaster(cluster.ID)
 	if err != nil {
-		return "", err
+		return endpoint, err
 	}
-	return master.Host.Ip, nil
+	endpoint.Address = master.Host.Ip
+	return endpoint, nil
+}
+
+func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
+	cluster, err := c.clusterRepo.Get(name)
+	var endpoint dto.Endpoint
+	if err != nil {
+		return endpoint, err
+	}
+	endpoint.Address = cluster.Spec.KubeRouter
+	return endpoint, nil
 }
 
 func (c clusterService) Delete(name string) error {

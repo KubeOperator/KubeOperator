@@ -4,6 +4,7 @@ import {ClusterListComponent} from './cluster-list/cluster-list.component';
 import {ClusterDeleteComponent} from './cluster-delete/cluster-delete.component';
 import {Cluster} from './cluster';
 import {ClusterConditionComponent} from './cluster-condition/cluster-condition.component';
+import {ClusterImportComponent} from './cluster-import/cluster-import.component';
 
 @Component({
     selector: 'app-cluster',
@@ -27,11 +28,18 @@ export class ClusterComponent implements OnInit {
     @ViewChild(ClusterListComponent, {static: true})
     list: ClusterListComponent;
 
+    @ViewChild(ClusterImportComponent, {static: true})
+    import: ClusterImportComponent;
+
     ngOnInit(): void {
     }
 
     openCreate() {
         this.create.open();
+    }
+
+    openImport() {
+        this.import.open();
     }
 
     openDelete(items: Cluster[]) {

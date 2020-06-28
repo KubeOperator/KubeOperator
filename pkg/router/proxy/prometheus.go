@@ -21,13 +21,13 @@ func PrometheusProxy(ctx context.Context) {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
-	endpoint, err := clusterService.GetEndpoint(clusterName)
+	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
 	host := fmt.Sprintf("prometheus.%s", c.Spec.AppDomain)
-	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint))
+	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint.Address))
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return

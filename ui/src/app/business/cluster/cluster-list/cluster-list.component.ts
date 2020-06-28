@@ -18,6 +18,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     }
 
     @Output() statusDetailEvent = new EventEmitter<string>();
+    @Output() importEvent = new EventEmitter();
     timer;
 
     ngOnInit(): void {
@@ -35,6 +36,10 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         } else {
             this.router.navigate(['clusters', item.name]).then();
         }
+    }
+
+    onImport() {
+        this.importEvent.emit();
     }
 
     onNodeDetail(item: Cluster) {

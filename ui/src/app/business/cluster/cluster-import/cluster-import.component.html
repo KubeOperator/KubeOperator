@@ -1,0 +1,31 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">导入集群</h3>
+    <div class="modal-body">
+        <form clrForm #importForm="ngForm">
+            <clr-input-container>
+                <label>Name</label>
+                <input clrInput size="50" name="name" [(ngModel)]="item.name" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>Api Server</label>
+                <input clrInput size="50" name="api-server" [(ngModel)]="item.apiServer" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>Router</label>
+                <input clrInput size="50" name="api-server" [(ngModel)]="item.router" required>
+            </clr-input-container>
+            <clr-textarea-container>
+                <label>Token</label>
+                <textarea clrTextarea [cols]="48" name="token" [(ngModel)]="item.token" required></textarea>
+            </clr-textarea-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn" (click)="onCancel()">
+            {{"APP_CANCEL" |translate}}
+        </button>
+        <button type="button" class="btn btn-primary" [disabled]="importForm.invalid" (click)="onSubmit()">
+            {{"APP_COMMIT" |translate}}
+        </button>
+    </div>
+</clr-modal>

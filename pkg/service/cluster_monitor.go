@@ -43,7 +43,7 @@ func (c clusterMonitorService) Init(clusterName string) error {
 	if err != nil {
 		return err
 	}
-	endpoint, err := c.ClusterService.GetEndpoint(clusterName)
+	endpoint, err := c.ClusterService.GetApiServerEndpoint(clusterName)
 	if err != nil {
 		return err
 	}
@@ -63,9 +63,9 @@ func (c clusterMonitorService) Init(clusterName string) error {
 	return nil
 }
 
-func (c clusterMonitorService) Do(cluster model.Cluster, endpoint string, secret dto.ClusterSecret, monitor *model.ClusterMonitor) {
+func (c clusterMonitorService) Do(cluster model.Cluster, endpoint dto.Endpoint, secret dto.ClusterSecret, monitor *model.ClusterMonitor) {
 	helmClient, err := helm.NewClient(helm.Config{
-		ApiServer:   fmt.Sprintf("https://%s:%d", endpoint, 8443),
+		ApiServer:   fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
 		BearerToken: secret.KubernetesToken,
 	})
 	time.Sleep(10 * time.Second)
@@ -78,9 +78,9 @@ func (c clusterMonitorService) Do(cluster model.Cluster, endpoint string, secret
 		return
 	}
 	k8sClient, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Host:  endpoint,
+		Host:  endpoint.Address,
+		Port:  endpoint.Port,
 		Token: secret.KubernetesToken,
-		Port:  8443,
 	})
 	if err := createMonitorIngress(k8sClient, monitor.Domain); err != nil {
 		c.errorHandler(err, monitor)

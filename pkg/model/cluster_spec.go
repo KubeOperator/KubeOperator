@@ -15,6 +15,8 @@ type ClusterSpec struct {
 	DockerStorageDir     string `json:"dockerStorageDir"`
 	ContainerdStorageDir string `json:"containerdStorageDir"`
 	LbKubeApiserverIp    string `json:"lbKubeApiserverIp"`
+	KubeApiServerPort    int    `json:"kubeApiServerPort"`
+	KubeRouter           string `json:"kubeRouter"`
 	AppDomain            string `json:"appDomain"`
 	ClusterCIDR          string `json:"clusterCidr" gorm:"column:cluster_cidr"`
 	ServiceCIDR          string `json:"serviceCidr" gorm:"column:service_cidr"`

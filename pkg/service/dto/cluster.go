@@ -55,3 +55,8 @@ type ClusterBatch struct {
 	Items     []Cluster
 	Operation string
 }
+
+type Endpoint struct {
+	Address string
+	Port    int
+}

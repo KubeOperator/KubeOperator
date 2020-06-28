@@ -13,12 +13,12 @@ import (
 func KubernetesClientProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
 	proxyPath := ctx.Params().Get("p")
-	api, err := clusterService.GetEndpoint(clusterName)
+	endpoint, err := clusterService.GetApiServerEndpoint(clusterName)
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
-	u, err := url.Parse(fmt.Sprintf("https://%s:8443", api))
+	u, err := url.Parse(fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port))
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return

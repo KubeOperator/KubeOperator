@@ -2,6 +2,7 @@
   "APP_TITLE": "欢迎使用Angular",
   "APP_HOSTS": "主机",
   "APP_ADD": "添加",
+  "APP_IMPORT": "导入",
   "APP_DELETE": "删除",
   "APP_EDIT": "修改",
   "APP_CANCEL": "取消",
