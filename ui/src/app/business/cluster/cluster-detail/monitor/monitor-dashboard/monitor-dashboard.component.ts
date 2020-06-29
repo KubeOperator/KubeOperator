@@ -30,12 +30,13 @@ export class MonitorDashboardComponent implements OnInit {
 
     refresh() {
         this.clusterService.monitor(this.currentCluster.name).subscribe(data => {
-            const url = '/proxy/grafana' + data.dashboardUrl + '?orgId=1&kiosk';
+            const url = data.dashboardUrl + '?orgId=1&kiosk';
             this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-            console.log(url);
+            console.log(this.url);
             this.monitor = data;
         });
     }
+
     onFrameLoad() {
         this.frame.nativeElement.contentWindow.Mousetrap.unbindGlobal('esc');
         this.loading = false;
