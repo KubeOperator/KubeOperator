@@ -3,3 +3,4 @@
 resource/*/.DS_Store
 resource/.DS_Store
 KubeOperator
+plugin/xPack.so
