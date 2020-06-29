@@ -87,7 +87,7 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
     }
 
 
-    async onSubmit() {
+    onSubmit() {
         this.regionService.create(this.item).subscribe(res => {
             this.opened = false;
             this.created.emit();

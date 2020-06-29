@@ -32,6 +32,7 @@ import {StorageClassComponent} from './business/cluster/cluster-detail/storage/s
 import {RegionComponent} from './business/deploy-plan/region/region.component';
 import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component';
 import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
+import {PlanComponent} from './business/deploy-plan/plan/plan.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -111,7 +112,8 @@ const routes: Routes = [
                 children: [
                     {path: '', redirectTo: 'region', pathMatch: 'full'},
                     {path: 'region', component: RegionComponent},
-                    {path: 'zone', component: ZoneComponent}
+                    {path: 'zone', component: ZoneComponent},
+                    {path: 'plan', component: PlanComponent}
                 ]
             },
             {

@@ -95,3 +95,18 @@ func (z ZoneController) PostClusters() (dto.CloudZoneResponse, error) {
 
 	return dto.CloudZoneResponse{Result: data}, err
 }
+
+func (z ZoneController) PostTemplates() (dto.CloudZoneResponse, error) {
+	var req dto.CloudZoneRequest
+	err := z.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.CloudZoneResponse{}, err
+	}
+
+	data, err := z.ZoneService.ListTemplates(req)
+	if err != nil {
+		return dto.CloudZoneResponse{}, warp.NewControllerError(errors.New(z.Ctx.Tr(err.Error())))
+	}
+
+	return dto.CloudZoneResponse{Result: data}, err
+}

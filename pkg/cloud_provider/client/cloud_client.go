@@ -7,7 +7,8 @@ import (
 type CloudClient interface {
 	ListZones() string
 	ListDatacenter() ([]string, error)
-	ListClusters(datacenter string) ([]string, error)
+	ListClusters() ([]interface{}, error)
+	ListTemplates() ([]interface{}, error)
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
