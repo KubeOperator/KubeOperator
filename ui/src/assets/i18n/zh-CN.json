@@ -93,6 +93,9 @@
   "APP_REGION_VCENTER_PARAM_VALID": "验证通过",
   "APP_REGION_VCENTER_PARAM_INVALID": "验证未通过,请检查 vCenter 连接信息",
   "APP_REGION_VCENTER_DATACENTER": "数据中心",
+  "APP_REGION_DELETE": "删除区域",
   "APP_ZONE": "可用区",
-  "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池"
+  "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池",
+  "APP_ZONE_DELETE": "删除可用区"
+
 }

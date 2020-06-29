@@ -19,4 +19,9 @@ export class ZoneService extends BaseModelService<Zone> {
         const itemUrl = `${this.baseUrl}/clusters/`;
         return this.http.post<any>(itemUrl, item);
     }
+
+    listTemplates(item: CloudZoneRequest): Observable<any> {
+        const itemUrl = `${this.baseUrl}/templates/`;
+        return this.http.post<any>(itemUrl, item);
+    }
 }
