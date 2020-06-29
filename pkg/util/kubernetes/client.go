@@ -3,7 +3,7 @@ package kubernetes
 import (
 	"fmt"
 	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"k8s.io/client-go/rest"
 )
 
 type Config struct {
@@ -14,12 +14,13 @@ type Config struct {
 
 func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
 	var clientSet kubernetes.Clientset
-	kubeConf, err := config.GetConfig()
-	if err != nil {
-		return &clientSet, err
+	kubeConf := &rest.Config{
+		Host:        fmt.Sprintf("%s:%d", c.Host, c.Port),
+		BearerToken: c.Token,
+		TLSClientConfig: rest.TLSClientConfig{
+			Insecure: true,
+		},
 	}
-	kubeConf.Host = fmt.Sprintf("%s:%d", c.Host, c.Port)
-	kubeConf.BearerToken = c.Token
 	api, err := kubernetes.NewForConfig(kubeConf)
 	if err != nil {
 		return &clientSet, err
