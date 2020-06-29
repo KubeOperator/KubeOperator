@@ -60,3 +60,8 @@ type Endpoint struct {
 	Address string
 	Port    int
 }
+
+type ClusterWithEndpoint struct {
+	Cluster  model.Cluster
+	Endpoint Endpoint
+}

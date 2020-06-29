@@ -1,8 +1,7 @@
 package dto
 
-type StorageClassNFSSpec struct {
-	Name      string
-	Default   bool
-	NFSServer string
-	NFSPath   string
+type StorageClass struct {
+	Name        string
+	Provisioner string
+	Vars        map[string]interface{}
 }

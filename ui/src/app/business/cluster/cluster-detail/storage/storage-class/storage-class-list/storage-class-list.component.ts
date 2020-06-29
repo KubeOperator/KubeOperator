@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {Cluster} from '../../../../cluster';
 import {V1StorageClass} from '@kubernetes/client-node';
 import {KubernetesService} from '../../../../kubernetes.service';
@@ -18,6 +18,7 @@ export class StorageClassListComponent implements OnInit {
     nextToken = '';
     previousToken = '';
     continueToken = '';
+    @Output() createEvent = new EventEmitter();
 
     constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
@@ -29,6 +30,10 @@ export class StorageClassListComponent implements OnInit {
         });
     }
 
+    onCreate() {
+        this.createEvent.emit();
+    }
+
     list() {
         this.loading = true;
         this.service.listStorageClass(this.currentCluster.name, this.continueToken).subscribe(data => {
@@ -36,6 +41,10 @@ export class StorageClassListComponent implements OnInit {
             this.items = data.items;
             this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';
         });
+    }
+
+    refresh() {
+        this.list();
     }
 
 }

@@ -1,0 +1,19 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #nfsForm='ngForm'>
+            <clr-input-container>
+                <label>Server</label>
+                <input clrInput name="server">
+            </clr-input-container>
+            <clr-input-container>
+                <label>Path</label>
+                <input clrInput name="path">
+            </clr-input-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

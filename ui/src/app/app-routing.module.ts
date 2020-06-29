@@ -21,7 +21,6 @@ import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/dae
 import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
 import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
 import {ServiceComponent} from './business/cluster/cluster-detail/service/service.component';
-import {IngressComponent} from './business/cluster/cluster-detail/ingress/ingress.component';
 import {UserComponent} from './business/user/user.component';
 import {AuthUserService} from './shared/auth/auth-user.service';
 import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
@@ -81,10 +80,6 @@ const routes: Routes = [
                     {
                         path: 'service',
                         component: ServiceComponent,
-                    },
-                    {
-                        path: 'ingress',
-                        component: IngressComponent,
                     },
                     {
                         path: 'config',

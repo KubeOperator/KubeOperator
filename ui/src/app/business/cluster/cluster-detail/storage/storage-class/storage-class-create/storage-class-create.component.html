@@ -1,0 +1,24 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #scForm='ngForm'>
+            <clr-radio-container>
+                <label>Provisioner</label>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio name="provisioner" value="nfs" [(ngModel)]="item.provisioner"
+                           required/>
+                    <label>NFS</label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio name="provisioner" value="others" [(ngModel)]="item.provisioner"
+                           required/>
+                    <label>Others</label>
+                </clr-radio-wrapper>
+            </clr-radio-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>
