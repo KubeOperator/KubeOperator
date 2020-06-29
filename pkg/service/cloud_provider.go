@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type CloudProviderService interface {

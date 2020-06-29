@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type NfsStorageClassCreation struct {

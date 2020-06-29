@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/kataras/iris/v12/context"
 )
 

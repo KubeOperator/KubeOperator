@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service/storage"
 )
 

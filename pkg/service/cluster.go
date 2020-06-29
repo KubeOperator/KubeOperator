@@ -5,7 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 )
 
