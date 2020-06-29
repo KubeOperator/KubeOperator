@@ -4,6 +4,7 @@ import {RouterModule} from '@angular/router';
 import {DeployPlanComponent} from './deploy-plan.component';
 import {CoreModule} from '../../core/core.module';
 import {ZoneModule} from './zone/zone.module';
+import {PlanModule} from './plan/plan.module';
 
 
 @NgModule({
@@ -13,6 +14,7 @@ import {ZoneModule} from './zone/zone.module';
         RegionModule,
         RouterModule,
         CoreModule,
+        PlanModule,
     ]
 })
 export class DeployPlanModule {

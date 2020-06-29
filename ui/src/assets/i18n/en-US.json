@@ -93,5 +93,7 @@
   "APP_REGION_DELETE": "Delete Region",
   "APP_ZONE": "Zone",
   "APP_ZONE_PROMPT": "Zone: Similar to the concept of AZ in the public cloud, it can be understood as a specific computer room in the region, such as Beijing 1 and Beijing 2. For vSphere, the Availability Zone corresponds to the cluster, and can also correspond to the resource pool under the cluster",
-  "APP_ZONE_DELETE": "Delete Zone"
+  "APP_ZONE_DELETE": "Delete Zone",
+  "APP_PLAN": "Deploy Plan"
+
 }
