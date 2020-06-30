@@ -1,6 +1,7 @@
 import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 
 export class Zone extends BaseModel {
+    id: string;
     name: string;
     vars: string;
     cloudVars: {} = {};

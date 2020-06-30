@@ -1,15 +1,48 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {Plan} from '../plan';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
+import {PlanService} from '../plan.service';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
 
 @Component({
-  selector: 'app-plan-delete',
-  templateUrl: './plan-delete.component.html',
-  styleUrls: ['./plan-delete.component.css']
+    selector: 'app-plan-delete',
+    templateUrl: './plan-delete.component.html',
+    styleUrls: ['./plan-delete.component.css']
 })
-export class PlanDeleteComponent implements OnInit {
+export class PlanDeleteComponent extends BaseModelComponent<Plan> implements OnInit {
 
-  constructor() { }
+    opened = false;
+    items: Plan[] = [];
+    @Output() deleted = new EventEmitter();
 
-  ngOnInit(): void {
-  }
+    constructor(private planService: PlanService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
+        super(planService);
+    }
 
+    ngOnInit(): void {
+    }
+
+    open(items) {
+        this.items = items;
+        this.opened = true;
+    }
+
+
+    onCancel() {
+        this.opened = false;
+    }
+
+    onSubmit() {
+        this.planService.batch('delete', this.items).subscribe(data => {
+            this.deleted.emit();
+            this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+        });
+    }
 }
