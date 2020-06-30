@@ -27,6 +27,7 @@ var Models = []Interface{
 	Region{},
 	Zone{},
 	Plan{},
+	PlanZones{},
 }
 
 var InitData = []Interface{

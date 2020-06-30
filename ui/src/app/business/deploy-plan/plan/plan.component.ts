@@ -25,4 +25,16 @@ export class PlanComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    refresh() {
+        this.list.reset();
+        this.list.refresh();
+    }
+
+    openCreate() {
+        this.create.open();
+    }
+
+    openDelete(items) {
+        this.delete.open(items);
+    }
 }

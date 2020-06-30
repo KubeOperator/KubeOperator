@@ -1,4 +1,4 @@
-<p>plan works!</p>
-<app-plan-list></app-plan-list>
-<app-plan-create></app-plan-create>
-<app-plan-delete></app-plan-delete>
+<p class="p7 prompt">{{'APP_PLAN_PROMPT'|translate}}</p>
+<app-plan-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"></app-plan-list>
+<app-plan-create (created)="refresh()"></app-plan-create>
+<app-plan-delete (deleted)="refresh()"></app-plan-delete>

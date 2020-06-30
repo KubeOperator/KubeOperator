@@ -10,7 +10,7 @@ type PlanRepository interface {
 	Get(name string) (model.Plan, error)
 	List() ([]model.Plan, error)
 	Page(num, size int) (int, []model.Plan, error)
-	Save(plan *model.Plan) error
+	Save(plan *model.Plan, zones []string) error
 	Delete(name string) error
 	Batch(operation string, items []model.Plan) error
 }
@@ -55,11 +55,50 @@ func (p planRepository) Page(num, size int) (int, []model.Plan, error) {
 	return total, plans, err
 }
 
-func (p planRepository) Save(plan *model.Plan) error {
+func (p planRepository) Save(plan *model.Plan, zones []string) error {
 	if db.DB.NewRecord(plan) {
-		return db.DB.Create(&plan).Error
+		tx := db.DB.Begin()
+		err := tx.Create(&plan).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, z := range zones {
+			err = tx.Create(&model.PlanZones{
+				PlanID: plan.ID,
+				ZoneID: z,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		tx.Commit()
+		return err
 	} else {
-		return db.DB.Save(&plan).Error
+		tx := db.DB.Begin()
+		err := db.DB.Save(&plan).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		err = tx.Where("plan_id = ?", plan.ID).Delete(&model.PlanZones{}).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, z := range zones {
+			err = tx.Create(model.PlanZones{
+				PlanID: plan.ID,
+				ZoneID: z,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		tx.Commit()
+		return err
 	}
 }
 
@@ -68,7 +107,19 @@ func (p planRepository) Delete(name string) error {
 	if err != nil {
 		return err
 	}
-	return db.DB.Delete(&plan).Error
+	tx := db.DB.Begin()
+	err = tx.Delete(&plan).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Where("plan_id = ?", plan.ID).Delete(&model.PlanZones{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return err
 }
 
 func (p planRepository) Batch(operation string, items []model.Plan) error {

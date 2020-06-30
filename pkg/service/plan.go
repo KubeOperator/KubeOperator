@@ -1,11 +1,12 @@
 package service
 
 import (
+	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type PlanService interface {
@@ -74,12 +75,17 @@ func (p planService) Delete(name string) error {
 
 func (p planService) Create(creation dto.PlanCreate) (dto.Plan, error) {
 
+	vars, _ := json.Marshal(creation.PlanVars)
+
 	plan := model.Plan{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
+		BaseModel:      common.BaseModel{},
+		Name:           creation.Name,
+		Vars:           string(vars),
+		RegionID:       creation.RegionId,
+		DeployTemplate: creation.DeployTemplate,
 	}
 
-	err := p.planRepo.Save(&plan)
+	err := p.planRepo.Save(&plan, creation.Zones)
 	if err != nil {
 		return dto.Plan{}, err
 	}

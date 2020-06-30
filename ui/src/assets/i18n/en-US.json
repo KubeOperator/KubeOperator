@@ -53,6 +53,8 @@
   "APP_PORT": "Port",
   "APP_CPU": "Cpu",
   "APP_HOST_MEMORY": "Memory",
+  "APP_HOST_MEMORY_GB": "Memory",
+  "APP_HOST_DISK": "Disk(GB)",
   "APP_GPU": "Gpu",
   "APP_OS": "Operating System",
   "APP_USER": "User",
@@ -99,5 +101,16 @@
   "APP_PLAN": "Deploy Plan",
   "APP_PERSISTENT_VOLUME": "Persistent Volume",
   "APP_STORAGE_CLASS": "Storage Class",
-  "APP_STORAGE_PROVISIONER": "Storage Provisioner"
+  "APP_STORAGE_PROVISIONER": "Storage Provisioner",
+  "APP_PLAN_PROMPT": "Deployment Plan (Plan): An abstract concept used in KubeOperator to describe in which region, in which Availability Zones, what machine specifications are used, and what type of cluster is deployed",
+  "APP_PLAN_DELETE": "Delete Deploy Plan",
+  "APP_PLAN_DEPLOY_TEMPLATE": "Deployment Model",
+  "APP_PLAN_DEPLOY_TEMPLATE_SINGLE": "One master and  multi-node",
+  "APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE": "Multi-master multi-node",
+  "APP_PLAN_DEPLOY_CONFIG": "Configuration Plan",
+  "APP_PLAN_DEPLOY_MASTER": "Master Specifications",
+  "APP_PLAN_DEPLOY_WORKER": "Worker Specifications",
+  "APP_PLAN_DEPLOY_CONFIG_REFERENCE": "Configuration Reference",
+  "APP_CONFIG": "Specification",
+  "APP_PLAN_ADD": "Create Deploy Plan"
 }

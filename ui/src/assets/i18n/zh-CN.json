@@ -55,6 +55,8 @@
   "APP_PORT": "端口",
   "APP_CPU": "CPU(核)",
   "APP_HOST_MEMORY": "内存(MB)",
+  "APP_HOST_MEMORY_GB": "内存(GB)",
+  "APP_HOST_DISK": "磁盘(GB)",
   "APP_GPU": "GPU(个)",
   "APP_OS": "操作系统",
   "APP_STATUS": "状态",
@@ -102,5 +104,16 @@
   "APP_PLAN": "部署计划",
   "APP_PERSISTENT_VOLUME": "持久卷",
   "APP_STORAGE_CLASS": "存储类",
-  "APP_STORAGE_PROVISIONER": "存储提供商"
+  "APP_STORAGE_PROVISIONER": "存储提供商",
+  "APP_PLAN_PROMPT": "部署计划 (Plan): 在 KubeOperator 中用来描述在哪个区域下，哪些可用区中，使用什么样的机器规格，部署什么类型的集群的一个抽象概念",
+  "APP_PLAN_DELETE": "删除部署计划",
+  "APP_PLAN_DEPLOY_TEMPLATE": "部署模型",
+  "APP_PLAN_DEPLOY_TEMPLATE_SINGLE": "一主多节点",
+  "APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE": "多主多节点",
+  "APP_PLAN_DEPLOY_CONFIG": "配置计划",
+  "APP_PLAN_DEPLOY_MASTER": "Master 规格",
+  "APP_PLAN_DEPLOY_WORKER": "Worker 规格",
+  "APP_PLAN_DEPLOY_CONFIG_REFERENCE": "配置参考",
+  "APP_CONFIG": "规格",
+  "APP_PLAN_ADD": "创建部署计划"
 }
