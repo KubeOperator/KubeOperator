@@ -13,6 +13,8 @@
   "APP_RETRY": "Retry",
   "APP_DEFAULT_OPTION": "select",
   "APP_PAGER_TOTAL": "total",
+  "APP_CAPACITY": "capacity",
+  "APP_SOURCE": "source",
   "APP_PAGER_PER_PAGE": "per page",
   "APP_CREATED_DATE": "Created date",
   "APP_UPDATED_DATE": "Updated date",
@@ -94,6 +96,8 @@
   "APP_ZONE": "Zone",
   "APP_ZONE_PROMPT": "Zone: Similar to the concept of AZ in the public cloud, it can be understood as a specific computer room in the region, such as Beijing 1 and Beijing 2. For vSphere, the Availability Zone corresponds to the cluster, and can also correspond to the resource pool under the cluster",
   "APP_ZONE_DELETE": "Delete Zone",
-  "APP_PLAN": "Deploy Plan"
-
+  "APP_PLAN": "Deploy Plan",
+  "APP_PERSISTENT_VOLUME": "Persistent Volume",
+  "APP_STORAGE_CLASS": "Storage Class",
+  "APP_STORAGE_PROVISIONER": "Storage Provisioner"
 }

@@ -14,6 +14,8 @@
   "APP_DEFAULT_OPTION": "请选择",
   "APP_DEFAULT_DELETE_WARNING": "删除操作不可回滚，确认继续?",
   "APP_PAGER_TOTAL": "总共",
+  "APP_CAPACITY": "容量",
+  "APP_SOURCE": "来源",
   "APP_PAGER_PER_PAGE": "每页",
   "APP_ADD_SUCCESS": "添加成功",
   "APP_UPDATE_SUCCESS": "更新成功",
@@ -97,5 +99,8 @@
   "APP_ZONE": "可用区",
   "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池",
   "APP_ZONE_DELETE": "删除可用区",
-  "APP_PLAN": "部署计划"
+  "APP_PLAN": "部署计划",
+  "APP_PERSISTENT_VOLUME": "持久卷",
+  "APP_STORAGE_CLASS": "存储类",
+  "APP_STORAGE_PROVISIONER": "存储提供商"
 }

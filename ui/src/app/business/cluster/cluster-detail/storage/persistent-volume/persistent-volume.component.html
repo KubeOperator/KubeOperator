@@ -1,1 +1,7 @@
-<app-persistent-volume-list></app-persistent-volume-list>
+<app-persistent-volume-list [currentCluster]="currentCluster" (createEvent)="openCreate()"></app-persistent-volume-list>
+<app-persistent-volume-create (selected)="openSelected($event)"></app-persistent-volume-create>
+<app-persistent-volume-create-nfs [currentCluster]="currentCluster"
+                                  (created)="refresh()"></app-persistent-volume-create-nfs>
+<app-persistent-volume-create-host-path [currentCluster]="currentCluster"
+                                        (created)="refresh()"></app-persistent-volume-create-host-path>
+

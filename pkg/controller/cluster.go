@@ -2,23 +2,25 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
 )
 
 type ClusterController struct {
-	Ctx                   context.Context
-	ClusterService        service.ClusterService
-	ClusterInitService    service.ClusterInitService
-	ClusterMonitorService service.ClusterMonitorService
+	Ctx                              context.Context
+	ClusterService                   service.ClusterService
+	ClusterInitService               service.ClusterInitService
+	ClusterMonitorService            service.ClusterMonitorService
+	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 }
 
 func NewClusterController() *ClusterController {
 	return &ClusterController{
-		ClusterService:        service.NewClusterService(),
-		ClusterInitService:    service.NewClusterInitService(),
-		ClusterMonitorService: service.NewClusterMonitorService(),
+		ClusterService:                   service.NewClusterService(),
+		ClusterInitService:               service.NewClusterInitService(),
+		ClusterMonitorService:            service.NewClusterMonitorService(),
+		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 	}
 }
 
@@ -67,6 +69,18 @@ func (c ClusterController) Post() error {
 
 func (c ClusterController) PostInitBy(name string) error {
 	return c.ClusterInitService.Init(name)
+}
+
+func (c ClusterController) GetProvisionerBy(name string) ([]dto.ClusterStorageProvisioner, error) {
+	return c.ClusterStorageProvisionerService.ListStorageProvisioner(name)
+}
+func (c ClusterController) PostProvisionerBy(name string) (dto.ClusterStorageProvisioner, error) {
+	var req dto.ClusterStorageProvisionerCreation
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.ClusterStorageProvisioner{}, err
+	}
+	return c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
 }
 
 func (c ClusterController) Delete(name string) error {

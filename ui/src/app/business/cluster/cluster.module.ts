@@ -50,6 +50,12 @@ import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/mo
 import { ClusterImportComponent } from './cluster-import/cluster-import.component';
 import { StorageClassCreateComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create.component';
 import { StorageClassCreateNfsComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create-nfs/storage-class-create-nfs.component';
+import { PersistentVolumeCreateComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create.component';
+import { PersistentVolumeCreateNfsComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-nfs/persistent-volume-create-nfs.component';
+import { PersistentVolumeCreateHostPathComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
+import { StorageProvisionerComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner.component';
+import { StorageProvisionerListComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-list/storage-provisioner-list.component';
+import { StorageProvisionerCreateComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create.component';
 
 
 @NgModule({
@@ -65,7 +71,13 @@ import { StorageClassCreateNfsComponent } from './cluster-detail/storage/storage
         MonitorStatusComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,
-        StorageClassCreateNfsComponent],
+        StorageClassCreateNfsComponent,
+        PersistentVolumeCreateComponent,
+        PersistentVolumeCreateNfsComponent,
+        PersistentVolumeCreateHostPathComponent,
+        StorageProvisionerComponent,
+        StorageProvisionerListComponent,
+        StorageProvisionerCreateComponent],
     imports: [
         CoreModule,
         RouterModule,

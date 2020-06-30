@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../../cluster';
 import {V1Namespace, V1PersistentVolume} from '@kubernetes/client-node';
@@ -11,32 +11,50 @@ import {KubernetesService} from '../../../../kubernetes.service';
 })
 export class PersistentVolumeListComponent implements OnInit {
 
-    currentCluster: Cluster;
     items: V1PersistentVolume[] = [];
     loading = true;
     selected = [];
     nextToken = '';
     previousToken = '';
     continueToken = '';
+    @Output() createEvent = new EventEmitter();
+    @Input() currentCluster: Cluster;
 
-    constructor(private service: KubernetesService, private route: ActivatedRoute) {
+    constructor(private service: KubernetesService,) {
     }
 
     ngOnInit(): void {
-        this.route.parent.parent.data.subscribe(data => {
-            this.currentCluster =data.cluster;
-            this.list();
-        });
+        this.list();
     }
 
     list() {
         this.loading = true;
         this.service.listPersistentVolumes(this.currentCluster.name, this.continueToken).subscribe(data => {
             this.loading = false;
-            console.log(data);
             this.items = data.items;
             this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';
         });
+    }
+
+
+    getSource(item: V1PersistentVolume) {
+        for (const key in item.spec) {
+            if (key === 'nfs') {
+                return 'NFS';
+            }
+            if (key === 'hostPath') {
+                return 'Host Path';
+            }
+        }
+        return 'unknown';
+    }
+
+    refresh() {
+        this.list();
+    }
+
+    onCreate() {
+        this.createEvent.emit();
     }
 
 }

@@ -11,7 +11,7 @@ import (
 type ClusterNode struct {
 	common.BaseModel
 	ID        string `json:"_"`
-	Name      string `gorm:"not null;unique" json:"name"`
+	Name      string `json:"name"`
 	HostID    string `json:"_"`
 	Host      Host   `json:"_" gorm:"save_associations:false"`
 	ClusterID string `json:"clusterId"`

@@ -6,7 +6,7 @@ import {
     NetworkingV1beta1IngressList,
     V1beta1CronJobList, V1beta1CSINodeList, V1ConfigMapList, V1CSINodeList, V1DaemonSetList,
     V1DeploymentList, V1JobList,
-    V1NodeList,
+    V1NodeList, V1PersistentVolume,
     V1PersistentVolumeClaimList,
     V1PersistentVolumeList, V1PodList, V1SecretList, V1ServiceList, V1StatefulSetList, V1StorageClass, V1StorageClassList
 } from '@kubernetes/client-node';
@@ -79,6 +79,10 @@ export class KubernetesService {
         return this.client.get<V1NamespaceList>(url);
     }
 
+    createPersistentVolume(clusterName: string, item: V1PersistentVolume): Observable<V1PersistentVolume> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.persistentVolumesUrl);
+        return this.client.post<V1PersistentVolume>(url, item);
+    }
 
     listPersistentVolumes(clusterName: string, continueToken?: string): Observable<V1PersistentVolumeList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.persistentVolumesUrl);

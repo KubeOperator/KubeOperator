@@ -1,0 +1,32 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #pvForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_NAME"|translate}}</label>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.metadata.name" required/>
+            </clr-input-container>
+            <clr-input-container>
+                <label>Size (Gib)</label>
+                <input clrInput type="number" [size]="32" name="size" [(ngModel)]="item.spec.capacity['storage']"
+                       required/>
+            </clr-input-container>
+            <clr-select-container>
+                <label>Access Mode</label>
+                <select clrSelect name="accessMode" [(ngModel)]="accessMode">
+                    <option value="ReadWriteOnce">ReadWriteOnce</option>
+                    <option value="ReadWriteMany">ReadWriteMany</option>
+                </select>
+            </clr-select-container>
+            <clr-input-container>
+                <label>Host Path</label>
+                <input clrInput [size]="32" name="path" [(ngModel)]="item.spec.hostPath.path" required/>
+            </clr-input-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing||pvForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

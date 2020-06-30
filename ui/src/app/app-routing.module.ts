@@ -33,6 +33,7 @@ import {RegionComponent} from './business/deploy-plan/region/region.component';
 import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component';
 import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
 import {PlanComponent} from './business/deploy-plan/plan/plan.component';
+import {StorageProvisionerComponent} from './business/cluster/cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -64,6 +65,7 @@ const routes: Routes = [
                             {path: 'pv', component: PersistentVolumeComponent},
                             {path: 'pvc', component: PersistentVolumeClaimComponent},
                             {path: 'sc', component: StorageClassComponent},
+                            {path: 'provisioner', component: StorageProvisionerComponent},
                         ],
                     },
                     {
