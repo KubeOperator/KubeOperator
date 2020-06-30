@@ -11,7 +11,7 @@ import (
 type Cluster struct {
 	common.BaseModel
 	ID        string         `json:"_"`
-	Name      string         `json:"name"`
+	Name      string         `json:"name" gorm:"not null;unique"`
 	Source    string         `json:"source"`
 	SpecID    string         `json:"_"`
 	SecretID  string         `json:"_"`

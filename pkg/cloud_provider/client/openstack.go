@@ -18,6 +18,9 @@ func (v *openStackClient) ListDatacenter() ([]string, error) {
 	return []string{}, nil
 }
 
-func (v *openStackClient) ListClusters(datacenter string) ([]string, error) {
-	return []string{}, nil
+func (v *openStackClient) ListClusters() ([]interface{}, error) {
+	return []interface{}{}, nil
+}
+func (v *openStackClient) ListTemplates() ([]interface{}, error) {
+	return []interface{}{}, nil
 }

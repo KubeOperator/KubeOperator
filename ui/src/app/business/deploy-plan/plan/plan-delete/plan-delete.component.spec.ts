@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IngressListComponent } from './ingress-list.component';
+import { PlanDeleteComponent } from './plan-delete.component';
 
-describe('IngressListComponent', () => {
-  let component: IngressListComponent;
-  let fixture: ComponentFixture<IngressListComponent>;
+describe('PlanDeleteComponent', () => {
+  let component: PlanDeleteComponent;
+  let fixture: ComponentFixture<PlanDeleteComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ IngressListComponent ]
+      declarations: [ PlanDeleteComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IngressListComponent);
+    fixture = TestBed.createComponent(PlanDeleteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -15,4 +15,5 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/regions")).Handle(controller.NewRegionController())
 	mvc.New(v1.Party("/cloud/providers")).Handle(controller.NewCloudProviderController())
 	mvc.New(v1.Party("/zones")).Handle(controller.NewZoneController())
+	mvc.New(v1.Party("/plans")).Handle(controller.NewPlanController())
 }

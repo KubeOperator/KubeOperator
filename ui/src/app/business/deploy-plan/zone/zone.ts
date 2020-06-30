@@ -19,5 +19,19 @@ export class CloudZoneRequest extends BaseRequest {
     datacenter: string;
 }
 
+export class CloudZone {
+    cluster: string;
+    networks: [] = [];
+    resourcePools: [] = [];
+    datastores: [] = [];
+}
+
+export class CloudTemplate {
+    imageName: string;
+    guestId: string;
+}
+
+
+
 
 

@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IngressComponent } from './ingress.component';
+import { PlanCreateComponent } from './plan-create.component';
 
-describe('IngressComponent', () => {
-  let component: IngressComponent;
-  let fixture: ComponentFixture<IngressComponent>;
+describe('PlanCreateComponent', () => {
+  let component: PlanCreateComponent;
+  let fixture: ComponentFixture<PlanCreateComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ IngressComponent ]
+      declarations: [ PlanCreateComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IngressComponent);
+    fixture = TestBed.createComponent(PlanCreateComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

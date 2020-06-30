@@ -1,13 +1,14 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type ZoneService interface {
@@ -17,7 +18,8 @@ type ZoneService interface {
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (dto.Zone, error)
 	Batch(op dto.ZoneOp) error
-	ListClusters(creation dto.CloudZoneRequest) ([]string, error)
+	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
+	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
 }
 
 type zoneService struct {
@@ -77,11 +79,13 @@ func (z zoneService) Delete(name string) error {
 
 func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 
+	vars, _ := json.Marshal(creation.CloudVars)
+
 	zone := model.Zone{
 		BaseModel: common.BaseModel{},
 		Name:      creation.Name,
-		//Vars:       creation.Vars,
-		//Datacenter: creation.Datacenter,
+		Vars:      string(vars),
+		RegionID:  creation.RegionID,
 	}
 
 	err := z.zoneRepo.Save(&zone)
@@ -107,11 +111,27 @@ func (z zoneService) Batch(op dto.ZoneOp) error {
 	return nil
 }
 
-func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]string, error) {
+func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error) {
 	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
-	var result []string
+	var result []interface{}
 	if cloudClient != nil {
-		result, err := cloudClient.ListClusters(creation.Datacenter)
+		result, err := cloudClient.ListClusters()
+		if err != nil {
+			return result, err
+		}
+		if result == nil {
+			return result, errors.New("cluster is null")
+		}
+		return result, err
+	}
+	return result, nil
+}
+
+func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error) {
+	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	var result []interface{}
+	if cloudClient != nil {
+		result, err := cloudClient.ListTemplates()
 		if err != nil {
 			return result, err
 		}

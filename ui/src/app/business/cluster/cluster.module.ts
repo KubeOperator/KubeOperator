@@ -10,7 +10,6 @@ import {RouterModule} from '@angular/router';
 import {ClusterConditionComponent} from './cluster-condition/cluster-condition.component';
 import {NodeComponent} from './cluster-detail/node/node.component';
 import {ServiceComponent} from './cluster-detail/service/service.component';
-import {IngressComponent} from './cluster-detail/ingress/ingress.component';
 import {NamespaceComponent} from './cluster-detail/namespace/namespace.component';
 import {NamespaceListComponent} from './cluster-detail/namespace/namespace-list/namespace-list.component';
 import {SharedModule} from '../../shared/shared.module';
@@ -36,14 +35,12 @@ import {JobListComponent} from './cluster-detail/workload/job/job-list/job-list.
 import {CornJobListComponent} from './cluster-detail/workload/corn-job/corn-job-list/corn-job-list.component';
 import {DaemonSetListComponent} from './cluster-detail/workload/daemon-set/daemon-set-list/daemon-set-list.component';
 import {ServiceListComponent} from './cluster-detail/service/service-list/service-list.component';
-import {IngressListComponent} from './cluster-detail/ingress/ingress-list/ingress-list.component';
 import {ConfigMapComponent} from './cluster-detail/config/config-map/config-map.component';
 import {SecretComponent} from './cluster-detail/config/secret/secret.component';
 import {ConfigMapListComponent} from './cluster-detail/config/config-map/config-map-list/config-map-list.component';
 import {SecretListComponent} from './cluster-detail/config/secret/secret-list/secret-list.component';
 import {LoggingComponent} from './cluster-detail/logging/logging.component';
 import {LoggingQueryComponent} from './cluster-detail/logging/logging-query/logging-query.component';
-import {IngressInstallComponent} from './cluster-detail/ingress/ingress-install/ingress-install.component';
 
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
@@ -51,6 +48,8 @@ import {MonitorDashboardComponent} from './cluster-detail/monitor/monitor-dashbo
 import {MonitorEnableComponent} from './cluster-detail/monitor/monitor-enable/monitor-enable.component';
 import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/monitor-status.component';
 import { ClusterImportComponent } from './cluster-import/cluster-import.component';
+import { StorageClassCreateComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create.component';
+import { StorageClassCreateNfsComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create-nfs/storage-class-create-nfs.component';
 
 
 @NgModule({
@@ -60,11 +59,13 @@ import { ClusterImportComponent } from './cluster-import/cluster-import.componen
         NodeListComponent, NodeDetailComponent, ConfigComponent, PersistentVolumeClaimListComponent,
         StorageClassListComponent, WorkloadComponent, DeploymentComponent, StatefulSetComponent, DaemonSetComponent, JobComponent,
         CornJobComponent, DeploymentListComponent, StatefulSetListComponent, JobListComponent, CornJobListComponent,
-        DaemonSetListComponent, ServiceComponent, IngressComponent, ServiceListComponent, IngressListComponent, ConfigMapComponent,
-        SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent, IngressInstallComponent,
+        DaemonSetListComponent, ServiceComponent,  ServiceListComponent,  ConfigMapComponent,
+        SecretComponent, ConfigMapListComponent, SecretListComponent, LoggingComponent, LoggingQueryComponent,
         MonitorComponent, MonitorDashboardComponent, MonitorEnableComponent,
         MonitorStatusComponent,
-        ClusterImportComponent],
+        ClusterImportComponent,
+        StorageClassCreateComponent,
+        StorageClassCreateNfsComponent],
     imports: [
         CoreModule,
         RouterModule,

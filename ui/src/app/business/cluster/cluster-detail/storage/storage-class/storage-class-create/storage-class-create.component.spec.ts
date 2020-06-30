@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { IngressInstallComponent } from './ingress-install.component';
+import { StorageClassCreateComponent } from './storage-class-create.component';
 
-describe('IngressInstallComponent', () => {
-  let component: IngressInstallComponent;
-  let fixture: ComponentFixture<IngressInstallComponent>;
+describe('StorageClassCreateComponent', () => {
+  let component: StorageClassCreateComponent;
+  let fixture: ComponentFixture<StorageClassCreateComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ IngressInstallComponent ]
+      declarations: [ StorageClassCreateComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IngressInstallComponent);
+    fixture = TestBed.createComponent(StorageClassCreateComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

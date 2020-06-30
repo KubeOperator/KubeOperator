@@ -43,4 +43,8 @@ export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
     openCreate(){
         this.create.open();
     }
+
+    openDelete(items) {
+        this.delete.open(items);
+    }
 }

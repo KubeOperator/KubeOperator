@@ -5,7 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/service/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 )
 
@@ -206,9 +206,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
-	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
-	//	return err
-	//}
+	if err := c.clusterInitService.Init(cluster.Name); err != nil {
+		return err
+	}
 	return nil
 }
 

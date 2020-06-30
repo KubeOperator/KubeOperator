@@ -5,9 +5,12 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/property"
+	"github.com/vmware/govmomi/view"
+	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
+	"github.com/vmware/govmomi/vim25/types"
 	"net/url"
-	"strings"
 )
 
 type vSphereClient struct {
@@ -36,17 +39,8 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 		return nil, err
 	}
 	client := v.Connect.Client.Client
-	//m := view.NewManager(client)
-	var data []string
-	//view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"Datastore"}, true)
-	//if err != nil {
-	//	return data, err
-	//}
-	//var datacenters []mo.Datastore
-	//err = view.Retrieve(v.Connect.Ctx, []string{"Datastore"}, []string{"summary"}, &datacenters)
-	//if err != nil {
-	//	return data, err
-	//}
+	var result []string
+
 	var datacenters []*object.Datacenter
 	f := find.NewFinder(client, true)
 	datacenters, err = f.DatacenterList(v.Connect.Ctx, "*")
@@ -55,45 +49,133 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	}
 
 	for _, d := range datacenters {
-		data = append(data, d.Common.InventoryPath)
+		result = append(result, d.Common.InventoryPath)
 	}
-	return data, nil
+	return result, nil
 }
 
-func (v *vSphereClient) ListClusters(datacenter string) ([]string, error) {
+func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	_, err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
 	client := v.Connect.Client.Client
-	//m := view.NewManager(client)
-	var data []string
-	//view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
-	//if err != nil {
-	//	return data,err
-	//}
-	//
-	//var clusters []object.ClusterComputeResource
-	//err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary"}, &clusters)
-	//if err != nil {
-	//	return data,err
-	//}
+	var result []interface{}
 
-	var clusters []*object.ComputeResource
-	var dc *object.Datacenter
-	f := find.NewFinder(client, true)
-	dc, _ = f.Datacenter(v.Connect.Ctx, datacenter)
-	f.SetDatacenter(dc)
-	clusters, err = f.ComputeResourceList(v.Connect.Ctx, "*")
+	m := view.NewManager(client)
+	view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
 	if err != nil {
-		return nil, err
+		return result, err
+	}
+
+	var clusters []mo.ClusterComputeResource
+	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore"}, &clusters)
+	if err != nil {
+		return result, err
 	}
 
 	for _, d := range clusters {
-		var name string
-		name = strings.Replace(d.Common.InventoryPath, datacenter+"/host/", "", -1)
-		data = append(data, name)
+		var clusterData map[string]interface{}
+		clusterData = make(map[string]interface{})
+
+		clusterData["cluster"] = d.ManagedEntity.Name
+		networks, _ := v.GetNetwork(d.ComputeResource.Network)
+		clusterData["networks"] = networks
+		datastores, _ := v.GetDatastore(d.ComputeResource.Datastore)
+		clusterData["datastores"] = datastores
+		resourcePools, _ := v.GetResourcePools(*d.ComputeResource.ResourcePool)
+		clusterData["resourcePools"] = resourcePools
+
+		result = append(result, clusterData)
 	}
+
+	return result, nil
+}
+
+func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
+	_, err := v.GetConnect()
+	if err != nil {
+		return nil, err
+	}
+	client := v.Connect.Client.Client
+	var result []interface{}
+
+	m := view.NewManager(client)
+
+	w, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
+	if err != nil {
+		return result, err
+	}
+
+	var vms []mo.VirtualMachine
+	err = w.Retrieve(v.Connect.Ctx, []string{"VirtualMachine"}, []string{"summary", "name"}, &vms)
+	if err != nil {
+		return result, err
+	}
+
+	for _, vm := range vms {
+		var template map[string]string
+		template = make(map[string]string)
+		if vm.Summary.Config.Template {
+			template["imageName"] = vm.Summary.Config.Name
+			template["guestId"] = vm.Summary.Config.GuestId
+			result = append(result, template)
+		}
+	}
+
+	return result, nil
+}
+
+func (v *vSphereClient) GetNetwork(mos []types.ManagedObjectReference) ([]string, error) {
+
+	pc := property.DefaultCollector(v.Connect.Client.Client)
+	rps := []mo.Network{}
+	var data []string
+	err := pc.Retrieve(v.Connect.Ctx, mos, []string{"summary", "name"}, &rps)
+	if err != nil {
+		return data, err
+	}
+	for _, d := range rps {
+		data = append(data, d.Name)
+	}
+	return data, nil
+}
+
+func (v *vSphereClient) GetDatastore(mos []types.ManagedObjectReference) ([]string, error) {
+
+	pc := property.DefaultCollector(v.Connect.Client.Client)
+	rps := []mo.Datastore{}
+	var data []string
+	err := pc.Retrieve(v.Connect.Ctx, mos, []string{"summary", "name"}, &rps)
+	if err != nil {
+		return data, err
+	}
+	for _, d := range rps {
+		data = append(data, d.Name)
+	}
+	return data, nil
+}
+
+func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]string, error) {
+
+	pc := property.DefaultCollector(v.Connect.Client.Client)
+	rp := mo.ResourcePool{}
+	var data []string
+	err := pc.RetrieveOne(v.Connect.Ctx, m, []string{"summary", "name", "resourcePool"}, &rp)
+	if err != nil {
+		return data, err
+	}
+	data = append(data, rp.Name)
+
+	rps := []mo.ResourcePool{}
+	err = pc.Retrieve(v.Connect.Ctx, rp.ResourcePool, []string{"summary", "name"}, &rps)
+	if err != nil {
+		return data, err
+	}
+	for _, r := range rps {
+		data = append(data, r.Name)
+	}
+
 	return data, nil
 }
 
