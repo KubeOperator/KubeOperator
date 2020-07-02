@@ -49,7 +49,6 @@ import {MonitorEnableComponent} from './cluster-detail/monitor/monitor-enable/mo
 import {MonitorStatusComponent} from './cluster-detail/monitor/monitor-status/monitor-status.component';
 import { ClusterImportComponent } from './cluster-import/cluster-import.component';
 import { StorageClassCreateComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create.component';
-import { StorageClassCreateNfsComponent } from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create-nfs/storage-class-create-nfs.component';
 import { PersistentVolumeCreateComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create.component';
 import { PersistentVolumeCreateNfsComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-nfs/persistent-volume-create-nfs.component';
 import { PersistentVolumeCreateHostPathComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
@@ -71,7 +70,6 @@ import { StorageProvisionerCreateComponent } from './cluster-detail/storage/stor
         MonitorStatusComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,
-        StorageClassCreateNfsComponent,
         PersistentVolumeCreateComponent,
         PersistentVolumeCreateNfsComponent,
         PersistentVolumeCreateHostPathComponent,

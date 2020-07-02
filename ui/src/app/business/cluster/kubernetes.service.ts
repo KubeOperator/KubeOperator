@@ -102,6 +102,13 @@ export class KubernetesService {
         return this.client.get<V1StorageClassList>(url);
     }
 
+
+    createStorageClass(clusterName: string, item: V1StorageClass): Observable<V1StorageClass> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.storageClassUrl);
+        return this.client.post<V1StorageClass>(url, item);
+    }
+
+
     listPersistentVolumeClaims(clusterName: string, continueToken?: string, namespace?: string): Observable<V1PersistentVolumeClaimList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName);
         url += '?limit=' + this.limit;

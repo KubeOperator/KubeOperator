@@ -112,5 +112,8 @@
   "APP_PLAN_DEPLOY_WORKER": "Worker Specifications",
   "APP_PLAN_DEPLOY_CONFIG_REFERENCE": "Configuration Reference",
   "APP_CONFIG": "Specification",
-  "APP_PLAN_ADD": "Create Deploy Plan"
+  "APP_PLAN_ADD": "Create Deploy Plan",
+  "APP_RECLAIM_POLICY": "Reclaim Policy",
+  "APP_VOLUME_BINDING_MODE": "Volume Binding Mode",
+  "APP_PROVISIONER": "Provisioner"
 }

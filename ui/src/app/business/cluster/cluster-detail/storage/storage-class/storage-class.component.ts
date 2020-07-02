@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {StorageClassCreateComponent} from './storage-class-create/storage-class-create.component';
 import {StorageClassListComponent} from './storage-class-list/storage-class-list.component';
-import {CreateStorageClassRequest} from '../storage';
-import {StorageClassCreateNfsComponent} from './storage-class-create/storage-class-create-nfs/storage-class-create-nfs.component';
+import {ActivatedRoute} from '@angular/router';
+import {Cluster} from '../../../cluster';
 
 @Component({
     selector: 'app-storage-class',
@@ -11,19 +11,21 @@ import {StorageClassCreateNfsComponent} from './storage-class-create/storage-cla
 })
 export class StorageClassComponent implements OnInit {
 
-    constructor() {
+    constructor(private route: ActivatedRoute) {
     }
+
+    currentCluster: Cluster;
 
     @ViewChild(StorageClassCreateComponent, {static: true})
     create: StorageClassCreateComponent;
-
-    @ViewChild(StorageClassCreateNfsComponent, {static: true})
-    createNfs: StorageClassCreateNfsComponent;
 
     @ViewChild(StorageClassListComponent, {static: true})
     list: StorageClassListComponent;
 
     ngOnInit(): void {
+        this.route.parent.parent.data.subscribe(data => {
+            this.currentCluster = data.cluster;
+        });
     }
 
     openCreate() {
@@ -33,12 +35,4 @@ export class StorageClassComponent implements OnInit {
     refresh() {
         this.list.refresh();
     }
-
-
-    openSelected(item: CreateStorageClassRequest) {
-        if (item.provisioner === 'nfs') {
-            this.createNfs.open();
-        }
-    }
-
 }
