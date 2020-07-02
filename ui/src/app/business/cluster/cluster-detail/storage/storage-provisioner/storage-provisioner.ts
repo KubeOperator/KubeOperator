@@ -9,5 +9,5 @@ export class StorageProvisioner extends BaseModel {
 export class CreateStorageProvisionerRequest {
     name: string;
     type: string;
-    vars: string;
+    vars: {} = {};
 }

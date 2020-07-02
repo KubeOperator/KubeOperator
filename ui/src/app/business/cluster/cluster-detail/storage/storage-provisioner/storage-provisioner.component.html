@@ -1,1 +1,5 @@
-<app-storage-provisioner-list [currentCluster]="currentCluster"></app-storage-provisioner-list>
+<app-storage-provisioner-list [currentCluster]="currentCluster"
+                              (createEvent)="openCreate()"></app-storage-provisioner-list>
+<app-storage-provisioner-create (selected)="openSelected($event)"></app-storage-provisioner-create>
+<app-storage-provisioner-create-nfs [currentCluster]="currentCluster"
+                                    (created)="refresh()"></app-storage-provisioner-create-nfs>

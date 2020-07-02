@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {StorageProvisionerService} from '../storage-provisioner.service';
 import {Cluster} from '../../../../cluster';
 import {StorageProvisioner} from '../storage-provisioner';
@@ -14,8 +14,9 @@ export class StorageProvisionerListComponent implements OnInit {
     }
 
     loading = false;
-    @Input() currentCluster: Cluster;
     items: StorageProvisioner[] = [];
+    @Output() createEvent = new EventEmitter();
+    @Input() currentCluster: Cluster;
 
     ngOnInit(): void {
         this.refresh();
@@ -25,6 +26,10 @@ export class StorageProvisionerListComponent implements OnInit {
         this.service.list(this.currentCluster.name).subscribe(data => {
             this.items = data;
         });
+    }
+
+    onCreate() {
+        this.createEvent.emit();
     }
 
     refresh() {

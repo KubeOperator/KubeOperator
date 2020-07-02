@@ -55,6 +55,7 @@ import { PersistentVolumeCreateHostPathComponent } from './cluster-detail/storag
 import { StorageProvisionerComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 import { StorageProvisionerListComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-list/storage-provisioner-list.component';
 import { StorageProvisionerCreateComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create.component';
+import { StorageProvisionerCreateNfsComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
 
 
 @NgModule({
@@ -75,7 +76,8 @@ import { StorageProvisionerCreateComponent } from './cluster-detail/storage/stor
         PersistentVolumeCreateHostPathComponent,
         StorageProvisionerComponent,
         StorageProvisionerListComponent,
-        StorageProvisionerCreateComponent],
+        StorageProvisionerCreateComponent,
+        StorageProvisionerCreateNfsComponent],
     imports: [
         CoreModule,
         RouterModule,

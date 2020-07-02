@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {CreateStorageProvisionerRequest} from '../storage-provisioner';
 
 @Component({
@@ -13,8 +13,22 @@ export class StorageProvisionerCreateComponent implements OnInit {
 
     opened = false;
     item = new CreateStorageProvisionerRequest();
+    @Output() selected = new EventEmitter<CreateStorageProvisionerRequest>();
 
     ngOnInit(): void {
+    }
+
+    open() {
+        this.opened = true;
+    }
+
+    onCancel() {
+        this.opened = false;
+    }
+
+    onSubmit() {
+        this.opened = false;
+        this.selected.emit(this.item);
     }
 
 
