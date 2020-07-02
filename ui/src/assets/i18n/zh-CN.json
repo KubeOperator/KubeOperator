@@ -115,5 +115,8 @@
   "APP_PLAN_DEPLOY_WORKER": "Worker 规格",
   "APP_PLAN_DEPLOY_CONFIG_REFERENCE": "配置参考",
   "APP_CONFIG": "规格",
-  "APP_PLAN_ADD": "创建部署计划"
+  "APP_PLAN_ADD": "创建部署计划",
+  "APP_RECLAIM_POLICY": "回收策略",
+  "APP_VOLUME_BINDING_MODE": "卷绑定模式",
+  "APP_PROVISIONER": "提供商"
 }

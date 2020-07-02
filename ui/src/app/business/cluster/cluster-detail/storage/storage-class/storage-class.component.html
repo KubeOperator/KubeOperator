@@ -1,3 +1,2 @@
 <app-storage-class-list (createEvent)="openCreate()"></app-storage-class-list>
-<app-storage-class-create (selected)="openSelected($event)"></app-storage-class-create>
-<app-storage-class-create-nfs (created)="refresh()"></app-storage-class-create-nfs>
+<app-storage-class-create [currentCluster]="currentCluster"></app-storage-class-create>

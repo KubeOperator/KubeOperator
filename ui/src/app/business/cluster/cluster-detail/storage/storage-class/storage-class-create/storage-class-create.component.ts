@@ -1,6 +1,14 @@
-import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {CreateStorageClassRequest} from '../../storage';
 import {NgForm} from '@angular/forms';
+import {V1PersistentVolume, V1StorageClass} from '@kubernetes/client-node';
+import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
+import {V1NFSVolumeSource} from '@kubernetes/client-node/dist/gen/model/v1NFSVolumeSource';
+import {V1PersistentVolumeSpec} from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec';
+import {StorageProvisionerService} from '../../storage-provisioner/storage-provisioner.service';
+import {StorageProvisioner} from '../../storage-provisioner/storage-provisioner';
+import {Cluster} from '../../../../cluster';
+import {KubernetesService} from '../../../../kubernetes.service';
 
 @Component({
     selector: 'app-storage-class-create',
@@ -9,20 +17,27 @@ import {NgForm} from '@angular/forms';
 })
 export class StorageClassCreateComponent implements OnInit {
 
-    constructor() {
+    constructor(private provisionerService: StorageProvisionerService, private kubernetesService: KubernetesService) {
     }
 
     opened = false;
-    item = new CreateStorageClassRequest();
-    @ViewChild('scForm') scForm: NgForm;
+    item: V1StorageClass;
+    provisioner: StorageProvisioner = new StorageProvisioner();
+    @Input() currentCluster: Cluster;
+    provisioners: StorageProvisioner[] = [];
+
     @Output() selected = new EventEmitter<CreateStorageClassRequest>();
 
+
     ngOnInit(): void {
+
     }
 
     reset() {
-        this.item = new CreateStorageClassRequest();
-        this.scForm.resetForm();
+        this.item = this.newV1StorageClass();
+        this.provisionerService.list(this.currentCluster.name).subscribe(data => {
+            this.provisioners = data;
+        });
     }
 
     open() {
@@ -30,13 +45,32 @@ export class StorageClassCreateComponent implements OnInit {
         this.reset();
     }
 
+    onProvisionerChange() {
+        this.item.provisioner = '';
+        if (this.provisioner) {
+            this.item.provisioner = this.provisioner.name;
+        }
+    }
+
     onSubmit() {
-        this.opened = false;
-        this.selected.emit(this.item);
+        this.kubernetesService.createStorageClass(this.currentCluster.name, this.item).subscribe(data => {
+            this.opened = false;
+        });
     }
 
     onCancel() {
         this.opened = false;
+    }
+
+    newV1StorageClass(): V1StorageClass {
+        return {
+            apiVersion: 'storage.k8s.io/v1',
+            kind: 'StorageClass',
+            metadata: {
+                name: ''
+            } as V1ObjectMeta,
+            provisioner: '',
+        } as V1StorageClass;
     }
 
 

@@ -1,20 +1,51 @@
-<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
-    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
-    <div class="modal-body modal-height">
-        <form clrForm #scForm='ngForm'>
-            <clr-radio-container>
-                <label>Provisioner</label>
-                <clr-radio-wrapper>
-                    <input type="radio" clrRadio name="provisioner" value="nfs" [(ngModel)]="item.provisioner"
-                           required/>
-                    <label>NFS</label>
-                </clr-radio-wrapper>
-                <clr-radio-wrapper>
-                    <input type="radio" clrRadio name="provisioner" value="others" [(ngModel)]="item.provisioner"
-                           required/>
-                    <label>Others</label>
-                </clr-radio-wrapper>
-            </clr-radio-container>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
+    <h3 class="modal-title">创建存储类</h3>
+    <div class="modal-body" *ngIf="item">
+        <form clrForm>
+            <clr-input-container>
+                <label>名称</label>
+                <input clrInput [size]="34" name="name" [(ngModel)]="item.metadata.name">
+            </clr-input-container>
+
+            <clr-select-container>
+                <label>存储类型</label>
+                <select clrSelect>
+                    <option value="">NFS</option>
+                    <option value="">Ceph-RBD</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container>
+                <label>提供商</label>
+                <select name="provisioner" [(ngModel)]="provisioner" (change)="onProvisionerChange()" clrSelect>
+                    <option [ngValue]="null">自定义</option>
+                    <option [ngValue]="p" *ngFor="let p of provisioners">{{p.name}}</option>
+                </select>
+            </clr-select-container>
+
+            <table class="table table-vertical" *ngIf="provisioner ===null">
+                <tbody>
+                <tr>
+                    <th>provisioner_name</th>
+                    <td>
+                        <input clrInput [size]="34" name="provisioner_name" [(ngModel)]="item.provisioner">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='nfs'">
+                <tbody>
+                <tr>
+                    <th>provisioner_name</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
+                               disabled>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
         </form>
     </div>
     <div class="modal-footer">
