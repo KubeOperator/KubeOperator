@@ -1,1 +1,13 @@
-<p>storage-provisioner-create works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_ADD" |translate}}</h3>
+    <div class="modal-body">
+        <form>
+            <clr-select-container>
+                <select clrSelect [(ngModel)]="item.type">
+                </select>
+            </clr-select-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+    </div>
+</clr-modal>
