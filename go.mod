@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589
+	github.com/KubeOperator/kotf v0.0.0-20200703074433-30148dd4a4d7
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -19,9 +20,11 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang-migrate/migrate/v4 v4.10.0
 	github.com/google/uuid v1.1.1
+	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect
+	github.com/iris-contrib/httpexpect v1.1.2 // indirect
 	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
 	github.com/jinzhu/gorm v1.9.12
 	github.com/json-iterator/go v1.1.10 // indirect
@@ -35,10 +38,11 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.3 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
+	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/pkg/sftp v1.11.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.5.0
-	github.com/spf13/viper v1.6.3
+	github.com/spf13/viper v1.7.0
 	github.com/swaggo/swag v1.6.5
 	github.com/valyala/fasthttp v1.14.0 // indirect
 	github.com/vmware/govmomi v0.23.0
@@ -54,10 +58,11 @@ require (
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	helm.sh/helm/v3 v3.2.3
 	k8s.io/api v0.18.2
+	k8s.io/apiextensions-apiserver v0.18.2 // indirect
 	k8s.io/apimachinery v0.18.2
 	k8s.io/cli-runtime v0.18.0
 	k8s.io/client-go v0.18.2
 	moul.io/http2curl v1.0.0 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
-	sigs.k8s.io/controller-runtime v0.6.0
 )
+
