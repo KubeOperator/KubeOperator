@@ -32,26 +32,30 @@
             <div *ngIf="item.cloudProvider === 'vSphere'">
                 <clr-input-container>
                     <label>{{'APP_REGION_VCENTER_HOST'|translate}}</label>
-                    <input clrInput size=45 type="text" [(ngModel)]="item.regionVars['vcHost']" name="vcHost" required>
+                    <input clrInput size=45 type="text" [(ngModel)]="item.regionVars['host']" name="vcHost" required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_API'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_REGION_VCENTER_PORT'|translate}}</label>
-                    <input clrInput size=45 type="number" [(ngModel)]="item.regionVars['vcPort']" name="vcPort"
+                    <input clrInput size=45 type="number" [(ngModel)]="item.regionVars['port']" name="vcPort"
                            required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_PORT_HELP'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_USERNAME'|translate}}</label>
-                    <input clrInput size=45 type="text" [(ngModel)]="item.regionVars['vcUsername']" name="vcUsername"
+                    <input clrInput size=45 type="text" [(ngModel)]="item.regionVars['username']" name="vcUsername"
                            required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_USER_HELP'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-password-container>
                     <label>{{'APP_PASSWORD'|translate}}</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.regionVars['vcPassword']"
+                    <input clrPassword size=45 type="password" [(ngModel)]="item.regionVars['password']"
                            name="vcPassword"
                            required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_PASSWORD_HELP'|translate}}</clr-control-helper>
                 </clr-password-container>
                 <button class="btn" [disabled]="paramsForm.invalid || isParamsCheckGoing" (click)="onCheckParams()">
