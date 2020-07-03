@@ -4,7 +4,8 @@ import {Cluster} from '../../../cluster';
 import {StorageProvisionerListComponent} from './storage-provisioner-list/storage-provisioner-list.component';
 import {StorageProvisionerCreateComponent} from './storage-provisioner-create/storage-provisioner-create.component';
 import {StorageProvisionerCreateNfsComponent} from './storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
-import {CreateStorageProvisionerRequest} from './storage-provisioner';
+import {CreateStorageProvisionerRequest, StorageProvisioner} from './storage-provisioner';
+import {StorageProvisionerDeleteComponent} from "./storage-provisioner-delete/storage-provisioner-delete.component";
 
 @Component({
     selector: 'app-storage-provisioner',
@@ -22,6 +23,9 @@ export class StorageProvisionerComponent implements OnInit {
     @ViewChild(StorageProvisionerCreateComponent, {static: true})
     create: StorageProvisionerCreateComponent;
 
+    @ViewChild(StorageProvisionerDeleteComponent, {static: true})
+    delete: StorageProvisionerDeleteComponent;
+
     @ViewChild(StorageProvisionerCreateNfsComponent, {static: true})
     nfs: StorageProvisionerCreateNfsComponent;
     currentCluster: Cluster;
@@ -34,6 +38,10 @@ export class StorageProvisionerComponent implements OnInit {
 
     openCreate() {
         this.create.open();
+    }
+
+    openDelete(items: StorageProvisioner[]) {
+        this.delete.open(items);
     }
 
 

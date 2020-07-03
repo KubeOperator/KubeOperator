@@ -12,3 +12,8 @@ type ClusterStorageProvisionerCreation struct {
 	Type string
 	Vars map[string]interface{}
 }
+
+type ClusterStorageProvisionerBatch struct {
+	Items     []ClusterStorageProvisioner `json:"items"`
+	Operation string                      `json:"operation"`
+}

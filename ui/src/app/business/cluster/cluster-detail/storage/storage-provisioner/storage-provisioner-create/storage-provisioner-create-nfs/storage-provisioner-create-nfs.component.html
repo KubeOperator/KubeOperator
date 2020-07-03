@@ -7,14 +7,24 @@
                 <input clrInput [(ngModel)]="item.name" name="name" size="34" required>
             </clr-input-container>
 
+            <clr-select-container>
+                <label>Version</label>
+                <select name="version" clrSelect [(ngModel)]="item.vars['storage_nfs_server_version']" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </clr-select-container>
+
             <clr-input-container>
                 <label>Server</label>
-                <input clrInput [(ngModel)]="item.vars['server']" name="server" size="34" required>
+                <input clrInput [(ngModel)]="item.vars['storage_nfs_server']" name="server" size="34" required>
             </clr-input-container>
+
 
             <clr-input-container>
                 <label>Path</label>
-                <input clrInput [(ngModel)]="item.vars['path']" name="path" size="34" required>
+                <input clrInput [(ngModel)]="item.vars['storage_nfs_server_path']" name="path" size="34" required>
             </clr-input-container>
         </form>
     </div>

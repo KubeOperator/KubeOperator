@@ -15,7 +15,9 @@ export class StorageProvisionerListComponent implements OnInit {
 
     loading = false;
     items: StorageProvisioner[] = [];
+    selected: StorageProvisioner[] = [];
     @Output() createEvent = new EventEmitter();
+    @Output() deleteEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
 
     ngOnInit(): void {
@@ -30,6 +32,10 @@ export class StorageProvisionerListComponent implements OnInit {
 
     onCreate() {
         this.createEvent.emit();
+    }
+
+    onDelete() {
+        this.deleteEvent.emit(this.selected);
     }
 
     refresh() {

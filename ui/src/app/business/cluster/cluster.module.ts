@@ -56,6 +56,7 @@ import { StorageProvisionerComponent } from './cluster-detail/storage/storage-pr
 import { StorageProvisionerListComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-list/storage-provisioner-list.component';
 import { StorageProvisionerCreateComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create.component';
 import { StorageProvisionerCreateNfsComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
+import { StorageProvisionerDeleteComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-delete/storage-provisioner-delete.component';
 
 
 @NgModule({
@@ -77,7 +78,8 @@ import { StorageProvisionerCreateNfsComponent } from './cluster-detail/storage/s
         StorageProvisionerComponent,
         StorageProvisionerListComponent,
         StorageProvisionerCreateComponent,
-        StorageProvisionerCreateNfsComponent],
+        StorageProvisionerCreateNfsComponent,
+        StorageProvisionerDeleteComponent],
     imports: [
         CoreModule,
         RouterModule,

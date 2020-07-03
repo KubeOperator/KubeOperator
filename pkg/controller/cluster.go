@@ -83,6 +83,18 @@ func (c ClusterController) PostProvisionerBy(name string) (dto.ClusterStoragePro
 	return c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
 }
 
+func (c ClusterController) DeleteProvisionerBy(clusterName string, name string) error {
+	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, name)
+}
+
+func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
+	var batch dto.ClusterStorageProvisionerBatch
+	if err := c.Ctx.ReadJSON(&batch); err != nil {
+		return err
+	}
+	return c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch)
+}
+
 func (c ClusterController) Delete(name string) error {
 	return c.ClusterService.Delete(name)
 }

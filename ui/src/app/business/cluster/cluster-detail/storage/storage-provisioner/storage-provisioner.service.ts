@@ -20,6 +20,16 @@ export class StorageProvisionerService {
     create(clusterName: string, item: CreateStorageProvisionerRequest): Observable<StorageProvisioner> {
         return this.http.post<StorageProvisioner>(this.baseUrl.replace('{cluster_name}', clusterName), item);
     }
+
+    delete(clusterName: string, name: string): Observable<any> {
+        const url = this.baseUrl.replace('{cluster_name}', clusterName) + name + '/';
+        return this.http.delete<any>(url);
+    }
+
+    batch(clusterName: string, items: StorageProvisioner[]): Observable<any> {
+        const url = this.baseUrl.replace('{cluster_name}', 'batch/' + clusterName);
+        return this.http.post<any>(url, {items, operation: 'delete'});
+    }
 }
 
 
