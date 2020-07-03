@@ -21,9 +21,11 @@ export class StorageClassCreateComponent implements OnInit {
     }
 
     opened = false;
+    isSubmitGoing = false;
     item: V1StorageClass;
     provisioner: StorageProvisioner = new StorageProvisioner();
     @Input() currentCluster: Cluster;
+    @Output() created = new EventEmitter();
     provisioners: StorageProvisioner[] = [];
 
     @Output() selected = new EventEmitter<CreateStorageClassRequest>();
@@ -53,7 +55,13 @@ export class StorageClassCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.isSubmitGoing) {
+            return;
+        }
+        this.isSubmitGoing = true;
         this.kubernetesService.createStorageClass(this.currentCluster.name, this.item).subscribe(data => {
+            this.isSubmitGoing = false;
+            this.created.emit();
             this.opened = false;
         });
     }

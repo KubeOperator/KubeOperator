@@ -15,7 +15,7 @@ const (
 
 type Interface interface {
 	Name() string
-	Run(p kobe.Interface) (kobe.Result, error)
+	Run(p kobe.Interface) error
 }
 
 func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) error {

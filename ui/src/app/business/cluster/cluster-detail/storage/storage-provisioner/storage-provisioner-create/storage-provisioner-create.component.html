@@ -1,1 +1,19 @@
-<p>storage-provisioner-create works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_ADD" |translate}}</h3>
+    <div class="modal-body">
+        <form clrForm #selectForm='ngForm'>
+            <clr-select-container>
+                <label>类型</label>
+                <select clrSelect [(ngModel)]="item.type" name="type" required>
+                    <option value="">请选择</option>
+                    <option value="nfs">NFS</option>
+                </select>
+            </clr-select-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="selectForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>
