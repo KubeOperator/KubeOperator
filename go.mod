@@ -65,5 +65,4 @@ require (
 	moul.io/http2curl v1.0.0 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
-replace github.com/KubeOperator/kotf v0.0.0-20200703074433-30148dd4a4d7 => /Users/zk.wang/go/src/github.com/KubeOperator/kotf
 
