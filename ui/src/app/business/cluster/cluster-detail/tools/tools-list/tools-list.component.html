@@ -1,0 +1,24 @@
+<div class="clr-row">
+    <div class="clr-col-4" *ngFor="let item of items">
+        <div class="card">
+            <div class="card-block">
+                <div class="card-media-block">
+                    <img [src]="'assets/images/tool/'+item.logo" class="card-media-image">
+                    <div class="card-media-description">
+                        <span class="card-media-title">
+                            {{item.name}}
+                        </span>
+                        <span class="card-media-text">
+                            {{item.version}}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-text">
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-sm btn-link">Enable</button>
+            </div>
+        </div>
+    </div>
+</div>

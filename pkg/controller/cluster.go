@@ -13,6 +13,7 @@ type ClusterController struct {
 	ClusterInitService               service.ClusterInitService
 	ClusterMonitorService            service.ClusterMonitorService
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
+	ClusterToolService               service.ClusterToolService
 }
 
 func NewClusterController() *ClusterController {
@@ -21,6 +22,7 @@ func NewClusterController() *ClusterController {
 		ClusterInitService:               service.NewClusterInitService(),
 		ClusterMonitorService:            service.NewClusterMonitorService(),
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
+		ClusterToolService:               service.NewClusterToolService(),
 	}
 }
 
@@ -93,6 +95,17 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 		return err
 	}
 	return c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch)
+}
+
+func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, error) {
+	return c.ClusterToolService.List(clusterName)
+}
+func (c ClusterController) PatchToolBy(clusterName string) (dto.ClusterTool, error) {
+	var req dto.ClusterTool
+	if err := c.Ctx.ReadJSON(&req); err != nil {
+		return req, err
+	}
+	return c.ClusterToolService.Save(clusterName, req)
 }
 
 func (c ClusterController) Delete(name string) error {

@@ -57,6 +57,11 @@ import { StorageProvisionerListComponent } from './cluster-detail/storage/storag
 import { StorageProvisionerCreateComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create.component';
 import { StorageProvisionerCreateNfsComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
 import { StorageProvisionerDeleteComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-delete/storage-provisioner-delete.component';
+import { ToolsComponent } from './cluster-detail/tools/tools.component';
+import { ToolsListComponent } from './cluster-detail/tools/tools-list/tools-list.component';
+import { PrometheusEnableComponent } from './cluster-detail/tools/tools-list/prometheus-enable/prometheus-enable.component';
+import { LoggingEnableComponent } from './cluster-detail/tools/tools-list/logging-enable/logging-enable.component';
+import { DashboardEnableComponent } from './cluster-detail/tools/tools-list/dashboard-enable/dashboard-enable.component';
 
 
 @NgModule({
@@ -79,7 +84,12 @@ import { StorageProvisionerDeleteComponent } from './cluster-detail/storage/stor
         StorageProvisionerListComponent,
         StorageProvisionerCreateComponent,
         StorageProvisionerCreateNfsComponent,
-        StorageProvisionerDeleteComponent],
+        StorageProvisionerDeleteComponent,
+        ToolsComponent,
+        ToolsListComponent,
+        PrometheusEnableComponent,
+        LoggingEnableComponent,
+        DashboardEnableComponent],
     imports: [
         CoreModule,
         RouterModule,
