@@ -35,6 +35,9 @@ import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
 import {PlanComponent} from './business/deploy-plan/plan/plan.component';
 import {StorageProvisionerComponent} from './business/cluster/cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 import {ToolsComponent} from "./business/cluster/cluster-detail/tools/tools.component";
+import {RepositoryComponent} from "./business/cluster/cluster-detail/repository/repository.component";
+import {ChartmuseumComponent} from "./business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component";
+import {RegistryComponent} from "./business/cluster/cluster-detail/repository/registry/registry.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -96,6 +99,15 @@ const routes: Routes = [
                     },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
+                    {
+                        path: 'repository',
+                        component: RepositoryComponent,
+                        children: [
+                            {path: '', redirectTo: 'chartmuseum', pathMatch: 'full'},
+                            {path: 'chartmuseum', component: ChartmuseumComponent},
+                            {path: 'registry', component: RegistryComponent}
+                        ]
+                    },
                     {path: 'tool', component: ToolsComponent},
                 ],
             },

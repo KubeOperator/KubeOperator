@@ -18,7 +18,6 @@ type Cluster struct {
 	StatusID  string         `json:"_"`
 	MonitorID string         `json:"_"`
 	Spec      ClusterSpec    `gorm:"save_associations:false" json:"spec"`
-	Monitor   ClusterMonitor `gorm:"save_associations:false" json:"monitor"`
 	Secret    ClusterSecret  `gorm:"save_associations:false" json:"_"`
 	Status    ClusterStatus  `gorm:"save_associations:false" json:"_"`
 	Nodes     []ClusterNode  `gorm:"save_associations:false" json:"_"`
@@ -43,15 +42,9 @@ func (c *Cluster) BeforeCreate() error {
 		tx.Rollback()
 		return err
 	}
-
-	if err := tx.Create(&c.Monitor).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
 	c.SpecID = c.Spec.ID
 	c.StatusID = c.Status.ID
 	c.SecretID = c.Secret.ID
-	c.MonitorID = c.Monitor.ID
 	for i, _ := range c.Nodes {
 		c.Nodes[i].ClusterID = c.ID
 		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
@@ -97,13 +90,7 @@ func (c Cluster) BeforeDelete() error {
 			return err
 		}
 	}
-	if cluster.MonitorID != "" {
-		if err := tx.Where(ClusterMonitor{ID: cluster.MonitorID}).
-			Delete(ClusterMonitor{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
+
 	if len(cluster.Nodes) > 0 {
 		for _, node := range cluster.Nodes {
 			if err := tx.Where(ClusterNode{ID: node.ID}).

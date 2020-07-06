@@ -7,7 +7,7 @@ import (
 
 type ClusterToolRepository interface {
 	List(clusterName string) ([]model.ClusterTool, error)
-	Save(clusterName string, tool *model.ClusterTool) error
+	Save( tool *model.ClusterTool) error
 }
 
 func NewClusterToolRepository() ClusterToolRepository {
@@ -32,14 +32,7 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 	return tools, nil
 }
 
-func (c clusterToolRepository) Save(clusterName string, tool *model.ClusterTool) error {
-	var cluster model.Cluster
-	if err := db.DB.
-		Where(model.Cluster{Name: clusterName}).
-		First(&cluster).Error; err != nil {
-		return err
-	}
-	tool.ClusterID = cluster.ID
+func (c clusterToolRepository) Save(tool *model.ClusterTool) error {
 	if db.DB.NewRecord(tool) {
 		if err := db.DB.Create(tool).Error; err != nil {
 			return err

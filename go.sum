@@ -64,6 +64,7 @@ github.com/KubeOperator/kotf v0.0.0-20200624095740-0d1da2c9f1ef h1:R1XGm67/wihQF
 github.com/KubeOperator/kotf v0.0.0-20200624095740-0d1da2c9f1ef/go.mod h1:b92MncfwEozrjUx+uUdkYiJVZzUnthYU+jituv/bI3I=
 github.com/KubeOperator/kotf v0.0.0-20200701090017-3910cbaf9dc4 h1:E4CL93EwFSvFY3XgHBE6w3nHkcRpHIW61y8u3Eph2Oc=
 github.com/KubeOperator/kotf v0.0.0-20200701090017-3910cbaf9dc4/go.mod h1:sKDEanttq6NIebN74lJ4J4dFZZcNHNbUL4XvXoa8vCU=
+github.com/KubeOperator/kotf v0.0.0-20200703074433-30148dd4a4d7/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd h1:sjQovDkwrZp8u+gxLtPgKGjk5hCxuy2hrRejBTA9xFU=

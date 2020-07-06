@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClusterTool} from "../tools";
 import {ToolsService} from "../tools.service";
 import {Cluster} from "../../../cluster";
@@ -11,17 +11,15 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class ToolsListComponent implements OnInit {
 
-    constructor(private service: ToolsService, private route: ActivatedRoute) {
+    constructor(private service: ToolsService) {
     }
 
     items: ClusterTool[] = [];
-    currentCluster: Cluster;
+    @Input() currentCluster: Cluster;
+    @Output() enableEvent = new EventEmitter<ClusterTool>();
 
     ngOnInit(): void {
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.refresh();
-        });
+        this.refresh();
     }
 
 
@@ -29,6 +27,10 @@ export class ToolsListComponent implements OnInit {
         this.service.list(this.currentCluster.name).subscribe(data => {
             this.items = data;
         });
+    }
+
+    onEnable(item: ClusterTool) {
+        this.enableEvent.emit(item);
     }
 
 }

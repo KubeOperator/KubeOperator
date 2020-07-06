@@ -15,6 +15,8 @@ type ClusterTool struct {
 	Status    string `json:"status"`
 	Message   string `json:"message"`
 	Logo      string `json:"logo"`
+	Vars      string `json:"vars"`
+	Url       string `json:"url"`
 }
 
 func (c *ClusterTool) BeforeCreate() (err error) {

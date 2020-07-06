@@ -25,9 +25,6 @@ type ClusterNode struct {
 	model.ClusterNode
 }
 
-type ClusterMonitor struct {
-	model.ClusterMonitor
-}
 
 type ClusterSpec struct {
 	model.ClusterSpec

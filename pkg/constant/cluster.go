@@ -28,4 +28,10 @@ const (
 
 	DefaultNamespace     = "kube-operator"
 	DefaultApiServerPort = 8443
+
+	DefaultIngress            = "apps.ko.com"
+	DefaultPrometheusIngress  = "prometheus." + DefaultIngress
+	DefaultLoggingIngress     = "logging." + DefaultIngress
+	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
+	DefaultRegistryIngress    = "registry." + DefaultIngress
 )

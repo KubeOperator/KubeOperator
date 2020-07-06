@@ -11,7 +11,6 @@ type ClusterController struct {
 	Ctx                              context.Context
 	ClusterService                   service.ClusterService
 	ClusterInitService               service.ClusterInitService
-	ClusterMonitorService            service.ClusterMonitorService
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterToolService               service.ClusterToolService
 }
@@ -20,7 +19,6 @@ func NewClusterController() *ClusterController {
 	return &ClusterController{
 		ClusterService:                   service.NewClusterService(),
 		ClusterInitService:               service.NewClusterInitService(),
-		ClusterMonitorService:            service.NewClusterMonitorService(),
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterToolService:               service.NewClusterToolService(),
 	}
@@ -52,13 +50,6 @@ func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
 	return c.ClusterService.GetStatus(name)
 }
 
-func (c ClusterController) GetMonitorBy(name string) (dto.ClusterMonitor, error) {
-	return c.ClusterService.GetMonitor(name)
-}
-
-func (c ClusterController) PostMonitorBy(name string) error {
-	return c.ClusterMonitorService.Init(name)
-}
 
 func (c ClusterController) Post() error {
 	var req dto.ClusterCreate
@@ -99,13 +90,6 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 
 func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, error) {
 	return c.ClusterToolService.List(clusterName)
-}
-func (c ClusterController) PatchToolBy(clusterName string) (dto.ClusterTool, error) {
-	var req dto.ClusterTool
-	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return req, err
-	}
-	return c.ClusterToolService.Save(clusterName, req)
 }
 
 func (c ClusterController) Delete(name string) error {

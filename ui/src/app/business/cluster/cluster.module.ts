@@ -62,6 +62,11 @@ import { ToolsListComponent } from './cluster-detail/tools/tools-list/tools-list
 import { PrometheusEnableComponent } from './cluster-detail/tools/tools-list/prometheus-enable/prometheus-enable.component';
 import { LoggingEnableComponent } from './cluster-detail/tools/tools-list/logging-enable/logging-enable.component';
 import { DashboardEnableComponent } from './cluster-detail/tools/tools-list/dashboard-enable/dashboard-enable.component';
+import { RepositoryComponent } from './cluster-detail/repository/repository.component';
+import { RegistryComponent } from './cluster-detail/repository/registry/registry.component';
+import { ChartmuseumComponent } from './cluster-detail/repository/chartmuseum/chartmuseum.component';
+import { ChartListComponent } from './cluster-detail/repository/chartmuseum/chart-list/chart-list.component';
+import { RegistryListComponent } from './cluster-detail/repository/registry/registry-list/registry-list.component';
 
 
 @NgModule({
@@ -89,7 +94,12 @@ import { DashboardEnableComponent } from './cluster-detail/tools/tools-list/dash
         ToolsListComponent,
         PrometheusEnableComponent,
         LoggingEnableComponent,
-        DashboardEnableComponent],
+        DashboardEnableComponent,
+        RepositoryComponent,
+        RegistryComponent,
+        ChartmuseumComponent,
+        ChartListComponent,
+        RegistryListComponent],
     imports: [
         CoreModule,
         RouterModule,
