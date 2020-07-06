@@ -12,19 +12,11 @@
                                 <span><b>{{'APP_NAME'|translate}}</b></span> <br>
                                 <span><b>{{'APP_VERSION'|translate}}</b></span> <br>
                                 <span><b>{{'APP_NETWORK_TYPE'|translate}}</b></span> <br>
-                                <!--                            <span><b>{{namespaceCount}}</b></span> <br>-->
-                                <!--                            <span><b>{{deploymentCount}}</b></span> <br>-->
-                                <!--                            <span><b>{{podCount}}</b></span> <br>-->
-                                <!--                            <span><b>{{containerCount}}</b></span> <br>-->
                             </div>
                             <div class="clr-col-lg-6 clr-col-12 type-face">
                                 <span>{{currentCluster.name}}</span> <br>
                                 <span>{{currentCluster.spec.version}}</span> <br>
                                 <span>{{currentCluster.spec.networkType}}</span> <br>
-                                <!--                            <span>Namespaces</span> <br>-->
-                                <!--                            <span>Deployments</span> <br>-->
-                                <!--                            <span>Pods</span> <br>-->
-                                <!--                            <span>Containers</span> <br>-->
                             </div>
                         </div>
                     </div>
@@ -97,7 +89,9 @@
                     </div>
                 </div>
             </div>
-
+            <div class="card-footer">
+                <button class="btn btn-sm" (click)="onOpenDashboard()">Dashboard</button>
+            </div>
         </div>
     </div>
 </div>

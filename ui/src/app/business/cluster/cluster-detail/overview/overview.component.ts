@@ -56,7 +56,7 @@ export class OverviewComponent implements OnInit {
             for (const pod of this.pods) {
                 this.containerNumber = this.containerNumber + pod.spec.containers.length;
             }
-            this.podUsagePercent = ( this.pods.length / this.podLimit ) * 100;
+            this.podUsagePercent = (this.pods.length / this.podLimit) * 100;
         });
     }
 
@@ -93,6 +93,10 @@ export class OverviewComponent implements OnInit {
             this.memUsagePercent = (this.memUsage / this.memTotal) * 100;
             this.cpuUsagePercent = (this.cpuUsage / this.cpuTotal) * 100;
         });
+    }
+
+    onOpenDashboard() {
+        window.open('/proxy/dashboard/' + this.currentCluster.name + '/root', '_blank');
     }
 }
 

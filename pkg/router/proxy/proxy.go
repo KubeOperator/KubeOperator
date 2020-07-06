@@ -18,5 +18,6 @@ func RegisterProxy(parent iris.Party) {
 	proxy.Any("/prometheus/{cluster_name}/{p:path}", PrometheusProxy)
 	proxy.Any("/grafana/{p:path}", GrafanaProxy)
 	proxy.Any("/chartmuseum/{cluster_name}/{p:path}", ChartmuseumProxy)
+	proxy.Any("/dashboard/{cluster_name}/{p:path}", DashboardProxy)
 	proxy.Any("/registry/{cluster_name}/{p:path}", RegistryProxy)
 }

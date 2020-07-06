@@ -34,4 +34,5 @@ const (
 	DefaultLoggingIngress     = "logging." + DefaultIngress
 	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
 	DefaultRegistryIngress    = "registry." + DefaultIngress
+	DefaultDashboardIngress    = "dashboard." + DefaultIngress
 )
