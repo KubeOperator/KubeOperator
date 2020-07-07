@@ -32,7 +32,7 @@ KubeOperator 的整体架构如下图所示：
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
--  应用商店：内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
+-  应用商店：内置 [KubeApps](https://github.com/kubeapps/kubeapps) 应用商店，快速部署和管理常见应用；
 -  GPU 支持：支持 GPU 节点，助力运行深度学习等应用；
 
 ## 功能列表
