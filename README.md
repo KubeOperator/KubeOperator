@@ -232,9 +232,9 @@ KubeOperator 的整体架构如下图所示：
 
  ## PPT、Demo 视频、使用文档
 
--  [:books: PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT。
--  [:tv:8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
--  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
+-  [PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT。
+-  [8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
+-  [安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
 
  ## Kubernetes 离线安装包
 
