@@ -31,7 +31,10 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 		return items, err
 	}
 	for _, m := range ms {
-		items = append(items, dto.ClusterTool{ClusterTool: m})
+		d := dto.ClusterTool{ClusterTool: m}
+		d.Vars = map[string]interface{}{}
+		_ = json.Unmarshal([]byte(m.Vars), &d.Vars)
+		items = append(items, d)
 	}
 	return items, nil
 }
@@ -76,4 +79,3 @@ func (c clusterToolService) do(p tools.Interface, tool *model.ClusterTool) {
 	tool.Status = constant.ClusterRunning
 	_ = c.toolRepo.Save(tool)
 }
-

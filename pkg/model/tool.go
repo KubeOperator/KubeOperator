@@ -15,7 +15,7 @@ type ClusterTool struct {
 	Status    string `json:"status"`
 	Message   string `json:"message"`
 	Logo      string `json:"logo"`
-	Vars      string `json:"vars"`
+	Vars      string `json:"_"`
 	Url       string `json:"url"`
 }
 

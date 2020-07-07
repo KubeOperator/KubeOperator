@@ -13,8 +13,14 @@ func NewClusterTool(cluster dto.ClusterWithEndpoint, tool *model.ClusterTool) (I
 	switch tool.Name {
 	case "Prometheus":
 		return NewPrometheus(cluster, tool)
-	case "Logging":
-		return NewLogging(cluster, tool)
+	case "EFK":
+		return NewEFK(cluster, tool)
+	case "Registry":
+		return NewRegistry(cluster, tool)
+	case "Dashboard":
+		return NewDashboard(cluster, tool)
+	case "Chartmuseum":
+		return NewChartmuseum(cluster, tool)
 	}
 	return nil, nil
 }

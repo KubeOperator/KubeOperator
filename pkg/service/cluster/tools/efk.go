@@ -2,6 +2,7 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -9,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"helm.sh/helm/v3/pkg/strvals"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -16,9 +18,7 @@ import (
 	"strings"
 )
 
-const elasticsearch = "elasticsearch.tar.gz"
-
-type Logging struct {
+type EFK struct {
 	Cluster       model.Cluster
 	HelmClient    helm.Interface
 	KubeClient    *kubernetes.Clientset
@@ -26,8 +26,8 @@ type Logging struct {
 	Tool          *model.ClusterTool
 }
 
-func NewLogging(cluster dto.ClusterWithEndpoint, tool *model.ClusterTool) (*Logging, error) {
-	p := &Logging{
+func NewEFK(cluster dto.ClusterWithEndpoint, tool *model.ClusterTool) (*EFK, error) {
+	p := &EFK{
 		Tool: tool,
 	}
 	p.Cluster = cluster.Cluster
@@ -53,7 +53,7 @@ func NewLogging(cluster dto.ClusterWithEndpoint, tool *model.ClusterTool) (*Logg
 	return p, nil
 }
 
-func (p Logging) Install() error {
+func (p EFK) Install() error {
 	if err := p.installChart(); err != nil {
 		return err
 	}
@@ -65,30 +65,42 @@ func (p Logging) Install() error {
 	return nil
 }
 
-func (p Logging) installChart() error {
-	chart, err := helm.LoadCharts(elasticsearch)
+func (p EFK) installChart() error {
+	valueMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(p.Tool.Vars), &valueMap)
+	var valueStrings []string
+	for k, v := range valueMap {
+		str := fmt.Sprintf("%s=%v", k, v)
+		valueStrings = append(valueStrings, str)
+	}
+	valueMap = map[string]interface{}{}
+	for _, str := range valueStrings {
+		err := strvals.ParseIntoString(str, valueMap)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := p.HelmClient.Install(p.Tool.Name, constant.EfkChartName, map[string]interface{}{})
 	if err != nil {
 		return err
 	}
-	_, err = p.HelmClient.Install("elasticsearch", chart, map[string]interface{}{})
 	return nil
 }
 
-func (p Logging) createRoute() error {
+func (p EFK) createRoute() error {
 	services, err := p.KubeClient.CoreV1().Services(constant.DefaultNamespace).List(context.TODO(), metav1.ListOptions{LabelSelector: fmt.Sprintf("release=%s", p.Tool.Name)})
 	if err != nil {
 		return err
 	}
 	serviceName := ""
 	for _, svc := range services.Items {
-		if strings.Contains(svc.Name, "elasticsearch-logging") {
+		if strings.Contains(svc.Name, "elasticsearch") {
 			serviceName = svc.Name
 		}
 	}
-
 	ingress := v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "elasticsearch-logging-ingress",
+			Name:      "elasticsearch-ingress",
 			Namespace: constant.DefaultNamespace,
 		},
 		Spec: v1beta1.IngressSpec{

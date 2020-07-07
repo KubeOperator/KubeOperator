@@ -59,14 +59,12 @@ import { StorageProvisionerCreateNfsComponent } from './cluster-detail/storage/s
 import { StorageProvisionerDeleteComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-delete/storage-provisioner-delete.component';
 import { ToolsComponent } from './cluster-detail/tools/tools.component';
 import { ToolsListComponent } from './cluster-detail/tools/tools-list/tools-list.component';
-import { PrometheusEnableComponent } from './cluster-detail/tools/tools-list/prometheus-enable/prometheus-enable.component';
-import { LoggingEnableComponent } from './cluster-detail/tools/tools-list/logging-enable/logging-enable.component';
-import { DashboardEnableComponent } from './cluster-detail/tools/tools-list/dashboard-enable/dashboard-enable.component';
 import { RepositoryComponent } from './cluster-detail/repository/repository.component';
 import { RegistryComponent } from './cluster-detail/repository/registry/registry.component';
 import { ChartmuseumComponent } from './cluster-detail/repository/chartmuseum/chartmuseum.component';
 import { ChartListComponent } from './cluster-detail/repository/chartmuseum/chart-list/chart-list.component';
 import { RegistryListComponent } from './cluster-detail/repository/registry/registry-list/registry-list.component';
+import { ToolsEnableComponent } from './cluster-detail/tools/tools-enable/tools-enable.component';
 
 
 @NgModule({
@@ -92,14 +90,12 @@ import { RegistryListComponent } from './cluster-detail/repository/registry/regi
         StorageProvisionerDeleteComponent,
         ToolsComponent,
         ToolsListComponent,
-        PrometheusEnableComponent,
-        LoggingEnableComponent,
-        DashboardEnableComponent,
         RepositoryComponent,
         RegistryComponent,
         ChartmuseumComponent,
         ChartListComponent,
-        RegistryListComponent],
+        RegistryListComponent,
+        ToolsEnableComponent],
     imports: [
         CoreModule,
         RouterModule,

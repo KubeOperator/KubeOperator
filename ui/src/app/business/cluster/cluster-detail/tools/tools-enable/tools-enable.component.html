@@ -1,0 +1,99 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #itemForm='ngForm'>
+            <div *ngIf="item.name === 'Chartmuseum'">
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv" [(ngModel)]="item.vars['persistence.enabled']"/>
+                        <label>开启存储</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+
+                <clr-select-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc" [(ngModel)]="item.vars['persistence.storageClass']" required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+            <div *ngIf="item.name === 'Prometheus'">
+                <clr-input-container>
+                    <label>数据保留</label>
+                    <input clrInput name="retention"
+                           [(ngModel)]="item.vars['server.retention']" size="34"/>
+                </clr-input-container>
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv"
+                               [(ngModel)]="item.vars['server.persistentVolume.enabled']"/>
+                        <label>开启存储</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+                <clr-input-container *ngIf="item.vars['server.persistentVolume.enabled']">
+                    <label>容量</label>
+                    <input clrInput name="size"
+                           [(ngModel)]="item.vars['server.persistentVolume.size']" size="34"/>
+                </clr-input-container>
+                <clr-select-container *ngIf="item.vars['server.persistentVolume.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc" [(ngModel)]="item.vars['server.persistentVolume.storageClass']"
+                            required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+            <div *ngIf="item.name === 'EFK'">
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv"
+                               [(ngModel)]="item.vars['elasticsearch.persistence.enabled']"/>
+                        <label>开启存储</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+                <clr-input-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
+                    <label>容量</label>
+                    <input clrInput name="size"
+                           [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.resources.requests.storage']"
+                           size="34"/>
+                </clr-input-container>
+                <clr-select-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc"
+                            [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.storageClassName']"
+                            required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+
+            <div *ngIf="item.name === 'Registry'">
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv"
+                               [(ngModel)]="item.vars['persistence.enabled']"/>
+                        <label>开启存储</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+                <clr-select-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc"
+                            [(ngModel)]="item.vars['persistence.storageClass=vsphere-sc']"
+                            required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing||itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

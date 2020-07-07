@@ -34,5 +34,11 @@ const (
 	DefaultLoggingIngress     = "logging." + DefaultIngress
 	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
 	DefaultRegistryIngress    = "registry." + DefaultIngress
-	DefaultDashboardIngress    = "dashboard." + DefaultIngress
+	DefaultDashboardIngress   = "dashboard." + DefaultIngress
+
+	ChartmuseumChartName    = "nexus/chartmuseum"
+	DockerRegistryChartName = "nexus/docker-registry"
+	PrometheusChartName     = "nexus/prometheus"
+	EfkChartName            = "nexus/efk"
+	DashboardChartName      = "nexus/kubernetes-dashboard"
 )

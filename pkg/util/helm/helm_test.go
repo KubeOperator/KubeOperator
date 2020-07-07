@@ -2,7 +2,8 @@ package helm
 
 import (
 	"fmt"
-	"path"
+	"log"
+	"os"
 	"testing"
 )
 
@@ -30,7 +31,7 @@ func TestClient_Uninstall(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	r, err := h.Uninstall("monitor")
+	r, err := h.Uninstall("test1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -39,26 +40,28 @@ func TestClient_Uninstall(t *testing.T) {
 
 func TestClient_Install(t *testing.T) {
 	h, err := GetClient()
+	_ = os.Setenv("HELM_NAMESPACE", "kube-operator")
 	if err != nil {
 		t.Error(err)
 	}
-	chart, err := LoadCharts(path.Join("resource/charts/prometheus-11.6.0.tgz"))
-	if err != nil {
-		t.Error(err)
-	}
-	values := map[string]interface{}{
-		"alertmanager": map[string]interface{}{
-			"enabled": false,
-		},
-		"server": map[string]interface{}{
-			"persistentVolume": map[string]interface{}{
-				"enabled": false,
-			},
-		},
-	}
-	r, err := h.Install("test", chart, values)
+	values := map[string]interface{}{}
+	r, err := h.Install("test1", "nexus/docker-registry", values)
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(r.Name)
+}
+
+func TestClient_AddRepo(t *testing.T) {
+	//err := AddRepo("nexus2", "http://172.16.10.64:8081/repository/helm", "admin", "admin123")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	es, err := ListRepo()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, e := range es {
+		fmt.Println(e.Name)
+	}
 }

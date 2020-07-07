@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LoggingEnableComponent } from './logging-enable.component';
+import { ToolsEnableComponent } from './tools-enable.component';
 
-describe('LoggingEnableComponent', () => {
-  let component: LoggingEnableComponent;
-  let fixture: ComponentFixture<LoggingEnableComponent>;
+describe('ToolsEnableComponent', () => {
+  let component: ToolsEnableComponent;
+  let fixture: ComponentFixture<ToolsEnableComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoggingEnableComponent ]
+      declarations: [ ToolsEnableComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LoggingEnableComponent);
+    fixture = TestBed.createComponent(ToolsEnableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

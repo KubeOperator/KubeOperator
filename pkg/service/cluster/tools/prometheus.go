@@ -2,6 +2,7 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -9,14 +10,13 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	"helm.sh/helm/v3/pkg/strvals"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"strings"
 )
-
-const prometheusChart = "prometheus.tar.gz"
 
 type Prometheus struct {
 	Cluster       model.Cluster
@@ -74,11 +74,24 @@ func (p Prometheus) Install() error {
 }
 
 func (p Prometheus) installChart() error {
-	chart, err := helm.LoadCharts(prometheusChart)
+	valueMap := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(p.Tool.Vars), &valueMap)
+	var valueStrings []string
+	for k, v := range valueMap {
+		str := fmt.Sprintf("%s=%v", k, v)
+		valueStrings = append(valueStrings, str)
+	}
+	valueMap = map[string]interface{}{}
+	for _, str := range valueStrings {
+		err := strvals.ParseIntoString(str, valueMap)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := p.HelmClient.Install(p.Tool.Name, constant.PrometheusChartName, map[string]interface{}{})
 	if err != nil {
 		return err
 	}
-	_, err = p.HelmClient.Install(p.Tool.Name, chart, map[string]interface{}{})
 	return nil
 }
 

@@ -4,11 +4,23 @@ import {V1NamespaceList} from '@kubernetes/client-node/dist/gen/model/v1Namespac
 import {Observable} from 'rxjs';
 import {
     NetworkingV1beta1IngressList,
-    V1beta1CronJobList, V1beta1CSINodeList, V1ConfigMapList, V1CSINodeList, V1DaemonSetList,
-    V1DeploymentList, V1JobList,
-    V1NodeList, V1PersistentVolume,
+    V1beta1CronJobList,
+    V1beta1CSINodeList,
+    V1ConfigMapList,
+    V1CSINodeList,
+    V1DaemonSetList,
+    V1DeploymentList,
+    V1JobList,
+    V1NodeList,
+    V1PersistentVolume,
     V1PersistentVolumeClaimList,
-    V1PersistentVolumeList, V1PodList, V1SecretList, V1ServiceList, V1StatefulSetList, V1StorageClass, V1StorageClassList
+    V1PersistentVolumeList,
+    V1PodList,
+    V1SecretList,
+    V1ServiceList,
+    V1StatefulSetList,
+    V1StorageClass,
+    V1StorageClassList
 } from '@kubernetes/client-node';
 
 @Injectable({
@@ -93,9 +105,11 @@ export class KubernetesService {
         return this.client.get<V1PersistentVolumeList>(url);
     }
 
-    listStorageClass(clusterName: string, continueToken?: string): Observable<V1StorageClassList> {
+    listStorageClass(clusterName: string, continueToken?: string, all?: boolean): Observable<V1StorageClassList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.storageClassUrl);
-        url += '?limit=' + this.limit;
+        if (!all) {
+            url += '?limit=' + this.limit;
+        }
         if (continueToken) {
             url += '&continue=' + continueToken;
         }

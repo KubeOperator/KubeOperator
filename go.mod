@@ -13,11 +13,13 @@ require (
 	github.com/flosch/pongo2 v0.0.0-20200529170236-5abacdfa4915 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gavv/monotime v0.0.0-20190418164738-30dba4353424 // indirect
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gofrs/flock v0.7.1
 	github.com/golang-migrate/migrate/v4 v4.10.0
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.3.1 // indirect
@@ -39,6 +41,7 @@ require (
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.5.0
@@ -65,4 +68,3 @@ require (
 	moul.io/http2curl v1.0.0 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
-
