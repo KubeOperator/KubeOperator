@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {ClusterService} from '../../cluster.service';
-import {Cluster, ClusterMonitor} from '../../cluster';
+import {Cluster} from '../../cluster';
+import {ToolsService} from "../tools/tools.service";
 
 @Component({
     selector: 'app-monitor',
@@ -11,23 +11,22 @@ import {Cluster, ClusterMonitor} from '../../cluster';
 export class MonitorComponent implements OnInit {
 
     currentCluster: Cluster;
-    monitor: ClusterMonitor;
+    ready = false;
+    toolName = 'Prometheus';
 
-    constructor(private route: ActivatedRoute, private clusterService: ClusterService) {
+    constructor(private toolService: ToolsService, private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.refresh();
-        });
-    }
-
-
-    refresh() {
-        this.clusterService.monitor(this.currentCluster.name).subscribe(data => {
-            this.monitor = data;
-            console.log(this.monitor);
+            this.toolService.list(this.currentCluster.name).subscribe(d => {
+                for (const tool of d) {
+                    if (tool.name === this.toolName) {
+                        this.ready = tool.status === 'running';
+                    }
+                }
+            });
         });
     }
 

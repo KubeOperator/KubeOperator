@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster, ClusterMonitor} from '../../../cluster';
 import {ActivatedRoute} from '@angular/router';
 import {ClusterService} from '../../../cluster.service';
@@ -14,7 +14,7 @@ export class MonitorDashboardComponent implements OnInit {
 
     @ViewChild('frame') frame: ElementRef;
     loading = true;
-    currentCluster: Cluster;
+    @Input() currentCluster: Cluster;
     monitor: ClusterMonitor;
     url: any;
 
@@ -22,10 +22,6 @@ export class MonitorDashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.refresh();
-        });
     }
 
     refresh() {

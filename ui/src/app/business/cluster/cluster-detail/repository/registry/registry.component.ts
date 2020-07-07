@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Cluster} from "../../../cluster";
+import {ToolsService} from "../../tools/tools.service";
 
 @Component({
     selector: 'app-registry',
@@ -9,15 +10,23 @@ import {Cluster} from "../../../cluster";
 })
 export class RegistryComponent implements OnInit {
 
-    constructor(private route: ActivatedRoute) {
+    currentCluster: Cluster;
+    ready = false;
+    toolName = 'Registry';
+
+    constructor(private toolService: ToolsService, private route: ActivatedRoute) {
     }
 
-    currentCluster: Cluster;
-
     ngOnInit(): void {
-        this.route.parent.parent.data.subscribe(data => {
+        this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            console.log(this.currentCluster);
+            this.toolService.list(this.currentCluster.name).subscribe(d => {
+                for (const tool of d) {
+                    if (tool.name === this.toolName) {
+                        this.ready = tool.status === 'running';
+                    }
+                }
+            });
         });
     }
 

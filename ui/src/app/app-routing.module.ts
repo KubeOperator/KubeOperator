@@ -14,18 +14,8 @@ import {NamespaceComponent} from './business/cluster/cluster-detail/namespace/na
 import {StorageComponent} from './business/cluster/cluster-detail/storage/storage.component';
 import {PersistentVolumeComponent} from './business/cluster/cluster-detail/storage/persistent-volume/persistent-volume.component';
 import {PersistentVolumeClaimComponent} from './business/cluster/cluster-detail/storage/persistent-volume-claim/persistent-volume-claim.component';
-import {WorkloadComponent} from './business/cluster/cluster-detail/workload/workload.component';
-import {DeploymentComponent} from './business/cluster/cluster-detail/workload/deployment/deployment.component';
-import {StatefulSetComponent} from './business/cluster/cluster-detail/workload/stateful-set/stateful-set.component';
-import {DaemonSetComponent} from './business/cluster/cluster-detail/workload/daemon-set/daemon-set.component';
-import {JobComponent} from './business/cluster/cluster-detail/workload/job/job.component';
-import {CornJobComponent} from './business/cluster/cluster-detail/workload/corn-job/corn-job.component';
-import {ServiceComponent} from './business/cluster/cluster-detail/service/service.component';
 import {UserComponent} from './business/user/user.component';
 import {AuthUserService} from './shared/auth/auth-user.service';
-import {ConfigMapComponent} from './business/cluster/cluster-detail/config/config-map/config-map.component';
-import {SecretComponent} from './business/cluster/cluster-detail/config/secret/secret.component';
-import {ConfigComponent} from './business/cluster/cluster-detail/config/config.component';
 import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
 import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
@@ -34,10 +24,11 @@ import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component'
 import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
 import {PlanComponent} from './business/deploy-plan/plan/plan.component';
 import {StorageProvisionerComponent} from './business/cluster/cluster-detail/storage/storage-provisioner/storage-provisioner.component';
-import {ToolsComponent} from "./business/cluster/cluster-detail/tools/tools.component";
 import {RepositoryComponent} from "./business/cluster/cluster-detail/repository/repository.component";
 import {ChartmuseumComponent} from "./business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component";
 import {RegistryComponent} from "./business/cluster/cluster-detail/repository/registry/registry.component";
+import {ToolsComponent} from "./business/cluster/cluster-detail/tools/tools.component";
+import {DashboardComponent} from "./business/cluster/cluster-detail/dashboard/dashboard.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -72,31 +63,6 @@ const routes: Routes = [
                             {path: 'provisioner', component: StorageProvisionerComponent},
                         ],
                     },
-                    {
-                        path: 'workloads',
-                        component: WorkloadComponent,
-                        children: [
-                            {path: '', redirectTo: 'deployment', pathMatch: 'full'},
-                            {path: 'deployment', component: DeploymentComponent},
-                            {path: 'statefulset', component: StatefulSetComponent},
-                            {path: 'daemonset', component: DaemonSetComponent},
-                            {path: 'job', component: JobComponent},
-                            {path: 'cornjob', component: CornJobComponent},
-                        ],
-                    },
-                    {
-                        path: 'service',
-                        component: ServiceComponent,
-                    },
-                    {
-                        path: 'config',
-                        component: ConfigComponent,
-                        children: [
-                            {path: '', redirectTo: 'cm', pathMatch: 'full'},
-                            {path: 'cm', component: ConfigMapComponent},
-                            {path: 'secret', component: SecretComponent},
-                        ],
-                    },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
                     {
@@ -109,6 +75,7 @@ const routes: Routes = [
                         ]
                     },
                     {path: 'tool', component: ToolsComponent},
+                    {path: 'dashboard', component: DashboardComponent},
                 ],
             },
             {

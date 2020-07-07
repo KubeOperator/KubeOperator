@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StatefulSetListComponent } from './stateful-set-list.component';
+import { NotReadyComponent } from './not-ready.component';
 
-describe('StatefulSetListComponent', () => {
-  let component: StatefulSetListComponent;
-  let fixture: ComponentFixture<StatefulSetListComponent>;
+describe('NotReadyComponent', () => {
+  let component: NotReadyComponent;
+  let fixture: ComponentFixture<NotReadyComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StatefulSetListComponent ]
+      declarations: [ NotReadyComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StatefulSetListComponent);
+    fixture = TestBed.createComponent(NotReadyComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
