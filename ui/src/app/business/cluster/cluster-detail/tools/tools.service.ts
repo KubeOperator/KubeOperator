@@ -17,4 +17,8 @@ export class ToolsService {
         return this.http.get<ClusterTool[]>(this.baseUrl.replace('{cluster_name}', clusterName));
     }
 
+    enable(clusterName: string, item: ClusterTool): Observable<ClusterTool> {
+        return this.http.post<ClusterTool>(this.baseUrl.replace('{cluster_name}', clusterName), item);
+    }
+
 }

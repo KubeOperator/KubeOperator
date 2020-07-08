@@ -1,2 +1,4 @@
-<app-tools-list [currentCluster]="currentCluster" (enableEvent)="openEnable($event)"></app-tools-list>
+<app-tools-list [currentCluster]="currentCluster" (enableEvent)="openEnable($event)"
+                (failedEvent)="openFailed($event)"></app-tools-list>
 <app-tools-enable [currentCluster]="currentCluster"></app-tools-enable>
+<app-tools-failed></app-tools-failed>

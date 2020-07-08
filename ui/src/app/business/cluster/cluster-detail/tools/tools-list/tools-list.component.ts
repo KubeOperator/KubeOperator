@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClusterTool} from "../tools";
 import {ToolsService} from "../tools.service";
 import {Cluster} from "../../../cluster";
-import {ActivatedRoute} from "@angular/router";
 
 @Component({
     selector: 'app-tools-list',
@@ -17,6 +16,7 @@ export class ToolsListComponent implements OnInit {
     items: ClusterTool[] = [];
     @Input() currentCluster: Cluster;
     @Output() enableEvent = new EventEmitter<ClusterTool>();
+    @Output() failedEvent = new EventEmitter<ClusterTool>();
 
     ngOnInit(): void {
         this.refresh();
@@ -31,6 +31,10 @@ export class ToolsListComponent implements OnInit {
 
     onEnable(item: ClusterTool) {
         this.enableEvent.emit(item);
+    }
+
+    onFailed(item: ClusterTool) {
+        this.failedEvent.emit(item);
     }
 
 }

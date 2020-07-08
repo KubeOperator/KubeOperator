@@ -3,6 +3,8 @@ import {Cluster, ClusterMonitor} from "../../cluster";
 import {ActivatedRoute} from "@angular/router";
 import {ClusterService} from "../../cluster.service";
 import {DomSanitizer} from "@angular/platform-browser";
+import {ClusterTool} from "../tools/tools";
+import {ToolsService} from "../tools/tools.service";
 
 @Component({
     selector: 'app-dashboard',
@@ -11,26 +13,26 @@ import {DomSanitizer} from "@angular/platform-browser";
 })
 export class DashboardComponent implements OnInit {
 
-    @ViewChild('frame') frame: ElementRef;
-    loading = true;
-    @Input() currentCluster: Cluster;
-    url: any;
+    currentCluster: Cluster;
+    ready = false;
+    toolName = 'dashboard';
+    item: ClusterTool;
 
-    constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) {
+    constructor(private toolService: ToolsService, private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
-        this.refresh();
-    }
-
-    refresh() {
-        this.url = this.sanitizer.bypassSecurityTrustResourceUrl('/proxy/dashboard/test/root');
-        console.log(this.url);
-    }
-
-    onFrameLoad() {
-        this.frame.nativeElement.contentWindow.Mousetrap.unbindGlobal('esc');
-        this.loading = false;
+        this.route.parent.data.subscribe(data => {
+            this.currentCluster = data.cluster;
+            this.toolService.list(this.currentCluster.name).subscribe(d => {
+                for (const tool of d) {
+                    if (tool.name === this.toolName) {
+                        this.item = tool;
+                        this.ready = tool.status === 'Running';
+                    }
+                }
+            });
+        });
     }
 
 }

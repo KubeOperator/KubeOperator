@@ -4,52 +4,94 @@ import {ClusterTool} from "../tools";
 import {V1StorageClass} from "@kubernetes/client-node";
 import {NgForm} from "@angular/forms";
 import {Cluster} from "../../../cluster";
+import {ToolsService} from "../tools.service";
 
 @Component({
-  selector: 'app-tools-enable',
-  templateUrl: './tools-enable.component.html',
-  styleUrls: ['./tools-enable.component.css']
+    selector: 'app-tools-enable',
+    templateUrl: './tools-enable.component.html',
+    styleUrls: ['./tools-enable.component.css']
 })
 export class ToolsEnableComponent implements OnInit {
 
-  constructor(private kubernetesService: KubernetesService) {
-  }
+    constructor(private kubernetesService: KubernetesService, private toolsService: ToolsService) {
+    }
 
-  opened = false;
-  isSubmitGoing = false;
-  item: ClusterTool = new ClusterTool();
-  storageClazz: V1StorageClass[] = [];
-  @ViewChild('itemForm') itemForm: NgForm;
-  @Output() enabled = new EventEmitter();
-  @Input() currentCluster: Cluster;
+    opened = false;
+    isSubmitGoing = false;
+    item: ClusterTool = new ClusterTool();
+    storageClazz: V1StorageClass[] = [];
+    @ViewChild('itemForm') itemForm: NgForm;
+    @Output() enabled = new EventEmitter();
+    @Input() currentCluster: Cluster;
 
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
-  onSubmit() {
-    this.opened = false;
-  }
+    onSubmit() {
+        this.toolsService.enable(this.currentCluster.name, this.item).subscribe(data => {
+            this.opened = false;
+        });
+    }
 
-  onCancel() {
-    this.opened = false;
-  }
+    onCancel() {
+        this.opened = false;
+    }
 
-  reset() {
-    this.itemForm.resetForm();
-    this.listStorageClass();
-  }
+    reset() {
+        this.itemForm.resetForm();
+        this.listStorageClass();
+    }
 
-  open(item: ClusterTool) {
-    this.reset();
-    this.opened = true;
-    this.item = item;
-  }
+    open(item: ClusterTool) {
+        this.reset();
+        this.opened = true;
+        this.setDefaultVars(item);
+        this.item = item;
+        console.log(this.item);
+    }
 
-  listStorageClass() {
-    this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
-      this.storageClazz = data.items;
-    });
-  }
+    listStorageClass() {
+        this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
+            this.storageClazz = data.items;
+        });
+    }
+
+    setDefaultVars(item: ClusterTool) {
+        switch (item.name) {
+            case 'prometheus':
+                item.vars = {
+                    'server.retention': '10d',
+                    'server.persistentVolume.enabled': false,
+                    'server.persistentVolume.size': '10Gi',
+                    'server.persistentVolume.storageClass': '',
+                };
+                break;
+            case 'chartmuseum':
+                item.vars = {
+                    'persistence.enabled': false,
+                    'env.open.DISABLE_API': false,
+                    'persistence.storageClass': '',
+                };
+                break;
+            case 'registry':
+                item.vars = {
+                    'persistence.enabled': false,
+                    'persistence.storageClass': '',
+                    'service.type': 'NodePort',
+                };
+                break;
+            case 'efk':
+                item.vars = {
+                    'elasticsearch.persistence.enabled': false,
+                    'elasticsearch.volumeClaimTemplate.resources.requests.storage': '10Gi',
+                    'elasticsearch.volumeClaimTemplate.storageClassName': '',
+                };
+                break;
+            case 'dashboard':
+                item.vars = {};
+                break;
+        }
+    }
 
 }
