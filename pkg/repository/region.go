@@ -33,12 +33,6 @@ func (r regionRepository) Get(name string) (model.Region, error) {
 	if err := db.DB.Where(region).First(&region).Error; err != nil {
 		return region, err
 	}
-	//if err := db.DB.First(&host).Related(&host.Volumes).Error; err != nil {
-	//	return host, err
-	//}
-	//if err := db.DB.First(&host).Related(&host.Credential).Error; err != nil {
-	//	return host, err
-	//}
 	return region, nil
 }
 

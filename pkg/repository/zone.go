@@ -64,6 +64,7 @@ func (z zoneRepository) Page(num, size int) (int, []model.Zone, error) {
 	var zones []model.Zone
 	err := db.DB.Model(model.Zone{}).
 		Count(&total).
+		Preload("Region").
 		Find(&zones).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -90,7 +91,6 @@ func (z zoneRepository) Delete(name string) error {
 func (z zoneRepository) Batch(operation string, items []model.Zone) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		//TODO 关联校验
 		var zoneIds []string
 		for _, item := range items {
 			zoneIds = append(zoneIds, item.ID)

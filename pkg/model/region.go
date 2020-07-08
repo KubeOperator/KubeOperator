@@ -10,7 +10,7 @@ type Region struct {
 	ID         string `json:"id" gorm:"type:varchar(64)"`
 	Name       string `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Datacenter string `json:"datacenter" gorm:"type:varchar(64)"`
-	Vars       string `json:"vars" gorm:"type longtext(0)"`
+	Vars       string `json:"vars" gorm:"type text(0)"`
 }
 
 func (c *Region) BeforeCreate() (err error) {

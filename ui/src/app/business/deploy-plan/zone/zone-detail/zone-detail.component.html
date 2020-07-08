@@ -1,0 +1,37 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" [clrModalClosable]=false>
+    <h3 class="modal-title">可用区详情</h3>
+    <div class="modal-body" *ngIf="item">
+        <hr/>
+        <div class="card-block">
+            <ul class="list-unstyled" *ngIf="item.region.regionVars['provider'] === 'vSphere'">
+                <li><b style="margin-right: 16px">名称:</b>{{item.name}}</li>
+<!--                <li><b style="margin-right: 16px">区域:</b>{{item.region}}</li>-->
+                <li><b style="margin-right: 16px">资源池:</b>{{item.cloudVars['resourcePool']}}</li>
+                <li><b style="margin-right: 16px">集群:</b>{{item.cloudVars['cluster']}}</li>
+                <li><b style="margin-right: 16px">存储资源:</b>{{item.cloudVars['datastore']}}</li>
+                <li><b style="margin-right: 16px">网络资源:</b>{{item.cloudVars['network']}}</li>
+                <li><b style="margin-right: 16px">起始 Ip:</b>{{item.cloudVars['ipStart']}}</li>
+                <li><b style="margin-right: 16px">终止 Ip:</b>{{item.cloudVars['ipEnd']}}</li>
+                <li><b style="margin-right: 16px">网关:</b>{{item.cloudVars['gateway']}}</li>
+                <li><b style="margin-right: 16px">DNS1:</b>{{item.cloudVars['dns1']}}</li>
+                <li><b style="margin-right: 16px">DNS2:</b>{{item.cloudVars['dns2']}}</li>
+                <li *ngIf="item.cloudVars['templateType'] === 'customize'"><b style="margin-right: 16px">模板:</b>{{item.cloudVars['imageName']}}</li>
+                <li><b style="margin-right: 16px">创建时间:</b>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+            </ul>
+        </div>
+<!--        <div class="card-block" *ngIf="currentZone.provider === 'openstack'">-->
+<!--            <ul class="list-unstyled">-->
+<!--                <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>-->
+<!--                <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>-->
+<!--                <li><b style="margin-right: 16px">可用区:</b>{{currentZone.vars['openstack_zone']}}</li>-->
+<!--                <li><b style="margin-right: 16px">存储类型:</b>{{currentZone.vars['openstack_storage_type']}}</li>-->
+<!--                <li><b style="margin-right: 16px">网络:</b>{{currentZone.vars['openstack_network']}}</li>-->
+<!--                <li><b style="margin-right: 16px">安全组:</b>{{currentZone.vars['openstack_security_group']}}</li>-->
+<!--                <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>-->
+<!--            </ul>-->
+<!--        </div>-->
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn" (click)="cancel()">取消</button>
+    </div>
+</clr-modal>

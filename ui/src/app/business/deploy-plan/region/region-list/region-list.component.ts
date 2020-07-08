@@ -12,7 +12,6 @@ export class RegionListComponent extends BaseModelComponent<Region> implements O
 
     @Output() detailEvent = new EventEmitter<Region>();
 
-
     constructor(private regionService: RegionService) {
         super(regionService);
     }
