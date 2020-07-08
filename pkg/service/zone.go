@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type ZoneService interface {
@@ -70,6 +70,7 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 }
 
 func (z zoneService) Delete(name string) error {
+
 	err := z.zoneRepo.Delete(name)
 	if err != nil {
 		return err

@@ -12,3 +12,7 @@ DELETE_HOST_FAILED: "删除失败！该主机已经关联集群"
 
 #user
 PASSWORD_NOT_MATCH: "原密码错误"
+
+
+#region
+DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"
