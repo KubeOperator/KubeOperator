@@ -15,3 +15,6 @@ PASSWORD_NOT_MATCH: "The original password is incorrect"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"
+
+#zone
+DELETE_ZONE_FAILED_RESOURCE: "Failed to delete! The zone is already associated with the plan"

@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+)
+
+var (
+	DeleteZoneError = "DELETE_ZONE_FAILED_RESOURCE"
 )
 
 type ZoneRepository interface {
@@ -13,6 +18,7 @@ type ZoneRepository interface {
 	Save(zone *model.Zone) error
 	Delete(name string) error
 	Batch(operation string, items []model.Zone) error
+	ListByRegionId(id string) ([]model.Zone, error)
 }
 
 func NewZoneRepository() ZoneRepository {
@@ -35,6 +41,16 @@ func (z zoneRepository) Get(name string) (model.Zone, error) {
 	//	return host, err
 	//}
 	return zone, nil
+}
+
+func (z zoneRepository) ListByRegionId(id string) ([]model.Zone, error) {
+	var zones []model.Zone
+
+	err := db.DB.Where("region_id = ?", id).Find(&zones).Error
+	if err != nil {
+		return zones, err
+	}
+	return zones, nil
 }
 
 func (z zoneRepository) List() ([]model.Zone, error) {
@@ -75,23 +91,23 @@ func (z zoneRepository) Batch(operation string, items []model.Zone) error {
 	switch operation {
 	case constant.BatchOperationDelete:
 		//TODO 关联校验
-		//var clusterIds []string
-		//for _, item := range items {
-		//	clusterIds = append(clusterIds, item.ClusterID)
-		//}
-		//var clusters []model.Cluster
-		//err := db.DB.Where("id in (?)", clusterIds).Find(&clusters).Error
-		//if err != nil {
-		//	return err
-		//}
-		//if len(clusters) > 0 {
-		//	return errors.New(DeleteFailedError)
-		//}
+		var zoneIds []string
+		for _, item := range items {
+			zoneIds = append(zoneIds, item.ID)
+		}
+		var planZones []model.PlanZones
+		err := db.DB.Where("zone_id in (?)", zoneIds).Find(&planZones).Error
+		if err != nil {
+			return err
+		}
+		if len(planZones) > 0 {
+			return errors.New(DeleteFailedError)
+		}
 		var ids []string
 		for _, item := range items {
 			ids = append(ids, item.ID)
 		}
-		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
+		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
 			return err
 		}

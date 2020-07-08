@@ -2,12 +2,17 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+)
+
+var (
+	DeleteRegionError = "DELETE_REGION_FAILED_RESOURCE"
 )
 
 type RegionService interface {
@@ -68,7 +73,19 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 }
 
 func (r regionService) Delete(name string) error {
-	err := r.regionRepo.Delete(name)
+	region, err := r.regionRepo.Get(name)
+	if err != nil {
+		return err
+	}
+
+	regions, err := r.zoneRepo.ListByRegionId(region.ID)
+	if err != nil {
+		return err
+	}
+	if len(regions) > 0 {
+		errors.New(DeleteRegionError)
+	}
+	err = r.regionRepo.Delete(name)
 	if err != nil {
 		return err
 	}

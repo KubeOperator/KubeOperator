@@ -1,7 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {Zone} from '../zone';
-import {RegionService} from '../../region/region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
@@ -43,7 +42,8 @@ export class ZoneDeleteComponent extends BaseModelComponent<Zone> implements OnI
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+            this.opened = false;
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }
