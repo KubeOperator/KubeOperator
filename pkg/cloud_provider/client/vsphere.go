@@ -11,6 +11,7 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 	"net/url"
+	"strings"
 )
 
 type vSphereClient struct {
@@ -49,7 +50,8 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	}
 
 	for _, d := range datacenters {
-		result = append(result, d.Common.InventoryPath)
+		datacenterPath := d.Common.InventoryPath
+		result = append(result, strings.Replace(datacenterPath, "/", "", 1))
 	}
 	return result, nil
 }

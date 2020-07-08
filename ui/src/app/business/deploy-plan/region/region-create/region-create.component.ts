@@ -22,7 +22,7 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
     isSubmitGoing = false;
     item: RegionCreateRequest = new RegionCreateRequest();
     cloudProviders: CloudProvider[] = [];
-    isParamsValid = true;
+    isParamsValid;
     isParamsCheckGoing = false;
     cloudRegions: [] = [];
     @Output() created = new EventEmitter();
@@ -60,6 +60,8 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
     resetWizard(): void {
         this.wizard.reset();
         this.item = new RegionCreateRequest();
+        this.isParamsValid = undefined;
+        this.isParamsCheckGoing = false;
     }
 
     doFinish(): void {
