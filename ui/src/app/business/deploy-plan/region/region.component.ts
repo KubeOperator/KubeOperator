@@ -5,6 +5,7 @@ import {RegionDeleteComponent} from './region-delete/region-delete.component';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Region} from './region';
 import {RegionService} from './region.service';
+import {RegionDetailComponent} from './region-detail/region-detail.component';
 
 @Component({
     selector: 'app-region',
@@ -22,6 +23,8 @@ export class RegionComponent extends BaseModelComponent<Region> implements OnIni
     @ViewChild(RegionDeleteComponent, {static: true})
     delete: RegionDeleteComponent;
 
+    @ViewChild(RegionDetailComponent, {static: true})
+    detail: RegionDetailComponent;
 
     constructor(private regionService: RegionService) {
         super(regionService);
@@ -41,5 +44,9 @@ export class RegionComponent extends BaseModelComponent<Region> implements OnIni
 
     openDelete(items) {
         this.delete.open(items);
+    }
+
+    openDetail(item) {
+        this.detail.open(item);
     }
 }

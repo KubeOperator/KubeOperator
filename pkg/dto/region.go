@@ -4,6 +4,7 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Region struct {
 	model.Region
+	RegionVars interface{} `json:"regionVars"`
 }
 
 type RegionCreate struct {

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {Region} from '../region';
 import {RegionService} from '../region.service';
@@ -10,6 +10,9 @@ import {RegionService} from '../region.service';
 })
 export class RegionListComponent extends BaseModelComponent<Region> implements OnInit {
 
+    @Output() detailEvent = new EventEmitter<Region>();
+
+
     constructor(private regionService: RegionService) {
         super(regionService);
     }
@@ -18,4 +21,7 @@ export class RegionListComponent extends BaseModelComponent<Region> implements O
         super.ngOnInit();
     }
 
+    onDetail(item) {
+        this.detailEvent.emit(item);
+    }
 }

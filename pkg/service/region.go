@@ -65,7 +65,12 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		regionDTOs = append(regionDTOs, dto.Region{Region: mo})
+		regionDTO := new(dto.Region)
+		m := make(map[string]interface{})
+		regionDTO.Region = mo
+		json.Unmarshal([]byte(mo.Vars), &m)
+		regionDTO.RegionVars = m
+		regionDTOs = append(regionDTOs, *regionDTO)
 	}
 	page.Total = total
 	page.Items = regionDTOs

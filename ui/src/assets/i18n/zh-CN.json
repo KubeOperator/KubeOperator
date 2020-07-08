@@ -11,6 +11,7 @@
   "APP_NEXT": "下一步",
   "APP_FINISH": "完成",
   "APP_RETRY": "重试",
+  "APP_REFRESH": "刷新",
   "APP_DEFAULT_OPTION": "请选择",
   "APP_DEFAULT_DELETE_WARNING": "删除操作不可回滚，确认继续?",
   "APP_PAGER_TOTAL": "总共",
@@ -100,6 +101,10 @@
   "APP_REGION_VCENTER_PARAM_INVALID": "验证未通过,请检查 vCenter 连接信息",
   "APP_REGION_VCENTER_DATACENTER": "数据中心",
   "APP_REGION_DELETE": "删除区域",
+  "APP_REGION_DETAIL": "区域详情",
+  "APP_REGION_PROVIDER": "云提供商",
+  "APP_REGION_VC_HOST": "vCenter 地址",
+  "APP_REGION_VC_USER": "vCenter 用户",
   "APP_ZONE": "可用区",
   "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池",
   "APP_ZONE_DELETE": "删除可用区",
@@ -148,5 +153,9 @@
   "APP_NETWORK_DNS_HELPER": "例如: 114.114.114.114",
   "APP_ZONE_CREATE": "创建可用区",
   "APP_REQUIRED_ERROR": "This field is required",
-  "APP_ENABLE_STORAGE": "开启存储"
+  "APP_ENABLE_STORAGE": "开启存储",
+  "APP_HOST_SPEC": "主机信息",
+  "APP_HOST_DISK_SPEC": "磁盘信息",
+  "APP_HOST_DISK_SIZE": "大小"
+
 }
