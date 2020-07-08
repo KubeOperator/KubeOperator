@@ -47,6 +47,8 @@ import {RegistryListComponent} from './cluster-detail/repository/registry/regist
 import {ToolsEnableComponent} from './cluster-detail/tools/tools-enable/tools-enable.component';
 import {NotReadyComponent} from './cluster-detail/not-ready/not-ready.component';
 import { DashboardComponent } from './cluster-detail/dashboard/dashboard.component';
+import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-failed.component';
+import { DashboardDashboardComponent } from './cluster-detail/dashboard/dashboard-dashboard/dashboard-dashboard.component';
 
 
 @NgModule({
@@ -75,7 +77,9 @@ import { DashboardComponent } from './cluster-detail/dashboard/dashboard.compone
         RegistryListComponent,
         ToolsEnableComponent,
         NotReadyComponent,
-        DashboardComponent],
+        DashboardComponent,
+        ToolsFailedComponent,
+        DashboardDashboardComponent],
     imports: [
         CoreModule,
         RouterModule,

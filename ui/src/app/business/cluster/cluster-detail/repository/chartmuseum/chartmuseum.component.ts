@@ -12,18 +12,18 @@ export class ChartmuseumComponent implements OnInit {
 
     currentCluster: Cluster;
     ready = false;
-    toolName = 'Chartmuseum';
+    toolName = 'chartmuseum';
 
     constructor(private toolService: ToolsService, private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
-        this.route.parent.data.subscribe(data => {
+        this.route.parent.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
             this.toolService.list(this.currentCluster.name).subscribe(d => {
                 for (const tool of d) {
                     if (tool.name === this.toolName) {
-                        this.ready = tool.status === 'running';
+                        this.ready = tool.status === 'Running';
                     }
                 }
             });

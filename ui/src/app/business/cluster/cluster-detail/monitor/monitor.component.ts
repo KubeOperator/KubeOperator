@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {ToolsService} from "../tools/tools.service";
+import {ClusterTool} from "../tools/tools";
 
 @Component({
     selector: 'app-monitor',
@@ -12,7 +13,8 @@ export class MonitorComponent implements OnInit {
 
     currentCluster: Cluster;
     ready = false;
-    toolName = 'Prometheus';
+    toolName = 'prometheus';
+    item: ClusterTool;
 
     constructor(private toolService: ToolsService, private route: ActivatedRoute) {
     }
@@ -23,7 +25,8 @@ export class MonitorComponent implements OnInit {
             this.toolService.list(this.currentCluster.name).subscribe(d => {
                 for (const tool of d) {
                     if (tool.name === this.toolName) {
-                        this.ready = tool.status === 'running';
+                        this.item = tool;
+                        this.ready = tool.status === 'Running';
                     }
                 }
             });

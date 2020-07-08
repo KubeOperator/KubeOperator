@@ -2,8 +2,7 @@ package helm
 
 import (
 	"fmt"
-	"log"
-	"os"
+	"helm.sh/helm/v3/pkg/strvals"
 	"testing"
 )
 
@@ -31,7 +30,7 @@ func TestClient_Uninstall(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	r, err := h.Uninstall("test1")
+	r, err := h.Uninstall("prometheus")
 	if err != nil {
 		t.Error(err)
 	}
@@ -40,12 +39,22 @@ func TestClient_Uninstall(t *testing.T) {
 
 func TestClient_Install(t *testing.T) {
 	h, err := GetClient()
-	_ = os.Setenv("HELM_NAMESPACE", "kube-operator")
 	if err != nil {
 		t.Error(err)
 	}
-	values := map[string]interface{}{}
-	r, err := h.Install("test1", "nexus/docker-registry", values)
+
+	valueMap := map[string]interface{}{
+	}
+	var valueStrings []string
+	for k, v := range valueMap {
+		str := fmt.Sprintf("%s=%v", k, v)
+		valueStrings = append(valueStrings, str)
+	}
+	valueMap = map[string]interface{}{}
+	for _, str := range valueStrings {
+		_ = strvals.ParseInto(str, valueMap)
+	}
+	r, err := h.Install("efk", "nexus/efk", valueMap)
 	if err != nil {
 		t.Error(err)
 	}
@@ -53,15 +62,5 @@ func TestClient_Install(t *testing.T) {
 }
 
 func TestClient_AddRepo(t *testing.T) {
-	//err := AddRepo("nexus2", "http://172.16.10.64:8081/repository/helm", "admin", "admin123")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	es, err := ListRepo()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, e := range es {
-		fmt.Println(e.Name)
-	}
+
 }

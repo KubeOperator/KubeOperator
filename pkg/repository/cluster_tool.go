@@ -7,7 +7,8 @@ import (
 
 type ClusterToolRepository interface {
 	List(clusterName string) ([]model.ClusterTool, error)
-	Save( tool *model.ClusterTool) error
+	Save(tool *model.ClusterTool) error
+	Get(clusterName string, name string) (model.ClusterTool, error)
 }
 
 func NewClusterToolRepository() ClusterToolRepository {
@@ -33,14 +34,31 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 }
 
 func (c clusterToolRepository) Save(tool *model.ClusterTool) error {
-	if db.DB.NewRecord(tool) {
+	var item model.ClusterTool
+	notFound := db.DB.Where(model.ClusterTool{ClusterID: tool.ClusterID, Name: tool.Name}).First(&item).RecordNotFound()
+	if notFound {
 		if err := db.DB.Create(tool).Error; err != nil {
 			return err
 		}
 	} else {
+		tool.ID = item.ID
 		if err := db.DB.Save(tool).Error; err != nil {
-			return nil
+			return err
 		}
 	}
 	return nil
+}
+
+func (c clusterToolRepository) Get(clusterName string, name string) (model.ClusterTool, error) {
+	var tool model.ClusterTool
+	var cluster model.Cluster
+	if err := db.DB.
+		Where(model.Cluster{Name: clusterName}).
+		First(&cluster).Error; err != nil {
+		return tool, err
+	}
+	if err := db.DB.Where(model.ClusterTool{ClusterID: tool.ClusterID, Name: name}).First(&tool).Error; err != nil {
+		return tool, err
+	}
+	return tool, nil
 }
