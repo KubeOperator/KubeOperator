@@ -50,7 +50,6 @@ func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
 	return c.ClusterService.GetStatus(name)
 }
 
-
 func (c ClusterController) Post() error {
 	var req dto.ClusterCreate
 	err := c.Ctx.ReadJSON(&req)
@@ -90,6 +89,14 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 
 func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, error) {
 	return c.ClusterToolService.List(clusterName)
+}
+
+func (c ClusterController) PostToolBy(clusterName string) (dto.ClusterTool, error) {
+	var req dto.ClusterTool
+	if err := c.Ctx.ReadJSON(&req); err != nil {
+		return req, err
+	}
+	return c.ClusterToolService.Enable(clusterName, req)
 }
 
 func (c ClusterController) Delete(name string) error {

@@ -13,9 +13,9 @@ type ClusterTool struct {
 	Version   string `json:"version"`
 	Describe  string `json:"describe"`
 	Status    string `json:"status"`
-	Message   string `json:"message"`
-	Logo      string `json:"logo"`
-	Vars      string `json:"_"`
+	Message   string `json:"message" gorm:"type:text(65535))"`
+	Logo      string `json:"logo" `
+	Vars      string `json:"_"  gorm:"type:text(65535)"`
 	Url       string `json:"url"`
 }
 

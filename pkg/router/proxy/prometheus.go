@@ -3,6 +3,7 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
@@ -16,17 +17,12 @@ func PrometheusProxy(ctx context.Context) {
 		_, _ = ctx.JSON(http.StatusBadRequest)
 		return
 	}
-	c, err := clusterService.Get(clusterName)
-	if err != nil {
-		_, _ = ctx.JSON(http.StatusInternalServerError)
-		return
-	}
 	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
 	}
-	host := fmt.Sprintf("prometheus.%s", c.Spec.AppDomain)
+	host := fmt.Sprintf(constant.DefaultPrometheusIngress)
 	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint.Address))
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)

@@ -11,11 +11,13 @@ import (
 
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
+	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 }
 
 func NewClusterToolService() *clusterToolService {
 	return &clusterToolService{
-		toolRepo: repository.NewClusterToolRepository(),
+		toolRepo:       repository.NewClusterToolRepository(),
+		clusterService: NewClusterService(),
 	}
 }
 
@@ -39,15 +41,16 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 	return items, nil
 }
 
-func (c clusterToolService) EnableTool(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
+func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
 	cluster, err := c.clusterService.Get(clusterName)
 	if err != nil {
 		return tool, err
 	}
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
-	buf, _ := json.Marshal(&mo.Vars)
+	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
+	mo.Status = constant.ClusterInitializing
 	err = c.toolRepo.Save(&mo)
 	if err != nil {
 		return tool, err
@@ -58,11 +61,12 @@ func (c clusterToolService) EnableTool(clusterName string, tool dto.ClusterTool)
 	if err != nil {
 		return tool, err
 	}
-	clusterEndpoint := dto.ClusterWithEndpoint{
-		Cluster:  cluster.Cluster,
-		Endpoint: endpoint,
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return tool, err
 	}
-	ct, err := tools.NewClusterTool(clusterEndpoint, &tool.ClusterTool)
+
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret)
 	if err != nil {
 		return tool, err
 	}
@@ -75,7 +79,8 @@ func (c clusterToolService) do(p tools.Interface, tool *model.ClusterTool) {
 	if err != nil {
 		tool.Status = constant.ClusterFailed
 		tool.Message = err.Error()
+	} else {
+		tool.Status = constant.ClusterRunning
 	}
-	tool.Status = constant.ClusterRunning
 	_ = c.toolRepo.Save(tool)
 }

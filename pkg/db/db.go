@@ -30,7 +30,7 @@ func (i *InitDBPhase) Init() error {
 		return err
 	}
 	DB = db
-	DB.LogMode(true)
+	DB.LogMode(false)
 	return nil
 }
 
