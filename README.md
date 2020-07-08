@@ -23,14 +23,14 @@ KubeOperator 的整体架构：
 ## 技术优势
 
 -  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
--  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
 -  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
+-  离线部署：支持完全离线下的 K8s 集群部署；
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
--  应用商店：内置 [KubeApps](https://github.com/kubeapps/kubeapps) 应用商店，快速部署和管理常见应用；
+-  应用商店：内置 [KubeApps](https://github.com/kubeapps/kubeapps) 应用商店；
 -  GPU 支持：支持 GPU 节点，助力运行深度学习等应用；
 
 ## 功能列表
@@ -234,10 +234,6 @@ KubeOperator 的整体架构：
 -  [8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
 -  [安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
 
- ## Kubernetes 离线安装包
-
-KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
-
 ## 沟通交流
  
 - 技术交流 QQ 群：825046920
@@ -249,8 +245,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
 - [Clarity](https://github.com/vmware/clarity/): KubeOperator 采用 Clarity 作为前端 Web 框架；
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
-- [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
-- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 基于 Kubeapps 定制了应用商店；
+- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 采用 Kubeapps 作为应用商店方案。
 
 ## License
 
