@@ -17,19 +17,19 @@
                 {{"APP_STORAGE"|translate}}
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="javascript:void(0)">事件</a>
-        </li>
-        <li class="nav-item">
+        <!--        <li class="nav-item">-->
+        <!--            <a class="nav-link" href="javascript:void(0)">事件</a>-->
+        <!--        </li>-->
+        <li class="nav-item" *ngIf="showApp('dashboard')">
             <a class="nav-link" href="javascript:void(0)" routerLink="dashboard" routerLinkActive="active">控制台</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="showApp('registry') || showApp('chartmuseum')">
             <a class="nav-link" href="javascript:void(0)" routerLink="repository" routerLinkActive="active">仓库</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="showApp('efk')">
             <a class="nav-link" href="javascript:void(0)" routerLink="logging" routerLinkActive="active">日志</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="showApp('prometheus')">
             <a class="nav-link" href="javascript:void(0)" routerLink="monitor" routerLinkActive="active">监控</a>
         </li>
         <li class="nav-item">

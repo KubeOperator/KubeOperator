@@ -1,8 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Cluster, ClusterMonitor} from "../../cluster";
 import {ActivatedRoute} from "@angular/router";
-import {ClusterService} from "../../cluster.service";
-import {DomSanitizer} from "@angular/platform-browser";
 import {ClusterTool} from "../tools/tools";
 import {ToolsService} from "../tools/tools.service";
 
