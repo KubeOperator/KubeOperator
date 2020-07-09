@@ -161,6 +161,10 @@
   "APP_GATEWAY_INVALID": "Gateway IP is not a valid IPV4 address!",
   "APP_NETMASK_INVALID": "Subnet Mask is not a valid IPV4 address!",
   "APP_NETMASK_NOT_AVAIL": "Invalid subnet mask!",
-  "APP_ZONE_EDIT": "Zone Edit"
+  "APP_ZONE_EDIT": "Zone Edit",
+  "APP_PLAN_DETAIL": "Plan Detail",
+  "APP_PLAN_NODE_SPEC": "Node Specifications"
+
+
 
 }

@@ -58,7 +58,14 @@ func (p planService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		planDTOs = append(planDTOs, dto.Plan{Plan: mo})
+
+		planDTO := new(dto.Plan)
+		r := make(map[string]interface{})
+		json.Unmarshal([]byte(mo.Vars), &r)
+		planDTO.PlanVars = r
+		planDTO.Plan = mo
+
+		planDTOs = append(planDTOs, *planDTO)
 	}
 	page.Total = total
 	page.Items = planDTOs

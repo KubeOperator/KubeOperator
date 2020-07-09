@@ -2,6 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {PlanListComponent} from './plan-list/plan-list.component';
 import {PlanCreateComponent} from './plan-create/plan-create.component';
 import {PlanDeleteComponent} from './plan-delete/plan-delete.component';
+import {PlanDetailComponent} from './plan-detail/plan-detail.component';
 
 @Component({
     selector: 'app-plan',
@@ -18,6 +19,9 @@ export class PlanComponent implements OnInit {
 
     @ViewChild(PlanDeleteComponent, {static: true})
     delete: PlanDeleteComponent;
+
+    @ViewChild(PlanDetailComponent, {static: true})
+    detail: PlanDetailComponent;
 
     constructor() {
     }
@@ -36,5 +40,9 @@ export class PlanComponent implements OnInit {
 
     openDelete(items) {
         this.delete.open(items);
+    }
+
+    openDetail(item) {
+        this.detail.open(item);
     }
 }

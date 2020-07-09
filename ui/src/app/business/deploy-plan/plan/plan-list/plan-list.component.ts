@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {Plan} from '../plan';
 import {PlanService} from '../plan.service';
@@ -10,12 +10,20 @@ import {PlanService} from '../plan.service';
 })
 export class PlanListComponent extends BaseModelComponent<Plan> implements OnInit {
 
+
+    @Output() detailEvent = new EventEmitter<Plan>();
+
+
     constructor(private planService: PlanService) {
         super(planService);
     }
 
     ngOnInit(): void {
         super.ngOnInit();
+    }
+
+    onDetail(item) {
+        this.detailEvent.emit(item);
     }
 
 }
