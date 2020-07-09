@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type ClusterNodeService interface {
@@ -191,4 +192,9 @@ func (c clusterNodeService) doCreate(worker model.ClusterNode, clusterName strin
 	}
 	worker.Status = constant.ClusterRunning
 	_ = c.NodeRepo.Save(&worker)
+}
+
+func (c clusterNodeService) doExpel(client kubernetes.Clientset, worker model.ClusterNode) {
+	_, _ = client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{FieldSelector: fmt.Sprintf("spec.nodeName=%s", worker.Name)})
+
 }
