@@ -27,3 +27,10 @@ type CloudZoneRequest struct {
 	CloudVars  interface{} `json:"cloudVars" validate:"required"`
 	Datacenter string      `json:"datacenter" validate:"required"`
 }
+
+type ZoneUpdate struct {
+	ID        string      `json:"id" validate:"required"`
+	Name      string      `json:"name" validate:"required"`
+	CloudVars interface{} `json:"cloudVars" validate:"required"`
+	RegionID  string      `json:"regionID" validate:"required"`
+}

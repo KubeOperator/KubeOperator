@@ -17,6 +17,7 @@ type ZoneService interface {
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ZoneCreate) (dto.Zone, error)
+	Update(creation dto.ZoneUpdate) (dto.Zone, error)
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
@@ -100,6 +101,25 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 		Name:      creation.Name,
 		Vars:      string(vars),
 		RegionID:  creation.RegionID,
+	}
+
+	err := z.zoneRepo.Save(&zone)
+	if err != nil {
+		return dto.Zone{}, err
+	}
+	return dto.Zone{Zone: zone}, err
+}
+
+func (z zoneService) Update(creation dto.ZoneUpdate) (dto.Zone, error) {
+
+	vars, _ := json.Marshal(creation.CloudVars)
+
+	zone := model.Zone{
+		BaseModel: common.BaseModel{},
+		Name:      creation.Name,
+		Vars:      string(vars),
+		RegionID:  creation.RegionID,
+		ID:        creation.ID,
 	}
 
 	err := z.zoneRepo.Save(&zone)

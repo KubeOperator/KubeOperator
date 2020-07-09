@@ -1,1 +1,31 @@
-<p>zone-update works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]=false>:
+    <h3 class="modal-title">{{'APP_ZONE_EDIT'|translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="item">
+            <form clrForm #editForm='ngForm'>
+                <clr-input-container>
+                    <label>{{'APP_NETWORK_START_IP'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ip_start" (change)="checkIp()"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{'APP_NETWORK_END_IP'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ip_end" (change)="checkIp()" required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                </clr-input-container>
+                <ul>
+                    <li *ngFor="let error of networkError">{{error}}</li>
+                </ul>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+                <button type="button" class="btn btn-primary" (click)="onConfirm()"
+                        [disabled]="editForm.invalid || networkError.length!==0">
+                    {{'APP_COMMIT'|translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+
+</clr-modal>

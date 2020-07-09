@@ -153,7 +153,7 @@
   "APP_NETWORK_DNS2": "DNS 2",
   "APP_NETWORK_DNS_HELPER": "例如: 114.114.114.114",
   "APP_ZONE_CREATE": "创建可用区",
-  "APP_REQUIRED_ERROR": "This field is required",
+  "APP_REQUIRED_ERROR": "此字段为必填项",
   "APP_ENABLE_STORAGE": "开启存储",
   "APP_HOST_SPEC": "主机信息",
   "APP_HOST_DISK_SPEC": "磁盘信息",
@@ -163,7 +163,8 @@
   "APP_IP_START_MUST": "截止IP必须大于起始IP!",
   "APP_GATEWAY_INVALID": "网关IP不是有效的IPV4地址!",
   "APP_NETMASK_INVALID": "子网掩码不是有效的IPV4地址!",
-  "APP_NETMASK_NOT_AVAIL": "子网掩码无效!"
+  "APP_NETMASK_NOT_AVAIL": "子网掩码无效!",
+  "APP_ZONE_EDIT": "编辑可用区"
 
 
 }

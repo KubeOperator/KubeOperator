@@ -160,5 +160,7 @@
   "APP_IP_START_MUST": "The End IP must be greater than the start IP!",
   "APP_GATEWAY_INVALID": "Gateway IP is not a valid IPV4 address!",
   "APP_NETMASK_INVALID": "Subnet Mask is not a valid IPV4 address!",
-  "APP_NETMASK_NOT_AVAIL": "Invalid subnet mask!"
+  "APP_NETMASK_NOT_AVAIL": "Invalid subnet mask!",
+  "APP_ZONE_EDIT": "Zone Edit"
+
 }

@@ -17,6 +17,12 @@ export class ZoneCreateRequest extends BaseRequest {
     provider: string;
 }
 
+export class ZoneUpdateRequest extends BaseRequest{
+    vars: string;
+    regionID: string;
+    cloudVars: {} = {};
+}
+
 export class CloudZoneRequest extends BaseRequest {
     cloudVars: {} = {};
     datacenter: string;

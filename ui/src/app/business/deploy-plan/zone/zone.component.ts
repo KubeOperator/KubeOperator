@@ -54,4 +54,8 @@ export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
     openDetail(item) {
         this.detail.open(item);
     }
+
+    openUpdate(item) {
+        this.update.open(item);
+    }
 }
