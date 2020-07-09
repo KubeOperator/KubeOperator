@@ -2,7 +2,7 @@
 
 ## What is KubeOperator?
 
-KubeOperator is an open source project. It helps enterprise using graphic Web UI to plan, deploy and manage production-level Kubernetes clusters in an offline network environment. 
+KubeOperator is an open source light-weight Kubernetes distribution. It helps enterprise using graphic Web UI to plan, deploy and manage production-level Kubernetes clusters. 
 
 ## How it works?
 
@@ -14,4 +14,4 @@ Copyright (c) 2014-2019 FIT2CLOUD 飞致云<br>
 
 [https://www.fit2cloud.com](https://www.fit2cloud.com)<br>
 
-Web Kubectl is licensed under the Apache License, Version 2.0.
+KubeOperator is licensed under the Apache License, Version 2.0.
