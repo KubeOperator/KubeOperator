@@ -103,6 +103,7 @@
   "APP_REGION_VC_HOST": "vCenter Address",
   "APP_REGION_VC_USER": "vCenter User",
   "APP_ZONE": "Zone",
+  "APP_ZONE_DETAIL": "Zone Detail",
   "APP_ZONE_PROMPT": "Zone: Similar to the concept of AZ in the public cloud, it can be understood as a specific computer room in the region, such as Beijing 1 and Beijing 2. For vSphere, the Availability Zone corresponds to the cluster, and can also correspond to the resource pool under the cluster",
   "APP_ZONE_DELETE": "Delete Zone",
   "APP_PLAN": "Deploy Plan",
@@ -153,8 +154,11 @@
   "APP_ENABLE_STORAGE": "Enable Storage",
   "APP_HOST_SPEC": "Host Information",
   "APP_HOST_DISK_SPEC": "Disk Information",
-  "APP_HOST_DISK_SIZE": "Size"
-
-
-
+  "APP_HOST_DISK_SIZE": "Size",
+  "APP_IP_START_INVALID": "Start IP is not a valid IPV4 address!",
+  "APP_IP_END_INVALID": "End IP is not a valid IPV4 address!",
+  "APP_IP_START_MUST": "The End IP must be greater than the start IP!",
+  "APP_GATEWAY_INVALID": "Gateway IP is not a valid IPV4 address!",
+  "APP_NETMASK_INVALID": "Subnet Mask is not a valid IPV4 address!",
+  "APP_NETMASK_NOT_AVAIL": "Invalid subnet mask!"
 }

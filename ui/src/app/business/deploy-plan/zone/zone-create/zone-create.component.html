@@ -265,16 +265,16 @@
         <ng-template clrPageButtons>
             <clr-wizard-button [type]="'cancel'">{{'APP_CANCEL'|translate}}</clr-wizard-button>
             <clr-wizard-button [type]="'previous'">{{'APP_BACK'|translate}}</clr-wizard-button>
-            <clr-wizard-button [type]="'custom-finish'">{{'APP_FINISH'|translate}}</clr-wizard-button>
+            <clr-wizard-button [type]="'custom-finish'" [clrWizardButtonDisabled]="!networkValid">{{'APP_FINISH'|translate}}</clr-wizard-button>
         </ng-template>
-        <!--        <div>-->
-        <!--            <div>-->
-        <!--                <button class="btn" (click)="checkNetwork()" [disabled]="paramsForm.invalid">检测</button>-->
-        <!--            </div>-->
-        <!--            <ul>-->
-        <!--                <li *ngFor="let error of networkError">{{error}}</li>-->
-        <!--            </ul>-->
-        <!--        </div>-->
+        <div>
+            <div>
+                <button class="btn" (click)="checkNetwork()" [disabled]="paramsForm.invalid">IP校验</button>
+            </div>
+            <ul>
+                <li *ngFor="let error of networkError">{{error}}</li>
+            </ul>
+        </div>
     </clr-wizard-page>
 </clr-wizard>
 
