@@ -1,10 +1,12 @@
 import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
+import {Region} from '../region/region';
 
 export class Zone extends BaseModel {
     id: string;
     name: string;
     vars: string;
     cloudVars: {} = {};
+    region: Region = new Region();
 }
 
 export class ZoneCreateRequest extends BaseRequest {

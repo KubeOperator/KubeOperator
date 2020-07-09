@@ -11,6 +11,7 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 	"net/url"
+	"strings"
 )
 
 type vSphereClient struct {
@@ -49,7 +50,8 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	}
 
 	for _, d := range datacenters {
-		result = append(result, d.Common.InventoryPath)
+		datacenterPath := d.Common.InventoryPath
+		result = append(result, strings.Replace(datacenterPath, "/", "", 1))
 	}
 	return result, nil
 }
@@ -181,11 +183,11 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 
 func (v *vSphereClient) GetConnect() (Connect, error) {
 	ctx, _ := context.WithCancel(context.Background())
-	u, err := soap.ParseURL(v.Vars["vcHost"].(string))
+	u, err := soap.ParseURL(v.Vars["host"].(string))
 	if err != nil {
 		return Connect{}, err
 	}
-	u.User = url.UserPassword(v.Vars["vcUsername"].(string), v.Vars["vcPassword"].(string))
+	u.User = url.UserPassword(v.Vars["username"].(string), v.Vars["password"].(string))
 	c, err := govmomi.NewClient(ctx, u, true)
 	if err != nil {
 		return Connect{}, err

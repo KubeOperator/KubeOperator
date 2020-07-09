@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 )
 
 type ZoneService interface {
@@ -62,7 +62,20 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
+		zoneDTO := new(dto.Zone)
+		m := make(map[string]interface{})
+		zoneDTO.Zone = mo
+		json.Unmarshal([]byte(mo.Vars), &m)
+		zoneDTO.CloudVars = m
+
+		regionDTO := new(dto.Region)
+		r := make(map[string]interface{})
+		json.Unmarshal([]byte(mo.Region.Vars), &r)
+		regionDTO.RegionVars = r
+		regionDTO.Region = mo.Region
+		zoneDTO.Region = *regionDTO
+
+		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
 	page.Total = total
 	page.Items = zoneDTOs
@@ -70,6 +83,7 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 }
 
 func (z zoneService) Delete(name string) error {
+
 	err := z.zoneRepo.Delete(name)
 	if err != nil {
 		return err

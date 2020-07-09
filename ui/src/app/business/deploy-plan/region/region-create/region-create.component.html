@@ -63,9 +63,9 @@
                     {{'APP_REGION_VCENTER_CHECK'|translate}}
                 </button>
                 <br>
-                <span *ngIf="isParamsValid&&!isParamsCheckGoing"
+                <span *ngIf="isParamsValid&&!isParamsCheckGoing&&paramsForm.valid"
                       style="color: #859900;"> {{'APP_REGION_VCENTER_PARAM_VALID'|translate}}</span>
-                <span *ngIf="!isParamsValid&&!isParamsCheckGoing"
+                <span *ngIf="isParamsValid==false&&!isParamsCheckGoing&&paramsForm.valid"
                       style="color: #e02200;"> {{'APP_REGION_VCENTER_PARAM_INVALID'|translate}}</span>
             </div>
             <!--            <div *ngIf="item.cloudProvider === 'OpenStack'">-->

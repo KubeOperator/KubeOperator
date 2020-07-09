@@ -7,10 +7,11 @@ import {ZoneListComponent} from './zone-list/zone-list.component';
 import {CoreModule} from '../../../core/core.module';
 import {SharedModule} from '../../../shared/shared.module';
 import {ZoneComponent} from './zone.component';
+import { ZoneDetailComponent } from './zone-detail/zone-detail.component';
 
 
 @NgModule({
-    declarations: [ZoneComponent, ZoneCreateComponent, ZoneDeleteComponent, ZoneUpdateComponent, ZoneListComponent],
+    declarations: [ZoneComponent, ZoneCreateComponent, ZoneDeleteComponent, ZoneUpdateComponent, ZoneListComponent, ZoneDetailComponent],
     imports: [
         CommonModule,
         CoreModule,

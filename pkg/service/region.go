@@ -2,12 +2,17 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
+)
+
+var (
+	DeleteRegionError = "DELETE_REGION_FAILED_RESOURCE"
 )
 
 type RegionService interface {
@@ -22,6 +27,7 @@ type RegionService interface {
 
 type regionService struct {
 	regionRepo repository.RegionRepository
+	zoneRepo   repository.ZoneRepository
 }
 
 func NewRegionService() RegionService {
@@ -59,7 +65,12 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		regionDTOs = append(regionDTOs, dto.Region{Region: mo})
+		regionDTO := new(dto.Region)
+		m := make(map[string]interface{})
+		regionDTO.Region = mo
+		json.Unmarshal([]byte(mo.Vars), &m)
+		regionDTO.RegionVars = m
+		regionDTOs = append(regionDTOs, *regionDTO)
 	}
 	page.Total = total
 	page.Items = regionDTOs
@@ -67,7 +78,19 @@ func (r regionService) Page(num, size int) (page.Page, error) {
 }
 
 func (r regionService) Delete(name string) error {
-	err := r.regionRepo.Delete(name)
+	region, err := r.regionRepo.Get(name)
+	if err != nil {
+		return err
+	}
+
+	regions, err := r.zoneRepo.ListByRegionId(region.ID)
+	if err != nil {
+		return err
+	}
+	if len(regions) > 0 {
+		errors.New(DeleteRegionError)
+	}
+	err = r.regionRepo.Delete(name)
 	if err != nil {
 		return err
 	}

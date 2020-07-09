@@ -1,0 +1,40 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" [clrModalClosable]=false>
+    <h3 class="modal-title">{{'APP_REGION_DETAIL'|translate}}</h3>
+    <div class="modal-body" *ngIf="item && item.regionVars['provider'] === 'vSphere'">
+        <hr/>
+        <div class="card-block">
+            <ul class="list-unstyled">
+                <li><b style="margin-right: 16px">{{'APP_NAME'|translate}}:</b>{{item.name}}</li>
+                <li><b style="margin-right: 16px">{{'APP_REGION_PROVIDER'|translate}}
+                    :</b>{{item.regionVars['provider']}}</li>
+                <!--                <li><b style="margin-right: 16px">集群数量:</b>{{item.cluster_size}}</li>-->
+                <!--                <li><b style="margin-right: 16px">可用区数量:</b>{{item.zone_size}}</li>-->
+                <li><b style="margin-right: 16px">{{'APP_REGION_VCENTER_DATACENTER'|translate}}:</b>
+                    {{item.datacenter}}
+                </li>
+                <li><b style="margin-right: 16px">{{'APP_REGION_VC_HOST'|translate}}:</b>{{item.regionVars['host']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_REGION_VC_USER'|translate}}:</b>{{item.regionVars['username']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_CREATED_DATE'|translate}}
+                    :</b>{{item.createdAt |  date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+            </ul>
+        </div>
+    </div>
+    <!--    <div class="modal-body" *ngIf="currentRegion && currentRegion.template === 'openstack'">-->
+    <!--        <hr/>-->
+    <!--        <div class="card-block">-->
+    <!--            <ul class="list-unstyled">-->
+    <!--                <li><b style="margin-right: 16px">名称:</b>{{currentRegion.name}}</li>-->
+    <!--                <li><b style="margin-right: 16px">云提供商:</b>{{currentRegion.template}}</li>-->
+    <!--                <li><b style="margin-right: 16px">集群数量:</b>{{currentRegion.cluster_size}}</li>-->
+    <!--                <li><b style="margin-right: 16px">可用区数量:</b>{{currentRegion.zone_size}}</li>-->
+    <!--                <li><b style="margin-right: 16px">数据中心:</b>{{currentRegion.cloud_region}}</li>-->
+    <!--                <li><b style="margin-right: 16px">Identity 地址:</b>{{currentRegion.vars['openstack_identity']}}</li>-->
+    <!--                <li><b style="margin-right: 16px">OpenStack 用户:</b>{{currentRegion.vars['openstack_username']}}</li>-->
+    <!--                <li><b style="margin-right: 16px">创建时间:</b>{{currentRegion.date_created |  date: 'yyyy-MM-dd HH:mm:ss'}}</li>-->
+    <!--            </ul>-->
+    <!--        </div>-->
+    <!--    </div>-->
+    <div class="modal-footer">
+        <button type="button" class="btn" (click)="cancel()">取消</button>
+    </div>
+</clr-modal>

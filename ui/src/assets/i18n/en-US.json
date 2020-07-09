@@ -11,6 +11,7 @@
   "APP_NEXT": "Next",
   "APP_FINISH": "Finish",
   "APP_RETRY": "Retry",
+  "APP_REFRESH": "Refresh",
   "APP_DEFAULT_OPTION": "select",
   "APP_PAGER_TOTAL": "total",
   "APP_CAPACITY": "capacity",
@@ -97,6 +98,10 @@
   "APP_REGION_VCENTER_PARAM_INVALID": "Verification failed, please check vCenter connection information",
   "APP_REGION_VCENTER_DATACENTER": "Datacenter",
   "APP_REGION_DELETE": "Delete Region",
+  "APP_REGION_DETAIL": "Region Detail",
+  "APP_REGION_PROVIDER": "Cloud Provider",
+  "APP_REGION_VC_HOST": "vCenter Address",
+  "APP_REGION_VC_USER": "vCenter User",
   "APP_ZONE": "Zone",
   "APP_ZONE_PROMPT": "Zone: Similar to the concept of AZ in the public cloud, it can be understood as a specific computer room in the region, such as Beijing 1 and Beijing 2. For vSphere, the Availability Zone corresponds to the cluster, and can also correspond to the resource pool under the cluster",
   "APP_ZONE_DELETE": "Delete Zone",
@@ -145,5 +150,11 @@
   "APP_NETWORK_DNS_HELPER": "For example:: 114.114.114.114",
   "APP_ZONE_CREATE": "Create Zone",
   "APP_REQUIRED_ERROR": "This field is required",
-  "APP_ENABLE_STORAGE": "Enable Storage"
+  "APP_ENABLE_STORAGE": "Enable Storage",
+  "APP_HOST_SPEC": "Host Information",
+  "APP_HOST_DISK_SPEC": "Disk Information",
+  "APP_HOST_DISK_SIZE": "Size"
+
+
+
 }

@@ -6,6 +6,7 @@ import {ZoneListComponent} from './zone-list/zone-list.component';
 import {ZoneUpdateComponent} from './zone-update/zone-update.component';
 import {ZoneDeleteComponent} from './zone-delete/zone-delete.component';
 import {ZoneCreateComponent} from './zone-create/zone-create.component';
+import {ZoneDetailComponent} from './zone-detail/zone-detail.component';
 
 @Component({
     selector: 'app-zone',
@@ -26,6 +27,8 @@ export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
     @ViewChild(ZoneCreateComponent, {static: true})
     create: ZoneCreateComponent;
 
+    @ViewChild(ZoneDetailComponent, {static: true})
+    detail: ZoneDetailComponent;
 
     constructor(private zoneService: ZoneService) {
         super(zoneService);
@@ -40,11 +43,15 @@ export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
         this.list.refresh();
     }
 
-    openCreate(){
+    openCreate() {
         this.create.open();
     }
 
     openDelete(items) {
         this.delete.open(items);
+    }
+
+    openDetail(item) {
+        this.detail.open(item);
     }
 }

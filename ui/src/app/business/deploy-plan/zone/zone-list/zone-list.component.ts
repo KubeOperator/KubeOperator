@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {Zone} from '../zone';
 import {ZoneService} from '../zone.service';
+import {Region} from '../../region/region';
 
 @Component({
     selector: 'app-zone-list',
@@ -9,6 +10,8 @@ import {ZoneService} from '../zone.service';
     styleUrls: ['./zone-list.component.css']
 })
 export class ZoneListComponent extends BaseModelComponent<Zone> implements OnInit {
+
+    @Output() detailEvent = new EventEmitter<Region>();
 
     constructor(private zoneService: ZoneService) {
         super(zoneService);
@@ -18,4 +21,7 @@ export class ZoneListComponent extends BaseModelComponent<Zone> implements OnIni
         super.ngOnInit();
     }
 
+    onDetail(item) {
+        this.detailEvent.emit(item);
+    }
 }
