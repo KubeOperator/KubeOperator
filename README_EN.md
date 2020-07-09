@@ -1,5 +1,3 @@
-# KubeOperator
-
 ## What is KubeOperator?
 
 KubeOperator is an open source light-weight Kubernetes distribution. It helps enterprise using graphic Web UI to plan, deploy and manage production-level Kubernetes clusters. 
