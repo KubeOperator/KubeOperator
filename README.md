@@ -228,9 +228,10 @@ KubeOperator 的整体架构：
 
  ## PPT、Demo 视频、使用文档
 
--  [PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT。
--  [8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
--  [安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
+-  [PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT;
+-  [安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等;
+-  [8 分钟的演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能;
+-  [直播回放](http://live.vhall.com/355489706)：KubeOperator 助力企业运营生产级别的 Kubernetes 集群。
 
 ## 沟通交流
  
