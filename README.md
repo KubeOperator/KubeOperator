@@ -1,7 +1,5 @@
 # KubeOperator - 从这里开启您的 Kubernetes 之旅
 
-[![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/KubeOperatpr/KubeOperatpr/blob/master/LICENSE)
-
 KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别的 Kubernetes 集群。
 
 KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware 和 OpenStack 等 IaaS 平台，支持 x86 和 arm64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
