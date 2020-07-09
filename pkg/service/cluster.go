@@ -135,7 +135,6 @@ func (c clusterService) GetSpec(name string) (dto.ClusterSpec, error) {
 	return spec, nil
 }
 
-
 func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster := model.Cluster{
 		Name:   creation.Name,
@@ -146,10 +145,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		DockerStorageDir:     creation.DockerStorageDIr,
 		ContainerdStorageDir: creation.ContainerdStorageDIr,
 		NetworkType:          creation.NetworkType,
-		ClusterCIDR:          creation.ClusterCIDR,
-		ServiceCIDR:          creation.ServiceCIDR,
+		KubePodSubnet:        creation.ClusterCIDR,
+		KubeServiceSubnet:    creation.ServiceCIDR,
 		Version:              creation.Version,
-		AppDomain:            creation.AppDomain,
 		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}

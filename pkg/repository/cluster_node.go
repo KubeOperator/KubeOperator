@@ -8,9 +8,11 @@ import (
 
 type ClusterNodeRepository interface {
 	List(clusterName string) ([]model.ClusterNode, error)
+	ListByRole(clusterName string, role string) ([]model.ClusterNode, error)
 	Save(node *model.ClusterNode) error
 	FistMaster(ClusterId string) (model.ClusterNode, error)
 	Delete(id string) error
+	BatchSave(nodes []*model.ClusterNode) error
 }
 
 func NewClusterNodeRepository() ClusterNodeRepository {
@@ -29,10 +31,28 @@ func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, er
 	}
 	if err := db.DB.
 		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Order("name asc").
 		Find(&nodes).Error; err != nil {
 		return nodes, err
 	}
 	return nodes, nil
+}
+
+func (c clusterNodeRepository) ListByRole(clusterName string, role string) ([]model.ClusterNode, error) {
+	var cluster model.Cluster
+	var nodes []model.ClusterNode
+	if err := db.DB.
+		Where(model.Cluster{Name: clusterName}).
+		First(&cluster).Error; err != nil {
+		return nodes, err
+	}
+	if err := db.DB.
+		Where(model.ClusterNode{ClusterID: cluster.ID, Role: role}).
+		Find(&nodes).Error; err != nil {
+		return nodes, err
+	}
+	return nodes, nil
+
 }
 
 func (c clusterNodeRepository) FistMaster(ClusterId string) (model.ClusterNode, error) {
@@ -74,5 +94,24 @@ func (c clusterNodeRepository) Save(node *model.ClusterNode) error {
 			return nil
 		}
 	}
+	return nil
+}
+
+func (c clusterNodeRepository) BatchSave(nodes []*model.ClusterNode) error {
+	tx := db.DB.Begin()
+	for i, _ := range nodes {
+		if db.DB.NewRecord(nodes[i]) {
+			if err := db.DB.Create(nodes[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			if err := db.DB.Save(nodes[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	tx.Commit()
 	return nil
 }

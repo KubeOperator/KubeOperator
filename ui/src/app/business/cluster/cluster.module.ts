@@ -49,6 +49,8 @@ import {NotReadyComponent} from './cluster-detail/not-ready/not-ready.component'
 import { DashboardComponent } from './cluster-detail/dashboard/dashboard.component';
 import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-failed.component';
 import { DashboardDashboardComponent } from './cluster-detail/dashboard/dashboard-dashboard/dashboard-dashboard.component';
+import { NodeCreateComponent } from './cluster-detail/node/node-create/node-create.component';
+import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
 
 
 @NgModule({
@@ -79,7 +81,9 @@ import { DashboardDashboardComponent } from './cluster-detail/dashboard/dashboar
         NotReadyComponent,
         DashboardComponent,
         ToolsFailedComponent,
-        DashboardDashboardComponent],
+        DashboardDashboardComponent,
+        NodeCreateComponent,
+        NodeDeleteComponent],
     imports: [
         CoreModule,
         RouterModule,

@@ -1,2 +1,4 @@
 <app-node-detail></app-node-detail>
-<app-node-list (openDetail)="openDetail($event)"></app-node-list>
+<app-node-list [currentCluster]="currentCluster" (createEvent)="openCreate()"
+               (openDetail)="openDetail($event)"></app-node-list>
+<app-node-create [currentCluster]="currentCluster"></app-node-create>

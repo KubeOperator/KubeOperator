@@ -11,7 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"log"
 	"os"
 	"time"
 )

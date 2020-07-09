@@ -3,6 +3,7 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
@@ -16,12 +17,6 @@ func LoggingProxy(ctx context.Context) {
 		_, _ = ctx.JSON(http.StatusBadRequest)
 		return
 	}
-	c, err := clusterService.Get(clusterName)
-	if err != nil {
-		_, _ = ctx.JSON(http.StatusInternalServerError)
-		return
-	}
-
 	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
@@ -37,7 +32,7 @@ func LoggingProxy(ctx context.Context) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	req := ctx.Request()
-	req.Host = fmt.Sprintf("logging.%s", c.Spec.AppDomain)
+	req.Host = fmt.Sprintf(constant.DefaultEFKIngress)
 	req.URL.Path = proxyPath
 	proxy.ServeHTTP(ctx.ResponseWriter(), req)
 }

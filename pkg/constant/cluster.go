@@ -45,7 +45,7 @@ const (
 	DefaultRegistryServiceName    = "registry-docker-registry"
 	DefaultChartmuseumServiceName = "chartmuseum-chartmuseum"
 	DefaultDashboardServiceName   = "dashboard-kubernetes-dashboard"
-	DefaultEFKServiceName         = "efk-elasticsearch"
+	DefaultEFKServiceName         = "elasticsearch-master"
 	DefaultPrometheusServiceName  = "prometheus-server"
 
 	DefaultRegistryIngressName    = "docker-registry-ingress"

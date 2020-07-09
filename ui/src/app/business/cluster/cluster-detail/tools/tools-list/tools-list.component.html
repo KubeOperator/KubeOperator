@@ -27,6 +27,10 @@
                         Failed
                     </button>
 
+                    <button *ngIf="item.status === 'Running'" class="btn btn-sm btn-primary" (click)="onFailed(item)">
+                        Disable
+                    </button>
+
                 </div>
             </div>
         </div>

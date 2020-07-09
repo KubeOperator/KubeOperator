@@ -1,5 +1,13 @@
 <clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
     <clr-dg-action-bar>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+            <clr-icon shape="plus" size="16"></clr-icon>
+            {{"APP_ADD"|translate}}
+        </button>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+            <clr-icon shape="close"></clr-icon>
+            {{"APP_DELETE"|translate}}
+        </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{"APP_NAME"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_IP"|translate}}</clr-dg-column>
@@ -10,20 +18,14 @@
     <clr-dg-column>{{"APP_STATUS"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_CREATED_DATE"|translate}}</clr-dg-column>
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell><a href="javascript:void(0)" (click)="onDetail(item)">{{item.metadata.name}}</a></clr-dg-cell>
+        <clr-dg-cell><a href="javascript:void(0)" (click)="onDetail(item)">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{getInternalIp(item)}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status.nodeInfo.kubeletVersion}}</clr-dg-cell>
+        <clr-dg-cell>{{getVersion(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getNodeRoles(item)}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status.capacity["cpu"]}}</clr-dg-cell>
-        <clr-dg-cell>{{formatRAM(item.status.capacity["memory"])}}</clr-dg-cell>
-        <clr-dg-cell>{{isNodeReady(item)}}</clr-dg-cell>
-        <clr-dg-cell>{{item.metadata.creationTimestamp|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{getCpuCore(item)}}</clr-dg-cell>
+        <clr-dg-cell>{{getRAM(item)}}</clr-dg-cell>
+        <clr-dg-cell>{{getStatus(item)}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
-    <clr-dg-footer>
-        <app-k8s-pagination [(continueToken)]="continueToken"
-                            [nextToken]="nextToken"
-                            [previousToken]="previousToken"
-                            (pageChange)="list()"></app-k8s-pagination>
-    </clr-dg-footer>
 </clr-datagrid>
 
