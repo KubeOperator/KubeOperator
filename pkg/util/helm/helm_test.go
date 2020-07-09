@@ -30,7 +30,7 @@ func TestClient_Uninstall(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	r, err := h.Uninstall("prometheus")
+	r, err := h.Uninstall("efk")
 	if err != nil {
 		t.Error(err)
 	}

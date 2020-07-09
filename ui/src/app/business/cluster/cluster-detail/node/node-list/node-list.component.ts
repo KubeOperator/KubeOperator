@@ -1,8 +1,12 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
-import {V1Namespace, V1Node} from '@kubernetes/client-node';
+import {V1Node} from '@kubernetes/client-node';
 import {Cluster} from '../../../cluster';
 import {ActivatedRoute} from '@angular/router';
+import {NodeService} from "../node.service";
+import {Node} from "../node";
+import {CommonAlertService} from "../../../../../layout/common-alert/common-alert.service";
+import {AlertLevels} from "../../../../../layout/common-alert/alert";
 
 @Component({
     selector: 'app-node-list',
@@ -13,39 +17,39 @@ export class NodeListComponent implements OnInit {
 
     loading = true;
     selected = [];
-    items: V1Node[] = [];
-    nextToken = '';
-    previousToken = '';
-    continueToken = '';
+    items: Node[] = [];
     page = 1;
-    currentCluster: Cluster;
+    @Input() currentCluster: Cluster;
     @Output() openDetail = new EventEmitter<V1Node>();
+    @Output() createEvent = new EventEmitter();
 
-    constructor(private service: KubernetesService, private route: ActivatedRoute) {
+    constructor(private service: KubernetesService, private route: ActivatedRoute,
+                private nodeService: NodeService, private alertService: CommonAlertService) {
     }
 
     ngOnInit(): void {
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.list();
-        });
-    }
-
-    list() {
-        this.loading = true;
-        this.service.listNodes(this.currentCluster.name, this.continueToken).subscribe(data => {
+        this.nodeService.list(this.currentCluster.name).subscribe(d => {
+            this.items = d;
             this.loading = false;
-            this.items = data.items;
-            this.nextToken = data.metadata[this.service.continueTokenKey] ? data.metadata[this.service.continueTokenKey] : '';
         });
     }
 
-    getInternalIp(n: V1Node) {
-        let result = '';
-        for (const addr of n.status.addresses) {
-            if (addr.type === 'InternalIP') {
-                result = addr.address;
+    getInternalIp(item: Node) {
+        let result = 'N/A';
+        if (item.status === 'Running') {
+            for (const addr of item.info.status.addresses) {
+                if (addr.type === 'InternalIP') {
+                    result = addr.address;
+                }
             }
+        }
+        return result;
+    }
+
+    getVersion(item: Node) {
+        let result = 'N/A';
+        if (item.status === 'Running') {
+            result = item.info.status.nodeInfo.kubeletVersion;
         }
         return result;
     }
@@ -60,24 +64,49 @@ export class NodeListComponent implements OnInit {
         return result.toFixed(2) + 'GB';
     }
 
-    getNodeRoles(item: V1Node): string[] {
+    getRAM(item: Node) {
+        let result = 'N/A';
+        if (item.status === 'Running') {
+            result = this.formatRAM(item.info.status.capacity['memory']);
+        }
+        return result;
+    }
+
+    getCpuCore(item: Node) {
+        let result = 'N/A';
+        if (item.status === 'Running') {
+            result = item.info.status.capacity['cpu'];
+        }
+        return result;
+    }
+
+    getNodeRoles(item: Node): string[] {
         const roles: string[] = [];
-        for (const key in item.metadata.labels) {
-            if (key) {
-                switch (key) {
-                    case 'node-role.kubernetes.io/master':
-                        roles.push('master');
-                        break;
-                    case 'node-role.kubernetes.io/etcd':
-                        roles.push('etcd');
-                        break;
-                    case 'node-role.kubernetes.io/worker':
-                        roles.push('worker');
-                        break;
+        if (item.status === 'Running') {
+            for (const key in item.info.metadata.labels) {
+                if (key) {
+                    switch (key) {
+                        case 'node-role.kubernetes.io/master':
+                            roles.push('master');
+                            break;
+                        case 'node-role.kubernetes.io/etcd':
+                            roles.push('etcd');
+                            break;
+                        case 'node-role.kubernetes.io/worker':
+                            roles.push('worker');
+                            break;
+                    }
                 }
             }
         }
         return roles;
+    }
+
+    getStatus(item: Node) {
+        if (item.status === 'Running') {
+            return this.isNodeReady(item.info);
+        }
+        return item.status;
     }
 
     isNodeReady(n: V1Node): string {
@@ -92,7 +121,19 @@ export class NodeListComponent implements OnInit {
         return result;
     }
 
-    onDetail(item: V1Node) {
-        this.openDetail.emit(item);
+    onDetail(item: Node) {
+        if (item.status === 'Running') {
+            this.openDetail.emit(item.info);
+        } else {
+            this.alertService.showAlert('node is not ready', AlertLevels.ERROR);
+        }
+    }
+
+    onCreate() {
+        this.createEvent.emit();
+    }
+
+    onDelete() {
+
     }
 }

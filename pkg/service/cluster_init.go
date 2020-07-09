@@ -91,6 +91,10 @@ func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan 
 			cancel()
 			return
 		case constant.ClusterRunning:
+			for i, _ := range cluster.Nodes {
+				cluster.Nodes[i].Status = constant.ClusterRunning
+				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
+			}
 			cancel()
 			err := c.GatherKubernetesToken(cluster.Cluster)
 			if err != nil {

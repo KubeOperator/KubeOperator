@@ -10,17 +10,17 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID        string         `json:"_"`
-	Name      string         `json:"name" gorm:"not null;unique"`
-	Source    string         `json:"source"`
-	SpecID    string         `json:"_"`
-	SecretID  string         `json:"_"`
-	StatusID  string         `json:"_"`
-	MonitorID string         `json:"_"`
-	Spec      ClusterSpec    `gorm:"save_associations:false" json:"spec"`
-	Secret    ClusterSecret  `gorm:"save_associations:false" json:"_"`
-	Status    ClusterStatus  `gorm:"save_associations:false" json:"_"`
-	Nodes     []ClusterNode  `gorm:"save_associations:false" json:"_"`
+	ID        string        `json:"_"`
+	Name      string        `json:"name" gorm:"not null;unique"`
+	Source    string        `json:"source"`
+	SpecID    string        `json:"_"`
+	SecretID  string        `json:"_"`
+	StatusID  string        `json:"_"`
+	MonitorID string        `json:"_"`
+	Spec      ClusterSpec   `gorm:"save_associations:false" json:"spec"`
+	Secret    ClusterSecret `gorm:"save_associations:false" json:"_"`
+	Status    ClusterStatus `gorm:"save_associations:false" json:"_"`
+	Nodes     []ClusterNode `gorm:"save_associations:false" json:"_"`
 }
 
 func (c Cluster) TableName() string {
@@ -48,6 +48,12 @@ func (c *Cluster) BeforeCreate() error {
 	for i, _ := range c.Nodes {
 		c.Nodes[i].ClusterID = c.ID
 		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
+			c.Nodes[i].Host.ClusterID = c.ID
+			err := tx.Save(&Host{ID: c.Nodes[i].HostID, ClusterID: c.ID}).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
 			tx.Rollback()
 			return err
 		}
@@ -113,9 +119,13 @@ func (c Cluster) ParseInventory() api.Inventory {
 		hosts = append(hosts, node.ToKobeHost())
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
-			masters = append(masters, node.Name)
+			if node.Status == constant.ClusterRunning {
+				masters = append(masters, node.Name)
+			}
 		case constant.NodeRoleNameWorker:
-			workers = append(workers, node.Name)
+			if node.Status == constant.ClusterRunning {
+				workers = append(workers, node.Name)
+			}
 		}
 	}
 	if len(masters) > 0 {
@@ -137,10 +147,9 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Vars:     map[string]string{},
 			},
 			{
-				Name:     "new-worker",
-				Hosts:    []string{},
-				Children: []string{"kube-master"},
-				Vars:     map[string]string{},
+				Name:  "new-worker",
+				Hosts: []string{},
+				Vars:  map[string]string{},
 			}, {
 
 				Name:     "lb",
