@@ -1,5 +1,4 @@
 import {V1Node} from "@kubernetes/client-node";
-import {CreateNodeRequest} from "../../cluster";
 import {BaseModel} from "../../../../shared/class/BaseModel";
 
 export class Node extends BaseModel {
@@ -10,7 +9,9 @@ export class Node extends BaseModel {
 }
 
 
-export class NodeCreateRequest {
-    hosts: CreateNodeRequest[] = [];
+export class NodeBatch {
+    hosts: string[] = [];
+    nodes: string[] = [];
     increase: number;
+    operation: string;
 }

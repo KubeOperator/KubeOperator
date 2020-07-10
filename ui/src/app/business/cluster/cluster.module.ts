@@ -51,6 +51,8 @@ import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-
 import { DashboardDashboardComponent } from './cluster-detail/dashboard/dashboard-dashboard/dashboard-dashboard.component';
 import { NodeCreateComponent } from './cluster-detail/node/node-create/node-create.component';
 import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
+import { NodeStatusComponent } from './cluster-detail/node/node-status/node-status.component';
+import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
 
 
 @NgModule({
@@ -83,7 +85,9 @@ import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-dele
         ToolsFailedComponent,
         DashboardDashboardComponent,
         NodeCreateComponent,
-        NodeDeleteComponent],
+        NodeDeleteComponent,
+        NodeStatusComponent,
+        WebkubectlComponent],
     imports: [
         CoreModule,
         RouterModule,

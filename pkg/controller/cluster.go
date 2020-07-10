@@ -120,11 +120,11 @@ func (c ClusterController) GetNodeBy(clusterName string) ([]dto.Node, error) {
 	return c.ClusterNodeService.List(clusterName)
 }
 
-func (c ClusterController) PostNodeBy(clusterName string) ([]dto.Node, error) {
-	var req dto.NodeCreation
+func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, error) {
+	var req dto.NodeBatch
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err
 	}
-	return c.ClusterNodeService.Create(clusterName, req)
+	return c.ClusterNodeService.Batch(clusterName, req)
 }

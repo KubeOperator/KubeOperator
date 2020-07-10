@@ -17,14 +17,22 @@
     <clr-dg-column>RAM</clr-dg-column>
     <clr-dg-column>{{"APP_STATUS"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_CREATED_DATE"|translate}}</clr-dg-column>
-    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item"
+                [clrDgSelectable]="getNodeRoles(item).indexOf('master')===-1">
         <clr-dg-cell><a href="javascript:void(0)" (click)="onDetail(item)">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{getInternalIp(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getVersion(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getNodeRoles(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getCpuCore(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getRAM(item)}}</clr-dg-cell>
-        <clr-dg-cell>{{getStatus(item)}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="getStatus(item) !== 'Failed'">{{getStatus(item)}}
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
+                Loading...
+            </clr-spinner>
+        </clr-dg-cell>
+        <clr-dg-cell *ngIf="getStatus(item) === 'Failed'"><a href="javascript:void(0)"
+                                                             (click)="onShowStatus(item)">{{getStatus(item)}}</a>
+        </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
 </clr-datagrid>

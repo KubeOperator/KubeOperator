@@ -1,7 +1,6 @@
 package facts
 
 const (
-	ArchitecturesFactName            = "architectures"
 	KubeVersionFactName              = "kube_version"
 	ContainerRuntimeFactName         = "container_runtime"
 	LbModeFactName                   = "lb_mode"
@@ -41,10 +40,11 @@ const (
 	RegistryPortFactName  = "registry_port"
 	CorednsImageFactName  = "coredns_image"
 	KubeadmTokenFactName  = "kubeadm_token"
+
+	CalicoIpv4poolIpIp = "calico_ipv4pool_ipip"
 )
 
 var DefaultFacts = map[string]string{
-	ArchitecturesFactName:                "amd64",
 	KubeVersionFactName:                  "v1.18.3",
 	ContainerRuntimeFactName:             "docker",
 	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",
@@ -78,4 +78,5 @@ var DefaultFacts = map[string]string{
 	KubeCpuReservedFactName:              "100m",
 	KubeMemoryReservedFactName:           "256M",
 	KubeEphemeralStorageReservedFactName: "1G",
+	CalicoIpv4poolIpIp: "Always",
 }

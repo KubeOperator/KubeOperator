@@ -7,6 +7,7 @@ import (
 )
 
 type ClusterNodeRepository interface {
+	Get(clusterName string, name string) (model.ClusterNode, error)
 	List(clusterName string) ([]model.ClusterNode, error)
 	ListByRole(clusterName string, role string) ([]model.ClusterNode, error)
 	Save(node *model.ClusterNode) error
@@ -20,6 +21,22 @@ func NewClusterNodeRepository() ClusterNodeRepository {
 }
 
 type clusterNodeRepository struct{}
+
+func (c clusterNodeRepository) Get(clusterName string, name string) (model.ClusterNode, error) {
+	var cluster model.Cluster
+	var node model.ClusterNode
+	if err := db.DB.
+		Where(model.Cluster{Name: clusterName}).
+		First(&cluster).Error; err != nil {
+		return node, err
+	}
+	if err := db.DB.
+		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		First(&node).Error; err != nil {
+		return node, err
+	}
+	return node, nil
+}
 
 func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, error) {
 	var cluster model.Cluster
@@ -77,6 +94,11 @@ func (c clusterNodeRepository) Delete(id string) error {
 		return err
 	}
 	if err := db.DB.Delete(&node).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	node.Host.ClusterID = ""
+	if err := tx.Save(node.Host).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

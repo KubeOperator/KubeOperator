@@ -10,10 +10,9 @@ type Node struct {
 	Info v1.Node `json:"info"`
 }
 
-type NodeCreation struct {
-	Hosts []struct {
-		Role     string `json:"role"`
-		HostName string `json:"hostName"`
-	} `json:"hosts"`
-	Increase int `json:"increase"`
+type NodeBatch struct {
+	Hosts     []string `json:"hosts"`
+	Nodes     []string `json:"nodes"`
+	Increase  int      `json:"increase"`
+	Operation string   `json:"operation"`
 }
