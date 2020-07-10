@@ -9,6 +9,8 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import * as ipaddr from 'ipaddr.js';
+
 
 @Component({
     selector: 'app-zone-create',
@@ -26,6 +28,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     region: Region = new Region();
     cloudZone: CloudZone;
     templateLoading = false;
+    networkError = [];
+    networkValid = false;
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -121,6 +125,51 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
             this.cloudZones = res.result;
             this.loading = false;
         });
+    }
+
+    checkNetwork() {
+        this.networkError = [];
+        let result = true;
+        const ipStart = this.item.cloudVars['ipStart'];
+        const ipEnd = this.item.cloudVars['ipEnd'];
+        if (!ipaddr.isValid(ipStart)) {
+            result = false;
+            this.networkError.push(this.translateService.instant('APP_IP_START_INVALID'));
+        }
+        if (!ipaddr.isValid(ipEnd)) {
+            result = false;
+            this.networkError.push(this.translateService.instant('APP_IP_END_INVALID'));
+        }
+        if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
+            const start = ipaddr.parse(ipStart).toByteArray();
+            const end = ipaddr.parse(ipEnd).toByteArray();
+            for (let i = 0; i < 4; i++) {
+                if (start[i] > end[i]) {
+                    result = false;
+                    this.networkError.push(this.translateService.instant('APP_IP_START_MUST'));
+                    break;
+                }
+            }
+        }
+        if (this.region.vars['provider'] === 'vSphere') {
+            const mask = this.item.cloudVars['netMask'];
+            const gateway = this.item.cloudVars['gateway'];
+            if (!ipaddr.isValid(gateway)) {
+                result = false;
+                this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
+            }
+            if (!ipaddr.isValid(mask)) {
+                result = false;
+                this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
+            } else {
+                const maskIp = ipaddr.parse(mask);
+                if (maskIp.prefixLengthFromSubnetMask() == null) {
+                    result = false;
+                    this.networkError.push(this.translateService.instant('APP_NETMASK_NOT_AVAIL'));
+                }
+            }
+        }
+        this.networkValid = result;
     }
 
 }

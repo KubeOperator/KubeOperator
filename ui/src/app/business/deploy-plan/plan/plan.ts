@@ -1,4 +1,6 @@
 import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
+import {Region} from '../region/region';
+import {Zone} from '../zone/zone';
 
 export class Plan extends BaseModel {
     name: string;
@@ -6,6 +8,9 @@ export class Plan extends BaseModel {
     deployTemplate: string;
     vars: string;
     regionId: string;
+    regions: Region[] = [];
+    zones: Zone[] = [];
+    planVars: {} = {};
 }
 
 export class PlanCreateRequest extends BaseRequest {

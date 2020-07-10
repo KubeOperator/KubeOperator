@@ -7,7 +7,7 @@ import (
 
 type Plan struct {
 	model.Plan
-	Zones []Zone `json:"zones"`
+	PlanVars interface{} `json:"planVars"`
 }
 
 type PlanCreate struct {

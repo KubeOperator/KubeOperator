@@ -25,7 +25,7 @@
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let re of regions" [value]="re.id">{{re.name}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_TEMPLATE'|translate}}</label>
@@ -35,7 +35,7 @@
                     <option value="SINGLE">{{'APP_PLAN_DEPLOY_TEMPLATE_SINGLE'|translate}}</option>
                     <option value="MULTIPLE">{{'APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE'|translate}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
             <!--&lt;!&ndash;            <clr-select-container>&ndash;&gt;-->
             <!--&lt;!&ndash;                <label>项目</label>&ndash;&gt;-->
@@ -56,7 +56,7 @@
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
 
             <clr-select-container *ngIf="item.deployTemplate === 'MULTIPLE'">
@@ -65,7 +65,7 @@
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_MASTER'|translate}}</label>
@@ -73,7 +73,7 @@
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let model of vmConfigs" [value]="model.name">{{model.name}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_WORKER'|translate}}</label>
@@ -81,7 +81,7 @@
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let model of vmConfigs" [value]="model.name">{{model.name}}</option>
                 </select>
-                <!--                <clr-control-error>此字段为必填项</clr-control-error>-->
+                <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
         </form>
         <div *ngIf="vmConfigs">

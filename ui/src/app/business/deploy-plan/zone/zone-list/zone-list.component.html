@@ -5,17 +5,24 @@
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])" [disabled]="selected.length!==1">
+                <clr-icon shape="note"></clr-icon>
+                {{"APP_EDIT"|translate}}
+            </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
+
         </div>
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_REGION'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
+        <clr-dg-cell>{{item.region.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>

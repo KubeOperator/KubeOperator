@@ -50,6 +50,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
 
     onCancel() {
         this.opened = false;
+        this.created.emit();
     }
 
     onSubmit() {

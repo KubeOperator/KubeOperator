@@ -106,6 +106,7 @@
   "APP_REGION_VC_HOST": "vCenter 地址",
   "APP_REGION_VC_USER": "vCenter 用户",
   "APP_ZONE": "可用区",
+  "APP_ZONE_DETAIL": "可用区详情",
   "APP_ZONE_PROMPT": "可用区(Zone): 与公有云中的 AZ 概念相似，可以理解为区域中具体的机房，比如北京1区，北京2区。对于 vSphere，可用区对应于集群，也可以对应于集群下面的资源池",
   "APP_ZONE_DELETE": "删除可用区",
   "APP_PLAN": "部署计划",
@@ -152,10 +153,23 @@
   "APP_NETWORK_DNS2": "DNS 2",
   "APP_NETWORK_DNS_HELPER": "例如: 114.114.114.114",
   "APP_ZONE_CREATE": "创建可用区",
-  "APP_REQUIRED_ERROR": "This field is required",
+  "APP_REQUIRED_ERROR": "此字段为必填项",
   "APP_ENABLE_STORAGE": "开启存储",
   "APP_HOST_SPEC": "主机信息",
   "APP_HOST_DISK_SPEC": "磁盘信息",
-  "APP_HOST_DISK_SIZE": "大小"
+  "APP_HOST_DISK_SIZE": "大小",
+  "APP_IP_START_INVALID": "起始IP不是有效的IPV4地址!",
+  "APP_IP_END_INVALID": "截止IP不是有效的IPV4地址!",
+  "APP_IP_START_MUST": "截止IP必须大于起始IP!",
+  "APP_GATEWAY_INVALID": "网关IP不是有效的IPV4地址!",
+  "APP_NETMASK_INVALID": "子网掩码不是有效的IPV4地址!",
+  "APP_NETMASK_NOT_AVAIL": "子网掩码无效!",
+  "APP_ZONE_EDIT": "编辑可用区",
+  "APP_PLAN_DETAIL": "部署计划详情",
+  "APP_PLAN_NODE_SPEC": "节点规格"
+
+
+
+
 
 }

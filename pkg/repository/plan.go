@@ -28,12 +28,6 @@ func (p planRepository) Get(name string) (model.Plan, error) {
 	if err := db.DB.Where(plan).First(&plan).Error; err != nil {
 		return plan, err
 	}
-	//if err := db.DB.First(&host).Related(&host.Volumes).Error; err != nil {
-	//	return host, err
-	//}
-	//if err := db.DB.First(&host).Related(&host.Credential).Error; err != nil {
-	//	return host, err
-	//}
 	return plan, nil
 }
 
@@ -52,6 +46,26 @@ func (p planRepository) Page(num, size int) (int, []model.Plan, error) {
 		Offset((num - 1) * size).
 		Limit(size).
 		Error
+
+	for i, p := range plans {
+		var zoneIds []string
+		var planZones []model.PlanZones
+		db.DB.Model(model.PlanZones{}).Where("plan_id = ?", p.ID).Find(&planZones)
+		for _, p := range planZones {
+			zoneIds = append(zoneIds, p.ZoneID)
+		}
+		var zones []model.Zone
+		db.DB.Model(model.Zone{}).Where("id in (?)", zoneIds).Find(&zones)
+		plans[i].Zones = zones
+		var regionIds []string
+		for _, z := range zones {
+			regionIds = append(regionIds, z.RegionID)
+		}
+		var regions []model.Region
+		db.DB.Model(model.Region{}).Where("id in (?)", regionIds).Find(&regions)
+		plans[i].Regions = regions
+	}
+
 	return total, plans, err
 }
 
@@ -142,10 +156,20 @@ func (p planRepository) Batch(operation string, items []model.Plan) error {
 		for _, item := range items {
 			ids = append(ids, item.ID)
 		}
+
+		tx := db.DB.Begin()
 		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
+		err = tx.Where("plan_id in (?)", ids).Delete(&model.PlanZones{}).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		tx.Commit()
+
 	default:
 		return constant.NotSupportedBatchOperation
 	}

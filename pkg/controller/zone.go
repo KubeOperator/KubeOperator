@@ -63,6 +63,20 @@ func (z ZoneController) Delete(name string) error {
 	return z.ZoneService.Delete(name)
 }
 
+func (z ZoneController) PatchBy(name string) (dto.Zone, error) {
+	var req dto.ZoneUpdate
+	err := z.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.Zone{}, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return dto.Zone{}, err
+	}
+	return z.ZoneService.Update(req)
+}
+
 func (z ZoneController) PostBatch() error {
 	var req dto.ZoneOp
 	err := z.Ctx.ReadJSON(&req)
