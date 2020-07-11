@@ -21,8 +21,8 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/flock v0.7.1
 	github.com/golang-migrate/migrate/v4 v4.10.0
-	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.3.1 // indirect
+	github.com/gophercloud/gophercloud v0.1.0
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/formBinder v5.0.0+incompatible // indirect

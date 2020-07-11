@@ -68,60 +68,51 @@
                 <span *ngIf="isParamsValid==false&&!isParamsCheckGoing&&paramsForm.valid"
                       style="color: #e02200;"> {{'APP_REGION_VCENTER_PARAM_INVALID'|translate}}</span>
             </div>
-            <!--            <div *ngIf="item.cloudProvider === 'OpenStack'">-->
-            <!--                <div>-->
-            <!--                    <clr-input-container>-->
-            <!--                        <label>Identity</label>-->
-            <!--                        <input clrInput type="text" [(ngModel)]="item.vars['openstack_identity']" name="openstack_identity"-->
-            <!--                               required>-->
-            <!--                        <clr-control-error>此字段为必填项</clr-control-error>-->
-            <!--                        <clr-control-helper>OpenStack keystone地址</clr-control-helper>-->
-            <!--                    </clr-input-container>-->
-            <!--                </div>-->
-            <!--                <div>-->
-            <!--                    <clr-input-container>-->
-            <!--                        <label>用户名</label>-->
-            <!--                        <input clrInput type="text" [(ngModel)]="item.vars['openstack_username']" name="openstack_username"-->
-            <!--                               required>-->
-            <!--                        <clr-control-error>此字段为必填项</clr-control-error>-->
-            <!--                        <clr-control-helper>访问 OpenStack 的用户名</clr-control-helper>-->
-            <!--                    </clr-input-container>-->
-            <!--                </div>-->
-            <!--                </div>-->
-            <!--                <div>-->
-            <!--                    <clr-password-container>-->
-            <!--                        <label>用户密码</label>-->
-            <!--                        <input clrPassword type="text" [(ngModel)]="item.vars['openstack_password']" name="openstack_password"-->
-            <!--                               required>-->
-            <!--                        <clr-control-error>此字段为必填项</clr-control-error>-->
-            <!--                        <clr-control-helper>访问 OpenStack 的密码</clr-control-helper>-->
-            <!--                    </clr-password-container>-->
-            <!--                </div>-->
-            <!--                <div>-->
-            <!--                    <clr-input-container>-->
-            <!--                        <label>项目ID</label>-->
-            <!--                        <input clrInput type="text" [(ngModel)]="item.vars['openstack_projectId']" name="openstack_projectId"-->
-            <!--                               required>-->
-            <!--                        <clr-control-error>此字段为必填项</clr-control-error>-->
-            <!--                        <clr-control-helper>OpenStack 项目ID</clr-control-helper>-->
-            <!--                    </clr-input-container>-->
-            <!--                </div>-->
-            <!--                <div>-->
-            <!--                    <clr-input-container>-->
-            <!--                        <label>Domain Name</label>-->
-            <!--                        <input clrInput type="text" [(ngModel)]="item.vars['openstack_domain_name']" name="openstack_domain_name"-->
-            <!--                               required>-->
-            <!--                        <clr-control-error>此字段为必填项</clr-control-error>-->
-            <!--                        <clr-control-helper>OpenStack Domain Name</clr-control-helper>-->
-            <!--                    </clr-input-container>-->
-            <!--                </div>-->
-            <!--&lt;!&ndash;                <button class="btn" [disabled]="isParamsCheckGoing || paramsForm.invalid" (click)="onCheckParams()">&ndash;&gt;-->
-            <!--&lt;!&ndash;                    <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>&ndash;&gt;-->
-            <!--&lt;!&ndash;                    验证&ndash;&gt;-->
-            <!--&lt;!&ndash;                </button>&ndash;&gt;-->
-            <!--&lt;!&ndash;                <span *ngIf="isParamsValid&&!isParamsCheckGoing" style="color: #859900;">参数有效！</span>&ndash;&gt;-->
-            <!--&lt;!&ndash;                <span *ngIf="isParamsValid==false&&!isParamsCheckGoing" style="color: #e02200;"> 参数无效,请检查 OpenStack 连接信息！</span>&ndash;&gt;-->
-            <!--            </div>-->
+            <div *ngIf="item.cloudProvider === 'OpenStack'">
+                <clr-input-container>
+                    <label>{{'APP_OPENSTACK_ID'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.regionVars['identity']" name="identity"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                    <clr-control-helper>{{'APP_OPENSTACK_KEYSTONE'|translate}}</clr-control-helper>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{'APP_USERNAME'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.regionVars['username']" name="openstack_username"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                    <clr-control-helper>{{'APP_OPENSTACK_USERNAME'|translate}}</clr-control-helper>
+                </clr-input-container>
+                <clr-password-container>
+                    <label>{{'APP_PASSWORD'|translate}}</label>
+                    <input clrPassword type="text" [(ngModel)]="item.regionVars['password']" name="openstack_password"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                    <clr-control-helper>{{'APP_OPENSTACK_PASSWORD'|translate}}</clr-control-helper>
+                </clr-password-container>
+                <clr-input-container>
+                    <label>{{'APP_OPENSTACK_PROJECT'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.regionVars['projectId']" name="projectId"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                    <clr-control-helper>{{'APP_OPENSTACK_PROJECT_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{'APP_OPENSTACK_DOMAIN'|translate}}</label>
+                    <input clrInput type="text" [(ngModel)]="item.regionVars['domainName']" name="domainName"
+                           required>
+                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                    <clr-control-helper>{{'APP_OPENSTACK_DOMAIN_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
+                <button class="btn" [disabled]="isParamsCheckGoing || paramsForm.invalid" (click)="onCheckParams()">
+                    <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>
+                    {{'APP_REGION_VCENTER_CHECK'|translate}}
+                </button>
+                <span *ngIf="isParamsValid&&!isParamsCheckGoing&&paramsForm.valid"
+                      style="color: #859900;"> {{'APP_REGION_VCENTER_PARAM_VALID'|translate}}</span>
+                <span *ngIf="isParamsValid==false&&!isParamsCheckGoing&&paramsForm.valid"
+                      style="color: #e02200;"> {{'APP_REGION_VCENTER_PARAM_INVALID'|translate}}</span>
+            </div>
         </form>
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="dtFrom.invalid" #finishPage (clrWizardPageCustomButton)="onSubmit()">

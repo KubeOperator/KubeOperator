@@ -163,7 +163,18 @@
   "APP_NETMASK_NOT_AVAIL": "Invalid subnet mask!",
   "APP_ZONE_EDIT": "Zone Edit",
   "APP_PLAN_DETAIL": "Plan Detail",
-  "APP_PLAN_NODE_SPEC": "Node Specifications"
+  "APP_PLAN_NODE_SPEC": "Node Specifications",
+  "APP_OPENSTACK_ID": "Identity",
+  "APP_OPENSTACK_KEYSTONE": "OpenStack keystone address",
+  "APP_OPENSTACK_USERNAME": "Username to access OpenStack",
+  "APP_OPENSTACK_PASSWORD": "Password to access OpenStack",
+  "APP_OPENSTACK_PROJECT": "Project ID",
+  "APP_OPENSTACK_PROJECT_HELPER": "OpenStack Project ID",
+  "APP_OPENSTACK_DOMAIN": "Domain Name",
+  "APP_OPENSTACK_DOMAIN_HELPER": "OpenStack Domain Name"
+
+
+
 
 
 

@@ -166,10 +166,13 @@
   "APP_NETMASK_NOT_AVAIL": "子网掩码无效!",
   "APP_ZONE_EDIT": "编辑可用区",
   "APP_PLAN_DETAIL": "部署计划详情",
-  "APP_PLAN_NODE_SPEC": "节点规格"
-
-
-
-
-
+  "APP_PLAN_NODE_SPEC": "节点规格",
+  "APP_OPENSTACK_ID": "Identity",
+  "APP_OPENSTACK_KEYSTONE": "OpenStack keystone地址",
+  "APP_OPENSTACK_USERNAME": "访问 OpenStack 的用户名",
+  "APP_OPENSTACK_PASSWORD": "访问 OpenStack 的密码",
+  "APP_OPENSTACK_PROJECT": "项目ID",
+  "APP_OPENSTACK_PROJECT_HELPER": "OpenStack 项目ID",
+  "APP_OPENSTACK_DOMAIN": "Domain Name",
+  "APP_OPENSTACK_DOMAIN_HELPER": "OpenStack Domain Name"
 }

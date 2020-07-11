@@ -20,3 +20,6 @@ DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"
 
 #zone
 DELETE_ZONE_FAILED_RESOURCE: "删除失败！该可用区已经关联部署计划"
+
+#openstack
+GET_REGION_ERROR: "找不到区域"
