@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NodeService} from "../node.service";
-import {NodeCreateRequest} from "../node";
 import {Cluster, CreateNodeRequest} from "../../../cluster";
 import {HostService} from "../../../../host/host.service";
+import {NodeBatch} from "../node";
 
 @Component({
     selector: 'app-node-create',
@@ -16,9 +16,8 @@ export class NodeCreateComponent implements OnInit {
 
     opened = false;
     isSubmitGoing = false;
-    item: NodeCreateRequest;
+    item: NodeBatch;
     hosts: any[] = [];
-    masters: any[] = [];
     workers: any[] = [];
     options: any = {
         multiple: true,
@@ -29,41 +28,6 @@ export class NodeCreateComponent implements OnInit {
     ngOnInit(): void {
     }
 
-
-    toggle(role: string) {
-        switch (role) {
-            case 'worker':
-                const delw = [];
-                this.masters.forEach(m => {
-                    this.workers.forEach(w => {
-                        if (m.id === w.id) {
-                            delw.push(w);
-                        }
-                    });
-                });
-                const cw = [].concat(this.workers);
-                delw.forEach(d => {
-                    cw.splice(cw.indexOf(d), 1);
-                    this.workers = cw;
-                });
-                break;
-            case 'master':
-                const delm = [];
-                this.workers.forEach(m => {
-                    this.masters.forEach(w => {
-                        if (m.id === w.id) {
-                            delm.push(w);
-                        }
-                    });
-                });
-                const cm = [].concat(this.masters);
-                delm.forEach(d => {
-                    cm.splice(cm.indexOf(d), 1);
-                    this.masters = cm;
-                });
-                break;
-        }
-    }
 
     loadHosts() {
         this.hostService.list().subscribe(data => {
@@ -81,24 +45,14 @@ export class NodeCreateComponent implements OnInit {
 
     fullNodes() {
         this.item.hosts = [];
-        this.masters.forEach(m => {
-            const node = new CreateNodeRequest();
-            node.hostName = m.id;
-            node.role = 'master';
-            this.item.hosts.push(node);
-        });
         this.workers.forEach(m => {
-            const node = new CreateNodeRequest();
-            node.hostName = m.id;
-            node.role = 'worker';
-            this.item.hosts.push(node);
+            this.item.hosts.push(m.id);
         });
     }
 
     reset() {
-        this.item = new NodeCreateRequest();
+        this.item = new NodeBatch();
         this.hosts = [];
-        this.masters = [];
         this.workers = [];
     }
 
@@ -116,7 +70,9 @@ export class NodeCreateComponent implements OnInit {
     onSubmit() {
         this.fullNodes();
         this.isSubmitGoing = true;
-        this.nodeService.create(this.currentCluster.name, this.item).subscribe(data => {
+        this.item.operation = 'create';
+        console.log(this.item);
+        this.nodeService.batch(this.currentCluster.name, this.item).subscribe(data => {
             this.created.emit();
             this.isSubmitGoing = false;
             this.opened = false;

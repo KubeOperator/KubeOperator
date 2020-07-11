@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Node, NodeCreateRequest} from "./node";
+import {Node, NodeBatch} from "./node";
 
 @Injectable({
     providedIn: 'root'
@@ -12,12 +12,13 @@ export class NodeService {
     }
 
     baseUrl = '/api/v1/clusters/node/{clusterName}/';
+    batchUrl = '/api/v1/clusters/node/batch/{clusterName}/';
 
     list(clusterName: string): Observable<Node[]> {
         return this.http.get<Node[]>(this.baseUrl.replace('{clusterName}', clusterName));
     }
 
-    create(clusterName: string, item: NodeCreateRequest): Observable<Node[]> {
-        return this.http.post<Node[]>(this.baseUrl.replace('{clusterName}', clusterName), item);
+    batch(clusterName: string, item: NodeBatch): Observable<Node[]> {
+        return this.http.post<Node[]>(this.batchUrl.replace('{clusterName}', clusterName), item);
     }
 }

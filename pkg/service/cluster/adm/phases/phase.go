@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	PhaseInterval = 2 * time.Second
-	PhaseTimeout  = 10 * time.Minute
+	PhaseInterval = 5 * time.Second
+	PhaseTimeout  = 30 * time.Minute
 )
 
 type Interface interface {

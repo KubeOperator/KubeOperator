@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {V1Node} from '@kubernetes/client-node';
 import {Cluster} from '../../../cluster';
@@ -13,23 +13,36 @@ import {AlertLevels} from "../../../../../layout/common-alert/alert";
     templateUrl: './node-list.component.html',
     styleUrls: ['./node-list.component.css']
 })
-export class NodeListComponent implements OnInit {
+export class NodeListComponent implements OnInit, OnDestroy {
 
     loading = true;
     selected = [];
     items: Node[] = [];
     page = 1;
+    timer;
     @Input() currentCluster: Cluster;
     @Output() openDetail = new EventEmitter<V1Node>();
     @Output() createEvent = new EventEmitter();
+    @Output() statusEvent = new EventEmitter<Node>();
+    @Output() deleteEvent = new EventEmitter<Node[]>();
 
     constructor(private service: KubernetesService, private route: ActivatedRoute,
                 private nodeService: NodeService, private alertService: CommonAlertService) {
     }
 
     ngOnInit(): void {
+        this.refresh();
+        this.polling();
+    }
+
+    ngOnDestroy(): void {
+        clearInterval(this.timer);
+    }
+
+    refresh() {
         this.nodeService.list(this.currentCluster.name).subscribe(d => {
             this.items = d;
+            this.selected = [];
             this.loading = false;
         });
     }
@@ -134,6 +147,38 @@ export class NodeListComponent implements OnInit {
     }
 
     onDelete() {
-
+        this.deleteEvent.emit(this.selected);
+        this.selected = [];
     }
+
+    onShowStatus(item: Node) {
+        this.statusEvent.emit(item);
+    }
+
+    polling() {
+        this.timer = setInterval(() => {
+            let flag = false;
+            const needPolling = ['Waiting', 'Initializing', 'Terminating'];
+            for (const item of this.items) {
+                if (needPolling.indexOf(item.status) !== -1) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                this.nodeService.list(this.currentCluster.name).subscribe(data => {
+                    data.forEach(n => {
+                        this.items.forEach(item => {
+                            if (item.name === n.name) {
+                                if (item.status !== n.status) {
+                                    item.status = n.status;
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+        }, 1000);
+    }
+
 }
