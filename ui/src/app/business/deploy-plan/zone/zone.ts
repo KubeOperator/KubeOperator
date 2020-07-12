@@ -17,7 +17,7 @@ export class ZoneCreateRequest extends BaseRequest {
     provider: string;
 }
 
-export class ZoneUpdateRequest extends BaseRequest{
+export class ZoneUpdateRequest extends BaseRequest {
     vars: string;
     regionID: string;
     cloudVars: {} = {};
@@ -33,6 +33,12 @@ export class CloudZone {
     networks: [] = [];
     resourcePools: [] = [];
     datastores: [] = [];
+    storages: storage[] = [];
+    securityGroups: [] = [];
+    networkList: Network[] = [];
+    floatingNetworkList: Network[] = [];
+    ipTypes: [] = [];
+    imageList: Image[] = [];
 }
 
 export class CloudTemplate {
@@ -40,6 +46,26 @@ export class CloudTemplate {
     guestId: string;
 }
 
+export class storage {
+    id: string;
+    name: string;
+}
+
+export class Network {
+    id: string;
+    name: string;
+    subnetList: Subnet[] = [];
+}
+
+export class Subnet {
+    id: string;
+    name: string;
+}
+
+export class Image {
+    id: string;
+    name: string;
+}
 
 
 

@@ -5,7 +5,7 @@
         <div class="card-block">
             <ul class="list-unstyled" *ngIf="item.region.regionVars['provider'] === 'vSphere'">
                 <li><b style="margin-right: 16px">{{'APP_NAME'|translate}}:</b>{{item.name}}</li>
-                <!--                <li><b style="margin-right: 16px">区域:</b>{{item.region}}</li>-->
+                <li><b style="margin-right: 16px">{{'APP_ZONE'|translate}}:</b>{{item.region.name}}</li>
                 <li><b style="margin-right: 16px">{{'APP_RESOURCE_POOL'|translate}}
                     :</b>{{item.cloudVars['resourcePool']}}</li>
                 <li><b style="margin-right: 16px">{{'APP_CLUSTER'|translate}}:</b>{{item.cloudVars['cluster']}}</li>
@@ -24,18 +24,16 @@
                 <li><b style="margin-right: 16px">{{'APP_CREATED_DATE'|translate}}
                     :</b>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
             </ul>
+            <ul class="list-unstyled" *ngIf="item.region.regionVars['provider'] === 'OpenStack'">
+                <li><b style="margin-right: 16px">{{'APP_NAME'|translate}}:</b>{{item.name}}</li>
+                <li><b style="margin-right: 16px">{{'APP_REGION'|translate}}:</b>{{item.region.name}}</li>
+                <li><b style="margin-right: 16px">{{'APP_ZONE'|translate}}:</b>{{item.cloudVars['cluster']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_OPENSTACK_STORAGE_TYPE'|translate}}:</b>{{item.cloudVars['storageType']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_NETWORK'|translate}}:</b>{{item.cloudVars['network']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_OPENSTACK_SECURITY_GROUP'|translate}}:</b>{{item.cloudVars['securityGroup']}}</li>
+                <li><b style="margin-right: 16px">{{'APP_CREATED_DATE'|translate}}:</b>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
+            </ul>
         </div>
-        <!--        <div class="card-block" *ngIf="currentZone.provider === 'openstack'">-->
-        <!--            <ul class="list-unstyled">-->
-        <!--                <li><b style="margin-right: 16px">名称:</b>{{currentZone.name}}</li>-->
-        <!--                <li><b style="margin-right: 16px">区域:</b>{{currentZone.region}}</li>-->
-        <!--                <li><b style="margin-right: 16px">可用区:</b>{{currentZone.vars['openstack_zone']}}</li>-->
-        <!--                <li><b style="margin-right: 16px">存储类型:</b>{{currentZone.vars['openstack_storage_type']}}</li>-->
-        <!--                <li><b style="margin-right: 16px">网络:</b>{{currentZone.vars['openstack_network']}}</li>-->
-        <!--                <li><b style="margin-right: 16px">安全组:</b>{{currentZone.vars['openstack_security_group']}}</li>-->
-        <!--                <li><b style="margin-right: 16px">创建时间:</b>{{currentZone.date_created | date: 'yyyy-MM-dd HH:mm:ss'}}</li>-->
-        <!--            </ul>-->
-        <!--        </div>-->
     </div>
     <div class="modal-footer">
         <button type="button" class="btn" (click)="cancel()">{{'APP_CANCEL'|translate}}</button>

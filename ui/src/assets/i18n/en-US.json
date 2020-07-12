@@ -171,11 +171,19 @@
   "APP_OPENSTACK_PROJECT": "Project ID",
   "APP_OPENSTACK_PROJECT_HELPER": "OpenStack Project ID",
   "APP_OPENSTACK_DOMAIN": "Domain Name",
-  "APP_OPENSTACK_DOMAIN_HELPER": "OpenStack Domain Name"
-
-
-
-
-
+  "APP_OPENSTACK_DOMAIN_HELPER": "OpenStack Domain Name",
+  "APP_OPENSTACK_ZONE_HELPER": "Select Availability Zone for running virtual machines",
+  "APP_OPENSTACK_STORAGE_TYPE": "Storage Type",
+  "APP_OPENSTACK_STORAGE_TYPE_HELPER": "Choose the type of storage used to run persistent storage",
+  "APP_OPENSTACK_SECURITY_GROUP": "Security Group",
+  "APP_OPENSTACK_SECURITY_GROUP_HELPER": "Select the security group to connect to the virtual machine",
+  "APP_OPENSTACK_NETWORK_HELPER": "Select the network to connect to the virtual machine",
+  "APP_OPENSTACK_IPTYPE": "IP Type",
+  "APP_OPENSTACK_IPTYPE_HELPER": "Select the network type used to connect to the virtual machine",
+  "APP_OPENSTACK_SUBNET": "Subnet",
+  "APP_OPENSTACK_SUBNET_HELPER": "Select the subnet to connect to the virtual machine",
+  "APP_OPENSTACK_FLOATING_IP": "Floating IP",
+  "APP_OPENSTACK_FLOATING_IP_HELPER": "Select the FloatingIP network to connect to the virtual machine",
+  "APP_IP_CHECK": "IP Check"
 
 }

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
-import {CloudTemplate, CloudZone, CloudZoneRequest, Zone, ZoneCreateRequest} from '../zone';
+import {CloudTemplate, CloudZone, CloudZoneRequest, Subnet, Zone, ZoneCreateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
 import {Region, RegionCreateRequest} from '../../region/region';
@@ -30,6 +30,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     templateLoading = false;
     networkError = [];
     networkValid = false;
+    subnetList: Subnet[] = [];
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -80,6 +81,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 this.region = region;
                 this.region.regionVars = JSON.parse(this.region.vars);
                 this.cloudZoneRequest.cloudVars = JSON.parse(this.region.vars);
+                this.cloudZoneRequest.cloudVars['datacenter'] = this.region.datacenter;
                 this.item.regionID = region.id;
             }
         });
@@ -99,6 +101,14 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 this.item.cloudVars['guestId'] = template.guestId;
             }
         });
+    }
+
+    changeNetwork() {
+        this.cloudZone.networkList.forEach(network => {
+            if (network.id === this.item.cloudVars['network']) {
+                this.subnetList = network.subnetList;
+            }
+        })
     }
 
     listRegions() {
