@@ -199,3 +199,7 @@ func (v *vSphereClient) GetConnect() (Connect, error) {
 	v.Connect = *connect
 	return *connect, nil
 }
+
+func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
+	return nil, nil
+}

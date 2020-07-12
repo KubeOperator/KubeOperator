@@ -45,6 +45,10 @@ func (z ZoneController) GetBy(name string) (dto.Zone, error) {
 	return z.ZoneService.Get(name)
 }
 
+func (z ZoneController) GetListBy(regionId string) ([]dto.Zone, error) {
+	return z.ZoneService.ListByRegionId(regionId)
+}
+
 func (z ZoneController) Post() (dto.Zone, error) {
 	var req dto.ZoneCreate
 	err := z.Ctx.ReadJSON(&req)

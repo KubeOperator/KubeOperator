@@ -21,6 +21,7 @@ type ZoneService interface {
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
+	ListByRegionId(regionId string) ([]dto.Zone, error)
 }
 
 type zoneService struct {
@@ -175,4 +176,16 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 		return result, err
 	}
 	return result, nil
+}
+
+func (z zoneService) ListByRegionId(regionId string) ([]dto.Zone, error) {
+	var zoneDTOs []dto.Zone
+	mos, err := z.zoneRepo.ListByRegionId(regionId)
+	if err != nil {
+		return zoneDTOs, err
+	}
+	for _, mo := range mos {
+		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
+	}
+	return zoneDTOs, err
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
-	"sort"
 )
 
 type PlanController struct {
@@ -82,19 +81,7 @@ func (p PlanController) PostBatch() error {
 	return err
 }
 
-func (p PlanController) GetConfigs() []dto.PlanVmConfig {
+func (p PlanController) GetConfigsBy(regionName string) ([]dto.PlanVmConfig, error) {
 
-	var configs []dto.PlanVmConfig
-	for k, v := range constant.VmConfigList {
-		configs = append(configs, dto.PlanVmConfig{
-			Name:   k,
-			Config: v,
-		})
-	}
-
-	sort.Slice(configs, func(i, j int) bool {
-		return configs[i].Config.Cpu < configs[j].Config.Cpu
-	})
-
-	return configs
+	return p.PlanService.GetConfigs(regionName)
 }

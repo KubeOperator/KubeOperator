@@ -42,7 +42,12 @@ func (r regionService) Get(name string) (dto.Region, error) {
 	if err != nil {
 		return regionDTO, err
 	}
+
+	m := make(map[string]interface{})
 	regionDTO.Region = mo
+	json.Unmarshal([]byte(mo.Vars), &m)
+	regionDTO.RegionVars = m
+
 	return regionDTO, err
 }
 
@@ -106,6 +111,7 @@ func (r regionService) Create(creation dto.RegionCreate) (dto.Region, error) {
 		Name:       creation.Name,
 		Vars:       string(vars),
 		Datacenter: creation.Datacenter,
+		Provider:   creation.Provider,
 	}
 
 	err := r.regionRepo.Save(&region)

@@ -9,11 +9,13 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/secgroups"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 var (
@@ -238,4 +240,48 @@ func (v *openStackClient) GetAuth() (*gophercloud.ProviderClient, error) {
 		return nil, err
 	}
 	return provider, nil
+}
+
+func (v *openStackClient) ListFlavors() ([]interface{}, error) {
+
+	var result []interface{}
+
+	provider, err := v.GetAuth()
+	if err != nil {
+		return result, err
+	}
+
+	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
+		Region: v.Vars["datacenter"].(string),
+	})
+	if err != nil {
+		return result, err
+	}
+	pager, err := flavors.ListDetail(client, flavors.ListOpts{}).AllPages()
+	if err != nil {
+		return result, err
+	}
+	allPages, err := flavors.ExtractFlavors(pager)
+	if err != nil {
+		return result, err
+	}
+
+	for _, f := range allPages {
+
+		if f.RAM > 1024 {
+			vmConfig := make(map[string]interface{})
+			vmConfig["name"] = f.Name
+
+			config := make(map[string]interface{})
+			config["id"], _ = strconv.Atoi(f.ID)
+			config["disk"] = f.Disk
+			config["cpu"] = f.VCPUs
+			config["memory"] = f.RAM / 1024
+
+			vmConfig["config"] = config
+			result = append(result, vmConfig)
+		}
+	}
+
+	return result, nil
 }

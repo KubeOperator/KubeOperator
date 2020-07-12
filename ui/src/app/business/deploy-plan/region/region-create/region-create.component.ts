@@ -74,7 +74,7 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
         }
         this.isParamsValid = false;
         this.isParamsCheckGoing = true;
-        this.item.regionVars['provider'] = this.item.cloudProvider;
+        this.item.regionVars['provider'] = this.item.provider;
         this.regionService.listDatacenter(this.item).subscribe(data => {
             this.isParamsValid = true;
             this.isParamsCheckGoing = false;

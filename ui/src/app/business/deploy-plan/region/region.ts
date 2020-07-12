@@ -11,7 +11,7 @@ export class Region extends BaseModel {
 export class RegionCreateRequest extends BaseRequest {
     id: string;
     regionVars: {} = {};
-    cloudProvider: string;
+    provider: string;
     datacenter: string;
     vars: string;
 }

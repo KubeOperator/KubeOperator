@@ -2,11 +2,15 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/mitchellh/mapstructure"
+	"sort"
 )
 
 type PlanService interface {
@@ -16,6 +20,7 @@ type PlanService interface {
 	Delete(name string) error
 	Create(creation dto.PlanCreate) (dto.Plan, error)
 	Batch(op dto.PlanOp) error
+	GetConfigs(regionName string) ([]dto.PlanVmConfig, error)
 }
 
 type planService struct {
@@ -113,4 +118,36 @@ func (p planService) Batch(op dto.PlanOp) error {
 		return err
 	}
 	return nil
+}
+
+func (p planService) GetConfigs(regionName string) ([]dto.PlanVmConfig, error) {
+	region, err := NewRegionService().Get(regionName)
+	if err != nil {
+		return nil, err
+	}
+	var configs []dto.PlanVmConfig
+	if region.Provider == "OpenStack" {
+		vars := region.RegionVars.(map[string]interface{})
+		vars["datacenter"] = region.Datacenter
+		cloudClient := client.NewCloudClient(vars)
+		result, err := cloudClient.ListFlavors()
+		if err != nil {
+			return nil, err
+		}
+		err = mapstructure.Decode(result, &configs)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		for k, v := range constant.VmConfigList {
+			configs = append(configs, dto.PlanVmConfig{
+				Name:   k,
+				Config: v,
+			})
+		}
+		sort.Slice(configs, func(i, j int) bool {
+			return configs[i].Config.Cpu < configs[j].Config.Cpu
+		})
+	}
+	return configs, nil
 }

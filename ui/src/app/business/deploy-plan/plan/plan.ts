@@ -20,6 +20,7 @@ export class PlanCreateRequest extends BaseRequest {
     regionId: string;
     zone: string;
     zones: string [] = [];
+    region: string;
 }
 
 export class PlanVmConfig {

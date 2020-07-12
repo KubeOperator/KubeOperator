@@ -24,6 +24,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     zones: Zone[] = [];
     item: PlanCreateRequest = new PlanCreateRequest();
     vmConfigs: PlanVmConfig[] = [];
+    regionName: string;
     @Output() created = new EventEmitter();
     @ViewChild('basicForm', {static: true}) basicForm: NgForm;
     @ViewChild('wizard') wizard: ClrWizard;
@@ -41,6 +42,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     open() {
         this.wizard.reset();
         this.opened = true;
+        this.item = new PlanCreateRequest();
         this.regionService.list().subscribe(res => {
             this.regions = res.items;
         }, error => {
@@ -57,9 +59,10 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
         if (this.item.deployTemplate === 'SINGLE') {
             this.item.zones = [];
             this.item.zones.push(this.item.zone);
+            this.onCancel();
         }
         this.planService.create(this.item).subscribe(res => {
-            this.opened = false;
+            this.onCancel();
         });
     }
 
@@ -69,7 +72,11 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     }
 
     onRegionChange() {
-
+        this.regions.forEach(region => {
+            if (region.id === this.item.regionId) {
+                this.regionName = region.name;
+            }
+        });
     }
 
     onDeployChange() {
@@ -77,14 +84,14 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     }
 
     listVmConfigs() {
-        this.planService.listVmConfigs().subscribe(res => {
+        this.planService.listVmConfigs(this.regionName).subscribe(res => {
             this.vmConfigs = res;
         });
     }
 
     listZones() {
-        this.zoneService.list().subscribe(res => {
-            this.zones = res.items;
+        this.zoneService.listByRegionId(this.item.regionId).subscribe(res => {
+            this.zones = res;
         });
     }
 

@@ -16,8 +16,8 @@ export class PlanService extends BaseModelService<Plan> {
         super(http);
     }
 
-    listVmConfigs(): Observable<any> {
-        const itemUrl = `${this.baseUrl}/configs/`;
+    listVmConfigs(regionName:string): Observable<any> {
+        const itemUrl = `${this.baseUrl}/configs/`+regionName+'/';
         return this.http.get<any>(itemUrl);
     }
 }

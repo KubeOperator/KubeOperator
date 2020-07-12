@@ -38,6 +38,7 @@ require (
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.3 // indirect
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
 	github.com/onsi/gomega v1.8.1 // indirect
