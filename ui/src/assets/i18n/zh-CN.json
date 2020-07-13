@@ -189,6 +189,8 @@
   "APP_OPENSTACK_SUBNET_HELPER": "选择用于连接虚拟机的子网",
   "APP_OPENSTACK_FLOATING_IP": "FloatingIP池",
   "APP_OPENSTACK_FLOATING_IP_HELPER": "选择用于连接虚拟机的FloatingIP网络",
-  "APP_IP_CHECK": "IP校验"
-
+  "APP_IP_CHECK": "IP校验",
+  "APP_NETWORK_MODE": "网络模式",
+  "APP_SUBNET": "子网",
+  "APP_WORKER_AMOUNT": "Worker 数量"
 }

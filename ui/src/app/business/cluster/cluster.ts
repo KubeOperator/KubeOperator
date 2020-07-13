@@ -18,14 +18,6 @@ export class ClusterStatus {
     conditions: Condition[] = [];
 }
 
-export class ClusterMonitor {
-    enable: boolean;
-    domain: string;
-    status: string;
-    dashboardUrl: string;
-}
-
-
 export class Condition {
     status: string;
     message: string;
@@ -46,9 +38,11 @@ export class ClusterCreateRequest extends BaseModel {
     runtimeType: string;
     dockerStorageDir: string;
     containerdStorageDir: string;
-    appDomain: string;
-    clusterCIDR: string;
-    serviceCIDR: string;
+    flannelBackend: string;
+    calicoIpv4poolIpip: string;
+    kubePodSubnet: string;
+    kubeServiceSubnet: string;
+    plan: string;
     nodes: CreateNodeRequest[] = [];
 }
 

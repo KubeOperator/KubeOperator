@@ -10,17 +10,18 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID        string        `json:"_"`
-	Name      string        `json:"name" gorm:"not null;unique"`
-	Source    string        `json:"source"`
-	SpecID    string        `json:"_"`
-	SecretID  string        `json:"_"`
-	StatusID  string        `json:"_"`
-	MonitorID string        `json:"_"`
-	Spec      ClusterSpec   `gorm:"save_associations:false" json:"spec"`
-	Secret    ClusterSecret `gorm:"save_associations:false" json:"_"`
-	Status    ClusterStatus `gorm:"save_associations:false" json:"_"`
-	Nodes     []ClusterNode `gorm:"save_associations:false" json:"_"`
+	ID       string        `json:"_"`
+	Name     string        `json:"name" gorm:"not null;unique"`
+	Source   string        `json:"source"`
+	SpecID   string        `json:"_"`
+	SecretID string        `json:"_"`
+	StatusID string        `json:"_"`
+	PlanID   string        `json:"_"`
+	Plan     Plan          `json:"_"`
+	Spec     ClusterSpec   `gorm:"save_associations:false" json:"spec"`
+	Secret   ClusterSecret `gorm:"save_associations:false" json:"_"`
+	Status   ClusterStatus `gorm:"save_associations:false" json:"_"`
+	Nodes    []ClusterNode `gorm:"save_associations:false" json:"_"`
 }
 
 func (c Cluster) TableName() string {

@@ -4,6 +4,8 @@ import {NgForm} from '@angular/forms';
 import {ClusterService} from '../cluster.service';
 import {ClrWizard} from '@clr/angular';
 import {HostService} from '../../host/host.service';
+import {PlanService} from "../../deploy-plan/plan/plan.service";
+import {Plan} from "../../deploy-plan/plan/plan";
 
 
 @Component({
@@ -22,11 +24,13 @@ export class ClusterCreateComponent implements OnInit {
     masters: any[] = [];
     workers: any[] = [];
 
+    plans: Plan[] = [];
+
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
     @ViewChild('clusterForm') clusterForm: NgForm;
     @Output() created = new EventEmitter();
 
-    constructor(private service: ClusterService, private hostService: HostService) {
+    constructor(private service: ClusterService, private hostService: HostService, private planService: PlanService) {
     }
 
     ngOnInit(): void {
@@ -44,6 +48,7 @@ export class ClusterCreateComponent implements OnInit {
     open() {
         this.reset();
         this.loadHosts();
+        this.loadPlan();
         this.opened = true;
     }
 
@@ -94,6 +99,12 @@ export class ClusterCreateComponent implements OnInit {
                 list.push({id: h.name, text: h.name, disabled: false});
             });
             this.hosts = list;
+        });
+    }
+
+    loadPlan() {
+        this.planService.list().subscribe(data => {
+            this.plans = data.items;
         });
     }
 

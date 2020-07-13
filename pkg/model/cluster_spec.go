@@ -11,14 +11,17 @@ type ClusterSpec struct {
 	Version              string `json:"version"`
 	Provider             string `json:"provider"`
 	NetworkType          string `json:"networkType"`
+	FlannelBackend       string `json:"flannelBackend"`
+	CalicoIpv4poolIpip   string `json:"calicoIpv4PoolIpip"`
 	RuntimeType          string `json:"runtimeType"`
 	DockerStorageDir     string `json:"dockerStorageDir"`
 	ContainerdStorageDir string `json:"containerdStorageDir"`
 	LbKubeApiserverIp    string `json:"lbKubeApiserverIp"`
 	KubeApiServerPort    int    `json:"kubeApiServerPort"`
 	KubeRouter           string `json:"kubeRouter"`
-	KubePodSubnet          string `json:"clusterCidr" gorm:"column:cluster_cidr"`
-	KubeServiceSubnet          string `json:"serviceCidr" gorm:"column:service_cidr"`
+	KubePodSubnet        string `json:"kubePodSubnet"`
+	KubeServiceSubnet    string `json:"kubeServiceSubnet"`
+	WorkerAmount         int    `json:"workerAmount"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {

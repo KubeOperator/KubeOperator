@@ -15,10 +15,14 @@
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
             </clr-input-container>
 
-            <clr-input-container>
-                <label>{{"APP_DOMAIN_SUFFIX"|translate}}</label>
-                <input clrInput [size]="32" name="appDomain" [(ngModel)]="item.appDomain" required>
-            </clr-input-container>
+            <clr-select-container>
+                <label>{{"APP_PROVIDER"|translate}}</label>
+                <select clrSelect name="provider" [(ngModel)]="item.provider" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="bareMetal">Bare Metal</option>
+                    <option value="plan">Plan</option>
+                </select>
+            </clr-select-container>
 
             <clr-select-container>
                 <label>{{"APP_VERSION"|translate}}</label>
@@ -29,14 +33,6 @@
                 </select>
             </clr-select-container>
 
-            <clr-select-container>
-                <label>{{"APP_PROVIDER"|translate}}</label>
-                <select clrSelect name="provider" [(ngModel)]="item.provider" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="bareMetal">Bare Metal</option>
-                    <option value="vSphere">vSphere</option>
-                </select>
-            </clr-select-container>
             <clr-select-container>
                 <label>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</label>
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
@@ -63,10 +59,38 @@
                     <option value="calico">calico</option>
                 </select>
             </clr-select-container>
+
+            <clr-select-container *ngIf="item.networkType === 'flannel'">
+                <label>{{"APP_NETWORK_MODE"|translate}}</label>
+                <select clrSelect name="flannel_backend">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="host-gw">host-gw</option>
+                    <option value="vxlan">vxlan</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container *ngIf="item.networkType === 'calico'">
+                <label>{{"APP_NETWORK_MODE"|translate}}</label>
+                <select clrSelect name="calico_ipv4pool_ipip">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="Always">Always</option>
+                    <option value="off">off</option>
+                </select>
+            </clr-select-container>
+            <clr-input-container>
+                <label>Service {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="service_subnet"/>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>Pod {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="service_subnet"/>
+            </clr-input-container>
+
         </form>
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
-                     (clrWizardPageNext)="fullNodes()">
+                     (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <form>
             <div>
@@ -83,6 +107,25 @@
             </div>
         </form>
     </clr-wizard-page>
+
+    <clr-wizard-page *ngIf="item.provider === 'plan'">
+        <ng-template clrPageTitle>{{"APP_DEPLOY_PLAN"|translate}}</ng-template>
+        <form clrForm>
+            <clr-select-container>
+                <label>{{"APP_DEPLOY_PLAN"|translate}}</label>
+                <select clrSelect name="plan" [(ngModel)]="item.plan">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option *ngFor="let plan of plans" [value]="plan.name"> {{plan.name}}</option>
+                </select>
+            </clr-select-container>
+
+            <clr-input-container>
+                <label>{{"APP_WORKER_AMOUNT"|translate}}</label>
+                <input clrInput type="number" name="workerSize">
+            </clr-input-container>
+        </form>
+    </clr-wizard-page>
+
     <clr-wizard-page>
         <ng-template clrPageTitle>{{"APP_CONFIRM_INFO"|translate}}</ng-template>
         <form>

@@ -13,6 +13,8 @@ type PlanRepository interface {
 	Save(plan *model.Plan, zones []string) error
 	Delete(name string) error
 	Batch(operation string, items []model.Plan) error
+
+	GetById(id string) (model.Plan, error)
 }
 
 func NewPlanRepository() PlanRepository {
@@ -26,6 +28,19 @@ func (p planRepository) Get(name string) (model.Plan, error) {
 	var plan model.Plan
 	plan.Name = name
 	if err := db.DB.Where(plan).First(&plan).Error; err != nil {
+		return plan, err
+	}
+	return plan, nil
+}
+
+func (p planRepository) GetById(id string) (model.Plan, error) {
+	var plan model.Plan
+	plan.ID = id
+	err := db.DB.First(&plan).
+		Preload("Region").
+		Preload("Zones").
+		Find(&plan).Error
+	if err != nil {
 		return plan, err
 	}
 	return plan, nil

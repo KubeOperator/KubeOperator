@@ -186,6 +186,8 @@
   "APP_OPENSTACK_SUBNET_HELPER": "Select the subnet to connect to the virtual machine",
   "APP_OPENSTACK_FLOATING_IP": "Floating IP",
   "APP_OPENSTACK_FLOATING_IP_HELPER": "Select the FloatingIP network to connect to the virtual machine",
-  "APP_IP_CHECK": "IP Check"
-
+  "APP_IP_CHECK": "IP Check",
+  "APP_NETWORK_MODE": "Network mode",
+  "APP_SUBNET": "Subnet",
+  "APP_WORKER_AMOUNT": "Worker Amount"
 }

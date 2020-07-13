@@ -159,7 +159,6 @@ func (v *vSphereClient) GetDatastore(mos []types.ManagedObjectReference) ([]stri
 }
 
 func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]string, error) {
-
 	pc := property.DefaultCollector(v.Connect.Client.Client)
 	rp := mo.ResourcePool{}
 	var data []string
@@ -179,6 +178,43 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 	}
 
 	return data, nil
+}
+
+func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
+
+	var results []string
+	c := v.Connect.Client.Client
+	ctx := context.Background()
+	m := view.NewManager(c)
+	vi, err := m.CreateContainerView(ctx, c.ServiceContent.RootFolder, []string{"VirtualMachine", "Network"}, true)
+	if err != nil {
+		return nil, err
+	}
+	defer vi.Destroy(ctx)
+	var networks []mo.Network
+	err = vi.Retrieve(ctx, []string{"Network"}, []string{}, &networks)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, net := range networks {
+		if net.Name == network {
+			var vms []mo.VirtualMachine
+			err = vi.RetrieveWithFilter(ctx, []string{"VirtualMachine"}, []string{"network", "guest"}, &vms, property.Filter{
+				"network": net.Reference(),
+			})
+			if err != nil {
+				return nil, err
+			}
+			for _, vm := range vms {
+				for _, n := range vm.Guest.Net {
+					results = append(results, n.IpAddress...)
+				}
+			}
+			break
+		}
+	}
+	return results, nil
 }
 
 func (v *vSphereClient) GetConnect() (Connect, error) {

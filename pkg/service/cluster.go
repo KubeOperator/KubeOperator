@@ -15,6 +15,7 @@ type ClusterService interface {
 	GetStatus(name string) (dto.ClusterStatus, error)
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
+	GetPlan(name string) (dto.Plan, error)
 	GetApiServerEndpoint(name string) (dto.Endpoint, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
@@ -46,6 +47,7 @@ type clusterService struct {
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	hostRepo                   repository.HostRepository
+	planRepo                   repository.PlanRepository
 	clusterInitService         ClusterInitService
 }
 
@@ -137,6 +139,17 @@ func (c clusterService) GetSpec(name string) (dto.ClusterSpec, error) {
 	return spec, nil
 }
 
+func (c clusterService) GetPlan(name string) (dto.Plan, error) {
+	var plan dto.Plan
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return plan, err
+	}
+	p, err := c.planRepo.GetById(cluster.PlanID)
+	plan.Plan = p
+	return plan, nil
+}
+
 func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster := model.Cluster{
 		Name:   creation.Name,
@@ -147,8 +160,8 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		DockerStorageDir:     creation.DockerStorageDIr,
 		ContainerdStorageDir: creation.ContainerdStorageDIr,
 		NetworkType:          creation.NetworkType,
-		KubePodSubnet:        creation.ClusterCIDR,
-		KubeServiceSubnet:    creation.ServiceCIDR,
+		KubePodSubnet:        creation.KubePodSubnet,
+		KubeServiceSubnet:    creation.KubeServiceSubnet,
 		Version:              creation.Version,
 		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}

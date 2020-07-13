@@ -37,13 +37,17 @@ type NodeCreate struct {
 type ClusterCreate struct {
 	Name                 string       `json:"name" binding:"required"`
 	Version              string       `json:"version" binding:"required"`
+	Provider             string       `json:"provider"`
+	Plan                 string       `json:"plan"`
+	WorkerAmount         string       `json:"workerAmount"`
 	NetworkType          string       `json:"networkType"`
 	RuntimeType          string       `json:"runtimeType"`
 	DockerStorageDIr     string       `json:"dockerStorageDIr"`
 	ContainerdStorageDIr string       `json:"containerdStorageDIr"`
-	AppDomain            string       `json:"appDomain"`
-	ClusterCIDR          string       `json:"clusterCIDR"`
-	ServiceCIDR          string       `json:"serviceCIDR"`
+	FlannelBackend       string       `json:"flannelBackend"`
+	CalicoIpv4poolIpip   string       `json:"calicoIpv4PoolIpip"`
+	KubePodSubnet        string       `json:"kubePodSubnet"`
+	KubeServiceSubnet    string       `json:"kubeServiceSubnet"`
 	Nodes                []NodeCreate `json:"nodes"`
 }
 

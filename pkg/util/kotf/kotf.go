@@ -1,7 +1,6 @@
 package kotf
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/kotf/api"
 	kotfClient "github.com/KubeOperator/kotf/pkg/client"
 	"github.com/spf13/viper"

@@ -285,3 +285,7 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 
 	return result, nil
 }
+
+func (v *openStackClient) GetIpInUsed(network string) ([]string, error) {
+	return nil, nil
+}

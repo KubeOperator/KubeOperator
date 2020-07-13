@@ -9,6 +9,7 @@ type CloudClient interface {
 	ListClusters() ([]interface{}, error)
 	ListTemplates() ([]interface{}, error)
 	ListFlavors() ([]interface{}, error)
+	GetIpInUsed(network string) ([]string, error)
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
