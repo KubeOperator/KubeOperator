@@ -22,6 +22,7 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		clusterIaasService:         NewClusterIaasService(),
 	}
 }
 
@@ -31,6 +32,7 @@ type clusterInitService struct {
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
+	clusterIaasService         ClusterIaasService
 }
 
 func (c clusterInitService) Init(name string) error {
@@ -54,35 +56,18 @@ func (c clusterInitService) Init(name string) error {
 			}
 		}
 	}
-	cluster.Status.Phase = constant.ClusterInitializing
-	if err := c.clusterStatusRepo.Save(&cluster.Status); err != nil {
-		return err
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	admCluster := adm.NewCluster(cluster)
-	statusChan := make(chan adm.Cluster, 0)
-	go c.do(ctx, *admCluster, statusChan)
-	go c.pollingStatus(cancel, statusChan)
+	go c.do(cluster)
 	return nil
 }
 
-func (c clusterInitService) do(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
-	ad := adm.NewClusterAdm()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case statusChan <- cluster:
-		}
-		resp, err := ad.OnInitialize(cluster)
-		if err != nil {
-			cluster.Status.Message = err.Error()
-		}
-		cluster.Status = resp.Status
-	}
-}
-
-func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan chan adm.Cluster) {
+func (c clusterInitService) do(cluster model.Cluster) {
+	_ = c.clusterIaasService.Init(cluster.Name)
+	cluster.Status.Phase = constant.ClusterInitializing
+	_ = c.clusterStatusRepo.Save(&cluster.Status)
+	ctx, cancel := context.WithCancel(context.Background())
+	admCluster := adm.NewCluster(cluster)
+	statusChan := make(chan adm.Cluster, 0)
+	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		cluster := <-statusChan
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
@@ -103,6 +88,22 @@ func (c clusterInitService) pollingStatus(cancel context.CancelFunc, statusChan 
 			}
 			return
 		}
+	}
+}
+
+func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+	ad := adm.NewClusterAdm()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case statusChan <- cluster:
+		}
+		resp, err := ad.OnInitialize(cluster)
+		if err != nil {
+			cluster.Status.Message = err.Error()
+		}
+		cluster.Status = resp.Status
 	}
 }
 

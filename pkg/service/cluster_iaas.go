@@ -1,36 +1,54 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
-	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 )
 
 type ClusterIaasService interface {
 	Init(name string) error
 }
 
-type clusterIaasService struct {
-	ClusterService ClusterService
-	regionService  repository.RegionRepository
+func NewClusterIaasService() ClusterIaasService {
+	return &clusterIaasService{
+		ClusterService: NewClusterService(),
+	}
 }
 
-//func (c clusterIaasService) Init(name string) error {
-//	//cluster, err := c.ClusterService.Get(name)
-//	//if err != nil {
-//	//	return err
-//	//}
-//	//plan, err := c.ClusterService.GetPlan(name)
-//	//if err != nil {
-//	//	return err
-//	//}
-//}
+type clusterIaasService struct {
+	ClusterService ClusterService
+}
 
-func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) error {
+func (c clusterIaasService) Init(name string) error {
+	cluster, err := c.ClusterService.Get(name)
+	if err != nil {
+		return err
+	}
+	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+		return nil
+	}
+	plan, err := c.ClusterService.GetPlan(name)
+	if err != nil {
+		return err
+	}
+	err = createHosts(cluster.Cluster, plan.Plan)
+	if err != nil {
+		return err
+	}
+	// 保存主机，构造 tf 格式
+	// 开始创建主机
+	// 保存结果，获取主机信息
+	// 创建 node 分配角色
+	return nil
+}
+
+func createHosts(cluster model.Cluster, plan model.Plan) error {
 	var hosts []*model.Host
 	masterAmount := 1
 	if plan.DeployTemplate != constant.SINGLE {
@@ -42,6 +60,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i),
 			Port:      22,
 			Status:    constant.ClusterWaiting,
+			ClusterID: cluster.ID,
 		}
 		hosts = append(hosts, &host)
 	}
@@ -51,6 +70,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i),
 			Port:      22,
 			Status:    constant.ClusterWaiting,
+			ClusterID: cluster.ID,
 		}
 		hosts = append(hosts, &host)
 	}
@@ -62,6 +82,28 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func doInit(k kotf.Kotf, plan model.Plan) error {
+	res, err := k.Init("", "", "", "")
+	if err != nil {
+		return err
+	}
+	if !res.Success {
+		return errors.New(res.GetMsg())
+	}
+	return doApply(k)
+}
+
+func doApply(k kotf.Kotf) error {
+	res, err := k.Apply()
+	if err != nil {
+		return err
+	}
+	if !res.Success {
+		return errors.New(res.GetMsg())
 	}
 	return nil
 }
@@ -85,6 +127,7 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 		for i, _ := range ips {
 			if !exists(ips[i], pool) && !exists(ips[i], selectedIps) {
 				h.Ip = ips[i]
+				selectedIps = append(selectedIps, h.Ip)
 			}
 		}
 	}
