@@ -82,6 +82,7 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [ ] 开放 REST API;
 - [ ] 支持 国际化 i18n；
 - [ ] 支持 kubeadm 部署；
+- [ ] 支持 arm64 平台架构；
 - [ ] 使用 out-of-tree 的网络和存储插件；
 - [ ] 支持在线和离线安装模式；
 - [ ] 支持 Helm 3.x；
