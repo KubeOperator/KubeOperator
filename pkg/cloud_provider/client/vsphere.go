@@ -62,27 +62,6 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 
 	m := view.NewManager(client)
 
-	var datacenters []*object.Datacenter
-	f := find.NewFinder(client, true)
-	datacenters, err = f.DatacenterList(v.Connect.Ctx, "*")
-	var dc *object.Datacenter
-	for _, d := range datacenters {
-		datacenterPath := d.Common.InventoryPath
-		name := strings.Replace(datacenterPath, "/", "", 1)
-		if name == v.Vars["datacenter"] {
-			dc = d
-		}
-	}
-	f.SetDatacenter(dc)
-	var dClusters []string
-	clusterList, err := f.ClusterComputeResourceList(v.Connect.Ctx, "*")
-	if err != nil {
-		return nil, err
-	}
-	for _, c := range clusterList {
-		dClusters = append(dClusters, strings.Replace(c.Common.InventoryPath, "/"+v.Vars["datacenter"].(string)+"/host/", "", 1))
-	}
-
 	view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
 	if err != nil {
 		return result, err
@@ -93,16 +72,15 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		return result, err
 	}
 
+	pc := property.DefaultCollector(client)
 	for _, d := range clusters {
 
-		exist := false
-		for _, c := range dClusters {
-			if c == d.ManagedEntity.Name {
-				exist = true
-				break
-			}
-		}
-		if !exist {
+		var host mo.ManagedEntity
+		err = pc.RetrieveOne(v.Connect.Ctx, *d.Parent, []string{"name", "parent"}, &host)
+		var datacenter mo.ManagedEntity
+		err = pc.RetrieveOne(v.Connect.Ctx, *host.Parent, []string{"name"}, &datacenter)
+
+		if datacenter.Name != v.Vars["datacenter"] {
 			continue
 		}
 
