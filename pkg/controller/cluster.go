@@ -128,3 +128,7 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, erro
 	}
 	return c.ClusterNodeService.Batch(clusterName, req)
 }
+
+func (c ClusterController) GetWebkubectlBy(clusterName string) (dto.WebkubectlToken, error) {
+	return c.ClusterService.GetWebkubectlToken(clusterName)
+}

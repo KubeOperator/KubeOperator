@@ -9,7 +9,7 @@ import {V1Deployment, V1Namespace, V1Node, V1Pod} from '@kubernetes/client-node'
 @Component({
     selector: 'app-overview',
     templateUrl: './overview.component.html',
-    styleUrls: ['./overview.component.css']
+    styleUrls: ['./webkubectl/overview.component.css']
 })
 export class OverviewComponent implements OnInit {
 

@@ -3,10 +3,21 @@
         <div class="card">
             <div class="card-header">
                 WebKubeCtl
+
+                <div *ngIf="!opened" style="float: right">
+                    <button class="btn btn-sm btn-primary" (click)="open()">连接</button>
+                </div>
+
             </div>
             <div class="card-block">
-                <div class="card-text">
-                    ...
+                <div class="card-text" style="text-align: center">
+                    <div *ngIf="opened">
+                        <clr-spinner *ngIf="loading"></clr-spinner>
+                        <div *ngIf="url&&!loading">
+                            <iframe #frame [src]="url"
+                                    style="width: 100%;height: 512px;"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
