@@ -3,6 +3,8 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/blockstorage/v3/volumetypes"
@@ -10,9 +12,11 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/secgroups"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
+	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imageimport"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -218,7 +222,36 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	return result, nil
 }
 func (v *openStackClient) ListTemplates() ([]interface{}, error) {
-	return []interface{}{}, nil
+
+	var result []interface{}
+	provider, err := v.GetAuth()
+	if err != nil {
+		return result, err
+	}
+
+	client, err := openstack.NewImageServiceV2(provider, gophercloud.EndpointOpts{
+		Region: v.Vars["datacenter"].(string),
+	})
+	if err != nil {
+		return result, err
+	}
+
+	pager, err := images.List(client, images.ListOpts{}).AllPages()
+	if err != nil {
+		return result, err
+	}
+	allPages, err := images.ExtractImages(pager)
+	if err != nil {
+		return result, err
+	}
+
+	for _, p := range allPages {
+		template := make(map[string]string)
+		template["imageName"] = p.Name
+		template["id"] = p.ID
+		result = append(result, template)
+	}
+	return result, nil
 }
 
 func (v *openStackClient) GetAuth() (*gophercloud.ProviderClient, error) {
@@ -283,5 +316,73 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 		}
 	}
 
+	go v.UploadImage()
 	return result, nil
+}
+
+func (v *openStackClient) UploadImage() error {
+
+	provider, err := v.GetAuth()
+	if err != nil {
+		return err
+	}
+
+	client, err := openstack.NewImageServiceV2(provider, gophercloud.EndpointOpts{
+		Region: v.Vars["datacenter"].(string),
+	})
+	if err != nil {
+		return err
+	}
+	pager, err := images.List(client, images.ListOpts{}).AllPages()
+	if err != nil {
+		return err
+	}
+	allPages, err := images.ExtractImages(pager)
+	if err != nil {
+		return err
+	}
+
+	exist := false
+	for _, p := range allPages {
+		if p.Name == constant.OpenStackImageName {
+			exist = true
+			break
+		}
+	}
+
+	if !exist {
+
+		imageId := uuid.NewV4().String()
+
+		create := images.Create(client, images.CreateOpts{
+			Name:            constant.OpenStackImageName,
+			DiskFormat:      constant.OpenStackImageDiskFormat,
+			ContainerFormat: "bare",
+			ID:              imageId,
+		})
+
+		if create.Err != nil {
+			return create.Err
+		}
+
+		//imageData, err := os.Open(constant.OpenStackImageVmdkPath)
+		//if err != nil {
+		//	return err
+		//}
+		//defer imageData.Close()
+
+		//result := imagedata.Upload(client,imageId,imageData)
+
+		result := imageimport.Create(client, imageId, imageimport.CreateOpts{
+			Name: imageimport.WebDownloadMethod,
+			URI:  "http://172.16.10.63/packages/kubeoperator_centos_7.6.1810-1.qcow2",
+		})
+		if result.Err != nil {
+			return result.Err
+		} else {
+			fmt.Println(result)
+		}
+	}
+
+	return nil
 }

@@ -30,10 +30,6 @@ func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
 	}
 }
 
-func (v *vSphereClient) ListZones() string {
-	return ""
-}
-
 func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	_, err := v.GetConnect()
 	if err != nil {
@@ -202,4 +198,20 @@ func (v *vSphereClient) GetConnect() (Connect, error) {
 
 func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
 	return nil, nil
+}
+
+func (v *vSphereClient) UploadImage() error {
+
+	//ctx := context.TODO()
+	//
+	//_, err := v.GetConnect()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//
+	//client := v.Connect.Client.Client
+	//manager :=  ovf.NewManager(client)
+	//manager.CreateImportSpec(ctx,)
+	return nil
 }
