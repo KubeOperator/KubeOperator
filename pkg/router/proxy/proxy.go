@@ -16,8 +16,6 @@ func RegisterProxy(parent iris.Party) {
 	proxy.Any("/kubernetes/{cluster_name}/{p:path}", KubernetesClientProxy)
 	proxy.Any("/logging/{cluster_name}/{p:path}", LoggingProxy)
 	proxy.Any("/prometheus/{cluster_name}/{p:path}", PrometheusProxy)
-	proxy.Any("/webkubectl/", WebKubeCtlProxy)
-	proxy.Any("/webkubectl/{p:path}", WebKubeCtlProxy)
 	proxy.Any("/grafana/{p:path}", GrafanaProxy)
 	proxy.Any("/chartmuseum/{cluster_name}/{p:path}", ChartmuseumProxy)
 	proxy.Any("/dashboard/{cluster_name}/{p:path}", DashboardProxy)

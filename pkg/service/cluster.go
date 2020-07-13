@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
 )
 
 type ClusterService interface {
@@ -16,6 +17,7 @@ type ClusterService interface {
 	GetSpec(name string) (dto.ClusterSpec, error)
 	GetApiServerEndpoint(name string) (dto.Endpoint, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
+	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
@@ -219,6 +221,26 @@ func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
 	}
 	endpoint.Address = cluster.Spec.KubeRouter
 	return endpoint, nil
+}
+
+func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, error) {
+	var token dto.WebkubectlToken
+	endpoint, err := c.GetApiServerEndpoint(name)
+	if err != nil {
+		return token, err
+	}
+	addr := fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port)
+	secret, err := c.GetSecrets(name)
+	if err != nil {
+		return token, nil
+	}
+	t, err := webkubectl.GetConnectToken(name, addr, secret.KubernetesToken)
+	token.Token = t
+	if err != nil {
+		return token, nil
+	}
+
+	return token, nil
 }
 
 func (c clusterService) Delete(name string) error {

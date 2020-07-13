@@ -25,7 +25,6 @@ type ClusterNode struct {
 	model.ClusterNode
 }
 
-
 type ClusterSpec struct {
 	model.ClusterSpec
 }
@@ -61,4 +60,8 @@ type Endpoint struct {
 type ClusterWithEndpoint struct {
 	Cluster  model.Cluster
 	Endpoint Endpoint
+}
+
+type WebkubectlToken struct {
+	Token string `json:"token"`
 }
