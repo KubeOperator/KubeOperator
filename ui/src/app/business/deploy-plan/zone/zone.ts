@@ -5,6 +5,7 @@ export class Zone extends BaseModel {
     id: string;
     name: string;
     vars: string;
+    credentialId: string;
     cloudVars: {} = {};
     region: Region = new Region();
 }
@@ -15,6 +16,7 @@ export class ZoneCreateRequest extends BaseRequest {
     regionID: string;
     cloudVars: {} = {};
     provider: string;
+    credentialId: string;
 }
 
 export class ZoneUpdateRequest extends BaseRequest {
@@ -33,7 +35,7 @@ export class CloudZone {
     networks: [] = [];
     resourcePools: [] = [];
     datastores: [] = [];
-    storages: storage[] = [];
+    storages: Storage[] = [];
     securityGroups: [] = [];
     networkList: Network[] = [];
     floatingNetworkList: Network[] = [];
@@ -46,7 +48,7 @@ export class CloudTemplate {
     guestId: string;
 }
 
-export class storage {
+export class Storage {
     id: string;
     name: string;
 }

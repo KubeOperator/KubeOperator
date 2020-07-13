@@ -98,10 +98,11 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 	vars, _ := json.Marshal(creation.CloudVars)
 
 	zone := model.Zone{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
-		Vars:      string(vars),
-		RegionID:  creation.RegionID,
+		BaseModel:    common.BaseModel{},
+		Name:         creation.Name,
+		Vars:         string(vars),
+		RegionID:     creation.RegionID,
+		CredentialID: creation.CredentialId,
 	}
 
 	err := z.zoneRepo.Save(&zone)

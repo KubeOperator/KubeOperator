@@ -138,6 +138,8 @@
   "APP_DEFAULT": "默认",
   "APP_CUSTOMIZE": "自定义",
   "APP_TEMPLATE_CUSTOMIZE_HELPER": "自定义模板仅支持 CentOS/RedHat 7.4 及以上版本的纯净系统",
+  "APP_TEMPLATE_DEFAULT_HELPER": "默认模板为KubeOperator自带模板",
+  "APP_TEMPLATE_PASSWORD_HELPER": "请从凭据中选择密码",
   "APP_TEMPLATE_PASSWORD": "模板密码",
   "APP_NETWORK": "网络",
   "APP_NETWORK_ADAPTER": "网络适配器",

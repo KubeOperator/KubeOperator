@@ -135,6 +135,8 @@
   "APP_DEFAULT": "Defult",
   "APP_CUSTOMIZE": "customize",
   "APP_TEMPLATE_CUSTOMIZE_HELPER": "Custom templates only support CentOS/RedHat 7.4 and above pure systems",
+  "APP_TEMPLATE_DEFAULT_HELPER": "The default template is KubeOperator's own template",
+  "APP_TEMPLATE_PASSWORD_HELPER": "Please select a password from your credentials",
   "APP_TEMPLATE_PASSWORD": "Template Password",
   "APP_NETWORK": "Network",
   "APP_NETWORK_ADAPTER": "Network adapter",

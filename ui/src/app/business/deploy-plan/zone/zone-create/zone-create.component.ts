@@ -10,6 +10,8 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import * as ipaddr from 'ipaddr.js';
+import {CredentialService} from '../../../setting/credential/credential.service';
+import {Credential} from '../../../setting/credential/credential';
 
 
 @Component({
@@ -31,12 +33,14 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     networkError = [];
     networkValid = false;
     subnetList: Subnet[] = [];
+    credentials: Credential[] = [];
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
 
     constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
-                private translateService: TranslateService, private commonAlertService: CommonAlertService) {
+                private translateService: TranslateService, private commonAlertService: CommonAlertService,
+                private credentialService: CredentialService) {
         super(zoneService);
     }
 
@@ -108,7 +112,21 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
             if (network.id === this.item.cloudVars['network']) {
                 this.subnetList = network.subnetList;
             }
-        })
+        });
+    }
+
+    changeCredential() {
+        this.credentials.forEach(credential => {
+            if (credential.id === this.item.credentialId) {
+                this.item.cloudVars['templatePassword'] = credential.password;
+            }
+        });
+    }
+
+    listCredentials() {
+        this.credentialService.list().subscribe(res => {
+            this.credentials = res.items;
+        });
     }
 
     listRegions() {
@@ -124,6 +142,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.zoneService.listTemplates(this.cloudZoneRequest).subscribe(res => {
             this.cloudTemplates = res.result;
             this.templateLoading = false;
+            this.listCredentials();
         }, error => {
             this.templateLoading = false;
         });

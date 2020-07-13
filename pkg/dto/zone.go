@@ -9,9 +9,10 @@ type Zone struct {
 }
 
 type ZoneCreate struct {
-	Name      string      `json:"name" validate:"required"`
-	CloudVars interface{} `json:"cloudVars" validate:"required"`
-	RegionID  string      `json:"regionID" validate:"required"`
+	Name         string      `json:"name" validate:"required"`
+	CloudVars    interface{} `json:"cloudVars" validate:"required"`
+	RegionID     string      `json:"regionID" validate:"required"`
+	CredentialId string      `json:"credentialId"`
 }
 
 type ZoneOp struct {

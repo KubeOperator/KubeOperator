@@ -103,6 +103,15 @@ func (c credentialRepository) Batch(operation string, items []model.Credential) 
 		if len(hosts) > 0 {
 			return errors.New(DeleteFailedError)
 		}
+		var zones []model.Zone
+		err = db.DB.Where("credential_id in (?)", ids).Find(&zones).Error
+		if err != nil {
+			return err
+		}
+		if len(zones) > 0 {
+			return errors.New(DeleteFailedError)
+		}
+
 		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
 			return err
