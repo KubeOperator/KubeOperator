@@ -16,7 +16,7 @@ KubeOperator 的整体架构：
 
 ![Web UI](https://kubeoperator.io/images/screenshot/6.png)
 
->更多功能截屏点击：[这里](https://docs.kubeoperator.io/kubeoperator-v2.2/screenshot)
+>更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
 ## 技术优势
 
