@@ -61,18 +61,51 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	var result []interface{}
 
 	m := view.NewManager(client)
+
+	var datacenters []*object.Datacenter
+	f := find.NewFinder(client, true)
+	datacenters, err = f.DatacenterList(v.Connect.Ctx, "*")
+	var dc *object.Datacenter
+	for _, d := range datacenters {
+		datacenterPath := d.Common.InventoryPath
+		name := strings.Replace(datacenterPath, "/", "", 1)
+		if name == v.Vars["datacenter"] {
+			dc = d
+		}
+	}
+	f.SetDatacenter(dc)
+	var dClusters []string
+	clusterList, err := f.ClusterComputeResourceList(v.Connect.Ctx, "*")
+	if err != nil {
+		return nil, err
+	}
+	for _, c := range clusterList {
+		dClusters = append(dClusters, strings.Replace(c.Common.InventoryPath, "/"+v.Vars["datacenter"].(string)+"/host/", "", 1))
+	}
+
 	view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
 	if err != nil {
 		return result, err
 	}
-
 	var clusters []mo.ClusterComputeResource
-	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore"}, &clusters)
+	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
 	if err != nil {
 		return result, err
 	}
 
 	for _, d := range clusters {
+
+		exist := false
+		for _, c := range dClusters {
+			if c == d.ManagedEntity.Name {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			continue
+		}
+
 		var clusterData map[string]interface{}
 		clusterData = make(map[string]interface{})
 
