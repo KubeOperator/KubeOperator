@@ -30,10 +30,6 @@ func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
 	}
 }
 
-func (v *vSphereClient) ListZones() string {
-	return ""
-}
-
 func (v *vSphereClient) ListDatacenter() ([]string, error) {
 	_, err := v.GetConnect()
 	if err != nil {
@@ -65,18 +61,29 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	var result []interface{}
 
 	m := view.NewManager(client)
+
 	view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
 	if err != nil {
 		return result, err
 	}
-
 	var clusters []mo.ClusterComputeResource
-	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore"}, &clusters)
+	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
 	if err != nil {
 		return result, err
 	}
 
+	pc := property.DefaultCollector(client)
 	for _, d := range clusters {
+
+		var host mo.ManagedEntity
+		err = pc.RetrieveOne(v.Connect.Ctx, *d.Parent, []string{"name", "parent"}, &host)
+		var datacenter mo.ManagedEntity
+		err = pc.RetrieveOne(v.Connect.Ctx, *host.Parent, []string{"name"}, &datacenter)
+
+		if datacenter.Name != v.Vars["datacenter"] {
+			continue
+		}
+
 		var clusterData map[string]interface{}
 		clusterData = make(map[string]interface{})
 
@@ -238,4 +245,20 @@ func (v *vSphereClient) GetConnect() (Connect, error) {
 
 func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
 	return nil, nil
+}
+
+func (v *vSphereClient) UploadImage() error {
+
+	//ctx := context.TODO()
+	//
+	//_, err := v.GetConnect()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//
+	//client := v.Connect.Client.Client
+	//manager :=  ovf.NewManager(client)
+	//manager.CreateImportSpec(ctx,)
+	return nil
 }
