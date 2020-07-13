@@ -57,13 +57,10 @@ func (p planRepository) Page(num, size int) (int, []model.Plan, error) {
 		var zones []model.Zone
 		db.DB.Model(model.Zone{}).Where("id in (?)", zoneIds).Find(&zones)
 		plans[i].Zones = zones
-		var regionIds []string
-		for _, z := range zones {
-			regionIds = append(regionIds, z.RegionID)
-		}
-		var regions []model.Region
-		db.DB.Model(model.Region{}).Where("id in (?)", regionIds).Find(&regions)
-		plans[i].Regions = regions
+
+		var region model.Region
+		db.DB.Model(model.Region{}).Where("id = ?", p.RegionID).First(&region)
+		plans[i].Region = region
 	}
 
 	return total, plans, err

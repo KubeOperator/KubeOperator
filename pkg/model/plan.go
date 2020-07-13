@@ -7,13 +7,13 @@ import (
 
 type Plan struct {
 	common.BaseModel
-	ID             string   `json:"id" gorm:"type:varchar(64)"`
-	Name           string   `json:"name" gorm:"type:varchar(64)"`
-	RegionID       string   `json:"regionId" grom:"type:varchar(64)"`
-	DeployTemplate string   `json:"deployTemplate" grom:"type:varchar(64)"`
-	Vars           string   `json:"vars" gorm:"type text(0)"`
-	Zones          []Zone   `json:"zones"`
-	Regions        []Region `json:"regions"`
+	ID             string `json:"id" gorm:"type:varchar(64)"`
+	Name           string `json:"name" gorm:"type:varchar(64)"`
+	RegionID       string `json:"regionId" grom:"type:varchar(64)"`
+	DeployTemplate string `json:"deployTemplate" grom:"type:varchar(64)"`
+	Vars           string `json:"vars" gorm:"type text(0)"`
+	Zones          []Zone `json:"zones"`
+	Region         Region `json:"region"`
 }
 
 func (p *Plan) BeforeCreate() (err error) {
