@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
 )
@@ -109,6 +110,32 @@ func (c Cluster) BeforeDelete() error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c Cluster) GetKobeVars() map[string]string {
+	result := map[string]string{}
+	if c.Spec.NetworkType != "" {
+		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
+	}
+	if c.Spec.RuntimeType != "" {
+		result[facts.ContainerRuntimeFactName] = c.Spec.RuntimeType
+	}
+	if c.Spec.DockerStorageDir != "" {
+		result[facts.DockerStorageDirFactName] = c.Spec.DockerStorageDir
+	}
+	if c.Spec.ContainerdStorageDir != "" {
+		result[facts.ContainerdStorageDirFactName] = c.Spec.ContainerdStorageDir
+	}
+	if c.Spec.LbKubeApiserverIp != "" {
+		result[facts.LbKubeApiserverPortFactName] = c.Spec.LbKubeApiserverIp
+	}
+	if c.Spec.KubePodSubnet != "" {
+		result[facts.KubePodSubnetFactName] = c.Spec.KubePodSubnet
+	}
+	if c.Spec.KubeServiceSubnet != "" {
+		result[facts.KubeServiceSubnetFactName] = c.Spec.KubeServiceSubnet
+	}
+	return result
 }
 
 func (c Cluster) ParseInventory() api.Inventory {
