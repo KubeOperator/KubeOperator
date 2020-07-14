@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/server"
 	_ "golang.org/x/text/message"
 	_ "golang.org/x/text/message/catalog"
+	"log"
 )
 
 // @title KubeOperator Restful API
@@ -21,6 +22,6 @@ import (
 // @name Authorization
 func main() {
 	if err := server.Start(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

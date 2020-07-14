@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/spf13/viper"
 	"testing"
 )
@@ -25,23 +24,8 @@ func Init() {
 
 func TestClusterIaasService_Init(t *testing.T) {
 	Init()
-	s := NewClusterService()
-
-	s.Create(dto.ClusterCreate{
-		Name:                 "bbb",
-		Version:              "",
-		Provider:             "plan",
-		Plan:                 "",
-		WorkerAmount:         "",
-		NetworkType:          "",
-		RuntimeType:          "",
-		DockerStorageDIr:     "",
-		ContainerdStorageDIr: "",
-		FlannelBackend:       "",
-		CalicoIpv4poolIpip:   "",
-		KubePodSubnet:        "",
-		KubeServiceSubnet:    "",
-	})
+	s := NewClusterIaasService()
+	s.Init()
 
 
 }

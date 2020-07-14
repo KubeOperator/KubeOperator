@@ -14,8 +14,10 @@ var (
 type HostRepository interface {
 	Get(name string) (model.Host, error)
 	List() ([]model.Host, error)
+	ListByClusterId(clusterId string) ([]model.Host, error)
 	Page(num, size int) (int, []model.Host, error)
 	Save(host *model.Host) error
+	BatchSave(hosts []*model.Host) error
 	Delete(name string) error
 	ListByCredentialID(credentialID string) ([]model.Host, error)
 	Batch(operation string, items []model.Host) error
@@ -72,6 +74,39 @@ func (h hostRepository) Save(host *model.Host) error {
 		}
 		return db.DB.Save(&host).Error
 	}
+}
+
+func (h hostRepository) ListByClusterId(clusterId string) ([]model.Host, error) {
+	var cluster model.Cluster
+	var hosts []model.Host
+	cluster.ID = clusterId
+	if err := db.DB.First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	if err := db.DB.Where(model.Host{ClusterID: clusterId}).Find(&hosts).Error; err != nil {
+		return nil, err
+	}
+	return hosts, nil
+
+}
+
+func (h hostRepository) BatchSave(hosts []*model.Host) error {
+	tx := db.DB.Begin()
+	for i, _ := range hosts {
+		if db.DB.NewRecord(hosts[i]) {
+			if err := tx.Create(hosts[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			if err := tx.Save(hosts[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	tx.Commit()
+	return nil
 }
 
 func (h hostRepository) Delete(name string) error {
