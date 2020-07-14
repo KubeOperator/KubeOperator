@@ -22,7 +22,6 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
-		clusterIaasService:         NewClusterIaasService(),
 	}
 }
 
