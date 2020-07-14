@@ -189,5 +189,8 @@
   "APP_IP_CHECK": "IP Check",
   "APP_NETWORK_MODE": "Network mode",
   "APP_SUBNET": "Subnet",
-  "APP_WORKER_AMOUNT": "Worker Amount"
+  "APP_WORKER_AMOUNT": "Worker Amount",
+  "APP_NETWORK_CIDR": "Network Cidr",
+  "APP_NETWORK_CIDR——HELPER": "例如 172.16.10.0/24"
+
 }
