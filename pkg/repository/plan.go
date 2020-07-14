@@ -37,8 +37,8 @@ func (p planRepository) GetById(id string) (model.Plan, error) {
 	var plan model.Plan
 	plan.ID = id
 	err := db.DB.First(&plan).
-		Preload("Region").
 		Preload("Zones").
+		Preload("Region").
 		Find(&plan).Error
 	if err != nil {
 		return plan, err

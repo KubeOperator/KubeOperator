@@ -189,6 +189,7 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 
 func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 
+	_, err := v.GetConnect()
 	var results []string
 	c := v.Connect.Client.Client
 	ctx := context.Background()
