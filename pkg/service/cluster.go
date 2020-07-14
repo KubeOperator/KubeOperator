@@ -36,6 +36,7 @@ func NewClusterService() ClusterService {
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		hostRepo:                   repository.NewHostRepository(),
 		clusterInitService:         NewClusterInitService(),
+		clusterTerminalService:     NewCLusterTerminalService(),
 	}
 }
 
@@ -49,6 +50,7 @@ type clusterService struct {
 	hostRepo                   repository.HostRepository
 	planRepo                   repository.PlanRepository
 	clusterInitService         ClusterInitService
+	clusterTerminalService     ClusterTerminalService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -201,9 +203,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
-	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return err
-	}
+	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
+	//	return err
+	//}
 	return nil
 }
 
@@ -263,12 +265,16 @@ func (c clusterService) Delete(name string) error {
 func (c clusterService) Batch(batch dto.ClusterBatch) error {
 	switch batch.Operation {
 	case constant.BatchOperationDelete:
-		var names []string
 		for _, item := range batch.Items {
-			names = append(names, item.Name)
-		}
-		if err := c.clusterRepo.BatchDelete(names...); err != nil {
-			return err
+			cluster, err := c.Get(item.Name)
+			if err != nil {
+				return err
+			}
+			if cluster.Status == constant.ClusterRunning {
+				c.clusterTerminalService.Terminal(cluster.Cluster)
+			} else {
+				_ = c.Delete(item.Name)
+			}
 		}
 	}
 	return nil
