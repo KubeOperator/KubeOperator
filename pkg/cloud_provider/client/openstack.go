@@ -316,7 +316,6 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 		}
 	}
 
-	go v.UploadImage()
 	return result, nil
 }
 
@@ -367,14 +366,6 @@ func (v *openStackClient) UploadImage() error {
 		if create.Err != nil {
 			return create.Err
 		}
-
-		//imageData, err := os.Open(constant.OpenStackImageVmdkPath)
-		//if err != nil {
-		//	return err
-		//}
-		//defer imageData.Close()
-
-		//result := imagedata.Upload(client,imageId,imageData)
 
 		result := imageimport.Create(client, imageId, imageimport.CreateOpts{
 			Name: imageimport.WebDownloadMethod,
