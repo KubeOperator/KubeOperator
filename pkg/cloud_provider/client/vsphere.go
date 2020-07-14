@@ -2,14 +2,19 @@ package client
 
 import (
 	"context"
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/ovf"
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/view"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
+	"io"
+	"io/ioutil"
 	"net/url"
 	"strings"
 )
@@ -98,6 +103,7 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		result = append(result, clusterData)
 	}
 
+	v.UploadImage()
 	return result, nil
 }
 
@@ -248,17 +254,145 @@ func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
 }
 
 func (v *vSphereClient) UploadImage() error {
+	_, err := v.GetConnect()
+	if err != nil {
+		return err
+	}
+	client := v.Connect.Client.Client
 
-	//ctx := context.TODO()
-	//
-	//_, err := v.GetConnect()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//
-	//client := v.Connect.Client.Client
-	//manager :=  ovf.NewManager(client)
-	//manager.CreateImportSpec(ctx,)
+	ctx := context.TODO()
+
+	file, _, err := OpenRemoteFile("http://172.16.10.63/packages/kubeoperator_centos_7.6.1810.ovf")
+	if err != nil {
+		return err
+	}
+	o, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	f := find.NewFinder(client, true)
+
+	v.Vars["resourcePool"] = "Resources"
+	v.Vars["datastore"] = "vsanDatastore"
+	v.Vars["cluster"] = "vSAN-Cluster"
+	v.Vars["network"] = "VM Network"
+
+	resourcePoolPath := v.Vars["resourcePool"].(string)
+	if v.Vars["resourcePool"].(string) == "Resources" {
+		resourcePoolPath = "/" + v.Vars["datacenter"].(string) + "/host/" + v.Vars["cluster"].(string) + "/Resources"
+	}
+
+	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	if err != nil {
+		return err
+	}
+	f.SetDatacenter(datacenter)
+	resourcePool, err := f.ResourcePool(ctx, resourcePoolPath)
+	if err != nil {
+		return err
+	}
+	datastore, err := f.Datastore(ctx, v.Vars["datastore"].(string))
+	if err != nil {
+		return err
+	}
+	hosts, err := f.HostSystemList(ctx, "*")
+	if err != nil {
+		return err
+	}
+	host := hosts[0]
+
+	folder, err := f.Folder(ctx, constant.VSphereFolder)
+	if err != nil {
+		fd, err := f.DefaultFolder(ctx)
+		if err != nil {
+			return err
+		}
+		folder, err = fd.CreateFolder(ctx, constant.VSphereFolder)
+		if err != nil {
+			return err
+		}
+	}
+
+	vm, _ := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if vm != nil {
+		return nil
+	}
+
+	var nmap []types.OvfNetworkMapping
+	network, err := f.Network(ctx, v.Vars["network"].(string))
+	if err != nil {
+		return err
+	}
+	ref := network.Reference()
+	nmap = append(nmap, types.OvfNetworkMapping{
+		Name:    v.Vars["network"].(string),
+		Network: ref,
+	})
+
+	cisp := types.OvfCreateImportSpecParams{
+		NetworkMapping: nmap,
+	}
+	ovfClient := ovf.NewManager(client)
+	spec, err := ovfClient.CreateImportSpec(ctx, string(o), resourcePool, datastore, cisp)
+	if err != nil {
+		return err
+	}
+	if spec.Error != nil {
+		return errors.New(spec.Error[0].LocalizedMessage)
+	}
+	lease, err := resourcePool.ImportVApp(ctx, spec.ImportSpec, folder, host)
+	if err != nil {
+		return err
+	}
+	info, err := lease.Wait(ctx, spec.FileItem)
+	if err != nil {
+		return err
+	}
+	u := lease.StartUpdater(ctx, info)
+	defer u.Done()
+	for _, i := range info.Items {
+
+		f, size, err := OpenRemoteFile("http://172.16.10.63/packages/kubeoperator_centos_7.6.1810-1.vmdk")
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
+		opts := soap.Upload{
+			ContentLength: size,
+		}
+		err = lease.Upload(ctx, i, f, opts)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = lease.Complete(ctx)
+	if err != nil {
+		return err
+	}
+
+	template, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if err != nil {
+		return err
+	}
+	err = template.MarkAsTemplate(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
+	u, err := url.Parse(remoteUrl)
+	if err != nil {
+		return nil, 0, err
+	}
+	client := soap.NewClient(u, false)
+	f, size, err := client.Download(context.Background(), u, &soap.DefaultDownload)
+	if err != nil {
+		return nil, 0, err
+	}
+	return f, size, nil
 }

@@ -10,6 +10,7 @@ type CloudClient interface {
 	ListTemplates() ([]interface{}, error)
 	ListFlavors() ([]interface{}, error)
 	GetIpInUsed(network string) ([]string, error)
+	UploadImage() error
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
