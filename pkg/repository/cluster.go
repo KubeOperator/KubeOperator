@@ -10,7 +10,6 @@ type ClusterRepository interface {
 	List() ([]model.Cluster, error)
 	Save(cluster *model.Cluster) error
 	Delete(name string) error
-	BatchDelete(names ...string) error
 	Page(num, size int) (int, []model.Cluster, error)
 }
 
@@ -90,17 +89,4 @@ func (c clusterRepository) Delete(name string) error {
 	return nil
 }
 
-func (c clusterRepository) BatchDelete(names ...string) error {
-	tx := db.DB.Begin()
-	var cluster model.Cluster
-	for _, name := range names {
-		if err := tx.Where(model.Cluster{Name: name}).
-			First(&cluster).
-			Delete(model.Cluster{}).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	tx.Commit()
-	return nil
-}
+
