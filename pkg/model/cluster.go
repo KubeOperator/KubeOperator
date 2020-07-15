@@ -60,6 +60,13 @@ func (c *Cluster) BeforeCreate() error {
 			return err
 		}
 	}
+	for _, tool := range c.PrepareTools() {
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	tx.Commit()
 	return nil
 }
@@ -109,6 +116,39 @@ func (c Cluster) BeforeDelete() error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c Cluster) PrepareTools() []ClusterTool {
+	return []ClusterTool{
+		{
+			Name:     "prometheus",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "prometheus.png",
+		},
+		{
+			Name:     "dashboard",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "kubernetes.png",
+		},
+		{
+			Name:     "chartmuseum",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "chartmuseum.png",
+		},
+		{
+			Name:     "registry",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "registry.png",
+		},
+	}
 }
 
 func (c Cluster) GetKobeVars() map[string]string {
