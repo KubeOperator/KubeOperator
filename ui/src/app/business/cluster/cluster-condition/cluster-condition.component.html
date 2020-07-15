@@ -15,7 +15,7 @@
                     <clr-icon shape="circle" aria-label="Not started" *ngSwitchCase="'Unknown'"></clr-icon>
                 </span>
                 <div class="clr-timeline-step-body">
-                    <span class="clr-timeline-step-title">{{condition.name}}</span>
+                    <span class="clr-timeline-step-title">{{condition.name |translate}}</span>
                     {{condition.message}}
                 </div>
             </li>

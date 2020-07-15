@@ -14,7 +14,10 @@ type ClusterTerminalService interface {
 }
 
 func NewCLusterTerminalService() ClusterTerminalService {
-	return clusterTerminalService{}
+	return clusterTerminalService{
+		clusterRepo:       repository.NewClusterRepository(),
+		clusterStatusRepo: repository.NewClusterStatusRepository(),
+	}
 }
 
 type clusterTerminalService struct {

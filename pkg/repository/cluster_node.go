@@ -48,6 +48,8 @@ func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, er
 	}
 	if err := db.DB.
 		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Preload("Host").
+		Preload("Host.Credential").
 		Order("name asc").
 		Find(&nodes).Error; err != nil {
 		return nodes, err

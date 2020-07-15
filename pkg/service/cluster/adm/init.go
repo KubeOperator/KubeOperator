@@ -16,7 +16,8 @@ func (ca *ClusterAdm) Create(c *Cluster) error {
 	if condition != nil {
 		now := time.Now()
 		f := ca.getCreateHandler(condition.Name)
-		if err := f(c); err != nil {
+		err := f(c)
+		if err != nil {
 			c.setCondition(model.ClusterStatusCondition{
 				Name:          condition.Name,
 				Status:        constant.ConditionFalse,

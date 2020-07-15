@@ -6,7 +6,7 @@ import (
 )
 
 func TestEncrypt(t *testing.T) {
-	password, err := StringEncrypt("Calong@2015")
+	password, err := StringEncrypt("KubeOperator@2019")
 	if err == nil {
 		fmt.Println(password)
 		password2, _ := StringDecrypt(password)

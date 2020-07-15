@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	initNetwork = "10-network-plugin.yml"
+	initNetwork = "10-plugin-network.yml"
 )
 
 type NetworkPhase struct {

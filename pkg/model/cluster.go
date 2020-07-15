@@ -60,6 +60,13 @@ func (c *Cluster) BeforeCreate() error {
 			return err
 		}
 	}
+	for _, tool := range c.PrepareTools() {
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	tx.Commit()
 	return nil
 }
@@ -71,7 +78,6 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
-		Preload("Monitor").
 		Find(&cluster).Error; err != nil {
 		return err
 	}
@@ -112,6 +118,39 @@ func (c Cluster) BeforeDelete() error {
 	return nil
 }
 
+func (c Cluster) PrepareTools() []ClusterTool {
+	return []ClusterTool{
+		{
+			Name:     "prometheus",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "prometheus.png",
+		},
+		{
+			Name:     "dashboard",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "kubernetes.png",
+		},
+		{
+			Name:     "chartmuseum",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "chartmuseum.png",
+		},
+		{
+			Name:     "registry",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "registry.png",
+		},
+	}
+}
+
 func (c Cluster) GetKobeVars() map[string]string {
 	result := map[string]string{}
 	if c.Spec.NetworkType != "" {
@@ -147,11 +186,11 @@ func (c Cluster) ParseInventory() api.Inventory {
 		hosts = append(hosts, node.ToKobeHost())
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
-			if node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.ClusterRunning {
 				masters = append(masters, node.Name)
 			}
 		case constant.NodeRoleNameWorker:
-			if node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.ClusterRunning {
 				workers = append(workers, node.Name)
 			}
 		}
@@ -169,10 +208,12 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Vars:     map[string]string{},
 			},
 			{
-				Name:     "kube-worker",
-				Hosts:    workers,
-				Children: []string{},
-				Vars:     map[string]string{},
+				Name:  "kube-worker",
+				Hosts: workers,
+				Children: []string{
+					"kube-master",
+				},
+				Vars: map[string]string{},
 			},
 			{
 				Name:  "new-worker",
