@@ -3,10 +3,11 @@ package service
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
 var (
@@ -63,7 +64,14 @@ func (c credentialService) List() ([]dto.Credential, error) {
 		return credentialDTOS, err
 	}
 	for _, mo := range mos {
-		credentialDTOS = append(credentialDTOS, dto.Credential{Credential: mo})
+		var credentailDTO dto.Credential
+		credentailDTO.Credential = mo
+		password, err := encrypt.StringDecrypt(mo.Password)
+		if err != nil {
+			return credentialDTOS, err
+		}
+		credentailDTO.Password = password
+		credentialDTOS = append(credentialDTOS, credentailDTO)
 	}
 	return credentialDTOS, err
 }
@@ -79,7 +87,14 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		credentialDTOS = append(credentialDTOS, dto.Credential{Credential: mo})
+		var credentailDTO dto.Credential
+		credentailDTO.Credential = mo
+		password, err := encrypt.StringDecrypt(mo.Password)
+		if err != nil {
+			return page, err
+		}
+		credentailDTO.Password = password
+		credentialDTOS = append(credentialDTOS, credentailDTO)
 	}
 	page.Total = total
 	page.Items = credentialDTOS
@@ -87,15 +102,21 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) (dto.Credential, error) {
+
+	password, err := encrypt.StringEncrypt(creation.Password)
+	if err != nil {
+		return dto.Credential{}, err
+	}
+
 	credential := model.Credential{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,
-		Password:   creation.Password,
+		Password:   password,
 		Username:   creation.Username,
 		PrivateKey: creation.PrivateKey,
 		Type:       creation.Type,
 	}
-	err := c.credentialRepo.Save(&credential)
+	err = c.credentialRepo.Save(&credential)
 	if err != nil {
 		return dto.Credential{}, err
 	}
@@ -103,15 +124,21 @@ func (c credentialService) Create(creation dto.CredentialCreate) (dto.Credential
 }
 
 func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {
+
+	password, err := encrypt.StringEncrypt(update.Password)
+	if err != nil {
+		return dto.Credential{}, err
+	}
+
 	credential := model.Credential{
 		ID:         update.ID,
 		Name:       update.Name,
-		Password:   update.Password,
+		Password:   password,
 		Username:   update.Username,
 		PrivateKey: update.PrivateKey,
 		Type:       update.Type,
 	}
-	err := c.credentialRepo.Save(&credential)
+	err = c.credentialRepo.Save(&credential)
 	if err != nil {
 		return dto.Credential{}, err
 	}

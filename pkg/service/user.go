@@ -5,9 +5,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 )
 
@@ -63,14 +63,19 @@ func (u userService) List() ([]dto.User, error) {
 
 func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
 
+	password, err := encrypt.StringEncrypt(creation.Password)
+	if err != nil {
+		return dto.User{}, err
+	}
+
 	user := model.User{
 		Name:     creation.Name,
 		Email:    creation.Email,
-		Password: creation.Password,
+		Password: password,
 		IsActive: true,
 		Language: model.ZH,
 	}
-	err := u.userRepo.Save(&user)
+	err = u.userRepo.Save(&user)
 	if err != nil {
 		return dto.User{}, err
 	}
@@ -78,14 +83,21 @@ func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
 }
 
 func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
+
+	password, err := encrypt.StringEncrypt(update.Password)
+	if err != nil {
+		return dto.User{}, err
+	}
+
 	user := model.User{
 		ID:       update.ID,
 		Name:     update.Name,
 		Email:    update.Email,
 		IsActive: update.IsActive,
 		Language: update.Language,
+		Password: password,
 	}
-	err := u.userRepo.Save(&user)
+	err = u.userRepo.Save(&user)
 	if err != nil {
 		return dto.User{}, err
 	}
