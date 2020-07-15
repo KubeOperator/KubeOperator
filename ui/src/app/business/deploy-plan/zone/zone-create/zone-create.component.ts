@@ -81,7 +81,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
 
     changeRegion() {
         this.regions.forEach(region => {
-            if (region.name === this.item.region) {
+            if (region.name === this.item.regionName) {
                 this.region = region;
                 this.region.regionVars = JSON.parse(this.region.vars);
                 this.cloudZoneRequest.cloudVars = JSON.parse(this.region.vars);
@@ -99,13 +99,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         });
     }
 
-    changeTemplate() {
-        this.cloudTemplates.forEach(template => {
-            if (template.imageName === this.item.cloudVars['imageName']) {
-                this.item.cloudVars['guestId'] = template.guestId;
-            }
-        });
-    }
+
 
     changeNetwork() {
         this.cloudZone.networkList.forEach(network => {
@@ -159,43 +153,30 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     checkNetwork() {
         this.networkError = [];
         let result = true;
-        const ipStart = this.item.cloudVars['ipStart'];
-        const ipEnd = this.item.cloudVars['ipEnd'];
-        if (!ipaddr.isValid(ipStart)) {
+
+        const cidr = this.item.cloudVars['networkCidr'].split('/', 2);
+        if (cidr.length !== 2) {
             result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_START_INVALID'));
+            this.networkValid = result;
+            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
+            return;
         }
-        if (!ipaddr.isValid(ipEnd)) {
+        const address = cidr[0];
+        if (!ipaddr.isValid(address)) {
             result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_END_INVALID'));
+            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
         }
-        if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
-            const start = ipaddr.parse(ipStart).toByteArray();
-            const end = ipaddr.parse(ipEnd).toByteArray();
-            for (let i = 0; i < 4; i++) {
-                if (start[i] > end[i]) {
-                    result = false;
-                    this.networkError.push(this.translateService.instant('APP_IP_START_MUST'));
-                    break;
-                }
-            }
+        const netmask = Number(cidr[1]);
+        if (netmask < 0 || netmask > 32) {
+            result = false;
+            this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
         }
+
         if (this.region.vars['provider'] === 'vSphere') {
-            const mask = this.item.cloudVars['netMask'];
             const gateway = this.item.cloudVars['gateway'];
             if (!ipaddr.isValid(gateway)) {
                 result = false;
                 this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
-            }
-            if (!ipaddr.isValid(mask)) {
-                result = false;
-                this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
-            } else {
-                const maskIp = ipaddr.parse(mask);
-                if (maskIp.prefixLengthFromSubnetMask() == null) {
-                    result = false;
-                    this.networkError.push(this.translateService.instant('APP_NETMASK_NOT_AVAIL'));
-                }
             }
         }
         this.networkValid = result;

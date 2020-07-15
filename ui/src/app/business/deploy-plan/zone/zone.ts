@@ -12,7 +12,7 @@ export class Zone extends BaseModel {
 
 export class ZoneCreateRequest extends BaseRequest {
     vars: string;
-    region: string;
+    regionName: string;
     regionID: string;
     cloudVars: {} = {};
     provider: string;

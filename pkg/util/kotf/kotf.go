@@ -38,7 +38,3 @@ func (k *Kotf) Apply() (*api.Result, error) {
 	}
 	return result, err
 }
-
-func CoverParamToKotf() {
-
-}

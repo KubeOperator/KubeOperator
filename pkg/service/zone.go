@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"strings"
 )
 
 type ZoneService interface {
@@ -95,6 +97,31 @@ func (z zoneService) Delete(name string) error {
 
 func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 
+	param := creation.CloudVars.(map[string]interface{})
+	if param["networkCidr"] != nil {
+		index := strings.Index(param["networkCidr"].(string), "/")
+		networkCidr := param["networkCidr"].(string)
+		param["netmask"] = networkCidr[index+1:]
+	}
+
+	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+		region, err := NewRegionService().Get(creation.RegionName)
+		if err != nil {
+			return dto.Zone{}, err
+		}
+		switch region.Provider {
+		case constant.OpenStack:
+			param["imageName"] = constant.OpenStackImageName
+			break
+		case constant.VSphere:
+			param["imageName"] = constant.VSphereImageName
+			break
+		default:
+			param["imageName"] = constant.VSphereImageName
+			break
+		}
+	}
+
 	vars, _ := json.Marshal(creation.CloudVars)
 
 	zone := model.Zone{
@@ -103,12 +130,14 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 		Vars:         string(vars),
 		RegionID:     creation.RegionID,
 		CredentialID: creation.CredentialId,
+		Status:       constant.Initializing,
 	}
 
 	err := z.zoneRepo.Save(&zone)
 	if err != nil {
 		return dto.Zone{}, err
 	}
+	go z.uploadImage(creation)
 	return dto.Zone{Zone: zone}, err
 }
 
@@ -177,6 +206,34 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 		return result, err
 	}
 	return result, nil
+}
+func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
+	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	if cloudClient != nil {
+		err := cloudClient.UploadImage()
+		if err != nil {
+			zone, err := z.zoneRepo.Get(creation.Name)
+			if err != nil {
+				return err
+			}
+			zone.Status = constant.UploadImageError
+			err = z.zoneRepo.Save(&zone)
+			if err != nil {
+				return err
+			}
+			return err
+		}
+		zone, err := z.zoneRepo.Get(creation.Name)
+		if err != nil {
+			return err
+		}
+		zone.Status = constant.Ready
+		err = z.zoneRepo.Save(&zone)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (z zoneService) ListByRegionId(regionId string) ([]dto.Zone, error) {

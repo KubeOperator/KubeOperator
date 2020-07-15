@@ -34,12 +34,6 @@ func (z zoneRepository) Get(name string) (model.Zone, error) {
 	if err := db.DB.Where(zone).First(&zone).Error; err != nil {
 		return zone, err
 	}
-	//if err := db.DB.First(&host).Related(&host.Volumes).Error; err != nil {
-	//	return host, err
-	//}
-	//if err := db.DB.First(&host).Related(&host.Credential).Error; err != nil {
-	//	return host, err
-	//}
 	return zone, nil
 }
 
@@ -101,7 +95,7 @@ func (z zoneRepository) Batch(operation string, items []model.Zone) error {
 			return err
 		}
 		if len(planZones) > 0 {
-			return errors.New(DeleteFailedError)
+			return errors.New(DeleteZoneError)
 		}
 		var ids []string
 		for _, item := range items {

@@ -194,6 +194,6 @@
   "APP_SUBNET": "子网",
   "APP_WORKER_AMOUNT": "Worker 数量",
   "APP_NETWORK_CIDR": "网络范围",
-  "APP_NETWORK_CIDR——HELPER": "例如 172.16.10.0/24"
-
+  "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
+  "APP_IP_INVALID": "IP不是有效的IPV4地址!"
 }

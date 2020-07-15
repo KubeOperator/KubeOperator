@@ -191,6 +191,8 @@
   "APP_SUBNET": "Subnet",
   "APP_WORKER_AMOUNT": "Worker Amount",
   "APP_NETWORK_CIDR": "Network Cidr",
-  "APP_NETWORK_CIDR——HELPER": "例如 172.16.10.0/24"
+  "APP_NETWORK_CIDR——HELPER": "example 172.16.10.0/24",
+  "APP_IP_INVALID": "IP is not a valid IPV4 address!"
+
 
 }

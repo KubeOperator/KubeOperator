@@ -20,7 +20,7 @@
             </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_REGION'|translate}}</label>
-                <select clrSelect [(ngModel)]="item.region" name="provider" required (ngModelChange)="changeRegion()">
+                <select clrSelect [(ngModel)]="item.regionName" name="provider" required (ngModelChange)="changeRegion()">
                     <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let region of regions" [value]="region.name">{{region.name}}</option>
                 </select>
@@ -100,8 +100,7 @@
                             <div *ngIf="!templateLoading">
                                 <clr-select-container>
                                     <label>{{'APP_TEMPLATE'|translate}}</label>
-                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required clrSelect
-                                            (ngModelChange)="changeTemplate()">
+                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required clrSelect>
                                         <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
                                         <option *ngFor="let temp of cloudTemplates"
                                                 [value]=temp.imageName>{{temp.imageName}}</option>
@@ -221,8 +220,7 @@
                             <div *ngIf="!templateLoading">
                                 <clr-select-container>
                                     <label>{{'APP_TEMPLATE'|translate}}</label>
-                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required clrSelect
-                                            (ngModelChange)="changeTemplate()">
+                                    <select [(ngModel)]="item.cloudVars['imageName']" name="template" required clrSelect>
                                         <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
                                         <option *ngFor="let temp of cloudTemplates"
                                                 [value]=temp.imageName>{{temp.imageName}}</option>
