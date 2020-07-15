@@ -25,20 +25,9 @@ func NewTerraform(c *Config) *Kotf {
 }
 
 func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts string) (*api.Result, error) {
-	result, err := k.Client.Init(k.Cluster, cloudType, provider, cloudRegion, hosts)
-	if err != nil {
-		return result, err
-	}
-	return result, err
+	return k.Client.Init(k.Cluster, cloudType, provider, cloudRegion, hosts)
+
 }
 func (k *Kotf) Apply() (*api.Result, error) {
-	result, err := k.Client.Apply(k.Cluster)
-	if err != nil {
-		return result, err
-	}
-	return result, err
-}
-
-func CoverParamToKotf() {
-
+	return k.Client.Apply(k.Cluster)
 }

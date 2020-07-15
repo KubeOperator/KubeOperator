@@ -8,11 +8,12 @@ export class Zone extends BaseModel {
     credentialId: string;
     cloudVars: {} = {};
     region: Region = new Region();
+    status: string;
 }
 
 export class ZoneCreateRequest extends BaseRequest {
     vars: string;
-    region: string;
+    regionName: string;
     regionID: string;
     cloudVars: {} = {};
     provider: string;

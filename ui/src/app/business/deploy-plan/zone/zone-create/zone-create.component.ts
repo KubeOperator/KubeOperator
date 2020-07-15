@@ -52,6 +52,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.item = new ZoneCreateRequest();
         this.opened = true;
         this.listRegions();
+        this.listCredentials();
+        this.item.cloudVars['templateType'] = 'default';
     }
 
     onCancel() {
@@ -70,9 +72,9 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
 
     onSubmit(): void {
         this.zoneService.create(this.item).subscribe(res => {
-            this.opened = false;
-            this.created.emit();
             this.doFinish();
+            this.onCancel();
+            this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
@@ -81,7 +83,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
 
     changeRegion() {
         this.regions.forEach(region => {
-            if (region.name === this.item.region) {
+            if (region.name === this.item.regionName) {
                 this.region = region;
                 this.region.regionVars = JSON.parse(this.region.vars);
                 this.cloudZoneRequest.cloudVars = JSON.parse(this.region.vars);
@@ -99,26 +101,11 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         });
     }
 
-    changeTemplate() {
-        this.cloudTemplates.forEach(template => {
-            if (template.imageName === this.item.cloudVars['imageName']) {
-                this.item.cloudVars['guestId'] = template.guestId;
-            }
-        });
-    }
 
     changeNetwork() {
         this.cloudZone.networkList.forEach(network => {
             if (network.id === this.item.cloudVars['network']) {
                 this.subnetList = network.subnetList;
-            }
-        });
-    }
-
-    changeCredential() {
-        this.credentials.forEach(credential => {
-            if (credential.id === this.item.credentialId) {
-                this.item.cloudVars['templatePassword'] = credential.password;
             }
         });
     }
@@ -142,7 +129,6 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.zoneService.listTemplates(this.cloudZoneRequest).subscribe(res => {
             this.cloudTemplates = res.result;
             this.templateLoading = false;
-            this.listCredentials();
         }, error => {
             this.templateLoading = false;
         });
@@ -159,43 +145,30 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     checkNetwork() {
         this.networkError = [];
         let result = true;
-        const ipStart = this.item.cloudVars['ipStart'];
-        const ipEnd = this.item.cloudVars['ipEnd'];
-        if (!ipaddr.isValid(ipStart)) {
+
+        const cidr = this.item.cloudVars['networkCidr'].split('/', 2);
+        if (cidr.length !== 2) {
             result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_START_INVALID'));
+            this.networkValid = result;
+            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
+            return;
         }
-        if (!ipaddr.isValid(ipEnd)) {
+        const address = cidr[0];
+        if (!ipaddr.isValid(address)) {
             result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_END_INVALID'));
+            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
         }
-        if (ipaddr.isValid(ipStart) && ipaddr.isValid(ipEnd)) {
-            const start = ipaddr.parse(ipStart).toByteArray();
-            const end = ipaddr.parse(ipEnd).toByteArray();
-            for (let i = 0; i < 4; i++) {
-                if (start[i] > end[i]) {
-                    result = false;
-                    this.networkError.push(this.translateService.instant('APP_IP_START_MUST'));
-                    break;
-                }
-            }
+        const netmask = Number(cidr[1]);
+        if (netmask < 0 || netmask > 32) {
+            result = false;
+            this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
         }
+
         if (this.region.vars['provider'] === 'vSphere') {
-            const mask = this.item.cloudVars['netMask'];
             const gateway = this.item.cloudVars['gateway'];
             if (!ipaddr.isValid(gateway)) {
                 result = false;
                 this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
-            }
-            if (!ipaddr.isValid(mask)) {
-                result = false;
-                this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
-            } else {
-                const maskIp = ipaddr.parse(mask);
-                if (maskIp.prefixLengthFromSubnetMask() == null) {
-                    result = false;
-                    this.networkError.push(this.translateService.instant('APP_NETMASK_NOT_AVAIL'));
-                }
             }
         }
         this.networkValid = result;

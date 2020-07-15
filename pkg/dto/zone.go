@@ -12,6 +12,7 @@ type ZoneCreate struct {
 	Name         string      `json:"name" validate:"required"`
 	CloudVars    interface{} `json:"cloudVars" validate:"required"`
 	RegionID     string      `json:"regionID" validate:"required"`
+	RegionName   string      `json:"regionName" validate:"required"`
 	CredentialId string      `json:"credentialId"`
 }
 
