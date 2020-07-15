@@ -8,6 +8,8 @@ const (
 	ClusterTerminating  = "Terminating"
 	ClusterTerminated   = "Terminated"
 	ClusterWaiting      = "Waiting"
+	// 表示创建资源
+	ClusterCreating = "Creating"
 
 	ClusterSourceLocal    = "local"
 	ClusterSourceExternal = "external"

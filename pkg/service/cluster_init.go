@@ -22,6 +22,7 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		clusterIaasService:         NewClusterIaasService(),
 	}
 }
 
@@ -60,12 +61,24 @@ func (c clusterInitService) Init(name string) error {
 }
 
 func (c clusterInitService) do(cluster model.Cluster) {
-	_ = c.clusterIaasService.Init(cluster.Name)
+	if len(cluster.Nodes) < 1 {
+		cluster.Status.Phase = constant.ClusterCreating
+		_ = c.clusterStatusRepo.Save(&cluster.Status)
+		err := c.clusterIaasService.Init(cluster.Name)
+		if err != nil {
+			cluster.Status.Phase = constant.ClusterFailed
+			cluster.Status.Message = err.Error()
+			_ = c.clusterStatusRepo.Save(&cluster.Status)
+			return
+		}
+	}
+	// 刷新node节点
+	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
+	ctx, cancel := context.WithCancel(context.Background())
+	statusChan := make(chan adm.Cluster, 0)
 	cluster.Status.Phase = constant.ClusterInitializing
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	ctx, cancel := context.WithCancel(context.Background())
 	admCluster := adm.NewCluster(cluster)
-	statusChan := make(chan adm.Cluster, 0)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		cluster := <-statusChan
@@ -91,18 +104,19 @@ func (c clusterInitService) do(cluster model.Cluster) {
 }
 
 func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, statusChan chan adm.Cluster) {
+
 	ad := adm.NewClusterAdm()
 	for {
-		select {
-		case <-ctx.Done():
-			return
-		case statusChan <- cluster:
-		}
 		resp, err := ad.OnInitialize(cluster)
 		if err != nil {
 			cluster.Status.Message = err.Error()
 		}
 		cluster.Status = resp.Status
+		select {
+		case <-ctx.Done():
+			return
+		case statusChan <- cluster:
+		}
 	}
 }
 

@@ -71,7 +71,6 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
-		Preload("Monitor").
 		Find(&cluster).Error; err != nil {
 		return err
 	}
@@ -147,11 +146,11 @@ func (c Cluster) ParseInventory() api.Inventory {
 		hosts = append(hosts, node.ToKobeHost())
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
-			if node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.ClusterRunning {
 				masters = append(masters, node.Name)
 			}
 		case constant.NodeRoleNameWorker:
-			if node.Status == constant.ClusterRunning {
+			if node.Status == "" || node.Status == constant.ClusterRunning {
 				workers = append(workers, node.Name)
 			}
 		}
@@ -169,10 +168,12 @@ func (c Cluster) ParseInventory() api.Inventory {
 				Vars:     map[string]string{},
 			},
 			{
-				Name:     "kube-worker",
-				Hosts:    workers,
-				Children: []string{},
-				Vars:     map[string]string{},
+				Name:  "kube-worker",
+				Hosts: workers,
+				Children: []string{
+					"kube-master",
+				},
+				Vars: map[string]string{},
 			},
 			{
 				Name:  "new-worker",

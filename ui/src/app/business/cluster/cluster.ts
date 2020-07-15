@@ -44,6 +44,7 @@ export class ClusterCreateRequest extends BaseModel {
     kubeServiceSubnet: string;
     plan: string;
     nodes: CreateNodeRequest[] = [];
+    workerAmount: number;
 }
 
 export class CLusterImportRequest {

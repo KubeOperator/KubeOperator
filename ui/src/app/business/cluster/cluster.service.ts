@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
-import {Cluster, CLusterImportRequest, ClusterMonitor, ClusterStatus, InitClusterResponse} from './cluster';
+import {Cluster, CLusterImportRequest, ClusterStatus, InitClusterResponse} from './cluster';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -19,9 +19,6 @@ export class ClusterService extends BaseModelService<Cluster> {
         return this.http.get<ClusterStatus>(`${this.baseUrl}/status/${clusterName}`);
     }
 
-    monitor(clusterName: string): Observable<ClusterMonitor> {
-        return this.http.get<ClusterMonitor>(`${this.baseUrl}/monitor/${clusterName}`);
-    }
 
     createMonitor(clusterName: string): Observable<any> {
         return this.http.post<any>(`${this.baseUrl}/monitor/${clusterName}`, {});

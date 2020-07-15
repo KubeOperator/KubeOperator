@@ -194,6 +194,16 @@
   "APP_SUBNET": "子网",
   "APP_WORKER_AMOUNT": "Worker 数量",
   "APP_NETWORK_CIDR": "网络范围",
-  "APP_NETWORK_CIDR——HELPER": "例如 172.16.10.0/24"
-
+  "APP_NETWORK_CIDR——HELPER": "例如 172.16.10.0/24",
+  "EnsureInitTaskStart": "调度任务",
+  "EnsurePrepareBaseSystemConfig": "准备系统环境",
+  "EnsurePrepareContainerRuntime": "初始化容器引擎",
+  "EnsurePrepareKubernetesComponent": "准备 Kubernetes 组件",
+  "EnsurePrepareLoadBalancer": "准备负载均衡器",
+  "EnsurePrepareCertificates": "准备 CA 证书",
+  "EnsureInitEtcd": "初始化 ETCD",
+  "EnsureInitMaster": "初始化控制平面",
+  "EnsureInitWorker": "初始化工作负载",
+  "EnsurePostInit": "配置集群",
+  "EnsureInitNetwork": "初始化网络"
 }

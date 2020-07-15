@@ -22,16 +22,15 @@ export class ClusterDetailComponent implements OnInit {
         this.route.data.subscribe(data => {
             this.currentCluster = data.cluster;
             this.toolsService.list(this.currentCluster.name).subscribe(d => {
-                this.tools = d;
+                if (d) {
+                    this.tools = d;
+                }
                 this.ready = true;
             });
         });
     }
 
     showApp(toolName: string) {
-        if (!this.ready) {
-            return false;
-        }
         for (const tool of this.tools) {
             if (tool.name === toolName && tool.status === 'Running') {
                 return true;
@@ -39,7 +38,6 @@ export class ClusterDetailComponent implements OnInit {
         }
         return false;
     }
-
 
     backToCluster() {
         this.router.navigate(['clusters']);

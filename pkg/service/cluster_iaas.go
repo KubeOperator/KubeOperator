@@ -11,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
+	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
 	"strings"
 )
 
@@ -20,31 +21,33 @@ type ClusterIaasService interface {
 
 func NewClusterIaasService() ClusterIaasService {
 	return &clusterIaasService{
-		ClusterService: NewClusterService(),
-		nodeRepo:       repository.NewClusterNodeRepository(),
-		hostRepo:       repository.NewHostRepository(),
+		clusterRepo: repository.NewClusterRepository(),
+		nodeRepo:    repository.NewClusterNodeRepository(),
+		hostRepo:    repository.NewHostRepository(),
+		planRepo:    repository.NewPlanRepository(),
 	}
 }
 
 type clusterIaasService struct {
-	ClusterService ClusterService
-	hostRepo       repository.HostRepository
-	nodeRepo       repository.ClusterNodeRepository
+	clusterRepo repository.ClusterRepository
+	hostRepo    repository.HostRepository
+	nodeRepo    repository.ClusterNodeRepository
+	planRepo    repository.PlanRepository
 }
 
 func (c clusterIaasService) Init(name string) error {
-	cluster, err := c.ClusterService.Get(name)
+	cluster, err := c.clusterRepo.Get(name)
 	if err != nil {
 		return err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+	if cluster.Spec.Provider == constant.ClusterProviderBareMetal || len(cluster.Nodes) > 0 {
 		return nil
 	}
-	plan, err := c.ClusterService.GetPlan(name)
+	plan, err := c.planRepo.GetById(cluster.PlanID)
 	if err != nil {
 		return err
 	}
-	hosts, cloudHosts, err := c.createHosts(cluster.Cluster, plan.Plan)
+	hosts, cloudHosts, err := c.createHosts(cluster, plan)
 	if err != nil {
 		return err
 	}
@@ -53,11 +56,16 @@ func (c clusterIaasService) Init(name string) error {
 		return err
 	}
 	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
-	err = doInit(k, plan.Plan, cloudHosts)
+	err = doInit(k, plan, cloudHosts)
 	if err != nil {
+		var hs []model.Host
+		for _, host := range hosts {
+			hs = append(hs, *host)
+		}
+		_ = c.hostRepo.Batch(constant.BatchOperationDelete, hs)
 		return err
 	}
-	nodes, err := c.createNodes(cluster.Cluster, hosts)
+	nodes, err := c.createNodes(cluster, hosts)
 	if err := c.nodeRepo.BatchSave(nodes); err != nil {
 		return err
 	}
@@ -151,13 +159,13 @@ func parseVsphereHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []m
 		for _, h := range v {
 			var zoneVars map[string]interface{}
 			_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
-			zoneVars["key"] = "key1"
+			zoneVars["key"] = formatZoneName(k.Name)
 			role := getHostRole(h.Name)
 			hMap := map[string]interface{}{}
 			hMap["name"] = h.Name
 			hMap["shortName"] = h.Name
 			hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
-			hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory
+			hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
 			hMap["ip"] = h.Ip
 			hMap["zone"] = zoneVars
 			results = append(results, hMap)
@@ -197,7 +205,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []map[string]interface{}) error
 	for _, zone := range plan.Zones {
 		zoneMap := map[string]interface{}{}
 		_ = json.Unmarshal([]byte(zone.Vars), &zoneMap)
-		zoneMap["key"] = "key1"
+		zoneMap["key"] = formatZoneName(zone.Name)
 		zonesVars = append(zonesVars, zoneMap)
 	}
 	hostsStr, _ := json.Marshal(&hosts)
@@ -232,6 +240,7 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 	for i, _ := range hosts {
 		hash := i % len(zones)
 		groupMap[&zones[hash]] = append(groupMap[&zones[hash]], hosts[i])
+		hosts[i].CredentialID = zones[hash].CredentialID
 	}
 	return groupMap
 }
@@ -264,4 +273,11 @@ func exists(ip string, pool []string) bool {
 		}
 	}
 	return false
+}
+
+func formatZoneName(name string) string {
+	if lang.CountChinese(name) > 0 {
+		return lang.Pinyin(name)
+	}
+	return name
 }

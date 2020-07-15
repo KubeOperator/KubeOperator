@@ -39,7 +39,7 @@ type ClusterCreate struct {
 	Version              string       `json:"version" binding:"required"`
 	Provider             string       `json:"provider"`
 	Plan                 string       `json:"plan"`
-	WorkerAmount         string       `json:"workerAmount"`
+	WorkerAmount         int          `json:"workerAmount"`
 	NetworkType          string       `json:"networkType"`
 	RuntimeType          string       `json:"runtimeType"`
 	DockerStorageDIr     string       `json:"dockerStorageDIr"`

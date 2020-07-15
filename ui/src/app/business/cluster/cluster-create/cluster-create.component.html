@@ -121,7 +121,7 @@
 
             <clr-input-container>
                 <label>{{"APP_WORKER_AMOUNT"|translate}}</label>
-                <input clrInput type="number" name="workerSize">
+                <input clrInput type="number" name="workerSize" [(ngModel)]="item.workerAmount">
             </clr-input-container>
         </form>
     </clr-wizard-page>

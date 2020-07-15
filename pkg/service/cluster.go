@@ -168,6 +168,15 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		Version:              creation.Version,
 		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}
+	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
+		spec.WorkerAmount = creation.WorkerAmount
+		plan, err := c.planRepo.Get(creation.Plan)
+		if err != nil {
+			return err
+		}
+		cluster.PlanID = plan.ID
+	}
+
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
@@ -204,9 +213,9 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
-	//if err := c.clusterInitService.Init(cluster.Name); err != nil {
-	//	return err
-	//}
+	if err := c.clusterInitService.Init(cluster.Name); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -274,7 +283,8 @@ func (c clusterService) Batch(batch dto.ClusterBatch) error {
 			if cluster.Status == constant.ClusterRunning {
 				c.clusterTerminalService.Terminal(cluster.Cluster)
 			} else {
-				_ = c.Delete(item.Name)
+				err = c.Delete(item.Name)
+				fmt.Println(err)
 			}
 		}
 	}
