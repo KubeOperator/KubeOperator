@@ -70,9 +70,9 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
 
     onSubmit(): void {
         this.zoneService.create(this.item).subscribe(res => {
-            this.opened = false;
-            this.created.emit();
             this.doFinish();
+            this.onCancel();
+            this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

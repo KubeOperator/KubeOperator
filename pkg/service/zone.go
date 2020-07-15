@@ -208,7 +208,28 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 	return result, nil
 }
 func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
-	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	region, err := NewRegionService().Get(creation.RegionName)
+	if err != nil {
+		return err
+	}
+	regionVars := region.RegionVars.(map[string]interface{})
+	regionVars["datacenter"] = region.Datacenter
+	if region.Provider == constant.VSphere {
+		zoneVars := creation.CloudVars.(map[string]interface{})
+		if zoneVars["cluster"] != nil {
+			regionVars["cluster"] = zoneVars["cluster"]
+		}
+		if zoneVars["resourcePool"] != nil {
+			regionVars["resourcePool"] = zoneVars["resourcePool"]
+		}
+		if zoneVars["datastore"] != nil {
+			regionVars["datastore"] = zoneVars["datastore"]
+		}
+		if zoneVars["network"] != nil {
+			regionVars["network"] = zoneVars["network"]
+		}
+	}
+	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		err := cloudClient.UploadImage()
 		if err != nil {

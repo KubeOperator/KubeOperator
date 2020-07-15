@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
@@ -34,10 +33,6 @@ func NewOpenStackClient(vars map[string]interface{}) *openStackClient {
 	return &openStackClient{
 		Vars: vars,
 	}
-}
-
-func (v *openStackClient) ListZones() string {
-	return ""
 }
 
 func (v *openStackClient) ListDatacenter() ([]string, error) {
@@ -353,16 +348,13 @@ func (v *openStackClient) UploadImage() error {
 	}
 
 	if !exist {
-
 		imageId := uuid.NewV4().String()
-
 		create := images.Create(client, images.CreateOpts{
 			Name:            constant.OpenStackImageName,
 			DiskFormat:      constant.OpenStackImageDiskFormat,
 			ContainerFormat: "bare",
 			ID:              imageId,
 		})
-
 		if create.Err != nil {
 			return create.Err
 		}
@@ -373,8 +365,6 @@ func (v *openStackClient) UploadImage() error {
 		})
 		if result.Err != nil {
 			return result.Err
-		} else {
-			fmt.Println(result)
 		}
 	}
 

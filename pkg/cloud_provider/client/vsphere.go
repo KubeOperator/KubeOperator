@@ -103,7 +103,6 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 		result = append(result, clusterData)
 	}
 
-	v.UploadImage()
 	return result, nil
 }
 
@@ -273,11 +272,6 @@ func (v *vSphereClient) UploadImage() error {
 	}
 
 	f := find.NewFinder(client, true)
-
-	v.Vars["resourcePool"] = "Resources"
-	v.Vars["datastore"] = "vsanDatastore"
-	v.Vars["cluster"] = "vSAN-Cluster"
-	v.Vars["network"] = "VM Network"
 
 	resourcePoolPath := v.Vars["resourcePool"].(string)
 	if v.Vars["resourcePool"].(string) == "Resources" {

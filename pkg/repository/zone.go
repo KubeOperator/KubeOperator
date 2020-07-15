@@ -70,7 +70,7 @@ func (z zoneRepository) Save(zone *model.Zone) error {
 	if db.DB.NewRecord(zone) {
 		return db.DB.Create(&zone).Error
 	} else {
-		return db.DB.Model(model.Zone{}).Updates(&zone).Error
+		return db.DB.Model(&zone).Updates(&zone).Error
 	}
 }
 
