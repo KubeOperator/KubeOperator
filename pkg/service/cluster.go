@@ -36,6 +36,7 @@ func NewClusterService() ClusterService {
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		hostRepo:                   repository.NewHostRepository(),
 		clusterInitService:         NewClusterInitService(),
+		planRepo:                   repository.NewPlanRepository(),
 		clusterTerminalService:     NewCLusterTerminalService(),
 	}
 }

@@ -52,12 +52,11 @@ func (c clusterIaasService) Init(name string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(cloudHosts)
-	//k := kotf.NewTerraform(&kotf.Config{Cluster: name})
-	//err = doInit(k, plan.Plan, cloudHosts)
-	//if err != nil {
-	//	return err
-	//}
+	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
+	err = doInit(k, plan.Plan, cloudHosts)
+	if err != nil {
+		return err
+	}
 	nodes, err := c.createNodes(cluster.Cluster, hosts)
 	if err := c.nodeRepo.BatchSave(nodes); err != nil {
 		return err
@@ -99,20 +98,20 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 	if plan.DeployTemplate != constant.SINGLE {
 		masterAmount = 3
 	}
-	for i := 1; i < masterAmount; i++ {
+	for i := 0; i < masterAmount; i++ {
 		host := model.Host{
 			BaseModel: common.BaseModel{},
-			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i),
+			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i+1),
 			Port:      22,
 			Status:    constant.ClusterWaiting,
 			ClusterID: cluster.ID,
 		}
 		hosts = append(hosts, &host)
 	}
-	for i := 1; i < cluster.Spec.WorkerAmount; i++ {
+	for i := 0; i < cluster.Spec.WorkerAmount; i++ {
 		host := model.Host{
 			BaseModel: common.BaseModel{},
-			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i),
+			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i+1),
 			Port:      22,
 			Status:    constant.ClusterWaiting,
 			ClusterID: cluster.ID,
@@ -150,6 +149,9 @@ func parseVsphereHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []m
 	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
 	for k, v := range group {
 		for _, h := range v {
+			var zoneVars map[string]interface{}
+			_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
+			zoneVars["key"] = "key1"
 			role := getHostRole(h.Name)
 			hMap := map[string]interface{}{}
 			hMap["name"] = h.Name
@@ -157,7 +159,7 @@ func parseVsphereHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []m
 			hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
 			hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory
 			hMap["ip"] = h.Ip
-			hMap["zone"] = k.Vars
+			hMap["zone"] = zoneVars
 			results = append(results, hMap)
 		}
 	}
@@ -195,11 +197,16 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []map[string]interface{}) error
 	for _, zone := range plan.Zones {
 		zoneMap := map[string]interface{}{}
 		_ = json.Unmarshal([]byte(zone.Vars), &zoneMap)
+		zoneMap["key"] = "key1"
 		zonesVars = append(zonesVars, zoneMap)
 	}
-	zonesVarsStr, _ := json.Marshal(&zonesVars)
 	hostsStr, _ := json.Marshal(&hosts)
-	res, err := k.Init(plan.Region.Provider, plan.Region.Vars, string(zonesVarsStr), string(hostsStr))
+	cloudRegion := map[string]interface{}{
+		"datacenter": plan.Region.Datacenter,
+		"zones":      zonesVars,
+	}
+	cloudRegionStr, _ := json.Marshal(&cloudRegion)
+	res, err := k.Init(plan.Region.Provider, plan.Region.Vars, string(cloudRegionStr), string(hostsStr))
 	if err != nil {
 		return err
 	}
@@ -237,11 +244,13 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	if err != nil {
 		return err
 	}
+end:
 	for _, h := range hosts {
 		for i, _ := range ips {
 			if !exists(ips[i], pool) && !exists(ips[i], selectedIps) {
 				h.Ip = ips[i]
 				selectedIps = append(selectedIps, h.Ip)
+				continue end
 			}
 		}
 	}

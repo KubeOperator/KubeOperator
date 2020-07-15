@@ -25,7 +25,9 @@ func Init() {
 func TestClusterIaasService_Init(t *testing.T) {
 	Init()
 	s := NewClusterIaasService()
-	s.Init()
-
+	err := s.Init("bbb")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
