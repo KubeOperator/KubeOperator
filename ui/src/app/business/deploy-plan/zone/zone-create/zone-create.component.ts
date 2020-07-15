@@ -52,6 +52,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.item = new ZoneCreateRequest();
         this.opened = true;
         this.listRegions();
+        this.listCredentials();
+        this.item.cloudVars['templateType'] = 'default';
     }
 
     onCancel() {
@@ -100,19 +102,10 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     }
 
 
-
     changeNetwork() {
         this.cloudZone.networkList.forEach(network => {
             if (network.id === this.item.cloudVars['network']) {
                 this.subnetList = network.subnetList;
-            }
-        });
-    }
-
-    changeCredential() {
-        this.credentials.forEach(credential => {
-            if (credential.id === this.item.credentialId) {
-                this.item.cloudVars['templatePassword'] = credential.password;
             }
         });
     }
@@ -136,7 +129,6 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.zoneService.listTemplates(this.cloudZoneRequest).subscribe(res => {
             this.cloudTemplates = res.result;
             this.templateLoading = false;
-            this.listCredentials();
         }, error => {
             this.templateLoading = false;
         });

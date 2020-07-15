@@ -120,6 +120,23 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 			param["imageName"] = constant.VSphereImageName
 			break
 		}
+		credentialService := NewCredentialService()
+		credential, err := credentialService.Get(constant.ImageDefaultPassword)
+		if err != nil {
+			return dto.Zone{}, err
+		}
+		if credential.ID == "" {
+			credential, err = credentialService.Create(dto.CredentialCreate{
+				Name:     constant.ImageCredentialName,
+				Password: constant.ImageDefaultPassword,
+				Username: constant.ImageUserName,
+				Type:     constant.ImagePasswordType,
+			})
+			if err != nil {
+				return dto.Zone{}, err
+			}
+		}
+		creation.CredentialId = credential.ID
 	}
 
 	vars, _ := json.Marshal(creation.CloudVars)
