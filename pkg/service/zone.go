@@ -101,7 +101,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 	if param["networkCidr"] != nil {
 		index := strings.Index(param["networkCidr"].(string), "/")
 		networkCidr := param["networkCidr"].(string)
-		param["netmask"] = networkCidr[index+1:]
+		param["netMask"] = networkCidr[index+1:]
 	}
 
 	if param["templateType"] != nil && param["templateType"].(string) == "default" {
