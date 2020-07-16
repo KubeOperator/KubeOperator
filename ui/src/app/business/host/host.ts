@@ -1,5 +1,6 @@
 import {BaseModel, BaseRequest} from '../../shared/class/BaseModel';
 import {Credential} from '../setting/credential/credential';
+import {Cluster} from '../cluster/cluster';
 
 export class Host extends BaseModel {
 
@@ -17,6 +18,7 @@ export class Host extends BaseModel {
     status: string;
     volumes: Volume[];
     credential: Credential;
+    cluster: Cluster;
 }
 
 export class Volume extends BaseModel {
