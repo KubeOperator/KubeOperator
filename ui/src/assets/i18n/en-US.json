@@ -203,5 +203,9 @@
   "EnsurePostInit": "Config Cluster",
   "EnsureInitNetwork": "Init Network",
   "APP_NETWORK_CIDR——HELPER": "example 172.16.10.0/24",
-  "APP_IP_INVALID": "IP is not a valid IPV4 address!"
+  "APP_IP_INVALID": "IP is not a valid IPV4 address!",
+  "APP_SYSTEM": "System",
+  "APP_SYSTEM_IP": "System IP",
+  "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of Kubeoperator"
+
 }

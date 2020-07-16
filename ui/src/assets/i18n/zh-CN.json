@@ -206,5 +206,9 @@
   "EnsurePostInit": "配置集群",
   "EnsureInitNetwork": "初始化网络",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
-  "APP_IP_INVALID": "IP不是有效的IPV4地址!"
+  "APP_IP_INVALID": "IP不是有效的IPV4地址!",
+  "APP_SYSTEM": "系统",
+  "APP_SYSTEM_IP": "系统 IP",
+  "APP_SYSTEM_IP_HELPER": "必填,请填写 Kubeoperator 本机的IPV4地址"
+
 }
