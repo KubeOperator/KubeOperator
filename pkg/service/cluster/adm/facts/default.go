@@ -41,7 +41,10 @@ const (
 	CorednsImageFactName  = "coredns_image"
 	KubeadmTokenFactName  = "kubeadm_token"
 
-	CalicoIpv4poolIpIp = "calico_ipv4pool_ipip"
+	CalicoIpv4poolIpIpFactName = "calico_ipv4pool_ipip"
+	KubernetesAuditFactName    = "kubernetes_audit"
+
+	IngressControllerTypeFactName = "ingress_controller_type"
 )
 
 var DefaultFacts = map[string]string{
@@ -78,5 +81,7 @@ var DefaultFacts = map[string]string{
 	KubeCpuReservedFactName:              "100m",
 	KubeMemoryReservedFactName:           "256M",
 	KubeEphemeralStorageReservedFactName: "1G",
-	CalicoIpv4poolIpIp: "Always",
+	CalicoIpv4poolIpIpFactName:           "Always",
+	KubernetesAuditFactName:              "false",
+	IngressControllerTypeFactName:        "nginx",
 }

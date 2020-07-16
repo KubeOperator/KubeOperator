@@ -205,6 +205,7 @@
   "EnsureInitWorker": "初始化工作负载",
   "EnsurePostInit": "配置集群",
   "EnsureInitNetwork": "初始化网络",
+  "EnsureInitIngressController": "初始化服务暴露组件",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
   "APP_IP_INVALID": "IP不是有效的IPV4地址!"
 }

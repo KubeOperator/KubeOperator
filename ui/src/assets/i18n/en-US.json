@@ -202,6 +202,7 @@
   "EnsureInitWorker": "Init Worker",
   "EnsurePostInit": "Config Cluster",
   "EnsureInitNetwork": "Init Network",
+  "EnsureInitIngressController": "Init Ingress",
   "APP_NETWORK_CIDR——HELPER": "example 172.16.10.0/24",
   "APP_IP_INVALID": "IP is not a valid IPV4 address!"
 }

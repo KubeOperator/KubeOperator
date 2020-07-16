@@ -81,12 +81,11 @@ func (c clusterRepository) Save(cluster *model.Cluster) error {
 
 func (c clusterRepository) Delete(name string) error {
 	var cluster model.Cluster
-	if err := db.DB.Where(model.Cluster{Name: name}).
-		First(&cluster).
-		Delete(model.Cluster{}).Error; err != nil {
+	if err := db.DB.Where(model.Cluster{Name: name}).First(&cluster).Error; err != nil {
+		return err
+	}
+	if err := db.DB.Delete(&cluster).Error; err != nil {
 		return err
 	}
 	return nil
 }
-
-

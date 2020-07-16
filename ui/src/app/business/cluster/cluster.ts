@@ -34,6 +34,7 @@ export class ClusterCreateRequest extends BaseModel {
     name: string;
     version: string;
     provider: string;
+    architectures: string;
     networkType: string;
     runtimeType: string;
     dockerStorageDir: string;
@@ -42,6 +43,11 @@ export class ClusterCreateRequest extends BaseModel {
     calicoIpv4poolIpip: string;
     kubePodSubnet: string;
     kubeServiceSubnet: string;
+    kubeProxyMode: string;
+    kubeMaxPod: number;
+    certsExpired: number;
+    kubernetesAudit: boolean;
+    ingressControllerType: string;
     plan: string;
     nodes: CreateNodeRequest[] = [];
     workerAmount: number;

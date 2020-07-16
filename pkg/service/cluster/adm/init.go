@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/ingress"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"reflect"
 	"runtime"
@@ -140,6 +141,11 @@ func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
 }
 func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 	phase := initial.NetworkPhase{}
+	return phase.Run(c.Kobe)
+}
+
+func (ca *ClusterAdm) EnsureInitIngressController(c *Cluster) error {
+	phase := ingress.ControllerPhase{}
 	return phase.Run(c.Kobe)
 }
 

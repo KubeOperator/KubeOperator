@@ -71,7 +71,6 @@ export class NodeCreateComponent implements OnInit {
         this.fullNodes();
         this.isSubmitGoing = true;
         this.item.operation = 'create';
-        console.log(this.item);
         this.nodeService.batch(this.currentCluster.name, this.item).subscribe(data => {
             this.created.emit();
             this.isSubmitGoing = false;

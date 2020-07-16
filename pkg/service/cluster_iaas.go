@@ -47,7 +47,7 @@ func (c clusterIaasService) Init(name string) error {
 	if err != nil {
 		return err
 	}
-	hosts, cloudHosts, err := c.createHosts(cluster, plan)
+	hosts, err := c.createHosts(cluster, plan)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (c clusterIaasService) Init(name string) error {
 		return err
 	}
 	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
-	err = doInit(k, plan, cloudHosts)
+	err = doInit(k, plan, hosts)
 	if err != nil {
 		var hs []model.Host
 		for _, host := range hosts {
@@ -100,7 +100,7 @@ func (c clusterIaasService) createNodes(cluster model.Cluster, hosts []*model.Ho
 	return nodes, nil
 }
 
-func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) ([]*model.Host, []map[string]interface{}, error) {
+func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) ([]*model.Host, error) {
 	var hosts []*model.Host
 	masterAmount := 1
 	if plan.DeployTemplate != constant.SINGLE {
@@ -135,62 +135,10 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		cloudClient := client.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, selectedIps)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
-	return hosts, parseHosts(group, plan), nil
-}
-
-func parseHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []map[string]interface{} {
-	switch plan.Region.Provider {
-	case constant.VSphere:
-		return parseVsphereHosts(group, plan)
-	case constant.OpenStack:
-		return parseOpenstackHosts(group, plan)
-	}
-	return []map[string]interface{}{}
-}
-
-func parseVsphereHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []map[string]interface{} {
-	var results []map[string]interface{}
-	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
-	for k, v := range group {
-		for _, h := range v {
-			var zoneVars map[string]interface{}
-			_ = json.Unmarshal([]byte(k.Vars), &zoneVars)
-			zoneVars["key"] = formatZoneName(k.Name)
-			role := getHostRole(h.Name)
-			hMap := map[string]interface{}{}
-			hMap["name"] = h.Name
-			hMap["shortName"] = h.Name
-			hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
-			hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
-			hMap["ip"] = h.Ip
-			hMap["zone"] = zoneVars
-			results = append(results, hMap)
-		}
-	}
-	return results
-}
-
-func parseOpenstackHosts(group map[*model.Zone][]*model.Host, plan model.Plan) []map[string]interface{} {
-	var results []map[string]interface{}
-	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
-	for k, v := range group {
-		for _, h := range v {
-			role := getHostRole(h.Name)
-			hMap := map[string]interface{}{}
-			hMap["name"] = h.Name
-			hMap["shortName"] = h.Name
-			hMap["ip"] = h.Ip
-			hMap["model"] = planVars[fmt.Sprintf("%sModel", role)]
-			hMap["zone"] = k.Vars
-			results = append(results, hMap)
-		}
-	}
-	return results
+	return hosts, nil
 }
 
 func getHostRole(name string) string {
@@ -200,7 +148,7 @@ func getHostRole(name string) string {
 	return constant.NodeRoleNameWorker
 }
 
-func doInit(k *kotf.Kotf, plan model.Plan, hosts []map[string]interface{}) error {
+func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 	var zonesVars []map[string]interface{}
 	for _, zone := range plan.Zones {
 		zoneMap := map[string]interface{}{}
@@ -208,7 +156,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []map[string]interface{}) error
 		zoneMap["key"] = formatZoneName(zone.Name)
 		zonesVars = append(zonesVars, zoneMap)
 	}
-	hostsStr, _ := json.Marshal(&hosts)
+	hostsStr, _ := json.Marshal(parseHosts(hosts, plan))
 	cloudRegion := map[string]interface{}{
 		"datacenter": plan.Region.Datacenter,
 		"zones":      zonesVars,
@@ -222,6 +170,53 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []map[string]interface{}) error
 		return errors.New(res.GetMsg())
 	}
 	return doApply(k)
+}
+
+func parseHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
+	switch plan.Region.Provider {
+	case constant.VSphere:
+		return parseVsphereHosts(hosts, plan)
+	case constant.OpenStack:
+		return parseOpenstackHosts(hosts, plan)
+	}
+	return []map[string]interface{}{}
+}
+
+func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
+	var results []map[string]interface{}
+	planVars := map[string]string{}
+	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
+	for _, h := range hosts {
+		var zoneVars map[string]interface{}
+		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
+		zoneVars["key"] = formatZoneName(h.Zone.Name)
+		role := getHostRole(h.Name)
+		hMap := map[string]interface{}{}
+		hMap["name"] = h.Name
+		hMap["shortName"] = h.Name
+		hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
+		hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
+		hMap["ip"] = h.Ip
+		hMap["zone"] = zoneVars
+		results = append(results, hMap)
+	}
+	return results
+}
+
+func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
+	var results []map[string]interface{}
+	planVars := map[string]string{}
+	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
+	for _, h := range hosts {
+		role := getHostRole(h.Name)
+		hMap := map[string]interface{}{}
+		hMap["name"] = h.Name
+		hMap["shortName"] = h.Name
+		hMap["ip"] = h.Ip
+		hMap["model"] = planVars[fmt.Sprintf("%sModel", role)]
+		results = append(results, hMap)
+	}
+	return results
 }
 
 func doApply(k *kotf.Kotf) error {
@@ -241,6 +236,8 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 		hash := i % len(zones)
 		groupMap[&zones[hash]] = append(groupMap[&zones[hash]], hosts[i])
 		hosts[i].CredentialID = zones[hash].CredentialID
+		hosts[i].ZoneID = zones[hash].ID
+		hosts[i].Zone = zones[hash]
 	}
 	return groupMap
 }
