@@ -24,11 +24,12 @@ import {DeployPlanComponent} from './business/deploy-plan/deploy-plan.component'
 import {ZoneComponent} from './business/deploy-plan/zone/zone.component';
 import {PlanComponent} from './business/deploy-plan/plan/plan.component';
 import {StorageProvisionerComponent} from './business/cluster/cluster-detail/storage/storage-provisioner/storage-provisioner.component';
-import {RepositoryComponent} from "./business/cluster/cluster-detail/repository/repository.component";
-import {ChartmuseumComponent} from "./business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component";
-import {RegistryComponent} from "./business/cluster/cluster-detail/repository/registry/registry.component";
-import {ToolsComponent} from "./business/cluster/cluster-detail/tools/tools.component";
-import {DashboardComponent} from "./business/cluster/cluster-detail/dashboard/dashboard.component";
+import {RepositoryComponent} from './business/cluster/cluster-detail/repository/repository.component';
+import {ChartmuseumComponent} from './business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component';
+import {RegistryComponent} from './business/cluster/cluster-detail/repository/registry/registry.component';
+import {ToolsComponent} from './business/cluster/cluster-detail/tools/tools.component';
+import {DashboardComponent} from './business/cluster/cluster-detail/dashboard/dashboard.component';
+import {SystemComponent} from './business/setting/system/system.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -86,7 +87,9 @@ const routes: Routes = [
                 path: 'setting',
                 component: SettingComponent,
                 children: [
-                    {path: 'credential', component: CredentialComponent}
+                    {path: '', redirectTo: 'system', pathMatch: 'full'},
+                    {path: 'system', component: SystemComponent},
+                    {path: 'credential', component: CredentialComponent},
                 ]
             },
             {

@@ -54,6 +54,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 	return origData, nil
 }
 
+//加密
 func StringEncrypt(text string) (string, error) {
 	pass := []byte(text)
 	xpass, err := AesEncrypt(pass, key)
@@ -64,6 +65,7 @@ func StringEncrypt(text string) (string, error) {
 	return "", err
 }
 
+//解密
 func StringDecrypt(text string) (string, error) {
 	bytesPass, err := base64.StdEncoding.DecodeString(text)
 

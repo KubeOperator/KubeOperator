@@ -47,7 +47,7 @@ func (h hostRepository) Get(name string) (model.Host, error) {
 
 func (h hostRepository) List() ([]model.Host, error) {
 	var hosts []model.Host
-	err := db.DB.Model(model.Host{}).Preload("Volumes").Find(&hosts).Error
+	err := db.DB.Model(model.Host{}).Preload("Volumes").Preload("Cluster").Find(&hosts).Error
 	return hosts, err
 }
 
@@ -57,6 +57,7 @@ func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 	err := db.DB.Model(model.Host{}).
 		Count(&total).
 		Preload("Volumes").
+		Preload("Cluster").
 		Find(&hosts).
 		Offset((num - 1) * size).
 		Limit(size).

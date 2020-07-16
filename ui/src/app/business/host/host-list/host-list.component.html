@@ -24,7 +24,7 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a (click)="onStatusDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
-        <clr-dg-cell>{{item.name}}</clr-dg-cell>
+        <clr-dg-cell>{{item.cluster.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.ip}}</clr-dg-cell>
         <clr-dg-cell>{{item.cpuCore}}</clr-dg-cell>
         <clr-dg-cell>{{item.memory}}</clr-dg-cell>
@@ -37,7 +37,7 @@
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                            (clrDgPageChange)="refresh()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_CREDENTIAL"|translate}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_HOST"|translate}}
         </clr-dg-pagination>
     </clr-dg-footer>
 </clr-datagrid>
