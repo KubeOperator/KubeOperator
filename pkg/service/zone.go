@@ -10,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 	"strings"
 )
 
@@ -121,18 +122,19 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 			break
 		}
 		credentialService := NewCredentialService()
-		credential, err := credentialService.Get(constant.ImageDefaultPassword)
+		credential, err := credentialService.Get(constant.ImageCredentialName)
 		if err != nil {
-			return dto.Zone{}, err
-		}
-		if credential.ID == "" {
-			credential, err = credentialService.Create(dto.CredentialCreate{
-				Name:     constant.ImageCredentialName,
-				Password: constant.ImageDefaultPassword,
-				Username: constant.ImageUserName,
-				Type:     constant.ImagePasswordType,
-			})
-			if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				credential, err = credentialService.Create(dto.CredentialCreate{
+					Name:     constant.ImageCredentialName,
+					Password: constant.ImageDefaultPassword,
+					Username: constant.ImageUserName,
+					Type:     constant.ImagePasswordType,
+				})
+				if err != nil {
+					return dto.Zone{}, err
+				}
+			} else {
 				return dto.Zone{}, err
 			}
 		}

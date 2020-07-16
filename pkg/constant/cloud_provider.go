@@ -10,7 +10,7 @@ const (
 	VSphereImageVMDkPath     = "/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk"
 	VSphereImageOvfPath      = "/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf"
 	VSphereFolder            = "kubeoperator"
-	ImageDefaultPassword     = "kubeoperator@admin123"
+	ImageDefaultPassword     = "KubeOperator@2019"
 	ImageCredentialName      = "kubeoperator"
 	ImageUserName            = "root"
 	ImagePasswordType        = "password"
