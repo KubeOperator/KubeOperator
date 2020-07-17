@@ -27,6 +27,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     regionName: string;
     @Output() created = new EventEmitter();
     @ViewChild('basicForm', {static: true}) basicForm: NgForm;
+    @ViewChild('planForm', {static: true}) planForm: NgForm;
     @ViewChild('wizard') wizard: ClrWizard;
 
 
@@ -40,9 +41,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     }
 
     open() {
-        this.wizard.reset();
         this.opened = true;
-        this.item = new PlanCreateRequest();
         this.regionService.list().subscribe(res => {
             this.regions = res.items;
         }, error => {
@@ -53,6 +52,10 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     onCancel() {
         this.opened = false;
         this.created.emit();
+        this.wizard.reset();
+        this.item = new PlanCreateRequest();
+        this.basicForm.resetForm(this.item);
+        this.planForm.resetForm(this.item);
     }
 
     onSubmit() {

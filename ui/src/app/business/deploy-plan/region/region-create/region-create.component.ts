@@ -62,6 +62,9 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
         this.item = new RegionCreateRequest();
         this.isParamsValid = undefined;
         this.isParamsCheckGoing = false;
+        this.paramsForm.resetForm(this.item);
+        this.regionForm.resetForm(this.item);
+        this.dtFrom.resetForm(this.item);
     }
 
     doFinish(): void {

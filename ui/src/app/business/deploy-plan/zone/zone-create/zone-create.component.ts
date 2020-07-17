@@ -12,6 +12,7 @@ import {CommonAlertService} from '../../../../layout/common-alert/common-alert.s
 import * as ipaddr from 'ipaddr.js';
 import {CredentialService} from '../../../setting/credential/credential.service';
 import {Credential} from '../../../setting/credential/credential';
+import {NgForm} from '@angular/forms';
 
 
 @Component({
@@ -37,6 +38,9 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
+    @ViewChild('basicForm', {static: true}) basicForm: NgForm;
+    @ViewChild('paramsForm', {static: true}) paramsForm: NgForm;
+
 
     constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
                 private translateService: TranslateService, private commonAlertService: CommonAlertService,
@@ -64,6 +68,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     resetWizard(): void {
         this.wizard.reset();
         this.item = new ZoneCreateRequest();
+        this.basicForm.resetForm(this.item);
+        this.paramsForm.resetForm(this.item);
     }
 
     doFinish(): void {
