@@ -43,7 +43,7 @@ The following image is the whole architecture of KubeOperator:
 
 <table class=”subscription-level-table”>
     <tr class=”subscription-level-tr-border”>
-        <td class=”features-first-td-background-style” rowspan=”15”>Day 0 Planning
+        <td class=”features-first-td-background-style” rowspan=”15”>Day 0 Planning</td>
         </td>
         <td class=”features-third-td-background-style” rowspan=”2”>Cluster Model
         </td>
