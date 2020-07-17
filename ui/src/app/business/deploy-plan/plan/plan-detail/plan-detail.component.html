@@ -6,7 +6,7 @@
             <ul class="list-unstyled">
                 <li><b style="margin-right: 16px">{{'APP_NAME'|translate}}:</b>{{item.name}}</li>
                 <li><b style="margin-right: 16px">{{'APP_REGION'|translate}}:</b>
-                    <span *ngFor="let region of item.regions">{{region.name}},</span>
+                    {{item.region.name}}
                 </li>
                 <li><b style="margin-right: 16px">{{'APP_ZONE'|translate}}:</b>
                     <span *ngFor="let zone of item.zones">{{zone.name}},</span>

@@ -8,7 +8,7 @@ export class Plan extends BaseModel {
     deployTemplate: string;
     vars: string;
     regionId: string;
-    regions: Region[] = [];
+    region: Region = new Region();
     zones: Zone[] = [];
     planVars: {} = {};
 }
