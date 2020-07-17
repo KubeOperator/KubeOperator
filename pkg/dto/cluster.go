@@ -35,20 +35,25 @@ type NodeCreate struct {
 }
 
 type ClusterCreate struct {
-	Name                 string       `json:"name" binding:"required"`
-	Version              string       `json:"version" binding:"required"`
-	Provider             string       `json:"provider"`
-	Plan                 string       `json:"plan"`
-	WorkerAmount         int          `json:"workerAmount"`
-	NetworkType          string       `json:"networkType"`
-	RuntimeType          string       `json:"runtimeType"`
-	DockerStorageDIr     string       `json:"dockerStorageDIr"`
-	ContainerdStorageDIr string       `json:"containerdStorageDIr"`
-	FlannelBackend       string       `json:"flannelBackend"`
-	CalicoIpv4poolIpip   string       `json:"calicoIpv4PoolIpip"`
-	KubePodSubnet        string       `json:"kubePodSubnet"`
-	KubeServiceSubnet    string       `json:"kubeServiceSubnet"`
-	Nodes                []NodeCreate `json:"nodes"`
+	Name                  string       `json:"name" binding:"required"`
+	Version               string       `json:"version" binding:"required"`
+	Provider              string       `json:"provider"`
+	Plan                  string       `json:"plan"`
+	WorkerAmount          int          `json:"workerAmount"`
+	NetworkType           string       `json:"networkType"`
+	RuntimeType           string       `json:"runtimeType"`
+	DockerStorageDIr      string       `json:"dockerStorageDIr"`
+	ContainerdStorageDIr  string       `json:"containerdStorageDIr"`
+	FlannelBackend        string       `json:"flannelBackend"`
+	CalicoIpv4poolIpip    string       `json:"calicoIpv4PoolIpip"`
+	KubePodSubnet         string       `json:"kubePodSubnet"`
+	KubeServiceSubnet     string       `json:"kubeServiceSubnet"`
+	KubeMaxPods           int          `json:"kubeMaxPods"`
+	KubeProxyMode         string       `json:"kubeProxyMode"`
+	IngressControllerType string       `json:"ingressControllerType"`
+	Architectures         string       `json:"architectures"`
+	KubernetesAudit       bool         `json:"kubernetes_audit"`
+	Nodes                 []NodeCreate `json:"nodes"`
 }
 
 type ClusterBatch struct {

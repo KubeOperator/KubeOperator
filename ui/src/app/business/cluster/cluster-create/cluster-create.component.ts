@@ -23,11 +23,11 @@ export class ClusterCreateComponent implements OnInit {
     hosts: any[] = [];
     masters: any[] = [];
     workers: any[] = [];
-
     plans: Plan[] = [];
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
-    @ViewChild('clusterForm') clusterForm: NgForm;
+    @ViewChild('basicForm') basicForm: NgForm;
+    @ViewChild('seniorForm') seniorForm: NgForm;
     @Output() created = new EventEmitter();
 
     constructor(private service: ClusterService, private hostService: HostService, private planService: PlanService) {
@@ -37,12 +37,30 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     reset() {
-        this.clusterForm.resetForm();
+        this.wizard.reset();
+        this.seniorForm.reset();
+        this.basicForm.reset();
         this.hosts = [];
         this.masters = [];
         this.workers = [];
-        this.wizard.reset();
-        this.item = new ClusterCreateRequest();
+    }
+
+    setDefaultValue() {
+        this.item.architectures = 'amd64';
+        this.item.provider = 'bareMetal';
+        this.item.networkType = 'flannel';
+        this.item.runtimeType = 'docker';
+        this.item.dockerStorageDir = '/var/lib/docker';
+        this.item.containerdStorageDir = '/var/lib/containerd';
+        this.item.flannelBackend = 'vxlan';
+        this.item.calicoIpv4poolIpip = 'Always';
+        this.item.kubePodSubnet = '10.244.0.0/18';
+        this.item.kubeServiceSubnet = '10.244.64.0/18';
+        this.item.kubeMaxPod = 110;
+        this.item.certsExpired = 36500;
+        this.item.kubernetesAudit = false;
+        this.item.kubeProxyMode = 'iptables';
+        this.item.ingressControllerType = 'nginx';
     }
 
     open() {
@@ -50,10 +68,12 @@ export class ClusterCreateComponent implements OnInit {
         this.loadHosts();
         this.loadPlan();
         this.opened = true;
+        this.setDefaultValue();
     }
 
     onCancel() {
         this.opened = false;
+        this.reset();
     }
 
 

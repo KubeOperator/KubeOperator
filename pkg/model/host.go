@@ -29,6 +29,8 @@ type Host struct {
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`
 	Status       string     `json:"status" gorm:"type:varchar(64)"`
 	ClusterID    string     `json:"clusterId" gorm:"type:varchar(64)"`
+	ZoneID       string     `json:"zoneId"`
+	Zone         Zone       `gorm:"save_associations:false" json:"_"`
 	Volumes      []Volume   `gorm:"save_associations:false" json:"volumes"`
 	Credential   Credential `gorm:"save_associations:false" json:"credential"`
 	Cluster      Cluster    `gorm:"save_associations:false" json:"cluster"`

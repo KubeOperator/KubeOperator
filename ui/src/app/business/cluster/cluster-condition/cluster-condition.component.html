@@ -4,7 +4,6 @@
 
         <ul class="clr-timeline clr-timeline-vertical">
             <li class="clr-timeline-step" *ngFor="let condition of item.conditions" [ngSwitch]="condition.status">
-                <div class="clr-timeline-step-header">11:59 am</div>
                 <clr-icon shape="success-standard" aria-label="Completed" *ngSwitchCase="'True'"></clr-icon>
                 <clr-icon shape="error-standard" aria-label="Error" *ngSwitchCase="'False'"></clr-icon>
                 <clr-spinner clrMedium aria-label="In progress"

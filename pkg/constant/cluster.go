@@ -22,7 +22,7 @@ const (
 	NodeRoleNameWorker = "worker"
 
 	ClusterProviderBareMetal = "bareMetal"
-	ClusterProviderVSphere   = "vSphere"
+	ClusterProviderPlan      = "plan"
 
 	ToolRunning      = "Running"
 	ToolInitializing = "Initializing"

@@ -7,9 +7,9 @@
     <clr-wizard-button [type]="'next'">{{"APP_NEXT"|translate}}</clr-wizard-button>
     <clr-wizard-button [type]="'finish'">{{"APP_FINISH"|translate}}</clr-wizard-button>
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="clusterForm.invalid">
+    <clr-wizard-page [clrWizardPageNextDisabled]="basicForm.invalid">
         <ng-template clrPageTitle>{{"APP_CLUSTER_INFO"|translate}}</ng-template>
-        <form clrForm #clusterForm='ngForm'>
+        <form clrForm #basicForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
@@ -28,17 +28,33 @@
                 <label>{{"APP_VERSION"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.version" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option>v1.18.0</option>
-                    <option>v1.18.2</option>
+                    <option value="v1.18.0">v1.18.0</option>
+                    <option value="v1.18.3">v1.18.2</option>
                 </select>
             </clr-select-container>
 
             <clr-select-container>
+                <label>架构</label>
+                <select clrSelect name="version" [(ngModel)]="item.architectures" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="arm64">ARM64</option>
+                    <option value="amd64">AMD64</option>
+                </select>
+            </clr-select-container>
+
+        </form>
+    </clr-wizard-page>
+
+    <clr-wizard-page [clrWizardPageNextDisabled]="seniorForm.invalid">
+        <ng-template clrPageTitle>高级选项</ng-template>
+
+        <form clrForm #seniorForm='ngForm'>
+            <clr-select-container>
                 <label>{{"APP_CONTAINER_RUNTIME_TYPE"|translate}}</label>
                 <select clrSelect name="runtime" [(ngModel)]="item.runtimeType" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="docker">Docker</option>
-                    <option value="containerd">Containerd</option>
+                    <option value="docker">docker</option>
+                    <option value="containerd">containerd</option>
                 </select>
             </clr-select-container>
 
@@ -62,7 +78,7 @@
 
             <clr-select-container *ngIf="item.networkType === 'flannel'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="flannel_backend">
+                <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="host-gw">host-gw</option>
                     <option value="vxlan">vxlan</option>
@@ -71,24 +87,55 @@
 
             <clr-select-container *ngIf="item.networkType === 'calico'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
-                <select clrSelect name="calico_ipv4pool_ipip">
+                <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="Always">Always</option>
+                    <option value="Always">always</option>
                     <option value="off">off</option>
                 </select>
             </clr-select-container>
             <clr-input-container>
-                <label>Service {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="service_subnet"/>
+                <label>Pod {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="pod_subnet" [(ngModel)]="item.kubePodSubnet"/>
             </clr-input-container>
 
             <clr-input-container>
-                <label>Pod {{"APP_SUBNET"|translate}}</label>
-                <input clrInput size="34" name="service_subnet"/>
+                <label>Service {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
             </clr-input-container>
 
+
+            <clr-input-container>
+                <label>最大POD数量</label>
+                <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPod">
+            </clr-input-container>
+
+            <clr-select-container>
+                <label>kube-proxy 模式</label>
+                <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="iptables">Iptables</option>
+                    <option value="ipvs">ipvs</option>
+                </select>
+            </clr-select-container>
+
+            <clr-select-container>
+                <label>ingress 类型</label>
+                <select clrSelect name="ingress_controller_type" [(ngModel)]="item.ingressControllerType">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="nginx">nginx</option>
+                    <option value="traefik">traefik</option>
+                </select>
+            </clr-select-container>
+            <clr-toggle-container>
+                <label>Kubernetes 审计</label>
+                <clr-toggle-wrapper>
+                    <input type="checkbox" clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit"/>
+                </clr-toggle-wrapper>
+            </clr-toggle-container>
         </form>
     </clr-wizard-page>
+
+
     <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
                      (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>

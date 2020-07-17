@@ -73,38 +73,33 @@ func (c *Cluster) BeforeCreate() error {
 
 func (c Cluster) BeforeDelete() error {
 	var cluster Cluster
+	cluster.ID = c.ID
 	if err := db.DB.
-		First(&Cluster{ID: c.ID}).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
-		Find(&cluster).Error; err != nil {
+		First(&cluster).Error; err != nil {
 		return err
 	}
 	tx := db.DB.Begin()
 	if cluster.SpecID != "" {
-		if err := tx.Where(ClusterSpec{ID: cluster.SpecID}).
-			Delete(ClusterSpec{}).Error; err != nil {
+		if err := db.DB.Delete(ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	if cluster.StatusID != "" {
-		if err := tx.Where(ClusterStatus{ID: cluster.StatusID}).
-			Delete(ClusterStatus{}).Error; err != nil {
+		if err := tx.Delete(ClusterStatus{ID: cluster.StatusID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
-
 	if cluster.SecretID != "" {
-		if err := tx.Where(ClusterSecret{ID: cluster.SecretID}).
-			Delete(ClusterSecret{}).Error; err != nil {
+		if err := db.DB.Delete(ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
-
 	if len(cluster.Nodes) > 0 {
 		for _, node := range cluster.Nodes {
 			if err := tx.Where(ClusterNode{ID: node.ID}).
