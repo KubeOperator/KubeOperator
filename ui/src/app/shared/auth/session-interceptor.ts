@@ -17,7 +17,11 @@ export class SessionInterceptor implements HttpInterceptor {
             if (profile !== null) {
                 token = JSON.parse(profile).token;
             }
-            const clonedRequest = req.clone({headers: req.headers.set('Authorization', 'bearer ' + token)});
+            const currentLanguage = localStorage.getItem('currentLanguage');
+            const clonedRequest = req.clone({
+                headers: req.headers.set('Authorization', 'bearer ' + token),
+                params: req.params.set('l', currentLanguage)
+            });
             return next.handle(clonedRequest);
         }
         return next.handle(req);

@@ -16,6 +16,17 @@ func Server() *iris.Application {
 		fmt.Println(err.Error())
 	}
 	app.I18n.SetDefault("zh-CN")
+	app.I18n.URLParameter = "l"
+	app.I18n.ExtractFunc = func(ctx iris.Context) string {
+		language := ctx.URLParam("l")
+		switch language {
+		case "zh-CN":
+			return "zh-CN"
+		case "en-US":
+			return "en-US"
+		}
+		return ""
+	}
 	app.Post("/api/auth/login", middleware.LoginHandler)
 	app.Get("/api/auth/profile", middleware.JWTMiddleware().Serve, middleware.GetAuthUser)
 	proxy.RegisterProxy(app)
