@@ -31,7 +31,7 @@ func (c clusterNodeRepository) Get(clusterName string, name string) (model.Clust
 		return node, err
 	}
 	if err := db.DB.
-		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Where(model.ClusterNode{ClusterID: cluster.ID, Name: name}).
 		First(&node).Error; err != nil {
 		return node, err
 	}
