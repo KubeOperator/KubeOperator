@@ -1,19 +1,31 @@
-app:
-  secret: fLgapPkmCaDxkJvC
-  session:
-    max: 999
 bind:
   host: 0.0.0.0
   port: 8080
-db:
-  host: 127.0.0.1
-  port: 3307
-  user: root
-  password: 123456
-  name: ko
-redis:
-  host: 127.0.0.1
-  port: 6379
-  db: 0
 logging:
-  level: debug
+  level: info
+db:
+  host: mysql
+  port: 3306
+  user: root
+  password: KubeOperator@admin123
+  name: ko
+jwt:
+  secret: iXDgDaEYBzIzustW
+  exp: 480
+helm:
+  repo:
+    name: nexus
+    url: http://nexus:8081/repository/helm
+    username: admin
+    password: admin123
+kobe:
+  host: kobe
+  port: 8080
+kotf:
+  host: kotf
+  port: 8080
+grafana:
+  host: grafana
+  port: 3000
+  username: admin
+  password: admin

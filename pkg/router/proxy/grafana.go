@@ -2,8 +2,10 @@ package proxy
 
 import (
 	"crypto/tls"
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
+	"github.com/spf13/viper"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -11,7 +13,8 @@ import (
 
 func GrafanaProxy(ctx context.Context) {
 	proxyPath := ctx.Params().Get("p")
-	u, err := url.Parse("http://localhost:3000")
+	grafanaUrl := fmt.Sprintf("http://%s:%d", viper.GetString("grafana.host"), viper.GetInt("grafana.port"))
+	u, err := url.Parse(grafanaUrl)
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return

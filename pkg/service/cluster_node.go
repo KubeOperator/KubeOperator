@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -16,6 +17,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sync"
 )
 
 type ClusterNodeService interface {
@@ -59,7 +61,6 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
 		Host:  endpoint.Address,
 		Token: secret.KubernetesToken,
@@ -68,7 +69,6 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	kubeNodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -105,21 +105,68 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 	if err != nil {
 		return nil, err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
-		for _, nodeName := range item.Nodes {
-			n, err := c.NodeRepo.Get(clusterName, nodeName)
-			nodes = append(nodes, dto.Node{ClusterNode: n})
-			if err != nil {
-				return nil, err
-			}
-			if n.Status == constant.ClusterRunning {
-				go c.doDelete(n, clusterName)
-			} else {
-				_ = c.NodeRepo.Delete(n.ID)
-			}
+	cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
+	if err != nil {
+		return nil, err
+	}
+	var needDeleteNodes []*model.ClusterNode
+	for _, nodeName := range item.Nodes {
+		n, err := c.NodeRepo.Get(clusterName, nodeName)
+		nodes = append(nodes, dto.Node{ClusterNode: n})
+		if err != nil {
+			return nil, err
 		}
+		if n.Status == constant.ClusterRunning {
+			needDeleteNodes = append(needDeleteNodes, &n)
+		} else {
+			_ = c.NodeRepo.Delete(n.ID)
+		}
+		go c.doDelete(&cluster.Cluster, needDeleteNodes)
+
 	}
 	return nodes, nil
+}
+
+func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.ClusterNode) {
+	wg := sync.WaitGroup{}
+	for i := range nodes {
+		wg.Add(1)
+		go c.doSingleDelete(&wg, cluster, *nodes[i])
+	}
+	wg.Wait()
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		err := c.destroyHosts(cluster, nodes)
+		if err != nil {
+			log.Debug(err)
+		}
+	}
+	for i := range nodes {
+		if cluster.Spec.Provider == constant.ClusterProviderPlan {
+			nodes[i].Host.ClusterID = ""
+			_ = c.HostRepo.Save(&nodes[i].Host)
+		}
+		if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+			db.DB.Delete(model.Host{ID: nodes[i].HostID})
+		}
+		_ = c.NodeRepo.Delete(nodes[i].ID)
+	}
+}
+
+func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, nodes []*model.ClusterNode) error {
+	var aliveHosts []*model.Host
+	for i := range cluster.Nodes {
+		flag := false
+		for k := range nodes {
+			if cluster.Nodes[i].Name == nodes[k].Name {
+				flag = true
+			}
+		}
+		if !flag {
+			aliveHosts = append(aliveHosts, &cluster.Nodes[i].Host)
+		}
+	}
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	return doInit(k, cluster.Plan, aliveHosts)
 }
 
 func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) ([]dto.Node, error) {
@@ -131,7 +178,6 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 	if err != nil {
 		return nil, err
 	}
-	ch := make(chan int)
 	var mNodes []*model.ClusterNode
 	switch cluster.Spec.Provider {
 	case constant.ClusterProviderBareMetal:
@@ -144,19 +190,43 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 		if err != nil {
 			return nil, err
 		}
+	}
+	go c.doCreate(&cluster.Cluster, mNodes)
+	var nodes []dto.Node
+	for _, n := range mNodes {
+		nodes = append(nodes, dto.Node{ClusterNode: *n})
+	}
+	return nodes, nil
+}
+
+func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		nodes, _ := c.NodeRepo.List(cluster.Name)
 		var hosts []*model.Host
 		for i, _ := range nodes {
 			hosts = append(hosts, &nodes[i].Host)
 		}
-		c.doCreateHosts(ch, cluster.Cluster, hosts)
+		err := c.doCreateHosts(cluster, hosts)
+		if err != nil {
+			for i := range hosts {
+				db.DB.Delete(hosts[i])
+			}
+			for i := range nodes {
+				nodes[i].Status = constant.ClusterFailed
+				nodes[i].Message = err.Error()
+				db.DB.Save(nodes[i])
+			}
+			return
+		}
+		for i := range hosts {
+			hosts[i].Status = constant.ClusterRunning
+			_ = c.HostRepo.Save(hosts[i])
+		}
+
 	}
-	var nodes []dto.Node
-	for _, n := range mNodes {
-		c.doCreate(ch, *n, cluster.Cluster)
-		nodes = append(nodes, dto.Node{ClusterNode: *n})
+	for _, n := range nodes {
+		go c.doSingleNodeCreate(cluster, *n)
 	}
-	return nodes, nil
 }
 
 func (c clusterNodeService) doBareMetalCreateNodes(cluster model.Cluster, item dto.NodeBatch) ([]*model.ClusterNode, error) {
@@ -206,8 +276,9 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 			}
 		}
 		newHosts = append(newHosts, &model.Host{
-			Name: name,
-			Port: 22,
+			Name:   name,
+			Port:   22,
+			Status: constant.ClusterCreating,
 		})
 	}
 	group := allocateZone(cluster.Plan.Zones, newHosts)
@@ -226,9 +297,9 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 	return newHosts, nil
 }
 
-func (c clusterNodeService) doCreateHosts(ch chan int, cluster model.Cluster, hosts []*model.Host) {
+func (c clusterNodeService) doCreateHosts(cluster *model.Cluster, hosts []*model.Host) error {
 	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	_ = doInit(k, cluster.Plan, hosts)
+	return doInit(k, cluster.Plan, hosts)
 }
 
 func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Host) ([]*model.ClusterNode, error) {
@@ -274,8 +345,7 @@ func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Ho
 
 const deleteWorkerPlaybook = "96-remove-worker.yml"
 
-func (c clusterNodeService) doDelete(worker model.ClusterNode, clusterName string) {
-	cluster, _ := c.ClusterService.Get(clusterName)
+func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.Cluster, worker model.ClusterNode) {
 	worker.Status = constant.ClusterTerminating
 	_ = c.NodeRepo.Save(&worker)
 	inventory := cluster.ParseInventory()
@@ -294,12 +364,12 @@ func (c clusterNodeService) doDelete(worker model.ClusterNode, clusterName strin
 	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook)
 	worker.Status = constant.ClusterTerminated
 	_ = c.NodeRepo.Save(&worker)
-	_ = c.NodeRepo.Delete(worker.ID)
+	wg.Done()
 }
 
 const addWorkerPlaybook = "91-add-worker.yml"
 
-func (c clusterNodeService) doCreate(ch chan int, worker model.ClusterNode, cluster model.Cluster) {
+func (c clusterNodeService) doSingleNodeCreate(cluster *model.Cluster, worker model.ClusterNode) {
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	worker.Status = constant.ClusterInitializing
 	_ = c.NodeRepo.Save(&worker)

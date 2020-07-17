@@ -50,17 +50,18 @@ func (c *Cluster) BeforeCreate() error {
 	for i, _ := range c.Nodes {
 		c.Nodes[i].ClusterID = c.ID
 		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
-			c.Nodes[i].Host.ClusterID = c.ID
-			err := tx.Save(&Host{ID: c.Nodes[i].HostID, ClusterID: c.ID}).Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
+			tx.Rollback()
+			return err
+		}
+		c.Nodes[i].Host.ClusterID = c.ID
+		err := tx.Save(&Host{ID: c.Nodes[i].HostID, ClusterID: c.ID}).Error
+		if err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	for _, tool := range c.PrepareTools() {
+		tool.ClusterID = c.ID
 		err := tx.Create(&tool).Error
 		if err != nil {
 			tx.Rollback()

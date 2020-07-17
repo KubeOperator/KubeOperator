@@ -22,6 +22,7 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusRepo:          repository.NewClusterStatusRepository(),
 		clusterSecretRepo:          repository.NewClusterSecretRepository(),
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
+		clusterSpecRepo:            repository.NewClusterSpecRepository(),
 		clusterIaasService:         NewClusterIaasService(),
 	}
 }
@@ -32,6 +33,7 @@ type clusterInitService struct {
 	clusterStatusRepo          repository.ClusterStatusRepository
 	clusterSecretRepo          repository.ClusterSecretRepository
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
+	clusterSpecRepo            repository.ClusterSpecRepository
 	clusterIaasService         ClusterIaasService
 }
 
@@ -89,6 +91,8 @@ func (c clusterInitService) do(cluster model.Cluster) {
 			return
 		case constant.ClusterRunning:
 			for i, _ := range cluster.Nodes {
+				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
+				_ = c.clusterSpecRepo.Save(&cluster.Spec)
 				cluster.Nodes[i].Status = constant.ClusterRunning
 				_ = c.clusterNodeRepo.Save(&cluster.Nodes[i])
 			}

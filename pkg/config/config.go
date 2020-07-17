@@ -7,7 +7,6 @@ import (
 func Init() {
 	viper.SetConfigName("app")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./conf")
 	viper.AddConfigPath("/etc/ko")
 	_ = viper.ReadInConfig()
 }

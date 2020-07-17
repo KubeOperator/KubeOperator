@@ -5,7 +5,7 @@ export class Cluster extends BaseModel {
     spec: Spec;
     nodeSize: string;
     status: string;
-    ingressStatus: string;
+    provider: string;
 }
 
 export class Spec {

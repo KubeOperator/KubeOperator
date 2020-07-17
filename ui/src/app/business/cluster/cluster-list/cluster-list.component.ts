@@ -58,7 +58,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     polling() {
         this.timer = setInterval(() => {
             let flag = false;
-            const needPolling = ['Waiting', 'Initializing', 'Terminating'];
+            const needPolling = ['Waiting', 'Initializing', 'Terminating', 'Creating'];
             for (const item of this.items) {
                 if (needPolling.indexOf(item.status) !== -1) {
                     flag = true;

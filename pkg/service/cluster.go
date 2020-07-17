@@ -60,6 +60,7 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	if err != nil {
 		return clusterDTO, err
 	}
+	clusterDTO.Provider = mo.Spec.Provider
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
 	clusterDTO.Status = mo.Status.Phase
@@ -77,6 +78,7 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 			Cluster:  mo,
 			NodeSize: len(mo.Nodes),
 			Status:   mo.Status.Phase,
+			Provider: mo.Spec.Provider,
 		})
 	}
 	return clusterDTOS, err
@@ -93,6 +95,7 @@ func (c clusterService) Page(num, size int) (dto.ClusterPage, error) {
 			Cluster:  mo,
 			NodeSize: len(mo.Nodes),
 			Status:   mo.Status.Phase,
+			Provider: mo.Spec.Provider,
 		})
 	}
 	page.Total = total
@@ -166,6 +169,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		KubePodSubnet:        creation.KubePodSubnet,
 		KubeServiceSubnet:    creation.KubeServiceSubnet,
 		Version:              creation.Version,
+		Provider:             creation.Provider,
 		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}
 	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {

@@ -16,7 +16,7 @@ export class NodeCreateComponent implements OnInit {
 
     opened = false;
     isSubmitGoing = false;
-    item: NodeBatch;
+    item: NodeBatch = new NodeBatch();
     hosts: any[] = [];
     workers: any[] = [];
     options: any = {
@@ -52,6 +52,7 @@ export class NodeCreateComponent implements OnInit {
 
     reset() {
         this.item = new NodeBatch();
+        this.item.increase = 1;
         this.hosts = [];
         this.workers = [];
     }

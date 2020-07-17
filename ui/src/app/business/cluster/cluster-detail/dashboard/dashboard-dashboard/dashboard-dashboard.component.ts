@@ -23,7 +23,7 @@ export class DashboardDashboardComponent implements OnInit {
     }
 
     refresh() {
-        this.url = this.sanitizer.bypassSecurityTrustResourceUrl('/proxy/dashboard/test/root');
+        this.url = this.sanitizer.bypassSecurityTrustResourceUrl(`/proxy/dashboard/${this.currentCluster.name}/root`);
     }
 
     onFrameLoad() {

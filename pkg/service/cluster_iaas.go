@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -58,11 +59,12 @@ func (c clusterIaasService) Init(name string) error {
 	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
 	err = doInit(k, plan, hosts)
 	if err != nil {
-		var hs []model.Host
-		for _, host := range hosts {
-			hs = append(hs, *host)
+		for i := range hosts {
+			_ = db.DB.Delete(hosts[i])
 		}
-		_ = c.hostRepo.Batch(constant.BatchOperationDelete, hs)
+		return err
+	}
+	if err := c.hostRepo.BatchSave(hosts); err != nil {
 		return err
 	}
 	nodes, err := c.createNodes(cluster, hosts)
@@ -111,7 +113,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-master-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterWaiting,
+			Status:    constant.ClusterCreating,
 			ClusterID: cluster.ID,
 		}
 		hosts = append(hosts, &host)
@@ -121,7 +123,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			BaseModel: common.BaseModel{},
 			Name:      fmt.Sprintf("%s-worker-%d", cluster.Name, i+1),
 			Port:      22,
-			Status:    constant.ClusterWaiting,
+			Status:    constant.ClusterCreating,
 			ClusterID: cluster.ID,
 		}
 		hosts = append(hosts, &host)
@@ -167,9 +169,19 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 		return err
 	}
 	if !res.Success {
-		return errors.New(res.GetMsg())
+		return errors.New(res.GetOutput())
 	}
-	return doApply(k)
+	res, err = k.Apply()
+	if err != nil {
+		return err
+	}
+	if !res.Success {
+		return errors.New(res.GetOutput())
+	}
+	for i := range hosts {
+		hosts[i].Status = constant.ClusterRunning
+	}
+	return nil
 }
 
 func parseHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
@@ -217,17 +229,6 @@ func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]inte
 		results = append(results, hMap)
 	}
 	return results
-}
-
-func doApply(k *kotf.Kotf) error {
-	res, err := k.Apply()
-	if err != nil {
-		return err
-	}
-	if !res.Success {
-		return errors.New(res.GetMsg())
-	}
-	return nil
 }
 
 func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*model.Host {
