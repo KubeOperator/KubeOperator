@@ -1,16 +1,12 @@
 # KubeOperator - 从这里开启您的 Kubernetes 之旅
 
-[![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/KubeOperatpr/KubeOperatpr/blob/master/LICENSE)
-[![Python3](https://img.shields.io/badge/python-3.6-green.svg?style=plastic)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/django-2.1-brightgreen.svg?style=plastic)](https://www.djangoproject.com/)
-[![Ansible](https://img.shields.io/badge/ansible-2.6.5-blue.svg?style=plastic)](https://www.ansible.com/)
-[![Angular](https://img.shields.io/badge/angular-7.0.4-red.svg?style=plastic)](https://www.angular.cn/)
+KubeOperator 是一个开源的轻量级 Kubernetes 发行版，专注于帮助企业规划、部署和运营生产级别的 Kubernetes 集群。
 
-KubeOperator 是一个开源项目，通过可视化 Web UI 在 VMware、Openstack 或者物理机上规划、部署和运营生产级别的 Kubernetes 集群。KubeOperator 是 [JumpServer](https://github.com/jumpserver/jumpserver) 明星开源团队在 Kubernetes 领域的的又一全新力作。
+KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、VMware 和 OpenStack 等 IaaS 平台，支持 x86 和 arm64 架构，支持 GPU，内置应用商店，已通过 CNCF 的 Kubernetes 软件一致性认证。
 
-KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理，实现 Kubernetes as a service。
+KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
-KubeOperator 的整体架构如下图所示：
+KubeOperator 的整体架构：
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
@@ -20,19 +16,19 @@ KubeOperator 的整体架构如下图所示：
 
 ![Web UI](https://kubeoperator.io/images/screenshot/6.png)
 
->更多功能截屏点击：[这里](https://docs.kubeoperator.io/kubeoperator-v2.2/screenshot)
+>更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
 ## 技术优势
 
 -  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
--  离线部署：持续更新包括 Kubernetes 及常用组件的离线包；
 -  按需创建：调用云平台 API，一键快速创建和部署 Kubernetes 集群；
 -  按需伸缩：快速伸缩 Kubernetes 集群，优化资源使用效率；
 -  按需修补：快速升级和修补 Kubernetes 集群，并与社区最新版本同步，保证安全性；
+-  离线部署：支持完全离线下的 K8s 集群部署；
 -  自我修复：通过重建故障节点确保集群可用性；
 -  全栈监控：提供从Pod、Node到集群的事件、监控、告警、和日志方案；
 -  Multi-AZ 支持：将 Master 节点分布在不同的故障域上确保集群高可用；
--  应用商店：内置 [KubeApps Plus](https://github.com/KubeOperator/kubeapps-plus) 应用商店，快速部署和管理常见应用；
+-  应用商店：内置 [KubeApps](https://github.com/kubeapps/kubeapps) 应用商店；
 -  GPU 支持：支持 GPU 节点，助力运行深度学习等应用；
 
 ## 功能列表
@@ -232,13 +228,10 @@ KubeOperator 的整体架构如下图所示：
 
  ## PPT、Demo 视频、使用文档
 
--  [:books: PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT。
--  [:tv:8 分钟的演示视频]( https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能。
--  [:books:安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等。
-
- ## Kubernetes 离线安装包
-
-KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Docker、etcd、Dashboard、Promethus、OS 补丁等），每个安装包会被构建成一个独立容器镜像供 KubeOperator 使用，具体信息请参考：[k8s-package](https://github.com/KubeOperator/k8s-package)。
+-  [PPT 介绍文档]( ./KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT;
+-  [安装及使用文档](https://docs.kubeoperator.io/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等;
+-  [8 分钟的演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能;
+-  [直播回放](http://live.vhall.com/355489706)：KubeOperator 助力企业运营生产级别的 Kubernetes 集群。
 
 ## 沟通交流
  
@@ -251,8 +244,7 @@ KubeOperator 提供完整的离线 Kubernetes 安装包（包括 Kubernetes、Do
 - [Terraform](https://github.com/hashicorp/terraform): KubeOperator 采用 Terraform 来自动创建虚机；
 - [Clarity](https://github.com/vmware/clarity/): KubeOperator 采用 Clarity 作为前端 Web 框架；
 - [Ansible](https://github.com/ansible/ansible): KubeOperator 采用 Ansible 作为自动化部署工具；
-- [kubeasz](https://github.com/easzlab/kubeasz): 提供各种 Kubernetes Ansible 脚本；
-- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 基于 Kubeapps 定制了应用商店；
+- [Kubeapps](https://github.com/kubeapps/kubeapps): KubeOperator 采用 Kubeapps 作为应用商店方案。
 
 ## License
 

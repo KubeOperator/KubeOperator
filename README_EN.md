@@ -266,4 +266,3 @@ Copyright (c) 2014-2019 FIT2CLOUD 飞致云
 [https://www.fit2cloud.com](https://www.fit2cloud.com)<br>
 
 KubeOperator is licensed under the Apache License, Version 2.0.
-

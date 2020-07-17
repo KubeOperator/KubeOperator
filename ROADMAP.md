@@ -75,21 +75,20 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [x] 应用商店改成可选安装；
 - [x] 支持 RHEL 7.4 以上操作系统；
 - [x] vSphere 创建虚机时支持选用自有模板；
-- [x] 支持更新apiserver证书；
+- [x] 支持更新 apiserver 证书。
 
- ##  V3.0 （开发中）
+ ##  V3.0 （开发中，8月18日发布）
  
 - [ ] 开放 REST API;
-- [ ] 支持 i18n；
+- [ ] 支持 国际化 i18n；
 - [ ] 支持 kubeadm 部署；
-- [ ] 使用 out-of-tree 的 OpenStack / vSphere Cloud Provider；
+- [ ] 支持 arm64 平台架构；
 - [ ] 使用 out-of-tree 的网络和存储插件；
-- [ ] 支持在线安装模式；
+- [ ] 支持在线和离线安装模式；
 - [ ] 支持 Helm 3.x；
 - [ ] 支持 Traefik 2.x；
 - [ ] 集成 cert-manager；
 - [ ] 支持 containerd；
 - [ ] 支持 kubernetes 跨版本升级；
 - [ ] 升级 kubeapps-plus 应用商店 (支持 Helm 3.x);
-- [ ] 支持 Open vSwitch (OVS)；
 - [ ] 支持已有集群导入。
