@@ -19,17 +19,27 @@ export class LoginComponent implements OnInit {
     message: string;
     isError = false;
 
-    constructor(private loginService: LoginService, private router: Router, private sessionService: SessionService,
+    constructor(private loginService: LoginService,
+                private router: Router,
+                private sessionService: SessionService,
                 private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
+        const currentLanguage = localStorage.getItem('currentLanguage');
+        if (currentLanguage) {
+            this.loginCredential.language = currentLanguage;
+        }else {
+            this.loginCredential.language = 'zh-CN';
+        }
     }
 
     login() {
         this.loginService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
             this.sessionService.cacheProfile(res);
+            localStorage.setItem('currentLanguage', this.loginCredential.language);
+            this.translateService.use(this.loginCredential.language);
             this.router.navigateByUrl(CommonRoutes.KO_ROOT).then(r => console.log('login success'));
         }, error => this.handleError(error));
     }

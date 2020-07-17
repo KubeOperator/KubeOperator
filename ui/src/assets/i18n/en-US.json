@@ -207,6 +207,12 @@
   "APP_IP_INVALID": "IP is not a valid IPV4 address!",
   "APP_SYSTEM": "System",
   "APP_SYSTEM_IP": "System IP",
-  "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of Kubeoperator"
+  "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of Kubeoperator",
+  "APP_SYSTEM_LANGUAGE_CN": "简体中文",
+  "APP_SYSTEM_LANGUAGE_US": "English",
+  "APP_SYSTEM_LANGUAGE": "Language",
+  "APP_SYSTEM_CHANGE_PASSWORD": "Change Password",
+  "APP_SYSTEM_LOGOUT": "LogOut"
+
 
 }

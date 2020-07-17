@@ -16,6 +16,13 @@
                 <input type="password" name="password" clrPassword placeholder="Password"
                        [(ngModel)]="loginCredential.password" required/>
             </clr-password-container>
+            <clr-select-container>
+                <label class="clr-sr-only">{{'APP_SYSTEM_LANGUAGE'|translate}}</label>
+                <select clrSelect [(ngModel)]="loginCredential.language" name="provider" required>
+                    <option value='zh-CN' selected>{{'APP_SYSTEM_LANGUAGE_CN'|translate}}</option>
+                    <option value='en-US'>{{'APP_SYSTEM_LANGUAGE_US'|translate}}</option>
+                </select>
+            </clr-select-container>
             <div *ngIf="isError" class="error active">
                 {{message}}
             </div>

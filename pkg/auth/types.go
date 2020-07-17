@@ -3,6 +3,7 @@ package auth
 type Credential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Language string `json:"language"`
 }
 
 type SessionUser struct {
