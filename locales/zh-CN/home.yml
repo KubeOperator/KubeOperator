@@ -4,6 +4,8 @@
 
 #credential
 DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"
+DELETE_FAILED_RESOURCE_ZONE: "删除失败！该秘钥下有关联可用区"
+
 
 
 #host

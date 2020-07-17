@@ -4,6 +4,7 @@
 
 #credential
 DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under this key"
+DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
 
 
 #host

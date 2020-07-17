@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	DeleteFailedError = "DELETE_FAILED_RESOURCE"
+	DeleteFailedError     = "DELETE_FAILED_RESOURCE"
+	DeleteFailedErrorZone = "DELETE_FAILED_RESOURCE_ZONE"
 )
 
 type CredentialRepository interface {
@@ -109,7 +110,7 @@ func (c credentialRepository) Batch(operation string, items []model.Credential) 
 			return err
 		}
 		if len(zones) > 0 {
-			return errors.New(DeleteFailedError)
+			return errors.New(DeleteFailedErrorZone)
 		}
 
 		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
