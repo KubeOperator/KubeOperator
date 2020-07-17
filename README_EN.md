@@ -41,55 +41,55 @@ The following image is the whole architecture of KubeOperator:
 
 ## Features List
 
-<table class=”subscription-level-table”>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-first-td-background-style” rowspan=”15”>Day 0 Planning</td>
+<table class="subscription-level-table">
+    <tr class="subscription-level-tr-border">
+        <td class="features-first-td-background-style" rowspan="15">Day 0 Planning
         </td>
-        <td class=”features-third-td-background-style” rowspan=”2”>Cluster Model
+        <td class="features-third-td-background-style" rowspan="2">Cluster Model
         </td>
-        <td class=”features-third-td-background-style”>1 master node with N number of worker nodes : suitable for develop testing purpose
-        </td>
+        <td class="features-third-td-background-style">1 master node with N number of worker nodes : suitable for develop testing purpose
+        </td>       
     </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style”>3 master nodes with N number of worker nodes : suitable for production-grade purpose
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">3 master nodes with N number of worker nodes : suitable for production-grade purpose
         </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style” rowspan=”3”>Calculation Scheme
+    </tr>    
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style" rowspan="3">Calculation Scheme
         </td>
-        <td class=”features-third-td-background-style”>Independent Host : support self-prepared VMs, public clouds or physical machines
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style”>vSphere Platform : Support auto-build host (using Terraform)
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style”>OpenStack Platform : Support auto-build host (using Terraform)
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style” rowspan=”3”>Storage Scheme
-        </td>
-        <td class=”features-third-td-background-style”>Independent host : Support NFS / Ceph RBD / Local Volume
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style”>vSphere Platform : Support vSphere Datastore (Centralized storage that compatible with vSAN & vSphere)
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style”>OpenStack Platform : Support OpenStack Cinder (Centralized storage that compatible with Ceph & Cinder)
-        </td>
-    </tr>
-    <tr class=”subscription-level-tr-border”>
-        <td class=”features-third-td-background-style” rowspan=”4”>Network Scheme
-        </td>
-        <td class="features-third-td-background-style">Support Flannel / Calico Network Plug-ins
+        <td class="features-third-td-background-style">Independent Host : support self-prepared VMs, public clouds or physical machines
+        </td>  
+    </tr>    
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">vSphere Platform : Support auto-build host (using Terraform)
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style"> Support internet expose service through F5 Big IP
+        <td class="features-third-td-background-style">OpenStack Platform : Support auto-build host (using Terraform)
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style" rowspan="3">Storage Scheme
+        </td>
+        <td class="features-third-td-background-style">Independent host : Support NFS / Ceph RBD / Local Volume
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">vSphere Platform : Support vSphere Datastore (Centralized storage that compatible with vSAN & vSphere)
+        </td>
+    </tr> 
+     <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">OpenStack Platform : Support OpenStack Cinder (Centralized storage that compatible with Ceph & Cinder)
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style" rowspan="4">Network Scheme
+        </td>
+        <td class="features-third-td-background-style">Support Flannel / Calico Network Plug-in
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">Support internet expose service through F5 Big IP
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
@@ -117,7 +117,7 @@ The following image is the whole architecture of KubeOperator:
         </td>
         <td class="features-third-td-background-style">Support Docker / containerd
         </td>
-    </tr>
+    </tr>     
     <tr class="subscription-level-tr-border">
         <td class="features-first-td-background-style" rowspan="3">Day 1 Deploying
         </td>
