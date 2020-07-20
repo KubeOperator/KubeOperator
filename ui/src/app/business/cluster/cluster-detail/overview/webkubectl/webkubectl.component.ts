@@ -26,7 +26,7 @@ export class WebkubectlComponent implements OnInit {
         this.opened = true;
         this.loading = true;
         this.service.getToken(this.currentCluster.name).subscribe(data => {
-            this.url = this.sanitizer.bypassSecurityTrustResourceUrl('http://localhost:8082/terminal?token=' + data.token);
+            this.url = this.sanitizer.bypassSecurityTrustResourceUrl('/webkubectl/terminal?token=' + data.token);
             this.loading = false;
         });
     }

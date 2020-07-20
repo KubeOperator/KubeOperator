@@ -29,6 +29,7 @@ func (c clusterRepository) Get(name string) (model.Cluster, error) {
 		Preload("Nodes").
 		Preload("Nodes.Host").
 		Preload("Nodes.Host.Credential").
+		Preload("Nodes.Host.Zone").
 		Find(&cluster).Error; err != nil {
 		return cluster, err
 	}

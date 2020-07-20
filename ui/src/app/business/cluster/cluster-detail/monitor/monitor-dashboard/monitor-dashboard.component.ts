@@ -28,7 +28,6 @@ export class MonitorDashboardComponent implements OnInit {
 
     refresh() {
         const url = this.item.vars['url'] + '?orgId=1&kiosk';
-        console.log(this.item);
         this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 

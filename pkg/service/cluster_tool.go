@@ -1,12 +1,16 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/tools"
+	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ClusterToolService interface {
@@ -66,6 +70,26 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 		return tool, err
 	}
 
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Host:  endpoint.Address,
+		Token: secret.KubernetesToken,
+		Port:  endpoint.Port,
+	})
+	if err != nil {
+		return tool, err
+	}
+	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), constant.DefaultNamespace, metav1.GetOptions{})
+	if ns != nil {
+		n := &v1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: constant.DefaultNamespace,
+			},
+		}
+		_, err = kubeClient.CoreV1().Namespaces().Create(context.TODO(), n, metav1.CreateOptions{})
+		if err != nil {
+			return tool, err
+		}
+	}
 	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret)
 	if err != nil {
 		return tool, err

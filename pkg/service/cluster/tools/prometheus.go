@@ -58,7 +58,7 @@ func (c Prometheus) Uninstall() error {
 
 func (p Prometheus) createGrafanaDataSource() error {
 	grafanaClient := grafana.NewClient()
-	url := fmt.Sprintf("http://localhost:8080/proxy/prometheus/%s/", p.Cluster.Name)
+	url := fmt.Sprintf("http://server:8080/proxy/prometheus/%s/", p.Cluster.Name)
 	return grafanaClient.CreateDataSource(p.Cluster.Name, url)
 
 }
