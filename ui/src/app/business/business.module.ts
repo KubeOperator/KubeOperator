@@ -11,10 +11,12 @@ import { UserDeleteComponent } from './user/user-delete/user-delete.component';
 import {SharedModule} from '../shared/shared.module';
 import {RouterModule} from '@angular/router';
 import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
+import { ProjectComponent } from './project/project.component';
+import {ProjectModule} from './project/project.module';
 
 
 @NgModule({
-    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent],
+    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent, ProjectComponent],
     imports: [
         CoreModule,
         ClusterModule,
@@ -23,6 +25,7 @@ import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
         SharedModule,
         RouterModule,
         DeployPlanModule,
+        ProjectModule,
     ],
     exports: [
         ClusterModule,

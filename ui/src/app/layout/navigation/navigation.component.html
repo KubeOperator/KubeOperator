@@ -1,4 +1,8 @@
 <clr-vertical-nav [clrVerticalNavCollapsible]="true">
+    <a clrVerticalNavLink routerLinkActive="active" routerLink="/projects">
+        <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
+        {{ 'APP_PROJECT' | translate }}
+    </a>
     <a clrVerticalNavLink routerLinkActive="active" routerLink="/clusters">
         <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>
         {{ 'APP_CLUSTER' | translate }}

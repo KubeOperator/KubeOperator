@@ -30,6 +30,7 @@ import {RegistryComponent} from './business/cluster/cluster-detail/repository/re
 import {ToolsComponent} from './business/cluster/cluster-detail/tools/tools.component';
 import {DashboardComponent} from './business/cluster/cluster-detail/dashboard/dashboard.component';
 import {SystemComponent} from './business/setting/system/system.component';
+import {ProjectComponent} from './business/project/project.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -40,6 +41,10 @@ const routes: Routes = [
         canActivateChild: [AuthUserService],
         children: [
             {path: '', redirectTo: 'clusters', pathMatch: 'full'},
+            {
+                path: 'projects',
+                component: ProjectComponent,
+            },
             {
                 path: 'clusters',
                 component: ClusterComponent,

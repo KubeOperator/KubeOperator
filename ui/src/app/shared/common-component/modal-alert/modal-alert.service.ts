@@ -13,7 +13,15 @@ export class ModalAlertService {
     alertQueue = new Subject<Alert>();
     $alertQueue = this.alertQueue.asObservable();
 
-    showAlert(msg: string, level: AlertLevels) {
+    showAlert(error: any, level: AlertLevels) {
+        let msg = '';
+        if ((typeof error).toLowerCase() === 'string') {
+            msg = error;
+        } else if (error.error.msg != null) {
+            msg = error.error.msg;
+        } else {
+            msg = error.error;
+        }
         this.alertQueue.next(new Alert(msg, level));
     }
 }

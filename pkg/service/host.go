@@ -181,7 +181,6 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 func (h hostService) GetHostConfig(host *model.Host) error {
 
 	host.Status = model.AnsibleError
-	//TODO
 	password, _, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err

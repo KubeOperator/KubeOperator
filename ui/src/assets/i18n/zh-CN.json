@@ -215,7 +215,10 @@
   "APP_SYSTEM_LANGUAGE_US": "English",
   "APP_SYSTEM_LANGUAGE": "语言",
   "APP_SYSTEM_CHANGE_PASSWORD": "修改密码",
-  "APP_SYSTEM_LOGOUT": "退出登录"
-
+  "APP_SYSTEM_LOGOUT": "退出登录",
+  "APP_PROJECT": "项目",
+  "APP_ROLE": "角色",
+  "APP_PROJECT_ADD": "添加项目",
+  "APP_DELETE_PROJECT": "删除项目"
 
 }

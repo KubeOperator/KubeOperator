@@ -1,0 +1,28 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_PROJECT_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #projectForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_NAME'|translate}}:</label>
+                <input clrInput size=45 maxlength="25" [(ngModel)]="item.name"
+                       name="name" required>
+                <!--                <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>-->
+                <!--                <clr-control-error>{{name_pattern_tip}}</clr-control-error>-->
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_DESCRIPTION'|translate}}:</label>
+                <input clrInput size=45 maxlength="255" type="text" [(ngModel)]="item.description"
+                       name="description" required>
+            </clr-input-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                    [disabled]="projectForm.invalid">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+

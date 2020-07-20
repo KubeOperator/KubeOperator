@@ -29,6 +29,7 @@ var Models = []Interface{
 	Plan{},
 	PlanZones{},
 	SystemSetting{},
+	Project{},
 }
 
 var InitData = []Interface{
