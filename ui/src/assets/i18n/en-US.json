@@ -66,6 +66,7 @@
   "APP_ENABLE": "Enable",
   "APP_CONFIRM_PASSWORD": "Confirm Password",
   "APP_PASSWORD_ERROR_MSG": "Valid password: 6-30 digits, English letters + numbers + special characters (optional)",
+  "APP_EMAIL_ERROR_MSG": "Invalid Email Address",
   "APP_PASSWORD_HELP_MSG": "Passwords are inconsistent",
   "APP_DEFAULT_DELETE_WARNING": "The delete operation cannot be rolled back. Do you want to continue?",
   "APP_LOGIN_TITLE_WELCOME": "Welcome to",
@@ -216,7 +217,9 @@
   "APP_PROJECT": "Project",
   "APP_ROLE": "Role",
   "APP_PROJECT_ADD": "Create Project",
-  "APP_DELETE_PROJECT": "Delete Project"
+  "APP_DELETE_PROJECT": "Delete Project",
+  "APP_USER_ADMIN": "System Admin"
+
 
 
 }

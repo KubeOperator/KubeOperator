@@ -10,6 +10,7 @@ type UserCreate struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	IsAdmin  bool   `json:"isAdmin" binding:"required"`
 }
 
 type UserPage struct {
@@ -22,6 +23,7 @@ type UserUpdate struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	IsActive bool   `json:"isActive"`
+	IsAdmin  bool   `json:"isAdmin" binding:"required"`
 	Language string `json:"language"`
 	Password string `json:"password"`
 }

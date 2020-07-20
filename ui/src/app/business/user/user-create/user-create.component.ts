@@ -21,10 +21,8 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
     isSubmitGoing = false;
     item: UserCreateRequest = new UserCreateRequest();
     passwordPattern = PasswordPattern;
-
     @ViewChild('userForm') userForm: NgForm;
     @Output() created = new EventEmitter();
-
 
     constructor(private userService: UserService, private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService, private translateService: TranslateService) {
@@ -40,7 +38,6 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
         this.userForm.resetForm();
     }
 
-
     onCancel() {
         this.opened = false;
     }
@@ -54,7 +51,7 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
         });
     }
 }

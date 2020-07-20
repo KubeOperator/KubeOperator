@@ -12,6 +12,7 @@ type SessionUser struct {
 	Email    string `json:"email"`
 	Language string `json:"language"`
 	IsActive bool   `json:"isActive"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 
 type JwtResponse struct {

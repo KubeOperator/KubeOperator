@@ -6,8 +6,9 @@ export class User extends BaseModel {
     password: string;
     email: string;
     language: string;
-    isActive: string;
+    isActive: boolean;
     confirmPassword: string;
+    isAdmin: boolean;
 }
 
 export class UserCreateRequest extends BaseRequest {
@@ -15,6 +16,7 @@ export class UserCreateRequest extends BaseRequest {
     password: string;
     email: string;
     confirmPassword: string;
+    isAdmin: boolean;
 }
 
 export class ChangePasswordRequest extends BaseRequest {

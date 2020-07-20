@@ -74,6 +74,7 @@ func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
 		Password: password,
 		IsActive: true,
 		Language: model.ZH,
+		IsAdmin:  creation.IsAdmin,
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
@@ -95,6 +96,7 @@ func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
 		Email:    update.Email,
 		IsActive: update.IsActive,
 		Language: update.Language,
+		IsAdmin:  update.IsAdmin,
 		Password: password,
 	}
 	err = u.userRepo.Save(&user)

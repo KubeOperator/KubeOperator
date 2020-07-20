@@ -70,6 +70,7 @@
   "APP_ENABLE": "启用",
   "APP_CONFIRM_PASSWORD": "确认密码",
   "APP_PASSWORD_ERROR_MSG": "有效密码:6-30位,英文字母+数字+特殊字符(可选)",
+  "APP_EMAIL_ERROR_MSG": "邮箱格式错误",
   "APP_PASSWORD_HELP_MSG": "密码不一致",
   "APP_LOGIN_TITLE_WELCOME": "欢迎使用",
   "APP_LOGIN_TITLE_KO": "KubeOperator 容器平台",
@@ -219,6 +220,7 @@
   "APP_PROJECT": "项目",
   "APP_ROLE": "角色",
   "APP_PROJECT_ADD": "添加项目",
-  "APP_DELETE_PROJECT": "删除项目"
+  "APP_DELETE_PROJECT": "删除项目",
+  "APP_USER_ADMIN": " 系统管理员"
 
 }

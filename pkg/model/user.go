@@ -18,8 +18,9 @@ type User struct {
 	Name     string `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Password string `json:"password" gorm:"type:varchar(256)"`
 	Email    string `json:"email" gorm:"type:varchar(256);not null;unique"`
-	IsActive bool   `json:"isActive" gorm:"type:int(1)"`
+	IsActive bool   `json:"isActive" gorm:"default:true"`
 	Language string `json:"language" gorm:"type:varchar(64)"`
+	IsAdmin  bool   `json:"isAdmin" gorm:"default:true"`
 }
 
 type Token struct {
@@ -42,6 +43,7 @@ func (u *User) ToSessionUser() *auth.SessionUser {
 		Email:    u.Email,
 		Language: u.Language,
 		IsActive: u.IsActive,
+		IsAdmin:  u.IsAdmin,
 	}
 }
 

@@ -11,7 +11,7 @@
                 <input clrInput [size]="32" name="email" [(ngModel)]="item.email"
                        [email]="true"
                        required/>
-                <clr-control-error>{{'APP_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+                <clr-control-error>{{'APP_EMAIL_ERROR_MSG'|translate}}</clr-control-error>
             </clr-input-container>
             <clr-password-container>
                 <label>{{"APP_PASSWORD"|translate}}</label>
@@ -32,6 +32,12 @@
                         *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
                 <clr-control-error>{{'APP_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
             </clr-password-container>
+            <clr-checkbox-container>
+                <label>{{"APP_USER_ADMIN"|translate}}</label>
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" clrCheckbox name="admin" value="true"  [(ngModel)]="item.isAdmin" />
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
         </form>
         <app-modal-alert></app-modal-alert>
     </div>
