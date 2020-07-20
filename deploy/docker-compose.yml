@@ -14,7 +14,6 @@ services:
       timeout: 5s
       retries: 10
   ui:
-    build: ui
     image: kubeoperator/ui:2.6.0
     container_name: kubeoperator_ui
     restart: always
@@ -35,7 +34,7 @@ services:
       timeout: 3s
       retries: 10
     env_file:
-      - ./conf/mysql.env
+      - ../conf/mysql.env
     volumes:
       - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf
   kobe:
