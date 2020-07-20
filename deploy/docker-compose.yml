@@ -41,7 +41,7 @@ services:
       - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf
 
   kobe:
-    image: kubeoperator/kobe:3.0.0
+    image: kubeoperator/kobe:master
     volumes:
       - ./data/kobe:/var/kobe/data
     container_name: kubeopreator_kobe
@@ -51,7 +51,7 @@ services:
       timeout: 3s
       retries: 10
   kotf:
-    image: kubeoperator/kotf:3.0.0
+    image: kubeoperator/kotf:master
     container_name: kubeopreator_kotf
     volumes:
       - ./data/kotf:/var/kotf/data
