@@ -23,9 +23,9 @@ type InitPluginDBPhase struct {
 
 func (i *InitPluginDBPhase) Init() error {
 	var log = logger.Default
-	fs, err := ioutil.ReadDir("plugin")
+	fs, err := ioutil.ReadDir("/var/ko/plugin")
 	if err != nil {
-		return err
+		return nil
 	}
 	for _, f := range fs {
 		if !f.IsDir() && strings.Contains(f.Name(), ".so") {
