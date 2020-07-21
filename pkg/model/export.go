@@ -51,4 +51,17 @@ var InitData = []Interface{
 		Name: "vSphere",
 		Vars: "{\"provider\": \"vSphere\", \"imageOvfPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810.ovf\", \"imageVmdkPath\": \"/data/iso/vsphere/kubeoperator_centos_7.6.1810-1.vmdk\", \"imageName\": \"kubeoperator_centos_7.6.1810\"}",
 	},
+	User{
+		BaseModel: common.BaseModel{
+			UpdatedAt: time.Now(),
+			CreatedAt: time.Now(),
+		},
+		ID:       "5e81095f-3c0c-4cb2-8033-bde03d60135c",
+		Name:     "admin",
+		Password: "/A/CMd5e7pjoTWpe8Tal2g==",
+		Email:    "admin.fit2cloud.com",
+		Language: ZH,
+		IsActive: true,
+		IsAdmin:  true,
+	},
 }

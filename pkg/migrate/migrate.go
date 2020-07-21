@@ -40,6 +40,17 @@ func (i *InitMigrateDBPhase) Init() error {
 					db.DB.Save(d)
 				}
 			}
+		case model.User:
+			op, ok := d.(model.User)
+			if ok {
+				user := model.User{}
+				db.DB.Where("name = ?", op.Name).First(&user)
+				if db.DB.NewRecord(user) {
+					db.DB.Create(d)
+				} else {
+					db.DB.Save(d)
+				}
+			}
 		default:
 			log.Infof("insert data failed: %s", v)
 		}
