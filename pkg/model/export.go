@@ -58,7 +58,7 @@ var InitData = []Interface{
 		},
 		ID:       "5e81095f-3c0c-4cb2-8033-bde03d60135c",
 		Name:     "admin",
-		Password: "/A/CMd5e7pjoTWpe8Tal2g==",
+		Password: "47zHCOqO84rdzGgxw5XPfgDEapoOMXbgJnryG32xp6Y=",
 		Email:    "admin.fit2cloud.com",
 		Language: ZH,
 		IsActive: true,
