@@ -75,6 +75,7 @@
   "APP_LOGIN_CONNECT_CREDENTIAL_ERROR": "Wrong UserName or Password",
   "APP_LOGIN_CONNECT_UNKNOWN_ERROR": "Unknown Error",
   "APP_CHANGE_PASSWORD": "Change Password",
+  "APP_CHANGE_PASSWORD_SUCCESS": "Successfully change password! Please log in again!",
   "APP_OLD_PASSWORD": "Old Password",
   "APP_NEW_PASSWORD": "New Password",
   "APP_CONFIRM_NEW_PASSWORD": "Confirm New Password",

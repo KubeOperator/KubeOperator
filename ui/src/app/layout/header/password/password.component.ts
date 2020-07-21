@@ -6,6 +6,10 @@ import {SessionUser} from '../../../shared/auth/session-user';
 import {ChangePasswordRequest} from '../../../business/user/user';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
 import {AlertLevels} from '../../common-alert/alert';
+import {Router} from '@angular/router';
+import {CommonRoutes} from '../../../constant/route';
+import {CommonAlertService} from '../../common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-password',
@@ -24,7 +28,11 @@ export class PasswordComponent implements OnInit {
     changePasswordRequest: ChangePasswordRequest = new ChangePasswordRequest();
     @ViewChild('passForm', {static: true}) passForm: NgForm;
 
-    constructor(private userService: UserService, private modalAlertService: ModalAlertService) {
+    constructor(private userService: UserService,
+                private modalAlertService: ModalAlertService,
+                private router: Router,
+                private commonAlertService: CommonAlertService,
+                private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
@@ -51,6 +59,10 @@ export class PasswordComponent implements OnInit {
         this.userService.changePassword(this.changePasswordRequest).subscribe(res => {
             this.submitGoing = false;
             this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_CHANGE_PASSWORD_SUCCESS'), AlertLevels.SUCCESS);
+            setTimeout(() => {
+                this.router.navigateByUrl(CommonRoutes.LOGIN).then(r => console.log('logout success'));
+            }, 1500);
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
             this.submitGoing = false;
