@@ -3,8 +3,8 @@ package middleware
 import (
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/dgrijalva/jwt-go"
 	jwtmiddleware "github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12"
@@ -54,7 +54,7 @@ func LoginHandler(ctx context.Context) {
 
 	data, err := CheckLogin(aul.Username, aul.Password)
 	if err != nil {
-		ctx.StatusCode(iris.StatusInternalServerError)
+		ctx.StatusCode(iris.StatusUnauthorized)
 		_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
 		return
 	}
