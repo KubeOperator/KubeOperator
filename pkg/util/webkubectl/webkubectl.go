@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 )
@@ -22,8 +24,8 @@ func GetConnectToken(name string, apiServer string, token string) (string, error
 	}
 
 	j, _ := json.Marshal(&req)
-
-	resp, err := http.Post("http://localhost:8082/api/kube-token", "application/json", bytes.NewReader(j))
+	url := fmt.Sprintf("http://%s:%d/api/kube-token", viper.GetString("webkubectl.host"), viper.GetInt("webkubectl.port"))
+	resp, err := http.Post(url, "application/json", bytes.NewReader(j))
 	if err != nil {
 		return "", err
 	}

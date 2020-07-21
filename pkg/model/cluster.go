@@ -54,7 +54,7 @@ func (c *Cluster) BeforeCreate() error {
 			return err
 		}
 		c.Nodes[i].Host.ClusterID = c.ID
-		err := tx.Save(&Host{ID: c.Nodes[i].HostID, ClusterID: c.ID}).Error
+		err := tx.Save(&c.Nodes[i].Host).Error
 		if err != nil {
 			tx.Rollback()
 			return err

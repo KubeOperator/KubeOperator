@@ -172,14 +172,6 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		Provider:             creation.Provider,
 		KubeApiServerPort:    constant.DefaultApiServerPort,
 	}
-	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
-		spec.WorkerAmount = creation.WorkerAmount
-		plan, err := c.planRepo.Get(creation.Plan)
-		if err != nil {
-			return err
-		}
-		cluster.PlanID = plan.ID
-	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
 	secret := model.ClusterSecret{
@@ -188,6 +180,14 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster.Spec = spec
 	cluster.Status = status
 	cluster.Secret = secret
+	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
+		spec.WorkerAmount = creation.WorkerAmount
+		plan, err := c.planRepo.Get(creation.Plan)
+		if err != nil {
+			return err
+		}
+		cluster.PlanID = plan.ID
+	}
 	workerNo := 1
 	masterNo := 1
 	for _, nc := range creation.Nodes {
