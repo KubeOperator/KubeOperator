@@ -1,18 +1,17 @@
 #common
 
-
-
 #credential
 DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under this key"
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
 
-
 #host
 DELETE_HOST_FAILED: "Failed to delete! The host is already associated with the cluster"
 
-
 #user
 PASSWORD_NOT_MATCH: "The original password is incorrect"
+USER_IS_NOT_ACTIVE: "The user is not enabled! Please contact the administrator!"
+USER_NOT_FOUND: "No such user！"
+
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"

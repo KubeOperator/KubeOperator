@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	secretKey []byte
-	exp       int
+	secretKey       []byte
+	exp             int
+	UserIsNotActive = "USER_IS_NOT_ACTIVE"
 )
 
 func JWTMiddleware() *jwtmiddleware.Middleware {
@@ -55,7 +56,7 @@ func LoginHandler(ctx context.Context) {
 	data, err := CheckLogin(aul.Username, aul.Password)
 	if err != nil {
 		ctx.StatusCode(iris.StatusUnauthorized)
-		_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
+		_, _ = ctx.JSON(dto.Response{Msg: ctx.Tr(err.Error())})
 		return
 	}
 	ctx.StatusCode(iris.StatusOK)

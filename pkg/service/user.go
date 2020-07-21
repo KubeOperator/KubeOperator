@@ -13,8 +13,8 @@ import (
 
 var (
 	PasswordNotMatch = errors.New("PASSWORD_NOT_MATCH")
-	UserNotFound     = errors.New("PASSWORD_NOT_MATCH")
-	UserIsNotActive  = errors.New("PASSWORD_NOT_MATCH")
+	UserNotFound     = errors.New("USER_NOT_FOUND")
+	UserIsNotActive  = errors.New("USER_IS_NOT_ACTIVE")
 )
 
 type UserService interface {
