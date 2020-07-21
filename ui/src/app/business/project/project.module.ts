@@ -6,21 +6,24 @@ import { ProjectDeleteComponent } from './project-delete/project-delete.componen
 import { ProjectUpdateComponent } from './project-update/project-update.component';
 import {CoreModule} from '../../core/core.module';
 import {SharedModule} from '../../shared/shared.module';
+import { ProjectDetailComponent } from './project-detail/project-detail.component';
+import {RouterModule} from '@angular/router';
 
 
 
 @NgModule({
-  declarations: [ProjectCreateComponent, ProjectListComponent, ProjectDeleteComponent, ProjectUpdateComponent],
+  declarations: [ProjectCreateComponent, ProjectListComponent, ProjectDeleteComponent, ProjectUpdateComponent, ProjectDetailComponent],
   exports: [
     ProjectListComponent,
     ProjectCreateComponent,
     ProjectDeleteComponent,
     ProjectUpdateComponent
   ],
-  imports: [
-    CommonModule,
-    CoreModule,
-    SharedModule
-  ]
+    imports: [
+        CommonModule,
+        CoreModule,
+        SharedModule,
+        RouterModule
+    ]
 })
 export class ProjectModule { }
