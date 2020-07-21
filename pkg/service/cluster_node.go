@@ -141,11 +141,11 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		}
 	}
 	for i := range nodes {
-		if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
 			nodes[i].Host.ClusterID = ""
 			_ = c.HostRepo.Save(&nodes[i].Host)
 		}
-		if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+		if cluster.Spec.Provider == constant.ClusterProviderPlan {
 			db.DB.Delete(model.Host{ID: nodes[i].HostID})
 		}
 		_ = c.NodeRepo.Delete(nodes[i].ID)

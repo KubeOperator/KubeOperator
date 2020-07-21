@@ -13,19 +13,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
   ui:
-    build: ui
-    image: kubeoperator/ui:2.6.0
+    image: kubeoperator/ui:master
     container_name: kubeoperator_ui
     restart: always
-    healthcheck:
-      test: ["CMD", "test", "-f", "/var/run/nginx.pid"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+
+  server:
+    image: kubeoperator/server:master
+    container_name: kubeoperator_server
+    restart: always
     depends_on:
-      api:
+      mysql:
         condition: service_healthy
+
   mysql:
     image: mysql:5
     container_name: kubeoperator_mysql
@@ -38,8 +39,9 @@ services:
       - ./conf/mysql.env
     volumes:
       - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf
+
   kobe:
-    image: kubeoperator/kobe:3.0.0
+    image: kubeoperator/kobe:master
     volumes:
       - ./data/kobe:/var/kobe/data
     container_name: kubeopreator_kobe
@@ -49,7 +51,7 @@ services:
       timeout: 3s
       retries: 10
   kotf:
-    image: kubeoperator/kotf:3.0.0
+    image: kubeoperator/kotf:master
     container_name: kubeopreator_kotf
     volumes:
       - ./data/kotf:/var/kotf/data
@@ -58,14 +60,19 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
   grafana:
     image: grafana/grafana:latest
     container_name: kubeoperator_grafana
+    volumes:
+      - ./conf/grafana.ini:/etc/grafana/grafana.ini
+      - ./data/grafana:/var/lib/grafana
     healthcheck:
       test: ["CMD","curl","localhost:3000"]
       interval: 5s
       timeout: 3s
       retries: 10
+
   webkubectl:
     image: kubeoperator/webkubectl:v2.5.0
     container_name: kubeoperator_webkubectl
