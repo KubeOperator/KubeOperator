@@ -162,15 +162,21 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		Source: constant.ClusterSourceLocal,
 	}
 	spec := model.ClusterSpec{
-		RuntimeType:          creation.RuntimeType,
-		DockerStorageDir:     creation.DockerStorageDIr,
-		ContainerdStorageDir: creation.ContainerdStorageDIr,
-		NetworkType:          creation.NetworkType,
-		KubePodSubnet:        creation.KubePodSubnet,
-		KubeServiceSubnet:    creation.KubeServiceSubnet,
-		Version:              creation.Version,
-		Provider:             creation.Provider,
-		KubeApiServerPort:    constant.DefaultApiServerPort,
+		RuntimeType:           creation.RuntimeType,
+		DockerStorageDir:      creation.DockerStorageDIr,
+		ContainerdStorageDir:  creation.ContainerdStorageDIr,
+		NetworkType:           creation.NetworkType,
+		KubePodSubnet:         creation.KubePodSubnet,
+		KubeServiceSubnet:     creation.KubeServiceSubnet,
+		Version:               creation.Version,
+		Provider:              creation.Provider,
+		FlannelBackend:        creation.FlannelBackend,
+		CalicoIpv4poolIpip:    creation.CalicoIpv4poolIpip,
+		KubeMaxPods:           creation.KubeMaxPods,
+		KubeProxyMode:         creation.KubeProxyMode,
+		IngressControllerType: creation.IngressControllerType,
+		Architectures:         creation.Architectures,
+		KubeApiServerPort:     constant.DefaultApiServerPort,
 	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
