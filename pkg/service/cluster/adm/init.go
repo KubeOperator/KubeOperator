@@ -105,7 +105,6 @@ func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{
-		ContainerRuntime: c.Spec.RuntimeType,
 	}
 	return phase.Run(c.Kobe)
 }
