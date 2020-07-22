@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import {BaseModelService} from "../../../shared/class/BaseModelService";
-import {CloudProvider} from "./cloud-provider";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient} from '@angular/common/http';
+import {BaseModelService} from '../../../shared/class/BaseModelService';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CloudProviderService extends BaseModelService<CloudProvider>{
+export class CloudProviderService extends BaseModelService<any>{
 
-  baseUrl = '/api/v1/cloud/providers/'
+  baseUrl = '/api/v1/cloud/providers/';
 
   constructor(http: HttpClient) {
     super(http);

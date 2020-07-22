@@ -29,17 +29,6 @@ func (i *InitMigrateDBPhase) Init() error {
 	}
 	for _, d := range model.InitData {
 		switch v := d.(type) {
-		case model.CloudProvider:
-			op, ok := d.(model.CloudProvider)
-			if ok {
-				cloudProvider := model.CloudProvider{}
-				db.DB.Where("name = ?", op.Name).First(&cloudProvider)
-				if db.DB.NewRecord(cloudProvider) {
-					db.DB.Create(d)
-				} else {
-					db.DB.Save(d)
-				}
-			}
 		case model.User:
 			op, ok := d.(model.User)
 			if ok {
