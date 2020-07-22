@@ -31,6 +31,9 @@ import {ToolsComponent} from './business/cluster/cluster-detail/tools/tools.comp
 import {DashboardComponent} from './business/cluster/cluster-detail/dashboard/dashboard.component';
 import {SystemComponent} from './business/setting/system/system.component';
 import {ProjectComponent} from './business/project/project.component';
+import {ProjectDetailComponent} from './business/project/project-detail/project-detail.component';
+import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
+import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -44,6 +47,16 @@ const routes: Routes = [
             {
                 path: 'projects',
                 component: ProjectComponent,
+            },
+            {
+                path: 'projects/:name',
+                component: ProjectDetailComponent,
+                resolve: {project: ProjectRoutingResolverService},
+                children: [
+                    {path: '', redirectTo: 'clusters', pathMatch: 'full'},
+                    {path: 'clusters', component: ClusterComponent},
+                    {path: 'resources', component: ProjectResourceComponent}
+                ]
             },
             {
                 path: 'clusters',
