@@ -68,8 +68,8 @@ func (u userRepository) Batch(operation string, items []model.User) error {
 				tx.Rollback()
 				return err
 			}
-			tx.Commit()
 		}
+		tx.Commit()
 	default:
 		return constant.NotSupportedBatchOperation
 	}
