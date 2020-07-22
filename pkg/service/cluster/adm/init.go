@@ -144,6 +144,11 @@ func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 	return phase.Run(c.Kobe)
 }
 
+func (ca *ClusterAdm) EnsureInitMetricsServer(c *Cluster) error {
+	phase := initial.MetricsServerPhase{}
+	return phase.Run(c.Kobe)
+}
+
 func (ca *ClusterAdm) EnsureInitIngressController(c *Cluster) error {
 	phase := ingress.ControllerPhase{}
 	return phase.Run(c.Kobe)
