@@ -16,11 +16,13 @@ GOPROXY="https://goproxy.cn,direct"
 
 build_server_linux:
 	GOOS=linux GOARCH=amd64  $(GOBUILD) -o $(BUILDDIR)/$(KO_BIN_DIR)/$(KO_SERVER_NAME) main.go
+	cp -r ./locales  $(BUILDDIR)/$(KO_BIN_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_CONFIG_DIR) && cp -r  $(BASEPATH)/conf/app.yaml $(BUILDDIR)/$(KO_CONFIG_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_PLUGIN_DIR) && cp -r  $(BASEPATH)/plugin/ $(BUILDDIR)/$(KO_PLUGIN_DIR)
 
 build_server_darwin:
 	GOOS=darwin GOARCH=amd64  $(GOBUILD) -o $(BUILDDIR)/$(BIN_DIR)/$(KO_API_SERVER_NAME) main.go
+	cp -r ./locales  $(BUILDDIR)/$(KO_BIN_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_CONFIG_DIR) && cp -r  $(BASEPATH)/conf/app.yaml $(BUILDDIR)/$(KO_CONFIG_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_PLUGIN_DIR) && cp -r  $(BASEPATH)/plugin/ $(BUILDDIR)/$(KO_PLUGIN_DIR)
 
