@@ -1,7 +1,9 @@
 package facts
 
 const (
+	ClusterNameFactName                  = "cluster_name"
 	KubeVersionFactName                  = "kube_version"
+	KubeUpgradeVersionFactName           = "kube_upgrade_version"
 	ContainerRuntimeFactName             = "container_runtime"
 	LbModeFactName                       = "lb_mode"
 	LbKubeApiserverPortFactName          = "lb_kube_apiserver_port"
@@ -39,6 +41,7 @@ const (
 	KubernetesAuditFactName              = "kubernetes_audit"
 	ArchitecturesFactName                = "architectures"
 	IngressControllerTypeFactName        = "ingress_controller_type"
+	HelmVersionFactName                  = "helm_version"
 )
 
 var DefaultFacts = map[string]string{
@@ -80,4 +83,5 @@ var DefaultFacts = map[string]string{
 	IngressControllerTypeFactName:        "nginx",
 	FlannelBackendFactName:               "vxlan",
 	ArchitecturesFactName:                "amd64",
+	HelmVersionFactName:                  "v3",
 }

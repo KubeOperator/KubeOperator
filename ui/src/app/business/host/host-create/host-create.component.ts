@@ -39,7 +39,10 @@ export class HostCreateComponent extends BaseModelComponent<Host> implements OnI
         });
         this.opened = true;
         this.item = new HostCreateRequest();
-        this.hostForm.resetForm();
+        this.hostForm.resetForm({
+            port: 22,
+            credentialId: '',
+        });
     }
 
     onCancel() {

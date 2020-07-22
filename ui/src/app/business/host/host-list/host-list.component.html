@@ -13,6 +13,7 @@
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CLUSTER'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_ZONE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_IP'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CPU'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_HOST_MEMORY'|translate}}</clr-dg-column>
@@ -23,14 +24,25 @@
 
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell><a (click)="onStatusDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
-        <clr-dg-cell>{{item.cluster.name}}</clr-dg-cell>
+        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
+        <clr-dg-cell>{{item.clusterName}}</clr-dg-cell>
+        <clr-dg-cell>{{item.zoneName}}</clr-dg-cell>
         <clr-dg-cell>{{item.ip}}</clr-dg-cell>
         <clr-dg-cell>{{item.cpuCore}}</clr-dg-cell>
         <clr-dg-cell>{{item.memory}}</clr-dg-cell>
         <clr-dg-cell>{{item.gpuNum}}</clr-dg-cell>
         <clr-dg-cell>{{item.os}} {{item.osVersion}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status}}</clr-dg-cell>
+        <clr-dg-cell>
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing'">
+                Loading...
+            </clr-spinner>
+            <span *ngIf="item.status === 'Failed'">
+                <a href="javascript:void(0)" (click)="onStatusDetail(item)">{{item.status}}</a>
+            </span>
+            <span *ngIf="item.status !== 'Failed'">
+               {{item.status}}
+            </span>
+        </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>

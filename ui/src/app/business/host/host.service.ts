@@ -7,7 +7,7 @@ import {Host, HostCreateRequest} from './host';
 @Injectable({
     providedIn: 'root'
 })
-export class HostService extends BaseModelService<any> {
+export class HostService extends BaseModelService<Host> {
 
     baseUrl = '/api/v1/hosts';
 
@@ -15,8 +15,8 @@ export class HostService extends BaseModelService<any> {
         super(http);
     }
 
-    sync(name: string, item: HostCreateRequest): Observable<Host> {
+    sync(name: string): Observable<Host> {
         const itemUrl = `${this.baseUrl}/sync/${name}/`;
-        return this.http.post<Host>(itemUrl, item);
+        return this.http.post<Host>(itemUrl, {});
     }
 }

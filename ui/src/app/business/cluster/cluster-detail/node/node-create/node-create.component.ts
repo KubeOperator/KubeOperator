@@ -33,7 +33,7 @@ export class NodeCreateComponent implements OnInit {
         this.hostService.list().subscribe(data => {
             const list = [];
             data.items.filter((item) => {
-                if (!item.clusterId) {
+                if (!item.clusterName) {
                     return true;
                 }
             }).forEach(h => {

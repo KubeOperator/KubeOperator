@@ -72,6 +72,7 @@ func NewCluster(cluster model.Cluster) *Cluster {
 	for k, v := range clusterVars {
 		c.Kobe.SetVar(k, v)
 	}
+	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
 	return c
 }
 

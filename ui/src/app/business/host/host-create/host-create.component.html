@@ -17,6 +17,7 @@
             <clr-select-container>
                 <label>{{"APP_CREDENTIAL"|translate}}</label>
                 <select clrSelect [(ngModel)]="item.credentialId" name="credential" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option *ngFor="let item of credentials" [value]="item.id">{{item.name}}</option>
                 </select>
             </clr-select-container>
