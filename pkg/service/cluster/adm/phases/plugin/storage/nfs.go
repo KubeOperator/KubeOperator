@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	NfsStorage = "12-plugin-cluster-storage-nfs.yml"
+	NfsStorage = "10-plugin-cluster-storage-nfs.yml"
 )
 
 type NfsStoragePhase struct {

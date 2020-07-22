@@ -162,23 +162,21 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		Source: constant.ClusterSourceLocal,
 	}
 	spec := model.ClusterSpec{
-		RuntimeType:          creation.RuntimeType,
-		DockerStorageDir:     creation.DockerStorageDIr,
-		ContainerdStorageDir: creation.ContainerdStorageDIr,
-		NetworkType:          creation.NetworkType,
-		KubePodSubnet:        creation.KubePodSubnet,
-		KubeServiceSubnet:    creation.KubeServiceSubnet,
-		Version:              creation.Version,
-		Provider:             creation.Provider,
-		KubeApiServerPort:    constant.DefaultApiServerPort,
-	}
-	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
-		spec.WorkerAmount = creation.WorkerAmount
-		plan, err := c.planRepo.Get(creation.Plan)
-		if err != nil {
-			return err
-		}
-		cluster.PlanID = plan.ID
+		RuntimeType:           creation.RuntimeType,
+		DockerStorageDir:      creation.DockerStorageDIr,
+		ContainerdStorageDir:  creation.ContainerdStorageDIr,
+		NetworkType:           creation.NetworkType,
+		KubePodSubnet:         creation.KubePodSubnet,
+		KubeServiceSubnet:     creation.KubeServiceSubnet,
+		Version:               creation.Version,
+		Provider:              creation.Provider,
+		FlannelBackend:        creation.FlannelBackend,
+		CalicoIpv4poolIpip:    creation.CalicoIpv4poolIpip,
+		KubeMaxPods:           creation.KubeMaxPods,
+		KubeProxyMode:         creation.KubeProxyMode,
+		IngressControllerType: creation.IngressControllerType,
+		Architectures:         creation.Architectures,
+		KubeApiServerPort:     constant.DefaultApiServerPort,
 	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}
@@ -188,6 +186,14 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster.Spec = spec
 	cluster.Status = status
 	cluster.Secret = secret
+	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
+		spec.WorkerAmount = creation.WorkerAmount
+		plan, err := c.planRepo.Get(creation.Plan)
+		if err != nil {
+			return err
+		}
+		cluster.PlanID = plan.ID
+	}
 	workerNo := 1
 	masterNo := 1
 	for _, nc := range creation.Nodes {

@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
+	"strconv"
 )
 
 type Cluster struct {
@@ -54,7 +55,7 @@ func (c *Cluster) BeforeCreate() error {
 			return err
 		}
 		c.Nodes[i].Host.ClusterID = c.ID
-		err := tx.Save(&Host{ID: c.Nodes[i].HostID, ClusterID: c.ID}).Error
+		err := tx.Save(&c.Nodes[i].Host).Error
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -152,6 +153,13 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
 	}
+	if c.Spec.FlannelBackend != "" {
+		result[facts.FlannelBackendFactName] = c.Spec.FlannelBackend
+	}
+
+	if c.Spec.CalicoIpv4poolIpip != "" {
+		result[facts.CalicoIpv4poolIpIpFactName] = c.Spec.CalicoIpv4poolIpip
+	}
 	if c.Spec.RuntimeType != "" {
 		result[facts.ContainerRuntimeFactName] = c.Spec.RuntimeType
 	}
@@ -169,6 +177,19 @@ func (c Cluster) GetKobeVars() map[string]string {
 	}
 	if c.Spec.KubeServiceSubnet != "" {
 		result[facts.KubeServiceSubnetFactName] = c.Spec.KubeServiceSubnet
+	}
+	if c.Spec.KubeMaxPods != 0 {
+		result[facts.KubeMaxPodsFactName] = strconv.Itoa(c.Spec.KubeMaxPods)
+	}
+	if c.Spec.KubeProxyMode != "" {
+		result[facts.KubeProxyModeFactName] = c.Spec.KubeProxyMode
+	}
+
+	if c.Spec.IngressControllerType != "" {
+		result[facts.IngressControllerTypeFactName] = c.Spec.IngressControllerType
+	}
+	if c.Spec.Architectures != "" {
+		result[facts.ArchitecturesFactName] = c.Spec.Architectures
 	}
 	return result
 }

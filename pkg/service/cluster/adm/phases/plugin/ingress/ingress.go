@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	ingressPlaybook = "16-ingress-controller.yml"
+	ingressPlaybook = "14-ingress-controller.yml"
 )
 
 type ControllerPhase struct {

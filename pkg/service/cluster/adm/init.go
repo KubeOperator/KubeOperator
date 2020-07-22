@@ -105,7 +105,6 @@ func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
 	phase := prepare.ContainerRuntimePhase{
-		ContainerRuntime: c.Spec.RuntimeType,
 	}
 	return phase.Run(c.Kobe)
 }
@@ -141,6 +140,11 @@ func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
 }
 func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 	phase := initial.NetworkPhase{}
+	return phase.Run(c.Kobe)
+}
+
+func (ca *ClusterAdm) EnsureInitMetricsServer(c *Cluster) error {
+	phase := initial.MetricsServerPhase{}
 	return phase.Run(c.Kobe)
 }
 

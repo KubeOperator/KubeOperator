@@ -1,50 +1,44 @@
 package facts
 
 const (
-	KubeVersionFactName              = "kube_version"
-	ContainerRuntimeFactName         = "container_runtime"
-	LbModeFactName                   = "lb_mode"
-	LbKubeApiserverPortFactName      = "lb_kube_apiserver_port"
-	KubeDnsDomainFactName            = "kube_dns_domain"
-	KubePodSubnetFactName            = "kube_pod_subnet"
-	KubeServiceSubnetFactName        = "kube_service_subnet"
-	KubeNetworkNodePrefixFactName    = "kube_network_node_prefix"
-	KubeMaxPodsFactName              = "kube_max_pods"
-	KubeServiceNodePortRangeFactName = "kube_service_node_port_range"
-	KubeProxyModeFactName            = "kube_proxy_mode"
-	NetworkPluginFactName            = "network_plugin"
-	KubeImageRepositoryFactName      = "kube_image_repository"
-	PodInfraContainerImageFactName   = "pod_infra_container_image"
-	CertsExpiredFactName             = "certs_expired"
-
+	KubeVersionFactName                  = "kube_version"
+	ContainerRuntimeFactName             = "container_runtime"
+	LbModeFactName                       = "lb_mode"
+	LbKubeApiserverPortFactName          = "lb_kube_apiserver_port"
+	KubeDnsDomainFactName                = "kube_dns_domain"
+	KubePodSubnetFactName                = "kube_pod_subnet"
+	KubeServiceSubnetFactName            = "kube_service_subnet"
+	KubeNetworkNodePrefixFactName        = "kube_network_node_prefix"
+	KubeMaxPodsFactName                  = "kube_max_pods"
+	KubeServiceNodePortRangeFactName     = "kube_service_node_port_range"
+	KubeProxyModeFactName                = "kube_proxy_mode"
+	NetworkPluginFactName                = "network_plugin"
+	KubeImageRepositoryFactName          = "kube_image_repository"
+	PodInfraContainerImageFactName       = "pod_infra_container_image"
+	CertsExpiredFactName                 = "certs_expired"
 	KubeCpuReservedFactName              = "kube_cpu_reserved"
 	KubeMemoryReservedFactName           = "kube_memory_reserved"
 	KubeEphemeralStorageReservedFactName = "kube_ephemeral_storage_reserved"
-
 	EvictionHardImagefsAvailableFactName = "eviction_hard_imagefs_available"
 	EvictionHardMemoryAvailableFactName  = "eviction_hard_memory_available"
 	EvictionHardNodefsAvailableFactName  = "eviction_hard_nodefs_available"
 	EvictionHardNodefsInodesFreeFactName = "eviction_hard_nodefs_inodes_free"
-
-	KubeletRootDirFactName       = "kubelet_root_dir"
-	DockerStorageDirFactName     = "docker_storage_dir"
-	ContainerdStorageDirFactName = "containerd_storage_dir"
-
-	EtcdDataDirFactName = "etcd_data_dir"
-
-	BinDirFactName  = "bin_dir"
-	BaseDirFactName = "base_dir"
-
-	LocalHostnameFactName = "local_hostname"
-	RepoPortFactName      = "repo_port"
-	RegistryPortFactName  = "registry_port"
-	CorednsImageFactName  = "coredns_image"
-	KubeadmTokenFactName  = "kubeadm_token"
-
-	CalicoIpv4poolIpIpFactName = "calico_ipv4pool_ipip"
-	KubernetesAuditFactName    = "kubernetes_audit"
-
-	IngressControllerTypeFactName = "ingress_controller_type"
+	KubeletRootDirFactName               = "kubelet_root_dir"
+	DockerStorageDirFactName             = "docker_storage_dir"
+	ContainerdStorageDirFactName         = "containerd_storage_dir"
+	EtcdDataDirFactName                  = "etcd_data_dir"
+	BinDirFactName                       = "bin_dir"
+	BaseDirFactName                      = "base_dir"
+	LocalHostnameFactName                = "local_hostname"
+	RepoPortFactName                     = "repo_port"
+	RegistryPortFactName                 = "registry_port"
+	CorednsImageFactName                 = "coredns_image"
+	KubeadmTokenFactName                 = "kubeadm_token"
+	CalicoIpv4poolIpIpFactName           = "calico_ipv4pool_ipip"
+	FlannelBackendFactName               = "flannel_backend"
+	KubernetesAuditFactName              = "kubernetes_audit"
+	ArchitecturesFactName                = "architectures"
+	IngressControllerTypeFactName        = "ingress_controller_type"
 )
 
 var DefaultFacts = map[string]string{
@@ -84,4 +78,6 @@ var DefaultFacts = map[string]string{
 	CalicoIpv4poolIpIpFactName:           "Always",
 	KubernetesAuditFactName:              "false",
 	IngressControllerTypeFactName:        "nginx",
+	FlannelBackendFactName:               "vxlan",
+	ArchitecturesFactName:                "amd64",
 }

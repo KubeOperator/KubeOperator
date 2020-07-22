@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -98,6 +99,7 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 		Port:         creation.Port,
 		CredentialID: creation.CredentialID,
 		Credential:   credential,
+		Status:       constant.Initializing,
 	}
 
 	err = h.hostRepo.Save(&host)

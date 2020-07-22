@@ -68,6 +68,10 @@ func NewCluster(cluster model.Cluster) *Cluster {
 	for name, _ := range facts.DefaultFacts {
 		c.Kobe.SetVar(name, facts.DefaultFacts[name])
 	}
+	clusterVars := cluster.GetKobeVars()
+	for k, v := range clusterVars {
+		c.Kobe.SetVar(k, v)
+	}
 	return c
 }
 
@@ -87,9 +91,10 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitEtcd,
 		ca.EnsureInitMaster,
 		ca.EnsureInitWorker,
-		ca.EnsurePostInit,
 		ca.EnsureInitNetwork,
+		ca.EnsureInitMetricsServer,
 		ca.EnsureInitIngressController,
+		ca.EnsurePostInit,
 	}
 	return ca
 }

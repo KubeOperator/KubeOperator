@@ -1,9 +1,0 @@
-#credential
-invalid_credential_name: "invalid credential name"
-delete_credential_failed: "delete credential failed , credential has associated resources!"
-
-#user
-user_not_found: "can not find user"
-password_not_match: "password not match"
-user_is_not_active: "user is not active"
-old_password_check_failed: "The original password is incorrect"
