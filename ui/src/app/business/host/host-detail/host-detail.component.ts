@@ -37,7 +37,7 @@ export class HostDetailComponent extends BaseModelComponent<Host> implements OnI
 
     onSync() {
         this.loading = true;
-        this.hostService.sync(this.item.name, this.item).subscribe(data => {
+        this.hostService.sync(this.item.name).subscribe(data => {
             this.item = data;
             this.loading = false;
         }, res => {

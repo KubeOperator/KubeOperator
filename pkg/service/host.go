@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -12,7 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"os"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
 )
 
@@ -25,10 +26,6 @@ type HostService interface {
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
 }
-
-var (
-	getHostConfigError = "get host config error,%s"
-)
 
 type hostService struct {
 	hostRepo repository.HostRepository
@@ -46,7 +43,11 @@ func (h hostService) Get(name string) (dto.Host, error) {
 	if err != nil {
 		return hostDTO, err
 	}
-	hostDTO.Host = mo
+	hostDTO = dto.Host{
+		Host:        mo,
+		ClusterName: mo.Cluster.Name,
+		ZoneName:    mo.Zone.Name,
+	}
 	return hostDTO, err
 }
 
@@ -57,7 +58,11 @@ func (h hostService) List() ([]dto.Host, error) {
 		return hostDTOs, err
 	}
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{Host: mo})
+		hostDTOs = append(hostDTOs, dto.Host{
+			Host:        mo,
+			ClusterName: mo.Cluster.Name,
+			ZoneName:    mo.Zone.Name,
+		})
 	}
 	return hostDTOs, err
 }
@@ -70,7 +75,11 @@ func (h hostService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-		hostDTOs = append(hostDTOs, dto.Host{Host: mo})
+		hostDTOs = append(hostDTOs, dto.Host{
+			Host:        mo,
+			ClusterName: mo.Cluster.Name,
+			ZoneName:    mo.Zone.Name,
+		})
 	}
 	page.Total = total
 	page.Items = hostDTOs
@@ -91,7 +100,6 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 	if err != nil {
 		return dto.Host{}, err
 	}
-
 	host := model.Host{
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
@@ -99,7 +107,7 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 		Port:         creation.Port,
 		CredentialID: creation.CredentialID,
 		Credential:   credential,
-		Status:       constant.Initializing,
+		Status:       constant.ClusterInitializing,
 	}
 
 	err = h.hostRepo.Save(&host)
@@ -135,20 +143,14 @@ func (h hostService) Batch(op dto.HostOp) error {
 			Name:      item.Name,
 		})
 	}
-	err := h.hostRepo.Batch(op.Operation, deleteItems)
-	if err != nil {
-		return err
-	}
-	return nil
+	return h.hostRepo.Batch(op.Operation, deleteItems)
 }
 
 func (h hostService) GetHostGpu(host *model.Host) error {
-
 	password, privateKey, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
 	}
-
 	client, err := ssh.New(&ssh.Config{
 		User:        host.Credential.Username,
 		Host:        host.Ip,
@@ -170,24 +172,25 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 	return err
 }
 func (h hostService) RunGetHostConfig(host model.Host) {
+	//log.Info(fmt.Sprintf("gather host info  name: %s ip: %s", host.Name, host.Ip))
+	host.Status = constant.ClusterInitializing
+	_ = h.hostRepo.Save(&host)
 	err := h.GetHostConfig(&host)
 	if err != nil {
-		if sErr := h.hostRepo.Save(&host); sErr != nil {
-		}
-		log.Fatalf("get host [%s] config failed reason: %s", host.Name, err.Error())
+		host.Status = constant.ClusterFailed
+		host.Message = err.Error()
+		_ = h.hostRepo.Save(&host)
+		return
 	}
-	if sErr := h.hostRepo.Save(&host); sErr != nil {
-	}
+	host.Status = constant.ClusterRunning
+	_ = h.hostRepo.Save(&host)
 }
 
 func (h hostService) GetHostConfig(host *model.Host) error {
-
-	host.Status = model.AnsibleError
 	password, _, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
 	}
-
 	ansible := kobe.NewAnsible(&kobe.Config{
 		Inventory: api.Inventory{
 			Hosts: []*api.Host{
@@ -214,14 +217,35 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 	if err != nil {
 		return err
 	}
-	if err = ansible.Watch(os.Stdout, resultId); err != nil {
-		return err
-	}
-	res, err := ansible.GetResult(resultId)
-	if err != nil {
-		return err
-	}
-	result, err := kobe.ParseResult(res.Content)
+	var result kobe.Result
+	err = wait.Poll(5*time.Second, 5*time.Minute, func() (done bool, err error) {
+		res, err := ansible.GetResult(resultId)
+		if err != nil {
+			return true, err
+		}
+		if res.Finished {
+			if res.Success {
+				result, err = kobe.ParseResult(res.Content)
+				if err != nil {
+					return true, err
+				}
+			} else {
+				if res.Content != "" {
+					result, err = kobe.ParseResult(res.Content)
+					if err != nil {
+						return true, err
+					}
+					result.GatherFailedInfo()
+					if result.HostFailedInfo != nil && len(result.HostFailedInfo) > 0 {
+						by, _ := json.Marshal(&result.HostFailedInfo)
+						return true, errors.New(string(by))
+					}
+				}
+			}
+			return true, nil
+		}
+		return false, nil
+	})
 	if err != nil {
 		return err
 	}
@@ -260,7 +284,6 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 			}
 		}
 		host.Volumes = volumes
-		host.Status = model.Running
 	}
 	return nil
 }

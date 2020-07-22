@@ -47,7 +47,11 @@ func (h hostRepository) Get(name string) (model.Host, error) {
 
 func (h hostRepository) List() ([]model.Host, error) {
 	var hosts []model.Host
-	err := db.DB.Model(model.Host{}).Preload("Volumes").Preload("Cluster").Find(&hosts).Error
+	err := db.DB.Model(model.Host{}).
+		Preload("Volumes").
+		Preload("Cluster").
+		Preload("Zone").
+		Find(&hosts).Error
 	return hosts, err
 }
 
@@ -58,6 +62,7 @@ func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 		Count(&total).
 		Preload("Volumes").
 		Preload("Cluster").
+		Preload("Zone").
 		Find(&hosts).
 		Offset((num - 1) * size).
 		Limit(size).
@@ -130,30 +135,24 @@ func (h hostRepository) ListByCredentialID(credentialID string) ([]model.Host, e
 }
 
 func (h hostRepository) Batch(operation string, items []model.Host) error {
+
+	tx := db.DB.Begin()
 	switch operation {
 	case constant.BatchOperationDelete:
-		var clusterIds []string
-		for _, item := range items {
-			clusterIds = append(clusterIds, item.ClusterID)
-		}
-		var clusters []model.Cluster
-		err := db.DB.Where("id in (?)", clusterIds).Find(&clusters).Error
-		if err != nil {
-			return err
-		}
-		if len(clusters) > 0 {
-			return errors.New(DeleteFailedError)
-		}
-		var ids []string
-		for _, item := range items {
-			ids = append(ids, item.ID)
-		}
-		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
-		if err != nil {
-			return err
+		for i := range items {
+			var host model.Host
+			if err := db.DB.Where(model.Host{Name: items[i].Name}).First(&host).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := db.DB.Delete(&host).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	default:
 		return constant.NotSupportedBatchOperation
 	}
+	tx.Commit()
 	return nil
 }

@@ -41,7 +41,7 @@ export class HostDeleteComponent extends BaseModelComponent<Host> implements OnI
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

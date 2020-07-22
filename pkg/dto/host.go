@@ -4,6 +4,8 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Host struct {
 	model.Host
+	ClusterName string `json:"clusterName"`
+	ZoneName    string `json:"zoneName"`
 }
 
 type HostCreate struct {
