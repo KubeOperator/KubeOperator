@@ -7,7 +7,13 @@ export class ProjectResource extends BaseModel {
 export class ProjectResourceCreateRequest extends BaseRequest {
     projectId: string;
     resourceType: string;
-    resourceId: string;
+    resourceName: string;
+}
+
+export class ProjectResourceDeleteRequest extends BaseRequest {
+    projectId: string;
+    resourceType: string;
+    resourceName: string;
 }
 
 export class ProjectResourceCheck {
