@@ -3,7 +3,7 @@ import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {CloudTemplate, CloudZone, CloudZoneRequest, Subnet, Zone, ZoneCreateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
-import {Region, RegionCreateRequest} from '../../region/region';
+import {Region} from '../../region/region';
 import {ClrWizard, ClrWizardPage} from '@clr/angular';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';

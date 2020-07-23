@@ -7,12 +7,12 @@ import (
 
 type Credential struct {
 	common.BaseModel
-	ID         string `json:"id"`
-	Name       string `json:"name" gorm:"not null;unique"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	PrivateKey string `json:"private_key"`
-	Type       string `json:"type"`
+	ID         string `json:"id" gorm:"type:varchar(64)"`
+	Name       string `json:"name" gorm:"type:varchar(256);not null;unique"`
+	Username   string `json:"username" gorm:"type:varchar(64)"`
+	Password   string `json:"password" gorm:"type:varchar(256)"`
+	PrivateKey string `json:"privateKey" gorm:"type: text(0)"`
+	Type       string `json:"type" gorm:"type:varchar(64)"`
 }
 
 func (c *Credential) BeforeCreate() (err error) {

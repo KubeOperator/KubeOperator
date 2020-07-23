@@ -6,7 +6,6 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {NgForm} from '@angular/forms';
 import {CloudProviderService} from '../cloud-provider.service';
-import {CloudProvider} from '../cloud-provider';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ClrWizard, ClrWizardPage} from '@clr/angular';
 import {TranslateService} from '@ngx-translate/core';
