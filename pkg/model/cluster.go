@@ -109,6 +109,18 @@ func (c Cluster) BeforeDelete() error {
 				tx.Rollback()
 				return err
 			}
+			if node.HostID != "" {
+				host := Host{ID: node.HostID}
+				if err := db.DB.First(&host).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+				host.ClusterID = ""
+				if err := db.DB.Save(&host).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
 		}
 	}
 	tx.Commit()
