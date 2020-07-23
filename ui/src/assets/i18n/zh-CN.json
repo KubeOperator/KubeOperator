@@ -206,6 +206,7 @@
   "EnsureInitMaster": "初始化控制平面",
   "EnsureInitWorker": "初始化工作负载",
   "EnsurePostInit": "配置集群",
+  "EnsureInitMetricsServer": "初始化监控组件",
   "EnsureInitNetwork": "初始化网络",
   "EnsureInitIngressController": "初始化服务暴露组件",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
@@ -223,5 +224,4 @@
   "APP_PROJECT_ADD": "添加项目",
   "APP_DELETE_PROJECT": "删除项目",
   "APP_USER_ADMIN": " 系统管理员"
-
 }

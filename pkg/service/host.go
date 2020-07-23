@@ -172,7 +172,6 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 	return err
 }
 func (h hostService) RunGetHostConfig(host model.Host) {
-	//log.Info(fmt.Sprintf("gather host info  name: %s ip: %s", host.Name, host.Ip))
 	host.Status = constant.ClusterInitializing
 	_ = h.hostRepo.Save(&host)
 	err := h.GetHostConfig(&host)

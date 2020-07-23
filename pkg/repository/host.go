@@ -74,11 +74,21 @@ func (h hostRepository) Save(host *model.Host) error {
 	if db.DB.NewRecord(host) {
 		return db.DB.Create(&host).Error
 	} else {
-		err := db.DB.Where(model.Volume{HostID: host.ID}).Delete(model.Volume{}).Error
-		if err != nil {
+		tx := db.DB.Begin()
+		if len(host.Volumes) > 0 {
+			for i, _ := range host.Volumes {
+				if err := tx.FirstOrCreate(&host.Volumes[i], model.Volume{Name: host.Volumes[i].Name}).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+		if err := tx.Save(&host).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
-		return db.DB.Save(&host).Error
+		tx.Commit()
+		return nil
 	}
 }
 
