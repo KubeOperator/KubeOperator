@@ -223,10 +223,12 @@
   "APP_ROLE": "角色",
   "APP_PROJECT_ADD": "添加项目",
   "APP_DELETE_PROJECT": "删除项目",
-  "APP_USER_ADMIN": " 系统管理员",
   "APP_RESOURCE_REMOVE": "取消授权",
   "APP_RESOURCE_REMOVE_CONFIRM": "确定取消授权?",
   "APP_RESOURCE_AUTH": "资源授权",
   "APP_USER_ADMIN": " 系统管理员",
-  "APP_BARE_METAL": "裸金属"
+  "APP_BARE_METAL": "裸金属",
+  "APP_RESOURCE": "资源",
+  "APP_PROJECT_MEMBER": "成员",
+  "APP_LOGIN": "登陆"
 }
