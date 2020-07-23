@@ -21,7 +21,7 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
     opened = false;
     isSubmitGoing = false;
     item: RegionCreateRequest = new RegionCreateRequest();
-    cloudProviders: CloudProvider[] = [];
+    cloudProviders: string[] = [];
     isParamsValid;
     isParamsCheckGoing = false;
     cloudRegions: [] = [];
