@@ -34,12 +34,6 @@ func Phases() []Phase {
 			Password: viper.GetString("db.password"),
 		},
 		&plugin.InitPluginDBPhase{},
-		//&helm.InitHelmPhase{
-		//	RepoName:     viper.GetString("helm.repo.name"),
-		//	RepoUrl:      viper.GetString("helm.repo.url"),
-		//	RepoUsername: viper.GetString("helm.repo.username"),
-		//	RepoPassword: viper.GetString("helm.repo.password"),
-		//},
 	}
 }
 
