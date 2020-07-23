@@ -220,8 +220,6 @@
   "APP_ROLE": "Role",
   "APP_PROJECT_ADD": "Create Project",
   "APP_DELETE_PROJECT": "Delete Project",
-  "APP_USER_ADMIN": "System Admin"
-
-
-
+  "APP_USER_ADMIN": "System Admin",
+  "APP_BARE_METAL": "Bare Metal"
 }
