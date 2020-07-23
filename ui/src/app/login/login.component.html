@@ -26,7 +26,8 @@
             <div *ngIf="isError" class="error active">
                 {{message}}
             </div>
-            <button type="submit" class="btn btn-primary" (click)="login()" [disabled]="loginForm.invalid">登录</button>
+            <button type="submit" class="btn btn-primary" (click)="login()"
+                    [disabled]="loginForm.invalid">{{'APP_LOGIN'|translate}}</button>
         </div>
     </form>
 </div>
