@@ -227,8 +227,9 @@
   "APP_BARE_METAL": "Bare Metal",
   "APP_RESOURCE": "Resource",
   "APP_PROJECT_MEMBER": "Project Member",
-  "APP_LOGIN": "Login"
-
-
+  "APP_LOGIN": "Login",
+  "APP_SYSTEM_NTP_SERVER": "NTP Server",
+  "APP_SYSTEM_NTP_SERVER_HELPER": "Optional, provide time synchronization service for the cluster",
+  "APP_NTP_INVALID": "NTP Server is not a valid IPV4 address!"
 
 }

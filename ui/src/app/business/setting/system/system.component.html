@@ -6,6 +6,11 @@
                 <input clrInput [(ngModel)]="item.vars['ip']" name="ip" size=45 required/>
                 <clr-control-helper>{{'APP_SYSTEM_IP_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_SYSTEM_NTP_SERVER'|translate}}</label>
+                <input clrInput [(ngModel)]="item.vars['ntp_server']" name="ntp" size=45/>
+                <clr-control-helper>{{'APP_SYSTEM_NTP_SERVER_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
         </div>
     </form>
     <button class="btn btn-info-outline" (click)="onSubmit()"
