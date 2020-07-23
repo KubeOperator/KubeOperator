@@ -221,5 +221,9 @@
   "APP_PROJECT_ADD": "Create Project",
   "APP_DELETE_PROJECT": "Delete Project",
   "APP_USER_ADMIN": "System Admin",
+  "APP_RESOURCE_REMOVE": "Cancel Authorization",
+  "APP_RESOURCE_REMOVE_CONFIRM": "Are you sure to cancel authorization?",
+  "APP_RESOURCE_AUTH": "Resource Authorization",
+  "APP_USER_ADMIN": "System Admin",
   "APP_BARE_METAL": "Bare Metal"
 }

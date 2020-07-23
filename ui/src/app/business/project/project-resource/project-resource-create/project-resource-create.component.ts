@@ -77,7 +77,7 @@ export class ProjectResourceCreateComponent extends BaseModelComponent<ProjectRe
                 const item = new ProjectResourceCreateRequest();
                 item.projectId = this.currentProject.id;
                 item.resourceType = this.resourceType;
-                item.resourceId = re.data['id'];
+                item.resourceName = re.data['name'];
                 items.push(item);
             }
         }

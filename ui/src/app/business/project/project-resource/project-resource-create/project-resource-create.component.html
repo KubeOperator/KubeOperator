@@ -1,28 +1,21 @@
-<clr-modal [(clrModalOpen)]="opened">
-    <h3 class="modal-title">资源授权</h3>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_RESOURCE_AUTH'|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #resourceForm="ngForm">
             <clr-checkbox-container *ngIf="resourceType==='HOST'">
                 <label>{{'APP_HOST'|translate}}</label>
                 <clr-checkbox-wrapper *ngFor="let resource of resources">
-                    <input type="checkbox" clrCheckbox name="host" [(ngModel)]="resource.checked" />
+                    <input type="checkbox" clrCheckbox name="host" [(ngModel)]="resource.checked"/>
                     <label>{{resource.data['name']}}</label>
                 </clr-checkbox-wrapper>
             </clr-checkbox-container>
-            <!--            <clr-checkbox-container *ngIf="resourceType==='PLAN'">-->
-            <!--                <label>部署计划</label>-->
-            <!--                <clr-checkbox-wrapper *ngFor="let resource of resources">-->
-            <!--                    <input type="checkbox" clrCheckbox name="options"  [(ngModel)]="resource.checked"/>-->
-            <!--                    <label>{{resource.data.name}}</label>-->
-            <!--                </clr-checkbox-wrapper>-->
-            <!--            </clr-checkbox-container>-->
-            <!--            <clr-checkbox-container *ngIf="resourceType==='STORAGE'">-->
-            <!--                <label>存储</label>-->
-            <!--                <clr-checkbox-wrapper *ngFor="let resource of resources">-->
-            <!--                    <input type="checkbox" clrCheckbox name="storage"  [(ngModel)]="resource.checked"/>-->
-            <!--                    <label>{{resource.data.name}}</label>-->
-            <!--                </clr-checkbox-wrapper>-->
-            <!--            </clr-checkbox-container>-->
+            <clr-checkbox-container *ngIf="resourceType==='PLAN'">
+                <label>{{'APP_PLAN'|translate}}</label>
+                <clr-checkbox-wrapper *ngFor="let resource of resources">
+                    <input type="checkbox" clrCheckbox name="options" [(ngModel)]="resource.checked"/>
+                    <label>{{resource.data['name']}}</label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
             <!--            <clr-checkbox-container *ngIf="resourceType==='BACKUP_STORAGE'">-->
             <!--                <label>备份账号</label>-->
             <!--                <clr-checkbox-wrapper *ngFor="let resource of resources">-->
@@ -34,7 +27,7 @@
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">取消</button>
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="resourceForm.invalid">提交</button>
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="resourceForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

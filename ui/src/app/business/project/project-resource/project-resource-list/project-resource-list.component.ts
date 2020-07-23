@@ -15,6 +15,7 @@ export class ProjectResourceListComponent extends BaseModelComponent<ProjectReso
 
     currentProject: Project = new Project();
     resourceType: string;
+    @Output() deleteEvent = new EventEmitter<any>();
 
     constructor(private projectResourceService: ProjectResourceService,
                 private route: ActivatedRoute) {
@@ -33,10 +34,19 @@ export class ProjectResourceListComponent extends BaseModelComponent<ProjectReso
         this.createEvent.emit(this.resourceType);
     }
 
+    changeTab(resourceType) {
+        this.resourceType = resourceType;
+        this.pageBy();
+    }
+
     pageBy() {
         this.projectResourceService.pageBy(this.page, this.size, this.currentProject.id, this.resourceType).subscribe(res => {
             this.items = res.items;
             this.loading = false;
         });
+    }
+
+    onDelete() {
+        this.deleteEvent.emit({items: this.selected, resourceType: this.resourceType});
     }
 }

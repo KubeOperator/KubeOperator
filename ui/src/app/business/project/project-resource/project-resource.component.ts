@@ -28,9 +28,14 @@ export class ProjectResourceComponent implements OnInit {
     refresh() {
         this.list.reset();
         this.list.refresh();
+        this.list.pageBy();
     }
 
     openCreate(resourceType) {
         this.create.open(resourceType);
+    }
+
+    openDelete(deleteItem) {
+        this.delete.open(deleteItem);
     }
 }

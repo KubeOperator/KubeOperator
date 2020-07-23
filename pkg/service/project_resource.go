@@ -29,7 +29,6 @@ func NewProjectResourceService() ProjectResourceService {
 func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId string, resourceType string) (page.Page, error) {
 
 	var page page.Page
-	var projectResourceDTOS []interface{}
 
 	total, mos, err := p.projectResourceRepo.PageByProjectIdAndType(num, size, projectId, resourceType)
 	if err != nil {
@@ -41,35 +40,79 @@ func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId 
 	}
 
 	if len(resourceIds) > 0 {
-		var tableName string
 		switch resourceType {
 		case constant.ResourceHost:
-			tableName = model.Host{}.TableName()
+			var hosts []model.Host
+			err = db.DB.Model(model.Host{}).Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
+			if err != nil {
+				return page, err
+			}
+
+			var result []dto.Host
+			for _, mo := range hosts {
+				hostDTO := dto.Host{
+					Host:        mo,
+					ClusterName: mo.Cluster.Name,
+					ZoneName:    mo.Zone.Name,
+				}
+				result = append(result, hostDTO)
+			}
+			page.Items = result
 			break
 		case constant.ResourcePlan:
-			tableName = model.Plan{}.TableName()
+			var result []model.Plan
+			err = db.DB.Table(model.Plan{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
+			if err != nil {
+				return page, err
+			}
+			page.Items = result
 			break
 		default:
 			return page, err
 		}
-		err := db.DB.Table(tableName).Where("id in (?)", resourceIds).Find(&projectResourceDTOS).Error
-		if err != nil {
-			return page, err
-		}
+		page.Total = total
 	}
 
-	page.Total = total
-	page.Items = projectResourceDTOS
 	return page, err
 }
 
 func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 	var opItems []model.ProjectResource
 	for _, item := range op.Items {
+
+		var resourceId string
+		switch item.ResourceType {
+		case constant.ResourceHost:
+			host, err := NewHostService().Get(item.ResourceName)
+			if err != nil {
+				return err
+			}
+			resourceId = host.ID
+			break
+		case constant.ResourcePlan:
+			plan, err := NewPlanService().Get(item.ResourceName)
+			if err != nil {
+				return err
+			}
+			resourceId = plan.ID
+			break
+		}
+
+		var itemId string
+		if op.Operation == constant.BatchOperationDelete {
+			var p model.ProjectResource
+			err := db.DB.Model(model.ProjectResource{}).
+				Where("project_id = ? AND resource_type = ? AND resource_id = ?", item.ProjectID, item.ResourceType, resourceId).First(&p).Error
+			if err != nil {
+				return err
+			}
+			itemId = p.ID
+		}
+
 		opItems = append(opItems, model.ProjectResource{
 			BaseModel:    common.BaseModel{},
-			ID:           item.ID,
-			ResourceId:   item.ResourceId,
+			ID:           itemId,
+			ResourceId:   resourceId,
 			ResourceType: item.ResourceType,
 			ProjectID:    item.ProjectID,
 		})
@@ -83,19 +126,33 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 
 func (p projectResourceService) GetResources(resourceType string) (interface{}, error) {
 	var result interface{}
+	var projectResources []model.ProjectResource
 	var resourceIds []string
-	err := db.DB.Debug().Table(model.ProjectResource{}.TableName()).Select("resource_id").Where("resource_type = ?", resourceType).Find(&resourceIds).Error
+	err := db.DB.Model(model.ProjectResource{}).Select("resource_id").Where("resource_type = ?", resourceType).Find(&projectResources).Error
 	if err != nil {
 		return result, err
 	}
-	resourceIds = append(resourceIds, "id")
+	for _, pr := range projectResources {
+		resourceIds = append(resourceIds, pr.ResourceId)
+	}
+	if len(resourceIds) == 0 {
+		resourceIds = append(resourceIds, "1")
+	}
 
 	switch resourceType {
 	case constant.ResourceHost:
 		var result []model.Host
-		err = db.DB.Debug().Table(model.Host{}.TableName()).
+		err = db.DB.Model(model.Host{}).
 			Where("id not  in (?) and cluster_id = ''", resourceIds).
 			Find(&result).Error
+		if err != nil {
+			return result, err
+		}
+		return result, nil
+
+	case constant.ResourcePlan:
+		var result []model.Plan
+		err = db.DB.Model(model.Plan{}).Where("id not  in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
 		if err != nil {
 			return result, err
 		}
