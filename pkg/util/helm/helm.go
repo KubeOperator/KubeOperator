@@ -2,7 +2,10 @@ package helm
 
 import (
 	"context"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/ghodss/yaml"
 	"github.com/gofrs/flock"
 	"github.com/pkg/errors"
@@ -19,12 +22,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
 const (
 	helmDriver = "configmap"
 )
+
+var log = logger.Default
 
 func nolog(format string, v ...interface{}) {}
 
@@ -73,6 +79,9 @@ func LoadCharts(path string) (*chart.Chart, error) {
 }
 
 func (c Client) Install(name string, chartName string, values map[string]interface{}) (*release.Release, error) {
+	if err := updateRepo(); err != nil {
+		return nil, err
+	}
 	client := action.NewInstall(c.actionConfig)
 	client.ReleaseName = name
 	client.Namespace = c.Namespace
@@ -108,7 +117,70 @@ func GetSettings() *cli.EnvSettings {
 
 }
 
-func AddRepo(name string, url string, username string, password string) error {
+func updateRepo() error {
+	repos, err := ListRepo()
+	if err != nil {
+		return err
+	}
+	flag := false
+	for _, r := range repos {
+		if r.Name == "nexus" {
+			flag = true
+		}
+	}
+	if !flag {
+		r := repository.NewSystemSettingRepository()
+		s, err := r.Get("ip")
+		if err != nil || s.Value == "" {
+			return errors.New("can not find local hostname")
+		}
+		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/helm", s.Value), "admin", "admin123")
+		if err != nil {
+			return err
+		}
+	} else {
+		settings := GetSettings()
+		repoFile := settings.RepositoryConfig
+		repoCache := settings.RepositoryCache
+		f, err := repo.LoadFile(repoFile)
+		if err != nil {
+			return err
+		}
+		var repos []*repo.ChartRepository
+		for _, cfg := range f.Repositories {
+			r, err := repo.NewChartRepository(cfg, getter.All(settings))
+			if err != nil {
+				return err
+			}
+			if repoCache != "" {
+				r.CachePath = repoCache
+			}
+			repos = append(repos, r)
+		}
+		updateCharts(repos)
+	}
+	return nil
+}
+
+func updateCharts(repos []*repo.ChartRepository) {
+	log.Debug("Hang tight while we grab the latest from your chart repositories...")
+	var wg sync.WaitGroup
+	for _, re := range repos {
+		wg.Add(1)
+		go func(re *repo.ChartRepository) {
+			defer wg.Done()
+			if _, err := re.DownloadIndexFile(); err != nil {
+				log.Debugf("...Unable to get an update from the %q chart repository (%s):\n\t%s\n", re.Config.Name, re.Config.URL, err)
+			} else {
+				log.Debugf("...Successfully got an update from the %q chart repository\n", re.Config.Name)
+			}
+		}(re)
+	}
+	wg.Wait()
+	log.Debugf("Update Complete. ⎈ Happy Helming!⎈ ")
+}
+
+func addRepo(name string, url string, username string, password string) error {
 	settings := GetSettings()
 
 	repoFile := settings.RepositoryConfig
@@ -176,5 +248,4 @@ func ListRepo() ([]*repo.Entry, error) {
 		return repos, err
 	}
 	return f.Repositories, nil
-
 }
