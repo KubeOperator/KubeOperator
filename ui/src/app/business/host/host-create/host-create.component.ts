@@ -47,14 +47,16 @@ export class HostCreateComponent extends BaseModelComponent<Host> implements OnI
 
     onCancel() {
         this.opened = false;
+        this.item = new HostCreateRequest();
+        this.hostForm.resetForm(this.item);
     }
 
     onSubmit() {
         this.isSubmitGoing = true;
         this.hostService.create(this.item).subscribe(data => {
-            this.opened = false;
             this.isSubmitGoing = false;
             this.created.emit();
+            this.onCancel();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
