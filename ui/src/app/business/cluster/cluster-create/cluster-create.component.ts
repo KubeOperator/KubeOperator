@@ -54,8 +54,8 @@ export class ClusterCreateComponent implements OnInit {
         this.item.containerdStorageDir = '/var/lib/containerd';
         this.item.flannelBackend = 'vxlan';
         this.item.calicoIpv4poolIpip = 'Always';
-        this.item.kubePodSubnet = '10.244.0.0/18';
-        this.item.kubeServiceSubnet = '10.244.64.0/18';
+        this.item.kubePodSubnet = '179.10.0.0/16';
+        this.item.kubeServiceSubnet = '179.20.0.0/16';
         this.item.kubeMaxPod = 110;
         this.item.certsExpired = 36500;
         this.item.kubernetesAudit = false;

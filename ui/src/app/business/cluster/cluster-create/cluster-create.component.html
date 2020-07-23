@@ -19,8 +19,8 @@
                 <label>{{"APP_PROVIDER"|translate}}</label>
                 <select clrSelect name="provider" [(ngModel)]="item.provider" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="bareMetal">Bare Metal</option>
-                    <option value="plan">Plan</option>
+                    <option value="bareMetal">{{"APP_BARE_METAL" | translate}}</option>
+                    <option value="plan">{{"APP_PLAN"|translate}}</option>
                 </select>
             </clr-select-container>
 
@@ -28,8 +28,8 @@
                 <label>{{"APP_VERSION"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.version" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="v1.18.0">v1.18.0</option>
-                    <option value="v1.18.3">v1.18.2</option>
+                    <option value="v1.18.3">v1.18.3</option>
+                    <option value="v1.18.4">v1.18.4</option>
                 </select>
             </clr-select-container>
 
@@ -89,8 +89,8 @@
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
                 <select clrSelect name="calico_ipv4pool_ipip" [(ngModel)]="item.calicoIpv4poolIpip">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="Always">always</option>
-                    <option value="off">off</option>
+                    <option value="Always">bgp</option>
+                    <option value="off">ipip</option>
                 </select>
             </clr-select-container>
             <clr-input-container>

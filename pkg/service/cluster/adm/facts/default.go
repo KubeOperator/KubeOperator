@@ -27,6 +27,7 @@ const (
 	EvictionHardNodefsInodesFreeFactName = "eviction_hard_nodefs_inodes_free"
 	KubeletRootDirFactName               = "kubelet_root_dir"
 	DockerStorageDirFactName             = "docker_storage_dir"
+	DockerSubnetFactName                 = "docker_subnet"
 	ContainerdStorageDirFactName         = "containerd_storage_dir"
 	EtcdDataDirFactName                  = "etcd_data_dir"
 	BinDirFactName                       = "bin_dir"
@@ -51,8 +52,9 @@ var DefaultFacts = map[string]string{
 	LbModeFactName:                       "haproxy",
 	LbKubeApiserverPortFactName:          "8443",
 	KubeDnsDomainFactName:                "cluster.local",
-	KubePodSubnetFactName:                "10.244.0.0/18",
-	KubeServiceSubnetFactName:            "10.244.64.0/18",
+	KubePodSubnetFactName:                "179.10.0.1/16",
+	KubeServiceSubnetFactName:            "179.20.0.1/16",
+	DockerSubnetFactName:                 "179.30.0.1/16",
 	KubeNetworkNodePrefixFactName:        "24",
 	KubeMaxPodsFactName:                  "110",
 	KubeProxyModeFactName:                "iptables",

@@ -2,6 +2,7 @@ package adm
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"reflect"
@@ -73,6 +74,9 @@ func NewCluster(cluster model.Cluster) *Cluster {
 		c.Kobe.SetVar(k, v)
 	}
 	c.Kobe.SetVar(facts.ClusterNameFactName, cluster.Name)
+	repo := repository.NewSystemSettingRepository()
+	val, _ := repo.Get("ip")
+	c.Kobe.SetVar(facts.LocalHostnameFactName, val.Value)
 	return c
 }
 

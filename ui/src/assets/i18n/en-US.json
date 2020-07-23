@@ -204,6 +204,7 @@
   "EnsureInitWorker": "Init Worker",
   "EnsurePostInit": "Config Cluster",
   "EnsureInitNetwork": "Init Network",
+  "EnsureInitMetricsServer": "Init Metrics Server",
   "EnsureInitIngressController": "Init Ingress",
   "APP_NETWORK_CIDR——HELPER": "example 172.16.10.0/24",
   "APP_IP_INVALID": "IP is not a valid IPV4 address!",
@@ -222,11 +223,7 @@
   "APP_USER_ADMIN": "System Admin",
   "APP_RESOURCE_REMOVE": "Cancel Authorization",
   "APP_RESOURCE_REMOVE_CONFIRM": "Are you sure to cancel authorization?",
-  "APP_RESOURCE_AUTH": "Resource Authorization"
-
-
-
-
-
-
+  "APP_RESOURCE_AUTH": "Resource Authorization",
+  "APP_USER_ADMIN": "System Admin",
+  "APP_BARE_METAL": "Bare Metal"
 }

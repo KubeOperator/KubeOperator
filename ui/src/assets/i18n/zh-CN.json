@@ -206,6 +206,7 @@
   "EnsureInitMaster": "初始化控制平面",
   "EnsureInitWorker": "初始化工作负载",
   "EnsurePostInit": "配置集群",
+  "EnsureInitMetricsServer": "初始化监控组件",
   "EnsureInitNetwork": "初始化网络",
   "EnsureInitIngressController": "初始化服务暴露组件",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
@@ -225,7 +226,7 @@
   "APP_USER_ADMIN": " 系统管理员",
   "APP_RESOURCE_REMOVE": "取消授权",
   "APP_RESOURCE_REMOVE_CONFIRM": "确定取消授权?",
-  "APP_RESOURCE_AUTH": "资源授权"
-
-
+  "APP_RESOURCE_AUTH": "资源授权",
+  "APP_USER_ADMIN": " 系统管理员",
+  "APP_BARE_METAL": "裸金属"
 }
