@@ -11,6 +11,7 @@ import {Zone} from '../../zone/zone';
 import {NgForm} from '@angular/forms';
 import {ClrWizard} from '@clr/angular';
 import {ZoneService} from '../../zone/zone.service';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-plan-create',
@@ -62,10 +63,13 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
         if (this.item.deployTemplate === 'SINGLE') {
             this.item.zones = [];
             this.item.zones.push(this.item.zone);
-            this.onCancel();
         }
         this.planService.create(this.item).subscribe(res => {
             this.onCancel();
+            this.created.emit();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
         });
     }
 
