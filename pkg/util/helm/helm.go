@@ -8,7 +8,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/ghodss/yaml"
 	"github.com/gofrs/flock"
-	"github.com/google/martian/log"
 	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
