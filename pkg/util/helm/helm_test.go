@@ -62,5 +62,8 @@ func TestClient_Install(t *testing.T) {
 }
 
 func TestClient_AddRepo(t *testing.T) {
-
+	err := updateRepo()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
