@@ -54,8 +54,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
-	mo.Status = constant.ClusterInitializing
-	err = c.toolRepo.Save(&mo)
+
 	if err != nil {
 		return tool, err
 	}
@@ -79,7 +78,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 		return tool, err
 	}
 	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), constant.DefaultNamespace, metav1.GetOptions{})
-	if ns != nil {
+	if ns == nil {
 		n := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: constant.DefaultNamespace,
@@ -94,6 +93,8 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
+	mo.Status = constant.ClusterInitializing
+	_ = c.toolRepo.Save(&mo)
 	go c.do(ct, &tool.ClusterTool)
 	return tool, nil
 }
