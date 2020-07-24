@@ -7,6 +7,7 @@ ENV GO111MODULE=on
 ENV GOOS=linux
 ENV GOARCH=amd64
 ENV CGO_ENABLED=0
+
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
   && apk update \
   && apk add git \
@@ -14,6 +15,18 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
   && apk add bash
 COPY go.mod go.sum ./
 RUN go mod download
+
+
+RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-bindata.zip  \
+    && cd /tmp \
+    && unzip  /tmp/go-bindata.zip  \
+    && cd /tmp/go-bindata-3.1.3 \
+    && go build \
+    && cd go-bindata \
+    && go build \
+    && cp go-bindata /go/bin
+
+RUN export PATH=$PATH:$GOPATH/bin
 
 COPY . .
 RUN make build_server_linux

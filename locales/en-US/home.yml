@@ -8,7 +8,8 @@ DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone unde
 DELETE_HOST_FAILED: "Failed to delete! The host is already associated with the cluster"
 
 #user
-PASSWORD_NOT_MATCH: "The original password is incorrect"
+PASSWORD_NOT_MATCH: "The password is incorrect"
+ORIGINAL_NOT_MATCH: "The original password is incorrect"
 USER_IS_NOT_ACTIVE: "The user is not enabled! Please contact the administrator!"
 USER_NOT_FOUND: "No such user！"
 

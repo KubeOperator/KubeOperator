@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/KubeOperator/KubeOperator/pkg/router/proxy"
 	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
@@ -11,7 +12,8 @@ import (
 
 func Server() *iris.Application {
 	app := iris.New()
-	err := app.I18n.Load("./locales/*/*.yml", "en-US", "zh-CN")
+	err := app.I18n.LoadAssets(i18n.AssetNames, i18n.Asset, "en-US", "zh-CN")
+	//err := app.I18n.Load("./locales/*/*.yml", "en-US", "zh-CN")
 	if err != nil {
 		fmt.Println(err.Error())
 	}

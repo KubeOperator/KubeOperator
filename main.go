@@ -1,5 +1,7 @@
 package main
 
+//go:generate go-bindata -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
+
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/server"
 	_ "golang.org/x/text/message"

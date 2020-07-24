@@ -71,4 +71,5 @@ require (
 	k8s.io/client-go v0.18.2
 	moul.io/http2curl v1.0.0 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
+	github.com/go-bindata/go-bindata v3.1.2+incompatible
 )
