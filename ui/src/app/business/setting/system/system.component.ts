@@ -52,11 +52,6 @@ export class SystemComponent extends BaseModelComponent<System> implements OnIni
             this.commonAlertService.showAlert(this.translateService.instant('APP_IP_INVALID'), AlertLevels.ERROR);
             return false;
         }
-        const ntp = this.item.vars['ntp_server'];
-        if (ntp !== '' && !ipaddr.isValid(ntp)) {
-            this.commonAlertService.showAlert(this.translateService.instant('APP_NTP_INVALID'), AlertLevels.ERROR);
-            return false;
-        }
         return true;
     }
 }
