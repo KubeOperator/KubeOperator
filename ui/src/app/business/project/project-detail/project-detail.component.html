@@ -3,16 +3,13 @@
 <nav class="subnav sub-nav-bg-color">
     <ul class="nav">
         <li class="nav-item">
-            <a class="nav-link" routerLink="clusters" routerLinkActive="active"
-               [queryParams]='currentProject'>{{'APP_CLUSTER'|translate}}</a>
+            <a class="nav-link" routerLink="clusters" routerLinkActive="active">{{'APP_CLUSTER'|translate}}</a>
         </li>
-        <!--        <li class="nav-item" *ngIf="permission!='VIEWER'">-->
-        <!--            <a class="nav-link" routerLink="members" routerLinkActive="active"-->
-        <!--               [queryParams]='currentProject'>成员</a>-->
-        <!--        </li>-->
         <li class="nav-item">
-            <a class="nav-link" routerLink="resources" routerLinkActive="active"
-               [queryParams]='currentProject'>资源</a>
+            <a class="nav-link" routerLink="members" routerLinkActive="active">{{'APP_PROJECT_MEMBER'|translate}}</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="resources" routerLinkActive="active">{{'APP_RESOURCE'|translate}}</a>
         </li>
     </ul>
 </nav>

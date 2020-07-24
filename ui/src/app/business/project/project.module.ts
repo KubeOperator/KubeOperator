@@ -10,11 +10,13 @@ import {ProjectDetailComponent} from './project-detail/project-detail.component'
 import {RouterModule} from '@angular/router';
 import {ProjectResourceComponent} from './project-resource/project-resource.component';
 import {ProjectResourceModule} from './project-resource/project-resource.module';
+import { ProjectMemberComponent } from './project-member/project-member.component';
+import {ProjectMemberModule} from './project-member/project-member.module';
 
 
 @NgModule({
     declarations: [ProjectCreateComponent, ProjectListComponent, ProjectDeleteComponent,
-        ProjectUpdateComponent, ProjectDetailComponent, ProjectResourceComponent],
+        ProjectUpdateComponent, ProjectDetailComponent, ProjectResourceComponent, ProjectMemberComponent],
     exports: [
         ProjectListComponent,
         ProjectCreateComponent,
@@ -26,7 +28,8 @@ import {ProjectResourceModule} from './project-resource/project-resource.module'
         CoreModule,
         SharedModule,
         RouterModule,
-        ProjectResourceModule
+        ProjectResourceModule,
+        ProjectMemberModule
     ]
 })
 export class ProjectModule {

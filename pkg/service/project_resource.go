@@ -117,11 +117,7 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 			ProjectID:    item.ProjectID,
 		})
 	}
-	err := p.projectResourceRepo.Batch(op.Operation, opItems)
-	if err != nil {
-		return err
-	}
-	return nil
+	return p.projectResourceRepo.Batch(op.Operation, opItems)
 }
 
 func (p projectResourceService) GetResources(resourceType string) (interface{}, error) {
