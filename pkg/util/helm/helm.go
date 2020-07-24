@@ -118,10 +118,7 @@ func GetSettings() *cli.EnvSettings {
 }
 
 func updateRepo() error {
-	repos, err := ListRepo()
-	if err != nil {
-		return err
-	}
+	repos, _ := ListRepo()
 	flag := false
 	for _, r := range repos {
 		if r.Name == "nexus" {
@@ -131,7 +128,7 @@ func updateRepo() error {
 	if !flag {
 		r := repository.NewSystemSettingRepository()
 		s, err := r.Get("ip")
-		if err != nil || s.Value == "" {
+		if s.Value == "" && err != nil {
 			return errors.New("can not find local hostname")
 		}
 		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/helm", s.Value), "admin", "admin123")
