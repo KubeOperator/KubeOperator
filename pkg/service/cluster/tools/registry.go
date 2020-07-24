@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 )
 
 const (
@@ -14,24 +13,24 @@ const (
 )
 
 type Registry struct {
-	Cluster *Cluster
-	Tool    *model.ClusterTool
+	Cluster       *Cluster
+	Tool          *model.ClusterTool
+	LocalhostName string
 }
 
-func NewRegistry(cluster *Cluster, tool *model.ClusterTool) (*Registry, error) {
+func NewRegistry(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Registry, error) {
 	p := &Registry{
-		Tool:    tool,
-		Cluster: cluster,
+		Tool:          tool,
+		Cluster:       cluster,
+		LocalhostName: localhostName,
 	}
 	return p, nil
 }
 
 func (c Registry) setDefaultValue() {
-	systemService := service.NewSystemSettingService()
-	locahostName := systemService.GetLocalHostName()
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, RegistryImageName)
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, RegistryImageName)
 	values["image.tag"] = RegistryTag
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)

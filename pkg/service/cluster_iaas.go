@@ -60,7 +60,8 @@ func (c clusterIaasService) Init(name string) error {
 	err = doInit(k, plan, hosts)
 	if err != nil {
 		for i := range hosts {
-			_ = db.DB.Delete(hosts[i])
+			hosts[i].ClusterID = ""
+			_ = db.DB.Delete(&hosts[i])
 		}
 		return err
 	}

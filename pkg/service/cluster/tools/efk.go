@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 )
 
 const (
@@ -16,28 +15,28 @@ const (
 )
 
 type EFK struct {
-	Cluster *Cluster
-	Tool    *model.ClusterTool
+	Cluster       *Cluster
+	Tool          *model.ClusterTool
+	LocalHostName string
 }
 
 func (c EFK) setDefaultValue() {
-	systemService := service.NewSystemSettingService()
-	locahostName := systemService.GetLocalHostName()
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
-	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, FluentedElasticsearchImageName)
+	values["fluentd-elasticsearch.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, FluentedElasticsearchImageName)
 	values["fluentd-elasticsearch.imageTag"] = FluentedElasticsearchTag
-	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
+	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
 	values["elasticsearch.imageTag"] = ElasticSearchTag
 	values["elasticsearch.replicas"] = 1
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }
 
-func NewEFK(cluster *Cluster, tool *model.ClusterTool) (*EFK, error) {
+func NewEFK(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*EFK, error) {
 	p := &EFK{
-		Tool:    tool,
-		Cluster: cluster,
+		Tool:          tool,
+		Cluster:       cluster,
+		LocalHostName: localhostName,
 	}
 	return p, nil
 }

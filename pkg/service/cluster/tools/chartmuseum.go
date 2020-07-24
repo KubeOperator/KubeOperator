@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 )
 
 const (
@@ -14,25 +13,25 @@ const (
 )
 
 type Chartmuseum struct {
-	Cluster *Cluster
-	Tool    *model.ClusterTool
+	Cluster       *Cluster
+	Tool          *model.ClusterTool
+	LocalhostName string
 }
 
-func NewChartmuseum(cluster *Cluster, tool *model.ClusterTool) (*Chartmuseum, error) {
+func NewChartmuseum(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Chartmuseum, error) {
 	p := &Chartmuseum{
-		Tool:    tool,
-		Cluster: cluster,
+		Tool:          tool,
+		Cluster:       cluster,
+		LocalhostName: localhostName,
 	}
 	return p, nil
 }
 
 func (c Chartmuseum) setDefaultValue() {
-	systemService := service.NewSystemSettingService()
-	locahostName := systemService.GetLocalHostName()
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["env.open.DISABLE_API"] = false
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, ChartmuseumImageName)
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, ChartmuseumImageName)
 	values["image.tag"] = ChartmuseumTag
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)

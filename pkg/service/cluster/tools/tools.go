@@ -3,10 +3,12 @@ package tools
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"helm.sh/helm/v3/pkg/strvals"
@@ -56,21 +58,26 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 }
 
 func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret) (Interface, error) {
+	systemRepo := repository.NewSystemSettingRepository()
+	localIP, err := systemRepo.Get("ip")
+	if err != nil || localIP.Value == "" {
+		return nil, errors.New("invalid system setting: ip")
+	}
 	c, err := NewCluster(cluster, endpoint, secret)
 	if err != nil {
 		return nil, err
 	}
 	switch tool.Name {
 	case "prometheus":
-		return NewPrometheus(c, tool)
+		return NewPrometheus(c, localIP.Value, tool)
 	case "efk":
-		return NewEFK(c, tool)
+		return NewEFK(c, localIP.Value, tool)
 	case "registry":
-		return NewRegistry(c, tool)
+		return NewRegistry(c, localIP.Value, tool)
 	case "dashboard":
-		return NewDashboard(c, tool)
+		return NewDashboard(c, localIP.Value, tool)
 	case "chartmuseum":
-		return NewChartmuseum(c, tool)
+		return NewChartmuseum(c, localIP.Value, tool)
 	}
 	return nil, nil
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 )
 
@@ -21,32 +20,32 @@ const (
 )
 
 type Prometheus struct {
-	Tool    *model.ClusterTool
-	Cluster *Cluster
+	Tool          *model.ClusterTool
+	Cluster       *Cluster
+	LocalhostName string
 }
 
-func NewPrometheus(cluster *Cluster, tool *model.ClusterTool) (*Prometheus, error) {
+func NewPrometheus(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*Prometheus, error) {
 	p := &Prometheus{
-		Tool:    tool,
-		Cluster: cluster,
+		Tool:          tool,
+		Cluster:       cluster,
+		LocalhostName: localhostName,
 	}
 	return p, nil
 }
 
 func (p Prometheus) setDefaultValue() {
-	systemService := service.NewSystemSettingService()
-	locahostName := systemService.GetLocalHostName()
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(p.Tool.Vars), &values)
 	values["alertmanager.enabled"] = false
 	values["pushgateway.enabled"] = false
-	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, PrometheusConfigMapReloadImageName)
+	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, PrometheusConfigMapReloadImageName)
 	values["configmapReload.prometheus.image.tag"] = PrometheusConfigMapReloadTag
-	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageName)
+	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageName)
 	values["kube-state-metrics.image.tag"] = KubeStateMetricsTag
-	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, NodeExporterImageName)
+	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, NodeExporterImageName)
 	values["nodeExporter.image.tag"] = NodeExporterTag
-	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, ServerImageName)
+	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, ServerImageName)
 	values["server.image.tag"] = ServerTag
 	str, _ := json.Marshal(&values)
 	p.Tool.Vars = string(str)
