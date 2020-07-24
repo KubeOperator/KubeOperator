@@ -2,8 +2,17 @@ package tools
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
+)
+
+const (
+	MetricsScraperImageName = "kubernetesui/metrics-scraper"
+	MetricsScraperImageTag  = "v1.0.4"
+	DashboardImageName      = "kubernetesui/dashboard"
+	DashboardImageTag       = "v2.0.3"
 )
 
 type Dashboard struct {
@@ -20,6 +29,8 @@ func NewDashboard(cluster *Cluster, tool *model.ClusterTool) (*Dashboard, error)
 }
 
 func (c Dashboard) setDefaultValue() {
+	systemService := service.NewSystemSettingService()
+	locahostName := systemService.GetLocalHostName()
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["extraArgs[0]"] = "--enable-skip-login"
@@ -27,6 +38,10 @@ func (c Dashboard) setDefaultValue() {
 	values["protocolHttp"] = "true"
 	values["service.externalPort"] = 9090
 	values["metricsScraper.enabled"] = true
+	values["metricsScraper.image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, MetricsScraperImageName)
+	values["metricsScraper.image.tag"] = MetricsScraperImageTag
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, DashboardImageName)
+	values["image.tag"] = DashboardImageTag
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }

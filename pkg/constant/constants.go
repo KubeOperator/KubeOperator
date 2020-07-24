@@ -12,6 +12,9 @@ const (
 	BatchOperationUpdate = "update"
 	BatchOperationCreate = "create"
 	BatchOperationDelete = "delete"
+
+	LocalRpmRepositoryPort    = 8081
+	LocalDockerRepositoryPort = 8082
 )
 
 var (

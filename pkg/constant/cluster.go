@@ -61,4 +61,5 @@ const (
 	DefaultDashboardDeploymentName   = "dashboard-kubernetes-dashboard"
 	DefaultEFKDeploymentName         = "efk-elasticsearch"
 	DefaultPrometheusDeploymentName  = "prometheus-server"
+
 )

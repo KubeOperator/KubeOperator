@@ -1,8 +1,16 @@
 package tools
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
+)
+
+const (
+	RegistryImageName = "registry"
+	RegistryTag       = "2.7.1"
 )
 
 type Registry struct {
@@ -16,6 +24,17 @@ func NewRegistry(cluster *Cluster, tool *model.ClusterTool) (*Registry, error) {
 		Cluster: cluster,
 	}
 	return p, nil
+}
+
+func (c Registry) setDefaultValue() {
+	systemService := service.NewSystemSettingService()
+	locahostName := systemService.GetLocalHostName()
+	values := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
+	values["image.repository"] = fmt.Sprintf("%s:%d/%s", locahostName, constant.LocalDockerRepositoryPort, RegistryImageName)
+	values["image.tag"] = RegistryTag
+	str, _ := json.Marshal(&values)
+	c.Tool.Vars = string(str)
 }
 
 func (c Registry) Install() error {

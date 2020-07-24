@@ -8,6 +8,7 @@ import (
 
 type SystemSettingService interface {
 	Get(name string) (dto.SystemSetting, error)
+	GetLocalHostName() string
 	List() ([]dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 }
@@ -73,4 +74,12 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 		}
 	}
 	return result, nil
+}
+
+func (s systemSettingService) GetLocalHostName() string {
+	mo, err := s.systemSettingRepo.Get("ip")
+	if err != nil || mo.Value == "" {
+		return ""
+	}
+	return mo.Value
 }
