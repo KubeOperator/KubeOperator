@@ -24,6 +24,7 @@ type Cluster struct {
 	Secret   ClusterSecret `gorm:"save_associations:false" json:"_"`
 	Status   ClusterStatus `gorm:"save_associations:false" json:"_"`
 	Nodes    []ClusterNode `gorm:"save_associations:false" json:"_"`
+	Tools    []ClusterTool `gorm:"save_associations:false" json:"_"`
 }
 
 func (c Cluster) TableName() string {
@@ -76,16 +77,17 @@ func (c *Cluster) BeforeCreate() error {
 func (c Cluster) BeforeDelete() error {
 	var cluster Cluster
 	cluster.ID = c.ID
-	if err := db.DB.
+	tx := db.DB.Begin()
+	if err := tx.
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Preload("Tools").
 		First(&cluster).Error; err != nil {
 		return err
 	}
-	tx := db.DB.Begin()
 	if cluster.SpecID != "" {
-		if err := db.DB.Delete(ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
+		if err := tx.Delete(ClusterSpec{ID: cluster.SpecID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -97,7 +99,7 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 	if cluster.SecretID != "" {
-		if err := db.DB.Delete(ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
+		if err := tx.Delete(ClusterSecret{ID: cluster.SecretID}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -111,18 +113,29 @@ func (c Cluster) BeforeDelete() error {
 			}
 			if node.HostID != "" {
 				host := Host{ID: node.HostID}
-				if err := db.DB.First(&host).Error; err != nil {
+				if err := tx.First(&host).Error; err != nil {
 					tx.Rollback()
 					return err
 				}
 				host.ClusterID = ""
-				if err := db.DB.Save(&host).Error; err != nil {
+				if err := tx.Save(&host).Error; err != nil {
 					tx.Rollback()
 					return err
 				}
 			}
 		}
 	}
+	if len(cluster.Tools) > 0 {
+		for _, tool := range cluster.Tools {
+			if tool.ID != "" {
+				if err := tx.Delete(&tool).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -156,6 +169,13 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Describe: "",
 			Status:   constant.ClusterWaiting,
 			Logo:     "registry.png",
+		},
+		{
+			Name:     "kubeapps",
+			Version:  "v1.0.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+			Logo:     "kubeapps.png",
 		},
 	}
 }

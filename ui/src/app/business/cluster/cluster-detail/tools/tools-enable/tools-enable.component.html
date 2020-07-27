@@ -89,6 +89,30 @@
                 </clr-select-container>
             </div>
 
+            <div *ngIf="item.name === 'kubeapps'">
+                <clr-toggle-container>
+                    <clr-toggle-wrapper>
+                        <input type="checkbox" clrToggle name="pv"
+                               [(ngModel)]="item.vars['postgresql.persistence.enabled']"/>
+                        <label>开启存储</label>
+                    </clr-toggle-wrapper>
+                </clr-toggle-container>
+                <clr-select-container *ngIf="item.vars['postgresql.persistence.enabled']">
+                    <label>{{"APP_STORAGE_CLASS"|translate}}</label>
+                    <select clrSelect name="sc"
+                            [(ngModel)]="item.vars['global.storageClass']"
+                            required>
+                        <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                        <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-input-container *ngIf="item.vars['postgresql.persistence.enabled']">
+                    <label>容量</label>
+                    <input clrInput name="size"
+                           [(ngModel)]="item.vars['postgresql.persistence.size']" size="34"/>
+                </clr-input-container>
+            </div>
+
         </form>
     </div>
     <div class="modal-footer">

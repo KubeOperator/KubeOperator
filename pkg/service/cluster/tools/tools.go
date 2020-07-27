@@ -78,6 +78,8 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto
 		return NewDashboard(c, localIP.Value, tool)
 	case "chartmuseum":
 		return NewChartmuseum(c, localIP.Value, tool)
+	case "kubeapps":
+		return NewKubeapps(c, localIP.Value, tool)
 	}
 	return nil, nil
 }

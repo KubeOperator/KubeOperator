@@ -14,6 +14,7 @@ const (
 	BatchOperationDelete = "delete"
 
 	LocalRpmRepositoryPort    = 8081
+	LocalHelmRepositoryPort   = 8081
 	LocalDockerRepositoryPort = 8082
 )
 

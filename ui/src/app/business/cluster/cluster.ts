@@ -63,3 +63,8 @@ export class CLusterImportRequest {
 export class InitClusterResponse {
     message: string;
 }
+
+
+export class ClusterSecret {
+    kubernetesToken: string;
+}

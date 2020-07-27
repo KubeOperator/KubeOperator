@@ -78,7 +78,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 		return tool, err
 	}
 	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), constant.DefaultNamespace, metav1.GetOptions{})
-	if ns == nil {
+	if ns.ObjectMeta.Name == "" {
 		n := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: constant.DefaultNamespace,

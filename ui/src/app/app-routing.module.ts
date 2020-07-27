@@ -35,6 +35,7 @@ import {ProjectDetailComponent} from './business/project/project-detail/project-
 import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
 import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
+import {CatalogComponent} from "./business/cluster/cluster-detail/catalog/catalog.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -86,6 +87,7 @@ const routes: Routes = [
                     },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
+                    {path: 'catalog', component: CatalogComponent},
                     {
                         path: 'repository',
                         component: RepositoryComponent,
