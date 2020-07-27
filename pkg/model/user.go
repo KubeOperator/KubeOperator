@@ -18,9 +18,9 @@ type User struct {
 	Name     string `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Password string `json:"password" gorm:"type:varchar(256)"`
 	Email    string `json:"email" gorm:"type:varchar(256);not null;unique"`
-	IsActive bool   `json:"isActive" gorm:"default:true"`
+	IsActive bool   `json:"isActive" gorm:"type:boolean;default:true"`
 	Language string `json:"language" gorm:"type:varchar(64)"`
-	IsAdmin  bool   `json:"isAdmin" gorm:"default:true"`
+	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
 }
 
 type Token struct {
