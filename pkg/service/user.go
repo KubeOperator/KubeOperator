@@ -163,7 +163,9 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {
 	var dbUser model.User
 	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
-		return nil, UserNotFound
+		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {
+			return nil, UserNotFound
+		}
 	}
 	if dbUser.IsActive == false {
 		return dbUser.ToSessionUser(), UserIsNotActive
