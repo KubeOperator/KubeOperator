@@ -27,7 +27,7 @@ func (k Kubeapps) setDefaultValue() {
 	_ = json.Unmarshal([]byte(k.Tool.Vars), &values)
 	values["global.imageRegistry"] = fmt.Sprintf("%s:%d", k.LocalhostName, constant.LocalDockerRepositoryPort)
 	values["apprepository.initialRepos[0].name"] = "kubeoperator"
-	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d:8081/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
+	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
 	values["useHelm3"] = true
 	values["postgresql.enabled"] = true
 	str, _ := json.Marshal(&values)

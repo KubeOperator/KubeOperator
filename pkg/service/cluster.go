@@ -187,7 +187,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	cluster.Status = status
 	cluster.Secret = secret
 	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
-		spec.WorkerAmount = creation.WorkerAmount
+		cluster.Spec.WorkerAmount = creation.WorkerAmount
 		plan, err := c.planRepo.Get(creation.Plan)
 		if err != nil {
 			return err

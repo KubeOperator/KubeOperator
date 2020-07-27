@@ -29,18 +29,20 @@ var log = logger.Default
 
 func NewClusterNodeService() ClusterNodeService {
 	return &clusterNodeService{
-		ClusterService: NewClusterService(),
-		NodeRepo:       repository.NewClusterNodeRepository(),
-		HostRepo:       repository.NewHostRepository(),
-		PlanRepo:       repository.NewPlanRepository(),
+		ClusterService:    NewClusterService(),
+		NodeRepo:          repository.NewClusterNodeRepository(),
+		HostRepo:          repository.NewHostRepository(),
+		PlanRepo:          repository.NewPlanRepository(),
+		systemSettingRepo: repository.NewSystemSettingRepository(),
 	}
 }
 
 type clusterNodeService struct {
-	ClusterService ClusterService
-	NodeRepo       repository.ClusterNodeRepository
-	HostRepo       repository.HostRepository
-	PlanRepo       repository.PlanRepository
+	ClusterService    ClusterService
+	NodeRepo          repository.ClusterNodeRepository
+	HostRepo          repository.HostRepository
+	PlanRepo          repository.PlanRepository
+	systemSettingRepo repository.SystemSettingRepository
 }
 
 func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
@@ -105,9 +107,11 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 	if err != nil {
 		return nil, err
 	}
-	cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
-	if err != nil {
-		return nil, err
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
+		if err != nil {
+			return nil, err
+		}
 	}
 	var needDeleteNodes []*model.ClusterNode
 	for _, nodeName := range item.Nodes {
@@ -174,9 +178,11 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 	if err != nil {
 		return nil, err
 	}
-	cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
-	if err != nil {
-		return nil, err
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
+		if err != nil {
+			return nil, err
+		}
 	}
 	var mNodes []*model.ClusterNode
 	switch cluster.Spec.Provider {
@@ -360,7 +366,13 @@ func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.C
 	for name, _ := range facts.DefaultFacts {
 		k.SetVar(name, facts.DefaultFacts[name])
 	}
-	log.Debugf("start run delete worker: %s", worker.Name)
+	clusterVars := cluster.GetKobeVars()
+	for j, v := range clusterVars {
+		k.SetVar(j, v)
+	}
+	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	val, _ := c.systemSettingRepo.Get("ip")
+	k.SetVar(facts.LocalHostnameFactName, val.Value)
 	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook)
 	worker.Status = constant.ClusterTerminated
 	_ = c.NodeRepo.Save(&worker)
@@ -385,7 +397,13 @@ func (c clusterNodeService) doSingleNodeCreate(cluster *model.Cluster, worker mo
 	for name, _ := range facts.DefaultFacts {
 		k.SetVar(name, facts.DefaultFacts[name])
 	}
-	log.Debugf("start run add worker: %s", worker.Name)
+	clusterVars := cluster.GetKobeVars()
+	for j, v := range clusterVars {
+		k.SetVar(j, v)
+	}
+	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	val, _ := c.systemSettingRepo.Get("ip")
+	k.SetVar(facts.LocalHostnameFactName, val.Value)
 	err := phases.RunPlaybookAndGetResult(k, addWorkerPlaybook)
 	if err != nil {
 		worker.Status = constant.ClusterFailed
