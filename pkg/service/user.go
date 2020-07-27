@@ -85,11 +85,6 @@ func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
 
 func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
 
-	password, err := encrypt.StringEncrypt(update.Password)
-	if err != nil {
-		return dto.User{}, err
-	}
-
 	user := model.User{
 		ID:       update.ID,
 		Name:     update.Name,
@@ -97,9 +92,9 @@ func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
 		IsActive: update.IsActive,
 		Language: update.Language,
 		IsAdmin:  update.IsAdmin,
-		Password: password,
+		Password: update.Password,
 	}
-	err = u.userRepo.Save(&user)
+	err := u.userRepo.Save(&user)
 	if err != nil {
 		return dto.User{}, err
 	}
