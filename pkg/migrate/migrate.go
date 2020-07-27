@@ -33,13 +33,25 @@ func (i *InitMigrateDBPhase) Init() error {
 			op, ok := d.(model.User)
 			if ok {
 				user := model.User{}
-				db.DB.Where("name = ?", op.Name).First(&user)
+				db.DB.Model(model.User{}).Where("name = ?", op.Name).First(&user)
 				if db.DB.NewRecord(user) {
 					db.DB.Create(d)
 				} else {
 					db.DB.Save(d)
 				}
 			}
+		case model.Credential:
+			op, ok := d.(model.Credential)
+			if ok {
+				credential := model.Credential{}
+				db.DB.Model(model.Credential{}).Where("name = ?", op.Name).First(&credential)
+				if db.DB.NewRecord(credential) {
+					db.DB.Create(d)
+				} else {
+					db.DB.Save(d)
+				}
+			}
+
 		default:
 			log.Infof("insert data failed: %s", v)
 		}

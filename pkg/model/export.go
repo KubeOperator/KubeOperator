@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"time"
 )
@@ -46,5 +47,16 @@ var InitData = []Interface{
 		Language: ZH,
 		IsActive: true,
 		IsAdmin:  true,
+	},
+	Credential{
+		BaseModel: common.BaseModel{
+			UpdatedAt: time.Now(),
+			CreatedAt: time.Now(),
+		},
+		ID:       "f081498c-7c00-4955-8181-884f93088dc4",
+		Name:     constant.ImageCredentialName,
+		Password: "QK6fxpxyb/qf8Ssr2ShZeF//savV3zdtmcOS6FPd3yQ=",
+		Username: constant.ImageUserName,
+		Type:     constant.ImagePasswordType,
 	},
 }
