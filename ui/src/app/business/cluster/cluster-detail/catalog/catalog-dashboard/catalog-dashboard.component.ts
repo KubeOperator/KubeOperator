@@ -25,17 +25,22 @@ export class CatalogDashboardComponent implements OnInit {
     ngOnInit(): void {
         this.refresh();
     }
+
     refresh() {
         this.clusterService.secret(this.currentCluster.name).subscribe(data => {
             localStorage.setItem('kubeapps_auth_token', data.kubernetesToken);
             localStorage.setItem('kubeapps_auth_token_oid', 'false');
-            const url = `/proxy/kubeapps/${!this.currentCluster.name}/root#/ns/default/apps`;
+            const url = `/proxy/kubeapps/${this.currentCluster.name}/root#/ns/default/apps`;
             this.url = this.sanitizer.bypassSecurityTrustResourceUrl(url);
             this.ready = true;
         });
     }
+
     onFrameLoad() {
         this.loading = false;
+        const doc = this.frame.nativeElement.contentWindow.document;
+        const els = doc.getElementsByClassName('header__nav__menu');
+        console.log(els);
     }
 
 }

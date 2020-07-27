@@ -11,8 +11,18 @@ import (
 )
 
 func KubeappsProxy(ctx context.Context) {
+	clusterName := ctx.Params().Get("cluster_name")
 	proxyPath := ctx.Params().Get("p")
-	u, err := url.Parse(fmt.Sprintf("http://%s", "172.16.10.184"))
+	if clusterName == "" {
+		_, _ = ctx.JSON(http.StatusBadRequest)
+		return
+	}
+	endpoint, err := clusterService.GetRouterEndpoint(clusterName)
+	if err != nil {
+		_, _ = ctx.JSON(http.StatusInternalServerError)
+		return
+	}
+	u, err := url.Parse(fmt.Sprintf("http://%s", endpoint.Address))
 	if err != nil {
 		_, _ = ctx.JSON(http.StatusInternalServerError)
 		return
