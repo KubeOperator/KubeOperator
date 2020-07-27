@@ -13,6 +13,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ipaddr"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/lang"
+	"strconv"
 	"strings"
 )
 
@@ -245,10 +246,13 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 }
 
 func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, selectedIps []string) error {
-	ips := ipaddr.GenerateIps("172.16.10.0", 24)
 	zoneVars := map[string]string{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, err := p.GetIpInUsed(zoneVars["network"])
+	cidr := zoneVars["networkCidr"]
+	cs := strings.Split(cidr, "/")
+	mask, _ := strconv.Atoi(cs[1])
+	ips := ipaddr.GenerateIps(cs[0], mask)
 	if err != nil {
 		return err
 	}
