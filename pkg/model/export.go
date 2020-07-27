@@ -30,6 +30,7 @@ var Models = []Interface{
 	SystemSetting{},
 	Project{},
 	ProjectResource{},
+	ProjectMember{},
 }
 
 var InitData = []Interface{

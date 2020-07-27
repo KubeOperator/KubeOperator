@@ -231,6 +231,13 @@
   "APP_LOGIN": "Login",
   "APP_SYSTEM_NTP_SERVER": "NTP Server",
   "APP_SYSTEM_NTP_SERVER_HELPER": "Optional, provide time synchronization service for the cluster",
-  "APP_NTP_INVALID": "NTP Server is not a valid IPV4 address!"
-
+  "APP_NTP_INVALID": "NTP Server is not a valid IPV4 address!",
+  "APP_NEW_MEMBER": "Add New Member",
+  "SYSTEM_ADMIN": "System Admin",
+  "PROJECT_MANAGER": "Project Manager",
+  "CLUSTER_MANAGER": "Cluster Manager",
+  "APP_MEMBER_ACTION": "Other Action",
+  "APP_MEMBER_SET": "Set Role",
+  "APP_MEMBER_REMOVE": "Remove Member",
+  "APP_MEMBER_REMOVE_CONFIRM": "Sure to remove member?"
 }

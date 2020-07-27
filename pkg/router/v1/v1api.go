@@ -19,4 +19,5 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/systemSettings")).Handle(controller.NewSystemSettingController())
 	mvc.New(v1.Party("/projects")).Handle(controller.NewProjectController())
 	mvc.New(v1.Party("/project/resources")).Handle(controller.NewProjectResourceController())
+	mvc.New(v1.Party("/project/members")).Handle(controller.NewProjectMemberController())
 }

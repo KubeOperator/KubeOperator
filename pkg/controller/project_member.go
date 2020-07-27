@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/permission"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
@@ -35,6 +36,20 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 	}
 }
 
+func (p ProjectMemberController) Post() (dto.ProjectMember, error) {
+	var req dto.ProjectMemberAddRequest
+	err := p.Ctx.ReadJSON(&req)
+	if err != nil {
+		return dto.ProjectMember{}, err
+	}
+
+	result, err := p.ProjectMemberService.Create(req)
+	if err != nil {
+		return result, warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
+	}
+	return result, nil
+}
+
 func (p ProjectMemberController) PostBatch() error {
 	var req dto.ProjectMemberOP
 	err := p.Ctx.ReadJSON(&req)
@@ -51,4 +66,16 @@ func (p ProjectMemberController) PostBatch() error {
 		return warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
 	}
 	return err
+}
+
+func (p ProjectMemberController) GetUsers() (dto.AddMemberResponse, error) {
+	name := p.Ctx.URLParam("name")
+	return p.ProjectMemberService.GetUsers(name)
+}
+
+func (p ProjectMemberController) GetRoles() ([]string, error) {
+	var result []string
+	result = append(result, permission.CLUSTERMANAGER)
+	result = append(result, permission.PROJECTMANAGER)
+	return result, nil
 }

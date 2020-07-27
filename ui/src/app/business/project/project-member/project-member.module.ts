@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ProjectMemberListComponent } from './project-member-list/project-member-list.component';
 import { ProjectMemberCreateComponent } from './project-member-create/project-member-create.component';
 import { ProjectMemberDeleteComponent } from './project-member-delete/project-member-delete.component';
+import {CoreModule} from '../../../core/core.module';
+import {SharedModule} from '../../../shared/shared.module';
 
 
 
@@ -14,7 +16,9 @@ import { ProjectMemberDeleteComponent } from './project-member-delete/project-me
         ProjectMemberDeleteComponent
     ],
     imports: [
-        CommonModule
+        CommonModule,
+        CoreModule,
+        SharedModule
     ]
 })
 export class ProjectMemberModule { }

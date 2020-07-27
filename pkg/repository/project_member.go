@@ -9,6 +9,7 @@ import (
 type ProjectMemberRepository interface {
 	PageByProjectId(num, size int, projectId string) (int, []model.ProjectMember, error)
 	Batch(operation string, items []model.ProjectMember) error
+	Create(member *model.ProjectMember) error
 }
 
 type projectMemberRepository struct {
@@ -32,6 +33,10 @@ func (p projectMemberRepository) PageByProjectId(num, size int, projectId string
 	return total, projectMembers, err
 }
 
+func (p projectMemberRepository) Create(member *model.ProjectMember) error {
+	return db.DB.Create(&member).Error
+}
+
 func (p projectMemberRepository) Batch(operation string, items []model.ProjectMember) error {
 	switch operation {
 	case constant.BatchOperationDelete:
@@ -47,6 +52,16 @@ func (p projectMemberRepository) Batch(operation string, items []model.ProjectMe
 		tx := db.DB.Begin()
 		for i, _ := range items {
 			if err := tx.Model(model.ProjectMember{}).Create(&items[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		tx.Commit()
+
+	case constant.BatchOperationUpdate:
+		tx := db.DB.Begin()
+		for i, _ := range items {
+			if err := tx.Model(model.ProjectMember{}).Save(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

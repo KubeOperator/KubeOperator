@@ -21,3 +21,6 @@ DELETE_ZONE_FAILED_RESOURCE: "删除失败！该可用区已经关联部署计�
 
 #openstack
 GET_REGION_ERROR: "找不到区域"
+
+#projectMember
+USER_IS_ADD: "用户已经添加"

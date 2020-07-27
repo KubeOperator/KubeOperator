@@ -234,5 +234,13 @@
   "APP_LOGIN": "登陆",
   "APP_SYSTEM_NTP_SERVER": "NTP Server",
   "APP_SYSTEM_NTP_SERVER_HELPER": "选填,为集群提供对时服务",
-  "APP_NTP_INVALID": "NTP Server不是有效的IPV4地址!"
+  "APP_NTP_INVALID": "NTP Server不是有效的IPV4地址!",
+  "APP_NEW_MEMBER": "新增成员",
+  "SYSTEM_ADMIN": "系统管理员",
+  "PROJECT_MANAGER": "项目管理员",
+  "CLUSTER_MANAGER": "集群管理员",
+  "APP_MEMBER_ACTION": "其他操作",
+  "APP_MEMBER_SET": "设置角色",
+  "APP_MEMBER_REMOVE": "移除成员",
+  "APP_MEMBER_REMOVE_CONFIRM": "确定移除成员?"
 }

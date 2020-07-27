@@ -22,3 +22,6 @@ DELETE_ZONE_FAILED_RESOURCE: "Failed to delete! The zone is already associated w
 
 #openstack
 GET_REGION_ERROR: "No region found"
+
+#projectMember
+USER_IS_ADD: "User has been added"

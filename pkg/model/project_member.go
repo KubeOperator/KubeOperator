@@ -7,7 +7,7 @@ import (
 
 type ProjectMember struct {
 	common.BaseModel
-	ID        string `json:"id" gorm:"type:varchar(64)"`
+	ID        string `json:"_" gorm:"type:varchar(64)"`
 	ProjectID string `json:"projectId" gorm:"type:varchar(64)"`
 	UserID    string `json:"userId" gorm:"type:varchar(64)"`
 	Role      string `json:"role" gorm:"type:varchar(64)"`
