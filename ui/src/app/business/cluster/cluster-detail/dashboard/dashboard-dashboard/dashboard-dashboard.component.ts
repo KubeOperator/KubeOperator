@@ -28,6 +28,7 @@ export class DashboardDashboardComponent implements OnInit {
 
     onFrameLoad() {
         this.loading = false;
+
     }
 
 }

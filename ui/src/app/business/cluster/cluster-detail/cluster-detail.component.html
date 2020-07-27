@@ -17,9 +17,6 @@
                 {{"APP_STORAGE"|translate}}
             </a>
         </li>
-        <!--        <li class="nav-item">-->
-        <!--            <a class="nav-link" href="javascript:void(0)">事件</a>-->
-        <!--        </li>-->
         <li class="nav-item" *ngIf="ready&&showApp('dashboard')">
             <a class="nav-link" href="javascript:void(0)" routerLink="dashboard" routerLinkActive="active">控制台</a>
         </li>
@@ -31,6 +28,9 @@
         </li>
         <li class="nav-item" *ngIf="ready&&showApp('prometheus')">
             <a class="nav-link" href="javascript:void(0)" routerLink="monitor" routerLinkActive="active">监控</a>
+        </li>
+        <li class="nav-item" *ngIf="ready&&showApp('kubeapps')">
+            <a class="nav-link" href="javascript:void(0)" routerLink="catalog" routerLinkActive="active">应用商店</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="javascript:void(0)" routerLink="tool" routerLinkActive="active">工具</a>

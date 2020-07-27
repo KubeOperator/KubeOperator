@@ -132,3 +132,7 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, erro
 func (c ClusterController) GetWebkubectlBy(clusterName string) (dto.WebkubectlToken, error) {
 	return c.ClusterService.GetWebkubectlToken(clusterName)
 }
+
+func (c ClusterController) GetSecretBy(clusterName string) (dto.ClusterSecret, error) {
+	return c.ClusterService.GetSecrets(clusterName)
+}

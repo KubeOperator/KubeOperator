@@ -53,6 +53,8 @@ import { NodeCreateComponent } from './cluster-detail/node/node-create/node-crea
 import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
 import { NodeStatusComponent } from './cluster-detail/node/node-status/node-status.component';
 import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
+import { CatalogComponent } from './cluster-detail/catalog/catalog.component';
+import { CatalogDashboardComponent } from './cluster-detail/catalog/catalog-dashboard/catalog-dashboard.component';
 
 
 @NgModule({
@@ -87,7 +89,9 @@ import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkub
         NodeCreateComponent,
         NodeDeleteComponent,
         NodeStatusComponent,
-        WebkubectlComponent],
+        WebkubectlComponent,
+        CatalogComponent,
+        CatalogDashboardComponent],
     imports: [
         CoreModule,
         RouterModule,
