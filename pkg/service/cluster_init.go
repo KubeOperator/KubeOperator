@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
+	"time"
 )
 
 type ClusterInitService interface {
@@ -74,7 +75,6 @@ func (c clusterInitService) do(cluster model.Cluster) {
 			return
 		}
 	}
-	// 刷新node节点
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 	statusChan := make(chan adm.Cluster, 0)
@@ -121,6 +121,7 @@ func (c clusterInitService) doCreate(ctx context.Context, cluster adm.Cluster, s
 			return
 		case statusChan <- cluster:
 		}
+		time.Sleep(5 * time.Second)
 	}
 }
 
