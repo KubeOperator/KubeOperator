@@ -1,5 +1,7 @@
 package auth
 
+import "github.com/KubeOperator/KubeOperator/pkg/permission"
+
 type Credential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -16,6 +18,8 @@ type SessionUser struct {
 }
 
 type JwtResponse struct {
-	User  SessionUser `json:"user"`
-	Token string      `json:"token"`
+	User        SessionUser                 `json:"user"`
+	Token       string                      `json:"token"`
+	RoleMenus   []permission.UserMenu       `json:"roleMenus"`
+	Permissions []permission.UserPermission `json:"permissions"`
 }
