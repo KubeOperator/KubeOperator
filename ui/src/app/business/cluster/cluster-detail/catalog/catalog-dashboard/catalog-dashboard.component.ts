@@ -39,8 +39,6 @@ export class CatalogDashboardComponent implements OnInit {
     onFrameLoad() {
         this.loading = false;
         const doc = this.frame.nativeElement.contentWindow.document;
-        const els = doc.getElementsByClassName('header__nav__menu');
-        console.log(els);
     }
 
 }
