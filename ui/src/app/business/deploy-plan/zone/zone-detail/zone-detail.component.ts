@@ -11,12 +11,12 @@ import {ZoneService} from '../zone.service';
 export class ZoneDetailComponent extends BaseModelComponent<Zone> implements OnInit {
 
     opened = false;
-    item: Zone = new Zone()
+    item: Zone = new Zone();
 
-    @Output() detail = new EventEmitter()
+    @Output() detail = new EventEmitter();
 
     constructor(private zoneService: ZoneService) {
-        super(zoneService)
+        super(zoneService);
     }
 
     ngOnInit(): void {

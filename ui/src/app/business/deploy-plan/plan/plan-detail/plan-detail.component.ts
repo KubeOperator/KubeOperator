@@ -15,8 +15,8 @@ export class PlanDetailComponent extends BaseModelComponent<Plan> implements OnI
     item: Plan = new Plan();
     @Output() detail = new EventEmitter();
 
-    constructor(private planService: PlanService,private translateService: TranslateService) {
-        super(planService)
+    constructor(private planService: PlanService, private translateService: TranslateService) {
+        super(planService);
     }
 
     ngOnInit(): void {

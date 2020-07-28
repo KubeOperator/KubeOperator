@@ -150,34 +150,44 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
 
     checkNetwork() {
         this.networkError = [];
-        let result = true;
-
-        const cidr = this.item.cloudVars['networkCidr'].split('/', 2);
-        if (cidr.length !== 2) {
-            result = false;
-            this.networkValid = result;
-            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
+        const subnet = this.item.cloudVars['subnet'].split('/', 2);
+        if (subnet.length !== 2) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_SUBNET_INVALID'));
             return;
         }
-        const address = cidr[0];
-        if (!ipaddr.isValid(address)) {
-            result = false;
-            this.networkError.push(this.translateService.instant('APP_IP_INVALID'));
+        const ipStart = this.item.cloudVars['ipStart'];
+        const ipEnd = this.item.cloudVars['ipEnd'];
+        if (!ipaddr.isValid(ipStart) || (!ipaddr.isValid(ipEnd))) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
+            return;
         }
-        const netmask = Number(cidr[1]);
-        if (netmask < 0 || netmask > 32) {
-            result = false;
-            this.networkError.push(this.translateService.instant('APP_NETMASK_INVALID'));
+        const ipStartAddr = ipaddr.IPv4.parse(ipStart);
+        const ipEndAddr = ipaddr.IPv4.parse(ipEnd);
+        const start = ipStartAddr.toByteArray();
+        const end = ipEndAddr.toByteArray();
+        for (let i = 0; i < 4; i++) {
+            if (start[i] > end[i]) {
+                this.networkValid = false;
+                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
+                return;
+            }
         }
-
+        if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.cloudVars['subnet']))) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
+            return;
+        }
         if (this.region.vars['provider'] === 'vSphere') {
             const gateway = this.item.cloudVars['gateway'];
             if (!ipaddr.isValid(gateway)) {
-                result = false;
+                this.networkValid = false;
                 this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
+                return;
             }
         }
-        this.networkValid = result;
+        this.networkValid = true;
     }
 
 }

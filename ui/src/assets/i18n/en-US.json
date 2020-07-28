@@ -207,8 +207,11 @@
   "EnsureInitNetwork": "Init Network",
   "EnsureInitMetricsServer": "Init Metrics Server",
   "EnsureInitIngressController": "Init Ingress",
-  "APP_NETWORK_CIDR——HELPER": "example 172.16.10.0/24",
-  "APP_IP_INVALID": "IP is not a valid IPV4 address!",
+  "APP_NETWORK_CIDR_HELPER": "example 172.16.10.0/24",
+  "APP_IP_START_HELPER": "example 172.16.10.10",
+  "APP_IP_END_HELPER": "example 172.16.10.15",
+  "APP_GATEWAY_HELPER": "example 172.16.10.254",
+  "APP_SUBNET_INVALID": "Subnet invalid",
   "APP_SYSTEM": "System",
   "APP_SYSTEM_IP": "System IP",
   "APP_SYSTEM_IP_HELPER": "Required, please fill in the IPV4 address of Kubeoperator",
@@ -239,5 +242,9 @@
   "APP_MEMBER_ACTION": "Other Action",
   "APP_MEMBER_SET": "Set Role",
   "APP_MEMBER_REMOVE": "Remove Member",
-  "APP_MEMBER_REMOVE_CONFIRM": "Sure to remove member?"
+  "APP_MEMBER_REMOVE_CONFIRM": "Sure to remove member?",
+  "APP_IP_START": "Start Ip",
+  "APP_IP_END": "End Ip ",
+  "APP_SUBNET_HELPER": "Subnet CIDR, example: 172.16.10.0/24",
+  "APP_IP_RANGE_INVALID": "IP Range invalid"
 }

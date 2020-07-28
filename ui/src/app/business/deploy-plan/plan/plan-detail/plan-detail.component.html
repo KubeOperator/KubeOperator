@@ -1,21 +1,39 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" [clrModalClosable]=false>
     <h3 class="modal-title">{{'APP_PLAN_DETAIL'|translate}}</h3>
     <div class="modal-body" *ngIf="item">
-        <hr/>
         <div class="card-block">
-            <ul class="list-unstyled">
-                <li><b style="margin-right: 16px">{{'APP_NAME'|translate}}:</b>{{item.name}}</li>
-                <li><b style="margin-right: 16px">{{'APP_REGION'|translate}}:</b>
-                    {{item.region.name}}
-                </li>
-                <li><b style="margin-right: 16px">{{'APP_ZONE'|translate}}:</b>
-                    <span *ngFor="let zone of item.zones">{{zone.name}},</span>
-                </li>
-                <li><b style="margin-right: 16px">{{'APP_PLAN_DEPLOY_TEMPLATE'|translate}}:</b>{{getDeployName(item.deployTemplate)}}</li>
-                <li><b style="margin-right: 16px">Master {{'APP_PLAN_NODE_SPEC'|translate}}:</b>{{item.planVars['masterModel']}}</li>
-                <li><b style="margin-right: 16px">Worker {{'APP_PLAN_NODE_SPEC'|translate}}:</b>{{item.planVars['workerModel']}}</li>
-                <li><b style="margin-right: 16px">{{'APP_CREATED_DATE'|translate}}</b>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</li>
-            </ul>
+            <table class="table table-vertical">
+                <tbody>
+                <tr>
+                    <th>{{'APP_NAME'|translate}}</th>
+                    <td>{{item.name}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_REGION'|translate}}</th>
+                    <td>{{item.region.name}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_ZONE'|translate}}</th>
+                    <td><span *ngFor="let zone of item.zones">{{zone.name}},</span></td>
+                </tr>
+                <tr>
+                    <th>{{'APP_PLAN_DEPLOY_TEMPLATE'|translate}}</th>
+                    <td>{{getDeployName(item.deployTemplate)}}</td>
+                </tr>
+                <tr>
+                    <th>Master {{'APP_PLAN_NODE_SPEC'|translate}}</th>
+                    <td>{{item.planVars['masterModel']}}</td>
+                </tr>
+                <tr>
+                    <th>Worker {{'APP_PLAN_NODE_SPEC'|translate}}</th>
+                    <td>{{item.planVars['workerModel']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_CREATED_DATE'|translate}}</th>
+                    <td>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="modal-footer">

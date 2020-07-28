@@ -249,10 +249,12 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	zoneVars := map[string]string{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, err := p.GetIpInUsed(zoneVars["network"])
-	cidr := zoneVars["networkCidr"]
-	cs := strings.Split(cidr, "/")
+	subnet := zoneVars["subnet"]
+	startIp := zoneVars["startIp"]
+	endIp := zoneVars["endIp"]
+	cs := strings.Split(subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
-	ips := ipaddr.GenerateIps(cs[0], mask)
+	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	if err != nil {
 		return err
 	}
