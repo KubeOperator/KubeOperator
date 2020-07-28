@@ -1,6 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened">
     <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
     <div class="modal-body modal-height">
+        <app-modal-alert></app-modal-alert>
         <form clrForm #hostForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
@@ -22,7 +23,6 @@
                 </select>
             </clr-select-container>
         </form>
-        <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()"
