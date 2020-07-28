@@ -56,7 +56,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.calicoIpv4poolIpip = 'Always';
         this.item.kubePodSubnet = '179.10.0.0/16';
         this.item.kubeServiceSubnet = '179.20.0.0/16';
-        this.item.kubeMaxPod = 110;
+        this.item.kubeMaxPods = 110;
         this.item.certsExpired = 36500;
         this.item.kubernetesAudit = false;
         this.item.kubeProxyMode = 'iptables';
@@ -146,6 +146,7 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        console.log(this.item);
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();
