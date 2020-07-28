@@ -1,10 +1,15 @@
 package model
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	AdminCanNotDelete = "ADMIN_CAN_NOT_DELETE"
 )
 
 const (
@@ -29,6 +34,13 @@ type Token struct {
 
 func (u *User) BeforeCreate() (err error) {
 	u.ID = uuid.NewV4().String()
+	return err
+}
+
+func (u *User) BeforeDelete() (err error) {
+	if u.Name == "admin" {
+		return errors.New(AdminCanNotDelete)
+	}
 	return err
 }
 
