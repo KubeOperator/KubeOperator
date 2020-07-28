@@ -1,21 +1,25 @@
 <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
+                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','resourceId':currentProject.id}">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1"
+                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','resourceId':currentProject.id}">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
         </div>
-        <clr-dropdown [clrCloseMenuOnItemClick]="false" class="btn  btn-link" clrDropdownTrigger>
+        <clr-dropdown [clrCloseMenuOnItemClick]="false" class="btn  btn-link" clrDropdownTrigger
+                      *appOperateAuth="{'op':'PROJECT-MEMBER.UPDATE','resourceId':currentProject.id}">
             <span id='member-action'>{{'APP_MEMBER_ACTION' | translate}}
                 <clr-icon shape="caret down"></clr-icon></span>
             <clr-dropdown-menu *clrIfOpen>
                 <label class="dropdown-header">{{'APP_MEMBER_SET' | translate}}</label>
-                <button  *ngFor="let role of roles" [disabled]="selected.length<1"  clrDropdownItem (click)="changeMembersRole(selected, role)" >{{role | translate}}</button>
+                <button *ngFor="let role of roles" [disabled]="selected.length<1" clrDropdownItem
+                        (click)="changeMembersRole(selected, role)">{{role | translate}}</button>
             </clr-dropdown-menu>
         </clr-dropdown>
     </clr-dg-action-bar>

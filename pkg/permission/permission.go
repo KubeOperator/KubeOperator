@@ -11,15 +11,20 @@ type OperationAuth struct {
 }
 
 type UserPermission struct {
-	ProjectId   string `json:"projectId"`
-	ProjectName string `json:"projectName"`
-	Roles       string `json:"roles"`
+	ProjectId           string               `json:"projectId"`
+	ProjectName         string               `json:"projectName"`
+	UserPermissionRoles []UserPermissionRole `json:"userPermissionRoles"`
 }
 
-var Permissions = `
+type UserPermissionRole struct {
+	ResourceType string   `json:"operation"`
+	Roles        []string `json:"roles"`
+}
+
+var PermissionRoles = `
 [
     {
-      "resourceType": "project",
+      "resourceType": "PROJECT",
       "operationAuth": [
         {
           "operation": "LIST",
@@ -27,32 +32,17 @@ var Permissions = `
             "PROJECT_MANAGER",
             "CLUSTER_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project",
-      "operationAuth": [
+        },
         {
-          "operation": "ADD",
+          "operation": "CREATE",
           "roles": []
-        }
-      ]
-    },
-    {
-      "resourceType": "project",
-      "operationAuth": [
+        },
         {
           "operation": "UPDATE",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project",
-      "operationAuth": [
+        },
         {
           "operation": "DELETE",
           "roles": []
@@ -60,7 +50,7 @@ var Permissions = `
       ]
     },
     {
-      "resourceType": "project-member",
+      "resourceType": "PROJECT-MEMBER",
       "operationAuth": [
         {
           "operation": "LIST",
@@ -68,34 +58,19 @@ var Permissions = `
             "PROJECT_MANAGER",
             "CLUSTER_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-member",
-      "operationAuth": [
+        },
         {
-          "operation": "ADD",
+          "operation": "CREATE",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-member",
-      "operationAuth": [
+        },
         {
           "operation": "UPDATE",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-member",
-      "operationAuth": [
+        },
         {
           "operation": "DELETE",
           "roles": [
@@ -105,41 +80,26 @@ var Permissions = `
       ]
     },
     {
-      "resourceType": "project-resource",
+      "resourceType": "PROJECT-RESOURCE",
       "operationAuth": [
         {
           "operation": "LIST",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-resource",
-      "operationAuth": [
+        },
         {
-          "operation": "ADD",
+          "operation": "CREATE",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-resource",
-      "operationAuth": [
+        },
         {
           "operation": "UPDATE",
           "roles": [
             "PROJECT_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "project-resource",
-      "operationAuth": [
+        },
         {
           "operation": "DELETE",
           "roles": [
@@ -149,7 +109,7 @@ var Permissions = `
       ]
     },
     {
-      "resourceType": "cluster",
+      "resourceType": "CLUSTER",
       "operationAuth": [
         {
           "operation": "LIST",
@@ -157,36 +117,21 @@ var Permissions = `
             "PROJECT_MANAGER",
             "CLUSTER_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "cluster",
-      "operationAuth": [
+        },
         {
-          "operation": "ADD",
+          "operation": "CREATE",
           "roles": [
             "PROJECT_MANAGER",
             "CLUSTER_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "cluster",
-      "operationAuth": [
+        },
         {
           "operation": "UPDATE",
           "roles": [
             "PROJECT_MANAGER",
             "CLUSTER_MANAGER"
           ]
-        }
-      ]
-    },
-    {
-      "resourceType": "cluster",
-      "operationAuth": [
+        },
         {
           "operation": "DELETE",
           "roles": [

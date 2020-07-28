@@ -2,6 +2,7 @@ import {Component, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
+import {PermissionService} from '../../../shared/auth/permission.service';
 
 @Component({
     selector: 'app-project-list',
@@ -11,12 +12,11 @@ import {ProjectService} from '../project.service';
 export class ProjectListComponent extends BaseModelComponent<Project> implements OnInit {
 
 
-    constructor(private projectService: ProjectService) {
+    constructor(private projectService: ProjectService, private permissionService: PermissionService) {
         super(projectService);
     }
 
     ngOnInit(): void {
         super.ngOnInit();
     }
-
 }

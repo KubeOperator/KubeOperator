@@ -14,183 +14,158 @@ type UserMenu struct {
 var MenuRoles = `
 [
     {
-      "menu": "project",
+      "menu": "PROJECT",
       "roles": [
         "PROJECT_MANAGER",
         "CLUSTER_MANAGER"
       ]
     },
     {
-      "menu": "project-member",
+      "menu": "PROJECT-MEMBER",
       "roles": [
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "project-resource",
+      "menu": "PROJECT-RESOURCE",
       "roles": [
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster",
+      "menu": "CLUSTER",
       "roles": [
         "PROJECT_MANAGER",
         "CLUSTER_MANAGER"
       ]
     },
     {
-      "menu": "cluster",
+      "menu": "CLUSTER-OVERVIEW",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-overview",
+      "menu": "CLUSTER-NODE",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-node",
+      "menu": "CLUSTER-NAMESPACE",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-namespace",
+      "menu": "CLUSTER-STORAGE",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-storage",
+      "menu": "CLUSTER-LOGGING",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-logging",
+      "menu": "CLUSTER-MONITOR",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-monitor",
+      "menu": "CLUSTER-CATALOG",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-catalog",
+      "menu": "CLUSTER-REPOSITORY",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-repository",
+      "menu": "CLUSTER-REPOSITORY-CHARTMUSEUM",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-repository-chartmuseum",
+      "menu": "CLUSTER-REPOSITORY-REGISTRY",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-repository-registry",
+      "menu": "CLUSTER-TOOL",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-tool",
+      "menu": "CLUSTER-DASHBOARD",
       "roles": [
         "CLUSTER_MANAGER",
         "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "cluster-dashboard",
+      "menu": "HOST",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "host",
+      "menu": "SETTING",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting",
+      "menu": "SETTING-SYSTEM",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-system",
+      "menu": "SETTING-CREDENTIAL",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-credential",
+      "menu": "DEPLOY",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-deploy",
+      "menu": "DEPLOY-REGION",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-region",
+      "menu": "DEPLOY-ZONE",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-zone",
+      "menu": "DEPLOY-PLAN",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     },
     {
-      "menu": "setting-plan",
+      "menu": "USER",
       "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
-      ]
-    },
-    {
-      "menu": "user",
-      "roles": [
-        "CLUSTER_MANAGER",
-        "PROJECT_MANAGER"
       ]
     }
   ]

@@ -14,7 +14,7 @@ import {PasswordComponent} from './header/password/password.component';
     declarations: [HeaderComponent, FooterComponent, LayoutComponent,
         NavigationComponent, AppAlertComponent, CommonAlertComponent, PasswordComponent],
     exports: [
-        LayoutComponent
+        LayoutComponent,
     ],
     imports: [
         CoreModule,
