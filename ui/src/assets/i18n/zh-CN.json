@@ -211,7 +211,10 @@
   "EnsureInitNetwork": "初始化网络",
   "EnsureInitIngressController": "初始化服务暴露组件",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
-  "APP_IP_INVALID": "IP不是有效的IPV4地址!",
+  "APP_IP_START_HELPER": "例如 172.16.10.10",
+  "APP_IP_END_HELPER": "例如 172.16.10.15",
+  "APP_GATEWAY_HELPER": "例如 172.16.10.254",
+  "APP_SUBNET_INVALID": "无效的 Subnet",
   "APP_SYSTEM": "系统",
   "APP_SYSTEM_IP": "系统 IP",
   "APP_SYSTEM_IP_HELPER": "必填,请填写 Kubeoperator 本机的IPV4地址",
@@ -242,5 +245,9 @@
   "APP_MEMBER_ACTION": "其他操作",
   "APP_MEMBER_SET": "设置角色",
   "APP_MEMBER_REMOVE": "移除成员",
-  "APP_MEMBER_REMOVE_CONFIRM": "确定移除成员?"
+  "APP_MEMBER_REMOVE_CONFIRM": "确定移除成员?",
+  "APP_IP_START": "起始 IP",
+  "APP_IP_END": "截止 IP ",
+  "APP_SUBNET_HELPER": "Subnet 的 CIDR 表示, 例如: 172.16.10.0/24",
+  "APP_IP_RANGE_INVALID": "IP 范围无效"
 }

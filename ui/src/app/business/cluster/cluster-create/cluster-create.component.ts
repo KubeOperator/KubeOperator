@@ -61,6 +61,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.kubernetesAudit = false;
         this.item.kubeProxyMode = 'iptables';
         this.item.ingressControllerType = 'nginx';
+        this.item.workerAmount = 1;
     }
 
     open() {

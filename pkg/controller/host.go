@@ -4,11 +4,14 @@ import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
+)
+
+var (
+	HostAlreadyExistsErr = "HOST_ALREADY_EXISTS"
 )
 
 type HostController struct {
@@ -45,18 +48,26 @@ func (h HostController) GetBy(name string) (dto.Host, error) {
 	return h.HostService.Get(name)
 }
 
-func (h HostController) Post() (dto.Host, error) {
+func (h HostController) Post() (*dto.Host, error) {
 	var req dto.HostCreate
 	err := h.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Host{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Host{}, err
+		return nil, err
 	}
-	return h.HostService.Create(req)
+	item, _ := h.HostService.Get(req.Name)
+	if item.ID != "" {
+		return nil, errors.New(HostAlreadyExistsErr)
+	}
+	item, err = h.HostService.Create(req)
+	if err != nil {
+		return nil, err
+	}
+	return &item, nil
 }
 
 func (h HostController) Delete(name string) error {
@@ -80,7 +91,7 @@ func (h HostController) PostBatch() error {
 	}
 	err = h.HostService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(h.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }

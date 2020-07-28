@@ -5,6 +5,7 @@ DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under thi
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
 
 #host
+HOST_ALREADY_EXISTS: "Host already exists"
 DELETE_HOST_FAILED: "Failed to delete! The host is already associated with the cluster"
 
 #user
