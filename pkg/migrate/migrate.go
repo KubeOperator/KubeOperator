@@ -36,8 +36,6 @@ func (i *InitMigrateDBPhase) Init() error {
 				db.DB.Model(model.User{}).Where("name = ?", op.Name).First(&user)
 				if db.DB.NewRecord(user) {
 					db.DB.Create(d)
-				} else {
-					db.DB.Save(d)
 				}
 			}
 		case model.Credential:
@@ -47,8 +45,6 @@ func (i *InitMigrateDBPhase) Init() error {
 				db.DB.Model(model.Credential{}).Where("name = ?", op.Name).First(&credential)
 				if db.DB.NewRecord(credential) {
 					db.DB.Create(d)
-				} else {
-					db.DB.Save(d)
 				}
 			}
 

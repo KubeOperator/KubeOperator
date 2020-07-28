@@ -90,6 +90,7 @@ func CreateToken(user *auth.SessionUser) (string, error) {
 		"userId":   user.UserId,
 		"isActive": user.IsActive,
 		"language": user.Language,
+		"isAdmin":  user.IsAdmin,
 		"iat":      time.Now().Unix(),
 		"exp":      time.Now().Add(time.Minute * time.Duration(exp)).Unix(),
 	})
@@ -170,6 +171,15 @@ func GetAuthUser(ctx context.Context) {
 				}
 			}
 			userPermission.ProjectId = pm.ProjectID
+
+			var project model.Project
+			err := db.DB.Model(model.Project{}).Where(model.Project{ID: pm.ProjectID}).First(&project).Error
+			if err != nil {
+				ctx.StatusCode(iris.StatusInternalServerError)
+				_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
+				return
+			}
+			userPermission.ProjectName = project.Name
 			userPermission.UserPermissionRoles = userPermissionRoles
 			userPermissions = append(userPermissions, userPermission)
 		}
