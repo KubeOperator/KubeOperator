@@ -182,6 +182,9 @@ func (c Cluster) PrepareTools() []ClusterTool {
 
 func (c Cluster) GetKobeVars() map[string]string {
 	result := map[string]string{}
+	if c.Spec.Version != "" {
+		result[facts.KubeVersionFactName] = c.Spec.Version
+	}
 	if c.Spec.NetworkType != "" {
 		result[facts.NetworkPluginFactName] = c.Spec.NetworkType
 	}

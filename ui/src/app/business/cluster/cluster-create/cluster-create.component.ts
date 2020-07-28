@@ -117,7 +117,9 @@ export class ClusterCreateComponent implements OnInit {
         this.hostService.list().subscribe(data => {
             const list = [];
             data.items.forEach(h => {
-                list.push({id: h.name, text: h.name, disabled: false});
+                if (!h.clusterName) {
+                    list.push({id: h.name, text: h.name, disabled: false});
+                }
             });
             this.hosts = list;
         });
