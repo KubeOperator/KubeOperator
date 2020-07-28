@@ -231,7 +231,7 @@
   "APP_BARE_METAL": "裸金属",
   "APP_RESOURCE": "资源",
   "APP_PROJECT_MEMBER": "成员",
-  "APP_LOGIN": "登陆",
+  "APP_LOGIN": "登录",
   "APP_SYSTEM_NTP_SERVER": "NTP Server",
   "APP_SYSTEM_NTP_SERVER_HELPER": "选填,为集群提供对时服务",
   "APP_NTP_INVALID": "NTP Server不是有效的IPV4地址!",
