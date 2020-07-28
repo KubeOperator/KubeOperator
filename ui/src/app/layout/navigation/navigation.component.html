@@ -1,26 +1,29 @@
 <clr-vertical-nav [clrVerticalNavCollapsible]="true">
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/projects">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'PROJECT'" routerLink="/projects">
         <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
         {{ 'APP_PROJECT' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/clusters">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'CLUSTER'" routerLink="/clusters">
         <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>
         {{ 'APP_CLUSTER' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/hosts">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'HOST'" routerLink="/hosts">
         <clr-icon shape="host" clrVerticalNavIcon></clr-icon>
         {{ 'APP_HOST' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/deploy">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'PLAN'" routerLink="/deploy">
         <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
         {{ 'APP_DEPLOY_PLAN' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/users">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'USER'" routerLink="/users">
         <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
         {{ 'APP_USER_MANAGEMENT' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" routerLink="/setting">
+    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'SETTING'" routerLink="/setting">
         <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>
         {{ 'APP_SYSTEM_SETTING' | translate }}
     </a>
 </clr-vertical-nav>
+
+
+

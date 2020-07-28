@@ -130,6 +130,11 @@ func GetAuthUser(ctx context.Context) {
 		var userMenus []permission.UserMenu
 		var menuRoles []permission.MenuRole
 		_ = json.Unmarshal([]byte(permission.MenuRoles), &menuRoles)
+
+		var userPermissions []permission.UserPermission
+		var permissionRoles []permission.Permission
+		_ = json.Unmarshal([]byte(permission.PermissionRoles), &permissionRoles)
+
 		for _, pm := range projectMembers {
 			var userMenu permission.UserMenu
 			var menus []string
@@ -144,8 +149,32 @@ func GetAuthUser(ctx context.Context) {
 			userMenu.ProjectId = pm.ProjectID
 			userMenu.Menus = menus
 			userMenus = append(userMenus, userMenu)
+
+			var userPermission permission.UserPermission
+			var userPermissionRoles []permission.UserPermissionRole
+			for _, up := range permissionRoles {
+				var userPermissionRole permission.UserPermissionRole
+				var roles []string
+				for _, opAuths := range up.OperationAuth {
+					for _, role := range opAuths.Roles {
+						if role == pm.Role {
+							roles = append(roles, opAuths.Operation)
+							break
+						}
+					}
+				}
+				if len(roles) > 0 {
+					userPermissionRole.ResourceType = up.ResourceType
+					userPermissionRole.Roles = roles
+					userPermissionRoles = append(userPermissionRoles, userPermissionRole)
+				}
+			}
+			userPermission.ProjectId = pm.ProjectID
+			userPermission.UserPermissionRoles = userPermissionRoles
+			userPermissions = append(userPermissions, userPermission)
 		}
 		resp.RoleMenus = userMenus
+		resp.Permissions = userPermissions
 	}
 	ctx.JSON(resp)
 }

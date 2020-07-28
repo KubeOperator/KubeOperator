@@ -1,16 +1,18 @@
 <br>
 <clr-tabs clrLayout="vertical" [clrLoading]="loading">
-    <clr-tab >
+    <clr-tab>
         <button clrTabLink id="host" (click)="changeTab('HOST')">{{'APP_HOST'|translate}}</button>
         <clr-tab-content id="hostTab" *clrIfActive>
             <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
                 <clr-dg-action-bar>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()">
+                        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','resourceId':currentProject.id}">
                             <clr-icon shape="plus" size="16"></clr-icon>
                             {{"APP_ADD"|translate}}
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','resourceId':currentProject.id}"
                                 [disabled]="selected.length<1">
                             <clr-icon shape="close"></clr-icon>
                             {{"APP_DELETE"|translate}}
@@ -53,11 +55,14 @@
             <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
                 <clr-dg-action-bar>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()">
+                        <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','resourceId':currentProject.id}">
                             <clr-icon shape="plus" size="16"></clr-icon>
                             {{"APP_ADD"|translate}}
                         </button>
-                        <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+                        <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
+                                [disabled]="selected.length<1"
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','resourceId':currentProject.id}">
                             <clr-icon shape="close"></clr-icon>
                             {{"APP_DELETE"|translate}}
                         </button>
