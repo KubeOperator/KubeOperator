@@ -46,7 +46,7 @@ func (c Kubeapps) Install() error {
 	if err := createRoute(constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(constant.DefaultDashboardDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(constant.DefaultKubeappsDeploymentName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil

@@ -59,6 +59,7 @@ const (
 	DefaultRegistryDeploymentName    = "registry-docker-registry"
 	DefaultChartmuseumDeploymentName = "chartmuseum-chartmuseum"
 	DefaultDashboardDeploymentName   = "dashboard-kubernetes-dashboard"
+	DefaultKubeappsDeploymentName    = "kubeapps"
 	DefaultEFKDeploymentName         = "efk-elasticsearch"
 	DefaultPrometheusDeploymentName  = "prometheus-server"
 )
