@@ -3,8 +3,12 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/util/grafana"
 )
+
+var log = logger.Default
 
 type ClusterRepository interface {
 	Get(name string) (model.Cluster, error)
@@ -104,6 +108,14 @@ func (c clusterRepository) Delete(name string) error {
 	}
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		return err
+	}
+	// 尝试删除 grafana
+	gClient := grafana.NewClient()
+	if err := gClient.DeleteDashboard(cluster.Name); err != nil {
+		log.Error(err)
+	}
+	if err := gClient.DeleteDataSource(cluster.Name); err != nil {
+		log.Error(err)
 	}
 	return nil
 }

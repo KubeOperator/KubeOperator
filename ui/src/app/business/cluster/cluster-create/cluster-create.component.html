@@ -126,12 +126,16 @@
                     <option value="traefik">traefik</option>
                 </select>
             </clr-select-container>
-            <clr-toggle-container>
+
+            <clr-select-container>
                 <label>Kubernetes 审计</label>
-                <clr-toggle-wrapper>
-                    <input type="checkbox" clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit"/>
-                </clr-toggle-wrapper>
-            </clr-toggle-container>
+                <select clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="yes">enable</option>
+                    <option value="no">disable</option>
+                </select>
+            </clr-select-container>
+
         </form>
     </clr-wizard-page>
 

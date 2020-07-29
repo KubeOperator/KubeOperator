@@ -68,7 +68,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.kubeServiceSubnet = '179.20.0.0/16';
         this.item.kubeMaxPods = 110;
         this.item.certsExpired = 36500;
-        this.item.kubernetesAudit = false;
+        this.item.kubernetesAudit = 'no';
         this.item.kubeProxyMode = 'iptables';
         this.item.ingressControllerType = 'nginx';
         this.item.projectName = this.currentProject.name;
@@ -128,7 +128,7 @@ export class ClusterCreateComponent implements OnInit {
         this.hostService.listByProjectName(this.currentProject.name).subscribe(data => {
             const list = [];
             data.items.forEach(h => {
-                if (!h.clusterName) {
+                if (!h.clusterId) {
                     list.push({id: h.name, text: h.name, disabled: false});
                 }
             });

@@ -12,6 +12,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
 export class ClusterDeleteComponent implements OnInit {
 
     opened = false;
+    isSubmitGoing = false;
     items: Cluster[] = [];
     @Output() deleted = new EventEmitter();
 
@@ -32,12 +33,18 @@ export class ClusterDeleteComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.isSubmitGoing) {
+            return;
+        }
+        this.isSubmitGoing = true;
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
+            this.isSubmitGoing = false;
         }, error => {
             this.deleted.emit();
             this.opened = false;
+            this.isSubmitGoing = false;
             this.commonAlert.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

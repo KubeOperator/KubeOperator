@@ -16,6 +16,7 @@ export class Spec {
 
 export class ClusterStatus {
     phase: string;
+    message: string;
     conditions: Condition[] = [];
 }
 
@@ -47,7 +48,7 @@ export class ClusterCreateRequest extends BaseModel {
     kubeProxyMode: string;
     kubeMaxPods: number;
     certsExpired: number;
-    kubernetesAudit: boolean;
+    kubernetesAudit: string;
     ingressControllerType: string;
     plan: string;
     nodes: CreateNodeRequest[] = [];

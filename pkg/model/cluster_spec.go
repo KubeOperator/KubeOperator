@@ -26,7 +26,7 @@ type ClusterSpec struct {
 	KubeProxyMode         string `json:"kubeProxyMode"`
 	IngressControllerType string `json:"ingressControllerType"`
 	Architectures         string `json:"architectures"`
-	KubernetesAudit       bool   `json:"kubernetes_audit"`
+	KubernetesAudit       string `json:"kubernetesAudit"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {

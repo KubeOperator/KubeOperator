@@ -99,9 +99,9 @@ func (z zoneService) Delete(name string) error {
 func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 
 	param := creation.CloudVars.(map[string]interface{})
-	if param["networkCidr"] != nil {
-		index := strings.Index(param["networkCidr"].(string), "/")
-		networkCidr := param["networkCidr"].(string)
+	if param["subnet"] != nil {
+		index := strings.Index(param["subnet"].(string), "/")
+		networkCidr := param["subnet"].(string)
 		param["netMask"] = networkCidr[index+1:]
 	}
 

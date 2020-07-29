@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {Observable} from 'rxjs';
 import {Host, HostCreateRequest} from './host';
+import {Page} from "../../shared/class/Page";
 
 @Injectable({
     providedIn: 'root'
@@ -19,9 +20,8 @@ export class HostService extends BaseModelService<Host> {
         const itemUrl = `${this.baseUrl}/sync/${name}/`;
         return this.http.post<Host>(itemUrl, {});
     }
-
-    listByProjectName(projectName: string): Observable<any> {
+    listByProjectName(projectName: string): Observable<Page<Host>> {
         const itemUrl = `${this.baseUrl}/?projectName=${projectName}`;
-        return this.http.get<any>(itemUrl);
+        return this.http.get<Page<Host>>(itemUrl);
     }
 }

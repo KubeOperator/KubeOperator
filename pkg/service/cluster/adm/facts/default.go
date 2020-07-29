@@ -81,7 +81,7 @@ var DefaultFacts = map[string]string{
 	KubeMemoryReservedFactName:           "256M",
 	KubeEphemeralStorageReservedFactName: "1G",
 	CalicoIpv4poolIpIpFactName:           "Always",
-	KubernetesAuditFactName:              "false",
+	KubernetesAuditFactName:              "no",
 	IngressControllerTypeFactName:        "nginx",
 	FlannelBackendFactName:               "vxlan",
 	ArchitecturesFactName:                "amd64",
