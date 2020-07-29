@@ -20,17 +20,19 @@
                 <div style="text-align: right">
                     <button *ngIf="item.status === 'Waiting' || item.status === 'Failed'" class="btn btn-sm btn-primary"
                             (click)="onEnable(item)">
-                        Enable
+                        {{'APP_ENABLE'|translate}}
                     </button>
 
                     <button *ngIf="item.status === 'Failed'" class="btn btn-sm btn-danger" (click)="onFailed(item)">
-                        Failed
+                        {{'APP_FAILED'|translate}}
                     </button>
-
-                    <button *ngIf="item.status === 'Running'" class="btn btn-sm btn-primary" (click)="onFailed(item)">
-                        Disable
-                    </button>
-
+                    <span *ngIf="item.status === 'Initializing'">
+                            <clr-spinner clrAssertive clrInline></clr-spinner>
+                        {{"APP_INITIALIZING" | translate}}
+                    </span>
+                    <span *ngIf="item.status === 'Running'">
+                        {{"APP_RUNNING" | translate}}
+                    </span>
                 </div>
             </div>
         </div>

@@ -246,5 +246,8 @@
   "APP_IP_START": "Start Ip",
   "APP_IP_END": "End Ip ",
   "APP_SUBNET_HELPER": "Subnet CIDR, example: 172.16.10.0/24",
-  "APP_IP_RANGE_INVALID": "IP Range invalid"
+  "APP_IP_RANGE_INVALID": "IP Range invalid",
+  "APP_INITIALIZING": "Initializing",
+  "APP_FAILED": "Failed",
+  "APP_RUNNING": "Running"
 }

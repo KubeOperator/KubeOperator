@@ -24,10 +24,6 @@ const (
 	ClusterProviderBareMetal = "bareMetal"
 	ClusterProviderPlan      = "plan"
 
-	ToolRunning      = "Running"
-	ToolInitializing = "Initializing"
-	ToolFailed       = "Failed"
-
 	DefaultNamespace     = "kube-operator"
 	DefaultApiServerPort = 8443
 
