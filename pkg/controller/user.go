@@ -1,12 +1,10 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
-	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
 )
@@ -58,18 +56,22 @@ func (u UserController) Delete(name string) error {
 	return u.UserService.Delete(name)
 }
 
-func (u UserController) PatchBy(name string) (dto.User, error) {
+func (u UserController) PatchBy(name string) (*dto.User, error) {
 	var req dto.UserUpdate
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
-	return u.UserService.Update(req)
+	user, err := u.UserService.Update(req)
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
 }
 
 func (u UserController) PostBatch() error {
@@ -85,7 +87,7 @@ func (u UserController) PostBatch() error {
 	}
 	err = u.UserService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(u.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }
@@ -103,7 +105,7 @@ func (u UserController) PostChangePassword() error {
 	}
 	err = u.UserService.ChangePassword(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(u.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }
