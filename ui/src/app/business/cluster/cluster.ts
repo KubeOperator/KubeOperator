@@ -6,6 +6,7 @@ export class Cluster extends BaseModel {
     nodeSize: string;
     status: string;
     provider: string;
+    projectName: string;
 }
 
 export class Spec {
@@ -51,6 +52,7 @@ export class ClusterCreateRequest extends BaseModel {
     plan: string;
     nodes: CreateNodeRequest[] = [];
     workerAmount: number;
+    projectName: string;
 }
 
 export class CLusterImportRequest {

@@ -4,7 +4,8 @@ import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Cluster} from '../cluster';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Project} from '../../project/project';
 
 @Component({
     selector: 'app-cluster-list',
@@ -13,17 +14,26 @@ import {Router} from '@angular/router';
 })
 export class ClusterListComponent extends BaseModelComponent<Cluster> implements OnInit, OnDestroy {
 
-    constructor(clusterService: ClusterService, private commonAlert: CommonAlertService, private router: Router) {
+    constructor(private clusterService: ClusterService,
+                private commonAlert: CommonAlertService,
+                private router: Router,
+                private route: ActivatedRoute) {
         super(clusterService);
     }
 
     @Output() statusDetailEvent = new EventEmitter<string>();
     @Output() importEvent = new EventEmitter();
     timer;
+    currentProject: Project;
+    loading = false;
+
 
     ngOnInit(): void {
-        super.ngOnInit();
-        this.polling();
+        this.route.parent.data.subscribe(data => {
+            this.currentProject = data.project;
+            this.polling();
+            this.pageBy();
+        });
     }
 
     ngOnDestroy(): void {
@@ -34,7 +44,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         if (item.status !== 'Running') {
             this.commonAlert.showAlert('cluster is not ready', AlertLevels.ERROR);
         } else {
-            this.router.navigate(['clusters', item.name]).then();
+        this.router.navigate(['projects/' + this.currentProject.name + '/clusters', item.name]).then();
         }
     }
 
@@ -66,7 +76,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
                 }
             }
             if (flag) {
-                this.service.page(this.page, this.size).subscribe(data => {
+                this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
                     data.items.forEach(n => {
                         this.items.forEach(item => {
                             if (item.name === n.name) {
@@ -79,5 +89,14 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
                 });
             }
         }, 1000);
+    }
+
+    pageBy() {
+        this.loading = true;
+        this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
+            this.items = data.items;
+            this.total = data.total;
+            this.loading = false;
+        });
     }
 }

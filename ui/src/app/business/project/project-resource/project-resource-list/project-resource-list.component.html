@@ -7,12 +7,12 @@
                 <clr-dg-action-bar>
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
-                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','resourceId':currentProject.id}">
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','projectName':currentProject.name}">
                             <clr-icon shape="plus" size="16"></clr-icon>
                             {{"APP_ADD"|translate}}
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
-                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','resourceId':currentProject.id}"
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','projectName':currentProject.name}"
                                 [disabled]="selected.length<1">
                             <clr-icon shape="close"></clr-icon>
                             {{"APP_DELETE"|translate}}
@@ -56,13 +56,13 @@
                 <clr-dg-action-bar>
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
-                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','resourceId':currentProject.id}">
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','projectName':currentProject.name}">
                             <clr-icon shape="plus" size="16"></clr-icon>
                             {{"APP_ADD"|translate}}
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
                                 [disabled]="selected.length<1"
-                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','resourceId':currentProject.id}">
+                                *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','projectName':currentProject.name}">
                             <clr-icon shape="close"></clr-icon>
                             {{"APP_DELETE"|translate}}
                         </button>

@@ -19,4 +19,9 @@ export class HostService extends BaseModelService<Host> {
         const itemUrl = `${this.baseUrl}/sync/${name}/`;
         return this.http.post<Host>(itemUrl, {});
     }
+
+    listByProjectName(projectName: string): Observable<any> {
+        const itemUrl = `${this.baseUrl}/?projectName=${projectName}`;
+        return this.http.get<any>(itemUrl);
+    }
 }

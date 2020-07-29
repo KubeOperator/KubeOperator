@@ -15,10 +15,12 @@ export class ClusterRoutingResolverService implements Resolve<Cluster> {
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Cluster> | Promise<Cluster> | Cluster {
         const clusterName = route.params.name;
+        const projectName = route.params.projectName;
         return this.service.get(clusterName).pipe(
             take(1),
             map(cluster => {
                 if (cluster) {
+                    cluster.projectName = projectName;
                     return cluster;
                 } else {
                     return null;

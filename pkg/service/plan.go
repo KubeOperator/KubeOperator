@@ -15,7 +15,7 @@ import (
 
 type PlanService interface {
 	Get(name string) (dto.Plan, error)
-	List() ([]dto.Plan, error)
+	List(projectName string) ([]dto.Plan, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.PlanCreate) (dto.Plan, error)
@@ -43,9 +43,9 @@ func (p planService) Get(name string) (dto.Plan, error) {
 	return planDTO, err
 }
 
-func (p planService) List() ([]dto.Plan, error) {
+func (p planService) List(projectName string) ([]dto.Plan, error) {
 	var planDTOs []dto.Plan
-	mos, err := p.planRepo.List()
+	mos, err := p.planRepo.List(projectName)
 	if err != nil {
 		return planDTOs, err
 	}

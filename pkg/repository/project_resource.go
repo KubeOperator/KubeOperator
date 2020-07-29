@@ -9,6 +9,9 @@ import (
 type ProjectResourceRepository interface {
 	PageByProjectIdAndType(num, size int, projectId string, resourceType string) (int, []model.ProjectResource, error)
 	Batch(operation string, items []model.ProjectResource) error
+	Create(resource model.ProjectResource) error
+	ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error)
+	DeleteByResourceId(resourceId string) error
 }
 
 func NewProjectResourceRepository() ProjectResourceRepository {
@@ -29,6 +32,12 @@ func (p projectResourceRepository) PageByProjectIdAndType(num, size int, project
 		Offset((num - 1) * size).
 		Limit(size).Error
 	return total, projectResources, err
+}
+
+func (p projectResourceRepository) ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error) {
+	var projectResources []model.ProjectResource
+	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
+	return projectResources, err
 }
 
 func (p projectResourceRepository) Batch(operation string, items []model.ProjectResource) error {
@@ -53,6 +62,27 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 		tx.Commit()
 	default:
 		return constant.NotSupportedBatchOperation
+	}
+	return nil
+}
+
+func (p projectResourceRepository) Create(resource model.ProjectResource) error {
+	return db.DB.Model(model.ProjectResource{}).Create(&resource).Error
+}
+
+func (p projectResourceRepository) DeleteByResourceId(resourceId string) error {
+	var projectResources []model.ProjectResource
+	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId}).Find(&projectResources).Error
+	if err != nil {
+		return err
+	}
+	var ids []string
+	for _, item := range projectResources {
+		ids = append(ids, item.ID)
+	}
+	err = db.DB.Where("id in (?)", ids).Delete(&projectResources).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }

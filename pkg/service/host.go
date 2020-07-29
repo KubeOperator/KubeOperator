@@ -19,7 +19,7 @@ import (
 
 type HostService interface {
 	Get(name string) (dto.Host, error)
-	List() ([]dto.Host, error)
+	List(projectName string) ([]dto.Host, error)
 	Page(num, size int) (page.Page, error)
 	Create(creation dto.HostCreate) (dto.Host, error)
 	Delete(name string) error
@@ -51,9 +51,9 @@ func (h hostService) Get(name string) (dto.Host, error) {
 	return hostDTO, err
 }
 
-func (h hostService) List() ([]dto.Host, error) {
+func (h hostService) List(projectName string) ([]dto.Host, error) {
 	var hostDTOs []dto.Host
-	mos, err := h.hostRepo.List()
+	mos, err := h.hostRepo.List(projectName)
 	if err != nil {
 		return hostDTOs, err
 	}

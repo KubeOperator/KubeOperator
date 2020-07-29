@@ -55,6 +55,7 @@ type ClusterCreate struct {
 	Architectures         string       `json:"architectures"`
 	KubernetesAudit       bool         `json:"kubernetes_audit"`
 	Nodes                 []NodeCreate `json:"nodes"`
+	ProjectName           string       `json:"projectName"`
 }
 
 type ClusterBatch struct {

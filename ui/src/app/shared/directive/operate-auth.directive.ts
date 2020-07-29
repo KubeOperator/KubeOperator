@@ -13,8 +13,8 @@ export class OperateAuthDirective {
 
     @Input() set appOperateAuth(op: {}) {
         const operate = op['op'];
-        const projectId = op['resourceId'];
-        this.permission.authOperate(operate, projectId).then(value => {
+        const projectName = op['projectName'];
+        this.permission.authOperate(operate, projectName).then(value => {
             const auth = value;
             if (auth) {
                 this.viewContainer.createEmbeddedView(this.templateRef);

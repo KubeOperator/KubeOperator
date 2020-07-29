@@ -22,7 +22,7 @@ type ClusterService interface {
 	Delete(name string) error
 	Create(creation dto.ClusterCreate) error
 	List() ([]dto.Cluster, error)
-	Page(num, size int) (dto.ClusterPage, error)
+	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Batch(batch dto.ClusterBatch) error
 }
 
@@ -38,6 +38,8 @@ func NewClusterService() ClusterService {
 		clusterInitService:         NewClusterInitService(),
 		planRepo:                   repository.NewPlanRepository(),
 		clusterTerminalService:     NewCLusterTerminalService(),
+		projectRepository:          repository.NewProjectRepository(),
+		projectResourceRepository:  repository.NewProjectResourceRepository(),
 	}
 }
 
@@ -52,6 +54,8 @@ type clusterService struct {
 	planRepo                   repository.PlanRepository
 	clusterInitService         ClusterInitService
 	clusterTerminalService     ClusterTerminalService
+	projectRepository          repository.ProjectRepository
+	projectResourceRepository  repository.ProjectResourceRepository
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -84,9 +88,9 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	return clusterDTOS, err
 }
 
-func (c clusterService) Page(num, size int) (dto.ClusterPage, error) {
+func (c clusterService) Page(num, size int, projectName string) (dto.ClusterPage, error) {
 	var page dto.ClusterPage
-	total, mos, err := c.clusterRepo.Page(num, size)
+	total, mos, err := c.clusterRepo.Page(num, size, projectName)
 	if err != nil {
 		return page, nil
 	}
@@ -223,6 +227,18 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 	if err := c.clusterRepo.Save(&cluster); err != nil {
 		return err
 	}
+	project, err := c.projectRepository.Get(creation.ProjectName)
+	if err != nil {
+		return err
+
+	}
+	if err := c.projectResourceRepository.Create(model.ProjectResource{
+		ResourceId:   cluster.ID,
+		ProjectID:    project.ID,
+		ResourceType: constant.ResourceCluster,
+	}); err != nil {
+		return err
+	}
 	if err := c.clusterInitService.Init(cluster.Name); err != nil {
 		return err
 	}
@@ -295,6 +311,10 @@ func (c clusterService) Batch(batch dto.ClusterBatch) error {
 			} else {
 				err = c.Delete(item.Name)
 				fmt.Println(err)
+				err := c.projectResourceRepository.DeleteByResourceId(item.ID)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

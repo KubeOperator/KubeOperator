@@ -3,6 +3,7 @@ import {BaseModelService} from '../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
 import {Cluster, CLusterImportRequest, ClusterSecret, ClusterStatus, InitClusterResponse} from './cluster';
 import {Observable} from 'rxjs';
+import {Page} from '../../shared/class/Page';
 
 @Injectable({
     providedIn: 'root'
@@ -29,5 +30,10 @@ export class ClusterService extends BaseModelService<Cluster> {
 
     secret(clusterName: string): Observable<ClusterSecret> {
         return this.http.get<ClusterSecret>(`${this.baseUrl}/secret/${clusterName}`);
+    }
+
+    pageBy(page, size, projectName): Observable<Page<Cluster>> {
+        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&projectName=${projectName}`;
+        return this.http.get<Page<Cluster>>(pageUrl);
     }
 }

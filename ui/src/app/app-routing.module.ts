@@ -35,7 +35,7 @@ import {ProjectDetailComponent} from './business/project/project-detail/project-
 import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
 import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
-import {CatalogComponent} from "./business/cluster/cluster-detail/catalog/catalog.component";
+import {CatalogComponent} from './business/cluster/cluster-detail/catalog/catalog.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -45,7 +45,7 @@ const routes: Routes = [
         canActivate: [AuthUserService],
         canActivateChild: [AuthUserService],
         children: [
-            {path: '', redirectTo: 'clusters', pathMatch: 'full'},
+            {path: '', redirectTo: 'projects', pathMatch: 'full'},
             {
                 path: 'projects',
                 component: ProjectComponent,
@@ -62,11 +62,7 @@ const routes: Routes = [
                 ]
             },
             {
-                path: 'clusters',
-                component: ClusterComponent,
-            },
-            {
-                path: 'clusters/:name',
+                path: 'projects/:projectName/clusters/:name',
                 component: ClusterDetailComponent,
                 resolve: {cluster: ClusterRoutingResolverService},
                 children: [
