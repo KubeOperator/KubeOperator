@@ -34,9 +34,9 @@ export class PlanDetailComponent extends BaseModelComponent<Plan> implements OnI
     getDeployName(name: string) {
         switch (name) {
             case 'SINGLE':
-                return this.translateService.instant("APP_PLAN_DEPLOY_TEMPLATE_SINGLE");
+                return this.translateService.instant('APP_PLAN_DEPLOY_TEMPLATE_SINGLE');
             case 'MULTIPLE':
-                return this.translateService.instant("APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE");
+                return this.translateService.instant('APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE');
             default:
                 return 'None';
         }

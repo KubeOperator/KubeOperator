@@ -249,5 +249,7 @@
   "APP_IP_RANGE_INVALID": "IP Range invalid",
   "APP_INITIALIZING": "Initializing",
   "APP_FAILED": "Failed",
-  "APP_RUNNING": "Running"
+  "APP_RUNNING": "Running",
+  "APP_PROJECT_RESOURCE": "No resources to add"
+
 }

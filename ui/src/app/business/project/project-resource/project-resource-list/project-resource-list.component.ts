@@ -5,6 +5,8 @@ import {ProjectResourceService} from '../project-resource.service';
 import {ActivatedRoute} from '@angular/router';
 import {Project} from '../../project';
 import {ResourceTypes} from '../../../../constant/shared.const';
+import {PlanService} from '../../../deploy-plan/plan/plan.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-project-resource-list',
@@ -18,7 +20,8 @@ export class ProjectResourceListComponent extends BaseModelComponent<ProjectReso
     @Output() deleteEvent = new EventEmitter<any>();
 
     constructor(private projectResourceService: ProjectResourceService,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private translateService: TranslateService) {
         super(projectResourceService);
     }
 
@@ -48,5 +51,16 @@ export class ProjectResourceListComponent extends BaseModelComponent<ProjectReso
 
     onDelete() {
         this.deleteEvent.emit({items: this.selected, resourceType: this.resourceType});
+    }
+
+    getDeployName(name: string) {
+        switch (name) {
+            case 'SINGLE':
+                return this.translateService.instant('APP_PLAN_DEPLOY_TEMPLATE_SINGLE');
+            case 'MULTIPLE':
+                return this.translateService.instant('APP_PLAN_DEPLOY_TEMPLATE_MULTIPLE');
+            default:
+                return 'None';
+        }
     }
 }

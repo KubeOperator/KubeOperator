@@ -252,5 +252,6 @@
   "APP_IP_RANGE_INVALID": "IP 范围无效",
   "APP_INITIALIZING": "初始化中",
   "APP_FAILED": "错误",
-  "APP_RUNNING": "运行中"
+  "APP_RUNNING": "运行中",
+  "APP_PROJECT_RESOURCE": "没有资源可添加"
 }

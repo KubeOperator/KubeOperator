@@ -43,19 +43,19 @@ export class ProjectResourceCreateComponent extends BaseModelComponent<ProjectRe
 
     open(resourceType) {
         this.resourceType = resourceType;
-        this.item = new ProjectResourceCreateRequest();
-        this.opened = true;
-        this.listResources();
-    }
-
-    listResources() {
         this.projectResourceService.listResources(this.resourceType).subscribe(res => {
+            if (res.length === 0) {
+                this.commonAlertService.showAlert(this.translateService.instant('APP_PROJECT_RESOURCE'), AlertLevels.ERROR);
+                return;
+            }
             for (const re of res) {
                 const resource = new ProjectResourceCheck();
                 resource.checked = false;
                 resource.data = re;
                 this.resources.push(resource);
             }
+            this.item = new ProjectResourceCreateRequest();
+            this.opened = true;
         });
     }
 
