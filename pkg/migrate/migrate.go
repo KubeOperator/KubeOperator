@@ -1,13 +1,17 @@
 package migrate
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 const (
@@ -58,19 +62,30 @@ func (i *InitMigrateDBPhase) Init() error {
 					var clusters []model.Cluster
 					db.DB.Model(model.Cluster{}).Find(&clusters)
 					for _, cluster := range clusters {
-						db.DB.Create(model.ProjectResource{
-							ProjectID:    project.ID,
+						err := db.DB.Create(model.ProjectResource{
+							ProjectID:    op.ID,
 							ResourceId:   cluster.ID,
 							ResourceType: constant.ResourceCluster,
+							BaseModel: common.BaseModel{
+								UpdatedAt: time.Now(),
+								CreatedAt: time.Now(),
+							},
+							ID: uuid.NewV4().String(),
 						})
+						fmt.Println(err)
 					}
 					var hosts []model.Host
 					db.DB.Model(model.Host{}).Where("cluster_id != ?", "''").Find(&hosts)
 					for _, host := range hosts {
 						db.DB.Create(model.ProjectResource{
-							ProjectID:    project.ID,
+							ProjectID:    op.ID,
 							ResourceId:   host.ID,
 							ResourceType: constant.ResourceHost,
+							BaseModel: common.BaseModel{
+								UpdatedAt: time.Now(),
+								CreatedAt: time.Now(),
+							},
+							ID: uuid.NewV4().String(),
 						})
 					}
 				}
