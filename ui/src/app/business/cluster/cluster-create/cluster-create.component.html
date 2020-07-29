@@ -129,7 +129,7 @@
 
             <clr-select-container>
                 <label>Kubernetes 审计</label>
-                <select clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
+                <select clrSelect name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="yes">enable</option>
                     <option value="no">disable</option>
