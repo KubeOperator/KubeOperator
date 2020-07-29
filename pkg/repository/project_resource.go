@@ -11,7 +11,7 @@ type ProjectResourceRepository interface {
 	Batch(operation string, items []model.ProjectResource) error
 	Create(resource model.ProjectResource) error
 	ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error)
-	DeleteByResourceId(resourceId string) error
+	DeleteByResourceIdAnyResourceType(resourceId string, resourceType string) error
 }
 
 func NewProjectResourceRepository() ProjectResourceRepository {
@@ -70,9 +70,12 @@ func (p projectResourceRepository) Create(resource model.ProjectResource) error 
 	return db.DB.Model(model.ProjectResource{}).Create(&resource).Error
 }
 
-func (p projectResourceRepository) DeleteByResourceId(resourceId string) error {
+func (p projectResourceRepository) DeleteByResourceIdAnyResourceType(resourceId string, resourceType string) error {
 	var projectResources []model.ProjectResource
-	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId}).Find(&projectResources).Error
+	if resourceId == "" {
+		return nil
+	}
+	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}

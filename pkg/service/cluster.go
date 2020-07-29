@@ -310,8 +310,6 @@ func (c clusterService) Batch(batch dto.ClusterBatch) error {
 				c.clusterTerminalService.Terminal(cluster.Cluster)
 			} else {
 				err = c.Delete(item.Name)
-				fmt.Println(err)
-				err := c.projectResourceRepository.DeleteByResourceId(item.ID)
 				if err != nil {
 					return err
 				}
