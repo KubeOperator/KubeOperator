@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -86,7 +84,7 @@ func (p ProjectController) PostBatch() error {
 	}
 	err = p.ProjectService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }

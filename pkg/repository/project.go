@@ -59,10 +59,18 @@ func (p projectRepository) Batch(operation string, items []model.Project) error 
 		for _, item := range items {
 			ids = append(ids, item.ID)
 		}
-		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
+		tx := db.DB.Begin()
+		err := tx.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
+		err = tx.Where("project_id in (?)", ids).Delete(&model.ProjectResource{}).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		tx.Commit()
 	default:
 		return constant.NotSupportedBatchOperation
 	}
@@ -80,11 +88,11 @@ func (p projectRepository) Delete(name string) error {
 		tx.Rollback()
 		return err
 	}
-	//err = tx.Where("plan_id = ?", plan.ID).Delete(&model.PlanZones{}).Error
-	//if err != nil {
-	//	tx.Rollback()
-	//	return err
-	//}
+	err = tx.Where(model.ProjectResource{ProjectID: project.ID}).Delete(&model.ProjectResource{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 	tx.Commit()
 	return err
 }

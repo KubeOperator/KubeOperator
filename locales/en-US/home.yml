@@ -30,3 +30,4 @@ USER_IS_ADD: "User has been added"
 
 #project
 DEFAULT_PROJECT_CAN_NOT_DELETE: "Default project cannot be deleted"
+PROJECT_HAS_CLUSTER: "Project associated cluster! Cannot be deleted!"

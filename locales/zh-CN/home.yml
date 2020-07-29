@@ -30,3 +30,4 @@ USER_IS_ADD: "用户已经添加"
 
 #project
 DEFAULT_PROJECT_CAN_NOT_DELETE: "默认项目不能删除！"
+PROJECT_HAS_CLUSTER: "项目关联集群！不能删除！"
