@@ -9,7 +9,7 @@ import (
 type ProjectRepository interface {
 	Get(name string) (model.Project, error)
 	List() ([]model.Project, error)
-	Page(num, size int) (int, []model.Project, error)
+	Page(num, size int, userId string) (int, []model.Project, error)
 	Save(project *model.Project) error
 	Batch(operation string, items []model.Project) error
 	Delete(name string) error
@@ -37,11 +37,28 @@ func (p projectRepository) List() ([]model.Project, error) {
 	return projects, err
 }
 
-func (p projectRepository) Page(num, size int) (int, []model.Project, error) {
+func (p projectRepository) Page(num, size int, userId string) (int, []model.Project, error) {
 	var total int
 	var projects []model.Project
-	err := db.DB.Model(model.Project{}).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
-	return total, projects, err
+	if userId == "" {
+		err := db.DB.Model(model.Project{}).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
+		return total, projects, err
+	} else {
+		var projectResources []model.ProjectMember
+		err := db.DB.Model(model.ProjectMember{}).Where(model.ProjectMember{UserID: userId}).Find(&projectResources).Error
+		if err != nil {
+			return total, nil, err
+		}
+		var projectIds []string
+		for _, pm := range projectResources {
+			projectIds = append(projectIds, pm.ProjectID)
+		}
+		err = db.DB.Model(model.Project{}).Where("id in (?)", projectIds).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
+		if err != nil {
+			return total, nil, err
+		}
+		return total, projects, err
+	}
 }
 
 func (p projectRepository) Save(project *model.Project) error {

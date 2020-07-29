@@ -11,7 +11,7 @@ import (
 type ProjectService interface {
 	Get(name string) (dto.Project, error)
 	List() ([]dto.Project, error)
-	Page(num, size int) (page.Page, error)
+	Page(num, size int, userId string) (page.Page, error)
 	Delete(name string) error
 	Create(creation dto.ProjectCreate) (dto.Project, error)
 	Batch(op dto.ProjectOp) error
@@ -81,10 +81,10 @@ func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) 
 	return dto.Project{Project: project}, err
 }
 
-func (p projectService) Page(num, size int) (page.Page, error) {
+func (p projectService) Page(num, size int, userId string) (page.Page, error) {
 	var page page.Page
 	var projectDTOS []dto.Project
-	total, mos, err := p.projectRepo.Page(num, size)
+	total, mos, err := p.projectRepo.Page(num, size, userId)
 	if err != nil {
 		return page, err
 	}

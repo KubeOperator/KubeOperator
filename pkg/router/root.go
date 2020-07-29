@@ -26,7 +26,8 @@ func Server() *iris.Application {
 	proxy.RegisterProxy(app)
 	api := app.Party("/api")
 	api.Use(middleware.PagerMiddleware)
-	//api.Use(middleware.JWTMiddleware().Serve)
+	api.Use(middleware.JWTMiddleware().Serve)
+	api.Use(middleware.UserMiddleware)
 	v1.V1(api)
 	xpack.XPack(api)
 	return app
