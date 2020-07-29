@@ -53,7 +53,7 @@ type ClusterCreate struct {
 	KubeProxyMode         string       `json:"kubeProxyMode"`
 	IngressControllerType string       `json:"ingressControllerType"`
 	Architectures         string       `json:"architectures"`
-	KubernetesAudit       bool         `json:"kubernetesAudit"`
+	KubernetesAudit       string         `json:"kubernetesAudit"`
 	Nodes                 []NodeCreate `json:"nodes"`
 	ProjectName           string       `json:"projectName"`
 }
