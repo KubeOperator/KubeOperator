@@ -198,9 +198,6 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 	if err != nil {
 		return err
 	}
-	if !res.Success {
-		return errors.New(res.GetOutput())
-	}
 	for i := range hosts {
 		hosts[i].Status = constant.ClusterRunning
 	}
@@ -271,8 +268,8 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, err := p.GetIpInUsed(zoneVars["network"])
 	subnet := zoneVars["subnet"]
-	startIp := zoneVars["startIp"]
-	endIp := zoneVars["endIp"]
+	startIp := zoneVars["ipStart"]
+	endIp := zoneVars["ipEnd"]
 	cs := strings.Split(subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)

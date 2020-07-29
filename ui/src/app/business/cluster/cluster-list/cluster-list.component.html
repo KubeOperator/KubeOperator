@@ -31,7 +31,7 @@
             <span *ngIf="item.status === 'Initializing' || item.status === 'Failed'">
                <a (click)="onStatusDetail(item.name)" href="javascript:void(0)">{{item.status}}</a>
             </span>
-            <span *ngIf="item.status!=='Initializing' && item.status!=='Running'">
+            <span *ngIf="item.status!=='Initializing' && item.status!=='Failed'">
                {{item.status}}
             </span>
         </clr-dg-cell>

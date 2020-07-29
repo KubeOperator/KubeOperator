@@ -126,12 +126,16 @@
                     <option value="traefik">traefik</option>
                 </select>
             </clr-select-container>
-            <clr-toggle-container>
+
+            <clr-select-container>
                 <label>Kubernetes 审计</label>
-                <clr-toggle-wrapper>
-                    <input type="checkbox" clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit"/>
-                </clr-toggle-wrapper>
-            </clr-toggle-container>
+                <select clrToggle name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="yes">enable</option>
+                    <option value="no">disable</option>
+                </select>
+            </clr-select-container>
+
         </form>
     </clr-wizard-page>
 
@@ -160,7 +164,7 @@
         <form clrForm>
             <clr-select-container>
                 <label>{{"APP_DEPLOY_PLAN"|translate}}</label>
-                <select clrSelect name="plan" [(ngModel)]="item.plan">
+                <select clrSelect name="plan" [(ngModel)]="item.plan" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option *ngFor="let plan of plans" [value]="plan.name"> {{plan.name}}</option>
                 </select>

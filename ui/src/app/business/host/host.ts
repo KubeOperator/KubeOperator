@@ -15,6 +15,7 @@ export class Host extends BaseModel {
     status: string;
     volumes: Volume[];
     clusterName: string;
+    clusterId: string;
     zoneName: string;
     message: string;
 }

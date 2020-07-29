@@ -1,7 +1,10 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="xl">
     <h3 class="modal-title">{{"APP_STATUS_DETAIL"| translate}}</h3>
     <div class="modal-body">
-        <ul class="clr-timeline clr-timeline-vertical">
+        <span *ngIf="item.conditions&&item.conditions.length === 0">
+           {{item.message}}
+        </span>
+        <ul class="clr-timeline clr-timeline-vertical" *ngIf="item.conditions.length>0">
             <li class="clr-timeline-step" *ngFor="let condition of item.conditions" [ngSwitch]="condition.status">
                 <clr-icon shape="success-standard" aria-label="Completed" *ngSwitchCase="'True'"></clr-icon>
                 <clr-icon shape="error-standard" aria-label="Error" *ngSwitchCase="'False'"></clr-icon>
