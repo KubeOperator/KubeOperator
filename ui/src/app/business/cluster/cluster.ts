@@ -45,7 +45,7 @@ export class ClusterCreateRequest extends BaseModel {
     kubePodSubnet: string;
     kubeServiceSubnet: string;
     kubeProxyMode: string;
-    kubeMaxPod: number;
+    kubeMaxPods: number;
     certsExpired: number;
     kubernetesAudit: boolean;
     ingressControllerType: string;

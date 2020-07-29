@@ -66,7 +66,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.calicoIpv4poolIpip = 'Always';
         this.item.kubePodSubnet = '179.10.0.0/16';
         this.item.kubeServiceSubnet = '179.20.0.0/16';
-        this.item.kubeMaxPod = 110;
+        this.item.kubeMaxPods = 110;
         this.item.certsExpired = 36500;
         this.item.kubernetesAudit = false;
         this.item.kubeProxyMode = 'iptables';
@@ -128,7 +128,9 @@ export class ClusterCreateComponent implements OnInit {
         this.hostService.listByProjectName(this.currentProject.name).subscribe(data => {
             const list = [];
             data.items.forEach(h => {
-                list.push({id: h.name, text: h.name, disabled: false});
+                if (!h.clusterName) {
+                    list.push({id: h.name, text: h.name, disabled: false});
+                }
             });
             this.hosts = list;
         });
@@ -157,6 +159,7 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        console.log(this.item);
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();
