@@ -29,6 +29,7 @@ export class UserListComponent extends BaseModelComponent<User> implements OnIni
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.refresh();
         });
     }
 }

@@ -10,6 +10,7 @@ import (
 
 var (
 	AdminCanNotDelete = "ADMIN_CAN_NOT_DELETE"
+	AdminCanNotUpdate = "ADMIN_CAN_NOT_UPDATE"
 )
 
 const (
@@ -40,6 +41,13 @@ func (u *User) BeforeCreate() (err error) {
 func (u *User) BeforeDelete() (err error) {
 	if u.Name == "admin" {
 		return errors.New(AdminCanNotDelete)
+	}
+	return err
+}
+
+func (u *User) BeforeUpdate() (err error) {
+	if u.Name == "admin" {
+		return errors.New(AdminCanNotUpdate)
 	}
 	return err
 }

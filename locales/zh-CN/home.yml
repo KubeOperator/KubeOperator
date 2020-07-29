@@ -16,6 +16,7 @@ USER_IS_NOT_ACTIVE: "用户未启用！请联系管理员！"
 USER_NOT_FOUND: "无此用户！"
 ADMIN_CAN_NOT_DELETE: "默认 admin 用户不能被删除！"
 USER_IS_NOT_RELATED_PROJECT: "用户没有关联项目"
+ADMIN_CAN_NOT_UPDATE: "Admin 用户不能修改！"
 
 
 #region

@@ -43,7 +43,8 @@ export class UserDeleteComponent extends BaseModelComponent<User> implements OnI
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.opened = false;
         });
     }
 }
