@@ -3,6 +3,7 @@
 #credential
 DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under this key"
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
+DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "Default credential cannot be deleted"
 
 #host
 HOST_ALREADY_EXISTS: "Host already exists"
@@ -14,9 +15,6 @@ ORIGINAL_NOT_MATCH: "The original password is incorrect"
 USER_IS_NOT_ACTIVE: "The user is not enabled! Please contact the administrator!"
 USER_NOT_FOUND: "No such user！"
 ADMIN_CAN_NOT_DELETE: "The default admin user cannot be deleted!"
-DEFAULT_CAN_NOT_DELETE: "Default credentials cannot be deleted"
-
-
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"
@@ -29,3 +27,6 @@ GET_REGION_ERROR: "No region found"
 
 #projectMember
 USER_IS_ADD: "User has been added"
+
+#project
+DEFAULT_PROJECT_CAN_NOT_DELETE: "Default project cannot be deleted"

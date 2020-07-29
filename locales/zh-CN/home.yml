@@ -3,7 +3,7 @@
 #credential
 DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"
 DELETE_FAILED_RESOURCE_ZONE: "删除失败！该秘钥下有关联可用区"
-DEFAULT_CAN_NOT_DELETE: "默认凭据不能删除！"
+DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "默认凭据不能删除！"
 
 #host
 HOST_ALREADY_EXISTS: "主机已存在"
@@ -27,3 +27,6 @@ GET_REGION_ERROR: "找不到区域"
 
 #projectMember
 USER_IS_ADD: "用户已经添加"
+
+#project
+DEFAULT_PROJECT_CAN_NOT_DELETE: "默认项目不能删除！"

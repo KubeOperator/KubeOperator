@@ -59,4 +59,13 @@ var InitData = []Interface{
 		Username: constant.ImageUserName,
 		Type:     constant.ImagePasswordType,
 	},
+	Project{
+		BaseModel: common.BaseModel{
+			UpdatedAt: time.Now(),
+			CreatedAt: time.Now(),
+		},
+		ID:          "6f9c7e35-fc83-44cf-83d5-d8a081996972",
+		Name:        constant.DefaultResourceName,
+		Description: "默认项目",
+	},
 }

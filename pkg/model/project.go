@@ -1,8 +1,14 @@
 package model
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	DefaultProjectCanNotDelete = "DEFAULT_PROJECT_CAN_NOT_DELETE"
 )
 
 type Project struct {
@@ -15,6 +21,13 @@ type Project struct {
 
 func (p *Project) BeforeCreate() (err error) {
 	p.ID = uuid.NewV4().String()
+	return err
+}
+
+func (p *Project) BeforeDelete() (err error) {
+	if p.Name == constant.DefaultResourceName {
+		return errors.New(DefaultProjectCanNotDelete)
+	}
 	return err
 }
 

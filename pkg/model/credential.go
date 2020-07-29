@@ -2,12 +2,13 @@ package model
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	DefaultCanNotDelete = "Default_CAN_NOT_DELETE"
+	DefaultCredentialCanNotDelete = "DEFAULT_CREDENTIAL_CAN_NOT_DELETE"
 )
 
 type Credential struct {
@@ -26,8 +27,8 @@ func (c *Credential) BeforeCreate() (err error) {
 }
 
 func (c *Credential) BeforeDelete() (err error) {
-	if c.Name == "kubeoperator" {
-		return errors.New(DefaultCanNotDelete)
+	if c.Name == constant.DefaultResourceName {
+		return errors.New(DefaultCredentialCanNotDelete)
 	}
 	return err
 }

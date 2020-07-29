@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -45,6 +46,33 @@ func (i *InitMigrateDBPhase) Init() error {
 				db.DB.Model(model.Credential{}).Where("name = ?", op.Name).First(&credential)
 				if db.DB.NewRecord(credential) {
 					db.DB.Create(d)
+				}
+			}
+		case model.Project:
+			op, ok := d.(model.Project)
+			if ok {
+				project := model.Project{}
+				db.DB.Model(model.Project{}).Where("name = ?", op.Name).First(&project)
+				if db.DB.NewRecord(project) {
+					db.DB.Create(d)
+					var clusters []model.Cluster
+					db.DB.Model(model.Cluster{}).Find(&clusters)
+					for _, cluster := range clusters {
+						db.DB.Create(model.ProjectResource{
+							ProjectID:    project.ID,
+							ResourceId:   cluster.ID,
+							ResourceType: constant.ResourceCluster,
+						})
+					}
+					var hosts []model.Host
+					db.DB.Model(model.Host{}).Where("cluster_id != ?", "''").Find(&hosts)
+					for _, host := range hosts {
+						db.DB.Create(model.ProjectResource{
+							ProjectID:    project.ID,
+							ResourceId:   host.ID,
+							ResourceType: constant.ResourceHost,
+						})
+					}
 				}
 			}
 
