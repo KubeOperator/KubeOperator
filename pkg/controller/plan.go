@@ -31,7 +31,8 @@ func (p PlanController) Get() (page.Page, error) {
 		return p.PlanService.Page(num, size)
 	} else {
 		var page page.Page
-		items, err := p.PlanService.List()
+		projectName := p.Ctx.URLParam("projectName")
+		items, err := p.PlanService.List(projectName)
 		if err != nil {
 			return page, err
 		}

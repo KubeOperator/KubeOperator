@@ -23,18 +23,20 @@ type ClusterIaasService interface {
 
 func NewClusterIaasService() ClusterIaasService {
 	return &clusterIaasService{
-		clusterRepo: repository.NewClusterRepository(),
-		nodeRepo:    repository.NewClusterNodeRepository(),
-		hostRepo:    repository.NewHostRepository(),
-		planRepo:    repository.NewPlanRepository(),
+		clusterRepo:         repository.NewClusterRepository(),
+		nodeRepo:            repository.NewClusterNodeRepository(),
+		hostRepo:            repository.NewHostRepository(),
+		planRepo:            repository.NewPlanRepository(),
+		projectResourceRepo: repository.NewProjectResourceRepository(),
 	}
 }
 
 type clusterIaasService struct {
-	clusterRepo repository.ClusterRepository
-	hostRepo    repository.HostRepository
-	nodeRepo    repository.ClusterNodeRepository
-	planRepo    repository.PlanRepository
+	clusterRepo         repository.ClusterRepository
+	hostRepo            repository.HostRepository
+	nodeRepo            repository.ClusterNodeRepository
+	planRepo            repository.PlanRepository
+	projectResourceRepo repository.ProjectResourceRepository
 }
 
 func (c clusterIaasService) Init(name string) error {
@@ -57,6 +59,7 @@ func (c clusterIaasService) Init(name string) error {
 	if err != nil {
 		return err
 	}
+
 	k := kotf.NewTerraform(&kotf.Config{Cluster: name})
 	err = doInit(k, plan, hosts)
 	if err != nil {
@@ -69,6 +72,24 @@ func (c clusterIaasService) Init(name string) error {
 	if err := c.hostRepo.BatchSave(hosts); err != nil {
 		return err
 	}
+
+	var projectResources []model.ProjectResource
+	prs, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+	if err != nil {
+		return err
+	}
+	for _, host := range hosts {
+		projectResources = append(projectResources, model.ProjectResource{
+			ProjectID:    prs[0].ID,
+			ResourceId:   host.ID,
+			ResourceType: constant.ResourceHost,
+		})
+	}
+	err = c.projectResourceRepo.Batch(constant.BatchOperationCreate, projectResources)
+	if err != nil {
+		return err
+	}
+
 	nodes, err := c.createNodes(cluster, hosts)
 	if err := c.nodeRepo.BatchSave(nodes); err != nil {
 		return err

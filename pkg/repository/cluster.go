@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -10,7 +11,7 @@ type ClusterRepository interface {
 	List() ([]model.Cluster, error)
 	Save(cluster *model.Cluster) error
 	Delete(name string) error
-	Page(num, size int) (int, []model.Cluster, error)
+	Page(num, size int, projectName string) (int, []model.Cluster, error)
 }
 
 func NewClusterRepository() ClusterRepository {
@@ -51,13 +52,29 @@ func (c clusterRepository) List() ([]model.Cluster, error) {
 	return clusters, nil
 }
 
-func (c clusterRepository) Page(num, size int) (int, []model.Cluster, error) {
+func (c clusterRepository) Page(num, size int, projectName string) (int, []model.Cluster, error) {
 	var total int
 	var clusters []model.Cluster
+	var project model.Project
+	err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+	if err != nil {
+		return 0, nil, err
+	}
+	var projectResources []model.ProjectResource
+	err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceCluster}).Find(&projectResources).Error
+	if err != nil {
+		return 0, nil, err
+	}
+	var resourceIds []string
+	for _, pr := range projectResources {
+		resourceIds = append(resourceIds, pr.ResourceId)
+	}
+
 	if err := db.DB.Model(model.Cluster{}).
 		Count(&total).
-		Offset((num - 1) * size).
+		Offset((num-1)*size).
 		Limit(size).
+		Where("id in (?)", resourceIds).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").

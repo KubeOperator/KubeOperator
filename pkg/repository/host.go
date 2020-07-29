@@ -13,7 +13,7 @@ var (
 
 type HostRepository interface {
 	Get(name string) (model.Host, error)
-	List() ([]model.Host, error)
+	List(projectName string) ([]model.Host, error)
 	ListByClusterId(clusterId string) ([]model.Host, error)
 	Page(num, size int) (int, []model.Host, error)
 	Save(host *model.Host) error
@@ -45,14 +45,33 @@ func (h hostRepository) Get(name string) (model.Host, error) {
 	return host, nil
 }
 
-func (h hostRepository) List() ([]model.Host, error) {
+func (h hostRepository) List(projectName string) ([]model.Host, error) {
 	var hosts []model.Host
-	err := db.DB.Model(model.Host{}).
-		Preload("Volumes").
-		Preload("Cluster").
-		Preload("Zone").
-		Find(&hosts).Error
-	return hosts, err
+	if projectName == "" {
+		err := db.DB.Model(model.Host{}).
+			Preload("Volumes").
+			Preload("Cluster").
+			Preload("Zone").
+			Find(&hosts).Error
+		return hosts, err
+	} else {
+		var project model.Project
+		err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+		if err != nil {
+			return nil, err
+		}
+		var projectResources []model.ProjectResource
+		err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
+		var resourceIds []string
+		for _, pr := range projectResources {
+			resourceIds = append(resourceIds, pr.ResourceId)
+		}
+		err = db.DB.Model(model.Host{}).Where("id in (?)", resourceIds).Find(&hosts).Error
+		return hosts, err
+	}
 }
 
 func (h hostRepository) Page(num, size int) (int, []model.Host, error) {

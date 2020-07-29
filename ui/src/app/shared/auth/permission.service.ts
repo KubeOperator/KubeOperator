@@ -50,7 +50,7 @@ export class PermissionService {
         return false;
     }
 
-    async authOperate(operate: string, projectId: string) {
+    async authOperate(operate: string, projectName: string) {
         const auths = operate.split('.');
         if (auths.length < 2) {
             return false;
@@ -68,7 +68,7 @@ export class PermissionService {
 
         start:
             for (const permission of userProfile.permissions) {
-                if (permission.projectId === projectId) {
+                if (permission.projectName === projectName) {
                     for (const userPermissionRole of permission.userPermissionRoles) {
                         if (userPermissionRole.operation === op) {
                             for (const role of userPermissionRole.roles) {

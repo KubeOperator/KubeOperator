@@ -8,7 +8,7 @@ import (
 
 type PlanRepository interface {
 	Get(name string) (model.Plan, error)
-	List() ([]model.Plan, error)
+	List(projectName string) ([]model.Plan, error)
 	Page(num, size int) (int, []model.Plan, error)
 	Save(plan *model.Plan, zones []string) error
 	Delete(name string) error
@@ -46,10 +46,29 @@ func (p planRepository) GetById(id string) (model.Plan, error) {
 	return plan, nil
 }
 
-func (p planRepository) List() ([]model.Plan, error) {
+func (p planRepository) List(projectName string) ([]model.Plan, error) {
 	var plans []model.Plan
-	err := db.DB.Model(model.Zone{}).Find(&plans).Error
-	return plans, err
+	if projectName == "" {
+		err := db.DB.Model(model.Zone{}).Find(&plans).Error
+		return plans, err
+	} else {
+		var project model.Project
+		err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+		if err != nil {
+			return nil, err
+		}
+		var projectResources []model.ProjectResource
+		err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: constant.ResourcePlan}).Find(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
+		var resourceIds []string
+		for _, pr := range projectResources {
+			resourceIds = append(resourceIds, pr.ResourceId)
+		}
+		err = db.DB.Model(model.Zone{}).Where("id in (?)", resourceIds).Find(&plans).Error
+		return plans, err
+	}
 }
 
 func (p planRepository) Page(num, size int) (int, []model.Plan, error) {

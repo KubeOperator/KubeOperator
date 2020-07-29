@@ -4,8 +4,10 @@ import {NgForm} from '@angular/forms';
 import {ClusterService} from '../cluster.service';
 import {ClrWizard} from '@clr/angular';
 import {HostService} from '../../host/host.service';
-import {PlanService} from "../../deploy-plan/plan/plan.service";
-import {Plan} from "../../deploy-plan/plan/plan";
+import {PlanService} from '../../deploy-plan/plan/plan.service';
+import {Plan} from '../../deploy-plan/plan/plan';
+import {Project} from '../../project/project';
+import {ActivatedRoute} from '@angular/router';
 
 
 @Component({
@@ -24,16 +26,24 @@ export class ClusterCreateComponent implements OnInit {
     masters: any[] = [];
     workers: any[] = [];
     plans: Plan[] = [];
+    currentProject: Project;
+
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
     @ViewChild('basicForm') basicForm: NgForm;
     @ViewChild('seniorForm') seniorForm: NgForm;
     @Output() created = new EventEmitter();
 
-    constructor(private service: ClusterService, private hostService: HostService, private planService: PlanService) {
+    constructor(private service: ClusterService,
+                private hostService: HostService,
+                private planService: PlanService,
+                private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
+        this.route.parent.data.subscribe(data => {
+            this.currentProject = data.project;
+        });
     }
 
     reset() {
@@ -61,6 +71,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.kubernetesAudit = false;
         this.item.kubeProxyMode = 'iptables';
         this.item.ingressControllerType = 'nginx';
+        this.item.projectName = this.currentProject.name;
         this.item.workerAmount = 1;
     }
 
@@ -114,7 +125,7 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     loadHosts() {
-        this.hostService.list().subscribe(data => {
+        this.hostService.listByProjectName(this.currentProject.name).subscribe(data => {
             const list = [];
             data.items.forEach(h => {
                 if (!h.clusterName) {
@@ -126,7 +137,7 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     loadPlan() {
-        this.planService.list().subscribe(data => {
+        this.planService.listByProjectName(this.currentProject.name).subscribe(data => {
             this.plans = data.items;
         });
     }

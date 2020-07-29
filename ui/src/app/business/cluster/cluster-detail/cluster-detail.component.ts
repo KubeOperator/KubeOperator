@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Cluster} from "../cluster";
-import {ToolsService} from "./tools/tools.service";
-import {ClusterTool} from "./tools/tools";
+import {Cluster} from '../cluster';
+import {ToolsService} from './tools/tools.service';
+import {ClusterTool} from './tools/tools';
 
 @Component({
     selector: 'app-cluster-detail',
@@ -40,7 +40,7 @@ export class ClusterDetailComponent implements OnInit {
     }
 
     backToCluster() {
-        this.router.navigate(['clusters']);
+        this.router.navigate(['projects/' + this.currentCluster.projectName]).then();
     }
 
 }

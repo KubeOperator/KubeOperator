@@ -34,7 +34,8 @@ func (h HostController) Get() (page.Page, error) {
 		return h.HostService.Page(num, size)
 	} else {
 		var page page.Page
-		items, err := h.HostService.List()
+		projectName := h.Ctx.URLParam("projectName")
+		items, err := h.HostService.List(projectName)
 		if err != nil {
 			return page, err
 		}

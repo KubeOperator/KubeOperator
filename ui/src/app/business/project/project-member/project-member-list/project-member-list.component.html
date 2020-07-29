@@ -2,18 +2,18 @@
     <clr-dg-action-bar>
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
-                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','resourceId':currentProject.id}">
+                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','projectName':currentProject.name}">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1"
-                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','resourceId':currentProject.id}">
+                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','projectName':currentProject.name}">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
         </div>
         <clr-dropdown [clrCloseMenuOnItemClick]="false" class="btn  btn-link" clrDropdownTrigger
-                      *appOperateAuth="{'op':'PROJECT-MEMBER.UPDATE','resourceId':currentProject.id}">
+                      *appOperateAuth="{'op':'PROJECT-MEMBER.UPDATE','projectName':currentProject.name}">
             <span id='member-action'>{{'APP_MEMBER_ACTION' | translate}}
                 <clr-icon shape="caret down"></clr-icon></span>
             <clr-dropdown-menu *clrIfOpen>

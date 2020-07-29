@@ -29,9 +29,10 @@ func NewClusterController() *ClusterController {
 func (c ClusterController) Get() (dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
 	if page {
+		projectName := c.Ctx.URLParam("projectName")
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return c.ClusterService.Page(num, size)
+		return c.ClusterService.Page(num, size, projectName)
 	} else {
 		var page dto.ClusterPage
 		items, err := c.ClusterService.List()
