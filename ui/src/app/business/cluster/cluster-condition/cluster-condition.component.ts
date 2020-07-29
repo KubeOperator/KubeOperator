@@ -60,25 +60,13 @@ export class ClusterConditionComponent implements OnInit {
     polling() {
         this.timer = setInterval(() => {
             this.service.status(this.clusterName).subscribe(data => {
-                if (this.item.phase !== data.phase) {
-                    this.item.phase = data.phase;
-                }
                 if (this.item.phase !== 'Running') {
-                    // data.status.conditions.forEach((n) => {
-                    //     this.item.conditions.forEach(condition => {
-                    //         if (condition.name === n.name) {
-                    //             if (condition.status !== n.status) {
-                    //                 condition.status = n.status;
-                    //             }
-                    //             if (condition.message !== n.message) {
-                    //                 condition.message = n.message;
-                    //             }
-                    //         }
-                    //     });
-                    // });
                     this.item.conditions = data.conditions;
                 } else {
                     clearInterval(this.timer);
+                }
+                if (this.item.phase !== data.phase) {
+                    this.item.phase = data.phase;
                 }
             });
         }, 3000);
