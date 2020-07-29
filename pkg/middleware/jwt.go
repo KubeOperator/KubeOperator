@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -17,9 +18,10 @@ import (
 )
 
 var (
-	secretKey       []byte
-	exp             int
-	UserIsNotActive = "USER_IS_NOT_ACTIVE"
+	secretKey               []byte
+	exp                     int
+	UserIsNotActive         = "USER_IS_NOT_ACTIVE"
+	UserIsNotRelatedProject = "USER_IS_NOT_RELATED_PROJECT"
 )
 
 func JWTMiddleware() *jwtmiddleware.Middleware {
@@ -28,7 +30,6 @@ func JWTMiddleware() *jwtmiddleware.Middleware {
 	return jwtmiddleware.New(jwtmiddleware.Config{
 		Extractor: jwtmiddleware.FromAuthHeader,
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			//自己加密的秘钥或者说盐值
 			return secretKey, nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
@@ -125,6 +126,12 @@ func GetAuthUser(ctx context.Context) {
 		if err != nil {
 			ctx.StatusCode(iris.StatusInternalServerError)
 			_, _ = ctx.JSON(dto.Response{Msg: err.Error()})
+			return
+		}
+
+		if len(projectMembers) == 0 {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			_, _ = ctx.JSON(dto.Response{Msg: ctx.Tr(errors.New(UserIsNotRelatedProject).Error())})
 			return
 		}
 

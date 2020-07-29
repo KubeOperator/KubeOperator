@@ -12,11 +12,16 @@ import {PermissionService} from '../../../shared/auth/permission.service';
 export class ProjectListComponent extends BaseModelComponent<Project> implements OnInit {
 
 
-    constructor(private projectService: ProjectService, private permissionService: PermissionService) {
+    constructor(private projectService: ProjectService,
+                private permissionService: PermissionService) {
         super(projectService);
     }
 
     ngOnInit(): void {
         super.ngOnInit();
+    }
+
+    getProjectRole(projectName: string) {
+
     }
 }

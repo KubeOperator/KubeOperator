@@ -90,6 +90,16 @@ export class PermissionService {
         });
     }
 
+    getProjectRole(projectName: string) {
+        const userProfile = this.sessionService.getCacheProfile();
+        if (userProfile == null) {
+            return '';
+        }
+        if (userProfile.user.isAdmin) {
+            return 'SYSTEM_ADMIN';
+        }
+    }
+
     getProfile() {
         return this.sessionService.getProfile().toPromise();
     }

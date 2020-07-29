@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
         this.isError = true;
         switch (error.status) {
             case 500:
-                this.message = error.error.message;
+                this.message = error.error.msg;
                 break;
             case 504:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
