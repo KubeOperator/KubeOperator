@@ -8,13 +8,16 @@ require (
 	github.com/KubeOperator/kotf v0.0.0-20200703074433-30148dd4a4d7
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1
+	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/flosch/pongo2 v0.0.0-20200529170236-5abacdfa4915 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gavv/monotime v0.0.0-20190418164738-30dba4353424 // indirect
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-playground/validator/v10 v10.2.0
@@ -54,6 +57,7 @@ require (
 	github.com/valyala/fasthttp v1.14.0 // indirect
 	github.com/vmware/govmomi v0.23.0
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
+	github.com/youtube/vitess v2.1.1+incompatible // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
@@ -71,5 +75,4 @@ require (
 	k8s.io/client-go v0.18.2
 	moul.io/http2curl v1.0.0 // indirect
 	rsc.io/letsencrypt v0.0.3 // indirect
-	github.com/go-bindata/go-bindata v3.1.2+incompatible
 )
