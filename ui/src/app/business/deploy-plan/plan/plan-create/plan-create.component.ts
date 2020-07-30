@@ -12,6 +12,8 @@ import {NgForm} from '@angular/forms';
 import {ClrWizard} from '@clr/angular';
 import {ZoneService} from '../../zone/zone.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {ProjectService} from '../../../project/project.service';
+import {Project} from '../../../project/project';
 
 @Component({
     selector: 'app-plan-create',
@@ -26,6 +28,8 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     item: PlanCreateRequest = new PlanCreateRequest();
     vmConfigs: PlanVmConfig[] = [];
     regionName: string;
+    projects: Project[] = [];
+    regionId: string;
     @Output() created = new EventEmitter();
     @ViewChild('basicForm', {static: true}) basicForm: NgForm;
     @ViewChild('planForm', {static: true}) planForm: NgForm;
@@ -34,7 +38,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
 
     constructor(private planService: PlanService, private modalAlertService: ModalAlertService, private regionService: RegionService,
                 private translateService: TranslateService, private commonAlertService: CommonAlertService,
-                private zoneService: ZoneService) {
+                private zoneService: ZoneService, private projectService: ProjectService) {
         super(planService);
     }
 
@@ -43,11 +47,8 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
 
     open() {
         this.opened = true;
-        this.regionService.list().subscribe(res => {
-            this.regions = res.items;
-        }, error => {
-
-        });
+        this.listProjects();
+        this.listRegions();
     }
 
     onCancel() {
@@ -80,8 +81,9 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
 
     onRegionChange() {
         this.regions.forEach(region => {
-            if (region.id === this.item.regionId) {
+            if (region.name === this.item.region) {
                 this.regionName = region.name;
+                this.regionId = region.id;
             }
         });
     }
@@ -97,9 +99,24 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     }
 
     listZones() {
-        this.zoneService.listByRegionId(this.item.regionId).subscribe(res => {
+        this.zoneService.listByRegionId(this.regionId).subscribe(res => {
             this.zones = res;
         });
     }
 
+    listProjects() {
+        this.projectService.list().subscribe(res => {
+            this.projects = res.items;
+        }, error => {
+
+        });
+    }
+
+    listRegions() {
+        this.regionService.list().subscribe(res => {
+            this.regions = res.items;
+        }, error => {
+
+        });
+    }
 }

@@ -14,16 +14,12 @@
                 <label>{{'APP_NAME'|translate}}</label>
                 <input clrInput size=45 type="text" maxlength="15" [(ngModel)]="item.name"
                        name="name" required>
-                <!--                <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.required">此字段为必填项</clr-control-error>-->
-                <!--                <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.errors.repeat">名称重复</clr-control-error>-->
-                <!--                <clr-control-error *ngIf="nameCtrl&&nameCtrl.errors&&nameCtrl.invalid">{{name_pattern_tip}}</clr-control-error>-->
-                <!--                <clr-control-helper>{{name_pattern_tip}}</clr-control-helper>-->
             </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_REGION'|translate}}</label>
-                <select clrSelect [(ngModel)]="item.regionId" name="provider" (change)="onRegionChange()" required>
+                <select clrSelect [(ngModel)]="item.region" name="provider" (change)="onRegionChange()" required>
                     <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
-                    <option *ngFor="let re of regions" [value]="re.id">{{re.name}}</option>
+                    <option *ngFor="let re of regions" [value]="re.name">{{re.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
@@ -37,14 +33,14 @@
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
             </clr-select-container>
-            <!--&lt;!&ndash;            <clr-select-container>&ndash;&gt;-->
-            <!--&lt;!&ndash;                <label>项目</label>&ndash;&gt;-->
-            <!--&lt;!&ndash;                <select clrSelect [(ngModel)]="item.item_id" name="item" multiple>&ndash;&gt;-->
-            <!--&lt;!&ndash;                    <option [value]="" disabled>请选择</option>&ndash;&gt;-->
-            <!--&lt;!&ndash;                    <option *ngFor="let item of items" [value]="item.id">{{item.name}}</option>&ndash;&gt;-->
-            <!--&lt;!&ndash;                </select>&ndash;&gt;-->
-            <!--&lt;!&ndash;                <clr-control-helper>部署计划需要授权到项目才可用（非必填）</clr-control-helper>&ndash;&gt;-->
-            <!--&lt;!&ndash;            </clr-select-container>&ndash;&gt;-->
+            <clr-select-container>
+                <label>{{'APP_PROJECT'|translate}}</label>
+                <select clrSelect [(ngModel)]="item.projects" name="item" multiple required>
+                    <option [value]="" disabled>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option *ngFor="let item of projects" [value]="item.name">{{item.name}}</option>
+                </select>
+                <clr-control-helper>{{'APP_PLAN_PROJECT_HELPER'|translate}}</clr-control-helper>
+            </clr-select-container>
         </form>
     </clr-wizard-page>
     <clr-wizard-page [clrWizardPageNextDisabled]="planForm.invalid" (clrWizardPageCustomButton)="onSubmit()">

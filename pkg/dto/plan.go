@@ -11,11 +11,13 @@ type Plan struct {
 }
 
 type PlanCreate struct {
-	Name           string      `json:"name" validate:"required"`
-	RegionId       string      `json:"regionId" validate:"required"`
+	Name string `json:"name" validate:"required"`
+	//RegionId       string      `json:"regionId" validate:"required"`
 	Zones          []string    `json:"zones" validate:"required"`
 	PlanVars       interface{} `json:"planVars" validate:"required"`
 	DeployTemplate string      `json:"deployTemplate" validate:"required"`
+	Projects       []string    `json:"projects" validate:"required"`
+	Region         string      `json:"region" validate:"required"`
 }
 
 type PlanOp struct {

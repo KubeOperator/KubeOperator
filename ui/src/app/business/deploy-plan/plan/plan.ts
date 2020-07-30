@@ -17,10 +17,11 @@ export class PlanCreateRequest extends BaseRequest {
     deployTemplate: string;
     vars: string;
     planVars: {} = {};
-    regionId: string;
+    // regionId: string;
     zone: string;
     zones: string [] = [];
     region: string;
+    projects: string[] = [];
 }
 
 export class PlanVmConfig {
