@@ -98,6 +98,14 @@ export class PermissionService {
         if (userProfile.user.isAdmin) {
             return 'SYSTEM_ADMIN';
         }
+        let projectRole = '';
+        for (const permission of userProfile.permissions) {
+            if (permission.projectName === projectName) {
+                projectRole = permission.projectRole;
+                break;
+            }
+        }
+        return projectRole;
     }
 
     getProfile() {

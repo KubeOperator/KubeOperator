@@ -187,6 +187,7 @@ func GetAuthUser(ctx context.Context) {
 				return
 			}
 			userPermission.ProjectName = project.Name
+			userPermission.ProjectRole = pm.Role
 			userPermission.UserPermissionRoles = userPermissionRoles
 			userPermissions = append(userPermissions, userPermission)
 		}

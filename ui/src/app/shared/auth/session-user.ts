@@ -24,6 +24,7 @@ export class RoleMenu {
 export class Permission {
     projectId: string;
     projectName: string;
+    projectRole: string;
     userPermissionRoles: UserPermissionRole[] = [];
 }
 

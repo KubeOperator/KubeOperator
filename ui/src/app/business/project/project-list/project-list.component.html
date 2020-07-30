@@ -24,7 +24,7 @@
 
     <clr-dg-row class="fixed-height" *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
-        <clr-dg-cell>{{item.description}}</clr-dg-cell>
+        <clr-dg-cell>{{getProjectRole(item.name) | translate}}</clr-dg-cell>
         <clr-dg-cell>{{item.description}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
