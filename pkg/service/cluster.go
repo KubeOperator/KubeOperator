@@ -180,6 +180,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		KubeProxyMode:         creation.KubeProxyMode,
 		IngressControllerType: creation.IngressControllerType,
 		Architectures:         creation.Architectures,
+		KubernetesAudit:       creation.KubernetesAudit,
 		KubeApiServerPort:     constant.DefaultApiServerPort,
 	}
 

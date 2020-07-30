@@ -32,6 +32,10 @@ func (i *InitMigrateDBPhase) Init() error {
 		log.Infof("migrate table: %s", m.TableName())
 		db.DB.AutoMigrate(m)
 	}
+	if err := db.DB.Model(model.ClusterSpec{}).ModifyColumn("kubernetes_audit", "varchar(255)").Error; err != nil {
+		fmt.Println(err.Error())
+	}
+
 	for _, d := range model.InitData {
 		switch v := d.(type) {
 		case model.User:
@@ -90,7 +94,6 @@ func (i *InitMigrateDBPhase) Init() error {
 					}
 				}
 			}
-
 		default:
 			log.Infof("insert data failed: %s", v)
 		}
