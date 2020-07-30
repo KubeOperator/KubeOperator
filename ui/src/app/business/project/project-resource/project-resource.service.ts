@@ -21,8 +21,8 @@ export class ProjectResourceService extends BaseModelService<ProjectResource> {
         return this.http.get<Page<ProjectResource>>(pageUrl);
     }
 
-    listResources(resourceType): Observable<any> {
-        const resourceUrl = `${this.baseUrl}/list/?resourceType=${resourceType}`;
+    listResources(resourceType, projectName): Observable<any> {
+        const resourceUrl = `${this.baseUrl}/list/?resourceType=${resourceType}&projectName=${projectName}`;
         return this.http.get<any>(resourceUrl);
     }
 }

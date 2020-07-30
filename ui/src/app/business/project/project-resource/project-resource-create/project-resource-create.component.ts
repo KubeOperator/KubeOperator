@@ -43,7 +43,7 @@ export class ProjectResourceCreateComponent extends BaseModelComponent<ProjectRe
 
     open(resourceType) {
         this.resourceType = resourceType;
-        this.projectResourceService.listResources(this.resourceType).subscribe(res => {
+        this.projectResourceService.listResources(this.resourceType, this.currentProject.name).subscribe(res => {
             if (res.length === 0) {
                 this.commonAlertService.showAlert(this.translateService.instant('APP_PROJECT_RESOURCE'), AlertLevels.ERROR);
                 return;

@@ -13,16 +13,18 @@ import (
 type ProjectResourceService interface {
 	Batch(op dto.ProjectResourceOp) error
 	PageByProjectIdAndType(num, size int, projectId string, resourceType string) (page.Page, error)
-	GetResources(resourceType string) (interface{}, error)
+	GetResources(resourceType, projectName string) (interface{}, error)
 }
 
 type projectResourceService struct {
 	projectResourceRepo repository.ProjectResourceRepository
+	projectRepo         repository.ProjectRepository
 }
 
 func NewProjectResourceService() ProjectResourceService {
 	return &projectResourceService{
 		projectResourceRepo: repository.NewProjectResourceRepository(),
+		projectRepo:         repository.NewProjectRepository(),
 	}
 }
 
@@ -120,13 +122,25 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 	return p.projectResourceRepo.Batch(op.Operation, opItems)
 }
 
-func (p projectResourceService) GetResources(resourceType string) (interface{}, error) {
+func (p projectResourceService) GetResources(resourceType, projectName string) (interface{}, error) {
 	var result interface{}
 	var projectResources []model.ProjectResource
 	var resourceIds []string
-	err := db.DB.Model(model.ProjectResource{}).Select("resource_id").Where("resource_type = ?", resourceType).Find(&projectResources).Error
-	if err != nil {
-		return result, err
+	if resourceType == constant.ResourcePlan {
+		project, err := p.projectRepo.Get(projectName)
+		if err != nil {
+			return nil, err
+		}
+		err = db.DB.Model(model.ProjectResource{}).Select("resource_id").Where(model.ProjectResource{ProjectID: project.ID, ResourceType: resourceType}).Find(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
+	}
+	if resourceType == constant.ResourceHost {
+		err := db.DB.Model(model.ProjectResource{}).Select("resource_id").Where(model.ProjectResource{ResourceType: resourceType}).Find(&projectResources).Error
+		if err != nil {
+			return nil, err
+		}
 	}
 	for _, pr := range projectResources {
 		resourceIds = append(resourceIds, pr.ResourceId)
@@ -138,19 +152,20 @@ func (p projectResourceService) GetResources(resourceType string) (interface{}, 
 	switch resourceType {
 	case constant.ResourceHost:
 		var result []model.Host
-		err = db.DB.Model(model.Host{}).
+		err := db.DB.Model(model.Host{}).
 			Where("id not  in (?) and cluster_id = ''", resourceIds).
 			Find(&result).Error
 		if err != nil {
-			return result, err
+			return nil, err
 		}
 		return result, nil
 
 	case constant.ResourcePlan:
 		var result []model.Plan
-		err = db.DB.Model(model.Plan{}).Where("id not  in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
+		resourceIds = append(resourceIds, "1")
+		err := db.DB.Debug().Model(model.Plan{}).Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
 		if err != nil {
-			return result, err
+			return nil, err
 		}
 		return result, nil
 	}

@@ -56,5 +56,6 @@ func (p ProjectResourceController) PostBatch() error {
 
 func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
-	return p.ProjectResourceService.GetResources(resourceType)
+	projectName := p.Ctx.URLParam("projectName")
+	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }
