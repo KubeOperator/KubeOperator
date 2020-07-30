@@ -19,7 +19,7 @@ type InitDBPhase struct {
 }
 
 func (i *InitDBPhase) Init() error {
-	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true",
+	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=true&loc=Asia%%2FShanghai",
 		i.User,
 		i.Password,
 		i.Host,

@@ -7,7 +7,7 @@
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.metadata.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.status.phase}}</clr-dg-cell>
-        <clr-dg-cell>{{item.metadata.creationTimestamp|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{item.metadata.creationTimestamp|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
         <app-k8s-pagination [(continueToken)]="continueToken"

@@ -33,7 +33,7 @@
         <clr-dg-cell *ngIf="getStatus(item) === 'Failed'"><a href="javascript:void(0)"
                                                              (click)="onShowStatus(item)">{{getStatus(item)}}</a>
         </clr-dg-cell>
-        <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
 </clr-datagrid>
 

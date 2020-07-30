@@ -31,7 +31,7 @@
         <clr-dg-cell>
             <input clrToggle type="checkbox" name="supper" [(ngModel)]="item.isAdmin" (change)="updateUser(item)"/>
         </clr-dg-cell>
-        <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
