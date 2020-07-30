@@ -76,6 +76,10 @@ export class NodeCreateComponent implements OnInit {
             this.created.emit();
             this.isSubmitGoing = false;
             this.opened = false;
+        }, error => {
+            this.created.emit();
+            this.isSubmitGoing = false;
+            this.opened = false;
         });
     }
 

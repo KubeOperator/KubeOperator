@@ -53,7 +53,7 @@ type ClusterCreate struct {
 	KubeProxyMode         string       `json:"kubeProxyMode"`
 	IngressControllerType string       `json:"ingressControllerType"`
 	Architectures         string       `json:"architectures"`
-	KubernetesAudit       string         `json:"kubernetesAudit"`
+	KubernetesAudit       string       `json:"kubernetesAudit"`
 	Nodes                 []NodeCreate `json:"nodes"`
 	ProjectName           string       `json:"projectName"`
 }
@@ -76,3 +76,8 @@ type ClusterWithEndpoint struct {
 type WebkubectlToken struct {
 	Token string `json:"token"`
 }
+
+type ClusterLog struct {
+	model.ClusterLog
+}
+

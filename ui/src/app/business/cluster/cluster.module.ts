@@ -55,6 +55,9 @@ import { NodeStatusComponent } from './cluster-detail/node/node-status/node-stat
 import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
 import { CatalogComponent } from './cluster-detail/catalog/catalog.component';
 import { CatalogDashboardComponent } from './cluster-detail/catalog/catalog-dashboard/catalog-dashboard.component';
+import { LogComponent } from './cluster-detail/log/log.component';
+import { LogListComponent } from './cluster-detail/log/log-list/log-list.component';
+import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.component';
 
 
 @NgModule({
@@ -91,7 +94,10 @@ import { CatalogDashboardComponent } from './cluster-detail/catalog/catalog-dash
         NodeStatusComponent,
         WebkubectlComponent,
         CatalogComponent,
-        CatalogDashboardComponent],
+        CatalogDashboardComponent,
+        LogComponent,
+        LogListComponent,
+        LogDetailComponent],
     imports: [
         CoreModule,
         RouterModule,

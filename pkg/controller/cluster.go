@@ -14,6 +14,7 @@ type ClusterController struct {
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
+	CLusterLogService                service.ClusterLogService
 }
 
 func NewClusterController() *ClusterController {
@@ -23,6 +24,7 @@ func NewClusterController() *ClusterController {
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
+		CLusterLogService:                service.NewClusterLogService(),
 	}
 }
 
@@ -136,4 +138,9 @@ func (c ClusterController) GetWebkubectlBy(clusterName string) (dto.WebkubectlTo
 
 func (c ClusterController) GetSecretBy(clusterName string) (dto.ClusterSecret, error) {
 	return c.ClusterService.GetSecrets(clusterName)
+}
+
+func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
+	return c.CLusterLogService.List(clusterName)
+
 }

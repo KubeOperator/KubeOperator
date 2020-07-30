@@ -32,7 +32,6 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.refresh();
-        this.polling();
     }
 
     ngOnDestroy(): void {
@@ -40,9 +39,10 @@ export class NodeListComponent implements OnInit, OnDestroy {
     }
 
     refresh() {
+        this.loading = true;
+        this.selected = [];
         this.nodeService.list(this.currentCluster.name).subscribe(d => {
             this.items = d;
-            this.selected = [];
             this.loading = false;
         });
     }
@@ -148,7 +148,6 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     onDelete() {
         this.deleteEvent.emit(this.selected);
-        this.selected = [];
     }
 
     onShowStatus(item: Node) {
@@ -157,27 +156,9 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     polling() {
         this.timer = setInterval(() => {
-            let flag = false;
-            const needPolling = ['Waiting', 'Initializing', 'Terminating'];
-            for (const item of this.items) {
-                if (needPolling.indexOf(item.status) !== -1) {
-                    flag = true;
-                    break;
-                }
-            }
-            if (flag) {
-                this.nodeService.list(this.currentCluster.name).subscribe(data => {
-                    data.forEach(n => {
-                        this.items.forEach(item => {
-                            if (item.name === n.name) {
-                                if (item.status !== n.status) {
-                                    item.status = n.status;
-                                }
-                            }
-                        });
-                    });
-                });
-            }
+            this.nodeService.list(this.currentCluster.name).subscribe(data => {
+                this.items = data;
+            });
         }, 1000);
     }
 

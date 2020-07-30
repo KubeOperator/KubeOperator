@@ -17,7 +17,6 @@ type ClusterNode struct {
 	ClusterID string `json:"clusterId"`
 	Role      string `json:"role"`
 	Status    string `json:"status"`
-	Message   string `json:"message"  gorm:"type:text(65535)"`
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {

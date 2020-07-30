@@ -8,6 +8,16 @@ const (
 	ClusterTerminating  = "Terminating"
 	ClusterTerminated   = "Terminated"
 	ClusterWaiting      = "Waiting"
+	//日志类型
+
+	ClusterLogTypeAddNode    = "ADD_NODE"
+	ClusterLogTypeDeleteNode = "DELETE_NODE"
+
+	ClusterLogStatusSuccess = "SUCCESS"
+	ClusterLogStatusFailed  = "FAILED"
+	ClusterLogStatusWaiting = "WAITING"
+	ClusterLogStatusRunning = "RUNNING"
+
 	// 表示创建资源
 	ClusterCreating = "Creating"
 

@@ -34,6 +34,7 @@ func NewClusterNodeService() ClusterNodeService {
 		HostRepo:          repository.NewHostRepository(),
 		PlanRepo:          repository.NewPlanRepository(),
 		systemSettingRepo: repository.NewSystemSettingRepository(),
+		clusterLogService: NewClusterLogService(),
 	}
 }
 
@@ -43,6 +44,12 @@ type clusterNodeService struct {
 	HostRepo          repository.HostRepository
 	PlanRepo          repository.PlanRepository
 	systemSettingRepo repository.SystemSettingRepository
+	clusterLogService ClusterLogService
+}
+
+type nodeMessage struct {
+	node    *model.ClusterNode
+	message string
 }
 
 func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
@@ -132,10 +139,22 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.ClusterNode) {
+	var clog model.ClusterLog
+	clog.Type = constant.ClusterLogTypeDeleteNode
+	err := c.clusterLogService.Save(cluster.Name, &clog)
+	if err != nil {
+		log.Error(err)
+	}
+	err = c.clusterLogService.Start(&clog)
+	if err != nil {
+		log.Error(err)
+	}
 	wg := sync.WaitGroup{}
 	for i := range nodes {
+		nodes[i].Status = constant.ClusterTerminating
+		db.DB.Save(&nodes[i])
+		go c.doSingleDelete(&wg, cluster, nodes[i])
 		wg.Add(1)
-		go c.doSingleDelete(&wg, cluster, *nodes[i])
 	}
 	wg.Wait()
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
@@ -150,9 +169,14 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 			_ = c.HostRepo.Save(&nodes[i].Host)
 		}
 		if cluster.Spec.Provider == constant.ClusterProviderPlan {
+			db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 			db.DB.Delete(model.Host{ID: nodes[i].HostID})
 		}
 		_ = c.NodeRepo.Delete(nodes[i].ID)
+	}
+	e := c.clusterLogService.End(&clog, true, "")
+	if e != nil {
+		log.Error(e)
 	}
 }
 
@@ -206,6 +230,16 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
+	var clog model.ClusterLog
+	clog.Type = constant.ClusterLogTypeAddNode
+	err := c.clusterLogService.Save(cluster.Name, &clog)
+	if err != nil {
+		log.Error(err)
+	}
+	err = c.clusterLogService.Start(&clog)
+	if err != nil {
+		log.Error(err)
+	}
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		allNodes, _ := c.NodeRepo.List(cluster.Name)
 		var allHosts []*model.Host
@@ -214,6 +248,10 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 		}
 		err := c.doCreateHosts(cluster, allHosts)
 		if err != nil {
+			e := c.clusterLogService.End(&clog, false, err.Error())
+			if e != nil {
+				log.Error(e)
+			}
 			for i := range nodes {
 				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
@@ -225,8 +263,60 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 			}
 		}
 	}
-	for _, n := range nodes {
-		go c.doSingleNodeCreate(cluster, *n)
+	var waitGroup sync.WaitGroup
+	var nms []*nodeMessage
+	for i := range nodes {
+		nodes[i].Status = constant.ClusterInitializing
+		_ = c.NodeRepo.Save(nodes[i])
+		nm := &nodeMessage{
+			node: nodes[i],
+		}
+		nms = append(nms, nm)
+		go c.doSingleNodeCreate(&waitGroup, cluster, nm)
+		waitGroup.Add(1)
+	}
+	waitGroup.Wait()
+	success := true
+	mergedLogMap := make(map[string]string)
+	for i := range nms {
+		if nms[i].node.Status != constant.ClusterRunning {
+			success = false
+			mergedLogMap[nms[i].node.Name] = nms[i].message
+		}
+	}
+	if success {
+		e := c.clusterLogService.End(&clog, true, "")
+		if e != nil {
+			log.Error(e)
+		}
+	} else {
+		buf, _ := json.Marshal(&mergedLogMap)
+		e := c.clusterLogService.End(&clog, false, string(buf))
+		if e != nil {
+			log.Error(e)
+		}
+		for i := range nodes {
+			if nodes[i].Status == constant.ClusterRunning {
+				nodes[i].Status = constant.ClusterTerminating
+				_ = c.NodeRepo.Save(nodes[i])
+				go c.doSingleDelete(&waitGroup, cluster, nodes[i])
+				waitGroup.Add(1)
+			}
+		}
+		waitGroup.Wait()
+		if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+			for i := range nodes {
+				db.DB.Delete(nodes[i])
+			}
+		} else {
+			nos, _ := c.NodeRepo.List(cluster.Name)
+			cluster.Nodes = nos
+			_ = c.destroyHosts(cluster, nodes)
+			for i := range nodes {
+				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
+				db.DB.Delete(model.Host{ID: nodes[i].HostID})
+			}
+		}
 	}
 }
 
@@ -295,7 +385,10 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 			return nil, err
 		}
 	}
-	_ = c.HostRepo.BatchSave(newHosts)
+	err := c.HostRepo.BatchSave(newHosts)
+	if err != nil {
+		log.Error(err)
+	}
 	return newHosts, nil
 }
 
@@ -348,9 +441,8 @@ func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Ho
 
 const deleteWorkerPlaybook = "96-remove-worker.yml"
 
-func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.Cluster, worker model.ClusterNode) {
-	worker.Status = constant.ClusterTerminating
-	_ = c.NodeRepo.Save(&worker)
+func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.Cluster, worker *model.ClusterNode) {
+	defer wg.Done()
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
 		if inventory.Groups[i].Name == "del-worker" {
@@ -372,20 +464,18 @@ func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.C
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
 	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook)
 	worker.Status = constant.ClusterTerminated
-	_ = c.NodeRepo.Save(&worker)
-	wg.Done()
 }
 
 const addWorkerPlaybook = "91-add-worker.yml"
 
-func (c clusterNodeService) doSingleNodeCreate(cluster *model.Cluster, worker model.ClusterNode) {
+func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluster *model.Cluster, nm *nodeMessage) {
+	defer waitGroup.Done()
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
-	worker.Status = constant.ClusterInitializing
-	_ = c.NodeRepo.Save(&worker)
+
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
 		if inventory.Groups[i].Name == "new-worker" {
-			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, worker.Name)
+			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, nm.node.Name)
 		}
 	}
 	k := kobe.NewAnsible(&kobe.Config{
@@ -403,11 +493,8 @@ func (c clusterNodeService) doSingleNodeCreate(cluster *model.Cluster, worker mo
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
 	err := phases.RunPlaybookAndGetResult(k, addWorkerPlaybook)
 	if err != nil {
-		worker.Status = constant.ClusterFailed
-		worker.Message = err.Error()
-		_ = c.NodeRepo.Save(&worker)
-		return
+		nm.node.Status = constant.ClusterFailed
+		nm.message = err.Error()
 	}
-	worker.Status = constant.ClusterRunning
-	_ = c.NodeRepo.Save(&worker)
+	nm.node.Status = constant.ClusterRunning
 }

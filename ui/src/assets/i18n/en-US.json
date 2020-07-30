@@ -252,5 +252,8 @@
   "APP_RUNNING": "Running",
   "APP_PROJECT_RESOURCE": "No resources to add",
   "APP_PLAN_PROJECT_HELPER": "The deployment plan needs to be authorized to the project to be available",
-  "APP_DELETE_HOST": "Delete Host"
+  "APP_DELETE_HOST": "Delete Host",
+  "APP_END_TIME": "End time",
+  "APP_START_TIME": "Start time",
+  "APP_LOG_DETAIL": "Log detail"
 }

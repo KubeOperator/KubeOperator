@@ -267,6 +267,11 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	zoneVars := map[string]string{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, err := p.GetIpInUsed(zoneVars["network"])
+	var hs []model.Host
+	db.DB.Model(model.Host{}).Find(&hs)
+	for i := range hosts {
+		pool = append(pool, hs[i].Ip)
+	}
 	subnet := zoneVars["subnet"]
 	startIp := zoneVars["ipStart"]
 	endIp := zoneVars["ipEnd"]
