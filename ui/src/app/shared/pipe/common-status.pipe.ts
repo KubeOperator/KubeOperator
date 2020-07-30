@@ -2,26 +2,27 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 
 @Pipe({
-    name: 'zoneStatus'
+    name: 'commonStatus'
 })
-export class ZoneStatusPipe implements PipeTransform {
+export class CommonStatusPipe implements PipeTransform {
 
     constructor(private translateService: TranslateService) {
+
     }
 
     transform(value: string, ...args: unknown[]): unknown {
         let result = '';
         if (value) {
             switch (value) {
-                case 'READY':
+                case 'Running':
                     result = '<img src="assets/images/done.svg" border-style="none" vertical-align="middle">'
                         + this.translateService.instant('APP_STATUS_RUNNING');
                     break;
-                case 'INITIALIZING':
-                    result = '' + this.translateService.instant('APP_STATUS_INITIALING');
+                case 'Initializing':
+                    result = this.translateService.instant('APP_STATUS_INITIALING');
                     break;
-                case 'UPLOADIMAGERROR':
-                    result = '' + this.translateService.instant('APP_UPLOAD_IMAG_ERROR');
+                case 'Failed':
+                    result = '<clr-icon style="color: red" shape="times"></clr-icon>' + this.translateService.instant('APP_STATUS_FAILED');
                     break;
                 default:
                     result = value;
@@ -31,4 +32,3 @@ export class ZoneStatusPipe implements PipeTransform {
         return result;
     }
 }
-

@@ -37,10 +37,11 @@
                 Loading...
             </clr-spinner>
             <span *ngIf="item.status === 'Failed'">
-                <a href="javascript:void(0)" (click)="onStatusDetail(item)">{{item.status}}</a>
+                <clr-icon style="color: red" shape="times"></clr-icon>
+                <a href="javascript:void(0)" (click)="onStatusDetail(item)"
+                   [outerHTML]="item.status | commonStatus"></a>
             </span>
-            <span *ngIf="item.status !== 'Failed'">
-               {{item.status}}
+            <span *ngIf="item.status !== 'Failed'" [outerHTML]="item.status | commonStatus">
             </span>
         </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>

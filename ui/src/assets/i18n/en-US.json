@@ -255,5 +255,9 @@
   "APP_DELETE_HOST": "Delete Host",
   "APP_END_TIME": "End time",
   "APP_START_TIME": "Start time",
-  "APP_LOG_DETAIL": "Log detail"
+  "APP_LOG_DETAIL": "Log detail",
+  "APP_STATUS_RUNNING": "Normal",
+  "APP_STATUS_INITIALING": "Initializing",
+  "APP_STATUS_FAILED": "Error",
+  "APP_UPLOAD_IMAG_ERROR": "Failed to upload image"
 }

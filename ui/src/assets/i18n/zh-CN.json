@@ -258,5 +258,9 @@
   "APP_DELETE_HOST": "删除主机",
   "APP_START_TIME": "开始时间",
   "APP_END_TIME": "结束时间",
-  "APP_LOG_DETAIL": "日志详情"
+  "APP_LOG_DETAIL": "日志详情",
+  "APP_STATUS_RUNNING": "正常",
+  "APP_STATUS_INITIALING": "初始化中",
+  "APP_STATUS_FAILED": "错误",
+  "APP_UPLOAD_IMAG_ERROR": "上传镜像失败"
 }
