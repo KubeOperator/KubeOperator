@@ -207,28 +207,23 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 
 func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		nodes, _ := c.NodeRepo.List(cluster.Name)
-		var hosts []*model.Host
-		for i, _ := range nodes {
-			hosts = append(hosts, &nodes[i].Host)
+		allNodes, _ := c.NodeRepo.List(cluster.Name)
+		var allHosts []*model.Host
+		for i, _ := range allNodes {
+			allHosts = append(allHosts, &allNodes[i].Host)
 		}
-		err := c.doCreateHosts(cluster, hosts)
+		err := c.doCreateHosts(cluster, allHosts)
 		if err != nil {
-			for i := range hosts {
-				db.DB.Delete(hosts[i])
-			}
 			for i := range nodes {
-				nodes[i].Status = constant.ClusterFailed
-				nodes[i].Message = err.Error()
-				db.DB.Save(nodes[i])
+				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
+				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 			return
+		} else {
+			for i := range nodes {
+				db.DB.Save(model.Host{ID: nodes[i].HostID, Status: constant.ClusterRunning})
+			}
 		}
-		for i := range hosts {
-			hosts[i].Status = constant.ClusterRunning
-			_ = c.HostRepo.Save(hosts[i])
-		}
-
 	}
 	for _, n := range nodes {
 		go c.doSingleNodeCreate(cluster, *n)
@@ -278,6 +273,7 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 			n := fmt.Sprintf("%s-worker-%d", cluster.Name, k+1)
 			if _, ok := hash[n]; !ok {
 				name = n
+				hash[name] = nil
 				break
 			}
 		}
@@ -330,6 +326,7 @@ func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Ho
 			if _, ok := hash[name]; ok {
 				continue
 			}
+			hash[name] = nil
 			break
 		}
 		n := model.ClusterNode{
