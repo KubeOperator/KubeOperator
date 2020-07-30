@@ -14,6 +14,7 @@ type UserPermission struct {
 	ProjectId           string               `json:"projectId"`
 	ProjectName         string               `json:"projectName"`
 	UserPermissionRoles []UserPermissionRole `json:"userPermissionRoles"`
+	ProjectRole         string               `json:"projectRole"`
 }
 
 type UserPermissionRole struct {

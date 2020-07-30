@@ -250,6 +250,8 @@
   "APP_INITIALIZING": "Initializing",
   "APP_FAILED": "Failed",
   "APP_RUNNING": "Running",
-  "APP_PROJECT_RESOURCE": "No resources to add"
+  "APP_PROJECT_RESOURCE": "No resources to add",
+  "APP_PLAN_PROJECT_HELPER": "The deployment plan needs to be authorized to the project to be available"
+
 
 }

@@ -22,6 +22,6 @@ export class ProjectListComponent extends BaseModelComponent<Project> implements
     }
 
     getProjectRole(projectName: string) {
-
+        return this.permissionService.getProjectRole(projectName);
     }
 }

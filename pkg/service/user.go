@@ -13,6 +13,7 @@ import (
 
 var (
 	PasswordNotMatch = errors.New("PASSWORD_NOT_MATCH")
+	OriginalNotMatch = errors.New("ORIGINAL_NOT_MATCH")
 	UserNotFound     = errors.New("USER_NOT_FOUND")
 	UserIsNotActive  = errors.New("USER_IS_NOT_ACTIVE")
 )
@@ -142,7 +143,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 		return err
 	}
 	if success == false {
-		return PasswordNotMatch
+		return OriginalNotMatch
 	}
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
 	if err != nil {

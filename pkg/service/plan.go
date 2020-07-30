@@ -18,18 +18,24 @@ type PlanService interface {
 	List(projectName string) ([]dto.Plan, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Create(creation dto.PlanCreate) (dto.Plan, error)
+	Create(creation dto.PlanCreate) (*dto.Plan, error)
 	Batch(op dto.PlanOp) error
 	GetConfigs(regionName string) ([]dto.PlanVmConfig, error)
 }
 
 type planService struct {
-	planRepo repository.PlanRepository
+	planRepo            repository.PlanRepository
+	regionRepo          repository.RegionRepository
+	projectResourceRepo repository.ProjectResourceRepository
+	projectRepo         repository.ProjectRepository
 }
 
 func NewPlanService() PlanService {
 	return &planService{
-		planRepo: repository.NewPlanRepository(),
+		planRepo:            repository.NewPlanRepository(),
+		regionRepo:          repository.NewRegionRepository(),
+		projectResourceRepo: repository.NewProjectResourceRepository(),
+		projectRepo:         repository.NewProjectRepository(),
 	}
 }
 
@@ -85,23 +91,42 @@ func (p planService) Delete(name string) error {
 	return nil
 }
 
-func (p planService) Create(creation dto.PlanCreate) (dto.Plan, error) {
+func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 
 	vars, _ := json.Marshal(creation.PlanVars)
 
+	region, err := p.regionRepo.Get(creation.Region)
+	if err != nil {
+		return nil, err
+	}
 	plan := model.Plan{
 		BaseModel:      common.BaseModel{},
 		Name:           creation.Name,
 		Vars:           string(vars),
-		RegionID:       creation.RegionId,
+		RegionID:       region.ID,
 		DeployTemplate: creation.DeployTemplate,
 	}
-
-	err := p.planRepo.Save(&plan, creation.Zones)
+	err = p.planRepo.Save(&plan, creation.Zones)
 	if err != nil {
-		return dto.Plan{}, err
+		return nil, err
 	}
-	return dto.Plan{Plan: plan}, err
+
+	for _, projectName := range creation.Projects {
+		project, err := p.projectRepo.Get(projectName)
+		if err != nil {
+			return nil, err
+		}
+		err = p.projectResourceRepo.Create(model.ProjectResource{
+			ResourceType: constant.ResourcePlan,
+			ResourceId:   plan.ID,
+			ProjectID:    project.ID,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &dto.Plan{Plan: plan}, err
 }
 
 func (p planService) Batch(op dto.PlanOp) error {
