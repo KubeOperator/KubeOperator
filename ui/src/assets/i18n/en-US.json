@@ -251,7 +251,6 @@
   "APP_FAILED": "Failed",
   "APP_RUNNING": "Running",
   "APP_PROJECT_RESOURCE": "No resources to add",
-  "APP_PLAN_PROJECT_HELPER": "The deployment plan needs to be authorized to the project to be available"
-
-
+  "APP_PLAN_PROJECT_HELPER": "The deployment plan needs to be authorized to the project to be available",
+  "APP_DELETE_HOST": "Delete Host"
 }

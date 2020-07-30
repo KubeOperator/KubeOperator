@@ -254,5 +254,6 @@
   "APP_FAILED": "错误",
   "APP_RUNNING": "运行中",
   "APP_PROJECT_RESOURCE": "没有资源可添加",
-  "APP_PLAN_PROJECT_HELPER": "部署计划需要授权到项目才可用"
+  "APP_PLAN_PROJECT_HELPER": "部署计划需要授权到项目才可用",
+  "APP_DELETE_HOST": "删除主机"
 }
