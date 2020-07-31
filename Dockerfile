@@ -34,6 +34,10 @@ RUN make build_server_linux
 FROM alpine:3.11
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
+COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
+ENV ZONEINFO /opt/zoneinfo.zip
+
+COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
 
 EXPOSE 8080
