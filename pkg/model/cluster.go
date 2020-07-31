@@ -136,7 +136,7 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
-	err := tx.Debug().Model(ProjectResource{}).Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(ProjectResource{}).Error
+	err := tx.Model(ProjectResource{}).Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(ProjectResource{}).Error
 	if err != nil {
 		return err
 	}

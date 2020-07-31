@@ -11,7 +11,7 @@ type Plan struct {
 	Name           string `json:"name" gorm:"type:varchar(64)"`
 	RegionID       string `json:"regionId" grom:"type:varchar(64)"`
 	DeployTemplate string `json:"deployTemplate" grom:"type:varchar(64)"`
-	Vars           string `json:"vars" gorm:"type text(0)"`
+	Vars           string `json:"vars" gorm:"type text(65535)"`
 	Zones          []Zone `json:"zones" gorm:"many2many:ko_plan_zones"`
 	Region         Region `json:"region"`
 }

@@ -163,7 +163,7 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 	case constant.ResourcePlan:
 		var result []model.Plan
 		resourceIds = append(resourceIds, "1")
-		err := db.DB.Debug().Model(model.Plan{}).Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
+		err := db.DB.Model(model.Plan{}).Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
 		if err != nil {
 			return nil, err
 		}
