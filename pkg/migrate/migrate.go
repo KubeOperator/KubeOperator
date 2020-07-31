@@ -15,9 +15,14 @@ const (
 	phaseName = "migrate"
 )
 
+const (
+	releaseMigrationDir = "/usr/local/lib/ko/migration"
+	localMigrationDir   = "./migration"
+)
+
 var migrationDirs = []string{
-	"/usr/local/lib/migration",
-	"./migration",
+	localMigrationDir,
+	releaseMigrationDir,
 }
 
 var log = logger.Default
@@ -44,7 +49,7 @@ func (i *InitMigrateDBPhase) Init() error {
 		}
 	}
 	if path == "" {
-		return errors.New("can not find migration in ['/usr/local/lib/migration','./migration']")
+		return errors.New(fmt.Sprintf("can not find migration in [%s,%s]", localMigrationDir, releaseMigrationDir))
 	}
 	filePath := fmt.Sprintf("file://%s", path)
 	m, err := migrate.New(

@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
+	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	"io/ioutil"
 	"path"
 	"plugin"
@@ -18,12 +19,32 @@ func GetPlugin(name string) *plugin.Plugin {
 	return plugins[name]
 }
 
+const (
+	releasePluginDir = "/usr/local/lib/ko/plugin"
+	localPluginDir   = "./plugin"
+)
+
+var pluginDirs = []string{
+	localPluginDir,
+	releasePluginDir,
+}
+
 type InitPluginDBPhase struct {
 }
 
 func (i *InitPluginDBPhase) Init() error {
 	var log = logger.Default
-	fs, err := ioutil.ReadDir("/var/ko/plugin")
+	var p string
+	for _, pa := range pluginDirs {
+		if file.Exists(pa) {
+			p = pa
+		}
+	}
+	if p == "" {
+		log.Info("can not find plugin dir,skip")
+		return nil
+	}
+	fs, err := ioutil.ReadDir("/usr/local/lib/ko/plugin")
 	if err != nil {
 		return nil
 	}
