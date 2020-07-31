@@ -2,11 +2,14 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
+	"sync"
 )
 
 type ClusterTerminalService interface {
@@ -17,24 +20,64 @@ func NewCLusterTerminalService() ClusterTerminalService {
 	return clusterTerminalService{
 		clusterRepo:       repository.NewClusterRepository(),
 		clusterStatusRepo: repository.NewClusterStatusRepository(),
+		planRepo:          repository.NewPlanRepository(),
 	}
 }
 
 type clusterTerminalService struct {
 	clusterRepo       repository.ClusterRepository
 	clusterStatusRepo repository.ClusterStatusRepository
+	planRepo          repository.PlanRepository
 }
 
 func (c clusterTerminalService) Terminal(cluster model.Cluster) {
+	if cluster.Status.Phase == constant.ClusterTerminating {
+		return
+	}
 	cluster.Status.Phase = constant.ClusterTerminating
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	doTerminal(cluster)
-	_ = c.clusterRepo.Delete(cluster.Name)
+
+	var waitGroup sync.WaitGroup
+	switch cluster.Spec.Provider {
+	case constant.ClusterProviderBareMetal:
+		go doBareMetalTerminal(&waitGroup, &cluster)
+		waitGroup.Add(1)
+	case constant.ClusterProviderPlan:
+		go doPlanTerminal(&waitGroup, &cluster)
+		waitGroup.Add(1)
+	default:
+		return
+	}
+	waitGroup.Wait()
+	err := c.clusterRepo.Delete(cluster.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+		var hosts []model.Host
+		db.DB.Where(model.Host{ClusterID: cluster.ID}).Find(&hosts)
+		for _, host := range hosts {
+			if host.ID != "" {
+				db.DB.Delete(&host)
+			}
+		}
+	}
+
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"
 
-func doTerminal(cluster model.Cluster) {
+func doPlanTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
+	defer wg.Done()
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	_, err := k.Destroy()
+	if err != nil {
+		log.Error(err)
+	}
+}
+
+func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
+	defer wg.Done()
 	inventory := cluster.ParseInventory()
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
@@ -46,5 +89,8 @@ func doTerminal(cluster model.Cluster) {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	_ = phases.RunPlaybookAndGetResult(k, terminalPlaybookName)
+	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName)
+	if err != nil {
+		log.Error(err)
+	}
 }

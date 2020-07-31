@@ -31,3 +31,7 @@ func (k *Kotf) Init(cloudType string, provider string, cloudRegion string, hosts
 func (k *Kotf) Apply() (*api.Result, error) {
 	return k.Client.Apply(k.Cluster)
 }
+
+func (k *Kotf) Destroy() (*api.Result, error) {
+	return k.Client.Apply(k.Cluster)
+}

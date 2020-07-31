@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589
-	github.com/KubeOperator/kotf v0.0.0-20200703074433-30148dd4a4d7
+	github.com/KubeOperator/kotf v0.0.4 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/apache/thrift v0.12.0 // indirect
