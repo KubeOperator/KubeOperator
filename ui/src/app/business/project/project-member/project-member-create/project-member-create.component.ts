@@ -65,13 +65,13 @@ export class ProjectMemberCreateComponent extends BaseModelComponent<ProjectMemb
     }
 
     leaveInput() {
-        this.projectMemberService.getUsers(this.item.name).subscribe(res => {
-            this.selectUsers = res.items;
-        });
+        this.selectUsers = [];
     }
 
     handleValidation() {
-
+        this.projectMemberService.getUsers(this.item.name).subscribe(res => {
+            this.selectUsers = res.items;
+        });
     }
 
     selectedName(name) {

@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/permission"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -36,16 +34,16 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 	}
 }
 
-func (p ProjectMemberController) Post() (dto.ProjectMember, error) {
+func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 	var req dto.ProjectMemberAddRequest
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.ProjectMember{}, err
+		return nil, err
 	}
 
 	result, err := p.ProjectMemberService.Create(req)
 	if err != nil {
-		return result, warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
+		return nil, err
 	}
 	return result, nil
 }
@@ -63,7 +61,7 @@ func (p ProjectMemberController) PostBatch() error {
 	}
 	err = p.ProjectMemberService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }

@@ -260,6 +260,8 @@
   "APP_STATUS_INITIALING": "Initializing",
   "APP_STATUS_FAILED": "Error",
   "APP_UPLOAD_IMAG_ERROR": "Failed to upload image",
+  "APP_STATUS_CREATING": "Creating",
+  "APP_PROJECT_MEMBER_HELPER": "Search for users by entering username",
   "ADD_NODE": "Add node",
   "DELETE_NODE": "Delete node"
 }

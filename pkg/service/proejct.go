@@ -13,7 +13,7 @@ type ProjectService interface {
 	List() ([]dto.Project, error)
 	Page(num, size int, userId string) (page.Page, error)
 	Delete(name string) error
-	Create(creation dto.ProjectCreate) (dto.Project, error)
+	Create(creation dto.ProjectCreate) (*dto.Project, error)
 	Batch(op dto.ProjectOp) error
 	Update(creation dto.ProjectUpdate) (dto.Project, error)
 }
@@ -50,7 +50,7 @@ func (p projectService) List() ([]dto.Project, error) {
 	return projectDTOs, err
 }
 
-func (p projectService) Create(creation dto.ProjectCreate) (dto.Project, error) {
+func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
 
 	project := model.Project{
 		BaseModel:   common.BaseModel{},
@@ -60,9 +60,9 @@ func (p projectService) Create(creation dto.ProjectCreate) (dto.Project, error) 
 
 	err := p.projectRepo.Save(&project)
 	if err != nil {
-		return dto.Project{}, err
+		return nil, err
 	}
-	return dto.Project{Project: project}, err
+	return &dto.Project{Project: project}, err
 }
 
 func (p projectService) Update(creation dto.ProjectUpdate) (dto.Project, error) {

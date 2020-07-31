@@ -20,7 +20,7 @@ type ProjectMemberService interface {
 	PageByProjectId(num, size int, projectId string) (page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
-	Create(request dto.ProjectMemberAddRequest) (dto.ProjectMember, error)
+	Create(request dto.ProjectMemberAddRequest) (*dto.ProjectMember, error)
 }
 
 type projectMemberService struct {
@@ -96,23 +96,23 @@ func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, erro
 	return result, nil
 }
 
-func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (dto.ProjectMember, error) {
+func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (*dto.ProjectMember, error) {
 	var projectMember dto.ProjectMember
 	user, err := NewUserService().Get(request.Name)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return dto.ProjectMember{}, UserNotFound
+			return nil, UserNotFound
 		} else {
-			return dto.ProjectMember{}, err
+			return nil, err
 		}
 	}
 	var oldPm dto.ProjectMember
 	err = db.DB.Model(model.ProjectMember{}).Where(model.ProjectMember{UserID: user.ID}).Find(&oldPm).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return dto.ProjectMember{}, err
+		return nil, err
 	}
 	if oldPm.ID != "" {
-		return dto.ProjectMember{}, errors.New(UserIsAdd)
+		return nil, errors.New(UserIsAdd)
 	}
 	pm := model.ProjectMember{
 		UserID:    user.ID,
@@ -121,8 +121,8 @@ func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (dto.P
 	}
 	err = p.projectMemberRepo.Create(&pm)
 	if err != nil {
-		return projectMember, err
+		return nil, err
 	}
 	projectMember.ProjectMember = pm
-	return projectMember, nil
+	return &projectMember, nil
 }

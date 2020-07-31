@@ -263,6 +263,9 @@
   "APP_STATUS_INITIALING": "初始化中",
   "APP_STATUS_FAILED": "错误",
   "APP_UPLOAD_IMAG_ERROR": "上传镜像失败",
+  "APP_STATUS_CREATING": "创建中",
+  "APP_PROJECT_MEMBER_HELPER": "输入用户名搜索用户",
+  "APP_UPLOAD_IMAG_ERROR": "上传镜像失败",
   "ADD_NODE": "添加节点",
   "DELETE_NODE": "删除节点"
 }

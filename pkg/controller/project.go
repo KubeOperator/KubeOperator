@@ -52,18 +52,22 @@ func (p ProjectController) GetBy(name string) (dto.Project, error) {
 	return p.ProjectService.Get(name)
 }
 
-func (p ProjectController) Post() (dto.Project, error) {
+func (p ProjectController) Post() (*dto.Project, error) {
 	var req dto.ProjectCreate
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Project{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Project{}, err
+		return nil, err
 	}
-	return p.ProjectService.Create(req)
+	result, err := p.ProjectService.Create(req)
+	if err != nil {
+		return result, err
+	}
+	return nil, err
 }
 
 func (p ProjectController) PatchBy(name string) (dto.Project, error) {
