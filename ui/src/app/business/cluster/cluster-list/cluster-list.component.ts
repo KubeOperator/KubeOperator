@@ -44,7 +44,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         if (item.status !== 'Running') {
             this.commonAlert.showAlert('cluster is not ready', AlertLevels.ERROR);
         } else {
-        this.router.navigate(['projects/' + this.currentProject.name + '/clusters', item.name]).then();
+            this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name]).then();
         }
     }
 
@@ -56,7 +56,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         if (item.status !== 'Running') {
             this.commonAlert.showAlert('cluster is not ready', AlertLevels.SUCCESS);
         } else {
-            this.router.navigate(['clusters', item.name, 'nodes']).then();
+            this.router.navigate(['projects', this.currentProject.name, 'clusters', item.name, 'nodes']).then();
         }
     }
 
