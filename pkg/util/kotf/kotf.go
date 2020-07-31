@@ -33,5 +33,5 @@ func (k *Kotf) Apply() (*api.Result, error) {
 }
 
 func (k *Kotf) Destroy() (*api.Result, error) {
-	return k.Client.Apply(k.Cluster)
+	return k.Client.Destroy(k.Cluster)
 }

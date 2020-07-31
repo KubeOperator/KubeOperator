@@ -18,6 +18,7 @@ import (
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sync"
+	"time"
 )
 
 type ClusterNodeService interface {
@@ -141,6 +142,8 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.ClusterNode) {
 	var clog model.ClusterLog
 	clog.Type = constant.ClusterLogTypeDeleteNode
+	clog.StartTime = time.Now()
+	clog.EndTime = time.Now()
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		log.Error(err)
@@ -232,6 +235,8 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
 	var clog model.ClusterLog
 	clog.Type = constant.ClusterLogTypeAddNode
+	clog.StartTime = time.Now()
+	clog.EndTime = time.Now()
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		log.Error(err)
@@ -279,6 +284,10 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 	success := true
 	mergedLogMap := make(map[string]string)
 	for i := range nms {
+		err := db.DB.Save(nms[i].node).Error
+		if err != nil {
+			log.Error(err)
+		}
 		if nms[i].node.Status != constant.ClusterRunning {
 			success = false
 			mergedLogMap[nms[i].node.Name] = nms[i].message
