@@ -6,7 +6,7 @@
     <clr-dg-column>{{"APP_CREATED_DATE"|translate}}</clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell>{{item.type}}</clr-dg-cell>
+        <clr-dg-cell>{{item.type | translate}}</clr-dg-cell>
         <clr-dg-cell>{{item.startTime|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
         <clr-dg-cell>{{item.endTime|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
         <clr-dg-cell>
