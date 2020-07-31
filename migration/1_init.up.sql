@@ -1,12 +1,3 @@
-CREATE TABLE IF NOT EXISTS `ko_cloud_provider` (
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `id` varchar(64) NOT NULL,
-  `name` varchar(64) DEFAULT NULL,
-  `vars` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-);
-
 CREATE TABLE IF NOT EXISTS `ko_cluster` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -182,7 +173,7 @@ CREATE TABLE IF NOT EXISTS `ko_plan` (
   `name` varchar(64) DEFAULT NULL,
   `region_id` varchar(255) DEFAULT NULL,
   `deploy_template` varchar(255) DEFAULT NULL,
-  `vars` varchar(255) DEFAULT NULL,
+  `vars` mediumtext,
   PRIMARY KEY (`id`)
 );
 
@@ -230,7 +221,7 @@ CREATE TABLE IF NOT EXISTS `ko_region` (
   `name` varchar(256) NOT NULL,
   `datacenter` varchar(64) DEFAULT NULL,
   `provider` varchar(64) DEFAULT NULL,
-  `vars` varchar(255) DEFAULT NULL,
+  `vars` mediumtext,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 );
