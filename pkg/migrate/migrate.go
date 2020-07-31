@@ -1,22 +1,26 @@
 package migrate
 
 import (
+	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/model"
-	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/util/file"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 const (
 	phaseName = "migrate"
 )
+
+var migrationDirs = []string{
+	"/usr/local/lib/migration",
+	"./migration",
+}
+
+var log = logger.Default
 
 type InitMigrateDBPhase struct {
 	Host     string
@@ -27,76 +31,33 @@ type InitMigrateDBPhase struct {
 }
 
 func (i *InitMigrateDBPhase) Init() error {
-	var log = logger.Default
-	for _, m := range model.Models {
-		log.Infof("migrate table: %s", m.TableName())
-		db.DB.AutoMigrate(m)
-	}
-	if err := db.DB.Model(model.ClusterSpec{}).ModifyColumn("kubernetes_audit", "varchar(255)").Error; err != nil {
-		fmt.Println(err.Error())
-	}
-
-	for _, d := range model.InitData {
-		switch v := d.(type) {
-		case model.User:
-			op, ok := d.(model.User)
-			if ok {
-				user := model.User{}
-				db.DB.Model(model.User{}).Where("name = ?", op.Name).First(&user)
-				if db.DB.NewRecord(user) {
-					db.DB.Create(d)
-				}
-			}
-		case model.Credential:
-			op, ok := d.(model.Credential)
-			if ok {
-				credential := model.Credential{}
-				db.DB.Model(model.Credential{}).Where("name = ?", op.Name).First(&credential)
-				if db.DB.NewRecord(credential) {
-					db.DB.Create(d)
-				}
-			}
-		case model.Project:
-			op, ok := d.(model.Project)
-			if ok {
-				project := model.Project{}
-				db.DB.Model(model.Project{}).Where("name = ?", op.Name).First(&project)
-				if db.DB.NewRecord(project) {
-					db.DB.Create(d)
-					var clusters []model.Cluster
-					db.DB.Model(model.Cluster{}).Find(&clusters)
-					for _, cluster := range clusters {
-						err := db.DB.Create(model.ProjectResource{
-							ProjectID:    op.ID,
-							ResourceId:   cluster.ID,
-							ResourceType: constant.ResourceCluster,
-							BaseModel: common.BaseModel{
-								UpdatedAt: time.Now(),
-								CreatedAt: time.Now(),
-							},
-							ID: uuid.NewV4().String(),
-						})
-						fmt.Println(err)
-					}
-					var hosts []model.Host
-					db.DB.Model(model.Host{}).Where("cluster_id != ?", "''").Find(&hosts)
-					for _, host := range hosts {
-						db.DB.Create(model.ProjectResource{
-							ProjectID:    op.ID,
-							ResourceId:   host.ID,
-							ResourceType: constant.ResourceHost,
-							BaseModel: common.BaseModel{
-								UpdatedAt: time.Now(),
-								CreatedAt: time.Now(),
-							},
-							ID: uuid.NewV4().String(),
-						})
-					}
-				}
-			}
-		default:
-			log.Infof("insert data failed: %s", v)
+	url := fmt.Sprintf("mysql://%s:%s@tcp(%s:%d)/%s?charset=utf8",
+		i.User,
+		i.Password,
+		i.Host,
+		i.Port,
+		i.Name)
+	var path string
+	for _, d := range migrationDirs {
+		if file.Exists(d) {
+			path = d
 		}
+	}
+	if path == "" {
+		return errors.New("can not find migration in ['/usr/local/lib/migration','./migration']")
+	}
+	filePath := fmt.Sprintf("file://%s", path)
+	m, err := migrate.New(
+		filePath, url)
+	if err != nil {
+		return err
+	}
+	if err := m.Up(); err != nil {
+		if errors.Is(err, migrate.ErrNoChange) {
+			log.Info("no databases change,skip migrate")
+			return nil
+		}
+		return err
 	}
 	return nil
 }

@@ -9,9 +9,8 @@ type Zone struct {
 	common.BaseModel
 	ID           string `json:"id" gorm:"type:varchar(64)"`
 	Name         string `json:"name" gorm:"type:varchar(256);not null;unique"`
-	Vars         string `json:"vars" gorm:"type: text(0)"`
+	Vars         string `json:"vars" gorm:"type: text(65535)"`
 	Status       string `json:"status" gorm:"type:varchar(64)"`
-	IpUsed       string `json:"ipUsed" gorm:"type: text(0)"`
 	RegionID     string `json:"regionID" gorm:"type:varchar(64)"`
 	CredentialID string `json:"credentialId" gorm:"type:varchar(64)"`
 	Region       Region `json:"region"`
