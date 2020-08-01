@@ -8,11 +8,12 @@ import (
 	"github.com/gophercloud/gophercloud/openstack"
 	"github.com/gophercloud/gophercloud/openstack/blockstorage/v3/volumetypes"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/floatingips"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/secgroups"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imageimport"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/external"
+	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/vlantransparent"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	uuid "github.com/satori/go.uuid"
@@ -24,6 +25,12 @@ import (
 var (
 	GetRegionError = "GET_REGION_ERROR"
 )
+
+type networkWithExternalExt struct {
+	networks.Network
+	external.NetworkExternalExt
+	vlantransparent.TransparentExt
+}
 
 type openStackClient struct {
 	Vars map[string]interface{}
@@ -88,16 +95,6 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 		return result, err
 	}
 
-	allPages, err := floatingips.List(client).AllPages()
-	if err != nil {
-		return result, err
-	}
-
-	allFloatingIPs, err := floatingips.ExtractFloatingIPs(allPages)
-	if err != nil {
-		return result, err
-	}
-
 	sgPages, err := secgroups.List(client).AllPages()
 	if err != nil {
 		return result, err
@@ -125,11 +122,12 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	if err != nil {
 		return result, err
 	}
-	allnetworks, err := networks.ExtractNetworks(networkPager)
+
+	var allNetworks []networkWithExternalExt
+	err = networks.ExtractNetworksInto(networkPager, &allNetworks)
 	if err != nil {
 		return result, err
 	}
-
 	blockStorageClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
@@ -152,7 +150,9 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 		clusterData["cluster"] = z.ZoneName
 
 		var networkList []interface{}
-		for _, n := range allnetworks {
+		var floatingNetworkList []interface{}
+
+		for _, n := range allNetworks {
 			networkData := make(map[string]interface{})
 			networkData["name"] = n.Name
 			networkData["id"] = n.ID
@@ -175,15 +175,12 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 			}
 			networkData["subnetList"] = subnetList
 			networkList = append(networkList, networkData)
+
+			if n.NetworkExternalExt.External {
+				floatingNetworkList = append(floatingNetworkList, networkData)
+			}
 		}
 		clusterData["networkList"] = networkList
-
-		var floatingNetworkList []interface{}
-		for _, n := range allFloatingIPs {
-			floatingNetworkData := make(map[string]interface{})
-			floatingNetworkData["id"] = n.ID
-			floatingNetworkList = append(floatingNetworkList, floatingNetworkData)
-		}
 		clusterData["floatingNetworkList"] = floatingNetworkList
 
 		var securityGroups []string
