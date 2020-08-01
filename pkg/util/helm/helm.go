@@ -128,10 +128,14 @@ func updateRepo() error {
 	if !flag {
 		r := repository.NewSystemSettingRepository()
 		s, err := r.Get("ip")
-		if s.Value == "" && err != nil {
+		if err != nil && s.Value == "" {
 			return errors.New("can not find local hostname")
 		}
-		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/helm", s.Value), "admin", "admin123")
+		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications-amd64", s.Value), "admin", "admin123")
+		if err != nil {
+			return err
+		}
+		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications-arm64", s.Value), "admin", "admin123")
 		if err != nil {
 			return err
 		}
