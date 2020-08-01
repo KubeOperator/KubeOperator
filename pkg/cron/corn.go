@@ -1,6 +1,9 @@
 package cron
 
 import (
+	"errors"
+	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/cron/job"
 	"github.com/robfig/cron/v3"
 )
 
@@ -13,6 +16,10 @@ type InitCronPhase struct {
 
 func (c *InitCronPhase) Init() error {
 	Cron := cron.New()
+	_, err := Cron.AddJob("@every 5m", job.NewRefreshHostInfo())
+	if err != nil {
+		return errors.New(fmt.Sprintf("can not add corn job: %s", err.Error()))
+	}
 	Cron.Start()
 	return nil
 }

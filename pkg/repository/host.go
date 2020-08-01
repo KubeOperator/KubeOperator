@@ -52,7 +52,8 @@ func (h hostRepository) List(projectName string) ([]model.Host, error) {
 			Preload("Volumes").
 			Preload("Cluster").
 			Preload("Zone").
-			Find(&hosts).Error
+			Find(&hosts).
+			Error
 		return hosts, err
 	} else {
 		var project model.Project
@@ -78,6 +79,7 @@ func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 	var total int
 	var hosts []model.Host
 	err := db.DB.Model(model.Host{}).
+		Order("name asc").
 		Count(&total).
 		Preload("Volumes").
 		Preload("Cluster").
