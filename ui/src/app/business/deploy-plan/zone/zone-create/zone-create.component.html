@@ -316,12 +316,19 @@
                         </clr-select-container>
 
                         <clr-input-container>
-                            <label>{{'APP_NETWORK_CIDR'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['networkCidr']"
-                                   name="networkCidr"
+                            <label>{{'APP_IP_START'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"
                                    required>
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_CIDR_HELPER'|translate}}</clr-control-helper>
+                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_IP_END'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
                         </clr-input-container>
                     </div>
                 </div>
