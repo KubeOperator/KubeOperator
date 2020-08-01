@@ -1,7 +1,0 @@
-<div style="text-align: center">
-    <clr-spinner *ngIf="loading"></clr-spinner>
-    <div style="padding-top: 10px" [hidden]="loading">
-        <iframe #frame [src]="url"
-                style="width: 100%;height: 1024px;"  (load)="onFrameLoad()"></iframe>
-    </div>
-</div>

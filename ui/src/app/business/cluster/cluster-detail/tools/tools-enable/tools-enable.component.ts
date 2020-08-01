@@ -31,6 +31,7 @@ export class ToolsEnableComponent implements OnInit {
     onSubmit() {
         this.toolsService.enable(this.currentCluster.name, this.item).subscribe(data => {
             this.opened = false;
+            this.enabled.emit();
         });
     }
 

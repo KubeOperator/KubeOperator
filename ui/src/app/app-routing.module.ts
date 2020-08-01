@@ -28,14 +28,12 @@ import {RepositoryComponent} from './business/cluster/cluster-detail/repository/
 import {ChartmuseumComponent} from './business/cluster/cluster-detail/repository/chartmuseum/chartmuseum.component';
 import {RegistryComponent} from './business/cluster/cluster-detail/repository/registry/registry.component';
 import {ToolsComponent} from './business/cluster/cluster-detail/tools/tools.component';
-import {DashboardComponent} from './business/cluster/cluster-detail/dashboard/dashboard.component';
 import {SystemComponent} from './business/setting/system/system.component';
 import {ProjectComponent} from './business/project/project.component';
 import {ProjectDetailComponent} from './business/project/project-detail/project-detail.component';
 import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
 import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
-import {CatalogComponent} from './business/cluster/cluster-detail/catalog/catalog.component';
 import {LogComponent} from "./business/cluster/cluster-detail/log/log.component";
 
 const routes: Routes = [
@@ -84,7 +82,6 @@ const routes: Routes = [
                     },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
-                    {path: 'catalog', component: CatalogComponent},
                     {
                         path: 'repository',
                         component: RepositoryComponent,
@@ -95,7 +92,6 @@ const routes: Routes = [
                         ]
                     },
                     {path: 'tool', component: ToolsComponent},
-                    {path: 'dashboard', component: DashboardComponent},
                     {path: 'logs', component: LogComponent},
                 ],
             },

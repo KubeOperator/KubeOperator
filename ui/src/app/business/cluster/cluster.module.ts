@@ -46,15 +46,11 @@ import {ChartListComponent} from './cluster-detail/repository/chartmuseum/chart-
 import {RegistryListComponent} from './cluster-detail/repository/registry/registry-list/registry-list.component';
 import {ToolsEnableComponent} from './cluster-detail/tools/tools-enable/tools-enable.component';
 import {NotReadyComponent} from './cluster-detail/not-ready/not-ready.component';
-import { DashboardComponent } from './cluster-detail/dashboard/dashboard.component';
 import { ToolsFailedComponent } from './cluster-detail/tools/tools-failed/tools-failed.component';
-import { DashboardDashboardComponent } from './cluster-detail/dashboard/dashboard-dashboard/dashboard-dashboard.component';
 import { NodeCreateComponent } from './cluster-detail/node/node-create/node-create.component';
 import { NodeDeleteComponent } from './cluster-detail/node/node-delete/node-delete.component';
 import { NodeStatusComponent } from './cluster-detail/node/node-status/node-status.component';
 import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkubectl.component';
-import { CatalogComponent } from './cluster-detail/catalog/catalog.component';
-import { CatalogDashboardComponent } from './cluster-detail/catalog/catalog-dashboard/catalog-dashboard.component';
 import { LogComponent } from './cluster-detail/log/log.component';
 import { LogListComponent } from './cluster-detail/log/log-list/log-list.component';
 import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.component';
@@ -86,15 +82,11 @@ import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.c
         RegistryListComponent,
         ToolsEnableComponent,
         NotReadyComponent,
-        DashboardComponent,
         ToolsFailedComponent,
-        DashboardDashboardComponent,
         NodeCreateComponent,
         NodeDeleteComponent,
         NodeStatusComponent,
         WebkubectlComponent,
-        CatalogComponent,
-        CatalogDashboardComponent,
         LogComponent,
         LogListComponent,
         LogDetailComponent],

@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Cluster} from '../cluster';
 import {ToolsService} from './tools/tools.service';
 import {ClusterTool} from './tools/tools';
+import {ClusterService} from "../cluster.service";
 
 @Component({
     selector: 'app-cluster-detail',
@@ -11,7 +12,8 @@ import {ClusterTool} from './tools/tools';
 })
 export class ClusterDetailComponent implements OnInit {
 
-    constructor(private router: Router, private route: ActivatedRoute, private toolsService: ToolsService) {
+    constructor(private router: Router, private route: ActivatedRoute, private toolsService: ToolsService,
+                private clusterService: ClusterService) {
     }
 
     currentCluster: Cluster;
@@ -21,6 +23,10 @@ export class ClusterDetailComponent implements OnInit {
     ngOnInit(): void {
         this.route.data.subscribe(data => {
             this.currentCluster = data.cluster;
+            this.clusterService.secret(this.currentCluster.name).subscribe(secret => {
+                localStorage.setItem('kubeapps_auth_token', secret.kubernetesToken);
+                localStorage.setItem('kubeapps_auth_token_oid', 'false');
+            });
             this.toolsService.list(this.currentCluster.name).subscribe(d => {
                 if (d) {
                     this.tools = d;

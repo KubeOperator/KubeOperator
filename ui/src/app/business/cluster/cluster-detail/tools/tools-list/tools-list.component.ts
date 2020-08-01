@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {ClusterTool} from "../tools";
 import {ToolsService} from "../tools.service";
 import {Cluster} from "../../../cluster";
@@ -8,12 +8,14 @@ import {Cluster} from "../../../cluster";
     templateUrl: './tools-list.component.html',
     styleUrls: ['./tools-list.component.css']
 })
-export class ToolsListComponent implements OnInit {
+export class ToolsListComponent implements OnInit, OnDestroy {
 
     constructor(private service: ToolsService) {
     }
 
+
     items: ClusterTool[] = [];
+    timer;
     @Input() currentCluster: Cluster;
     @Output() enableEvent = new EventEmitter<ClusterTool>();
     @Output() failedEvent = new EventEmitter<ClusterTool>();
@@ -22,6 +24,9 @@ export class ToolsListComponent implements OnInit {
         this.refresh();
     }
 
+    ngOnDestroy(): void {
+        clearInterval(this.timer);
+    }
 
     refresh() {
         this.service.list(this.currentCluster.name).subscribe(data => {
@@ -35,6 +40,16 @@ export class ToolsListComponent implements OnInit {
 
     onFailed(item: ClusterTool) {
         this.failedEvent.emit(item);
+    }
+
+    openFrame(item: ClusterTool) {
+        window.open(item.url.replace('{cluster_name}', this.currentCluster.name), 'blank');
+    }
+
+    polling() {
+        this.timer = setInterval(() => {
+            this.refresh();
+        }, 5000);
     }
 
 }

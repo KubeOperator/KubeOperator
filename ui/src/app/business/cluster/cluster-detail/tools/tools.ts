@@ -7,5 +7,7 @@ export class ClusterTool extends BaseModel {
     status: string;
     message: string;
     logo: string;
+    url: string;
+    frame: boolean;
     vars: {} = {};
 }

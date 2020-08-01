@@ -30,7 +30,10 @@
                             <clr-spinner clrAssertive clrInline></clr-spinner>
                         {{"APP_INITIALIZING" | translate}}
                     </span>
-                    <span *ngIf="item.status === 'Running'">
+                    <button class="btn btn-sm" *ngIf="item.status==='Running' && item.frame" (click)="openFrame(item)">
+                        转到
+                    </button>
+                    <span *ngIf="item.status === 'Running' && !item.frame">
                         {{"APP_RUNNING" | translate}}
                     </span>
                 </div>
