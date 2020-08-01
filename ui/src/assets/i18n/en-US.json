@@ -263,5 +263,8 @@
   "APP_STATUS_CREATING": "Creating",
   "APP_PROJECT_MEMBER_HELPER": "Search for users by entering username",
   "ADD_NODE": "Add node",
-  "DELETE_NODE": "Delete node"
+  "DELETE_NODE": "Delete node",
+  "Initializing": "Initializing",
+  "Terminating": "Terminating",
+  "Running": "Running"
 }

@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
+	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
@@ -34,6 +35,7 @@ func Phases() []Phase {
 			Password: viper.GetString("db.password"),
 		},
 		&plugin.InitPluginDBPhase{},
+		&cron.InitCronPhase{},
 	}
 }
 

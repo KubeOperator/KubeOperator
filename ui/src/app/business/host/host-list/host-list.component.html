@@ -38,8 +38,9 @@
             </clr-spinner>
             <span *ngIf="item.status === 'Failed'">
                 <clr-icon style="color: red" shape="times"></clr-icon>
-                <a href="javascript:void(0)" (click)="onStatusDetail(item)"
-                   [outerHTML]="item.status | commonStatus"></a>
+                <a href="javascript:void(0)" (click)="onStatusDetail(item)">
+                    <span [outerHTML]="item.status | commonStatus"></span>
+                </a>
             </span>
             <span *ngIf="item.status !== 'Failed'" [outerHTML]="item.status | commonStatus">
             </span>

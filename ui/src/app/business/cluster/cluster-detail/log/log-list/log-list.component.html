@@ -8,14 +8,18 @@
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.type | translate}}</clr-dg-cell>
         <clr-dg-cell>{{item.startTime|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
-        <clr-dg-cell>{{item.endTime|date:'yyyy-MM-dd hh:mm:ss'}}</clr-dg-cell>
+        <clr-dg-cell>
+            <span *ngIf="item.status ==='FAILED'||item.status ==='SUCCESS'">
+                {{item.endTime|date:'yyyy-MM-dd hh:mm:ss'}}
+            </span>
+        </clr-dg-cell>
         <clr-dg-cell>
             <span *ngIf="item.status==='FAILED'">
                 <a href="javascript: void(0)" (click)="onDetail(item)">
                     {{item.status}}
                 </a>
             </span>
-            <span *ngIf="item.status==='SUCCESS'">
+            <span *ngIf="item.status!=='FAILED'">
                 {{item.status}}
             </span>
         </clr-dg-cell>
