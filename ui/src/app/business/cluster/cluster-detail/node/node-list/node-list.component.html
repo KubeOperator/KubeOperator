@@ -25,13 +25,15 @@
         <clr-dg-cell>{{getNodeRoles(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getCpuCore(item)}}</clr-dg-cell>
         <clr-dg-cell>{{getRAM(item)}}</clr-dg-cell>
-        <clr-dg-cell *ngIf="getStatus(item) !== 'Failed'">{{getStatus(item)}}
+        <clr-dg-cell *ngIf="getStatus(item) !== 'Failed'">{{getStatus(item) |translate}}
             <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
                 Loading...
             </clr-spinner>
         </clr-dg-cell>
         <clr-dg-cell *ngIf="getStatus(item) === 'Failed'"><a href="javascript:void(0)"
-                                                             (click)="onShowStatus(item)">{{getStatus(item)}}</a>
+                                                             (click)="onShowStatus(item)">
+            {{getStatus(item) | translate}}
+        </a>
         </clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
