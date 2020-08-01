@@ -125,6 +125,9 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 	}
 	err = h.GetHostConfig(&host)
 	if err != nil {
+		host.Status = constant.ClusterFailed
+		host.Message = err.Error()
+		_ = h.hostRepo.Save(&host)
 		return dto.Host{Host: host}, err
 	}
 	err = h.hostRepo.Save(&host)
