@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -100,6 +101,13 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 }
 
 func (c clusterNodeService) Batch(clusterName string, item dto.NodeBatch) ([]dto.Node, error) {
+	// 判断是否存在正在运行的节点变更任务
+	nodes, _ := c.NodeRepo.List(clusterName)
+	for _, node := range nodes {
+		if node.Status != constant.ClusterRunning {
+			return nil, errors.New("NODE_ALREADY_RUNNING_TASK")
+		}
+	}
 	switch item.Operation {
 	case constant.BatchOperationCreate:
 		return c.batchCreate(clusterName, item)
@@ -264,7 +272,11 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 			return
 		} else {
 			for i := range nodes {
-				db.DB.Save(model.Host{ID: nodes[i].HostID, Status: constant.ClusterRunning})
+				nodes[i].Host.Status = constant.ClusterRunning
+				err := db.DB.Save(&nodes[i].Host).Error
+				if err != nil {
+					log.Error(err)
+				}
 			}
 		}
 	}
