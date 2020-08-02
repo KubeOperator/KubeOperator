@@ -41,18 +41,22 @@ type Interface interface {
 }
 
 type Config struct {
-	ApiServer   string
-	BearerToken string
-	Namespace   string
+	ApiServer     string
+	BearerToken   string
+	Namespace     string
+	Architectures string
 }
 type Client struct {
-	actionConfig *action.Configuration
-	Namespace    string
-	settings     *cli.EnvSettings
+	actionConfig  *action.Configuration
+	Namespace     string
+	settings      *cli.EnvSettings
+	Architectures string
 }
 
 func NewClient(config Config) (*Client, error) {
-	client := Client{}
+	client := Client{
+		Architectures: config.Architectures,
+	}
 	client.settings = GetSettings()
 	cf := genericclioptions.NewConfigFlags(true)
 	inscure := true
@@ -79,6 +83,8 @@ func LoadCharts(path string) (*chart.Chart, error) {
 }
 
 func (c Client) Install(name string, chartName string, values map[string]interface{}) (*release.Release, error) {
+	// 设置架构
+	strings.Replace(chartName, "nexus", fmt.Sprintf("nexus-"+c.Architectures), -1)
 	if err := updateRepo(); err != nil {
 		return nil, err
 	}
@@ -119,47 +125,50 @@ func GetSettings() *cli.EnvSettings {
 
 func updateRepo() error {
 	repos, _ := ListRepo()
-	flag := false
+	hasArm := false
+	hasAmd := false
+
 	for _, r := range repos {
-		if r.Name == "nexus" {
-			flag = true
+		if r.Name == "nexus-amd64" {
+			hasAmd = true
+		}
+		if r.Name == "nexus-arm64" {
+			hasArm = true
 		}
 	}
-	if !flag {
-		r := repository.NewSystemSettingRepository()
-		s, err := r.Get("ip")
-		if err != nil || s.Value == "" {
-			return errors.New("can not find local hostname")
-		}
-		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications-amd64", s.Value), "admin", "admin123")
+	r := repository.NewSystemSettingRepository()
+	s, err := r.Get("ip")
+	if !hasAmd {
+		err = addRepo("nexus-amd64", fmt.Sprintf("http://%s:8081/repository/applications-amd64", s.Value), "admin", "admin123")
 		if err != nil {
 			return err
 		}
-		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications-arm64", s.Value), "admin", "admin123")
-		if err != nil {
-			return err
-		}
-	} else {
-		settings := GetSettings()
-		repoFile := settings.RepositoryConfig
-		repoCache := settings.RepositoryCache
-		f, err := repo.LoadFile(repoFile)
-		if err != nil {
-			return err
-		}
-		var repos []*repo.ChartRepository
-		for _, cfg := range f.Repositories {
-			r, err := repo.NewChartRepository(cfg, getter.All(settings))
-			if err != nil {
-				return err
-			}
-			if repoCache != "" {
-				r.CachePath = repoCache
-			}
-			repos = append(repos, r)
-		}
-		updateCharts(repos)
 	}
+	if !hasArm {
+		err = addRepo("nexus-arm64", fmt.Sprintf("http://%s:8081/repository/applications-arm64", s.Value), "admin", "admin123")
+		if err != nil {
+			return err
+		}
+	}
+	settings := GetSettings()
+	repoFile := settings.RepositoryConfig
+	repoCache := settings.RepositoryCache
+	f, err := repo.LoadFile(repoFile)
+	if err != nil {
+		return err
+	}
+	var rps []*repo.ChartRepository
+	for _, cfg := range f.Repositories {
+		r, err := repo.NewChartRepository(cfg, getter.All(settings))
+		if err != nil {
+			return err
+		}
+		if repoCache != "" {
+			r.CachePath = repoCache
+		}
+		rps = append(rps, r)
+	}
+	updateCharts(rps)
 	return nil
 }
 

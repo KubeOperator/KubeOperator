@@ -27,6 +27,8 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 	}
 	if err := db.DB.
 		Where(model.ClusterTool{ClusterID: cluster.ID}).
+		Where("architecture = ?", cluster.Spec.Architectures).
+		Or("architecture = ?", "all").
 		Find(&tools).Error; err != nil {
 		return tools, err
 	}

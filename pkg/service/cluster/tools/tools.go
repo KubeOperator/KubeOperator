@@ -37,9 +37,10 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	}
 
 	helmClient, err := helm.NewClient(helm.Config{
-		ApiServer:   fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
-		BearerToken: secret.KubernetesToken,
-		Namespace:   constant.DefaultNamespace,
+		ApiServer:     fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
+		BearerToken:   secret.KubernetesToken,
+		Namespace:     constant.DefaultNamespace,
+		Architectures: cluster.Spec.Architectures,
 	})
 	if err != nil {
 		return nil, err
