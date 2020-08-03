@@ -11,7 +11,8 @@ import (
 const (
 	PrometheusConfigMapReloadImageName = "jimmidyson/configmap-reload"
 	PrometheusConfigMapReloadTag       = "v0.3.0"
-	KubeStateMetricsImageName          = "coreos/kube-state-metrics"
+	KubeStateMetricsImageArm64Name     = "kubeopeartor/kube-state-metrics-arm64"
+	KubeStateMetricsImageAmd64Name     = "coreos/kube-state-metrics"
 	KubeStateMetricsTag                = "v1.9.5"
 	NodeExporterImageName              = "prom/node-exporter"
 	NodeExporterTag                    = "v0.18.1"
@@ -41,12 +42,17 @@ func (p Prometheus) setDefaultValue() {
 	values["pushgateway.enabled"] = false
 	values["configmapReload.prometheus.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, PrometheusConfigMapReloadImageName)
 	values["configmapReload.prometheus.image.tag"] = PrometheusConfigMapReloadTag
-	values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageName)
 	values["kube-state-metrics.image.tag"] = KubeStateMetricsTag
 	values["nodeExporter.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, NodeExporterImageName)
 	values["nodeExporter.image.tag"] = NodeExporterTag
 	values["server.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, ServerImageName)
 	values["server.image.tag"] = ServerTag
+	switch p.Cluster.Spec.Architectures {
+	case "amd64":
+		values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageAmd64Name)
+	case "arm64":
+		values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageArm64Name)
+	}
 	str, _ := json.Marshal(&values)
 	p.Tool.Vars = string(str)
 }

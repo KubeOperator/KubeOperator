@@ -83,8 +83,6 @@ func LoadCharts(path string) (*chart.Chart, error) {
 }
 
 func (c Client) Install(name string, chartName string, values map[string]interface{}) (*release.Release, error) {
-	// 设置架构
-	strings.Replace(chartName, "nexus", fmt.Sprintf("nexus-"+c.Architectures), -1)
 	if err := updateRepo(); err != nil {
 		return nil, err
 	}
@@ -125,27 +123,19 @@ func GetSettings() *cli.EnvSettings {
 
 func updateRepo() error {
 	repos, _ := ListRepo()
-	hasArm := false
-	hasAmd := false
-
+	flag := false
 	for _, r := range repos {
-		if r.Name == "nexus-amd64" {
-			hasAmd = true
-		}
-		if r.Name == "nexus-arm64" {
-			hasArm = true
+		if r.Name == "nexus" {
+			flag = true
 		}
 	}
 	r := repository.NewSystemSettingRepository()
 	s, err := r.Get("ip")
-	if !hasAmd {
-		err = addRepo("nexus-amd64", fmt.Sprintf("http://%s:8081/repository/applications-amd64", s.Value), "admin", "admin123")
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return errors.New("invalid local host ip")
 	}
-	if !hasArm {
-		err = addRepo("nexus-arm64", fmt.Sprintf("http://%s:8081/repository/applications-arm64", s.Value), "admin", "admin123")
+	if !flag {
+		err = addRepo("nexus", fmt.Sprintf("http://%s:8081/repository/applications", s.Value), "admin", "admin123")
 		if err != nil {
 			return err
 		}
