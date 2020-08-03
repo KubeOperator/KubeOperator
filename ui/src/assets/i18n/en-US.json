@@ -266,5 +266,6 @@
   "DELETE_NODE": "Delete node",
   "Initializing": "Initializing",
   "Terminating": "Terminating",
-  "Running": "Running"
+  "Running": "Running",
+  "APP_BACKUP": "Backup"
 }

@@ -23,6 +23,7 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/projects")).HandleError(errorHandler).Handle(controller.NewProjectController())
 	mvc.New(v1.Party("/project/resources")).HandleError(errorHandler).Handle(controller.NewProjectResourceController())
 	mvc.New(v1.Party("/project/members")).HandleError(errorHandler).Handle(controller.NewProjectMemberController())
+	mvc.New(v1.Party("/backupAccounts")).HandleError(errorHandler).Handle(controller.NewBackupAccountController())
 }
 
 func errorHandler(ctx context.Context, err error) {
