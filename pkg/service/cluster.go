@@ -308,12 +308,20 @@ func (c clusterService) Batch(batch dto.ClusterBatch) error {
 			if err != nil {
 				return err
 			}
-			switch cluster.Status {
-			case constant.ClusterRunning:
-				go c.clusterTerminalService.Terminal(cluster.Cluster)
-			case constant.ClusterCreating, constant.ClusterInitializing:
-				return nil
-			case constant.ClusterFailed:
+			switch cluster.Source {
+			case constant.ClusterSourceLocal:
+				switch cluster.Status {
+				case constant.ClusterRunning:
+					go c.clusterTerminalService.Terminal(cluster.Cluster)
+				case constant.ClusterCreating, constant.ClusterInitializing:
+					return nil
+				case constant.ClusterFailed:
+					err = c.Delete(item.Name)
+					if err != nil {
+						return err
+					}
+				}
+			case constant.ClusterSourceExternal:
 				err = c.Delete(item.Name)
 				if err != nil {
 					return err
