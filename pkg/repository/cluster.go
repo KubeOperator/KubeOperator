@@ -109,13 +109,20 @@ func (c clusterRepository) Delete(name string) error {
 	if err := db.DB.Delete(&cluster).Error; err != nil {
 		return err
 	}
-	// 尝试删除 grafana
-	gClient := grafana.NewClient()
-	if err := gClient.DeleteDashboard(cluster.Name); err != nil {
+	var prometheus model.ClusterTool
+	err := db.DB.Where(model.ClusterTool{Name: "prometheus", ClusterID: cluster.ID}).First(&prometheus).Error
+	if err != nil {
 		log.Error(err)
 	}
-	if err := gClient.DeleteDataSource(cluster.Name); err != nil {
-		log.Error(err)
+	if prometheus.Status == constant.ClusterRunning {
+		// 尝试删除 grafana
+		gClient := grafana.NewClient()
+		if err := gClient.DeleteDashboard(cluster.Name); err != nil {
+			log.Error(err)
+		}
+		if err := gClient.DeleteDataSource(cluster.Name); err != nil {
+			log.Error(err)
+		}
 	}
 	return nil
 }
