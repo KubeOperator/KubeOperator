@@ -4,9 +4,10 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Cluster struct {
 	model.Cluster
-	NodeSize int    `json:"nodeSize"`
-	Status   string `json:"status"`
-	Provider string `json:"provider"`
+	NodeSize      int    `json:"nodeSize"`
+	Status        string `json:"status"`
+	Provider      string `json:"provider"`
+	Architectures string `json:"architectures"`
 }
 
 type ClusterPage struct {
@@ -80,4 +81,3 @@ type WebkubectlToken struct {
 type ClusterLog struct {
 	model.ClusterLog
 }
-
