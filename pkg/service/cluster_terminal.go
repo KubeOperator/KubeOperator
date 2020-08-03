@@ -60,6 +60,8 @@ func (c clusterTerminalService) Terminal(cluster model.Cluster) {
 			if host.ID != "" {
 				db.DB.Delete(&host)
 			}
+			var projectResource model.ProjectResource
+			db.DB.Where(model.ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Delete(&projectResource)
 		}
 	}
 
