@@ -68,6 +68,7 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
 	clusterDTO.Status = mo.Status.Phase
+	clusterDTO.Architectures = mo.Spec.Architectures
 	return clusterDTO, nil
 }
 
