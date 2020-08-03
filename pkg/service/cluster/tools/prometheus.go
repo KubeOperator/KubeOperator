@@ -11,7 +11,7 @@ import (
 const (
 	PrometheusConfigMapReloadImageName = "jimmidyson/configmap-reload"
 	PrometheusConfigMapReloadTag       = "v0.3.0"
-	KubeStateMetricsImageArm64Name     = "kubeopeartor/kube-state-metrics-arm64"
+	KubeStateMetricsImageArm64Name     = "carlosedp/kube-state-metrics"
 	KubeStateMetricsImageAmd64Name     = "coreos/kube-state-metrics"
 	KubeStateMetricsTag                = "v1.9.5"
 	NodeExporterImageName              = "prom/node-exporter"
