@@ -22,6 +22,7 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 	var tools []model.ClusterTool
 	if err := db.DB.
 		Where(model.Cluster{Name: clusterName}).
+		Preload("Spec").
 		First(&cluster).Error; err != nil {
 		return tools, err
 	}
