@@ -41,6 +41,8 @@ export class NodeListComponent implements OnInit, OnDestroy {
     refresh() {
         this.loading = true;
         this.selected = [];
+        if (this.currentCluster.source === 'external') {
+        }
         this.nodeService.list(this.currentCluster.name).subscribe(d => {
             this.items = d;
             this.loading = false;

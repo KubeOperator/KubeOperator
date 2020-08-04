@@ -44,7 +44,7 @@ func (i *InitPluginDBPhase) Init() error {
 		log.Info("can not find plugin dir,skip")
 		return nil
 	}
-	fs, err := ioutil.ReadDir("/usr/local/lib/ko/plugin")
+	fs, err := ioutil.ReadDir(p)
 	if err != nil {
 		return nil
 	}

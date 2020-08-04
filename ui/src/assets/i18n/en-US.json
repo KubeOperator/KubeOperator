@@ -267,5 +267,7 @@
   "Initializing": "Initializing",
   "Terminating": "Terminating",
   "Running": "Running",
-  "APP_BACKUP": "Backup"
+  "APP_BACKUP": "Backup",
+  "APP_ARCHITECTURES": "architectures",
+  "local": "本地"
 }

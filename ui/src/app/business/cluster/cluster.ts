@@ -7,11 +7,14 @@ export class Cluster extends BaseModel {
     status: string;
     provider: string;
     projectName: string;
+    source: string;
 }
 
 export class Spec {
     version: string;
     networkType: string;
+    architectures: string;
+    runtimeType: string;
 }
 
 export class ClusterStatus {

@@ -270,5 +270,7 @@
   "Initializing": "初始化中",
   "Terminating": "销毁中",
   "Running": "运行中",
-  "APP_BACKUP": "备份"
+  "APP_BACKUP": "备份",
+  "APP_ARCHITECTURES": "架构",
+  "local": "本地"
 }

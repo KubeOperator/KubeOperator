@@ -22,13 +22,13 @@ func (c clusterToolRepository) List(clusterName string) ([]model.ClusterTool, er
 	var tools []model.ClusterTool
 	if err := db.DB.
 		Where(model.Cluster{Name: clusterName}).
+		Preload("Spec").
 		First(&cluster).Error; err != nil {
 		return tools, err
 	}
 	if err := db.DB.
 		Where(model.ClusterTool{ClusterID: cluster.ID}).
-		Where("architecture = ?", cluster.Spec.Architectures).
-		Or("architecture = ?", "all").
+		Where("architecture in (?)", []string{cluster.Spec.Architectures, "all"}).
 		Find(&tools).Error; err != nil {
 		return tools, err
 	}

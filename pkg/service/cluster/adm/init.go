@@ -104,8 +104,7 @@ func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 }
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
-	phase := prepare.ContainerRuntimePhase{
-	}
+	phase := prepare.ContainerRuntimePhase{}
 	return phase.Run(c.Kobe)
 }
 
@@ -140,6 +139,11 @@ func (ca *ClusterAdm) EnsureInitWorker(c *Cluster) error {
 }
 func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 	phase := initial.NetworkPhase{}
+	return phase.Run(c.Kobe)
+}
+
+func (ca *ClusterAdm) EnsureInitHelm(c *Cluster) error {
+	phase := initial.HelmPhase{}
 	return phase.Run(c.Kobe)
 }
 

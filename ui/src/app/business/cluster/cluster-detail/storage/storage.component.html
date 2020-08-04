@@ -17,7 +17,7 @@
                             </div>
                         </a>
                     </li>
-                    <li>
+                    <li *ngIf="currentCluster.source !== 'external'">
                         <a class="nav-link" routerLink="provisioner" routerLinkActive="active">
                             <div class="nav-slide-item">
                                 {{"APP_STORAGE_PROVISIONER"|translate}}
