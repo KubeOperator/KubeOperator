@@ -28,40 +28,56 @@ func NewClusterController() *ClusterController {
 	}
 }
 
-func (c ClusterController) Get() (dto.ClusterPage, error) {
+func (c ClusterController) Get() (*dto.ClusterPage, error) {
 	page, _ := c.Ctx.Values().GetBool("page")
 	if page {
 		projectName := c.Ctx.URLParam("projectName")
 		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return c.ClusterService.Page(num, size, projectName)
+		pageItem, err := c.ClusterService.Page(num, size, projectName)
+		if err != nil {
+			return nil, err
+		}
+		return &pageItem, nil
 	} else {
-		var page dto.ClusterPage
+		var pageItem dto.ClusterPage
 		items, err := c.ClusterService.List()
 		if err != nil {
-			return page, err
+			return nil, err
 		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
+		pageItem.Items = items
+		pageItem.Total = len(items)
+		return &pageItem, nil
 	}
 }
 
-func (c ClusterController) GetBy(name string) (dto.Cluster, error) {
-	return c.ClusterService.Get(name)
+func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
+	cl, err := c.ClusterService.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	return &cl, nil
 }
 
-func (c ClusterController) GetStatusBy(name string) (dto.ClusterStatus, error) {
-	return c.ClusterService.GetStatus(name)
+func (c ClusterController) GetStatusBy(name string) (*dto.ClusterStatus, error) {
+	cs, err := c.ClusterService.GetStatus(name)
+	if err != nil {
+		return nil, err
+	}
+	return &cs, nil
 }
 
-func (c ClusterController) Post() error {
+func (c ClusterController) Post() (*dto.Cluster, error) {
 	var req dto.ClusterCreate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return c.ClusterService.Create(req)
+	item, err := c.ClusterService.Create(req)
+	if err != nil {
+		return nil, err
+	}
+	return &item, nil
 }
 
 func (c ClusterController) PostInitBy(name string) error {
@@ -69,15 +85,23 @@ func (c ClusterController) PostInitBy(name string) error {
 }
 
 func (c ClusterController) GetProvisionerBy(name string) ([]dto.ClusterStorageProvisioner, error) {
-	return c.ClusterStorageProvisionerService.ListStorageProvisioner(name)
+	csp, err := c.ClusterStorageProvisionerService.ListStorageProvisioner(name)
+	if err != nil {
+		return nil, err
+	}
+	return csp, nil
 }
-func (c ClusterController) PostProvisionerBy(name string) (dto.ClusterStorageProvisioner, error) {
+func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStorageProvisioner, error) {
 	var req dto.ClusterStorageProvisionerCreation
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.ClusterStorageProvisioner{}, err
+		return nil, err
 	}
-	return c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
+	p, err := c.ClusterStorageProvisionerService.CreateStorageProvisioner(name, req)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
 }
 
 func (c ClusterController) DeleteProvisionerBy(clusterName string, name string) error {
@@ -93,15 +117,23 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 }
 
 func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, error) {
-	return c.ClusterToolService.List(clusterName)
+	cts, err := c.ClusterToolService.List(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	return cts, nil
 }
 
-func (c ClusterController) PostToolBy(clusterName string) (dto.ClusterTool, error) {
+func (c ClusterController) PostToolBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {
-		return req, err
+		return nil, err
 	}
-	return c.ClusterToolService.Enable(clusterName, req)
+	cts, err := c.ClusterToolService.Enable(clusterName, req)
+	if err != nil {
+		return nil, err
+	}
+	return &cts, nil
 }
 
 func (c ClusterController) Delete(name string) error {
@@ -120,7 +152,11 @@ func (c ClusterController) PostBatch() error {
 }
 
 func (c ClusterController) GetNodeBy(clusterName string) ([]dto.Node, error) {
-	return c.ClusterNodeService.List(clusterName)
+	cns, err := c.ClusterNodeService.List(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	return cns, nil
 }
 
 func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, error) {
@@ -129,18 +165,35 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, erro
 	if err != nil {
 		return nil, err
 	}
-	return c.ClusterNodeService.Batch(clusterName, req)
+	cns, err := c.ClusterNodeService.Batch(clusterName, req)
+	if err != nil {
+		return nil, err
+	}
+	return cns, nil
 }
 
-func (c ClusterController) GetWebkubectlBy(clusterName string) (dto.WebkubectlToken, error) {
-	return c.ClusterService.GetWebkubectlToken(clusterName)
+func (c ClusterController) GetWebkubectlBy(clusterName string) (*dto.WebkubectlToken, error) {
+	tk, err := c.ClusterService.GetWebkubectlToken(clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tk, nil
 }
 
-func (c ClusterController) GetSecretBy(clusterName string) (dto.ClusterSecret, error) {
-	return c.ClusterService.GetSecrets(clusterName)
+func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, error) {
+	sec, err := c.ClusterService.GetSecrets(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	return &sec, nil
 }
 
 func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
-	return c.CLusterLogService.List(clusterName)
+	ls, err := c.CLusterLogService.List(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	return ls, nil
 
 }
