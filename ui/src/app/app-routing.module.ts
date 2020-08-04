@@ -34,7 +34,8 @@ import {ProjectDetailComponent} from './business/project/project-detail/project-
 import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
 import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
-import {LogComponent} from "./business/cluster/cluster-detail/log/log.component";
+import {LogComponent} from './business/cluster/cluster-detail/log/log.component';
+import {BackupAccountComponent} from './business/setting/backup-account/backup-account.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -106,6 +107,7 @@ const routes: Routes = [
                     {path: '', redirectTo: 'system', pathMatch: 'full'},
                     {path: 'system', component: SystemComponent},
                     {path: 'credential', component: CredentialComponent},
+                    {path: 'backupAccounts', component: BackupAccountComponent},
                 ]
             },
             {

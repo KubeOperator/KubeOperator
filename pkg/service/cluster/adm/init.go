@@ -104,8 +104,7 @@ func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 }
 
 func (ca *ClusterAdm) EnsurePrepareContainerRuntime(c *Cluster) error {
-	phase := prepare.ContainerRuntimePhase{
-	}
+	phase := prepare.ContainerRuntimePhase{}
 	return phase.Run(c.Kobe)
 }
 

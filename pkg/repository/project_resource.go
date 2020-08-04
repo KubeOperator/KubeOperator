@@ -12,6 +12,7 @@ type ProjectResourceRepository interface {
 	Create(resource model.ProjectResource) error
 	ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error)
 	DeleteByResourceIdAnyResourceType(resourceId string, resourceType string) error
+	ListByProjectNameAndType(projectName string, resourceType string) ([]model.ProjectResource, error)
 }
 
 func NewProjectResourceRepository() ProjectResourceRepository {
@@ -32,6 +33,20 @@ func (p projectResourceRepository) PageByProjectIdAndType(num, size int, project
 		Offset((num - 1) * size).
 		Limit(size).Error
 	return total, projectResources, err
+}
+
+func (p projectResourceRepository) ListByProjectNameAndType(projectName string, resourceType string) ([]model.ProjectResource, error) {
+	var project model.Project
+	err := db.DB.Model(model.Project{}).Where(model.Project{Name: projectName}).First(&project).Error
+	if err != nil {
+		return nil, err
+	}
+	var projectResources []model.ProjectResource
+	err = db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ProjectID: project.ID, ResourceType: resourceType}).Find(&projectResources).Error
+	if err != nil {
+		return nil, err
+	}
+	return projectResources, nil
 }
 
 func (p projectResourceRepository) ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error) {
