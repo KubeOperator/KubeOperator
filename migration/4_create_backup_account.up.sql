@@ -1,5 +1,4 @@
-DROP TABLE IF EXISTS `ko_backup_account`;
-CREATE TABLE `ko_backup_account` (
+CREATE TABLE IF NOT EXISTS `ko_backup_account` (
   `id` varchar(64) NOT NULL,
   `name` varchar(255) NOT NULL,
   `region` varchar(64) NOT NULL,
