@@ -51,7 +51,7 @@ func (i *InitPluginDBPhase) Init() error {
 	for _, f := range fs {
 		if !f.IsDir() && strings.Contains(f.Name(), ".so") {
 			pluginName := strings.Replace(f.Name(), ".so", "", -1)
-			p, err := plugin.Open(path.Join("plugin", f.Name()))
+			p, err := plugin.Open(path.Join(p, f.Name()))
 			if err != nil {
 				log.Errorf("can not load plugin: %s message: %s", pluginName, err.Error())
 			} else {
