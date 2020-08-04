@@ -56,6 +56,7 @@ export class ClusterCreateRequest extends BaseModel {
     plan: string;
     nodes: CreateNodeRequest[] = [];
     workerAmount: number;
+    dockerSubnet: string;
     projectName: string;
 }
 

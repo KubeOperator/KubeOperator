@@ -55,6 +55,7 @@ type ClusterCreate struct {
 	IngressControllerType string       `json:"ingressControllerType"`
 	Architectures         string       `json:"architectures"`
 	KubernetesAudit       string       `json:"kubernetesAudit"`
+	DockerSubnet          string       `json:"dockerSubnet"`
 	Nodes                 []NodeCreate `json:"nodes"`
 	ProjectName           string       `json:"projectName"`
 }

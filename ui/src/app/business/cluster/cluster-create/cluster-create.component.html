@@ -76,6 +76,7 @@
                 </select>
             </clr-select-container>
 
+
             <clr-select-container *ngIf="item.networkType === 'flannel'">
                 <label>{{"APP_NETWORK_MODE"|translate}}</label>
                 <select clrSelect name="flannel_backend" [(ngModel)]="item.flannelBackend">
@@ -103,6 +104,10 @@
                 <input clrInput size="34" name="service_subnet" [(ngModel)]="item.kubeServiceSubnet"/>
             </clr-input-container>
 
+            <clr-input-container>
+                <label>Container {{"APP_SUBNET"|translate}}</label>
+                <input clrInput size="34" name="docker_subnet" [(ngModel)]="item.dockerSubnet"/>
+            </clr-input-container>
 
             <clr-input-container>
                 <label>最大POD数量</label>
@@ -131,8 +136,8 @@
                 <label>Kubernetes 审计</label>
                 <select clrSelect name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="yes">enable</option>
-                    <option value="no">disable</option>
+                    <option value="yes">{{"APP_ENABLE"|translate}}</option>
+                    <option value="no">{{"APP_DISABLE"|translate}}</option>
                 </select>
             </clr-select-container>
 
