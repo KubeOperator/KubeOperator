@@ -1,1 +1,1 @@
-DELETE FROM ko_volume WHEN id !='';
+DELETE FROM ko_volume WHERE id !='';
