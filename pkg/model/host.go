@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	uuid "github.com/satori/go.uuid"
@@ -59,7 +60,13 @@ func (h *Host) BeforeCreate() error {
 
 func (h *Host) BeforeDelete() error {
 	if h.ClusterID != "" {
-		return errors.New("DELETE_HOST_FAILED")
+		var cluster Cluster
+		cluster.ID = h.ClusterID
+		notFound := db.DB.First(&cluster).RecordNotFound()
+		if !notFound {
+			return errors.New("DELETE_HOST_FAILED")
+		}
+
 	}
 	return nil
 }
