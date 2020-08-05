@@ -98,9 +98,20 @@ func (h hostRepository) Save(host *model.Host) error {
 		tx := db.DB.Begin()
 		if len(host.Volumes) > 0 {
 			for i, _ := range host.Volumes {
-				if err := tx.FirstOrCreate(&host.Volumes[i], model.Volume{Name: host.Volumes[i].Name}).Error; err != nil {
-					tx.Rollback()
-					return err
+				var volume model.Volume
+				if notFound := tx.Where(model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
+					First(&volume).RecordNotFound(); notFound {
+					if err := tx.Create(&host.Volumes[i]).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+				} else {
+					host.Volumes[i].ID = volume.ID
+					if err := tx.Save(&host.Volumes[i]).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+
 				}
 			}
 		}

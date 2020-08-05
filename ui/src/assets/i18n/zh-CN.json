@@ -272,5 +272,6 @@
   "Running": "运行中",
   "APP_BACKUP": "备份",
   "APP_ARCHITECTURES": "架构",
-  "local": "本地"
+  "local": "本地",
+  "APP_DISABLE": "禁用"
 }

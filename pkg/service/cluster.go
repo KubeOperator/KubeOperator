@@ -20,7 +20,7 @@ type ClusterService interface {
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	Delete(name string) error
-	Create(creation dto.ClusterCreate) error
+	Create(creation dto.ClusterCreate) (dto.Cluster, error)
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Batch(batch dto.ClusterBatch) error
@@ -161,7 +161,7 @@ func (c clusterService) GetPlan(name string) (dto.Plan, error) {
 	return plan, nil
 }
 
-func (c clusterService) Create(creation dto.ClusterCreate) error {
+func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) {
 	cluster := model.Cluster{
 		Name:   creation.Name,
 		Source: constant.ClusterSourceLocal,
@@ -182,6 +182,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		IngressControllerType: creation.IngressControllerType,
 		Architectures:         creation.Architectures,
 		KubernetesAudit:       creation.KubernetesAudit,
+		DockerSubnet:          creation.DockerSubnet,
 		KubeApiServerPort:     constant.DefaultApiServerPort,
 	}
 
@@ -196,7 +197,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		cluster.Spec.WorkerAmount = creation.WorkerAmount
 		plan, err := c.planRepo.Get(creation.Plan)
 		if err != nil {
-			return err
+			return dto.Cluster{}, err
 		}
 		cluster.PlanID = plan.ID
 	}
@@ -217,7 +218,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		}
 		host, err := c.hostRepo.Get(nc.HostName)
 		if err != nil {
-			return err
+			return dto.Cluster{}, err
 		}
 		node.HostID = host.ID
 		node.Host = host
@@ -227,11 +228,11 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 	}
 	if err := c.clusterRepo.Save(&cluster); err != nil {
-		return err
+		return dto.Cluster{}, err
 	}
 	project, err := c.projectRepository.Get(creation.ProjectName)
 	if err != nil {
-		return err
+		return dto.Cluster{}, err
 
 	}
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
@@ -239,12 +240,12 @@ func (c clusterService) Create(creation dto.ClusterCreate) error {
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {
-		return err
+		return dto.Cluster{}, err
 	}
 	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return err
+		return dto.Cluster{}, err
 	}
-	return nil
+	return dto.Cluster{Cluster: cluster}, nil
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (dto.Endpoint, error) {
