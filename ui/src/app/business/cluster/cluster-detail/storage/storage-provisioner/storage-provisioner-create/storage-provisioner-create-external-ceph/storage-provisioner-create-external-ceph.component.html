@@ -1,62 +1,11 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
-    <h3 class="modal-title">{{"APP_ADD" |translate}}</h3>
+    <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
     <div class="modal-body">
         <form clrForm #nfsForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [(ngModel)]="item.name" name="name" size="34" required>
+                <input clrInput [(ngModel)]="item.name" name="name" size="34" disabled required>
             </clr-input-container>
-
-            <clr-input-container>
-                <label>Monitor</label>
-                <input clrInput [(ngModel)]="item.vars['ceph_monitor']" name="ceph_monitor" size="34" required>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>OSD Pool</label>
-                <input clrInput [(ngModel)]="item.vars['ceph_osd_pool']" name="ceph_osd_pool" size="34" required>
-            </clr-input-container>
-
-            <clr-input-container>
-                <label>Admin Id</label>
-                <input clrInput [(ngModel)]="item.vars['ceph_admin_id']" name="ceph_admin_id" size="34" required>
-            </clr-input-container>
-
-            <clr-password-container>
-                <label>Admin Secret</label>
-                <input clrPassword [(ngModel)]="item.vars['ceph_admin_secret']" name="ceph_admin_secret" size="34"
-                       required>
-            </clr-password-container>
-
-            <clr-input-container>
-                <label>User Id</label>
-                <input clrInput [(ngModel)]="item.vars['ceph_user_id']" name="ceph_user_id" size="34" required>
-            </clr-input-container>
-
-            <clr-password-container>
-                <label>User Secret</label>
-                <input clrPassword [(ngModel)]="item.vars['ceph_user_secret']" name="ceph_user_secret" size="34"
-                       required>
-            </clr-password-container>
-
-            <clr-select-container>
-                <label>文件系统</label>
-                <select clrSelect [(ngModel)]="item.vars['ceph_fsType']" name="ceph_fsType" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="ext4">ext4</option>
-                    <option value="xfs">xfs</option>
-                    <option value="btrfs">btrfs</option>
-                </select>
-            </clr-select-container>
-
-            <clr-select-container>
-                <label>ImageFormat</label>
-                <select clrSelect [(ngModel)]="item.vars['ceph_imageFormat']" name="ceph_imageFormat" required>
-                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                </select>
-            </clr-select-container>
         </form>
     </div>
     <div class="modal-footer">

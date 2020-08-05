@@ -1,39 +1,20 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
     <h3 class="modal-title">创建存储类</h3>
-    <div class="modal-body" *ngIf="item">
-        <form clrForm>
+    <div class="modal-body">
+        <form clrForm #itemForm='ngForm'>
             <clr-input-container>
                 <label>名称</label>
-                <input clrInput [size]="34" name="name" [(ngModel)]="item.metadata.name">
+                <input clrInput [size]="34" name="name" [(ngModel)]="item.metadata.name" required>
             </clr-input-container>
 
             <clr-select-container>
-                <label>存储类型</label>
-                <select clrSelect>
-                    <option value="">NFS</option>
-                    <option value="">Ceph-RBD</option>
-                </select>
-            </clr-select-container>
-
-            <clr-select-container>
                 <label>提供商</label>
-                <select name="provisioner" [(ngModel)]="provisioner" (change)="onProvisionerChange()" clrSelect>
-                    <option [ngValue]="null">自定义</option>
-                    <option [ngValue]="p" *ngFor="let p of provisioners">{{p.name}}</option>
+                <select name="provisioner" [(ngModel)]="provisioner" (change)="onProvisionerChange()" clrSelect
+                        required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option [ngValue]="p" *ngFor="let p of provisioners">[{{p.type}}]{{p.name}}</option>
                 </select>
             </clr-select-container>
-
-            <table class="table table-vertical" *ngIf="provisioner ===null">
-                <tbody>
-                <tr>
-                    <th>provisioner_name</th>
-                    <td>
-                        <input clrInput [size]="34" name="provisioner_name" [(ngModel)]="item.provisioner">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='nfs'">
                 <tbody>
                 <tr>
@@ -46,10 +27,128 @@
                 </tbody>
             </table>
 
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='rook-ceph'">
+                <tbody>
+                <tr>
+                    <th>provisioner_name</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
+                               disabled>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='vsphere'">
+                <tbody>
+                <tr>
+                    <th>provisioner_name</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
+                               disabled>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Datastore</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="datastore" [(ngModel)]="item.parameters['datastore']"
+                               disabled>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='external-ceph'">
+                <tbody>
+                <tr>
+                    <th>provisioner</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
+                               disabled>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Monitor</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="monitor" placeholder="eg: 172.16.10.10:6389"
+                               [(ngModel)]="item.parameters['monitors']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>OSD Pool</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="osd_pool" placeholder="eg: kube"
+                               [(ngModel)]="item.parameters['pool']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>Admin Id</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="admin_id" placeholder="eg: kube"
+                               [(ngModel)]="item.parameters['adminId']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>Admin Secret</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="admin_secret" placeholder="eg: secret"
+                               [(ngModel)]="item.parameters['adminSecretName']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>Admin Secret Namespace</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="admin_secret_namespace" placeholder="eg: kube-system"
+                               [(ngModel)]="item.parameters['adminSecretNamespace']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>User Id</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="user_id" placeholder="eg: kube"
+                               [(ngModel)]="item.parameters['userId']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>user_secret</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="user_secret" placeholder="eg: secret"
+                               [(ngModel)]="item.parameters['userSecretName']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>FS Type</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="fsType" placeholder="eg: ext4"
+                               [(ngModel)]="item.parameters['fsType']"
+                        >
+                    </td>
+                </tr>
+                <tr>
+                    <th>ImageFormat</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="imageFormat" placeholder="eg: 2"
+                               [(ngModel)]="item.parameters['imageFormat']"
+                        >
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
         </form>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn btn-primary" (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing || itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

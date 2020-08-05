@@ -5,42 +5,43 @@ import {Cluster} from "../../../../../cluster";
 import {NgForm} from "@angular/forms";
 
 @Component({
-  selector: 'app-storage-provisioner-create-external-ceph',
-  templateUrl: './storage-provisioner-create-external-ceph.component.html',
-  styleUrls: ['./storage-provisioner-create-external-ceph.component.css']
+    selector: 'app-storage-provisioner-create-external-ceph',
+    templateUrl: './storage-provisioner-create-external-ceph.component.html',
+    styleUrls: ['./storage-provisioner-create-external-ceph.component.css']
 })
 export class StorageProvisionerCreateExternalCephComponent implements OnInit {
 
-  constructor(private storageProvisionerService: StorageProvisionerService) {
-  }
+    constructor(private storageProvisionerService: StorageProvisionerService) {
+    }
 
-  opened = false;
-  item: CreateStorageProvisionerRequest = new CreateStorageProvisionerRequest();
-  @Output() created = new EventEmitter();
-  @Input() currentCluster: Cluster;
-  @ViewChild('nfsForm') nfsForm: NgForm;
+    opened = false;
+    item: CreateStorageProvisionerRequest = new CreateStorageProvisionerRequest();
+    @Output() created = new EventEmitter();
+    @Input() currentCluster: Cluster;
+    @ViewChild('nfsForm') nfsForm: NgForm;
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
-  open(item: CreateStorageProvisionerRequest) {
-    this.opened = true;
-    this.item = item;
-  }
+    open(item: CreateStorageProvisionerRequest) {
+        this.opened = true;
+        this.item = item;
+        this.item.name = 'external-ceph';
+    }
 
-  reset() {
-    this.item = new CreateStorageProvisionerRequest();
-    this.nfsForm.resetForm();
-  }
+    reset() {
+        this.item = new CreateStorageProvisionerRequest();
+        this.nfsForm.resetForm();
+    }
 
-  onCancel() {
-    this.opened = false;
-  }
+    onCancel() {
+        this.opened = false;
+    }
 
-  onSubmit() {
-    this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
-      this.opened = false;
-      this.created.emit();
-    });
-  }
+    onSubmit() {
+        this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
+            this.opened = false;
+            this.created.emit();
+        });
+    }
 }

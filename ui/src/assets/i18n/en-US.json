@@ -270,5 +270,6 @@
   "APP_BACKUP": "Backup",
   "APP_ARCHITECTURES": "architectures",
   "local": "本地",
-  "APP_DISABLE": "disable"
+  "APP_DISABLE": "disable",
+  "APP_ADD_STORAGE_PROVISIONER": "add storage provisioner"
 }

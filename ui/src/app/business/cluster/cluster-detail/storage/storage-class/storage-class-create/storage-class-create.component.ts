@@ -22,11 +22,12 @@ export class StorageClassCreateComponent implements OnInit {
 
     opened = false;
     isSubmitGoing = false;
-    item: V1StorageClass;
+    item: V1StorageClass = this.newV1StorageClass();
     provisioner: StorageProvisioner = new StorageProvisioner();
     @Input() currentCluster: Cluster;
     @Output() created = new EventEmitter();
     provisioners: StorageProvisioner[] = [];
+    @ViewChild('itemForm') itemForm: NgForm;
 
     @Output() selected = new EventEmitter<CreateStorageClassRequest>();
 
@@ -36,7 +37,9 @@ export class StorageClassCreateComponent implements OnInit {
     }
 
     reset() {
+        this.itemForm.resetForm();
         this.item = this.newV1StorageClass();
+        this.provisioner = null;
         this.provisionerService.list(this.currentCluster.name).subscribe(data => {
             this.provisioners = data;
         });
@@ -51,7 +54,27 @@ export class StorageClassCreateComponent implements OnInit {
         this.item.provisioner = '';
         if (this.provisioner) {
             this.item.provisioner = this.provisioner.name;
+            switch (this.provisioner.type) {
+                case 'rook-ceph':
+                    this.item.parameters['clusterID'] = 'rook-ceph';
+                    this.item.parameters['pool'] = 'replicapool';
+                    this.item.parameters['imageFormat'] = '2';
+                    this.item.parameters['imageFeatures'] = 'layering';
+                    this.item.parameters['csi.storage.k8s.io/provisioner-secret-name'] = 'rook-csi-rbd-provisioner';
+                    this.item.parameters['csi.storage.k8s.io/provisioner-secret-namespace'] = 'rook-ceph';
+                    this.item.parameters['csi.storage.k8s.io/controller-expand-secret-name'] = 'rook-csi-rbd-provisioner';
+                    this.item.parameters['csi.storage.k8s.io/controller-expand-secret-namespace'] = 'rook-ceph';
+                    this.item.parameters['csi.storage.k8s.io/node-stage-secret-name'] = 'rook-csi-rbd-node';
+                    this.item.parameters['csi.storage.k8s.io/node-stage-secret-namespace'] = 'rook-ceph';
+                    this.item.parameters['csi.storage.k8s.io/fstype'] = 'ext4';
+                    break;
+                case 'vsphere':
+                    console.log(this.provisioner);
+                    this.item.parameters['datastore'] = this.provisioner.vars['datastore'];
+                    break;
+            }
         }
+
     }
 
     onSubmit() {
@@ -78,6 +101,7 @@ export class StorageClassCreateComponent implements OnInit {
                 name: ''
             } as V1ObjectMeta,
             provisioner: '',
+            parameters: {},
         } as V1StorageClass;
     }
 

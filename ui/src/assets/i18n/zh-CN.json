@@ -273,5 +273,6 @@
   "APP_BACKUP": "备份",
   "APP_ARCHITECTURES": "架构",
   "local": "本地",
-  "APP_DISABLE": "禁用"
+  "APP_DISABLE": "禁用",
+  "APP_ADD_STORAGE_PROVISIONER": "添加存储提供商"
 }

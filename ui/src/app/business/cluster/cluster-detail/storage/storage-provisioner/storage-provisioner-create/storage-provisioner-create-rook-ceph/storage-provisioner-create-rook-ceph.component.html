@@ -1,5 +1,5 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
-    <h3 class="modal-title">{{"APP_ADD" |translate}}</h3>
+    <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
     <div class="modal-body">
         <form clrForm #nfsForm='ngForm'>
             <clr-input-container>
@@ -9,7 +9,7 @@
 
             <clr-input-container>
                 <label>磁盘名称</label>
-                <input clrInput [(ngModel)]="item.name" name="storage_rook_path" size="34" required>
+                <input clrInput [(ngModel)]="item.vars['storage_rook_path']" name="storage_rook_path" size="34" required>
                 <clr-control-helper>填写磁盘名称，多块磁盘使用逗号分隔，例如："sdb,sdc"</clr-control-helper>
             </clr-input-container>
         </form>

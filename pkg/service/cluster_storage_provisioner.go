@@ -70,16 +70,16 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		Status: constant.ClusterWaiting,
 	}
 
-	cluster, err := c.clusterService.Get(clusterName)
-	if err != nil {
-		return dp, err
-	}
-	err = c.provisionerRepo.Save(clusterName, &p)
+	//cluster, err := c.clusterService.Get(clusterName)
+	//if err != nil {
+	//	return dp, err
+	//}
+	err := c.provisionerRepo.Save(clusterName, &p)
 	if err != nil {
 		return dp, err
 	}
 	//playbook
-	go c.do(cluster.Cluster, p)
+	//go c.do(cluster.Cluster, p)
 	dp.ClusterStorageProvisioner = p
 	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
 	return dp, nil
@@ -127,15 +127,6 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 		}
 	case "external-ceph":
 		p = &storage.ExternalCephStoragePhase{
-			CephMonitor:               vars["ceph_monitor"],
-			CephOsdPool:               vars["ceph_osd_pool"],
-			CephAdminId:               vars["ceph_admin_id"],
-			CephAdminSecret:           vars["ceph_admin_secret"],
-			CephUserId:                vars["ceph_user_id"],
-			CephUserSecret:            vars["ceph_user_secret"],
-			CephFsType:                vars["ceph_fsType"],
-			CephImageFormat:           vars["ceph_imageFormat"],
-			StorageRbdProvisionerName: vars["storage_rbd_provisioner_name"],
 			ProvisionerName:           provisioner.Name,
 		}
 	}

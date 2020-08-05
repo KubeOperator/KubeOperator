@@ -4,13 +4,13 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type ClusterStorageProvisioner struct {
 	model.ClusterStorageProvisioner
-	Vars map[string]interface{}
+	Vars map[string]interface{} `json:"vars"`
 }
 
 type ClusterStorageProvisionerCreation struct {
-	Name string
-	Type string
-	Vars map[string]interface{}
+	Name string                 `json:"name"`
+	Type string                 `json:"type"`
+	Vars map[string]interface{} `json:"vars"`
 }
 
 type ClusterStorageProvisionerBatch struct {

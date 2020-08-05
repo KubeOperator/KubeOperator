@@ -10,15 +10,7 @@ const (
 )
 
 type ExternalCephStoragePhase struct {
-	CephMonitor               string
-	CephOsdPool               string
-	CephAdminId               string
-	CephAdminSecret           string
-	CephUserId                string
-	CephUserSecret            string
-	CephFsType                string
-	CephImageFormat           string
-	StorageRbdProvisionerName string
+
 	ProvisionerName           string
 }
 
@@ -27,30 +19,6 @@ func (n ExternalCephStoragePhase) Name() string {
 }
 
 func (n ExternalCephStoragePhase) Run(b kobe.Interface) error {
-	if n.CephMonitor != "" {
-		b.SetVar("ceph_monitor", n.CephMonitor)
-	}
-	if n.CephOsdPool != "" {
-		b.SetVar("ceph_osd_pool", n.CephOsdPool)
-	}
-	if n.CephAdminId != "" {
-		b.SetVar("ceph_admin_id", n.CephAdminId)
-	}
-	if n.CephAdminSecret != "" {
-		b.SetVar("ceph_admin_secret", n.CephAdminSecret)
-	}
-	if n.CephUserId != "" {
-		b.SetVar("ceph_user_id", n.CephUserId)
-	}
-	if n.CephUserSecret != "" {
-		b.SetVar("ceph_user_secret", n.CephUserSecret)
-	}
-	if n.CephFsType != "" {
-		b.SetVar("ceph_fsType", n.CephFsType)
-	}
-	if n.CephImageFormat != "" {
-		b.SetVar("ceph_imageFormat", n.CephImageFormat)
-	}
 	if n.ProvisionerName != "" {
 		b.SetVar("storage_rbd_provisioner_name", n.ProvisionerName)
 	}

@@ -15,6 +15,7 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
     }
 
     opened = false;
+    isSubmitGoing = false;
     item: CreateStorageProvisionerRequest = new CreateStorageProvisionerRequest();
     @Output() created = new EventEmitter();
     @Input() currentCluster: Cluster;
@@ -27,12 +28,12 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
         this.reset();
         this.opened = true;
         this.item = item;
+        this.item.name = 'rook-ceph.rbd.csi.ceph.com';
     }
 
     reset() {
         this.item = new CreateStorageProvisionerRequest();
-        this.item.name = 'rook-ceph.rbd.csi.ceph.com';
-        this.nfsForm.resetForm(this.item);
+        this.nfsForm.resetForm();
     }
 
     onCancel() {
@@ -40,7 +41,13 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.isSubmitGoing) {
+            return;
+        }
+        this.isSubmitGoing = true;
+        console.log(this.item);
         this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
+            this.isSubmitGoing = false;
             this.opened = false;
             this.created.emit();
         });

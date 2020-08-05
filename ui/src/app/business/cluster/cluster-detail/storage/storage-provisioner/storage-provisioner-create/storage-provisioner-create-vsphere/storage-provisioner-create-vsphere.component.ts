@@ -27,12 +27,12 @@ export class StorageProvisionerCreateVsphereComponent implements OnInit {
         this.reset();
         this.opened = true;
         this.item = item;
+        this.item.name = 'kubernetes.io/vsphere-volume';
     }
 
     reset() {
         this.item = new CreateStorageProvisionerRequest();
-        this.item.name = 'kubernetes.io/vsphere-volume';
-        this.nfsForm.resetForm(this.item);
+        this.nfsForm.resetForm();
     }
 
     onCancel() {
