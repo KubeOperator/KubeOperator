@@ -283,5 +283,6 @@
   "APP_GET_BUCKET": "获取桶",
   "APP_EXAMPLE": "例如",
   "APP_DELETE_BACKUP_ACCOUNT": "删除备份账号",
-  "APP_NOT_SET_SYSTEM_IP": "请先设置系统IP"
+  "APP_NOT_SET_SYSTEM_IP": "请先设置系统IP",
+  "APP_LICENSE": "许可"
 }
