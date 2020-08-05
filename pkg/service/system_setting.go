@@ -9,7 +9,7 @@ import (
 type SystemSettingService interface {
 	Get(name string) (dto.SystemSetting, error)
 	GetLocalHostName() string
-	List() ([]dto.SystemSettingResult, error)
+	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 }
 
@@ -33,8 +33,8 @@ func (s systemSettingService) Get(key string) (dto.SystemSetting, error) {
 	return systemSettingDTO, err
 }
 
-func (s systemSettingService) List() ([]dto.SystemSettingResult, error) {
-	var systemSettingResult []dto.SystemSettingResult
+func (s systemSettingService) List() (dto.SystemSettingResult, error) {
+	var systemSettingResult dto.SystemSettingResult
 	vars := make(map[string]string)
 	mos, err := s.systemSettingRepo.List()
 	if err != nil {
@@ -43,7 +43,7 @@ func (s systemSettingService) List() ([]dto.SystemSettingResult, error) {
 	for _, mo := range mos {
 		vars[mo.Key] = mo.Value
 	}
-	systemSettingResult = append(systemSettingResult, dto.SystemSettingResult{Vars: vars})
+	systemSettingResult.Vars = vars
 	return systemSettingResult, err
 }
 

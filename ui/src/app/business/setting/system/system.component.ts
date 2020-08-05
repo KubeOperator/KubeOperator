@@ -15,8 +15,8 @@ import * as ipaddr from 'ipaddr.js';
 })
 export class SystemComponent extends BaseModelComponent<System> implements OnInit {
 
-    items: System[] = [];
-    item: SystemCreateRequest = new SystemCreateRequest();
+    item: System = new System();
+    createItem: SystemCreateRequest = new SystemCreateRequest();
 
     constructor(private systemService: SystemService, private commonAlertService: CommonAlertService,
                 private translateService: TranslateService) {
@@ -29,9 +29,8 @@ export class SystemComponent extends BaseModelComponent<System> implements OnIni
 
 
     listSystemSettings() {
-        this.systemService.list().subscribe(res => {
-            this.items = res.items;
-            this.item.vars = this.items[0].vars;
+        this.systemService.singleGet().subscribe(res => {
+            this.item = res;
         });
     }
 
@@ -39,7 +38,8 @@ export class SystemComponent extends BaseModelComponent<System> implements OnIni
         if (!this.checkIp()) {
             return;
         }
-        this.systemService.create(this.item).subscribe(res => {
+        this.createItem.vars = this.item.vars;
+        this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
