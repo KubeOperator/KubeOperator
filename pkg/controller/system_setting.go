@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -19,16 +18,13 @@ func NewSystemSettingController() *SystemSettingController {
 	}
 }
 
-func (s SystemSettingController) Get() (page.Page, error) {
+func (s SystemSettingController) Get() (interface{}, error) {
 
-	var page page.Page
-	items, err := s.SystemSettingService.List()
+	item, err := s.SystemSettingService.List()
 	if err != nil {
-		return page, err
+		return nil, err
 	}
-	page.Items = items
-	page.Total = len(items)
-	return page, nil
+	return item, nil
 }
 
 func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
