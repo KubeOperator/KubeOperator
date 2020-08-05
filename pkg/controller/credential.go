@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -90,7 +88,7 @@ func (c CredentialController) PostBatch() error {
 	}
 	err = c.CredentialService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(c.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }
