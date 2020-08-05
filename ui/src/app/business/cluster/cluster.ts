@@ -65,6 +65,7 @@ export class CLusterImportRequest {
     apiServer: string;
     token: string;
     router: string;
+    projectName: string;
 }
 
 export class InitClusterResponse {
