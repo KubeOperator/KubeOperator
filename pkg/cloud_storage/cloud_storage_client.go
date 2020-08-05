@@ -1,8 +1,8 @@
-package backup_acoount
+package cloud_storage
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/backup_acoount/client"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 )
 
@@ -10,7 +10,7 @@ var (
 	NotSupport = "NOT_SUPPORT"
 )
 
-type BackupAccountClient interface {
+type CloudStorageClient interface {
 	ListBuckets() ([]interface{}, error)
 	Exist(path string) (bool, error)
 	Delete(path string) (bool, error)
@@ -18,7 +18,7 @@ type BackupAccountClient interface {
 	Download(src, target string) (bool, error)
 }
 
-func NewBackupAccountClient(vars map[string]string) (BackupAccountClient, error) {
+func NewCloudStorageClient(vars map[string]string) (CloudStorageClient, error) {
 	if vars["type"] == constant.Azure {
 		return client.NewAzureClient(vars)
 	}

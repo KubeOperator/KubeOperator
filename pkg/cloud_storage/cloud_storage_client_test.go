@@ -1,4 +1,4 @@
-package backup_acoount
+package cloud_storage
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 func Test(t *testing.T) {
 	vars := make(map[string]string)
 
-	client, err := NewBackupAccountClient(vars)
+	client, err := NewCloudStorageClient(vars)
 	if err != nil {
 		fmt.Println(err)
 		return
