@@ -100,17 +100,44 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 }
 
 func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
+	vars := map[string]string{}
+	_ = json.Unmarshal([]byte(provisioner.Vars), &vars)
+	var p phases.Interface
 	switch provisioner.Type {
 	case "nfs":
-		vars := map[string]string{}
-		_ = json.Unmarshal([]byte(provisioner.Vars), &vars)
-		p := storage.NfsStoragePhase{
+		p = &storage.NfsStoragePhase{
 			NfsServer:        vars["storage_nfs_server"],
 			NfsServerPath:    vars["storage_nfs_server_path"],
 			NfsServerVersion: vars["storage_nfs_server_version"],
 			ProvisionerName:  provisioner.Name,
 		}
-		return &p
+	case "rook-ceph":
+		p = &storage.RookCephStoragePhase{
+			StorageRookPath: vars["storage_rook_path"],
+		}
+	case "vsphere":
+		p = &storage.VsphereStoragePhase{
+			VcUsername: vars["username"],
+			VcPassword: vars["password"],
+			VcHost:     vars["host"],
+			VcPort:     vars["port"],
+			Datacenter: vars["datacenter"],
+			Datastore:  vars["datastore"],
+			Folder:     vars["folder"],
+		}
+	case "external-ceph":
+		p = &storage.ExternalCephStoragePhase{
+			CephMonitor:               vars["ceph_monitor"],
+			CephOsdPool:               vars["ceph_osd_pool"],
+			CephAdminId:               vars["ceph_admin_id"],
+			CephAdminSecret:           vars["ceph_admin_secret"],
+			CephUserId:                vars["ceph_user_id"],
+			CephUserSecret:            vars["ceph_user_secret"],
+			CephFsType:                vars["ceph_fsType"],
+			CephImageFormat:           vars["ceph_imageFormat"],
+			StorageRbdProvisionerName: vars["storage_rbd_provisioner_name"],
+			ProvisionerName:           provisioner.Name,
+		}
 	}
-	return nil
+	return p
 }

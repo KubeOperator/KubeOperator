@@ -6,6 +6,9 @@ import {StorageProvisionerCreateComponent} from './storage-provisioner-create/st
 import {StorageProvisionerCreateNfsComponent} from './storage-provisioner-create/storage-provisioner-create-nfs/storage-provisioner-create-nfs.component';
 import {CreateStorageProvisionerRequest, StorageProvisioner} from './storage-provisioner';
 import {StorageProvisionerDeleteComponent} from "./storage-provisioner-delete/storage-provisioner-delete.component";
+import {StorageProvisionerCreateExternalCephComponent} from "./storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component";
+import {StorageProvisionerCreateRookCephComponent} from "./storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component";
+import {StorageProvisionerCreateVsphereComponent} from "./storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component";
 
 @Component({
     selector: 'app-storage-provisioner',
@@ -28,6 +31,13 @@ export class StorageProvisionerComponent implements OnInit {
 
     @ViewChild(StorageProvisionerCreateNfsComponent, {static: true})
     nfs: StorageProvisionerCreateNfsComponent;
+    @ViewChild(StorageProvisionerCreateExternalCephComponent, {static: true})
+    externalCeph: StorageProvisionerCreateExternalCephComponent;
+    @ViewChild(StorageProvisionerCreateRookCephComponent, {static: true})
+    rookCeph: StorageProvisionerCreateRookCephComponent;
+    @ViewChild(StorageProvisionerCreateVsphereComponent, {static: true})
+    vsphere: StorageProvisionerCreateVsphereComponent;
+
     currentCluster: Cluster;
 
     ngOnInit(): void {
@@ -50,6 +60,15 @@ export class StorageProvisionerComponent implements OnInit {
         switch (item.type) {
             case 'nfs':
                 this.nfs.open(item);
+                break;
+            case 'external-ceph':
+                this.externalCeph.open(item);
+                break;
+            case 'rook-ceph':
+                this.rookCeph.open(item);
+                break;
+            case 'vsphere':
+                this.vsphere.open(item);
                 break;
         }
     }

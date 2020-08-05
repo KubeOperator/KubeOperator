@@ -6,7 +6,10 @@
                 <label>类型</label>
                 <select clrSelect [(ngModel)]="item.type" name="type" required>
                     <option value="">请选择</option>
-                    <option value="nfs">NFS</option>
+                    <option value="nfs">nfs</option>
+                    <option value="external-ceph">external-ceph</option>
+                    <option value="rook-ceph">rook-ceph</option>
+                    <option value="vsphere">vsphere</option>
                 </select>
             </clr-select-container>
         </form>
