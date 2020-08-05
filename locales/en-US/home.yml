@@ -42,6 +42,7 @@ NODE_ALREADY_RUNNING_TASK: "Add node or delete node already running,please wait 
 #backupAccount
 PARAM_EMPTY: "Insufficient parameters"
 NOT_SUPPORT: "Unsupported type"
+CHECK_FAILED: "Verification failed"
 
 
 

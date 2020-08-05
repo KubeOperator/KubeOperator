@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
@@ -11,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/router"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
+	"os"
 )
 
 type Phase interface {
@@ -57,6 +59,21 @@ func Start() error {
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))
 	if err := s.Run(iris.Addr(bind)); err != nil {
+		return err
+	}
+	if err := makeDataDir(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func makeDataDir() error {
+	err := os.MkdirAll(constant.DefaultBackupDir, 0755)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(constant.DefaultRestoreDir, 0755)
+	if err != nil {
 		return err
 	}
 	return nil

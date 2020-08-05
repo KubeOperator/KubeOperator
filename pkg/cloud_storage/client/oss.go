@@ -10,26 +10,26 @@ var (
 )
 
 type ossClient struct {
-	Vars   map[string]string
+	Vars   map[string]interface{}
 	client oss.Client
 }
 
-func NewOssClient(vars map[string]string) (*ossClient, error) {
+func NewOssClient(vars map[string]interface{}) (*ossClient, error) {
 	var endpoint string
 	var accessKey string
 	var secretKey string
 	if _, ok := vars["endpoint"]; ok {
-		endpoint = vars["endpoint"]
+		endpoint = vars["endpoint"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["accessKey"]; ok {
-		accessKey = vars["accessKey"]
+		accessKey = vars["accessKey"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["secretKey"]; ok {
-		secretKey = vars["secretKey"]
+		secretKey = vars["secretKey"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
@@ -102,7 +102,7 @@ func (oss ossClient) Download(src, target string) (bool, error) {
 
 func (oss *ossClient) GetBucket() (*oss.Bucket, error) {
 	if _, ok := oss.Vars["bucket"]; ok {
-		bucket, err := oss.client.Bucket(oss.Vars["bucket"])
+		bucket, err := oss.client.Bucket(oss.Vars["bucket"].(string))
 		if err != nil {
 			return nil, err
 		}

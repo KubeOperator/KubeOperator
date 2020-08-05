@@ -18,7 +18,7 @@ type CloudStorageClient interface {
 	Download(src, target string) (bool, error)
 }
 
-func NewCloudStorageClient(vars map[string]string) (CloudStorageClient, error) {
+func NewCloudStorageClient(vars map[string]interface{}) (CloudStorageClient, error) {
 	if vars["type"] == constant.Azure {
 		return client.NewAzureClient(vars)
 	}

@@ -6,6 +6,7 @@ import {BackupAccountListComponent} from './backup-account-list/backup-account-l
 import {BackupAccountUpdateComponent} from './backup-account-update/backup-account-update.component';
 import {BackupAccountDeleteComponent} from './backup-account-delete/backup-account-delete.component';
 import {CoreModule} from '../../../core/core.module';
+import {SharedModule} from '../../../shared/shared.module';
 
 
 @NgModule({
@@ -13,7 +14,8 @@ import {CoreModule} from '../../../core/core.module';
         BackupAccountUpdateComponent, BackupAccountDeleteComponent],
     imports: [
         CommonModule,
-        CoreModule
+        CoreModule,
+        SharedModule
     ]
 })
 export class BackupAccountModule {

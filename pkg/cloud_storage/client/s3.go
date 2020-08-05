@@ -12,33 +12,33 @@ import (
 )
 
 type s3Client struct {
-	Vars map[string]string
+	Vars map[string]interface{}
 	Sess session.Session
 }
 
-func NewS3Client(vars map[string]string) (*s3Client, error) {
+func NewS3Client(vars map[string]interface{}) (*s3Client, error) {
 
 	var accessKey string
 	var secretKey string
 	var endpoint string
 	var region string
 	if _, ok := vars["accessKey"]; ok {
-		accessKey = vars["accessKey"]
+		accessKey = vars["accessKey"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["secretKey"]; ok {
-		secretKey = vars["secretKey"]
+		secretKey = vars["secretKey"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["endpoint"]; ok {
-		endpoint = vars["endpoint"]
+		endpoint = vars["endpoint"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["region"]; ok {
-		region = vars["region"]
+		region = vars["region"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
@@ -169,7 +169,7 @@ func (s3C s3Client) Download(src, target string) (bool, error) {
 
 func (s3C *s3Client) getBucket() (string, error) {
 	if _, ok := s3C.Vars["bucket"]; ok {
-		return s3C.Vars["bucket"], nil
+		return s3C.Vars["bucket"].(string), nil
 	} else {
 		return "", errors.New(ParamEmpty)
 	}

@@ -2,21 +2,29 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"os"
+)
+
+var (
+	CheckFailed = "CHECK_FAILED"
 )
 
 type BackupAccountService interface {
 	Get(name string) (*dto.BackupAccount, error)
 	List(projectName string) ([]dto.BackupAccount, error)
 	Page(num, size int) (page.Page, error)
-	Create(creation dto.BackupAccountCreate) (*dto.BackupAccount, error)
-	Update(creation dto.BackupAccountUpdate) (*dto.BackupAccount, error)
+	Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
+	Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
+	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
 }
 
 type backupAccountService struct {
@@ -74,18 +82,22 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 	return page, err
 }
 
-func (b backupAccountService) Create(creation dto.BackupAccountCreate) (*dto.BackupAccount, error) {
+func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
 
+	err := b.CheckValid(creation)
+	if err != nil {
+		return nil, err
+	}
 	credential, _ := json.Marshal(creation.CredentialVars)
 	backupAccount := model.BackupAccount{
 		Name:       creation.Name,
-		Region:     creation.Region,
+		Bucket:     creation.Bucket,
 		Type:       creation.Type,
 		Credential: string(credential),
 		Status:     constant.Valid,
 	}
 
-	err := b.backupAccountRepo.Save(&backupAccount)
+	err = b.backupAccountRepo.Save(&backupAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +105,11 @@ func (b backupAccountService) Create(creation dto.BackupAccountCreate) (*dto.Bac
 	return &dto.BackupAccount{BackupAccount: backupAccount}, err
 }
 
-func (b backupAccountService) Update(creation dto.BackupAccountUpdate) (*dto.BackupAccount, error) {
+func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
+	err := b.CheckValid(creation)
+	if err != nil {
+		return nil, err
+	}
 
 	credential, _ := json.Marshal(creation.CredentialVars)
 	old, err := b.backupAccountRepo.Get(creation.Name)
@@ -103,7 +119,7 @@ func (b backupAccountService) Update(creation dto.BackupAccountUpdate) (*dto.Bac
 	backupAccount := model.BackupAccount{
 		ID:         old.ID,
 		Name:       creation.Name,
-		Region:     creation.Region,
+		Bucket:     creation.Bucket,
 		Type:       creation.Type,
 		Credential: string(credential),
 		Status:     constant.Valid,
@@ -129,6 +145,47 @@ func (b backupAccountService) Batch(op dto.BackupAccountOp) error {
 	err := b.backupAccountRepo.Batch(op.Operation, deleteItems)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (b backupAccountService) GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error) {
+	vars := request.CredentialVars.(map[string]interface{})
+	vars["type"] = request.Type
+	client, err := cloud_storage.NewCloudStorageClient(vars)
+	if err != nil {
+		return nil, err
+	}
+	return client.ListBuckets()
+}
+
+func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error {
+	vars := create.CredentialVars.(map[string]interface{})
+	vars["type"] = create.Type
+	vars["bucket"] = create.Bucket
+	client, err := cloud_storage.NewCloudStorageClient(vars)
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(constant.DefaultFireName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	success, err := client.Upload(constant.DefaultFireName, constant.DefaultFireName)
+	if err != nil {
+		return err
+	}
+	if !success {
+		return errors.New(CheckFailed)
+	} else {
+		deleteSuccess, err := client.Delete(constant.DefaultFireName)
+		if err != nil {
+			return err
+		}
+		if !deleteSuccess {
+			return errors.New(CheckFailed)
+		}
 	}
 	return nil
 }

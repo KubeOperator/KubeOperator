@@ -269,7 +269,15 @@
   "Running": "Running",
   "APP_BACKUP": "Backup",
   "APP_ARCHITECTURES": "architectures",
-  "local": "本地",
+  "local": "local",
   "APP_DISABLE": "disable",
+  "APP_ADD_BACKUP_ACCOUNT":"Add Backup Account",
+  "APP_BACKUP_ACCOUNT_NAME": "Account Name",
+  "APP_BACKUP_ACCOUNT_KEY" : "Account Key",
+  "APP_ENDPOINT" : "EndPoint",
+  "APP_BUCKET" : "Bucket",
+  "APP_GET_BUCKET" : "Get Bucket",
+  "APP_EXAMPLE": "Example",
+  "APP_DELETE_BACKUP_ACCOUNT":"Delete Backup Account"
   "APP_ADD_STORAGE_PROVISIONER": "add storage provisioner"
 }

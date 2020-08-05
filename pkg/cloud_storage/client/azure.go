@@ -12,26 +12,26 @@ import (
 )
 
 type azureClient struct {
-	Vars       map[string]string
+	Vars       map[string]interface{}
 	ServiceURL azblob.ServiceURL
 }
 
-func NewAzureClient(vars map[string]string) (*azureClient, error) {
+func NewAzureClient(vars map[string]interface{}) (*azureClient, error) {
 	var accountName string
 	var accountKey string
 	var endpoint string
 	if _, ok := vars["accountName"]; ok {
-		accountName = vars["accountName"]
+		accountName = vars["accountName"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["accountKey"]; ok {
-		accountKey = vars["accountKey"]
+		accountKey = vars["accountKey"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
 	if _, ok := vars["endpoint"]; ok {
-		endpoint = vars["endpoint"]
+		endpoint = vars["endpoint"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
@@ -61,7 +61,7 @@ func (azure azureClient) ListBuckets() ([]interface{}, error) {
 	for _, bucket := range response.ContainerItems {
 		result = append(result, bucket.Name)
 	}
-	return nil, nil
+	return result, nil
 }
 
 func (azure azureClient) Exist(path string) (bool, error) {
@@ -138,7 +138,7 @@ func (azure azureClient) Download(src, target string) (bool, error) {
 
 func (azure *azureClient) getBucket() (*azblob.ContainerURL, error) {
 	if _, ok := azure.Vars["bucket"]; ok {
-		containerURL := azure.ServiceURL.NewContainerURL(azure.Vars["bucket"])
+		containerURL := azure.ServiceURL.NewContainerURL(azure.Vars["bucket"].(string))
 		return &containerURL, nil
 	} else {
 		return nil, errors.New(ParamEmpty)
