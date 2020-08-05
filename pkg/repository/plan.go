@@ -170,19 +170,6 @@ func (p planRepository) Delete(name string) error {
 func (p planRepository) Batch(operation string, items []model.Plan) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		//TODO 关联校验
-		//var clusterIds []string
-		//for _, item := range items {
-		//	clusterIds = append(clusterIds, item.ClusterID)
-		//}
-		//var clusters []model.Cluster
-		//err := db.DB.Where("id in (?)", clusterIds).Find(&clusters).Error
-		//if err != nil {
-		//	return err
-		//}
-		//if len(clusters) > 0 {
-		//	return errors.New(DeleteFailedError)
-		//}
 		var ids []string
 		for _, item := range items {
 			ids = append(ids, item.ID)

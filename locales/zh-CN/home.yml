@@ -8,6 +8,7 @@ DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "默认凭据不能删除！"
 #host
 HOST_ALREADY_EXISTS: "主机已存在"
 DELETE_HOST_FAILED: "删除失败！该主机已经关联集群"
+DELETE_HOST_FAILED_BY_PROJECT: "删除失败！该主机已经关联项目！"
 
 #user
 PASSWORD_NOT_MATCH: "密码错误"
@@ -42,5 +43,8 @@ NODE_ALREADY_RUNNING_TASK: "其他节点数量操作正在执行, 请等待它�
 PARAM_EMPTY: "参数不足"
 NOT_SUPPORT: "不支持的类型"
 CHECK_FAILED: "校验失败！"
+
+#plan
+DELETE_FAILED_BY_PROJECT: "删除部署计划！该可用区已经关联项目"
 
 

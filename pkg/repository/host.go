@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	DeleteHostFailed = "DELETE_HOST_FAILED"
+	DeleteHostFailed          = "DELETE_HOST_FAILED"
+	DeleteHostFailedByProject = "DELETE_HOST_FAILED_BY_PROJECT"
 )
 
 type HostRepository interface {
@@ -182,6 +183,15 @@ func (h hostRepository) Batch(operation string, items []model.Host) error {
 	switch operation {
 	case constant.BatchOperationDelete:
 		for i := range items {
+
+			var PlanResources []model.ProjectResource
+			err := db.DB.Where(model.ProjectResource{ResourceId: items[i].ID}).Find(&PlanResources).Error
+			if err != nil {
+				return err
+			}
+			if len(PlanResources) > 0 {
+				return errors.New(DeleteHostFailedByProject)
+			}
 			var host model.Host
 			if err := db.DB.Where(model.Host{Name: items[i].Name}).First(&host).Error; err != nil {
 				tx.Rollback()

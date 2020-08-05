@@ -23,3 +23,8 @@ func (b *BackupAccount) BeforeCreate() (err error) {
 func (b BackupAccount) TableName() string {
 	return "ko_backup_account"
 }
+
+func (b *BackupAccount) BeforeDelete() (err error) {
+
+	return err
+}
