@@ -1,0 +1,1 @@
+DELETE FROM ko_volume WHERE id !='';

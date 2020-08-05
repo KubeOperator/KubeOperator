@@ -41,4 +41,6 @@ NODE_ALREADY_RUNNING_TASK: "其他节点数量操作正在执行, 请等待它�
 #backupAccount
 PARAM_EMPTY: "参数不足"
 NOT_SUPPORT: "不支持的类型"
+CHECK_FAILED: "校验失败！"
+
 

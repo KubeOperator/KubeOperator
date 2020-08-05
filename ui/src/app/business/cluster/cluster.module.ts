@@ -54,6 +54,9 @@ import { WebkubectlComponent } from './cluster-detail/overview/webkubectl/webkub
 import { LogComponent } from './cluster-detail/log/log.component';
 import { LogListComponent } from './cluster-detail/log/log-list/log-list.component';
 import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.component';
+import { StorageProvisionerCreateExternalCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
+import { StorageProvisionerCreateRookCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
+import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
 
 
 @NgModule({
@@ -89,7 +92,10 @@ import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.c
         WebkubectlComponent,
         LogComponent,
         LogListComponent,
-        LogDetailComponent],
+        LogDetailComponent,
+        StorageProvisionerCreateExternalCephComponent,
+        StorageProvisionerCreateRookCephComponent,
+        StorageProvisionerCreateVsphereComponent],
     imports: [
         CoreModule,
         RouterModule,

@@ -273,5 +273,14 @@
   "APP_BACKUP": "备份",
   "APP_ARCHITECTURES": "架构",
   "local": "本地",
-  "APP_DISABLE": "禁用"
+  "APP_DISABLE": "禁用",
+  "APP_ADD_BACKUP_ACCOUNT":"添加备份账号",
+  "APP_BACKUP_ACCOUNT_NAME": "账号名称",
+  "APP_BACKUP_ACCOUNT_KEY" : "账户密钥",
+  "APP_ENDPOINT" : "端点",
+  "APP_BUCKET" : "桶",
+  "APP_GET_BUCKET" : "获取桶",
+  "APP_EXAMPLE": "例如",
+  "APP_DELETE_BACKUP_ACCOUNT":"删除备份账号"
+
 }

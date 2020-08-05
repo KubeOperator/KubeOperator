@@ -7,21 +7,19 @@ type BackupAccount struct {
 	CredentialVars interface{} `json:"credentialVars"`
 }
 
-type BackupAccountCreate struct {
-	Name           string      `json:"name" validate:"required"`
-	CredentialVars interface{} `json:"credentialVars" validate:"required"`
-	Region         string      `json:"region" validate:"required"`
-	Type           string      `json:"type" validate:"required"`
-}
-
 type BackupAccountOp struct {
 	Operation string          `json:"operation" validate:"required"`
 	Items     []BackupAccount `json:"items" validate:"required"`
 }
 
-type BackupAccountUpdate struct {
+type BackupAccountRequest struct {
 	Name           string      `json:"name" validate:"required"`
 	CredentialVars interface{} `json:"credentialVars" validate:"required"`
-	Region         string      `json:"region" validate:"required"`
+	Bucket         string      `json:"bucket" validate:"required"`
+	Type           string      `json:"type" validate:"required"`
+}
+
+type CloudStorageRequest struct {
+	CredentialVars interface{} `json:"credentialVars" validate:"required"`
 	Type           string      `json:"type" validate:"required"`
 }

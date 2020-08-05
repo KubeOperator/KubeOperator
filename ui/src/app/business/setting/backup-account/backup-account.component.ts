@@ -35,4 +35,7 @@ export class BackupAccountComponent implements OnInit {
         this.list.refresh();
     }
 
+    onCreate() {
+        this.create.open();
+    }
 }

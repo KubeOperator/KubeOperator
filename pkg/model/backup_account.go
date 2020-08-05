@@ -9,7 +9,7 @@ type BackupAccount struct {
 	common.BaseModel
 	ID         string `json:"_"`
 	Name       string `json:"name" gorm:"type:varchar(256)"`
-	Region     string `json:"region" gorm:"type:varchar(256)"`
+	Bucket     string `json:"bucket" gorm:"type:varchar(256)"`
 	Credential string `json:"credential" gorm:"type:text(65535)"`
 	Type       string `json:"type" gorm:"type:varchar(64)"`
 	Status     string `json:"status" gorm:"type:varchar(64)"`

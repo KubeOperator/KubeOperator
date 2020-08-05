@@ -1,9 +1,19 @@
-import {BaseModel} from '../../../shared/class/BaseModel';
+import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 
 export class BackupAccount extends BaseModel {
     name: string;
-    region: string;
+    bucket: string;
     credentialVars: {} = {};
     status: string;
     type: string;
 }
+
+export class BackupAccountCreateRequest extends BaseRequest{
+    name: string;
+    bucket: string;
+    type: string;
+    credentialVars: {} = {};
+}
+
+
+
