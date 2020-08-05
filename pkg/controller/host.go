@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -15,13 +16,15 @@ var (
 )
 
 type HostController struct {
-	Ctx         context.Context
-	HostService service.HostService
+	Ctx                  context.Context
+	HostService          service.HostService
+	SystemSettingService service.SystemSettingService
 }
 
 func NewHostController() *HostController {
 	return &HostController{
-		HostService: service.NewHostService(),
+		HostService:          service.NewHostService(),
+		SystemSettingService: service.NewSystemSettingService(),
 	}
 }
 
@@ -59,6 +62,14 @@ func (h HostController) Post() (*dto.Host, error) {
 	err = validate.Struct(req)
 	if err != nil {
 		return nil, err
+	}
+
+	localIp, err := h.SystemSettingService.Get("ip")
+	if err != nil {
+		return nil, err
+	}
+	if localIp.Value == req.Ip {
+		return nil, errors.New(fmt.Sprintf("%s is localIp, can not imported", localIp))
 	}
 	item, _ := h.HostService.Get(req.Name)
 	if item.ID != "" {
