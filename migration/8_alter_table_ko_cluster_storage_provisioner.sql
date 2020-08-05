@@ -1,0 +1,2 @@
+CREATE UNIQUE index ko_cluster_storage_provisioner_name_cluster_id_uindex
+	ON ko_cluster_storage_provisioner (name, cluster_id);
