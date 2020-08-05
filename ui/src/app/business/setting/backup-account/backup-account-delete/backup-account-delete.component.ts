@@ -1,7 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
 import {BackupAccount} from '../backup-account';
 import {BackupAccountService} from '../backup-account.service';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
+import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-backup-account-delete',
@@ -9,10 +13,13 @@ import {BackupAccountService} from '../backup-account.service';
     styleUrls: ['./backup-account-delete.component.css']
 })
 export class BackupAccountDeleteComponent extends BaseModelComponent<BackupAccount> implements OnInit {
+
     opened = false;
     items: BackupAccount[] = [];
+    @Output() deleted = new EventEmitter();
 
-    constructor(private backupAccountService: BackupAccountService) {
+    constructor(private backupAccountService: BackupAccountService, private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
         super(backupAccountService);
     }
 
@@ -30,6 +37,13 @@ export class BackupAccountDeleteComponent extends BaseModelComponent<BackupAccou
     }
 
     onSubmit() {
-
+        this.service.batch('delete', this.items).subscribe(data => {
+            this.deleted.emit();
+            this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            console.log(error.error.msg);
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
     }
 }

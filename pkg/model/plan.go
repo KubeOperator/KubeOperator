@@ -1,8 +1,14 @@
 package model
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	DeleteFailedByProject = "DELETE_FAILED_BY_PROJECT"
 )
 
 type Plan struct {
@@ -23,4 +29,16 @@ func (p *Plan) BeforeCreate() (err error) {
 
 func (p Plan) TableName() string {
 	return "ko_plan"
+}
+
+func (p *Plan) BeforeDelete() (err error) {
+	var PlanResources []ProjectResource
+	err = db.DB.Where(ProjectResource{ResourceId: p.ID}).Find(&PlanResources).Error
+	if err != nil {
+		return err
+	}
+	if len(PlanResources) > 0 {
+		return errors.New(DeleteFailedByProject)
+	}
+	return err
 }
