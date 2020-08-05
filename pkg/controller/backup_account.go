@@ -72,6 +72,20 @@ func (b BackupAccountController) PostBatch() error {
 	return err
 }
 
+func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error) {
+	var req dto.BackupAccountRequest
+	err := b.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return b.BackupAccountService.Update(req)
+}
+
 func (b BackupAccountController) PostBuckets() ([]interface{}, error) {
 	var req dto.CloudStorageRequest
 	err := b.Ctx.ReadJSON(&req)

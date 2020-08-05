@@ -8,7 +8,14 @@ export class BackupAccount extends BaseModel {
     type: string;
 }
 
-export class BackupAccountCreateRequest extends BaseRequest{
+export class BackupAccountCreateRequest extends BaseRequest {
+    name: string;
+    bucket: string;
+    type: string;
+    credentialVars: {} = {};
+}
+
+export class BackupAccountUpdateRequest extends BaseRequest {
     name: string;
     bucket: string;
     type: string;
