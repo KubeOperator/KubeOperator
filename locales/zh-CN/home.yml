@@ -37,3 +37,8 @@ PROJECT_HAS_CLUSTER: "项目关联集群！不能删除！"
 
 #node
 NODE_ALREADY_RUNNING_TASK: "其他节点数量操作正在执行, 请等待它们执行完毕."
+
+#backupAccount
+PARAM_EMPTY: "参数不足"
+NOT_SUPPORT: "不支持的类型"
+

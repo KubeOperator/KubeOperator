@@ -37,8 +37,11 @@ PROJECT_HAS_CLUSTER: "Project associated cluster! Cannot be deleted!"
 
 
 #node
-
 NODE_ALREADY_RUNNING_TASK: "Add node or delete node already running,please wait it done."
+
+#backupAccount
+PARAM_EMPTY: "Insufficient parameters"
+NOT_SUPPORT: "Unsupported type"
 
 
 
