@@ -6,6 +6,8 @@ import {CommonAlertService} from '../../../layout/common-alert/common-alert.serv
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
+import {SystemService} from "../../setting/system.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
     selector: 'app-cluster-list',
@@ -17,7 +19,9 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     constructor(private clusterService: ClusterService,
                 private commonAlert: CommonAlertService,
                 private router: Router,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private settingService: SystemService,
+                private translateService: TranslateService) {
         super(clusterService);
     }
 
@@ -63,6 +67,16 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
 
     onStatusDetail(name: string) {
         this.statusDetailEvent.emit(name);
+    }
+
+    onCreate() {
+        this.settingService.singleGet().subscribe(data => {
+            if (!data.vars['ip']) {
+                this.commonAlert.showAlert(this.translateService.instant('APP_NOT_SET_SYSTEM_IP'), AlertLevels.ERROR);
+                return;
+            }
+            super.onCreate();
+        });
     }
 
     polling() {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -315,7 +316,7 @@ func (c clusterService) Batch(batch dto.ClusterBatch) error {
 				case constant.ClusterRunning:
 					go c.clusterTerminalService.Terminal(cluster.Cluster)
 				case constant.ClusterCreating, constant.ClusterInitializing:
-					return nil
+					return errors.New("CLUSTER_DELETE_FAILED")
 				case constant.ClusterFailed:
 					err = c.Delete(item.Name)
 					if err != nil {

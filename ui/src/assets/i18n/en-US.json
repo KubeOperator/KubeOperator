@@ -278,6 +278,7 @@
   "APP_BUCKET" : "Bucket",
   "APP_GET_BUCKET" : "Get Bucket",
   "APP_EXAMPLE": "Example",
-  "APP_DELETE_BACKUP_ACCOUNT":"Delete Backup Account"
-  "APP_ADD_STORAGE_PROVISIONER": "add storage provisioner"
+  "APP_DELETE_BACKUP_ACCOUNT":"Delete Backup Account",
+  "APP_ADD_STORAGE_PROVISIONER": "add storage provisioner",
+  "APP_NOT_SET_SYSTEM_IP": "please set system ip"
 }
