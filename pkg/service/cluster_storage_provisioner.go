@@ -70,16 +70,16 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 		Status: constant.ClusterWaiting,
 	}
 
-	//cluster, err := c.clusterService.Get(clusterName)
-	//if err != nil {
-	//	return dp, err
-	//}
-	err := c.provisionerRepo.Save(clusterName, &p)
+	cluster, err := c.clusterService.Get(clusterName)
+	if err != nil {
+		return dp, err
+	}
+	err = c.provisionerRepo.Save(clusterName, &p)
 	if err != nil {
 		return dp, err
 	}
 	//playbook
-	//go c.do(cluster.Cluster, p)
+	go c.do(cluster.Cluster, p)
 	dp.ClusterStorageProvisioner = p
 	_ = json.Unmarshal([]byte(p.Vars), &dp.Vars)
 	return dp, nil
@@ -127,7 +127,7 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 		}
 	case "external-ceph":
 		p = &storage.ExternalCephStoragePhase{
-			ProvisionerName:           provisioner.Name,
+			ProvisionerName: provisioner.Name,
 		}
 	}
 	return p
