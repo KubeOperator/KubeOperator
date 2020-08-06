@@ -8,6 +8,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
 import {SystemService} from "../../setting/system.service";
 import {TranslateService} from "@ngx-translate/core";
+import {LicenseService} from "../../setting/license/license.service";
 
 @Component({
     selector: 'app-cluster-list',
@@ -21,7 +22,8 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
                 private router: Router,
                 private route: ActivatedRoute,
                 private settingService: SystemService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private licenseService: LicenseService) {
         super(clusterService);
     }
 
@@ -30,9 +32,17 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     timer;
     currentProject: Project;
     loading = false;
+    licenseValid = false;
 
 
     ngOnInit(): void {
+        this.licenseService.get().subscribe(data => {
+            if (data.status === 'valid') {
+                this.licenseValid = true;
+            }
+        }, error => {
+            this.licenseValid = false;
+        });
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
             this.polling();
@@ -113,4 +123,5 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
             this.loading = false;
         });
     }
+
 }

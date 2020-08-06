@@ -18,7 +18,6 @@ export class AppGlobalErrorHandler implements ErrorHandler {
                 this.appAlertService.showAlert(error.statusText, AlertLevels.ERROR);
                 this.router.navigateByUrl(CommonRoutes.LOGIN).then(r => console.log('logout success'));
                 break;
-            case 400:
             case 500:
                 this.commonAlertService.showAlert(error.statusText, AlertLevels.ERROR);
         }
