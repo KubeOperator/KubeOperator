@@ -436,7 +436,7 @@ func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Ho
 		}
 		var name string
 		for i := 1; i < len(ns)+len(hosts); i++ {
-			name = fmt.Sprintf("%s-%d", constant.NodeRoleNameWorker, i)
+			name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, i)
 			if _, ok := hash[name]; ok {
 				continue
 			}

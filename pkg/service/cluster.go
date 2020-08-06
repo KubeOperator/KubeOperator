@@ -211,10 +211,10 @@ func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) 
 		}
 		switch node.Role {
 		case constant.NodeRoleNameMaster:
-			node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameMaster, masterNo)
+			node.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
 			masterNo++
 		case constant.NodeRoleNameWorker:
-			node.Name = fmt.Sprintf("%s-%d", constant.NodeRoleNameWorker, workerNo)
+			node.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
 			workerNo++
 		}
 		host, err := c.hostRepo.Get(nc.HostName)

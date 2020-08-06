@@ -283,15 +283,17 @@
   "APP_GET_BUCKET": "获取桶",
   "APP_EXAMPLE": "例如",
   "APP_DELETE_BACKUP_ACCOUNT": "删除备份账号",
+  "APP_LICENSE": "许可",
   "APP_NOT_SET_SYSTEM_IP": "请先设置系统IP",
-  "APP_BACKUP_ACCOUNT": "备份账号",
   "APP_BACKUP_STRATEGY": "备份策略",
   "APP_BACKUP_CRON": "备份间隔(天)",
   "APP_BACKUP_SAVE_NUM": "保留份数",
   "APP_STATUS_ENABLE": "启用",
   "APP_STATUS_DISABLE": "禁用",
-  "APP_BACKUP_ACCOUNT_HELPER": "备份账号需要先授权到项目"
-
-
-
+  "APP_BACKUP_ACCOUNT_HELPER": "备份账号需要先授权到项目",
+  "APP_BACKUP_ACCOUNT": "备份账号",
+  "APP_CORPORATION": "公司",
+  "APP_COUNT": "数量",
+  "APP_EXPIRED": "过期时间",
+  "APP_EDITION": "版本"
 }
