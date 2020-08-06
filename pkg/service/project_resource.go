@@ -69,9 +69,18 @@ func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId 
 			}
 			page.Items = result
 			break
+		case constant.ResourceBackupAccount:
+			var result []model.BackupAccount
+			err = db.DB.Table(model.BackupAccount{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
+			if err != nil {
+				return page, err
+			}
+			page.Items = result
+			break
 		default:
 			return page, err
 		}
+
 		page.Total = total
 	}
 
@@ -93,6 +102,13 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 			break
 		case constant.ResourcePlan:
 			plan, err := NewPlanService().Get(item.ResourceName)
+			if err != nil {
+				return err
+			}
+			resourceId = plan.ID
+			break
+		case constant.ResourceBackupAccount:
+			plan, err := NewBackupAccountService().Get(item.ResourceName)
 			if err != nil {
 				return err
 			}
@@ -126,7 +142,7 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 	var result interface{}
 	var projectResources []model.ProjectResource
 	var resourceIds []string
-	if resourceType == constant.ResourcePlan {
+	if resourceType == constant.ResourcePlan || resourceType == constant.ResourceBackupAccount {
 		project, err := p.projectRepo.Get(projectName)
 		if err != nil {
 			return nil, err
@@ -164,6 +180,15 @@ func (p projectResourceService) GetResources(resourceType, projectName string) (
 		var result []model.Plan
 		resourceIds = append(resourceIds, "1")
 		err := db.DB.Model(model.Plan{}).Where("id not in (?)", resourceIds).Preload("Zones").Preload("Region").Find(&result).Error
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
+
+	case constant.ResourceBackupAccount:
+		var result []model.BackupAccount
+		resourceIds = append(resourceIds, "1")
+		err := db.DB.Model(model.BackupAccount{}).Where("id not in (?)", resourceIds).Find(&result).Error
 		if err != nil {
 			return nil, err
 		}
