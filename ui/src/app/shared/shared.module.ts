@@ -6,11 +6,13 @@ import {K8sPaginationComponent} from './common-component/k8s-pagination/k8s-pagi
 import {ZoneStatusPipe} from './pipe/zone-status.pipe';
 import {MenuAuthDirective} from './directive/menu-auth.directive';
 import {OperateAuthDirective} from './directive/operate-auth.directive';
-import { CommonStatusPipe } from './pipe/common-status.pipe';
+import {CommonStatusPipe} from './pipe/common-status.pipe';
+import {BackupAccountStatusPipe} from './pipe/backup-account-status.pipe';
 
 
 @NgModule({
-    declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, MenuAuthDirective, OperateAuthDirective, CommonStatusPipe
+    declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, MenuAuthDirective,
+        OperateAuthDirective, CommonStatusPipe, BackupAccountStatusPipe
     ],
     exports: [
         ModalAlertComponent,
@@ -18,7 +20,8 @@ import { CommonStatusPipe } from './pipe/common-status.pipe';
         ZoneStatusPipe,
         MenuAuthDirective,
         OperateAuthDirective,
-        CommonStatusPipe
+        CommonStatusPipe,
+        BackupAccountStatusPipe
     ],
     imports: [
         CommonModule,

@@ -22,7 +22,7 @@ export class CommonStatusPipe implements PipeTransform {
                     result = this.translateService.instant('APP_STATUS_INITIALING');
                     break;
                 case 'Creating':
-                    result = this.translateService.instant('APP_STATUS_INITIALING');
+                    result = this.translateService.instant('APP_STATUS_CREATING');
                     break;
                 case 'Failed':
                     result = '<clr-icon style="color: red" shape="times"></clr-icon>' + this.translateService.instant('APP_STATUS_FAILED');
