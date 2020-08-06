@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {Observable} from 'rxjs';
-import {Host, HostCreateRequest} from './host';
-import {Page} from "../../shared/class/Page";
+import {Host} from './host';
+import {Page} from '../../shared/class/Page';
 
 @Injectable({
     providedIn: 'root'

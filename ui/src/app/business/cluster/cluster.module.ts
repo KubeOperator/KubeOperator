@@ -57,6 +57,8 @@ import { LogDetailComponent } from './cluster-detail/log/log-detail/log-detail.c
 import { StorageProvisionerCreateExternalCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component';
 import { StorageProvisionerCreateRookCephComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component';
 import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
+import { BackupComponent } from './cluster-detail/backup/backup.component';
+import {BackupModule} from './cluster-detail/backup/backup.module';
 
 
 @NgModule({
@@ -95,12 +97,14 @@ import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/stora
         LogDetailComponent,
         StorageProvisionerCreateExternalCephComponent,
         StorageProvisionerCreateRookCephComponent,
-        StorageProvisionerCreateVsphereComponent],
+        StorageProvisionerCreateVsphereComponent,
+        BackupComponent],
     imports: [
         CoreModule,
         RouterModule,
         SharedModule,
         NgCircleProgressModule,
+        BackupModule,
     ]
 })
 export class ClusterModule {

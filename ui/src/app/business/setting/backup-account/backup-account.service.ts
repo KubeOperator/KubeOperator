@@ -20,4 +20,9 @@ export class BackupAccountService extends BaseModelService<BackupAccount> {
         const itemUrl = `${this.baseUrl}/buckets/`;
         return this.http.post<any>(itemUrl, item);
     }
+
+    listBy(projectName: string): Observable<Page<BackupAccount>> {
+        const itemUrl = `${this.baseUrl}/?projectName=${projectName}`;
+        return this.http.get<Page<BackupAccount>>(itemUrl);
+    }
 }
