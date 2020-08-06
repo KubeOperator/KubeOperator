@@ -207,6 +207,7 @@
   "EnsureInitNetwork": "Init Network",
   "EnsureInitMetricsServer": "Init Metrics Server",
   "EnsureInitIngressController": "Init Ingress",
+  "EnsureInitHelm": "Init Helm",
   "APP_NETWORK_CIDR_HELPER": "example 172.16.10.0/24",
   "APP_IP_START_HELPER": "example 172.16.10.10",
   "APP_IP_END_HELPER": "example 172.16.10.15",

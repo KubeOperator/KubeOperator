@@ -210,6 +210,7 @@
   "EnsureInitMetricsServer": "初始化监控组件",
   "EnsureInitNetwork": "初始化网络",
   "EnsureInitIngressController": "初始化服务暴露组件",
+  "EnsureInitHelm": "初始化Helm",
   "APP_NETWORK_CIDR_HELPER": "例如 172.16.10.0/24",
   "APP_IP_START_HELPER": "例如 172.16.10.10",
   "APP_IP_END_HELPER": "例如 172.16.10.15",
