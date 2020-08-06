@@ -6,10 +6,11 @@ import {CredentialModule} from './credential/credential.module';
 import { SystemComponent } from './system/system.component';
 import {BackupAccountModule} from './backup-account/backup-account.module';
 import { LicenseComponent } from './license/license.component';
+import { LicenseImportComponent } from './license/license-import/license-import.component';
 
 
 @NgModule({
-    declarations: [SettingComponent, SystemComponent, LicenseComponent],
+    declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent],
     imports: [
         RouterModule,
         CoreModule,

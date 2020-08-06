@@ -285,5 +285,9 @@
   "APP_DELETE_BACKUP_ACCOUNT": "删除备份账号",
   "APP_LICENSE": "许可",
   "APP_NOT_SET_SYSTEM_IP": "请先设置系统IP",
-  "APP_BACKUP_ACCOUNT": "备份账号"
+  "APP_BACKUP_ACCOUNT": "备份账号",
+  "APP_CORPORATION": "公司",
+  "APP_COUNT": "数量",
+  "APP_EXPIRED": "过期时间",
+  "APP_EDITION": "版本"
 }

@@ -32,6 +32,7 @@
     "jquery": "^3.5.1",
     "ng-circle-progress": "^1.5.1",
     "ngx-select2": "^0.3.0",
+    "ngx-uploader": "^10.0.0",
     "rxjs": "~6.5.4",
     "select2": "^4.0.13",
     "tslib": "^1.10.0",

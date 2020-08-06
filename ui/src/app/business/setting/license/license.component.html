@@ -1,3 +1,4 @@
+<app-license-import (imported)="refresh()"></app-license-import>
 <div class="clr-row">
     <div class="clr-col-12">
         <div class="card">
@@ -8,24 +9,20 @@
                             <table class="table table-vertical">
                                 <tbody>
                                 <tr>
-                                    <th>订阅ID</th>
-                                    <td>.table</td>
+                                    <th>{{"APP_CORPORATION"|translate}}</th>
+                                    <td>{{license.corporation}}</td>
                                 </tr>
                                 <tr>
-                                    <th>公司名称</th>
-                                    <td>.table</td>
+                                    <th>{{"APP_COUNT"|translate}}</th>
+                                    <td>{{license.count}}</td>
                                 </tr>
                                 <tr>
-                                    <th>授权数量</th>
-                                    <td>.table</td>
+                                    <th>{{"APP_EXPIRED"|translate}}</th>
+                                    <td>{{license.expired}}</td>
                                 </tr>
                                 <tr>
-                                    <th>过期时间</th>
-                                    <td>.table</td>
-                                </tr>
-                                <tr>
-                                    <th>版本</th>
-                                    <td>.table</td>
+                                    <th>{{"APP_EDITION"|translate}}</th>
+                                    <td>{{license.edition}}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -34,7 +31,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="button" class="btn btn-sm btn-secondary">
+                <button type="button" class="btn btn-sm btn-secondary" (click)="onImport()">
                     <clr-icon shape="import" size="16"></clr-icon>
                     {{"APP_IMPORT"|translate}}
                 </button>
