@@ -1,6 +1,7 @@
 package job
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -26,6 +27,9 @@ func (r *RefreshHostInfo) Run() {
 	sem := make(chan struct{}, 2) // 信号量
 	db.DB.Model(model.Host{}).Find(&hosts)
 	for _, host := range hosts {
+		if host.Status == constant.ClusterCreating{
+			continue
+		}
 		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
