@@ -130,6 +130,7 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 		_ = h.hostRepo.Save(&host)
 		return dto.Host{Host: host}, err
 	}
+	host.Status = constant.ClusterRunning
 	err = h.hostRepo.Save(&host)
 	if err != nil {
 		return dto.Host{Host: host}, err
