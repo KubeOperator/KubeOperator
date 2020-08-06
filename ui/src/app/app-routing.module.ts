@@ -36,6 +36,7 @@ import {ProjectResourceComponent} from './business/project/project-resource/proj
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
 import {LogComponent} from './business/cluster/cluster-detail/log/log.component';
 import {BackupAccountComponent} from './business/setting/backup-account/backup-account.component';
+import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -93,6 +94,7 @@ const routes: Routes = [
                         ]
                     },
                     {path: 'tool', component: ToolsComponent},
+                    {path: 'backup', component: BackupComponent},
                     {path: 'logs', component: LogComponent},
                 ],
             },
