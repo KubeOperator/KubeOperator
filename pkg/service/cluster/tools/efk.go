@@ -28,6 +28,10 @@ func (c EFK) setDefaultValue() {
 	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
 	values["elasticsearch.imageTag"] = ElasticSearchTag
 	values["elasticsearch.replicas"] = 1
+
+	if _, ok := values["elasticsearch.volumeClaimTemplate.resources.requests.storage"]; ok {
+		values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
+	}
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }

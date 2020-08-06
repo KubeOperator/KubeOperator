@@ -1,14 +1,19 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
-    <h3 class="modal-title">{{'APP_ENABLE'|translate}}</h3>
+    <h3 class="modal-title">{{'APP_ENABLE'|translate}}{{"APP_TOOLS"|translate}}</h3>
     <div class="modal-body modal-height">
         <form clrForm #itemForm='ngForm'>
             <div *ngIf="item.name === 'chartmuseum'">
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                         <input type="checkbox" clrToggle name="pv" [(ngModel)]="item.vars['persistence.enabled']"/>
-                        <label>开启存储</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
+                <clr-input-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}</label>
+                    <input type="number" size="34" clrInput name="size"
+                           [(ngModel)]="item.vars['persistence.size']"/>
+                </clr-input-container>
 
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
@@ -20,21 +25,21 @@
             </div>
             <div *ngIf="item.name === 'prometheus'">
                 <clr-input-container>
-                    <label>数据保留</label>
-                    <input clrInput name="retention"
+                    <label>{{"APP_DATA"|translate}}{{"APP_RETENTION"|translate}}({{"APP_DAY"|translate}})</label>
+                    <input clrInput name="retention" type="number"
                            [(ngModel)]="item.vars['server.retention']" size="34"/>
                 </clr-input-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
                                [(ngModel)]="item.vars['server.persistentVolume.enabled']"/>
-                        <label>开启存储</label>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-input-container *ngIf="item.vars['server.persistentVolume.enabled']">
-                    <label>容量</label>
+                    <label>{{"APP_SIZE"|translate}}</label>
                     <input clrInput name="size"
-                           [(ngModel)]="item.vars['server.persistentVolume.size']" size="34"/>
+                           [(ngModel)]="item.vars['server.persistentVolume.size']" type="number" size="34"/>
                 </clr-input-container>
                 <clr-select-container *ngIf="item.vars['server.persistentVolume.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
@@ -50,13 +55,14 @@
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
                                [(ngModel)]="item.vars['elasticsearch.persistence.enabled']"/>
-                        <label>开启存储</label>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-input-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
-                    <label>容量</label>
+                    <label>{{"APP_SIZE"|translate}}</label>
                     <input clrInput name="size"
                            [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.resources.requests.storage']"
+                           type="number"
                            size="34"/>
                 </clr-input-container>
                 <clr-select-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
@@ -75,9 +81,16 @@
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
                                [(ngModel)]="item.vars['persistence.enabled']"/>
-                        <label>开启存储</label>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
+
+                <clr-input-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}</label>
+                    <input type="number" size="34" clrInput name="size"
+                           [(ngModel)]="item.vars['persistence.size']"/>
+                </clr-input-container>
+
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc"
@@ -94,7 +107,7 @@
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
                                [(ngModel)]="item.vars['postgresql.persistence.enabled']"/>
-                        <label>开启存储</label>
+                        <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-select-container *ngIf="item.vars['postgresql.persistence.enabled']">
@@ -107,9 +120,9 @@
                     </select>
                 </clr-select-container>
                 <clr-input-container *ngIf="item.vars['postgresql.persistence.enabled']">
-                    <label>容量</label>
+                    <label>{{"APP_SIZE"|translate}}</label>
                     <input clrInput name="size"
-                           [(ngModel)]="item.vars['postgresql.persistence.size']" size="34"/>
+                           [(ngModel)]="item.vars['postgresql.persistence.size']" type="number" size="34"/>
                 </clr-input-container>
             </div>
 

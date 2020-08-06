@@ -53,6 +53,12 @@ func (p Prometheus) setDefaultValue() {
 	case "arm64":
 		values["kube-state-metrics.image.repository"] = fmt.Sprintf("%s:%d/%s", p.LocalhostName, constant.LocalDockerRepositoryPort, KubeStateMetricsImageArm64Name)
 	}
+	if _, ok := values["server.retention"]; ok {
+		values["server.retention"] = fmt.Sprintf("%vd", values["server.retention"])
+	}
+	if _, ok := values["server.persistentVolume.size"]; ok {
+		values["server.persistentVolume.size"] = fmt.Sprintf("%vGi", values["server.persistentVolume.size"])
+	}
 	str, _ := json.Marshal(&values)
 	p.Tool.Vars = string(str)
 }

@@ -292,5 +292,10 @@
   "APP_CORPORATION": "Corporation",
   "APP_COUNT": "count",
   "APP_EXPIRED": "expired",
-  "APP_EDITION": "edition"
+  "APP_EDITION": "edition",
+  "APP_TOOLS": "Tools",
+  "APP_DATA": "Data",
+  "APP_RETENTION": "Retention",
+  "APP_DAY": "Day",
+  "APP_SIZE": "Size"
 }

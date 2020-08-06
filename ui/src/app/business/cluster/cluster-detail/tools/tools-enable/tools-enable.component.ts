@@ -62,9 +62,9 @@ export class ToolsEnableComponent implements OnInit {
         switch (item.name) {
             case 'prometheus':
                 item.vars = {
-                    'server.retention': '10d',
+                    'server.retention': 10,
                     'server.persistentVolume.enabled': false,
-                    'server.persistentVolume.size': '10Gi',
+                    'server.persistentVolume.size': 10,
                     'server.persistentVolume.storageClass': '',
                 };
                 break;
@@ -73,6 +73,7 @@ export class ToolsEnableComponent implements OnInit {
                     'persistence.enabled': false,
                     'env.open.DISABLE_API': false,
                     'persistence.storageClass': '',
+                    'persistence.size': 10,
                 };
                 break;
             case 'registry':
@@ -80,13 +81,21 @@ export class ToolsEnableComponent implements OnInit {
                     'persistence.enabled': false,
                     'persistence.storageClass': '',
                     'service.type': 'NodePort',
+                    'persistence.size': 10,
                 };
                 break;
             case 'efk':
                 item.vars = {
                     'elasticsearch.persistence.enabled': false,
-                    'elasticsearch.volumeClaimTemplate.resources.requests.storage': '10Gi',
+                    'elasticsearch.volumeClaimTemplate.resources.requests.storage': 10,
                     'elasticsearch.volumeClaimTemplate.storageClassName': '',
+                };
+                break;
+            case 'kubeapps':
+                item.vars = {
+                    'postgresql.persistence.enabled': false,
+                    'postgresql.persistence.size': 10,
+                    'global.storageClass': ''
                 };
                 break;
             case 'dashboard':

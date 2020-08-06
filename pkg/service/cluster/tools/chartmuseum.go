@@ -33,6 +33,10 @@ func (c Chartmuseum) setDefaultValue() {
 	values["env.open.DISABLE_API"] = false
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, ChartmuseumImageName)
 	values["image.tag"] = ChartmuseumTag
+	if _, ok := values["persistence.size"]; ok {
+		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
+	}
+
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }

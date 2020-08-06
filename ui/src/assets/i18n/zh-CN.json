@@ -295,5 +295,10 @@
   "APP_CORPORATION": "公司",
   "APP_COUNT": "数量",
   "APP_EXPIRED": "过期时间",
-  "APP_EDITION": "版本"
+  "APP_EDITION": "版本",
+  "APP_TOOLS": "工具",
+  "APP_DATA": "数据",
+  "APP_RETENTION": "保留",
+  "APP_DAY": "天",
+  "APP_SIZE": "大小"
 }

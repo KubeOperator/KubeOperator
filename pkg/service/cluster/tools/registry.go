@@ -32,6 +32,11 @@ func (c Registry) setDefaultValue() {
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, RegistryImageName)
 	values["image.tag"] = RegistryTag
+
+	if _, ok := values["persistence.size"]; ok {
+		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
+	}
+
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }
