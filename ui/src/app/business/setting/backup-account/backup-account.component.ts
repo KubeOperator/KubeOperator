@@ -42,4 +42,8 @@ export class BackupAccountComponent implements OnInit {
     onDelete(items) {
         this.delete.open(items);
     }
+
+    onUpdate(item) {
+        this.update.open(item);
+    }
 }

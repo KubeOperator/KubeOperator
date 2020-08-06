@@ -16,13 +16,13 @@
                     <label>{{resource.data['name']}}</label>
                 </clr-checkbox-wrapper>
             </clr-checkbox-container>
-            <!--            <clr-checkbox-container *ngIf="resourceType==='BACKUP_STORAGE'">-->
-            <!--                <label>备份账号</label>-->
-            <!--                <clr-checkbox-wrapper *ngFor="let resource of resources">-->
-            <!--                    <input type="checkbox" clrCheckbox name="backup_storage" [(ngModel)]="resource.checked"/>-->
-            <!--                    <label>{{resource.data.name}}</label>-->
-            <!--                </clr-checkbox-wrapper>-->
-            <!--            </clr-checkbox-container>-->
+            <clr-checkbox-container *ngIf="resourceType==='BACKUP_ACCOUNT'">
+                <label>{{'APP_BACKUP_ACCOUNT'|translate}}</label>
+                <clr-checkbox-wrapper *ngFor="let resource of resources">
+                    <input type="checkbox" clrCheckbox name="backup_account" [(ngModel)]="resource.checked"/>
+                    <label>{{resource.data['name']}}</label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
         </form>
         <app-modal-alert></app-modal-alert>
     </div>

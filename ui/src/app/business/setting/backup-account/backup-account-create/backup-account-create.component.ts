@@ -46,7 +46,7 @@ export class BackupAccountCreateComponent extends BaseModelComponent<BackupAccou
         this.backupAccountService.listBuckets(this.item).subscribe(res => {
             this.buckets = res;
         }, error => {
-
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 
