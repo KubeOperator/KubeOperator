@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
@@ -53,18 +52,6 @@ func (c clusterTerminalService) Terminal(cluster model.Cluster) {
 	if err != nil {
 		log.Error(err)
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		var hosts []model.Host
-		db.DB.Where(model.Host{ClusterID: cluster.ID}).Find(&hosts)
-		for _, host := range hosts {
-			if host.ID != "" {
-				db.DB.Delete(&host)
-			}
-			var projectResource model.ProjectResource
-			db.DB.Where(model.ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Delete(&projectResource)
-		}
-	}
-
 }
 
 const terminalPlaybookName = "99-reset-cluster.yml"

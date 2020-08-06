@@ -106,9 +106,6 @@ func (c clusterRepository) Delete(name string) error {
 	if err := db.DB.Where(model.Cluster{Name: name}).First(&cluster).Error; err != nil {
 		return err
 	}
-	if err := db.DB.Delete(&cluster).Error; err != nil {
-		return err
-	}
 	var prometheus model.ClusterTool
 	err := db.DB.Where(model.ClusterTool{Name: "prometheus", ClusterID: cluster.ID}).First(&prometheus).Error
 	if err != nil {
@@ -124,5 +121,9 @@ func (c clusterRepository) Delete(name string) error {
 			log.Error(err)
 		}
 	}
+	if err := db.DB.Delete(&cluster).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

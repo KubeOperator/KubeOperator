@@ -119,10 +119,24 @@ func (c Cluster) BeforeDelete() error {
 					tx.Rollback()
 					return err
 				}
-				host.ClusterID = ""
-				if err := tx.Save(&host).Error; err != nil {
-					tx.Rollback()
-					return err
+				if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+					host.ClusterID = ""
+					if err := tx.Save(&host).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+				}
+				if cluster.Spec.Provider == constant.ClusterProviderPlan {
+					if err := tx.Delete(&host).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+					var projectResource ProjectResource
+					if err := tx.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Delete(&projectResource).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+
 				}
 			}
 		}
