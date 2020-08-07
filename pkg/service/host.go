@@ -190,7 +190,7 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 }
 
 func (h hostService) GetHostConfig(host *model.Host) error {
-	password, _, err := host.GetHostPasswordAndPrivateKey()
+	password, privateKey, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
 	}
@@ -198,12 +198,13 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		Inventory: api.Inventory{
 			Hosts: []*api.Host{
 				{
-					Ip:       host.Ip,
-					Name:     host.Name,
-					Port:     int32(host.Port),
-					User:     host.Credential.Username,
-					Password: password,
-					Vars:     map[string]string{},
+					Ip:         host.Ip,
+					Name:       host.Name,
+					Port:       int32(host.Port),
+					User:       host.Credential.Username,
+					Password:   password,
+					PrivateKey: string(privateKey),
+					Vars:       map[string]string{},
 				},
 			},
 			Groups: []*api.Group{
