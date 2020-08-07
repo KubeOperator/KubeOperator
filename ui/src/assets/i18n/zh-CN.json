@@ -303,5 +303,12 @@
   "APP_DAY": "天",
   "APP_SIZE": "大小",
   "APP_GO": "转到",
-  "APP_TOOL_WARNING": "禁用此工具会导致数据丢失,是否继续?"
+  "APP_TOOL_WARNING": "禁用此工具会导致数据丢失,是否继续?",
+  "APP_BACKUP_FILE_LIST": "备份列表",
+  "APP_BACKUP_FILE_FOLDER": "备份位置",
+  "APP_BACKUP_FILE": "备份文件",
+  "APP_BACKUP_START_SUCCESS": "已经开始备份！请稍后查看集群历史",
+  "APP_RESTORE_START_SUCCESS": "已经开始恢复！请稍后查看集群历史",
+  "CLUSTER_BACKUP": "集群备份",
+  "CLUSTER_RESTORE": "集群恢复"
 }

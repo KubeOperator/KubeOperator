@@ -80,7 +80,7 @@ func (c clusterIaasService) Init(name string) error {
 	}
 	for _, host := range hosts {
 		projectResources = append(projectResources, model.ProjectResource{
-			ProjectID:    prs[0].ID,
+			ProjectID:    prs[0].ProjectID,
 			ResourceId:   host.ID,
 			ResourceType: constant.ResourceHost,
 		})

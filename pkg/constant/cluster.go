@@ -12,6 +12,8 @@ const (
 
 	ClusterLogTypeAddNode    = "ADD_NODE"
 	ClusterLogTypeDeleteNode = "DELETE_NODE"
+	ClusterLogTypeBackup     = "CLUSTER_BACKUP"
+	ClusterLogTypeRestore    = "CLUSTER_RESTORE"
 
 	ClusterLogStatusSuccess = "SUCCESS"
 	ClusterLogStatusFailed  = "FAILED"

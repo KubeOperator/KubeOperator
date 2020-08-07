@@ -1,8 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BackupFile, BackupStrategy} from './cluster-backup';
+import {BackupStrategy} from './cluster-backup';
 import {Observable} from 'rxjs';
-import {Page} from '../../../../shared/class/Page';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +9,6 @@ import {Page} from '../../../../shared/class/Page';
 export class BackupService {
 
     baseUrl = '/api/v1/cluster/backup';
-    fileUrl = '/api/v1/cluster/backup/file';
 
     constructor(private http: HttpClient) {
     }
@@ -21,12 +19,7 @@ export class BackupService {
     }
 
     submit(item: BackupStrategy): Observable<any> {
-        const itemUrl = `${this.baseUrl}/strategy/${item.clusterName}/`;
+        const itemUrl = `${this.baseUrl}/strategy/`;
         return this.http.post<any>(itemUrl, item);
-    }
-
-    pageBy(page, size, clusterName: string): Observable<Page<BackupFile>> {
-        const itemUrl = `${this.baseUrl}/file/${clusterName}/?pageNum=${page}&pageSize=${size}`;
-        return this.http.get<Page<BackupFile>>(itemUrl);
     }
 }

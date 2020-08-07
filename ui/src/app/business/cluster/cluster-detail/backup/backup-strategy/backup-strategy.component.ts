@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BackupStrategy} from '../cluster-backup';
+import {BackupFile, BackupStrategy} from '../cluster-backup';
 import {BackupAccountService} from '../../../../setting/backup-account/backup-account.service';
 import {BackupAccount} from '../../../../setting/backup-account/backup-account';
 import {ActivatedRoute} from '@angular/router';
@@ -8,6 +8,7 @@ import {BackupService} from '../backup.service';
 import {CommonAlertService} from '../../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../../layout/common-alert/alert';
+import {BackupFileService} from '../backup-file.service';
 
 @Component({
     selector: 'app-backup-strategy',
@@ -24,7 +25,8 @@ export class BackupStrategyComponent implements OnInit {
                 private route: ActivatedRoute,
                 private backupService: BackupService,
                 private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private backupFileService: BackupFileService) {
 
     }
 
@@ -44,6 +46,17 @@ export class BackupStrategyComponent implements OnInit {
     onSubmit() {
         this.backupService.submit(this.backupStrategy).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
+    onBackup() {
+        const backupFile = new BackupFile();
+        backupFile.clusterBackupStrategyID = this.backupStrategy.id;
+        backupFile.clusterName = this.currentCluster.name;
+        this.backupFileService.backup(backupFile).subscribe(res => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_BACKUP_START_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

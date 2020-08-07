@@ -24,3 +24,16 @@ func (c ClusterBackupStrategyController) GetStrategyBy(clusterName string) (*dto
 	}
 	return cb, nil
 }
+
+func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrategy, error) {
+	var req dto.ClusterBackupStrategyRequest
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	cb, err := c.CLusterBackupStrategyService.Save(req)
+	if err != nil {
+		return nil, err
+	}
+	return cb, nil
+}

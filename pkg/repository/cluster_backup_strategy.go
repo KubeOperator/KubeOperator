@@ -7,7 +7,7 @@ import (
 )
 
 type ClusterBackupStrategyRepository interface {
-	Get(projectName string) (*model.ClusterBackupStrategy, error)
+	Get(clusterName string) (*model.ClusterBackupStrategy, error)
 	Save(clusterBackupStrategy *model.ClusterBackupStrategy) error
 }
 
