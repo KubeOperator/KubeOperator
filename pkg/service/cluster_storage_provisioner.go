@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -100,30 +101,30 @@ func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner 
 }
 
 func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
-	vars := map[string]string{}
+	vars := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(provisioner.Vars), &vars)
 	var p phases.Interface
 	switch provisioner.Type {
 	case "nfs":
 		p = &storage.NfsStoragePhase{
-			NfsServer:        vars["storage_nfs_server"],
-			NfsServerPath:    vars["storage_nfs_server_path"],
-			NfsServerVersion: vars["storage_nfs_server_version"],
+			NfsServer:        fmt.Sprintf("%v", vars["storage_nfs_server"]),
+			NfsServerPath:    fmt.Sprintf("%v", vars["storage_nfs_server_path"]),
+			NfsServerVersion: fmt.Sprintf("%v", vars["storage_nfs_server_version"]),
 			ProvisionerName:  provisioner.Name,
 		}
 	case "rook-ceph":
 		p = &storage.RookCephStoragePhase{
-			StorageRookPath: vars["storage_rook_path"],
+			StorageRookPath: fmt.Sprintf("%v", vars["storage_rook_path"]),
 		}
 	case "vsphere":
 		p = &storage.VsphereStoragePhase{
-			VcUsername: vars["vc_username"],
-			VcPassword: vars["vc_password"],
-			VcHost:     vars["vc_host"],
-			VcPort:     vars["vc_port"],
-			Datacenter: vars["datacenter"],
-			Datastore:  vars["datastore"],
-			Folder:     vars["folder"],
+			VcUsername: fmt.Sprintf("%v", vars["vc_username"]),
+			VcPassword: fmt.Sprintf("%v", vars["vc_password"]),
+			VcHost:     fmt.Sprintf("%v", vars["vc_host"]),
+			VcPort:     fmt.Sprintf("%v", vars["vc_port"]),
+			Datacenter: fmt.Sprintf("%v", vars["datacenter"]),
+			Datastore:  fmt.Sprintf("%v", vars["datastore"]),
+			Folder:     fmt.Sprintf("%v", vars["folder"]),
 		}
 	case "external-ceph":
 		p = &storage.ExternalCephStoragePhase{

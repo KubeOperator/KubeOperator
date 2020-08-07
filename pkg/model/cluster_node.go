@@ -25,22 +25,24 @@ func (n *ClusterNode) BeforeCreate() (err error) {
 }
 
 func (n ClusterNode) ToKobeHost() *api.Host {
-	password, _, _ := n.Host.GetHostPasswordAndPrivateKey()
+	password, privateKey, _ := n.Host.GetHostPasswordAndPrivateKey()
 	return &api.Host{
-		Ip:       n.Host.Ip,
-		Name:     n.Name,
-		Port:     int32(n.Host.Port),
-		User:     n.Host.Credential.Username,
-		Password: password,
+		Ip:         n.Host.Ip,
+		Name:       n.Name,
+		Port:       int32(n.Host.Port),
+		User:       n.Host.Credential.Username,
+		Password:   password,
+		PrivateKey: string(privateKey),
 	}
 }
 
 func (n ClusterNode) ToSSHConfig() ssh.Config {
-	password, _, _ := n.Host.GetHostPasswordAndPrivateKey()
+	password, privateKey, _ := n.Host.GetHostPasswordAndPrivateKey()
 	return ssh.Config{
 		User:        n.Host.Credential.Username,
 		Host:        n.Host.Ip,
 		Port:        n.Host.Port,
+		PrivateKey:  privateKey,
 		Password:    password,
 		DialTimeOut: 5 * time.Second,
 		Retry:       3,

@@ -30,7 +30,12 @@ func (k Kubeapps) setDefaultValue() {
 	values["apprepository.initialRepos[0].url"] = fmt.Sprintf("http://%s:%d/repository/kubeapps", k.LocalhostName, constant.LocalHelmRepositoryPort)
 	values["useHelm3"] = true
 	values["postgresql.enabled"] = true
-	values["postgresql.persistence.size"] = fmt.Sprintf("%v", values["postgresql.persistence.size"])
+	values["postgresql.image.repository"] = "postgres"
+	values["postgresql.image.tag"] = "11-alpine"
+	if _, ok := values["postgresql.persistence.size"]; ok {
+		values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
+	}
+
 	str, _ := json.Marshal(&values)
 	k.Tool.Vars = string(str)
 }

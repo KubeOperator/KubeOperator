@@ -12,7 +12,8 @@
         <form clrForm #basicForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" pattern="^[a-zA-Z][a-zA-Z0-9_]*$" required/>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" pattern="^[a-zA-Z][a-zA-Z0-9_]*$"
+                       required/>
             </clr-input-container>
 
             <clr-select-container>
@@ -164,9 +165,9 @@
         </form>
     </clr-wizard-page>
 
-    <clr-wizard-page *ngIf="item.provider === 'plan'">
+    <clr-wizard-page *ngIf="item.provider === 'plan'" [clrWizardPageNextDisabled]="planForm.invalid">
         <ng-template clrPageTitle>{{"APP_DEPLOY_PLAN"|translate}}</ng-template>
-        <form clrForm>
+        <form #planForm='ngForm' clrForm>
             <clr-select-container>
                 <label>{{"APP_DEPLOY_PLAN"|translate}}</label>
                 <select clrSelect name="plan" [(ngModel)]="item.plan" required>
