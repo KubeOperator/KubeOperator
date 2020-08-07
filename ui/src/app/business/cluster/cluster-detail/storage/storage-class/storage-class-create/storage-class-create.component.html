@@ -62,7 +62,7 @@
             <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='external-ceph'">
                 <tbody>
                 <tr>
-                    <th>provisioner</th>
+                    <th>Provisioner</th>
                     <td>
                         <input [size]="34" class="clr-input" name="provisioner_name" [(ngModel)]="item.provisioner"
                                disabled>
@@ -93,7 +93,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Admin Secret</th>
+                    <th>Admin Secret Name</th>
                     <td>
                         <input [size]="34" class="clr-input" name="admin_secret" placeholder="eg: secret"
                                [(ngModel)]="item.parameters['adminSecretName']"
@@ -117,7 +117,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>user_secret</th>
+                    <th>User Secret Name</th>
                     <td>
                         <input [size]="34" class="clr-input" name="user_secret" placeholder="eg: secret"
                                [(ngModel)]="item.parameters['userSecretName']"
