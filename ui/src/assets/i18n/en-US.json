@@ -300,7 +300,9 @@
   "APP_DAY": "Day",
   "APP_SIZE": "Size",
   "APP_BACKUP_FILE_LIST": "Backup Files",
-  "APP_BACKUP_FILE_FOLDER": "Backup File Folder"
+  "APP_BACKUP_FILE_FOLDER": "Backup File Folder",
+  "APP_BACKUP_FILE": "Backup File"
+
 
 
 }
