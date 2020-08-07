@@ -41,12 +41,16 @@
             </span>
         </clr-dg-cell>
         <clr-dg-cell>
+
             <span *ngIf="item.status === 'Initializing' || item.status === 'Failed'">
                <a (click)="onStatusDetail(item.name)" href="javascript:void(0)">{{item.status}}</a>
             </span>
             <span *ngIf="item.status!=='Initializing' && item.status!=='Failed'">
                {{item.status}}
             </span>
+            <clr-spinner clrAssertive clrInline *ngIf="item.status === 'Initializing' || item.status === 'Terminating'">
+                Loading...
+            </clr-spinner>
         </clr-dg-cell>
 
 

@@ -127,6 +127,11 @@ func (c Cluster) BeforeDelete() error {
 					}
 				}
 				if cluster.Spec.Provider == constant.ClusterProviderPlan {
+					host.ClusterID = ""
+					if err := tx.Save(&host).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
 					if err := tx.Delete(&host).Error; err != nil {
 						tx.Rollback()
 						return err

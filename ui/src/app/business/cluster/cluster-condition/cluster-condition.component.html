@@ -1,4 +1,4 @@
-<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="xl">
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="xl" (close)="onCancel()">
     <h3 class="modal-title">{{"APP_STATUS_DETAIL"| translate}}</h3>
     <div class="modal-body">
         <span *ngIf="item.conditions&&item.conditions.length === 0">
@@ -23,7 +23,6 @@
         </ul>
     </div>
     <div class="modal-footer">
-        <button class="btn" (click)="onCancel()">{{"APP_CANCEL"|translate}}</button>
         <button *ngIf="item.phase ==='Failed'" class="btn btn-primary"
                 (click)="onInit()">{{"APP_RETRY"|translate}}</button>
     </div>

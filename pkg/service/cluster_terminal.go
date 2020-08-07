@@ -7,7 +7,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"sync"
 )
 
@@ -58,11 +57,11 @@ const terminalPlaybookName = "99-reset-cluster.yml"
 
 func doPlanTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	defer wg.Done()
-	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
-	_, err := k.Destroy()
-	if err != nil {
-		log.Error(err)
-	}
+	//k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	//_, err := k.Destroy()
+	//if err != nil {
+	//	log.Error(err)
+	//}
 }
 
 func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
