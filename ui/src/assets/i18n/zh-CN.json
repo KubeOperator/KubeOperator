@@ -301,5 +301,7 @@
   "APP_DATA": "数据",
   "APP_RETENTION": "保留",
   "APP_DAY": "天",
-  "APP_SIZE": "大小"
+  "APP_SIZE": "大小",
+  "APP_BACKUP_FILE_LIST": "备份列表",
+  "APP_BACKUP_FILE_FOLDER": "备份位置"
 }
