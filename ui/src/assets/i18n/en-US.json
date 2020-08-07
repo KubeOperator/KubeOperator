@@ -298,5 +298,7 @@
   "APP_DATA": "Data",
   "APP_RETENTION": "Retention",
   "APP_DAY": "Day",
-  "APP_SIZE": "Size"
+  "APP_SIZE": "Size",
+  "APP_GO": "go",
+  "APP_TOOL_WARNING": "Disabling this tool will result in data loss. Do you want to continue?"
 }

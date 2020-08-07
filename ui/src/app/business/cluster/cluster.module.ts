@@ -59,6 +59,7 @@ import { StorageProvisionerCreateRookCephComponent } from './cluster-detail/stor
 import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component';
 import { BackupComponent } from './cluster-detail/backup/backup.component';
 import {BackupModule} from './cluster-detail/backup/backup.module';
+import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tools-disable.component';
 
 
 @NgModule({
@@ -98,7 +99,8 @@ import {BackupModule} from './cluster-detail/backup/backup.module';
         StorageProvisionerCreateExternalCephComponent,
         StorageProvisionerCreateRookCephComponent,
         StorageProvisionerCreateVsphereComponent,
-        BackupComponent],
+        BackupComponent,
+        ToolsDisableComponent],
     imports: [
         CoreModule,
         RouterModule,

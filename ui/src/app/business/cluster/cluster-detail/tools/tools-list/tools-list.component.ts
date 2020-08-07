@@ -18,6 +18,7 @@ export class ToolsListComponent implements OnInit, OnDestroy {
     timer;
     @Input() currentCluster: Cluster;
     @Output() enableEvent = new EventEmitter<ClusterTool>();
+    @Output() disableEvent = new EventEmitter<ClusterTool>();
     @Output() failedEvent = new EventEmitter<ClusterTool>();
 
     ngOnInit(): void {
@@ -36,6 +37,10 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     onEnable(item: ClusterTool) {
         this.enableEvent.emit(item);
+    }
+
+    onDisable(item: ClusterTool) {
+        this.disableEvent.emit(item);
     }
 
     onFailed(item: ClusterTool) {

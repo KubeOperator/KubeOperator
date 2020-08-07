@@ -31,7 +31,10 @@
                         {{"APP_INITIALIZING" | translate}}
                     </span>
                     <button class="btn btn-sm" *ngIf="item.status==='Running' && item.frame" (click)="openFrame(item)">
-                        转到
+                        {{"APP_GO"|translate}}
+                    </button>
+                    <button class="btn btn-sm btn-danger" *ngIf="item.status==='Running'" (click)="onDisable(item)">
+                        {{"APP_DISABLE"|translate}}
                     </button>
                     <span *ngIf="item.status === 'Running' && !item.frame">
                         {{"APP_RUNNING" | translate}}

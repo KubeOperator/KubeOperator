@@ -301,5 +301,7 @@
   "APP_DATA": "数据",
   "APP_RETENTION": "保留",
   "APP_DAY": "天",
-  "APP_SIZE": "大小"
+  "APP_SIZE": "大小",
+  "APP_GO": "转到",
+  "APP_TOOL_WARNING": "禁用此工具会导致数据丢失,是否继续?"
 }

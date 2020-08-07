@@ -6,6 +6,7 @@ import {Cluster} from "../../cluster";
 import {ToolsListComponent} from "./tools-list/tools-list.component";
 import {ToolsEnableComponent} from "./tools-enable/tools-enable.component";
 import {ToolsFailedComponent} from "./tools-failed/tools-failed.component";
+import {ToolsDisableComponent} from "./tools-disable/tools-disable.component";
 
 @Component({
     selector: 'app-tools',
@@ -20,6 +21,9 @@ export class ToolsComponent implements OnInit {
 
     @ViewChild(ToolsEnableComponent, {static: true})
     enable: ToolsEnableComponent;
+
+    @ViewChild(ToolsDisableComponent, {static: true})
+    disable: ToolsDisableComponent;
 
     @ViewChild(ToolsFailedComponent, {static: true})
     failed: ToolsFailedComponent;
@@ -37,6 +41,10 @@ export class ToolsComponent implements OnInit {
 
     openEnable(item: ClusterTool) {
         this.enable.open(item);
+    }
+
+    openDisable(item: ClusterTool) {
+        this.disable.open(item);
     }
 
     openFailed(item: ClusterTool) {

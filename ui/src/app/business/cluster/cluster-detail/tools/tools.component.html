@@ -1,4 +1,5 @@
 <app-tools-list [currentCluster]="currentCluster" (enableEvent)="openEnable($event)"
-                (failedEvent)="openFailed($event)"></app-tools-list>
+                (failedEvent)="openFailed($event)" (disableEvent)="openDisable($event)"></app-tools-list>
 <app-tools-enable (enabled)="refresh()" [currentCluster]="currentCluster"></app-tools-enable>
+<app-tools-disable (disabled)="refresh()" [currentCluster]="currentCluster"></app-tools-disable>
 <app-tools-failed></app-tools-failed>

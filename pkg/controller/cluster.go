@@ -124,12 +124,24 @@ func (c ClusterController) GetToolBy(clusterName string) ([]dto.ClusterTool, err
 	return cts, nil
 }
 
-func (c ClusterController) PostToolBy(clusterName string) (*dto.ClusterTool, error) {
+func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterTool, error) {
 	var req dto.ClusterTool
 	if err := c.Ctx.ReadJSON(&req); err != nil {
 		return nil, err
 	}
 	cts, err := c.ClusterToolService.Enable(clusterName, req)
+	if err != nil {
+		return nil, err
+	}
+	return &cts, nil
+}
+
+func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTool, error) {
+	var req dto.ClusterTool
+	if err := c.Ctx.ReadJSON(&req); err != nil {
+		return nil, err
+	}
+	cts, err := c.ClusterToolService.Disable(clusterName, req)
 	if err != nil {
 		return nil, err
 	}

@@ -16,9 +16,10 @@ import (
 type ClusterToolService interface {
 	List(clusterName string) ([]dto.ClusterTool, error)
 	Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
+	Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error)
 }
 
-func NewClusterToolService() *clusterToolService {
+func NewClusterToolService() ClusterToolService {
 	return &clusterToolService{
 		toolRepo:       repository.NewClusterToolRepository(),
 		clusterService: NewClusterService(),
@@ -45,6 +46,34 @@ func (c clusterToolService) List(clusterName string) ([]dto.ClusterTool, error) 
 	return items, nil
 }
 
+func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
+	cluster, err := c.clusterService.Get(clusterName)
+	if err != nil {
+		return tool, err
+	}
+	tool.ClusterID = cluster.ID
+	mo := tool.ClusterTool
+	buf, _ := json.Marshal(&tool.Vars)
+	mo.Vars = string(buf)
+	tool.ClusterTool = mo
+	endpoint, err := c.clusterService.GetApiServerEndpoint(clusterName)
+	if err != nil {
+		return tool, err
+	}
+	secret, err := c.clusterService.GetSecrets(clusterName)
+	if err != nil {
+		return tool, err
+	}
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret)
+	if err != nil {
+		return tool, err
+	}
+	mo.Status = constant.ClusterTerminating
+	_ = c.toolRepo.Save(&mo)
+	go c.doUninstall(ct, &tool.ClusterTool)
+	return tool, nil
+}
+
 func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dto.ClusterTool, error) {
 	cluster, err := c.clusterService.Get(clusterName)
 	if err != nil {
@@ -54,12 +83,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
-
-	if err != nil {
-		return tool, err
-	}
 	tool.ClusterTool = mo
-
 	endpoint, err := c.clusterService.GetApiServerEndpoint(clusterName)
 	if err != nil {
 		return tool, err
@@ -95,11 +119,11 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	}
 	mo.Status = constant.ClusterInitializing
 	_ = c.toolRepo.Save(&mo)
-	go c.do(ct, &tool.ClusterTool)
+	go c.doInstall(ct, &tool.ClusterTool)
 	return tool, nil
 }
 
-func (c clusterToolService) do(p tools.Interface, tool *model.ClusterTool) {
+func (c clusterToolService) doInstall(p tools.Interface, tool *model.ClusterTool) {
 	err := p.Install()
 	if err != nil {
 		tool.Status = constant.ClusterFailed
@@ -107,5 +131,11 @@ func (c clusterToolService) do(p tools.Interface, tool *model.ClusterTool) {
 	} else {
 		tool.Status = constant.ClusterRunning
 	}
+	_ = c.toolRepo.Save(tool)
+}
+
+func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTool) {
+	_ = p.Uninstall()
+	tool.Status = constant.ClusterWaiting
 	_ = c.toolRepo.Save(tool)
 }
