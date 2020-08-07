@@ -7,11 +7,12 @@ import (
 
 type ClusterBackupFile struct {
 	common.BaseModel
-	ID                      string `json:"id"`
-	Name                    string `json:"name"`
-	ClusterID               string `json:"clusterId"`
-	ClusterBackupStrategyID string `json:"clusterBackupStrategyId"`
-	Folder                  string `json:"folder"`
+	ID                      string                `json:"id"`
+	Name                    string                `json:"name"`
+	ClusterID               string                `json:"clusterId"`
+	ClusterBackupStrategyID string                `json:"clusterBackupStrategyId"`
+	Folder                  string                `json:"folder"`
+	ClusterBackupStrategy   ClusterBackupStrategy `json:"_"`
 }
 
 func (c *ClusterBackupFile) BeforeCreate() error {

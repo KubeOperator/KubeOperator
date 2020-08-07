@@ -2,19 +2,21 @@
 <form clrForm #backupStrategyForm="ngForm">
     <clr-input-container>
         <label>{{'APP_BACKUP_CRON'|translate}}</label>
-        <input class="input-width" size="20" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron" required min="1"
+        <input class="input-width" size="20" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron"
+               required min="1"
                max="300"/>
         <clr-control-helper>1~300</clr-control-helper>
     </clr-input-container>
     <clr-input-container>
         <label>{{'APP_BACKUP_SAVE_NUM'|translate}}</label>
-        <input class="input-width" clrInput size="20"  type="number" [(ngModel)]="backupStrategy.saveNum" name="saveNum" required
+        <input class="input-width" clrInput size="20" type="number" [(ngModel)]="backupStrategy.saveNum" name="saveNum"
+               required
                min="1" max="100"/>
         <clr-control-helper>1~100</clr-control-helper>
     </clr-input-container>
     <clr-select-container>
         <label>{{'APP_BACKUP_ACCOUNT'|translate}}</label>
-        <select class="input-width"  clrSelect name="project" [(ngModel)]="backupStrategy.backupAccountName" required>
+        <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backupAccountName" required>
             <option *ngFor="let b of backupAccounts" value="{{b.name}}">{{b.name}}({{ b.bucket}})</option>
         </select>
         <clr-control-helper>{{'APP_BACKUP_ACCOUNT_HELPER'|translate}}</clr-control-helper>
@@ -28,9 +30,9 @@
     </clr-select-container>
 </form>
 <div class="modal-footer clr-row clr-col-4">
-    <!--    <button class="btn btn-info-outline" (click)="onBackup()"-->
-    <!--            [disabled]="backupStrategy.id == null || permission==='VIEWER' || backupStrategy.status=='DISABLE'">立即备份-->
-    <!--    </button>-->
+    <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
+        立即备份
+    </button>
     <button class="btn btn-info-outline clr-col-1" (click)="onSubmit()">{{'APP_COMMIT'|translate}}
     </button>
 </div>

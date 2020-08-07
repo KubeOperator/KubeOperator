@@ -10,6 +10,7 @@ type ClusterBackupFileRepository interface {
 	Page(num, size int, clusterId string) (int, []model.ClusterBackupFile, error)
 	Save(file *model.ClusterBackupFile) error
 	Batch(operation string, items []model.ClusterBackupFile) error
+	Get(name string) (model.ClusterBackupFile, error)
 }
 
 type clusterBackupFileRepository struct {
@@ -25,6 +26,18 @@ func (c clusterBackupFileRepository) Page(num, size int, clusterId string) (int,
 	err := db.DB.Model(model.ClusterBackupFile{}).Where(model.ClusterBackupFile{ClusterID: clusterId}).Count(&total).
 		Find(&files).Offset((num - 1) * size).Limit(size).Error
 	return total, files, err
+}
+
+func (c clusterBackupFileRepository) Get(name string) (model.ClusterBackupFile, error) {
+	var file model.ClusterBackupFile
+	file.Name = name
+	if err := db.DB.Where(file).First(&file).Error; err != nil {
+		return file, err
+	}
+	if err := db.DB.First(&file).Related(&file.ClusterBackupStrategy).Error; err != nil {
+		return file, err
+	}
+	return file, nil
 }
 
 func (c clusterBackupFileRepository) Save(file *model.ClusterBackupFile) error {

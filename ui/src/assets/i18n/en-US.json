@@ -301,7 +301,12 @@
   "APP_SIZE": "Size",
   "APP_BACKUP_FILE_LIST": "Backup Files",
   "APP_BACKUP_FILE_FOLDER": "Backup File Folder",
-  "APP_BACKUP_FILE": "Backup File"
+  "APP_BACKUP_FILE": "Backup File",
+  "APP_BACKUP_START_SUCCESS": "Backup has started! Please check the cluster history later",
+  "APP_RESTORE_START_SUCCESS": "Restore has started! Please check the cluster history later",
+  "CLUSTER_BACKUP": "Cluster Backup",
+  "CLUSTER_RESTORE": "Cluster Restore"
+
 
 
 

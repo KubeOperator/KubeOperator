@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
-import {BackupFile} from './cluster-backup';
+import {BackupFile, BackupStrategy} from './cluster-backup';
 import {Observable} from 'rxjs';
 import {Page} from '../../../../shared/class/Page';
 
@@ -19,5 +19,16 @@ export class BackupFileService extends BaseModelService<BackupFile> {
     pageBy(page, size, clusterName: string): Observable<Page<BackupFile>> {
         const itemUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&clusterName=${clusterName}`;
         return this.http.get<Page<BackupFile>>(itemUrl);
+    }
+
+
+    backup(item: BackupFile): Observable<any> {
+        const itemUrl = `${this.baseUrl}/backup/`;
+        return this.http.post<any>(itemUrl, item);
+    }
+
+    restore(item: BackupFile): Observable<any> {
+        const itemUrl = `${this.baseUrl}/restore/`;
+        return this.http.post<any>(itemUrl, item);
     }
 }

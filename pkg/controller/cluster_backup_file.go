@@ -44,3 +44,39 @@ func (b BackupFileController) PostBatch() error {
 	}
 	return err
 }
+
+func (b BackupFileController) PostBackup() error {
+	var req dto.ClusterBackupFileCreate
+	err := b.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = b.ClusterBackupFileService.Backup(req)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (b BackupFileController) PostRestore() error {
+	var req dto.ClusterBackupFileRestore
+	err := b.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = b.ClusterBackupFileService.Restore(req)
+	if err != nil {
+		return err
+	}
+	return err
+}

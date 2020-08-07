@@ -6,6 +6,7 @@ import {CommonAlertService} from '../../../../../layout/common-alert/common-aler
 import {TranslateService} from '@ngx-translate/core';
 import {BackupFileService} from '../backup-file.service';
 import {Cluster} from '../../../cluster';
+import {AlertLevels} from '../../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-backup-list',
@@ -33,4 +34,14 @@ export class BackupListComponent extends BaseModelComponent<BackupFile> implemen
         });
     }
 
+    restore(name) {
+        const restoreRequest = new BackupFile();
+        restoreRequest.clusterName = this.currentCluster.name;
+        restoreRequest.name = name;
+        this.backupFileService.restore(restoreRequest).subscribe(res => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_RESTORE_START_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
 }
