@@ -117,10 +117,10 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 		}
 	case "vsphere":
 		p = &storage.VsphereStoragePhase{
-			VcUsername: vars["username"],
-			VcPassword: vars["password"],
-			VcHost:     vars["host"],
-			VcPort:     vars["port"],
+			VcUsername: vars["vc_username"],
+			VcPassword: vars["vc_password"],
+			VcHost:     vars["vc_host"],
+			VcPort:     vars["vc_port"],
 			Datacenter: vars["datacenter"],
 			Datastore:  vars["datastore"],
 			Folder:     vars["folder"],

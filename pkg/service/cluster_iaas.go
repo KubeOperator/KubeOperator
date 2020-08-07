@@ -240,12 +240,16 @@ func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]inte
 	planVars := map[string]string{}
 	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
 	for _, h := range hosts {
+		var zoneVars map[string]interface{}
+		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
+		zoneVars["key"] = formatZoneName(h.Zone.Name)
 		role := getHostRole(h.Name)
 		hMap := map[string]interface{}{}
 		hMap["name"] = h.Name
 		hMap["shortName"] = h.Name
 		hMap["ip"] = h.Ip
 		hMap["model"] = planVars[fmt.Sprintf("%sModel", role)]
+		hMap["zone"] = zoneVars
 		results = append(results, hMap)
 	}
 	return results

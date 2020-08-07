@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClusterService} from '../cluster.service';
 import {ClusterStatus, Condition} from '../cluster';
 
@@ -14,6 +14,7 @@ export class ClusterConditionComponent implements OnInit {
     item: ClusterStatus = new ClusterStatus();
     loading = false;
     timer;
+    @Output() retry = new EventEmitter();
 
     constructor(private service: ClusterService) {
     }
@@ -53,6 +54,7 @@ export class ClusterConditionComponent implements OnInit {
 
     onInit() {
         this.service.init(this.clusterName).subscribe(data => {
+            this.retry.emit();
             this.polling();
         });
     }

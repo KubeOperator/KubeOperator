@@ -168,25 +168,22 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 return;
             }
         }
-
-        if (this.region.regionVars['provider'] === 'vSphere') {
-            const subnet = this.item.cloudVars['subnet'].split('/', 2);
-            if (subnet.length !== 2) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_SUBNET_INVALID'));
-                return;
-            }
-            if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.cloudVars['subnet']))) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
-                return;
-            }
-            const gateway = this.item.cloudVars['gateway'];
-            if (!ipaddr.isValid(gateway)) {
-                this.networkValid = false;
-                this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
-                return;
-            }
+        const subnet = this.item.cloudVars['subnet'].split('/', 2);
+        if (subnet.length !== 2) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_SUBNET_INVALID'));
+            return;
+        }
+        if (!ipEndAddr.match(ipaddr.IPv4.parseCIDR(this.item.cloudVars['subnet']))) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
+            return;
+        }
+        const gateway = this.item.cloudVars['gateway'];
+        if (!ipaddr.isValid(gateway)) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
+            return;
         }
         this.networkValid = true;
     }
