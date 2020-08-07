@@ -312,7 +312,7 @@ func (v *openStackClient) ListFlavors() ([]interface{}, error) {
 }
 
 func (v *openStackClient) GetIpInUsed(network string) ([]string, error) {
-	return nil, nil
+	return []string{}, nil
 }
 func (v *openStackClient) UploadImage() error {
 
