@@ -11,7 +11,7 @@ export class PersistentVolumeCreateComponent implements OnInit {
     }
 
     opened = false;
-    provisioner = 'nfs';
+    provisioner = '';
 
     @Output() selected = new EventEmitter();
 

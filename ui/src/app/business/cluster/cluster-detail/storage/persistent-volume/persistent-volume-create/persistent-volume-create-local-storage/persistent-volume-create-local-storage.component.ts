@@ -1,36 +1,38 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {KubernetesService} from '../../../../../kubernetes.service';
+import {KubernetesService} from "../../../../../kubernetes.service";
 import {
     V1HostPathVolumeSource,
-    V1NodeAffinity,
+    V1LocalVolumeSource,
     V1NodeSelector,
     V1NodeSelectorTerm,
-    V1PersistentVolume
-} from '@kubernetes/client-node';
-import {Cluster} from '../../../../../cluster';
-import {NgForm} from '@angular/forms';
-import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
-import {V1PersistentVolumeSpec} from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec';
+    V1PersistentVolume, V1StorageClass
+} from "@kubernetes/client-node";
+import {Cluster} from "../../../../../cluster";
+import {NgForm} from "@angular/forms";
 import {V1NodeSelectorRequirement} from "@kubernetes/client-node/dist/gen/model/v1NodeSelectorRequirement";
+import {V1ObjectMeta} from "@kubernetes/client-node/dist/gen/model/v1ObjectMeta";
 import {V1VolumeNodeAffinity} from "@kubernetes/client-node/dist/gen/model/v1VolumeNodeAffinity";
+import {V1PersistentVolumeSpec} from "@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec";
 
 @Component({
-    selector: 'app-persistent-volume-create-host-path',
-    templateUrl: './persistent-volume-create-host-path.component.html',
-    styleUrls: ['./persistent-volume-create-host-path.component.css']
+    selector: 'app-persistent-volume-create-local-storage',
+    templateUrl: './persistent-volume-create-local-storage.component.html',
+    styleUrls: ['./persistent-volume-create-local-storage.component.css']
 })
-export class PersistentVolumeCreateHostPathComponent implements OnInit {
+export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
 
     constructor(private kubernetesService: KubernetesService) {
     }
 
     opened = false;
-    item: V1PersistentVolume = this.newHostPathPv();
+    item: V1PersistentVolume = this.newLocalPv();
     accessMode = 'ReadWriteOnce';
     isSubmitGoing = false;
     selectorKey = '';
     selectorValue = '';
     selectorOperation = 'In';
+    storageClazz: V1StorageClass[] = [];
+    storageClassName = '';
 
 
     @Output()
@@ -52,7 +54,14 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
     }
 
     reset() {
-        this.item = this.newHostPathPv();
+
+        this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
+            console.log(data);
+            this.storageClazz = data.items.filter((sc) => {
+                return sc.provisioner === 'kubernetes.io/no-provisioner';
+            });
+        });
+        this.item = this.newLocalPv();
         this.pvForm.resetForm();
     }
 
@@ -71,6 +80,9 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
         } else {
             delete this.item.spec['nodeAffinity'];
         }
+        if (this.storageClassName) {
+            this.item.spec.storageClassName = this.storageClassName;
+        }
         this.kubernetesService.createPersistentVolume(this.currentCluster.name, this.item).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();
@@ -78,7 +90,7 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
         });
     }
 
-    newHostPathPv(): V1PersistentVolume {
+    newLocalPv(): V1PersistentVolume {
         return {
             apiVersion: 'v1',
             kind: 'PersistentVolume',
@@ -88,9 +100,10 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
             spec: {
                 capacity: {},
                 accessModes: [],
-                hostPath: {
+                storageClassName: '',
+                local: {
                     path: '',
-                } as V1HostPathVolumeSource,
+                } as V1LocalVolumeSource,
                 nodeAffinity: {
                     required: {
                         nodeSelectorTerms: [
@@ -109,4 +122,5 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
             } as V1PersistentVolumeSpec,
         } as V1PersistentVolume;
     }
+
 }

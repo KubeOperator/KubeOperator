@@ -30,7 +30,6 @@ import {MonitorDashboardComponent} from './cluster-detail/monitor/monitor-dashbo
 import {ClusterImportComponent} from './cluster-import/cluster-import.component';
 import {StorageClassCreateComponent} from './cluster-detail/storage/storage-class/storage-class-create/storage-class-create.component';
 import {PersistentVolumeCreateComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create.component';
-import {PersistentVolumeCreateNfsComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-nfs/persistent-volume-create-nfs.component';
 import {PersistentVolumeCreateHostPathComponent} from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
 import {StorageProvisionerComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner.component';
 import {StorageProvisionerListComponent} from './cluster-detail/storage/storage-provisioner/storage-provisioner-list/storage-provisioner-list.component';
@@ -60,6 +59,7 @@ import { StorageProvisionerCreateVsphereComponent } from './cluster-detail/stora
 import { BackupComponent } from './cluster-detail/backup/backup.component';
 import {BackupModule} from './cluster-detail/backup/backup.module';
 import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tools-disable.component';
+import { PersistentVolumeCreateLocalStorageComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component';
 
 
 @NgModule({
@@ -72,7 +72,6 @@ import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tool
         ClusterImportComponent,
         StorageClassCreateComponent,
         PersistentVolumeCreateComponent,
-        PersistentVolumeCreateNfsComponent,
         PersistentVolumeCreateHostPathComponent,
         StorageProvisionerComponent,
         StorageProvisionerListComponent,
@@ -100,7 +99,8 @@ import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tool
         StorageProvisionerCreateRookCephComponent,
         StorageProvisionerCreateVsphereComponent,
         BackupComponent,
-        ToolsDisableComponent],
+        ToolsDisableComponent,
+        PersistentVolumeCreateLocalStorageComponent],
     imports: [
         CoreModule,
         RouterModule,

@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../../cluster';
 import {V1Namespace, V1PersistentVolume} from '@kubernetes/client-node';
 import {KubernetesService} from '../../../../kubernetes.service';
@@ -20,7 +19,7 @@ export class PersistentVolumeListComponent implements OnInit {
     @Output() createEvent = new EventEmitter();
     @Input() currentCluster: Cluster;
 
-    constructor(private service: KubernetesService,) {
+    constructor(private service: KubernetesService) {
     }
 
     ngOnInit(): void {
@@ -41,6 +40,9 @@ export class PersistentVolumeListComponent implements OnInit {
         for (const key in item.spec) {
             if (key === 'nfs') {
                 return 'NFS';
+            }
+            if (key === 'local') {
+                return 'Local Volume';
             }
             if (key === 'hostPath') {
                 return 'Host Path';

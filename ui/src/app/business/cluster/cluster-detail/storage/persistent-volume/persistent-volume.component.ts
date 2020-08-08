@@ -1,10 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {PersistentVolumeListComponent} from './persistent-volume-list/persistent-volume-list.component';
 import {PersistentVolumeCreateComponent} from './persistent-volume-create/persistent-volume-create.component';
-import {PersistentVolumeCreateNfsComponent} from './persistent-volume-create/persistent-volume-create-nfs/persistent-volume-create-nfs.component';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
 import {PersistentVolumeCreateHostPathComponent} from './persistent-volume-create/persistent-volume-create-host-path/persistent-volume-create-host-path.component';
+import {PersistentVolumeCreateLocalStorageComponent} from "./persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component";
 
 @Component({
     selector: 'app-persistent-volume',
@@ -24,11 +24,12 @@ export class PersistentVolumeComponent implements OnInit {
     @ViewChild(PersistentVolumeCreateComponent, {static: true})
     create: PersistentVolumeCreateComponent;
 
-    @ViewChild(PersistentVolumeCreateNfsComponent, {static: true})
-    nfs: PersistentVolumeCreateNfsComponent;
 
     @ViewChild(PersistentVolumeCreateHostPathComponent, {static: true})
     hostPath: PersistentVolumeCreateHostPathComponent;
+
+    @ViewChild(PersistentVolumeCreateLocalStorageComponent, {static: true})
+    localStorage: PersistentVolumeCreateLocalStorageComponent;
 
     ngOnInit(): void {
         this.route.parent.parent.data.subscribe(data => {
@@ -42,8 +43,8 @@ export class PersistentVolumeComponent implements OnInit {
 
     openSelected(provisioner: string) {
         switch (provisioner) {
-            case 'nfs':
-                this.nfs.open();
+            case 'localStorage':
+                this.localStorage.open();
                 break;
             case 'hostPath':
                 this.hostPath.open();
