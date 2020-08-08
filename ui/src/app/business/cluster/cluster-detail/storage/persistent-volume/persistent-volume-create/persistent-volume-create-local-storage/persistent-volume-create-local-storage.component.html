@@ -49,7 +49,7 @@
                         <option value="DoesNotExist">DoesNotExist</option>
                     </select>
                 </div>
-                <div class="clr-col-3">
+                <div class="clr-col-3" *ngIf="selectorOperation === 'In' || selectorOperation === 'NotIn'">
                     <input clrInput size="20" name="value" [(ngModel)]="selectorValue" placeholder="node1,node2">
                 </div>
             </div>
