@@ -4,7 +4,7 @@
         <form clrForm #pvForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.metadata.name" required/>
+                <input clrInput [size]="32" name="name" pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" [(ngModel)]="item.metadata.name" required/>
             </clr-input-container>
             <clr-input-container>
                 <label>Size (Gib)</label>

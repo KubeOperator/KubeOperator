@@ -1,14 +1,16 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
-    <h3 class="modal-title">创建存储类</h3>
+    <h3 class="modal-title">{{"APP_ADD"|translate}}{{"APP_STORAGE_CLASS"|translate}}</h3>
     <div class="modal-body">
         <form clrForm #itemForm='ngForm'>
             <clr-input-container>
-                <label>名称</label>
-                <input clrInput [size]="34" name="name" [(ngModel)]="item.metadata.name" required>
+                <label>{{"APP_NAME"|translate}}</label>
+                <input clrInput [size]="34" name="name"
+                       pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
+                       [(ngModel)]="item.metadata.name" required>
             </clr-input-container>
 
             <clr-select-container>
-                <label>提供商</label>
+                <label>{{"APP_PROVISIONER"|translate}}</label>
                 <select name="provisioner" [(ngModel)]="provisioner" (change)="onProvisionerChange()" clrSelect
                         required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
