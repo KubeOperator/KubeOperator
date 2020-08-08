@@ -41,7 +41,7 @@ func (p projectRepository) Page(num, size int, userId string) (int, []model.Proj
 	var total int
 	var projects []model.Project
 	if userId == "" {
-		err := db.DB.Model(model.Project{}).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
+		err := db.DB.Model(model.Project{}).Order("name").Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
 		return total, projects, err
 	} else {
 		var projectResources []model.ProjectMember
@@ -53,7 +53,7 @@ func (p projectRepository) Page(num, size int, userId string) (int, []model.Proj
 		for _, pm := range projectResources {
 			projectIds = append(projectIds, pm.ProjectID)
 		}
-		err = db.DB.Model(model.Project{}).Where("id in (?)", projectIds).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
+		err = db.DB.Model(model.Project{}).Order("name").Where("id in (?)", projectIds).Count(&total).Find(&projects).Offset((num - 1) * size).Limit(size).Error
 		if err != nil {
 			return total, nil, err
 		}
