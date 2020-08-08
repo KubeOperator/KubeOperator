@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -28,12 +29,14 @@ type ZoneService interface {
 }
 
 type zoneService struct {
-	zoneRepo repository.ZoneRepository
+	zoneRepo             repository.ZoneRepository
+	systemSettingService SystemSettingService
 }
 
 func NewZoneService() ZoneService {
 	return &zoneService{
-		zoneRepo: repository.NewZoneRepository(),
+		zoneRepo:             repository.NewZoneRepository(),
+		systemSettingService: NewSystemSettingService(),
 	}
 }
 
@@ -231,6 +234,10 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	if err != nil {
 		return err
 	}
+	ip, err := z.systemSettingService.Get("ip")
+	if err != nil {
+		return err
+	}
 	regionVars := region.RegionVars.(map[string]interface{})
 	regionVars["datacenter"] = region.Datacenter
 	if region.Provider == constant.VSphere {
@@ -247,6 +254,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
+		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip.Value)
+		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
+	}
+	if region.Provider == constant.OpenStack {
+		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
 	}
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
