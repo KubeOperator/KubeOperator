@@ -46,9 +46,6 @@ func (u *User) BeforeDelete() (err error) {
 }
 
 func (u *User) BeforeUpdate() (err error) {
-	if u.Name == "admin" {
-		return errors.New(AdminCanNotUpdate)
-	}
 	return err
 }
 
