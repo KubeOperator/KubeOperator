@@ -33,7 +33,7 @@ func NewClusterStorageProvisionerService() ClusterStorageProvisionerService {
 }
 
 func (c clusterStorageProvisionerService) ListStorageProvisioner(clusterName string) ([]dto.ClusterStorageProvisioner, error) {
-	var clusterStorageProvisionerDTOS []dto.ClusterStorageProvisioner
+	clusterStorageProvisionerDTOS := []dto.ClusterStorageProvisioner{}
 	ps, err := c.provisionerRepo.List(clusterName)
 	if err != nil {
 		return clusterStorageProvisionerDTOS, err
