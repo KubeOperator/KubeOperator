@@ -16,6 +16,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -232,7 +233,7 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 
 func (v *vSphereClient) GetConnect() (Connect, error) {
 	ctx, _ := context.WithCancel(context.Background())
-	u, err := soap.ParseURL(v.Vars["host"].(string))
+	u, err := soap.ParseURL(v.Vars["host"].(string) + ":" + strconv.FormatFloat(v.Vars["port"].(float64), 'G', -1, 64))
 	if err != nil {
 		return Connect{}, err
 	}
