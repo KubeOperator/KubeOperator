@@ -43,16 +43,16 @@ func (c CredentialController) GetBy(name string) (dto.Credential, error) {
 	return c.CredentialService.Get(name)
 }
 
-func (c CredentialController) Post() (dto.Credential, error) {
+func (c CredentialController) Post() (*dto.Credential, error) {
 	var req dto.CredentialCreate
 	err := c.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
 	return c.CredentialService.Create(req)
 }

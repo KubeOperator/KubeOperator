@@ -18,7 +18,7 @@ type CredentialService interface {
 	Get(name string) (dto.Credential, error)
 	List() ([]dto.Credential, error)
 	Page(num, size int) (page.Page, error)
-	Create(creation dto.CredentialCreate) (dto.Credential, error)
+	Create(creation dto.CredentialCreate) (*dto.Credential, error)
 	Delete(name string) error
 	Batch(op dto.CredentialBatchOp) error
 	GetById(id string) (dto.Credential, error)
@@ -101,11 +101,11 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 	return page, err
 }
 
-func (c credentialService) Create(creation dto.CredentialCreate) (dto.Credential, error) {
+func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
 
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
 
 	credential := model.Credential{
@@ -118,9 +118,9 @@ func (c credentialService) Create(creation dto.CredentialCreate) (dto.Credential
 	}
 	err = c.credentialRepo.Save(&credential)
 	if err != nil {
-		return dto.Credential{}, err
+		return nil, err
 	}
-	return dto.Credential{Credential: credential}, nil
+	return &dto.Credential{Credential: credential}, nil
 }
 
 func (c credentialService) Update(update dto.CredentialUpdate) (dto.Credential, error) {

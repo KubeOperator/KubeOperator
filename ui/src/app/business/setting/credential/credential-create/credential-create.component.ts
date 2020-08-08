@@ -46,7 +46,7 @@ export class CredentialCreateComponent implements OnInit {
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error.msg, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }
