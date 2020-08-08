@@ -16,7 +16,7 @@
             <clr-password-container>
                 <label>{{"APP_PASSWORD"|translate}}</label>
                 <input style="display:none">
-                <input clrPassword [size]="32" name="password" [(ngModel)]="item.password"
+                <input clrPassword [size]="32" name="password" [(ngModel)]="item.password" (change)="checkPassword()"
                        pattern="{{passwordPattern}}"
                        required/>
                 <clr-control-helper
@@ -26,7 +26,7 @@
             <clr-password-container>
                 <label>{{"APP_CONFIRM_PASSWORD"|translate}}</label>
                 <input style="display:none">
-                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword"
+                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword" (change)="checkPassword()"
                        pattern="{{passwordPattern}}" required/>
                 <clr-control-helper
                         *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
@@ -45,7 +45,7 @@
         <button type="button" class="btn btn-outline" (click)="onCancel()"
                 [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="userForm.invalid ">{{'APP_COMMIT'|translate}}
+                [disabled]="userForm.invalid || !isPasswordMatch">{{'APP_COMMIT'|translate}}
         </button>
     </div>
 </clr-modal>

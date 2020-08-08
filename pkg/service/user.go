@@ -21,7 +21,7 @@ var (
 type UserService interface {
 	Get(name string) (dto.User, error)
 	List() ([]dto.User, error)
-	Create(creation dto.UserCreate) (dto.User, error)
+	Create(creation dto.UserCreate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
 	Update(update dto.UserUpdate) (dto.User, error)
@@ -62,11 +62,11 @@ func (u userService) List() ([]dto.User, error) {
 	return userDTOS, err
 }
 
-func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
+func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
 
 	user := model.User{
@@ -79,9 +79,9 @@ func (u userService) Create(creation dto.UserCreate) (dto.User, error) {
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
-	return dto.User{User: user}, err
+	return &dto.User{User: user}, err
 }
 
 func (u userService) Update(update dto.UserUpdate) (dto.User, error) {

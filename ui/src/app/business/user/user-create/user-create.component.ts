@@ -21,6 +21,7 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
     isSubmitGoing = false;
     item: UserCreateRequest = new UserCreateRequest();
     passwordPattern = PasswordPattern;
+    isPasswordMatch = false
     @ViewChild('userForm') userForm: NgForm;
     @Output() created = new EventEmitter();
 
@@ -51,7 +52,11 @@ export class UserCreateComponent extends BaseModelComponent<User> implements OnI
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
+    }
+
+    checkPassword() {
+        this.isPasswordMatch = this.item.password === this.item.confirmPassword;
     }
 }

@@ -43,11 +43,11 @@ func (u UserController) GetBy(name string) (dto.User, error) {
 	return u.UserService.Get(name)
 }
 
-func (u UserController) Post() (dto.User, error) {
+func (u UserController) Post() (*dto.User, error) {
 	var req dto.UserCreate
 	err := u.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
 	return u.UserService.Create(req)
 }
