@@ -25,13 +25,13 @@ func NewUserRepository() UserRepository {
 func (u userRepository) Page(num, size int) (int, []model.User, error) {
 	var total int
 	var users []model.User
-	err := db.DB.Model(model.User{}).Count(&total).Find(&users).Offset((num - 1) * size).Limit(size).Error
+	err := db.DB.Model(model.User{}).Order("name").Count(&total).Find(&users).Offset((num - 1) * size).Limit(size).Error
 	return total, users, err
 }
 
 func (u userRepository) List() ([]model.User, error) {
 	var users []model.User
-	err := db.DB.Model(model.User{}).Find(&users).Error
+	err := db.DB.Model(model.User{}).Order("name").Find(&users).Error
 	return users, err
 }
 
