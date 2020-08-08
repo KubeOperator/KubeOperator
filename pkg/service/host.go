@@ -269,11 +269,13 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		}
 		host.Os = result["ansible_distribution"].(string)
 		host.OsVersion = result["ansible_distribution_version"].(string)
-		host.Memory = int(result["ansible_memtotal_mb"].(float64))
-		host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
-
+		if result["ansible_memtotal_mb"] != nil {
+			host.Memory = int(result["ansible_memtotal_mb"].(float64))
+		}
+		if result["ansible_processor_vcpus"] != nil {
+			host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
+		}
 		devices := result["ansible_devices"].(map[string]interface{})
-
 		var volumes []model.Volume
 		for index, _ := range devices {
 			device := devices[index].(map[string]interface{})

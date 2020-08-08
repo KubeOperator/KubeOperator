@@ -12,7 +12,8 @@
         <form clrForm #basicForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name"
+                       pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
                        required/>
             </clr-input-container>
 
@@ -35,7 +36,7 @@
             </clr-select-container>
 
             <clr-select-container>
-                <label>架构</label>
+                <label>{{"APP_ARCHITECTURE"|translate}}</label>
                 <select clrSelect name="version" [(ngModel)]="item.architectures" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="arm64">ARM64</option>
@@ -47,7 +48,7 @@
     </clr-wizard-page>
 
     <clr-wizard-page [clrWizardPageNextDisabled]="seniorForm.invalid">
-        <ng-template clrPageTitle>高级选项</ng-template>
+        <ng-template clrPageTitle>{{"APP_SENIOR"|translate}} {{"APP_OPTION"|translate}}</ng-template>
 
         <form clrForm #seniorForm='ngForm'>
             <clr-select-container>
@@ -111,12 +112,12 @@
             </clr-input-container>
 
             <clr-input-container>
-                <label>最大POD数量</label>
+                <label>{{"APP_MAX"|translate}}POD {{"APP_COUNT"|translate}}</label>
                 <input clrInput type="number" size="34" name="kube_max_pods" [(ngModel)]="item.kubeMaxPods">
             </clr-input-container>
 
             <clr-select-container>
-                <label>kube-proxy 模式</label>
+                <label>kube-proxy {{"APP_MODE"|translate}}</label>
                 <select clrSelect name="kube_proxy_mode" [(ngModel)]="item.kubeProxyMode">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="iptables">Iptables</option>
@@ -125,7 +126,7 @@
             </clr-select-container>
 
             <clr-select-container>
-                <label>ingress 类型</label>
+                <label>ingress {{"APP_TYPE"|translate}}</label>
                 <select clrSelect name="ingress_controller_type" [(ngModel)]="item.ingressControllerType">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="nginx">nginx</option>
@@ -134,7 +135,7 @@
             </clr-select-container>
 
             <clr-select-container>
-                <label>Kubernetes 审计</label>
+                <label>Kubernetes {{"APP_AUDIT"|translate}}</label>
                 <select clrSelect name="kubernetes_audit" [(ngModel)]="item.kubernetesAudit">
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="yes">{{"APP_ENABLE"|translate}}</option>
