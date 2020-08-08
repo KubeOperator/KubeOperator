@@ -3,9 +3,9 @@
     <div class="modal-body">
         <form clrForm #selectForm='ngForm'>
             <clr-select-container>
-                <label>类型</label>
+                <label>{{"APP_TYPE"|translate}}</label>
                 <select clrSelect [(ngModel)]="item.type" name="type" required>
-                    <option value="">请选择</option>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="nfs">nfs</option>
                     <option value="external-ceph">external-ceph</option>
                     <option value="rook-ceph">rook-ceph</option>
@@ -17,6 +17,6 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="selectForm.invalid">{{'APP_COMMIT'|translate}}</button>
+                [disabled]="selectForm.invalid">{{'APP_NEXT'|translate}}</button>
     </div>
 </clr-modal>
