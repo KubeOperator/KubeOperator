@@ -42,6 +42,7 @@ func (c Registry) setDefaultValue() {
 }
 
 func (c Registry) Install() error {
+	c.setDefaultValue()
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.DockerRegistryChartName); err != nil {
 		return err
 	}
