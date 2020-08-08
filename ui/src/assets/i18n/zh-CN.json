@@ -313,5 +313,6 @@
   "CLUSTER_RESTORE": "集群恢复",
   "APP_OVERVIEW": "概览",
   "APP_NODE": "节点",
-  "APP_HISTORY": "历史"
+  "APP_HISTORY": "历史",
+  "APP_IP_INVALID": "IP 格式错误"
 }
