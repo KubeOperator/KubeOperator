@@ -10,7 +10,7 @@
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-input-container *ngIf="item.vars['persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}</label>
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
                     <input type="number" size="34" clrInput name="size"
                            [(ngModel)]="item.vars['persistence.size']"/>
                 </clr-input-container>
@@ -37,7 +37,7 @@
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-input-container *ngIf="item.vars['server.persistentVolume.enabled']">
-                    <label>{{"APP_SIZE"|translate}}</label>
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
                     <input clrInput name="size"
                            [(ngModel)]="item.vars['server.persistentVolume.size']" type="number" size="34"/>
                 </clr-input-container>
@@ -59,7 +59,7 @@
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
                 <clr-input-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}</label>
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
                     <input clrInput name="size"
                            [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.resources.requests.storage']"
                            type="number"
@@ -86,7 +86,7 @@
                 </clr-toggle-container>
 
                 <clr-input-container *ngIf="item.vars['persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}</label>
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
                     <input type="number" size="34" clrInput name="size"
                            [(ngModel)]="item.vars['persistence.size']"/>
                 </clr-input-container>
@@ -120,7 +120,7 @@
                     </select>
                 </clr-select-container>
                 <clr-input-container *ngIf="item.vars['postgresql.persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}</label>
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
                     <input clrInput name="size"
                            [(ngModel)]="item.vars['postgresql.persistence.size']" type="number" size="34"/>
                 </clr-input-container>
