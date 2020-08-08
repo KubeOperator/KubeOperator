@@ -190,6 +190,12 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 }
 
 func (h hostService) GetHostConfig(host *model.Host) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Error("gather fact error!")
+		}
+	}()
+
 	password, privateKey, err := host.GetHostPasswordAndPrivateKey()
 	if err != nil {
 		return err
