@@ -3,8 +3,10 @@ package model
 import (
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/auth"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -41,6 +43,19 @@ func (u *User) BeforeCreate() (err error) {
 func (u *User) BeforeDelete() (err error) {
 	if u.Name == "admin" {
 		return errors.New(AdminCanNotDelete)
+	}
+	var member ProjectMember
+	err = db.DB.Where(ProjectMember{UserID: u.ID}).Find(&member).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil
+		} else {
+			return err
+		}
+	}
+	err = db.DB.Delete(&member).Error
+	if err != nil {
+		return err
 	}
 	return err
 }
