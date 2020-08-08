@@ -93,9 +93,9 @@ export class RegionCreateComponent extends BaseModelComponent<Region> implements
 
     onSubmit() {
         this.regionService.create(this.item).subscribe(res => {
-            this.opened = false;
             this.created.emit();
             this.doFinish();
+            this.onCancel();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
