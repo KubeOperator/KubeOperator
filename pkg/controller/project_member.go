@@ -35,7 +35,7 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 }
 
 func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
-	var req dto.ProjectMemberAddRequest
+	var req dto.ProjectMemberCreate
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
 		return nil, err

@@ -22,9 +22,3 @@ type ProjectMemberCreate struct {
 type AddMemberResponse struct {
 	Items []string `json:"items"`
 }
-
-type ProjectMemberAddRequest struct {
-	ProjectId string `json:"projectId" validate:"required"`
-	Name      string `json:"name" validate:"required"`
-	Role      string `json:"role" validate:"required"`
-}

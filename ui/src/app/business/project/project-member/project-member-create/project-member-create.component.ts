@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
-import {ProjectMember, ProjectMemberRequest} from '../project-member';
+import {ProjectMember, ProjectMemberCreate, ProjectMemberRequest} from '../project-member';
 import {ProjectMemberService} from '../project-member.service';
 import {NgForm} from '@angular/forms';
 import {ResourceTypes} from '../../../../constant/shared.const';
@@ -19,7 +19,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
 export class ProjectMemberCreateComponent extends BaseModelComponent<ProjectMember> implements OnInit {
 
     opened = false;
-    item: ProjectMemberRequest = new ProjectMemberRequest();
+    item: ProjectMemberCreate = new ProjectMemberCreate();
     selectUsers: string[] = [];
     roles: string[] = [];
     currentProject: Project = new Project();
@@ -43,18 +43,16 @@ export class ProjectMemberCreateComponent extends BaseModelComponent<ProjectMemb
 
     open() {
         this.opened = true;
-        this.item = new ProjectMemberRequest();
+        this.item = new ProjectMemberCreate();
         this.getRoles();
     }
 
     onCancel() {
         this.opened = false;
-        // this.item = new ProjectMemberRequest();
-        // this.memberForm.resetForm(this.item);
     }
 
     onSubmit() {
-        this.item.projectId = this.currentProject.id;
+        this.item.projectName = this.currentProject.name;
         this.projectMemberService.create(this.item).subscribe(res => {
             this.opened = false;
             this.created.emit();
@@ -69,7 +67,7 @@ export class ProjectMemberCreateComponent extends BaseModelComponent<ProjectMemb
     }
 
     handleValidation() {
-        this.projectMemberService.getUsers(this.item.name).subscribe(res => {
+        this.projectMemberService.getUsers(this.item.userName).subscribe(res => {
             this.selectUsers = res.items;
         });
     }

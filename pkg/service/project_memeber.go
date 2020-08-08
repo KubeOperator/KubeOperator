@@ -20,16 +20,18 @@ type ProjectMemberService interface {
 	PageByProjectId(num, size int, projectId string) (page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
-	Create(request dto.ProjectMemberAddRequest) (*dto.ProjectMember, error)
+	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
 }
 
 type projectMemberService struct {
 	projectMemberRepo repository.ProjectMemberRepository
+	userService       UserService
 }
 
 func NewProjectMemberService() ProjectMemberService {
 	return &projectMemberService{
 		projectMemberRepo: repository.NewProjectMemberRepository(),
+		userService:       NewUserService(),
 	}
 }
 
@@ -96,9 +98,9 @@ func (p projectMemberService) GetUsers(name string) (dto.AddMemberResponse, erro
 	return result, nil
 }
 
-func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (*dto.ProjectMember, error) {
+func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error) {
 	var projectMember dto.ProjectMember
-	user, err := NewUserService().Get(request.Name)
+	user, err := p.userService.Get(request.Username)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, UserNotFound
@@ -106,8 +108,12 @@ func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (*dto.
 			return nil, err
 		}
 	}
+	project, err := NewProjectService().Get(request.ProjectName)
+	if err != nil {
+		return nil, err
+	}
 	var oldPm dto.ProjectMember
-	err = db.DB.Model(model.ProjectMember{}).Where(model.ProjectMember{UserID: user.ID}).Find(&oldPm).Error
+	err = db.DB.Model(model.ProjectMember{}).Where(model.ProjectMember{UserID: user.ID, ProjectID: project.ID}).Find(&oldPm).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -117,7 +123,7 @@ func (p projectMemberService) Create(request dto.ProjectMemberAddRequest) (*dto.
 	pm := model.ProjectMember{
 		UserID:    user.ID,
 		Role:      request.Role,
-		ProjectID: request.ProjectId,
+		ProjectID: project.ID,
 	}
 	err = p.projectMemberRepo.Create(&pm)
 	if err != nil {
