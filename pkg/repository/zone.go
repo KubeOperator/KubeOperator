@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -89,19 +88,11 @@ func (z zoneRepository) Batch(operation string, items []model.Zone) error {
 		for _, item := range items {
 			zoneIds = append(zoneIds, item.ID)
 		}
-		var planZones []model.PlanZones
-		err := db.DB.Where("zone_id in (?)", zoneIds).Find(&planZones).Error
-		if err != nil {
-			return err
-		}
-		if len(planZones) > 0 {
-			return errors.New(DeleteZoneError)
-		}
 		var ids []string
 		for _, item := range items {
 			ids = append(ids, item.ID)
 		}
-		err = db.DB.Where("id in (?)", ids).Delete(&items).Error
+		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
 			return err
 		}

@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -94,7 +92,7 @@ func (z ZoneController) PostBatch() error {
 	}
 	err = z.ZoneService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(z.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }
@@ -108,7 +106,7 @@ func (z ZoneController) PostClusters() (dto.CloudZoneResponse, error) {
 
 	data, err := z.ZoneService.ListClusters(req)
 	if err != nil {
-		return dto.CloudZoneResponse{}, warp.NewControllerError(errors.New(z.Ctx.Tr(err.Error())))
+		return dto.CloudZoneResponse{}, err
 	}
 
 	return dto.CloudZoneResponse{Result: data}, err
@@ -123,7 +121,7 @@ func (z ZoneController) PostTemplates() (dto.CloudZoneResponse, error) {
 
 	data, err := z.ZoneService.ListTemplates(req)
 	if err != nil {
-		return dto.CloudZoneResponse{}, warp.NewControllerError(errors.New(z.Ctx.Tr(err.Error())))
+		return dto.CloudZoneResponse{}, err
 	}
 
 	return dto.CloudZoneResponse{Result: data}, err

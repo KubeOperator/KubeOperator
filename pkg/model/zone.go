@@ -1,8 +1,14 @@
 package model
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	DeleteZoneError = "DELETE_ZONE_FAILED_RESOURCE"
 )
 
 type Zone struct {
@@ -23,4 +29,16 @@ func (z *Zone) BeforeCreate() (err error) {
 
 func (z Zone) TableName() string {
 	return "ko_zone"
+}
+
+func (z *Zone) BeforeDelete() (err error) {
+	var planZones []PlanZones
+	err = db.DB.Where(PlanZones{ZoneID: z.ID}).Find(&planZones).Error
+	if err != nil {
+		return err
+	}
+	if len(planZones) > 0 {
+		return errors.New(DeleteZoneError)
+	}
+	return err
 }
