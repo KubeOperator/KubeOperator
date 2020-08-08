@@ -29,13 +29,15 @@ export class CredentialCreateComponent implements OnInit {
 
     open() {
         this.item = new CredentialCreateRequest();
-        this.credentialForm.resetForm();
         this.opened = true;
         this.item.type = 'password';
     }
 
     onCancel() {
         this.opened = false;
+        this.item = new CredentialCreateRequest();
+        this.item.type = 'password';
+        this.credentialForm.resetForm(this.item);
     }
 
     onSubmit() {
