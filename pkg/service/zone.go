@@ -1,6 +1,8 @@
 package service
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +13,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"io"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -19,12 +24,13 @@ type ZoneService interface {
 	List() ([]dto.Zone, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Create(creation dto.ZoneCreate) (dto.Zone, error)
+	Create(creation dto.ZoneCreate) (*dto.Zone, error)
 	Update(creation dto.ZoneUpdate) (dto.Zone, error)
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListByRegionId(regionId string) ([]dto.Zone, error)
+	DownloadVMDKFile(vmdkUrl string) (string, error)
 }
 
 type zoneService struct {
@@ -98,7 +104,7 @@ func (z zoneService) Delete(name string) error {
 	return nil
 }
 
-func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
+func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {
@@ -110,7 +116,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 	if param["templateType"] != nil && param["templateType"].(string) == "default" {
 		region, err := NewRegionService().Get(creation.RegionName)
 		if err != nil {
-			return dto.Zone{}, err
+			return nil, err
 		}
 		switch region.Provider {
 		case constant.OpenStack:
@@ -126,7 +132,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 		credentialService := NewCredentialService()
 		credential, err := credentialService.Get(constant.ImageCredentialName)
 		if err != nil {
-			return dto.Zone{}, err
+			return nil, err
 		}
 		creation.CredentialId = credential.ID
 	}
@@ -144,10 +150,10 @@ func (z zoneService) Create(creation dto.ZoneCreate) (dto.Zone, error) {
 
 	err := z.zoneRepo.Save(&zone)
 	if err != nil {
-		return dto.Zone{}, err
+		return nil, err
 	}
 	go z.uploadImage(creation)
-	return dto.Zone{Zone: zone}, err
+	return &dto.Zone{Zone: zone}, err
 }
 
 func (z zoneService) Update(creation dto.ZoneUpdate) (dto.Zone, error) {
@@ -241,15 +247,26 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
+		vmdkUrl := fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
+		regionVars["vmdkPath"], err = z.DownloadVMDKFile(vmdkUrl)
+		if err != nil {
+			return err
+		}
 		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip.Value)
-		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
 	}
 	if region.Provider == constant.OpenStack {
 		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
 	}
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
-		err := cloudClient.UploadImage()
+		result, err := cloudClient.DefaultImageExist()
+		if err != nil {
+			return err
+		}
+		if result {
+			return nil
+		}
+		err = cloudClient.UploadImage()
 		if err != nil {
 			zone, err := z.zoneRepo.Get(creation.Name)
 			if err != nil {
@@ -285,4 +302,55 @@ func (z zoneService) ListByRegionId(regionId string) ([]dto.Zone, error) {
 		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
 	}
 	return zoneDTOs, err
+}
+
+func (z zoneService) DownloadVMDKFile(vmdkUrl string) (string, error) {
+	res, err := http.Get(vmdkUrl)
+	if err != nil {
+		return "", err
+	}
+	f, err := os.Create(constant.VMDKGZLocalPath)
+	if err != nil {
+		return "", err
+	}
+	_, err = io.Copy(f, res.Body)
+	if err != nil {
+		return "", err
+	}
+	fw, err := os.Open(constant.VMDKGZLocalPath)
+	if err != nil {
+		defer fw.Close()
+		return "", err
+	}
+	defer fw.Close()
+	gr, err := gzip.NewReader(fw)
+	if err != nil {
+		return "", err
+	}
+	defer gr.Close()
+	tr := tar.NewReader(gr)
+	for {
+		_, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		fw, err := os.OpenFile(constant.VMDKLocalPath, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return "", err
+		}
+		defer fw.Close()
+		_, err = io.Copy(fw, tr)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	_, err = os.Open(constant.VMDKLocalPath)
+	if err != nil {
+		return "", err
+	}
+	return constant.VMDKLocalPath, err
 }

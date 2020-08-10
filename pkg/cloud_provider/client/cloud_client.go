@@ -11,6 +11,7 @@ type CloudClient interface {
 	ListFlavors() ([]interface{}, error)
 	GetIpInUsed(network string) ([]string, error)
 	UploadImage() error
+	DefaultImageExist() (bool, error)
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
