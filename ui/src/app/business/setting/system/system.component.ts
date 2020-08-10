@@ -38,6 +38,11 @@ export class SystemComponent extends BaseModelComponent<System> implements OnIni
         if (!this.checkIp()) {
             return;
         }
+        if (this.item.vars['ip'] === this.item.vars['ntp_server']) {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_SYSTEM_EQUAL'), AlertLevels.ERROR);
+            return;
+        }
+
         this.createItem.vars = this.item.vars;
         this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
