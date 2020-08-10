@@ -13,6 +13,7 @@ import (
 
 var (
 	HostAlreadyExistsErr = "HOST_ALREADY_EXISTS"
+	SystemIpNotFound     = "SYSTEM_IP_NOT_FOUND"
 )
 
 type HostController struct {
@@ -66,7 +67,7 @@ func (h HostController) Post() (*dto.Host, error) {
 
 	localIp, err := h.SystemSettingService.Get("ip")
 	if err != nil {
-		return nil, err
+		return nil, errors.New(SystemIpNotFound)
 	}
 	if localIp.Value == req.Ip {
 		return nil, errors.New(fmt.Sprintf("%s is localIp, can not imported", localIp))

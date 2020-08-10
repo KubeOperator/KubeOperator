@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -263,7 +264,7 @@ func (v *vSphereClient) UploadImage() error {
 
 	ctx := context.TODO()
 
-	file, _, err := OpenRemoteFile("http://172.16.10.63/packages/kubeoperator_centos_7.6.1810.ovf")
+	file, _, err := OpenRemoteFile(v.Vars["ovfPath"].(string))
 	if err != nil {
 		return err
 	}
@@ -348,17 +349,14 @@ func (v *vSphereClient) UploadImage() error {
 	u := lease.StartUpdater(ctx, info)
 	defer u.Done()
 	for _, i := range info.Items {
-
-		f, size, err := OpenRemoteFile("http://172.16.10.63/packages/kubeoperator_centos_7.6.1810-1.vmdk")
+		file, size, err := OpenLocalFile(v.Vars["vmdkPath"].(string))
 		if err != nil {
 			return err
 		}
-
-		defer f.Close()
 		opts := soap.Upload{
 			ContentLength: size,
 		}
-		err = lease.Upload(ctx, i, f, opts)
+		err = lease.Upload(ctx, i, file, opts)
 		if err != nil {
 			return err
 		}
@@ -391,4 +389,36 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 		return nil, 0, err
 	}
 	return f, size, nil
+}
+
+func OpenLocalFile(localUrl string) (io.Reader, int64, error) {
+	stream, _ := ioutil.ReadFile(localUrl)
+	f := bytes.NewReader(stream)
+	le := len(stream)
+	size := int64(le)
+	return f, size, nil
+}
+
+func (v *vSphereClient) DefaultImageExist() (bool, error) {
+	_, err := v.GetConnect()
+	if err != nil {
+		return false, err
+	}
+	client := v.Connect.Client.Client
+	ctx := context.TODO()
+	f := find.NewFinder(client, true)
+	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	if err != nil {
+		return false, err
+	}
+	f.SetDatacenter(datacenter)
+
+	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if err != nil {
+		return false, err
+	}
+	if vm != nil {
+		return true, err
+	}
+	return false, err
 }

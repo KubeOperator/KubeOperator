@@ -47,16 +47,16 @@ func (z ZoneController) GetListBy(regionId string) ([]dto.Zone, error) {
 	return z.ZoneService.ListByRegionId(regionId)
 }
 
-func (z ZoneController) Post() (dto.Zone, error) {
+func (z ZoneController) Post() (*dto.Zone, error) {
 	var req dto.ZoneCreate
 	err := z.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Zone{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Zone{}, err
+		return nil, err
 	}
 	return z.ZoneService.Create(req)
 }

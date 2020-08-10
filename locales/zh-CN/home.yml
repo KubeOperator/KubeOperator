@@ -12,6 +12,7 @@ DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "默认凭据不能删除！"
 HOST_ALREADY_EXISTS: "主机已存在"
 DELETE_HOST_FAILED: "删除失败！该主机已经关联集群"
 DELETE_HOST_FAILED_BY_PROJECT: "删除失败！该主机已经关联项目！"
+SYSTEM_IP_NOT_FOUND: "请先填写本机IP！"
 
 #user
 PASSWORD_NOT_MATCH: "密码错误"
@@ -48,6 +49,6 @@ NOT_SUPPORT: "不支持的类型"
 CHECK_FAILED: "校验失败！"
 
 #plan
-DELETE_FAILED_BY_PROJECT: "删除部失败！该部署计划已经关联项目"
+DELETE_FAILED_BY_PROJECT: "删除失败！该部署计划已经关联项目"
 
 

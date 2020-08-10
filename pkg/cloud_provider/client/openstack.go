@@ -358,7 +358,7 @@ func (v *openStackClient) UploadImage() error {
 
 		result := imageimport.Create(client, imageId, imageimport.CreateOpts{
 			Name: imageimport.WebDownloadMethod,
-			URI:  "http://172.16.10.63/packages/kubeoperator_centos_7.6.1810-1.qcow2",
+			URI:  v.Vars["imagePath"].(string),
 		})
 		if result.Err != nil {
 			return result.Err
@@ -366,4 +366,8 @@ func (v *openStackClient) UploadImage() error {
 	}
 
 	return nil
+}
+
+func (v *openStackClient) DefaultImageExist() (bool, error) {
+	return false, nil
 }
