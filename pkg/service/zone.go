@@ -316,7 +316,6 @@ func (z zoneService) DownloadVMDKFile(vmdkUrl string) (string, error) {
 	}
 	fw, err := os.Open(constant.VMDKGZLocalPath)
 	if err != nil {
-		defer fw.Close()
 		return "", err
 	}
 	defer fw.Close()
