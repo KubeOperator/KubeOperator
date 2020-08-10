@@ -25,7 +25,7 @@ type UserService interface {
 	Create(creation dto.UserCreate) (*dto.User, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Update(update dto.UserUpdate) (dto.User, error)
+	Update(update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) error
 }
@@ -88,10 +88,15 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 	return &dto.User{User: user}, err
 }
 
-func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
+func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
+
+	old, err := u.Get(update.Name)
+	if err != nil {
+		return nil, err
+	}
 
 	user := model.User{
-		ID:       update.ID,
+		ID:       old.ID,
 		Name:     update.Name,
 		Email:    update.Email,
 		IsActive: update.IsActive,
@@ -99,11 +104,11 @@ func (u userService) Update(update dto.UserUpdate) (dto.User, error) {
 		IsAdmin:  update.IsAdmin,
 		Password: update.Password,
 	}
-	err := u.userRepo.Save(&user)
+	err = u.userRepo.Save(&user)
 	if err != nil {
-		return dto.User{}, err
+		return nil, err
 	}
-	return dto.User{User: user}, err
+	return &dto.User{User: user}, err
 }
 
 func (u userService) Page(num, size int) (page.Page, error) {

@@ -71,7 +71,7 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &user, err
+	return user, err
 }
 
 func (u UserController) PostBatch() error {
