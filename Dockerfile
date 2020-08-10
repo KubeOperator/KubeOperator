@@ -2,15 +2,16 @@ FROM golang:1.14-alpine as stage-build
 LABEL stage=stage-build
 WORKDIR /build/ko
 ARG GOPROXY
+ARG GOARCH
+
+ENV GOARCH=$GOARCH
 ENV GOPROXY=$GOPROXY
 ENV GOARCH=$GOARCH
 ENV GO111MODULE=on
 ENV GOOS=linux
-ENV GOARCH=$GOARCH
 ENV CGO_ENABLED=0
 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-  && apk update \
+RUN  apk update \
   && apk add git \
   && apk add make \
   && apk add bash
