@@ -38,5 +38,9 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.SystemSettingService.Create(req)
+	result, err := s.SystemSettingService.Create(req)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

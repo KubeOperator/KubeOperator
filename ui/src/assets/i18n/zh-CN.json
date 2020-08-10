@@ -320,5 +320,6 @@
   "APP_ABOUT": "关于",
   "APP_SOURCE_CODE": "源代码",
   "APP_SUPPORT": "支持",
-  "APP_WEBSITE": "网址"
+  "APP_WEBSITE": "网址",
+  "APP_SYSTEM_EQUAL": "NTP Server 不能与系统IP相同！"
 }

@@ -317,5 +317,6 @@
   "APP_ABOUT": "About",
   "APP_SOURCE_CODE": "Source Code",
   "APP_SUPPORT": "Support",
-  "APP_WEBSITE": "Website"
+  "APP_WEBSITE": "Website",
+  "APP_SYSTEM_EQUAL": "NTP Server cannot be the same as the system IP！"
 }
