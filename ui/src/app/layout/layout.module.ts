@@ -9,10 +9,11 @@ import {RouterModule} from '@angular/router';
 import {SharedModule} from '../shared/shared.module';
 import {CommonAlertComponent} from './common-alert/common-alert.component';
 import {PasswordComponent} from './header/password/password.component';
+import { AboutComponent } from './header/about/about.component';
 
 @NgModule({
     declarations: [HeaderComponent, FooterComponent, LayoutComponent,
-        NavigationComponent, AppAlertComponent, CommonAlertComponent, PasswordComponent],
+        NavigationComponent, AppAlertComponent, CommonAlertComponent, PasswordComponent, AboutComponent],
     exports: [
         LayoutComponent,
     ],

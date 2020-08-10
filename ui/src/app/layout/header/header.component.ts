@@ -4,6 +4,7 @@ import {SessionUser} from '../../shared/auth/session-user';
 import {Router} from '@angular/router';
 import {CommonRoutes} from '../../constant/route';
 import {PasswordComponent} from './password/password.component';
+import {AboutComponent} from "./about/about.component";
 
 @Component({
     selector: 'app-header',
@@ -16,6 +17,9 @@ export class HeaderComponent implements OnInit {
 
     @ViewChild(PasswordComponent, {static: true})
     password: PasswordComponent;
+
+    @ViewChild(AboutComponent, {static: true})
+    about: AboutComponent;
 
     constructor(private sessionService: SessionService, private router: Router) {
     }
@@ -35,8 +39,17 @@ export class HeaderComponent implements OnInit {
         this.password.open(this.user);
     }
 
+
+    openDoc() {
+        window.open('https://docs.kubeoperator.io/', 'blank');
+    }
+
     logOut() {
         this.sessionService.clear();
         this.router.navigateByUrl(CommonRoutes.LOGIN).then();
+    }
+
+    openAbout() {
+        this.about.open();
     }
 }

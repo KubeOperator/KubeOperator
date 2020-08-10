@@ -1,13 +1,21 @@
-
 <app-password></app-password>
+<app-about></app-about>
 <header class="header-6">
     <div class="branding">
         <img src="assets/images/logo-white.png" height="40" style="margin-top: 10px">
     </div>
     <div class="header-actions">
-        <!--        <a href="javascript://" class="nav-link nav-icon" aria-label="settings">-->
-        <!--            <clr-icon shape="cog"></clr-icon>-->
-        <!--        </a>-->
+        <clr-dropdown class="dropdown">
+            <button class="nav-text" clrDropdownToggle>
+                <clr-icon shape="help" class="is-inverse" size="24"></clr-icon>
+                <span>{{"APP_HELP"|translate}}</span>
+                <clr-icon shape="caret down"></clr-icon>
+            </button>
+            <clr-dropdown-menu [clrPosition]="'bottom-right'">
+                <a href="javascript:void(0)" clrDropdownItem (click)="openDoc()">{{'APP_DOCUMENTATION'|translate}}</a>
+                <a href="javascript:void(0)" clrDropdownItem (click)="openAbout()">{{'APP_ABOUT'|translate}}</a>
+            </clr-dropdown-menu>
+        </clr-dropdown>
         <clr-dropdown class="dropdown">
             <button class="nav-text" clrDropdownToggle>
                 <clr-icon shape="user" class="is-inverse" size="24"></clr-icon>
@@ -15,7 +23,8 @@
                 <clr-icon shape="caret down"></clr-icon>
             </button>
             <clr-dropdown-menu [clrPosition]="'bottom-right'">
-                <a href="javascript:void(0)" clrDropdownItem (click)="changePassword()">{{'APP_SYSTEM_CHANGE_PASSWORD'|translate}}</a>
+                <a href="javascript:void(0)" clrDropdownItem
+                   (click)="changePassword()">{{'APP_SYSTEM_CHANGE_PASSWORD'|translate}}</a>
                 <a href="javascript:void(0)" clrDropdownItem (click)="logOut()">{{'APP_SYSTEM_LOGOUT'|translate}}</a>
             </clr-dropdown-menu>
         </clr-dropdown>

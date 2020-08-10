@@ -314,5 +314,11 @@
   "APP_OVERVIEW": "概览",
   "APP_NODE": "节点",
   "APP_HISTORY": "历史",
-  "APP_IP_INVALID": "IP 格式错误"
+  "APP_IP_INVALID": "IP 格式错误",
+  "APP_DOCUMENTATION": "文档",
+  "APP_HELP": "帮助",
+  "APP_ABOUT": "关于",
+  "APP_SOURCE_CODE": "源代码",
+  "APP_SUPPORT": "支持",
+  "APP_WEBSITE": "网址"
 }
