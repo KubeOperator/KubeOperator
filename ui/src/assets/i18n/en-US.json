@@ -311,5 +311,11 @@
   "APP_OVERVIEW": "Overview",
   "APP_NODE": "Node",
   "APP_HISTORY": "History",
-  "APP_IP_INVALID": "IP is Invalid！"
+  "APP_IP_INVALID": "IP is Invalid！",
+  "APP_HELP": "Help",
+  "APP_DOCUMENTATION": "Documentation",
+  "APP_ABOUT": "About",
+  "APP_SOURCE_CODE": "Source Code",
+  "APP_SUPPORT": "Support",
+  "APP_WEBSITE": "Website"
 }
