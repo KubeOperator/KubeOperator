@@ -19,6 +19,10 @@ import (
 	"strings"
 )
 
+var (
+	ZoneNameExist = "NAME_EXISTS"
+)
+
 type ZoneService interface {
 	Get(name string) (dto.Zone, error)
 	List() ([]dto.Zone, error)
@@ -105,6 +109,11 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
+
+	old, _ := z.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(ZoneNameExist)
+	}
 
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {

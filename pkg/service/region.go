@@ -13,6 +13,7 @@ import (
 
 var (
 	DeleteRegionError = "DELETE_REGION_FAILED_RESOURCE"
+	RegionNameExist   = "NAME_EXISTS"
 )
 
 type RegionService interface {
@@ -20,7 +21,7 @@ type RegionService interface {
 	List() ([]dto.Region, error)
 	Page(num, size int) (page.Page, error)
 	Delete(name string) error
-	Create(creation dto.RegionCreate) (dto.Region, error)
+	Create(creation dto.RegionCreate) (*dto.Region, error)
 	Batch(op dto.RegionOp) error
 	ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error)
 }
@@ -102,10 +103,14 @@ func (r regionService) Delete(name string) error {
 	return nil
 }
 
-func (r regionService) Create(creation dto.RegionCreate) (dto.Region, error) {
+func (r regionService) Create(creation dto.RegionCreate) (*dto.Region, error) {
+
+	old, _ := r.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(RegionNameExist)
+	}
 
 	vars, _ := json.Marshal(creation.RegionVars)
-
 	region := model.Region{
 		BaseModel:  common.BaseModel{},
 		Name:       creation.Name,
@@ -116,9 +121,9 @@ func (r regionService) Create(creation dto.RegionCreate) (dto.Region, error) {
 
 	err := r.regionRepo.Save(&region)
 	if err != nil {
-		return dto.Region{}, err
+		return nil, err
 	}
-	return dto.Region{Region: region}, err
+	return &dto.Region{Region: region}, err
 }
 
 func (r regionService) Batch(op dto.RegionOp) error {

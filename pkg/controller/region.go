@@ -45,16 +45,16 @@ func (r RegionController) GetBy(name string) (dto.Region, error) {
 	return r.RegionService.Get(name)
 }
 
-func (r RegionController) Post() (dto.Region, error) {
+func (r RegionController) Post() (*dto.Region, error) {
 	var req dto.RegionCreate
 	err := r.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Region{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Region{}, err
+		return nil, err
 	}
 	return r.RegionService.Create(req)
 }

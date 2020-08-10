@@ -70,7 +70,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 

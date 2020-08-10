@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	hostIsNotNull = "delete credential error, there are some hosts use this key"
+	hostIsNotNull       = "delete credential error, there are some hosts use this key"
+	CredentialNameExist = "NAME_EXISTS"
 )
 
 type CredentialService interface {
@@ -64,14 +65,14 @@ func (c credentialService) List() ([]dto.Credential, error) {
 		return credentialDTOS, err
 	}
 	for _, mo := range mos {
-		var credentailDTO dto.Credential
-		credentailDTO.Credential = mo
+		var credentialDTO dto.Credential
+		credentialDTO.Credential = mo
 		password, err := encrypt.StringDecrypt(mo.Password)
 		if err != nil {
 			return credentialDTOS, err
 		}
-		credentailDTO.Password = password
-		credentialDTOS = append(credentialDTOS, credentailDTO)
+		credentialDTO.Password = password
+		credentialDTOS = append(credentialDTOS, credentialDTO)
 	}
 	return credentialDTOS, err
 }
@@ -103,6 +104,10 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
 
+	old, _ := c.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(CredentialNameExist)
+	}
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {
 		return nil, err

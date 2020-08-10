@@ -1,4 +1,5 @@
 #common
+NAME_EXISTS: "名称已存在"
 
 #cluster
 CLUSTER_DELETE_FAILED: "无法删除当前状态的集群"

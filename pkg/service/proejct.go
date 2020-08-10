@@ -1,11 +1,16 @@
 package service
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+)
+
+var (
+	ProjectNameExist = "NAME_EXISTS"
 )
 
 type ProjectService interface {
@@ -51,6 +56,11 @@ func (p projectService) List() ([]dto.Project, error) {
 }
 
 func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error) {
+
+	old, _ := p.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(ProjectNameExist)
+	}
 
 	project := model.Project{
 		BaseModel:   common.BaseModel{},
