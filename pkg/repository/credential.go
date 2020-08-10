@@ -75,7 +75,15 @@ func (c credentialRepository) Delete(name string) error {
 		return err
 	}
 	if len(hosts) > 0 {
-		return errors.New("delete failed")
+		return errors.New(DeleteFailedError)
+	}
+	var zones []model.Zone
+	err = db.DB.Where("credential_id = ?", credential.ID).Find(&zones).Error
+	if err != nil {
+		return err
+	}
+	if len(zones) > 0 {
+		return errors.New(DeleteFailedErrorZone)
 	}
 	return db.DB.Delete(&credential).Error
 }

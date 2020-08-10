@@ -16,6 +16,7 @@ var (
 	OriginalNotMatch = errors.New("ORIGINAL_NOT_MATCH")
 	UserNotFound     = errors.New("USER_NOT_FOUND")
 	UserIsNotActive  = errors.New("USER_IS_NOT_ACTIVE")
+	UserNameExist    = errors.New("NAME_EXISTS")
 )
 
 type UserService interface {
@@ -64,11 +65,14 @@ func (u userService) List() ([]dto.User, error) {
 
 func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 
+	old, _ := u.Get(creation.Name)
+	if old.ID != "" {
+		return nil, UserNameExist
+	}
 	password, err := encrypt.StringEncrypt(creation.Password)
 	if err != nil {
 		return nil, err
 	}
-
 	user := model.User{
 		Name:     creation.Name,
 		Email:    creation.Email,

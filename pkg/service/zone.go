@@ -19,6 +19,10 @@ import (
 	"strings"
 )
 
+var (
+	ZoneNameExist = "NAME_EXISTS"
+)
+
 type ZoneService interface {
 	Get(name string) (dto.Zone, error)
 	List() ([]dto.Zone, error)
@@ -105,6 +109,11 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
+
+	old, _ := z.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(ZoneNameExist)
+	}
 
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {
@@ -260,9 +269,6 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
-		if err != nil {
-			return err
-		}
 		if result {
 			return nil
 		}
@@ -319,7 +325,6 @@ func (z zoneService) DownloadVMDKFile(vmdkUrl string) (string, error) {
 	}
 	fw, err := os.Open(constant.VMDKGZLocalPath)
 	if err != nil {
-		defer fw.Close()
 		return "", err
 	}
 	defer fw.Close()

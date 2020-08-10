@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -11,6 +12,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/mitchellh/mapstructure"
 	"sort"
+)
+
+var (
+	PlanNameExist = "NAME_EXISTS"
 )
 
 type PlanService interface {
@@ -93,8 +98,12 @@ func (p planService) Delete(name string) error {
 
 func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 
-	vars, _ := json.Marshal(creation.PlanVars)
+	old, _ := p.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(PlanNameExist)
+	}
 
+	vars, _ := json.Marshal(creation.PlanVars)
 	region, err := p.regionRepo.Get(creation.Region)
 	if err != nil {
 		return nil, err
