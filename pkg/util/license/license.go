@@ -14,7 +14,7 @@ type Response struct {
 }
 
 func Parse(content string) (*Response, error) {
-	cmd := exec.Command("/Users/shenchenyang/go/bin/validator_darwin_amd64", content)
+	cmd := exec.Command("/usr/local/bin/validator_darwin_amd64", content)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err

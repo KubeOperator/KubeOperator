@@ -40,6 +40,8 @@ ENV ZONEINFO /opt/zoneinfo.zip
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
 
+RUN cd /usr/local/bin && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
+
 EXPOSE 8080
 
 CMD ["ko-server"]
