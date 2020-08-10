@@ -14,7 +14,8 @@ import (
 )
 
 var (
-	CheckFailed = "CHECK_FAILED"
+	CheckFailed            = "CHECK_FAILED"
+	BackupAccountNameExist = "NAME_EXISTS"
 )
 
 type BackupAccountService interface {
@@ -84,6 +85,11 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 
 func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
 
+	old, _ := b.Get(creation.Name)
+	if old.ID != "" {
+		return nil, errors.New(BackupAccountNameExist)
+	}
+
 	err := b.CheckValid(creation)
 	if err != nil {
 		return nil, err
@@ -106,11 +112,11 @@ func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.Ba
 }
 
 func (b backupAccountService) Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
+
 	err := b.CheckValid(creation)
 	if err != nil {
 		return nil, err
 	}
-
 	credential, _ := json.Marshal(creation.CredentialVars)
 	old, err := b.backupAccountRepo.Get(creation.Name)
 	if err != nil {
