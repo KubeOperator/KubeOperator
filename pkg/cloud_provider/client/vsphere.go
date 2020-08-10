@@ -414,11 +414,8 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 	f.SetDatacenter(datacenter)
 
 	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
-	if err != nil {
-		return false, err
-	}
 	if vm != nil {
 		return true, err
 	}
-	return false, err
+	return false, nil
 }

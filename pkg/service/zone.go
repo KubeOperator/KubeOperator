@@ -260,9 +260,6 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
-		if err != nil {
-			return err
-		}
 		if result {
 			return nil
 		}

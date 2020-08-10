@@ -73,7 +73,7 @@ export class ProjectMemberCreateComponent extends BaseModelComponent<ProjectMemb
     }
 
     selectedName(name) {
-        this.item.name = name;
+        this.item.userName = name;
         this.selectUsers = [];
     }
 
