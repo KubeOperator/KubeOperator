@@ -67,35 +67,35 @@
             <div *ngIf="item.provider === 'OpenStack'">
                 <clr-input-container>
                     <label>{{'APP_OPENSTACK_ID'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.regionVars['identity']" name="identity"
+                    <input clrInput type="text"  size=45  [(ngModel)]="item.regionVars['identity']" name="identity"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_KEYSTONE'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_USERNAME'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.regionVars['username']" name="openstack_username"
+                    <input clrInput type="text"  size=45  [(ngModel)]="item.regionVars['username']" name="openstack_username"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_USERNAME'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-password-container>
                     <label>{{'APP_PASSWORD'|translate}}</label>
-                    <input clrPassword type="text" [(ngModel)]="item.regionVars['password']" name="openstack_password"
+                    <input clrPassword type="text"  size=45  [(ngModel)]="item.regionVars['password']" name="openstack_password"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_PASSWORD'|translate}}</clr-control-helper>
                 </clr-password-container>
                 <clr-input-container>
                     <label>{{'APP_OPENSTACK_PROJECT'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.regionVars['projectId']" name="projectId"
+                    <input clrInput type="text"  size=45 [(ngModel)]="item.regionVars['projectId']" name="projectId"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_PROJECT_HELPER'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_OPENSTACK_DOMAIN'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.regionVars['domainName']" name="domainName"
+                    <input clrInput type="text"  size=45 [(ngModel)]="item.regionVars['domainName']" name="domainName"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_DOMAIN_HELPER'|translate}}</clr-control-helper>
