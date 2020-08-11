@@ -3,7 +3,7 @@ package main
 //go:generate go-bindata -o ./pkg/i18n/locales.go -pkg i18n ./locales/...
 
 import (
-	_ "github.com/KubeOperator/KubeOperator/docs"
+	_"github.com/KubeOperator/KubeOperator/docs"
 	"github.com/KubeOperator/KubeOperator/pkg/server"
 	_ "golang.org/x/text/message"
 	_ "golang.org/x/text/message/catalog"

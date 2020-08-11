@@ -211,6 +211,7 @@ definitions:
       total:
         type: integer
     type: object
+host: /
 info:
   contact:
     email: support@fit2cloud.com

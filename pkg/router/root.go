@@ -23,7 +23,6 @@ func Server() *iris.Application {
 	app.I18n.ExtractFunc = func(ctx iris.Context) string {
 		return ctx.URLParam("l")
 	}
-
 	c := &swagger.Config{
 		URL: "http://localhost:8080/swagger/doc.json",
 	}
