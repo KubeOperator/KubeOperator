@@ -211,7 +211,7 @@ definitions:
       total:
         type: integer
     type: object
-host: /
+host: localhost:8080
 info:
   contact:
     email: support@fit2cloud.com

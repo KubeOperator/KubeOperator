@@ -13,7 +13,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "host": "/",
+    "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
         "/clusters/": {
