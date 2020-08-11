@@ -7,6 +7,7 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import * as ipaddr from 'ipaddr.js';
+import {AlertLevels} from '../../../../layout/common-alert/alert';
 
 
 @Component({
@@ -17,13 +18,13 @@ import * as ipaddr from 'ipaddr.js';
 export class ZoneUpdateComponent extends BaseModelComponent<Zone> implements OnInit {
 
     opened = false;
-    item: ZoneUpdateRequest = new ZoneUpdateRequest()
+    item: ZoneUpdateRequest = new ZoneUpdateRequest();
     networkError = [];
-    @Output() updated = new EventEmitter()
+    @Output() updated = new EventEmitter();
 
     constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
                 private translateService: TranslateService, private commonAlertService: CommonAlertService) {
-        super(zoneService)
+        super(zoneService);
     }
 
     ngOnInit(): void {
@@ -31,7 +32,7 @@ export class ZoneUpdateComponent extends BaseModelComponent<Zone> implements OnI
 
     open(item) {
         this.item = item;
-        this.item.cloudVars =  JSON.parse(item.vars);
+        this.item.cloudVars = JSON.parse(item.vars);
         this.opened = true;
     }
 
@@ -59,7 +60,7 @@ export class ZoneUpdateComponent extends BaseModelComponent<Zone> implements OnI
                 }
             }
         }
-        return result
+        return result;
     }
 
     onCancel() {
@@ -67,10 +68,13 @@ export class ZoneUpdateComponent extends BaseModelComponent<Zone> implements OnI
     }
 
     onConfirm() {
-        this.zoneService.update(this.item.name,this.item).subscribe(res => {
+        this.zoneService.update(this.item.name, this.item).subscribe(res => {
             this.onCancel();
+            this.updated.emit();
+            this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-
-        })
+            this.onCancel();
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
     }
 }

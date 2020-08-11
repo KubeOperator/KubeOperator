@@ -13,6 +13,7 @@ import * as ipaddr from 'ipaddr.js';
 import {CredentialService} from '../../../setting/credential/credential.service';
 import {Credential} from '../../../setting/credential/credential';
 import {NgForm} from '@angular/forms';
+import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 
 
 @Component({
@@ -22,6 +23,8 @@ import {NgForm} from '@angular/forms';
 })
 export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnInit {
 
+    namePattern = NamePattern;
+    namePatternHelper = NamePatternHelper;
     opened = false;
     item: ZoneCreateRequest = new ZoneCreateRequest();
     cloudZoneRequest: CloudZoneRequest = new CloudZoneRequest();

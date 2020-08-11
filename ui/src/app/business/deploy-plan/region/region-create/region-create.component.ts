@@ -9,6 +9,7 @@ import {CloudProviderService} from '../cloud-provider.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ClrWizard, ClrWizardPage} from '@clr/angular';
 import {TranslateService} from '@ngx-translate/core';
+import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-region-create',
@@ -17,6 +18,8 @@ import {TranslateService} from '@ngx-translate/core';
 })
 export class RegionCreateComponent extends BaseModelComponent<Region> implements OnInit {
 
+    namePattern = NamePattern;
+    namePatternHelper = NamePatternHelper;
     opened = false;
     isSubmitGoing = false;
     item: RegionCreateRequest = new RegionCreateRequest();

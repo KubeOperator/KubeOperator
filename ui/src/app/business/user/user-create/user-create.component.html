@@ -4,7 +4,9 @@
         <form clrForm #userForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" required/>
+                <input clrInput [size]="32" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}" required/>
+                <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
+                <clr-control-error>{{namePatternHelper}}</clr-control-error>
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_EMAIL"|translate}}</label>
@@ -26,7 +28,8 @@
             <clr-password-container>
                 <label>{{"APP_CONFIRM_PASSWORD"|translate}}</label>
                 <input style="display:none">
-                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword" (change)="checkPassword()"
+                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword"
+                       (change)="checkPassword()"
                        pattern="{{passwordPattern}}" required/>
                 <clr-control-helper
                         *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
@@ -35,7 +38,7 @@
             <clr-checkbox-container>
                 <label>{{"APP_USER_ADMIN"|translate}}</label>
                 <clr-checkbox-wrapper>
-                    <input type="checkbox" clrCheckbox name="admin" value="true"  [(ngModel)]="item.isAdmin" />
+                    <input type="checkbox" clrCheckbox name="admin" value="true" [(ngModel)]="item.isAdmin"/>
                 </clr-checkbox-wrapper>
             </clr-checkbox-container>
         </form>
