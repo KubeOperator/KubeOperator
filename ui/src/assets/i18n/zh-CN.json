@@ -327,5 +327,6 @@
   "APP_OPTION": "选项",
   "APP_MAX": "最大",
   "APP_AUDIT": "审计",
-  "APP_MODE": "模式"
+  "APP_MODE": "模式",
+  "APP_IP_CHECK_SUCCESS": "校验成功！"
 }
