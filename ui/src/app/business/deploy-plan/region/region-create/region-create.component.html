@@ -10,8 +10,10 @@
         <form clrForm #regionForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}</label>
-                <input clrInput size=45 type="text" maxlength="15" [(ngModel)]="item.name"
+                <input clrInput size=45 type="text" maxlength="15" [(ngModel)]="item.name" pattern="{{namePattern}}"
                        name="name" required>
+                <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
+                <clr-control-error>{{namePatternHelper}}</clr-control-error>
             </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_PROVIDER'|translate}}</label>

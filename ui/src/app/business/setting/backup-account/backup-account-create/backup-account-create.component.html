@@ -5,8 +5,10 @@
         <form clrForm #backupAccountForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}</label>
-                <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name"
+                <input clrInput size=45 maxlength="15" type="text" [(ngModel)]="item.name" pattern="{{namePattern}}"
                        name="name" required>
+                <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
+                <clr-control-error>{{namePatternHelper}}</clr-control-error>
             </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_TYPE'|translate}}:</label>

@@ -6,6 +6,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
+import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-credential-create',
@@ -14,6 +15,8 @@ import {TranslateService} from '@ngx-translate/core';
 })
 export class CredentialCreateComponent implements OnInit {
 
+    namePattern = NamePattern;
+    namePatternHelper = NamePatternHelper;
     opened = false;
     isSubmitGoing = false;
     item: CredentialCreateRequest = new CredentialCreateRequest();
