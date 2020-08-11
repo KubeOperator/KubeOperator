@@ -40,7 +40,7 @@ KubeOperator 的整体架构：
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="15">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="16">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -52,7 +52,7 @@ KubeOperator 的整体架构：
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="3">计算方案
+        <td class="features-third-td-background-style" rowspan="4">计算方案
         </td>
         <td class="features-third-td-background-style">独立主机：支持自行准备的虚机、公有云主机和物理机
         </td>  
@@ -63,6 +63,10 @@ KubeOperator 的整体架构：
     </tr>
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">Openstack 平台：支持自动创建主机 （使用 Terraform）
+        </td>
+    </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">支持 x86 和 Arm64 CPU 架构
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
