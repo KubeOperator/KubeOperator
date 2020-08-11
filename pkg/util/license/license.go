@@ -5,6 +5,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"io/ioutil"
 	"os/exec"
+	"path"
+	"strings"
 )
 
 type Response struct {
@@ -14,7 +16,18 @@ type Response struct {
 }
 
 func Parse(content string) (*Response, error) {
-	cmd := exec.Command("/usr/local/bin/validator_darwin_amd64", content)
+	fs, err := ioutil.ReadDir("/usr/local/bin")
+
+	if err != nil {
+		return nil, err
+	}
+	var validatorPath string
+	for _, f := range fs {
+		if strings.Contains(f.Name(), "validator") {
+			validatorPath = path.Join("/usr/local/bin", f.Name())
+		}
+	}
+	cmd := exec.Command(validatorPath, content)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
