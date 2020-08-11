@@ -30,11 +30,12 @@ require (
 	github.com/gophercloud/gophercloud v0.1.0
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/iris-contrib/middleware/jwt v0.0.0-20191219204441-78279b78a367
+	github.com/iris-contrib/swagger/v12 v12.0.1
 	github.com/jinzhu/gorm v1.9.12
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/golog v0.0.18 // indirect
-	github.com/kataras/iris/v12 v12.1.2
+	github.com/kataras/iris/v12 v12.1.8
 	github.com/klauspost/compress v1.10.8 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect

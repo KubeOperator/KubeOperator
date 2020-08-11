@@ -15,7 +15,7 @@ const (
 
 type Host struct {
 	common.BaseModel
-	ID           string     `json:"id"`
+	ID           string     `json:"-"`
 	Name         string     `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Memory       int        `json:"memory" gorm:"type:int(64)"`
 	CpuCore      int        `json:"cpuCore" gorm:"type:int(64)"`
@@ -27,11 +27,11 @@ type Host struct {
 	Port         int        `json:"port" gorm:"type:varchar(64)"`
 	CredentialID string     `json:"credentialId" gorm:"type:varchar(64)"`
 	ClusterID    string     `json:"clusterId" gorm:"type:varchar(64)"`
-	ZoneID       string     `json:"_"`
-	Zone         Zone       `json:"_"  gorm:"save_associations:false" `
+	ZoneID       string     `json:"zoneId" gorm:"type:varchar(64)"`
+	Zone         Zone       `json:"-"  gorm:"save_associations:false" `
 	Volumes      []Volume   `json:"volumes" gorm:"save_associations:false"`
-	Credential   Credential `json:"_" gorm:"save_associations:false" `
-	Cluster      Cluster    `json:"_" gorm:"save_associations:false" `
+	Credential   Credential `json:"-" gorm:"save_associations:false" `
+	Cluster      Cluster    `json:"-" gorm:"save_associations:false" `
 	Status       string     `json:"status" gorm:"type:varchar(64)"`
 	Message      string     `json:"message" gorm:"type:text(65535)"`
 }

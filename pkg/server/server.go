@@ -10,6 +10,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/plugin"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
+	"github.com/iris-contrib/swagger/v12"
+	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
 	"os"
@@ -58,6 +60,11 @@ func Start() error {
 	bind := fmt.Sprintf("%s:%d",
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))
+
+	c := &swagger.Config{
+		URL: "http://localhost:8080/swagger/doc.json", //The url pointing to API definition
+	}
+	s.Get("/swagger/{any:path}", swagger.CustomWrapHandler(c, swaggerFiles.Handler))
 	if err := s.Run(iris.Addr(bind)); err != nil {
 		return err
 	}
