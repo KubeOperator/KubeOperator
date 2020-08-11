@@ -323,5 +323,8 @@
   "APP_WEBSITE": "网址",
   "APP_SYSTEM_EQUAL": "NTP Server 不能与系统IP相同！",
   "APP_SENIOR": "高级",
-  "APP_OPTION": "选项"
+  "APP_OPTION": "选项",
+  "APP_MAX": "最大",
+  "APP_AUDIT": "审计",
+  "APP_MODE": "模式"
 }
