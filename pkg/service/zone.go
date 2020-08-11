@@ -256,11 +256,6 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if zoneVars["network"] != nil {
 			regionVars["network"] = zoneVars["network"]
 		}
-		vmdkUrl := fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
-		regionVars["vmdkPath"], err = z.DownloadVMDKFile(vmdkUrl)
-		if err != nil {
-			return err
-		}
 		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip.Value)
 	}
 	if region.Provider == constant.OpenStack {
@@ -269,8 +264,25 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
+		zone, err := z.zoneRepo.Get(creation.Name)
+		if err != nil {
+			return err
+		}
 		if result {
+			zone.Status = constant.Ready
+			err = z.zoneRepo.Save(&zone)
+			if err != nil {
+				return err
+			}
 			return nil
+		} else {
+			if region.Provider == constant.VSphere {
+				vmdkUrl := fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
+				regionVars["vmdkPath"], err = z.DownloadVMDKFile(vmdkUrl)
+				if err != nil {
+					return err
+				}
+			}
 		}
 		err = cloudClient.UploadImage()
 		if err != nil {
@@ -283,10 +295,6 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			if err != nil {
 				return err
 			}
-			return err
-		}
-		zone, err := z.zoneRepo.Get(creation.Name)
-		if err != nil {
 			return err
 		}
 		zone.Status = constant.Ready
