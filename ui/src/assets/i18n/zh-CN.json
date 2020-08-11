@@ -51,8 +51,8 @@
   "APP_CREDENTIAL": "凭据",
   "APP_USERNAME": "用户名",
   "APP_TYPE": "类型",
-  "APP_PRIVATE_KEY": "秘钥",
-  "APP_DELETE_CREDENTIAL": "删除秘钥",
+  "APP_PRIVATE_KEY": "密钥",
+  "APP_DELETE_CREDENTIAL": "删除密钥",
   "APP_HOST": "主机",
   "APP_IP": "IP",
   "APP_PORT": "端口",
@@ -327,5 +327,6 @@
   "APP_OPTION": "选项",
   "APP_MAX": "最大",
   "APP_AUDIT": "审计",
-  "APP_MODE": "模式"
+  "APP_MODE": "模式",
+  "APP_IP_CHECK_SUCCESS": "校验成功！"
 }

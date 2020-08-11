@@ -129,7 +129,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.regionService.list().subscribe(res => {
             this.regions = res.items;
         }, error => {
-
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 
@@ -148,6 +148,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
         this.zoneService.listClusters(this.cloudZoneRequest).subscribe(res => {
             this.cloudZones = res.result;
             this.loading = false;
+        }, error => {
+
         });
     }
 

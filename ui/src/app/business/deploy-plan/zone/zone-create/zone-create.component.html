@@ -358,6 +358,7 @@
             <ul>
                 <li *ngFor="let error of networkError">{{error}}</li>
             </ul>
+            <span *ngIf="networkValid">{{'APP_IP_CHECK_SUCCESS'|translate}}</span>
         </div>
         <app-modal-alert></app-modal-alert>
     </clr-wizard-page>
