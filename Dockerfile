@@ -14,7 +14,8 @@ ENV CGO_ENABLED=0
 RUN  apk update \
   && apk add git \
   && apk add make \
-  && apk add bash
+  && apk add bash \
+  && apk add binutils-gold
 COPY go.mod go.sum ./
 RUN go mod download
 

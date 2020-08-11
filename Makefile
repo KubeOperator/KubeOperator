@@ -26,7 +26,7 @@ docker_ui:
 	docker build -t kubeoperator/ui:master  ./ui
 
 docker_server:
-	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) .
+	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) . --no-cache
 
 clean:
 	rm -fr ./dist
