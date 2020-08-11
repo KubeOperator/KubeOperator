@@ -37,6 +37,28 @@ definitions:
     - name
     - type
     type: object
+  dto.Cluster:
+    properties:
+      architectures:
+        type: string
+      createdAt:
+        type: string
+      name:
+        type: string
+      nodeSize:
+        type: integer
+      provider:
+        type: string
+      source:
+        type: string
+      spec:
+        $ref: '#/definitions/model.ClusterSpec'
+        type: object
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   dto.ClusterBackupFileCreate:
     properties:
       clusterBackupStrategyId:
@@ -108,6 +130,56 @@ definitions:
       status:
         type: string
     type: object
+  dto.ClusterCreate:
+    properties:
+      architectures:
+        type: string
+      calicoIpv4PoolIpip:
+        type: string
+      containerdStorageDIr:
+        type: string
+      dockerStorageDIr:
+        type: string
+      dockerSubnet:
+        type: string
+      flannelBackend:
+        type: string
+      ingressControllerType:
+        type: string
+      kubeMaxPods:
+        type: integer
+      kubePodSubnet:
+        type: string
+      kubeProxyMode:
+        type: string
+      kubeServiceSubnet:
+        type: string
+      kubernetesAudit:
+        type: string
+      name:
+        type: string
+      networkType:
+        type: string
+      nodes:
+        items:
+          $ref: '#/definitions/dto.NodeCreate'
+        type: array
+      plan:
+        type: string
+      projectName:
+        type: string
+      provider:
+        type: string
+      runtimeType:
+        type: string
+      version:
+        type: string
+      workerAmount:
+        type: integer
+    required:
+    - name
+    - version
+    type: object
   dto.Credential:
     properties:
       createdAt:
@@ -166,6 +238,8 @@ definitions:
     type: object
   dto.Host:
     properties:
+      _:
+        type: string
       clusterId:
         type: string
       clusterName:
@@ -222,6 +296,13 @@ definitions:
     - ip
     - name
     - port
+    type: object
+  dto.NodeCreate:
+    properties:
+      hostName:
+        type: string
+      role:
+        type: string
     type: object
   dto.Plan:
     properties:
@@ -502,10 +583,6 @@ definitions:
     type: object
   model.Cluster:
     properties:
-      _:
-        items:
-          $ref: '#/definitions/model.ClusterTool'
-        type: array
       createdAt:
         type: string
       name:
@@ -560,33 +637,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  model.ClusterNode:
-    properties:
-      _:
-        $ref: '#/definitions/model.Host'
-        type: object
-      clusterId:
-        type: string
-      createdAt:
-        type: string
-      name:
-        type: string
-      role:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  model.ClusterSecret:
-    properties:
-      id:
-        type: string
-      kubeadmToken:
-        type: string
-      kubernetesToken:
-        type: string
-    type: object
   model.ClusterSpec:
     properties:
       _:
@@ -635,132 +685,6 @@ definitions:
         type: string
       workerAmount:
         type: integer
-    type: object
-  model.ClusterStatus:
-    properties:
-      conditions:
-        items:
-          $ref: '#/definitions/model.ClusterStatusCondition'
-        type: array
-      createdAt:
-        type: string
-      id:
-        type: string
-      message:
-        type: string
-      phase:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  model.ClusterStatusCondition:
-    properties:
-      _:
-        type: integer
-      createdAt:
-        type: string
-      lastProbeTime:
-        type: string
-      message:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  model.ClusterTool:
-    properties:
-      _:
-        type: string
-      architecture:
-        type: string
-      cluster_id:
-        type: string
-      createdAt:
-        type: string
-      describe:
-        type: string
-      frame:
-        type: boolean
-      logo:
-        type: string
-      message:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-      url:
-        type: string
-      version:
-        type: string
-    type: object
-  model.Host:
-    properties:
-      clusterId:
-        type: string
-      cpuCore:
-        type: integer
-      createdAt:
-        type: string
-      credentialId:
-        type: string
-      gpuInfo:
-        type: string
-      gpuNum:
-        type: integer
-      ip:
-        type: string
-      memory:
-        type: integer
-      message:
-        type: string
-      name:
-        type: string
-      os:
-        type: string
-      osVersion:
-        type: string
-      port:
-        type: integer
-      status:
-        type: string
-      updatedAt:
-        type: string
-      volumes:
-        items:
-          $ref: '#/definitions/model.Volume'
-        type: array
-      zoneId:
-        type: string
-    type: object
-  model.Plan:
-    properties:
-      createdAt:
-        type: string
-      deployTemplate:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      region:
-        $ref: '#/definitions/model.Region'
-        type: object
-      regionId:
-        type: string
-      updatedAt:
-        type: string
-      vars:
-        type: string
-      zones:
-        items:
-          $ref: '#/definitions/model.Zone'
-        type: array
     type: object
   model.Region:
     properties:
@@ -844,6 +768,7 @@ definitions:
       total:
         type: integer
     type: object
+host: localhost:8080
 info:
   contact:
     email: support@fit2cloud.com
@@ -1065,6 +990,58 @@ paths:
       summary: Get Cluster Backup Strategy
       tags:
       - backupStrategy
+  /clusters/:
+    get:
+      consumes:
+      - application/json
+      description: Show a cluster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a cluster
+      tags:
+      - clusters
+    post:
+      consumes:
+      - application/json
+      description: Create a cluster
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ClusterCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a cluster
+      tags:
+      - clusters
+  /clusters/{name}/:
+    delete:
+      consumes:
+      - application/json
+      description: delete a cluster by name
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a cluster
+      tags:
+      - clusters
   /credentials/:
     get:
       consumes:

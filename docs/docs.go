@@ -375,6 +375,91 @@ var doc = `{
                 }
             }
         },
+        "/clusters/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show a cluster",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Create a cluster",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{name}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete a cluster by name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Delete a cluster"
+            }
+        },
         "/credentials/": {
             "get": {
                 "security": [
@@ -1330,6 +1415,39 @@ var doc = `{
                 }
             }
         },
+        "dto.Cluster": {
+            "type": "object",
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeSize": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.ClusterSpec"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ClusterBackupFileCreate": {
             "type": "object",
             "required": [
@@ -1436,6 +1554,81 @@ var doc = `{
                 }
             }
         },
+        "dto.ClusterCreate": {
+            "type": "object",
+            "required": [
+                "name",
+                "version"
+            ],
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "calicoIpv4PoolIpip": {
+                    "type": "string"
+                },
+                "containerdStorageDIr": {
+                    "type": "string"
+                },
+                "dockerStorageDIr": {
+                    "type": "string"
+                },
+                "dockerSubnet": {
+                    "type": "string"
+                },
+                "flannelBackend": {
+                    "type": "string"
+                },
+                "ingressControllerType": {
+                    "type": "string"
+                },
+                "kubeMaxPods": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
+                "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
+                    "type": "string"
+                },
+                "kubernetesAudit": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NodeCreate"
+                    }
+                },
+                "plan": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "workerAmount": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.Credential": {
             "type": "object",
             "properties": {
@@ -1522,6 +1715,9 @@ var doc = `{
         "dto.Host": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -1604,6 +1800,17 @@ var doc = `{
                 },
                 "port": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.NodeCreate": {
+            "type": "object",
+            "properties": {
+                "hostName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },
@@ -2022,12 +2229,6 @@ var doc = `{
         "model.Cluster": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.ClusterTool"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2109,47 +2310,6 @@ var doc = `{
                 }
             }
         },
-        "model.ClusterNode": {
-            "type": "object",
-            "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Host"
-                },
-                "clusterId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.ClusterSecret": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "kubeadmToken": {
-                    "type": "string"
-                },
-                "kubernetesToken": {
-                    "type": "string"
-                }
-            }
-        },
         "model.ClusterSpec": {
             "type": "object",
             "properties": {
@@ -2221,197 +2381,6 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.ClusterStatus": {
-            "type": "object",
-            "properties": {
-                "conditions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.ClusterStatusCondition"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "phase": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.ClusterStatusCondition": {
-            "type": "object",
-            "properties": {
-                "_": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "lastProbeTime": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.ClusterTool": {
-            "type": "object",
-            "properties": {
-                "_": {
-                    "type": "string"
-                },
-                "architecture": {
-                    "type": "string"
-                },
-                "cluster_id": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "describe": {
-                    "type": "string"
-                },
-                "frame": {
-                    "type": "boolean"
-                },
-                "logo": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.Host": {
-            "type": "object",
-            "properties": {
-                "clusterId": {
-                    "type": "string"
-                },
-                "cpuCore": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "credentialId": {
-                    "type": "string"
-                },
-                "gpuInfo": {
-                    "type": "string"
-                },
-                "gpuNum": {
-                    "type": "integer"
-                },
-                "ip": {
-                    "type": "string"
-                },
-                "memory": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "os": {
-                    "type": "string"
-                },
-                "osVersion": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "volumes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Volume"
-                    }
-                },
-                "zoneId": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.Plan": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deployTemplate": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Region"
-                },
-                "regionId": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "vars": {
-                    "type": "string"
-                },
-                "zones": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Zone"
-                    }
                 }
             }
         },
@@ -2562,7 +2531,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "",
-	Host:        "",
+	Host:        "localhost:8080",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "KubeOperator Restful API",

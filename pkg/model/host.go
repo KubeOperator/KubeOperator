@@ -15,7 +15,7 @@ const (
 
 type Host struct {
 	common.BaseModel
-	ID           string     `json:"-"`
+	ID           string     `json:"_"`
 	Name         string     `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Memory       int        `json:"memory" gorm:"type:int(64)"`
 	CpuCore      int        `json:"cpuCore" gorm:"type:int(64)"`
@@ -68,6 +68,15 @@ func (h *Host) BeforeDelete() error {
 		}
 
 	}
+	var PlanResources []ProjectResource
+	err := db.DB.Where(ProjectResource{ResourceId: h.ID}).Find(&PlanResources).Error
+	if err != nil {
+		return err
+	}
+	if len(PlanResources) > 0 {
+		return errors.New("DELETE_HOST_FAILED_BY_PROJECT")
+	}
+
 	return nil
 }
 
