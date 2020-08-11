@@ -33,6 +33,91 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/clusters/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show a cluster",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Create a cluster",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ClusterCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            }
+        },
+        "/clusters/{name}/": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete a cluster by name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Delete a cluster"
+            }
+        },
         "/hosts/": {
             "get": {
                 "security": [
@@ -146,9 +231,120 @@ var doc = `{
         }
     },
     "definitions": {
+        "dto.Cluster": {
+            "type": "object",
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodeSize": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.ClusterSpec"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ClusterCreate": {
+            "type": "object",
+            "required": [
+                "name",
+                "version"
+            ],
+            "properties": {
+                "architectures": {
+                    "type": "string"
+                },
+                "calicoIpv4PoolIpip": {
+                    "type": "string"
+                },
+                "containerdStorageDIr": {
+                    "type": "string"
+                },
+                "dockerStorageDIr": {
+                    "type": "string"
+                },
+                "dockerSubnet": {
+                    "type": "string"
+                },
+                "flannelBackend": {
+                    "type": "string"
+                },
+                "ingressControllerType": {
+                    "type": "string"
+                },
+                "kubeMaxPods": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
+                "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
+                    "type": "string"
+                },
+                "kubernetesAudit": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NodeCreate"
+                    }
+                },
+                "plan": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "workerAmount": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.Host": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -230,6 +426,91 @@ var doc = `{
                     "type": "string"
                 },
                 "port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NodeCreate": {
+            "type": "object",
+            "properties": {
+                "hostName": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ClusterSpec": {
+            "type": "object",
+            "properties": {
+                "_": {
+                    "type": "string"
+                },
+                "architectures": {
+                    "type": "string"
+                },
+                "calicoIpv4PoolIpip": {
+                    "type": "string"
+                },
+                "containerdStorageDir": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dockerStorageDir": {
+                    "type": "string"
+                },
+                "docker_subnet": {
+                    "type": "string"
+                },
+                "flannelBackend": {
+                    "type": "string"
+                },
+                "ingressControllerType": {
+                    "type": "string"
+                },
+                "kubeApiServerPort": {
+                    "type": "integer"
+                },
+                "kubeMaxPods": {
+                    "type": "integer"
+                },
+                "kubePodSubnet": {
+                    "type": "string"
+                },
+                "kubeProxyMode": {
+                    "type": "string"
+                },
+                "kubeRouter": {
+                    "type": "string"
+                },
+                "kubeServiceSubnet": {
+                    "type": "string"
+                },
+                "kubernetesAudit": {
+                    "type": "string"
+                },
+                "lbKubeApiserverIp": {
+                    "type": "string"
+                },
+                "networkType": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "runtimeType": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "workerAmount": {
                     "type": "integer"
                 }
             }

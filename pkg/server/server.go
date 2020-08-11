@@ -61,10 +61,7 @@ func Start() error {
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))
 
-	c := &swagger.Config{
-		URL: "http://localhost:8080/swagger/doc.json", //The url pointing to API definition
-	}
-	s.Get("/swagger/{any:path}", swagger.CustomWrapHandler(c, swaggerFiles.Handler))
+
 	if err := s.Run(iris.Addr(bind)); err != nil {
 		return err
 	}

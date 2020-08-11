@@ -7,6 +7,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/router/proxy"
 	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
 	"github.com/KubeOperator/KubeOperator/pkg/router/xpack"
+	"github.com/iris-contrib/swagger/v12"
+	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/iris/v12"
 )
 
@@ -21,6 +23,12 @@ func Server() *iris.Application {
 	app.I18n.ExtractFunc = func(ctx iris.Context) string {
 		return ctx.URLParam("l")
 	}
+
+	c := &swagger.Config{
+		URL: "http://localhost:8080/swagger/doc.json",
+	}
+	app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(c, swaggerFiles.Handler))
+
 	app.Post("/api/auth/login", middleware.LoginHandler)
 	app.Get("/api/auth/profile", middleware.JWTMiddleware().Serve, middleware.GetAuthUser)
 	proxy.RegisterProxy(app)
