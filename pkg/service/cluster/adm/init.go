@@ -93,9 +93,10 @@ func (ca *ClusterAdm) getNextConditionName(conditionName string) string {
 }
 
 func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 	return nil
 }
+
 
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}

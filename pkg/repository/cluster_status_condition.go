@@ -42,7 +42,7 @@ func (c clusterStatusConditionRepository) Delete(id string) error {
 func (c clusterStatusConditionRepository) Save(condition *model.ClusterStatusCondition) error {
 	if db.DB.NewRecord(condition) {
 		var temp model.ClusterStatusCondition
-		if db.DB.Where(model.ClusterStatusCondition{ClusterStatusID: condition.ID, Name: condition.Name}).
+		if db.DB.Where(model.ClusterStatusCondition{ClusterStatusID: condition.ClusterStatusID, Name: condition.Name}).
 			First(&temp).
 			RecordNotFound() {
 			if err := db.DB.Create(condition).Error; err != nil {
