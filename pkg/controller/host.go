@@ -70,7 +70,7 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, errors.New(SystemIpNotFound)
 	}
 	if localIp.Value == req.Ip {
-		return nil, errors.New(fmt.Sprintf("%s is localIp, can not imported", localIp))
+		return nil, errors.New(fmt.Sprintf("%s is localIp, can not imported", localIp.Value))
 	}
 	item, _ := h.HostService.Get(req.Name)
 	if item.ID != "" {
