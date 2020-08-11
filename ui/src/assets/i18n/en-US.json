@@ -269,7 +269,7 @@
   "Terminating": "Terminating",
   "Running": "Running",
   "APP_BACKUP": "Backup",
-  "APP_ARCHITECTURES": "architectures",
+  "APP_ARCHITECTURE": "architectures",
   "local": "local",
   "APP_DISABLE": "disable",
   "APP_ADD_BACKUP_ACCOUNT": "Add Backup Account",
@@ -318,5 +318,7 @@
   "APP_SOURCE_CODE": "Source Code",
   "APP_SUPPORT": "Support",
   "APP_WEBSITE": "Website",
-  "APP_SYSTEM_EQUAL": "NTP Server cannot be the same as the system IP！"
+  "APP_SYSTEM_EQUAL": "NTP Server cannot be the same as the system IP！",
+  "APP_SENIOR": "Senior",
+  "APP_OPTION": "Option"
 }

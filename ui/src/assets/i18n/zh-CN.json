@@ -272,7 +272,7 @@
   "Terminating": "销毁中",
   "Running": "运行中",
   "APP_BACKUP": "备份",
-  "APP_ARCHITECTURES": "架构",
+  "APP_ARCHITECTURE": "架构",
   "local": "本地",
   "APP_ADD_STORAGE_PROVISIONER": "添加存储提供商",
   "APP_DISABLE": "禁用",
@@ -321,5 +321,7 @@
   "APP_SOURCE_CODE": "源代码",
   "APP_SUPPORT": "支持",
   "APP_WEBSITE": "网址",
-  "APP_SYSTEM_EQUAL": "NTP Server 不能与系统IP相同！"
+  "APP_SYSTEM_EQUAL": "NTP Server 不能与系统IP相同！",
+  "APP_SENIOR": "高级",
+  "APP_OPTION": "选项"
 }
