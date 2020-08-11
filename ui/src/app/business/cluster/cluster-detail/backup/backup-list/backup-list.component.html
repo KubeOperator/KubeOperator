@@ -11,7 +11,7 @@
                     [disabled]="selected.length != 1 "
                     (click)="restore(selected[0].name)">
                 <clr-icon shape="backup-restore" size="16"></clr-icon>
-                恢复
+                {{'APP_RESTORE'|translate}}
             </button>
         </div>
     </clr-dg-action-bar>
