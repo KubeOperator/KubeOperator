@@ -1,4 +1,4 @@
-<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="xl" (close)="onCancel()">
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="xl" (clrModalOpenChange)="onCancel()">
     <h3 class="modal-title">{{"APP_STATUS_DETAIL"| translate}}</h3>
     <div class="modal-body">
         <span *ngIf="item.conditions&&item.conditions.length === 0">
