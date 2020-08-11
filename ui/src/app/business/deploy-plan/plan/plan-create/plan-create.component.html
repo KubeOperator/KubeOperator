@@ -18,7 +18,7 @@
             <clr-select-container>
                 <label>{{'APP_REGION'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.region" name="provider" (change)="onRegionChange()" required>
-                    <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let re of regions" [value]="re.name">{{re.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
@@ -36,7 +36,7 @@
             <clr-select-container>
                 <label>{{'APP_PROJECT'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.projects" name="item" multiple required>
-                    <option [value]="" disabled>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let item of projects" [value]="item.name">{{item.name}}</option>
                 </select>
                 <clr-control-helper>{{'APP_PLAN_PROJECT_HELPER'|translate}}</clr-control-helper>
@@ -49,7 +49,7 @@
             <clr-select-container *ngIf="item.deployTemplate === 'SINGLE'">
                 <label>{{'APP_ZONE'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.zone" name="cloud-region" required>
-                    <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
@@ -58,7 +58,7 @@
             <clr-select-container *ngIf="item.deployTemplate === 'MULTIPLE'">
                 <label>{{'APP_ZONE'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.zones" name="cloud-region" multiple required>
-                    <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
@@ -66,7 +66,7 @@
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_MASTER'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.planVars['masterModel']" name="master" required>
-                    <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let model of vmConfigs" [value]="model.name">{{model.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
@@ -74,7 +74,7 @@
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_WORKER'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.planVars['workerModel']" name="worker" required>
-                    <option [value]="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let model of vmConfigs" [value]="model.name">{{model.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
