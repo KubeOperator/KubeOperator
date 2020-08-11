@@ -2,18 +2,10 @@ package license
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
+	"runtime"
 	"testing"
 )
 
 func TestParse(t *testing.T) {
-	fs, err := ioutil.ReadDir("/usr/local/bin")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, f := range fs {
-		fmt.Println(f.Name())
-	}
+	fmt.Println(runtime.GOARCH)
 }

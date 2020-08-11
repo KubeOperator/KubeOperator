@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func Parse(content string) (*Response, error) {
 	}
 	var validatorPath string
 	for _, f := range fs {
-		if strings.Contains(f.Name(), "validator") {
+		if strings.Contains(f.Name(), "validator") && strings.Contains(f.Name(), runtime.GOARCH) {
 			validatorPath = path.Join("/usr/local/bin", f.Name())
 		}
 	}
