@@ -86,7 +86,7 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 func (b backupAccountService) Create(creation dto.BackupAccountRequest) (*dto.BackupAccount, error) {
 
 	old, _ := b.Get(creation.Name)
-	if old.ID != "" {
+	if old != nil && old.ID != "" {
 		return nil, errors.New(BackupAccountNameExist)
 	}
 
