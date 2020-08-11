@@ -320,5 +320,8 @@
   "APP_WEBSITE": "Website",
   "APP_SYSTEM_EQUAL": "NTP Server cannot be the same as the system IP！",
   "APP_SENIOR": "Senior",
-  "APP_OPTION": "Option"
+  "APP_OPTION": "Option",
+  "APP_MAX": "Max",
+  "APP_AUDIT": "Audit",
+  "APP_MODE": "Mode"
 }
