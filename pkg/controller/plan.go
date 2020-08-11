@@ -20,6 +20,15 @@ func NewPlanController() *PlanController {
 	}
 }
 
+// List Plan
+// @Tags plans
+// @Summary Show all plans
+// @Description Show plans
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /plans/ [get]
 func (p PlanController) Get() (page.Page, error) {
 
 	pg, _ := p.Ctx.Values().GetBool("page")
@@ -40,10 +49,29 @@ func (p PlanController) Get() (page.Page, error) {
 	}
 }
 
+// Get Plan
+// @Tags plans
+// @Summary Show a Plan
+// @Description show a plan by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Plan
+// @Security ApiKeyAuth
+// @Router /plans/{name}/ [get]
 func (p PlanController) GetBy(name string) (dto.Plan, error) {
 	return p.PlanService.Get(name)
 }
 
+// Create Plan
+// @Tags plans
+// @Summary Create a plan
+// @Description create a plan
+// @Accept  json
+// @Produce  json
+// @Param request body dto.PlanCreate true "request"
+// @Success 200 {object} dto.Plan
+// @Security ApiKeyAuth
+// @Router /plans/ [post]
 func (p PlanController) Post() (*dto.Plan, error) {
 	var req dto.PlanCreate
 	err := p.Ctx.ReadJSON(&req)
@@ -58,6 +86,14 @@ func (p PlanController) Post() (*dto.Plan, error) {
 	return p.PlanService.Create(req)
 }
 
+// Delete Plan
+// @Tags plans
+// @Summary Delete a plan
+// @Description delete a plan by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /plans/{name}/ [delete]
 func (p PlanController) Delete(name string) error {
 	return p.PlanService.Delete(name)
 }

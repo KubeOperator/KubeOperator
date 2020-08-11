@@ -12,6 +12,7 @@ type BackupAccountRepository interface {
 	Save(backupAccount *model.BackupAccount) error
 	Page(num, size int) (int, []model.BackupAccount, error)
 	Batch(operation string, items []model.BackupAccount) error
+	Delete(name string) error
 }
 
 type backupAccountRepository struct {
@@ -94,4 +95,12 @@ func (b backupAccountRepository) Batch(operation string, items []model.BackupAcc
 	}
 	tx.Commit()
 	return nil
+}
+
+func (b backupAccountRepository) Delete(name string) error {
+	backupAccount, err := b.Get(name)
+	if err != nil {
+		return err
+	}
+	return db.DB.Delete(&backupAccount).Error
 }

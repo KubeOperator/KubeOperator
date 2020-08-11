@@ -1,8 +1,14 @@
 package model
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
+)
+
+var (
+	DeleteBackupAccountFailedByProject = "DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT"
 )
 
 type BackupAccount struct {
@@ -25,6 +31,13 @@ func (b BackupAccount) TableName() string {
 }
 
 func (b *BackupAccount) BeforeDelete() (err error) {
-
+	var backupAccounts []ProjectResource
+	err = db.DB.Where(ProjectResource{ResourceId: b.ID}).Find(&backupAccounts).Error
+	if err != nil {
+		return err
+	}
+	if len(backupAccounts) > 0 {
+		return errors.New(DeleteBackupAccountFailedByProject)
+	}
 	return err
 }

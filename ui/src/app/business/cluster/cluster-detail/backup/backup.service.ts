@@ -8,18 +8,18 @@ import {Observable} from 'rxjs';
 })
 export class BackupService {
 
-    baseUrl = '/api/v1/cluster/backup';
+    baseUrl = '/api/v1/cluster/backup/strategy';
 
     constructor(private http: HttpClient) {
     }
 
     getBy(clusterName: string): Observable<BackupStrategy> {
-        const itemUrl = `${this.baseUrl}/strategy/${clusterName}/`;
+        const itemUrl = `${this.baseUrl}/${clusterName}/`;
         return this.http.get<BackupStrategy>(itemUrl);
     }
 
     submit(item: BackupStrategy): Observable<any> {
-        const itemUrl = `${this.baseUrl}/strategy/`;
+        const itemUrl = `${this.baseUrl}/`;
         return this.http.post<any>(itemUrl, item);
     }
 }

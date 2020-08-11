@@ -21,6 +21,15 @@ func NewProjectController() *ProjectController {
 	}
 }
 
+// List Project
+// @Tags projects
+// @Summary Show all projects
+// @Description Show projects
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /projects/ [get]
 func (p ProjectController) Get() (page.Page, error) {
 
 	pa, _ := p.Ctx.Values().GetBool("page")
@@ -48,10 +57,29 @@ func (p ProjectController) Get() (page.Page, error) {
 	}
 }
 
+// Get Project
+// @Tags projects
+// @Summary Show a project
+// @Description show a project by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Project
+// @Security ApiKeyAuth
+// @Router /projects/{name}/ [get]
 func (p ProjectController) GetBy(name string) (dto.Project, error) {
 	return p.ProjectService.Get(name)
 }
 
+// Create Project
+// @Tags projects
+// @Summary Create a project
+// @Description create a project
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ProjectCreate true "request"
+// @Success 200 {object} dto.Project
+// @Security ApiKeyAuth
+// @Router /projects/ [post]
 func (p ProjectController) Post() (*dto.Project, error) {
 	var req dto.ProjectCreate
 	err := p.Ctx.ReadJSON(&req)
@@ -70,18 +98,44 @@ func (p ProjectController) Post() (*dto.Project, error) {
 	return nil, err
 }
 
-func (p ProjectController) PatchBy(name string) (dto.Project, error) {
+// Update Project
+// @Tags projects
+// @Summary Update a project
+// @Description Update a project
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ProjectUpdate true "request"
+// @Success 200 {object} dto.Project
+// @Security ApiKeyAuth
+// @Router /projects/{name}/ [patch]
+func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	var req dto.ProjectUpdate
 	err := p.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.Project{}, err
+		return nil, err
 	}
 	validate := validator.New()
 	err = validate.Struct(req)
 	if err != nil {
-		return dto.Project{}, err
+		return nil, err
 	}
-	return p.ProjectService.Update(req)
+	result, err := p.ProjectService.Update(req)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+// Delete Project
+// @Tags projects
+// @Summary Delete a project
+// @Description delete a  project by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /projects/{name}/ [delete]
+func (p ProjectController) Delete(name string) error {
+	return p.ProjectService.Delete(name)
 }
 
 func (p ProjectController) PostBatch() error {

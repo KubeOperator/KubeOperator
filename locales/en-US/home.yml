@@ -48,9 +48,11 @@ NODE_ALREADY_RUNNING_TASK: "Add node or delete node already running,please wait 
 PARAM_EMPTY: "Insufficient parameters"
 NOT_SUPPORT: "Unsupported type"
 CHECK_FAILED: "Verification failed"
+DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT: "Failed to delete! The backupAccount is already associated with the project"
 
 #plan
 DELETE_FAILED_BY_PROJECT: "Failed to delete! The plan is already associated with the project"
+
 
 
 

@@ -21,19 +21,39 @@ func NewProjectMemberController() *ProjectMemberController {
 	}
 }
 
+// List ProjectMember By ProjectName
+// @Tags projectMembers
+// @Summary Show projectMembers by projectName
+// @Description Show projectMembers by projectName
+// @Accept  json
+// @Produce  json
+// @Form projectName
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /project/members/ [get]
 func (p ProjectMemberController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
-	projectId := p.Ctx.URLParam("projectId")
+	projectName := p.Ctx.URLParam("projectName")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.ProjectMemberService.PageByProjectId(num, size, projectId)
+		return p.ProjectMemberService.PageByProjectName(num, size, projectName)
 	} else {
 		var page page.Page
 		return page, nil
 	}
 }
 
+// Create ProjectMember
+// @Tags projectMembers
+// @Summary Create a projectMember
+// @Description create a projectMember
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ProjectMemberCreate true "request"
+// @Success 200 {object} dto.ProjectMember
+// @Security ApiKeyAuth
+// @Router /project/members/ [post]
 func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 	var req dto.ProjectMemberCreate
 	err := p.Ctx.ReadJSON(&req)

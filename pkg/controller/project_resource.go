@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -22,6 +20,16 @@ func NewProjectResourceController() *ProjectResourceController {
 	}
 }
 
+// List ProjectResource By ProjectName And ResourceType
+// @Tags projectResources
+// @Summary Show projectResources by projectName and resourceType
+// @Description Show projectResources by projectName and resourceType
+// @Accept  json
+// @Produce  json
+// @Form projectName string , resourceType string
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /project/resource/ [get]
 func (p ProjectResourceController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")
@@ -49,7 +57,7 @@ func (p ProjectResourceController) PostBatch() error {
 	}
 	err = p.ProjectResourceService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(p.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }

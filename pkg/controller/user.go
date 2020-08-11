@@ -20,6 +20,15 @@ func NewUserController() *UserController {
 	}
 }
 
+// List User
+// @Tags users
+// @Summary Show all users
+// @Description Show users
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /users/ [get]
 func (u UserController) Get() (page.Page, error) {
 
 	p, _ := u.Ctx.Values().GetBool("page")
@@ -39,10 +48,29 @@ func (u UserController) Get() (page.Page, error) {
 	}
 }
 
+// Get User
+// @Tags users
+// @Summary Show a user
+// @Description show a user by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.User
+// @Security ApiKeyAuth
+// @Router /users/{name}/ [get]
 func (u UserController) GetBy(name string) (dto.User, error) {
 	return u.UserService.Get(name)
 }
 
+// Create User
+// @Tags users
+// @Summary Create a user
+// @Description create a user
+// @Accept  json
+// @Produce  json
+// @Param request body dto.UserCreate true "request"
+// @Success 200 {object} dto.Host
+// @Security ApiKeyAuth
+// @Router /users/ [post]
 func (u UserController) Post() (*dto.User, error) {
 	var req dto.UserCreate
 	err := u.Ctx.ReadJSON(&req)
@@ -52,10 +80,28 @@ func (u UserController) Post() (*dto.User, error) {
 	return u.UserService.Create(req)
 }
 
+// Delete User
+// @Tags users
+// @Summary Delete a user
+// @Description delete a user by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /users/{name}/ [delete]
 func (u UserController) Delete(name string) error {
 	return u.UserService.Delete(name)
 }
 
+// Update User
+// @Tags users
+// @Summary Update a user
+// @Description Update a user
+// @Accept  json
+// @Produce  json
+// @Param request body dto.UserUpdate true "request"
+// @Success 200 {object} dto.User
+// @Security ApiKeyAuth
+// @Router /users/{name}/ [patch]
 func (u UserController) PatchBy(name string) (*dto.User, error) {
 	var req dto.UserUpdate
 	err := u.Ctx.ReadJSON(&req)

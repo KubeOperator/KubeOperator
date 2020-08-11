@@ -39,7 +39,7 @@ export class ProjectMemberListComponent extends BaseModelComponent<ProjectMember
     }
 
     pageBy() {
-        this.projectMemberService.pageBy(this.page, this.size, this.currentProject.id).subscribe(res => {
+        this.projectMemberService.pageBy(this.page, this.size, this.currentProject.name).subscribe(res => {
             this.items = res.items;
             this.loading = false;
         });

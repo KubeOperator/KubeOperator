@@ -20,6 +20,7 @@ type CLusterBackupFileService interface {
 	Batch(op dto.ClusterBackupFileOp) error
 	Backup(creation dto.ClusterBackupFileCreate) error
 	Restore(restore dto.ClusterBackupFileRestore) error
+	Delete(name string) error
 }
 
 type cLusterBackupFileService struct {
@@ -100,6 +101,10 @@ func (c cLusterBackupFileService) Batch(op dto.ClusterBackupFileOp) error {
 		return err
 	}
 	return nil
+}
+
+func (c cLusterBackupFileService) Delete(name string) error {
+	return c.clusterBackupFileRepo.Delete(name)
 }
 
 func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) error {

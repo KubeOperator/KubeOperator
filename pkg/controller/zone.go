@@ -20,6 +20,15 @@ func NewZoneController() *ZoneController {
 	}
 }
 
+// List Zone
+// @Tags zones
+// @Summary Show all zones
+// @Description Show zones
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /zones/ [get]
 func (z ZoneController) Get() (page.Page, error) {
 
 	p, _ := z.Ctx.Values().GetBool("page")
@@ -39,6 +48,15 @@ func (z ZoneController) Get() (page.Page, error) {
 	}
 }
 
+// Get Zone
+// @Tags zones
+// @Summary Show a zone
+// @Description show a zone by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Zone
+// @Security ApiKeyAuth
+// @Router /zones/{name}/ [get]
 func (z ZoneController) GetBy(name string) (dto.Zone, error) {
 	return z.ZoneService.Get(name)
 }
@@ -47,6 +65,16 @@ func (z ZoneController) GetListBy(regionId string) ([]dto.Zone, error) {
 	return z.ZoneService.ListByRegionId(regionId)
 }
 
+// Create Zone
+// @Tags zones
+// @Summary Create a zone
+// @Description create a zone
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ZoneCreate true "request"
+// @Success 200 {object} dto.Zone
+// @Security ApiKeyAuth
+// @Router /zones/ [post]
 func (z ZoneController) Post() (*dto.Zone, error) {
 	var req dto.ZoneCreate
 	err := z.Ctx.ReadJSON(&req)
@@ -61,6 +89,14 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 	return z.ZoneService.Create(req)
 }
 
+// Delete Zone
+// @Tags zones
+// @Summary Delete a zone
+// @Description delete a zone by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /zones/{name}/ [delete]
 func (z ZoneController) Delete(name string) error {
 	return z.ZoneService.Delete(name)
 }

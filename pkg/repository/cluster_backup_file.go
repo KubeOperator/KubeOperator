@@ -11,6 +11,7 @@ type ClusterBackupFileRepository interface {
 	Save(file *model.ClusterBackupFile) error
 	Batch(operation string, items []model.ClusterBackupFile) error
 	Get(name string) (model.ClusterBackupFile, error)
+	Delete(name string) error
 }
 
 type clusterBackupFileRepository struct {
@@ -71,4 +72,12 @@ func (c clusterBackupFileRepository) Batch(operation string, items []model.Clust
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c clusterBackupFileRepository) Delete(name string) error {
+	host, err := c.Get(name)
+	if err != nil {
+		return err
+	}
+	return db.DB.Delete(&host).Error
 }

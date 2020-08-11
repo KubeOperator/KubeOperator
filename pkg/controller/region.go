@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
-	"github.com/KubeOperator/KubeOperator/pkg/controller/warp"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
@@ -22,6 +20,15 @@ func NewRegionController() *RegionController {
 	}
 }
 
+// List Region
+// @Tags regions
+// @Summary Show all regions
+// @Description Show regions
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /regions/ [get]
 func (r RegionController) Get() (page.Page, error) {
 
 	p, _ := r.Ctx.Values().GetBool("page")
@@ -41,10 +48,29 @@ func (r RegionController) Get() (page.Page, error) {
 	}
 }
 
+// Get Region
+// @Tags regions
+// @Summary Show a Region
+// @Description show a region by name
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.Region
+// @Security ApiKeyAuth
+// @Router /regions/{name}/ [get]
 func (r RegionController) GetBy(name string) (dto.Region, error) {
 	return r.RegionService.Get(name)
 }
 
+// Create Region
+// @Tags regions
+// @Summary Create a region
+// @Description create a region
+// @Accept  json
+// @Produce  json
+// @Param request body dto.RegionCreate true "request"
+// @Success 200 {object} dto.Region
+// @Security ApiKeyAuth
+// @Router /regions/ [post]
 func (r RegionController) Post() (*dto.Region, error) {
 	var req dto.RegionCreate
 	err := r.Ctx.ReadJSON(&req)
@@ -59,6 +85,14 @@ func (r RegionController) Post() (*dto.Region, error) {
 	return r.RegionService.Create(req)
 }
 
+// Delete Region
+// @Tags regions
+// @Summary Delete a region
+// @Description delete a region by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /regions/{name}/ [delete]
 func (r RegionController) Delete(name string) error {
 	return r.RegionService.Delete(name)
 }
@@ -76,21 +110,21 @@ func (r RegionController) PostBatch() error {
 	}
 	err = r.RegionService.Batch(req)
 	if err != nil {
-		return warp.NewControllerError(errors.New(r.Ctx.Tr(err.Error())))
+		return err
 	}
 	return err
 }
 
-func (r RegionController) PostDatacenter() (dto.CloudRegionResponse, error) {
+func (r RegionController) PostDatacenter() (*dto.CloudRegionResponse, error) {
 	var req dto.RegionDatacenterRequest
 	err := r.Ctx.ReadJSON(&req)
 	if err != nil {
-		return dto.CloudRegionResponse{}, err
+		return nil, err
 	}
 
 	data, err := r.RegionService.ListDatacenter(req)
 	if err != nil {
-		return dto.CloudRegionResponse{}, warp.NewControllerError(errors.New(r.Ctx.Tr(err.Error())))
+		return nil, err
 	}
-	return dto.CloudRegionResponse{Result: data}, err
+	return &dto.CloudRegionResponse{Result: data}, err
 }

@@ -48,6 +48,7 @@ NODE_ALREADY_RUNNING_TASK: "其他节点数量操作正在执行, 请等待它�
 PARAM_EMPTY: "参数不足"
 NOT_SUPPORT: "不支持的类型"
 CHECK_FAILED: "校验失败！"
+DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT: "删除失败！该备份账号已经关联项目！"
 
 #plan
 DELETE_FAILED_BY_PROJECT: "删除失败！该部署计划已经关联项目"

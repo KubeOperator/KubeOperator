@@ -20,6 +20,15 @@ func NewCredentialController() *CredentialController {
 	}
 }
 
+// List Credential
+// @Tags credentials
+// @Summary Show all credentials
+// @Description Show credentials
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /credentials/ [get]
 func (c CredentialController) Get() (page.Page, error) {
 
 	p, _ := c.Ctx.Values().GetBool("page")
@@ -43,6 +52,16 @@ func (c CredentialController) GetBy(name string) (dto.Credential, error) {
 	return c.CredentialService.Get(name)
 }
 
+// Create Credential
+// @Tags credentials
+// @Summary Create a credential
+// @Description create a credential
+// @Accept  json
+// @Produce  json
+// @Param request body dto.CredentialCreate true "request"
+// @Success 200 {object} dto.Credential
+// @Security ApiKeyAuth
+// @Router /credentials/ [post]
 func (c CredentialController) Post() (*dto.Credential, error) {
 	var req dto.CredentialCreate
 	err := c.Ctx.ReadJSON(&req)
@@ -57,10 +76,28 @@ func (c CredentialController) Post() (*dto.Credential, error) {
 	return c.CredentialService.Create(req)
 }
 
+// Delete Credential
+// @Tags credentials
+// @Summary Delete a credential
+// @Description delete a  credential by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /backupAccounts/{name}/ [delete]
 func (c CredentialController) Delete(name string) error {
 	return c.CredentialService.Delete(name)
 }
 
+// Update Credential
+// @Tags credentials
+// @Summary Update a credential
+// @Description Update a credential
+// @Accept  json
+// @Produce  json
+// @Param request body dto.CredentialUpdate true "request"
+// @Success 200 {object} dto.Credential
+// @Security ApiKeyAuth
+// @Router /backupAccounts/ [patch]
 func (c CredentialController) PatchBy(name string) (dto.Credential, error) {
 	var req dto.CredentialUpdate
 	err := c.Ctx.ReadJSON(&req)

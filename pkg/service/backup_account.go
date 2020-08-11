@@ -26,6 +26,7 @@ type BackupAccountService interface {
 	Update(creation dto.BackupAccountRequest) (*dto.BackupAccount, error)
 	Batch(op dto.BackupAccountOp) error
 	GetBuckets(request dto.CloudStorageRequest) ([]interface{}, error)
+	Delete(name string) error
 }
 
 type backupAccountService struct {
@@ -194,4 +195,8 @@ func (b backupAccountService) CheckValid(create dto.BackupAccountRequest) error 
 		}
 	}
 	return nil
+}
+
+func (b backupAccountService) Delete(name string) error {
+	return b.backupAccountRepo.Delete(name)
 }

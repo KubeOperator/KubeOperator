@@ -20,6 +20,15 @@ func NewBackupAccountController() *BackupAccountController {
 	}
 }
 
+// List BackupAccount
+// @Tags backupAccounts
+// @Summary Show all backupAccounts
+// @Description Show backupAccounts
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /backupAccounts/ [get]
 func (b BackupAccountController) Get() (page.Page, error) {
 
 	pg, _ := b.Ctx.Values().GetBool("page")
@@ -40,6 +49,16 @@ func (b BackupAccountController) Get() (page.Page, error) {
 	}
 }
 
+// Create BackupAccount
+// @Tags backupAccounts
+// @Summary Create a backupAccount
+// @Description create a backupAccount
+// @Accept  json
+// @Produce  json
+// @Param request body dto.BackupAccountRequest true "request"
+// @Success 200 {object} dto.BackupAccount
+// @Security ApiKeyAuth
+// @Router /backupAccounts/ [post]
 func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 	var req dto.BackupAccountRequest
 	err := b.Ctx.ReadJSON(&req)
@@ -72,6 +91,16 @@ func (b BackupAccountController) PostBatch() error {
 	return err
 }
 
+// Update BackupAccount
+// @Tags backupAccounts
+// @Summary Update a backupAccount
+// @Description Update a backupAccount
+// @Accept  json
+// @Produce  json
+// @Param request body dto.BackupAccountRequest true "request"
+// @Success 200 {object} dto.BackupAccount
+// @Security ApiKeyAuth
+// @Router /backupAccounts/{name}/ [patch]
 func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error) {
 	var req dto.BackupAccountRequest
 	err := b.Ctx.ReadJSON(&req)
@@ -84,6 +113,18 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 		return nil, err
 	}
 	return b.BackupAccountService.Update(req)
+}
+
+// Delete BackupAccount
+// @Tags backupAccounts
+// @Summary Delete a backupAccount
+// @Description delete a  backupAccount by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /backupAccounts/{name}/ [delete]
+func (b BackupAccountController) Delete(name string) error {
+	return b.BackupAccountService.Delete(name)
 }
 
 func (b BackupAccountController) PostBuckets() ([]interface{}, error) {

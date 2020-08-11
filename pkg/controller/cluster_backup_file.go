@@ -20,11 +20,32 @@ func NewClusterBackupFileController() *BackupFileController {
 	}
 }
 
+// List BackupFile
+// @Tags backupFiles
+// @Summary Show all backupFiles
+// @Description Show backupFiles
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} page.Page
+// @Security ApiKeyAuth
+// @Router /cluster/backup/files/ [get]
 func (b BackupFileController) Get() (*page.Page, error) {
 	num, _ := b.Ctx.Values().GetInt(constant.PageNumQueryKey)
 	size, _ := b.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 	clusterName := b.Ctx.URLParam("clusterName")
 	return b.ClusterBackupFileService.Page(num, size, clusterName)
+}
+
+// Delete BackupFile
+// @Tags backupFiles
+// @Summary Delete a BackupFile
+// @Description delete a BackupFile by name
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /cluster/backup/files/{name}/ [delete]
+func (b BackupFileController) Delete(name string) error {
+	return b.ClusterBackupFileService.Delete(name)
 }
 
 func (b BackupFileController) PostBatch() error {
@@ -45,6 +66,16 @@ func (b BackupFileController) PostBatch() error {
 	return err
 }
 
+// CLuster Backup
+// @Tags backupFiles
+// @Summary Backup CLuster
+// @Description Backup CLuster
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ClusterBackupFileCreate true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /cluster/backup/files/backup/ [post]
 func (b BackupFileController) PostBackup() error {
 	var req dto.ClusterBackupFileCreate
 	err := b.Ctx.ReadJSON(&req)
@@ -63,6 +94,16 @@ func (b BackupFileController) PostBackup() error {
 	return err
 }
 
+// CLuster Restore
+// @Tags backupFiles
+// @Summary Restore CLuster
+// @Description Restore CLuster
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ClusterBackupFileRestore true "request"
+// @Success 200
+// @Security ApiKeyAuth
+// @Router /cluster/backup/files/restore/ [post]
 func (b BackupFileController) PostRestore() error {
 	var req dto.ClusterBackupFileRestore
 	err := b.Ctx.ReadJSON(&req)

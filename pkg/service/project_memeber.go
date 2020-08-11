@@ -17,7 +17,7 @@ var (
 )
 
 type ProjectMemberService interface {
-	PageByProjectId(num, size int, projectId string) (page.Page, error)
+	PageByProjectName(num, size int, projectName string) (page.Page, error)
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
 	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
@@ -26,18 +26,24 @@ type ProjectMemberService interface {
 type projectMemberService struct {
 	projectMemberRepo repository.ProjectMemberRepository
 	userService       UserService
+	projectRepo       repository.ProjectRepository
 }
 
 func NewProjectMemberService() ProjectMemberService {
 	return &projectMemberService{
 		projectMemberRepo: repository.NewProjectMemberRepository(),
 		userService:       NewUserService(),
+		projectRepo:       repository.NewProjectRepository(),
 	}
 }
 
-func (p projectMemberService) PageByProjectId(num, size int, projectId string) (page.Page, error) {
+func (p projectMemberService) PageByProjectName(num, size int, projectName string) (page.Page, error) {
 	var page page.Page
-	total, mos, err := p.projectMemberRepo.PageByProjectId(num, size, projectId)
+	project, err := p.projectRepo.Get(projectName)
+	if err != nil {
+		return page, err
+	}
+	total, mos, err := p.projectMemberRepo.PageByProjectId(num, size, project.ID)
 	if err != nil {
 		return page, err
 	}
