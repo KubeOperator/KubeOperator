@@ -331,5 +331,7 @@
   "MONITOR":"Monitor",
   "APP_REPOSITORY": "Repository",
   "APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM": "Cancellation of authorized backup account will delete backup policy",
-  "APP_BACKUP_FILE_REMOVE": "Delete Backup File"
+  "APP_BACKUP_FILE_REMOVE": "Delete Backup File",
+  "APP_DNS_INVALID":"DNS address is wrong!"
+
 }

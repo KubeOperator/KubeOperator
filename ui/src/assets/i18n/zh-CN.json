@@ -334,5 +334,6 @@
   "MONITOR":"监控",
   "APP_REPOSITORY": "仓库",
   "APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM": "取消授权备份账号会删除备份策略",
-  "APP_BACKUP_FILE_REMOVE": "删除备份文件"
+  "APP_BACKUP_FILE_REMOVE": "删除备份文件",
+  "APP_DNS_INVALID":"DNS 地址错误！"
 }
