@@ -47,7 +47,6 @@ export class StorageClassCreateComponent implements OnInit {
                 type: 'local-storage',
                 vars: {},
             } as StorageProvisioner);
-            console.log(this.provisioners);
         });
     }
 

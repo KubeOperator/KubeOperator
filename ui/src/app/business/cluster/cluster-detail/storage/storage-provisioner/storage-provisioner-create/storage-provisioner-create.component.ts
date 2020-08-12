@@ -1,5 +1,6 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CreateStorageProvisionerRequest} from '../storage-provisioner';
+import {Cluster} from '../../../../cluster';
 
 @Component({
     selector: 'app-storage-provisioner-create',
@@ -12,6 +13,7 @@ export class StorageProvisionerCreateComponent implements OnInit {
     }
 
     opened = false;
+    @Input() currentCluster: Cluster;
     item = new CreateStorageProvisionerRequest();
     @Output() selected = new EventEmitter<CreateStorageProvisionerRequest>();
 

@@ -1,7 +1,8 @@
 <app-storage-provisioner-list [currentCluster]="currentCluster"
                               (createEvent)="openCreate()"
                               (deleteEvent)="openDelete($event)"></app-storage-provisioner-list>
-<app-storage-provisioner-create (selected)="openSelected($event)"></app-storage-provisioner-create>
+<app-storage-provisioner-create [currentCluster]="currentCluster"
+                                (selected)="openSelected($event)"></app-storage-provisioner-create>
 <app-storage-provisioner-delete [currentCluster]="currentCluster"
                                 (deleted)="refresh()"></app-storage-provisioner-delete>
 <app-storage-provisioner-create-nfs [currentCluster]="currentCluster"
@@ -11,4 +12,4 @@
 <app-storage-provisioner-create-rook-ceph [currentCluster]="currentCluster"
                                           (created)="refresh()"></app-storage-provisioner-create-rook-ceph>
 <app-storage-provisioner-create-vsphere [currentCluster]="currentCluster"
-                                          (created)="refresh()"></app-storage-provisioner-create-vsphere>
+                                        (created)="refresh()"></app-storage-provisioner-create-vsphere>
