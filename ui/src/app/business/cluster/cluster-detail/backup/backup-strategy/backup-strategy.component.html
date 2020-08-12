@@ -2,7 +2,7 @@
 <form clrForm #backupStrategyForm="ngForm">
     <clr-select-container>
         <label>{{'APP_BACKUP_ACCOUNT'|translate}}</label>
-        <select class="input-width" clrSelect size="25" name="project" [(ngModel)]="backupStrategy.backupAccountName" required>
+        <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backupAccountName" required>
             <option *ngFor="let b of backupAccounts" value="{{b.name}}">{{b.name}}({{ b.bucket}})</option>
         </select>
         <clr-control-helper>{{'APP_BACKUP_ACCOUNT_HELPER'|translate}}</clr-control-helper>
