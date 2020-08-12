@@ -1,9 +1,16 @@
 package service
 
 import (
+	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
+)
+
+var (
+	UpdateError = "BACKUP_FILES_NOT_NULL"
 )
 
 type CLusterBackupStrategyService interface {
@@ -12,16 +19,18 @@ type CLusterBackupStrategyService interface {
 }
 
 type cLusterBackupStrategyService struct {
-	clusterBackupStrategyRepo repository.ClusterBackupStrategyRepository
-	clusterService            ClusterService
-	backupAccountService      BackupAccountService
+	clusterBackupStrategyRepo   repository.ClusterBackupStrategyRepository
+	clusterService              ClusterService
+	backupAccountService        BackupAccountService
+	clusterBackupFileRepository repository.ClusterBackupFileRepository
 }
 
 func NewCLusterBackupStrategyService() CLusterBackupStrategyService {
 	return &cLusterBackupStrategyService{
-		clusterBackupStrategyRepo: repository.NewClusterBackupStrategyRepository(),
-		clusterService:            NewClusterService(),
-		backupAccountService:      NewBackupAccountService(),
+		clusterBackupStrategyRepo:   repository.NewClusterBackupStrategyRepository(),
+		clusterService:              NewClusterService(),
+		backupAccountService:        NewBackupAccountService(),
+		clusterBackupFileRepository: repository.NewClusterBackupFileRepository(),
 	}
 }
 
@@ -55,6 +64,16 @@ func (c cLusterBackupStrategyService) Save(creation dto.ClusterBackupStrategyReq
 		return nil, err
 	} else {
 		id = old.ID
+		if old.BackupAccountID != backupAccount.ID {
+			var backupFiles []model.ClusterBackupFile
+			err := db.DB.Where(model.ClusterBackupFile{ClusterBackupStrategyID: id, ClusterID: cluster.ID}).Find(&backupFiles).Error
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
+				return nil, err
+			}
+			if len(backupFiles) > 0 {
+				return nil, errors.New(UpdateError)
+			}
+		}
 	}
 	clusterBackupStrategy := model.ClusterBackupStrategy{
 		ID:              id,

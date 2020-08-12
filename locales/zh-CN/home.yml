@@ -53,4 +53,10 @@ DELETE_BACKUP_ACCOUNT_FAILED_BY_PROJECT: "删除失败！该备份账号已经�
 #plan
 DELETE_FAILED_BY_PROJECT: "删除失败！该部署计划已经关联项目"
 
+#clusterBackup
+BACKUP_FILES_NOT_NULL: "请先删除备份文件再切换备份账号"
+
+#projectResource
+DELETE_FAILED_BY_BACKUP_FILE: "请先删除备份文件！"
+
 

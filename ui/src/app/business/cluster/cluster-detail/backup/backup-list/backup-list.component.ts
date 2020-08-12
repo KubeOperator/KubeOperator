@@ -17,6 +17,8 @@ export class BackupListComponent extends BaseModelComponent<BackupFile> implemen
 
     currentCluster: Cluster;
     items: BackupFile[] = [];
+    deleteOpen = false;
+    deleteName = "";
 
     constructor(private route: ActivatedRoute,
                 private backupFileService: BackupFileService,
@@ -28,9 +30,13 @@ export class BackupListComponent extends BaseModelComponent<BackupFile> implemen
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.backupFileService.pageBy(this.page, this.size, this.currentCluster.name).subscribe(d => {
-                this.items = d.items;
-            });
+            this.pageby();
+        });
+    }
+
+    pageby() {
+        this.backupFileService.pageBy(this.page, this.size, this.currentCluster.name).subscribe(d => {
+            this.items = d.items;
         });
     }
 
@@ -42,6 +48,27 @@ export class BackupListComponent extends BaseModelComponent<BackupFile> implemen
             this.commonAlertService.showAlert(this.translateService.instant('APP_RESTORE_START_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
+    deleteFile(name) {
+        this.deleteName = name
+        this.deleteOpen = true;
+    }
+
+    cancelDelete() {
+        this.deleteName = ""
+        this.deleteOpen = false;
+    }
+
+    submitDelete() {
+        this.backupFileService.delete(this.deleteName).subscribe(res => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+            this.pageby();
+            this.cancelDelete();
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.cancelDelete();
         });
     }
 }

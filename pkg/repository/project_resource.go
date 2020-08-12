@@ -4,6 +4,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/jinzhu/gorm"
 )
 
 type ProjectResourceRepository interface {
@@ -58,14 +59,34 @@ func (p projectResourceRepository) ListByResourceIdAndType(resourceId string, re
 func (p projectResourceRepository) Batch(operation string, items []model.ProjectResource) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		var ids []string
+		tx := db.DB.Begin()
 		for _, item := range items {
-			ids = append(ids, item.ID)
+			if item.ResourceType == constant.ResourceBackupAccount {
+				var clusterResources []model.ProjectResource
+				err := tx.Where(model.ProjectResource{ProjectID: item.ProjectID, ResourceType: constant.ResourceCluster}).Find(&clusterResources).Error
+				if err != nil && !gorm.IsRecordNotFoundError(err) {
+					tx.Rollback()
+					return err
+				}
+				if len(clusterResources) > 0 {
+					for _, clusterResource := range clusterResources {
+						var backupStrategy model.ClusterBackupStrategy
+						err = tx.Where(model.ClusterBackupStrategy{BackupAccountID: item.ResourceId, ClusterID: clusterResource.ResourceId}).Delete(&backupStrategy).Error
+						if err != nil {
+							tx.Rollback()
+							return err
+						}
+					}
+				}
+			}
+			err := tx.Delete(&item).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+			tx.Commit()
 		}
-		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
-		if err != nil {
-			return err
-		}
+
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
 		for i, _ := range items {

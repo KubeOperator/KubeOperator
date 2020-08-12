@@ -61,7 +61,8 @@ export class ProjectResourceDeleteComponent extends BaseModelComponent<any> impl
             this.deleted.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            this.modalAlertService.showAlert(error, AlertLevels.ERROR);
+            this.onCancel();
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

@@ -329,5 +329,7 @@
   "APP_BACKUP_NOW": "Backup Now",
   "APP_RESTORE": "Restore",
   "MONITOR":"Monitor",
-  "APP_REPOSITORY": "Repository"
+  "APP_REPOSITORY": "Repository",
+  "APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM": "Cancellation of authorized backup account will delete backup policy",
+  "APP_BACKUP_FILE_REMOVE": "Delete Backup File"
 }

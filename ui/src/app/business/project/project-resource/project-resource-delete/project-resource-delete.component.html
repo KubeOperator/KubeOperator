@@ -1,7 +1,8 @@
 <clr-modal [(clrModalOpen)]="opened" clrModalSize="l">
     <h3 class="modal-title">{{'APP_RESOURCE_REMOVE'|translate}}</h3>
     <div class="modal-body" #resource>
-        <span>{{'APP_RESOURCE_REMOVE_CONFIRM'|translate}}</span>
+        <span>{{'APP_RESOURCE_REMOVE_CONFIRM'|translate}}</span> <br>
+        <span *ngIf="resourceType==='BACKUP_ACCOUNT'" style="color: red">{{'APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM'|translate}}</span>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()"
