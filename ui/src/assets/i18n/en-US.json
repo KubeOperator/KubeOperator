@@ -27,7 +27,7 @@
   "APP_APP_VERSION": "App Version",
   "APP_DESCRIPTION": "Description",
   "APP_STATUS": "Status",
-  "APP_NODE_SIZE": "Node Size",
+  "APP_NODE_SIZE": "Node Count",
   "APP_CLUSTER": "Cluster",
   "APP_CREATE_CLUSTER": "Create Cluster",
   "APP_CLUSTER_INFO": "Cluster Info",
