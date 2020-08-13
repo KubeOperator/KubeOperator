@@ -37,8 +37,8 @@ func (c *clusterLogRepository) List(clusterName string) ([]model.ClusterLog, err
 	}
 	var items []model.ClusterLog
 	if err := db.DB.Where(model.ClusterLog{ClusterID: cluster.ID}).
+		Order("created_at desc").
 		Find(&items).
-		Order("create_at desc").
 		Error; err != nil {
 		return nil, err
 	}
