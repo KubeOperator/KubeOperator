@@ -8,9 +8,10 @@
             </clr-input-container>
 
             <clr-input-container>
-                <label>磁盘名称</label>
-                <input clrInput [(ngModel)]="item.vars['storage_rook_path']" name="storage_rook_path" size="34" required>
-                <clr-control-helper>填写磁盘名称，多块磁盘使用逗号分隔，例如："sdb,sdc"</clr-control-helper>
+                <label>{{"APP_DISK_NAME"|translate}}</label>
+                <input clrInput [(ngModel)]="item.vars['storage_rook_path']" name="storage_rook_path" size="34"
+                       required>
+                <clr-control-helper>{{"APP_DISK_HELPER"|translate}}</clr-control-helper>
             </clr-input-container>
         </form>
     </div>

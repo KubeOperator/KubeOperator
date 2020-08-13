@@ -331,9 +331,11 @@
   "APP_IP_CHECK_SUCCESS": "校验成功！",
   "APP_BACKUP_NOW": "立即备份",
   "APP_RESTORE": "恢复",
-  "MONITOR":"监控",
+  "MONITOR": "监控",
   "APP_REPOSITORY": "仓库",
   "APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM": "取消授权备份账号会删除备份策略",
   "APP_BACKUP_FILE_REMOVE": "删除备份文件",
-  "APP_DNS_INVALID":"DNS 地址错误！"
+  "APP_DNS_INVALID": "DNS 地址错误！",
+  "APP_DISK_NAME": "磁盘名称",
+  "APP_DISK_HELPER": "填写磁盘名称，多块磁盘使用逗号分隔，例如：\"sdb,sdc\""
 }
