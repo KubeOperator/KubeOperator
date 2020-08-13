@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
+	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/mvc"
@@ -34,10 +35,31 @@ func errorHandler(ctx context.Context, err error) {
 		warp := struct {
 			Msg string `json:"msg"`
 		}{err.Error()}
-		tr := ctx.Tr(err.Error())
-		if tr != "" {
-			warp.Msg = tr
+		var result string
+		switch err.(type) {
+		case gorm.Errors:
+			errorSet := make(map[string]string)
+			errors, ok := err.(gorm.Errors)
+			if ok {
+				for _, er := range errors {
+					tr := ctx.Tr(er.Error())
+					if tr != "" {
+						errorMsg := tr
+						errorSet[er.Error()] = errorMsg
+					}
+				}
+				for _, set := range errorSet {
+					result = result + set + " "
+				}
+			}
+		case error:
+			tr := ctx.Tr(err.Error())
+			if tr != "" {
+				result = tr
+			}
+			break
 		}
+		warp.Msg = result
 		bf, _ := json.Marshal(&warp)
 		ctx.StatusCode(http.StatusBadRequest)
 		_, _ = ctx.WriteString(string(bf))
