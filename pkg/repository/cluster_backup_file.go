@@ -35,7 +35,7 @@ func (c clusterBackupFileRepository) Get(name string) (model.ClusterBackupFile, 
 	if err := db.DB.Where(file).First(&file).Error; err != nil {
 		return file, err
 	}
-	if err := db.DB.First(&file).Related(&file.ClusterBackupStrategy).Error; err != nil {
+	if err := db.DB.First(&file).Related(&file.ClusterBackupStrategy).Related(&file.CLuster).Error; err != nil {
 		return file, err
 	}
 	return file, nil
