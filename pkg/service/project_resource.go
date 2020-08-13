@@ -101,6 +101,9 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 				return err
 			}
 			resourceId = host.ID
+			if host.ClusterID != "" {
+				return errors.New("DELETE_HOST_FAILED_BY_CLUSTER")
+			}
 			break
 		case constant.ResourcePlan:
 			plan, err := NewPlanService().Get(item.ResourceName)

@@ -58,5 +58,7 @@ BACKUP_FILES_NOT_NULL: "请先删除备份文件再切换备份账号"
 
 #projectResource
 DELETE_FAILED_BY_BACKUP_FILE: "请先删除备份文件！"
+DELETE_HOST_FAILED_BY_CLUSTER: "主机已经属于集群！不能进行此操作！"
+
 
 

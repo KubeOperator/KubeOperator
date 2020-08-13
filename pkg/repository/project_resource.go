@@ -84,8 +84,8 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 				tx.Rollback()
 				return err
 			}
-			tx.Commit()
 		}
+		tx.Commit()
 
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
