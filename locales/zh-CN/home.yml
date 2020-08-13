@@ -14,6 +14,7 @@ HOST_ALREADY_EXISTS: "主机已存在"
 DELETE_HOST_FAILED: "删除失败！该主机已经关联集群"
 DELETE_HOST_FAILED_BY_PROJECT: "删除失败！该主机已经关联项目！"
 SYSTEM_IP_NOT_FOUND: "请先填写本机IP！"
+NO_IP_AVAILABLE: "IP 资源不足"
 
 #user
 PASSWORD_NOT_MATCH: "密码错误"

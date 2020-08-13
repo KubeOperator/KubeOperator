@@ -10,7 +10,7 @@
 
             <div *ngIf="currentCluster.provider==='plan'">
                 <clr-input-container>
-                    <label>增量</label>
+                    <label>{{"APP_INCREASE"|translate}}</label>
                     <input size="34" clrInput type="number" name="increase" [(ngModel)]="item.increase">
                 </clr-input-container>
             </div>

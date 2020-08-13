@@ -334,5 +334,8 @@
   "APP_BACKUP_FILE_REMOVE": "Delete Backup File",
   "APP_DNS_INVALID": "DNS address is wrong!",
   "APP_DISK_NAME": "Disk Name",
-  "APP_DISK_HELPER": "Disk Name，eg：\"sdb,sdc\""
+  "APP_DISK_HELPER": "Disk Name，eg：\"sdb,sdc\"",
+  "APP_INCREASE": "Increase",
+  "APP_BASIC_INFO": "Basic Info",
+  "APP_LABEL": "Label"
 }
