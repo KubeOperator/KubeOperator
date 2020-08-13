@@ -44,7 +44,7 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /cluster/backup/files/{name}/ [delete]
-func (b BackupFileController) Delete(name string) error {
+func (b BackupFileController) DeleteBy(name string) error {
 	return b.ClusterBackupFileService.Delete(name)
 }
 

@@ -24,7 +24,7 @@ func V1(parent iris.Party) {
 	mvc.New(v1.Party("/project/resources")).HandleError(errorHandler).Handle(controller.NewProjectResourceController())
 	mvc.New(v1.Party("/project/members")).HandleError(errorHandler).Handle(controller.NewProjectMemberController())
 	mvc.New(v1.Party("/backupAccounts")).HandleError(errorHandler).Handle(controller.NewBackupAccountController())
-	mvc.New(v1.Party("/cluster/backup/strategy")).HandleError(errorHandler).Handle(controller.NewClusterBackupStrategyController())
+	mvc.New(v1.Party("/cluster/backup")).HandleError(errorHandler).Handle(controller.NewClusterBackupStrategyController())
 	mvc.New(v1.Party("/license")).Handle(errorHandler).Handle(controller.NewLicenseController())
 	mvc.New(v1.Party("/cluster/backup/files")).Handle(errorHandler).Handle(controller.NewClusterBackupFileController())
 }

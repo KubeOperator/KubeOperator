@@ -172,6 +172,11 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
                 return;
             }
+            if (i === 3 && (end[i] - start[i]) < 1) {
+                this.networkValid = false;
+                this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
+                return;
+            }
         }
         const subnet = this.item.cloudVars['subnet'].split('/', 2);
         if (subnet.length !== 2) {
@@ -191,6 +196,14 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
             return;
         }
         this.networkValid = true;
+        const dns1 = this.item.cloudVars['dns1'];
+        const dns2 = this.item.cloudVars['dns2'];
+        if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
+            this.networkValid = false;
+            this.networkError.push(this.translateService.instant('APP_DNS_INVALID'));
+            return;
+        }
+
     }
 
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -8,6 +9,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/jinzhu/gorm"
 )
 
 type ProjectResourceService interface {
@@ -125,6 +127,33 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 				return err
 			}
 			itemId = p.ID
+
+			if item.ResourceType == constant.ResourceBackupAccount {
+				var clusterResources []model.ProjectResource
+				err = db.DB.Where(model.ProjectResource{ProjectID: item.ProjectID, ResourceType: constant.ResourceCluster}).Find(&clusterResources).Error
+				if err != nil && !gorm.IsRecordNotFoundError(err) {
+					return err
+				}
+				if len(clusterResources) > 0 {
+					for _, clusterResource := range clusterResources {
+						var backupStrategy model.ClusterBackupStrategy
+						err = db.DB.Where(model.ClusterBackupStrategy{BackupAccountID: resourceId, ClusterID: clusterResource.ResourceId}).First(&backupStrategy).Error
+						if err != nil && !gorm.IsRecordNotFoundError(err) {
+							return err
+						}
+						if backupStrategy.ID != "" {
+							var backupFiles []model.ClusterBackupFile
+							err = db.DB.Where(model.ClusterBackupFile{ClusterBackupStrategyID: backupStrategy.ID, ClusterID: clusterResource.ResourceId}).Find(&backupFiles).Error
+							if err != nil && !gorm.IsRecordNotFoundError(err) {
+								return err
+							}
+							if len(backupFiles) > 0 {
+								return errors.New("DELETE_FAILED_BY_BACKUP_FILE")
+							}
+						}
+					}
+				}
+			}
 		}
 
 		opItems = append(opItems, model.ProjectResource{

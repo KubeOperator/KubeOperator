@@ -157,10 +157,24 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
-	err := tx.Model(ProjectResource{}).Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(ProjectResource{}).Error
-	if err != nil {
+	var projectResource ProjectResource
+	if err := tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(&projectResource).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+
+	var clusterBackupStrategy ClusterBackupStrategy
+	if err := tx.Where(ClusterBackupStrategy{ClusterID: c.ID}).Delete(&clusterBackupStrategy).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var clusterBackupFiles []ClusterBackupFile
+	if err := tx.Where(ClusterBackupFile{ClusterID: c.ID}).Delete(&clusterBackupFiles).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	tx.Commit()
 	return nil
 }

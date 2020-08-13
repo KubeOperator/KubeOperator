@@ -1,9 +1,20 @@
+<clr-modal [(clrModalOpen)]="deleteOpen" clrModalSize="l">
+    <h3 class="modal-title">{{'APP_BACKUP_FILE_REMOVE'|translate}}</h3>
+    <div class="modal-body" #resource>
+        <span>{{'APP_DEFAULT_DELETE_WARNING'|translate}}</span> <br>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="cancelDelete()">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="submitDelete()">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>
 <h3>{{'APP_BACKUP_FILE_LIST'|translate}}</h3>
 <clr-datagrid [clrDgSelected]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-secondary"
-                    [disabled]="selected.length == 0">
+                    [disabled]="selected.length != 1"
+                    (click)="deleteFile(selected[0].name)">
                 <clr-icon shape="close"></clr-icon>
                 {{'APP_DELETE'|translate}}
             </button>

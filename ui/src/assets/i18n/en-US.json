@@ -27,7 +27,7 @@
   "APP_APP_VERSION": "App Version",
   "APP_DESCRIPTION": "Description",
   "APP_STATUS": "Status",
-  "APP_NODE_SIZE": "Node Size",
+  "APP_NODE_SIZE": "Node Count",
   "APP_CLUSTER": "Cluster",
   "APP_CREATE_CLUSTER": "Create Cluster",
   "APP_CLUSTER_INFO": "Cluster Info",
@@ -329,5 +329,9 @@
   "APP_BACKUP_NOW": "Backup Now",
   "APP_RESTORE": "Restore",
   "MONITOR":"Monitor",
-  "APP_REPOSITORY": "Repository"
+  "APP_REPOSITORY": "Repository",
+  "APP_RESOURCE_BACKUP_ACCOUNT_REMOVE_CONFIRM": "Cancellation of authorized backup account will delete backup policy",
+  "APP_BACKUP_FILE_REMOVE": "Delete Backup File",
+  "APP_DNS_INVALID":"DNS address is wrong!"
+
 }
