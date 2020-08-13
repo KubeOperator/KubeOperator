@@ -295,6 +295,11 @@ end:
 			}
 		}
 	}
+	for _, h := range hosts {
+		if h.Ip == "" {
+			return errors.New("NO_IP_AVAILABLE")
+		}
+	}
 	return nil
 }
 

@@ -337,5 +337,8 @@
   "APP_BACKUP_FILE_REMOVE": "删除备份文件",
   "APP_DNS_INVALID": "DNS 地址错误！",
   "APP_DISK_NAME": "磁盘名称",
-  "APP_DISK_HELPER": "填写磁盘名称，多块磁盘使用逗号分隔，例如：\"sdb,sdc\""
+  "APP_DISK_HELPER": "填写磁盘名称，多块磁盘使用逗号分隔，例如：\"sdb,sdc\"",
+  "APP_INCREASE": "增量",
+  "APP_BASIC_INFO": "基础信息",
+  "APP_LABEL": "标签"
 }

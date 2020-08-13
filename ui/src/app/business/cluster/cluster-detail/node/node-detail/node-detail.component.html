@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
     <h3 class="modal-title">{{"APP_NODE_DETAIL"|translate}}</h3>
     <div class="modal-body" *ngIf="item" style="overflow:auto">
-        <h5>基本信息</h5>
+        <h5>{{"APP_BASIC_INFO"|translate}}</h5>
         <hr/>
         <table class="table table-vertical">
             <tbody>
@@ -40,7 +40,7 @@
             </tbody>
         </table>
         <br/>
-        <h5>标签</h5>
+        <h5>{{"APP_LABEL"|translate}}</h5>
         <hr/>
         <table class="table table-vertical">
             <tbody>
@@ -51,7 +51,7 @@
             </tbody>
         </table>
         <br/>
-        <h5>状态</h5>
+        <h5>{{"APP_STATUS"|translate}}</h5>
         <hr/>
         <table class="table">
             <thead>

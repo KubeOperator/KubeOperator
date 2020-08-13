@@ -1,8 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NodeService} from "../node.service";
-import {Cluster, CreateNodeRequest} from "../../../cluster";
+import {Cluster} from "../../../cluster";
 import {HostService} from "../../../../host/host.service";
 import {NodeBatch} from "../node";
+import {CommonAlertService} from "../../../../../layout/common-alert/common-alert.service";
+import {AlertLevels} from "../../../../../layout/common-alert/alert";
 
 @Component({
     selector: 'app-node-create',
@@ -11,7 +13,7 @@ import {NodeBatch} from "../node";
 })
 export class NodeCreateComponent implements OnInit {
 
-    constructor(private nodeService: NodeService, private hostService: HostService) {
+    constructor(private nodeService: NodeService, private hostService: HostService, private alertService: CommonAlertService) {
     }
 
     opened = false;
@@ -77,6 +79,7 @@ export class NodeCreateComponent implements OnInit {
             this.isSubmitGoing = false;
             this.opened = false;
         }, error => {
+            this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
             this.created.emit();
             this.isSubmitGoing = false;
             this.opened = false;
