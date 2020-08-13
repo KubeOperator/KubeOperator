@@ -27,7 +27,6 @@ export class ProjectResourceComponent implements OnInit {
 
     refresh() {
         this.list.reset();
-        this.list.refresh();
         this.list.pageBy();
     }
 

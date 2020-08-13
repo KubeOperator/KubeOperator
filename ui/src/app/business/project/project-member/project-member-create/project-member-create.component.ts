@@ -1,9 +1,8 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
-import {ProjectMember, ProjectMemberCreate, ProjectMemberRequest} from '../project-member';
+import {ProjectMember, ProjectMemberCreate} from '../project-member';
 import {ProjectMemberService} from '../project-member.service';
 import {NgForm} from '@angular/forms';
-import {ResourceTypes} from '../../../../constant/shared.const';
 import {ActivatedRoute} from '@angular/router';
 import {Project} from '../../project';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
