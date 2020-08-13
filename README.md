@@ -243,11 +243,9 @@ KubeOperator 的整体架构：
 -  [8 分钟的演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能;
 -  [直播回放](http://live.vhall.com/355489706)：KubeOperator 助力企业运营生产级别的 Kubernetes 集群。
 
-## 沟通交流
- 
-- 技术交流 QQ 群：825046920
-- 微信群： 搜索微信号 wzk727912172，添加好友，备注（城市-github用户名）, 验证通过会加入群聊
-- 技术咨询：https://jinshuju.net/f/QrZJpt
+## 微信群
+
+![wechat-group](https://kubeoperator.io/docs/img/wechat-group.png)
 
 ## 致谢
 
