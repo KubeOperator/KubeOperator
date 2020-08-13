@@ -24,6 +24,23 @@ KubeOperator 的整体架构：
 
 >更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
+## 快速开始
+
+仅需两步快速安装 KubeOperator：
+
+ 1. 准备一台不小于 8 G内存的 64位 Linux 主机；
+ 2. 以 root 用户执行如下命令一键安装 MeterSphere。
+
+```sh
+curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/quick_start.sh | sh
+```
+
+文档和演示视频：
+
+- [完整文档](https://kubeoperator.io/docs/)
+- [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)
+- [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT;
+
 ## 技术优势
 
 -  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
@@ -235,13 +252,6 @@ KubeOperator 的整体架构：
  </table>
 
 具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
-
- ## PPT、Demo 视频、使用文档
-
--  [PPT 介绍文档](https://kubeoperator.io/download/KubeOperator_Intro.pdf)：KubeOperator 的介绍 PPT;
--  [安装及使用文档](https://kubeoperator.io/docs/)：包括 KubeOperator 安装文档、使用文档、功能截屏、常见问题等;
--  [8 分钟的演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)：详细演示 KubeOperator 的功能;
--  [直播回放](http://live.vhall.com/355489706)：KubeOperator 助力企业运营生产级别的 Kubernetes 集群。
 
 ## 微信群
 
