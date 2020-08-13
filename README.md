@@ -20,7 +20,7 @@ KubeOperator 的整体架构：
 
 ## Web UI 展示
 
-![Web UI](https://kubeoperator.io/images/screenshot/6.png)
+![Web UI](https://kubeoperator.io/images/screenshot/day-2.png)
 
 >更多功能截屏点击：[这里](https://kubeoperator.io/features.html)
 
