@@ -12,7 +12,7 @@
             </clr-input-container>
             <clr-select-container>
                 <label>{{'APP_TYPE'|translate}}:</label>
-                <select clrSelect name="type" [(ngModel)]="item.type" (ngModelChange)="changeType()" required>
+                <select clrSelect name="type" [(ngModel)]="item.type" (ngModelChange)="changeType(item)" required>
                     <option value="OSS">oss</option>
                     <option value="S3">s3</option>
                     <option value="AZURE">azure</option>
@@ -79,13 +79,13 @@
             <app-modal-alert></app-modal-alert>
         </form>
         <div class="modal-footer">
-            <button type="button" class="btn btn-success-outline" (click)="getBuckets()"
+            <button type="button" class="btn btn-success-outline" [clrLoading]="getBucketGoing" (click)="getBuckets()"
                     [disabled]="isSubmitGoing">
                 {{'APP_GET_BUCKET'|translate}}
             </button>
             <button type="button" class="btn btn-outline" (click)="onCancel()"
                     [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
-            <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
                     [disabled]="backupAccountForm.invalid">{{'APP_COMMIT'|translate}}
             </button>
         </div>

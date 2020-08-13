@@ -56,6 +56,8 @@ func errorHandler(ctx context.Context, err error) {
 			tr := ctx.Tr(err.Error())
 			if tr != "" {
 				result = tr
+			} else {
+				result = err.Error()
 			}
 			break
 		}
