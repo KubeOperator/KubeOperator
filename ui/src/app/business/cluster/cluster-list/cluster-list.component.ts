@@ -91,28 +91,10 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
 
     polling() {
         this.timer = setInterval(() => {
-            let flag = false;
-            const needPolling = ['Waiting', 'Initializing', 'Terminating', 'Creating'];
-            for (const item of this.items) {
-                if (needPolling.indexOf(item.status) !== -1) {
-                    flag = true;
-                    break;
-                }
-            }
-            if (flag) {
-                this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
-                    data.items.forEach(n => {
-                        this.items.forEach(item => {
-                            if (item.name === n.name) {
-                                if (item.status !== n.status) {
-                                    item.status = n.status;
-                                }
-                            }
-                        });
-                    });
-                });
-            }
-        }, 1000);
+            this.clusterService.pageBy(this.page, this.size, this.currentProject.name).subscribe(data => {
+                this.items = data.items;
+            });
+        }, 10000);
     }
 
     pageBy() {

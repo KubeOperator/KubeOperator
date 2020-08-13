@@ -132,12 +132,16 @@ func (c Cluster) BeforeDelete() error {
 						tx.Rollback()
 						return err
 					}
-					if err := tx.Delete(&host).Error; err != nil {
-						tx.Rollback()
+					var projectResources []ProjectResource
+					if err := db.DB.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 						return err
 					}
-					var projectResource ProjectResource
-					if err := tx.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Delete(&projectResource).Error; err != nil {
+					if len(projectResources) > 0 {
+						for _, p := range projectResources {
+							db.DB.Delete(&p)
+						}
+					}
+					if err := tx.Delete(&host).Error; err != nil {
 						tx.Rollback()
 						return err
 					}

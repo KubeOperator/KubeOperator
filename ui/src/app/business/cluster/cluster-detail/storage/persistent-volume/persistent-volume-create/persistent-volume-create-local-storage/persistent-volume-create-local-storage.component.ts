@@ -83,6 +83,7 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
         if (this.storageClassName) {
             this.item.spec.storageClassName = this.storageClassName;
         }
+        this.item.spec.capacity['storage'] += 'Gi';
         this.kubernetesService.createPersistentVolume(this.currentCluster.name, this.item).subscribe(data => {
             this.isSubmitGoing = false;
             this.created.emit();

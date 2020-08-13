@@ -36,8 +36,8 @@ export class ClusterImportComponent implements OnInit {
     }
 
     onSubmit() {
+        this.item.projectName = this.currentProject.name;
         this.clusterService.import(this.item).subscribe(() => {
-            this.item.projectName = this.currentProject.name;
             this.imported.emit();
             this.opened = false;
         });
