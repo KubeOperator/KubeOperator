@@ -37,18 +37,7 @@ export class PersistentVolumeListComponent implements OnInit {
 
 
     getSource(item: V1PersistentVolume) {
-        for (const key in item.spec) {
-            if (key === 'nfs') {
-                return 'NFS';
-            }
-            if (key === 'local') {
-                return 'Local Volume';
-            }
-            if (key === 'hostPath') {
-                return 'Host Path';
-            }
-        }
-        return 'unknown';
+        return item.spec.storageClassName;
     }
 
     refresh() {

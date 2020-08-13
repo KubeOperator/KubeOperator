@@ -17,10 +17,6 @@
                 {{"APP_STORAGE"|translate}}
             </a>
         </li>
-        <li class="nav-item" *ngIf="ready&&showApp('registry') || showApp('chartmuseum')">
-            <a class="nav-link" href="javascript:void(0)" routerLink="repository"
-               routerLinkActive="active">{{"APP_REPOSITORY"|translate}}</a>
-        </li>
         <li class="nav-item" *ngIf="ready&&showApp('efk')">
             <a class="nav-link" href="javascript:void(0)" routerLink="logging"
                routerLinkActive="active">{{"LOGGING"|translate}}</a>
@@ -33,7 +29,7 @@
             <a class="nav-link" href="javascript:void(0)" routerLink="tool"
                routerLinkActive="active">{{"APP_TOOLS"|translate}}</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="currentCluster.source !='external'">
             <a class="nav-link" href="javascript:void(0)" routerLink="backup"
                routerLinkActive="active">{{'APP_BACKUP'|translate}}</a>
         </li>

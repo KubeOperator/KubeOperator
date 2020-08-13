@@ -27,11 +27,11 @@ export class StorageProvisionerCreateExternalCephComponent implements OnInit {
         this.opened = true;
         this.item = item;
         this.item.name = 'external-ceph';
+        this.nfsForm.resetForm(this.item);
     }
 
     reset() {
         this.item = new CreateStorageProvisionerRequest();
-        this.nfsForm.resetForm();
     }
 
     onCancel() {

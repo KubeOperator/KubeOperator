@@ -29,11 +29,11 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
         this.opened = true;
         this.item = item;
         this.item.name = 'rook-ceph.rbd.csi.ceph.com';
+        this.nfsForm.resetForm(this.item);
     }
 
     reset() {
         this.item = new CreateStorageProvisionerRequest();
-        this.nfsForm.resetForm();
     }
 
     onCancel() {
