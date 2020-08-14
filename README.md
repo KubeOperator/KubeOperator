@@ -253,6 +253,27 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 具体版本路线图请参考：[Roadmap](https://github.com/KubeOperator/KubeOperator/blob/master/ROADMAP.md)
 
+## 支持组件
+
+- 核心
+  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.4
+  - [etcd](https://github.com/coreos/etcd) v3.4.9
+  - [docker](https://www.docker.com/) v19.03.9
+  - [containerd](https://containerd.io/) v1.3.6
+- 网络
+  - [calico](https://github.com/projectcalico/calico) v3.14.1
+  - [flanneld](https://github.com/coreos/flannel) v0.12.0
+- 应用
+  - [coredns](https://github.com/coredns/coredns) v1.6.7
+  - [helm](https://github.com/helm/helm) v3.2.4
+  - [traefik](https://github.com/containous/traefik) v2.2.1
+  - [ingress-nginx](https://github.com/kubernetes/ingress-nginx) v0.32.0
+  - [node-problem-detector](https://github.com/kubernetes/node-problem-detector) v0.8.1
+  - [metrics-server](https://github.com/kubernetes-sigs/metrics-server) v0.3.6
+  - [nfs-provisioner](https://github.com/kubernetes-incubator/external-storage) v3.1.0-k8s1.11
+  - [rook-ceph](https://github.com/rook/rook) v1.3.6
+  - [rbd-provisioner](https://github.com/kubernetes-incubator/external-storage) v2.1.1-k8s1.11
+
 ## 微信群
 
 ![wechat-group](https://kubeoperator.io/docs/img/wechat-group.png)
