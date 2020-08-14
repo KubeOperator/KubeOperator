@@ -16,8 +16,6 @@ KubeOperator 的整体架构：
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
-> 注： KubeOperator 已通过云原生基金会（CNCF）的 [Kubernetes 软件一致性认证](https://landscape.cncf.io/selected=kube-operator)。
-
 ## Web UI 展示
 
 ![Web UI](https://kubeoperator.io/images/screenshot/05.jpg)
