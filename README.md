@@ -32,7 +32,8 @@ KubeOperator 的整体架构：
  2. 以 root 用户执行如下命令一键安装 MeterSphere。
 
 ```sh
-curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/quick_start.sh | sh
+curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/quick_start.sh -o quick_start.sh
+bash quick_start.sh
 ```
 
 文档和演示视频：
