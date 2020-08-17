@@ -22,7 +22,7 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
-        <clr-dg-cell>{{item.region.name}}</clr-dg-cell>
+        <clr-dg-cell>{{item.regionName}}</clr-dg-cell>
         <clr-dg-cell>
             <clr-spinner clrAssertive clrInline *ngIf="item.status=='INITIALIZING'"> Loading...</clr-spinner>
             <span [outerHTML]="item.status | zoneStatus"></span>

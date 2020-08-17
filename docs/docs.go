@@ -176,7 +176,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -184,9 +184,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -1484,9 +1484,6 @@ var doc = `{
         "dto.BackupAccount": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "string"
-                },
                 "bucket": {
                     "type": "string"
                 },
@@ -1616,10 +1613,6 @@ var doc = `{
         "dto.ClusterBackupStrategy": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.BackupAccount"
-                },
                 "backupAccountId": {
                     "type": "string"
                 },
@@ -1836,9 +1829,6 @@ var doc = `{
         "dto.Host": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "string"
-                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -1953,11 +1943,10 @@ var doc = `{
                 "planVars": {
                     "type": "object"
                 },
-                "region": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Region"
-                },
                 "regionId": {
+                    "type": "string"
+                },
+                "regionName": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1966,10 +1955,10 @@ var doc = `{
                 "vars": {
                     "type": "string"
                 },
-                "zones": {
+                "zoneNames": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Zone"
+                        "type": "string"
                     }
                 }
             }
@@ -2004,7 +1993,6 @@ var doc = `{
                     "type": "string"
                 },
                 "zones": {
-                    "description": "RegionId       string      ` + "`" + `json:\"regionId\" validate:\"required\"` + "`" + `",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -2015,12 +2003,6 @@ var doc = `{
         "dto.Project": {
             "type": "object",
             "properties": {
-                "clusters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Cluster"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2055,10 +2037,6 @@ var doc = `{
         "dto.ProjectMember": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.User"
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2274,11 +2252,17 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "provider": {
+                    "type": "string"
+                },
                 "region": {
                     "type": "object",
-                    "$ref": "#/definitions/dto.Region"
+                    "$ref": "#/definitions/model.Region"
                 },
                 "regionID": {
+                    "type": "string"
+                },
+                "regionName": {
                     "type": "string"
                 },
                 "status": {
@@ -2321,9 +2305,6 @@ var doc = `{
         "model.BackupAccount": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "string"
-                },
                 "bucket": {
                     "type": "string"
                 },
@@ -2347,34 +2328,9 @@ var doc = `{
                 }
             }
         },
-        "model.Cluster": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "source": {
-                    "type": "string"
-                },
-                "spec": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.ClusterSpec"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "model.ClusterBackupFile": {
             "type": "object",
             "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Cluster"
-                },
                 "clusterBackupStrategyId": {
                     "type": "string"
                 },
@@ -2391,39 +2347,6 @@ var doc = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.ClusterBackupStrategy": {
-            "type": "object",
-            "properties": {
-                "_": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.BackupAccount"
-                },
-                "backupAccountId": {
-                    "type": "string"
-                },
-                "clusterId": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "cron": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "saveNum": {
-                    "type": "integer"
-                },
-                "status": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -2531,38 +2454,6 @@ var doc = `{
                 }
             }
         },
-        "model.User": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "isAdmin": {
-                    "type": "boolean"
-                },
-                "language": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "model.Volume": {
             "type": "object",
             "properties": {
@@ -2582,39 +2473,6 @@ var doc = `{
                     "type": "string"
                 },
                 "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.Zone": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "credentialId": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Region"
-                },
-                "regionID": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "vars": {
                     "type": "string"
                 }
             }

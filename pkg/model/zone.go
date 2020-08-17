@@ -19,7 +19,7 @@ type Zone struct {
 	Status       string `json:"status" gorm:"type:varchar(64)"`
 	RegionID     string `json:"regionID" gorm:"type:varchar(64)"`
 	CredentialID string `json:"credentialId" gorm:"type:varchar(64)"`
-	Region       Region `json:"region"`
+	Region       Region `json:"-"`
 }
 
 func (z *Zone) BeforeCreate() (err error) {

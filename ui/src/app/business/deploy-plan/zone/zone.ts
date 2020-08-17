@@ -7,7 +7,8 @@ export class Zone extends BaseModel {
     vars: string;
     credentialId: string;
     cloudVars: {} = {};
-    region: Region = new Region();
+    regionName: string;
+    provider: string;
     status: string;
 }
 

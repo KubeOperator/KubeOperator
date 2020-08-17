@@ -4,8 +4,9 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Zone struct {
 	model.Zone
-	CloudVars interface{} `json:"cloudVars"`
-	Region    Region      `json:"region"`
+	CloudVars  interface{} `json:"cloudVars"`
+	RegionName string      `json:"regionName"`
+	Provider   string      `json:"provider"`
 }
 
 type ZoneCreate struct {

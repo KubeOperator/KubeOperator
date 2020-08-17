@@ -18,7 +18,7 @@ type Project struct {
 	ID          string    `json:"id" gorm:"type:varchar(64)"`
 	Name        string    `json:"name" gorm:"type:varchar(64);not null;unique"`
 	Description string    `json:"description" gorm:"type:varchar(128)"`
-	Clusters    []Cluster `json:"clusters"`
+	Clusters    []Cluster `json:"-"`
 }
 
 func (p *Project) BeforeCreate() (err error) {

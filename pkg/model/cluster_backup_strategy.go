@@ -13,7 +13,7 @@ type ClusterBackupStrategy struct {
 	BackupAccountID string        `json:"backupAccountId"`
 	ClusterID       string        `json:"clusterId"`
 	Status          string        `json:"status"`
-	BackupAccount   BackupAccount `json:"_" gorm:"save_associations:false"`
+	BackupAccount   BackupAccount `json:"-" gorm:"save_associations:false"`
 }
 
 func (c *ClusterBackupStrategy) BeforeCreate() error {

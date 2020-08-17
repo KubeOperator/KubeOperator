@@ -18,8 +18,8 @@ type Plan struct {
 	RegionID       string `json:"regionId" grom:"type:varchar(64)"`
 	DeployTemplate string `json:"deployTemplate" grom:"type:varchar(64)"`
 	Vars           string `json:"vars" gorm:"type text(65535)"`
-	Zones          []Zone `json:"zones" gorm:"many2many:ko_plan_zones"`
-	Region         Region `json:"region"`
+	Zones          []Zone `json:"-" gorm:"many2many:ko_plan_zones"`
+	Region         Region `json:"-"`
 }
 
 func (p *Plan) BeforeCreate() (err error) {

@@ -80,7 +80,12 @@ func (p planService) Page(num, size int) (page.Page, error) {
 		json.Unmarshal([]byte(mo.Vars), &r)
 		planDTO.PlanVars = r
 		planDTO.Plan = mo
-
+		planDTO.RegionName = mo.Region.Name
+		var zoneNames []string
+		for _, zone := range mo.Zones {
+			zoneNames = append(zoneNames, zone.Name)
+		}
+		planDTO.ZoneNames = zoneNames
 		planDTOs = append(planDTOs, *planDTO)
 	}
 	page.Total = total
