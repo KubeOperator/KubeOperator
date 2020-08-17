@@ -87,7 +87,7 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [x] 组件升级，包括 Helm 3.x、Traefik 2.x、Kubeapps等；
 - [x] 集成 cert-manager；
 - [x] 支持 containerd；
-- [x] 支持已有集群导入（X-Pack）.
+- [x] 支持已有集群导入。
 
 Release Note: https://blog.fit2cloud.com/?p=1416
 
