@@ -94,4 +94,5 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  ##  v3.1 （开发中）
  
  - [ ] LDAP 对接；
+ - [ ] K8s 版本历史及集群版本升级功能优化；
  
