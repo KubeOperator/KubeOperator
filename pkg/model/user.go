@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
@@ -68,16 +67,7 @@ func (u User) TableName() string {
 	return "ko_user"
 }
 
-func (u *User) ToSessionUser() *auth.SessionUser {
-	return &auth.SessionUser{
-		UserId:   u.ID,
-		Name:     u.Name,
-		Email:    u.Email,
-		Language: u.Language,
-		IsActive: u.IsActive,
-		IsAdmin:  u.IsAdmin,
-	}
-}
+
 
 func (u *User) ValidateOldPassword(password string) (bool, error) {
 	oldPassword, err := encrypt.StringDecrypt(u.Password)

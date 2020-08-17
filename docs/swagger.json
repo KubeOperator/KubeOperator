@@ -13,9 +13,42 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/auth/login/": {
+            "post": {
+                "description": "Get login token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get login token",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Credential"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JwtResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/backupAccounts/": {
             "get": {
                 "security": [
@@ -365,7 +398,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show a cluster",
+                "description": "Show clusters",
                 "consumes": [
                     "application/json"
                 ],
@@ -375,12 +408,12 @@
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Show a cluster",
+                "summary": "Show all clusters",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.Cluster"
+                            "$ref": "#/definitions/page.Page"
                         }
                     }
                 }
@@ -424,6 +457,32 @@
             }
         },
         "/clusters/{name}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show a cluster",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -1343,9 +1402,73 @@
         }
     },
     "definitions": {
+        "auth.Credential": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.JwtResponse": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserPermission"
+                    }
+                },
+                "roleMenus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserMenu"
+                    }
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/auth.SessionUser"
+                }
+            }
+        },
+        "auth.SessionUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isAdmin": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BackupAccount": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "bucket": {
                     "type": "string"
                 },
@@ -1475,6 +1598,10 @@
         "dto.ClusterBackupStrategy": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.BackupAccount"
+                },
                 "backupAccountId": {
                     "type": "string"
                 },
@@ -1691,6 +1818,9 @@
         "dto.Host": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "clusterId": {
                     "type": "string"
                 },
@@ -1805,10 +1935,11 @@
                 "planVars": {
                     "type": "object"
                 },
-                "regionId": {
-                    "type": "string"
+                "region": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.Region"
                 },
-                "regionName": {
+                "regionId": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1817,10 +1948,10 @@
                 "vars": {
                     "type": "string"
                 },
-                "zoneNames": {
+                "zones": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/model.Zone"
                     }
                 }
             }
@@ -1855,6 +1986,7 @@
                     "type": "string"
                 },
                 "zones": {
+                    "description": "RegionId       string      `json:\"regionId\" validate:\"required\"`",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1865,6 +1997,12 @@
         "dto.Project": {
             "type": "object",
             "properties": {
+                "clusters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Cluster"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -1899,6 +2037,10 @@
         "dto.ProjectMember": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.User"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -2114,13 +2256,11 @@
                 "name": {
                     "type": "string"
                 },
-                "provider": {
-                    "type": "string"
+                "region": {
+                    "type": "object",
+                    "$ref": "#/definitions/dto.Region"
                 },
                 "regionID": {
-                    "type": "string"
-                },
-                "regionName": {
                     "type": "string"
                 },
                 "status": {
@@ -2163,6 +2303,9 @@
         "model.BackupAccount": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "bucket": {
                     "type": "string"
                 },
@@ -2186,9 +2329,34 @@
                 }
             }
         },
+        "model.Cluster": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "spec": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.ClusterSpec"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ClusterBackupFile": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.Cluster"
+                },
                 "clusterBackupStrategyId": {
                     "type": "string"
                 },
@@ -2205,6 +2373,39 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ClusterBackupStrategy": {
+            "type": "object",
+            "properties": {
+                "_": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.BackupAccount"
+                },
+                "backupAccountId": {
+                    "type": "string"
+                },
+                "clusterId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "cron": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "saveNum": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -2286,6 +2487,64 @@
                 }
             }
         },
+        "model.Region": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "datacenter": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isAdmin": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Volume": {
             "type": "object",
             "properties": {
@@ -2309,6 +2568,39 @@
                 }
             }
         },
+        "model.Zone": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "credentialId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "object",
+                    "$ref": "#/definitions/model.Region"
+                },
+                "regionID": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "string"
+                }
+            }
+        },
         "page.Page": {
             "type": "object",
             "properties": {
@@ -2317,6 +2609,57 @@
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "permission.UserMenu": {
+            "type": "object",
+            "properties": {
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                }
+            }
+        },
+        "permission.UserPermission": {
+            "type": "object",
+            "properties": {
+                "projectId": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "projectRole": {
+                    "type": "string"
+                },
+                "userPermissionRoles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserPermissionRole"
+                    }
+                }
+            }
+        },
+        "permission.UserPermissionRole": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

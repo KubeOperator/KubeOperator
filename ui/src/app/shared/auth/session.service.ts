@@ -4,7 +4,7 @@ import {Profile} from './session-user';
 import {Observable} from 'rxjs';
 
 const queryKey = 'profile';
-const profileUrl = '/api/auth/profile/';
+const profileUrl = '/api/v1/auth/profile/';
 
 @Injectable({
     providedIn: 'root'

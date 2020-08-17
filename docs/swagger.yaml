@@ -1,7 +1,49 @@
 basePath: /api/v1
 definitions:
+  auth.Credential:
+    properties:
+      language:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth.JwtResponse:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/permission.UserPermission'
+        type: array
+      roleMenus:
+        items:
+          $ref: '#/definitions/permission.UserMenu'
+        type: array
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/auth.SessionUser'
+        type: object
+    type: object
+  auth.SessionUser:
+    properties:
+      email:
+        type: string
+      isActive:
+        type: boolean
+      isAdmin:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+    type: object
   dto.BackupAccount:
     properties:
+      _:
+        type: string
       bucket:
         type: string
       createdAt:
@@ -89,6 +131,9 @@ definitions:
     type: object
   dto.ClusterBackupStrategy:
     properties:
+      _:
+        $ref: '#/definitions/model.BackupAccount'
+        type: object
       backupAccountId:
         type: string
       backupAccountName:
@@ -233,6 +278,8 @@ definitions:
     type: object
   dto.Host:
     properties:
+      _:
+        type: string
       clusterId:
         type: string
       clusterName:
@@ -309,17 +356,18 @@ definitions:
         type: string
       planVars:
         type: object
+      region:
+        $ref: '#/definitions/model.Region'
+        type: object
       regionId:
-        type: string
-      regionName:
         type: string
       updatedAt:
         type: string
       vars:
         type: string
-      zoneNames:
+      zones:
         items:
-          type: string
+          $ref: '#/definitions/model.Zone'
         type: array
     type: object
   dto.PlanCreate:
@@ -337,6 +385,7 @@ definitions:
       region:
         type: string
       zones:
+        description: RegionId       string      `json:"regionId" validate:"required"`
         items:
           type: string
         type: array
@@ -350,6 +399,10 @@ definitions:
     type: object
   dto.Project:
     properties:
+      clusters:
+        items:
+          $ref: '#/definitions/model.Cluster'
+        type: array
       createdAt:
         type: string
       description:
@@ -372,6 +425,9 @@ definitions:
     type: object
   dto.ProjectMember:
     properties:
+      _:
+        $ref: '#/definitions/model.User'
+        type: object
       createdAt:
         type: string
       email:
@@ -516,11 +572,10 @@ definitions:
         type: string
       name:
         type: string
-      provider:
-        type: string
+      region:
+        $ref: '#/definitions/dto.Region'
+        type: object
       regionID:
-        type: string
-      regionName:
         type: string
       status:
         type: string
@@ -549,6 +604,8 @@ definitions:
     type: object
   model.BackupAccount:
     properties:
+      _:
+        type: string
       bucket:
         type: string
       createdAt:
@@ -564,8 +621,25 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.Cluster:
+    properties:
+      createdAt:
+        type: string
+      name:
+        type: string
+      source:
+        type: string
+      spec:
+        $ref: '#/definitions/model.ClusterSpec'
+        type: object
+      updatedAt:
+        type: string
+    type: object
   model.ClusterBackupFile:
     properties:
+      _:
+        $ref: '#/definitions/model.Cluster'
+        type: object
       clusterBackupStrategyId:
         type: string
       clusterId:
@@ -577,6 +651,28 @@ definitions:
       id:
         type: string
       name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.ClusterBackupStrategy:
+    properties:
+      _:
+        $ref: '#/definitions/model.BackupAccount'
+        type: object
+      backupAccountId:
+        type: string
+      clusterId:
+        type: string
+      createdAt:
+        type: string
+      cron:
+        type: integer
+      id:
+        type: string
+      saveNum:
+        type: integer
+      status:
         type: string
       updatedAt:
         type: string
@@ -630,6 +726,44 @@ definitions:
       workerAmount:
         type: integer
     type: object
+  model.Region:
+    properties:
+      createdAt:
+        type: string
+      datacenter:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      provider:
+        type: string
+      updatedAt:
+        type: string
+      vars:
+        type: string
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isAdmin:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   model.Volume:
     properties:
       createdAt:
@@ -645,6 +779,28 @@ definitions:
       updatedAt:
         type: string
     type: object
+  model.Zone:
+    properties:
+      createdAt:
+        type: string
+      credentialId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      region:
+        $ref: '#/definitions/model.Region'
+        type: object
+      regionID:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+      vars:
+        type: string
+    type: object
   page.Page:
     properties:
       items:
@@ -652,7 +808,39 @@ definitions:
       total:
         type: integer
     type: object
-host: localhost:8080
+  permission.UserMenu:
+    properties:
+      menus:
+        items:
+          type: string
+        type: array
+      projectId:
+        type: string
+      projectName:
+        type: string
+    type: object
+  permission.UserPermission:
+    properties:
+      projectId:
+        type: string
+      projectName:
+        type: string
+      projectRole:
+        type: string
+      userPermissionRoles:
+        items:
+          $ref: '#/definitions/permission.UserPermissionRole'
+        type: array
+    type: object
+  permission.UserPermissionRole:
+    properties:
+      operation:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
 info:
   contact:
     email: support@fit2cloud.com
@@ -664,6 +852,28 @@ info:
   termsOfService: http://kubeoperator.io
   title: KubeOperator Restful API
 paths:
+  /auth/login/:
+    post:
+      consumes:
+      - application/json
+      description: Get login token
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Credential'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.JwtResponse'
+      summary: Get login token
+      tags:
+      - auth
   /backupAccounts/:
     get:
       consumes:
@@ -878,17 +1088,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: Show a cluster
+      description: Show clusters
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Cluster'
+            $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show a cluster
+      summary: Show all clusters
       tags:
       - clusters
     post:
@@ -924,6 +1134,22 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a cluster
+      tags:
+      - clusters
+    get:
+      consumes:
+      - application/json
+      description: Show a cluster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a cluster
       tags:
       - clusters
   /credentials/:
