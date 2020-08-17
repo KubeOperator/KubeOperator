@@ -15,7 +15,7 @@ const (
 
 type Host struct {
 	common.BaseModel
-	ID           string     `json:"_"`
+	ID           string     `json:"-"`
 	Name         string     `json:"name" gorm:"type:varchar(256);not null;unique"`
 	Memory       int        `json:"memory" gorm:"type:int(64)"`
 	CpuCore      int        `json:"cpuCore" gorm:"type:int(64)"`

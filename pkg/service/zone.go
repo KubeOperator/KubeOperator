@@ -66,7 +66,7 @@ func (z zoneService) List() ([]dto.Zone, error) {
 		return zoneDTOs, err
 	}
 	for _, mo := range mos {
-		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
+		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo, RegionName: mo.Region.Name})
 	}
 	return zoneDTOs, err
 }
@@ -85,12 +85,8 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		json.Unmarshal([]byte(mo.Vars), &m)
 		zoneDTO.CloudVars = m
 
-		regionDTO := new(dto.Region)
-		r := make(map[string]interface{})
-		json.Unmarshal([]byte(mo.Region.Vars), &r)
-		regionDTO.RegionVars = r
-		regionDTO.Region = mo.Region
-		zoneDTO.Region = *regionDTO
+		zoneDTO.RegionName = mo.Region.Name
+		zoneDTO.Provider = mo.Region.Provider
 
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}

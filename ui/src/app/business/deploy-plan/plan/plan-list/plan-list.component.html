@@ -19,8 +19,8 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
-        <clr-dg-cell>{{item.region.name}}</clr-dg-cell>
-        <clr-dg-cell><span *ngFor="let zone of item.zones">{{zone.name}},</span></clr-dg-cell>
+        <clr-dg-cell>{{item.regionName}}</clr-dg-cell>
+        <clr-dg-cell><span *ngFor="let zone of item.zoneNames">{{zone}},</span></clr-dg-cell>
         <clr-dg-cell>{{getDeployName(item.deployTemplate)}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
