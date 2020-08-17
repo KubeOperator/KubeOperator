@@ -337,5 +337,7 @@
   "APP_DISK_HELPER": "Disk Name，eg：\"sdb,sdc\"",
   "APP_INCREASE": "Increase",
   "APP_BASIC_INFO": "Basic Info",
-  "APP_LABEL": "Label"
+  "APP_LABEL": "Label",
+  "Ready": "Ready",
+  "Waiting": "Waiting"
 }
