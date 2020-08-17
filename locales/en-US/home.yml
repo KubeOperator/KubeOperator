@@ -56,6 +56,8 @@ DELETE_FAILED_BY_PROJECT: "Failed to delete! The plan is already associated with
 
 #clusterBackup
 BACKUP_FILES_NOT_NULL: "Please delete the backup file before switching the backup account"
+CLUSTER_IS_BACKUP: "The cluster is being backed up！"
+CLUSTER_IS_RESTORE: "The cluster is restoring！"
 
 #projectResource
 DELETE_FAILED_BY_BACKUP_FILE: "Please delete the backup file first！"

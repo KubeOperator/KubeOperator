@@ -14,6 +14,7 @@ type ClusterLogService interface {
 	Save(clusterName string, clusterLog *model.ClusterLog) error
 	Start(log *model.ClusterLog) error
 	End(log *model.ClusterLog, success bool, message string) error
+	GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.ClusterLog, error)
 }
 
 type clusterLogService struct {
@@ -58,4 +59,8 @@ func (c *clusterLogService) End(log *model.ClusterLog, success bool, message str
 	}
 	log.Message = message
 	return db.DB.Save(log).Error
+}
+
+func (c *clusterLogService) GetRunningLogWithClusterNameAndType(clusterName string, logType string) (model.ClusterLog, error) {
+	return c.clusterLogRepo.GetRunningLogWithClusterNameAndType(clusterName, logType)
 }
