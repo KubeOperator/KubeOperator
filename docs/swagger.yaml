@@ -42,8 +42,6 @@ definitions:
     type: object
   dto.BackupAccount:
     properties:
-      _:
-        type: string
       bucket:
         type: string
       createdAt:
@@ -131,9 +129,6 @@ definitions:
     type: object
   dto.ClusterBackupStrategy:
     properties:
-      _:
-        $ref: '#/definitions/model.BackupAccount'
-        type: object
       backupAccountId:
         type: string
       backupAccountName:
@@ -278,8 +273,6 @@ definitions:
     type: object
   dto.Host:
     properties:
-      _:
-        type: string
       clusterId:
         type: string
       clusterName:
@@ -356,18 +349,17 @@ definitions:
         type: string
       planVars:
         type: object
-      region:
-        $ref: '#/definitions/model.Region'
-        type: object
       regionId:
+        type: string
+      regionName:
         type: string
       updatedAt:
         type: string
       vars:
         type: string
-      zones:
+      zoneNames:
         items:
-          $ref: '#/definitions/model.Zone'
+          type: string
         type: array
     type: object
   dto.PlanCreate:
@@ -385,7 +377,6 @@ definitions:
       region:
         type: string
       zones:
-        description: RegionId       string      `json:"regionId" validate:"required"`
         items:
           type: string
         type: array
@@ -399,10 +390,6 @@ definitions:
     type: object
   dto.Project:
     properties:
-      clusters:
-        items:
-          $ref: '#/definitions/model.Cluster'
-        type: array
       createdAt:
         type: string
       description:
@@ -425,9 +412,6 @@ definitions:
     type: object
   dto.ProjectMember:
     properties:
-      _:
-        $ref: '#/definitions/model.User'
-        type: object
       createdAt:
         type: string
       email:
@@ -572,10 +556,14 @@ definitions:
         type: string
       name:
         type: string
+      provider:
+        type: string
       region:
-        $ref: '#/definitions/dto.Region'
+        $ref: '#/definitions/model.Region'
         type: object
       regionID:
+        type: string
+      regionName:
         type: string
       status:
         type: string
@@ -604,8 +592,6 @@ definitions:
     type: object
   model.BackupAccount:
     properties:
-      _:
-        type: string
       bucket:
         type: string
       createdAt:
@@ -621,25 +607,8 @@ definitions:
       updatedAt:
         type: string
     type: object
-  model.Cluster:
-    properties:
-      createdAt:
-        type: string
-      name:
-        type: string
-      source:
-        type: string
-      spec:
-        $ref: '#/definitions/model.ClusterSpec'
-        type: object
-      updatedAt:
-        type: string
-    type: object
   model.ClusterBackupFile:
     properties:
-      _:
-        $ref: '#/definitions/model.Cluster'
-        type: object
       clusterBackupStrategyId:
         type: string
       clusterId:
@@ -651,28 +620,6 @@ definitions:
       id:
         type: string
       name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  model.ClusterBackupStrategy:
-    properties:
-      _:
-        $ref: '#/definitions/model.BackupAccount'
-        type: object
-      backupAccountId:
-        type: string
-      clusterId:
-        type: string
-      createdAt:
-        type: string
-      cron:
-        type: integer
-      id:
-        type: string
-      saveNum:
-        type: integer
-      status:
         type: string
       updatedAt:
         type: string
@@ -743,27 +690,6 @@ definitions:
       vars:
         type: string
     type: object
-  model.User:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      isActive:
-        type: boolean
-      isAdmin:
-        type: boolean
-      language:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   model.Volume:
     properties:
       createdAt:
@@ -777,28 +703,6 @@ definitions:
       size:
         type: string
       updatedAt:
-        type: string
-    type: object
-  model.Zone:
-    properties:
-      createdAt:
-        type: string
-      credentialId:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      region:
-        $ref: '#/definitions/model.Region'
-        type: object
-      regionID:
-        type: string
-      status:
-        type: string
-      updatedAt:
-        type: string
-      vars:
         type: string
     type: object
   page.Page:
@@ -941,14 +845,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
