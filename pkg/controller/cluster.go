@@ -14,7 +14,8 @@ type ClusterController struct {
 	ClusterStorageProvisionerService service.ClusterStorageProvisionerService
 	ClusterToolService               service.ClusterToolService
 	ClusterNodeService               service.ClusterNodeService
-	CLusterLogService                service.ClusterLogService
+	ClusterLogService                service.ClusterLogService
+	ClusterImportService             service.ClusterImportService
 }
 
 func NewClusterController() *ClusterController {
@@ -24,7 +25,8 @@ func NewClusterController() *ClusterController {
 		ClusterStorageProvisionerService: service.NewClusterStorageProvisionerService(),
 		ClusterToolService:               service.NewClusterToolService(),
 		ClusterNodeService:               service.NewClusterNodeService(),
-		CLusterLogService:                service.NewClusterLogService(),
+		ClusterLogService:                service.NewClusterLogService(),
+		ClusterImportService:             service.NewClusterImportService(),
 	}
 }
 
@@ -188,6 +190,23 @@ func (c ClusterController) Delete(name string) error {
 	return c.ClusterService.Delete(name)
 }
 
+// Import Cluster
+// @Tags clusters
+// @Summary Import a cluster
+// @Description import a cluster
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Router /clusters/import/ [post]
+func (c ClusterController) PostImport() error {
+	var req dto.ClusterImport
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	return c.ClusterImportService.Import(req)
+}
+
 func (c ClusterController) PostBatch() error {
 	var batch dto.ClusterBatch
 	if err := c.Ctx.ReadJSON(&batch); err != nil {
@@ -238,7 +257,7 @@ func (c ClusterController) GetSecretBy(clusterName string) (*dto.ClusterSecret, 
 }
 
 func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error) {
-	ls, err := c.CLusterLogService.List(clusterName)
+	ls, err := c.ClusterLogService.List(clusterName)
 	if err != nil {
 		return nil, err
 	}
