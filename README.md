@@ -39,6 +39,16 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 - [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)
 - [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
+## 版本说明
+
+KubeOperator 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
+
+```
+v1.0.1 是 v1.0.0 之后的Bug修复版本；
+v1.1.0 是 v1.0.0 之后的功能版本。
+```
+像其它优秀开源项目一样，KubeOperator 将每月发布一个功能版本。
+
 ## 技术优势
 
 -  简单易用：提供可视化的 Web UI，极大降低 K8s 部署和管理门槛，内置 [Webkubectl](https://github.com/KubeOperator/webkubectl)；
