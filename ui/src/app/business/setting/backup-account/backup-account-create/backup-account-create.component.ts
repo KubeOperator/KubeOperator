@@ -21,6 +21,7 @@ export class BackupAccountCreateComponent extends BaseModelComponent<BackupAccou
     namePatternHelper = NamePatternHelper;
     opened = false;
     isSubmitGoing = false;
+    getBucketGoing = false;
     item: BackupAccountCreateRequest = new BackupAccountCreateRequest();
     buckets = [];
     @Output() created = new EventEmitter();
@@ -41,15 +42,22 @@ export class BackupAccountCreateComponent extends BaseModelComponent<BackupAccou
         this.buckets = [];
     }
 
-    changeType() {
-
+    changeType(item) {
+        const oldItem = item;
+        this.item = new BackupAccountCreateRequest();
+        this.item.name = oldItem.name;
+        this.item.type = oldItem.type;
+        this.buckets = [];
     }
 
     getBuckets() {
+        this.getBucketGoing = true;
         this.backupAccountService.listBuckets(this.item).subscribe(res => {
             this.buckets = res;
+            this.getBucketGoing = false;
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.getBucketGoing = false;
         });
     }
 

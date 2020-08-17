@@ -13,6 +13,7 @@ type ClusterBackupFile struct {
 	ClusterBackupStrategyID string                `json:"clusterBackupStrategyId"`
 	Folder                  string                `json:"folder"`
 	ClusterBackupStrategy   ClusterBackupStrategy `json:"_"`
+	CLuster                 Cluster               `json:"_"`
 }
 
 func (c *ClusterBackupFile) BeforeCreate() error {

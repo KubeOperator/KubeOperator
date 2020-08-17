@@ -104,7 +104,35 @@ func (c cLusterBackupFileService) Batch(op dto.ClusterBackupFileOp) error {
 }
 
 func (c cLusterBackupFileService) Delete(name string) error {
-	return c.clusterBackupFileRepo.Delete(name)
+	backupFile, err := c.clusterBackupFileRepo.Get(name)
+	if err != nil {
+		return err
+	}
+	backupAccount, err := c.backupAccountRepository.Get(backupFile.ClusterBackupStrategy.BackupAccount.Name)
+	if err != nil {
+		return err
+	}
+	vars := make(map[string]interface{})
+	json.Unmarshal([]byte(backupAccount.Credential), &vars)
+	vars["type"] = backupAccount.Type
+	vars["bucket"] = backupAccount.Bucket
+	client, err := cloud_storage.NewCloudStorageClient(vars)
+	if err != nil {
+		return err
+	}
+	result, err := client.Exist(backupFile.Folder)
+	if err != nil {
+		return err
+	}
+	if result {
+		_, err := client.Delete(backupFile.Folder)
+		if err != nil {
+			return err
+		}
+		return c.clusterBackupFileRepo.Delete(name)
+	} else {
+		return c.clusterBackupFileRepo.Delete(name)
+	}
 }
 
 func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) error {

@@ -65,11 +65,6 @@ func (azure azureClient) ListBuckets() ([]interface{}, error) {
 }
 
 func (azure azureClient) Exist(path string) (bool, error) {
-	_, err := azure.getBucket()
-	if err != nil {
-		return false, err
-	}
-	//blobURL := containerURL.NewBlockBlobURL(path)
 	return true, nil
 }
 
