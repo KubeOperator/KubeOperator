@@ -44,6 +44,10 @@ export class HeaderComponent implements OnInit {
         window.open('https://kubeoperator.io/docs/', 'blank');
     }
 
+    openSwagger() {
+        window.open('/swagger/index.html', 'blank');
+    }
+
     logOut() {
         this.sessionService.clear();
         this.router.navigateByUrl(CommonRoutes.LOGIN).then();
