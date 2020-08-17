@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -11,6 +12,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -136,6 +138,22 @@ func (c cLusterBackupFileService) Delete(name string) error {
 }
 
 func (c cLusterBackupFileService) Backup(creation dto.ClusterBackupFileCreate) error {
+
+	backupLog, err := c.clusterLogService.GetRunningLogWithClusterNameAndType(creation.ClusterName, constant.ClusterLogTypeBackup)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return err
+	}
+	if backupLog.ID != "" {
+		return errors.New("CLUSTER_IS_BACKUP")
+	}
+
+	restoreLog, err := c.clusterLogService.GetRunningLogWithClusterNameAndType(creation.ClusterName, constant.ClusterLogTypeRestore)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return err
+	}
+	if restoreLog.ID != "" {
+		return errors.New("CLUSTER_IS_RESTORE")
+	}
 
 	cluster, err := c.clusterService.Get(creation.ClusterName)
 	if err != nil {
