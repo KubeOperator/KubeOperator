@@ -41,7 +41,7 @@ export class HeaderComponent implements OnInit {
 
 
     openDoc() {
-        window.open('https://docs.kubeoperator.io/', 'blank');
+        window.open('https://kubeoperator.io/docs/', 'blank');
     }
 
     logOut() {
