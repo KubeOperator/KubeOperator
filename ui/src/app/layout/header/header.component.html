@@ -12,6 +12,7 @@
                 <clr-icon shape="caret down"></clr-icon>
             </button>
             <clr-dropdown-menu [clrPosition]="'bottom-right'">
+                <a href="javascript:void(0)" clrDropdownItem (click)="openSwagger()">REST API</a>
                 <a href="javascript:void(0)" clrDropdownItem (click)="openDoc()">{{'APP_DOCUMENTATION'|translate}}</a>
                 <a href="javascript:void(0)" clrDropdownItem (click)="openAbout()">{{'APP_ABOUT'|translate}}</a>
             </clr-dropdown-menu>

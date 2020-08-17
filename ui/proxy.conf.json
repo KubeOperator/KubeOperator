@@ -7,7 +7,11 @@
     "target": "http://localhost:8080",
     "secure": false
   },
-  "/proxy":{
+  "/proxy": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/swagger": {
     "target": "http://localhost:8080",
     "secure": false
   }
