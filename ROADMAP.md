@@ -77,15 +77,21 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [x] vSphere 创建虚机时支持选用自有模板；
 - [x] 支持更新 apiserver 证书。
 
- ##  V3.0 （开发中，8月18日发布）
+ ##  v3.0 （已发布）
  
-- [ ] 开放 REST API;
-- [ ] 支持 国际化 i18n；
-- [ ] 支持 kubeadm 部署；
-- [ ] 支持 arm64 平台架构；
-- [ ] 使用 out-of-tree 的网络和存储插件；
-- [ ] 支持在线和离线安装模式；
-- [ ] 组件升级，包括 Helm 3.x、Traefik 2.x、Kubeapps等；
-- [ ] 集成 cert-manager；
-- [ ] 支持 containerd；
-- [ ] 支持已有集群导入。
+- [x] 开放 REST API;
+- [x] 支持 国际化 i18n；
+- [x] 支持 kubeadm 部署；
+- [x] 支持 arm64 平台架构；
+- [x] 支持在线和离线安装模式；
+- [x] 组件升级，包括 Helm 3.x、Traefik 2.x、Kubeapps等；
+- [x] 集成 cert-manager；
+- [x] 支持 containerd；
+- [x] 支持已有集群导入（X-Pack）.
+
+Release Note: https://blog.fit2cloud.com/?p=1416
+
+ ##  v3.1 （开发中）
+ 
+ - [ ] LDAP 对接；
+ 
