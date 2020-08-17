@@ -68,7 +68,7 @@ func (c ClusterController) Get() (*dto.ClusterPage, error) {
 // @Produce  json
 // @Success 200 {object} dto.Cluster
 // @Security ApiKeyAuth
-// @Router /clusters/ [get]
+// @Router /clusters/{name}/ [get]
 func (c ClusterController) GetBy(name string) (*dto.Cluster, error) {
 	cl, err := c.ClusterService.Get(name)
 	if err != nil {

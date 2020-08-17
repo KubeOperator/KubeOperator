@@ -9,7 +9,7 @@ import {Profile} from '../shared/auth/session-user';
 })
 export class LoginService {
 
-    loginUrl = '/api/auth/login';
+    loginUrl = '/api/v1/auth/login';
 
     constructor(private http: HttpClient) {
     }
