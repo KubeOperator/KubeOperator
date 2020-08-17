@@ -31,22 +31,24 @@ var log = logger.Default
 
 func NewClusterNodeService() ClusterNodeService {
 	return &clusterNodeService{
-		ClusterService:    NewClusterService(),
-		NodeRepo:          repository.NewClusterNodeRepository(),
-		HostRepo:          repository.NewHostRepository(),
-		PlanRepo:          repository.NewPlanRepository(),
-		systemSettingRepo: repository.NewSystemSettingRepository(),
-		clusterLogService: NewClusterLogService(),
+		ClusterService:      NewClusterService(),
+		NodeRepo:            repository.NewClusterNodeRepository(),
+		HostRepo:            repository.NewHostRepository(),
+		PlanRepo:            repository.NewPlanRepository(),
+		systemSettingRepo:   repository.NewSystemSettingRepository(),
+		clusterLogService:   NewClusterLogService(),
+		projectResourceRepo: repository.NewProjectResourceRepository(),
 	}
 }
 
 type clusterNodeService struct {
-	ClusterService    ClusterService
-	NodeRepo          repository.ClusterNodeRepository
-	HostRepo          repository.HostRepository
-	PlanRepo          repository.PlanRepository
-	systemSettingRepo repository.SystemSettingRepository
-	clusterLogService ClusterLogService
+	ClusterService      ClusterService
+	NodeRepo            repository.ClusterNodeRepository
+	HostRepo            repository.HostRepository
+	PlanRepo            repository.PlanRepository
+	systemSettingRepo   repository.SystemSettingRepository
+	clusterLogService   ClusterLogService
+	projectResourceRepo repository.ProjectResourceRepository
 }
 
 type nodeMessage struct {
@@ -182,6 +184,13 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		if cluster.Spec.Provider == constant.ClusterProviderPlan {
 			db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 			db.DB.Delete(model.Host{ID: nodes[i].HostID})
+			hostResources, err := c.projectResourceRepo.ListByResourceIdAndType(nodes[i].HostID, constant.ResourceHost)
+			if err != nil {
+				log.Error(err)
+			}
+			if len(hostResources) > 0 {
+				db.DB.Delete(model.ProjectResource{ID: hostResources[0].ID})
+			}
 		}
 		_ = c.NodeRepo.Delete(nodes[i].ID)
 	}
@@ -276,6 +285,18 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 				err := db.DB.Save(&nodes[i].Host).Error
 				if err != nil {
 					log.Error(err)
+				}
+				//add project resource
+				clusterResources, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+				if err != nil {
+					log.Error(err)
+				}
+				if len(clusterResources) > 0 {
+					db.DB.Create(&model.ProjectResource{
+						ResourceId:   nodes[i].Host.ID,
+						ResourceType: constant.ResourceHost,
+						ProjectID:    clusterResources[0].ProjectID,
+					})
 				}
 			}
 		}
