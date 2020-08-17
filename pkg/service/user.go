@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -165,7 +164,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 	return err
 }
 
-func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err error) {
+func UserAuth(name string, password string) (user *model.User, err error) {
 	var dbUser model.User
 	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
 		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {
@@ -173,7 +172,7 @@ func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err 
 		}
 	}
 	if dbUser.IsActive == false {
-		return dbUser.ToSessionUser(), UserIsNotActive
+		return nil, UserIsNotActive
 	}
 	password, err = encrypt.StringEncrypt(password)
 	if err != nil {
@@ -182,5 +181,5 @@ func UserAuth(name string, password string) (sessionUser *auth.SessionUser, err 
 	if dbUser.Password != password {
 		return nil, PasswordNotMatch
 	}
-	return dbUser.ToSessionUser(), nil
+	return &dbUser, nil
 }

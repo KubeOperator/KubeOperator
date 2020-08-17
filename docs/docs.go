@@ -33,6 +33,40 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login/": {
+            "post": {
+                "description": "Get login token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get login token",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Credential"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JwtResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/backupAccounts/": {
             "get": {
                 "security": [
@@ -142,7 +176,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  backupAccount by name",
+                "description": "delete a  credential by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -150,9 +184,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "backupAccounts"
+                    "credentials"
                 ],
-                "summary": "Delete a backupAccount"
+                "summary": "Delete a credential"
             },
             "patch": {
                 "security": [
@@ -382,7 +416,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Show a cluster",
+                "description": "Show clusters",
                 "consumes": [
                     "application/json"
                 ],
@@ -392,12 +426,12 @@ var doc = `{
                 "tags": [
                     "clusters"
                 ],
-                "summary": "Show a cluster",
+                "summary": "Show all clusters",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.Cluster"
+                            "$ref": "#/definitions/page.Page"
                         }
                     }
                 }
@@ -441,6 +475,32 @@ var doc = `{
             }
         },
         "/clusters/{name}/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Show a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Show a cluster",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Cluster"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -1360,6 +1420,67 @@ var doc = `{
         }
     },
     "definitions": {
+        "auth.Credential": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.JwtResponse": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserPermission"
+                    }
+                },
+                "roleMenus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserMenu"
+                    }
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/auth.SessionUser"
+                }
+            }
+        },
+        "auth.SessionUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isAdmin": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BackupAccount": {
             "type": "object",
             "properties": {
@@ -2252,7 +2373,7 @@ var doc = `{
             "properties": {
                 "_": {
                     "type": "object",
-                    "$ref": "#/definitions/model.ClusterBackupStrategy"
+                    "$ref": "#/definitions/model.Cluster"
                 },
                 "clusterBackupStrategyId": {
                     "type": "string"
@@ -2508,6 +2629,57 @@ var doc = `{
                     "type": "integer"
                 }
             }
+        },
+        "permission.UserMenu": {
+            "type": "object",
+            "properties": {
+                "menus": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                }
+            }
+        },
+        "permission.UserPermission": {
+            "type": "object",
+            "properties": {
+                "projectId": {
+                    "type": "string"
+                },
+                "projectName": {
+                    "type": "string"
+                },
+                "projectRole": {
+                    "type": "string"
+                },
+                "userPermissionRoles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserPermissionRole"
+                    }
+                }
+            }
+        },
+        "permission.UserPermissionRole": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -2531,7 +2703,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "",
-	Host:        "localhost:8080",
+	Host:        "",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "KubeOperator Restful API",

@@ -1,5 +1,45 @@
 basePath: /api/v1
 definitions:
+  auth.Credential:
+    properties:
+      language:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth.JwtResponse:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/permission.UserPermission'
+        type: array
+      roleMenus:
+        items:
+          $ref: '#/definitions/permission.UserMenu'
+        type: array
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/auth.SessionUser'
+        type: object
+    type: object
+  auth.SessionUser:
+    properties:
+      email:
+        type: string
+      isActive:
+        type: boolean
+      isAdmin:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+    type: object
   dto.BackupAccount:
     properties:
       _:
@@ -598,7 +638,7 @@ definitions:
   model.ClusterBackupFile:
     properties:
       _:
-        $ref: '#/definitions/model.ClusterBackupStrategy'
+        $ref: '#/definitions/model.Cluster'
         type: object
       clusterBackupStrategyId:
         type: string
@@ -768,7 +808,39 @@ definitions:
       total:
         type: integer
     type: object
-host: localhost:8080
+  permission.UserMenu:
+    properties:
+      menus:
+        items:
+          type: string
+        type: array
+      projectId:
+        type: string
+      projectName:
+        type: string
+    type: object
+  permission.UserPermission:
+    properties:
+      projectId:
+        type: string
+      projectName:
+        type: string
+      projectRole:
+        type: string
+      userPermissionRoles:
+        items:
+          $ref: '#/definitions/permission.UserPermissionRole'
+        type: array
+    type: object
+  permission.UserPermissionRole:
+    properties:
+      operation:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
 info:
   contact:
     email: support@fit2cloud.com
@@ -780,6 +852,28 @@ info:
   termsOfService: http://kubeoperator.io
   title: KubeOperator Restful API
 paths:
+  /auth/login/:
+    post:
+      consumes:
+      - application/json
+      description: Get login token
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Credential'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.JwtResponse'
+      summary: Get login token
+      tags:
+      - auth
   /backupAccounts/:
     get:
       consumes:
@@ -847,14 +941,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
@@ -994,17 +1088,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: Show a cluster
+      description: Show clusters
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Cluster'
+            $ref: '#/definitions/page.Page'
       security:
       - ApiKeyAuth: []
-      summary: Show a cluster
+      summary: Show all clusters
       tags:
       - clusters
     post:
@@ -1040,6 +1134,22 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a cluster
+      tags:
+      - clusters
+    get:
+      consumes:
+      - application/json
+      description: Show a cluster
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Cluster'
+      security:
+      - ApiKeyAuth: []
+      summary: Show a cluster
       tags:
       - clusters
   /credentials/:
