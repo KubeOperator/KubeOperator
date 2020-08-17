@@ -7,12 +7,13 @@ import (
 
 type Plan struct {
 	model.Plan
-	PlanVars interface{} `json:"planVars"`
+	PlanVars   interface{} `json:"planVars"`
+	RegionName string      `json:"regionName"`
+	ZoneNames  []string    `json:"zoneNames"`
 }
 
 type PlanCreate struct {
-	Name string `json:"name" validate:"required"`
-	//RegionId       string      `json:"regionId" validate:"required"`
+	Name           string      `json:"name" validate:"required"`
 	Zones          []string    `json:"zones" validate:"required"`
 	PlanVars       interface{} `json:"planVars" validate:"required"`
 	DeployTemplate string      `json:"deployTemplate" validate:"required"`

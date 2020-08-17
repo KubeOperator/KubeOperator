@@ -11,6 +11,8 @@ export class Plan extends BaseModel {
     region: Region = new Region();
     zones: Zone[] = [];
     planVars: {} = {};
+    regionName: string;
+    zoneNames: string[] = [];
 }
 
 export class PlanCreateRequest extends BaseRequest {

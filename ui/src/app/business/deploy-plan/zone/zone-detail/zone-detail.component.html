@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{'APP_ZONE_DETAIL'|translate}}</h3>
     <div class="modal-body" *ngIf="item">
         <div class="card-block">
-            <table class="table table-vertical" *ngIf="item.region.regionVars['provider'] === 'vSphere'">
+            <table class="table table-vertical" *ngIf="item.provider === 'vSphere'">
                 <tbody>
                 <tr>
                     <th>{{'APP_NAME'|translate}}</th>
@@ -10,7 +10,7 @@
                 </tr>
                 <tr>
                     <th>{{'APP_ZONE'|translate}}</th>
-                    <td>{{item.region.name}}</td>
+                    <td>{{item.regionName}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_RESOURCE_POOL'|translate}}</th>
@@ -60,7 +60,7 @@
             </table>
 
 
-            <table class="table table-vertical" *ngIf="item.region.regionVars['provider'] === 'OpenStack'">
+            <table class="table table-vertical" *ngIf="item.provider === 'OpenStack'">
                 <tbody>
                 <tr>
                     <th>{{'APP_NAME'|translate}}</th>
@@ -72,7 +72,7 @@
                 </tr>
                 <tr>
                     <th>{{'APP_REGION'|translate}}</th>
-                    <td>{{item.region.name}}</td>
+                    <td>{{item.regionName}}</td>
                 </tr>
                 <tr>
                     <th>{{'APP_ZONE'|translate}}</th>
@@ -100,8 +100,6 @@
                 </tr>
                 <tbody>
             </table>
-
-
         </div>
     </div>
     <div class="modal-footer">
