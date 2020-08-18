@@ -32,9 +32,6 @@ func Server() *iris.Application {
 	app.Get("/api/v1/auth/profile", middleware.JWTMiddleware().Serve, middleware.GetAuthUser)
 	proxy.RegisterProxy(app)
 	api := app.Party("/api")
-	api.Use(middleware.PagerMiddleware)
-	api.Use(middleware.JWTMiddleware().Serve)
-	api.Use(middleware.UserMiddleware)
 	v1.V1(api)
 	xpack.XPack(api)
 	return app

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -266,14 +265,3 @@ func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error
 
 }
 
-func (c ClusterController) GetKubeconfigBy(clusterName string) error {
-	c.Ctx.Header("Content-Disposition", "attachmen")
-	c.Ctx.Header("filename", fmt.Sprintf("%s-config", clusterName))
-	c.Ctx.Header("Content-Type", "application/download")
-	str, err := c.ClusterService.GetKubeconfig(clusterName)
-	if err != nil {
-		return err
-	}
-	_, _ = c.Ctx.WriteString(str)
-	return nil
-}
