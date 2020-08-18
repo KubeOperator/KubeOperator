@@ -95,7 +95,7 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  
  - [ ] LDAP 对接；
  - [ ] K8s 版本历史及集群版本升级功能优化；
- - [ ] FusionSphere 支持自动部署模式；
+ - [ ] FusionCompute 支持自动部署模式；
+ - [ ] FusionStorage CSI 支持；
  - [ ] 集成 CIS 安全扫描；
  - [ ] 支持 EFK、Loki。
- 
