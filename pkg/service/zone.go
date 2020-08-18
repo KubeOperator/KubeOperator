@@ -10,6 +10,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -21,6 +22,7 @@ import (
 
 var (
 	ZoneNameExist = "NAME_EXISTS"
+	log           = logger.Default
 )
 
 type ZoneService interface {
@@ -230,10 +232,12 @@ func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}
 func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	region, err := NewRegionService().Get(creation.RegionName)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 	ip, err := z.systemSettingService.Get("ip")
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 	regionVars := region.RegionVars.(map[string]interface{})
@@ -262,12 +266,14 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		result, err := cloudClient.DefaultImageExist()
 		zone, err := z.zoneRepo.Get(creation.Name)
 		if err != nil {
+			log.Error(err)
 			return err
 		}
 		if result {
 			zone.Status = constant.Ready
 			err = z.zoneRepo.Save(&zone)
 			if err != nil {
+				log.Error(err)
 				return err
 			}
 			return nil
@@ -276,6 +282,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 				vmdkUrl := fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
 				regionVars["vmdkPath"], err = z.DownloadVMDKFile(vmdkUrl)
 				if err != nil {
+					log.Error(err)
 					return err
 				}
 			}
@@ -284,18 +291,22 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		if err != nil {
 			zone, err := z.zoneRepo.Get(creation.Name)
 			if err != nil {
+				log.Error(err)
 				return err
 			}
 			zone.Status = constant.UploadImageError
 			err = z.zoneRepo.Save(&zone)
 			if err != nil {
+				log.Error(err)
 				return err
 			}
+			log.Error(err)
 			return err
 		}
 		zone.Status = constant.Ready
 		err = z.zoneRepo.Save(&zone)
 		if err != nil {
+			log.Error(err)
 			return err
 		}
 	}
