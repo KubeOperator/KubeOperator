@@ -12,7 +12,7 @@ KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
-KubeOperator 的整体架构：
+## 整体架构：
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
