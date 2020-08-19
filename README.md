@@ -36,7 +36,7 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 文档和演示视频：
 
 - [完整文档](https://kubeoperator.io/docs/)
-- [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)
+- [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
 - [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
 ## 版本说明
