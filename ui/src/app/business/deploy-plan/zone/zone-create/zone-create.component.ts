@@ -196,7 +196,6 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
                 return;
             }
-            this.networkValid = true;
             const dns1 = this.item.cloudVars['dns1'];
             const dns2 = this.item.cloudVars['dns2'];
             if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
@@ -205,6 +204,7 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
                 return;
             }
         }
+        this.networkValid = true;
     }
 
 }
