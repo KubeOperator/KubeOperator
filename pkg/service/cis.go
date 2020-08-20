@@ -2,22 +2,38 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/model"
+	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
+	uuid "github.com/satori/go.uuid"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"time"
 )
 
 type CisService interface {
+	Page(num, size int, clusterName string) (*page.Page, error)
+	Create(clusterName string) (*dto.CisTask, error)
 }
 
 type cisService struct {
+	clusterRepo    repository.ClusterRepository
+	clusterService ClusterService
 }
 
 func NewCisService() CisService {
-	return &cisService{}
+	return &cisService{
+		clusterRepo:    repository.NewClusterRepository(),
+		clusterService: NewClusterService(),
+	}
 }
 
 type CisSummary struct {
@@ -36,7 +52,77 @@ type CisResult struct {
 	Scored      bool   `json:"scored"`
 }
 
-func Do(client kubernetes.Clientset) {
+func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
+	var cluster model.Cluster
+	if err := db.DB.Where(model.Cluster{Name: clusterName}).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	p := page.Page{}
+	var tasks []model.CisTask
+	if err := db.DB.
+		Count(&p.Total).
+		Offset((num - 1) * size).
+		Limit(size).
+		Where(model.CisTask{ClusterID: cluster.ID}).
+		Preload("Results").
+		Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+	var dtos []dto.CisTask
+	for _, task := range tasks {
+		dtos = append(dtos, dto.CisTask{CisTask: task})
+	}
+	p.Items = dtos
+	return &p, nil
+}
+
+const (
+	CisTaskStatusCreating = "Creating"
+	CisTaskStatusRunning  = "Running"
+	CisTaskStatusSuccess  = "Success"
+	CisTaskStatusFailed   = "Failed"
+)
+
+func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	tx := db.DB.Begin()
+	task := model.CisTask{
+		ClusterID: cluster.ID,
+		StartTime: time.Now(),
+		EndTime:   time.Now(),
+		Status:    CisTaskStatusCreating,
+	}
+	err = tx.Create(&task).Error
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint, err := c.clusterService.GetApiServerEndpoint(cluster.Name)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	secret, err := c.clusterService.GetSecrets(cluster.Name)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
+		Host:  endpoint.Address,
+		Token: secret.KubernetesToken,
+		Port:  endpoint.Port,
+	})
+	tx.Commit()
+	go Do(client, &task)
+	return &dto.CisTask{CisTask: task}, nil
+}
+
+func Do(client *kubernetes.Clientset, task *model.CisTask) {
+	task.Status = CisTaskStatusRunning
+	db.DB.Save(&task)
 	j := v1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "kube-bench",
@@ -50,8 +136,8 @@ func Do(client kubernetes.Clientset) {
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   "",
-							Command: []string{"kube-bench", "--json", "--benchmark cis-1.5"},
+							Image:   "aquasec/kube-bench:latest",
+							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "var-lib-etcd",
@@ -130,9 +216,74 @@ func Do(client kubernetes.Clientset) {
 
 	resp, err := client.BatchV1().Jobs(constant.DefaultNamespace).Create(context.TODO(), &j, metav1.CreateOptions{})
 	if err != nil {
+		task.Message = err.Error()
+		task.Status = CisTaskStatusFailed
+		db.DB.Save(&task)
+		return
+	}
+
+	err = wait.Poll(5*time.Second, 5*time.Minute, func() (done bool, err error) {
+		job, err := client.BatchV1().Jobs(constant.DefaultNamespace).Get(context.TODO(), resp.Name, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if job.Status.Succeeded > 0 {
+			pds, err := client.CoreV1().Pods(constant.DefaultNamespace).List(context.TODO(), metav1.ListOptions{
+				LabelSelector: "job-name=kube-bench",
+			})
+			if err != nil {
+				return true, err
+			}
+			for _, p := range pds.Items {
+				if p.Status.Phase == corev1.PodSucceeded {
+					r := client.CoreV1().Pods(constant.DefaultNamespace).GetLogs(p.Name, &corev1.PodLogOptions{})
+					bs, err := r.DoRaw(context.TODO())
+					if err != nil {
+						return true, err
+					}
+					var summarys []CisSummary
+					err = json.Unmarshal(bs, &summarys)
+					if err != nil {
+						return true, err
+					}
+					var results []model.CisResult
+					for _, summary := range summarys {
+						for _, test := range summary.Tests {
+							for _, res := range test.Results {
+								results = append(results, model.CisResult{
+									ID:          uuid.NewV4().String(),
+									CisTaskId:   task.ID,
+									Number:      res.TestNumber,
+									Desc:        res.TestDesc,
+									Remediation: res.Remediation,
+									Status:      res.Status,
+									Scored:      res.Scored,
+								})
+							}
+						}
+					}
+					task.Results = results
+					task.Status = CisTaskStatusSuccess
+					err = db.DB.Save(&task).Error
+					if err != nil {
+						log.Error(err)
+					}
+				}
+				break
+			}
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		task.Message = err.Error()
+		task.Status = CisTaskStatusFailed
+		db.DB.Save(&task)
+		return
+	}
+	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), "kube-bench", metav1.DeleteOptions{})
+	if err != nil {
 		log.Error(err.Error())
 		return
 	}
-	fmt.Println(resp)
-
 }
