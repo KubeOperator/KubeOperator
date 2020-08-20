@@ -60,6 +60,9 @@ import { BackupComponent } from './cluster-detail/backup/backup.component';
 import {BackupModule} from './cluster-detail/backup/backup.module';
 import { ToolsDisableComponent } from './cluster-detail/tools/tools-disable/tools-disable.component';
 import { PersistentVolumeCreateLocalStorageComponent } from './cluster-detail/storage/persistent-volume/persistent-volume-create/persistent-volume-create-local-storage/persistent-volume-create-local-storage.component';
+import { SecurityComponent } from './cluster-detail/security/security.component';
+import { SecurityTaskListComponent } from './cluster-detail/security/security-task-list/security-task-list.component';
+import { SecurityTaskCreateComponent } from './cluster-detail/security/security-task-create/security-task-create.component';
 
 
 @NgModule({
@@ -100,7 +103,10 @@ import { PersistentVolumeCreateLocalStorageComponent } from './cluster-detail/st
         StorageProvisionerCreateVsphereComponent,
         BackupComponent,
         ToolsDisableComponent,
-        PersistentVolumeCreateLocalStorageComponent],
+        PersistentVolumeCreateLocalStorageComponent,
+        SecurityComponent,
+        SecurityTaskListComponent,
+        SecurityTaskCreateComponent],
     imports: [
         CoreModule,
         RouterModule,

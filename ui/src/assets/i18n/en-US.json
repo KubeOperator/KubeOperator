@@ -340,5 +340,6 @@
   "APP_LABEL": "Label",
   "Ready": "Ready",
   "Waiting": "Waiting",
-  "APP_DOWNLOAD": "Download"
+  "APP_DOWNLOAD": "Download",
+  "APP_SECURITY": "Security"
 }
