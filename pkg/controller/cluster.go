@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
@@ -16,6 +17,7 @@ type ClusterController struct {
 	ClusterNodeService               service.ClusterNodeService
 	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
+	CisService                       service.CisService
 }
 
 func NewClusterController() *ClusterController {
@@ -27,6 +29,7 @@ func NewClusterController() *ClusterController {
 		ClusterNodeService:               service.NewClusterNodeService(),
 		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
+		CisService:                       service.NewCisService(),
 	}
 }
 
@@ -265,3 +268,28 @@ func (c ClusterController) GetLogBy(clusterName string) ([]dto.ClusterLog, error
 
 }
 
+func (c ClusterController) GetCisBy(clusterName string) (*page.Page, error) {
+	p, _ := c.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		pageItem, err := c.CisService.Page(num, size, clusterName)
+		if err != nil {
+			return nil, err
+		}
+		return pageItem, nil
+	} else {
+		var pageItem page.Page
+		items, err := c.CisService.List(clusterName)
+		if err != nil {
+			return nil, err
+		}
+		pageItem.Items = items
+		pageItem.Total = len(items)
+		return &pageItem, nil
+	}
+}
+
+func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
+	return c.CisService.Create(clusterName)
+}

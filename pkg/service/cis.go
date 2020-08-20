@@ -21,6 +21,7 @@ import (
 
 type CisService interface {
 	Page(num, size int, clusterName string) (*page.Page, error)
+	List(clusterName string) ([]dto.CisTask, error)
 	Create(clusterName string) (*dto.CisTask, error)
 }
 
@@ -82,6 +83,25 @@ const (
 	CisTaskStatusSuccess  = "Success"
 	CisTaskStatusFailed   = "Failed"
 )
+
+func (c *cisService) List(clusterName string) ([]dto.CisTask, error) {
+	var cluster model.Cluster
+	if err := db.DB.Where(model.Cluster{Name: clusterName}).First(&cluster).Error; err != nil {
+		return nil, err
+	}
+	var tasks []model.CisTask
+	if err := db.DB.
+		Where(model.CisTask{ClusterID: cluster.ID}).
+		Preload("Results").
+		Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+	var dtos []dto.CisTask
+	for _, task := range tasks {
+		dtos = append(dtos, dto.CisTask{CisTask: task})
+	}
+	return dtos, nil
+}
 
 func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	cluster, err := c.clusterRepo.Get(clusterName)
