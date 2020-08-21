@@ -17,7 +17,7 @@ export class BackupFileService extends BaseModelService<BackupFile> {
     }
 
     pageBy(page, size, clusterName: string): Observable<Page<BackupFile>> {
-        const itemUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&clusterName=${clusterName}`;
+        const itemUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}&clusterName=${clusterName}`;
         return this.http.get<Page<BackupFile>>(itemUrl);
     }
 

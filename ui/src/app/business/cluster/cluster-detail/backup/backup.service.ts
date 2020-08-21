@@ -14,12 +14,12 @@ export class BackupService {
     }
 
     getBy(clusterName: string): Observable<BackupStrategy> {
-        const itemUrl = `${this.baseUrl}/${clusterName}/`;
+        const itemUrl = `${this.baseUrl}/${clusterName}`;
         return this.http.get<BackupStrategy>(itemUrl);
     }
 
     submit(item: BackupStrategy): Observable<any> {
-        const itemUrl = `${this.baseUrl}/`;
+        const itemUrl = `${this.baseUrl}`;
         return this.http.post<any>(itemUrl, item);
     }
 }

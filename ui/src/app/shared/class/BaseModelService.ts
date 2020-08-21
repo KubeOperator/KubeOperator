@@ -19,13 +19,13 @@ export abstract class BaseModelService<T extends BaseModel> {
 
     page(page, size): Observable<Page<T>> {
         const url = this.urlHandler();
-        const pageUrl = `${url}/?pageNum=${page}&pageSize=${size}`;
+        const pageUrl = `${url}?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<T>>(pageUrl);
     }
 
     get(name: string): Observable<T> {
         const url = this.urlHandler();
-        const itemUrl = `${url}/${name}/`;
+        const itemUrl = `${url}/${name}`;
         return this.http.get<T>(itemUrl);
     }
 

@@ -38,7 +38,7 @@ export class ClusterService extends BaseModelService<Cluster> {
     }
 
     pageBy(page, size, projectName): Observable<Page<Cluster>> {
-        const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}&projectName=${projectName}`;
+        const pageUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}&projectName=${projectName}`;
         return this.http.get<Page<Cluster>>(pageUrl);
     }
 }
