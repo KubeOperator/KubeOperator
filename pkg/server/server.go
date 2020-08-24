@@ -37,7 +37,9 @@ func Phases() []Phase {
 			Password: viper.GetString("db.password"),
 		},
 		&plugin.InitPluginDBPhase{},
-		&cron.InitCronPhase{},
+		&cron.InitCronPhase{
+			Enable: viper.GetBool("cron.enable"),
+		},
 	}
 }
 
