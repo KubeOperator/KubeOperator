@@ -22,14 +22,16 @@ USER_IS_NOT_ACTIVE: "The user is not enabled! Please contact the administrator!"
 USER_NOT_FOUND: "No such user！"
 ADMIN_CAN_NOT_DELETE: "The default admin user cannot be deleted!"
 USER_IS_NOT_RELATED_PROJECT: "User has no associated project！"
-ADMIN_CAN_NOT_UPDATE: "The default admin user cannot be edited!"
-
+LDAP_CAN_NOT_UPDATE: "The ldap user cannot be edited!"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"
 
 #zone
 DELETE_ZONE_FAILED_RESOURCE: "Failed to delete! The zone is already associated with the plan"
+CLUSTER_IS_NULL: "Cannot get the cluster! Please check the configuration！"
+IMAGE_IS_NULL: "Cannot get the image! Please check the configuration！"
+
 
 #openstack
 GET_REGION_ERROR: "No region found"
@@ -40,7 +42,6 @@ USER_IS_ADD: "User has been added"
 #project
 DEFAULT_PROJECT_CAN_NOT_DELETE: "Default project cannot be deleted"
 PROJECT_HAS_CLUSTER: "Project associated cluster! Cannot be deleted!"
-
 
 #node
 NODE_ALREADY_RUNNING_TASK: "Add node or delete node already running,please wait it done."

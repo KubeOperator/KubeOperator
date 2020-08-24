@@ -23,14 +23,15 @@ USER_IS_NOT_ACTIVE: "用户未启用！请联系管理员！"
 USER_NOT_FOUND: "无此用户！"
 ADMIN_CAN_NOT_DELETE: "默认 admin 用户不能被删除！"
 USER_IS_NOT_RELATED_PROJECT: "用户没有关联项目"
-ADMIN_CAN_NOT_UPDATE: "Admin 用户不能修改！"
-
+LDAP_CAN_NOT_UPDATE: "LDAP 用户不能修改！"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"
 
 #zone
 DELETE_ZONE_FAILED_RESOURCE: "删除失败！该可用区已经关联部署计划"
+CLUSTER_IS_NULL: "获取不到集群！请检查配置！"
+IMAGE_IS_NULL: "获取不到镜像！请检查配置！"
 
 #openstack
 GET_REGION_ERROR: "找不到区域"
