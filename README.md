@@ -12,7 +12,7 @@ KubeOperator 提供可视化的 Web UI，支持离线环境，支持物理机、
 
 KubeOperator 使用 Terraform 在 IaaS 平台上自动创建主机（用户也可以自行准备主机，比如物理机或者虚机），通过 Ansible 完成自动化部署和变更操作，支持 Kubernetes 集群 从 Day 0 规划，到 Day 1 部署，到 Day 2 运营的全生命周期管理。
 
-KubeOperator 的整体架构：
+## 整体架构
 
 ![Architecture](https://kubeoperator.io/images/screenshot/ko-framework.svg)
 
@@ -36,7 +36,7 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 文档和演示视频：
 
 - [完整文档](https://kubeoperator.io/docs/)
-- [演示视频](https://kubeoperator-1256577600.file.myqcloud.com/video/KubeOperator2.1.mp4)
+- [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
 - [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
 ## 版本说明

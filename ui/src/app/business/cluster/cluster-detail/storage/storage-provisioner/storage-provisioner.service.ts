@@ -11,7 +11,7 @@ export class StorageProvisionerService {
     constructor(private http: HttpClient) {
     }
 
-    baseUrl = '/api/v1/clusters/provisioner/{cluster_name}/';
+    baseUrl = '/api/v1/clusters/provisioner/{cluster_name}';
 
     list(clusterName: string): Observable<StorageProvisioner[]> {
         return this.http.get<StorageProvisioner[]>(this.baseUrl.replace('{cluster_name}', clusterName));

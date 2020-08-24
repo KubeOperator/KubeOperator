@@ -342,5 +342,7 @@
   "APP_BASIC_INFO": "基础信息",
   "APP_LABEL": "标签",
   "Ready": "就绪",
-  "Waiting": "等待就绪"
+  "Waiting": "等待就绪",
+  "APP_DOWNLOAD": "下载",
+  "APP_SECURITY": "安全"
 }

@@ -11,8 +11,8 @@ export class NodeService {
     constructor(private http: HttpClient) {
     }
 
-    baseUrl = '/api/v1/clusters/node/{clusterName}/';
-    batchUrl = '/api/v1/clusters/node/batch/{clusterName}/';
+    baseUrl = '/api/v1/clusters/node/{clusterName}';
+    batchUrl = '/api/v1/clusters/node/batch/{clusterName}';
 
     list(clusterName: string): Observable<Node[]> {
         return this.http.get<Node[]>(this.baseUrl.replace('{clusterName}', clusterName));

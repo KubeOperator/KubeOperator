@@ -38,6 +38,7 @@ import {LogComponent} from './business/cluster/cluster-detail/log/log.component'
 import {BackupAccountComponent} from './business/setting/backup-account/backup-account.component';
 import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 import {LicenseComponent} from './business/setting/license/license.component';
+import {SecurityComponent} from "./business/cluster/cluster-detail/security/security.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -85,6 +86,7 @@ const routes: Routes = [
                     },
                     {path: 'logging', component: LoggingComponent},
                     {path: 'monitor', component: MonitorComponent},
+                    {path: 'security', component: SecurityComponent},
                     {
                         path: 'repository',
                         component: RepositoryComponent,

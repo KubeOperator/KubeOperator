@@ -17,7 +17,7 @@ export class SystemService extends BaseModelService<System> {
     }
 
     singleGet(): Observable<System> {
-        const itemUrl = `${this.baseUrl}/`;
+        const itemUrl = `${this.baseUrl}`;
         return this.http.get<System>(itemUrl);
     }
 }

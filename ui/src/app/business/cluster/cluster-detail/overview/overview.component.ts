@@ -15,8 +15,7 @@ export class OverviewComponent implements OnInit {
 
     constructor(private service: ClusterService,
                 private route: ActivatedRoute,
-                private kubernetesService: KubernetesService,
-                private loggingService: LoggingService) {
+                private kubernetesService: KubernetesService) {
     }
 
     currentCluster: Cluster;
@@ -95,8 +94,8 @@ export class OverviewComponent implements OnInit {
         });
     }
 
-    onOpenDashboard() {
-        window.open('/proxy/dashboard/' + this.currentCluster.name + '/root', '_blank');
+    downloadKubeConfig() {
+        window.open(`/api/v1/clusters/kubeconfig/${this.currentCluster.name}`, '_blank');
     }
 }
 

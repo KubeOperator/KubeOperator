@@ -32,17 +32,9 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     timer;
     currentProject: Project;
     loading = false;
-    licenseValid = false;
 
 
     ngOnInit(): void {
-        this.licenseService.get().subscribe(data => {
-            if (data.status === 'valid') {
-                this.licenseValid = true;
-            }
-        }, error => {
-            this.licenseValid = false;
-        });
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
             this.polling();

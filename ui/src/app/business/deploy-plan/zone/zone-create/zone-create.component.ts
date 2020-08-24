@@ -189,21 +189,22 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
             this.networkError.push(this.translateService.instant('APP_IP_RANGE_INVALID'));
             return;
         }
-        const gateway = this.item.cloudVars['gateway'];
-        if (!ipaddr.isValid(gateway)) {
-            this.networkValid = false;
-            this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
-            return;
+        if (this.region.regionVars['provider'] === 'vSphere') {
+            const gateway = this.item.cloudVars['gateway'];
+            if (!ipaddr.isValid(gateway)) {
+                this.networkValid = false;
+                this.networkError.push(this.translateService.instant('APP_GATEWAY_INVALID'));
+                return;
+            }
+            const dns1 = this.item.cloudVars['dns1'];
+            const dns2 = this.item.cloudVars['dns2'];
+            if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
+                this.networkValid = false;
+                this.networkError.push(this.translateService.instant('APP_DNS_INVALID'));
+                return;
+            }
         }
         this.networkValid = true;
-        const dns1 = this.item.cloudVars['dns1'];
-        const dns2 = this.item.cloudVars['dns2'];
-        if (!ipaddr.isValid(dns1) || (!ipaddr.isValid(dns2))) {
-            this.networkValid = false;
-            this.networkError.push(this.translateService.instant('APP_DNS_INVALID'));
-            return;
-        }
-
     }
 
 }
