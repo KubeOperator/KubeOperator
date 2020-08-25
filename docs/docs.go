@@ -474,6 +474,26 @@ var doc = `{
                 }
             }
         },
+        "/clusters/import/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "import a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Import a cluster"
+            }
+        },
         "/clusters/{name}/": {
             "get": {
                 "security": [

@@ -1038,6 +1038,18 @@ paths:
       summary: Show a cluster
       tags:
       - clusters
+  /clusters/import/:
+    post:
+      consumes:
+      - application/json
+      description: import a cluster
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Import a cluster
+      tags:
+      - clusters
   /credentials/:
     get:
       consumes:

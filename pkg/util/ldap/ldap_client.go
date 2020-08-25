@@ -90,14 +90,14 @@ func (l *LdapClient) Search() ([]*ldap.Entry, error) {
 
 func (l *LdapClient) Login(userName, password string) error {
 	var dn string
-	if _, ok := l.Vars["dn"]; ok {
-		dn = l.Vars["dn"]
+	if _, ok := l.Vars["ldap_dn"]; ok {
+		dn = l.Vars["ldap_dn"]
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	searchRequest := ldap.NewSearchRequest(dn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(objectClass=organizationalPerson)(uid=%s))", userName),
+		fmt.Sprintf("(&(objectClass=organizationalPerson)(cn=%s))", userName),
 		[]string{"dn", "cn", "uid"},
 		nil)
 	sr, err := l.Conn.Search(searchRequest)
@@ -110,7 +110,7 @@ func (l *LdapClient) Login(userName, password string) error {
 	userdn := sr.Entries[0].DN
 	err = l.Conn.Bind(userdn, password)
 	if err != nil {
-		return err
+		return errors.New("PASSWORD_NOT_MATCH")
 	}
 	defer l.Conn.Close()
 	return nil
