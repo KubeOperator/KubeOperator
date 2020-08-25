@@ -357,5 +357,7 @@
   "APP_LDAP_FILTER_HELPER": "例:(&(objectClass=organizationalPerson))",
   "APP_LDAP_MSG": "注意：没有邮箱的用户不会被同步，与本地用户登陆名重复的也不会被同步",
   "APP_DETAIL": "详情",
-  "APP_MANIFEST": "Kubernetes 版本"
+  "APP_MANIFEST": "Kubernetes 版本",
+  "APP_SYNC": "同步",
+  "APP_SYNC_NOTE": "同步开始，请稍后去用户列表查看"
 }

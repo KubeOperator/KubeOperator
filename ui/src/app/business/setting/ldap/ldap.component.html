@@ -39,6 +39,8 @@
             <span>{{'APP_LDAP_MSG'|translate}}</span>
         </div>
     </form>
+    <button class="btn btn-primary" (click)="onSync()"
+            [disabled]="settingForm.invalid">{{'APP_SYNC'|translate}}</button>
     <button class="btn btn-info-outline" (click)="onSubmit()"
             [disabled]="settingForm.invalid">{{'APP_COMMIT'|translate}}</button>
 </div>

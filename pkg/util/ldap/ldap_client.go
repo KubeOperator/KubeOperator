@@ -75,7 +75,7 @@ func (l *LdapClient) Search() ([]*ldap.Entry, error) {
 	searchRequest := ldap.NewSearchRequest(dn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		userFilter,
-		[]string{},
+		[]string{"cn", "mail"},
 		nil)
 	sr, err := l.Conn.Search(searchRequest)
 	if err != nil {

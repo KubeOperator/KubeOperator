@@ -40,4 +40,13 @@ export class LdapComponent extends BaseModelComponent<System> implements OnInit 
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
+
+    onSync() {
+        this.createItem.vars = this.item.vars;
+        this.systemService.ldapSync(this.createItem).subscribe(res => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_SYNC_NOTE'), AlertLevels.SUCCESS);
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
 }
