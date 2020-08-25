@@ -341,5 +341,21 @@
   "Ready": "Ready",
   "Waiting": "Waiting",
   "APP_DOWNLOAD": "Download",
-  "APP_SECURITY": "Security"
+  "APP_SECURITY": "Security",
+  "APP_LDAP_ADDRESS": "Address",
+  "APP_LDAP_PORT": "Port",
+  "APP_LDAP": "LDAP",
+  "APP_LDAP_USERNAME": "Username",
+  "APP_LDAP_PASSWORD": "Password",
+  "APP_LDAP_DN": "User filtering DN",
+  "APP_LDAP_FILTER": "User filtering rules",
+  "APP_LDAP_USERNAME_HELPER": "example:cn=Manager,dc=ko,dc=com",
+  "APP_LDAP_DN_HELPER": "example:dc=ko,dc=com",
+  "APP_LDAP_FILTER_HELPER": "example:(&(objectClass=organizationalPerson))",
+  "APP_LDAP_MSG": "Note: Users without mail will not be synchronized, and those with the same login name as local users will not be synchronized."
+
+
+
+
+
 }

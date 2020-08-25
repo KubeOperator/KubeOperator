@@ -64,6 +64,11 @@ CLUSTER_IS_RESTORE: "The cluster is restoring！"
 DELETE_FAILED_BY_BACKUP_FILE: "Please delete the backup file first！"
 DELETE_HOST_FAILED_BY_CLUSTER: "The host already belongs to the cluster! This operation cannot be performed!"
 
+#ldap
+LDAP_USER_IS_NULL: "Synchronized users are 0"
+LDAP_LOGIN_USER_IS_NULL: "User is not exist!"
+
+
 
 
 

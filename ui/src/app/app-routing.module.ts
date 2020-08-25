@@ -39,6 +39,7 @@ import {BackupAccountComponent} from './business/setting/backup-account/backup-a
 import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 import {LicenseComponent} from './business/setting/license/license.component';
 import {SecurityComponent} from "./business/cluster/cluster-detail/security/security.component";
+import {LdapComponent} from './business/setting/ldap/ldap.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -114,6 +115,7 @@ const routes: Routes = [
                     {path: 'credential', component: CredentialComponent},
                     {path: 'backupAccounts', component: BackupAccountComponent},
                     {path: 'license', component: LicenseComponent},
+                    {path: 'ldap', component: LdapComponent},
                 ]
             },
             {

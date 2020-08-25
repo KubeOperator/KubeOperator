@@ -64,5 +64,9 @@ CLUSTER_IS_RESTORE: "集群正在恢复中！"
 DELETE_FAILED_BY_BACKUP_FILE: "请先删除备份文件！"
 DELETE_HOST_FAILED_BY_CLUSTER: "主机已经属于集群！不能进行此操作！"
 
+#ldap
+LDAP_USER_IS_NULL: "同步到的用户为0"
+LDAP_LOGIN_USER_IS_NULL: "用户不存在！"
+
 
 

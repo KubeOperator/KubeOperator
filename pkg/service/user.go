@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -79,6 +80,7 @@ func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 		IsActive: true,
 		Language: model.ZH,
 		IsAdmin:  creation.IsAdmin,
+		Type:     constant.Local,
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
@@ -102,6 +104,7 @@ func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
 		Language: update.Language,
 		IsAdmin:  update.IsAdmin,
 		Password: update.Password,
+		Type:     constant.Local,
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {

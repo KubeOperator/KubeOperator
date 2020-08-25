@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ldap"
 	"github.com/jinzhu/gorm"
 )
 
@@ -11,6 +12,7 @@ type SystemSettingService interface {
 	GetLocalHostName() string
 	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
+	LdapCreate(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
 }
 
 type systemSettingService struct {
@@ -76,10 +78,53 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 	return result, nil
 }
 
+func (s systemSettingService) LdapCreate(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error) {
+
+	var result []dto.SystemSetting
+	err := s.ldapValidCheck(creation)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range creation.Vars {
+		systemSetting, err := s.systemSettingRepo.Get(k)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				systemSetting.Key = k
+				systemSetting.Value = v
+				err := s.systemSettingRepo.Save(&systemSetting)
+				if err != nil {
+					return result, err
+				}
+				result = append(result, dto.SystemSetting{SystemSetting: systemSetting})
+			} else {
+				return result, err
+			}
+		} else if systemSetting.ID != "" {
+			systemSetting.Value = v
+			err := s.systemSettingRepo.Save(&systemSetting)
+			if err != nil {
+				return result, err
+			}
+			result = append(result, dto.SystemSetting{SystemSetting: systemSetting})
+		}
+	}
+	return result, nil
+}
+
 func (s systemSettingService) GetLocalHostName() string {
 	mo, err := s.systemSettingRepo.Get("ip")
 	if err != nil || mo.Value == "" {
 		return ""
 	}
 	return mo.Value
+}
+
+func (s systemSettingService) ldapValidCheck(creation dto.SystemSettingCreate) error {
+
+	ldapClient := ldap.NewLdap(creation.Vars)
+	err := ldapClient.Connect()
+	if err != nil {
+		return err
+	}
+	return nil
 }
