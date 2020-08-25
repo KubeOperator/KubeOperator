@@ -20,4 +20,14 @@ export class SystemService extends BaseModelService<System> {
         const itemUrl = `${this.baseUrl}`;
         return this.http.get<System>(itemUrl);
     }
+
+    ldapCreate(item): Observable<System> {
+        const itemUrl = `${this.baseUrl}/ldap`;
+        return this.http.post<System>(itemUrl, item);
+    }
+
+    ldapSync(item): Observable<System> {
+        const itemUrl = `${this.baseUrl}/ldap/sync`;
+        return this.http.post<System>(itemUrl, item);
+    }
 }

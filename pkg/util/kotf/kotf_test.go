@@ -7,15 +7,15 @@ import (
 
 func TestKotfIint(t *testing.T) {
 	terraform := NewTerraform(&Config{
-		Cluster: "clsuter3",
+		Cluster: "clsuter4",
 	})
 
 	// vsphere example
 	provider := `{
     "name": "vSphere",
-    "username": "",
-    "password": "",
-    "host": ""
+    "username": "administrator@vsphere.local",
+    "password": "Calong@2015",
+    "host": "172.16.10.20"
   }`
 	cloudRegion := `{
     "datacenter": "Datacenter",
@@ -25,27 +25,69 @@ func TestKotfIint(t *testing.T) {
         "name": "Resources",
         "network": "VM Network",
         "datastore": "vsanDatastore",
-        "imageName": "Centos7.6-template",
-        "guestId": "centos7_64Guest"
+		"cluster":"vSAN-Cluster",
+		"resourcePool":"Resources",
+        "imageName": "kubeoperator_centos_7.6.1810"
       }
     ]
   }`
 	hosts := `[
     {
-      "shortName": "worker2",
-      "name": "worker2.clsuter3.fit2cloud.com",
-      "cpu": 1,
-      "memory": 2,
-      "domain": "clsuter3.fit2cloud.com",
-      "ip": "172.16.10.223",
+      "shortName": "worker1",
+      "name": "worker1.clsuter4.fit2cloud.com",
+      "cpu": 4,
+      "memory": 8192,
+      "domain": "clsuter4.fit2cloud.com",
+      "ip": "172.16.10.230",
 
       "zone": {
         "key": "x65623",
         "name": "Resources",
         "network": "VM Network",
         "datastore": "vsanDatastore",
-        "imageName": "Centos7.6-template",
-        "guestId": "centos7_64Guest",
+		"cluster":"vSAN-Cluster",
+		"resourcePool":"Resources",
+        "imageName": "kubeoperator_centos_7.6.1810",
+		  "netMask": 24,
+		  "gateway": "172.16.10.254"
+      }
+    },
+    {
+      "shortName": "master1",
+      "name": "master1.clsuter4.fit2cloud.com",
+      "cpu": 4,
+      "memory": 8192,
+      "domain": "clsuter4.fit2cloud.com",
+      "ip": "172.16.10.231",
+
+      "zone": {
+        "key": "x65623",
+        "name": "Resources",
+        "network": "VM Network",
+        "datastore": "vsanDatastore",
+		"cluster":"vSAN-Cluster",
+		"resourcePool":"Resources",
+        "imageName": "kubeoperator_centos_7.6.1810",
+		  "netMask": 24,
+		  "gateway": "172.16.10.254"
+      }
+    },
+    {
+      "shortName": "worker2",
+      "name": "worker2.clsuter4.fit2cloud.com",
+      "cpu": 4,
+      "memory": 8192,
+      "domain": "clsuter4.fit2cloud.com",
+      "ip": "172.16.10.232",
+
+      "zone": {
+        "key": "x65623",
+        "name": "Resources",
+        "network": "VM Network",
+        "datastore": "vsanDatastore",
+		"cluster":"vSAN-Cluster",
+		"resourcePool":"Resources",
+        "imageName": "kubeoperator_centos_7.6.1810",
 		  "netMask": 24,
 		  "gateway": "172.16.10.254"
       }
@@ -86,15 +128,24 @@ func TestKotfIint(t *testing.T) {
 	test, err := terraform.Init("vSphere", provider, cloudRegion, hosts)
 	if err != nil {
 		fmt.Println(err)
-	}
-	if test.Success {
+	} else {
+		fmt.Println(test)
 		test3, err := terraform.Apply()
 		if err != nil {
 			fmt.Println(err)
+		} else {
+			fmt.Println(test3)
 		}
-		fmt.Println(test3)
-	} else {
-		fmt.Println(test)
 	}
+
+	//if test.Success {
+	//	test3, err := terraform.Apply()
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//	fmt.Println(test3)
+	//} else {
+	//	fmt.Println(test)
+	//}
 
 }

@@ -44,3 +44,39 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	}
 	return result, nil
 }
+
+func (s SystemSettingController) PostLdap() ([]dto.SystemSetting, error) {
+	var req dto.SystemSettingCreate
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := s.SystemSettingService.LdapCreate(req)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s SystemSettingController) PostLdapSync() error {
+	var req dto.SystemSettingCreate
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = s.SystemSettingService.LdapSync(req)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -504,6 +504,8 @@ definitions:
         type: string
       password:
         type: string
+      type:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -558,9 +560,6 @@ definitions:
         type: string
       provider:
         type: string
-      region:
-        $ref: '#/definitions/model.Region'
-        type: object
       regionID:
         type: string
       regionName:
@@ -672,23 +671,6 @@ definitions:
         type: string
       workerAmount:
         type: integer
-    type: object
-  model.Region:
-    properties:
-      createdAt:
-        type: string
-      datacenter:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      provider:
-        type: string
-      updatedAt:
-        type: string
-      vars:
-        type: string
     type: object
   model.Volume:
     properties:
@@ -1054,6 +1036,18 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Show a cluster
+      tags:
+      - clusters
+  /clusters/import/:
+    post:
+      consumes:
+      - application/json
+      description: import a cluster
+      produces:
+      - application/json
+      security:
+      - ApiKeyAuth: []
+      summary: Import a cluster
       tags:
       - clusters
   /credentials/:

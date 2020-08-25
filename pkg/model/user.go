@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
@@ -11,7 +12,7 @@ import (
 
 var (
 	AdminCanNotDelete = "ADMIN_CAN_NOT_DELETE"
-	AdminCanNotUpdate = "ADMIN_CAN_NOT_UPDATE"
+	LdapCanNotUpdate  = "LDAP_CAN_NOT_UPDATE"
 )
 
 const (
@@ -28,6 +29,7 @@ type User struct {
 	IsActive bool   `json:"isActive" gorm:"type:boolean;default:true"`
 	Language string `json:"language" gorm:"type:varchar(64)"`
 	IsAdmin  bool   `json:"isAdmin" gorm:"type:boolean;default:false"`
+	Type     string `json:"type" gorm:"type:varchar(64)"`
 }
 
 type Token struct {
@@ -60,14 +62,15 @@ func (u *User) BeforeDelete() (err error) {
 }
 
 func (u *User) BeforeUpdate() (err error) {
+	if u.Type == constant.Ldap {
+		return errors.New(LdapCanNotUpdate)
+	}
 	return err
 }
 
 func (u User) TableName() string {
 	return "ko_user"
 }
-
-
 
 func (u *User) ValidateOldPassword(password string) (bool, error) {
 	oldPassword, err := encrypt.StringDecrypt(u.Password)

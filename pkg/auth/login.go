@@ -31,7 +31,13 @@ func LoginHandler(ctx context.Context) {
 	data, err := CheckLogin(aul.Username, aul.Password)
 	if err != nil {
 		ctx.StatusCode(iris.StatusUnauthorized)
-		_, _ = ctx.JSON(dto.Response{Msg: ctx.Tr(err.Error())})
+		response := new(dto.Response)
+		if ctx.Tr(err.Error()) == "" {
+			response.Msg = err.Error()
+		} else {
+			response.Msg = ctx.Tr(err.Error())
+		}
+		_, _ = ctx.JSON(response)
 		return
 	}
 	ctx.StatusCode(iris.StatusOK)

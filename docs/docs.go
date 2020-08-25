@@ -474,6 +474,26 @@ var doc = `{
                 }
             }
         },
+        "/clusters/import/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "import a cluster",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clusters"
+                ],
+                "summary": "Import a cluster"
+            }
+        },
         "/clusters/{name}/": {
             "get": {
                 "security": [
@@ -2175,6 +2195,9 @@ var doc = `{
                 "password": {
                     "type": "string"
                 },
+                "type": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -2254,10 +2277,6 @@ var doc = `{
                 },
                 "provider": {
                     "type": "string"
-                },
-                "region": {
-                    "type": "object",
-                    "$ref": "#/definitions/model.Region"
                 },
                 "regionID": {
                     "type": "string"
@@ -2425,32 +2444,6 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.Region": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "datacenter": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "vars": {
-                    "type": "string"
                 }
             }
         },
