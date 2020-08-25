@@ -352,10 +352,7 @@
   "APP_LDAP_USERNAME_HELPER": "example:cn=Manager,dc=ko,dc=com",
   "APP_LDAP_DN_HELPER": "example:dc=ko,dc=com",
   "APP_LDAP_FILTER_HELPER": "example:(&(objectClass=organizationalPerson))",
-  "APP_LDAP_MSG": "Note: Users without mail will not be synchronized, and those with the same login name as local users will not be synchronized."
-
-
-
-
-
+  "APP_LDAP_MSG": "Note: Users without mail will not be synchronized, and those with the same login name as local users will not be synchronized.",
+  "APP_DETAIL": "Detail",
+  "APP_MANIFEST": "Kubernetes Version"
 }

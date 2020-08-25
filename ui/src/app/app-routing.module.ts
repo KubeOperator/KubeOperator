@@ -40,6 +40,7 @@ import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.c
 import {LicenseComponent} from './business/setting/license/license.component';
 import {SecurityComponent} from "./business/cluster/cluster-detail/security/security.component";
 import {LdapComponent} from './business/setting/ldap/ldap.component';
+import {ManifestComponent} from "./business/manifest/manifest.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -127,7 +128,11 @@ const routes: Routes = [
                     {path: 'zone', component: ZoneComponent},
                     {path: 'plan', component: PlanComponent}
                 ]
+            }, {
+                path: 'manifests',
+                component: ManifestComponent,
             },
+
             {
                 path: 'users',
                 component: UserComponent,

@@ -33,6 +33,7 @@ func V1(parent iris.Party) {
 	mvc.New(auth.Party("/cluster/backup")).HandleError(errorHandler).Handle(controller.NewClusterBackupStrategyController())
 	mvc.New(auth.Party("/license")).Handle(errorHandler).Handle(controller.NewLicenseController())
 	mvc.New(auth.Party("/cluster/backup/files")).HandleError(errorHandler).Handle(controller.NewClusterBackupFileController())
+	mvc.New(auth.Party("/manifests")).HandleError(errorHandler).Handle(controller.NewManifestController())
 	white := v1.Party("/")
 	white.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
 
