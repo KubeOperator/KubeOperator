@@ -93,12 +93,16 @@ github.com/KubeOperator/kobe v0.0.0-20200807092640-bc84e677aae1 h1:QP74tSTNGXidh
 github.com/KubeOperator/kobe v0.0.0-20200807092640-bc84e677aae1/go.mod h1:VDkM4kPLezdYuxIv7BBdoN0VM07q1pOlvt1YbiZUFbA=
 github.com/KubeOperator/kobe v0.0.0-20200811054513-bed724c202ab h1:xYWvmLYqhed00kEFkes1GOFrn4yQ6i777zMlpr91v3E=
 github.com/KubeOperator/kobe v0.0.0-20200811054513-bed724c202ab/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
+github.com/KubeOperator/kobe v0.0.0-20200825101836-91d4296d44be h1:wS8xZ515iXnHXD58LZticpqpQGWveSxrsqC9pj4El1s=
+github.com/KubeOperator/kobe v0.0.0-20200825101836-91d4296d44be/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kotf v0.0.4 h1:1qVDWfVyGeaTptx414Y9/Qv5XLIg//azBrNlBOZJrvw=
 github.com/KubeOperator/kotf v0.0.4/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KubeOperator/kotf v0.0.6 h1:KP99U9OdIOtSe38jQAwKnocZIp+5pP2dgYedEToJi4w=
 github.com/KubeOperator/kotf v0.0.6/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KubeOperator/kotf v0.0.7-0.20200824091714-b72d7df41bbd h1:zbbrF/ZqncXOi7w6Rziv0gDyBoUMsl0ReGQ2QmcAnZ4=
 github.com/KubeOperator/kotf v0.0.7-0.20200824091714-b72d7df41bbd/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
+github.com/KubeOperator/kotf v0.0.8 h1:uo9WeEeZMZkZjuLIqBWPVT/ei2TYmChQWusxSbNgzF8=
+github.com/KubeOperator/kotf v0.0.8/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd h1:sjQovDkwrZp8u+gxLtPgKGjk5hCxuy2hrRejBTA9xFU=
