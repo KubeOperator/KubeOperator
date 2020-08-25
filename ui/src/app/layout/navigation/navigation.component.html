@@ -3,10 +3,6 @@
         <clr-icon shape="organization" clrVerticalNavIcon></clr-icon>
         {{ 'APP_PROJECT' | translate }}
     </a>
-<!--    <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'CLUSTER'" routerLink="/clusters">-->
-<!--        <clr-icon shape="cluster" clrVerticalNavIcon></clr-icon>-->
-<!--        {{ 'APP_CLUSTER' | translate }}-->
-<!--    </a>-->
     <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'HOST'" routerLink="/hosts">
         <clr-icon shape="host" clrVerticalNavIcon></clr-icon>
         {{ 'APP_HOST' | translate }}
@@ -18,6 +14,10 @@
     <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'USER'" routerLink="/users">
         <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
         {{ 'APP_USER_MANAGEMENT' | translate }}
+    </a>
+    <a clrVerticalNavLink routerLinkActive="active" routerLink="/manifests">
+        <clr-icon shape="blocks-group" clrVerticalNavIcon></clr-icon>
+        {{ 'APP_MANIFEST' | translate }}
     </a>
     <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'SETTING'" routerLink="/setting">
         <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>

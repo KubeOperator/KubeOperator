@@ -341,5 +341,7 @@
   "Ready": "Ready",
   "Waiting": "Waiting",
   "APP_DOWNLOAD": "Download",
-  "APP_SECURITY": "Security"
+  "APP_SECURITY": "Security",
+  "APP_DETAIL": "Detail",
+  "APP_MANIFEST": "Kubernetes Version"
 }

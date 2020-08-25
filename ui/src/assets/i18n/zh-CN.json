@@ -344,5 +344,7 @@
   "Ready": "就绪",
   "Waiting": "等待就绪",
   "APP_DOWNLOAD": "下载",
-  "APP_SECURITY": "安全"
+  "APP_SECURITY": "安全",
+  "APP_DETAIL": "详情",
+  "APP_MANIFEST": "Kubernetes 版本"
 }

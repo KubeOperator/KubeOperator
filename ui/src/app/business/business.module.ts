@@ -13,10 +13,13 @@ import {RouterModule} from '@angular/router';
 import {DeployPlanModule} from './deploy-plan/deploy-plan.module';
 import { ProjectComponent } from './project/project.component';
 import {ProjectModule} from './project/project.module';
+import { ManifestComponent } from './manifest/manifest.component';
+import { ManifestListComponent } from './manifest/manifest-list/manifest-list.component';
+import { ManifestDetailComponent } from './manifest/manifest-detail/manifest-detail.component';
 
 
 @NgModule({
-    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent, ProjectComponent],
+    declarations: [UserComponent, UserCreateComponent, UserListComponent, UserUpdateComponent, UserDeleteComponent, ProjectComponent, ManifestComponent, ManifestListComponent, ManifestDetailComponent],
     imports: [
         CoreModule,
         ClusterModule,
