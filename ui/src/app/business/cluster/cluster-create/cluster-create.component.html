@@ -13,8 +13,9 @@
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" name="name" [(ngModel)]="item.name"
-                       pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
+                       pattern="[a-z]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
                        required/>
+                <clr-control-helper>{{'APP_CLUSTER_NAME_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
 
             <clr-select-container>
