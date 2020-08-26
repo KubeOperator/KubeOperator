@@ -1,0 +1,24 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'xl'">
+    <h3 class="modal-title">{{"APP_CIS_RESULT"|translate}}</h3>
+    <div class="modal-body" *ngIf="item" style="overflow:auto">
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="left">{{"APP_NUMBER"|translate}}</th>
+                <th class="left">{{"APP_STATUS"|translate}}</th>
+                <th class="left">{{"APP_DESCRIBE"|translate}}</th>
+                <th class="left">{{"APP_REMEDIATION"|translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let result of item.results">
+                <td class="left">{{result.number}}</td>
+                <td>{{result.status}}</td>
+                <td class="left">{{result.desc}}</td>
+                <td class="left">{{result.remediation}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</clr-modal>

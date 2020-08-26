@@ -63,6 +63,8 @@ import { PersistentVolumeCreateLocalStorageComponent } from './cluster-detail/st
 import { SecurityComponent } from './cluster-detail/security/security.component';
 import { SecurityTaskListComponent } from './cluster-detail/security/security-task-list/security-task-list.component';
 import { SecurityTaskCreateComponent } from './cluster-detail/security/security-task-create/security-task-create.component';
+import { SecurityTaskDetailComponent } from './cluster-detail/security/security-task-detail/security-task-detail.component';
+import { SecurityTaskDeleteComponent } from './cluster-detail/security/security-task-delete/security-task-delete.component';
 
 
 @NgModule({
@@ -106,7 +108,9 @@ import { SecurityTaskCreateComponent } from './cluster-detail/security/security-
         PersistentVolumeCreateLocalStorageComponent,
         SecurityComponent,
         SecurityTaskListComponent,
-        SecurityTaskCreateComponent],
+        SecurityTaskCreateComponent,
+        SecurityTaskDetailComponent,
+        SecurityTaskDeleteComponent],
     imports: [
         CoreModule,
         RouterModule,
