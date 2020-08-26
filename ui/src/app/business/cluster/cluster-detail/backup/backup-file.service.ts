@@ -23,13 +23,18 @@ export class BackupFileService extends BaseModelService<BackupFile> {
 
 
     backup(item: BackupFile): Observable<any> {
-        const itemUrl = `${this.baseUrl}/backup/`;
+        const itemUrl = `${this.baseUrl}/backup`;
         return this.http.post<any>(itemUrl, item);
     }
 
     restore(item: BackupFile): Observable<any> {
-        const itemUrl = `${this.baseUrl}/restore/`;
+        const itemUrl = `${this.baseUrl}/restore`;
         return this.http.post<any>(itemUrl, item);
+    }
+
+    localRestore(formData): Observable<any> {
+        const itemUrl = `${this.baseUrl}/restore/local`;
+        return this.http.post<any>(itemUrl, formData);
     }
 
 }

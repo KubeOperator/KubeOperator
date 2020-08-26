@@ -1,38 +1,65 @@
-<h3>{{'APP_BACKUP_STRATEGY'|translate}}</h3>
-<form clrForm #backupStrategyForm="ngForm">
-    <clr-input-container>
-        <label>{{'APP_BACKUP_CRON'|translate}}</label>
-        <input class="input-width" size="20" clrInput type="number" [(ngModel)]="backupStrategy.cron" name="cron"
-               required min="1"
-               max="300"/>
-        <clr-control-helper>1~300</clr-control-helper>
-    </clr-input-container>
-    <clr-input-container>
-        <label>{{'APP_BACKUP_SAVE_NUM'|translate}}</label>
-        <input class="input-width" clrInput size="20" type="number" [(ngModel)]="backupStrategy.saveNum" name="saveNum"
-               required
-               min="1" max="100"/>
-        <clr-control-helper>1~100</clr-control-helper>
-    </clr-input-container>
-    <clr-select-container>
-        <label>{{'APP_BACKUP_ACCOUNT'|translate}}</label>
-        <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backupAccountName" required>
-            <option *ngFor="let b of backupAccounts" value="{{b.name}}">{{b.name}}({{ b.bucket}})</option>
-        </select>
-        <clr-control-helper>{{'APP_BACKUP_ACCOUNT_HELPER'|translate}}</clr-control-helper>
-    </clr-select-container>
-    <clr-select-container>
-        <label>{{'APP_STATUS'|translate}}</label>
-        <select class="input-width" clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
-            <option value="ENABLE">{{'APP_STATUS_ENABLE'|translate}}</option>
-            <option value="DISABLE">{{'APP_STATUS_DISABLE'|translate}}</option>
-        </select>
-    </clr-select-container>
-</form>
-<div class="modal-footer clr-row clr-col-4">
-    <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
-        {{'APP_BACKUP_NOW'|translate}}
-    </button>
-    <button class="btn btn-info-outline clr-col-1" (click)="onSubmit()">{{'APP_COMMIT'|translate}}
-    </button>
+<div class="clr-row clr-col-lg-12">
+    <div class="clr-col-lg-6">
+        <h3>{{'APP_BACKUP_STRATEGY'|translate}}</h3>
+        <form clrForm #backupStrategyForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_BACKUP_CRON'|translate}}</label>
+                <input class="input-width" size="20" clrInput type="number" [(ngModel)]="backupStrategy.cron"
+                       name="cron"
+                       required min="1"
+                       max="300"/>
+                <clr-control-helper>1~300</clr-control-helper>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_BACKUP_SAVE_NUM'|translate}}</label>
+                <input class="input-width" clrInput size="20" type="number" [(ngModel)]="backupStrategy.saveNum"
+                       name="saveNum"
+                       required
+                       min="1" max="100"/>
+                <clr-control-helper>1~100</clr-control-helper>
+            </clr-input-container>
+            <clr-select-container>
+                <label>{{'APP_BACKUP_ACCOUNT'|translate}}</label>
+                <select class="input-width" clrSelect name="project" [(ngModel)]="backupStrategy.backupAccountName"
+                        required>
+                    <option *ngFor="let b of backupAccounts" value="{{b.name}}">{{b.name}}({{ b.bucket}})</option>
+                </select>
+                <clr-control-helper>{{'APP_BACKUP_ACCOUNT_HELPER'|translate}}</clr-control-helper>
+            </clr-select-container>
+            <clr-select-container>
+                <label>{{'APP_STATUS'|translate}}</label>
+                <select class="input-width" clrSelect name="status" [(ngModel)]="backupStrategy.status" required>
+                    <option value="ENABLE">{{'APP_STATUS_ENABLE'|translate}}</option>
+                    <option value="DISABLE">{{'APP_STATUS_DISABLE'|translate}}</option>
+                </select>
+            </clr-select-container>
+        </form>
+        <div class="modal-footer clr-row clr-col-4">
+            <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
+                {{'APP_BACKUP_NOW'|translate}}
+            </button>
+            <button class="btn btn-info-outline clr-col-1" (click)="onSubmit()">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+    <div class="clr-col-lg-6">
+        <h3>{{'APP_CLUSTER_RESTORE_BY_LOCAL'|translate}}</h3>
+        <div class="modal-body modal-height">
+            <form clrForm #itemForm="ngForm" enctype="multipart/form-data">
+                <div class="clr-form-control">
+                    <label class="clr-control-label"></label>
+                    <div class="clr-control-container">
+                        <div class="clr-file-wrapper">
+                            <input type="file" id="basic-default" placeholder="Enter value here" (change)="upload($event)" required/>
+                        </div>
+                        <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" (click)="onUploadFile()"
+                    [disabled]="itemForm.invalid || file == null">{{"APP_COMMIT"|translate}}</button>
+        </div>
+    </div>
 </div>

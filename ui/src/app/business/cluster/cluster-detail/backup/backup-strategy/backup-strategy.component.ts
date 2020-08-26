@@ -9,6 +9,7 @@ import {CommonAlertService} from '../../../../../layout/common-alert/common-aler
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../../layout/common-alert/alert';
 import {BackupFileService} from '../backup-file.service';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
     selector: 'app-backup-strategy',
@@ -20,14 +21,15 @@ export class BackupStrategyComponent implements OnInit {
     backupStrategy: BackupStrategy = new BackupStrategy();
     backupAccounts: BackupAccount[] = [];
     currentCluster: Cluster;
+    file;
 
     constructor(private backupAccountService: BackupAccountService,
                 private route: ActivatedRoute,
                 private backupService: BackupService,
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService,
-                private backupFileService: BackupFileService) {
-
+                private backupFileService: BackupFileService,
+                private http: HttpClient) {
     }
 
     ngOnInit(): void {
@@ -42,6 +44,9 @@ export class BackupStrategyComponent implements OnInit {
         });
     }
 
+    upload(e): void {
+        this.file = e.target.files[0];
+    }
 
     onSubmit() {
         this.backupService.submit(this.backupStrategy).subscribe(res => {
@@ -57,6 +62,17 @@ export class BackupStrategyComponent implements OnInit {
         backupFile.clusterName = this.currentCluster.name;
         this.backupFileService.backup(backupFile).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_BACKUP_START_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
+    }
+
+    onUploadFile() {
+        const formData = new FormData();
+        formData.append('file', this.file);
+        formData.append('clusterName', this.currentCluster.name);
+        this.backupFileService.localRestore(formData).subscribe(data => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_RESTORE_START_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

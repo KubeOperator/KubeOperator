@@ -13,6 +13,8 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/backup"
 	"github.com/jinzhu/gorm"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -23,6 +25,7 @@ type CLusterBackupFileService interface {
 	Backup(creation dto.ClusterBackupFileCreate) error
 	Restore(restore dto.ClusterBackupFileRestore) error
 	Delete(name string) error
+	LocalRestore(clusterName string, file []byte) error
 }
 
 type cLusterBackupFileService struct {
@@ -295,4 +298,55 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
 	}
+}
+
+func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) error {
+	clusterPath := constant.BackupDir + "/" + clusterName
+	targetPath := clusterPath + "/" + constant.BackupFileDefaultName
+	_, err := os.Stat(targetPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			os.Mkdir(clusterPath, os.ModePerm)
+		} else {
+			return err
+		}
+	}
+	_, err = os.Create(targetPath)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(targetPath, file, 0775)
+	if err != nil {
+		return err
+	}
+	cluster, err := c.clusterService.Get(clusterName)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		var clog model.ClusterLog
+		clog.Type = constant.ClusterLogTypeRestore
+		clog.StartTime = time.Now()
+		clog.EndTime = time.Now()
+		err = c.clusterLogService.Save(cluster.Name, &clog)
+		if err != nil {
+			log.Error(err)
+		}
+		err = c.clusterLogService.Start(&clog)
+		if err != nil {
+			log.Error(err)
+		}
+
+		admCluster := adm.NewCluster(cluster.Cluster)
+		p := &backup.RestoreClusterPhase{}
+		err = p.Run(admCluster.Kobe)
+
+		if err != nil {
+			_ = c.clusterLogService.End(&clog, false, err.Error())
+		} else {
+			_ = c.clusterLogService.End(&clog, true, "")
+		}
+	}()
+	return nil
 }

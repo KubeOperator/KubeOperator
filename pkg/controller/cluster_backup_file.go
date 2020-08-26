@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
+	"io/ioutil"
 )
 
 type BackupFileController struct {
@@ -120,4 +121,19 @@ func (b BackupFileController) PostRestore() error {
 		return err
 	}
 	return err
+}
+
+func (b BackupFileController) PostRestoreLocal() error {
+
+	f, _, err := b.Ctx.FormFile("file")
+	if err != nil {
+		return err
+	}
+	bs, err := ioutil.ReadAll(f)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	clusterName := b.Ctx.FormValue("clusterName")
+	return b.ClusterBackupFileService.LocalRestore(clusterName, bs)
 }
