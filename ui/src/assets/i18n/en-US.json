@@ -356,6 +356,6 @@
   "APP_DETAIL": "Detail",
   "APP_MANIFEST": "Kubernetes Version",
   "APP_SYNC": "Sync",
-  "APP_SYNC_NOTE": "Synchronization starts, please check the user list later"
-
+  "APP_SYNC_NOTE": "Synchronization starts, please check the user list later",
+  "APP_CLUSTER_NAME_HELPER": "Support lowercase English, numbers and -  cannot start with a number"
 }

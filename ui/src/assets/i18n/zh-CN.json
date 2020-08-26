@@ -359,5 +359,6 @@
   "APP_DETAIL": "详情",
   "APP_MANIFEST": "Kubernetes 版本",
   "APP_SYNC": "同步",
-  "APP_SYNC_NOTE": "同步开始，请稍后去用户列表查看"
+  "APP_SYNC_NOTE": "同步开始，请稍后去用户列表查看",
+  "APP_CLUSTER_NAME_HELPER": "支持小写英文、数字和- 不能以数字开头"
 }
