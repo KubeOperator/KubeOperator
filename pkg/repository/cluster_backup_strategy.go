@@ -9,6 +9,7 @@ import (
 type ClusterBackupStrategyRepository interface {
 	Get(clusterName string) (*model.ClusterBackupStrategy, error)
 	Save(clusterBackupStrategy *model.ClusterBackupStrategy) error
+	List() ([]model.ClusterBackupStrategy, error)
 }
 
 type clusterBackupStrategyRepository struct {
@@ -44,4 +45,13 @@ func (c clusterBackupStrategyRepository) Save(clusterBackupStrategy *model.Clust
 	} else {
 		return db.DB.Model(&clusterBackupStrategy).Updates(&clusterBackupStrategy).Error
 	}
+}
+
+func (c clusterBackupStrategyRepository) List() ([]model.ClusterBackupStrategy, error) {
+	var clusterBackupStrategies []model.ClusterBackupStrategy
+	err := db.DB.Model(model.ClusterBackupStrategy{}).Order("created_at desc").Find(&clusterBackupStrategies).Error
+	if err != nil {
+		return nil, err
+	}
+	return clusterBackupStrategies, err
 }
