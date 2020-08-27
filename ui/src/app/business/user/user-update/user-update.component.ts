@@ -33,7 +33,7 @@ export class UserUpdateComponent extends BaseModelComponent<User> implements OnI
 
     open(item) {
         this.opened = true;
-        this.item = item;
+        Object.assign(this.item, item);
     }
 
     onCancel() {
