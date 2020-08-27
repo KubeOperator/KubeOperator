@@ -18,6 +18,17 @@ export class SecurityTaskDetailComponent implements OnInit {
     }
 
 
+    getPassRate(): number {
+        let passCount = 0;
+        for (const result of this.item.results) {
+            if (result.status === 'PASS') {
+                passCount++;
+            }
+        }
+        return (passCount / this.item.results.length) * 100;
+    }
+
+
     open(item: CisTask) {
         this.opened = true;
         this.item = item;
