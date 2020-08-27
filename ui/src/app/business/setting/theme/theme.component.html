@@ -1,0 +1,17 @@
+<div>
+    <form clrForm #settingForm="ngForm">
+        <clr-input-container>
+            <label>{{'APP_SYSTEM_NAME'|translate}}</label>
+            <input clrInput name="system_name" size=45 [(ngModel)]="item.systemName" required/>
+            <clr-control-helper></clr-control-helper>
+        </clr-input-container>
+        <clr-input-container>
+            <label>Logo</label>
+            <input clrInput type="file" name="ip" size=45 (change)="onLogoChange($event)"
+                   accept="image/gif,image/jpeg,image/jpg,image/png" required/>
+            <clr-control-helper></clr-control-helper>
+        </clr-input-container>
+    </form>
+
+    <button class="btn btn-info-outline" (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+</div>

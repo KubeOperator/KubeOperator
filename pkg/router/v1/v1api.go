@@ -36,6 +36,7 @@ func V1(parent iris.Party) {
 	mvc.New(auth.Party("/manifests")).HandleError(errorHandler).Handle(controller.NewManifestController())
 	white := v1.Party("/")
 	white.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
+	mvc.New(white.Party("/theme")).HandleError(errorHandler).Handle(controller.NewThemeController())
 
 }
 

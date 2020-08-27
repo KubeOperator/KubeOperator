@@ -20,12 +20,14 @@ export class HeaderComponent implements OnInit {
 
     @ViewChild(AboutComponent, {static: true})
     about: AboutComponent;
+    logo: string;
 
     constructor(private sessionService: SessionService, private router: Router) {
     }
 
     ngOnInit(): void {
         this.getProfile();
+        this.getLogo();
     }
 
     getProfile() {
@@ -46,6 +48,10 @@ export class HeaderComponent implements OnInit {
 
     openSwagger() {
         window.open('/swagger/index.html', 'blank');
+    }
+
+    getLogo() {
+        this.logo = sessionStorage.getItem('logo');
     }
 
     logOut() {
