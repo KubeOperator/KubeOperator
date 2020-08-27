@@ -160,6 +160,26 @@ func (c Cluster) BeforeDelete() error {
 			}
 		}
 	}
+	var cisTasks []CisTask
+	db.DB.Where(CisTask{ClusterID: c.ID}).Find(&cisTasks)
+	if len(cisTasks) > 0 {
+		for _, task := range cisTasks {
+			if err := tx.Delete(&task).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	var storageProvisioners []ClusterStorageProvisioner
+	db.DB.Where(ClusterStorageProvisioner{ClusterID: c.ID}).Find(&storageProvisioners)
+	if len(storageProvisioners) > 0 {
+		for _, p := range storageProvisioners {
+			if err := tx.Delete(&p).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
 
 	var projectResource ProjectResource
 	if err := tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(&projectResource).Error; err != nil {

@@ -69,7 +69,8 @@ LDAP_USER_IS_NULL: "Synchronized users are 0"
 LDAP_LOGIN_USER_IS_NULL: "User is not exist!"
 LDAP_DISABLE: "The system prohibits LDAP users from logging in. Please contact the administrator!"
 
-
+#cis
+CIS_TASK_ALREADY_RUNNING: "cis task already running"
 
 
 

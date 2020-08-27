@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -23,6 +24,7 @@ type CisService interface {
 	Page(num, size int, clusterName string) (*page.Page, error)
 	List(clusterName string) ([]dto.CisTask, error)
 	Create(clusterName string) (*dto.CisTask, error)
+	Delete(clusterName, id string) error
 }
 
 type cisService struct {
@@ -60,13 +62,15 @@ func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
 	}
 	p := page.Page{}
 	var tasks []model.CisTask
-	if err := db.DB.
+	if err := db.DB.Model(model.CisTask{}).
 		Count(&p.Total).
 		Offset((num - 1) * size).
 		Limit(size).
 		Where(model.CisTask{ClusterID: cluster.ID}).
 		Preload("Results").
-		Find(&tasks).Error; err != nil {
+		Order("created_at desc").
+		Find(&tasks).Error
+		err != nil {
 		return nil, err
 	}
 	var dtos []dto.CisTask
@@ -108,6 +112,12 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	var clusterTasks []model.CisTask
+	db.DB.Where(model.CisTask{Status: constant.ClusterRunning, ClusterID: cluster.ID}).Find(&clusterTasks)
+	if len(clusterTasks) > 0 {
+		return nil, errors.New("CIS_TASK_ALREADY_RUNNING")
+	}
 	tx := db.DB.Begin()
 	task := model.CisTask{
 		ClusterID: cluster.ID,
@@ -138,6 +148,17 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 	tx.Commit()
 	go Do(client, &task)
 	return &dto.CisTask{CisTask: task}, nil
+}
+
+func (c *cisService) Delete(clusterName, id string) error {
+	cluster, err := c.clusterRepo.Get(clusterName)
+	if err != nil {
+		return err
+	}
+	if err := db.DB.Where(model.CisTask{ID: id, ClusterID: cluster.ID}).Delete(model.CisTask{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func Do(client *kubernetes.Clientset, task *model.CisTask) {

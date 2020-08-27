@@ -1,1 +1,11 @@
-<p>security-task-create works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false" clrModalSize="lg">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        {{'APP_CREATE_CIS_TASK'|translate}}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="isSubmitGoing">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

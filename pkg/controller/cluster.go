@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -288,6 +289,13 @@ func (c ClusterController) GetCisBy(clusterName string) (*page.Page, error) {
 		pageItem.Total = len(items)
 		return &pageItem, nil
 	}
+}
+
+func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
+	if clusterName == "" || id == "" {
+		return errors.New("params is not set")
+	}
+	return c.CisService.Delete(clusterName, id)
 }
 
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {

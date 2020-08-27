@@ -10,3 +10,7 @@ type CisResult struct {
 	model.CisResult
 }
 
+type CisBatch struct {
+	Items     []CisTask
+	Operation string
+}
