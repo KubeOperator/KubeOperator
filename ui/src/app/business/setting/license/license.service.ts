@@ -16,4 +16,10 @@ export class LicenseService {
     get(): Observable<License> {
         return this.http.get<License>(this.baseUrl);
     }
+
+    setLicense() {
+        this.get().subscribe(data => {
+            sessionStorage.setItem('license', JSON.stringify(data));
+        });
+    }
 }

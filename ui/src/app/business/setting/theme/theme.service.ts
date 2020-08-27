@@ -20,4 +20,10 @@ export class ThemeService {
     update(theme: Theme): Observable<Theme> {
         return this.http.post<Theme>(this.baseUrl, theme);
     }
+
+    setTheme() {
+        this.get().subscribe(data => {
+            sessionStorage.setItem('theme', JSON.stringify(data));
+        });
+    }
 }

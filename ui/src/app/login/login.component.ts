@@ -8,6 +8,7 @@ import {CommonRoutes} from '../constant/route';
 import {TranslateService} from '@ngx-translate/core';
 import {Theme} from "../business/setting/theme/theme";
 import {ThemeService} from "../business/setting/theme/theme.service";
+import {LicenseService} from "../business/setting/license/license.service";
 
 @Component({
     selector: 'app-login',
@@ -26,7 +27,8 @@ export class LoginComponent implements OnInit {
                 private router: Router,
                 private themeService: ThemeService,
                 private sessionService: SessionService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private licenseService: LicenseService) {
     }
 
     ngOnInit(): void {
@@ -45,11 +47,8 @@ export class LoginComponent implements OnInit {
             if (this.theme.systemName) {
                 document.title = this.theme.systemName;
             }
-            sessionStorage.setItem('logo', this.theme.logo);
         });
     }
-
-
     login() {
         this.loginService.login(this.loginCredential).subscribe(res => {
             this.isError = false;

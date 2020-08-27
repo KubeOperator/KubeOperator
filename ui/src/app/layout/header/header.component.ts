@@ -5,6 +5,7 @@ import {Router} from '@angular/router';
 import {CommonRoutes} from '../../constant/route';
 import {PasswordComponent} from './password/password.component';
 import {AboutComponent} from "./about/about.component";
+import {Theme} from "../../business/setting/theme/theme";
 
 @Component({
     selector: 'app-header',
@@ -27,7 +28,6 @@ export class HeaderComponent implements OnInit {
 
     ngOnInit(): void {
         this.getProfile();
-        this.getLogo();
     }
 
     getProfile() {
@@ -50,8 +50,8 @@ export class HeaderComponent implements OnInit {
         window.open('/swagger/index.html', 'blank');
     }
 
-    getLogo() {
-        this.logo = sessionStorage.getItem('logo');
+    setLogo(logo: string) {
+        this.logo = logo;
     }
 
     logOut() {
