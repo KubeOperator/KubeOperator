@@ -361,5 +361,8 @@
   "APP_SYNC": "同步",
   "APP_SYNC_NOTE": "同步开始，请稍后去用户列表查看",
   "APP_CLUSTER_NAME_HELPER": "支持小写英文、数字和- 不能以数字开头",
-  "APP_CLUSTER_RESTORE_BY_LOCAL": "本地文件恢复"
+  "APP_CLUSTER_RESTORE_BY_LOCAL": "本地文件恢复",
+  "APP_XPACK":"X-PACK",
+  "APP_STYLE_CHANGE": "系统样式",
+  "APP_ZONE_HELPER": "只有正常状态的区域才可以被添加到部署计划"
 }

@@ -55,6 +55,7 @@
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_ZONE_HELPER'|translate}}</clr-control-helper>
             </clr-select-container>
 
             <clr-select-container *ngIf="item.deployTemplate === 'MULTIPLE'">
@@ -64,6 +65,8 @@
                     <option *ngFor="let zone of zones" [value]="zone.id">{{zone.name}}</option>
                 </select>
                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                <clr-control-helper>{{'APP_ZONE_HELPER'|translate}}</clr-control-helper>
+                <clr-control-helper></clr-control-helper>
             </clr-select-container>
             <clr-select-container>
                 <label>{{'APP_PLAN_DEPLOY_MASTER'|translate}}</label>
