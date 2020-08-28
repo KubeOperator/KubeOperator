@@ -3,6 +3,7 @@ LABEL stage=stage-build
 WORKDIR /build/ko
 ARG GOPROXY
 ARG GOARCH
+ARG XPACK
 
 ENV GOARCH=$GOARCH
 ENV GOPROXY=$GOPROXY
@@ -34,12 +35,10 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-WORKDIR /build/xpack
-RUN if [ "$GIT_BRANCH" = "yes" ] ; then  cd xpack && make build_linux GOARCH=$GOARCH  ; fi
+RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && make build_linux GOARCH=$GOARCH  ; fi
 
 FROM alpine:3.11
 
-COPY --from=stage-build /build/xpack/usr/ /usr/
 RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
