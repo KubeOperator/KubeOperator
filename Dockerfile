@@ -34,7 +34,15 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
+WORKDIR /build/xpack
+RUN git clone https://github.com/KubeOperator/xpack.git --depth=1
+RUN make build_linux GOARCH=$GOARCH
+
+
 FROM alpine:3.11
+
+COPY --from=stage-build /build/xpack/usr/ /usr/
+RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
@@ -42,6 +50,8 @@ ENV ZONEINFO /opt/zoneinfo.zip
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
+
+
 
 EXPOSE 8080
 
