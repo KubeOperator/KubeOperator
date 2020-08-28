@@ -35,7 +35,7 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/KubeOperator/g' go.mod && make build_linux GOARCH=$GOARCH  ; fi
+RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH  ; fi
 
 FROM alpine:3.11
 
