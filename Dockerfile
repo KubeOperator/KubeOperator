@@ -35,7 +35,7 @@ COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
 WORKDIR /build/xpack
-RUN git clone https://github.com/KubeOperator/xpack.git --depth=1
+RUN git clone git@github.com:KubeOperator/xpack.git --depth=1--depth=1
 RUN make build_linux GOARCH=$GOARCH
 
 
