@@ -91,11 +91,20 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 
 Release Note: https://blog.fit2cloud.com/?p=1416
 
- ##  v3.1 （开发中）
+ ##  v3.1 （开发中，预计 9 月 10 号）
  
- - [ ] LDAP 对接；
  - [ ] K8s 版本历史及集群版本升级功能优化；
+ - [ ] 集成 CIS 安全扫描；
+ - [ ] 集群事件；
+ - [ ] 集群 ETCD 定时备份和自定义恢复；
+ - [ ] 自定义 Logo 和 配色 （X-Pack）；
+ - [ ] LDAP 对接（X-Pack）；
+ 
+  ##  v3.2 （计划中）
+ 
+ - [ ] 集群日志，支持 Loki 或者 EFK；
  - [ ] FusionCompute 支持自动部署模式；
  - [ ] FusionStorage CSI 支持；
- - [ ] 集成 CIS 安全扫描；
- - [ ] 支持 EFK、Loki。
+ - [ ] 事件通知，支持邮箱、钉钉、微信（X-Pack）；
+ - [ ] 集群健康（X-Pack）；
+ - [ ] F5 对接（X-Pack）；
