@@ -35,9 +35,7 @@ COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
 WORKDIR /build/xpack
-RUN git clone git@github.com:KubeOperator/xpack.git --depth=1
-RUN make build_linux GOARCH=$GOARCH
-
+RUN if [ "$GIT_BRANCH" = "yes" ] ; then  cd xpack && make build_linux GOARCH=$GOARCH --force ; fi
 
 FROM alpine:3.11
 
