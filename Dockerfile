@@ -16,6 +16,7 @@ RUN  apk update \
   && apk add git \
   && apk add make \
   && apk add bash \
+  && apk add build-base \
   && apk add binutils-gold
 COPY go.mod go.sum ./
 RUN go mod download
