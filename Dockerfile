@@ -35,7 +35,7 @@ COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
 WORKDIR /build/xpack
-RUN if [ "$GIT_BRANCH" = "yes" ] ; then  cd xpack && make build_linux GOARCH=$GOARCH --force ; fi
+RUN if [ "$GIT_BRANCH" = "yes" ] ; then  cd xpack && make build_linux GOARCH=$GOARCH  ; fi
 
 FROM alpine:3.11
 
