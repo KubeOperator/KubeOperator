@@ -371,5 +371,13 @@
   "APP_CLUSTER_RESTORE_BY_LOCAL": "Local file recovery",
   "APP_XPACK":"X-PACK",
   "APP_STYLE_CHANGE": "System style",
-  "APP_ZONE_HELPER": "Only zone in normal state can be added to the deployment plan"
+  "APP_ZONE_HELPER": "Only zone in normal state can be added to the deployment plan",
+  "APP_EVENT": "Event",
+  "APP_EVENT_MSG": "Message",
+  "APP_EVENT_TYPE": "Type",
+  "APP_EVENT_COMPONENT": "Component",
+  "APP_EVENT_REASON": "Reason",
+  "APP_EVENT_DATE": "Date"
+
+
 }

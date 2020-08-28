@@ -1,0 +1,22 @@
+<clr-datagrid [clrDgLoading]="loading">
+    <clr-dg-action-bar>
+        <div class="clr-select-wrapper">
+            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">
+                <option *ngFor="let b of namespaces"
+                        value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>
+            </select>
+        </div>
+    </clr-dg-action-bar>
+    <clr-dg-column>{{'APP_EVENT_MSG'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_EVENT_TYPE'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_EVENT_COMPONENT'|translate}}</clr-dg-column>
+    <clr-dg-column>Namespace</clr-dg-column>
+    <clr-dg-column>{{'APP_EVENT_DATE'|translate}}</clr-dg-column>
+    <clr-dg-row *ngFor="let item of events" [clrDgItem]="item">
+        <clr-dg-cell>{{item.message}}</clr-dg-cell>
+        <clr-dg-cell>{{item.type}}</clr-dg-cell>
+        <clr-dg-cell>{{item.source.component}}</clr-dg-cell>
+        <clr-dg-cell>{{item.metadata.namespace}}</clr-dg-cell>
+        <clr-dg-cell>{{item.firstTimestamp|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
+    </clr-dg-row>
+</clr-datagrid>

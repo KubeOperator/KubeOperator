@@ -9,7 +9,7 @@ import {
     V1ConfigMapList,
     V1CSINodeList,
     V1DaemonSetList,
-    V1DeploymentList,
+    V1DeploymentList, V1EventList,
     V1JobList,
     V1NodeList,
     V1PersistentVolume,
@@ -63,6 +63,7 @@ export class KubernetesService {
     namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
     nodesUrl = 'api/v1/nodes';
     nodeStatsSummaryUrl = 'apis/metrics.k8s.io/v1beta1/nodes';
+    eventUrl = '/api/v1/namespaces/{namespace}/events';
 
     listNodesUsage(clusterName: string, continueToken?: string): Observable<any> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodeStatsSummaryUrl);
@@ -272,5 +273,11 @@ export class KubernetesService {
             url = url.replace('{resource_url}', this.podUrl);
         }
         return this.client.get<V1PodList>(url);
+    }
+
+    listEventsByNamespace(clusterName: string, namespace: string): Observable<V1EventList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url = url.replace('{resource_url}', this.eventUrl).replace('{namespace}', namespace);
+        return this.client.get<V1EventList>(url);
     }
 }

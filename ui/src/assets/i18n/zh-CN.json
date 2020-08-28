@@ -374,5 +374,12 @@
   "APP_CLUSTER_RESTORE_BY_LOCAL": "本地文件恢复",
   "APP_XPACK":"X-PACK",
   "APP_STYLE_CHANGE": "系统样式",
-  "APP_ZONE_HELPER": "只有正常状态的区域才可以被添加到部署计划"
+  "APP_ZONE_HELPER": "只有正常状态的区域才可以被添加到部署计划",
+  "APP_EVENT": "事件",
+  "APP_EVENT_MSG": "信息",
+  "APP_EVENT_TYPE": "类型",
+  "APP_EVENT_COMPONENT": "组件",
+  "APP_EVENT_REASON": "原因",
+  "APP_EVENT_DATE": "时间"
+
 }

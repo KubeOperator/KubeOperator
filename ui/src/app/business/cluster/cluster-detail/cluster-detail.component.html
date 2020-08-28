@@ -17,6 +17,11 @@
                 {{"APP_STORAGE"|translate}}
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" routerLink="events" routerLinkActive="active">
+                {{"APP_EVENT"|translate}}
+            </a>
+        </li>
         <li class="nav-item" *ngIf="ready&&showApp('efk')">
             <a class="nav-link" href="javascript:void(0)" routerLink="logging"
                routerLinkActive="active">{{"LOGGING"|translate}}</a>

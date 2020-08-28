@@ -42,6 +42,7 @@ import {SecurityComponent} from "./business/cluster/cluster-detail/security/secu
 import {LdapComponent} from './business/setting/ldap/ldap.component';
 import {ManifestComponent} from "./business/manifest/manifest.component";
 import {ThemeComponent} from "./business/setting/theme/theme.component";
+import {EventComponent} from './business/cluster/cluster-detail/event/event.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -76,6 +77,7 @@ const routes: Routes = [
                     {path: 'overview', component: OverviewComponent},
                     {path: 'nodes', component: NodeComponent},
                     {path: 'namespaces', component: NamespaceComponent},
+                    {path: 'events', component: EventComponent},
                     {
                         path: 'storages',
                         component: StorageComponent,
