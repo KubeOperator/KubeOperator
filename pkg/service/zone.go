@@ -157,7 +157,9 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
-	go z.uploadZoneImage(creation)
+	if param["templateType"].(string) == "default" {
+		go z.uploadZoneImage(creation)
+	}
 	return &dto.Zone{Zone: zone}, err
 }
 
