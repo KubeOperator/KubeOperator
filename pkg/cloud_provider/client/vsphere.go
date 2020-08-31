@@ -391,6 +391,7 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 }
 
 func (v *vSphereClient) DefaultImageExist() (bool, error) {
+
 	_, err := v.GetConnect()
 	if err != nil {
 		return false, err

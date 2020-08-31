@@ -3,7 +3,6 @@ import {BaseModelService} from '../../shared/class/BaseModelService';
 import {System} from './system/system';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Host} from '../host/host';
 
 @Injectable({
     providedIn: 'root'
@@ -19,15 +18,5 @@ export class SystemService extends BaseModelService<System> {
     singleGet(): Observable<System> {
         const itemUrl = `${this.baseUrl}`;
         return this.http.get<System>(itemUrl);
-    }
-
-    ldapCreate(item): Observable<System> {
-        const itemUrl = `${this.baseUrl}/ldap`;
-        return this.http.post<System>(itemUrl, item);
-    }
-
-    ldapSync(item): Observable<System> {
-        const itemUrl = `${this.baseUrl}/ldap/sync`;
-        return this.http.post<System>(itemUrl, item);
     }
 }

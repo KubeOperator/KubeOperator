@@ -164,7 +164,6 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
-	go z.uploadZoneImage(creation)
 	return &dto.Zone{Zone: zone}, err
 }
 
