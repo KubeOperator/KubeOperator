@@ -1,8 +1,6 @@
 package service
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,9 +11,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"io"
-	"net/http"
-	"os"
 	"strings"
 )
 
@@ -34,7 +29,6 @@ type ZoneService interface {
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListByRegionId(regionId string) ([]dto.Zone, error)
-	DownloadVMDKFile(vmdkUrl string) (string, error)
 }
 
 type zoneService struct {
@@ -111,18 +105,27 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		return nil, errors.New(ZoneNameExist)
 	}
 
+	vars, _ := json.Marshal(creation.CloudVars)
+	zone := model.Zone{
+		BaseModel:    common.BaseModel{},
+		Name:         creation.Name,
+		Vars:         string(vars),
+		RegionID:     creation.RegionID,
+		CredentialID: creation.CredentialId,
+		Status:       constant.Ready,
+	}
+
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {
 		index := strings.Index(param["subnet"].(string), "/")
 		networkCidr := param["subnet"].(string)
 		param["netMask"] = networkCidr[index+1:]
 	}
-
+	region, err := NewRegionService().Get(creation.RegionName)
+	if err != nil {
+		return nil, err
+	}
 	if param["templateType"] != nil && param["templateType"].(string) == "default" {
-		region, err := NewRegionService().Get(creation.RegionName)
-		if err != nil {
-			return nil, err
-		}
 		switch region.Provider {
 		case constant.OpenStack:
 			param["imageName"] = constant.OpenStackImageName
@@ -140,20 +143,24 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 			return nil, err
 		}
 		creation.CredentialId = credential.ID
+		zone.Status = constant.Initializing
 	}
 
-	vars, _ := json.Marshal(creation.CloudVars)
-
-	zone := model.Zone{
-		BaseModel:    common.BaseModel{},
-		Name:         creation.Name,
-		Vars:         string(vars),
-		RegionID:     creation.RegionID,
-		CredentialID: creation.CredentialId,
-		Status:       constant.Initializing,
+	if region.Provider == constant.VSphere {
+		regionVars := region.RegionVars.(map[string]interface{})
+		regionVars["datacenter"] = region.Datacenter
+		cloudClient := client.NewCloudClient(regionVars)
+		err = cloudClient.CreateDefaultFolder()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	err := z.zoneRepo.Save(&zone)
+	err = z.zoneRepo.Save(&zone)
+	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+		go z.uploadZoneImage(creation)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -272,6 +279,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 			regionVars["network"] = zoneVars["network"]
 		}
 		regionVars["ovfPath"] = fmt.Sprintf(constant.VSphereImageOvfPath, ip.Value)
+		regionVars["vmdkPath"] = fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
 	}
 	if region.Provider == constant.OpenStack {
 		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
@@ -279,25 +287,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	cloudClient := client.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
-		zone, err := z.zoneRepo.Get(creation.Name)
 		if err != nil {
 			return err
 		}
 		if result {
-			zone.Status = constant.Ready
-			err = z.zoneRepo.Save(&zone)
-			if err != nil {
-				return err
-			}
 			return nil
-		} else {
-			if region.Provider == constant.VSphere {
-				vmdkUrl := fmt.Sprintf(constant.VSphereImageVMDkPath, ip.Value)
-				regionVars["vmdkPath"], err = z.DownloadVMDKFile(vmdkUrl)
-				if err != nil {
-					return err
-				}
-			}
 		}
 		err = cloudClient.UploadImage()
 		if err != nil {
@@ -317,54 +311,4 @@ func (z zoneService) ListByRegionId(regionId string) ([]dto.Zone, error) {
 		zoneDTOs = append(zoneDTOs, dto.Zone{Zone: mo})
 	}
 	return zoneDTOs, err
-}
-
-func (z zoneService) DownloadVMDKFile(vmdkUrl string) (string, error) {
-	res, err := http.Get(vmdkUrl)
-	if err != nil {
-		return "", err
-	}
-	f, err := os.Create(constant.VMDKGZLocalPath)
-	if err != nil {
-		return "", err
-	}
-	_, err = io.Copy(f, res.Body)
-	if err != nil {
-		return "", err
-	}
-	fw, err := os.Open(constant.VMDKGZLocalPath)
-	if err != nil {
-		return "", err
-	}
-	defer fw.Close()
-	gr, err := gzip.NewReader(fw)
-	if err != nil {
-		return "", err
-	}
-	defer gr.Close()
-	tr := tar.NewReader(gr)
-	for {
-		_, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return "", err
-		}
-		fw, err := os.OpenFile(constant.VMDKLocalPath, os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return "", err
-		}
-		defer fw.Close()
-		_, err = io.Copy(fw, tr)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	_, err = os.Open(constant.VMDKLocalPath)
-	if err != nil {
-		return "", err
-	}
-	return constant.VMDKLocalPath, err
 }
