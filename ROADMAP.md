@@ -108,6 +108,6 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [ ] FusionCompute 支持自动部署模式；
  - [ ] FusionStorage CSI 支持；
  - [ ] GPU 支持；
- - [ ] 事件通知，支持邮箱、钉钉、微信（X-Pack）；
+ - [ ] 消息中心，支持邮箱、钉钉、微信（X-Pack）；
  - [ ] 集群健康（X-Pack）；
  - [ ] F5 对接（X-Pack）；
