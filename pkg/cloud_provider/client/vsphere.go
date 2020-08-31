@@ -400,6 +400,7 @@ func OpenLocalFile(localUrl string) (io.Reader, int64, error) {
 }
 
 func (v *vSphereClient) DefaultImageExist() (bool, error) {
+
 	_, err := v.GetConnect()
 	if err != nil {
 		return false, err
@@ -412,6 +413,18 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 		return false, err
 	}
 	f.SetDatacenter(datacenter)
+
+	_, err = f.Folder(ctx, constant.VSphereFolder)
+	if err != nil {
+		fd, err := f.DefaultFolder(ctx)
+		if err != nil {
+			return false, err
+		}
+		_, err = fd.CreateFolder(ctx, constant.VSphereFolder)
+		if err != nil {
+			return false, err
+		}
+	}
 
 	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
 	if vm != nil {
