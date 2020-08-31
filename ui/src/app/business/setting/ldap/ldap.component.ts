@@ -5,6 +5,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {System, SystemCreateRequest} from '../system/system';
 import {AlertLevels} from '../../../layout/common-alert/alert';
+import {LdapService} from './ldap.service';
 
 @Component({
     selector: 'app-ldap',
@@ -17,7 +18,7 @@ export class LdapComponent extends BaseModelComponent<System> implements OnInit 
     createItem: SystemCreateRequest = new SystemCreateRequest();
 
     constructor(private systemService: SystemService, private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService, private ldapService: LdapService) {
         super(systemService);
     }
 
@@ -34,7 +35,7 @@ export class LdapComponent extends BaseModelComponent<System> implements OnInit 
 
     onSubmit() {
         this.createItem.vars = this.item.vars;
-        this.systemService.ldapCreate(this.createItem).subscribe(res => {
+        this.ldapService.ldapCreate(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
@@ -43,7 +44,7 @@ export class LdapComponent extends BaseModelComponent<System> implements OnInit 
 
     onSync() {
         this.createItem.vars = this.item.vars;
-        this.systemService.ldapSync(this.createItem).subscribe(res => {
+        this.ldapService.ldapSync(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_SYNC_NOTE'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

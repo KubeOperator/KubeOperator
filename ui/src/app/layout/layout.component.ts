@@ -18,6 +18,8 @@ export class LayoutComponent implements OnInit {
     header: HeaderComponent;
 
     ngOnInit(): void {
+        this.licenseService.setLicense();
+
         this.themeService.setTheme();
         const str = sessionStorage.getItem('theme');
         const theme: Theme = JSON.parse(str);
@@ -27,7 +29,5 @@ export class LayoutComponent implements OnInit {
         if (theme.logo) {
             this.header.setLogo(theme.logo);
         }
-
-        this.licenseService.setLicense();
     }
 }
