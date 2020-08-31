@@ -67,7 +67,7 @@ Release Note:https://blog.fit2cloud.com/?p=1087
 - [x] Excel批量导入主机；
 - [x] 手动模式集群批量扩容；
 
-Release Note:https://blog.fit2cloud.com/?p=1126
+Release Note: https://blog.fit2cloud.com/?p=1126
 
  ##  v2.6 （已发布）
 
@@ -76,6 +76,8 @@ Release Note:https://blog.fit2cloud.com/?p=1126
 - [x] 支持 RHEL 7.4 以上操作系统；
 - [x] vSphere 创建虚机时支持选用自有模板；
 - [x] 支持更新 apiserver 证书。
+
+Release Note: https://blog.fit2cloud.com/?p=1219
 
  ##  v3.0 （已发布）
  
