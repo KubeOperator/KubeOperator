@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
@@ -349,7 +348,7 @@ func (v *vSphereClient) UploadImage() error {
 	u := lease.StartUpdater(ctx, info)
 	defer u.Done()
 	for _, i := range info.Items {
-		file, size, err := OpenLocalFile(v.Vars["vmdkPath"].(string))
+		file, size, err := OpenRemoteFile(v.Vars["vmdkPath"].(string))
 		if err != nil {
 			return err
 		}
@@ -391,14 +390,6 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 	return f, size, nil
 }
 
-func OpenLocalFile(localUrl string) (io.Reader, int64, error) {
-	stream, _ := ioutil.ReadFile(localUrl)
-	f := bytes.NewReader(stream)
-	le := len(stream)
-	size := int64(le)
-	return f, size, nil
-}
-
 func (v *vSphereClient) DefaultImageExist() (bool, error) {
 
 	_, err := v.GetConnect()
@@ -414,21 +405,38 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 	}
 	f.SetDatacenter(datacenter)
 
+	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if vm != nil {
+		return true, nil
+	}
+	return false, nil
+}
+
+func (v *vSphereClient) CreateDefaultFolder() error {
+	_, err := v.GetConnect()
+	if err != nil {
+		return err
+	}
+	client := v.Connect.Client.Client
+	ctx := context.TODO()
+	f := find.NewFinder(client, true)
+	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
+	if err != nil {
+		return err
+	}
+	f.SetDatacenter(datacenter)
+
 	_, err = f.Folder(ctx, constant.VSphereFolder)
 	if err != nil {
 		fd, err := f.DefaultFolder(ctx)
 		if err != nil {
-			return false, err
+			return err
 		}
 		_, err = fd.CreateFolder(ctx, constant.VSphereFolder)
 		if err != nil {
-			return false, err
+			return err
 		}
 	}
 
-	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
-	if vm != nil {
-		return true, err
-	}
-	return false, nil
+	return nil
 }
