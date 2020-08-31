@@ -105,8 +105,6 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		return nil, errors.New(ZoneNameExist)
 	}
 
-	vars, _ := json.Marshal(creation.CloudVars)
-
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {
 		index := strings.Index(param["subnet"].(string), "/")
@@ -147,6 +145,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		}
 	}
 
+	vars, _ := json.Marshal(creation.CloudVars)
 	zone := model.Zone{
 		BaseModel:    common.BaseModel{},
 		Name:         creation.Name,
