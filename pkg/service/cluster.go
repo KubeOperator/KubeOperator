@@ -317,6 +317,8 @@ func (c clusterService) Delete(name string) error {
 				db.DB.Where(model.Host{ClusterID: cluster.ID}).Find(&hosts)
 				if len(hosts) > 0 {
 					go c.clusterTerminalService.Terminal(cluster.Cluster)
+				} else {
+					return c.clusterRepo.Delete(name)
 				}
 			} else {
 				return c.clusterRepo.Delete(name)
