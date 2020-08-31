@@ -106,14 +106,6 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	}
 
 	vars, _ := json.Marshal(creation.CloudVars)
-	zone := model.Zone{
-		BaseModel:    common.BaseModel{},
-		Name:         creation.Name,
-		Vars:         string(vars),
-		RegionID:     creation.RegionID,
-		CredentialID: creation.CredentialId,
-		Status:       constant.Ready,
-	}
 
 	param := creation.CloudVars.(map[string]interface{})
 	if param["subnet"] != nil {
@@ -143,7 +135,6 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 			return nil, err
 		}
 		creation.CredentialId = credential.ID
-		zone.Status = constant.Initializing
 	}
 
 	if region.Provider == constant.VSphere {
@@ -156,11 +147,22 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		}
 	}
 
+	zone := model.Zone{
+		BaseModel:    common.BaseModel{},
+		Name:         creation.Name,
+		Vars:         string(vars),
+		RegionID:     creation.RegionID,
+		CredentialID: creation.CredentialId,
+		Status:       constant.Ready,
+	}
+
+	if param["templateType"] != nil && param["templateType"].(string) == "default" {
+		zone.Status = constant.Initializing
+	}
 	err = z.zoneRepo.Save(&zone)
 	if param["templateType"] != nil && param["templateType"].(string) == "default" {
 		go z.uploadZoneImage(creation)
 	}
-
 	if err != nil {
 		return nil, err
 	}
