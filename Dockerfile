@@ -3,6 +3,7 @@ LABEL stage=stage-build
 WORKDIR /build/ko
 ARG GOPROXY
 ARG GOARCH
+ARG XPACK
 
 ENV GOARCH=$GOARCH
 ENV GOPROXY=$GOPROXY
@@ -15,6 +16,7 @@ RUN  apk update \
   && apk add git \
   && apk add make \
   && apk add bash \
+  && apk add build-base \
   && apk add binutils-gold
 COPY go.mod go.sum ./
 RUN go mod download
@@ -34,7 +36,11 @@ RUN export PATH=$PATH:$GOPATH/bin
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
+RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
+
 FROM alpine:3.11
+
+RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && wget  https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
@@ -42,6 +48,8 @@ ENV ZONEINFO /opt/zoneinfo.zip
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
+
+
 
 EXPOSE 8080
 

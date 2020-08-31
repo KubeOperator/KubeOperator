@@ -38,8 +38,7 @@ func (z zoneRepository) Get(name string) (model.Zone, error) {
 
 func (z zoneRepository) ListByRegionId(id string) ([]model.Zone, error) {
 	var zones []model.Zone
-
-	err := db.DB.Where("region_id = ?", id).Find(&zones).Error
+	err := db.DB.Where("region_id = ? AND status = ?", id, constant.Ready).Find(&zones).Error
 	if err != nil {
 		return zones, err
 	}

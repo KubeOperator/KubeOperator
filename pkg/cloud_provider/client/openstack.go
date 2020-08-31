@@ -371,3 +371,7 @@ func (v *openStackClient) UploadImage() error {
 func (v *openStackClient) DefaultImageExist() (bool, error) {
 	return false, nil
 }
+
+func (v *openStackClient) CreateDefaultFolder() error {
+	return nil
+}
