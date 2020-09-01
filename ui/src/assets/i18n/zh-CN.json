@@ -380,6 +380,10 @@
   "APP_EVENT_TYPE": "类型",
   "APP_EVENT_COMPONENT": "组件",
   "APP_EVENT_REASON": "原因",
-  "APP_EVENT_DATE": "时间"
-
+  "APP_EVENT_DATE": "时间",
+  "APP_CLUSTER_UPGRADE": "升级",
+  "APP_LOCAL_CLUSTER_CAN_NOT_UPGRADE": "导入集群无法升级",
+  "APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE": "集群不在运行状态，无法升级！",
+  "APP_UPGRADE_START_SUCCESS": "已经开始升级！请稍后查看集群历史",
+  "CLUSTER_UPGRADE": "集群升级"
 }

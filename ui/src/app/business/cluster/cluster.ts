@@ -76,3 +76,8 @@ export class InitClusterResponse {
 export class ClusterSecret {
     kubernetesToken: string;
 }
+
+export class ClusterUpgradeRequest {
+    clusterName: string;
+    version: string;
+}

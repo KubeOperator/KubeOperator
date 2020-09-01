@@ -5,6 +5,7 @@ import {ClusterDeleteComponent} from './cluster-delete/cluster-delete.component'
 import {Cluster} from './cluster';
 import {ClusterConditionComponent} from './cluster-condition/cluster-condition.component';
 import {ClusterImportComponent} from './cluster-import/cluster-import.component';
+import {ClusterUpgradeComponent} from './cluster-upgrade/cluster-upgrade.component';
 
 @Component({
     selector: 'app-cluster',
@@ -31,6 +32,9 @@ export class ClusterComponent implements OnInit {
     @ViewChild(ClusterImportComponent, {static: true})
     import: ClusterImportComponent;
 
+    @ViewChild(ClusterUpgradeComponent, {static: true})
+    upgrade: ClusterUpgradeComponent;
+
     ngOnInit(): void {
     }
 
@@ -55,4 +59,7 @@ export class ClusterComponent implements OnInit {
         this.list.pageBy();
     }
 
+    openUpgrade(item: Cluster) {
+        this.upgrade.open(item);
+    }
 }

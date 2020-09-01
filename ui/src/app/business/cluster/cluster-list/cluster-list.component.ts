@@ -6,9 +6,9 @@ import {CommonAlertService} from '../../../layout/common-alert/common-alert.serv
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
-import {SystemService} from "../../setting/system.service";
-import {TranslateService} from "@ngx-translate/core";
-import {LicenseService} from "../../setting/license/license.service";
+import {SystemService} from '../../setting/system.service';
+import {TranslateService} from '@ngx-translate/core';
+import {LicenseService} from '../../setting/license/license.service';
 
 @Component({
     selector: 'app-cluster-list',
@@ -29,6 +29,7 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
 
     @Output() statusDetailEvent = new EventEmitter<string>();
     @Output() importEvent = new EventEmitter();
+    @Output() upgradeEvent = new EventEmitter();
     timer;
     currentProject: Project;
     loading = false;
@@ -98,4 +99,15 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         });
     }
 
+    onUpgrade(item: Cluster) {
+        if (item.source !== 'local') {
+            this.commonAlert.showAlert(this.translateService.instant('APP_LOCAL_CLUSTER_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
+            return;
+        }
+        if (item.status !== 'Running') {
+            this.commonAlert.showAlert(this.translateService.instant('APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
+            return;
+        }
+        this.upgradeEvent.emit(item);
+    }
 }

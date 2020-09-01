@@ -1,0 +1,19 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_CLUSTER_UPGRADE'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #clusterForm="ngForm">
+            <clr-select-container>
+                <label>{{'APP_VERSION'|translate}}</label>
+                <select clrSelect name="version" [(ngModel)]="chooseVersion" required>
+                    <option *ngFor="let re of upgradeVersions" [value]="re">{{re}}</option>
+                </select>
+            </clr-select-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="clusterForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>
