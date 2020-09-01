@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -30,12 +31,14 @@ type CisService interface {
 type cisService struct {
 	clusterRepo    repository.ClusterRepository
 	clusterService ClusterService
+	systemRepo     repository.SystemSettingRepository
 }
 
 func NewCisService() CisService {
 	return &cisService{
 		clusterRepo:    repository.NewClusterRepository(),
 		clusterService: NewClusterService(),
+		systemRepo:     repository.NewSystemSettingRepository(),
 	}
 }
 
@@ -146,7 +149,7 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		Port:  endpoint.Port,
 	})
 	tx.Commit()
-	go Do(client, &task)
+	go Do(&cluster, client, &task)
 	return &dto.CisTask{CisTask: task}, nil
 }
 
@@ -161,9 +164,18 @@ func (c *cisService) Delete(clusterName, id string) error {
 	return nil
 }
 
-func Do(client *kubernetes.Clientset, task *model.CisTask) {
+func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTask) {
 	task.Status = CisTaskStatusRunning
 	db.DB.Save(&task)
+	systemRepo := repository.NewSystemSettingRepository()
+
+	localIP, err := systemRepo.Get("ip")
+	if err != nil || localIP.Value == "" {
+		task.Message = "local ip is null"
+		task.Status = CisTaskStatusFailed
+		db.DB.Save(&task)
+		return
+	}
 	j := v1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "kube-bench",
@@ -177,7 +189,7 @@ func Do(client *kubernetes.Clientset, task *model.CisTask) {
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   "aquasec/kube-bench:latest",
+							Image:   fmt.Sprintf("%s:%d/kube-bench:v0.0.1-%s", localIP, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
