@@ -8,6 +8,8 @@ import {PlanService} from '../../deploy-plan/plan/plan.service';
 import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
+import {ManifestService} from "../../manifest/manifest.service";
+import {Manifest} from "../../manifest/manifest";
 
 
 @Component({
@@ -26,6 +28,7 @@ export class ClusterCreateComponent implements OnInit {
     masters: any[] = [];
     workers: any[] = [];
     plans: Plan[] = [];
+    versions: string[] = [];
     currentProject: Project;
 
 
@@ -37,7 +40,8 @@ export class ClusterCreateComponent implements OnInit {
     constructor(private service: ClusterService,
                 private hostService: HostService,
                 private planService: PlanService,
-                private route: ActivatedRoute) {
+                private route: ActivatedRoute,
+                private manifestService: ManifestService) {
     }
 
     ngOnInit(): void {
@@ -53,6 +57,7 @@ export class ClusterCreateComponent implements OnInit {
         this.hosts = [];
         this.masters = [];
         this.workers = [];
+        this.versions = [];
     }
 
     setDefaultValue() {
@@ -80,6 +85,7 @@ export class ClusterCreateComponent implements OnInit {
         this.reset();
         this.loadHosts();
         this.loadPlan();
+        this.loadVersion();
         this.opened = true;
         this.setDefaultValue();
     }
@@ -140,6 +146,22 @@ export class ClusterCreateComponent implements OnInit {
     loadPlan() {
         this.planService.listByProjectName(this.currentProject.name).subscribe(data => {
             this.plans = data.items;
+        });
+    }
+
+    loadVersion() {
+        this.manifestService.list().subscribe(data => {
+            for (const m of data) {
+                for (const c of m.category) {
+                    if (c.name === 'core') {
+                        for (const item of c.items) {
+                            if (item.name === 'kubernetes') {
+                                this.versions.push(item.version);
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
