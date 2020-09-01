@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS `ko_theme` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO ko.ko_theme (created_at, updated_at,'id') VALUES ('2020-08-27 15:14:04', '2020-08-27 18:25:20','1');
+INSERT INTO ko.ko_theme (id) VALUES ('1');
