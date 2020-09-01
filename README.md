@@ -41,7 +41,9 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 ## KubeOperator 企业版
 
-- [企业版试用](https://jinshuju.net/f/qc6g44/)
+- [申请企业版试用](https://jinshuju.net/f/qc6g44/)
+
+>注：企业版支持离线安装，申请通过后会提供高速下载链接。
 
 ## 版本说明
 
