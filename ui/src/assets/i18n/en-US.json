@@ -377,7 +377,8 @@
   "APP_EVENT_TYPE": "Type",
   "APP_EVENT_COMPONENT": "Component",
   "APP_EVENT_REASON": "Reason",
-  "APP_EVENT_DATE": "Date"
+  "APP_EVENT_DATE": "Date",
+  "EnsureInitNpd": "Init Npd"
 
 
 }

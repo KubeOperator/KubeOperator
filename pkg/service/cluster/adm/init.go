@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/initial"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/ingress"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/plugin/npd"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/prepare"
 	"reflect"
 	"runtime"
@@ -97,7 +98,6 @@ func (ca *ClusterAdm) EnsureInitTaskStart(c *Cluster) error {
 	return nil
 }
 
-
 func (ca *ClusterAdm) EnsurePrepareBaseSystemConfig(c *Cluster) error {
 	phase := prepare.BaseSystemConfigPhase{}
 	err := phase.Run(c.Kobe)
@@ -145,6 +145,11 @@ func (ca *ClusterAdm) EnsureInitNetwork(c *Cluster) error {
 
 func (ca *ClusterAdm) EnsureInitHelm(c *Cluster) error {
 	phase := initial.HelmPhase{}
+	return phase.Run(c.Kobe)
+}
+
+func (ca *ClusterAdm) EnsureInitNpd(c *Cluster) error {
+	phase := npd.NpdPhase{}
 	return phase.Run(c.Kobe)
 }
 
