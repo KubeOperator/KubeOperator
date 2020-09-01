@@ -72,8 +72,7 @@ func (*cisService) Page(num, size int, clusterName string) (*page.Page, error) {
 		Where(model.CisTask{ClusterID: cluster.ID}).
 		Preload("Results").
 		Order("created_at desc").
-		Find(&tasks).Error
-		err != nil {
+		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	var dtos []dto.CisTask

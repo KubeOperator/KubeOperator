@@ -378,5 +378,11 @@
   "APP_EVENT_COMPONENT": "Component",
   "APP_EVENT_REASON": "Reason",
   "APP_EVENT_DATE": "Date",
-  "EnsureInitNpd": "Init Npd"
+  "EnsureInitNpd": "Init Npd",
+  "APP_EVENT_DATE": "Date",
+  "APP_CLUSTER_UPGRADE": "Upgrade",
+  "APP_LOCAL_CLUSTER_CAN_NOT_UPGRADE": "Import cluster cannot be upgraded",
+  "APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE": "The cluster is not running and cannot be upgraded!",
+  "APP_UPGRADE_START_SUCCESS": "Upgrade has started! Please check the cluster history later",
+  "CLUSTER_UPGRADE": "Cluster Upgrade"
 }

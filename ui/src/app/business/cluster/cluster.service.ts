@@ -1,10 +1,17 @@
 import {Injectable} from '@angular/core';
 import {BaseModelService} from '../../shared/class/BaseModelService';
 import {HttpClient} from '@angular/common/http';
-import {Cluster, CLusterImportRequest, ClusterSecret, ClusterStatus, InitClusterResponse} from './cluster';
+import {
+    Cluster,
+    CLusterImportRequest,
+    ClusterSecret,
+    ClusterStatus,
+    ClusterUpgradeRequest,
+    InitClusterResponse
+} from './cluster';
 import {Observable} from 'rxjs';
 import {Page} from '../../shared/class/Page';
-import {ClusterLog} from "./cluster-detail/log/log";
+import {ClusterLog} from './cluster-detail/log/log';
 
 @Injectable({
     providedIn: 'root'
@@ -40,5 +47,9 @@ export class ClusterService extends BaseModelService<Cluster> {
     pageBy(page, size, projectName): Observable<Page<Cluster>> {
         const pageUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}&projectName=${projectName}`;
         return this.http.get<Page<Cluster>>(pageUrl);
+    }
+
+    upgrade(item: ClusterUpgradeRequest): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/upgrade/`, item);
     }
 }

@@ -3,6 +3,8 @@ NAME_EXISTS: "名称已存在"
 
 #cluster
 CLUSTER_DELETE_FAILED: "无法删除当前状态的集群"
+CLUSTER_IS_NOT_RUNNING: "集群不在运行中！"
+CLUSTER_IS_NOT_LOCAL: "导入集群无法升级"
 
 #credential
 DELETE_FAILED_RESOURCE: "删除失败！该秘钥下有关联主机"

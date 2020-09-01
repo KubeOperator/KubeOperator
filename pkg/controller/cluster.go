@@ -301,3 +301,12 @@ func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
 	return c.CisService.Create(clusterName)
 }
+
+func (c ClusterController) PostUpgrade() error {
+	var req dto.ClusterUpgrade
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	return c.ClusterService.Upgrade(req)
+}

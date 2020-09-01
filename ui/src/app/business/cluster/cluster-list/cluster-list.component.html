@@ -14,6 +14,11 @@
             <clr-icon shape="import" size="16"></clr-icon>
             {{"APP_IMPORT"|translate}}
         </button>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="onUpgrade(selected[0])"
+                [disabled]="selected.length!==1">
+            <clr-icon shape="circle-arrow"></clr-icon>
+            {{"APP_CLUSTER_UPGRADE"|translate}}
+        </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{"APP_NAME"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_VERSION"|translate}}</clr-dg-column>
@@ -53,8 +58,6 @@
                 Loading...
             </clr-spinner>
         </clr-dg-cell>
-
-
         <clr-dg-cell>{{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
 

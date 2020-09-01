@@ -1,4 +1,4 @@
-- name: 1.18.3-ko1
+- name: v1.18.3-ko1
   category:
     - name: core
       items:
@@ -43,7 +43,7 @@
         - name: kubeapps
           version: v1.10.2
 
-- name: 1.18.4-ko1
+- name: v1.18.4-ko1
   category:
     - name: core
       items:
