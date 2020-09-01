@@ -39,6 +39,10 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 - [演示视频](https://www.bilibili.com/video/BV1jT4y1L7Ur/)
 - [PPT 介绍](https://kubeoperator.io/download/KubeOperator_Intro.pdf)
 
+## KubeOperator 企业版
+
+- [企业版试用](https://jinshuju.net/f/qc6g44/)
+
 ## 版本说明
 
 KubeOperator 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
