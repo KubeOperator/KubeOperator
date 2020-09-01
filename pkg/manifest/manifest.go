@@ -12,7 +12,7 @@ var log = logger.Default
 
 const (
 	localPath   = "./manifest/manifest.yml"
-	releasePath = "/usr/local/lib/ko/manifest.yml"
+	releasePath = "/usr/local/lib/ko/manifest/manifest.yml"
 )
 
 var supportedPath = []string{localPath, releasePath}
