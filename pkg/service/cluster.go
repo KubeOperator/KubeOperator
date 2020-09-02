@@ -392,11 +392,11 @@ func (c clusterService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	if err != nil {
 		return err
 	}
-	go c.doUpgrade(cluster.Cluster, upgrade.Version)
+	go c.doUpgrade(cluster, upgrade.Version)
 	return nil
 }
 
-func (c clusterService) doUpgrade(cluster model.Cluster, version string) {
+func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 	var clog model.ClusterLog
 	clog.Type = constant.ClusterLogTypeUpgrade
 	clog.StartTime = time.Now()
@@ -409,18 +409,20 @@ func (c clusterService) doUpgrade(cluster model.Cluster, version string) {
 	if err != nil {
 		log.Error(err)
 	}
-	admCluster := adm.NewCluster(cluster)
+	admCluster := adm.NewCluster(cluster.Cluster)
 	p := &upgrade.UpgradeClusterPhase{
 		Version: version,
 	}
 	err = p.Run(admCluster.Kobe)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		cluster.Status = model.ClusterStatus{Phase: constant.ClusterFailed, Message: err.Error()}
-		_ = c.clusterRepo.Save(&cluster)
+		cluster.Cluster.Status = model.ClusterStatus{Phase: constant.ClusterFailed, Message: err.Error()}
+		_ = c.clusterRepo.Save(&cluster.Cluster)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
-		cluster.Status = model.ClusterStatus{Phase: constant.ClusterRunning}
-		_ = c.clusterRepo.Save(&cluster)
+		cluster.Cluster.Status = model.ClusterStatus{Phase: constant.ClusterRunning}
+		_ = c.clusterRepo.Save(&cluster.Cluster)
+		cluster.Cluster.Spec.Version = version
+		_ = c.clusterSpecRepo.Save(&cluster.Spec)
 	}
 }
