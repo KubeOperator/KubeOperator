@@ -152,7 +152,8 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
             this.cloudZones = res.result;
             this.loading = false;
         }, error => {
-
+            this.loading = false;
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 
