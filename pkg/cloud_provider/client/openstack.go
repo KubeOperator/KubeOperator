@@ -10,6 +10,7 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/availabilityzones"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/secgroups"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
+	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imagedata"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/imageimport"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/extensions/external"
@@ -17,8 +18,10 @@ import (
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/networks"
 	"github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
 	uuid "github.com/satori/go.uuid"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -327,6 +330,7 @@ func (v *openStackClient) UploadImage() error {
 	if err != nil {
 		return err
 	}
+
 	pager, err := images.List(client, images.ListOpts{}).AllPages()
 	if err != nil {
 		return err
@@ -343,9 +347,22 @@ func (v *openStackClient) UploadImage() error {
 			break
 		}
 	}
-
 	if !exist {
 		imageId := uuid.NewV4().String()
+		//download image
+		res, err := http.Get(v.Vars["imagePath"].(string))
+		if err != nil {
+			return err
+		}
+		f, err := os.Create(constant.OpenStackImageLocalPath)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(f, res.Body)
+		if err != nil {
+			return err
+		}
+
 		create := images.Create(client, images.CreateOpts{
 			Name:            constant.OpenStackImageName,
 			DiskFormat:      constant.OpenStackImageDiskFormat,
@@ -356,9 +373,18 @@ func (v *openStackClient) UploadImage() error {
 			return create.Err
 		}
 
+		imageData, err := os.Open(constant.OpenStackImageLocalPath)
+		if err != nil {
+			return err
+		}
+		defer imageData.Close()
+		err = imagedata.Stage(client, imageId, imageData).ExtractErr()
+		if err != nil {
+			return err
+		}
+
 		result := imageimport.Create(client, imageId, imageimport.CreateOpts{
-			Name: imageimport.WebDownloadMethod,
-			URI:  v.Vars["imagePath"].(string),
+			Name: imageimport.GlanceDirectMethod,
 		})
 		if result.Err != nil {
 			return result.Err
