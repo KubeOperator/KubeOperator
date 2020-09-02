@@ -387,8 +387,8 @@ func (c clusterService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	if cluster.Source != constant.ClusterSourceLocal {
 		return errors.New("CLUSTER_IS_NOT_LOCAL")
 	}
-	cluster.Cluster.Status = model.ClusterStatus{Phase: constant.ClusterUpgrading}
-	err = c.clusterRepo.Save(&cluster.Cluster)
+	clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID}
+	err = c.clusterStatusRepo.Save(&clusterStatus)
 	if err != nil {
 		return err
 	}
@@ -416,12 +416,12 @@ func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 	err = p.Run(admCluster.Kobe)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		cluster.Cluster.Status = model.ClusterStatus{Phase: constant.ClusterFailed, Message: err.Error()}
-		_ = c.clusterRepo.Save(&cluster.Cluster)
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID, Message: err.Error()}
+		_ = c.clusterStatusRepo.Save(&clusterStatus)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
-		cluster.Cluster.Status = model.ClusterStatus{Phase: constant.ClusterRunning}
-		_ = c.clusterRepo.Save(&cluster.Cluster)
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID}
+		_ = c.clusterStatusRepo.Save(&clusterStatus)
 		cluster.Cluster.Spec.Version = version
 		_ = c.clusterSpecRepo.Save(&cluster.Spec)
 	}
