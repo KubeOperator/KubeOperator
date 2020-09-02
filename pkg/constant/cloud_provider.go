@@ -14,5 +14,5 @@ const (
 	ImageCredentialName      = "kubeoperator"
 	ImageUserName            = "root"
 	ImagePasswordType        = "password"
-	OpenStackImageLocalPath  = "/etc/ko/kubeoperator_centos_7.6.1810-1.qcow2"
+	OpenStackImageLocalPath  = "/opt/kubeoperator_centos_7.6.1810-1.qcow2"
 )
