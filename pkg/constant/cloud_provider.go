@@ -14,6 +14,5 @@ const (
 	ImageCredentialName      = "kubeoperator"
 	ImageUserName            = "root"
 	ImagePasswordType        = "password"
-	VMDKGZLocalPath          = "/etc/ko/kubeoperator_centos_7.6.1810-1.vmdk.tar.gz"
-	VMDKLocalPath            = "/etc/ko/kubeoperator_centos_7.6.1810-1.vmdk"
+	OpenStackImageLocalPath  = "/etc/ko/kubeoperator_centos_7.6.1810-1.qcow2"
 )

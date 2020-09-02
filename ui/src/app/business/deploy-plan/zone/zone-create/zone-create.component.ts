@@ -71,8 +71,11 @@ export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnI
     resetWizard(): void {
         this.wizard.reset();
         this.item = new ZoneCreateRequest();
+        this.networkValid = false;
         this.basicForm.resetForm(this.item);
+        this.basicForm.resetForm(this.networkValid);
         this.paramsForm.resetForm(this.item);
+        this.paramsForm.resetForm(this.networkValid);
     }
 
     doFinish(): void {
