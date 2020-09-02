@@ -188,7 +188,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					Containers: []corev1.Container{
 						{
 							Name:    "kube-bench",
-							Image:   fmt.Sprintf("%s:%d/kube-bench:v0.0.1-%s", localIP, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
+							Image:   fmt.Sprintf("%s:%d/kubeoperator/kube-bench:v0.0.1-%s", localIP.Value, constant.LocalDockerRepositoryPort, cluster.Spec.Architectures),
 							Command: []string{"kube-bench", "--json"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
