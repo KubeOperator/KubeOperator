@@ -1,7 +1,7 @@
-import { Tools } from './tools';
+import { ClusterTool } from './tools';
 
 describe('Tools', () => {
   it('should create an instance', () => {
-    expect(new Tools()).toBeTruthy();
+    expect(new ClusterTool()).toBeTruthy();
   });
 });

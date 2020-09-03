@@ -380,7 +380,6 @@
   "APP_EVENT_TYPE": "类型",
   "APP_EVENT_COMPONENT": "组件",
   "APP_EVENT_REASON": "原因",
-  "APP_EVENT_DATE": "时间",
   "EnsureInitNpd": "初始化 NPD",
   "APP_EVENT_DATE": "时间",
   "APP_CLUSTER_UPGRADE": "升级",

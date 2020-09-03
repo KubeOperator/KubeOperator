@@ -17,9 +17,9 @@ export class LicenseService {
         return this.http.get<License>(this.baseUrl);
     }
 
-    setLicense() {
-        this.get().subscribe(data => {
-            sessionStorage.setItem('license', JSON.stringify(data));
-        });
-    }
+    // setLicense() {
+    //     this.get().subscribe(data => {
+    //         sessionStorage.setItem('license', JSON.stringify(data));
+    //     });
+    // }
 }
