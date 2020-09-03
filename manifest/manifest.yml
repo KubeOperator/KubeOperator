@@ -25,7 +25,7 @@
         - name: traefik
           version: v2.2.1
         - name: ingress-nginx
-          version: vv0.32.0
+          version: v0.32.0
         - name: node-problem-detector
           version: v0.8.1
         - name: metrics-server
@@ -70,7 +70,7 @@
         - name: traefik
           version: v2.2.1
         - name: ingress-nginx
-          version: vv0.32.0
+          version: v0.32.0
         - name: node-problem-detector
           version: v0.8.1
         - name: metrics-server
