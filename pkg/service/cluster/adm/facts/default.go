@@ -46,7 +46,7 @@ const (
 )
 
 var DefaultFacts = map[string]string{
-	KubeVersionFactName:                  "v1.18.3",
+	KubeVersionFactName:                  "v1.18.6",
 	ContainerRuntimeFactName:             "docker",
 	CorednsImageFactName:                 "docker.io/kubeoperator/coredns:1.6.7",
 	LbModeFactName:                       "haproxy",

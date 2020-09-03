@@ -270,7 +270,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ## 支持组件
 
 - 核心
-  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.4
+  - [kubernetes](https://github.com/kubernetes/kubernetes) v1.18.8
   - [etcd](https://github.com/coreos/etcd) v3.4.9
   - [docker](https://www.docker.com/) v19.03.9
   - [containerd](https://containerd.io/) v1.3.6
