@@ -37,10 +37,14 @@ export class BackupStrategyComponent implements OnInit {
             this.currentCluster = data.cluster;
             this.backupAccountService.listBy(this.currentCluster.projectName).subscribe(d => {
                 this.backupAccounts = d.items;
-                this.backupService.getBy(this.currentCluster.name).subscribe(s => {
-                    this.backupStrategy = s;
-                });
+                this.listBackupStrategy(this.currentCluster.name);
             });
+        });
+    }
+
+    listBackupStrategy(clusterName) {
+        this.backupService.getBy(clusterName).subscribe(s => {
+            this.backupStrategy = s;
         });
     }
 
@@ -51,6 +55,7 @@ export class BackupStrategyComponent implements OnInit {
     onSubmit() {
         this.backupService.submit(this.backupStrategy).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            this.listBackupStrategy(this.currentCluster.name);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
