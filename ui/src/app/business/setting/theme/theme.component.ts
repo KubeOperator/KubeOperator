@@ -41,6 +41,7 @@ export class ThemeComponent implements OnInit {
         this.themeService.update(this.item).subscribe(data => {
             this.refresh();
             this.alertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
+            window.location.reload();
         }, error => {
             this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
