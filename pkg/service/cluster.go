@@ -426,7 +426,7 @@ func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 		_ = c.clusterStatusRepo.Save(&clusterStatus)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID}
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterRunning, ID: cluster.Cluster.Status.ID}
 		_ = c.clusterStatusRepo.Save(&clusterStatus)
 		cluster.Cluster.Spec.Version = version
 		_ = c.clusterSpecRepo.Save(&cluster.Spec)
