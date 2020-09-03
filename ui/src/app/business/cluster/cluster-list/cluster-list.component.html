@@ -54,7 +54,7 @@
                {{item.status}}
             </span>
             <clr-spinner clrAssertive clrInline
-                         *ngIf="item.status === 'Initializing' || item.status === 'Terminating'||item.status === 'Creating'">
+                         *ngIf="item.status === 'Initializing' || item.status === 'Terminating'||item.status === 'Creating' || item.status == 'Upgrading'">
                 Loading...
             </clr-spinner>
         </clr-dg-cell>
