@@ -98,6 +98,7 @@ func NewClusterAdm() *ClusterAdm {
 		ca.EnsureInitWorker,
 		ca.EnsureInitNetwork,
 		ca.EnsureInitHelm,
+		ca.EnsureInitNpd,
 		ca.EnsureInitMetricsServer,
 		ca.EnsureInitIngressController,
 		ca.EnsurePostInit,
