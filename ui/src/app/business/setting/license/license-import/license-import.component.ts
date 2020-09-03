@@ -1,6 +1,9 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {NgForm} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
+import {CommonAlertService} from "../../../../layout/common-alert/common-alert.service";
+import {TranslateService} from "@ngx-translate/core";
+import {AlertLevels} from "../../../../layout/common-alert/alert";
 
 @Component({
     selector: 'app-license-import',
@@ -9,7 +12,7 @@ import {HttpClient} from "@angular/common/http";
 })
 export class LicenseImportComponent implements OnInit {
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private alertService: CommonAlertService, private translateService: TranslateService) {
     }
 
     opened = false;
@@ -33,7 +36,11 @@ export class LicenseImportComponent implements OnInit {
         formData.append('file', this.file);
         this.http.post('/api/v1/license', formData).subscribe(data => {
             this.opened = false;
+            this.alertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.imported.emit();
+            window.location.reload();
+        }, error => {
+            this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 

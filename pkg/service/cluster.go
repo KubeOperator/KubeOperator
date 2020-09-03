@@ -128,6 +128,12 @@ func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
 	if err != nil {
 		return secret, err
 	}
+	if cs.KubernetesToken == "" {
+		err := c.clusterInitService.GatherKubernetesToken(cluster)
+		if err != nil {
+			return secret, err
+		}
+	}
 	secret.ClusterSecret = cs
 
 	return secret, nil

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {License} from './license';
 
 @Injectable({
@@ -13,13 +13,17 @@ export class LicenseService {
 
     baseUrl = '/api/v1/license';
 
+    licenseQueue = new Subject<License>();
+    $licenseQueue = this.licenseQueue.asObservable();
+
     get(): Observable<License> {
         return this.http.get<License>(this.baseUrl);
     }
 
-    // setLicense() {
-    //     this.get().subscribe(data => {
-    //         sessionStorage.setItem('license', JSON.stringify(data));
-    //     });
-    // }
+
+    setLicense() {
+        return this.http.get<License>(this.baseUrl).subscribe(data => {
+            this.licenseQueue.next(data);
+        });
+    }
 }

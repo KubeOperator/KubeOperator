@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {LicenseService} from "./license/license.service";
 
 @Component({
     selector: 'app-setting',
@@ -7,14 +8,15 @@ import {Component, OnInit} from '@angular/core';
 })
 export class SettingComponent implements OnInit {
 
-    constructor() {
+    constructor(private licenseService: LicenseService) {
     }
 
     hasLicense = false;
 
     ngOnInit(): void {
-        const obj = sessionStorage.getItem('license');
-        this.hasLicense = obj !== null;
+        this.licenseService.$licenseQueue.subscribe(data => {
+            this.hasLicense = true;
+        });
     }
 
 }

@@ -18,21 +18,18 @@ export class LayoutComponent implements OnInit {
     header: HeaderComponent;
 
     ngOnInit(): void {
+        this.licenseService.setLicense();
         this.setTheme();
     }
 
     setTheme() {
-        this.licenseService.get().subscribe(d => {
-            sessionStorage.setItem('license', JSON.stringify(d));
-            this.themeService.get().subscribe(data => {
-                if (data.systemName) {
-                    document.title = data.systemName;
-                }
-                if (data.logo) {
-                    this.header.setLogo(data.logo);
-                }
-            });
+        this.themeService.get().subscribe(data => {
+            if (data.systemName) {
+                document.title = data.systemName;
+            }
+            if (data.logo) {
+                this.header.setLogo(data.logo);
+            }
         });
-
     }
 }
