@@ -40,7 +40,8 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 
 FROM alpine:3.11
 
-RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && wget  https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64 && chmod +x validator_linux_arm64 && chmod +x validator_linux_amd64
+RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && wget  https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
+RUN cd /usr/local/bin/ && chmod +x validator_linux_arm64 && chmod +x validator_linux_amd64
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
