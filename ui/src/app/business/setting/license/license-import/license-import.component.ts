@@ -38,6 +38,7 @@ export class LicenseImportComponent implements OnInit {
             this.opened = false;
             this.alertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
             this.imported.emit();
+            window.location.reload();
         }, error => {
             this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
