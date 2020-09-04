@@ -207,7 +207,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 	return []ClusterTool{
 		{
 			Name:         "dashboard",
-			Version:      "v1.0.0",
+			Version:      "v2.0.3",
 			Describe:     "",
 			Status:       constant.ClusterWaiting,
 			Logo:         "kubernetes.png",
@@ -217,7 +217,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		},
 		{
 			Name:         "kubeapps",
-			Version:      "v1.0.0",
+			Version:      "v1.10.2",
 			Describe:     "",
 			Status:       constant.ClusterWaiting,
 			Logo:         "kubeapps.png",
@@ -227,7 +227,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		},
 		{
 			Name:         "prometheus",
-			Version:      "v1.0.0",
+			Version:      "v2.18.1",
 			Describe:     "",
 			Status:       constant.ClusterWaiting,
 			Logo:         "prometheus.png",
@@ -237,7 +237,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		},
 		{
 			Name:         "chartmuseum",
-			Version:      "v1.0.0",
+			Version:      "v0.12.0",
 			Describe:     "",
 			Status:       constant.ClusterWaiting,
 			Logo:         "chartmuseum.png",
@@ -247,7 +247,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 		},
 		{
 			Name:         "registry",
-			Version:      "v1.0.0",
+			Version:      "v2.7.1",
 			Describe:     "",
 			Status:       constant.ClusterWaiting,
 			Logo:         "registry.png",
