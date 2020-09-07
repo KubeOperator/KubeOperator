@@ -175,9 +175,10 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 		db.DB.Save(&task)
 		return
 	}
+	jobId := fmt.Sprintf("kube-bench-%s", uuid.NewV4().String())
 	j := v1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "kube-bench",
+			Name: jobId,
 		},
 		Spec: v1.JobSpec{
 			Template: corev1.PodTemplateSpec{
@@ -281,7 +282,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 		}
 		if job.Status.Succeeded > 0 {
 			pds, err := client.CoreV1().Pods(constant.DefaultNamespace).List(context.TODO(), metav1.ListOptions{
-				LabelSelector: "job-name=kube-bench",
+				LabelSelector: fmt.Sprintf("job-name=%s", resp.Name),
 			})
 			if err != nil {
 				return true, err
@@ -333,7 +334,7 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 		db.DB.Save(&task)
 		return
 	}
-	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), "kube-bench", metav1.DeleteOptions{})
+	err = client.BatchV1().Jobs(constant.DefaultNamespace).Delete(context.TODO(), resp.Name, metav1.DeleteOptions{})
 	if err != nil {
 		log.Error(err.Error())
 		return
