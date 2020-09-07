@@ -85,7 +85,11 @@ func (b backupAccountRepository) Batch(operation string, items []model.BackupAcc
 	case constant.BatchOperationDelete:
 		for i := range items {
 			var backupAccount model.BackupAccount
-			if err := db.DB.Where(model.BackupAccount{Name: items[i].Name}).Delete(&backupAccount).Error; err != nil {
+			if err := db.DB.Where(model.BackupAccount{Name: items[i].Name}).First(&backupAccount).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := db.DB.Delete(&backupAccount).Error; err != nil {
 				tx.Rollback()
 				return err
 			}
