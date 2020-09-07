@@ -10,7 +10,7 @@ ENV GOPROXY=$GOPROXY
 ENV GOARCH=$GOARCH
 ENV GO111MODULE=on
 ENV GOOS=linux
-ENV CGO_ENABLED=1
+
 
 RUN  apk update \
   && apk add git \
@@ -33,8 +33,12 @@ RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-
 
 RUN export PATH=$PATH:$GOPATH/bin
 
+ENV CGO_ENABLED=0
+
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
+
+ENV CGO_ENABLED=1
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
