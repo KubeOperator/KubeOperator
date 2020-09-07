@@ -9,6 +9,7 @@ export class User extends BaseModel {
     isActive: boolean;
     confirmPassword: string;
     isAdmin: boolean;
+    type: string;
 }
 
 export class UserCreateRequest extends BaseRequest {

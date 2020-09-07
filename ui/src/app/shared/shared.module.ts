@@ -8,11 +8,12 @@ import {MenuAuthDirective} from './directive/menu-auth.directive';
 import {OperateAuthDirective} from './directive/operate-auth.directive';
 import {CommonStatusPipe} from './pipe/common-status.pipe';
 import {BackupAccountStatusPipe} from './pipe/backup-account-status.pipe';
+import { UserTypePipe } from './pipe/user-type.pipe';
 
 
 @NgModule({
     declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, MenuAuthDirective,
-        OperateAuthDirective, CommonStatusPipe, BackupAccountStatusPipe
+        OperateAuthDirective, CommonStatusPipe, BackupAccountStatusPipe, UserTypePipe
     ],
     exports: [
         ModalAlertComponent,
@@ -21,7 +22,8 @@ import {BackupAccountStatusPipe} from './pipe/backup-account-status.pipe';
         MenuAuthDirective,
         OperateAuthDirective,
         CommonStatusPipe,
-        BackupAccountStatusPipe
+        BackupAccountStatusPipe,
+        UserTypePipe
     ],
     imports: [
         CommonModule,

@@ -386,5 +386,9 @@
   "APP_LOCAL_CLUSTER_CAN_NOT_UPGRADE": "导入集群无法升级",
   "APP_NOT_RUNNING_CLUSTER_CAN_NOT_UPGRADE": "集群不在运行状态，无法升级！",
   "APP_UPGRADE_START_SUCCESS": "已经开始升级！请稍后查看集群历史",
-  "CLUSTER_UPGRADE": "集群升级"
+  "CLUSTER_UPGRADE": "集群升级",
+  "APP_USER_TYPE": "来源",
+  "APP_USER_LOCAL": "本地",
+  "APP_USER_LDAP": "Ldap",
+  "APP_USER_LDAP_UPDATE_ERROR": "Ldap用户不能修改"
 }
