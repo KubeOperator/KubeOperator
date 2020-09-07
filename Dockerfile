@@ -38,7 +38,7 @@ ENV CGO_ENABLED=0
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-ENV CGO_ENABLED=1
+RUN if ["$GOARCH" = "amd64"]; then export CGO_ENABLED=1 ; fi
 
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
