@@ -6,11 +6,10 @@ import (
 )
 
 const (
-	backupCluster = "95-restore-cluster-custom.yml"
+	backupCluster = "94-backup-cluster.yml"
 )
 
 type BackupClusterPhase struct {
-	backupFileName string
 }
 
 func (backup BackupClusterPhase) Name() string {
@@ -18,8 +17,5 @@ func (backup BackupClusterPhase) Name() string {
 }
 
 func (backup BackupClusterPhase) Run(b kobe.Interface) error {
-	if backup.backupFileName != "" {
-		b.SetVar("custom_etcd_snapshot", backup.backupFileName)
-	}
 	return phases.RunPlaybookAndGetResult(b, backupCluster)
 }
