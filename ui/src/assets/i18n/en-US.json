@@ -387,6 +387,8 @@
   "APP_USER_TYPE": "source",
   "APP_USER_LOCAL": "Local",
   "APP_USER_LDAP": "Ldap",
-  "APP_USER_LDAP_UPDATE_ERROR": "Ldap users cannot modify"
+  "APP_USER_LDAP_UPDATE_ERROR": "Ldap users cannot modify",
+  "APP_BACKUP_RESTORE": "Please upload original files, do not upload compressed files"
+
 
 }
