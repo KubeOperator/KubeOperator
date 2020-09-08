@@ -391,5 +391,6 @@
   "APP_USER_LOCAL": "本地",
   "APP_USER_LDAP": "Ldap",
   "APP_USER_LDAP_UPDATE_ERROR": "Ldap用户不能修改",
-  "APP_BACKUP_RESTORE": "请上传原始文件，不要上传压缩文件"
+  "APP_BACKUP_RESTORE": "请上传原始文件，不要上传压缩文件",
+  "APP_PLAN_VSPHERE_MSG": "磁盘大小由模板定义"
 }
