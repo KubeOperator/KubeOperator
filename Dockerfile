@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine as stage-build
+FROM golang:1.14 as stage-build
 LABEL stage=stage-build
 WORKDIR /build/ko
 ARG GOPROXY
@@ -6,18 +6,12 @@ ARG GOARCH
 ARG XPACK
 
 ENV GOARCH=$GOARCH
-ENV GOPROXY=$GOPROXY
-ENV GOARCH=$GOARCH
 ENV GO111MODULE=on
 ENV GOOS=linux
+ENV CGO_ENABLED=1
 
+RUN apt update && apt install unzip
 
-RUN  apk update \
-  && apk add git \
-  && apk add make \
-  && apk add bash \
-  && apk add build-base \
-  && apk add binutils-gold
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -33,16 +27,12 @@ RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-
 
 RUN export PATH=$PATH:$GOPATH/bin
 
-ENV CGO_ENABLED=0
-
 COPY . .
 RUN make build_server_linux GOARCH=$GOARCH
 
-RUN if ["$GOARCH" = "amd64"]; then export CGO_ENABLED=1 ; fi
-
 RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..\/..\/ko/g' go.mod && make build_linux GOARCH=$GOARCH && cp -r dist/* ../dist/  ; fi
 
-FROM alpine:3.11
+FROM ubuntu:18.04
 
 RUN cd /usr/local/bin/ && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 && wget  https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
 RUN cd /usr/local/bin/ && chmod +x validator_linux_arm64 && chmod +x validator_linux_amd64

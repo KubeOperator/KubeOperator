@@ -27,10 +27,10 @@ docker_ui:
 	docker build -t kubeoperator/ui:master  ./ui
 
 docker_server:
-	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) --build-arg XPACK="no" . --no-cache
+	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) --build-arg XPACK="no" .
 
 docker_server_xpack:
-	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) --build-arg XPACK="yes" . --no-cache
+	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) --build-arg XPACK="yes" .
 
 clean:
 	rm -fr ./dist
