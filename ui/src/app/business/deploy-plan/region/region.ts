@@ -6,6 +6,7 @@ export class Region extends BaseModel {
     vars: string;
     datacenter: string;
     regionVars: {} = {};
+    provider: string;
 }
 
 export class RegionCreateRequest extends BaseRequest {

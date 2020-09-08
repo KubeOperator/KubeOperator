@@ -33,6 +33,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
     regionName: string;
     projects: Project[] = [];
     regionId: string;
+    currentProvider: string;
     @Output() created = new EventEmitter();
     @ViewChild('basicForm', {static: true}) basicForm: NgForm;
     @ViewChild('planForm', {static: true}) planForm: NgForm;
@@ -87,6 +88,7 @@ export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnI
             if (region.name === this.item.region) {
                 this.regionName = region.name;
                 this.regionId = region.id;
+                this.currentProvider = region.provider;
             }
         });
     }
