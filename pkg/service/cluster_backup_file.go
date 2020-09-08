@@ -339,7 +339,9 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		}
 
 		admCluster := adm.NewCluster(cluster.Cluster)
-		p := &backup.RestoreClusterPhase{}
+		p := &backup.RestoreClusterCustomPhase{
+			BackupFileName: constant.BackupFileDefaultName,
+		}
 		err = p.Run(admCluster.Kobe)
 
 		if err != nil {
