@@ -213,7 +213,7 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			log.Error(err)
 			return
 		}
-		srcFilePath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
+		srcFilePath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupTarFileDefaultName
 		_, err = client.Upload(srcFilePath, creation.Folder)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -283,7 +283,7 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	}
 
 	srcFilePath := restore.File.Folder
-	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
+	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupTarFileDefaultName
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
 		log.Error(err)

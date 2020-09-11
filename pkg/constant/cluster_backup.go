@@ -1,6 +1,7 @@
 package constant
 
 const (
-	BackupFileDefaultName = "etcd-snapshot.db"
-	BackupDir             = "/backup"
+	BackupFileDefaultName    = "etcd-snapshot.db"
+	BackupTarFileDefaultName = "etcd-snapshot.tar.gz"
+	BackupDir                = "/backup"
 )
