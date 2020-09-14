@@ -409,10 +409,14 @@ func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 	clog.EndTime = time.Now()
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
+		_ = c.clusterStatusRepo.Save(&clusterStatus)
 		log.Error(err)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
+		_ = c.clusterStatusRepo.Save(&clusterStatus)
 		log.Error(err)
 	}
 	admCluster := adm.NewCluster(cluster.Cluster)
@@ -422,7 +426,7 @@ func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 	err = p.Run(admCluster.Kobe)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID, Message: err.Error()}
+		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
 		_ = c.clusterStatusRepo.Save(&clusterStatus)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
