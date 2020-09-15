@@ -71,4 +71,5 @@ require (
 	k8s.io/cli-runtime v0.18.0
 	k8s.io/client-go v0.18.2
 	rsc.io/letsencrypt v0.0.3 // indirect
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
