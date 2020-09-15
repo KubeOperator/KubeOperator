@@ -1,18 +1,15 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {KubernetesService} from '../../../../../kubernetes.service';
-import {
-    V1HostPathVolumeSource,
-    V1NodeAffinity,
-    V1NodeSelector,
-    V1NodeSelectorTerm,
-    V1PersistentVolume
-} from '@kubernetes/client-node';
+import {V1HostPathVolumeSource, V1NodeSelector, V1NodeSelectorTerm, V1PersistentVolume} from '@kubernetes/client-node';
 import {Cluster} from '../../../../../cluster';
 import {NgForm} from '@angular/forms';
 import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
 import {V1PersistentVolumeSpec} from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec';
 import {V1NodeSelectorRequirement} from "@kubernetes/client-node/dist/gen/model/v1NodeSelectorRequirement";
 import {V1VolumeNodeAffinity} from "@kubernetes/client-node/dist/gen/model/v1VolumeNodeAffinity";
+import {CommonAlertService} from "../../../../../../../layout/common-alert/common-alert.service";
+import {AlertLevels} from "../../../../../../../layout/common-alert/alert";
+import {ModalAlertService} from "../../../../../../../shared/common-component/modal-alert/modal-alert.service";
 
 @Component({
     selector: 'app-persistent-volume-create-host-path',
@@ -21,7 +18,7 @@ import {V1VolumeNodeAffinity} from "@kubernetes/client-node/dist/gen/model/v1Vol
 })
 export class PersistentVolumeCreateHostPathComponent implements OnInit {
 
-    constructor(private kubernetesService: KubernetesService) {
+    constructor(private kubernetesService: KubernetesService, private alertService: ModalAlertService) {
     }
 
     opened = false;
@@ -62,12 +59,14 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
         }
         this.isSubmitGoing = true;
         this.item.spec.accessModes.push(this.accessMode);
-        if (this.selectorKey && this.selectorOperation && this.selectorValue) {
+        if (this.selectorKey && this.selectorOperation) {
             this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0] = {
                 key: this.selectorKey,
                 operator: this.selectorOperation,
-                values: this.selectorValue.split(',')
             } as V1NodeSelectorRequirement;
+            if (this.selectorValue) {
+                this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0].values = this.selectorValue.split(',');
+            }
         } else {
             delete this.item.spec['nodeAffinity'];
         }
@@ -76,6 +75,9 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;
+        }, err => {
+            this.isSubmitGoing = false;
+            this.alertService.showAlert(err.error.message, AlertLevels.ERROR);
         });
     }
 

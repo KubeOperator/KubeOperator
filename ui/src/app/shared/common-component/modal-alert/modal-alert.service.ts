@@ -14,7 +14,6 @@ export class ModalAlertService {
     $alertQueue = this.alertQueue.asObservable();
 
     showAlert(msg: string, level: AlertLevels) {
-        console.log(msg);
         this.alertQueue.next(new Alert(msg, level));
     }
 }
