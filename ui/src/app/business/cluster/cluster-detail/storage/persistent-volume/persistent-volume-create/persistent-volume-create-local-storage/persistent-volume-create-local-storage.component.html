@@ -53,9 +53,8 @@
                     <input clrInput size="20" name="value" [(ngModel)]="selectorValue" placeholder="node1,node2">
                 </div>
             </div>
-
-
         </form>
+        <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
