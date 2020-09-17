@@ -293,6 +293,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
   - GitLab v9.4.1
   - Argo CD v1.6.1
   - Sonarqube v7.9.2
+  - Weave Scope v1.12.0
 
 ## 微信群
 
