@@ -3,6 +3,7 @@ package storage
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"io"
 )
 
 const (
@@ -24,7 +25,7 @@ func (n VsphereStoragePhase) Name() string {
 	return "CreateVsphereStorage"
 }
 
-func (n VsphereStoragePhase) Run(b kobe.Interface) error {
+func (n VsphereStoragePhase) Run(b kobe.Interface,writer io.Writer) error {
 	if n.VcUsername != "" {
 		b.SetVar("vc_username", n.VcUsername)
 	}
@@ -54,5 +55,5 @@ func (n VsphereStoragePhase) Run(b kobe.Interface) error {
 
 
 
-	return phases.RunPlaybookAndGetResult(b, vsphereStorage)
+	return phases.RunPlaybookAndGetResult(b, vsphereStorage,writer)
 }

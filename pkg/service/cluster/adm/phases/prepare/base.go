@@ -3,6 +3,7 @@ package prepare
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"io"
 )
 
 const (
@@ -16,6 +17,6 @@ func (s BaseSystemConfigPhase) Name() string {
 	return "BasicConfigSystem"
 }
 
-func (s BaseSystemConfigPhase) Run(b kobe.Interface)  error {
-	return phases.RunPlaybookAndGetResult(b, prepareBase)
+func (s BaseSystemConfigPhase) Run(b kobe.Interface, writer io.Writer) error {
+	return phases.RunPlaybookAndGetResult(b, prepareBase, writer)
 }

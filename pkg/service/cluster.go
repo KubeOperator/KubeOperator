@@ -423,7 +423,7 @@ func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
 	p := &upgrade.UpgradeClusterPhase{
 		Version: version,
 	}
-	err = p.Run(admCluster.Kobe)
+	err = p.Run(admCluster.Kobe, nil)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
 		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}

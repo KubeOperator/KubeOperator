@@ -6,8 +6,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
+	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -80,7 +82,12 @@ func (c clusterInitService) do(cluster model.Cluster) {
 	statusChan := make(chan adm.Cluster, 0)
 	cluster.Status.Phase = constant.ClusterInitializing
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
-	admCluster := adm.NewCluster(cluster)
+	logId := uuid.NewV4().String()
+	writer, err := ansible.CreateAnsibleLogWriter(cluster.Name, logId)
+	if err != nil {
+		log.Error(err.Error())
+	}
+	admCluster := adm.NewCluster(cluster, writer)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
 		cluster := <-statusChan

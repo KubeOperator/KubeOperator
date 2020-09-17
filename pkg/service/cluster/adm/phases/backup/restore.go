@@ -3,6 +3,7 @@ package backup
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"io"
 )
 
 const (
@@ -16,6 +17,6 @@ func (restore RestoreClusterPhase) Name() string {
 	return "backupCluster"
 }
 
-func (restore RestoreClusterPhase) Run(b kobe.Interface) error {
-	return phases.RunPlaybookAndGetResult(b, restoreCluster)
+func (restore RestoreClusterPhase) Run(b kobe.Interface, writer io.Writer) error {
+	return phases.RunPlaybookAndGetResult(b, restoreCluster, writer)
 }
