@@ -287,6 +287,12 @@ v1.1.0 是 v1.0.0 之后的功能版本。
   - [nfs-provisioner](https://github.com/kubernetes-incubator/external-storage) v3.1.0-k8s1.11
   - [rook-ceph](https://github.com/rook/rook) v1.3.6
   - [rbd-provisioner](https://github.com/kubernetes-incubator/external-storage) v2.1.1-k8s1.11
+- [应用商店 Kubeapps](https://github.com/KubeOperator/charts/tree/master/kubeapps)
+  - Harbor v1.10.2
+  - Jenkins v2.222.1
+  - GitLab v9.4.1
+  - Argo CD v1.6.1
+  - Sonarqube v7.9.2
 
 ## 微信群
 
