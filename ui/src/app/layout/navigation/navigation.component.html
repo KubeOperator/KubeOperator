@@ -19,6 +19,10 @@
         <clr-icon shape="blocks-group" clrVerticalNavIcon></clr-icon>
         {{ 'APP_MANIFEST' | translate }}
     </a>
+    <a clrVerticalNavLink routerLinkActive="active"  *appMenuAuth="'MESSAGE'" routerLink="/message">
+        <clr-icon shape="envelope" clrVerticalNavIcon></clr-icon>
+        {{ 'APP_SYSTEM_MESSAGE' | translate }}
+    </a>
     <a clrVerticalNavLink routerLinkActive="active" *appMenuAuth="'SETTING'" routerLink="/setting">
         <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>
         {{ 'APP_SYSTEM_SETTING' | translate }}

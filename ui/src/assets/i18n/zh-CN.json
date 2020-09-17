@@ -392,5 +392,13 @@
   "APP_USER_LDAP": "Ldap",
   "APP_USER_LDAP_UPDATE_ERROR": "Ldap用户不能修改",
   "APP_BACKUP_RESTORE": "请上传原始文件，不要上传压缩文件",
-  "APP_PLAN_VSPHERE_MSG": "磁盘大小由模板定义"
+  "APP_PLAN_VSPHERE_MSG": "磁盘大小由模板定义",
+  "APP_SYSTEM_MESSAGE": "消息中心",
+  "APP_USER_RECEIVER": "接收源",
+  "APP_DING_TALK_PHONE": "钉钉手机号",
+  "APP_DING_TALK_HELPER": "用于钉钉接收告警消息",
+  "APP_DING_TALK_ERROR": "请填写正确的手机号",
+  "APP_WORK_WEIXIN": "企业微信用户ID",
+  "APP_WORK_WEIXIN_HELPER": "用于企业微信接收告警消息 userid如何查找？https://work.weixin.qq.com/api/doc/90000/90135/90665"
+
 }

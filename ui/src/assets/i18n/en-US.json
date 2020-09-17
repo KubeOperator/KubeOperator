@@ -389,7 +389,17 @@
   "APP_USER_LDAP": "Ldap",
   "APP_USER_LDAP_UPDATE_ERROR": "Ldap users cannot modify",
   "APP_BACKUP_RESTORE": "Please upload original files, do not upload compressed files",
-  "APP_PLAN_VSPHERE_MSG": "Disk size is defined by template"
+  "APP_PLAN_VSPHERE_MSG": "Disk size is defined by template",
+  "APP_SYSTEM_MESSAGE": "Message Center",
+  "APP_USER_RECEIVER": "Receiving source",
+  "APP_DING_TALK_PHONE": "DingTalk mobile phone number",
+  "APP_DING_TALK_HELPER": "Used for DingTalk to receive alarm messages",
+  "APP_DING_TALK_ERROR": "Please fill in the correct phone number",
+  "APP_WORK_WEIXIN": "Enterprise WeChat user ID",
+  "APP_WORK_WEIXIN_HELPER": "Used for enterprise WeChat to receive alarm messages.<br>How to find userid? https://work.weixin.qq.com/api/doc/90000/90135/90665"
+
+
+
 
 
 }

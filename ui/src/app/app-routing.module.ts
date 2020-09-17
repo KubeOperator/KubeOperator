@@ -43,6 +43,8 @@ import {LdapComponent} from './business/setting/ldap/ldap.component';
 import {ManifestComponent} from "./business/manifest/manifest.component";
 import {ThemeComponent} from "./business/setting/theme/theme.component";
 import {EventComponent} from './business/cluster/cluster-detail/event/event.component';
+import {MessageCenterComponent} from './business/message-center/message-center.component';
+import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -136,10 +138,17 @@ const routes: Routes = [
                 path: 'manifests',
                 component: ManifestComponent,
             },
-
             {
                 path: 'users',
                 component: UserComponent,
+            },
+            {
+                path: 'message',
+                component: MessageCenterComponent,
+                children: [
+                    {path: '', redirectTo: 'userReceiver', pathMatch: 'full'},
+                    {path: 'userReceiver', component: UserReceiverComponent},
+                ]
             }
         ]
     }
