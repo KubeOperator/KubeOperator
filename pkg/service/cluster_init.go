@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -10,6 +11,7 @@ import (
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	uuid "github.com/satori/go.uuid"
+	"io"
 	"time"
 )
 
@@ -87,6 +89,30 @@ func (c clusterInitService) do(cluster model.Cluster) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+			r, err := ansible.GetAnsibleLogReader(cluster.Name, logId)
+			if err != nil {
+				log.Error(err)
+			}
+			var chunk []byte
+			for {
+
+				buffer := make([]byte, 1024)
+				n, err := r.Read(buffer)
+				if err != nil && err != io.EOF {
+					log.Error(err)
+					return
+				}
+				if n == 0 {
+					break
+				}
+				chunk = append(chunk, buffer[:n]...)
+			}
+			fmt.Println(string(chunk))
+		}
+	}()
 	admCluster := adm.NewCluster(cluster, writer)
 	go c.doCreate(ctx, *admCluster, statusChan)
 	for {
