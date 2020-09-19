@@ -43,8 +43,6 @@ curl -sSL https://github.com/KubeOperator/KubeOperator/releases/latest/download/
 
 - [申请企业版试用](https://jinshuju.net/f/qc6g44/)
 
->注：企业版支持离线安装，申请通过后会提供高速下载链接。
-
 ## 版本说明
 
 KubeOperator 版本号命名规则为：v大版本.功能版本.Bug修复版本。比如：
