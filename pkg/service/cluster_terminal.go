@@ -78,7 +78,7 @@ func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	for key, value := range vars {
 		k.SetVar(key, value)
 	}
-	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName)
+	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil)
 	if err != nil {
 		log.Error(err)
 	}

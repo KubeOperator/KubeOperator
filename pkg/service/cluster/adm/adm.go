@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"io"
 	"reflect"
 	"runtime"
 	"strings"
@@ -56,12 +57,16 @@ func (c *Cluster) setCondition(newCondition model.ClusterStatusCondition) {
 
 type Cluster struct {
 	model.Cluster
-	Kobe kobe.Interface
+	writer io.Writer
+	Kobe   kobe.Interface
 }
 
-func NewCluster(cluster model.Cluster) *Cluster {
+func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	c := &Cluster{
 		Cluster: cluster,
+	}
+	if writer != nil {
+		c.writer = writer[0]
 	}
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: c.ParseInventory(),

@@ -89,7 +89,7 @@ func (c clusterStorageProvisionerService) CreateStorageProvisioner(clusterName s
 func (c clusterStorageProvisionerService) do(cluster model.Cluster, provisioner model.ClusterStorageProvisioner) {
 	admCluster := adm.NewCluster(cluster)
 	p := getPhase(provisioner)
-	err := p.Run(admCluster.Kobe)
+	err := p.Run(admCluster.Kobe, nil)
 	if err != nil {
 		provisioner.Status = constant.ClusterFailed
 		provisioner.Message = err.Error()

@@ -3,7 +3,9 @@ package phases
 import (
 	"encoding/json"
 	"errors"
+	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"io"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
 )
@@ -13,16 +15,27 @@ const (
 	PhaseTimeout  = 30 * time.Minute
 )
 
+var log = logger.Default
+
 type Interface interface {
 	Name() string
-	Run(p kobe.Interface) error
+	Run(p kobe.Interface, writer io.Writer) error
 }
 
-func RunPlaybookAndGetResult(b kobe.Interface, playbookName string) error {
+func RunPlaybookAndGetResult(b kobe.Interface, playbookName string, writer io.Writer) error {
 	taskId, err := b.RunPlaybook(playbookName)
 	var result kobe.Result
 	if err != nil {
 		return err
+	}
+	// 读取 ansible 执行日志
+	if writer != nil {
+		go func() {
+			err = b.Watch(writer, taskId)
+			if err != nil {
+				log.Error(err)
+			}
+		}()
 	}
 	err = wait.Poll(PhaseInterval, PhaseTimeout, func() (done bool, err error) {
 		res, err := b.GetResult(taskId)

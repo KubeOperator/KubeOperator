@@ -25,6 +25,9 @@ var (
 )
 
 var (
-	ResourceDir = "resource"
-	ChartsDir   = path.Join(ResourceDir, "charts")
+	ResourceDir          = "resource"
+	ChartsDir            = path.Join(ResourceDir, "charts")
+	DefaultDataDir       = "/var/ko/data"
+	DefaultAnsibleLogDir = path.Join(DefaultDataDir, "ansible")
+	BackupDir            = path.Join(DefaultDataDir, "backup")
 )

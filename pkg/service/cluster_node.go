@@ -504,7 +504,7 @@ func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.C
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	val, _ := c.systemSettingRepo.Get("ip")
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
-	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook)
+	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, nil)
 	worker.Status = constant.ClusterTerminated
 }
 
@@ -533,7 +533,7 @@ func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluste
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	val, _ := c.systemSettingRepo.Get("ip")
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
-	err := phases.RunPlaybookAndGetResult(k, addWorkerPlaybook)
+	err := phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, nil)
 	if err != nil {
 		nm.node.Status = constant.ClusterFailed
 		nm.message = err.Error()
