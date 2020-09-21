@@ -9,3 +9,10 @@ export class UserReceiver extends BaseModel {
     userId: string;
     vars: {} = {};
 }
+
+export class UserNotificationConfig extends BaseModel {
+    id: string;
+    userId: string;
+    vars: {} = {};
+    type: string;
+}

@@ -9,11 +9,12 @@ import {OperateAuthDirective} from './directive/operate-auth.directive';
 import {CommonStatusPipe} from './pipe/common-status.pipe';
 import {BackupAccountStatusPipe} from './pipe/backup-account-status.pipe';
 import { UserTypePipe } from './pipe/user-type.pipe';
+import { MessageTypePipe } from './pipe/message-type.pipe';
 
 
 @NgModule({
     declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, MenuAuthDirective,
-        OperateAuthDirective, CommonStatusPipe, BackupAccountStatusPipe, UserTypePipe
+        OperateAuthDirective, CommonStatusPipe, BackupAccountStatusPipe, UserTypePipe, MessageTypePipe
     ],
     exports: [
         ModalAlertComponent,
@@ -23,7 +24,8 @@ import { UserTypePipe } from './pipe/user-type.pipe';
         OperateAuthDirective,
         CommonStatusPipe,
         BackupAccountStatusPipe,
-        UserTypePipe
+        UserTypePipe,
+        MessageTypePipe
     ],
     imports: [
         CommonModule,

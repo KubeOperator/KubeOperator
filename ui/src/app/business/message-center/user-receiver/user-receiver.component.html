@@ -2,18 +2,18 @@
     <form clrForm #userReceiverForm="ngForm">
         <clr-input-container>
             <label>{{'APP_DING_TALK_PHONE'|translate}}</label>
-            <input clrInput name="tel" pattern="^1[34578]\d{9}$" [(ngModel)]="item.vars['dingTalk']"/>
+            <input clrInput name="tel" pattern="^1[34578]\d{9}$" [(ngModel)]="item.vars['DING_TALK']"/>
             <clr-control-helper>{{'APP_DING_TALK_HELPER'|translate}}</clr-control-helper>
             <clr-control-error>{{'APP_DING_TALK_ERROR'|translate}}</clr-control-error>
         </clr-input-container>
         <clr-input-container>
             <label>{{'APP_WORK_WEIXIN'|translate}}</label>
-            <input clrInput name="workweixin" [(ngModel)]="item.vars['workWeixin']"/>
+            <input clrInput name="workweixin" [(ngModel)]="item.vars['WORK_WEIXIN']"/>
             <clr-control-helper>{{'APP_WORK_WEIXIN_HELPER'|translate}}</clr-control-helper>
         </clr-input-container>
         <clr-input-container>
             <label>{{'APP_EMAIL'|translate}}</label>
-            <input clrInput name="email" [(ngModel)]="item.vars['email']" size=45/>
+            <input clrInput name="email" [(ngModel)]="item.vars['EMAIL']" size=45/>
         </clr-input-container>
     </form>
     <div class="modal-footer clr-row clr-col-5">

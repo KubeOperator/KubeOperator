@@ -399,6 +399,13 @@
   "APP_DING_TALK_HELPER": "用于钉钉接收告警消息",
   "APP_DING_TALK_ERROR": "请填写正确的手机号",
   "APP_WORK_WEIXIN": "企业微信用户ID",
-  "APP_WORK_WEIXIN_HELPER": "用于企业微信接收告警消息 userid如何查找？https://work.weixin.qq.com/api/doc/90000/90135/90665"
-
+  "APP_WORK_WEIXIN_HELPER": "用于企业微信接收告警消息 userid如何查找？https://work.weixin.qq.com/api/doc/90000/90135/90665",
+  "APP_MSG_TYPE":"消息类型",
+  "APP_MSG_LOCAL_MAIL": "站内信",
+  "APP_MSG_EMAIL": "邮件",
+  "APP_MSG_WORK_WEIXIN": "企业微信",
+  "APP_MSG_DING_TALK": "钉钉",
+  "APP_USER_SUBSCRIBE": "消息订阅",
+  "APP_MSG_CLUSTER": "集群消息",
+  "APP_MSG_SYSTEM": "系统消息"
 }

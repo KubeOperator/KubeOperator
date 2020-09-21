@@ -7,9 +7,10 @@ import (
 
 type UserNotificationConfig struct {
 	common.BaseModel
-	ID   string `json:"-"`
-	Vars string `json:"vars"`
-	Type string `json:"type"`
+	ID     string `json:"-"`
+	Vars   string `json:"vars"`
+	Type   string `json:"type"`
+	UserID string `json:"userId"`
 }
 
 func (u *UserNotificationConfig) BeforeCreate() error {

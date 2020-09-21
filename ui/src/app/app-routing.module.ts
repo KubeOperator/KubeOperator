@@ -45,6 +45,7 @@ import {ThemeComponent} from "./business/setting/theme/theme.component";
 import {EventComponent} from './business/cluster/cluster-detail/event/event.component';
 import {MessageCenterComponent} from './business/message-center/message-center.component';
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
+import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -148,6 +149,7 @@ const routes: Routes = [
                 children: [
                     {path: '', redirectTo: 'userReceiver', pathMatch: 'full'},
                     {path: 'userReceiver', component: UserReceiverComponent},
+                    {path: 'subscribe', component: UserSubscribeComponent},
                 ]
             }
         ]
