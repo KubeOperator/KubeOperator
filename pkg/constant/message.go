@@ -9,4 +9,6 @@ const (
 	Disable    = "DISABLE"
 	Cluster    = "CLUSTER"
 	System     = "SYSTEM"
+	Read       = "READ"
+	UnRead     = "UNREAD"
 )

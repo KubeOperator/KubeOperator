@@ -7,13 +7,14 @@ import (
 
 type UserMessage struct {
 	common.BaseModel
-	ID         string `json:"-"`
-	Receive    string `json:"receive"`
-	UserID     string `json:"userId"`
-	MessageID  string `json:"messageId"`
-	SendType   string `json:"sendType"`
-	SendStatus string `json:"sendStatus"`
-	ReadStatus string `json:"readStatus"`
+	ID         string  `json:"-"`
+	Receive    string  `json:"receive"`
+	UserID     string  `json:"userId"`
+	MessageID  string  `json:"messageId"`
+	SendType   string  `json:"sendType"`
+	SendStatus string  `json:"sendStatus"`
+	ReadStatus string  `json:"readStatus"`
+	Message    Message `json:"message"`
 }
 
 func (u *UserMessage) BeforeCreate() error {
