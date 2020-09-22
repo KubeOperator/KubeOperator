@@ -151,6 +151,7 @@
     <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
                      (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
+        <span>{{'APP_CLUSTER_HOST_HELPER'|translate}}</span>
         <form>
             <div>
                 <h3>masters</h3>

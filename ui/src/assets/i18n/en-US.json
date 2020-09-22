@@ -404,8 +404,6 @@
   "APP_MSG_DING_TALK": "DingTalk",
   "APP_USER_SUBSCRIBE": "Message subscription",
   "APP_MSG_CLUSTER": "Cluster Message",
-  "APP_MSG_SYSTEM": "System Message"
-
-
-
+  "APP_MSG_SYSTEM": "System Message",
+  "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first"
 }
