@@ -8,7 +8,7 @@ import (
 type UserReceiver struct {
 	common.BaseModel
 	ID     string `json:"-"`
-	UserId string `json:"userId"`
+	UserID string `json:"userId"`
 	Vars   string `json:"vars"`
 }
 
