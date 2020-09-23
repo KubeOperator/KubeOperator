@@ -397,7 +397,7 @@
   "APP_DING_TALK_ERROR": "Please fill in the correct phone number",
   "APP_WORK_WEIXIN": "Enterprise WeChat user ID",
   "APP_WORK_WEIXIN_HELPER": "Used for enterprise WeChat to receive alarm messages.<br>How to find userid? https://work.weixin.qq.com/api/doc/90000/90135/90665",
-  "APP_MSG_TYPE":"Message type",
+  "APP_MSG_TYPE": "Message type",
   "APP_MSG_LOCAL_MAIL": "Local Mail",
   "APP_MSG_EMAIL": "Email",
   "APP_MSG_WORK_WEIXIN": "Work Weixin",
@@ -405,5 +405,6 @@
   "APP_USER_SUBSCRIBE": "Message subscription",
   "APP_MSG_CLUSTER": "Cluster Message",
   "APP_MSG_SYSTEM": "System Message",
-  "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first"
+  "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first",
+  "APP_LOGGING": "Logging"
 }

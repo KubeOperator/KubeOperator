@@ -46,9 +46,11 @@ import {EventComponent} from './business/cluster/cluster-detail/event/event.comp
 import {MessageCenterComponent} from './business/message-center/message-center.component';
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
+import {ClusterLoggerComponent} from "./business/cluster/cluster-logger/cluster-logger.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
+    {path: 'logger', component: ClusterLoggerComponent},
     {
         path: '',
         component: LayoutComponent,

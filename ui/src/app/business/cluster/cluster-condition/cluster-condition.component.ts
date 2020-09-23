@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClusterService} from '../cluster.service';
 import {ClusterStatus, Condition} from '../cluster';
+import {ClusterLoggerService} from "../cluster-logger/cluster-logger.service";
 
 @Component({
     selector: 'app-cluster-condition',
@@ -16,7 +17,7 @@ export class ClusterConditionComponent implements OnInit {
     timer;
     @Output() retry = new EventEmitter();
 
-    constructor(private service: ClusterService) {
+    constructor(private service: ClusterService, private loggerService: ClusterLoggerService) {
     }
 
     ngOnInit(): void {
@@ -59,6 +60,9 @@ export class ClusterConditionComponent implements OnInit {
         });
     }
 
+    onOpenLogger() {
+        this.loggerService.openLogger(this.clusterName);
+    }
     polling() {
         this.timer = setInterval(() => {
             this.service.status(this.clusterName).subscribe(data => {
