@@ -6,7 +6,9 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/kataras/iris/v12/context"
+	"io"
 )
 
 type ClusterController struct {
@@ -309,4 +311,33 @@ func (c ClusterController) PostUpgrade() error {
 		return err
 	}
 	return c.ClusterService.Upgrade(req)
+}
+
+type Log struct {
+	Msg string `json:"msg"`
+}
+
+func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
+	cluster, err := c.ClusterService.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	r, err := ansible.GetAnsibleLogReader(cluster.Name, cluster.LogId)
+	if err != nil {
+		return nil, err
+	}
+	var chunk []byte
+	for {
+
+		buffer := make([]byte, 1024)
+		n, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		chunk = append(chunk, buffer[:n]...)
+	}
+	return &Log{Msg: string(chunk)}, nil
 }
