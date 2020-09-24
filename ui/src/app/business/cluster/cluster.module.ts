@@ -67,6 +67,7 @@ import { SecurityTaskDetailComponent } from './cluster-detail/security/security-
 import { SecurityTaskDeleteComponent } from './cluster-detail/security/security-task-delete/security-task-delete.component';
 import { EventComponent } from './cluster-detail/event/event.component';
 import { ClusterUpgradeComponent } from './cluster-upgrade/cluster-upgrade.component';
+import { ClusterLoggerComponent } from './cluster-logger/cluster-logger.component';
 
 
 @NgModule({
@@ -114,7 +115,8 @@ import { ClusterUpgradeComponent } from './cluster-upgrade/cluster-upgrade.compo
         SecurityTaskDetailComponent,
         SecurityTaskDeleteComponent,
         EventComponent,
-        ClusterUpgradeComponent],
+        ClusterUpgradeComponent,
+        ClusterLoggerComponent],
     imports: [
         CoreModule,
         RouterModule,

@@ -19,7 +19,7 @@ type userReceiverRepository struct {
 
 func (u userReceiverRepository) Get(userId string) (model.UserReceiver, error) {
 	var userReceiver model.UserReceiver
-	userReceiver.UserId = userId
+	userReceiver.UserID = userId
 	if err := db.DB.Where(userReceiver).First(&userReceiver).Error; err != nil {
 		return userReceiver, err
 	}

@@ -20,7 +20,7 @@ type userNotificationConfigRepository struct {
 func (u userNotificationConfigRepository) Get(userId string) ([]model.UserNotificationConfig, error) {
 	var notificationConfigs []model.UserNotificationConfig
 	if err := db.DB.Where(model.UserNotificationConfig{UserID: userId}).Find(&notificationConfigs).Error; err != nil {
-		return notificationConfigs, err
+		return nil, err
 	}
 	return notificationConfigs, nil
 }

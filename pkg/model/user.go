@@ -58,6 +58,45 @@ func (u *User) BeforeDelete() (err error) {
 	if err != nil {
 		return err
 	}
+	var userMessage UserMessage
+	err = db.DB.Where(UserMessage{UserID: u.ID}).Find(&userMessage).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil
+		} else {
+			return err
+		}
+	}
+	err = db.DB.Delete(&userMessage).Error
+	if err != nil {
+		return err
+	}
+	var config UserNotificationConfig
+	err = db.DB.Where(UserNotificationConfig{UserID: u.ID}).Find(&config).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil
+		} else {
+			return err
+		}
+	}
+	err = db.DB.Delete(&config).Error
+	if err != nil {
+		return err
+	}
+	var receiver UserReceiver
+	err = db.DB.Where(UserReceiver{UserID: u.ID}).Find(&receiver).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil
+		} else {
+			return err
+		}
+	}
+	err = db.DB.Delete(&receiver).Error
+	if err != nil {
+		return err
+	}
 	return err
 }
 

@@ -19,6 +19,7 @@ type Cluster struct {
 	SecretID string        `json:"-"`
 	StatusID string        `json:"-"`
 	PlanID   string        `json:"-"`
+	LogId    string        `json:"logId"`
 	Plan     Plan          `json:"-"`
 	Spec     ClusterSpec   `gorm:"save_associations:false" json:"spec"`
 	Secret   ClusterSecret `gorm:"save_associations:false" json:"-"`
