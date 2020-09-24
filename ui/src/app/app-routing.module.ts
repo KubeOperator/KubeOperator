@@ -46,6 +46,7 @@ import {EventComponent} from './business/cluster/cluster-detail/event/event.comp
 import {MessageCenterComponent} from './business/message-center/message-center.component';
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
+import { MailboxComponent } from './business/message-center/mailbox/mailbox.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -150,6 +151,7 @@ const routes: Routes = [
                     {path: '', redirectTo: 'userReceiver', pathMatch: 'full'},
                     {path: 'userReceiver', component: UserReceiverComponent},
                     {path: 'subscribe', component: UserSubscribeComponent},
+                    {path: 'mailbox', component: MailboxComponent}
                 ]
             }
         ]

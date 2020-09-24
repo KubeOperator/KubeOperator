@@ -404,8 +404,8 @@
   "APP_MSG_DING_TALK": "DingTalk",
   "APP_USER_SUBSCRIBE": "Message subscription",
   "APP_MSG_CLUSTER": "Cluster Message",
-  "APP_MSG_SYSTEM": "System Message"
-
-
-
+  "APP_MSG_SYSTEM": "System Message",
+  "APP_MSG": "Message",
+  "APP_NOTIFICATIONS": "Notifications",
+  "APP_ALERTS": "Alerts"
 }

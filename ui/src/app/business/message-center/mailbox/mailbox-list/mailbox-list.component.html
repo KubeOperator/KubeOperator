@@ -1,0 +1,41 @@
+<h3 [ngStyle]="{'color': readColor}">Colour Testing 123</h3>
+<clr-datagrid [clrDgLoading]="false" [(clrDgSelected)]="selected">
+    <clr-dg-action-bar>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+                <clr-icon shape="plus" size="16"></clr-icon>
+                {{"APP_ADD"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
+                <clr-icon shape="close"></clr-icon>
+                {{"APP_DELETE"|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary">
+                <clr-icon shape="check" size="16"></clr-icon>
+                Mark as Read
+            </button>
+        </div>
+    </clr-dg-action-bar>
+    <clr-dg-column>Message Content</clr-dg-column>
+    <clr-dg-column>Types</clr-dg-column>
+    <clr-dg-column>Levels</clr-dg-column>
+    <clr-dg-column>is Read</clr-dg-column>
+    <clr-dg-column>Received at</clr-dg-column>
+
+    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+<!--        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)"><clr-icon shape="envelope"></clr-icon> More Content</a></clr-dg-cell>-->
+        <clr-dg-cell>{{item.content}}</clr-dg-cell>
+        <clr-dg-cell>{{item.type}}</clr-dg-cell>
+        <clr-dg-cell>{{item.level}}</clr-dg-cell>
+        <clr-dg-cell [ngClass]="{blue: item.isRead === false}">{{item.isRead}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt}}</clr-dg-cell>
+    </clr-dg-row>
+
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
+                           (clrDgPageChange)="refresh()">
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_USER"|translate}}
+        </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>

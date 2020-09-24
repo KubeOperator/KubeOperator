@@ -8,6 +8,17 @@
     <div class="header-actions">
         <clr-dropdown class="dropdown">
             <button class="nav-text" clrDropdownToggle>
+                <clr-icon shape="bell" [ngClass]="{'has-badge': 1===2}" size="24"></clr-icon>
+                <span>{{"APP_MSG"|translate}}</span>
+                <clr-icon shape="caret down"></clr-icon>
+            </button>
+            <clr-dropdown-menu [clrPosition]="'bottom-right'">
+                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox" >{{'APP_NOTIFICATIONS'|translate}}</a>
+                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox">{{'APP_ALERTS'|translate}}</a>
+            </clr-dropdown-menu>
+        </clr-dropdown>
+        <clr-dropdown class="dropdown">
+            <button class="nav-text" clrDropdownToggle>
                 <clr-icon shape="help" class="is-inverse" size="24"></clr-icon>
                 <span>{{"APP_HELP"|translate}}</span>
                 <clr-icon shape="caret down"></clr-icon>

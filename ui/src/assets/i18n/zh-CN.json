@@ -407,5 +407,8 @@
   "APP_MSG_DING_TALK": "钉钉",
   "APP_USER_SUBSCRIBE": "消息订阅",
   "APP_MSG_CLUSTER": "集群消息",
-  "APP_MSG_SYSTEM": "系统消息"
+  "APP_MSG_SYSTEM": "系统消息",
+  "APP_MSG": "消息",
+  "APP_NOTIFICATIONS": "讯息",
+  "APP_ALERTS": "警告"
 }
