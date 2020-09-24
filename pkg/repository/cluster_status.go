@@ -3,6 +3,8 @@ package repository
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
+	uuid "github.com/satori/go.uuid"
+	"time"
 )
 
 type ClusterStatusRepository interface {
@@ -46,12 +48,42 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 			return err
 		}
 	}
+	// 先清空所有 condition
+	var oldConditions []model.ClusterStatusCondition
+	notFound := tx.Model(model.ClusterStatusCondition{}).Where(model.ClusterStatusCondition{ClusterStatusID: status.ID}).Find(&oldConditions).RecordNotFound()
+	if !notFound {
+		for _, c := range oldConditions {
+			tx.Delete(&c)
+		}
+	}
+	// 保存最新的conditons
 	for i, _ := range status.ClusterStatusConditions {
 		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
-		err := c.conditionRepo.Save(&status.ClusterStatusConditions[i])
-		if err != nil {
-			tx.Rollback()
-			return err
+		if tx.NewRecord(status.ClusterStatusConditions[i]) {
+			var temp model.ClusterStatusCondition
+			if tx.Where(model.ClusterStatusCondition{ClusterStatusID: status.ClusterStatusConditions[i].ClusterStatusID, Name: status.ClusterStatusConditions[i].Name}).
+				First(&temp).
+				RecordNotFound() {
+				status.ClusterStatusConditions[i].CreatedAt = time.Now()
+				status.ClusterStatusConditions[i].UpdatedAt = time.Now()
+				status.ClusterStatusConditions[i].ID = uuid.NewV4().String()
+				if err := tx.Create(status.ClusterStatusConditions[i]).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			} else {
+				status.ClusterStatusConditions[i].ID = temp.ID
+				status.ClusterStatusConditions[i].UpdatedAt = time.Now()
+				if err := tx.Save(status.ClusterStatusConditions[i]).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		} else {
+			if err := tx.Save(status.ClusterStatusConditions[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	}
 	tx.Commit()

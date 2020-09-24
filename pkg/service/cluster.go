@@ -8,13 +8,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm"
-	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases/upgrade"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
-	"time"
 )
 
 type ClusterService interface {
@@ -32,7 +29,6 @@ type ClusterService interface {
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Batch(batch dto.ClusterBatch) error
-	Upgrade(upgrade dto.ClusterUpgrade) error
 }
 
 func NewClusterService() ClusterService {
@@ -382,57 +378,3 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	return string(bf), nil
 }
 
-func (c clusterService) Upgrade(upgrade dto.ClusterUpgrade) error {
-	cluster, err := c.Get(upgrade.ClusterName)
-	if err != nil {
-		return err
-	}
-	if cluster.Status != constant.ClusterRunning {
-		return errors.New("CLUSTER_IS_NOT_RUNNING")
-	}
-	if cluster.Source != constant.ClusterSourceLocal {
-		return errors.New("CLUSTER_IS_NOT_LOCAL")
-	}
-	clusterStatus := model.ClusterStatus{Phase: constant.ClusterUpgrading, ID: cluster.Cluster.Status.ID}
-	err = c.clusterStatusRepo.Save(&clusterStatus)
-	if err != nil {
-		return err
-	}
-	go c.doUpgrade(cluster, upgrade.Version)
-	return nil
-}
-
-func (c clusterService) doUpgrade(cluster dto.Cluster, version string) {
-	var clog model.ClusterLog
-	clog.Type = constant.ClusterLogTypeUpgrade
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	err := c.clusterLogService.Save(cluster.Name, &clog)
-	if err != nil {
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
-		_ = c.clusterStatusRepo.Save(&clusterStatus)
-		log.Error(err)
-	}
-	err = c.clusterLogService.Start(&clog)
-	if err != nil {
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
-		_ = c.clusterStatusRepo.Save(&clusterStatus)
-		log.Error(err)
-	}
-	admCluster := adm.NewCluster(cluster.Cluster)
-	p := &upgrade.UpgradeClusterPhase{
-		Version: version,
-	}
-	err = p.Run(admCluster.Kobe, nil)
-	if err != nil {
-		_ = c.clusterLogService.End(&clog, false, err.Error())
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterFailed, ID: cluster.Cluster.Status.ID, Message: err.Error()}
-		_ = c.clusterStatusRepo.Save(&clusterStatus)
-	} else {
-		_ = c.clusterLogService.End(&clog, true, "")
-		clusterStatus := model.ClusterStatus{Phase: constant.ClusterRunning, ID: cluster.Cluster.Status.ID}
-		_ = c.clusterStatusRepo.Save(&clusterStatus)
-		cluster.Cluster.Spec.Version = version
-		_ = c.clusterSpecRepo.Save(&cluster.Spec)
-	}
-}
