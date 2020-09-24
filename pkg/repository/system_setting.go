@@ -9,6 +9,7 @@ type SystemSettingRepository interface {
 	Get(key string) (model.SystemSetting, error)
 	List() ([]model.SystemSetting, error)
 	Save(systemSetting *model.SystemSetting) error
+	ListByTab(tabName string) ([]model.SystemSetting, error)
 }
 
 func NewSystemSettingRepository() SystemSettingRepository {
@@ -39,4 +40,10 @@ func (s systemSettingRepository) Save(systemSetting *model.SystemSetting) error 
 	} else {
 		return db.DB.Model(&systemSetting).Updates(&systemSetting).Error
 	}
+}
+
+func (s systemSettingRepository) ListByTab(tabName string) ([]model.SystemSetting, error) {
+	var systemSettings []model.SystemSetting
+	err := db.DB.Where(model.SystemSetting{Tab: tabName}).Find(&systemSettings).Error
+	return systemSettings, err
 }

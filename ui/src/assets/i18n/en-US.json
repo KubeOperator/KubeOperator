@@ -406,5 +406,16 @@
   "APP_MSG_CLUSTER": "Cluster Message",
   "APP_MSG_SYSTEM": "System Message",
   "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first",
-  "APP_LOGGING": "Logging"
+  "APP_LOGGING": "Logging",
+  "APP_MESSAGE": "Message",
+  "APP_SMTP_ADDRESS": "SMTP Address",
+  "APP_SMTP_PORT": "Port",
+  "APP_SMTP_USERNAME": "Username",
+  "APP_SMTP_PASSWORD": "Password",
+  "APP_SMTP_STATUS": "Status",
+  "APP_SMTP_CHECK": "Check"
+
+
+
+
 }

@@ -9,10 +9,11 @@ import { LicenseComponent } from './license/license.component';
 import { LicenseImportComponent } from './license/license-import/license-import.component';
 import { LdapComponent } from './ldap/ldap.component';
 import { ThemeComponent } from './theme/theme.component';
+import { MessageComponent } from './message/message.component';
 
 
 @NgModule({
-    declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent, LdapComponent, ThemeComponent],
+    declarations: [SettingComponent, SystemComponent, LicenseComponent, LicenseImportComponent, LdapComponent, ThemeComponent, MessageComponent],
     imports: [
         RouterModule,
         CoreModule,
