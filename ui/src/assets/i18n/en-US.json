@@ -413,7 +413,19 @@
   "APP_SMTP_USERNAME": "Username",
   "APP_SMTP_PASSWORD": "Password",
   "APP_SMTP_STATUS": "Status",
-  "APP_SMTP_CHECK": "Check"
+  "APP_SMTP_CHECK": "Check",
+  "APP_WORK_WEIXIN_TAB": "Work Weixin",
+  "APP_WORK_WEIXIN_USER": "Test User",
+  "APP_WORK_WEIXIN_USER_HELPER": "Test user for sending test messages",
+  "APP_WORK_WEIXIN_BASE": "Basic Concepts of Work WeChat",
+  "APP_WORK_WEIXIN_ROLE": "Work WeChat message frequency limit",
+  "APP_WORK_WEIXIN_DESC": "Note: As each company has different message restrictions, KubeOperator does not make active restrictions. Please use it according to your own circumstances.",
+  "APP_DING_TALK": "Ding Talk",
+  "APP_DING_TALK_WEBHOOK": "webhook Address",
+  "APP_DING_TALK_BASE": "Basic Concepts of DingTalk",
+  "APP_DING_TALK_ROLE": "DingTalk message frequency limit"
+
+
 
 
 

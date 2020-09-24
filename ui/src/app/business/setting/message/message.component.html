@@ -31,92 +31,105 @@
                 </clr-select-container>
             </form>
             <button class="btn btn-success-outline" [disabled]="emailForm.invalid"
-                    (click)="checkEmail()">{{'APP_SMTP_CHECK'|translate}}</button>
+                    (click)="checkValid('EMAIL')">{{'APP_SMTP_CHECK'|translate}}</button>
             <button class="btn btn-info-outline" (click)="onSubmit(item,'EMAIL')"
-                    [disabled]="emailForm.invalid || !emailValid">
+                    [disabled]="emailForm.invalid || !valid">
                 {{'APP_COMMIT'|translate}}
             </button>
             <button class="btn btn-info-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
         </clr-tab-content>
     </clr-tab>
-    <!--    <clr-tab>-->
-    <!--        <button clrTabLink>微信</button>-->
-    <!--        <clr-tab-content *clrIfActive>-->
-    <!--            <form clrForm #wechatForm="ngForm">-->
-    <!--                <clr-password-container>-->
-    <!--                    <label>corpid</label>-->
-    <!--                    <input clrPassword name="weixin_corp_id" [(ngModel)]="workWeixin['WEIXIN_CORP_ID']" size=45 required/>-->
-    <!--                </clr-password-container>-->
-    <!--                <clr-input-container>-->
-    <!--                    <label>agentid</label>-->
-    <!--                    <input clrInput name="weixin_agentid" [(ngModel)]="workWeixin['WEIXIN_AGENT_ID']" size=45 required/>-->
-    <!--                </clr-input-container>-->
-    <!--                <clr-password-container>-->
-    <!--                    <label>secret</label>-->
-    <!--                    <input clrPassword name="weixin_secret" [(ngModel)]="workWeixin['WEIXIN_CORP_SECRET']" size=45 required/>-->
-    <!--                </clr-password-container>-->
-    <!--                <clr-select-container>-->
-    <!--                    <label>状态</label>-->
-    <!--                    <select class="input-width" clrSelect name="status" [(ngModel)]="workWeixin['WEIXIN_STATUS']" required>-->
-    <!--                        <option value="ENABLE">启用</option>-->
-    <!--                        <option value="DISABLE">禁用</option>-->
-    <!--                    </select>-->
-    <!--                </clr-select-container>-->
-    <!--                <clr-input-container>-->
-    <!--                    <label>测试用户</label>-->
-    <!--                    <input clrInput name="weixin_test" [(ngModel)]="workWeixin['WEIXIN_TEST_USER']" size=45/>-->
-    <!--                    <clr-control-helper>测试用户 用于发送测试消息</clr-control-helper>-->
-    <!--                </clr-input-container>-->
-    <!--            </form>-->
-    <!--            <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90135/90665" target="_blank">企业微信基本概念</a>-->
-    <!--            </p>-->
-    <!--            <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90139/90312" target="_blank">企业微信消息频率限制</a>-->
-    <!--            </p>-->
-    <!--            <p class="p7 prompt">说明：由于每个企业的消息限制不同 所以KubeOperator没有做主动限制 请根据自身情况酌情使用</p><br>-->
-    <!--            <button class="btn btn-success-outline" [disabled]="wechatForm.invalid" (click)="checkWorkWeixin()">校验</button>-->
-    <!--            <button class="btn btn-info-outline" (click)="onSubmit(workWeixin,'workWeixin')"-->
-    <!--                    [disabled]="wechatForm.invalid || workWeixinInValid">-->
-    <!--                保存-->
-    <!--            </button>-->
-    <!--            <button class="btn btn-info-outline" (click)="onCancel('workWeixin')">取消</button>-->
-    <!--        </clr-tab-content>-->
-    <!--    </clr-tab>-->
-    <!--    <clr-tab>-->
-    <!--        <button clrTabLink>钉钉</button>-->
-    <!--        <clr-tab-content *clrIfActive>-->
-    <!--            <form clrForm #dingTalkForm="ngForm">-->
-    <!--                <clr-input-container>-->
-    <!--                    <label>webhook地址</label>-->
-    <!--                    <input clrInput name="dingtalk_webhook" [(ngModel)]="dingTalk['DINGTALK_WEBHOOK']" size=100 required/>-->
-    <!--                </clr-input-container>-->
-    <!--                <clr-password-container>-->
-    <!--                    <label>secret</label>-->
-    <!--                    <input clrPassword name="dingtalk_secret" [(ngModel)]="dingTalk['DINGTALK_SECRET']" size=100 required/>-->
-    <!--                </clr-password-container>-->
-    <!--                <clr-select-container>-->
-    <!--                    <label>状态</label>-->
-    <!--                    <select class="input-width" clrSelect name="status" [(ngModel)]="dingTalk['DINGTALK_STATUS']" required>-->
-    <!--                        <option value="ENABLE">启用</option>-->
-    <!--                        <option value="DISABLE">禁用</option>-->
-    <!--                    </select>-->
-    <!--                </clr-select-container>-->
-    <!--                <clr-input-container>-->
-    <!--                    <label>测试用户</label>-->
-    <!--                    <input clrInput name="dingtalk_test" [(ngModel)]="dingTalk['DING_TALK_TEST_USER']" size=45/>-->
-    <!--                    <clr-control-helper>测试用户 用于发送测试消息</clr-control-helper>-->
-    <!--                </clr-input-container>-->
-    <!--            </form>-->
-    <!--            <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/26eaddd5" target="_blank">钉钉群机器人基本概念</a>-->
-    <!--            </p>-->
-    <!--            <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/faquestions/eovtrt" target="_blank">钉钉消息频率限制</a>-->
-    <!--            </p>-->
-    <!--            <p class="p7 prompt">说明：由于每个企业的消息限制不同 所以KubeOperator没有做主动限制 请根据自身情况酌情使用</p><br>-->
-    <!--            <button class="btn btn-success-outline" [disabled]="dingTalkForm.invalid" (click)="checkDingTalk()">校验</button>-->
-    <!--            <button class="btn btn-info-outline" (click)="onSubmit(dingTalk,'dingTalk')" [disabled]="dingTalkForm.invalid || dingTalkInValid">-->
-    <!--                保存-->
-    <!--            </button>-->
-    <!--            <button class="btn btn-info-outline" (click)="onCancel('dingTalk')">取消</button>-->
-    <!--        </clr-tab-content>-->
-    <!--    </clr-tab>-->
+    <clr-tab>
+        <button clrTabLink (click)="changeTab('WORK_WEIXIN')">{{'APP_WORK_WEIXIN_TAB'|translate}}</button>
+        <clr-tab-content *clrIfActive>
+            <form clrForm #wechatForm="ngForm">
+                <clr-password-container>
+                    <label>corpid</label>
+                    <input clrPassword name="weixin_corp_id" [(ngModel)]="item.vars['WEIXIN_CORP_ID']" size=45
+                           required/>
+                </clr-password-container>
+                <clr-input-container>
+                    <label>agentid</label>
+                    <input clrInput name="weixin_agentid" [(ngModel)]="item.vars['WEIXIN_AGENT_ID']" size=45 required/>
+                </clr-input-container>
+                <clr-password-container>
+                    <label>secret</label>
+                    <input clrPassword name="weixin_secret" [(ngModel)]="item.vars['WEIXIN_CORP_SECRET']" size=45
+                           required/>
+                </clr-password-container>
+                <clr-select-container>
+                    <label>{{'APP_SMTP_STATUS'|translate}}</label>
+                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['WEIXIN_STATUS']"
+                            required>
+                        <option value="ENABLE">{{'APP_ENABLE'|translate}}</option>
+                        <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-input-container>
+                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
+                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['WEIXIN_TEST_USER']" size=45/>
+                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
+            </form>
+            <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90135/90665"
+                                    target="_blank">{{'APP_WORK_WEIXIN_BASE'|translate}}</a>
+            </p>
+            <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90139/90312"
+                                    target="_blank">{{'APP_WORK_WEIXIN_ROLE'|translate}}</a>
+            </p>
+            <p class="p7 prompt">{{'APP_WORK_WEIXIN_DESC'|translate}}</p><br>
+            <button class="btn btn-success-outline" [disabled]="wechatForm.invalid" (click)="checkValid('WORK_WEIXIN')">
+                {{'APP_SMTP_CHECK'|translate}}
+            </button>
+            <button class="btn btn-info-outline" (click)="onSubmit(item,'workWeixin')"
+                    [disabled]="wechatForm.invalid || valid">
+                {{'APP_COMMIT'|translate}}
+            </button>
+        </clr-tab-content>
+    </clr-tab>
+    <clr-tab>
+        <button clrTabLink  (click)="changeTab('DING_TALK')">{{'APP_DING_TALK'|translate}}</button>
+        <clr-tab-content *clrIfActive>
+            <form clrForm #dingTalkForm="ngForm">
+                <clr-input-container>
+                    <label>{{'APP_DING_TALK_WEBHOOK'|translate}}</label>
+                    <input clrInput name="dingtalk_webhook" [(ngModel)]="item.vars['DINGTALK_WEBHOOK']" size=100
+                           required/>
+                </clr-input-container>
+                <clr-password-container>
+                    <label>secret</label>
+                    <input clrPassword name="dingtalk_secret" [(ngModel)]="item.vars['DINGTALK_SECRET']" size=100
+                           required/>
+                </clr-password-container>
+                <clr-select-container>
+                    <label>{{'APP_SMTP_STATUS'|translate}}</label>
+                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['DINGTALK_STATUS']"
+                            required>
+                        <option value="ENABLE">{{'APP_ENABLE'|translate}}</option>
+                        <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-input-container>
+                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
+                    <input clrInput name="dingtalk_test" [(ngModel)]="item.vars['DING_TALK_TEST_USER']" size=45/>
+                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
+            </form>
+            <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/26eaddd5"
+                                    target="_blank">{{'APP_DING_TALK_BASE'|translate}}</a>
+            </p>
+            <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/faquestions/eovtrt"
+                                    target="_blank">{{'APP_DING_TALK_ROLE'|translate}}</a>
+            </p>
+            <p class="p7 prompt">{{'APP_WORK_WEIXIN_DESC'|translate}}</p><br>
+            <button class="btn btn-success-outline" [disabled]="dingTalkForm.invalid" (click)="checkValid('DING_TALK')">
+                {{'APP_SMTP_CHECK'|translate}}
+            </button>
+            <button class="btn btn-info-outline" (click)="onSubmit(item,'DING_TALK')"
+                    [disabled]="dingTalkForm.invalid || valid">
+                {{'APP_COMMIT'|translate}}
+            </button>
+        </clr-tab-content>
+    </clr-tab>
 </clr-tabs>
 
