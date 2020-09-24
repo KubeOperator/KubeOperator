@@ -409,5 +409,12 @@
   "APP_MSG_CLUSTER": "集群消息",
   "APP_MSG_SYSTEM": "系统消息",
   "APP_CLUSTER_HOST_HELPER": "主机需要先在项目-资源中授权",
-  "APP_LOGGING": "日志"
+  "APP_LOGGING": "日志",
+  "APP_MESSAGE": "消息",
+  "APP_SMTP_ADDRESS": "SMTP 地址",
+  "APP_SMTP_PORT": "端口",
+  "APP_SMTP_USERNAME": "用户名",
+  "APP_SMTP_PASSWORD": "密码",
+  "APP_SMTP_STATUS": "状态",
+  "APP_SMTP_CHECK": "校验"
 }

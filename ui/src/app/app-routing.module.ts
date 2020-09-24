@@ -47,6 +47,7 @@ import {MessageCenterComponent} from './business/message-center/message-center.c
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
 import {ClusterLoggerComponent} from "./business/cluster/cluster-logger/cluster-logger.component";
+import {MessageComponent} from './business/setting/message/message.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -126,6 +127,7 @@ const routes: Routes = [
                     {path: 'license', component: LicenseComponent},
                     {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
+                    {path: 'message', component: MessageComponent},
                 ]
             },
             {
