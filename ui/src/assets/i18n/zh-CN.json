@@ -417,5 +417,15 @@
   "APP_SMTP_PASSWORD": "密码",
   "APP_SMTP_STATUS": "状态",
   "APP_SMTP_CHECK": "校验",
-  "UpgradeCluster": "升级集群"
+  "UpgradeCluster": "升级集群",
+  "APP_WORK_WEIXIN_TAB": "企业微信",
+  "APP_WORK_WEIXIN_USER": "测试用户",
+  "APP_WORK_WEIXIN_USER_HELPER": "测试用户 用于发送测试消息",
+  "APP_WORK_WEIXIN_BASE": "企业微信基本概念",
+  "APP_WORK_WEIXIN_ROLE": "企业微信消息频率限制",
+  "APP_WORK_WEIXIN_DESC": "说明：由于每个企业的消息限制不同 所以KubeOperator没有做主动限制 请根据自身情况酌情使用",
+  "APP_DING_TALK": "钉钉",
+  "APP_DING_TALK_WEBHOOK": "webhook地址",
+  "APP_DING_TALK_BASE": "钉钉基本概念",
+  "APP_DING_TALK_ROLE": "企业微信消息频率限制"
 }

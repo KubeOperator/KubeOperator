@@ -15,7 +15,7 @@ export class MessageComponent implements OnInit {
     item: System = new System();
     currentTab = 'EMAIL';
     loading = false;
-    emailValid = false;
+    valid = false;
 
     constructor(private messageService: MessageService,
                 private commonAlertService: CommonAlertService,
@@ -41,8 +41,8 @@ export class MessageComponent implements OnInit {
         });
     }
 
-    checkEmail() {
-        this.emailValid = true;
+    checkValid(tab) {
+        this.valid = true;
     }
 
     onSubmit(item, tab) {
