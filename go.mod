@@ -63,6 +63,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	golang.org/x/text v0.3.3
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	helm.sh/helm/v3 v3.2.3
 	k8s.io/api v0.18.2
@@ -70,6 +71,6 @@ require (
 	k8s.io/apimachinery v0.18.2
 	k8s.io/cli-runtime v0.18.0
 	k8s.io/client-go v0.18.2
+	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )

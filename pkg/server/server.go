@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
+	"github.com/KubeOperator/KubeOperator/pkg/data"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
 	"github.com/KubeOperator/KubeOperator/pkg/manifest"
@@ -35,6 +36,7 @@ func Phases() []Phase {
 			User:     viper.GetString("db.user"),
 			Password: viper.GetString("db.password"),
 		},
+		&data.InitDataPhase{},
 		&manifest.InitManifestPhase{},
 		&plugin.InitPluginDBPhase{},
 		&cron.InitCronPhase{
@@ -66,4 +68,3 @@ func Start() error {
 	}
 	return nil
 }
-
