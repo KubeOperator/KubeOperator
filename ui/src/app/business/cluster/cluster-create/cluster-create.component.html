@@ -148,7 +148,7 @@
     </clr-wizard-page>
 
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0"
+    <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0 || workers.length === 0"
                      (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <span>{{'APP_CLUSTER_HOST_HELPER'|translate}}</span>
@@ -181,7 +181,7 @@
 
             <clr-input-container>
                 <label>{{"APP_WORKER_AMOUNT"|translate}}</label>
-                <input clrInput type="number" name="workerSize" [(ngModel)]="item.workerAmount">
+                <input clrInput min="10" type="number" name="workerSize" [(ngModel)]="item.workerAmount">
             </clr-input-container>
         </form>
     </clr-wizard-page>
