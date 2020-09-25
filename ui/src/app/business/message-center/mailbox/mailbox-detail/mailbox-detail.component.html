@@ -1,1 +1,27 @@
-<p>mailbox-detail works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
+    <h3 class="modal-title">Notice Information</h3>
+    <div class="modal-body">
+<!--        Please delete this part when implementing features since this is only for testing purpose -->
+        <hr>
+        <p>Not Sure what content should be inside of this...</p>
+        <p>Need someone else to change the content from string type to other object type</p>
+        <hr>
+<!--        -->
+        <div *ngIf="item!=null && !loading">
+            <h5>{{'APP_BASIC_INFORMATION'|translate}}</h5>
+            <hr>
+            <p>Content: {{item.content}}</p>
+            <p>Type: {{item.type}}</p>
+            <p>Level: {{item.level}}</p>
+            <p>Received at: {{item.createdAt}}</p>
+        </div>
+        <div *ngIf="loading" style="text-align: center">
+            <clr-spinner></clr-spinner>
+        </div>
+        <app-modal-alert></app-modal-alert>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn" (click)="onCancel()" [disabled]="loading">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn" (click)="onSync()" [disabled]="loading">{{'APP_REFRESH'|translate}}</button>
+    </div>
+</clr-modal>

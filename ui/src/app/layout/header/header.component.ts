@@ -4,8 +4,9 @@ import {SessionUser} from '../../shared/auth/session-user';
 import {Router} from '@angular/router';
 import {CommonRoutes} from '../../constant/route';
 import {PasswordComponent} from './password/password.component';
-import {AboutComponent} from "./about/about.component";
-import {Theme} from "../../business/setting/theme/theme";
+import {AboutComponent} from './about/about.component';
+import {Theme} from '../../business/setting/theme/theme';
+import { NoticeService } from '../../business/message-center/mailbox/notice.service';
 
 @Component({
     selector: 'app-header',
@@ -15,6 +16,9 @@ import {Theme} from "../../business/setting/theme/theme";
 export class HeaderComponent implements OnInit {
 
     user: SessionUser = new SessionUser();
+    haveNotices: boolean; // testing purpose
+    unreadAlert: number;
+    unreadInfo: number;
 
     @ViewChild(PasswordComponent, {static: true})
     password: PasswordComponent;
@@ -23,12 +27,28 @@ export class HeaderComponent implements OnInit {
     about: AboutComponent;
     logo: string;
 
-    constructor(private sessionService: SessionService, private router: Router) {
+    constructor(private sessionService: SessionService, private router: Router,
+                private noticeService: NoticeService) {
     }
 
     ngOnInit(): void {
         this.getProfile();
+        this.noticeService.currentUnread.subscribe(data => {
+            this.unreadAlert = data.unreadAlert;
+            this.unreadInfo = data.unreadInfo;
+            this.checkNotice();
+        });
     }
+
+    // Testing purpose
+    checkNotice() {
+        if (this.unreadAlert + this.unreadInfo > 0) {
+            this.haveNotices = true;
+        } else {
+            this.haveNotices = false;
+        }
+    }
+    //
 
     getProfile() {
         const profile = this.sessionService.getCacheProfile();

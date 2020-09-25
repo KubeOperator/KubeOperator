@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable, Output } from '@angular/core';
 import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {HttpClient} from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -11,26 +11,17 @@ import { Notice } from './notice';
 export class NoticeService extends BaseModelService<any> {
 
   private messages: Notice[] = [];
-  private notifications = 0;
-  private alerts = 0;
+
+  private unreadSource = new BehaviorSubject({unreadInfo: 0, unreadAlert: 0});
+  currentUnread = this.unreadSource.asObservable();
 
   addItem(item: Notice) {
     this.messages.push(item);
-    if (item.level === 'alert') {
-      this.alerts += 1;
-    } else if (item.level === 'info') {
-      this.notifications += 1;
-    }
   }
 
   deleteItem(item: Notice) {
     const index = this.messages.indexOf(item);
     if (index > -1) {
-      if (item.level === 'alert') {
-        this.alerts -= 1;
-      } else if (item.level === 'info') {
-        this.notifications -= 1;
-      }
       this.messages.splice(index, 1);
     }
     else {
@@ -48,13 +39,19 @@ export class NoticeService extends BaseModelService<any> {
     return this.messages;
   }
 
-  getNotifications() {
-    return this.notifications;
+  updateItemOnRead(item: Notice) {
+    const index = this.messages.indexOf(item);
+    if (index > -1) {
+      this.messages[index].isRead = true;
+    } else { console.log('can\'t update item\'s isRead property'); }
   }
 
-  getAlerts() {
-    return this.alerts;
+  changeUnread(unread: {unreadInfo: number, unreadAlert: number}) {
+    this.unreadSource.next(unread);
   }
+
+
+
 
   // baseUrl = '/api/v1/message/mailbox';
 

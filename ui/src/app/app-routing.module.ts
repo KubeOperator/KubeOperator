@@ -46,15 +46,10 @@ import {EventComponent} from './business/cluster/cluster-detail/event/event.comp
 import {MessageCenterComponent} from './business/message-center/message-center.component';
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
-<<<<<<< HEAD
-import { MailboxComponent } from './business/message-center/mailbox/mailbox.component';
-=======
-import {ClusterLoggerComponent} from "./business/cluster/cluster-logger/cluster-logger.component";
->>>>>>> 0cd0a951eea9b9444328a00b521528fece40f3ac
+import {MailboxComponent} from './business/message-center/mailbox/mailbox.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
-    {path: 'logger', component: ClusterLoggerComponent},
     {
         path: '',
         component: LayoutComponent,

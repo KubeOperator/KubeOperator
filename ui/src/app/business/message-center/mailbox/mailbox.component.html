@@ -4,6 +4,6 @@
                           (detailEvent)="openDetail($event)"></app-mailbox-list>
         <app-mailbox-create (created)="refresh()"></app-mailbox-create>
         <app-mailbox-delete (deleted)="refresh()"></app-mailbox-delete>
-        <app-mailbox-detail></app-mailbox-detail>
+        <app-mailbox-detail (detail)="refresh()"></app-mailbox-detail>
     </div>
 </div>

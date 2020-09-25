@@ -23,8 +23,7 @@
     <clr-dg-column>Received at</clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-<!--        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)"><clr-icon shape="envelope"></clr-icon> More Content</a></clr-dg-cell>-->
-        <clr-dg-cell>{{item.content}}</clr-dg-cell>
+        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)"><clr-icon shape="envelope"></clr-icon> More Content</a></clr-dg-cell>
         <clr-dg-cell>{{item.type}}</clr-dg-cell>
         <clr-dg-cell>{{item.level}}</clr-dg-cell>
         <clr-dg-cell [ngClass]="{blue: item.isRead === false}">{{item.isRead}}</clr-dg-cell>
