@@ -22,6 +22,11 @@
                     <label>{{'APP_SMTP_PASSWORD'|translate}}</label>
                     <input clrPassword name="smtp_password" [(ngModel)]="item.vars['SMTP_PASSWORD']" size=45 required/>
                 </clr-password-container>
+                <clr-input-container>
+                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
+                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['SMTP_TEST_USER']" size=45/>
+                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
                     <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['SMTP_STATUS']" required>
@@ -57,6 +62,11 @@
                     <input clrPassword name="weixin_secret" [(ngModel)]="item.vars['WEIXIN_CORP_SECRET']" size=45
                            required/>
                 </clr-password-container>
+                <clr-input-container>
+                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
+                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['WEIXIN_TEST_USER']" size=45/>
+                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
                     <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['WEIXIN_STATUS']"
@@ -65,11 +75,6 @@
                         <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
                     </select>
                 </clr-select-container>
-                <clr-input-container>
-                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
-                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['WEIXIN_TEST_USER']" size=45/>
-                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
-                </clr-input-container>
             </form>
             <p class="p7 prompt"><a href="https://work.weixin.qq.com/api/doc/90000/90135/90665"
                                     target="_blank">{{'APP_WORK_WEIXIN_BASE'|translate}}</a>
@@ -82,7 +87,7 @@
                 {{'APP_SMTP_CHECK'|translate}}
             </button>
             <button class="btn btn-info-outline" (click)="onSubmit(item,'workWeixin')"
-                    [disabled]="wechatForm.invalid || valid">
+                    [disabled]="wechatForm.invalid || !valid">
                 {{'APP_COMMIT'|translate}}
             </button>
         </clr-tab-content>
@@ -101,6 +106,11 @@
                     <input clrPassword name="dingtalk_secret" [(ngModel)]="item.vars['DINGTALK_SECRET']" size=100
                            required/>
                 </clr-password-container>
+                <clr-input-container>
+                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
+                    <input clrInput name="dingtalk_test" [(ngModel)]="item.vars['DING_TALK_TEST_USER']" size=45 required/>
+                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
                     <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['DINGTALK_STATUS']"
@@ -109,11 +119,6 @@
                         <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
                     </select>
                 </clr-select-container>
-                <clr-input-container>
-                    <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
-                    <input clrInput name="dingtalk_test" [(ngModel)]="item.vars['DING_TALK_TEST_USER']" size=45/>
-                    <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
-                </clr-input-container>
             </form>
             <p class="p7 prompt"><a href="https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/26eaddd5"
                                     target="_blank">{{'APP_DING_TALK_BASE'|translate}}</a>
@@ -126,7 +131,7 @@
                 {{'APP_SMTP_CHECK'|translate}}
             </button>
             <button class="btn btn-info-outline" (click)="onSubmit(item,'DING_TALK')"
-                    [disabled]="dingTalkForm.invalid || valid">
+                    [disabled]="dingTalkForm.invalid || !valid">
                 {{'APP_COMMIT'|translate}}
             </button>
         </clr-tab-content>

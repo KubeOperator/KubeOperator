@@ -430,5 +430,6 @@
   "APP_DING_TALK": "钉钉",
   "APP_DING_TALK_WEBHOOK": "webhook地址",
   "APP_DING_TALK_BASE": "钉钉基本概念",
-  "APP_DING_TALK_ROLE": "企业微信消息频率限制"
+  "APP_DING_TALK_ROLE": "钉钉消息频率限制",
+  "APP_SMTP_TEST_USER": "邮件测试用户"
 }

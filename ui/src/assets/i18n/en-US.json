@@ -427,5 +427,13 @@
   "APP_DING_TALK": "Ding Talk",
   "APP_DING_TALK_WEBHOOK": "webhook Address",
   "APP_DING_TALK_BASE": "Basic Concepts of DingTalk",
-  "APP_DING_TALK_ROLE": "DingTalk message frequency limit"
+  "APP_DING_TALK_ROLE": "DingTalk message frequency limit",
+  "APP_SMTP_TEST_USER": "Email Test User"
+
+
+
+
+
+
+
 }

@@ -14,13 +14,13 @@ type workWeixin struct {
 }
 
 func NewWorkWeixinClient(vars map[string]interface{}) (*workWeixin, error) {
-	if _, ok := vars["corpId"]; !ok {
+	if _, ok := vars["WEIXIN_CORP_ID"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["corpSecret"]; !ok {
+	if _, ok := vars["WEIXIN_CORP_SECRET"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["agentId"]; !ok {
+	if _, ok := vars["WEIXIN_AGENT_ID"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
 	return &workWeixin{
@@ -30,27 +30,27 @@ func NewWorkWeixinClient(vars map[string]interface{}) (*workWeixin, error) {
 
 func (w workWeixin) SendMessage(vars map[string]interface{}) error {
 	var token string
-	if _, ok := vars["token"]; ok {
-		token = vars["token"].(string)
+	if _, ok := vars["TOKEN"]; ok {
+		token = vars["TOKEN"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var content string
-	if _, ok := vars["content"]; ok {
-		content = vars["content"].(string)
+	if _, ok := vars["CONTENT"]; ok {
+		content = vars["CONTENT"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var receivers string
-	if _, ok := vars["receivers"]; ok {
-		receivers = vars["receivers"].(string)
+	if _, ok := vars["RECEIVERS"]; ok {
+		receivers = vars["RECEIVERS"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	reqBody := make(map[string]interface{})
 	reqBody["msgtype"] = "markdown"
 	reqBody["touser"] = receivers
-	reqBody["agentid"] = vars["agentId"].(string)
+	reqBody["agentid"] = vars["WEIXIN_AGENT_ID"].(string)
 	markdown := make(map[string]string)
 	markdown["content"] = content
 	reqBody["markdown"] = markdown
@@ -85,7 +85,7 @@ func (w workWeixin) SendMessage(vars map[string]interface{}) error {
 }
 
 func GetToken(vars map[string]interface{}) (string, error) {
-	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", vars["corpId"].(string), vars["corpSecret"].(string))
+	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", vars["WEIXIN_CORP_ID"].(string), vars["WEIXIN_CORP_SECRET"].(string))
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err

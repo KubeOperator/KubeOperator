@@ -22,4 +22,9 @@ export class MessageService {
         const itemUrl = `${this.baseUrl}/${tabName}`;
         return this.http.post<System>(itemUrl, item);
     }
+
+    postCheckByTab(tabName, item): Observable<System> {
+        const itemUrl = `${this.baseUrl}/check/${tabName}`;
+        return this.http.post<System>(itemUrl, item);
+    }
 }

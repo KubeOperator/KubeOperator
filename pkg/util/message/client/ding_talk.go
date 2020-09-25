@@ -19,10 +19,10 @@ type dingTalk struct {
 }
 
 func NewDingTalkClient(vars map[string]interface{}) (*dingTalk, error) {
-	if _, ok := vars["webhook"]; !ok {
+	if _, ok := vars["DINGTALK_WEBHOOK"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["secret"]; !ok {
+	if _, ok := vars["DINGTALK_SECRET"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
 	return &dingTalk{
@@ -32,20 +32,20 @@ func NewDingTalkClient(vars map[string]interface{}) (*dingTalk, error) {
 
 func (d dingTalk) SendMessage(vars map[string]interface{}) error {
 	var title string
-	if _, ok := vars["title"]; ok {
-		title = vars["title"].(string)
+	if _, ok := vars["TITLE"]; ok {
+		title = vars["TITLE"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var content string
-	if _, ok := vars["content"]; ok {
-		content = vars["content"].(string)
+	if _, ok := vars["CONTENT"]; ok {
+		content = vars["CONTENT"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var receivers string
-	if _, ok := vars["receivers"]; ok {
-		receivers = vars["receivers"].(string)
+	if _, ok := vars["RECEIVERS"]; ok {
+		receivers = vars["RECEIVERS"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
@@ -64,7 +64,7 @@ func (d dingTalk) SendMessage(vars map[string]interface{}) error {
 	body := strings.NewReader(string(data))
 	req, err := http.NewRequest(
 		http.MethodPost,
-		getUrl(d.Vars["webhook"].(string), d.Vars["secret"].(string)),
+		getUrl(d.Vars["DINGTALK_WEBHOOK"].(string), d.Vars["DINGTALK_SECRET"].(string)),
 		body,
 	)
 	if err != nil {

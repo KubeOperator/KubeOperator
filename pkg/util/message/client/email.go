@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/gomail.v2"
 	"strconv"
 	"strings"
@@ -21,23 +22,23 @@ func NewEmailClient(vars map[string]interface{}) (*email, error) {
 	var fromMail string
 	var password string
 	var port string
-	if _, ok := vars["smtp"]; ok {
-		smtp = vars["smtp"].(string)
+	if _, ok := vars["SMTP_ADDRESS"]; ok {
+		smtp = vars["SMTP_ADDRESS"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["fromMail"]; ok {
-		fromMail = vars["fromMail"].(string)
+	if _, ok := vars["SMTP_USERNAME"]; ok {
+		fromMail = vars["SMTP_USERNAME"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["port"]; ok {
-		port = vars["port"].(string)
+	if _, ok := vars["SMTP_PORT"]; ok {
+		port = vars["SMTP_PORT"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["password"]; ok {
-		password = vars["password"].(string)
+	if _, ok := vars["SMTP_PASSWORD"]; ok {
+		password = vars["SMTP_PASSWORD"].(string)
 	} else {
 		return nil, errors.New(ParamEmpty)
 	}
@@ -55,20 +56,20 @@ func NewEmailClient(vars map[string]interface{}) (*email, error) {
 func (e email) SendMessage(vars map[string]interface{}) error {
 	toers := []string{}
 	var toUsers string
-	if _, ok := vars["toUsers"]; ok {
-		toUsers = vars["toUsers"].(string)
+	if _, ok := vars["TO_USERS"]; ok {
+		toUsers = vars["TO_USERS"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var subject string
-	if _, ok := vars["subject"]; ok {
-		subject = vars["subject"].(string)
+	if _, ok := vars["SUBJECT"]; ok {
+		subject = vars["SUBJECT"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var body string
-	if _, ok := vars["body"]; ok {
-		body = vars["body"].(string)
+	if _, ok := vars["BODY"]; ok {
+		body = vars["BODY"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
@@ -76,8 +77,9 @@ func (e email) SendMessage(vars map[string]interface{}) error {
 	for _, tmp := range strings.Split(toUsers, ",") {
 		toers = append(toers, strings.TrimSpace(tmp))
 	}
+	fmt.Println(toers)
 	m.SetHeader("To", toers...)
-	m.SetHeader("From", e.Vars["fromMail"].(string))
+	m.SetHeader("From", e.Vars["SMTP_USERNAME"].(string))
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", body)
 	err := e.Dialer.DialAndSend(m)

@@ -31,7 +31,7 @@ export class MessageComponent implements OnInit {
     }
 
     listByTab(tabName) {
-        this.loading = false;
+        this.loading = true;
         this.messageService.getByTab(tabName).subscribe(res => {
             this.item = res;
             this.loading = false;
@@ -42,7 +42,13 @@ export class MessageComponent implements OnInit {
     }
 
     checkValid(tab) {
-        this.valid = true;
+        // this.valid = true;
+        this.messageService.postCheckByTab(tab, this.item).subscribe(res => {
+            this.valid = true;
+        }, error => {
+            this.valid = false;
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
     }
 
     onSubmit(item, tab) {
