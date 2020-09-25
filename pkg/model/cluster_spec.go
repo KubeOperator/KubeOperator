@@ -9,6 +9,7 @@ type ClusterSpec struct {
 	common.BaseModel
 	ID                    string `json:"_"`
 	Version               string `json:"version"`
+	UpgradeVersion        string `json:"upgradeVersion"`
 	Provider              string `json:"provider"`
 	NetworkType           string `json:"networkType"`
 	FlannelBackend        string `json:"flannelBackend"`

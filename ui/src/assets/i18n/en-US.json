@@ -413,9 +413,6 @@
   "APP_SMTP_USERNAME": "Username",
   "APP_SMTP_PASSWORD": "Password",
   "APP_SMTP_STATUS": "Status",
-  "APP_SMTP_CHECK": "Check"
-
-
-
-
+  "APP_SMTP_CHECK": "Check",
+  "UpgradeCluster": "Upgrade Cluster"
 }

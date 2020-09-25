@@ -65,9 +65,7 @@ export class ClusterUpgradeComponent implements OnInit {
     }
 
     onSubmit() {
-        this.clusterUpgradeRequest.clusterName = this.currentCluster.name;
-        this.clusterUpgradeRequest.version = this.chooseVersion;
-        this.clusterService.upgrade(this.clusterUpgradeRequest).subscribe(res => {
+        this.clusterService.upgrade(this.currentCluster.name, this.chooseVersion).subscribe(res => {
             this.onCancel();
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPGRADE_START_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {

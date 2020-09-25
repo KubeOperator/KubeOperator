@@ -49,7 +49,10 @@ export class ClusterService extends BaseModelService<Cluster> {
         return this.http.get<Page<Cluster>>(pageUrl);
     }
 
-    upgrade(item: ClusterUpgradeRequest): Observable<any> {
-        return this.http.post<any>(`${this.baseUrl}/upgrade/`, item);
+    upgrade(clusterName: string, version: string): Observable<any> {
+        const req = new ClusterUpgradeRequest();
+        req.clusterName = clusterName;
+        req.version = version;
+        return this.http.post<any>(`${this.baseUrl}/upgrade/`, req);
     }
 }

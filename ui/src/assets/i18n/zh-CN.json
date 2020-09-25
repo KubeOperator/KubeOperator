@@ -416,5 +416,6 @@
   "APP_SMTP_USERNAME": "用户名",
   "APP_SMTP_PASSWORD": "密码",
   "APP_SMTP_STATUS": "状态",
-  "APP_SMTP_CHECK": "校验"
+  "APP_SMTP_CHECK": "校验",
+  "UpgradeCluster": "升级集群"
 }

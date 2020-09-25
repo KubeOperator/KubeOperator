@@ -6,6 +6,7 @@ type Cluster struct {
 	model.Cluster
 	NodeSize      int    `json:"nodeSize"`
 	Status        string `json:"status"`
+	PreStatus     string `json:"preStatus"`
 	Provider      string `json:"provider"`
 	Architectures string `json:"architectures"`
 }

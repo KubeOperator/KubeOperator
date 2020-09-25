@@ -45,8 +45,17 @@ func (c clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	if err != nil {
 		return err
 	}
+	tx := db.DB.Begin()
+
 	cluster.LogId = logId
-	if err := db.DB.Save(&cluster).Error; err != nil {
+	if err := tx.Save(&cluster).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 保存要升级的版本
+	clusterDTO.Spec.UpgradeVersion = upgrade.Version
+	if err := tx.Save(&clusterDTO.Spec).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 	// 变更状态为升级状态
@@ -58,8 +67,10 @@ func (c clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
 	}
 	cluster.Status.Phase = constant.ClusterUpgrading
 	if err = c.clusterStatusRepo.Save(&cluster.Status); err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	go c.do(&cluster, writer, upgrade.Version)
 	return nil
 }

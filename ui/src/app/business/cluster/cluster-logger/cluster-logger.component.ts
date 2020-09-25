@@ -32,7 +32,12 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
             letterSpacing: 1,
             fontSize: 12
         });
+
         this.term.open(this.terminal.nativeElement);
+        this.term.write('connect to logger...');
+        setTimeout(() => {
+            this.term.clear();
+        }, 3000);
         const clusterName = this.getQueryVariable('clusterName');
         if (!clusterName) {
             this.term.write('no cluster name in url');
@@ -43,6 +48,8 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
                 this.term.clear();
                 const text = data.msg.replace(/\n/g, '\r\n');
                 this.term.write(text);
+            }, error => {
+                this.term.write('no log to show');
             });
         }, 5000);
     }

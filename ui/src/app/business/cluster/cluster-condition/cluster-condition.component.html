@@ -27,6 +27,6 @@
                 (click)="onOpenLogger()">{{"APP_LOGGING"|translate}}
         </button>
         <button *ngIf="item.phase ==='Failed'" class="btn btn-primary"
-                (click)="onInit()">{{"APP_RETRY"|translate}}</button>
+                (click)="onRetry()">{{"APP_RETRY"|translate}}</button>
     </div>
 </clr-modal>

@@ -44,6 +44,12 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 			return err
 		}
 	} else {
+		// 先记录原来的状态
+		var oldStatus model.ClusterStatus
+		db.DB.First(&oldStatus)
+		if status.Phase != oldStatus.Phase {
+			status.PrePhase = oldStatus.Phase
+		}
 		if err := db.DB.Save(&status).Error; err != nil {
 			return err
 		}

@@ -8,7 +8,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Project} from '../../project/project';
 import {SystemService} from '../../setting/system.service';
 import {TranslateService} from '@ngx-translate/core';
-import {LicenseService} from '../../setting/license/license.service';
 
 @Component({
     selector: 'app-cluster-list',
@@ -22,12 +21,11 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
                 private router: Router,
                 private route: ActivatedRoute,
                 private settingService: SystemService,
-                private translateService: TranslateService,
-                private licenseService: LicenseService) {
+                private translateService: TranslateService) {
         super(clusterService);
     }
 
-    @Output() statusDetailEvent = new EventEmitter<string>();
+    @Output() statusDetailEvent = new EventEmitter<Cluster>();
     @Output() importEvent = new EventEmitter();
     @Output() upgradeEvent = new EventEmitter();
     timer;
@@ -68,8 +66,8 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
     }
 
 
-    onStatusDetail(name: string) {
-        this.statusDetailEvent.emit(name);
+    onStatusDetail(cluster: Cluster) {
+        this.statusDetailEvent.emit(cluster);
     }
 
     onCreate() {
