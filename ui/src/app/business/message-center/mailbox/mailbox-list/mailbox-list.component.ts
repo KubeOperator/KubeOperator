@@ -28,16 +28,13 @@ export class MailboxListComponent extends BaseModelComponent<Notice> implements 
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.items = this.noticeService.getItems(); // couldn't connect to backend yet, creating fake data connection
   }
 
   onDetail(item) {
-    this.noticeService.updateItemOnRead(item); // find the item and change the isRead property
     this.detailEvent.emit(item);
   }
 
   markAsRead() {
-    this.noticeService.updateItemsOnRead(this.selected);
     this.onRead.emit();
   }
 
@@ -59,7 +56,7 @@ export class MailboxListComponent extends BaseModelComponent<Notice> implements 
         } else { console.log('your counting is wrong!'); }
       }
     }
-    this.noticeService.changeUnread({unreadInfo: this.unreadInfo, unreadAlert: this.unreadAlert});
+    // this.noticeService.changeUnread({unreadInfo: this.unreadInfo, unreadAlert: this.unreadAlert});
   }
 
 

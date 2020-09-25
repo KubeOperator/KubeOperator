@@ -428,12 +428,9 @@
   "APP_DING_TALK_WEBHOOK": "webhook Address",
   "APP_DING_TALK_BASE": "Basic Concepts of DingTalk",
   "APP_DING_TALK_ROLE": "DingTalk message frequency limit",
-  "APP_SMTP_TEST_USER": "Email Test User"
-
-
-
-
-
-
+  "APP_SMTP_TEST_USER": "Email Test User",
+  "APP_MARK_AS_READ": "Mark As Read",
+  "APP_MSG_CONTENT": "Message Content",
+  "APP_MSG_LEVEL": "Level"
 
 }

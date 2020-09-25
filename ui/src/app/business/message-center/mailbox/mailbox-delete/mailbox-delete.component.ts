@@ -38,11 +38,11 @@ export class MailboxDeleteComponent extends BaseModelComponent<Notice> implement
   }
 
   onSubmit() {
-    this.noticeService.deleteItems(this.items);
-    console.log('delete successfully');
-    this.opened = false;
-    this.deleted.emit();
-    this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+    // this.noticeService.deleteItems(this.items);
+    // console.log('delete successfully');
+    // this.opened = false;
+    // this.deleted.emit();
+    // this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
 
 
     // this.noticeService.batch('delete', this.items).subscribe(data => {

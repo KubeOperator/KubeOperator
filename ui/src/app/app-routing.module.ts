@@ -152,7 +152,7 @@ const routes: Routes = [
                 path: 'message',
                 component: MessageCenterComponent,
                 children: [
-                    {path: '', redirectTo: 'userReceiver', pathMatch: 'full'},
+                    {path: '', redirectTo: 'mailbox', pathMatch: 'full'},
                     {path: 'userReceiver', component: UserReceiverComponent},
                     {path: 'subscribe', component: UserSubscribeComponent},
                     {path: 'mailbox', component: MailboxComponent}

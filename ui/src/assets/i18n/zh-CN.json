@@ -431,5 +431,8 @@
   "APP_DING_TALK_WEBHOOK": "webhook地址",
   "APP_DING_TALK_BASE": "钉钉基本概念",
   "APP_DING_TALK_ROLE": "钉钉消息频率限制",
-  "APP_SMTP_TEST_USER": "邮件测试用户"
+  "APP_SMTP_TEST_USER": "邮件测试用户",
+  "APP_MARK_AS_READ": "标记为已读",
+  "APP_MSG_CONTENT": "消息内容",
+  "APP_MSG_LEVEL": "级别"
 }

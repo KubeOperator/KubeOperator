@@ -1,8 +1,7 @@
 <div class="row">
     <div class="col-12 col-xs-12">
-        <app-mailbox-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-                          (detailEvent)="openDetail($event)" (onRead)="refresh()"></app-mailbox-list>
-        <app-mailbox-create (created)="refresh()"></app-mailbox-create>
+        <app-mailbox-list (deleteEvent)="openDelete($event)" (detailEvent)="openDetail($event)"
+                          (onRead)="refresh()"></app-mailbox-list>
         <app-mailbox-delete (deleted)="refresh()"></app-mailbox-delete>
         <app-mailbox-detail (detail)="refresh()"></app-mailbox-detail>
     </div>

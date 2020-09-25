@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MailboxListComponent } from './mailbox-list/mailbox-list.component';
 import { MailboxDetailComponent } from './mailbox-detail/mailbox-detail.component';
-import { MailboxCreateComponent } from './mailbox-create/mailbox-create.component';
 import { MailboxDeleteComponent } from './mailbox-delete/mailbox-delete.component';
 import { Notice } from './notice';
 
@@ -16,9 +15,6 @@ export class MailboxComponent implements OnInit {
   @ViewChild(MailboxListComponent, {static: true})
   list: MailboxListComponent;
 
-  @ViewChild(MailboxCreateComponent, {static: true})
-  create: MailboxCreateComponent;
-
   @ViewChild(MailboxDeleteComponent, {static: true})
   delete: MailboxDeleteComponent;
 
@@ -29,10 +25,6 @@ export class MailboxComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  }
-
-  openCreate() {
-    this.create.open();
   }
 
   openDelete(items: Notice[]) {

@@ -1,14 +1,9 @@
-<h3 [ngStyle]="{'color': readColor}">Colour Testing 123</h3>
 <clr-datagrid [clrDgLoading]="false" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
-                <clr-icon shape="plus" size="16"></clr-icon>
-                {{"APP_ADD"|translate}}
-            </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="markAsRead()">
                 <clr-icon shape="check" size="16"></clr-icon>
-                Mark as Read
+                {{'APP_MARK_AS_READ'|translate}}
             </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
@@ -17,26 +12,28 @@
         </div>
     </clr-dg-action-bar>
     <clr-dg-column>
-        <ng-container *clrDgHideableColumn="{hidden: true}">is Read</ng-container>
+        {{'APP_MSG_CONTENT'|translate}}
     </clr-dg-column>
     <clr-dg-column>
-        <ng-container *clrDgHideableColumn="{hidden: false}">Message Content</ng-container>
+        {{'APP_TYPE'|translate}}
     </clr-dg-column>
     <clr-dg-column>
-        <ng-container *clrDgHideableColumn="{hidden: false}">Types</ng-container>
+        {{'APP_MSG_LEVEL'|translate}}
     </clr-dg-column>
     <clr-dg-column>
-        <ng-container *clrDgHideableColumn="{hidden: false}">Levels</ng-container>
+        {{'APP_STATUS'|translate}}
     </clr-dg-column>
     <clr-dg-column>
-        <ng-container *clrDgHideableColumn="{hidden: false}">Received at</ng-container>
+        {{'APP_CREATED_DATE'|translate}}
     </clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell [ngStyle]="{'color': readColor(item.isRead)}" >{{item.isRead}}</clr-dg-cell>
-        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)"><clr-icon shape="envelope"></clr-icon> More Content</a></clr-dg-cell>
+        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">
+            <clr-icon shape="envelope"></clr-icon>
+            More Content</a></clr-dg-cell>
         <clr-dg-cell>{{item.type}}</clr-dg-cell>
         <clr-dg-cell>{{item.level}}</clr-dg-cell>
+        <clr-dg-cell [ngStyle]="{'color': readColor(item.isRead)}">{{item.isRead}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt}}</clr-dg-cell>
     </clr-dg-row>
 
