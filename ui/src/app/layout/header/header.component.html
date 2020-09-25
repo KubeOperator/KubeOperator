@@ -13,8 +13,10 @@
                 <clr-icon shape="caret down"></clr-icon>
             </button>
             <clr-dropdown-menu [clrPosition]="'bottom-right'">
-                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox" >{{'APP_NOTIFICATIONS'|translate}} <span>{{unreadInfo}}</span></a>
-                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox">{{'APP_ALERTS'|translate}} <span>{{unreadAlert}}</span></a>
+                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox" >{{'APP_NOTIFICATIONS'|translate}}
+                    <span *ngIf="unreadInfo > 0" class="badge badge-info">{{unreadInfo}}</span></a>
+                <a href="javascript:void(0)" clrDropdownItem routerLink="/message/mailbox">{{'APP_ALERTS'|translate}}
+                    <span *ngIf="unreadAlert > 0" class="badge badge-danger">{{unreadAlert}}</span></a>
             </clr-dropdown-menu>
         </clr-dropdown>
         <clr-dropdown class="dropdown">

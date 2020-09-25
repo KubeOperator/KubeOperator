@@ -15,6 +15,7 @@ export class NoticeService extends BaseModelService<any> {
   private unreadSource = new BehaviorSubject({unreadInfo: 0, unreadAlert: 0});
   currentUnread = this.unreadSource.asObservable();
 
+  // can be done through http
   addItem(item: Notice) {
     this.messages.push(item);
   }
@@ -46,6 +47,14 @@ export class NoticeService extends BaseModelService<any> {
     } else { console.log('can\'t update item\'s isRead property'); }
   }
 
+  updateItemsOnRead(items: Notice[]) {
+    for (const item of items) {
+      this.updateItemOnRead(item);
+    }
+  }
+  //
+
+  // for updating the header component with the latest unread notices
   changeUnread(unread: {unreadInfo: number, unreadAlert: number}) {
     this.unreadSource.next(unread);
   }

@@ -12,8 +12,9 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class MailboxListComponent extends BaseModelComponent<Notice> implements OnInit {
 
-  readColor = 'hsl(198, 100%, 32%)'; // normal color is #666666
+  // readColor = 'hsl(198, 100%, 32%)'; // normal color is #666666
   @Output() detailEvent = new EventEmitter<Notice>();
+  @Output() onRead = new EventEmitter();
 
   unread: Notice[] = [];
   unreadAlert: number;
@@ -33,6 +34,17 @@ export class MailboxListComponent extends BaseModelComponent<Notice> implements 
   onDetail(item) {
     this.noticeService.updateItemOnRead(item); // find the item and change the isRead property
     this.detailEvent.emit(item);
+  }
+
+  markAsRead() {
+    this.noticeService.updateItemsOnRead(this.selected);
+    this.onRead.emit();
+  }
+
+  readColor(value: boolean) {
+    if (value) {
+      return '#666666';
+    } else { return 'hsl(198, 100%, 32%)'; }
   }
 
   checkUnread() {
