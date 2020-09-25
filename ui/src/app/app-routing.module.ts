@@ -38,15 +38,18 @@ import {LogComponent} from './business/cluster/cluster-detail/log/log.component'
 import {BackupAccountComponent} from './business/setting/backup-account/backup-account.component';
 import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 import {LicenseComponent} from './business/setting/license/license.component';
-import {SecurityComponent} from "./business/cluster/cluster-detail/security/security.component";
+import {SecurityComponent} from './business/cluster/cluster-detail/security/security.component';
 import {LdapComponent} from './business/setting/ldap/ldap.component';
-import {ManifestComponent} from "./business/manifest/manifest.component";
-import {ThemeComponent} from "./business/setting/theme/theme.component";
+import {ManifestComponent} from './business/manifest/manifest.component';
+import {ThemeComponent} from './business/setting/theme/theme.component';
 import {EventComponent} from './business/cluster/cluster-detail/event/event.component';
 import {MessageCenterComponent} from './business/message-center/message-center.component';
 import {UserReceiverComponent} from './business/message-center/user-receiver/user-receiver.component';
 import {UserSubscribeComponent} from './business/message-center/user-subscribe/user-subscribe.component';
 import {MailboxComponent} from './business/message-center/mailbox/mailbox.component';
+import {ClusterLoggerComponent} from './business/cluster/cluster-logger/cluster-logger.component';
+import {MessageComponent} from './business/setting/message/message.component';
+
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -125,6 +128,7 @@ const routes: Routes = [
                     {path: 'license', component: LicenseComponent},
                     {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
+                    {path: 'message', component: MessageComponent},
                 ]
             },
             {

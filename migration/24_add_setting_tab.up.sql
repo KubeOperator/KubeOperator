@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_system_setting` ADD COLUMN `tab` varchar(64) NULL AFTER `value`;

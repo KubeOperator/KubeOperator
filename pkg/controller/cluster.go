@@ -21,6 +21,7 @@ type ClusterController struct {
 	ClusterLogService                service.ClusterLogService
 	ClusterImportService             service.ClusterImportService
 	CisService                       service.CisService
+	ClusterUpgradeService            service.ClusterUpgradeService
 }
 
 func NewClusterController() *ClusterController {
@@ -33,6 +34,7 @@ func NewClusterController() *ClusterController {
 		ClusterLogService:                service.NewClusterLogService(),
 		ClusterImportService:             service.NewClusterImportService(),
 		CisService:                       service.NewCisService(),
+		ClusterUpgradeService:            service.NewClusterUpgradeService(),
 	}
 }
 
@@ -118,6 +120,15 @@ func (c ClusterController) Post() (*dto.Cluster, error) {
 
 func (c ClusterController) PostInitBy(name string) error {
 	return c.ClusterInitService.Init(name)
+}
+
+func (c ClusterController) PostUpgrade() error {
+	var req dto.ClusterUpgrade
+	err := c.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	return c.ClusterUpgradeService.Upgrade(req)
 }
 
 func (c ClusterController) GetProvisionerBy(name string) ([]dto.ClusterStorageProvisioner, error) {
@@ -302,15 +313,6 @@ func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
 
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
 	return c.CisService.Create(clusterName)
-}
-
-func (c ClusterController) PostUpgrade() error {
-	var req dto.ClusterUpgrade
-	err := c.Ctx.ReadJSON(&req)
-	if err != nil {
-		return err
-	}
-	return c.ClusterService.Upgrade(req)
 }
 
 type Log struct {
