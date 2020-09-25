@@ -50,8 +50,8 @@ export class ClusterComponent implements OnInit {
         this.delete.open(items);
     }
 
-    openStatusDetail(name: string) {
-        this.condition.open(name);
+    openStatusDetail(cluster: Cluster) {
+        this.condition.open(cluster);
     }
 
     refresh() {

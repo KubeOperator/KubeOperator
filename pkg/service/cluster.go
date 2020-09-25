@@ -75,6 +75,7 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	clusterDTO.Cluster = mo
 	clusterDTO.NodeSize = len(mo.Nodes)
 	clusterDTO.Status = mo.Status.Phase
+	clusterDTO.PreStatus = mo.Status.PrePhase
 	clusterDTO.Architectures = mo.Spec.Architectures
 	return clusterDTO, nil
 }
@@ -87,10 +88,12 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 	}
 	for _, mo := range mos {
 		clusterDTOS = append(clusterDTOS, dto.Cluster{
-			Cluster:  mo,
-			NodeSize: len(mo.Nodes),
-			Status:   mo.Status.Phase,
-			Provider: mo.Spec.Provider,
+			Cluster:       mo,
+			NodeSize:      len(mo.Nodes),
+			Status:        mo.Status.Phase,
+			Provider:      mo.Spec.Provider,
+			PreStatus:     mo.Status.PrePhase,
+			Architectures: mo.Spec.Architectures,
 		})
 	}
 	return clusterDTOS, err
@@ -104,10 +107,12 @@ func (c clusterService) Page(num, size int, projectName string) (dto.ClusterPage
 	}
 	for _, mo := range mos {
 		page.Items = append(page.Items, dto.Cluster{
-			Cluster:  mo,
-			NodeSize: len(mo.Nodes),
-			Status:   mo.Status.Phase,
-			Provider: mo.Spec.Provider,
+			Cluster:       mo,
+			NodeSize:      len(mo.Nodes),
+			Status:        mo.Status.Phase,
+			Provider:      mo.Spec.Provider,
+			PreStatus:     mo.Status.PrePhase,
+			Architectures: mo.Spec.Architectures,
 		})
 	}
 	page.Total = total
@@ -377,4 +382,3 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	}
 	return string(bf), nil
 }
-

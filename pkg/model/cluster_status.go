@@ -11,6 +11,7 @@ type ClusterStatus struct {
 	ID                      string
 	Message                 string                   `json:"message" gorm:"type:text(65535)"`
 	Phase                   string                   `json:"phase"`
+	PrePhase                string                   `json:"prePhase"`
 	ClusterStatusConditions []ClusterStatusCondition `json:"conditions" gorm:"save_associations:false"`
 }
 
