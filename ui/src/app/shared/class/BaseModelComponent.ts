@@ -1,7 +1,8 @@
 import {BaseModelService} from './BaseModelService';
-import {EventEmitter, OnInit, Output} from '@angular/core';
+import { EventEmitter, OnInit, Output, Directive } from '@angular/core';
 import {BaseModel} from './BaseModel';
 
+@Directive()
 export abstract class BaseModelComponent<T extends BaseModel> implements OnInit {
 
     items: T[] = [];
