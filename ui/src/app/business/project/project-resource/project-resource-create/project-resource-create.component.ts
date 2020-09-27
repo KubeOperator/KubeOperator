@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {ProjectResource, ProjectResourceCheck, ProjectResourceCreateRequest} from '../project-resource';
 import {ProjectResourceService} from '../project-resource.service';
 import {ActivatedRoute} from '@angular/router';
@@ -16,7 +16,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './project-resource-create.component.html',
     styleUrls: ['./project-resource-create.component.css']
 })
-export class ProjectResourceCreateComponent extends BaseModelComponent<ProjectResource> implements OnInit {
+export class ProjectResourceCreateComponent extends BaseModelDirective<ProjectResource> implements OnInit {
 
     resourceType: string;
     opened: boolean;

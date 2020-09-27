@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {BackupAccount} from '../backup-account';
 import {BackupAccountService} from '../backup-account.service';
 
@@ -8,7 +8,7 @@ import {BackupAccountService} from '../backup-account.service';
     templateUrl: './backup-account-list.component.html',
     styleUrls: ['./backup-account-list.component.css']
 })
-export class BackupAccountListComponent extends BaseModelComponent<BackupAccount> implements OnInit {
+export class BackupAccountListComponent extends BaseModelDirective<BackupAccount> implements OnInit {
 
     constructor(private backupAccountService: BackupAccountService) {
         super(backupAccountService);

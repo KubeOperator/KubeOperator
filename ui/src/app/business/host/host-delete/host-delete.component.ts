@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Host} from '../host';
 import {HostService} from '../host.service';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
@@ -12,7 +12,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
     templateUrl: './host-delete.component.html',
     styleUrls: ['./host-delete.component.css']
 })
-export class HostDeleteComponent extends BaseModelComponent<Host> implements OnInit {
+export class HostDeleteComponent extends BaseModelDirective<Host> implements OnInit {
 
     opened = false;
     items: Host[] = [];

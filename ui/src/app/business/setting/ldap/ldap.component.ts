@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {SystemService} from '../system.service';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {System, SystemCreateRequest} from '../system/system';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {LdapService} from './ldap.service';
@@ -12,7 +12,7 @@ import {LdapService} from './ldap.service';
     templateUrl: './ldap.component.html',
     styleUrls: ['./ldap.component.css']
 })
-export class LdapComponent extends BaseModelComponent<System> implements OnInit {
+export class LdapComponent extends BaseModelDirective<System> implements OnInit {
 
     item: System = new System();
     createItem: SystemCreateRequest = new SystemCreateRequest();

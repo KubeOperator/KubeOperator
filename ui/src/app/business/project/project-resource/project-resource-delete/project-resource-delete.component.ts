@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {ProjectResourceDeleteRequest} from '../project-resource';
 import {ProjectResourceService} from '../project-resource.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -14,7 +14,7 @@ import {Project} from '../../project';
     templateUrl: './project-resource-delete.component.html',
     styleUrls: ['./project-resource-delete.component.css']
 })
-export class ProjectResourceDeleteComponent extends BaseModelComponent<any> implements OnInit {
+export class ProjectResourceDeleteComponent extends BaseModelDirective<any> implements OnInit {
 
     opened = false;
     isSubmitGoing = false;

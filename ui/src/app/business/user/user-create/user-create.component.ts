@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {User, UserCreateRequest} from '../user';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {UserService} from '../user.service';
 import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -15,7 +15,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './user-create.component.html',
     styleUrls: ['./user-create.component.css']
 })
-export class UserCreateComponent extends BaseModelComponent<User> implements OnInit {
+export class UserCreateComponent extends BaseModelDirective<User> implements OnInit {
 
     opened = false;
     isSubmitGoing = false;

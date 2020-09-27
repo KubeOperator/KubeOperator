@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Region, RegionCreateRequest} from '../region';
 import {RegionService} from '../region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -16,7 +16,7 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
     templateUrl: './region-create.component.html',
     styleUrls: ['./region-create.component.css']
 })
-export class RegionCreateComponent extends BaseModelComponent<Region> implements OnInit {
+export class RegionCreateComponent extends BaseModelDirective<Region> implements OnInit {
 
     namePattern = NamePattern;
     namePatternHelper = NamePatternHelper;

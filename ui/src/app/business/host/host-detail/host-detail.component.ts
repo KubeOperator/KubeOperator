@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Host} from '../host';
 import {HostService} from '../host.service';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
@@ -10,7 +10,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
     templateUrl: './host-detail.component.html',
     styleUrls: ['./host-detail.component.css']
 })
-export class HostDetailComponent extends BaseModelComponent<Host> implements OnInit {
+export class HostDetailComponent extends BaseModelDirective<Host> implements OnInit {
 
     opened = false;
     item: Host = new Host();

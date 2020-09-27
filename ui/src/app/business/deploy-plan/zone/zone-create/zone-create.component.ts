@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {CloudTemplate, CloudZone, CloudZoneRequest, Subnet, Zone, ZoneCreateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
@@ -21,7 +21,7 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
     templateUrl: './zone-create.component.html',
     styleUrls: ['./zone-create.component.css']
 })
-export class ZoneCreateComponent extends BaseModelComponent<Zone> implements OnInit {
+export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnInit {
 
     namePattern = NamePattern;
     namePatternHelper = NamePatternHelper;

@@ -1,7 +1,7 @@
-<clr-datagrid [clrDgLoading]="loading" [clrDgSelected]="selected">
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()" >
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{'APP_ADD'|translate}}
             </button>
@@ -21,14 +21,12 @@
     <clr-dg-column>{{'APP_ROLE'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_DESCRIPTION'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
-
-    <clr-dg-row class="fixed-height" *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell>{{getProjectRole(item.name) | translate}}</clr-dg-cell>
         <clr-dg-cell>{{item.description}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
-
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                            (clrDgPageChange)="refresh()">
@@ -36,5 +34,5 @@
             {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_PROJECT"|translate}}
         </clr-dg-pagination>
     </clr-dg-footer>
-
 </clr-datagrid>
+

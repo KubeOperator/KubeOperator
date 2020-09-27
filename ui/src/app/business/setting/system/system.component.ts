@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {System, SystemCreateRequest} from './system';
 import {SystemService} from '../system.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -13,7 +13,7 @@ import * as ipaddr from 'ipaddr.js';
     templateUrl: './system.component.html',
     styleUrls: ['./system.component.css']
 })
-export class SystemComponent extends BaseModelComponent<System> implements OnInit {
+export class SystemComponent extends BaseModelDirective<System> implements OnInit {
 
     item: System = new System();
     createItem: SystemCreateRequest = new SystemCreateRequest();

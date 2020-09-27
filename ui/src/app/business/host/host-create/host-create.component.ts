@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Host, HostCreateRequest} from '../host';
 import {HostService} from '../host.service';
 import {NgForm} from '@angular/forms';
@@ -15,7 +15,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './host-create.component.html',
     styleUrls: ['./host-create.component.css']
 })
-export class HostCreateComponent extends BaseModelComponent<Host> implements OnInit {
+export class HostCreateComponent extends BaseModelDirective<Host> implements OnInit {
 
     opened = false;
     isSubmitGoing = false;

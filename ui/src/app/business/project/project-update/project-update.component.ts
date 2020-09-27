@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
@@ -14,7 +14,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
     templateUrl: './project-update.component.html',
     styleUrls: ['./project-update.component.css']
 })
-export class ProjectUpdateComponent extends BaseModelComponent<Project> implements OnInit {
+export class ProjectUpdateComponent extends BaseModelDirective<Project> implements OnInit {
 
     opened = false;
     item: Project = new Project();

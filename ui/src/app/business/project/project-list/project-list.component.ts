@@ -1,15 +1,15 @@
 import {Component, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
 import {PermissionService} from '../../../shared/auth/permission.service';
+import {BaseModelDirective} from "../../../shared/class/BaseModelDirective";
 
 @Component({
     selector: 'app-project-list',
     templateUrl: './project-list.component.html',
     styleUrls: ['./project-list.component.css']
 })
-export class ProjectListComponent extends BaseModelComponent<Project> implements OnInit {
+export class ProjectListComponent extends BaseModelDirective<Project> implements OnInit {
 
 
     constructor(private projectService: ProjectService,

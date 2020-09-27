@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CredentialService} from '../credential.service';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Credential} from '../credential';
 
 @Component({
@@ -8,7 +8,7 @@ import {Credential} from '../credential';
     templateUrl: './credential-list.component.html',
     styleUrls: ['./credential-list.component.css']
 })
-export class CredentialListComponent extends BaseModelComponent<Credential> implements OnInit {
+export class CredentialListComponent extends BaseModelDirective<Credential> implements OnInit {
 
     constructor(private credentialService: CredentialService) {
         super(credentialService);

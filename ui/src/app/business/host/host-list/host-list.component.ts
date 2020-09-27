@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {HostService} from '../host.service';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Host} from '../host';
 
 @Component({
@@ -8,7 +8,7 @@ import {Host} from '../host';
     templateUrl: './host-list.component.html',
     styleUrls: ['./host-list.component.css']
 })
-export class HostListComponent extends BaseModelComponent<Host> implements OnInit {
+export class HostListComponent extends BaseModelDirective<Host> implements OnInit {
 
     @Output() detailEvent = new EventEmitter<Host>();
     @Output() statusDetailEvent = new EventEmitter<Host>();

@@ -3,7 +3,7 @@ import { EventEmitter, OnInit, Output, Directive } from '@angular/core';
 import {BaseModel} from './BaseModel';
 
 @Directive()
-export abstract class BaseModelComponent<T extends BaseModel> implements OnInit {
+export abstract class BaseModelDirective<T extends BaseModel> implements OnInit {
 
     items: T[] = [];
     page = 1;

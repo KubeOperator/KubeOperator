@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Notice } from '../notice';
-import { BaseModelComponent } from '../../../../shared/class/BaseModelComponent';
+import { BaseModelDirective } from '../../../../shared/class/BaseModelDirective';
 import { NoticeService } from '../notice.service';
 import { ModalAlertService } from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import { CommonAlertService } from '../../../../layout/common-alert/common-alert.service';
@@ -12,7 +12,7 @@ import { AlertLevels } from '../../../../layout/common-alert/alert';
   templateUrl: './mailbox-delete.component.html',
   styleUrls: ['./mailbox-delete.component.css']
 })
-export class MailboxDeleteComponent extends BaseModelComponent<Notice> implements OnInit {
+export class MailboxDeleteComponent extends BaseModelDirective<Notice> implements OnInit {
 
   opened = false;
   items: Notice[] = [];

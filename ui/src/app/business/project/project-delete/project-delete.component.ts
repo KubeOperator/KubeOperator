@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -12,7 +12,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './project-delete.component.html',
     styleUrls: ['./project-delete.component.css']
 })
-export class ProjectDeleteComponent extends BaseModelComponent<Project> implements OnInit {
+export class ProjectDeleteComponent extends BaseModelDirective<Project> implements OnInit {
 
     opened = false;
     items: Project[] = [];

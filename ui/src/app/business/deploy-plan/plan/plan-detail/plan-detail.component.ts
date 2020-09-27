@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Plan} from '../plan';
 import {PlanService} from '../plan.service';
 import {TranslateService} from '@ngx-translate/core';
@@ -9,7 +9,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './plan-detail.component.html',
     styleUrls: ['./plan-detail.component.css']
 })
-export class PlanDetailComponent extends BaseModelComponent<Plan> implements OnInit {
+export class PlanDetailComponent extends BaseModelDirective<Plan> implements OnInit {
 
     opened = false;
     item: Plan = new Plan();

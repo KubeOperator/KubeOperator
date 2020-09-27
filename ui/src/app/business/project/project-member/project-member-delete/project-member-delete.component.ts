@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {ProjectMember, ProjectMemberCreate} from '../project-member';
 import {ProjectMemberService} from '../project-member.service';
 import {ActivatedRoute} from '@angular/router';
@@ -14,7 +14,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './project-member-delete.component.html',
     styleUrls: ['./project-member-delete.component.css']
 })
-export class ProjectMemberDeleteComponent extends BaseModelComponent<ProjectMember> implements OnInit {
+export class ProjectMemberDeleteComponent extends BaseModelDirective<ProjectMember> implements OnInit {
 
 
     opened = false;

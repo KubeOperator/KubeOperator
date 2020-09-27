@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {BackupAccount, BackupAccountCreateRequest} from '../backup-account';
 import {BackupAccountService} from '../backup-account.service';
 import {NgForm} from '@angular/forms';
@@ -15,7 +15,7 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
     templateUrl: './backup-account-create.component.html',
     styleUrls: ['./backup-account-create.component.css']
 })
-export class BackupAccountCreateComponent extends BaseModelComponent<BackupAccount> implements OnInit {
+export class BackupAccountCreateComponent extends BaseModelDirective<BackupAccount> implements OnInit {
 
     namePattern = NamePattern;
     namePatternHelper = NamePatternHelper;

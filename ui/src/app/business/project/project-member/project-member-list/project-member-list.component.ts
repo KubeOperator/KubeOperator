@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {ProjectMember, ProjectMemberCreate} from '../project-member';
 import {ProjectMemberService} from '../project-member.service';
 import {ActivatedRoute} from '@angular/router';
@@ -14,7 +14,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './project-member-list.component.html',
     styleUrls: ['./project-member-list.component.css']
 })
-export class ProjectMemberListComponent extends BaseModelComponent<ProjectMember> implements OnInit {
+export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember> implements OnInit {
 
 
     currentProject: Project = new Project();

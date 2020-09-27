@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {BackupAccount, BackupAccountUpdateRequest} from '../backup-account';
 import {BackupAccountService} from '../backup-account.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
@@ -12,7 +12,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './backup-account-update.component.html',
     styleUrls: ['./backup-account-update.component.css']
 })
-export class BackupAccountUpdateComponent extends BaseModelComponent<BackupAccount> implements OnInit {
+export class BackupAccountUpdateComponent extends BaseModelDirective<BackupAccount> implements OnInit {
 
     opened = false;
     item: BackupAccountUpdateRequest = new BackupAccountUpdateRequest();

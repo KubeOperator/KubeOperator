@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {ProjectResource} from '../project-resource';
 import {ProjectResourceService} from '../project-resource.service';
 import {ActivatedRoute} from '@angular/router';
@@ -13,7 +13,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './project-resource-list.component.html',
     styleUrls: ['./project-resource-list.component.css']
 })
-export class ProjectResourceListComponent extends BaseModelComponent<ProjectResource> implements OnInit {
+export class ProjectResourceListComponent extends BaseModelDirective<ProjectResource> implements OnInit {
 
     currentProject: Project = new Project();
     resourceType: string;

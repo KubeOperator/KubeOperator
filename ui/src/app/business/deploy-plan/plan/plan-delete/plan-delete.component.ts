@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Plan} from '../plan';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
@@ -12,7 +12,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './plan-delete.component.html',
     styleUrls: ['./plan-delete.component.css']
 })
-export class PlanDeleteComponent extends BaseModelComponent<Plan> implements OnInit {
+export class PlanDeleteComponent extends BaseModelDirective<Plan> implements OnInit {
 
     opened = false;
     items: Plan[] = [];

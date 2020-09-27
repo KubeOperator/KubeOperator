@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {User} from '../user';
 import {UserService} from '../user.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -12,7 +12,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './user-delete.component.html',
     styleUrls: ['./user-delete.component.css']
 })
-export class UserDeleteComponent extends BaseModelComponent<User> implements OnInit {
+export class UserDeleteComponent extends BaseModelDirective<User> implements OnInit {
 
     opened = false;
     items: User[] = [];

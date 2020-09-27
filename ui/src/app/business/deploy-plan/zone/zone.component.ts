@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Zone} from './zone';
 import {ZoneService} from './zone.service';
 import {ZoneListComponent} from './zone-list/zone-list.component';
@@ -13,7 +13,7 @@ import {ZoneDetailComponent} from './zone-detail/zone-detail.component';
     templateUrl: './zone.component.html',
     styleUrls: ['./zone.component.css']
 })
-export class ZoneComponent extends BaseModelComponent<Zone> implements OnInit {
+export class ZoneComponent extends BaseModelDirective<Zone> implements OnInit {
 
     @ViewChild(ZoneListComponent, {static: true})
     list: ZoneListComponent;

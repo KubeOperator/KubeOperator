@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Notice } from '../notice';
-import { BaseModelComponent } from '../../../../shared/class/BaseModelComponent';
+import { BaseModelDirective } from '../../../../shared/class/BaseModelDirective';
 import { NoticeService } from '../notice.service';
 import { ModalAlertService } from '../../../../shared/common-component/modal-alert/modal-alert.service';
 
@@ -9,7 +9,7 @@ import { ModalAlertService } from '../../../../shared/common-component/modal-ale
   templateUrl: './mailbox-detail.component.html',
   styleUrls: ['./mailbox-detail.component.css']
 })
-export class MailboxDetailComponent extends BaseModelComponent<Notice> implements OnInit {
+export class MailboxDetailComponent extends BaseModelDirective<Notice> implements OnInit {
 
   opened = false;
   item: Notice = new Notice();

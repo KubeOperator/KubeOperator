@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BaseModelComponent} from '../../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../../shared/class/BaseModelDirective';
 import {BackupFile} from '../cluster-backup';
 import {ActivatedRoute} from '@angular/router';
 import {CommonAlertService} from '../../../../../layout/common-alert/common-alert.service';
@@ -13,7 +13,7 @@ import {AlertLevels} from '../../../../../layout/common-alert/alert';
     templateUrl: './backup-list.component.html',
     styleUrls: ['./backup-list.component.css']
 })
-export class BackupListComponent extends BaseModelComponent<BackupFile> implements OnInit {
+export class BackupListComponent extends BaseModelDirective<BackupFile> implements OnInit {
 
     currentCluster: Cluster;
     items: BackupFile[] = [];

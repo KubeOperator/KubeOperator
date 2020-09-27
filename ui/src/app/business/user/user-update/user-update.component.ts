@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {User} from '../user';
 import {UserService} from '../user.service';
 import {NgForm} from '@angular/forms';
@@ -13,7 +13,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './user-update.component.html',
     styleUrls: ['./user-update.component.css']
 })
-export class UserUpdateComponent extends BaseModelComponent<User> implements OnInit {
+export class UserUpdateComponent extends BaseModelDirective<User> implements OnInit {
 
     opened = false;
     item: User = new User();

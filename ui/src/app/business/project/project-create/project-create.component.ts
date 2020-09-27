@@ -1,7 +1,7 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Project, ProjectCreateRequest} from '../project';
 import {ProjectService} from '../project.service';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
@@ -14,7 +14,7 @@ import {NamePattern, NamePatternHelper} from '../../../constant/pattern';
     templateUrl: './project-create.component.html',
     styleUrls: ['./project-create.component.css']
 })
-export class ProjectCreateComponent extends BaseModelComponent<Project> implements OnInit {
+export class ProjectCreateComponent extends BaseModelDirective<Project> implements OnInit {
 
     namePattern = NamePattern;
     namePatternHelper = NamePatternHelper;

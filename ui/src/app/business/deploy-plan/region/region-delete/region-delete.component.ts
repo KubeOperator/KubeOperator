@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Region} from '../region';
 import {RegionService} from '../region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -12,7 +12,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './region-delete.component.html',
     styleUrls: ['./region-delete.component.css']
 })
-export class RegionDeleteComponent extends BaseModelComponent<Region> implements OnInit {
+export class RegionDeleteComponent extends BaseModelDirective<Region> implements OnInit {
 
     opened = false;
     items: Region[] = [];

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Zone, ZoneUpdateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
 import {RegionService} from '../../region/region.service';
@@ -15,7 +15,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './zone-update.component.html',
     styleUrls: ['./zone-update.component.css']
 })
-export class ZoneUpdateComponent extends BaseModelComponent<Zone> implements OnInit {
+export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnInit {
 
     opened = false;
     item: ZoneUpdateRequest = new ZoneUpdateRequest();

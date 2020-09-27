@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Region} from '../region';
 import {RegionService} from '../region.service';
 
@@ -8,7 +8,7 @@ import {RegionService} from '../region.service';
     templateUrl: './region-detail.component.html',
     styleUrls: ['./region-detail.component.css']
 })
-export class RegionDetailComponent extends BaseModelComponent<Region> implements OnInit {
+export class RegionDetailComponent extends BaseModelDirective<Region> implements OnInit {
 
     opened = false;
     @Output() detail = new EventEmitter();

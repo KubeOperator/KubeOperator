@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Zone} from '../zone';
 import {ZoneService} from '../zone.service';
 
@@ -8,7 +8,7 @@ import {ZoneService} from '../zone.service';
     templateUrl: './zone-detail.component.html',
     styleUrls: ['./zone-detail.component.css']
 })
-export class ZoneDetailComponent extends BaseModelComponent<Zone> implements OnInit {
+export class ZoneDetailComponent extends BaseModelDirective<Zone> implements OnInit {
 
     opened = false;
     item: Zone = new Zone();

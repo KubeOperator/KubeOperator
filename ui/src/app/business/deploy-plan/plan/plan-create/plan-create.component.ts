@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Plan, PlanCreateRequest, PlanVmConfig, VmConfig} from '../plan';
 import {PlanService} from '../plan.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -21,7 +21,7 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
     templateUrl: './plan-create.component.html',
     styleUrls: ['./plan-create.component.css']
 })
-export class PlanCreateComponent extends BaseModelComponent<Plan> implements OnInit {
+export class PlanCreateComponent extends BaseModelDirective<Plan> implements OnInit {
 
     namePattern = NamePattern;
     namePatternHelper = NamePatternHelper;

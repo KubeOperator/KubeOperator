@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {BaseModelComponent} from '../../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Zone} from '../zone';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
@@ -12,7 +12,7 @@ import {AlertLevels} from '../../../../layout/common-alert/alert';
     templateUrl: './zone-delete.component.html',
     styleUrls: ['./zone-delete.component.css']
 })
-export class ZoneDeleteComponent extends BaseModelComponent<Zone> implements OnInit {
+export class ZoneDeleteComponent extends BaseModelDirective<Zone> implements OnInit {
 
     opened = false;
     @Output() deleted = new EventEmitter();

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import {ClusterService} from '../cluster.service';
-import {BaseModelComponent} from '../../../shared/class/BaseModelComponent';
+import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {Cluster} from '../cluster';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
@@ -14,7 +14,7 @@ import {TranslateService} from '@ngx-translate/core';
     templateUrl: './cluster-list.component.html',
     styleUrls: ['./cluster-list.component.css']
 })
-export class ClusterListComponent extends BaseModelComponent<Cluster> implements OnInit, OnDestroy {
+export class ClusterListComponent extends BaseModelDirective<Cluster> implements OnInit, OnDestroy {
 
     constructor(private clusterService: ClusterService,
                 private commonAlert: CommonAlertService,
