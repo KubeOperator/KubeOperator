@@ -41,10 +41,6 @@ export class ClusterListComponent extends BaseModelComponent<Cluster> implements
         });
     }
 
-    onSelectedItem() {
-        console.log(this.selected.length);
-    }
-
     ngOnDestroy(): void {
         clearInterval(this.timer);
     }
