@@ -26,14 +26,14 @@
             "styles": [
               "node_modules/@clr/icons/clr-icons.min.css",
               "node_modules/@clr/ui/clr-ui.min.css",
-              "node_modules/xterm/dist/xterm.css",
+              "node_modules/xterm/css/xterm.css",
               "src/styles.css",
               "node_modules/select2/dist/css/select2.min.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
               "node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js",
-              "node_modules/xterm/dist/xterm.js",
+              "node_modules/xterm/lib/xterm.js",
               "node_modules/@clr/icons/clr-icons.min.js",
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/select2/dist/js/select2.min.js"
