@@ -1,16 +1,18 @@
 package constant
 
 const (
-	Email      = "EMAIL"
-	DingTalk   = "DING_TALK"
-	WorkWeiXin = "WORK_WEIXIN"
-	LocalMail  = "LOCAL"
-	Enable     = "ENABLE"
-	Disable    = "DISABLE"
-	Cluster    = "CLUSTER"
-	System     = "SYSTEM"
-	Read       = "READ"
-	UnRead     = "UNREAD"
+	Email       = "EMAIL"
+	DingTalk    = "DING_TALK"
+	WorkWeiXin  = "WORK_WEIXIN"
+	LocalMail   = "LOCAL"
+	Enable      = "ENABLE"
+	Disable     = "DISABLE"
+	Cluster     = "CLUSTER"
+	System      = "SYSTEM"
+	Read        = "READ"
+	UnRead      = "UNREAD"
+	SendSuccess = "SUCCESS"
+	SendFailed  = "FAILED"
 )
 
 //message type
@@ -24,4 +26,10 @@ const (
 	ClusterRestore      = "CLUSTER_RESTORE"
 	ClusterBackup       = "CLUSTER_BACKUP"
 	ClusterEventWarning = "CLUSTER_EVENT_WARNING"
+)
+
+//message level
+const (
+	MsgWarning = "Warning"
+	MsgInfo    = "Info"
 )

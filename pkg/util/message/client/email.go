@@ -56,20 +56,20 @@ func NewEmailClient(vars map[string]interface{}) (*email, error) {
 func (e email) SendMessage(vars map[string]interface{}) error {
 	toers := []string{}
 	var toUsers string
-	if _, ok := vars["TO_USERS"]; ok {
-		toUsers = vars["TO_USERS"].(string)
+	if _, ok := vars["RECEIVERS"]; ok {
+		toUsers = vars["RECEIVERS"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var subject string
-	if _, ok := vars["SUBJECT"]; ok {
-		subject = vars["SUBJECT"].(string)
+	if _, ok := vars["TITLE"]; ok {
+		subject = vars["TITLE"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
 	var body string
-	if _, ok := vars["BODY"]; ok {
-		body = vars["BODY"].(string)
+	if _, ok := vars["CONTENT"]; ok {
+		body = vars["CONTENT"].(string)
 	} else {
 		return errors.New(ParamEmpty)
 	}
