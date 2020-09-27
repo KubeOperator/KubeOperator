@@ -53,6 +53,7 @@ import {MessageComponent} from './business/setting/message/message.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
+    {path: 'logger', component: ClusterLoggerComponent},
     {
         path: '',
         component: LayoutComponent,
