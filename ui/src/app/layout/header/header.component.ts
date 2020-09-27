@@ -33,11 +33,11 @@ export class HeaderComponent implements OnInit {
 
     ngOnInit(): void {
         this.getProfile();
-        this.noticeService.currentUnread.subscribe(data => {
-            this.unreadAlert = data.unreadAlert;
-            this.unreadInfo = data.unreadInfo;
-            this.checkNotice();
-        });
+        // this.noticeService.currentUnread.subscribe(data => {
+        //     this.unreadAlert = data.unreadAlert;
+        //     this.unreadInfo = data.unreadInfo;
+        //     this.checkNotice();
+        // });
     }
 
     // Testing purpose
