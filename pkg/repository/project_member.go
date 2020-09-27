@@ -10,6 +10,7 @@ type ProjectMemberRepository interface {
 	PageByProjectId(num, size int, projectId string) (int, []model.ProjectMember, error)
 	Batch(operation string, items []model.ProjectMember) error
 	Create(member *model.ProjectMember) error
+	ListByProjectId(projectId string) ([]model.ProjectMember, error)
 }
 
 type projectMemberRepository struct {
@@ -17,6 +18,12 @@ type projectMemberRepository struct {
 
 func NewProjectMemberRepository() ProjectMemberRepository {
 	return &projectMemberRepository{}
+}
+
+func (p projectMemberRepository) ListByProjectId(projectId string) ([]model.ProjectMember, error) {
+	var projectMembers []model.ProjectMember
+	err := db.DB.Where(model.ProjectMember{ProjectID: projectId}).Find(&projectMembers).Error
+	return projectMembers, err
 }
 
 func (p projectMemberRepository) PageByProjectId(num, size int, projectId string) (int, []model.ProjectMember, error) {

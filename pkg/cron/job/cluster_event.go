@@ -2,6 +2,8 @@ package job
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -13,12 +15,14 @@ import (
 type ClusterEvent struct {
 	clusterService      service.ClusterService
 	clusterEventService service.ClusterEventService
+	messageService      service.MessageService
 }
 
 func NewClusterEvent() *ClusterEvent {
 	return &ClusterEvent{
 		clusterService:      service.NewClusterService(),
 		clusterEventService: service.NewClusterEventService(),
+		messageService:      service.NewMessageService(),
 	}
 }
 
@@ -73,6 +77,15 @@ func (c *ClusterEvent) Run() {
 							clusterEvent.Host = event.DeprecatedSource.Host
 							clusterEvent.ClusterID = cluster.ID
 							clusterEvent.Message = event.Note
+
+							if clusterEvent.Type == "Warning" {
+								content, _ := json.Marshal(clusterEvent)
+								fmt.Println(string(content))
+								err := c.messageService.SendMessage(constant.Cluster, false, string(content), cluster.Name, constant.ClusterEventWarning)
+								if err != nil {
+									log.Errorf("send cluster  %s event error : %s", cluster.Name, err.Error())
+								}
+							}
 							err := c.clusterEventService.Save(*clusterEvent)
 							if err != nil {
 								return

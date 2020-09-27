@@ -7,12 +7,12 @@ import (
 
 type Message struct {
 	common.BaseModel
-	ID      string `json:"-"`
-	Title   string `json:"title"`
-	Sender  string `json:"sender"`
-	Content string `json:"content"`
-	Type    string `json:"type"`
-	Level   string `json:"level"`
+	ID        string `json:"-"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Type      string `json:"type"`
+	Level     string `json:"level"`
+	ClusterID string `json:"clusterId"`
 }
 
 func (m *Message) BeforeCreate() error {

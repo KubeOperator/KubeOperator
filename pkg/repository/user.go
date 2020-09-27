@@ -13,6 +13,7 @@ type UserRepository interface {
 	Save(item *model.User) error
 	Delete(name string) error
 	Batch(operation string, items []model.User) error
+	ListIsAdmin() ([]model.User, error)
 }
 
 type userRepository struct {
@@ -32,6 +33,12 @@ func (u userRepository) Page(num, size int) (int, []model.User, error) {
 func (u userRepository) List() ([]model.User, error) {
 	var users []model.User
 	err := db.DB.Model(model.User{}).Order("name").Find(&users).Error
+	return users, err
+}
+
+func (u userRepository) ListIsAdmin() ([]model.User, error) {
+	var users []model.User
+	err := db.DB.Where(model.User{IsAdmin: true}).Find(&users).Error
 	return users, err
 }
 

@@ -11,6 +11,7 @@ type SystemSettingService interface {
 	GetLocalHostName() string
 	List() (dto.SystemSettingResult, error)
 	Create(creation dto.SystemSettingCreate) ([]dto.SystemSetting, error)
+	ListByTab(tabName string) (dto.SystemSettingResult, error)
 }
 
 type systemSettingService struct {
@@ -39,6 +40,19 @@ func (s systemSettingService) List() (dto.SystemSettingResult, error) {
 	var systemSettingResult dto.SystemSettingResult
 	vars := make(map[string]string)
 	mos, err := s.systemSettingRepo.List()
+	if err != nil {
+		return systemSettingResult, err
+	}
+	for _, mo := range mos {
+		vars[mo.Key] = mo.Value
+	}
+	systemSettingResult.Vars = vars
+	return systemSettingResult, err
+}
+func (s systemSettingService) ListByTab(tabName string) (dto.SystemSettingResult, error) {
+	var systemSettingResult dto.SystemSettingResult
+	vars := make(map[string]string)
+	mos, err := s.systemSettingRepo.ListByTab(tabName)
 	if err != nil {
 		return systemSettingResult, err
 	}

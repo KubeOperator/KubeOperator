@@ -29,7 +29,7 @@
                 </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
-                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['SMTP_STATUS']" required>
+                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['EMAIL_STATUS']" required>
                         <option value="ENABLE">{{'APP_ENABLE'|translate}}</option>
                         <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
                     </select>
@@ -50,26 +50,26 @@
             <form clrForm #wechatForm="ngForm">
                 <clr-password-container>
                     <label>corpid</label>
-                    <input clrPassword name="weixin_corp_id" [(ngModel)]="item.vars['WEIXIN_CORP_ID']" size=45
+                    <input clrPassword name="weixin_corp_id" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_ID']" size=45
                            required/>
                 </clr-password-container>
                 <clr-input-container>
                     <label>agentid</label>
-                    <input clrInput name="weixin_agentid" [(ngModel)]="item.vars['WEIXIN_AGENT_ID']" size=45 required/>
+                    <input clrInput name="weixin_agentid" [(ngModel)]="item.vars['WORK_WEIXIN_AGENT_ID']" size=45 required/>
                 </clr-input-container>
                 <clr-password-container>
                     <label>secret</label>
-                    <input clrPassword name="weixin_secret" [(ngModel)]="item.vars['WEIXIN_CORP_SECRET']" size=45
+                    <input clrPassword name="weixin_secret" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_SECRET']" size=45
                            required/>
                 </clr-password-container>
                 <clr-input-container>
                     <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
-                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['WEIXIN_TEST_USER']" size=45/>
+                    <input clrInput name="weixin_test" [(ngModel)]="item.vars['WORK_WEIXIN_TEST_USER']" size=45/>
                     <clr-control-helper>{{'APP_WORK_WEIXIN_USER_HELPER'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
-                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['WEIXIN_STATUS']"
+                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['WORK_WEIXIN_STATUS']"
                             required>
                         <option value="ENABLE">{{'APP_ENABLE'|translate}}</option>
                         <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
@@ -86,7 +86,7 @@
             <button class="btn btn-success-outline" [disabled]="wechatForm.invalid" (click)="checkValid('WORK_WEIXIN')">
                 {{'APP_SMTP_CHECK'|translate}}
             </button>
-            <button class="btn btn-info-outline" (click)="onSubmit(item,'workWeixin')"
+            <button class="btn btn-info-outline" (click)="onSubmit(item,'WORK_WEIXIN')"
                     [disabled]="wechatForm.invalid || !valid">
                 {{'APP_COMMIT'|translate}}
             </button>
@@ -98,12 +98,12 @@
             <form clrForm #dingTalkForm="ngForm">
                 <clr-input-container>
                     <label>{{'APP_DING_TALK_WEBHOOK'|translate}}</label>
-                    <input clrInput name="dingtalk_webhook" [(ngModel)]="item.vars['DINGTALK_WEBHOOK']" size=100
+                    <input clrInput name="dingtalk_webhook" [(ngModel)]="item.vars['DING_TALK_WEBHOOK']" size=100
                            required/>
                 </clr-input-container>
                 <clr-password-container>
                     <label>secret</label>
-                    <input clrPassword name="dingtalk_secret" [(ngModel)]="item.vars['DINGTALK_SECRET']" size=100
+                    <input clrPassword name="dingtalk_secret" [(ngModel)]="item.vars['DING_TALK_SECRET']" size=100
                            required/>
                 </clr-password-container>
                 <clr-input-container>
@@ -113,7 +113,7 @@
                 </clr-input-container>
                 <clr-select-container>
                     <label>{{'APP_SMTP_STATUS'|translate}}</label>
-                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['DINGTALK_STATUS']"
+                    <select class="input-width" clrSelect name="status" [(ngModel)]="item.vars['DING_TALK_STATUS']"
                             required>
                         <option value="ENABLE">{{'APP_ENABLE'|translate}}</option>
                         <option value="DISABLE">{{'APP_DISABLE'|translate}}</option>
