@@ -24,7 +24,7 @@ build_server_linux:
 
 
 docker_ui:
-	docker build -t kubeoperator/ui:master  ./ui
+	docker build -t kubeoperator/ui:master  ./ui --no-cache
 
 docker_server:
 	docker build -t kubeoperator/server:master --build-arg GOPROXY=$(GOPROXY) --build-arg GOARCH=$(GOARCH) --build-arg XPACK="no" .
