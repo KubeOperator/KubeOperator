@@ -96,6 +96,8 @@ github.com/KubeOperator/kobe v0.0.0-20200811054513-bed724c202ab h1:xYWvmLYqhed00
 github.com/KubeOperator/kobe v0.0.0-20200811054513-bed724c202ab/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kobe v0.0.0-20200825101836-91d4296d44be h1:wS8xZ515iXnHXD58LZticpqpQGWveSxrsqC9pj4El1s=
 github.com/KubeOperator/kobe v0.0.0-20200825101836-91d4296d44be/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
+github.com/KubeOperator/kobe v0.0.0-20200927025215-e66b2838a503 h1:JEsNWR+hzOltRwmF+PWwFIJT3rKrFNxa5D9GaPYwX2U=
+github.com/KubeOperator/kobe v0.0.0-20200927025215-e66b2838a503/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kotf v0.0.4 h1:1qVDWfVyGeaTptx414Y9/Qv5XLIg//azBrNlBOZJrvw=
 github.com/KubeOperator/kotf v0.0.4/go.mod h1:AfOs1VTYwYjJfVw9UG8rLB1nRDZpNvflStI9I/SDIhc=
 github.com/KubeOperator/kotf v0.0.6 h1:KP99U9OdIOtSe38jQAwKnocZIp+5pP2dgYedEToJi4w=

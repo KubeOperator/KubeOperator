@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Azure/azure-storage-blob-go v0.10.0
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
-	github.com/KubeOperator/kobe v0.0.0-20200825101836-91d4296d44be
+	github.com/KubeOperator/kobe v0.0.0-20200927025215-e66b2838a503
 	github.com/KubeOperator/kotf v0.0.8
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
