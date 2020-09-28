@@ -37,8 +37,7 @@ export class MailboxComponent implements OnInit {
 
   refresh() {
     this.list.reset();
-    this.list.refresh();
-    this.list.checkUnread();
+    this.list.listByUsername();
   }
 
 }

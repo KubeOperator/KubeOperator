@@ -1,7 +1,8 @@
 <clr-datagrid [clrDgLoading]="false" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="markAsRead()">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="markAsRead()"
+                    [disabled]="selected.length<1">
                 <clr-icon shape="check" size="16"></clr-icon>
                 {{'APP_MARK_AS_READ'|translate}}
             </button>
@@ -28,18 +29,22 @@
     </clr-dg-column>
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">
-            <clr-icon shape="envelope"></clr-icon>
-            More Content</a></clr-dg-cell>
-        <clr-dg-cell>{{item.type}}</clr-dg-cell>
-        <clr-dg-cell>{{item.level}}</clr-dg-cell>
-        <clr-dg-cell [ngStyle]="{'color': readColor(item.isRead)}">{{item.isRead}}</clr-dg-cell>
-        <clr-dg-cell>{{item.createdAt}}</clr-dg-cell>
+        <clr-dg-cell style="cursor: pointer;overflow: hidden;text-overflow:ellipsis;
+    white-space: nowrap;" [ngStyle]="{'color':item.readStatus==='UNREAD'?'#0079b8':'#969696'}" (click)="onDetail(item)"
+                     href="javascript:void(0)">
+            <clr-icon shape="folder" *ngIf="item.readStatus==='UNREAD'"></clr-icon>
+            <clr-icon shape="folder-open" *ngIf="item.readStatus==='READ'"></clr-icon>
+            {{item.message.title|translate}}
+        </clr-dg-cell>
+        <clr-dg-cell>{{item.message.type | messageType}}</clr-dg-cell>
+        <clr-dg-cell>{{item.message.level }}</clr-dg-cell>
+        <clr-dg-cell>{{item.readStatus}}</clr-dg-cell>
+        <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss' }}</clr-dg-cell>
     </clr-dg-row>
 
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
-                           (clrDgPageChange)="refresh()">
+                           (clrDgPageChange)="listByUsername()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
             {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_USER"|translate}}
         </clr-dg-pagination>

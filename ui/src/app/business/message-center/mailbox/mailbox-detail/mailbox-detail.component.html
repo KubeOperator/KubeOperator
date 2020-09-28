@@ -1,27 +1,32 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
     <h3 class="modal-title">Notice Information</h3>
     <div class="modal-body">
-<!--        Please delete this part when implementing features since this is only for testing purpose -->
-        <hr>
-        <p>Not Sure what content should be inside of this...</p>
-        <p>Need someone else to change the content from string type to other object type</p>
-        <hr>
-<!--        -->
-        <div *ngIf="item!=null && !loading">
+        <div *ngIf="item">
             <h5>{{'APP_BASIC_INFORMATION'|translate}}</h5>
             <hr>
-            <p>Content: {{item.content}}</p>
-            <p>Type: {{item.type}}</p>
-            <p>Level: {{item.level}}</p>
-            <p>Received at: {{item.createdAt}}</p>
-        </div>
-        <div *ngIf="loading" style="text-align: center">
-            <clr-spinner></clr-spinner>
+            <div *ngIf="item.message.title === 'CLUSTER_EVENT_WARNING'">
+                <p>{{'APP_CLUSTER'|translate}}: {{item.clusterName}} </p>
+                <p>{{'APP_EVENT_HOST'|translate}}: {{item.msgContent['host']}} </p>
+                <p>{{'APP_EVENT_NAME'|translate}}: {{item.msgContent['name']}} </p>
+                <p>{{'APP_EVENT_TYPE'|translate}}: {{item.msgContent['type']}} </p>
+                <p>{{'APP_EVENT_COMPONENT'|translate}}: {{item.msgContent['component']}} </p>
+                <p>{{'APP_EVENT_DETAIL'|translate}}: {{item.msgContent['message']}} </p>
+                <p>{{'APP_EVENT_KIND'|translate}}: {{item.msgContent['kind']}} </p>
+                <p>{{'APP_NAMESPACE'|translate}}: {{item.msgContent['namespace']}} </p>
+                <p>{{'APP_EVENT_REASON'|translate}}: {{item.msgContent['reason']}} </p>
+            </div>
+            <div *ngIf="item.message.title !== 'CLUSTER_EVENT_WARNING'">
+                <p>{{'APP_CLUSTER'|translate}}: {{item.clusterName}} </p>
+                <p>Content: {{item.message.content}}</p>
+                <p>Type: {{item.message.type}}</p>
+                <p>Level: {{item.message.level}}</p>
+                <p>Received at: {{item.createdAt}}</p>
+            </div>
+            <hr>
         </div>
         <app-modal-alert></app-modal-alert>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn" (click)="onCancel()" [disabled]="loading">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn" (click)="onSync()" [disabled]="loading">{{'APP_REFRESH'|translate}}</button>
+        <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
     </div>
 </clr-modal>

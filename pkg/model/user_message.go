@@ -7,7 +7,7 @@ import (
 
 type UserMessage struct {
 	common.BaseModel
-	ID         string  `json:"-"`
+	ID         string  `json:"id"`
 	Receive    string  `json:"receive"`
 	UserID     string  `json:"userId"`
 	MessageID  string  `json:"messageId"`

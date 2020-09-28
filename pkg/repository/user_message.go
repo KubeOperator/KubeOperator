@@ -22,13 +22,15 @@ type userMessageRepository struct {
 func (u userMessageRepository) Page(num int, size int, userId string) (int, []model.UserMessage, error) {
 	var total int
 	var userMessages []model.UserMessage
-	if err := db.DB.
+	if err := db.DB.Debug().
+		Model(model.UserMessage{}).
 		Where(model.UserMessage{UserID: userId}).
+		Preload("Message").
+		Preload("Message.Cluster").
 		Count(&total).
 		Find(&userMessages).
 		Offset((num - 1) * size).
 		Limit(size).
-		Preload("Message").
 		Error; err != nil {
 		return total, nil, err
 	}
