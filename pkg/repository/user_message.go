@@ -22,7 +22,7 @@ type userMessageRepository struct {
 func (u userMessageRepository) Page(num int, size int, userId string) (int, []model.UserMessage, error) {
 	var total int
 	var userMessages []model.UserMessage
-	if err := db.DB.Debug().
+	if err := db.DB.
 		Model(model.UserMessage{}).
 		Where(model.UserMessage{UserID: userId}).
 		Preload("Message").

@@ -14,13 +14,13 @@ type workWeixin struct {
 }
 
 func NewWorkWeixinClient(vars map[string]interface{}) (*workWeixin, error) {
-	if _, ok := vars["WEIXIN_CORP_ID"]; !ok {
+	if _, ok := vars["WORK_WEIXIN_CORP_ID"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["WEIXIN_CORP_SECRET"]; !ok {
+	if _, ok := vars["WORK_WEIXIN_CORP_SECRET"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
-	if _, ok := vars["WEIXIN_AGENT_ID"]; !ok {
+	if _, ok := vars["WORK_WEIXIN_AGENT_ID"]; !ok {
 		return nil, errors.New(ParamEmpty)
 	}
 	return &workWeixin{
@@ -50,7 +50,7 @@ func (w workWeixin) SendMessage(vars map[string]interface{}) error {
 	reqBody := make(map[string]interface{})
 	reqBody["msgtype"] = "markdown"
 	reqBody["touser"] = receivers
-	reqBody["agentid"] = vars["WEIXIN_AGENT_ID"].(string)
+	reqBody["agentid"] = vars["WORK_WEIXIN_AGENT_ID"].(string)
 	markdown := make(map[string]string)
 	markdown["content"] = content
 	reqBody["markdown"] = markdown
@@ -85,7 +85,7 @@ func (w workWeixin) SendMessage(vars map[string]interface{}) error {
 }
 
 func GetToken(vars map[string]interface{}) (string, error) {
-	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", vars["WEIXIN_CORP_ID"].(string), vars["WEIXIN_CORP_SECRET"].(string))
+	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", vars["WORK_WEIXIN_CORP_ID"].(string), vars["WORK_WEIXIN_CORP_SECRET"].(string))
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
