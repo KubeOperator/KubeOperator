@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
+	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
@@ -23,6 +24,7 @@ import (
 )
 
 type ClusterNodeService interface {
+	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) ([]dto.Node, error)
 }
@@ -54,6 +56,22 @@ type clusterNodeService struct {
 type nodeMessage struct {
 	node    *model.ClusterNode
 	message string
+}
+
+func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
+	var n model.ClusterNode
+	cluster, err := c.ClusterService.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.DB.Where(model.ClusterNode{ClusterID: cluster.ID, Name: name}).Find(&n).Error
+	if err != nil {
+		return nil, err
+	}
+	return &dto.Node{
+		ClusterNode: n,
+	}, nil
 }
 
 func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
@@ -512,8 +530,13 @@ const addWorkerPlaybook = "91-add-worker.yml"
 
 func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluster *model.Cluster, nm *nodeMessage) {
 	defer waitGroup.Done()
+	logId, writer, err := ansible.CreateNodeAnsibleLogWriter(cluster.Name, nm.node.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	nm.node.LogId = logId
+	db.DB.Save(nm.node)
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
-
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
 		if inventory.Groups[i].Name == "new-worker" {
@@ -533,7 +556,7 @@ func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluste
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	val, _ := c.systemSettingRepo.Get("ip")
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
-	err := phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, nil)
+	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, writer)
 	if err != nil {
 		nm.node.Status = constant.ClusterFailed
 		nm.message = err.Error()

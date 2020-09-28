@@ -343,3 +343,28 @@ func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
 	}
 	return &Log{Msg: string(chunk)}, nil
 }
+
+func (c ClusterController) GetNodeLoggerBy(clusterName string, nodeName string) (*Log, error) {
+	node, err := c.ClusterNodeService.Get(clusterName, nodeName)
+	if err != nil {
+		return nil, err
+	}
+	r, err := ansible.GetNodeAnsibleLogReader(clusterName, nodeName, node.LogId)
+	if err != nil {
+		return nil, err
+	}
+	var chunk []byte
+	for {
+
+		buffer := make([]byte, 1024)
+		n, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		chunk = append(chunk, buffer[:n]...)
+	}
+	return &Log{Msg: string(chunk)}, nil
+}

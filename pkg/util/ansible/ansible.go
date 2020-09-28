@@ -24,7 +24,26 @@ func CreateAnsibleLogWriter(clusterName string) (string, io.Writer, error) {
 	return logId, writer, nil
 }
 
+func CreateNodeAnsibleLogWriter(clusterName, nodeName string) (string, io.Writer, error) {
+	logId := uuid.NewV4().String()
+	dirName := path.Join(constant.DefaultAnsibleLogDir, clusterName, nodeName)
+	if !file.Exists(dirName) {
+		_ = os.MkdirAll(dirName, 0755)
+	}
+	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
+	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+	if err != nil {
+		return "", nil, err
+	}
+	return logId, writer, nil
+
+}
+
 func GetAnsibleLogReader(clusterName string, logId string) (io.Reader, error) {
 	logPath := path.Join(constant.DefaultAnsibleLogDir, clusterName, fmt.Sprintf("%s.log", logId))
+	return os.OpenFile(logPath, os.O_RDONLY, 0755)
+}
+func GetNodeAnsibleLogReader(clusterName string, nodeName string, logId string) (io.Reader, error) {
+	logPath := path.Join(constant.DefaultAnsibleLogDir, clusterName, nodeName, fmt.Sprintf("%s.log", logId))
 	return os.OpenFile(logPath, os.O_RDONLY, 0755)
 }
