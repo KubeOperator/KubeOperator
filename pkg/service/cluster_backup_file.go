@@ -286,10 +286,14 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	err = c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		log.Error(err)
+		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
 		log.Error(err)
+		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 	}
 
 	vars := make(map[string]interface{})
@@ -300,6 +304,8 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
 		log.Error(err)
+		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 		return
 	}
 
@@ -308,6 +314,8 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
 		log.Error(err)
+		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 		return
 	}
 
@@ -316,8 +324,12 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	err = p.Run(admCluster.Kobe, nil)
 	if err != nil {
 		_ = c.clusterLogService.End(&clog, false, err.Error())
+		sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 	} else {
 		_ = c.clusterLogService.End(&clog, true, "")
+		sErr := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
+		log.Error(sErr)
 	}
 }
 
@@ -353,10 +365,15 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		err = c.clusterLogService.Save(cluster.Name, &clog)
 		if err != nil {
 			log.Error(err)
+
+			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+			log.Error(sErr)
 		}
 		err = c.clusterLogService.Start(&clog)
 		if err != nil {
 			log.Error(err)
+			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+			log.Error(sErr)
 		}
 
 		admCluster := adm.NewCluster(cluster.Cluster)
@@ -364,11 +381,14 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 			BackupFileName: constant.BackupFileDefaultName,
 		}
 		err = p.Run(admCluster.Kobe, nil)
-
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
+			sErr := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRestore, false, err.Error()), cluster.Name, constant.ClusterRestore)
+			log.Error(sErr)
 		} else {
 			_ = c.clusterLogService.End(&clog, true, "")
+			sErr := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRestore, true, ""), cluster.Name, constant.ClusterRestore)
+			log.Error(sErr)
 		}
 	}()
 	return nil
