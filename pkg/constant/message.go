@@ -1,18 +1,20 @@
 package constant
 
 const (
-	Email       = "EMAIL"
-	DingTalk    = "DING_TALK"
-	WorkWeiXin  = "WORK_WEIXIN"
-	LocalMail   = "LOCAL"
-	Enable      = "ENABLE"
-	Disable     = "DISABLE"
-	Cluster     = "CLUSTER"
-	System      = "SYSTEM"
-	Read        = "READ"
-	UnRead      = "UNREAD"
-	SendSuccess = "SUCCESS"
-	SendFailed  = "FAILED"
+	Email          = "EMAIL"
+	DingTalk       = "DING_TALK"
+	WorkWeiXin     = "WORK_WEIXIN"
+	LocalMail      = "LOCAL"
+	Enable         = "ENABLE"
+	Disable        = "DISABLE"
+	Cluster        = "CLUSTER"
+	System         = "SYSTEM"
+	Read           = "READ"
+	UnRead         = "UNREAD"
+	SendSuccess    = "SUCCESS"
+	SendFailed     = "FAILED"
+	OperateSuccess = "SUCCESS"
+	OperateFailed  = "FAILED"
 )
 
 //message type

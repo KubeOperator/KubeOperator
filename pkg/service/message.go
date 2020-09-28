@@ -180,6 +180,22 @@ func Tr(title string) string {
 	return result
 }
 
+func GetContent(title string, success bool, errorMsg string) string {
+	msg := Tr(title)
+	vars := make(map[string]string)
+	if success {
+		msg = msg + "成功"
+	} else {
+		msg = msg + "失败"
+		if errorMsg != " " {
+			vars["errorMsg"] = errorMsg
+		}
+	}
+	vars["message"] = msg
+	content, _ := json.Marshal(vars)
+	return string(content)
+}
+
 func (m messageService) SendUserMessage(messages []model.UserMessage, clusterName string) {
 	userMsgRepo := repository.NewUserMessageRepository()
 	for _, msg := range messages {
