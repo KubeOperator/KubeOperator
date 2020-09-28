@@ -27,6 +27,7 @@ func (u userMessageRepository) Page(num int, size int, userId string) (int, []mo
 		Where(model.UserMessage{UserID: userId}).
 		Preload("Message").
 		Preload("Message.Cluster").
+		Order("created_at desc").
 		Count(&total).
 		Find(&userMessages).
 		Offset((num - 1) * size).
