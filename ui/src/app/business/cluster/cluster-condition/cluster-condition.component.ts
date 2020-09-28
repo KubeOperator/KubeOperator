@@ -56,7 +56,6 @@ export class ClusterConditionComponent implements OnInit {
     onRetry() {
         switch (this.cluster.preStatus) {
             case 'Upgrading':
-                console.log(123);
                 this.service.upgrade(this.cluster.name, this.cluster.spec.upgradeVersion).subscribe(data => {
                     this.retry.emit();
                     this.polling();

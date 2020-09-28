@@ -11,12 +11,22 @@ export class ClusterLoggerService {
     constructor(private http: HttpClient) {
     }
 
-    private url = '/api/v1/clusters/logger/{cluster_name}';
+    private clusterLoggerUrl = '/api/v1/clusters/logger/{cluster_name}';
+    private clusterNodeLoggerUrl = '/api/v1/clusters/node/logger/{cluster_name}/{node_name}';
 
-    get(clusterName: string): Observable<Log> {
-        return this.http.get<Log>(this.url.replace('{cluster_name}', clusterName));
+    getClusterLog(clusterName: string): Observable<Log> {
+        return this.http.get<Log>(this.clusterLoggerUrl.replace('{cluster_name}', clusterName));
     }
-    openLogger(clusterName: string) {
-        window.open('/ui/logger?clusterName=' + clusterName, 'blank', 'height=820, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=yes,location=no, status=no');
+
+    getClusterNodeLog(clusterName: string, nodeName: string): Observable<Log> {
+        return this.http.get<Log>(this.clusterNodeLoggerUrl.replace('{cluster_name}', clusterName).replace('{node_name}', nodeName));
+    }
+
+    openLogger(clusterName: string, nodeName?: string) {
+        if (!nodeName) {
+            window.open(`/ui/logger?clusterName=${clusterName}`, 'blank', 'height=820, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=yes,location=no, status=no');
+        } else {
+            window.open(`/ui/logger?clusterName=${clusterName}&nodeName=${nodeName}`, 'blank', 'height=820, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=yes,location=no, status=no');
+        }
     }
 }

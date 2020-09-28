@@ -7,6 +7,7 @@ import {NodeService} from "../node.service";
 import {Node} from "../node";
 import {CommonAlertService} from "../../../../../layout/common-alert/common-alert.service";
 import {AlertLevels} from "../../../../../layout/common-alert/alert";
+import {ClusterLoggerService} from "../../../cluster-logger/cluster-logger.service";
 
 @Component({
     selector: 'app-node-list',
@@ -27,7 +28,7 @@ export class NodeListComponent implements OnInit, OnDestroy {
     @Output() deleteEvent = new EventEmitter<Node[]>();
 
     constructor(private service: KubernetesService, private route: ActivatedRoute,
-                private nodeService: NodeService, private alertService: CommonAlertService) {
+                private nodeService: NodeService, private alertService: CommonAlertService, private loggerService: ClusterLoggerService) {
     }
 
     ngOnInit(): void {
@@ -155,6 +156,10 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     onShowStatus(item: Node) {
         this.statusEvent.emit(item);
+    }
+
+    onShowLogger(item: Node) {
+        this.loggerService.openLogger(this.currentCluster.name, item.name);
     }
 
     polling() {
