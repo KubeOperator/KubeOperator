@@ -19,7 +19,7 @@ type MessageService interface {
 
 type messageService struct {
 	messageRepo                repository.MessageRepository
-	clusterService             ClusterService
+	clusterRepo                repository.ClusterRepository
 	projectMemberRepo          repository.ProjectMemberRepository
 	projectResourceRepo        repository.ProjectResourceRepository
 	systemSettingService       SystemSettingService
@@ -33,7 +33,7 @@ type messageService struct {
 func NewMessageService() MessageService {
 	return &messageService{
 		messageRepo:                repository.NewMessageRepository(),
-		clusterService:             NewClusterService(),
+		clusterRepo:                repository.NewClusterRepository(),
 		projectMemberRepo:          repository.NewProjectMemberRepository(),
 		projectResourceRepo:        repository.NewProjectResourceRepository(),
 		systemSettingService:       NewSystemSettingService(),
@@ -55,7 +55,7 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 	}
 	msg.Content = content
 	msg.Title = title
-	cluster, err := m.clusterService.Get(clusterName)
+	cluster, err := m.clusterRepo.Get(clusterName)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 	var result string
 	detail := make(map[string]string)
 	json.Unmarshal([]byte(content), &detail)
-	cluster, err := m.clusterService.Get(clusterName)
+	cluster, err := m.clusterRepo.Get(clusterName)
 	if err != nil {
 		return ""
 	}

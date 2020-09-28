@@ -227,7 +227,7 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			log.Error(sErr)
 			return
 		}
-		srcFilePath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupTarFileDefaultName
+		srcFilePath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
 		_, err = client.Upload(srcFilePath, creation.Folder)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
@@ -310,7 +310,7 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	}
 
 	srcFilePath := restore.File.Folder
-	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupTarFileDefaultName
+	targetPath := constant.BackupDir + "/" + cluster.Name + "/" + constant.BackupFileDefaultName
 	_, err = client.Download(srcFilePath, targetPath)
 	if err != nil {
 		log.Error(err)
@@ -377,9 +377,7 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 		}
 
 		admCluster := adm.NewCluster(cluster.Cluster)
-		p := &backup.RestoreClusterCustomPhase{
-			BackupFileName: constant.BackupFileDefaultName,
-		}
+		p := &backup.RestoreClusterPhase{}
 		err = p.Run(admCluster.Kobe, nil)
 		if err != nil {
 			_ = c.clusterLogService.End(&clog, false, err.Error())
