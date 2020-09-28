@@ -48,6 +48,7 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
                 this.term.clear();
                 const text = data.msg.replace(/\n/g, '\r\n');
                 this.term.write(text);
+                this.term.scrollToBottom();
             }, error => {
                 this.term.write('no log to show');
             });
