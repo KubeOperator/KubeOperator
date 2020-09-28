@@ -4,6 +4,8 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type UserMessageDTO struct {
 	model.UserMessage
+	MsgContent  interface{} `json:"msgContent"`
+	ClusterName string      `json:"clusterName"`
 }
 
 type UserMessageOp struct {

@@ -13,7 +13,6 @@ export class MailboxDetailComponent extends BaseModelDirective<Notice> implement
 
   opened = false;
   item: Notice = new Notice();
-  loading = false;
   @Output() detail = new EventEmitter();
 
   constructor(private noticeService: NoticeService, private modalAlertService: ModalAlertService) {
@@ -26,8 +25,6 @@ export class MailboxDetailComponent extends BaseModelDirective<Notice> implement
   onCancel() {
     this.item = new Notice();
     this.opened = false;
-    this.loading = false;
-    this.detail.emit();
   }
 
   open(item: Notice) {
@@ -35,8 +32,5 @@ export class MailboxDetailComponent extends BaseModelDirective<Notice> implement
     this.item = item;
   }
 
-  onSync() {
-    console.log('You click onSync button!');
-  }
 
 }

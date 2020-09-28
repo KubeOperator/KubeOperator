@@ -431,6 +431,10 @@
   "APP_SMTP_TEST_USER": "Email Test User",
   "APP_MARK_AS_READ": "Mark As Read",
   "APP_MSG_CONTENT": "Message Content",
-  "APP_MSG_LEVEL": "Level"
-
+  "APP_MSG_LEVEL": "Level",
+  "APP_EVENT_DETAIL": "Message",
+  "APP_EVENT_KIND": "Kind",
+  "APP_EVENT_HOST": "Host",
+  "APP_EVENT_NAME":"Name",
+  "CLUSTER_EVENT_WARNING": "Cluster Event Warning"
 }

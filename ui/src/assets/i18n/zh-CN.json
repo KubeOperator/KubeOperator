@@ -16,6 +16,7 @@
   "APP_DEFAULT_DELETE_WARNING": "删除操作不可回滚，确认继续?",
   "APP_PAGER_TOTAL": "总共",
   "APP_CAPACITY": "容量",
+  "APP_CAPACITY": "容量",
   "APP_SOURCE": "来源",
   "APP_PAGER_PER_PAGE": "每页",
   "APP_ADD_SUCCESS": "添加成功",
@@ -434,5 +435,10 @@
   "APP_SMTP_TEST_USER": "邮件测试用户",
   "APP_MARK_AS_READ": "标记为已读",
   "APP_MSG_CONTENT": "消息内容",
-  "APP_MSG_LEVEL": "级别"
+  "APP_MSG_LEVEL": "级别",
+  "APP_EVENT_DETAIL": "详情",
+  "APP_EVENT_KIND": "类别",
+  "APP_EVENT_HOST": "主机",
+  "APP_EVENT_NAME":"名称",
+  "CLUSTER_EVENT_WARNING": "集群事件告警"
 }
