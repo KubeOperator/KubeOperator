@@ -27,6 +27,7 @@ func NewClusterInitService() ClusterInitService {
 		clusterStatusConditionRepo: repository.NewClusterStatusConditionRepository(),
 		clusterSpecRepo:            repository.NewClusterSpecRepository(),
 		clusterIaasService:         NewClusterIaasService(),
+		messageService:             NewMessageService(),
 	}
 }
 
@@ -38,6 +39,7 @@ type clusterInitService struct {
 	clusterStatusConditionRepo repository.ClusterStatusConditionRepository
 	clusterSpecRepo            repository.ClusterSpecRepository
 	clusterIaasService         ClusterIaasService
+	messageService             MessageService
 }
 
 func (c clusterInitService) Init(name string) error {
@@ -97,8 +99,10 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
 			cancel()
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, ""), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
+			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
 			for i, _ := range cluster.Nodes {
 				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 				_ = c.clusterSpecRepo.Save(&cluster.Spec)

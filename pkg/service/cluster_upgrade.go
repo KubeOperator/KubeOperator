@@ -22,12 +22,14 @@ func NewClusterUpgradeService() ClusterUpgradeService {
 	return &clusterUpgradeService{
 		clusterService:    NewClusterService(),
 		clusterStatusRepo: repository.NewClusterStatusRepository(),
+		messageService:    NewMessageService(),
 	}
 }
 
 type clusterUpgradeService struct {
 	clusterService    ClusterService
 	clusterStatusRepo repository.ClusterStatusRepository
+	messageService    MessageService
 }
 
 func (c clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
@@ -104,6 +106,7 @@ func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, vers
 		cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Status = constant.ConditionFalse
 		cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Message = err.Error()
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
 		return
 	}
 	cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Status = constant.ConditionTrue
@@ -111,5 +114,5 @@ func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, vers
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
 	cluster.Spec.Version = version
 	db.DB.Save(&cluster.Spec)
-
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
 }

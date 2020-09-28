@@ -46,6 +46,7 @@ func NewClusterService() ClusterService {
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
 		clusterLogService:          NewClusterLogService(),
+		messageService:             NewMessageService(),
 	}
 }
 
@@ -63,6 +64,7 @@ type clusterService struct {
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
 	clusterLogService          ClusterLogService
+	messageService             MessageService
 }
 
 func (c clusterService) Get(name string) (dto.Cluster, error) {
@@ -334,10 +336,18 @@ func (c clusterService) Delete(name string) error {
 				if len(hosts) > 0 {
 					go c.clusterTerminalService.Terminal(cluster.Cluster)
 				} else {
-					return c.clusterRepo.Delete(name)
+					err = c.clusterRepo.Delete(name)
+					if err != nil {
+						return err
+					}
+					_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 				}
 			} else {
-				return c.clusterRepo.Delete(name)
+				err = c.clusterRepo.Delete(name)
+				if err != nil {
+					return err
+				}
+				_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 			}
 		}
 	case constant.ClusterSourceExternal:
@@ -345,6 +355,7 @@ func (c clusterService) Delete(name string) error {
 		if err != nil {
 			return err
 		}
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
 }
