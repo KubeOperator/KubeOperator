@@ -89,7 +89,35 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 		}
 	}
 	if sendType == constant.Email {
-		return ""
+		if title == constant.ClusterEventWarning {
+			result = "<html>" +
+				"<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head>" +
+				"<body><style> table { font-size: 14px; table-layout:fixed;border:5px solid #F2F2F2;}td { font-family: Arial; WORD-WRAP: break-word }</style>" +
+				"<div align=\"center\"> <table border=\"0\" cellspacing=\"2\" cellpadding=\"2\" width=\"900\"> <tr bgcolor=\"#D1D1D1\"> " +
+				"<th align=\"left\" style=\"font-size:23px;\">" + Tr(title) + "</th></tr><tr><td align=\"left\">" +
+				"项目:" + project.Name + "</td></tr>" +
+				"<tr><td align=\"left\">集群:" + clusterName + "</td>" +
+				"</tr><tr><td align=\"left\">" + detail["name"] + "</td></tr>" +
+				"<tr><td align=\"left\">类别:" + detail["type"] + "</td></tr>" +
+				"<tr><td align=\"left\">原因:" + detail["reason"] + "</td></tr>" +
+				"<tr><td align=\"left\">组件:" + detail["component"] + "</td></tr>" +
+				"<tr><td align=\"left\">NameSpace: " + detail["namespace"] + "</td></tr>" +
+				"<tr><td align=\"left\">主机:" + detail["host"] + "</td> </tr> " +
+				"<tr><td align=\"left\">告警时间: " + date + " </td></tr>" +
+				"<tr><td align=\"left\">详情: " + detail["message"] + "</td>/tr></table>" +
+				"<p>此邮件为KubeOperator平台自动发送，请勿回复!</p></div></body></html>"
+		} else {
+			result = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"></head><body>" +
+				"<style>table {font-size: 14px;able-layout:fixed;border:5px solid #F2F2F2;}td {font-family: Arial; WORD-WRAP: break-word }</style>" +
+				"<div align=\"center\"><table border=\"0\" cellspacing=\"2\" cellpadding=\"2\" width=\"900\">" +
+				"<tr bgcolor=\"#D1D1D1\"><th align=\"left\" style=\"font-size:23px;\">" + Tr(title) + "</th></tr>" +
+				"<tr><td align=\"left\">项目: " + project.Name + "</td></tr>" +
+				"<tr><td align=\"left\">集群: " + clusterName + "</td></tr> " +
+				"<tr><td align=\"left\">详情: " + detail["message"] + "</td></tr>" +
+				"<tr><td align=\"left\">时间: " + date + "</td></tr></table> " +
+				"<p>此邮件为KubeOperator平台自动发送，请勿回复!</p></div></body></html>"
+		}
+		return result
 	}
 	if sendType == constant.DingTalk || sendType == constant.WorkWeiXin {
 		if title == constant.ClusterEventWarning {
@@ -242,9 +270,17 @@ func (m messageService) GetUserMessages(message model.Message) ([]model.UserMess
 		receivers := ""
 		for _, receiver := range v {
 			if k == constant.Email || k == constant.DingTalk {
-				receiver = receiver + ","
+				if len(receivers) == 0 {
+					receivers = receiver
+				} else {
+					receivers = receiver + ","
+				}
 			} else {
-				receiver = receiver + "|"
+				if len(receivers) == 0 {
+					receivers = receiver
+				} else {
+					receivers = receiver + "|"
+				}
 			}
 		}
 		userMessage := model.UserMessage{
@@ -287,7 +323,7 @@ func (m messageService) getUserSendTypes(userId string, mType string) []string {
 	if err != nil {
 		return sendTypes
 	}
-	smtp, _ := m.systemSettingService.Get("SMTP_STATUS")
+	smtp, _ := m.systemSettingService.Get("EMAIL_STATUS")
 	if smtp.ID != "" && smtp.Value == "ENABLE" && userConfig.Vars[constant.Email] == "ENABLE" {
 		sendTypes = append(sendTypes, constant.Email)
 	}
