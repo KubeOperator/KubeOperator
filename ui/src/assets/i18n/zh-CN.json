@@ -440,5 +440,6 @@
   "APP_EVENT_KIND": "类别",
   "APP_EVENT_HOST": "主机",
   "APP_EVENT_NAME":"名称",
-  "CLUSTER_EVENT_WARNING": "集群事件告警"
+  "CLUSTER_EVENT_WARNING": "集群事件告警",
+  "APP_DELETE_USER": "删除用户"
 }

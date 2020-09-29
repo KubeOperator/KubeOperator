@@ -436,5 +436,6 @@
   "APP_EVENT_KIND": "Kind",
   "APP_EVENT_HOST": "Host",
   "APP_EVENT_NAME":"Name",
-  "CLUSTER_EVENT_WARNING": "Cluster Event Warning"
+  "CLUSTER_EVENT_WARNING": "Cluster Event Warning",
+  "APP_DELETE_USER": "Delete User"
 }
