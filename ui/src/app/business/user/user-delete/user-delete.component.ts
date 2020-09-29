@@ -6,6 +6,8 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
+import {SessionService} from '../../../shared/auth/session.service';
+import {SessionUser} from '../../../shared/auth/session-user';
 
 @Component({
     selector: 'app-user-delete',
@@ -16,16 +18,22 @@ export class UserDeleteComponent extends BaseModelDirective<User> implements OnI
 
     opened = false;
     items: User[] = [];
+    user: SessionUser = new SessionUser();
 
     @Output()
     deleted = new EventEmitter();
 
     constructor(private userService: UserService, private modalAlertService: ModalAlertService,
-                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
+                private commonAlertService: CommonAlertService, private translateService: TranslateService,
+                private sessionService: SessionService) {
         super(userService);
     }
 
     ngOnInit(): void {
+        const profile = this.sessionService.getCacheProfile();
+        if (profile != null) {
+            this.user = profile.user;
+        }
     }
 
     open(items) {
@@ -38,6 +46,18 @@ export class UserDeleteComponent extends BaseModelDirective<User> implements OnI
     }
 
     onSubmit() {
+        let check = true;
+        for (const item of this.items) {
+            if (item.name === this.user.name) {
+                check = false;
+                break;
+            }
+        }
+        if (!check) {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_US'), AlertLevels.ERROR);
+            this.opened = false;
+            return;
+        }
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
