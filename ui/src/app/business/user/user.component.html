@@ -4,7 +4,7 @@
         <app-user-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
                        (updateEvent)="openUpdate($event)"></app-user-list>
         <app-user-create (created)="refresh()"></app-user-create>
-        <app-user-update></app-user-update>
+        <app-user-update (update)="refresh()"></app-user-update>
         <app-user-delete (deleted)="refresh()"></app-user-delete>
     </div>
 </div>
