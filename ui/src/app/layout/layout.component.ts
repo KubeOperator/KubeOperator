@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ThemeService} from "../business/setting/theme/theme.service";
-import {Theme} from "../business/setting/theme/theme";
 import {HeaderComponent} from "./header/header.component";
 import {LicenseService} from "../business/setting/license/license.service";
+import {SystemService} from '../business/setting/system.service';
 
 @Component({
     selector: 'app-layout',
@@ -11,15 +11,22 @@ import {LicenseService} from "../business/setting/license/license.service";
 })
 export class LayoutComponent implements OnInit {
 
-    constructor(private themeService: ThemeService, private licenseService: LicenseService) {
+    constructor(private themeService: ThemeService, private licenseService: LicenseService, private  systemService: SystemService) {
     }
 
     @ViewChild(HeaderComponent, {static: true})
     header: HeaderComponent;
+    alert = false;
 
     ngOnInit(): void {
         this.licenseService.setLicense();
         this.setTheme();
+        this.systemService.getIp().subscribe(res => {
+            if (res === null) {
+                this.alert = true;
+            }
+        }, error => {
+        });
     }
 
     setTheme() {

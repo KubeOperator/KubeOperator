@@ -19,4 +19,9 @@ export class SystemService extends BaseModelService<System> {
         const itemUrl = `${this.baseUrl}`;
         return this.http.get<System>(itemUrl);
     }
+
+    getIp(): Observable<string> {
+        const itemUrl = `${this.baseUrl}/ip`;
+        return this.http.get<string>(itemUrl);
+    }
 }

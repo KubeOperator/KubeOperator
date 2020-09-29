@@ -1,4 +1,19 @@
 <clr-main-container>
+    <div class="alert alert-app-level alert-info" role="alert" *ngIf="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper" style="text-align: left;">
+                </div>
+                <div class="alert-text" style="text-align: center;">
+                    <clr-icon class="alert-icon" shape="info-circle"></clr-icon>
+                    {{'APP_HEADER_MSG'|translate}}
+<!--                    <button type="button" class="btn btn-icon" aria-label="settings">-->
+<!--                        <clr-icon shape="cog"></clr-icon>-->
+<!--                    </button>-->
+                </div>
+            </div>
+        </div>
+    </div>
     <app-app-alert></app-app-alert>
     <app-header></app-header>
     <div class="content-container">

@@ -44,3 +44,7 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 	}
 	return result, nil
 }
+
+func (s SystemSettingController) GetIp() string {
+	return s.SystemSettingService.GetLocalHostName()
+}

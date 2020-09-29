@@ -444,5 +444,6 @@
   "APP_DELETE_USER": "删除用户",
   "UNREAD": "未读",
   "READ": "已读",
-  "APP_MSG_DETAIL": "消息详情"
+  "APP_MSG_DETAIL": "消息详情",
+  "APP_HEADER_MSG": "请在系统设置页面填写系统IP"
 }
