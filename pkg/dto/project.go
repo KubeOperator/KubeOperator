@@ -9,6 +9,7 @@ type Project struct {
 type ProjectCreate struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description"`
+	UserName    string `json:"userName" validate:"required"`
 }
 
 type ProjectUpdate struct {

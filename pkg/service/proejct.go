@@ -6,6 +6,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/KubeOperator/KubeOperator/pkg/permission"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 )
 
@@ -24,12 +25,16 @@ type ProjectService interface {
 }
 
 type projectService struct {
-	projectRepo repository.ProjectRepository
+	projectRepo       repository.ProjectRepository
+	userService       UserService
+	projectMemberRepo repository.ProjectMemberRepository
 }
 
 func NewProjectService() ProjectService {
 	return &projectService{
-		projectRepo: repository.NewProjectRepository(),
+		projectRepo:       repository.NewProjectRepository(),
+		userService:       NewUserService(),
+		projectMemberRepo: repository.NewProjectMemberRepository(),
 	}
 }
 
@@ -71,6 +76,22 @@ func (p projectService) Create(creation dto.ProjectCreate) (*dto.Project, error)
 	err := p.projectRepo.Save(&project)
 	if err != nil {
 		return nil, err
+	}
+
+	user, err := p.userService.Get(creation.UserName)
+	if err != nil {
+		return nil, err
+	}
+	if !user.IsAdmin {
+		projectMember := model.ProjectMember{
+			ProjectID: project.ID,
+			UserID:    user.ID,
+			Role:      permission.PROJECTMANAGER,
+		}
+		err := p.projectMemberRepo.Create(&projectMember)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &dto.Project{Project: project}, err
 }

@@ -24,7 +24,7 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService,
                 private sessionService: SessionService,
-                private modalAlertService: ModalAlertService,) {
+                private modalAlertService: ModalAlertService) {
         super(noticeService);
     }
 

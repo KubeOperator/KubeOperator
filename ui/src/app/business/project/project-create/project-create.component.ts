@@ -8,6 +8,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {NamePattern, NamePatternHelper} from '../../../constant/pattern';
+import {SessionService} from '../../../shared/auth/session.service';
 
 @Component({
     selector: 'app-project-create',
@@ -23,16 +24,21 @@ export class ProjectCreateComponent extends BaseModelDirective<Project> implemen
     isSubmitGoing = false;
     @Output() created = new EventEmitter();
     @ViewChild('projectForm') hostForm: NgForm;
-
+    user;
 
     constructor(private projectService: ProjectService,
                 private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private sessionService: SessionService) {
         super(projectService);
     }
 
     ngOnInit(): void {
+        const profile = this.sessionService.getCacheProfile();
+        if (profile != null) {
+            this.user = profile.user;
+        }
     }
 
     open() {
@@ -47,10 +53,12 @@ export class ProjectCreateComponent extends BaseModelDirective<Project> implemen
     }
 
     onSubmit() {
+        this.item.userName = this.user.name;
         this.projectService.create(this.item).subscribe(res => {
             this.onCancel();
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            window.location.reload();
         }, error => {
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

@@ -10,4 +10,5 @@ export class ProjectCreateRequest extends BaseRequest {
     name: string;
     id: string;
     description: string;
+    userName: string;
 }
