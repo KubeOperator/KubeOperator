@@ -3,7 +3,6 @@ package job
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -80,7 +79,6 @@ func (c *ClusterEvent) Run() {
 
 							if clusterEvent.Type == "Warning" {
 								content, _ := json.Marshal(clusterEvent)
-								fmt.Println(string(content))
 								err := c.messageService.SendMessage(constant.Cluster, false, string(content), cluster.Name, constant.ClusterEventWarning)
 								if err != nil {
 									log.Errorf("send cluster  %s event error : %s", cluster.Name, err.Error())

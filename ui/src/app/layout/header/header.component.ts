@@ -5,8 +5,8 @@ import {Router} from '@angular/router';
 import {CommonRoutes} from '../../constant/route';
 import {PasswordComponent} from './password/password.component';
 import {AboutComponent} from './about/about.component';
-import {Theme} from '../../business/setting/theme/theme';
-import { NoticeService } from '../../business/message-center/mailbox/notice.service';
+import {NoticeService} from '../../business/message-center/mailbox/notice.service';
+import {LicenseService} from '../../business/setting/license/license.service';
 
 @Component({
     selector: 'app-header',
@@ -16,9 +16,10 @@ import { NoticeService } from '../../business/message-center/mailbox/notice.serv
 export class HeaderComponent implements OnInit {
 
     user: SessionUser = new SessionUser();
-    haveNotices: boolean; // testing purpose
-    unreadAlert: number;
-    unreadInfo: number;
+    unreadAlert = 0;
+    unreadInfo = 0;
+    hasLicense = false;
+    haveNotices = false;
 
     @ViewChild(PasswordComponent, {static: true})
     password: PasswordComponent;
@@ -26,34 +27,34 @@ export class HeaderComponent implements OnInit {
     @ViewChild(AboutComponent, {static: true})
     about: AboutComponent;
     logo: string;
+    timer;
 
     constructor(private sessionService: SessionService, private router: Router,
-                private noticeService: NoticeService) {
+                private noticeService: NoticeService, private licenseService: LicenseService) {
     }
 
     ngOnInit(): void {
         this.getProfile();
-        // this.noticeService.currentUnread.subscribe(data => {
-        //     this.unreadAlert = data.unreadAlert;
-        //     this.unreadInfo = data.unreadInfo;
-        //     this.checkNotice();
-        // });
+        this.licenseService.get().subscribe(data => {
+            this.hasLicense = true;
+        });
     }
-
-    // Testing purpose
-    checkNotice() {
-        if (this.unreadAlert + this.unreadInfo > 0) {
-            this.haveNotices = true;
-        } else {
-            this.haveNotices = false;
-        }
-    }
-    //
 
     getProfile() {
         const profile = this.sessionService.getCacheProfile();
         if (profile != null) {
             this.user = profile.user;
+            this.listUnreadMsg(this.user.name);
+            this.timer = setInterval(() => {
+                this.listUnreadMsg(this.user.name);
+            }, 60000);
+        }
+    }
+
+    // tslint:disable-next-line:use-lifecycle-interface
+    ngOnDestroy() {
+        if (this.timer) {
+            clearInterval(this.timer);
         }
     }
 
@@ -61,6 +62,16 @@ export class HeaderComponent implements OnInit {
         this.password.open(this.user);
     }
 
+    listUnreadMsg(userName) {
+        this.noticeService.listUnread(userName).subscribe(res => {
+            this.unreadAlert = res.warning;
+            this.unreadInfo = res.info;
+            if (this.unreadAlert > 0 || this.unreadAlert > 0) {
+                this.haveNotices = true;
+            }
+        }, error => {
+        });
+    }
 
     openDoc() {
         window.open('https://kubeoperator.io/docs/', 'blank');

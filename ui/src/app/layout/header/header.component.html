@@ -6,7 +6,7 @@
         <img *ngIf="logo" [src]="logo" height="40" style="margin-top: 10px" alt="logo">
     </div>
     <div class="header-actions">
-        <clr-dropdown class="dropdown">
+        <clr-dropdown class="dropdown" *ngIf="hasLicense">
             <button class="nav-text" clrDropdownToggle>
                 <clr-icon shape="bell" [ngClass]="{'has-badge': haveNotices}" size="24"></clr-icon>
                 <span>{{"APP_MSG"|translate}}</span>

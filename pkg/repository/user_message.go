@@ -10,6 +10,7 @@ type UserMessageRepository interface {
 	Page(num int, size int, userId string) (int, []model.UserMessage, error)
 	Batch(operation string, items []model.UserMessage) error
 	Save(message *model.UserMessage) error
+	ListUnreadMsg(userId string) ([]model.UserMessage, error)
 }
 
 func NewUserMessageRepository() UserMessageRepository {
@@ -36,6 +37,19 @@ func (u userMessageRepository) Page(num int, size int, userId string) (int, []mo
 		return total, nil, err
 	}
 	return total, userMessages, nil
+}
+
+func (u userMessageRepository) ListUnreadMsg(userId string) ([]model.UserMessage, error) {
+	var userMessages []model.UserMessage
+	if err := db.DB.
+		Model(model.UserMessage{}).
+		Where(model.UserMessage{UserID: userId, ReadStatus: constant.UnRead}).
+		Preload("Message").
+		Find(&userMessages).
+		Error; err != nil {
+		return nil, err
+	}
+	return userMessages, nil
 }
 
 func (u userMessageRepository) Save(message *model.UserMessage) error {

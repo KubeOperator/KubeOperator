@@ -14,13 +14,13 @@
                 <p>{{'APP_EVENT_KIND'|translate}}: {{item.msgContent['kind']}} </p>
                 <p>{{'APP_NAMESPACE'|translate}}: {{item.msgContent['namespace']}} </p>
                 <p>{{'APP_EVENT_REASON'|translate}}: {{item.msgContent['reason']}} </p>
+                <p>{{'APP_EVENT_DATE'|translate}}: {{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</p>
             </div>
             <div *ngIf="item.message.title !== 'CLUSTER_EVENT_WARNING'">
                 <p>{{'APP_CLUSTER'|translate}}: {{item.clusterName}} </p>
-                <p>Content: {{item.message.content}}</p>
-                <p>Type: {{item.message.type}}</p>
-                <p>Level: {{item.message.level}}</p>
-                <p>Received at: {{item.createdAt}}</p>
+                <p>{{'APP_EVENT_DETAIL'|translate}}: {{item.msgContent['message']}}</p>
+                <p *ngIf="item.message.level==='Warning'">{{'APP_EVENT_DETAIL'|translate}}: {{item.msgContent['errorMsg']}}</p>
+                <p>{{'APP_EVENT_DATE'|translate}}: {{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</p>
             </div>
             <hr>
         </div>

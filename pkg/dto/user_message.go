@@ -12,3 +12,8 @@ type UserMessageOp struct {
 	Operation string           `json:"operation"`
 	Items     []UserMessageDTO `json:"items"`
 }
+
+type UnReadMessage struct {
+	Info    int `json:"info"`
+	Warning int `json:"warning"`
+}
