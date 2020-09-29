@@ -443,5 +443,6 @@
   "CLUSTER_EVENT_WARNING": "集群事件告警",
   "APP_DELETE_USER": "删除用户",
   "UNREAD": "未读",
-  "READ": "已读"
+  "READ": "已读",
+  "APP_MSG_DETAIL": "消息详情"
 }

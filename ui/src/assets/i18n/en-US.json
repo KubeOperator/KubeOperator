@@ -439,5 +439,6 @@
   "CLUSTER_EVENT_WARNING": "Cluster Event Warning",
   "APP_DELETE_USER": "Delete User",
   "UNREAD": "Unread",
-  "READ": "Read"
+  "READ": "Read",
+  "APP_MSG_DETAIL": "Notice Information"
 }

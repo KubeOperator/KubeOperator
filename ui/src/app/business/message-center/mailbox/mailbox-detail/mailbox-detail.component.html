@@ -1,5 +1,5 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'">
-    <h3 class="modal-title">Notice Information</h3>
+    <h3 class="modal-title">{{'APP_MSG_DETAIL'|translate}}</h3>
     <div class="modal-body">
         <div *ngIf="item">
             <h5>{{'APP_BASIC_INFORMATION'|translate}}</h5>
@@ -19,7 +19,8 @@
             <div *ngIf="item.message.title !== 'CLUSTER_EVENT_WARNING'">
                 <p>{{'APP_CLUSTER'|translate}}: {{item.clusterName}} </p>
                 <p>{{'APP_EVENT_DETAIL'|translate}}: {{item.msgContent['message']}}</p>
-                <p *ngIf="item.message.level==='Warning'">{{'APP_EVENT_DETAIL'|translate}}: {{item.msgContent['errorMsg']}}</p>
+                <p *ngIf="item.message.level==='Warning'">{{'APP_EVENT_DETAIL'|translate}}
+                    : {{item.msgContent['errorMsg']}}</p>
                 <p>{{'APP_EVENT_DATE'|translate}}: {{item.createdAt|date:'yyyy-MM-dd HH:mm:ss'}}</p>
             </div>
             <hr>
