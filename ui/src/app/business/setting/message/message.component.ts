@@ -45,6 +45,7 @@ export class MessageComponent implements OnInit {
         // this.valid = true;
         this.messageService.postCheckByTab(tab, this.item).subscribe(res => {
             this.valid = true;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_CHECK_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.valid = false;
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

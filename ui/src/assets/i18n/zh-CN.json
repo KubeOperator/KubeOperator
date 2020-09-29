@@ -446,5 +446,6 @@
   "READ": "已读",
   "APP_MSG_DETAIL": "消息详情",
   "APP_HEADER_MSG": "请在系统设置页面填写系统IP",
-  "APP_DELETE_US": "不能删除自己！"
+  "APP_DELETE_US": "不能删除自己！",
+  "APP_CHECK_SUCCESS": "检验成功！"
 }
