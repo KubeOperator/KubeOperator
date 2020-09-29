@@ -81,10 +81,14 @@ definitions:
         type: string
       createdAt:
         type: string
+      logId:
+        type: string
       name:
         type: string
       nodeSize:
         type: integer
+      preStatus:
+        type: string
       provider:
         type: string
       source:
@@ -667,6 +671,8 @@ definitions:
         type: string
       updatedAt:
         type: string
+      upgradeVersion:
+        type: string
       version:
         type: string
       workerAmount:
@@ -827,14 +833,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json

@@ -16,6 +16,7 @@ import (
 
 var (
 	ZoneNameExist = "NAME_EXISTS"
+	IpNotExist    = "IP_NOT_EXISTS"
 )
 
 type ZoneService interface {
@@ -99,6 +100,11 @@ func (z zoneService) Delete(name string) error {
 }
 
 func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
+
+	ip := z.systemSettingService.GetLocalHostName()
+	if ip == "" {
+		return nil, errors.New(IpNotExist)
+	}
 
 	old, _ := z.Get(creation.Name)
 	if old.ID != "" {

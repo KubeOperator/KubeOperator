@@ -176,7 +176,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -184,9 +184,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [
@@ -1562,11 +1562,17 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "logId": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "nodeSize": {
                     "type": "integer"
+                },
+                "preStatus": {
+                    "type": "string"
                 },
                 "provider": {
                     "type": "string"
@@ -2437,6 +2443,9 @@ var doc = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                },
+                "upgradeVersion": {
                     "type": "string"
                 },
                 "version": {
