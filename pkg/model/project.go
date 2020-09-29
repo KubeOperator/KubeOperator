@@ -38,6 +38,17 @@ func (p *Project) BeforeDelete() (err error) {
 	if len(projectResources) > 0 {
 		return errors.New(ProjectHasClusterError)
 	}
+	var projectMembers []ProjectMember
+	err = db.DB.Model(ProjectMember{}).Where(ProjectMember{ProjectID: p.ID}).Find(&projectMembers).Error
+	if err != nil {
+		return err
+	}
+	if len(projectMembers) > 0 {
+		err := db.DB.Delete(&projectMembers).Error
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 
