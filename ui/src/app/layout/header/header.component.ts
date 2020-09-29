@@ -35,19 +35,20 @@ export class HeaderComponent implements OnInit {
 
     ngOnInit(): void {
         this.getProfile();
-        this.licenseService.get().subscribe(data => {
-            this.hasLicense = true;
-        });
+
     }
 
     getProfile() {
         const profile = this.sessionService.getCacheProfile();
         if (profile != null) {
             this.user = profile.user;
-            this.listUnreadMsg(this.user.name);
-            this.timer = setInterval(() => {
+            this.licenseService.get().subscribe(data => {
+                this.hasLicense = true;
                 this.listUnreadMsg(this.user.name);
-            }, 60000);
+                this.timer = setInterval(() => {
+                    this.listUnreadMsg(this.user.name);
+                }, 60000);
+            });
         }
     }
 
