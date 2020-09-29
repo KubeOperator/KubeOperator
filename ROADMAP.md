@@ -104,16 +104,18 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  
   ##  v3.2 （开发中，计划 10 月 9 日发布）
  
- - [ ] 集群日志，支持 Loki 或者 EFK；
- - [ ] 优化集群任务执行出错时的报错展示;
- - [ ] FusionStorage CSI 支持；
- - [ ] 消息中心，支持邮箱、钉钉、微信（X-Pack）；
- - [ ] 集群健康评估（X-Pack）；
+ - [ ] 增加消息中心（X-Paxk）；
+ - [ ] 支持邮箱、钉钉、企业微信告警（X-Pack）；
+ - [ ] 支持实时查看任务执行返回日志；
+ - [ ] 应用商店增加 Redmine；
  
  ## v3.3 (计划中)
- 
- - [ ] GPU 支持;
- - [ ] F5 对接（X-Pack）；
- - [ ] 多集群配置管理（X-Pack）;
- - [ ] 应用商店增加 Kuboard;
+
+ - [ ] 集群日志，支持 Loki 或者 EFK；
  - [ ] FusionCompute 支持自动部署模式；
+ - [ ] FusionStorage CSI 支持；
+ - [ ] 集群健康评估（X-Pack）；
+ - [ ] GPU 支持；
+ - [ ] F5 对接（X-Pack）；
+ - [ ] 多集群配置管理（X-Pack）；
+ - [ ] 应用商店增加 Kuboard；
