@@ -40,6 +40,7 @@ func NewClusterNodeService() ClusterNodeService {
 		systemSettingRepo:   repository.NewSystemSettingRepository(),
 		clusterLogService:   NewClusterLogService(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
+		messageService:      NewMessageService(),
 	}
 }
 
@@ -51,6 +52,7 @@ type clusterNodeService struct {
 	systemSettingRepo   repository.SystemSettingRepository
 	clusterLogService   ClusterLogService
 	projectResourceRepo repository.ProjectResourceRepository
+	messageService      MessageService
 }
 
 type nodeMessage struct {
@@ -175,10 +177,12 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
 		log.Error(err)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
 		log.Error(err)
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
 	}
 	wg := sync.WaitGroup{}
 	for i := range nodes {
@@ -192,6 +196,7 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		err := c.destroyHosts(cluster, nodes)
 		if err != nil {
 			log.Debug(err)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
 		}
 	}
 	for i := range nodes {
@@ -212,6 +217,7 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		}
 		_ = c.NodeRepo.Delete(nodes[i].ID)
 	}
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
 	e := c.clusterLogService.End(&clog, true, "")
 	if e != nil {
 		log.Error(e)
@@ -274,10 +280,12 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 	clog.EndTime = time.Now()
 	err := c.clusterLogService.Save(cluster.Name, &clog)
 	if err != nil {
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 		log.Error(err)
 	}
 	err = c.clusterLogService.Start(&clog)
 	if err != nil {
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 		log.Error(err)
 	}
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
@@ -296,17 +304,20 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 			return
 		} else {
 			for i := range nodes {
 				nodes[i].Host.Status = constant.ClusterRunning
 				err := db.DB.Save(&nodes[i].Host).Error
 				if err != nil {
+					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 					log.Error(err)
 				}
 				//add project resource
 				clusterResources, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
 				if err != nil {
+					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 					log.Error(err)
 				}
 				if len(clusterResources) > 0 {
@@ -349,6 +360,7 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 		if e != nil {
 			log.Error(e)
 		}
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
 	} else {
 		buf, _ := json.Marshal(&mergedLogMap)
 		e := c.clusterLogService.End(&clog, false, string(buf))
@@ -377,6 +389,7 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 		}
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 	}
 }
 
