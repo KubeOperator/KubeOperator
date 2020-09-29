@@ -68,7 +68,7 @@
             <clr-dg-footer>
                 <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size"
                                    [clrDgTotalItems]="total"
-                                   (clrDgPageChange)="refresh()">
+                                   (clrDgPageChange)="pageBy()">
                     {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
                     {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_HOST"|translate}}
                 </clr-dg-pagination>
@@ -101,7 +101,7 @@
             </clr-dg-row>
             <clr-dg-footer>
                 <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
-                                   (clrDgPageChange)="refresh()">
+                                   (clrDgPageChange)="pageBy()">
                     {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
                     {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_PLAN"|translate}}
                 </clr-dg-pagination>
@@ -138,7 +138,7 @@
             </clr-dg-row>
             <clr-dg-footer>
                 <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
-                                   (clrDgPageChange)="refresh()">
+                                   (clrDgPageChange)="pageBy()">
                     {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
                     {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_CREDENTIAL"|translate}}
                 </clr-dg-pagination>
