@@ -330,21 +330,27 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 			}
 		}
 	}
-	var waitGroup sync.WaitGroup
-	var nms []*nodeMessage
-	for i := range nodes {
+	for i, _ := range nodes {
 		nodes[i].Status = constant.ClusterInitializing
 		_ = c.NodeRepo.Save(nodes[i])
-		nm := &nodeMessage{
-			node: nodes[i],
-		}
-		nms = append(nms, nm)
-		go c.doSingleNodeCreate(&waitGroup, cluster, nm)
-		waitGroup.Add(1)
 	}
-	waitGroup.Wait()
+	err = c.doNodeCreate(cluster, nodes)
+	if err != nil {
+		for i := range nodes {
+			nodes[i].Status = constant.ClusterFailed
+		}
+		_ = c.clusterLogService.End(&clog, false, err.Error())
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
+	}
+	for i := range nodes {
+		nodes[i].Status = constant.ClusterRunning
+	}
+	_ = c.clusterLogService.End(&clog, true, err.Error())
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
+
 	success := true
 	mergedLogMap := make(map[string]string)
+
 	for i := range nms {
 		err := db.DB.Save(nms[i].node).Error
 		if err != nil {
@@ -363,7 +369,6 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
 	} else {
 		buf, _ := json.Marshal(&mergedLogMap)
-		e := c.clusterLogService.End(&clog, false, string(buf))
 		if e != nil {
 			log.Error(e)
 		}
@@ -544,19 +549,22 @@ func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.C
 
 const addWorkerPlaybook = "91-add-worker.yml"
 
-func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluster *model.Cluster, nm *nodeMessage) {
-	defer waitGroup.Done()
-	logId, writer, err := ansible.CreateNodeAnsibleLogWriter(cluster.Name, nm.node.Name)
+func (c clusterNodeService) doNodeCreate(cluster *model.Cluster, nodes []*model.ClusterNode) error {
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
 	if err != nil {
 		log.Error(err)
 	}
-	nm.node.LogId = logId
-	db.DB.Save(nm.node)
+	for i, _ := range nodes {
+		nodes[i].LogId = logId
+		db.DB.Save(nodes[i])
+	}
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
 		if inventory.Groups[i].Name == "new-worker" {
-			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, nm.node.Name)
+			for _, n := range nodes {
+				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
+			}
 		}
 	}
 	k := kobe.NewAnsible(&kobe.Config{
@@ -574,9 +582,7 @@ func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluste
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
 	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, writer)
 	if err != nil {
-		nm.node.Status = constant.ClusterFailed
-		nm.message = err.Error()
-		return
+		return err
 	}
-	nm.node.Status = constant.ClusterRunning
+	return nil
 }
