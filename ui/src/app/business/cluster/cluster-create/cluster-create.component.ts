@@ -9,7 +9,6 @@ import {Plan} from '../../deploy-plan/plan/plan';
 import {Project} from '../../project/project';
 import {ActivatedRoute} from '@angular/router';
 import {ManifestService} from "../../manifest/manifest.service";
-import {Manifest} from "../../manifest/manifest";
 
 
 @Component({
@@ -30,6 +29,8 @@ export class ClusterCreateComponent implements OnInit {
     plans: Plan[] = [];
     versions: string[] = [];
     currentProject: Project;
+    nameValid = true;
+    nameChecking = false;
 
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
@@ -58,10 +59,11 @@ export class ClusterCreateComponent implements OnInit {
         this.masters = [];
         this.workers = [];
         this.versions = [];
+        this.nameValid = true;
+        this.nameChecking = false;
     }
 
     setDefaultValue() {
-        this.item.architectures = 'amd64';
         this.item.provider = 'bareMetal';
         this.item.networkType = 'flannel';
         this.item.runtimeType = 'docker';
@@ -79,7 +81,23 @@ export class ClusterCreateComponent implements OnInit {
         this.item.ingressControllerType = 'nginx';
         this.item.projectName = this.currentProject.name;
         this.item.workerAmount = 1;
+        this.item.architectures = 'amd64';
     }
+
+    onNameCheck() {
+        this.nameChecking = true;
+        setTimeout(() => {
+            this.service.get(this.item.name).subscribe(data => {
+                this.nameValid = false;
+                this.nameChecking = false;
+            }, error => {
+                this.nameChecking = false;
+                this.nameValid = true;
+            });
+        }, 1000);
+
+    }
+
 
     open() {
         this.reset();
@@ -154,9 +172,12 @@ export class ClusterCreateComponent implements OnInit {
             for (const m of data) {
                 for (const c of m.category) {
                     if (c.name === 'core') {
-                        for (const item of c.items) {
-                            if (item.name === 'kubernetes') {
-                                this.versions.push(item.version);
+                        for (let i = 0; i < c.items.length; i++) {
+                            if (i === 0) {
+                                this.item.version = c.items[i].version;
+                            }
+                            if (c.items[i].name === 'kubernetes') {
+                                this.versions.push(c.items[i].version);
                             }
                         }
                     }

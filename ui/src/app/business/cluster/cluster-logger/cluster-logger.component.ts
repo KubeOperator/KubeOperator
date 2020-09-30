@@ -44,8 +44,9 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
             return;
         }
         const nodeName = this.getQueryVariable('nodeName');
+        console.log(nodeName);
         this.timer = setInterval(() => {
-            if (nodeName === '') {
+            if (!nodeName) {
                 this.loggerService.getClusterLog(clusterName).subscribe(data => {
                     this.term.clear();
                     const text = data.msg.replace(/\n/g, '\r\n');
