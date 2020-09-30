@@ -46,6 +46,13 @@ export class NodeCreateComponent implements OnInit {
         });
     }
 
+    fullNodes() {
+        this.item.hosts = [];
+        this.workers.forEach(m => {
+            this.item.hosts.push(m.id);
+        });
+    }
+
     reset() {
         this.item = new NodeBatch();
         this.item.increase = 1;

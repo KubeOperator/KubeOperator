@@ -126,7 +126,7 @@ func (c clusterNodeService) Batch(clusterName string, item dto.NodeBatch) ([]dto
 	// 判断是否存在正在运行的节点变更任务
 	nodes, _ := c.NodeRepo.List(clusterName)
 	for _, node := range nodes {
-		if node.Status != constant.ClusterRunning {
+		if node.Status != constant.ClusterRunning && node.Status != constant.ClusterFailed {
 			return nil, errors.New("NODE_ALREADY_RUNNING_TASK")
 		}
 	}
@@ -389,7 +389,10 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 		}
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
+		if err != nil {
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
+		}
+
 	}
 }
 
@@ -573,6 +576,7 @@ func (c clusterNodeService) doSingleNodeCreate(waitGroup *sync.WaitGroup, cluste
 	if err != nil {
 		nm.node.Status = constant.ClusterFailed
 		nm.message = err.Error()
+		return
 	}
 	nm.node.Status = constant.ClusterRunning
 }

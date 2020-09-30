@@ -20,7 +20,12 @@ func TestRefreshHostInfo_Run(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	j := NewRefreshHostInfo()
-	j.Run()
+	for i := 0; i < 100; i++ {
+		go func() {
+			j := NewRefreshHostInfo()
+			j.Run()
+		}()
+	}
+
 	select {}
 }
