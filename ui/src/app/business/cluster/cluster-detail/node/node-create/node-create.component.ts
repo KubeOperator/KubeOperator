@@ -34,21 +34,15 @@ export class NodeCreateComponent implements OnInit {
     loadHosts() {
         this.hostService.list().subscribe(data => {
             const list = [];
-            data.items.filter((item) => {
-                if (!item.clusterName) {
-                    return true;
-                }
+            data.items.filter((host) => {
+                return host.status === 'Running';
+
             }).forEach(h => {
-                list.push({id: h.name, text: h.name, disabled: false});
+                if (!h.clusterId) {
+                    list.push({id: h.name, text: h.name, disabled: false});
+                }
             });
             this.hosts = list;
-        });
-    }
-
-    fullNodes() {
-        this.item.hosts = [];
-        this.workers.forEach(m => {
-            this.item.hosts.push(m.id);
         });
     }
 

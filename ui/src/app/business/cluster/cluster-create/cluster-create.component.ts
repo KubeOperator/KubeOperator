@@ -152,7 +152,10 @@ export class ClusterCreateComponent implements OnInit {
     loadHosts() {
         this.hostService.listByProjectName(this.currentProject.name).subscribe(data => {
             const list = [];
-            data.items.forEach(h => {
+            data.items.filter((host) => {
+                return host.status === 'Running';
+
+            }).forEach(h => {
                 if (!h.clusterId) {
                     list.push({id: h.name, text: h.name, disabled: false});
                 }
