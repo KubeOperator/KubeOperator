@@ -6,7 +6,6 @@ import {CommonAlertService} from '../../../../layout/common-alert/common-alert.s
 import {TranslateService} from '@ngx-translate/core';
 import {SessionService} from '../../../../shared/auth/session.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
-import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 
 @Component({
     selector: 'app-mailbox-list',
@@ -23,8 +22,7 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
     constructor(private noticeService: NoticeService,
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService,
-                private sessionService: SessionService,
-                private modalAlertService: ModalAlertService) {
+                private sessionService: SessionService) {
         super(noticeService);
     }
 
@@ -49,13 +47,15 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
 
     onDetail(item: Notice) {
         this.detailEvent.emit(item);
-        item.readStatus = 'READ';
-        const readItems = [];
-        readItems.push(item);
-        this.service.batch('update', readItems).subscribe(data => {
-        }, error => {
-            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
-        });
+        if (item.readStatus === 'UNREAD'){
+            item.readStatus = 'READ';
+            const readItems = [];
+            readItems.push(item);
+            this.service.batch('update', readItems).subscribe(data => {
+            }, error => {
+                this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            });
+        }
     }
 
     markAsRead() {
@@ -66,9 +66,4 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
-
-    checkUnread() {
-    }
-
-
 }

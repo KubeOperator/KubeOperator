@@ -69,7 +69,7 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 	return nil
 }
 func (m messageService) GetContentByTitleAndType(content, title, sendType, clusterName string) string {
-	date := time.Now().Format("2006-01-02 15:04:05")
+	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
 	var result string
 	detail := make(map[string]string)
 	json.Unmarshal([]byte(content), &detail)
@@ -343,7 +343,7 @@ func (m messageService) getUserSendTypes(userId string, mType string) []string {
 	if smtp.ID != "" && smtp.Value == "ENABLE" && userConfig.Vars[constant.Email] == "ENABLE" {
 		sendTypes = append(sendTypes, constant.Email)
 	}
-	dingTalk, _ := m.systemSettingService.Get("DINGTALK_STATUS")
+	dingTalk, _ := m.systemSettingService.Get("DING_TALK_STATUS")
 	if dingTalk.ID != "" && dingTalk.Value == "ENABLE" && userConfig.Vars[constant.DingTalk] == "ENABLE" {
 		sendTypes = append(sendTypes, constant.DingTalk)
 	}

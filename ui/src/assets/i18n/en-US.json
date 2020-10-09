@@ -446,5 +446,9 @@
   "APP_HEADER_MSG": "Please fill in the local IP on the system setting page",
   "APP_DELETE_US": "Can't delete yourself",
   "APP_CHECK_SUCCESS": "Successful inspection",
-  "CLUSTER_ADD_WORKER": "Cluster expansion"
+  "CLUSTER_ADD_WORKER": "Cluster expansion",
+  "CLUSTER_INSTALL": "Cluster Install",
+  "CLUSTER_UN_INSTALL": "Cluster Uninstall",
+  "CLUSTER_REMOVE_WORKER": "Cluster Remove Worker"
+
 }

@@ -450,5 +450,8 @@
   "APP_HEADER_MSG": "请在系统设置页面填写系统IP",
   "APP_DELETE_US": "不能删除自己！",
   "APP_CHECK_SUCCESS": "检验成功！",
-  "CLUSTER_ADD_WORKER": "集群扩容"
+  "CLUSTER_ADD_WORKER": "集群扩容",
+  "CLUSTER_INSTALL": "集群安装",
+  "CLUSTER_UN_INSTALL": "集群卸载",
+  "CLUSTER_REMOVE_WORKER": "集群删除节点"
 }
