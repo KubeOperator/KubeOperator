@@ -5,8 +5,9 @@
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [(ngModel)]="item.name" name="name"
-                       pattern="[a-z]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" size="34" disabled
+                       pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*" size="34" disabled
                        required>
+                <clr-control-helper>{{'APP_CLUSTER_NAME_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
         </form>
     </div>
