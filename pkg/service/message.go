@@ -343,7 +343,7 @@ func (m messageService) getUserSendTypes(userId string, mType string) []string {
 	if smtp.ID != "" && smtp.Value == "ENABLE" && userConfig.Vars[constant.Email] == "ENABLE" {
 		sendTypes = append(sendTypes, constant.Email)
 	}
-	dingTalk, _ := m.systemSettingService.Get("DINGTALK_STATUS")
+	dingTalk, _ := m.systemSettingService.Get("DING_TALK_STATUS")
 	if dingTalk.ID != "" && dingTalk.Value == "ENABLE" && userConfig.Vars[constant.DingTalk] == "ENABLE" {
 		sendTypes = append(sendTypes, constant.DingTalk)
 	}
