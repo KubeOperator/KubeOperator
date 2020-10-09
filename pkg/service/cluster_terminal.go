@@ -50,12 +50,13 @@ func (c clusterTerminalService) Terminal(cluster model.Cluster) {
 		return
 	}
 	waitGroup.Wait()
+	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	err := c.clusterRepo.Delete(cluster.Name)
 	if err != nil {
 		log.Error(err)
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
 	} else {
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+		log.Error(err)
 	}
 }
 
@@ -67,6 +68,8 @@ func doPlanTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	_, err := k.Destroy()
 	if err != nil {
 		log.Error(err)
+		messageService := NewMessageService()
+		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
 	}
 }
 
@@ -86,5 +89,7 @@ func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil)
 	if err != nil {
 		log.Error(err)
+		messageService := NewMessageService()
+		_ = messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, false, err.Error()), cluster.Name, constant.ClusterUnInstall)
 	}
 }

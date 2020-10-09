@@ -183,21 +183,53 @@ func (c Cluster) BeforeDelete() error {
 	}
 
 	var projectResource ProjectResource
-	if err := tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).Delete(&projectResource).Error; err != nil {
-		tx.Rollback()
-		return err
+	tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
+	if projectResource.ID != "" {
+		if err := tx.Delete(&projectResource).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	var clusterBackupStrategy ClusterBackupStrategy
-	if err := tx.Where(ClusterBackupStrategy{ClusterID: c.ID}).Delete(&clusterBackupStrategy).Error; err != nil {
-		tx.Rollback()
-		return err
+	tx.Where(ClusterBackupStrategy{ClusterID: c.ID}).First(&clusterBackupStrategy)
+	if clusterBackupStrategy.ID != "" {
+		if err := tx.Delete(&clusterBackupStrategy).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	var clusterBackupFiles []ClusterBackupFile
-	if err := tx.Where(ClusterBackupFile{ClusterID: c.ID}).Delete(&clusterBackupFiles).Error; err != nil {
-		tx.Rollback()
-		return err
+	tx.Where(ClusterBackupFile{ClusterID: c.ID}).Find(&clusterBackupFiles)
+	if len(clusterBackupFiles) > 0 {
+		for _, c := range clusterBackupFiles {
+			if err := tx.Delete(&c).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	var messages []Message
+	var messageIds []string
+	tx.Where(Message{ClusterID: c.ID}).Find(&messages)
+	if len(messages) > 0 {
+		for _, m := range messages {
+			messageIds = append(messageIds, m.ID)
+			if err := tx.Delete(&m).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	if len(messageIds) > 0 {
+		var userMessages []UserMessage
+		if err := tx.Where("message_id in (?)", messageIds).Delete(&userMessages).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	tx.Commit()
