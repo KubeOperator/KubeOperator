@@ -69,7 +69,7 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 	return nil
 }
 func (m messageService) GetContentByTitleAndType(content, title, sendType, clusterName string) string {
-	date := time.Now().Format("2006-01-02 15:04:05")
+	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
 	var result string
 	detail := make(map[string]string)
 	json.Unmarshal([]byte(content), &detail)
