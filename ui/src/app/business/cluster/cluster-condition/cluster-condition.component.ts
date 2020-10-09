@@ -67,6 +67,12 @@ export class ClusterConditionComponent implements OnInit {
                     this.polling();
                 });
                 break;
+            case 'Creating':
+                this.service.init(this.cluster.name).subscribe(data => {
+                    this.retry.emit();
+                    this.polling();
+                });
+                break;
         }
 
 

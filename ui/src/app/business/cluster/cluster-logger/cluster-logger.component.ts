@@ -39,36 +39,17 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
             this.term.clear();
         }, 3000);
         const clusterName = this.getQueryVariable('clusterName');
-        if (!clusterName) {
-            this.term.write('no cluster name in url');
-            return;
-        }
-        const nodeName = this.getQueryVariable('nodeName');
-        console.log(nodeName);
         this.timer = setInterval(() => {
-            if (!nodeName) {
-                this.loggerService.getClusterLog(clusterName).subscribe(data => {
-                    this.term.clear();
-                    const text = data.msg.replace(/\n/g, '\r\n');
-                    this.term.write(text);
-                    setTimeout(() => {
-                        this.term.scrollToBottom();
-                    }, 100);
-                }, error => {
-                    this.term.write('no log to show');
-                });
-            } else {
-                this.loggerService.getClusterNodeLog(clusterName, nodeName).subscribe(data => {
-                    this.term.clear();
-                    const text = data.msg.replace(/\n/g, '\r\n');
-                    this.term.write(text);
-                    setTimeout(() => {
-                        this.term.scrollToBottom();
-                    }, 100);
-                }, error => {
-                    this.term.write('no log to show');
-                });
-            }
+            this.loggerService.getClusterLog(clusterName).subscribe(data => {
+                this.term.clear();
+                const text = data.msg.replace(/\n/g, '\r\n');
+                this.term.write(text);
+                setTimeout(() => {
+                    this.term.scrollToBottom();
+                }, 100);
+            }, error => {
+                this.term.write('no log to show');
+            });
         }, 5000);
     }
 

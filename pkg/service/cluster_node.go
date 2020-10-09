@@ -19,7 +19,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sync"
 	"time"
 )
 
@@ -53,11 +52,6 @@ type clusterNodeService struct {
 	clusterLogService   ClusterLogService
 	projectResourceRepo repository.ProjectResourceRepository
 	messageService      MessageService
-}
-
-type nodeMessage struct {
-	node    *model.ClusterNode
-	message string
 }
 
 func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
@@ -170,33 +164,22 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.ClusterNode) {
-	var clog model.ClusterLog
-	clog.Type = constant.ClusterLogTypeDeleteNode
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	err := c.clusterLogService.Save(cluster.Name, &clog)
-	if err != nil {
+	clog := c.initClusterLog(cluster.Name)
+	if err := c.clusterLogService.Start(clog); err != nil {
 		log.Error(err)
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
 	}
-	err = c.clusterLogService.Start(&clog)
-	if err != nil {
-		log.Error(err)
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
-	}
-	wg := sync.WaitGroup{}
 	for i := range nodes {
 		nodes[i].Status = constant.ClusterTerminating
 		db.DB.Save(&nodes[i])
-		go c.doSingleDelete(&wg, cluster, nodes[i])
-		wg.Add(1)
 	}
-	wg.Wait()
+	err := c.doNodeDelete(cluster, nodes)
+	if err != nil {
+		log.Error(err.Error())
+	}
 	if cluster.Spec.Provider == constant.ClusterProviderPlan {
 		err := c.destroyHosts(cluster, nodes)
 		if err != nil {
-			log.Debug(err)
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterRemoveWorker, false, err.Error()), cluster.Name, constant.ClusterRemoveWorker)
+			log.Error(err)
 		}
 	}
 	for i := range nodes {
@@ -218,7 +201,7 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		_ = c.NodeRepo.Delete(nodes[i].ID)
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
-	e := c.clusterLogService.End(&clog, true, "")
+	e := c.clusterLogService.End(clog, true, "")
 	if e != nil {
 		log.Error(e)
 	}
@@ -246,12 +229,6 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 	if err != nil {
 		return nil, err
 	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
-		cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
-		if err != nil {
-			return nil, err
-		}
-	}
 	var mNodes []*model.ClusterNode
 	switch cluster.Spec.Provider {
 	case constant.ClusterProviderBareMetal:
@@ -260,6 +237,10 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 			return nil, err
 		}
 	case constant.ClusterProviderPlan:
+		cluster.Cluster.Plan, err = c.PlanRepo.GetById(cluster.PlanID)
+		if err != nil {
+			return nil, err
+		}
 		mNodes, err = c.doPlanCreateNodes(cluster.Cluster, item)
 		if err != nil {
 			return nil, err
@@ -274,131 +255,124 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
-	var clog model.ClusterLog
-	clog.Type = constant.ClusterLogTypeAddNode
-	clog.StartTime = time.Now()
-	clog.EndTime = time.Now()
-	err := c.clusterLogService.Save(cluster.Name, &clog)
-	if err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
-		log.Error(err)
-	}
-	err = c.clusterLogService.Start(&clog)
-	if err != nil {
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
-		log.Error(err)
-	}
-	if cluster.Spec.Provider == constant.ClusterProviderPlan {
+	clog := c.initClusterLog(cluster.Name)
+	switch cluster.Spec.Provider {
+	case constant.ClusterProviderPlan:
 		allNodes, _ := c.NodeRepo.List(cluster.Name)
 		var allHosts []*model.Host
 		for i, _ := range allNodes {
 			allHosts = append(allHosts, &allNodes[i].Host)
 		}
 		err := c.doCreateHosts(cluster, allHosts)
+		// 处理创建主机错误
 		if err != nil {
-			e := c.clusterLogService.End(&clog, false, err.Error())
+			e := c.clusterLogService.End(clog, false, err.Error())
 			if e != nil {
 				log.Error(e)
 			}
+			// 删除主机和节点
 			for i := range nodes {
 				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
 			return
-		} else {
-			for i := range nodes {
-				nodes[i].Host.Status = constant.ClusterRunning
-				err := db.DB.Save(&nodes[i].Host).Error
-				if err != nil {
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
-					log.Error(err)
-				}
-				//add project resource
-				clusterResources, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
-				if err != nil {
-					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
-					log.Error(err)
-				}
-				if len(clusterResources) > 0 {
-					db.DB.Create(&model.ProjectResource{
-						ResourceId:   nodes[i].Host.ID,
-						ResourceType: constant.ResourceHost,
-						ProjectID:    clusterResources[0].ProjectID,
-					})
+		}
+		for i := range nodes {
+			nodes[i].Host.Status = constant.ClusterRunning
+			err := db.DB.Save(&nodes[i].Host).Error
+			if err != nil {
+				log.Error(err)
+			}
+			clusterResources, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+			if err != nil {
+				log.Error(err)
+			}
+			if len(clusterResources) > 0 {
+				if err := db.DB.Create(&model.ProjectResource{
+					ResourceId:   nodes[i].Host.ID,
+					ResourceType: constant.ResourceHost,
+					ProjectID:    clusterResources[0].ProjectID,
+				}).Error; err != nil {
+					log.Error(err.Error())
 				}
 			}
 		}
 	}
+	// 初始化init状态
 	for i, _ := range nodes {
 		nodes[i].Status = constant.ClusterInitializing
-		_ = c.NodeRepo.Save(nodes[i])
+		if err := c.NodeRepo.Save(nodes[i]); err != nil {
+			log.Error(err.Error())
+		}
 	}
-	err = c.doNodeCreate(cluster, nodes)
-	if err != nil {
+	if err := c.doNodeCreate(cluster, nodes); err != nil {
 		for i := range nodes {
 			nodes[i].Status = constant.ClusterFailed
-		}
-		_ = c.clusterLogService.End(&clog, false, err.Error())
-		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker)
-	}
-	for i := range nodes {
-		nodes[i].Status = constant.ClusterRunning
-	}
-	_ = c.clusterLogService.End(&clog, true, err.Error())
-	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
-
-	success := true
-	mergedLogMap := make(map[string]string)
-
-	for i := range nms {
-		err := db.DB.Save(nms[i].node).Error
-		if err != nil {
-			log.Error(err)
-		}
-		if nms[i].node.Status != constant.ClusterRunning {
-			success = false
-			mergedLogMap[nms[i].node.Name] = nms[i].message
-		}
-	}
-	if success {
-		e := c.clusterLogService.End(&clog, true, "")
-		if e != nil {
-			log.Error(e)
-		}
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker)
-	} else {
-		buf, _ := json.Marshal(&mergedLogMap)
-		if e != nil {
-			log.Error(e)
+			if err := c.NodeRepo.Save(nodes[i]); err != nil {
+				log.Error(err.Error())
+			}
 		}
 		for i := range nodes {
-			if nodes[i].Status == constant.ClusterRunning {
-				nodes[i].Status = constant.ClusterTerminating
-				_ = c.NodeRepo.Save(nodes[i])
-				go c.doSingleDelete(&waitGroup, cluster, nodes[i])
-				waitGroup.Add(1)
+			nodes[i].Status = constant.ClusterTerminating
+			if err := c.NodeRepo.Save(nodes[i]); err != nil {
+				log.Error(err.Error())
 			}
 		}
-		waitGroup.Wait()
-		if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
+		if err := c.doNodeDelete(cluster, nodes); err != nil {
+			log.Error(err.Error())
+		}
+		switch cluster.Spec.Provider {
+		case constant.ClusterProviderBareMetal:
 			for i := range nodes {
-				db.DB.Delete(nodes[i])
+				db.DB.Delete(i)
 			}
-		} else {
+		case constant.ClusterProviderPlan:
 			nos, _ := c.NodeRepo.List(cluster.Name)
 			cluster.Nodes = nos
-			_ = c.destroyHosts(cluster, nodes)
+			if e := c.destroyHosts(cluster, nodes); e != nil {
+				log.Error(e.Error())
+			}
 			for i := range nodes {
 				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 		}
-		if err != nil {
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, ""), cluster.Name, constant.ClusterAddWorker)
+		if e := c.clusterLogService.End(clog, false, err.Error()); e != nil {
+			log.Error(e.Error())
 		}
-
+		if e := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker); e != nil {
+			log.Error(e.Error())
+		}
+		return
 	}
+	for i := range nodes {
+		nodes[i].Status = constant.ClusterRunning
+		if err := c.NodeRepo.Save(nodes[i]); err != nil {
+			log.Error(err.Error())
+		}
+	}
+	if e := c.clusterLogService.End(clog, true, ""); e != nil {
+		log.Error(e.Error())
+	}
+	if e := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker); e != nil {
+		log.Error(e.Error())
+	}
+}
+
+func (c *clusterNodeService) initClusterLog(clusterName string) *model.ClusterLog {
+	clog := model.ClusterLog{
+		Type:      constant.ClusterLogTypeAddNode,
+		StartTime: time.Now(),
+		EndTime:   time.Now(),
+	}
+	if err := c.clusterLogService.Save(clusterName, &clog); err != nil {
+		log.Error(err.Error())
+	}
+	if err := c.clusterLogService.Start(&clog); err != nil {
+		log.Error(err.Error())
+	}
+	return &clog
 }
 
 func (c clusterNodeService) doBareMetalCreateNodes(cluster model.Cluster, item dto.NodeBatch) ([]*model.ClusterNode, error) {
@@ -522,12 +496,20 @@ func (c clusterNodeService) createNodes(cluster model.Cluster, hosts []*model.Ho
 
 const deleteWorkerPlaybook = "96-remove-worker.yml"
 
-func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.Cluster, worker *model.ClusterNode) {
-	defer wg.Done()
+func (c *clusterNodeService) doNodeDelete(cluster *model.Cluster, nodes []*model.ClusterNode) error {
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	cluster.LogId = logId
+	db.DB.Save(cluster)
+	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
 		if inventory.Groups[i].Name == "del-worker" {
-			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, worker.Name)
+			for _, n := range nodes {
+				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
+			}
 		}
 	}
 	k := kobe.NewAnsible(&kobe.Config{
@@ -543,8 +525,11 @@ func (c *clusterNodeService) doSingleDelete(wg *sync.WaitGroup, cluster *model.C
 	k.SetVar(facts.ClusterNameFactName, cluster.Name)
 	val, _ := c.systemSettingRepo.Get("ip")
 	k.SetVar(facts.LocalHostnameFactName, val.Value)
-	_ = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, nil)
-	worker.Status = constant.ClusterTerminated
+	err = phases.RunPlaybookAndGetResult(k, deleteWorkerPlaybook, writer)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 const addWorkerPlaybook = "91-add-worker.yml"
@@ -554,10 +539,8 @@ func (c clusterNodeService) doNodeCreate(cluster *model.Cluster, nodes []*model.
 	if err != nil {
 		log.Error(err)
 	}
-	for i, _ := range nodes {
-		nodes[i].LogId = logId
-		db.DB.Save(nodes[i])
-	}
+	cluster.LogId = logId
+	db.DB.Save(cluster)
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
 	for i, _ := range inventory.Groups {
