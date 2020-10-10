@@ -6,7 +6,7 @@
                 <label>{{'APP_BACKUP_CRON'|translate}}</label>
                 <input class="input-width" size="20" clrInput type="number" [(ngModel)]="backupStrategy.cron"
                        name="cron"
-                       required min="1"
+                       required oninput="if(value<1)value=1" min="1"
                        max="300"/>
                 <clr-control-helper>1~300</clr-control-helper>
             </clr-input-container>
@@ -15,7 +15,7 @@
                 <input class="input-width" clrInput size="20" type="number" [(ngModel)]="backupStrategy.saveNum"
                        name="saveNum"
                        required
-                       min="1" max="100"/>
+                       oninput="if(value<1)value=1" min="1" max="100"/>
                 <clr-control-helper>1~100</clr-control-helper>
             </clr-input-container>
             <clr-select-container>

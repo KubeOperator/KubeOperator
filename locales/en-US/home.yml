@@ -18,6 +18,7 @@ DELETE_HOST_FAILED: "Failed to delete! The host is already associated with the c
 DELETE_HOST_FAILED_BY_PROJECT: "Failed to delete! The host is already associated with the project"
 SYSTEM_IP_NOT_FOUND: "Please fill in the local IP first！"
 NO_IP_AVAILABLE: "No Ip available"
+IS_LOCAL_HOST: "can not import local host"
 
 #user
 PASSWORD_NOT_MATCH: "The password is incorrect"

@@ -192,7 +192,7 @@
 
             <clr-input-container>
                 <label>{{"APP_WORKER_AMOUNT"|translate}}</label>
-                <input clrInput min="1" type="number" name="workerSize" [(ngModel)]="item.workerAmount">
+                <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="workerSize" [(ngModel)]="item.workerAmount">
             </clr-input-container>
         </form>
     </clr-wizard-page>

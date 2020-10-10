@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -103,7 +102,7 @@ func (h HostController) Post() (*dto.Host, error) {
 		return nil, errors.New(SystemIpNotFound)
 	}
 	if localIp.Value == req.Ip {
-		return nil, errors.New(fmt.Sprintf("%s is localIp, can not imported", localIp.Value))
+		return nil, errors.New("IS_LOCAL_HOST")
 	}
 	item, _ := h.HostService.Get(req.Name)
 	if item.ID != "" {

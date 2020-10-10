@@ -411,8 +411,11 @@ definitions:
         type: string
       name:
         type: string
+      userName:
+        type: string
     required:
     - name
+    - userName
     type: object
   dto.ProjectMember:
     properties:
@@ -833,14 +836,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
