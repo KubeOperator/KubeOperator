@@ -93,6 +93,9 @@ func (h hostRepository) Page(num, size int) (int, []model.Host, error) {
 }
 
 func (h hostRepository) Save(host *model.Host) error {
+	if host.Name == "" {
+		return nil
+	}
 	if db.DB.NewRecord(host) {
 		return db.DB.Create(&host).Error
 	} else {
