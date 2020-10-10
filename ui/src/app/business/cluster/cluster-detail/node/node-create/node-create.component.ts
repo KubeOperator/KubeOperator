@@ -32,7 +32,7 @@ export class NodeCreateComponent implements OnInit {
 
 
     loadHosts() {
-        this.hostService.list().subscribe(data => {
+        this.hostService.listByProjectName(this.currentCluster.projectName).subscribe(data => {
             const list = [];
             data.items.filter((host) => {
                 return host.status === 'Running';
