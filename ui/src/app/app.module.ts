@@ -17,7 +17,7 @@ import {NgCircleProgressModule} from 'ng-circle-progress';
 
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
-    return new TranslateHttpLoader(httpClient, './assets/i18n/', '.json');
+    return new TranslateHttpLoader(httpClient, './assets/i18n/', '.json?timestamp=' + Math.random());
 }
 
 @NgModule({
