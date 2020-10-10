@@ -336,26 +336,26 @@ func (c clusterService) Delete(name string) error {
 				if len(hosts) > 0 {
 					go c.clusterTerminalService.Terminal(cluster.Cluster)
 				} else {
+					_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 					err = c.clusterRepo.Delete(name)
 					if err != nil {
 						return err
 					}
-					_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 				}
 			} else {
+				_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 				err = c.clusterRepo.Delete(name)
 				if err != nil {
 					return err
 				}
-				_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 			}
 		}
 	case constant.ClusterSourceExternal:
+		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 		err = c.clusterRepo.Delete(name)
 		if err != nil {
 			return err
 		}
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
 	}
 	return nil
 }

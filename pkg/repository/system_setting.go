@@ -21,8 +21,7 @@ type systemSettingRepository struct {
 
 func (s systemSettingRepository) Get(key string) (model.SystemSetting, error) {
 	var systemSetting model.SystemSetting
-	systemSetting.Key = key
-	if err := db.DB.Where(systemSetting).First(&systemSetting).Error; err != nil {
+	if err := db.DB.Where(model.SystemSetting{Key: key}).First(&systemSetting).Error; err != nil {
 		return systemSetting, err
 	}
 	return systemSetting, nil

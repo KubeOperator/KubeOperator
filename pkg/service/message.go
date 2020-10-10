@@ -65,7 +65,11 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 		return err
 	}
 	userMessages, err := m.GetUserMessages(msg)
-	go m.SendUserMessage(userMessages, clusterName)
+	if title == constant.ClusterUnInstall {
+		m.SendUserMessage(userMessages, clusterName)
+	} else {
+		go m.SendUserMessage(userMessages, clusterName)
+	}
 	return nil
 }
 func (m messageService) GetContentByTitleAndType(content, title, sendType, clusterName string) string {
