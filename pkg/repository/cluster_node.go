@@ -51,7 +51,7 @@ func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, er
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
-		Order("name asc").
+		Order("substring_index(name, '-', 2), cast(substring_index(name, '-', -1) as UNSIGNED INTEGER)").
 		Find(&nodes).Error; err != nil {
 		return nodes, err
 	}
