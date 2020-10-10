@@ -453,5 +453,6 @@
   "CLUSTER_ADD_WORKER": "集群扩容",
   "CLUSTER_INSTALL": "集群安装",
   "CLUSTER_UN_INSTALL": "集群卸载",
-  "CLUSTER_REMOVE_WORKER": "集群删除节点"
+  "CLUSTER_REMOVE_WORKER": "集群删除节点",
+  "APP_STORAGE_NAME_HELPER": "支持小写英文、数字和-"
 }

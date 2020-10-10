@@ -437,7 +437,7 @@
   "APP_EVENT_HOST": "Host",
   "APP_CHECKING": "Checking",
   "APP_CLUSTER_NAME_INVALID": "Cluster name invalid",
-  "APP_EVENT_NAME":"Name",
+  "APP_EVENT_NAME": "Name",
   "CLUSTER_EVENT_WARNING": "Cluster Event Warning",
   "APP_DELETE_USER": "Delete User",
   "UNREAD": "Unread",
@@ -449,6 +449,6 @@
   "CLUSTER_ADD_WORKER": "Cluster expansion",
   "CLUSTER_INSTALL": "Cluster Install",
   "CLUSTER_UN_INSTALL": "Cluster Uninstall",
-  "CLUSTER_REMOVE_WORKER": "Cluster Remove Worker"
-
+  "CLUSTER_REMOVE_WORKER": "Cluster Remove Worker",
+  "APP_STORAGE_NAME_HELPER": "Support lowercase English, numbers and -  cannot start with a number"
 }
