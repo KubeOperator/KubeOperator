@@ -33,6 +33,7 @@ type planService struct {
 	regionRepo          repository.RegionRepository
 	projectResourceRepo repository.ProjectResourceRepository
 	projectRepo         repository.ProjectRepository
+	vmConfigRepo        repository.VmConfigRepository
 }
 
 func NewPlanService() PlanService {
@@ -41,6 +42,7 @@ func NewPlanService() PlanService {
 		regionRepo:          repository.NewRegionRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		projectRepo:         repository.NewProjectRepository(),
+		vmConfigRepo:        repository.NewVmConfigRepository(),
 	}
 }
 
@@ -165,7 +167,7 @@ func (p planService) GetConfigs(regionName string) ([]dto.PlanVmConfig, error) {
 		return nil, err
 	}
 	var configs []dto.PlanVmConfig
-	if region.Provider == "OpenStack" {
+	if region.Provider == constant.OpenStack {
 		vars := region.RegionVars.(map[string]interface{})
 		vars["datacenter"] = region.Datacenter
 		cloudClient := client.NewCloudClient(vars)
@@ -178,10 +180,18 @@ func (p planService) GetConfigs(regionName string) ([]dto.PlanVmConfig, error) {
 			return nil, err
 		}
 	} else {
-		for k, v := range constant.VmConfigList {
+		vmConfigs, err := p.vmConfigRepo.List()
+		if err != nil {
+			return nil, err
+		}
+		for _, config := range vmConfigs {
 			configs = append(configs, dto.PlanVmConfig{
-				Name:   k,
-				Config: v,
+				Name: config.Name,
+				Config: constant.VmConfig{
+					Cpu:    config.Cpu,
+					Memory: config.Memory,
+					Disk:   config.Disk,
+				},
 			})
 		}
 		sort.Slice(configs, func(i, j int) bool {
