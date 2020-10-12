@@ -102,14 +102,16 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 自定义 Logo 和 配色 （X-Pack）；
  - [x] LDAP 对接（X-Pack）；
  
-  ##  v3.2 （开发中，计划 10 月 9 日发布）
+ Release Note: https://blog.fit2cloud.com/?p=1480
  
- - [ ] 增加消息中心（X-Pack）；
- - [ ] 支持邮箱、钉钉、企业微信告警（X-Pack）；
- - [ ] 支持实时查看任务执行返回日志；
- - [ ] 应用商店增加 Redmine；
+  ##  v3.2 （已发布）
  
- ## v3.3 (计划中)
+ - [x] 增加消息中心（X-Pack）；
+ - [x] 支持邮箱、钉钉、企业微信告警（X-Pack）；
+ - [x] 支持实时查看任务执行返回日志；
+ - [x] 应用商店增加 Redmine；
+ 
+ ## v3.3 (开发中)
 
  - [ ] 集群日志，支持 Loki 或者 EFK；
  - [ ] FusionCompute 支持自动部署模式；
