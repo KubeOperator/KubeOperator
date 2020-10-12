@@ -1,12 +1,13 @@
 <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
+                    *appOperateAuth="{'op':'PROJECT.CREATE','projectName':''}">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{'APP_ADD'|translate}}
             </button>
             <button type="button" class="btn btn-sm btn-secondary" (click)="onUpdate(selected[0])"
-                    [disabled]="selected.length != 1">
+                    [disabled]="selected.length != 1 ">
                 <clr-icon shape="edit" size="16"></clr-icon>
                 {{'APP_EDIT'|translate}}
             </button>

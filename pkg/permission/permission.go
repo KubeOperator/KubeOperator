@@ -46,7 +46,9 @@ var PermissionRoles = `
         },
         {
           "operation": "DELETE",
-          "roles": []
+          "roles": [
+             "PROJECT_MANAGER"
+          ]
         }
       ]
     },

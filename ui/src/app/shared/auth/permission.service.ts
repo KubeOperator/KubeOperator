@@ -84,10 +84,37 @@ export class PermissionService {
         return result;
     }
 
-    authOp(operate: string, projectId: string) {
-        this.authOperate(operate, projectId).then(value => {
-            return value;
-        });
+    authOp(operate: string, projectName: string): boolean {
+        let result = false;
+        const auths = operate.split('.');
+        if (auths.length < 2) {
+            return false;
+        }
+        const userProfile = this.sessionService.getCacheProfile();
+        if (userProfile == null) {
+            return false;
+        }
+        if (userProfile.user.isAdmin) {
+            return true;
+        }
+        const op = auths[0];
+        const ro = auths[1];
+        start:
+            for (const permission of userProfile.permissions) {
+                if (permission.projectName === projectName) {
+                    for (const userPermissionRole of permission.userPermissionRoles) {
+                        if (userPermissionRole.operation === op) {
+                            for (const role of userPermissionRole.roles) {
+                                if (role === ro) {
+                                    result = true;
+                                    break start;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        return result;
     }
 
     getProjectRole(projectName: string) {
