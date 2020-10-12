@@ -46,7 +46,7 @@
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                            (clrDgPageChange)="listByUsername()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_USER"|translate}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_MESSAGE"|translate}}
         </clr-dg-pagination>
     </clr-dg-footer>
 </clr-datagrid>
