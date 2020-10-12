@@ -49,6 +49,7 @@ import {UserSubscribeComponent} from './business/message-center/user-subscribe/u
 import {MailboxComponent} from './business/message-center/mailbox/mailbox.component';
 import {ClusterLoggerComponent} from './business/cluster/cluster-logger/cluster-logger.component';
 import {MessageComponent} from './business/setting/message/message.component';
+import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.component';
 
 
 const routes: Routes = [
@@ -139,7 +140,8 @@ const routes: Routes = [
                     {path: '', redirectTo: 'region', pathMatch: 'full'},
                     {path: 'region', component: RegionComponent},
                     {path: 'zone', component: ZoneComponent},
-                    {path: 'plan', component: PlanComponent}
+                    {path: 'plan', component: PlanComponent},
+                    {path: 'vmConfig', component: VmConfigComponent}
                 ]
             }, {
                 path: 'manifests',

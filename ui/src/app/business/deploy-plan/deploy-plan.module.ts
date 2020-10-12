@@ -5,6 +5,7 @@ import {DeployPlanComponent} from './deploy-plan.component';
 import {CoreModule} from '../../core/core.module';
 import {ZoneModule} from './zone/zone.module';
 import {PlanModule} from './plan/plan.module';
+import {VmConfigModule} from './vm-config/vm-config.module';
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import {PlanModule} from './plan/plan.module';
         RouterModule,
         CoreModule,
         PlanModule,
+        VmConfigModule
     ]
 })
 export class DeployPlanModule {

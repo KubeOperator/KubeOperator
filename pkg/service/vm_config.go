@@ -8,6 +8,7 @@ import (
 
 type VmConfigService interface {
 	Page(num, size int) (page.Page, error)
+	List() ([]dto.VmConfig, error)
 }
 
 type vmConfigService struct {
@@ -35,4 +36,18 @@ func (v vmConfigService) Page(num, size int) (page.Page, error) {
 	page.Total = total
 	page.Items = vmConfigDTOs
 	return page, err
+}
+
+func (v vmConfigService) List() ([]dto.VmConfig, error) {
+	var configDTOS []dto.VmConfig
+	configs, err := v.vmConfigRepo.List()
+	if err != nil {
+		return nil, err
+	}
+	for _, config := range configs {
+		configDTO := new(dto.VmConfig)
+		configDTO.VmConfig = config
+		configDTOS = append(configDTOS, *configDTO)
+	}
+	return configDTOS, err
 }
