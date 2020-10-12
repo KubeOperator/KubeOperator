@@ -38,7 +38,6 @@
             <clr-select-container>
                 <label>{{'APP_PROJECT'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.projects" name="item" multiple required>
-                    <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
                     <option *ngFor="let item of projects" [value]="item.name">{{item.name}}</option>
                 </select>
                 <clr-control-helper>{{'APP_PLAN_PROJECT_HELPER'|translate}}</clr-control-helper>
