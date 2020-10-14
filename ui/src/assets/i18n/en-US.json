@@ -452,5 +452,8 @@
   "CLUSTER_REMOVE_WORKER": "Cluster Remove Worker",
   "APP_STORAGE_NAME_HELPER": "Support lowercase English, numbers and -  cannot start with a number",
   "APP_NO_AUTH": "No operation authority！",
-  "APP_VM_CONFIG": "Virtual machine configuration"
+  "APP_VM_CONFIG": "Virtual machine configuration",
+  "APP_VM_CONFIG_ADD": "Add Virtual machine configuration",
+  "APP_DELETE_VM_CONFIG": "Delete Virtual machine configuration"
+
 }

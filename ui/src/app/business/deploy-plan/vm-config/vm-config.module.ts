@@ -6,13 +6,15 @@ import { VmConfigCreateComponent } from './vm-config-create/vm-config-create.com
 import { VmConfigDeleteComponent } from './vm-config-delete/vm-config-delete.component';
 import { VmConfigUpdateComponent } from './vm-config-update/vm-config-update.component';
 import {CoreModule} from '../../../core/core.module';
+import {SharedModule} from '../../../shared/shared.module';
 
 
 @NgModule({
     declarations: [VmConfigComponent, VmConfigListComponent, VmConfigCreateComponent, VmConfigDeleteComponent, VmConfigUpdateComponent],
     imports: [
         CommonModule,
-        CoreModule
+        CoreModule,
+        SharedModule
     ]
 })
 export class VmConfigModule {

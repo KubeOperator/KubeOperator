@@ -77,6 +77,8 @@ LDAP_DISABLE: "系统禁止LDAP用户登陆 请联系管理员！"
 #cis
 CIS_TASK_ALREADY_RUNNING: "已存在扫描中的任务"
 
+#vmConfig
+VM_CONFIG_EXISTS: "配置已存在"
 
 
 

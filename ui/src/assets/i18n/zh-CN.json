@@ -456,5 +456,7 @@
   "CLUSTER_REMOVE_WORKER": "集群删除节点",
   "APP_STORAGE_NAME_HELPER": "支持小写英文、数字和-",
   "APP_NO_AUTH": "没有操作权限！",
-  "APP_VM_CONFIG": "虚拟机配置"
+  "APP_VM_CONFIG": "虚拟机配置",
+  "APP_VM_CONFIG_ADD": "新增虚拟机配置",
+  "APP_DELETE_VM_CONFIG": "删除虚拟机配置"
 }

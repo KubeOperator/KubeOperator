@@ -1,1 +1,34 @@
-<p>vm-config-create works!</p>
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_VM_CONFIG_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #vmConfigForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_NAME'|translate}}:</label>
+                <input clrInput size=20 maxlength="30" [(ngModel)]="item.name" name="name" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_CPU'|translate}}:</label>
+                <input clrInput type="number" [(ngModel)]="item.cpu" name="cpu" required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{'APP_HOST_MEMORY_GB'|translate}}:</label>
+                <input clrInput type="number" [(ngModel)]="item.memory" name="memory" required>
+            </clr-input-container>
+            <clr-select-container>
+                <label>{{'APP_PROVIDER'|translate}}</label>
+                <select clrSelect [(ngModel)]="item.provider" name="provider" required>
+                    <option value='vSphere'>vSphere</option>
+                </select>
+            </clr-select-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                    [disabled]="vmConfigForm.invalid">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+

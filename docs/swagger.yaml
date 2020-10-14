@@ -553,6 +553,34 @@ definitions:
     - isAdmin
     - name
     type: object
+  dto.VmConfig:
+    properties:
+      cpu:
+        type: integer
+      createdAt:
+        type: string
+      disk:
+        type: integer
+      memory:
+        type: integer
+      name:
+        type: string
+      provider:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.VmConfigCreate:
+    properties:
+      cpu:
+        type: integer
+      memory:
+        type: integer
+      name:
+        type: string
+      provider:
+        type: string
+    type: object
   dto.Zone:
     properties:
       cloudVars:
@@ -836,14 +864,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
@@ -1542,6 +1570,47 @@ paths:
       summary: Update a user
       tags:
       - users
+  /vm/config/:
+    post:
+      consumes:
+      - application/json
+      description: create a VmConfig
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VmConfigCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VmConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a VmConfig
+      tags:
+      - vmConfigs
+  /vm/configs/:
+    get:
+      consumes:
+      - application/json
+      description: Show vmConfigs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/page.Page'
+      security:
+      - ApiKeyAuth: []
+      summary: Show all vmConfigs
+      tags:
+      - vmConfigs
   /zones/:
     get:
       consumes:

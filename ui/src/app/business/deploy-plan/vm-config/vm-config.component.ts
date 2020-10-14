@@ -35,19 +35,15 @@ export class VmConfigComponent extends BaseModelDirective<VmConfig> implements O
     }
 
     refresh() {
-        // this.list.reset();
-        // this.list.refresh();
+        this.list.reset();
+        this.list.refresh();
     }
 
-    // openCreate() {
-    //     this.create.open();
-    // }
-    //
-    // openDelete(items) {
-    //     this.delete.open(items);
-    // }
-    //
-    // openDetail(item) {
-    //     this.detail.open(item);
-    // }
+    openCreate() {
+        this.create.open();
+    }
+
+    openDelete(items) {
+        this.delete.open(items);
+    }
 }

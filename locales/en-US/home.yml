@@ -77,5 +77,8 @@ LDAP_DISABLE: "The system prohibits LDAP users from logging in. Please contact t
 #cis
 CIS_TASK_ALREADY_RUNNING: "cis task already running"
 
+#vmConfig
+VM_CONFIG_EXISTS: "Configuration already exists"
+
 
 
