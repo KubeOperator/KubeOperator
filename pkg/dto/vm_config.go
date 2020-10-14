@@ -17,3 +17,10 @@ type VmConfigCreate struct {
 	Cpu      int    `json:"cpu"`
 	Memory   int    `json:"memory"`
 }
+
+type VmConfigUpdate struct {
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
+	Cpu      int    `json:"cpu"`
+	Memory   int    `json:"memory"`
+}

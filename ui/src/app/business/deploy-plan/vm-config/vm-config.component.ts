@@ -46,4 +46,8 @@ export class VmConfigComponent extends BaseModelDirective<VmConfig> implements O
     openDelete(items) {
         this.delete.open(items);
     }
+
+    openUpdate(item) {
+        this.update.open(item);
+    }
 }

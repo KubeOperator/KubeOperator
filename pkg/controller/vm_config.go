@@ -71,6 +71,34 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	return v.VmConfigService.Create(req)
 }
 
+// Update VmConfig
+// @Tags vmConfigs
+// @Summary Update a vmConfig
+// @Description Update a vmConfig
+// @Accept  json
+// @Produce  json
+// @Param request body dto.VmConfigUpdate true "request"
+// @Success 200 {object} dto.VmConfig
+// @Security ApiKeyAuth
+// @Router /vm/config/{name}/ [patch]
+func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
+	var req dto.VmConfigUpdate
+	err := v.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	result, err := v.VmConfigService.Update(req)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (v VmConfigController) PostBatch() error {
 	var req dto.VmConfigOp
 	err := v.Ctx.ReadJSON(&req)

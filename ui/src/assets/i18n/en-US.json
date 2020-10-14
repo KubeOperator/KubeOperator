@@ -454,6 +454,7 @@
   "APP_NO_AUTH": "No operation authority！",
   "APP_VM_CONFIG": "Virtual machine configuration",
   "APP_VM_CONFIG_ADD": "Add Virtual machine configuration",
-  "APP_DELETE_VM_CONFIG": "Delete Virtual machine configuration"
+  "APP_DELETE_VM_CONFIG": "Delete Virtual machine configuration",
+  "EDIT_VM_CONFIG": "Edit Virtual machine configuration"
 
 }

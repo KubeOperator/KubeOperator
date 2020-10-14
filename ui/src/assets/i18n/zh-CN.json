@@ -458,5 +458,6 @@
   "APP_NO_AUTH": "没有操作权限！",
   "APP_VM_CONFIG": "虚拟机配置",
   "APP_VM_CONFIG_ADD": "新增虚拟机配置",
-  "APP_DELETE_VM_CONFIG": "删除虚拟机配置"
+  "APP_DELETE_VM_CONFIG": "删除虚拟机配置",
+  "EDIT_VM_CONFIG": "修改虚拟机配置"
 }

@@ -20,6 +20,7 @@ type VmConfigService interface {
 	List() ([]dto.VmConfig, error)
 	Batch(op dto.VmConfigOp) error
 	Create(creation dto.VmConfigCreate) (*dto.VmConfig, error)
+	Update(creation dto.VmConfigUpdate) (*dto.VmConfig, error)
 }
 
 type vmConfigService struct {
@@ -88,6 +89,27 @@ func (v vmConfigService) Create(creation dto.VmConfigCreate) (*dto.VmConfig, err
 		return nil, errors.New(ConfigExist)
 	}
 	vmConfig := model.VmConfig{
+		Name:     creation.Name,
+		Cpu:      creation.Cpu,
+		Memory:   creation.Memory,
+		Disk:     50,
+		Provider: creation.Provider,
+	}
+	err = v.vmConfigRepo.Save(&vmConfig)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.VmConfig{VmConfig: vmConfig}, err
+}
+
+func (v vmConfigService) Update(creation dto.VmConfigUpdate) (*dto.VmConfig, error) {
+	old, err := v.vmConfigRepo.Get(creation.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	vmConfig := model.VmConfig{
+		ID:       old.ID,
 		Name:     creation.Name,
 		Cpu:      creation.Cpu,
 		Memory:   creation.Memory,
