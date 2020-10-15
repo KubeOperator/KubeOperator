@@ -75,13 +75,13 @@ func (c clusterRepository) Page(num, size int, projectName string) (int, []model
 	}
 
 	if err := db.DB.Model(model.Cluster{}).
-		Count(&total).
 		Offset((num-1)*size).
 		Limit(size).
 		Where("id in (?)", resourceIds).
 		Preload("Status").
 		Preload("Spec").
 		Preload("Nodes").
+		Count(&total).
 		Find(&clusters).Error; err != nil {
 		return total, clusters, err
 	}
