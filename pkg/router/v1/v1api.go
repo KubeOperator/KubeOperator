@@ -35,6 +35,7 @@ func V1(parent iris.Party) {
 	mvc.New(auth.Party("/cluster/backup/files")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupFileController())
 	mvc.New(auth.Party("/manifests")).HandleError(ErrorHandler).Handle(controller.NewManifestController())
 	mvc.New(auth.Party("/vm/configs")).HandleError(ErrorHandler).Handle(controller.NewVmConfigController())
+	mvc.New(auth.Party("/events")).HandleError(ErrorHandler).Handle(controller.NewClusterEventController())
 	white := v1.Party("/")
 	white.Get("/clusters/kubeconfig/{name}", downloadKubeconfig)
 	mvc.New(white.Party("/theme")).HandleError(ErrorHandler).Handle(controller.NewThemeController())
