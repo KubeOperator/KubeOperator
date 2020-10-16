@@ -302,6 +302,10 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 		err = wait.Poll(5*time.Second, 5*time.Minute, func() (done bool, err error) {
 			ds, err := client.AppsV1().DaemonSets("kube-system").Get(context.Background(), "node-problem-detector", metav1.GetOptions{})
 			if err != nil {
+				err = client.CoreV1().ConfigMaps("kube-system").Delete(context.Background(), "node-problem-detector-config", metav1.DeleteOptions{})
+				if err != nil {
+					return true, err
+				}
 				return true, err
 			}
 			if ds.Status.DesiredNumberScheduled == ds.Status.NumberReady {
