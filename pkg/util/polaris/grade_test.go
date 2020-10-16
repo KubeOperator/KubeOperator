@@ -1,0 +1,18 @@
+package polaris
+
+import (
+	"fmt"
+	"testing"
+)
+
+func TestGrade(t *testing.T) {
+	err := RunGrade(&Config{
+		Host:  "172.16.10.81",
+		Token: "eyJhbGciOiJSUzI1NiIsImtpZCI6IkdSTzlseHFBZl8ydnRONWtCczJNUmFZRUlzN25jeWxXTm9VN1lUbUNXNTQifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrby1hZG1pbi10b2tlbi1ma2I1diIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrby1hZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjU0NTI2NmU3LWIwYjgtNDFjNC1iMDVhLTFmN2I1Y2ZiMjI4ZCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTprby1hZG1pbiJ9.CZxpxzGR5RKD5BOzhrFjF8xq8x1tdPgMxt_6WCvBCc2gBsg7xN145eNPsBvv-b55wZPqIIkaE1-MG5aFLBDc2QkouR7CB9DWnHmjrzNchGlwt_MWdN4qdUFGf4cQcgAvv8VzbaoafFm8-mVhy1NXL9JmpfmiKYPG6bpATkUlgyyzudeaNy42CuazgouZJw6TyVkdNpAlp8qPUv1vpO2DWF2xAFYm5t97Uq9UYTSYIpoaSh1asDCiKAnXa6ZDG-0TmZQ2yR1ks3mXMfqYIgGU3dSvCz2DN7RZO7O6duHLwLf71O3mthGjaLb9VTIdIirbuhnM_C1Jxf7BpDSQkb5eXg",
+		Port:  8443,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("success")
+}
