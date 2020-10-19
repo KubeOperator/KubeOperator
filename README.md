@@ -208,7 +208,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">可观察性
         </td>
-         <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警（X-PACK）
+         <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警
         </td>
     </tr>
      <tr class="subscription-level-tr-border">
@@ -220,7 +220,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持消息中心，通过钉钉、微信通知各种集群异常事件；
+        <td class="features-third-td-background-style">支持消息中心，通过钉钉、微信通知各种集群异常事件（X-PACK）
         </td>
     </tr>      
     <tr class="subscription-level-tr-border">
