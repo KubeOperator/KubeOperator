@@ -3,6 +3,7 @@ package polaris
 import (
 	"context"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	conf "github.com/fairwindsops/polaris/pkg/config"
 	"github.com/fairwindsops/polaris/pkg/kube"
 	"github.com/fairwindsops/polaris/pkg/validator"
@@ -134,19 +135,38 @@ func NewPolarisConfig() conf.Configuration {
 	}
 }
 
-func RunGrade(c *Config) error {
+func RunGrade(c *Config) (*dto.ClusterGrade, error) {
 	k, err := NewResourceProvider(c)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	config := NewPolarisConfig()
 	auditData, err := validator.RunAudit(context.Background(), config, k)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Println(auditData)
-	fmt.Println(auditData.GetSummary())
-	fmt.Println(auditData.GetSummaryByCategory())
-	fmt.Println(auditData.GetResultsByNamespace())
-	return nil
+	return GetCLusterGrade(auditData), nil
+}
+
+func GetCLusterGrade(data validator.AuditData) *dto.ClusterGrade {
+	var clusterGrade dto.ClusterGrade
+	score := data.GetSummary().GetScore()
+	clusterGrade.Score = int(score)
+	sums := data.GetSummaryByCategory()
+	var total dto.Summary
+	list := make(map[string]dto.Summary)
+	for k, v := range sums {
+		list[k] = dto.Summary{
+			Danger:  int(v.Dangers),
+			Success: int(v.Successes),
+			Warning: int(v.Warnings),
+		}
+		total.Warning = total.Warning + int(v.Warnings)
+		total.Success = total.Success + int(v.Successes)
+		total.Danger = total.Danger + int(v.Dangers)
+	}
+	clusterGrade.TotalSum = total
+	clusterGrade.ListSum = list
+	clusterGrade.Results = data.GetResultsByNamespace()
+	return &clusterGrade
 }

@@ -1,0 +1,45 @@
+<div *ngIf="loading" style="text-align: center">
+    <clr-spinner></clr-spinner>
+</div>
+<div class="clr-row" *ngIf="!loading">
+    <div class="clr-col-12">
+        <div class="card">
+            <div class="card-header">
+                概览
+            </div>
+            <div class="card-block">
+                <div class="clr-row" style="height: 260px">
+                    <div class="clr-col-6" style="text-align: center">
+                        <div class="clr-row">
+                            <div class="clr-col-7" style="text-align: center;padding-top: 100px">
+                                <span style="font-size: 144px">{{item.grade}}</span><br/><br/>
+                                <span style="font-size: 24px">{{item.score | number:'2.0-1'}}</span>
+                            </div>
+                            <div class="clr-col-5" style="height: 100px">
+                                <div echarts
+                                     [autoResize]="true"
+                                     [options]="pieChartOptions"
+                                     class="demo-chart"
+                                     style="width: 70%; height: 240px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clr-col-6" style="border-left:1px solid #AAAAAA;text-align: center">
+                        <div class="clr-row">
+                            <div class="clr-col-2">
+
+                            </div>
+                            <div class="clr-col-10">
+                                <div echarts
+                                     [autoResize]="true"
+                                     [options]="barChartOptions"
+                                     class="demo-chart"
+                                     style="width: 70%; height: 240px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

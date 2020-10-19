@@ -459,5 +459,16 @@
   "APP_VM_CONFIG": "虚拟机配置",
   "APP_VM_CONFIG_ADD": "新增虚拟机配置",
   "APP_DELETE_VM_CONFIG": "删除虚拟机配置",
-  "EDIT_VM_CONFIG": "修改虚拟机配置"
+  "EDIT_VM_CONFIG": "修改虚拟机配置",
+  "APP_GRADE": "集群评分",
+  "APP_WARNING": "警告",
+  "APP_DANGER": "严重",
+  "APP_SUCCESS": "通过",
+  "Health Checks": "健康检查",
+  "Images": "镜像",
+  "Networking": "网络",
+  "Reliability": "可靠性",
+  "Resources": "资源",
+  "Security": "安全",
+  "APP_TOTAL": "总量"
 }
