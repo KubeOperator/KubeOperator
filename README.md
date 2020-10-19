@@ -120,7 +120,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">支持通过 F5 Big IP 对外暴露服务
+        <td class="features-third-td-background-style">支持通过 F5 Big IP 对外暴露服务（X-PACK）
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
@@ -132,7 +132,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">GPU 方案
+        <td class="features-third-td-background-style">GPU 方案（X-PACK）
         </td>
         <td class="features-third-td-background-style">支持 NVIDIA GPU
         </td>
@@ -178,7 +178,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr> 
     <tr class="subscription-level-tr-border">
-         <td class="features-third-td-background-style">支持对接 LDAP/AD
+         <td class="features-third-td-background-style">支持对接 LDAP/AD（X-PACK）
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
@@ -208,7 +208,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">可观察性
         </td>
-         <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警
+         <td class="features-third-td-background-style">内置 Promethus，支持对集群、节点、Pod、Container的全方位监控和告警（X-PACK）
         </td>
     </tr>
      <tr class="subscription-level-tr-border">
@@ -244,7 +244,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style"  rowspan="2">安全合规
         </td>
-         <td class="features-third-td-background-style">支持集群健康评分
+         <td class="features-third-td-background-style">支持集群健康评分（X-PACK）
         </td>
     </tr>   
     <tr class="subscription-level-tr-border">
