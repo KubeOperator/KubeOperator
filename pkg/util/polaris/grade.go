@@ -167,6 +167,29 @@ func GetCLusterGrade(data validator.AuditData) *dto.ClusterGrade {
 	}
 	clusterGrade.TotalSum = total
 	clusterGrade.ListSum = list
-	clusterGrade.Results = data.GetResultsByNamespace()
+	namespaceResults := data.GetResultsByNamespace()
+	for k, _ := range namespaceResults {
+		namespaceResult := dto.NamespaceResult{
+			Namespace: k,
+		}
+		for _, v := range namespaceResults[k] {
+			detail := dto.NamespaceResultDetail{
+				Name: v.Name,
+				Kind: v.Kind,
+			}
+			for _, pod := range v.PodResult.Results {
+				podResult := dto.PodResult{
+					ID:       pod.ID,
+					Message:  pod.Message,
+					Category: pod.Category,
+					Success:  pod.Success,
+					Severity: string(pod.Severity),
+				}
+				detail.PodResults = append(detail.PodResults, podResult)
+			}
+			namespaceResult.Results = append(namespaceResult.Results, detail)
+		}
+		clusterGrade.Results = append(clusterGrade.Results, namespaceResult)
+	}
 	return &clusterGrade
 }

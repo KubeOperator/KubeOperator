@@ -5,11 +5,30 @@ export class Grade extends BaseModel {
     score: number;
     totalSum: Summary;
     listSum: Summary[] = [];
-    result: [] = [];
+    results: NamespaceResult[] = [];
 }
 
 export class Summary {
     success: number;
     warning: number;
     danger: number;
+}
+
+export class NamespaceResult {
+    namespace: string;
+    results: NamespaceResultDetail[] = [];
+}
+
+export class NamespaceResultDetail {
+    kind: string;
+    name: string;
+    podResults: PodResult[] = [];
+}
+
+export class PodResult {
+    category: string;
+    id: string;
+    message: string;
+    severity: string;
+    success: boolean;
 }
