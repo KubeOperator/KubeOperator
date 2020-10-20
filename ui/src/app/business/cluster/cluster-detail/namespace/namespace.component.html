@@ -1,1 +1,2 @@
-<app-namespace-list></app-namespace-list>
+<app-namespace-list (deleteEvent)="onDelete($event)"></app-namespace-list>
+<app-namespace-delete (deleted)="refresh()"></app-namespace-delete>

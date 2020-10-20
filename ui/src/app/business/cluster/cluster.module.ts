@@ -70,6 +70,7 @@ import { ClusterUpgradeComponent } from './cluster-upgrade/cluster-upgrade.compo
 import { ClusterLoggerComponent } from './cluster-logger/cluster-logger.component';
 import { ClusterGradeComponent } from './cluster-detail/cluster-grade/cluster-grade.component';
 import {NgxEchartsModule} from 'ngx-echarts';
+import { NamespaceDeleteComponent } from './cluster-detail/namespace/namespace-delete/namespace-delete.component';
 
 
 @NgModule({
@@ -119,7 +120,8 @@ import {NgxEchartsModule} from 'ngx-echarts';
         EventComponent,
         ClusterUpgradeComponent,
         ClusterLoggerComponent,
-        ClusterGradeComponent],
+        ClusterGradeComponent,
+        NamespaceDeleteComponent],
     imports: [
         CoreModule,
         RouterModule,

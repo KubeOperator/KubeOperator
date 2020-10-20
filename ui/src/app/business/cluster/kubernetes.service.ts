@@ -37,6 +37,7 @@ export class KubernetesService {
     }
 
     namespaceUrl = '/api/v1/namespaces';
+    namespaceOpUrl = '/api/v1/namespaces/{namespace}';
     serviceUrl = 'api/v1/services';
     namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
     persistentVolumesUrl = '/api/v1/persistentvolumes';
@@ -284,5 +285,10 @@ export class KubernetesService {
     createNamespace(clusterName: string, item: V1Namespace): Observable<V1Namespace> {
         const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
         return this.client.post<V1Namespace>(url, item);
+    }
+
+    deleteNamespace(clusterName: string, namespace: string): Observable<V1Namespace> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceOpUrl).replace('{namespace}', namespace);
+        return this.client.delete<V1Namespace>(url);
     }
 }

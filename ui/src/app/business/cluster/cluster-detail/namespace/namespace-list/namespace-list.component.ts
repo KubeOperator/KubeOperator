@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
@@ -23,6 +23,7 @@ export class NamespaceListComponent implements OnInit {
     opened = false;
     isSubmitGoing = false;
     namespace: string;
+    @Output() deleteEvent = new EventEmitter<string>();
 
     constructor(private service: KubernetesService, private route: ActivatedRoute,
                 private commonAlertService: CommonAlertService,
@@ -43,6 +44,10 @@ export class NamespaceListComponent implements OnInit {
             this.loading = false;
             this.items = data.items;
         });
+    }
+
+    onDelete(item: V1Namespace) {
+        this.deleteEvent.emit(item.metadata.name);
     }
 
     onCreate() {

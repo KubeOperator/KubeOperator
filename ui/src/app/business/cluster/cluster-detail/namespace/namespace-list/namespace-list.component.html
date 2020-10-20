@@ -11,20 +11,24 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" (click)="onCancel()"
                     [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
-            <button type="submit" class="btn btn-primary"  [disabled]="namespaceForm.invalid"
+            <button type="submit" class="btn btn-primary" [disabled]="namespaceForm.invalid"
                     (click)="onSubmit()">{{'APP_COMMIT'|translate}}
             </button>
         </div>
     </div>
 </clr-modal>
 
-<clr-datagrid [clrDgLoading]="loading">
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
     <clr-dg-action-bar>
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
-                    *appOperateAuth="{'op':'PROJECT.CREATE','projectName':''}">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{'APP_ADD'|translate}}
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete(selected[0])"
+                    [disabled]="selected.length != 1">
+                <clr-icon shape="close"></clr-icon>
+                {{'APP_DELETE'|translate}}
             </button>
         </div>
     </clr-dg-action-bar>
