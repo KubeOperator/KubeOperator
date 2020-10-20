@@ -5,7 +5,7 @@
     <div class="clr-col-12">
         <div class="card">
             <div class="card-header">
-                概览
+                {{'APP_OVERVIEW'|translate}}
             </div>
             <div class="card-block">
                 <div class="clr-row" style="height: 260px">
@@ -64,7 +64,7 @@
                                             <li *ngFor="let pr of re.podResults">
                                                 <clr-icon *ngIf="pr.severity==='danger'" shape="exclamation-circle"
                                                           style="color: #F57660"></clr-icon>
-                                                <clr-icon *ngIf="pr.severity==='warning'" shape="exclamation-circle"
+                                                <clr-icon *ngIf="pr.severity==='warning'" shape="info-circle"
                                                           style="color: #F8B96A"></clr-icon>
                                                 <clr-icon *ngIf="pr.severity==='success'" shape="check-circle"
                                                           style="color: #90D072"></clr-icon>
