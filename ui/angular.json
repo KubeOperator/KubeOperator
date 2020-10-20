@@ -36,7 +36,8 @@
               "node_modules/xterm/lib/xterm.js",
               "node_modules/@clr/icons/clr-icons.min.js",
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/select2/dist/js/select2.min.js"
+              "node_modules/select2/dist/js/select2.min.js",
+              "node_modules/echarts/dist/echarts.js"
             ]
           },
           "configurations": {

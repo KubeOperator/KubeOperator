@@ -4,6 +4,7 @@ import {Cluster} from '../cluster';
 import {ToolsService} from './tools/tools.service';
 import {ClusterTool} from './tools/tools';
 import {ClusterService} from "../cluster.service";
+import {LicenseService} from '../../setting/license/license.service';
 
 @Component({
     selector: 'app-cluster-detail',
@@ -13,12 +14,13 @@ import {ClusterService} from "../cluster.service";
 export class ClusterDetailComponent implements OnInit {
 
     constructor(private router: Router, private route: ActivatedRoute, private toolsService: ToolsService,
-                private clusterService: ClusterService) {
+                private clusterService: ClusterService, private licenseService: LicenseService) {
     }
 
     currentCluster: Cluster;
     tools: ClusterTool[] = [];
     ready = false;
+    hasLicense = false;
 
     ngOnInit(): void {
         this.route.data.subscribe(data => {
@@ -33,6 +35,9 @@ export class ClusterDetailComponent implements OnInit {
                 }
                 this.ready = true;
             });
+        });
+        this.licenseService.get().subscribe(data => {
+            this.hasLicense = true;
         });
     }
 

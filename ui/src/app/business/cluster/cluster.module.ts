@@ -68,6 +68,8 @@ import { SecurityTaskDeleteComponent } from './cluster-detail/security/security-
 import { EventComponent } from './cluster-detail/event/event.component';
 import { ClusterUpgradeComponent } from './cluster-upgrade/cluster-upgrade.component';
 import { ClusterLoggerComponent } from './cluster-logger/cluster-logger.component';
+import { ClusterGradeComponent } from './cluster-detail/cluster-grade/cluster-grade.component';
+import {NgxEchartsModule} from 'ngx-echarts';
 
 
 @NgModule({
@@ -116,13 +118,17 @@ import { ClusterLoggerComponent } from './cluster-logger/cluster-logger.componen
         SecurityTaskDeleteComponent,
         EventComponent,
         ClusterUpgradeComponent,
-        ClusterLoggerComponent],
+        ClusterLoggerComponent,
+        ClusterGradeComponent],
     imports: [
         CoreModule,
         RouterModule,
         SharedModule,
         NgCircleProgressModule,
         BackupModule,
+        NgxEchartsModule.forRoot({
+            echarts: () => import('echarts'),
+        }),
     ]
 })
 export class ClusterModule {

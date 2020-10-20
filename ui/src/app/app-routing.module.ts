@@ -50,6 +50,7 @@ import {MailboxComponent} from './business/message-center/mailbox/mailbox.compon
 import {ClusterLoggerComponent} from './business/cluster/cluster-logger/cluster-logger.component';
 import {MessageComponent} from './business/setting/message/message.component';
 import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.component';
+import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-grade/cluster-grade.component';
 
 
 const routes: Routes = [
@@ -113,6 +114,7 @@ const routes: Routes = [
                     {path: 'tool', component: ToolsComponent},
                     {path: 'backup', component: BackupComponent},
                     {path: 'logs', component: LogComponent},
+                    {path: 'grade', component: ClusterGradeComponent},
                 ],
             },
             {

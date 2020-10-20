@@ -455,6 +455,17 @@
   "APP_VM_CONFIG": "Virtual machine configuration",
   "APP_VM_CONFIG_ADD": "Add Virtual machine configuration",
   "APP_DELETE_VM_CONFIG": "Delete Virtual machine configuration",
-  "EDIT_VM_CONFIG": "Edit Virtual machine configuration"
+  "EDIT_VM_CONFIG": "Edit Virtual machine configuration",
+  "APP_GRADE": "Cluster Grade",
+  "APP_WARNING": "Warning",
+  "APP_DANGER": "Danger",
+  "APP_SUCCESS": "Success",
+  "Health Checks": "Health Checks",
+  "Images": "Images",
+  "Networking": "Networking",
+  "Reliability": "Reliability",
+  "Resources": "Resources",
+  "Security": "Security",
+  "APP_TOTAL": "Total"
 
 }
