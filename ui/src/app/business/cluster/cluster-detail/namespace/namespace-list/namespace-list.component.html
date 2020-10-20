@@ -1,5 +1,32 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_NAMESPACE_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #namespaceForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_NAME'|translate}}:</label>
+                <input clrInput size=45 maxlength="30" [(ngModel)]="namespace"
+                       name="name" required>
+            </clr-input-container>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary"  [disabled]="namespaceForm.invalid"
+                    (click)="onSubmit()">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+
 <clr-datagrid [clrDgLoading]="loading">
     <clr-dg-action-bar>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
+                    *appOperateAuth="{'op':'PROJECT.CREATE','projectName':''}">
+                <clr-icon shape="plus" size="16"></clr-icon>
+                {{'APP_ADD'|translate}}
+            </button>
+        </div>
     </clr-dg-action-bar>
     <clr-dg-column>{{"APP_NAME"|translate}}</clr-dg-column>
     <clr-dg-column>{{"APP_STATUS"|translate}}</clr-dg-column>

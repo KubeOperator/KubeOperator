@@ -470,5 +470,6 @@
   "Reliability": "可靠性",
   "Resources": "资源",
   "Security": "安全",
-  "APP_TOTAL": "总量"
+  "APP_TOTAL": "总量",
+  "APP_NAMESPACE_ADD": "新增 namespace"
 }

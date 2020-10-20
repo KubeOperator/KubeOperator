@@ -466,6 +466,6 @@
   "Reliability": "Reliability",
   "Resources": "Resources",
   "Security": "Security",
-  "APP_TOTAL": "Total"
-
+  "APP_TOTAL": "Total",
+  "APP_NAMESPACE_ADD": "Add namespace"
 }
