@@ -467,5 +467,6 @@
   "Resources": "Resources",
   "Security": "Security",
   "APP_TOTAL": "Total",
-  "APP_NAMESPACE_ADD": "Add namespace"
+  "APP_NAMESPACE_ADD": "Add namespace",
+  "APP_FUSION_COMPUTE_SERVER": "FusionCompute Server"
 }

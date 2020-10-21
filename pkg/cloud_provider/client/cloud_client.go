@@ -16,11 +16,13 @@ type CloudClient interface {
 }
 
 func NewCloudClient(vars map[string]interface{}) CloudClient {
-	if vars["provider"] == constant.OpenStack {
+	switch vars["provider"] {
+	case constant.OpenStack:
 		return NewOpenStackClient(vars)
-	}
-	if vars["provider"] == constant.VSphere {
+	case constant.VSphere:
 		return NewVSphereClient(vars)
+	case constant.FusionCompute:
+		return NewFusionComputeClient(vars)
 	}
 	return nil
 }
