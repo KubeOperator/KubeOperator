@@ -20,14 +20,10 @@ export class NamespaceListComponent implements OnInit {
     items: V1Namespace[] = [];
     page = 1;
     currentCluster: Cluster;
-    opened = false;
-    isSubmitGoing = false;
-    namespace: string;
     @Output() deleteEvent = new EventEmitter<string>();
+    @Output() createEvent = new EventEmitter<string>();
 
-    constructor(private service: KubernetesService, private route: ActivatedRoute,
-                private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+    constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
 
 
@@ -51,37 +47,7 @@ export class NamespaceListComponent implements OnInit {
     }
 
     onCreate() {
-        this.opened = true;
+        this.createEvent.emit();
     }
 
-    onCancel() {
-        this.opened = false;
-        this.isSubmitGoing = false;
-    }
-
-    onSubmit() {
-        const item = this.newV1NameSpace();
-        this.isSubmitGoing = true;
-        this.service.createNamespace(this.currentCluster.name, item).subscribe(res => {
-            this.opened = false;
-            this.isSubmitGoing = false;
-            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-            this.list();
-        }, error => {
-            this.opened = false;
-            this.isSubmitGoing = false;
-            this.namespace = '';
-            this.commonAlertService.showAlert(error.error.message, AlertLevels.ERROR);
-        });
-    }
-
-    newV1NameSpace(): V1Namespace {
-        return {
-            apiVersion: 'v1',
-            kind: 'Namespace',
-            metadata: {
-                name: this.namespace,
-            } as V1ObjectMeta,
-        };
-    }
 }

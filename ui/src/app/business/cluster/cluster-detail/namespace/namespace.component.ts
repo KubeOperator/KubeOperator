@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {NamespaceDeleteComponent} from './namespace-delete/namespace-delete.component';
 import {NamespaceListComponent} from './namespace-list/namespace-list.component';
+import {NamespaceCreateComponent} from './namespace-create/namespace-create.component';
 
 @Component({
     selector: 'app-namespace',
@@ -15,6 +16,9 @@ export class NamespaceComponent implements OnInit {
     @ViewChild(NamespaceListComponent, {static: true})
     list: NamespaceListComponent;
 
+    @ViewChild(NamespaceCreateComponent, {static: true})
+    create: NamespaceCreateComponent;
+
     constructor() {
     }
 
@@ -28,5 +32,9 @@ export class NamespaceComponent implements OnInit {
 
     refresh() {
         this.list.list();
+    }
+
+    onCreate() {
+        this.create.open();
     }
 }

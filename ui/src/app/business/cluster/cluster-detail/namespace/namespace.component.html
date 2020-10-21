@@ -1,2 +1,3 @@
-<app-namespace-list (deleteEvent)="onDelete($event)"></app-namespace-list>
+<app-namespace-list (deleteEvent)="onDelete($event)" (createEvent)="onCreate()"></app-namespace-list>
 <app-namespace-delete (deleted)="refresh()"></app-namespace-delete>
+<app-namespace-create (created)="refresh()"></app-namespace-create>
