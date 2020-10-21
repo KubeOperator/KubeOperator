@@ -471,5 +471,9 @@
   "Resources": "资源",
   "Security": "安全",
   "APP_TOTAL": "总量",
-  "APP_NAMESPACE_ADD": "新增 namespace"
+  "APP_NAMESPACE_ADD": "新增 namespace",
+  "APP_OCEAN_URL": "管理URL",
+  "APP_OCEAN_POOL": "存储池",
+  "APP_OCEAN_PORTAL_NFS": "逻辑端口IP",
+  "APP_OCEAN_PORTAL_ISCSI": "iscsi业务IP"
 }

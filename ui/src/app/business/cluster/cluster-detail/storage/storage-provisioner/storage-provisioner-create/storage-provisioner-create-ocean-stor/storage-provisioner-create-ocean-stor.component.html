@@ -1,0 +1,55 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_ADD_STORAGE_PROVISIONER" |translate}}</h3>
+    <div class="modal-body">
+        <form clrForm #storForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_NAME"|translate}}</label>
+                <input clrInput [(ngModel)]="item.name" name="name" size="34" disabled
+                       required>
+            </clr-input-container>
+            <clr-select-container>
+                <label>{{"APP_TYPE"|translate}}</label>
+                <select clrSelect [(ngModel)]="item.vars['oceanstor_type']" name="oceanstor_type" required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="nfs">nfs</option>
+                    <option value="iscsi">iscsi</option>
+                    <option value="fc">fc</option>
+                </select>
+            </clr-select-container>
+            <clr-input-container>
+                <label>{{"APP_OCEAN_URL"|translate}}</label>
+                <input clrInput [(ngModel)]="item.vars['oceanstor_urls']" name="oceanstor_urls" size="34" placeholder="10.1.1.1,10.1.1.2"
+                       required>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{"APP_USERNAME"|translate}}</label>
+                <input clrInput [(ngModel)]="item.vars['oceanstor_user']" name="oceanstor_user" size="34"
+                       required>
+            </clr-input-container>
+            <clr-password-container>
+                <label>{{"APP_PASSWORD"|translate}}</label>
+                <input clrPassword [size]="32" name="password" [(ngModel)]="item.vars['oceanstor_password']" required/>
+            </clr-password-container>
+            <clr-input-container>
+                <label>{{"APP_OCEAN_POOL"|translate}}</label>
+                <input clrInput [size]="32" name="oceanstor_pools" [(ngModel)]="item.vars['oceanstor_pools']" placeholder="pool1,pool2"
+                       required/>
+            </clr-input-container>
+            <clr-input-container *ngIf="item.vars['oceanstor_type']==='nfs'">
+                <label>{{"APP_OCEAN_PORTAL_NFS"|translate}}</label>
+                <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']" placeholder="test1,test2"
+                       required/>
+            </clr-input-container>
+            <clr-input-container *ngIf="item.vars['oceanstor_type']==='iscsi'">
+                <label>{{"APP_OCEAN_PORTAL_ISCSI"|translate}}</label>
+                <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']"
+                       required/>
+            </clr-input-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="storForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>
