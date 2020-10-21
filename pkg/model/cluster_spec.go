@@ -29,6 +29,7 @@ type ClusterSpec struct {
 	IngressControllerType string `json:"ingressControllerType"`
 	Architectures         string `json:"architectures"`
 	KubernetesAudit       string `json:"kubernetesAudit"`
+	HelmVersion           string `json:"helmVersion"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {
