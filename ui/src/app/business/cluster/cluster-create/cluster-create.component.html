@@ -49,7 +49,8 @@
 
             <clr-select-container>
                 <label>{{"APP_ARCHITECTURE"|translate}}</label>
-                <select clrSelect name="arch" [(ngModel)]="item.architectures" required>
+                <select clrSelect name="arch" [(ngModel)]="item.architectures" (change)="changeArch(item.architectures)"
+                        required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                     <option value="arm64">ARM64</option>
                     <option value="amd64">AMD64</option>
@@ -155,6 +156,13 @@
                 </select>
             </clr-select-container>
 
+            <clr-select-container>
+                <label>helm</label>
+                <select clrSelect name="helmVersion" [(ngModel)]="item.helmVersion">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option *ngFor="let version of helmVersions" [value]="version"> {{version}}</option>
+                </select>
+            </clr-select-container>
         </form>
     </clr-wizard-page>
 
@@ -192,7 +200,8 @@
 
             <clr-input-container>
                 <label>{{"APP_WORKER_AMOUNT"|translate}}</label>
-                <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="workerSize" [(ngModel)]="item.workerAmount">
+                <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="workerSize"
+                       [(ngModel)]="item.workerAmount">
             </clr-input-container>
         </form>
     </clr-wizard-page>
