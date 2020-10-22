@@ -472,5 +472,6 @@
   "APP_OCEAN_PORTAL_NFS": "Logical port IP",
   "APP_OCEAN_PORTAL_ISCSI": "iscsi business IP",
   "APP_NAMESPACE_ADD": "Add namespace",
-  "APP_FUSION_COMPUTE_SERVER": "FusionCompute Server"
+  "APP_FUSION_COMPUTE_SERVER": "FusionCompute Server",
+  "APP_PRODUCT": "Product"
 }

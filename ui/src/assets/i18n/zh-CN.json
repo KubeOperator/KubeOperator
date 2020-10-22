@@ -481,5 +481,6 @@
   "APP_REGION_FUSION_USER": "FusionCompute 用户名",
   "APP_REGION_FUSION_PASSWORD": "FusionCompute 密码",
   "APP_REGION_FUSION_USER_HELPER": "访问 FusionCompute 的用户名，例如: admin",
-  "APP_REGION_FUSION_PASSWORD_HELPER": "访问 FusionCompute 的密码"
+  "APP_REGION_FUSION_PASSWORD_HELPER": "访问 FusionCompute 的密码",
+  "APP_PRODUCT": "产品"
 }
