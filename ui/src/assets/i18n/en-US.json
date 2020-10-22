@@ -467,11 +467,10 @@
   "Resources": "Resources",
   "Security": "Security",
   "APP_TOTAL": "Total",
-  "APP_NAMESPACE_ADD": "Add namespace",
   "APP_OCEAN_URL": "Management URL",
   "APP_OCEAN_POOL": "Storage pool",
   "APP_OCEAN_PORTAL_NFS": "Logical port IP",
-  "APP_OCEAN_PORTAL_ISCSI": "iscsi business IP"
+  "APP_OCEAN_PORTAL_ISCSI": "iscsi business IP",
   "APP_NAMESPACE_ADD": "Add namespace",
   "APP_FUSION_COMPUTE_SERVER": "FusionCompute Server"
 }
