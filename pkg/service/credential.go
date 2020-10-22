@@ -67,11 +67,6 @@ func (c credentialService) List() ([]dto.Credential, error) {
 	for _, mo := range mos {
 		var credentialDTO dto.Credential
 		credentialDTO.Credential = mo
-		password, err := encrypt.StringDecrypt(mo.Password)
-		if err != nil {
-			return credentialDTOS, err
-		}
-		credentialDTO.Password = password
 		credentialDTOS = append(credentialDTOS, credentialDTO)
 	}
 	return credentialDTOS, err
@@ -80,7 +75,6 @@ func (c credentialService) List() ([]dto.Credential, error) {
 func (c credentialService) Page(num, size int) (page.Page, error) {
 
 	var page page.Page
-
 	var total int
 	var credentialDTOS []dto.Credential
 	total, mos, err := c.credentialRepo.Page(num, size)
@@ -90,11 +84,6 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 	for _, mo := range mos {
 		var credentailDTO dto.Credential
 		credentailDTO.Credential = mo
-		password, err := encrypt.StringDecrypt(mo.Password)
-		if err != nil {
-			return page, err
-		}
-		credentailDTO.Password = password
 		credentialDTOS = append(credentialDTOS, credentailDTO)
 	}
 	page.Total = total
