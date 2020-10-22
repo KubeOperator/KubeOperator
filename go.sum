@@ -104,6 +104,12 @@ github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4K
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201021080040-eeb97759fa00 h1:RN2WZHL32EdV8gTi0stx0UcYmSh39AdtSBQm+2+U06o=
 github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201021080040-eeb97759fa00/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201022081844-24d10b2965b4 h1:fu+R9KxO16NkNE7yA8LUNq4zxy/00zJvnysSInS8BFE=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201022081844-24d10b2965b4/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201022082945-8d89436a544e h1:ZkrYVHwMJEwmPcHvNCSilwfwBYPEOopy0C36q262VZc=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201022082945-8d89436a544e/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.2 h1:6VyJrBsLF/vTPuK6RdqTxCGV62gP8Zz2/QBXtLNMjy4=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.2/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
 github.com/KubeOperator/docs v0.0.0-20200811083118-9d98980a3265 h1:Z54LRtbzR3bbWPonhx+wgd+Or6s2BP9ANjsb0vrFz7g=
 github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589 h1:yiEUOtIUGKu+/hwhfFHZvkx2jB76rWvmF0PCcnUclcs=
 github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589/go.mod h1:1R40WrJtCEa93Jfs+4HGRZRGaOBjySHUq6pIvijB34U=

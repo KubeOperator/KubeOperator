@@ -38,6 +38,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     networkValid = false;
     subnetList: Subnet[] = [];
     credentials: Credential[] = [];
+    portgroups: string[] = [];
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -109,6 +110,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.cloudZones.forEach(cloudZone => {
             if (cloudZone.cluster === this.item.cloudVars['cluster']) {
                 this.cloudZone = cloudZone;
+                console.log(this.cloudZone);
             }
         });
     }
@@ -118,6 +120,14 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.cloudZone.networkList.forEach(network => {
             if (network.id === this.item.cloudVars['network']) {
                 this.subnetList = network.subnetList;
+            }
+        });
+    }
+
+    changeSwitch() {
+        this.cloudZone.switchs.forEach(sw => {
+            if (sw.name === this.item.cloudVars['switch']) {
+                this.portgroups = sw.portgroups;
             }
         });
     }
