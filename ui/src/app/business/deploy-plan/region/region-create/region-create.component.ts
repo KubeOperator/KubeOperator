@@ -5,7 +5,6 @@ import {RegionService} from '../region.service';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {NgForm} from '@angular/forms';
-import {CloudProviderService} from '../cloud-provider.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ClrWizard, ClrWizardPage} from '@clr/angular';
 import {TranslateService} from '@ngx-translate/core';
@@ -37,7 +36,7 @@ export class RegionCreateComponent extends BaseModelDirective<Region> implements
 
     constructor(private regionService: RegionService, private modalAlertService: ModalAlertService,
                 private translateService: TranslateService,
-                private commonAlertService: CommonAlertService, private cloudProviderService: CloudProviderService) {
+                private commonAlertService: CommonAlertService) {
         super(regionService);
     }
 
@@ -45,13 +44,8 @@ export class RegionCreateComponent extends BaseModelDirective<Region> implements
     }
 
     open() {
-        this.cloudProviderService.list().subscribe(res => {
-            this.cloudProviders = res.items;
-            this.opened = true;
-            this.item = new RegionCreateRequest();
-        }, error => {
-            this.modalAlertService.showAlert('', AlertLevels.ERROR);
-        });
+        this.opened = true;
+        this.item = new RegionCreateRequest();
     }
 
     onCancel() {

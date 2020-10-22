@@ -22,7 +22,6 @@ func V1(parent iris.Party) {
 	mvc.New(auth.Party("/hosts")).HandleError(ErrorHandler).Handle(controller.NewHostController())
 	mvc.New(auth.Party("/users")).HandleError(ErrorHandler).Handle(controller.NewUserController())
 	mvc.New(auth.Party("/regions")).HandleError(ErrorHandler).Handle(controller.NewRegionController())
-	mvc.New(auth.Party("/cloud/providers")).HandleError(ErrorHandler).Handle(controller.NewCloudProviderController())
 	mvc.New(auth.Party("/zones")).HandleError(ErrorHandler).Handle(controller.NewZoneController())
 	mvc.New(auth.Party("/plans")).HandleError(ErrorHandler).Handle(controller.NewPlanController())
 	mvc.New(auth.Party("/systemSettings")).HandleError(ErrorHandler).Handle(controller.NewSystemSettingController())

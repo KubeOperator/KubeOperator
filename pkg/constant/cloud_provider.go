@@ -15,4 +15,14 @@ const (
 	ImageUserName            = "root"
 	ImagePasswordType        = "password"
 	OpenStackImageLocalPath  = "/opt/kubeoperator_centos_7.6.1810-1.qcow2"
+
+	FusionCompute = "FusionCompute"
 )
+
+type CloudProvider string
+
+var SupportedCloudProviders = []CloudProvider{
+	OpenStack,
+	VSphere,
+	FusionCompute,
+}

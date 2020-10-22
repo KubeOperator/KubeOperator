@@ -102,6 +102,8 @@ github.com/Joker/hpp v1.0.0/go.mod h1:8x5n+M1Hp5hC0g8okX3sR3vFQwynaX/UgSOM9MeBKz
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7 h1:mreN1m/5VJ/Zc3b4pzj9qU6D9SRQ6Vm+3KfI328t3S8=
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4KhCrqr6GRJjdC/gNfTdxkIXvuGZZda2VM=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201021080040-eeb97759fa00 h1:RN2WZHL32EdV8gTi0stx0UcYmSh39AdtSBQm+2+U06o=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.0-20201021080040-eeb97759fa00/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
 github.com/KubeOperator/docs v0.0.0-20200811083118-9d98980a3265 h1:Z54LRtbzR3bbWPonhx+wgd+Or6s2BP9ANjsb0vrFz7g=
 github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589 h1:yiEUOtIUGKu+/hwhfFHZvkx2jB76rWvmF0PCcnUclcs=
 github.com/KubeOperator/kobe v0.0.0-20200529031858-a7264b26b589/go.mod h1:1R40WrJtCEa93Jfs+4HGRZRGaOBjySHUq6pIvijB34U=
@@ -490,6 +492,8 @@ github.com/go-playground/validator/v10 v10.2.0 h1:KgJ0snyC2R9VXYN2rneOtQcw5aHQB1
 github.com/go-playground/validator/v10 v10.2.0/go.mod h1:uOYAAleCW8F/7oMFd6aG0GOhaH6EGOAJShg8Id5JGkI=
 github.com/go-redis/redis v6.15.7+incompatible h1:3skhDh95XQMpnqeqNftPkQD9jL9e5e36z/1SUm6dy1U=
 github.com/go-redis/redis v6.15.7+incompatible/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8wamY7mA7PouImQ2Jvg6kA=
+github.com/go-resty/resty/v2 v2.3.0 h1:JOOeAvjSlapTT92p8xiS19Zxev1neGikoHsXJeOq8So=
+github.com/go-resty/resty/v2 v2.3.0/go.mod h1:UpN9CgLZNsv4e9XG50UU8xdI0F43UQ4HmxLBDwaroHU=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
