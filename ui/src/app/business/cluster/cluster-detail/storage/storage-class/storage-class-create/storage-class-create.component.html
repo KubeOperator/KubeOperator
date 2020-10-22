@@ -146,7 +146,72 @@
                 </tbody>
             </table>
 
-
+            <table class="table table-vertical" *ngIf="provisioner&&provisioner.type==='ocean-stor'">
+                <tbody>
+                <tr>
+                    <th>volumeType</th>
+                    <td>
+                        <div class="clr-select-wrapper">
+                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_volume']"
+                                    name="oceanstor_sc_volume" required>
+                                <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                                <option value="lun">lun</option>
+                                <option value="fs">fs</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="item.parameters['oceanstor_sc_volume']==='fs'">
+                    <th>authClient</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="authClient" placeholder="demo1;demo2;"
+                               [(ngModel)]="item.parameters['oceanstor_sc_client']" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th>allocType</th>
+                    <td>
+                        <div class="clr-select-wrapper">
+                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_alloc']"
+                                    name="oceanstor_sc_alloc"
+                                    required>
+                                <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                                <option value="thin">thin</option>
+                                <option value="thick">thick</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>cloneFrom</th>
+                    <td>
+                        <input [size]="34" class="clr-input" name="cloneFrom"
+                               [(ngModel)]="item.parameters['oceanstor_sc_clonefrom']">
+                    </td>
+                </tr>
+                <tr>
+                    <th>cloneSpeed</th>
+                    <td>
+                        <input [size]="34" class="clr-input" type="number" name="cloneSpeed"
+                               [(ngModel)]="item.parameters['oceanstor_sc_clonespeed']" placeholder="1-4">
+                    </td>
+                </tr>
+                <tr *ngIf="item.parameters['oceanstor_sc_volume']==='lun'">
+                    <th>fsType</th>
+                    <td>
+                        <div class="clr-select-wrapper">
+                            <select  class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_fs']"
+                                    name="oceanstor_sc_alloc">
+                                <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                                <option value="ext2">ext2</option>
+                                <option value="ext3">ext3</option>
+                                <option value="ext4">ext4</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </form>
     </div>
     <div class="modal-footer">
