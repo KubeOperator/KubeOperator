@@ -29,7 +29,7 @@ export class CredentialEditComponent implements OnInit {
 
     open(item: Credential) {
         this.item = item;
-        this.item.password = "";
+        this.item.password = '';
         this.opened = true;
     }
 
