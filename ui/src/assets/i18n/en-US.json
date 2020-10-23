@@ -473,5 +473,7 @@
   "APP_OCEAN_PORTAL_ISCSI": "iscsi business IP",
   "APP_NAMESPACE_ADD": "Add namespace",
   "APP_FUSION_COMPUTE_SERVER": "FusionCompute Server",
-  "APP_PRODUCT": "Product"
+  "APP_PRODUCT": "Product",
+  "zh-CN": "中文(简体)",
+  "en-US": "English"
 }
