@@ -164,7 +164,7 @@
                 <tr *ngIf="item.parameters['oceanstor_sc_volume']==='fs'">
                     <th>authClient</th>
                     <td>
-                        <input [size]="34" class="clr-input" name="authClient" placeholder="demo1;demo2;"
+                        <input [size]="34" class="clr-input" name="authClient" placeholder="demo1,demo2"
                                [(ngModel)]="item.parameters['oceanstor_sc_client']" required>
                     </td>
                 </tr>
@@ -200,7 +200,7 @@
                     <th>fsType</th>
                     <td>
                         <div class="clr-select-wrapper">
-                            <select  class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_fs']"
+                            <select class="clr-select" [(ngModel)]="item.parameters['oceanstor_sc_fs']"
                                     name="oceanstor_sc_alloc">
                                 <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
                                 <option value="ext2">ext2</option>
