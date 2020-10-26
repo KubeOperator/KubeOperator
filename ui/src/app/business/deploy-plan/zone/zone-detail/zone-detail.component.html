@@ -63,6 +63,63 @@
                 </tbody>
             </table>
 
+            <table class="table table-vertical" *ngIf="item.provider === 'FusionCompute'">
+                <tbody>
+                <tr>
+                    <th>{{'APP_NAME'|translate}}</th>
+                    <td>{{item.name}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_ZONE'|translate}}</th>
+                    <td>{{item.regionName}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_CLUSTER'|translate}}</th>
+                    <td>{{item.cloudVars['cluster']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_DATASTORE'|translate}}</th>
+                    <td>{{item.cloudVars['datastore']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK'|translate}}</th>
+                    <td>{{item.cloudVars['portgroup']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_SUBNET'|translate}}</th>
+                    <td>{{item.cloudVars['subnet']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_IP_START'|translate}}</th>
+                    <td>{{item.cloudVars['ipStart']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_IP_END'|translate}}</th>
+                    <td>{{item.cloudVars['ipEnd']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_GATEWAY'|translate}}</th>
+                    <td>{{item.cloudVars['gateway']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS1'|translate}}</th>
+                    <td>{{item.cloudVars['dns1']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS2'|translate}}</th>
+                    <td>{{item.cloudVars['dns2']}}</td>
+                </tr>
+                <tr *ngIf="item.cloudVars['templateType'] === 'customize'">
+                    <th>{{'APP_TEMPLATE'|translate}}</th>
+                    <td>{{item.cloudVars['imageName']}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_CREATED_DATE'|translate}}</th>
+                    <td>{{item.createdAt | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+                </tr>
+                <tbody>
+            </table>
+
 
             <table class="table table-vertical" *ngIf="item.provider === 'OpenStack'">
                 <tbody>

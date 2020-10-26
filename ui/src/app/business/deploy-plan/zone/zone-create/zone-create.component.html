@@ -33,6 +33,108 @@
         <clr-spinner *ngIf="loading">loading</clr-spinner>
         <form clrForm #paramsForm="ngForm">
             <div *ngIf="cloudZones.length>0">
+                <div *ngIf="region.regionVars['provider'] === 'FusionCompute'">
+                    <h3>{{'APP_COPMUTE'|translate}}</h3>
+                    <hr/>
+                    <clr-select-container>
+                        <label>{{'APP_CLUSTER'|translate}}</label>
+                        <select [(ngModel)]="item.cloudVars['cluster']" (ngModelChange)="changeCloudZone()"
+                                name="compute"
+                                required clrSelect>
+                            <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                            <option *ngFor="let zone of cloudZones"
+                                    [value]="zone.cluster">{{zone.cluster}}</option>
+                        </select>
+                        <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                        <clr-control-helper>{{'APP_RESOURCE_POOL_HELPER'|translate}}</clr-control-helper>
+                    </clr-select-container>
+                    <div *ngIf="cloudZone">
+                        <h3>{{'APP_DATASTORE'|translate}}</h3>
+                        <hr/>
+                        <clr-select-container>
+                            <label>{{'APP_DATASTORE'|translate}}</label>
+                            <select [(ngModel)]="item.cloudVars['datastore']" name="datastore" required clrSelect>
+                                <option value="">{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let datastore of cloudZone.datastores"
+                                        [value]="datastore">{{datastore}}</option>
+                            </select>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_DATASTORE_HELPER'|translate}}</clr-control-helper>
+                        </clr-select-container>
+
+                        <h3>{{'APP_NETWORK'|translate}}</h3>
+                        <hr/>
+                        <clr-select-container>
+                            <label>{{'APP_DV_SWITCH'|translate}}</label>
+                            <select [(ngModel)]="item.cloudVars['switch']" (ngModelChange)="changeSwitch()"
+                                    name="switch" required clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let sw of cloudZone.switchs"
+                                        [value]="sw.name">{{sw.name}}</option>
+                            </select>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_NETWORK_HELPER'|translate}}</clr-control-helper>
+                        </clr-select-container>
+                        <clr-select-container>
+                            <label>{{'APP_PORT_GROUP'|translate}}</label>
+                            <select [(ngModel)]="item.cloudVars['portgroup']" name="portgroup" required clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let p of portgroups"
+                                        [value]="p">{{p}}</option>
+                            </select>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_NETWORK_HELPER'|translate}}</clr-control-helper>
+                        </clr-select-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_SUBNET'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+
+
+                        <clr-input-container>
+                            <label>{{'APP_IP_START'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_IP_END'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['gateway']" name="gateway"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+                        <clr-input-container>
+                            <label>{{'APP_NETWORK_DNS1'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns1']" name="dns1"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_NETWORK_DNS2'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns2']" name="dns2"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
+                    </div>
+                </div>
 
                 <div *ngIf="region.regionVars['provider'] === 'vSphere'">
                     <h3>{{'APP_COPMUTE'|translate}}</h3>
@@ -316,6 +418,14 @@
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             <clr-control-helper>{{'APP_OPENSTACK_FLOATING_IP_HELPER'|translate}}</clr-control-helper>
                         </clr-select-container>
+
+                        <clr-input-container>
+                            <label>{{'APP_SUBNET'|translate}}</label>
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"
+                                   required>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
+                        </clr-input-container>
 
                         <clr-input-container>
                             <label>{{'APP_IP_START'|translate}}</label>

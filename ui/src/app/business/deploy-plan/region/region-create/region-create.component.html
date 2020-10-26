@@ -19,7 +19,7 @@
                 <label>{{'APP_PROVIDER'|translate}}</label>
                 <select clrSelect [(ngModel)]="item.provider" name="provider" required>
                     <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
-                    <option value="Openstack">Openstack</option>
+                    <option value="OpenStack">OpenStack</option>
                     <option value="vSphere">vSphere</option>
                     <option value="FusionCompute">FusionCompute</option>
                 </select>
@@ -62,8 +62,6 @@
                 <span *ngIf="isParamsValid==false&&!isParamsCheckGoing&&paramsForm.valid"
                       style="color: #e02200;"> {{'APP_REGION_VCENTER_PARAM_INVALID'|translate}}</span>
             </div>
-
-
             <div *ngIf="item.provider === 'vSphere'">
                 <clr-input-container>
                     <label>{{'APP_REGION_VCENTER_HOST'|translate}}</label>

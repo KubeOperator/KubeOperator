@@ -35,6 +35,7 @@ export class CloudZoneRequest extends BaseRequest {
 export class CloudZone {
     cluster: string;
     networks: [] = [];
+    CloudZone
     resourcePools: [] = [];
     datastores: [] = [];
     storages: Storage[] = [];
@@ -43,7 +44,14 @@ export class CloudZone {
     floatingNetworkList: Network[] = [];
     ipTypes: [] = [];
     imageList: Image[] = [];
+    switchs: Switch[] = [];
 }
+
+export class Switch {
+    name: string;
+    portgroups: string[];
+}
+
 
 export class CloudTemplate {
     imageName: string;

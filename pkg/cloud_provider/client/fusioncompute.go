@@ -67,7 +67,7 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 	var result []interface{}
 	for _, cc := range cs {
 		ccMeta := make(map[string]interface{})
-		ccMeta["name"] = cc.Name
+		ccMeta["cluster"] = cc.Name
 		// datastore
 		dm := storage.NewManager(c, siteUri)
 		ds, err := dm.ListDataStore()
@@ -88,7 +88,7 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 		for _, s := range ss {
 			ssMeta := make(map[string]interface{})
 			ssMeta["name"] = s.Name
-			ps, err := nm.ListPortGroup(s.Uri)
+			ps, err := nm.ListPortGroupBySwitch(s.Uri)
 			if err != nil {
 				return nil, err
 			}
