@@ -8,6 +8,7 @@ import (
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/network"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/site"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/storage"
+	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/vm"
 )
 
 func NewFusionComputeClient(vars map[string]interface{}) CloudClient {
@@ -79,6 +80,16 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 			dsNames = append(dsNames, d.Name)
 		}
 		ccMeta["datastores"] = dsNames
+		var templateNames []string
+		vmm := vm.NewManager(c, siteUri)
+		vms, err := vmm.ListVm(true)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range vms {
+			templateNames = append(templateNames, v.Name)
+		}
+		ccMeta["templates"] = templateNames
 		var switchs []map[string]interface{}
 		nm := network.NewManager(c, siteUri)
 		ss, err := nm.ListDVSwitch()

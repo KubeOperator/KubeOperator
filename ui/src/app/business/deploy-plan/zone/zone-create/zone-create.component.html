@@ -49,6 +49,28 @@
                         <clr-control-helper>{{'APP_RESOURCE_POOL_HELPER'|translate}}</clr-control-helper>
                     </clr-select-container>
                     <div *ngIf="cloudZone">
+                        <h3>{{'APP_TEMPLATE'|translate}}</h3>
+                        <hr/>
+                        <clr-select-container>
+                            <label>{{'APP_TEMPLATE'|translate}}</label>
+                            <select [(ngModel)]="item.cloudVars['template']" name="template" required
+                                    clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let temp of cloudZone.templates"
+                                        [value]=temp>{{temp}}</option>
+                            </select>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                        </clr-select-container>
+                        <clr-select-container>
+                            <label>{{'APP_TEMPLATE_PASSWORD'|translate}}</label>
+                            <select [(ngModel)]="item.credentialId" name="credential" required clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let credential of credentials"
+                                        [value]=credential.id>{{credential.name}}</option>
+                            </select>
+                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
+                            <clr-control-helper>{{'APP_TEMPLATE_PASSWORD_HELPER'|translate}}</clr-control-helper>
+                        </clr-select-container>
                         <h3>{{'APP_DATASTORE'|translate}}</h3>
                         <hr/>
                         <clr-select-container>
