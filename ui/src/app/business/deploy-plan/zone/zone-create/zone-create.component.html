@@ -443,7 +443,7 @@
 
                         <clr-input-container>
                             <label>{{'APP_SUBNET'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"
+                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnetCidr']" name="subnet"
                                    required>
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
