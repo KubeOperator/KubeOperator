@@ -46,4 +46,3 @@ func ParseMask(num int) (mask string, err error) {
 	resultMask := fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
 	return resultMask, nil
 }
-
