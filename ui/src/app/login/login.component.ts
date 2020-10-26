@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
     isError = false;
     theme: Theme;
     verificationCode: VerificationCode = new VerificationCode();
+    hasCode = false;
 
     constructor(private loginService: LoginService,
                 private router: Router,
@@ -41,7 +42,7 @@ export class LoginComponent implements OnInit {
             this.loginCredential.language = 'zh-CN';
         }
         this.loadTheme();
-        this.getVerificationCode();
+        this.checkLoginFailedNum();
     }
 
     loadTheme() {
@@ -66,7 +67,17 @@ export class LoginComponent implements OnInit {
 
     handleError(error: any) {
         this.isError = true;
-        this.getVerificationCode();
+        if (localStorage.getItem('loginErrorNum') != null) {
+            const loginErrorNum = Number(localStorage.getItem('loginErrorNum'));
+            if (loginErrorNum >= 3) {
+                this.getVerificationCode();
+            } else {
+                const newNum = loginErrorNum + 1;
+                localStorage.setItem('loginErrorNum', newNum.toString());
+            }
+        } else {
+            localStorage.setItem('loginErrorNum', '1');
+        }
         switch (error.status) {
             case 500:
                 this.message = error.error.msg;
@@ -85,8 +96,18 @@ export class LoginComponent implements OnInit {
     getVerificationCode() {
         this.loginService.getCode().subscribe(res => {
             this.verificationCode = res;
+            this.hasCode = true;
         }, error => {
             this.message = this.translateService.instant(error.msg);
         });
+    }
+
+    checkLoginFailedNum() {
+        if (localStorage.getItem('loginErrorNum') != null) {
+            const loginErrorNum = Number(localStorage.getItem('loginErrorNum'));
+            if (loginErrorNum >= 3) {
+                this.getVerificationCode();
+            }
+        }
     }
 }
