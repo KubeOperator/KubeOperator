@@ -72,6 +72,7 @@ import { ClusterGradeComponent } from './cluster-detail/cluster-grade/cluster-gr
 import {NgxEchartsModule} from 'ngx-echarts';
 import { NamespaceDeleteComponent } from './cluster-detail/namespace/namespace-delete/namespace-delete.component';
 import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-create/namespace-create.component';
+import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
 
 
 @NgModule({
@@ -123,7 +124,8 @@ import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-c
         ClusterLoggerComponent,
         ClusterGradeComponent,
         NamespaceDeleteComponent,
-        NamespaceCreateComponent],
+        NamespaceCreateComponent,
+        StorageProvisionerCreateOceanStorComponent],
     imports: [
         CoreModule,
         RouterModule,
