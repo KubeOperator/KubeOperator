@@ -6,9 +6,10 @@ import {Router} from '@angular/router';
 import {SessionService} from '../shared/auth/session.service';
 import {CommonRoutes} from '../constant/route';
 import {TranslateService} from '@ngx-translate/core';
-import {Theme} from "../business/setting/theme/theme";
-import {ThemeService} from "../business/setting/theme/theme.service";
-import {LicenseService} from "../business/setting/license/license.service";
+import {Theme} from '../business/setting/theme/theme';
+import {ThemeService} from '../business/setting/theme/theme.service';
+import {LicenseService} from '../business/setting/license/license.service';
+import {VerificationCode} from '../shared/auth/session-user';
 
 @Component({
     selector: 'app-login',
@@ -22,6 +23,7 @@ export class LoginComponent implements OnInit {
     message: string;
     isError = false;
     theme: Theme;
+    verificationCode: VerificationCode = new VerificationCode();
 
     constructor(private loginService: LoginService,
                 private router: Router,
@@ -39,6 +41,7 @@ export class LoginComponent implements OnInit {
             this.loginCredential.language = 'zh-CN';
         }
         this.loadTheme();
+        this.getVerificationCode();
     }
 
     loadTheme() {
@@ -49,7 +52,9 @@ export class LoginComponent implements OnInit {
             }
         });
     }
+
     login() {
+        this.loginCredential.captchaId = this.verificationCode.captchaId;
         this.loginService.login(this.loginCredential).subscribe(res => {
             this.isError = false;
             this.sessionService.cacheProfile(res);
@@ -61,6 +66,7 @@ export class LoginComponent implements OnInit {
 
     handleError(error: any) {
         this.isError = true;
+        this.getVerificationCode();
         switch (error.status) {
             case 500:
                 this.message = error.error.msg;
@@ -74,5 +80,13 @@ export class LoginComponent implements OnInit {
             default:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_UNKNOWN_ERROR') + `${error.status}`;
         }
+    }
+
+    getVerificationCode() {
+        this.loginService.getCode().subscribe(res => {
+            this.verificationCode = res;
+        }, error => {
+            this.message = this.translateService.instant(error.msg);
+        });
     }
 }

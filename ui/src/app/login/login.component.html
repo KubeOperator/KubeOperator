@@ -21,13 +21,17 @@
                 <input type="password" name="password" clrPassword placeholder="Password"
                        [(ngModel)]="loginCredential.password" required/>
             </clr-password-container>
-            <clr-select-container>
-                <label class="clr-sr-only">{{'APP_SYSTEM_LANGUAGE'|translate}}</label>
-                <select clrSelect [(ngModel)]="loginCredential.language" name="provider" required>
-                    <option value='zh-CN' selected>{{'APP_SYSTEM_LANGUAGE_CN'|translate}}</option>
-                    <option value='en-US'>{{'APP_SYSTEM_LANGUAGE_US'|translate}}</option>
-                </select>
-            </clr-select-container>
+            <div class="clr-form-control">
+                <label for="code" class="clr-control-label">
+                    <img src="{{verificationCode.image}}" (click)="getVerificationCode()">
+                </label>
+                <div class="clr-control-container">
+                    <div class="clr-input-wrapper">
+                        <input type="text" id="code" class="clr-input" [(ngModel)]="loginCredential.code" required>
+                        <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                    </div>
+                </div>
+            </div>
             <div *ngIf="isError" class="error active">
                 {{message}}
             </div>
