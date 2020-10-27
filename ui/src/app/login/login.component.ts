@@ -62,6 +62,7 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('currentLanguage', this.loginCredential.language);
             this.translateService.use(this.loginCredential.language);
             this.router.navigateByUrl(CommonRoutes.KO_ROOT).then(r => console.log('login success'));
+            localStorage.removeItem('loginErrorNum');
         }, error => this.handleError(error));
     }
 
