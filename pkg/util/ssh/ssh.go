@@ -375,10 +375,21 @@ func MakePrivateKeySignerFromFile(key string) (ssh.Signer, error) {
 }
 
 func MakePrivateKeySigner(privateKey []byte, passPhrase []byte) (ssh.Signer, error) {
-	signer, err := ssh.ParsePrivateKeyWithPassphrase(privateKey, passPhrase)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing SSH key: '%v'", err)
+	var signer ssh.Signer
+	if passPhrase != nil {
+		s, err := ssh.ParsePrivateKeyWithPassphrase(privateKey, passPhrase)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing SSH key: '%v'", err)
+		}
+		signer = s
+	} else {
+		s, err := ssh.ParsePrivateKey(privateKey)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing SSH key: '%v'", err)
+		}
+		signer = s
 	}
+
 	return signer, nil
 }
 

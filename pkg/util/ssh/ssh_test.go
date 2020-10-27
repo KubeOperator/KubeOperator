@@ -2,30 +2,35 @@ package ssh
 
 import (
 	"fmt"
+	"io/ioutil"
 	"testing"
 	"time"
 )
 
 func TestSSHClient(t *testing.T) {
+	key, err := ioutil.ReadFile("/Users/shenchenyang/Desktop/aa.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	client, err := New(&Config{
 		User:        "root",
-		Host:        "119.28.214.236",
+		Host:        "172.16.10.210",
 		Port:        22,
-		Password:    "Calong@2015",
-		PrivateKey:  nil,
+		PrivateKey:  key,
 		PassPhrase:  nil,
 		DialTimeOut: 5 * time.Second,
 		Retry:       3,
 	})
 	if err != nil {
-		t.Error(err)
+		log.Fatal(err)
 	}
 	if err := client.Ping(); err != nil {
-		t.Error(err)
+		log.Fatal(err)
 	}
 	bs, err := client.CombinedOutput("ps", "aux")
 	if err != nil {
-		t.Error(err)
+		log.Fatal(err)
 	}
 	fmt.Println(string(bs))
 }
