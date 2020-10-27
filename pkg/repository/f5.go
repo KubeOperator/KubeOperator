@@ -6,7 +6,7 @@ import (
 )
 
 type F5Repository interface {
-	Save(plan *model.F5Setting) error
+	Save(f5 *model.F5Setting) error
 	Get(name string) ([]model.F5Setting, error)
 }
 

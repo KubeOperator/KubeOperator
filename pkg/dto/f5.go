@@ -4,7 +4,7 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type F5Setting struct {
 	model.F5Setting
-	ClusterName string `json:"clusterId"`
+	ClusterName string `json:"clusterName"`
 }
 
 type F5SettingCreate struct {
