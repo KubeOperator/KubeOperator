@@ -73,7 +73,7 @@ export class StorageProvisionerComponent implements OnInit {
             case 'vsphere':
                 this.vsphere.open(item);
                 break;
-            case 'ocean-stor':
+            case 'oceanstor':
                 this.oceanStor.open(item);
                 break;
         }

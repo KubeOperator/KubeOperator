@@ -130,7 +130,7 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 		p = &storage.ExternalCephStoragePhase{
 			ProvisionerName: provisioner.Name,
 		}
-	case "ocean-stor":
+	case "oceanstor":
 		p = &storage.OceanStorPhase{
 			OceanStorType:     fmt.Sprintf("%v", vars["oceanstor_type"]),
 			OceanstorProduct:  fmt.Sprintf("%v", vars["oceanstor_product"]),
