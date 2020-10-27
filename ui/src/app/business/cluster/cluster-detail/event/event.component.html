@@ -1,11 +1,12 @@
 <clr-datagrid [clrDgLoading]="loading">
     <clr-dg-action-bar>
-        <clr-checkbox-wrapper style="float: right" >
-            <label>启用NPD</label>
-            <input clrToggle class="clr-checkbox" type="checkbox" name="supper" [checked]="npdExists" (change)="changeNpd(npdExists)"/>
+        <clr-checkbox-wrapper style="float: right">
+            <label>{{'ENABLE_NPD'|translate}}</label>
+            <input clrToggle class="clr-checkbox" type="checkbox" name="supper" [checked]="npdExists"
+                   (change)="changeNpd(npdExists)"/>
         </clr-checkbox-wrapper>
         <div class="clr-select-wrapper">
-            <label>namespace</label>
+            <label>Namespace</label>
             <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">
                 <option *ngFor="let b of namespaces"
                         value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>
