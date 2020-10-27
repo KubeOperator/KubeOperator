@@ -21,9 +21,9 @@
                 <input type="password" name="password" clrPassword placeholder="Password"
                        [(ngModel)]="loginCredential.password" required/>
             </clr-password-container>
-            <img src="{{verificationCode.image}}" (click)="getVerificationCode()" *ngIf="hasCode">
-            <clr-input-container *ngIf="hasCode">
-                <input type="text" name="code" clrInput [(ngModel)]="loginCredential.code"
+            <img width="120" src="{{verificationCode.image}}" (click)="getVerificationCode()" *ngIf="hasCode">
+            <clr-input-container *ngIf="hasCode" style="width: 120px;">
+                <input type="text" size="20" name="code" clrInput [(ngModel)]="loginCredential.code"
                        required/>
             </clr-input-container>
             <div *ngIf="isError" class="error active">
