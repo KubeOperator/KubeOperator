@@ -1,12 +1,14 @@
 package auth
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
+	"github.com/mojocn/base64Captcha"
 	"github.com/spf13/viper"
 	"time"
 )
@@ -28,6 +30,21 @@ func LoginHandler(ctx context.Context) {
 		return
 	}
 
+	if aul.CaptchaId != "" {
+		err := VerifyCode(aul.CaptchaId, aul.Code)
+		if err != nil {
+			ctx.StatusCode(iris.StatusUnauthorized)
+			response := new(dto.Response)
+			if ctx.Tr(err.Error()) == "" {
+				response.Msg = err.Error()
+			} else {
+				response.Msg = ctx.Tr(err.Error())
+			}
+			_, _ = ctx.JSON(response)
+			return
+		}
+	}
+
 	data, err := CheckLogin(aul.Username, aul.Password)
 	if err != nil {
 		ctx.StatusCode(iris.StatusUnauthorized)
@@ -44,6 +61,40 @@ func LoginHandler(ctx context.Context) {
 	_, _ = ctx.JSON(data)
 	return
 }
+
+var store = base64Captcha.DefaultMemStore
+var verifyCodeFailed = errors.New("VERIFY_CODE_FAILED")
+
+func VerificationCodeHandler(ctx context.Context) {
+	var driverString base64Captcha.DriverString
+	driverString.Source = "1234567890qwertyuioplkjhgfdsazxcvbnm"
+	driverString.Width = 120
+	driverString.Height = 50
+	driverString.NoiseCount = 0
+	driverString.Length = 4
+	driverString.Fonts = []string{"wqy-microhei.ttc"}
+	driver := driverString.ConvertFonts()
+	c := base64Captcha.NewCaptcha(driver, store)
+	id, b64s, err := c.Generate()
+	body := map[string]interface{}{"code": 1, "image": b64s, "captchaId": id, "msg": "success"}
+	if err != nil {
+		body = map[string]interface{}{"code": 0, "error": map[string]interface{}{"msg": err.Error()}}
+	}
+	ctx.Header("Content-Type", "application/json; charset=utf-8")
+	ctx.JSON(body)
+}
+
+func VerifyCode(codeId string, code string) error {
+	if code == "" {
+		return verifyCodeFailed
+	}
+	if store.Verify(codeId, code, true) {
+		return nil
+	} else {
+		return verifyCodeFailed
+	}
+}
+
 func CheckLogin(username string, password string) (*JwtResponse, error) {
 	user, err := service.UserAuth(username, password)
 	if err != nil {

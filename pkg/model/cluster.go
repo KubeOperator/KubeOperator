@@ -302,7 +302,6 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.FlannelBackend != "" {
 		result[facts.FlannelBackendFactName] = c.Spec.FlannelBackend
 	}
-
 	if c.Spec.CalicoIpv4poolIpip != "" {
 		result[facts.CalicoIpv4poolIpIpFactName] = c.Spec.CalicoIpv4poolIpip
 	}
@@ -330,7 +329,6 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.KubeProxyMode != "" {
 		result[facts.KubeProxyModeFactName] = c.Spec.KubeProxyMode
 	}
-
 	if c.Spec.IngressControllerType != "" {
 		result[facts.IngressControllerTypeFactName] = c.Spec.IngressControllerType
 	}
@@ -340,9 +338,11 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.KubernetesAudit != "" {
 		result[facts.KubernetesAuditFactName] = c.Spec.KubernetesAudit
 	}
-
 	if c.Spec.Architectures != "" {
 		result[facts.DockerSubnetFactName] = c.Spec.DockerSubnet
+	}
+	if c.Spec.HelmVersion != "" {
+		result[facts.HelmVersionFactName] = c.Spec.HelmVersion
 	}
 
 	return result

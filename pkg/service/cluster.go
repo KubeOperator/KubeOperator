@@ -204,6 +204,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) 
 		KubernetesAudit:       creation.KubernetesAudit,
 		DockerSubnet:          creation.DockerSubnet,
 		KubeApiServerPort:     constant.DefaultApiServerPort,
+		HelmVersion:           creation.HelmVersion,
 	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}

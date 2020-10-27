@@ -59,6 +59,7 @@ type ClusterCreate struct {
 	DockerSubnet          string       `json:"dockerSubnet"`
 	Nodes                 []NodeCreate `json:"nodes"`
 	ProjectName           string       `json:"projectName"`
+	HelmVersion           string       `json:"helmVersion"`
 }
 
 type ClusterBatch struct {

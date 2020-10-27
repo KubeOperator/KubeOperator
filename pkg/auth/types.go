@@ -3,9 +3,11 @@ package auth
 import "github.com/KubeOperator/KubeOperator/pkg/permission"
 
 type Credential struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Language string `json:"language"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Language  string `json:"language"`
+	CaptchaId string `json:"captchaId"`
+	Code      string `json:"code"`
 }
 
 type SessionUser struct {

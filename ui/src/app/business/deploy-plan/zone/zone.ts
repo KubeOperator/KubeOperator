@@ -43,7 +43,15 @@ export class CloudZone {
     floatingNetworkList: Network[] = [];
     ipTypes: [] = [];
     imageList: Image[] = [];
+    switchs: Switch[] = [];
+    templates: string[] = [];
 }
+
+export class Switch {
+    name: string;
+    portgroups: string[];
+}
+
 
 export class CloudTemplate {
     imageName: string;

@@ -7,6 +7,7 @@ import {PasswordComponent} from './password/password.component';
 import {AboutComponent} from './about/about.component';
 import {NoticeService} from '../../business/message-center/mailbox/notice.service';
 import {LicenseService} from '../../business/setting/license/license.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-header',
@@ -20,6 +21,7 @@ export class HeaderComponent implements OnInit {
     unreadInfo = 0;
     hasLicense = false;
     haveNotices = false;
+    language: string;
 
     @ViewChild(PasswordComponent, {static: true})
     password: PasswordComponent;
@@ -30,12 +32,18 @@ export class HeaderComponent implements OnInit {
     timer;
 
     constructor(private sessionService: SessionService, private router: Router,
-                private noticeService: NoticeService, private licenseService: LicenseService) {
+                private noticeService: NoticeService, private licenseService: LicenseService,
+                private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
         this.getProfile();
-
+        const currentLanguage = localStorage.getItem('currentLanguage');
+        if (currentLanguage) {
+            this.language = currentLanguage;
+        } else {
+            this.language = 'zh-CN';
+        }
     }
 
     getProfile() {
@@ -94,4 +102,12 @@ export class HeaderComponent implements OnInit {
     openAbout() {
         this.about.open();
     }
+
+    changeLanguage(language) {
+        localStorage.setItem('currentLanguage', language);
+        this.translateService.use(language);
+        this.language = language;
+        window.location.reload();
+    }
 }
+

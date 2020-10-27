@@ -470,5 +470,21 @@
   "Reliability": "可靠性",
   "Resources": "资源",
   "Security": "安全",
-  "APP_TOTAL": "总量"
+  "APP_TOTAL": "总量",
+  "APP_OCEAN_URL": "管理URL",
+  "APP_OCEAN_POOL": "存储池",
+  "APP_OCEAN_PORTAL_NFS": "逻辑端口IP",
+  "APP_OCEAN_PORTAL_ISCSI": "iscsi业务IP",
+  "APP_NAMESPACE_ADD": "新增 namespace",
+  "APP_FUSION_COMPUTE_SERVER": "FusionCompute 服务地址",
+  "APP_REGION_FUSION_COMPUTE_HELPER": "FusionCompute 的 API 服务地址，例如: https://10.1.240.11:7443",
+  "APP_REGION_FUSION_USER": "FusionCompute 用户名",
+  "APP_REGION_FUSION_PASSWORD": "FusionCompute 密码",
+  "APP_REGION_FUSION_USER_HELPER": "访问 FusionCompute 的用户名，例如: admin",
+  "APP_REGION_FUSION_PASSWORD_HELPER": "访问 FusionCompute 的密码",
+  "APP_DV_SWITCH": "交换机",
+  "APP_PORT_GROUP": "端口组",
+  "APP_PRODUCT": "产品",
+  "zh-CN": "中文(简体)",
+  "en-US": "English"
 }

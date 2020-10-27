@@ -9,6 +9,7 @@ import {StorageProvisionerDeleteComponent} from "./storage-provisioner-delete/st
 import {StorageProvisionerCreateExternalCephComponent} from "./storage-provisioner-create/storage-provisioner-create-external-ceph/storage-provisioner-create-external-ceph.component";
 import {StorageProvisionerCreateRookCephComponent} from "./storage-provisioner-create/storage-provisioner-create-rook-ceph/storage-provisioner-create-rook-ceph.component";
 import {StorageProvisionerCreateVsphereComponent} from "./storage-provisioner-create/storage-provisioner-create-vsphere/storage-provisioner-create-vsphere.component";
+import {StorageProvisionerCreateOceanStorComponent} from './storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
 
 @Component({
     selector: 'app-storage-provisioner',
@@ -37,6 +38,8 @@ export class StorageProvisionerComponent implements OnInit {
     rookCeph: StorageProvisionerCreateRookCephComponent;
     @ViewChild(StorageProvisionerCreateVsphereComponent, {static: true})
     vsphere: StorageProvisionerCreateVsphereComponent;
+    @ViewChild(StorageProvisionerCreateOceanStorComponent, {static: true})
+    oceanStor: StorageProvisionerCreateOceanStorComponent;
 
     currentCluster: Cluster;
 
@@ -69,6 +72,9 @@ export class StorageProvisionerComponent implements OnInit {
                 break;
             case 'vsphere':
                 this.vsphere.open(item);
+                break;
+            case 'ocean-stor':
+                this.oceanStor.open(item);
                 break;
         }
     }

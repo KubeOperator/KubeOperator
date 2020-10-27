@@ -10,7 +10,7 @@ import {
     V1CSINodeList,
     V1DaemonSetList,
     V1DeploymentList, V1EventList,
-    V1JobList,
+    V1JobList, V1Namespace,
     V1NodeList,
     V1PersistentVolume,
     V1PersistentVolumeClaimList,
@@ -37,6 +37,7 @@ export class KubernetesService {
     }
 
     namespaceUrl = '/api/v1/namespaces';
+    namespaceOpUrl = '/api/v1/namespaces/{namespace}';
     serviceUrl = 'api/v1/services';
     namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
     persistentVolumesUrl = '/api/v1/persistentvolumes';
@@ -279,5 +280,15 @@ export class KubernetesService {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName);
         url = url.replace('{resource_url}', this.eventUrl).replace('{namespace}', namespace);
         return this.client.get<V1EventList>(url);
+    }
+
+    createNamespace(clusterName: string, item: V1Namespace): Observable<V1Namespace> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceUrl);
+        return this.client.post<V1Namespace>(url, item);
+    }
+
+    deleteNamespace(clusterName: string, namespace: string): Observable<V1Namespace> {
+        const url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.namespaceOpUrl).replace('{namespace}', namespace);
+        return this.client.delete<V1Namespace>(url);
     }
 }

@@ -210,11 +210,35 @@ func parseHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
 		return parseVsphereHosts(hosts, plan)
 	case constant.OpenStack:
 		return parseOpenstackHosts(hosts, plan)
+	case constant.FusionCompute:
+		return parseFusionComputeHosts(hosts, plan)
 	}
+
 	return []map[string]interface{}{}
 }
 
 func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
+	var results []map[string]interface{}
+	planVars := map[string]string{}
+	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
+	for _, h := range hosts {
+		var zoneVars map[string]interface{}
+		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
+		zoneVars["key"] = formatZoneName(h.Zone.Name)
+		role := getHostRole(h.Name)
+		hMap := map[string]interface{}{}
+		hMap["name"] = h.Name
+		hMap["shortName"] = h.Name
+		hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
+		hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
+		hMap["ip"] = h.Ip
+		hMap["zone"] = zoneVars
+		results = append(results, hMap)
+	}
+	return results
+}
+
+func parseFusionComputeHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
 	var results []map[string]interface{}
 	planVars := map[string]string{}
 	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
@@ -277,9 +301,16 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 		pool = append(pool, hs[i].Ip)
 	}
 	subnet := zoneVars["subnet"]
+	subnetCidr := zoneVars["subnetCidr"]
 	startIp := zoneVars["ipStart"]
 	endIp := zoneVars["ipEnd"]
-	cs := strings.Split(subnet, "/")
+	var ss string
+	if strings.Contains(subnet, "/") {
+		ss = subnet
+	} else {
+		ss = subnetCidr
+	}
+	cs := strings.Split(ss, "/")
 	mask, _ := strconv.Atoi(cs[1])
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	if err != nil {

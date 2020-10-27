@@ -1,0 +1,1 @@
+ALTER TABLE `ko`.`ko_cluster_spec` ADD COLUMN `helm_version` varchar(255) NULL AFTER `upgrade_version`;

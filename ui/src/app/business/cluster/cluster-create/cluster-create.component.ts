@@ -31,7 +31,7 @@ export class ClusterCreateComponent implements OnInit {
     currentProject: Project;
     nameValid = true;
     nameChecking = false;
-
+    helmVersions: string[] = [];
 
     @ViewChild('wizard', {static: true}) wizard: ClrWizard;
     @ViewChild('basicForm') basicForm: NgForm;
@@ -61,6 +61,7 @@ export class ClusterCreateComponent implements OnInit {
         this.versions = [];
         this.nameValid = true;
         this.nameChecking = false;
+        this.helmVersions = ['v3', 'v2'];
     }
 
     setDefaultValue() {
@@ -82,6 +83,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.projectName = this.currentProject.name;
         this.item.workerAmount = 1;
         this.item.architectures = 'amd64';
+        this.item.helmVersion = 'v3';
     }
 
     onNameCheck() {
@@ -211,5 +213,14 @@ export class ClusterCreateComponent implements OnInit {
             this.opened = false;
             this.created.emit();
         });
+    }
+
+    changeArch(type) {
+        if (type === 'arm64') {
+            this.item.helmVersion = 'v3';
+            this.helmVersions = ['v3'];
+        } else {
+            this.helmVersions = ['v3', 'v2'];
+        }
     }
 }

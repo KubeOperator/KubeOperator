@@ -60,6 +60,7 @@ export class ClusterCreateRequest extends BaseModel {
     workerAmount: number;
     dockerSubnet: string;
     projectName: string;
+    helmVersion: string;
 }
 
 export class CLusterImportRequest {

@@ -6,24 +6,59 @@
             <tr>
                 <th>{{'APP_NAME'|translate}}:</th>
                 <td>{{item.name}}</td>
+            </tr>
             <tr>
                 <th>{{'APP_REGION_PROVIDER'|translate}}:</th>
                 <td>{{item.regionVars['provider']}}</td>
+            </tr>
             <tr>
                 <th>{{'APP_REGION_VCENTER_DATACENTER'|translate}}:</th>
                 <td>{{item.datacenter}}</td>
             <tr>
                 <th>{{'APP_REGION_VC_HOST'|translate}}:</th>
                 <td>{{item.regionVars['host']}}</td>
+            </tr>
             <tr>
                 <th>{{'APP_REGION_VC_USER'|translate}}:</th>
                 <td>{{item.regionVars['username']}}</td>
             <tr>
                 <th>{{'APP_CREATED_DATE'|translate}}:</th>
                 <td>{{item.createdAt |  date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
             </tbody>
         </table>
     </div>
+    <div class="modal-body" *ngIf="item && item.regionVars['provider'] === 'FusionCompute'">
+
+        <table class="table table-vertical">
+            <tbody>
+            <tr>
+                <th>{{'APP_NAME'|translate}}:</th>
+                <td>{{item.name}}</td>
+            </tr>
+            <tr>
+                <th>{{'APP_REGION_PROVIDER'|translate}}:</th>
+                <td>{{item.regionVars['provider']}}</td>
+            </tr>
+            <tr>
+                <th>{{'APP_REGION_VCENTER_DATACENTER'|translate}}:</th>
+                <td>{{item.datacenter}}</td>
+            <tr>
+                <th>{{'APP_FUSION_COMPUTE_SERVER'|translate}}:</th>
+                <td>{{item.regionVars['server']}}</td>
+            </tr>
+            <tr>
+                <th>{{'APP_REGION_FUSION_USER'|translate}}:</th>
+                <td>{{item.regionVars['user']}}</td>
+            </tr>
+            <tr>
+                <th>{{'APP_CREATED_DATE'|translate}}:</th>
+                <td>{{item.createdAt |  date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
+            <tbody>
+        </table>
+    </div>
+
     <div class="modal-body" *ngIf="item && item.regionVars['provider'] === 'OpenStack'">
 
         <table class="table table-vertical">

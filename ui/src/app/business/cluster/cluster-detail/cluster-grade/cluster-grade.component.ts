@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ClusterGradeService} from './cluster-grade.service';
-import {Grade} from './grade';
+import {Grade, NamespaceResult} from './grade';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {TranslateService} from '@ngx-translate/core';
@@ -17,6 +17,7 @@ export class ClusterGradeComponent implements OnInit {
     pieChartOptions = {};
     barChartOptions;
     loading = false;
+
     constructor(private clusterGradeService: ClusterGradeService,
                 private route: ActivatedRoute,
                 private translateService: TranslateService) {
@@ -31,6 +32,7 @@ export class ClusterGradeComponent implements OnInit {
                 this.initData(this.item);
                 this.item.grade = this.getGrade(this.item.score);
                 this.loading = false;
+                console.log(this.item);
             }, error => {
                 this.loading = false;
             });
@@ -115,7 +117,7 @@ export class ClusterGradeComponent implements OnInit {
                     label: {
                         position: 'insideRight'
                     },
-                    data: [1]
+                    data: []
                 },
                 {
                     name: this.translateService.instant('APP_WARNING'),
@@ -124,7 +126,7 @@ export class ClusterGradeComponent implements OnInit {
                     label: {
                         position: 'insideRight'
                     },
-                    data: [1]
+                    data: []
                 },
                 {
                     name: this.translateService.instant('APP_SUCCESS'),
@@ -133,7 +135,7 @@ export class ClusterGradeComponent implements OnInit {
                     label: {
                         position: 'insideRight'
                     },
-                    data: [1]
+                    data: []
                 },
             ]
         };
