@@ -301,9 +301,16 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 		pool = append(pool, hs[i].Ip)
 	}
 	subnet := zoneVars["subnet"]
+	subnetCidr := zoneVars["subnetCidr"]
 	startIp := zoneVars["ipStart"]
 	endIp := zoneVars["ipEnd"]
-	cs := strings.Split(subnet, "/")
+	var ss string
+	if strings.Contains(subnet, "/") {
+		ss = subnet
+	} else {
+		ss = subnetCidr
+	}
+	cs := strings.Split(ss, "/")
 	mask, _ := strconv.Atoi(cs[1])
 	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	if err != nil {
