@@ -14,6 +14,7 @@ type F5Setting struct {
 	Password  string `json:"password" gorm:"type:varchar(64)""`
 	Partition string `json:"partition" gorm:"type:varchar(64)" `
 	PublicIP  string `json:"publicIP" gorm:"type:varchar(64)"`
+	Status    string `json:"status" gorm:"type:varchar(64)"`
 }
 
 func (s *F5Setting) BeforeCreate() (err error) {
