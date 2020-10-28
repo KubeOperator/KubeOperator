@@ -173,20 +173,10 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     loadVersion() {
-        this.manifestService.list().subscribe(data => {
+        this.manifestService.listActive().subscribe(data => {
+            this.item.version = data[0].version;
             for (const m of data) {
-                for (const c of m.category) {
-                    if (c.name === 'core') {
-                        for (let i = 0; i < c.items.length; i++) {
-                            if (i === 0) {
-                                this.item.version = c.items[i].version;
-                            }
-                            if (c.items[i].name === 'kubernetes') {
-                                this.versions.push(c.items[i].version);
-                            }
-                        }
-                    }
-                }
+                this.versions.push(m.version);
             }
         });
     }

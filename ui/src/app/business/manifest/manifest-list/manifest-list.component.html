@@ -1,6 +1,13 @@
 <div class="clr-row">
-    <div class="clr-col-3" *ngFor="let item of items">
+    <div class="clr-col-3" *ngFor="let item of items; let i = index">
         <div class="card">
+            <div class="card-header">
+                <div style="text-align: right">
+                    <button class="btn btn-sm btn-link" (click)="onDetail(item)">
+                        {{'APP_DETAIL'|translate}}
+                    </button>
+                </div>
+            </div>
             <div class="card-block">
                 <div class="card-media-block">
                     <img [src]="'./assets/images/tool/kubernetes.png'" class="card-media-image">
@@ -11,16 +18,18 @@
                         <br/>
                         <span class="card-media-text">
                             <ul>
-                                <li *ngFor="let item of getCoreCateGory(item).items">{{item.name}}:{{item.version}}</li>
+                                <li *ngFor="let nameVersion of item.coreVars">{{nameVersion.name}}:{{nameVersion.version}}</li>
                             </ul>
                         </span>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div style="text-align: right">
-                        <button class="btn btn-sm btn-link" (click)="onDetail(item)">
-                            {{'APP_DETAIL'|translate}}
-                        </button>
+                    <div class="clr-row">
+                        <div class="clr-offset-9 clr-toggle-wrapper">
+                            <input class="clr-toggle" id="toggle{{i}}" type="checkbox" name="supper"
+                                   [(ngModel)]="item.isActive" (click)="update(item)"/>
+                            <label for="toggle{{i}}">{{'APP_ENABLE'|translate}}</label>
+                        </div>
                     </div>
                 </div>
             </div>

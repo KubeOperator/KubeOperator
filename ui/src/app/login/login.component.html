@@ -19,7 +19,7 @@
             <clr-password-container>
                 <label class="clr-sr-only">{{'APP_PASSWORD'|translate}}</label>
                 <input type="password" name="password" clrPassword placeholder="Password"
-                       [(ngModel)]="loginCredential.password" required/>
+                       [(ngModel)]="loginCredential.password" required autocomplete/>
             </clr-password-container>
             <img width="120" src="{{verificationCode.image}}" (click)="getVerificationCode()" *ngIf="hasCode">
             <clr-input-container *ngIf="hasCode" style="width: 120px;">
