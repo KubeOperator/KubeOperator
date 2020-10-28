@@ -26,6 +26,7 @@ type ClusterNodeService interface {
 	Get(clusterName, name string) (*dto.Node, error)
 	List(clusterName string) ([]dto.Node, error)
 	Batch(clusterName string, batch dto.NodeBatch) ([]dto.Node, error)
+	Page(num, size int, clusterName string) (*dto.NodePage, error)
 }
 
 var log = logger.Default
@@ -67,6 +68,56 @@ func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
 	}
 	return &dto.Node{
 		ClusterNode: n,
+	}, nil
+}
+
+func (c clusterNodeService) Page(num, size int, clusterName string) (*dto.NodePage, error) {
+	var nodes []dto.Node
+	cluster, err := c.ClusterService.Get(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	count, mNodes, err := c.NodeRepo.Page(num, size, cluster.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint, err := c.ClusterService.GetApiServerEndpoint(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	secret, err := c.ClusterService.GetSecrets(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
+		Host:  endpoint.Address,
+		Token: secret.KubernetesToken,
+		Port:  endpoint.Port,
+	})
+	if err != nil {
+		return nil, err
+	}
+	kubeNodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	for _, node := range mNodes {
+		n := dto.Node{
+			ClusterNode: node,
+		}
+		if node.Status == constant.ClusterRunning {
+			for _, kn := range kubeNodes.Items {
+				if node.Name == kn.Name {
+					n.Info = kn
+				}
+			}
+		}
+		nodes = append(nodes, n)
+	}
+	return &dto.NodePage{
+		Items: nodes,
+		Total: count,
 	}, nil
 }
 

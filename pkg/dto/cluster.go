@@ -24,6 +24,8 @@ type ClusterSecret struct {
 	model.ClusterSecret
 }
 
+
+
 type ClusterNode struct {
 	model.ClusterNode
 }

@@ -8,6 +8,7 @@ import (
 
 type ClusterNodeRepository interface {
 	Get(clusterName string, name string) (model.ClusterNode, error)
+	Page(num, size int, clusterName string) (int, []model.ClusterNode, error)
 	List(clusterName string) ([]model.ClusterNode, error)
 	ListByRole(clusterName string, role string) ([]model.ClusterNode, error)
 	Save(node *model.ClusterNode) error
@@ -36,6 +37,31 @@ func (c clusterNodeRepository) Get(clusterName string, name string) (model.Clust
 		return node, err
 	}
 	return node, nil
+}
+
+func (c clusterNodeRepository) Page(num, size int, clusterName string) (int, []model.ClusterNode, error) {
+	var total int
+	var nodes []model.ClusterNode
+	var cluster model.Cluster
+	if err := db.DB.
+		Where(model.Cluster{Name: clusterName}).
+		First(&cluster).Error; err != nil {
+		return 0, nil, err
+	}
+	if err := db.DB.
+		Model(model.ClusterNode{}).
+		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Offset((num - 1) * size).
+		Limit(size).
+		Preload("Host").
+		Preload("Host.Credential").
+		Preload("Host.Zone").
+		Count(&total).
+		Order("substring_index(name, '-', 2), cast(substring_index(name, '-', -1) as UNSIGNED INTEGER)").
+		Find(&nodes).Error; err != nil {
+		return 0, nodes, err
+	}
+	return total, nodes, nil
 }
 
 func (c clusterNodeRepository) List(clusterName string) ([]model.ClusterNode, error) {
