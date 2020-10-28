@@ -8,6 +8,10 @@ export class Node extends BaseModel {
     info: V1Node;
 }
 
+export class Class {
+
+}
+
 
 export class NodeBatch {
     hosts: string[] = [];

@@ -16,3 +16,8 @@ type NodeBatch struct {
 	Increase  int      `json:"increase"`
 	Operation string   `json:"operation"`
 }
+
+type NodePage struct {
+	Items []Node `json:"items"`
+	Total int    `json:"total"`
+}
