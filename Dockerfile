@@ -15,6 +15,10 @@ RUN apt update && apt install unzip
 COPY go.mod go.sum ./
 RUN go mod download
 
+RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.zip -O /tmp/polaris.zip \
+    && cd /tmp \
+    && unzip /tmp/polaris.zip \
+    && mv /tmp/polaris-1.2.1/checks/ /checks
 
 RUN wget https://github.com/go-bindata/go-bindata/archive/v3.1.3.zip -O /tmp/go-bindata.zip  \
     && cd /tmp \
@@ -44,8 +48,6 @@ ENV ZONEINFO /opt/zoneinfo.zip
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
-
-
 
 EXPOSE 8080
 
