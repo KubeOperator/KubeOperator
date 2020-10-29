@@ -33,9 +33,7 @@ export class UserPermissionRole {
     roles: string[];
 }
 
-export class VerificationCode {
+export class Captcha {
     captchaId: string;
     image: string;
-    msg: string;
-    code: number;
 }

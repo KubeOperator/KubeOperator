@@ -3,7 +3,6 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -48,9 +47,9 @@ func GetAuthUser(ctx context.Context) {
 	foobar := user.Claims.(jwt.MapClaims)
 	sessionUserJson, _ := json.Marshal(foobar)
 	sessionUserJsonStr := string(sessionUserJson)
-	var sessionUser auth.SessionUser
+	var sessionUser dto.SessionUser
 	json.Unmarshal([]byte(sessionUserJsonStr), &sessionUser)
-	resp := new(auth.JwtResponse)
+	resp := new(dto.Profile)
 	resp.User = sessionUser
 	resp.Token = user.Raw
 

@@ -95,8 +95,12 @@ export class HeaderComponent implements OnInit {
     }
 
     logOut() {
-        this.sessionService.clear();
-        this.router.navigateByUrl(CommonRoutes.LOGIN).then();
+        this.sessionService.logout().toPromise().finally(
+            () => {
+                this.sessionService.clear();
+                this.router.navigateByUrl(CommonRoutes.LOGIN).then();
+            }
+        );
     }
 
     openAbout() {

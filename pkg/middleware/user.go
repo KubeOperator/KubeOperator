@@ -1,19 +1,25 @@
 package middleware
 
 import (
-	"encoding/json"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/kataras/iris/v12/context"
+	"net/http"
 )
 
 func UserMiddleware(ctx context.Context) {
-	user := ctx.Values().Get("jwt").(*jwt.Token)
-	foobar := user.Claims.(jwt.MapClaims)
-	sessionUserJson, _ := json.Marshal(foobar)
-	sessionUserJsonStr := string(sessionUserJson)
-	var sessionUser auth.SessionUser
-	json.Unmarshal([]byte(sessionUserJsonStr), &sessionUser)
-	ctx.Values().Set("user", sessionUser)
+	//user := ctx.Values().Get("jwt").(*jwt.Token)
+	//foobar := user.Claims.(jwt.MapClaims)
+	//sessionUserJson, _ := json.Marshal(foobar)
+	//sessionUserJsonStr := string(sessionUserJson)
+	session := constant.Sess.Start(ctx)
+	sessionUser := session.Get(constant.SessionUserKey)
+	if sessionUser == nil {
+		ctx.StatusCode(http.StatusUnauthorized)
+		ctx.StopExecution()
+		return
+	}
+	user := sessionUser.(*dto.Profile)
+	ctx.Values().Set("user", user)
 	ctx.Next()
 }

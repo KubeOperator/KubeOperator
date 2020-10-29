@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
+	"github.com/KubeOperator/KubeOperator/pkg/util/captcha"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
 )
@@ -19,4 +20,14 @@ func downloadKubeconfig(ctx context.Context) {
 		ctx.StatusCode(http.StatusInternalServerError)
 	}
 	_, _ = ctx.WriteString(str)
+}
+
+func generateCaptcha(ctx context.Context) {
+	c, err := captcha.CreateCaptcha()
+	if err != nil {
+		_, _ = ctx.JSON(err)
+		ctx.StatusCode(http.StatusInternalServerError)
+	}
+	_, _ = ctx.JSON(&c)
+
 }
