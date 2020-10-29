@@ -10,7 +10,7 @@
                     <option value="external-ceph" *ngIf="currentCluster.spec.architectures !== 'arm64'">external-ceph</option>
                     <option value="rook-ceph" *ngIf="currentCluster.spec.architectures !== 'arm64'">rook-ceph</option>
                     <option value="vsphere" *ngIf="currentCluster.spec.architectures !== 'arm64'">vsphere</option>
-                    <option value="ocean-stor" *ngIf="currentCluster.spec.architectures !== 'arm64'">ocean-stor</option>
+                    <option value="oceanstor" *ngIf="currentCluster.spec.architectures !== 'arm64'">oceanstor</option>
                 </select>
             </clr-select-container>
         </form>

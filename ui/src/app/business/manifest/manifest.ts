@@ -1,6 +1,10 @@
 export class Manifest {
     name: string;
-    category: Category[] = [];
+    coreVars: NameVersion[] = [];
+    networkVars: NameVersion[] = [];
+    otherVars: NameVersion[] = [];
+    version: string;
+    isActive: boolean;
 }
 
 export class Category {
@@ -9,6 +13,11 @@ export class Category {
 }
 
 export class Item {
+    name: string;
+    version: string;
+}
+
+export class NameVersion {
     name: string;
     version: string;
 }

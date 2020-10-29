@@ -1,14 +1,38 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalSize]="'lg'" [clrModalClosable]='true'>
     <h3 class="modal-title">{{'APP_MANIFEST'|translate}}{{'APP_DETAIL'|translate}}</h3>
     <div class="modal-body" *ngIf="item">
-        <div *ngFor="let c of item.category">
-            <h5>{{c.name}}</h5>
+        <div>
+            <h5>{{item.name}}</h5>
             <hr>
             <table class="table table-vertical">
                 <tbody>
-                <tr *ngFor="let item of c.items">
-                    <th>{{item.name}}</th>
-                    <td>{{item.version}}</td>
+                <tr *ngFor="let nameVersion of item.coreVars">
+                    <th>{{nameVersion.name}}</th>
+                    <td>{{nameVersion.version}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h5>network</h5>
+            <hr>
+            <table class="table table-vertical">
+                <tbody>
+                <tr *ngFor="let nameVersion of item.networkVars">
+                    <th>{{nameVersion.name}}</th>
+                    <td>{{nameVersion.version}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h5>other</h5>
+            <hr>
+            <table class="table table-vertical">
+                <tbody>
+                <tr *ngFor="let nameVersion of item.otherVars">
+                    <th>{{nameVersion.name}}</th>
+                    <td>{{nameVersion.version}}</td>
                 </tr>
                 </tbody>
             </table>

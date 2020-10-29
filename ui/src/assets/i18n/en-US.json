@@ -481,6 +481,13 @@
   "APP_DV_SWITCH": "Switch",
   "APP_PORT_GROUP": "Port Group",
   "APP_PRODUCT": "Product",
+  "APP_F5": "F5",
+  "APP_F5_URL": "BIG-IP URL",
+  "APP_F5_USER": "BIG-IP UserName",
+  "APP_F5_PASSWORD": "BIG-IP Password",
+  "APP_F5_PARTITION": "Partition",
+  "APP_F5_PUBLIC_IP": "Public IP",
   "zh-CN": "中文(简体)",
-  "en-US": "English"
+  "en-US": "English",
+  "ENABLE_NPD": "Enable NPD"
 }

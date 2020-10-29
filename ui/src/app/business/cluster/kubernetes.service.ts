@@ -64,7 +64,8 @@ export class KubernetesService {
     namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
     nodesUrl = 'api/v1/nodes';
     nodeStatsSummaryUrl = 'apis/metrics.k8s.io/v1beta1/nodes';
-    eventUrl = '/api/v1/namespaces/{namespace}/events';
+    eventByNamespaceUrl = '/api/v1/namespaces/{namespace}/events';
+    eventsUrl = '/api/v1/events';
 
     listNodesUsage(clusterName: string, continueToken?: string): Observable<any> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodeStatsSummaryUrl);
@@ -278,7 +279,13 @@ export class KubernetesService {
 
     listEventsByNamespace(clusterName: string, namespace: string): Observable<V1EventList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName);
-        url = url.replace('{resource_url}', this.eventUrl).replace('{namespace}', namespace);
+        url = url.replace('{resource_url}', this.eventByNamespaceUrl).replace('{namespace}', namespace);
+        return this.client.get<V1EventList>(url);
+    }
+
+    listEvents(clusterName: string): Observable<V1EventList> {
+        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
+        url = url.replace('{resource_url}', this.eventsUrl);
         return this.client.get<V1EventList>(url);
     }
 

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {ClusterTool} from "../tools";
-import {ToolsService} from "../tools.service";
-import {Cluster} from "../../../cluster";
+import {ClusterTool} from '../tools';
+import {ToolsService} from '../tools.service';
+import {Cluster} from '../../../cluster';
 
 @Component({
     selector: 'app-tools-list',

@@ -39,6 +39,7 @@ const (
 	ClusterProviderPlan      = "plan"
 
 	DefaultNamespace     = "kube-operator"
+	F5Namespace          = "kube-system"
 	DefaultApiServerPort = 8443
 
 	DefaultIngress            = "apps.ko.com"
