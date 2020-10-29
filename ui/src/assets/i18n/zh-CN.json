@@ -485,6 +485,12 @@
   "APP_DV_SWITCH": "交换机",
   "APP_PORT_GROUP": "端口组",
   "APP_PRODUCT": "产品",
+  "APP_F5": "F5",
+  "APP_F5_URL": "BIG-IP 地址",
+  "APP_F5_USER": "BIG-IP 用户名",
+  "APP_F5_PASSWORD": "BIG-IP 密码",
+  "APP_F5_PARTITION": "Partition",
+  "APP_F5_PUBLIC_IP": "BIG-IP 外网IP",
   "zh-CN": "中文(简体)",
   "en-US": "English"
 }

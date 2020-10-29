@@ -51,7 +51,7 @@ import {ClusterLoggerComponent} from './business/cluster/cluster-logger/cluster-
 import {MessageComponent} from './business/setting/message/message.component';
 import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.component';
 import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-grade/cluster-grade.component';
-
+import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -115,6 +115,7 @@ const routes: Routes = [
                     {path: 'backup', component: BackupComponent},
                     {path: 'logs', component: LogComponent},
                     {path: 'grade', component: ClusterGradeComponent},
+                    {path: 'f5', component: F5Component}
                 ],
             },
             {

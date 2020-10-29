@@ -73,6 +73,7 @@ import {NgxEchartsModule} from 'ngx-echarts';
 import { NamespaceDeleteComponent } from './cluster-detail/namespace/namespace-delete/namespace-delete.component';
 import { NamespaceCreateComponent } from './cluster-detail/namespace/namespace-create/namespace-create.component';
 import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/storage/storage-provisioner/storage-provisioner-create/storage-provisioner-create-ocean-stor/storage-provisioner-create-ocean-stor.component';
+import { F5Component } from './cluster-detail/f5/f5.component';
 
 
 @NgModule({
@@ -125,7 +126,8 @@ import { StorageProvisionerCreateOceanStorComponent } from './cluster-detail/sto
         ClusterGradeComponent,
         NamespaceDeleteComponent,
         NamespaceCreateComponent,
-        StorageProvisionerCreateOceanStorComponent],
+        StorageProvisionerCreateOceanStorComponent,
+        F5Component],
     imports: [
         CoreModule,
         RouterModule,

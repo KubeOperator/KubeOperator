@@ -18,7 +18,7 @@ export class BackupListComponent extends BaseModelDirective<BackupFile> implemen
     currentCluster: Cluster;
     items: BackupFile[] = [];
     deleteOpen = false;
-    deleteName = "";
+    deleteName = '';
 
     constructor(private route: ActivatedRoute,
                 private backupFileService: BackupFileService,
