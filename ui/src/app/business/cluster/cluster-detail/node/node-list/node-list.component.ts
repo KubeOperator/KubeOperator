@@ -165,8 +165,8 @@ export class NodeListComponent implements OnInit, OnDestroy {
 
     polling() {
         this.timer = setInterval(() => {
-            this.nodeService.list(this.currentCluster.name).subscribe(data => {
-                this.items = data;
+            this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(data => {
+                this.items = data.items;
             });
         }, 1000);
     }
