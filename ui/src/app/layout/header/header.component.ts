@@ -72,7 +72,7 @@ export class HeaderComponent implements OnInit {
     }
 
     listUnreadMsg(userName) {
-        this.noticeService.listUnread(userName).subscribe(res => {
+        this.noticeService.listUnread().subscribe(res => {
             this.unreadAlert = res.warning;
             this.unreadInfo = res.info;
             if (this.unreadAlert > 0 || this.unreadAlert > 0) {

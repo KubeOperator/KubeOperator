@@ -17,13 +17,13 @@ export class NoticeService extends BaseModelService<any> {
         super(http);
     }
 
-    pageBy(page, size, userName): Observable<Page<Notice>> {
-        const pageUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}&userName=${userName}`;
+    pageBy(page, size): Observable<Page<Notice>> {
+        const pageUrl = `${this.baseUrl}?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<Notice>>(pageUrl);
     }
 
-    listUnread(userName): Observable<any> {
-        const pageUrl = `${this.msgUrl}/unread/?&userName=${userName}`;
+    listUnread(): Observable<any> {
+        const pageUrl = `${this.msgUrl}/unread`;
         return this.http.get<any>(pageUrl);
     }
 }

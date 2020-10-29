@@ -25,15 +25,10 @@ export class UserReceiverComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-            this.userReceiverService.singleGet(this.user.name).subscribe(res => {
-                this.item = res;
-            }, error => {
-
-            });
-        }
+        this.userReceiverService.singleGet().subscribe(res => {
+            this.item = res;
+        }, error => {
+        });
     }
 
     onCancel() {

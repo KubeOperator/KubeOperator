@@ -25,17 +25,13 @@ export class UserSubscribeComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-            this.loading = true;
-            this.userSubscribeService.singleGet(this.user.name).subscribe(res => {
-                this.loading = false;
-                this.items = res;
-            }, error => {
-                this.loading = false;
-            });
-        }
+        this.loading = true;
+        this.userSubscribeService.singleGet().subscribe(res => {
+            this.loading = false;
+            this.items = res;
+        }, error => {
+            this.loading = false;
+        });
     }
 
     updateConfig(updateItem, type) {

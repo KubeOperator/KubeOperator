@@ -15,13 +15,11 @@ export class UserReceiverService extends BaseModelService<UserReceiver> {
         super(http);
     }
 
-    singleGet(userName): Observable<UserReceiver> {
-        const itemUrl = `${this.baseUrl}?userName=${userName}`;
-        return this.http.get<UserReceiver>(itemUrl);
+    singleGet(): Observable<UserReceiver> {
+        return this.http.get<UserReceiver>(this.baseUrl);
     }
 
     singleUpdate(item): Observable<UserReceiver> {
-        const itemUrl = `${this.baseUrl}`;
-        return this.http.post<UserReceiver>(itemUrl, item);
+        return this.http.post<UserReceiver>(this.baseUrl, item);
     }
 }

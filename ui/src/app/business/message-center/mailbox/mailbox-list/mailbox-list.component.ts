@@ -32,22 +32,18 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
 
     listByUsername() {
         this.loading = true;
-        const profile = this.sessionService.getCacheProfile();
-        if (profile != null) {
-            this.user = profile.user;
-            this.noticeService.pageBy(this.page, this.size, this.user.name).subscribe(res => {
-                this.items = res.items;
-                this.loading = false;
-            }, error => {
-                this.loading = false;
-                this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
-            });
-        }
+        this.noticeService.pageBy(this.page, this.size).subscribe(res => {
+            this.items = res.items;
+            this.loading = false;
+        }, error => {
+            this.loading = false;
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
     }
 
     onDetail(item: Notice) {
         this.detailEvent.emit(item);
-        if (item.readStatus === 'UNREAD'){
+        if (item.readStatus === 'UNREAD') {
             item.readStatus = 'READ';
             const readItems = [];
             readItems.push(item);
