@@ -7,7 +7,7 @@ import (
 
 type F5Repository interface {
 	Save(f5 *model.F5Setting) error
-	Get(name string) ([]model.F5Setting, error)
+	Get(name string) (*model.F5Setting, error)
 }
 
 func NewF5Repository() F5Repository {
@@ -25,16 +25,12 @@ func (f f5Repository) Save(f5 *model.F5Setting) error {
 	}
 }
 
-func (f f5Repository) Get(clusterName string) ([]model.F5Setting, error) {
-	var cluster model.Cluster
-	if err := db.DB.Where(model.Cluster{Name: clusterName}).First(&cluster).Error; err != nil {
-		return nil, err
-	}
-	var f5 []model.F5Setting
+func (f f5Repository) Get(clusterID string) (*model.F5Setting, error) {
+	var f5 model.F5Setting
 	if err := db.DB.
-		Where(model.F5Setting{ClusterID: cluster.ID}).
-		Find(&f5).Error; err != nil {
+		Where(model.F5Setting{ClusterID: clusterID}).
+		First(&f5).Error; err != nil {
 		return nil, err
 	}
-	return f5, nil
+	return &f5, nil
 }
