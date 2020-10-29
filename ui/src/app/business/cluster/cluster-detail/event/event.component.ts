@@ -46,7 +46,7 @@ export class EventComponent implements OnInit {
 
     listEvents(namespace: string) {
         this.loading = true;
-        this.kubernetesService.listEventsByNamespace(this.currentCluster.name, namespace).subscribe(res => {
+        this.kubernetesService.listEvents(this.currentCluster.name).subscribe(res => {
             this.events = res.items;
             this.loading = false;
         });

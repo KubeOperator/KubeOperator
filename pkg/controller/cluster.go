@@ -235,12 +235,27 @@ func (c ClusterController) PostBatch() error {
 	return nil
 }
 
-func (c ClusterController) GetNodeBy(clusterName string) ([]dto.Node, error) {
-	cns, err := c.ClusterNodeService.List(clusterName)
-	if err != nil {
-		return nil, err
+func (c ClusterController) GetNodeBy(clusterName string) (*dto.NodePage, error) {
+	p, _ := c.Ctx.Values().GetBool("page")
+	if p {
+		num, _ := c.Ctx.Values().GetInt(constant.PageNumQueryKey)
+		size, _ := c.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+		pageItem, err := c.ClusterNodeService.Page(num, size, clusterName)
+		if err != nil {
+			return nil, err
+		}
+		return pageItem, nil
+	} else {
+		var pageItem dto.NodePage
+		cns, err := c.ClusterNodeService.List(clusterName)
+		if err != nil {
+			return nil, err
+		}
+		pageItem.Items = cns
+		pageItem.Total = len(cns)
+		return &pageItem, nil
 	}
-	return cns, nil
+
 }
 
 func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, error) {
@@ -343,4 +358,3 @@ func (c ClusterController) GetLoggerBy(clusterName string) (*Log, error) {
 	}
 	return &Log{Msg: string(chunk)}, nil
 }
-

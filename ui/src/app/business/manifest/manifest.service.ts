@@ -16,4 +16,12 @@ export class ManifestService {
     list(): Observable<Manifest[]> {
         return this.http.get<Manifest[]>(this.baseUrl);
     }
+
+    listActive(): Observable<Manifest[]> {
+        return this.http.get<Manifest[]>(this.baseUrl + '/active');
+    }
+
+    update(item: Manifest): Observable<Manifest> {
+        return this.http.patch<Manifest>(this.baseUrl + '/' + item.name, item);
+    }
 }

@@ -16,7 +16,6 @@
   "APP_DEFAULT_DELETE_WARNING": "删除操作不可回滚，确认继续?",
   "APP_PAGER_TOTAL": "总共",
   "APP_CAPACITY": "容量",
-  "APP_CAPACITY": "容量",
   "APP_SOURCE": "来源",
   "APP_PAGER_PER_PAGE": "每页",
   "APP_ADD_SUCCESS": "添加成功",
@@ -492,5 +491,6 @@
   "APP_F5_PARTITION": "Partition",
   "APP_F5_PUBLIC_IP": "BIG-IP 外网IP",
   "zh-CN": "中文(简体)",
-  "en-US": "English"
+  "en-US": "English",
+  "ENABLE_NPD": "启用NPD"
 }

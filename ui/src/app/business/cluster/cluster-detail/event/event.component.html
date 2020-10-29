@@ -1,16 +1,17 @@
 <clr-datagrid [clrDgLoading]="loading">
     <clr-dg-action-bar>
-        <clr-checkbox-wrapper style="float: right" >
-            <label>启用NPD</label>
-            <input clrToggle class="clr-checkbox" type="checkbox" name="supper" [checked]="npdExists" (change)="changeNpd(npdExists)"/>
+        <clr-checkbox-wrapper style="float: right">
+            <label>{{'ENABLE_NPD'|translate}}</label>
+            <input clrToggle class="clr-checkbox" type="checkbox" name="supper" [checked]="npdExists"
+                   (change)="changeNpd(npdExists)"/>
         </clr-checkbox-wrapper>
-        <div class="clr-select-wrapper">
-            <label>namespace</label>
-            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">
-                <option *ngFor="let b of namespaces"
-                        value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>
-            </select>
-        </div>
+<!--        <div class="clr-select-wrapper">-->
+<!--            <label>Namespace</label>-->
+<!--            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">-->
+<!--                <option *ngFor="let b of namespaces"-->
+<!--                        value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>-->
+<!--            </select>-->
+<!--        </div>-->
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_EVENT_MSG'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_EVENT_TYPE'|translate}}</clr-dg-column>

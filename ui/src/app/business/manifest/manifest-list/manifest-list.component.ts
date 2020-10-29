@@ -1,6 +1,9 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Category, Manifest} from "../manifest";
-import {ManifestService} from "../manifest.service";
+import {Manifest} from '../manifest';
+import {ManifestService} from '../manifest.service';
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
+import {AlertLevels} from '../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-manifest-list',
@@ -8,7 +11,9 @@ import {ManifestService} from "../manifest.service";
     styleUrls: ['./manifest-list.component.css']
 })
 export class ManifestListComponent implements OnInit {
-    constructor(private manifestService: ManifestService) {
+    constructor(private manifestService: ManifestService,
+                private commonAlertService: CommonAlertService,
+                private translateService: TranslateService) {
     }
 
     items: Manifest[] = [];
@@ -22,20 +27,23 @@ export class ManifestListComponent implements OnInit {
     refresh() {
         this.manifestService.list().subscribe(data => {
             this.items = data;
-            console.log(this.items);
         });
     }
 
     onDetail(item: Manifest) {
+        console.log(item);
         this.detailEvent.emit(item);
     }
 
-    getCoreCateGory(item: Manifest): Category {
-        for (const category of item.category) {
-            if (category.name === 'core') {
-                return category;
-            }
-        }
+    update(item: Manifest) {
+        console.log(item);
+        const updateItem = new Manifest();
+        Object.assign(updateItem, item);
+        updateItem.isActive = !item.isActive;
+        this.manifestService.update(updateItem).subscribe(data => {
+            this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
+        }, error => {
+            this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+        });
     }
-
 }

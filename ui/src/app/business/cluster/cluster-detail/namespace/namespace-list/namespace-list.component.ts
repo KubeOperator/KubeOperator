@@ -3,10 +3,6 @@ import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
 import {V1Namespace} from '@kubernetes/client-node';
-import {CommonAlertService} from '../../../../../layout/common-alert/common-alert.service';
-import {TranslateService} from '@ngx-translate/core';
-import {AlertLevels} from '../../../../../layout/app-alert/alert';
-import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
 
 @Component({
     selector: 'app-namespace-list',
@@ -22,6 +18,7 @@ export class NamespaceListComponent implements OnInit {
     currentCluster: Cluster;
     @Output() deleteEvent = new EventEmitter<string>();
     @Output() createEvent = new EventEmitter<string>();
+    defaultNamespaces: string[] = ['default', 'kube-node-lease', 'kube-operator', 'kube-public', 'kube-system'];
 
     constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
@@ -50,4 +47,7 @@ export class NamespaceListComponent implements OnInit {
         this.createEvent.emit();
     }
 
+    checkNamespace(name: string): boolean {
+        return !(this.defaultNamespaces.indexOf(name) > -1);
+    }
 }

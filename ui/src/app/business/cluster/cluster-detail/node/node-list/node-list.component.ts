@@ -20,6 +20,8 @@ export class NodeListComponent implements OnInit, OnDestroy {
     selected = [];
     items: Node[] = [];
     page = 1;
+    size = 10;
+    total = 0;
     timer;
     @Input() currentCluster: Cluster;
     @Output() openDetail = new EventEmitter<V1Node>();
@@ -42,13 +44,13 @@ export class NodeListComponent implements OnInit, OnDestroy {
     refresh() {
         this.loading = true;
         this.selected = [];
-        if (this.currentCluster.source === 'external') {
-        }
-        this.nodeService.list(this.currentCluster.name).subscribe(d => {
-            this.items = d;
+        this.nodeService.list(this.currentCluster.name, this.page, this.size).subscribe(d => {
+            this.items = d.items;
+            this.total = d.total;
             this.loading = false;
         });
     }
+
 
     getInternalIp(item: Node) {
         let result = 'N/A';
