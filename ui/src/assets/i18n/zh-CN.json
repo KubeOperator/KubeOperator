@@ -492,5 +492,7 @@
   "APP_F5_PUBLIC_IP": "BIG-IP 外网IP",
   "zh-CN": "中文(简体)",
   "en-US": "English",
-  "ENABLE_NPD": "启用NPD"
+  "ENABLE_NPD": "启用NPD",
+  "NETWORK_INTERFACE": "网卡名称",
+  "NETWORK_HELPER": "多网卡环境需要指定使用的网卡名称,单网卡环境可不填"
 }

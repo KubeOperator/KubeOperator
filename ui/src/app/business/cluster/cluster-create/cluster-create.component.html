@@ -163,6 +163,12 @@
                     <option *ngFor="let version of helmVersions" [value]="version"> {{version}}</option>
                 </select>
             </clr-select-container>
+
+            <clr-input-container>
+                <label>{{"NETWORK_INTERFACE"|translate}}</label>
+                <input clrInput type="text" size="34" name="kube_network_interface" [(ngModel)]="item.networkInterface">
+                <clr-control-helper>{{'NETWORK_HELPER'|translate}}</clr-control-helper>
+            </clr-input-container>
         </form>
     </clr-wizard-page>
 

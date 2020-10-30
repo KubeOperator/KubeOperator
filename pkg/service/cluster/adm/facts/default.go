@@ -54,6 +54,7 @@ const (
 	NginxIngressVersionFactName          = "nginx_ingress_version"
 	TraefikIngressVersionFactName        = "traefik_ingress_version"
 	MetricsServerVersionFactName         = "metrics_server_version"
+	NetworkInterfaceFactName             = "network_interface"
 )
 
 var DefaultFacts = map[string]string{
@@ -108,4 +109,5 @@ var DefaultFacts = map[string]string{
 	NginxIngressVersionFactName:          "0.33.0",
 	TraefikIngressVersionFactName:        "v2.2.1",
 	MetricsServerVersionFactName:         "v0.3.6",
+	NetworkInterfaceFactName:             "",
 }
