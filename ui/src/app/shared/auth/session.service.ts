@@ -13,6 +13,8 @@ export class SessionService {
 
     sessionUrl = '/api/v1/auth/session';
     codeUrl = '/api/v1/captcha';
+    profileUrl = '/api/v1/auth/profile';
+
 
     constructor(private http: HttpClient) {
     }
@@ -43,5 +45,9 @@ export class SessionService {
 
     clear() {
         sessionStorage.removeItem(queryKey);
+    }
+
+    getProfile(): Observable<Profile> {
+        return this.http.get<Profile>(this.profileUrl);
     }
 }
