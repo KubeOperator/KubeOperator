@@ -42,9 +42,9 @@ RUN cd /usr/local/bin/ \
     && chmod +x validator_linux_arm64 \
     && chmod +x validator_linux_amd64
 
-RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.zip -O /tmp/polaris.zip \
+RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O /tmp/polaris.tar.gz \
     && cd /tmp \
-    && unzip /tmp/polaris.zip \
+    && tar zxvf /tmp/polaris.tar.gz \
     && mv /tmp/polaris-1.2.1/checks/ /checks
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
