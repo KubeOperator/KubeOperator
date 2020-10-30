@@ -2,7 +2,6 @@ package router
 
 import (
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
 	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
@@ -29,10 +28,8 @@ func Server() *iris.Application {
 		URL: "/swagger/doc.json",
 	}
 	app.Get("/swagger/{any:path}", swagger.CustomWrapHandler(c, swaggerFiles.Handler))
-	app.Post("/api/v1/auth/login", auth.LoginHandler)
 	app.Get("/api/v1/auth/profile", middleware.JWTMiddleware().Serve, middleware.GetAuthUser)
 	app.Get("/api/v1/health", controller.HealthController)
-	app.Get("/api/v1/auth/verification/code", auth.VerificationCodeHandler)
 	proxy.RegisterProxy(app)
 	api := app.Party("/api")
 	v1.V1(api)

@@ -3,7 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -13,22 +13,44 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/spf13/viper"
+	"net/http"
 )
 
 var (
 	UserIsNotRelatedProject = "USER_IS_NOT_RELATED_PROJECT"
 )
 
-func JWTMiddleware() *jwtmiddleware.Middleware {
+type JwtMiddleware struct {
+	*jwtmiddleware.Middleware
+}
+
+func (m *JwtMiddleware) Serve(ctx context.Context) {
+	session := constant.Sess.Start(ctx)
+	u := session.Get(constant.SessionUserKey)
+	if u != nil {
+		ctx.Next()
+		return
+	}
+	if err := m.CheckJWT(ctx); err != nil {
+		m.Config.ErrorHandler(ctx, err)
+		return
+	}
+	ctx.Next()
+}
+
+func JWTMiddleware() *JwtMiddleware {
 	secretKey := []byte(viper.GetString("jwt.secret"))
-	return jwtmiddleware.New(jwtmiddleware.Config{
-		Extractor: jwtmiddleware.FromAuthHeader,
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return secretKey, nil
+	m := JwtMiddleware{jwtmiddleware.New(
+		jwtmiddleware.Config{
+			Extractor: jwtmiddleware.FromAuthHeader,
+			ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+				return secretKey, nil
+			},
+			SigningMethod: jwt.SigningMethodHS256,
+			ErrorHandler:  ErrorHandler,
 		},
-		SigningMethod: jwt.SigningMethodHS256,
-		ErrorHandler:  ErrorHandler,
-	})
+	)}
+	return &m
 }
 
 func ErrorHandler(ctx context.Context, err error) {
@@ -39,8 +61,8 @@ func ErrorHandler(ctx context.Context, err error) {
 	response := &dto.Response{
 		Msg: err.Error(),
 	}
-	ctx.StatusCode(iris.StatusInternalServerError)
-	ctx.JSON(response)
+	ctx.StatusCode(http.StatusUnauthorized)
+	_, _ = ctx.JSON(response)
 }
 
 func GetAuthUser(ctx context.Context) {
@@ -48,9 +70,9 @@ func GetAuthUser(ctx context.Context) {
 	foobar := user.Claims.(jwt.MapClaims)
 	sessionUserJson, _ := json.Marshal(foobar)
 	sessionUserJsonStr := string(sessionUserJson)
-	var sessionUser auth.SessionUser
+	var sessionUser dto.SessionUser
 	json.Unmarshal([]byte(sessionUserJsonStr), &sessionUser)
-	resp := new(auth.JwtResponse)
+	resp := new(dto.Profile)
 	resp.User = sessionUser
 	resp.Token = user.Raw
 

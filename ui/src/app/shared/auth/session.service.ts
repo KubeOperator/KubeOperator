@@ -1,21 +1,36 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Profile} from './session-user';
+import {Captcha, Profile} from './session-user';
 import {Observable} from 'rxjs';
+import {LoginCredential} from "../../login/login-credential";
 
 const queryKey = 'profile';
-const profileUrl = '/api/v1/auth/profile';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SessionService {
 
+    sessionUrl = '/api/v1/auth/session';
+    codeUrl = '/api/v1/captcha';
+
     constructor(private http: HttpClient) {
     }
 
+    login(item: LoginCredential): Observable<Profile> {
+        return this.http.post<Profile>(this.sessionUrl, item);
+    }
+
+    logout(): Observable<any> {
+        return this.http.delete<any>(this.sessionUrl);
+    }
+
+    getCode(): Observable<Captcha> {
+        return this.http.get<Captcha>(this.codeUrl);
+    }
+
     cacheProfile(profile: Profile) {
-        localStorage.setItem(queryKey, JSON.stringify(profile));
+        sessionStorage.setItem(queryKey, JSON.stringify(profile));
     }
 
     getCacheProfile(): Profile {
@@ -26,11 +41,7 @@ export class SessionService {
         return null;
     }
 
-    getProfile(): Observable<Profile> {
-        return this.http.get<Profile>(profileUrl);
-    }
-
     clear() {
-        localStorage.removeItem(queryKey);
+        sessionStorage.removeItem(queryKey);
     }
 }
