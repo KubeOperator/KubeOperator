@@ -47,6 +47,7 @@ export class F5Component implements OnInit {
                 // @ts-ignore
                 if ( d.status === "Running" ) {
                     this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+                    window.location.reload();
                 }
             },error => {
                     this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
