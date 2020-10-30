@@ -61,6 +61,7 @@ export class ClusterCreateRequest extends BaseModel {
     dockerSubnet: string;
     projectName: string;
     helmVersion: string;
+    networkInterface: string;
 }
 
 export class CLusterImportRequest {

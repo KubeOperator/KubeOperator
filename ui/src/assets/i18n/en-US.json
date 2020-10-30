@@ -490,5 +490,8 @@
   "APP_F5_PASSWORD_ERROR_MSG": "Please enter your password",
   "zh-CN": "中文(简体)",
   "en-US": "English",
-  "ENABLE_NPD": "Enable NPD"
+  "ENABLE_NPD": "Enable NPD",
+  "NETWORK_INTERFACE": "NIC name",
+  "NETWORK_HELPER": "The multi-NIC environment needs to specify the name of the NIC used, and the single NIC environment does not need to fill in"
+
 }

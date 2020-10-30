@@ -1,45 +1,5 @@
 basePath: /api/v1
 definitions:
-  auth.Credential:
-    properties:
-      language:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    type: object
-  auth.JwtResponse:
-    properties:
-      permissions:
-        items:
-          $ref: '#/definitions/permission.UserPermission'
-        type: array
-      roleMenus:
-        items:
-          $ref: '#/definitions/permission.UserMenu'
-        type: array
-      token:
-        type: string
-      user:
-        $ref: '#/definitions/auth.SessionUser'
-        type: object
-    type: object
-  auth.SessionUser:
-    properties:
-      email:
-        type: string
-      isActive:
-        type: boolean
-      isAdmin:
-        type: boolean
-      language:
-        type: string
-      name:
-        type: string
-      userId:
-        type: string
-    type: object
   dto.BackupAccount:
     properties:
       bucket:
@@ -182,6 +142,8 @@ definitions:
       dockerSubnet:
         type: string
       flannelBackend:
+        type: string
+      helmVersion:
         type: string
       ingressControllerType:
         type: string
@@ -334,6 +296,22 @@ definitions:
     - name
     - port
     type: object
+  dto.LoginCredential:
+    properties:
+      authMethod:
+        description: console or api
+        type: string
+      captchaId:
+        type: string
+      code:
+        type: string
+      language:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   dto.NodeCreate:
     properties:
       hostName:
@@ -391,6 +369,22 @@ definitions:
     - projects
     - region
     - zones
+    type: object
+  dto.Profile:
+    properties:
+      permissions:
+        items:
+          $ref: '#/definitions/permission.UserPermission'
+        type: array
+      roleMenus:
+        items:
+          $ref: '#/definitions/permission.UserMenu'
+        type: array
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.SessionUser'
+        type: object
     type: object
   dto.Project:
     properties:
@@ -493,6 +487,21 @@ definitions:
     - provider
     - regionVars
     type: object
+  dto.SessionUser:
+    properties:
+      email:
+        type: string
+      isActive:
+        type: boolean
+      isAdmin:
+        type: boolean
+      language:
+        type: string
+      name:
+        type: string
+      userId:
+        type: string
+    type: object
   dto.User:
     properties:
       createdAt:
@@ -571,6 +580,17 @@ definitions:
         type: string
     type: object
   dto.VmConfigCreate:
+    properties:
+      cpu:
+        type: integer
+      memory:
+        type: integer
+      name:
+        type: string
+      provider:
+        type: string
+    type: object
+  dto.VmConfigUpdate:
     properties:
       cpu:
         type: integer
@@ -676,6 +696,8 @@ definitions:
         type: string
       flannelBackend:
         type: string
+      helmVersion:
+        type: string
       ingressControllerType:
         type: string
       kubeApiServerPort:
@@ -775,26 +797,35 @@ info:
   termsOfService: http://kubeoperator.io
   title: KubeOperator Restful API
 paths:
-  /auth/login/:
+  /auth/session/:
+    delete:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      summary: Logout
+      tags:
+      - auth
     post:
       consumes:
       - application/json
-      description: Get login token
+      description: Login
       parameters:
       - description: request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.Credential'
+          $ref: '#/definitions/dto.LoginCredential'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.JwtResponse'
-      summary: Get login token
+            $ref: '#/definitions/dto.Profile'
+      summary: Login
       tags:
       - auth
   /backupAccounts/:
@@ -1592,6 +1623,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create a VmConfig
+      tags:
+      - vmConfigs
+  /vm/config/{name}/:
+    patch:
+      consumes:
+      - application/json
+      description: Update a vmConfig
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VmConfigUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VmConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a vmConfig
       tags:
       - vmConfigs
   /vm/configs/:

@@ -1,13 +1,15 @@
-package auth
+package dto
 
 import "github.com/KubeOperator/KubeOperator/pkg/permission"
 
-type Credential struct {
+type LoginCredential struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Language  string `json:"language"`
 	CaptchaId string `json:"captchaId"`
 	Code      string `json:"code"`
+	// console or api
+	AuthMethod string `json:"authMethod"`
 }
 
 type SessionUser struct {
@@ -19,9 +21,14 @@ type SessionUser struct {
 	IsAdmin  bool   `json:"isAdmin"`
 }
 
-type JwtResponse struct {
+type Profile struct {
 	User        SessionUser                 `json:"user"`
-	Token       string                      `json:"token"`
+	Token       string                      `json:"token,omitempty"`
 	RoleMenus   []permission.UserMenu       `json:"roleMenus"`
 	Permissions []permission.UserPermission `json:"permissions"`
+}
+
+type Captcha struct {
+	Image     string `json:"image"`
+	CaptchaId string `json:"captchaId"`
 }

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/auth"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -38,7 +37,7 @@ func (p ProjectController) Get() (page.Page, error) {
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
 		sessionUser := p.Ctx.Values().Get("user")
 		var userId string
-		user, ok := sessionUser.(auth.SessionUser)
+		user, ok := sessionUser.(dto.SessionUser)
 		if ok && !user.IsAdmin {
 			userId = user.UserId
 		} else {

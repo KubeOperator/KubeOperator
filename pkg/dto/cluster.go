@@ -24,8 +24,6 @@ type ClusterSecret struct {
 	model.ClusterSecret
 }
 
-
-
 type ClusterNode struct {
 	model.ClusterNode
 }
@@ -62,6 +60,7 @@ type ClusterCreate struct {
 	Nodes                 []NodeCreate `json:"nodes"`
 	ProjectName           string       `json:"projectName"`
 	HelmVersion           string       `json:"helmVersion"`
+	NetworkInterface      string       `json:"networkInterface"`
 }
 
 type ClusterBatch struct {

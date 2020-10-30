@@ -30,6 +30,7 @@ type UserService interface {
 	Update(update dto.UserUpdate) (*dto.User, error)
 	Batch(op dto.UserOp) error
 	ChangePassword(ch dto.UserChangePassword) error
+	UserAuth(name string, password string) (user *model.User, err error)
 }
 
 type userService struct {
@@ -171,7 +172,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 	return err
 }
 
-func UserAuth(name string, password string) (user *model.User, err error) {
+func (u userService) UserAuth(name string, password string) (user *model.User, err error) {
 	var dbUser model.User
 	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
 		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {

@@ -30,6 +30,7 @@ type ClusterSpec struct {
 	Architectures         string `json:"architectures"`
 	KubernetesAudit       string `json:"kubernetesAudit"`
 	HelmVersion           string `json:"helmVersion"`
+	NetworkInterface      string `json:"networkInterface"`
 }
 
 func (s *ClusterSpec) BeforeCreate() (err error) {
