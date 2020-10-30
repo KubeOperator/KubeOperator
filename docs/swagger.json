@@ -15,9 +15,9 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/auth/login/": {
+        "/auth/session/": {
             "post": {
-                "description": "Get login token",
+                "description": "Login",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,7 +27,7 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Get login token",
+                "summary": "Login",
                 "parameters": [
                     {
                         "description": "request",
@@ -35,7 +35,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.Credential"
+                            "$ref": "#/definitions/dto.LoginCredential"
                         }
                     }
                 ],
@@ -43,10 +43,23 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.JwtResponse"
+                            "$ref": "#/definitions/dto.Profile"
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout"
             }
         },
         "/backupAccounts/": {
@@ -1348,6 +1361,45 @@
                 }
             }
         },
+        "/vm/config/{name}/": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a vmConfig",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vmConfigs"
+                ],
+                "summary": "Update a vmConfig",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.VmConfigUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VmConfig"
+                        }
+                    }
+                }
+            }
+        },
         "/vm/configs/": {
             "get": {
                 "security": [
@@ -1489,67 +1541,6 @@
         }
     },
     "definitions": {
-        "auth.Credential": {
-            "type": "object",
-            "properties": {
-                "language": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.JwtResponse": {
-            "type": "object",
-            "properties": {
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/permission.UserPermission"
-                    }
-                },
-                "roleMenus": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/permission.UserMenu"
-                    }
-                },
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "type": "object",
-                    "$ref": "#/definitions/auth.SessionUser"
-                }
-            }
-        },
-        "auth.SessionUser": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "isActive": {
-                    "type": "boolean"
-                },
-                "isAdmin": {
-                    "type": "boolean"
-                },
-                "language": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.BackupAccount": {
             "type": "object",
             "properties": {
@@ -1766,6 +1757,9 @@
                     "type": "string"
                 },
                 "flannelBackend": {
+                    "type": "string"
+                },
+                "helmVersion": {
                     "type": "string"
                 },
                 "ingressControllerType": {
@@ -1989,6 +1983,30 @@
                 }
             }
         },
+        "dto.LoginCredential": {
+            "type": "object",
+            "properties": {
+                "authMethod": {
+                    "description": "console or api",
+                    "type": "string"
+                },
+                "captchaId": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.NodeCreate": {
             "type": "object",
             "properties": {
@@ -2072,6 +2090,30 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.Profile": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserPermission"
+                    }
+                },
+                "roleMenus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.UserMenu"
+                    }
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/dto.SessionUser"
                 }
             }
         },
@@ -2227,6 +2269,29 @@
                 }
             }
         },
+        "dto.SessionUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isAdmin": {
+                    "type": "boolean"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.User": {
             "type": "object",
             "properties": {
@@ -2343,6 +2408,23 @@
             }
         },
         "dto.VmConfigCreate": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "integer"
+                },
+                "memory": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.VmConfigUpdate": {
             "type": "object",
             "properties": {
                 "cpu": {
@@ -2500,6 +2582,9 @@
                     "type": "string"
                 },
                 "flannelBackend": {
+                    "type": "string"
+                },
+                "helmVersion": {
                     "type": "string"
                 },
                 "ingressControllerType": {

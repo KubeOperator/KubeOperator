@@ -27,7 +27,7 @@ func NewSessionController() *SessionController {
 // @Tags auth
 // @Summary Login
 // @Description Login
-// @Param request body auth.Credential true "request"
+// @Param request body dto.LoginCredential true "request"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} dto.Profile
@@ -45,12 +45,6 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 	}
 	var profile *dto.Profile
 	switch aul.AuthMethod {
-	case constant.AuthMethodSession:
-		p, err := s.checkSessionLogin(aul.Username, aul.Password, false)
-		if err != nil {
-			return nil, err
-		}
-		profile = p
 	case constant.AuthMethodJWT:
 		p, err := s.checkSessionLogin(aul.Username, aul.Password, true)
 		if err != nil {
@@ -63,9 +57,9 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 			return nil, err
 		}
 		profile = p
+		session := constant.Sess.Start(s.Ctx)
+		session.Set(constant.SessionUserKey, profile)
 	}
-	session := constant.Sess.Start(s.Ctx)
-	session.Set(constant.SessionUserKey, profile)
 	return profile, nil
 }
 
@@ -81,7 +75,6 @@ func (s *SessionController) Delete() error {
 	session.Delete(constant.SessionUserKey)
 	return nil
 }
-
 
 func (s *SessionController) checkSessionLogin(username string, password string, jwt bool) (*dto.Profile, error) {
 	u, err := s.UserService.UserAuth(username, password)
