@@ -487,6 +487,7 @@
   "APP_F5_PASSWORD": "BIG-IP Password",
   "APP_F5_PARTITION": "Partition",
   "APP_F5_PUBLIC_IP": "Public IP",
+  "APP_F5_PASSWORD_ERROR_MSG": "Please enter your password",
   "zh-CN": "中文(简体)",
   "en-US": "English",
   "ENABLE_NPD": "Enable NPD"

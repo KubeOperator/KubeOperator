@@ -11,7 +11,6 @@ type F5Setting struct {
 	ClusterID string `json:"clusterID" gorm:"type:varchar(64)"`
 	URL       string `json:"url" gorm:"type:varchar(64)"`
 	User      string `json:"user" gorm:"type:varchar(64)"`
-	Password  string `json:"password" gorm:"type:varchar(64)""`
 	Partition string `json:"partition" gorm:"type:varchar(64)" `
 	PublicIP  string `json:"publicIP" gorm:"type:varchar(64)"`
 	Status    string `json:"status" gorm:"type:varchar(64)"`

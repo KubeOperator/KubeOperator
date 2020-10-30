@@ -490,6 +490,7 @@
   "APP_F5_PASSWORD": "BIG-IP 密码",
   "APP_F5_PARTITION": "Partition",
   "APP_F5_PUBLIC_IP": "BIG-IP 外网IP",
+  "APP_F5_PASSWORD_ERROR_MSG": "Please enter your password",
   "zh-CN": "中文(简体)",
   "en-US": "English",
   "ENABLE_NPD": "启用NPD"

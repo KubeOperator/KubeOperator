@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClusterService} from '../cluster.service';
 import {Cluster, ClusterStatus, Condition} from '../cluster';
-import {ClusterLoggerService} from "../cluster-logger/cluster-logger.service";
+import {ClusterLoggerService} from '../cluster-logger/cluster-logger.service';
 
 @Component({
     selector: 'app-cluster-condition',
