@@ -1,6 +1,8 @@
 package adm
 
 import (
+	"encoding/json"
+	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
@@ -82,6 +84,13 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	repo := repository.NewSystemSettingRepository()
 	val, _ := repo.Get("ip")
 	c.Kobe.SetVar(facts.LocalHostnameFactName, val.Value)
+	maniFest, _ := GetVarsBy(cluster.Spec.Version)
+	if maniFest.Name != "" {
+		vars := maniFest.GetVars()
+		for k, v := range vars {
+			c.Kobe.SetVar(k, v)
+		}
+	}
 	return c
 }
 
@@ -114,4 +123,26 @@ func NewClusterAdm() *ClusterAdm {
 func (ca *ClusterAdm) OnInitialize(c Cluster) (Cluster, error) {
 	err := ca.Create(&c)
 	return c, err
+}
+
+func GetVarsBy(version string) (dto.ClusterManifest, error) {
+	var clusterManifest dto.ClusterManifest
+	repo := repository.NewClusterManifestRepository()
+	mo, err := repo.Get(version)
+	if err != nil {
+		return clusterManifest, err
+	}
+	clusterManifest.Name = mo.Name
+	clusterManifest.Version = mo.Version
+	clusterManifest.IsActive = mo.IsActive
+	var core []dto.NameVersion
+	json.Unmarshal([]byte(mo.CoreVars), &core)
+	clusterManifest.CoreVars = core
+	var network []dto.NameVersion
+	json.Unmarshal([]byte(mo.NetworkVars), &network)
+	clusterManifest.NetworkVars = network
+	var other []dto.NameVersion
+	json.Unmarshal([]byte(mo.OtherVars), &other)
+	clusterManifest.OtherVars = other
+	return clusterManifest, err
 }

@@ -43,6 +43,17 @@ const (
 	ArchitecturesFactName                = "architectures"
 	IngressControllerTypeFactName        = "ingress_controller_type"
 	HelmVersionFactName                  = "helm_version"
+	EtcdVersionFactName                  = "etcd_version"
+	DockerVersionFactName                = "docker_version"
+	ContainerdVersionFactName            = "containerd_version"
+	FlannelVersionFactName               = "flannel_version"
+	CalicoVersionFactName                = "calico_version"
+	CorednsVersionFactName               = "coredns_version"
+	HelmV2VersionFactName                = "helm_v2_version"
+	HelmV3VersionFactName                = "helm_v3_version"
+	NginxIngressVersionFactName          = "nginx_ingress_version"
+	TraefikIngressVersionFactName        = "traefik_ingress_version"
+	MetricsServerVersionFactName         = "metrics_server_version"
 )
 
 var DefaultFacts = map[string]string{
@@ -86,4 +97,15 @@ var DefaultFacts = map[string]string{
 	FlannelBackendFactName:               "vxlan",
 	ArchitecturesFactName:                "amd64",
 	HelmVersionFactName:                  "v3",
+	EtcdVersionFactName:                  "v3.4.9",
+	DockerVersionFactName:                "19.03.9",
+	ContainerdVersionFactName:            "1.3.6",
+	FlannelVersionFactName:               "v0.12.0",
+	CalicoVersionFactName:                "v3.14.1",
+	CorednsVersionFactName:               "1.6.7",
+	HelmV2VersionFactName:                "v2.16.9",
+	HelmV3VersionFactName:                "v3.2.4",
+	NginxIngressVersionFactName:          "0.33.0",
+	TraefikIngressVersionFactName:        "v2.2.1",
+	MetricsServerVersionFactName:         "v0.3.6",
 }

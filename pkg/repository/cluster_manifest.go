@@ -9,7 +9,7 @@ type ClusterManifestRepository interface {
 	List() ([]model.ClusterManifest, error)
 	ListByStatus() ([]model.ClusterManifest, error)
 	Save(manifest model.ClusterManifest) error
-	Get(name string) (model.ClusterManifest, error)
+	Get(version string) (model.ClusterManifest, error)
 }
 
 func NewClusterManifestRepository() ClusterManifestRepository {
@@ -19,9 +19,9 @@ func NewClusterManifestRepository() ClusterManifestRepository {
 type clusterManifestRepository struct {
 }
 
-func (c clusterManifestRepository) Get(name string) (model.ClusterManifest, error) {
+func (c clusterManifestRepository) Get(version string) (model.ClusterManifest, error) {
 	var manifest model.ClusterManifest
-	err := db.DB.Where(model.ClusterManifest{Name: name}).First(&manifest).Error
+	err := db.DB.Where(model.ClusterManifest{Version: version}).First(&manifest).Error
 	return manifest, err
 }
 
