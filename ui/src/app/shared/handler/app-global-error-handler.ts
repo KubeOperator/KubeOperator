@@ -14,12 +14,14 @@ export class AppGlobalErrorHandler implements ErrorHandler {
 
     handleError(error) {
         switch (error.status) {
-            case  401:
+            case  400:
                 this.appAlertService.showAlert(error.statusText, AlertLevels.ERROR);
-                this.router.navigateByUrl(CommonRoutes.LOGIN).then(r => console.log('logout success'));
                 break;
             case 500:
                 this.commonAlertService.showAlert(error.statusText, AlertLevels.ERROR);
+                break;
+            case 401:
+                this.router.navigateByUrl('login').then();
         }
     }
 }

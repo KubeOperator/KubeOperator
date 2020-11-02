@@ -28,11 +28,11 @@ export class LoginComponent implements OnInit {
     constructor(private router: Router,
                 private themeService: ThemeService,
                 private sessionService: SessionService,
-                private translateService: TranslateService,
-                private licenseService: LicenseService) {
+                private translateService: TranslateService) {
     }
 
     ngOnInit(): void {
+        this.reset();
         const currentLanguage = localStorage.getItem('currentLanguage');
         if (currentLanguage) {
             this.loginCredential.language = currentLanguage;
@@ -41,6 +41,10 @@ export class LoginComponent implements OnInit {
         }
         this.loadTheme();
         this.checkLoginFailedNum();
+    }
+
+    reset() {
+        this.loginForm.resetForm();
     }
 
     loadTheme() {
@@ -78,13 +82,10 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('loginErrorNum', '1');
         }
         switch (error.status) {
-            case 500:
-                this.message = error.error.msg;
-                break;
             case 504:
                 this.message = this.translateService.instant('APP_LOGIN_CONNECT_ERROR');
                 break;
-            case 401:
+            case 400:
                 this.message = error.error.msg;
                 break;
             default:

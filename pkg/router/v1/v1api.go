@@ -14,7 +14,7 @@ import (
 func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
 	authParty := v1.Party("/auth")
-	mvc.New(authParty.Party("/session")).Handle(ErrorHandler).Handle(controller.NewSessionController())
+	mvc.New(authParty.Party("/session")).HandleError(ErrorHandler).Handle(controller.NewSessionController())
 	authScope := v1.Party("/")
 	authScope.Use(middleware.JWTMiddleware().Serve)
 	authScope.Use(middleware.PagerMiddleware)
