@@ -27,6 +27,7 @@ func UserMiddleware(ctx context.Context) {
 		}
 		u = sessionUser.(*dto.Profile).User
 	}
+	// set roles
 	ctx.Values().Set("user", u)
 	ctx.Next()
 }

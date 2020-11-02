@@ -9,7 +9,7 @@ import {Observable} from 'rxjs';
 })
 export class SystemService extends BaseModelService<System> {
 
-    baseUrl = '/api/v1/systemSettings';
+    baseUrl = '/api/v1/settings';
 
     constructor(http: HttpClient) {
         super(http);
