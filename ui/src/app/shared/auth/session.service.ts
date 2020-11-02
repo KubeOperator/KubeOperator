@@ -36,7 +36,7 @@ export class SessionService {
     }
 
     getCacheProfile(): Profile {
-        const profile = localStorage.getItem(queryKey);
+        const profile = sessionStorage.getItem(queryKey);
         if (profile !== null) {
             return JSON.parse(profile);
         }
