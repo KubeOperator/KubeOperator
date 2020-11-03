@@ -14,9 +14,6 @@ export class AppGlobalErrorHandler implements ErrorHandler {
 
     handleError(error) {
         switch (error.status) {
-            case  400:
-                this.appAlertService.showAlert(error.statusText, AlertLevels.ERROR);
-                break;
             case 500:
                 this.commonAlertService.showAlert(error.statusText, AlertLevels.ERROR);
                 break;
