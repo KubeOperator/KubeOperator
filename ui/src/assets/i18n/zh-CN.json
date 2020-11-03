@@ -495,5 +495,6 @@
   "en-US": "English",
   "ENABLE_NPD": "启用NPD",
   "NETWORK_INTERFACE": "网卡名称",
-  "NETWORK_HELPER": "多网卡环境需要指定使用的网卡名称,单网卡环境可不填"
+  "NETWORK_HELPER": "多网卡环境需要指定使用的网卡名称,单网卡环境可不填",
+  "APP_CONNECT": "连接"
 }

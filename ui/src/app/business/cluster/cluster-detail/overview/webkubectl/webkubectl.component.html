@@ -5,7 +5,13 @@
                 WebKubeCtl
 
                 <div *ngIf="!opened" style="float: right">
-                    <button class="btn btn-sm btn-primary" (click)="open()">连接</button>
+                    <button class="btn btn-sm btn-primary" (click)="open()">{{'APP_CONNECT'|translate}}</button>
+                </div>
+
+                <div *ngIf="opened" style="float: right">
+                    <button class="btn btn-link" (click)="newWindow()">
+                        <clr-icon shape="window-restore" size="28"></clr-icon>
+                    </button>
                 </div>
 
             </div>
