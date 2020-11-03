@@ -35,7 +35,7 @@ export class WebkubectlComponent implements OnInit {
         this.opened = true;
         this.loading = true;
         this.service.getToken(this.currentCluster.name).subscribe(data => {
-            this.url = this.sanitizer.bypassSecurityTrustResourceUrl('/webkubectl/terminal/?token=' + data.token);
+            this.url = `/webkubectl/terminal/?token=${data.token}`
             this.loading = false;
             window.open(this.url,'_blank','weight=300,height=200,alwaysRaised=yes,depended=yes')
         });
