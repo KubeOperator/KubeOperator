@@ -31,7 +31,7 @@ func V1(parent iris.Party) {
 	mvc.New(authScope.Party("/projects")).HandleError(ErrorHandler).Handle(controller.NewProjectController())
 	mvc.New(authScope.Party("/project/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())
 	mvc.New(authScope.Party("/project/members")).HandleError(ErrorHandler).Handle(controller.NewProjectMemberController())
-	mvc.New(authScope.Party("/backupAccounts")).HandleError(ErrorHandler).Handle(controller.NewBackupAccountController())
+	mvc.New(authScope.Party("/backupaccounts")).HandleError(ErrorHandler).Handle(controller.NewBackupAccountController())
 	mvc.New(authScope.Party("/cluster/backup")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupStrategyController())
 	mvc.New(authScope.Party("/license")).Handle(ErrorHandler).Handle(controller.NewLicenseController())
 	mvc.New(authScope.Party("/cluster/backup/files")).HandleError(ErrorHandler).Handle(controller.NewClusterBackupFileController())

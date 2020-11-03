@@ -10,7 +10,7 @@ import {Host} from '../../host/host';
     providedIn: 'root'
 })
 export class BackupAccountService extends BaseModelService<BackupAccount> {
-    baseUrl = '/api/v1/backupAccounts';
+    baseUrl = '/api/v1/backupaccounts';
 
     constructor(http: HttpClient) {
         super(http);
