@@ -11,6 +11,7 @@ type ClusterManifest struct {
 
 type ClusterManifestUpdate struct {
 	Name     string `json:"name"`
+	Version  string `json:"version"`
 	IsActive bool   `json:"isActive"`
 }
 

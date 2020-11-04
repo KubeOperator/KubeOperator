@@ -65,8 +65,9 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/plans",
 			"/api/v1/backupaccounts",
 			"/api/v1/vm/configs",
+			"/api/v1/manifests/{**}",
 		},
-		Method: []string{"POST", "PUT", "DELETE"},
+		Method: []string{"POST", "PUT", "PATCH", "DELETE"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{SystemRoleAdmin},
 			AllowAnyone:     false,

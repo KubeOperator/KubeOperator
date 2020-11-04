@@ -75,7 +75,7 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 
 func (c clusterManifestService) Update(update dto.ClusterManifestUpdate) (model.ClusterManifest, error) {
 	var manifest model.ClusterManifest
-	manifest, err := c.clusterManifestRepo.Get(update.Name)
+	manifest, err := c.clusterManifestRepo.Get(update.Version)
 	if err != nil {
 		return manifest, err
 	}
