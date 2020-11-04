@@ -18,6 +18,7 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/clusters",
 			"/api/v1/clusters/{**}",
 			"/api/v1/clusters/{**}/{**}",
+			"/api/v1/message/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -44,12 +45,15 @@ var Roles = loader.AdvancedRules{
 		Path: []string{
 			"/api/v1/license",
 			"/api/v1/settings/{**}",
+			"/api/v1/settings",
 			"/api/v1/projects",
 			"/api/v1/projects/{**}",
 			"/api/v1/manifests",
 			"/api/v1/plans",
 			"/api/v1/backupaccounts",
 			"/api/v1/vm/configs",
+			"/api/v1/credentials",
+			"/api/v1/message/setting/{**}",
 		},
 		Method: []string{"GET"},
 		Permission: &grbac.Permission{
@@ -66,6 +70,10 @@ var Roles = loader.AdvancedRules{
 			"/api/v1/backupaccounts",
 			"/api/v1/vm/configs",
 			"/api/v1/manifests/{**}",
+			"/api/v1/credentials/{**}",
+			"/api/v1/credentials",
+			"/api/v1/backupaccounts/{**}",
+			"/api/v1/message/setting/{**}",
 		},
 		Method: []string{"POST", "PUT", "PATCH", "DELETE"},
 		Permission: &grbac.Permission{
