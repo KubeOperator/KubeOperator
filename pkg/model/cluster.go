@@ -345,7 +345,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 		result[facts.HelmVersionFactName] = c.Spec.HelmVersion
 	}
 	if c.Spec.NetworkInterface != "" {
-		result[facts.NetworkInterfaceFactName] = c.Spec.HelmVersion
+		result[facts.NetworkInterfaceFactName] = c.Spec.NetworkInterface
 	}
 	return result
 }
