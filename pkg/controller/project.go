@@ -30,7 +30,6 @@ func NewProjectController() *ProjectController {
 // @Security ApiKeyAuth
 // @Router /projects/ [get]
 func (p ProjectController) Get() (page.Page, error) {
-
 	pa, _ := p.Ctx.Values().GetBool("page")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)

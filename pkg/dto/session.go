@@ -1,7 +1,5 @@
 package dto
 
-import "github.com/KubeOperator/KubeOperator/pkg/permission"
-
 type LoginCredential struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
@@ -22,10 +20,8 @@ type SessionUser struct {
 }
 
 type Profile struct {
-	User        SessionUser                 `json:"user"`
-	Token       string                      `json:"token,omitempty"`
-	RoleMenus   []permission.UserMenu       `json:"roleMenus"`
-	Permissions []permission.UserPermission `json:"permissions"`
+	User  SessionUser `json:"user"`
+	Token string      `json:"token,omitempty"`
 }
 
 type Captcha struct {

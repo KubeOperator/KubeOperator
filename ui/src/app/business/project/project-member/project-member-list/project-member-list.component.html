@@ -1,25 +1,24 @@
 <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
-    <clr-dg-action-bar>
+    <clr-dg-action-bar *ngIf="user.isAdmin|| currentMember.role === 'PROJECT_MANAGER'">
         <div class="btn-group">
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()"
-                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','projectName':currentProject.name}">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">
                 <clr-icon shape="plus" size="16"></clr-icon>
                 {{"APP_ADD"|translate}}
             </button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1"
-                    *appOperateAuth="{'op':'PROJECT-MEMBER.CREATE','projectName':currentProject.name}">
+            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">
                 <clr-icon shape="close"></clr-icon>
                 {{"APP_DELETE"|translate}}
             </button>
         </div>
-        <clr-dropdown [clrCloseMenuOnItemClick]="false" class="btn  btn-link" clrDropdownTrigger
-                      *appOperateAuth="{'op':'PROJECT-MEMBER.UPDATE','projectName':currentProject.name}">
+        <clr-dropdown [clrCloseMenuOnItemClick]="false" class="btn  btn-link" clrDropdownTrigger>
             <span id='member-action'>{{'APP_MEMBER_ACTION' | translate}}
                 <clr-icon shape="caret down"></clr-icon></span>
             <clr-dropdown-menu *clrIfOpen>
                 <label class="dropdown-header">{{'APP_MEMBER_SET' | translate}}</label>
-                <button *ngFor="let role of roles" [disabled]="selected.length<1" clrDropdownItem
-                        (click)="changeMembersRole(selected, role)">{{role | translate}}</button>
+                <button [disabled]="selected.length<1" clrDropdownItem
+                        (click)="changeMembersRole(selected, 'CLUSTER_MANAGER')">{{'CLUSTER_MANAGER' | translate}}</button>
+                <button [disabled]="selected.length<1" clrDropdownItem
+                        (click)="changeMembersRole(selected, 'PROJECT_MANAGER')">{{'PROJECT_MANAGER' | translate}}</button>
             </clr-dropdown-menu>
         </clr-dropdown>
     </clr-dg-action-bar>

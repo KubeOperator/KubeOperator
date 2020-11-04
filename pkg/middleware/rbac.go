@@ -10,7 +10,7 @@ import (
 )
 
 func RBACMiddleware() iris.Handler {
-	r, err := grbac.New(grbac.WithAdvancedRules(constant.Roles))
+	r, err := grbac.New(grbac.WithAdvancedRules(constant.SystemRules))
 	if err != nil {
 		panic(err)
 	}

@@ -14,7 +14,7 @@ import (
 
 type ProjectResourceService interface {
 	Batch(op dto.ProjectResourceOp) error
-	PageByProjectIdAndType(num, size int, projectId string, resourceType string) (page.Page, error)
+	Page(num, size int, projectName string, resourceType string) (*page.Page, error)
 	GetResources(resourceType, projectName string) (interface{}, error)
 }
 
@@ -30,13 +30,15 @@ func NewProjectResourceService() ProjectResourceService {
 	}
 }
 
-func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId string, resourceType string) (page.Page, error) {
-
+func (p projectResourceService) Page(num, size int, projectName string, resourceType string) (*page.Page, error) {
 	var page page.Page
-
-	total, mos, err := p.projectResourceRepo.PageByProjectIdAndType(num, size, projectId, resourceType)
+	pj, err := p.projectRepo.Get(projectName)
 	if err != nil {
-		return page, err
+		return nil, err
+	}
+	total, mos, err := p.projectResourceRepo.PageByProjectIdAndType(num, size, pj.ID, resourceType)
+	if err != nil {
+		return nil, err
 	}
 	var resourceIds []string
 	for _, mo := range mos {
@@ -49,7 +51,7 @@ func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId 
 			var hosts []model.Host
 			err = db.DB.Model(model.Host{}).Where("id in (?)", resourceIds).Preload("Cluster").Preload("Zone").Find(&hosts).Error
 			if err != nil {
-				return page, err
+				return nil, err
 			}
 
 			var result []dto.Host
@@ -67,7 +69,7 @@ func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId 
 			var result []model.Plan
 			err = db.DB.Table(model.Plan{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
-				return page, err
+				return nil, err
 			}
 			page.Items = result
 			break
@@ -75,18 +77,18 @@ func (p projectResourceService) PageByProjectIdAndType(num, size int, projectId 
 			var result []model.BackupAccount
 			err = db.DB.Table(model.BackupAccount{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
-				return page, err
+				return nil, err
 			}
 			page.Items = result
 			break
 		default:
-			return page, err
+			return nil, err
 		}
 
 		page.Total = total
 	}
 
-	return page, err
+	return &page, err
 }
 
 func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {

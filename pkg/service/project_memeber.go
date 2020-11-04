@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -21,6 +22,7 @@ type ProjectMemberService interface {
 	Batch(op dto.ProjectMemberOP) error
 	GetUsers(name string) (dto.AddMemberResponse, error)
 	Create(request dto.ProjectMemberCreate) (*dto.ProjectMember, error)
+	Get(name string, projectName string) (*dto.ProjectMember, error)
 }
 
 type projectMemberService struct {
@@ -137,4 +139,27 @@ func (p projectMemberService) Create(request dto.ProjectMemberCreate) (*dto.Proj
 	}
 	projectMember.ProjectMember = pm
 	return &projectMember, nil
+}
+
+func (p projectMemberService) Get(name string, projectName string) (*dto.ProjectMember, error) {
+	u, err := p.userService.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	pj, err := p.projectRepo.Get(projectName)
+	if err != nil {
+		return nil, err
+	}
+
+	var pm model.ProjectMember
+	notFound := db.DB.Where(model.ProjectMember{
+		UserID:    u.ID,
+		ProjectID: pj.ID,
+	}).First(&pm).RecordNotFound()
+	if notFound {
+		return nil, errors.New(fmt.Sprintf("project member: %s not found in project %s", name, projectName))
+	}
+	return &dto.ProjectMember{
+		ProjectMember: pm,
+	}, nil
 }

@@ -30,17 +30,16 @@ func NewProjectResourceController() *ProjectResourceController {
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
 // @Router /project/resource/ [get]
-func (p ProjectResourceController) Get() (page.Page, error) {
+func (p ProjectResourceController) Get() (*page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectId := p.Ctx.URLParam("projectId")
+	projectName := p.Ctx.Values().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return p.ProjectResourceService.PageByProjectIdAndType(num, size, projectId, resourceType)
+		return p.ProjectResourceService.Page(num, size, projectName, resourceType)
 	} else {
-		var page page.Page
-		return page, nil
+		return nil, nil
 	}
 }
 
@@ -64,6 +63,6 @@ func (p ProjectResourceController) PostBatch() error {
 
 func (p ProjectResourceController) GetList() (interface{}, error) {
 	resourceType := p.Ctx.URLParam("resourceType")
-	projectName := p.Ctx.URLParam("projectName")
+	projectName := p.Ctx.Values().GetString("project")
 	return p.ProjectResourceService.GetResources(resourceType, projectName)
 }

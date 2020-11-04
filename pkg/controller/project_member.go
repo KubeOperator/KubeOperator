@@ -4,7 +4,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
-	"github.com/KubeOperator/KubeOperator/pkg/permission"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
@@ -33,7 +32,7 @@ func NewProjectMemberController() *ProjectMemberController {
 // @Router /project/members/ [get]
 func (p ProjectMemberController) Get() (page.Page, error) {
 	pa, _ := p.Ctx.Values().GetBool("page")
-	projectName := p.Ctx.URLParam("projectName")
+	projectName := p.Ctx.Values().GetString("project")
 	if pa {
 		num, _ := p.Ctx.Values().GetInt(constant.PageNumQueryKey)
 		size, _ := p.Ctx.Values().GetInt(constant.PageSizeQueryKey)
@@ -42,6 +41,11 @@ func (p ProjectMemberController) Get() (page.Page, error) {
 		var page page.Page
 		return page, nil
 	}
+}
+
+func (p ProjectMemberController) GetBy(name string) (*dto.ProjectMember, error) {
+	projectName := p.Ctx.Values().GetString("project")
+	return p.ProjectMemberService.Get(name, projectName)
 }
 
 // Create ProjectMember
@@ -93,7 +97,7 @@ func (p ProjectMemberController) GetUsers() (dto.AddMemberResponse, error) {
 
 func (p ProjectMemberController) GetRoles() ([]string, error) {
 	var result []string
-	result = append(result, permission.CLUSTERMANAGER)
-	result = append(result, permission.PROJECTMANAGER)
+	result = append(result, constant.ProjectRoleProjectManager)
+	result = append(result, constant.ProjectRoleClusterManager)
 	return result, nil
 }

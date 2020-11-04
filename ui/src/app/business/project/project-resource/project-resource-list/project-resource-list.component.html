@@ -18,7 +18,8 @@
                         </a>
                     </li>
                     <li>
-                        <a class="nav-link" [ngClass]="{'active':resourceType == 'BACKUP_ACCOUNT'}" (click)="changeTab('BACKUP_ACCOUNT')">
+                        <a class="nav-link" [ngClass]="{'active':resourceType == 'BACKUP_ACCOUNT'}"
+                           (click)="changeTab('BACKUP_ACCOUNT')">
                             <div class="nav-slide-item">
                                 {{"APP_BACKUP_ACCOUNT" |translate}}
                             </div>
@@ -31,14 +32,12 @@
     <div class="content-area">
         <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected" *ngIf="resourceType==='HOST'">
             <clr-dg-action-bar>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','projectName':currentProject.name}">
+                <div class="btn-group" *ngIf="user.isAdmin||currentMember.role === 'PROJECT_MANAGER'">
+                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()">
                         <clr-icon shape="plus" size="16"></clr-icon>
                         {{"APP_ADD"|translate}}
                     </button>
                     <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','projectName':currentProject.name}"
                             [disabled]="selected.length<1">
                         <clr-icon shape="close"></clr-icon>
                         {{"APP_DELETE"|translate}}
@@ -76,15 +75,13 @@
         </clr-datagrid>
         <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected" *ngIf="resourceType==='PLAN'">
             <clr-dg-action-bar>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','projectName':currentProject.name}">
+                <div class="btn-group" *ngIf="user.isAdmin||currentMember.role === 'PROJECT_MANAGER'">
+                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()">
                         <clr-icon shape="plus" size="16"></clr-icon>
                         {{"APP_ADD"|translate}}
                     </button>
                     <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
-                            [disabled]="selected.length<1"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','projectName':currentProject.name}">
+                            [disabled]="selected.length<1">
                         <clr-icon shape="close"></clr-icon>
                         {{"APP_DELETE"|translate}}
                     </button>
@@ -109,14 +106,12 @@
         </clr-datagrid>
         <clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected" *ngIf="resourceType==='BACKUP_ACCOUNT'">
             <clr-dg-action-bar>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.CREATE','projectName':currentProject.name}">
+                <div class="btn-group" *ngIf="user.isAdmin||currentMember.role === 'PROJECT_MANAGER'">
+                    <button type="button" class="btn btn-sm btn-secondary" (click)="onCreateBy()">
                         <clr-icon shape="plus" size="16"></clr-icon>
                         {{"APP_ADD"|translate}}
                     </button>
                     <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()"
-                            *appOperateAuth="{'op':'PROJECT-RESOURCE.DELETE','projectName':currentProject.name}"
                             [disabled]="selected.length<1">
                         <clr-icon shape="close"></clr-icon>
                         {{"APP_DELETE"|translate}}

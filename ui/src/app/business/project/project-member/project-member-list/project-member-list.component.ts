@@ -8,6 +8,8 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {SessionUser} from "../../../../shared/auth/session-user";
+import {SessionService} from "../../../../shared/auth/session.service";
 
 @Component({
     selector: 'app-project-member-list',
@@ -18,14 +20,16 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
 
 
     currentProject: Project = new Project();
-    roles: string[] = [];
     batchItems: ProjectMemberCreate[] = [];
+    currentMember: ProjectMember;
+    user: SessionUser;
 
     constructor(private projectMemberService: ProjectMemberService,
                 private route: ActivatedRoute,
                 private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private sessionService: SessionService) {
         super(projectMemberService);
     }
 
@@ -33,9 +37,16 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
         this.route.parent.data.subscribe(data => {
             this.currentProject = data.project;
             this.pageBy();
-            this.getRoles();
         });
-
+        const p = this.sessionService.getCacheProfile();
+        this.user = p.user;
+        if (!this.user.isAdmin) {
+            this.projectMemberService.getByUser(this.user.name, this.currentProject.name).subscribe(data => {
+                this.currentMember = data;
+            }, err => {
+                this.commonAlertService.showAlert(err.error.msg, AlertLevels.ERROR);
+            });
+        }
     }
 
     pageBy() {
@@ -44,6 +55,7 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
             this.loading = false;
         });
     }
+
 
     changeMembersRole(selected, role) {
         selected.forEach(item => {
@@ -61,12 +73,6 @@ export class ProjectMemberListComponent extends BaseModelDirective<ProjectMember
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
-        });
-    }
-
-    getRoles() {
-        this.projectMemberService.getRoles().subscribe(res => {
-            this.roles = res;
         });
     }
 }

@@ -10,7 +10,12 @@ const (
 	SystemRoleUser  = "user"
 )
 
-var Roles = loader.AdvancedRules{
+const (
+	ProjectRoleProjectManager = "PROJECT_MANAGER"
+	ProjectRoleClusterManager = "CLUSTER_MANAGER"
+)
+
+var SystemRules = loader.AdvancedRules{
 	{
 		Host: []string{"*"},
 		Path: []string{
@@ -83,6 +88,48 @@ var Roles = loader.AdvancedRules{
 		Method: []string{"POST", "PUT", "PATCH", "DELETE"},
 		Permission: &grbac.Permission{
 			AuthorizedRoles: []string{SystemRoleAdmin},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/project/{**}",
+			"/api/v1/project/{**}/{**}",
+		},
+		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
+		Permission: &grbac.Permission{
+			AllowAnyone: true,
+		},
+	},
+}
+
+var ProjectRules = loader.AdvancedRules{
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/project/resources",
+			"/api/v1/project/members",
+			"/api/v1/project/resources/{**}",
+			"/api/v1/project/members/{**}",
+		},
+		Method: []string{"POST", "DELETE", "PUT", "PATCH"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{ProjectRoleProjectManager, SystemRoleAdmin},
+			AllowAnyone:     false,
+		},
+	},
+	{
+		Host: []string{"*"},
+		Path: []string{
+			"/api/v1/project/resources",
+			"/api/v1/project/members",
+			"/api/v1/project/resources/{**}",
+			"/api/v1/project/members/{**}",
+		},
+		Method: []string{"GET"},
+		Permission: &grbac.Permission{
+			AuthorizedRoles: []string{ProjectRoleProjectManager, SystemRoleAdmin, ProjectRoleClusterManager},
 			AllowAnyone:     false,
 		},
 	},
