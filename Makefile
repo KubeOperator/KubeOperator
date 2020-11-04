@@ -20,7 +20,6 @@ build_server_linux:
 	mkdir -p $(BUILDDIR)/$(KO_CONFIG_DIR) && cp -r  $(BASEPATH)/conf/app.yaml $(BUILDDIR)/$(KO_CONFIG_DIR)
 	mkdir -p $(BUILDDIR)/$(KO_DATA_DIR)
 	cp -r  $(BASEPATH)/migration $(BUILDDIR)/$(KO_DATA_DIR)
-	cp -r  $(BASEPATH)/manifest $(BUILDDIR)/$(KO_DATA_DIR)
 
 
 docker_ui:
