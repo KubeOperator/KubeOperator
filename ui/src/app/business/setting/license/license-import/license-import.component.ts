@@ -40,7 +40,7 @@ export class LicenseImportComponent implements OnInit {
             this.imported.emit();
             window.location.reload();
         }, error => {
-            this.alertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.alertService.showAlert(error.error, AlertLevels.ERROR);
         });
     }
 
