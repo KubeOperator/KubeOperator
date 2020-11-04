@@ -32,7 +32,7 @@ func LoggingProxy(ctx context.Context) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	req := ctx.Request()
-	req.Host = fmt.Sprintf(constant.DefaultEFKIngress)
+	req.Host = fmt.Sprintf(constant.DefaultLoggingIngress)
 	req.URL.Path = proxyPath
 	proxy.ServeHTTP(ctx.ResponseWriter(), req)
 }

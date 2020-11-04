@@ -71,7 +71,7 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto
 	switch tool.Name {
 	case "prometheus":
 		return NewPrometheus(c, localIP.Value, tool)
-	case "efk":
+	case "logging":
 		return NewEFK(c, localIP.Value, tool)
 	case "registry":
 		return NewRegistry(c, localIP.Value, tool)
@@ -195,6 +195,24 @@ func waitForRunning(deploymentName string, minReplicas int32, kubeClient *kubern
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
 		d, err := kubeClient.AppsV1().Deployments(constant.DefaultNamespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+		if d.Status.ReadyReplicas > minReplicas-1 {
+			return true, nil
+		}
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func waitForStatefulSetsRunning(statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
+	kubeClient.CoreV1()
+	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
+		d, err := kubeClient.AppsV1().StatefulSets(constant.DefaultNamespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}

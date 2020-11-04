@@ -27,7 +27,16 @@ func (c EFK) setDefaultValue() {
 	values["fluentd-elasticsearch.imageTag"] = FluentedElasticsearchTag
 	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
 	values["elasticsearch.imageTag"] = ElasticSearchTag
-	values["elasticsearch.replicas"] = 1
+
+	if _, ok := values["elasticsearch.esJavaOpts[0]"]; !ok {
+		values["elasticsearch.esJavaOpts[0]"] = 1
+	}
+	if _, ok := values["elasticsearch.esJavaOpts[1]"]; !ok {
+		values["elasticsearch.esJavaOpts[1]"] = 1
+	}
+	values["elasticsearch.esJavaOpts"] = fmt.Sprintf("-Xmx%vg -Xms%vg", values["elasticsearch.esJavaOpts[0]"], values["elasticsearch.esJavaOpts[1]"])
+	delete(values, "elasticsearch.esJavaOpts[0]")
+	delete(values, "elasticsearch.esJavaOpts[1]")
 
 	if _, ok := values["elasticsearch.volumeClaimTemplate.resources.requests.storage"]; ok {
 		values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
@@ -47,18 +56,18 @@ func NewEFK(cluster *Cluster, localhostName string, tool *model.ClusterTool) (*E
 
 func (c EFK) Install() error {
 	c.setDefaultValue()
-	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.EFKChartName); err != nil {
+	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.LoggingChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultEFKIngressName, constant.DefaultEFKIngress, constant.DefaultEFKServiceName, 8080, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(constant.DefaultLoggingIngressName, constant.DefaultLoggingIngress, constant.DefaultLoggingServiceName, 9200, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(constant.DefaultEFKDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForStatefulSetsRunning(constant.DefaultLoggingStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c EFK) Uninstall() error {
-	return uninstall(c.Tool, constant.DefaultEFKIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Tool, constant.DefaultLoggingIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }
