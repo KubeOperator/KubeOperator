@@ -269,6 +269,16 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			Name:         "logging",
+			Version:      "v7.6.2",
+			Describe:     "",
+			Status:       constant.ClusterWaiting,
+			Logo:         "elasticsearch.png",
+			Frame:        false,
+			Url:          "/proxy/logging/{cluster_name}/root",
+			Architecture: supportedArchitectureAmd64,
+		},
+		{
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "",

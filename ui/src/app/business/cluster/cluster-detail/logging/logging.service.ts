@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import format from 'date-fns/format';
 
 
 @Injectable({
@@ -9,46 +8,34 @@ import format from 'date-fns/format';
 })
 export class LoggingService {
 
-    baseUrl = '/proxy/logging/{cluster_name}/{index_name}/_search';
-
+    baseUrl = '/proxy/logging/{cluster_name}/{index_name}/_search?pretty=true';
     constructor(private http: HttpClient) {
     }
-
-    search(clusterName: string, namespace: string, container: string, pod: string): Observable<any> {
-        const date = format(new Date(), 'yyyy.MM.dd');
-        const index = 'logstash-' + date;
+    Search(clusterName: string, queryArry: any[], queryIndex: string,
+           beginDate: string, endDate: string, pageFrom: number, pageSize: number): Observable<any> {
+        const index = queryIndex;
         const query = {
+            from: pageFrom,
+            size: pageSize,
             query: {
                 bool: {
-                    must: [
-                        {
-                            match: {
-                                'kubernetes.pod_name': {
-                                    query: pod,
-                                },
-                            },
-                        },
-                        {
-                            match: {
-                                'kubernetes.namespace_name': {
-                                    query: namespace,
-                                },
-                            },
-                        },
-                        {
-                            match: {
-                                'kubernetes.container_name': {
-                                    query: container,
-                                },
-                            },
+                    must: queryArry,
+                    filter: {
+                        range: {
+                            '@timestamp': {
+                                gte: beginDate,
+                                lte: endDate,
+                                format: 'yyyy.MM.dd',
+                                time_zone: '+08:00'
+                            }
                         }
-                    ],
-                },
+                    }
+                }
             },
             sort: [
                 {'@timestamp': 'desc'},
             ]
         };
-        return this.http.post<any>(this.baseUrl.replace('{cluster_name}', clusterName).replace('{index_name}', index), query);
+        return this.http.post<any>(this.baseUrl.replace('{cluster_name}', clusterName).replace('{index_name}', index) + '&ignore_unavailable=true', query);
     }
 }

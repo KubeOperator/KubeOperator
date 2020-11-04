@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Cluster} from '../cluster';
 import {ToolsService} from './tools/tools.service';
 import {ClusterTool} from './tools/tools';
-import {ClusterService} from "../cluster.service";
+import {ClusterService} from '../cluster.service';
 import {LicenseService} from '../../setting/license/license.service';
 
 @Component({

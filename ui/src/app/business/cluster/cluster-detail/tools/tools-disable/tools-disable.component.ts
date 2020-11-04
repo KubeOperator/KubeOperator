@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {NgForm} from "@angular/forms";
-import {ClusterTool} from "../tools";
-import {Cluster} from "../../../cluster";
-import {ToolsService} from "../tools.service";
+import {NgForm} from '@angular/forms';
+import {ClusterTool} from '../tools';
+import {Cluster} from '../../../cluster';
+import {ToolsService} from '../tools.service';
 
 @Component({
     selector: 'app-tools-disable',
@@ -42,6 +42,7 @@ export class ToolsDisableComponent implements OnInit {
             this.tool = data;
             this.opened = false;
             this.disabled.emit();
+            location.reload();
         });
     }
 
