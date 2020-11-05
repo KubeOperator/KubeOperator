@@ -49,7 +49,7 @@ func (i *InitMigrateDBPhase) Init() error {
 		}
 	}
 	if path == "" {
-		return errors.New(fmt.Sprintf("can not find migration in [%s,%s]", localMigrationDir, releaseMigrationDir))
+		return fmt.Errorf("can not find migration in [%s,%s]", localMigrationDir, releaseMigrationDir)
 	}
 	filePath := fmt.Sprintf("file://%s", path)
 	m, err := migrate.New(

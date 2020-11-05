@@ -7,7 +7,7 @@ import (
 
 type ClusterSpec struct {
 	common.BaseModel
-	ID                    string `json:"_"`
+	ID                    string `json:"-"`
 	Version               string `json:"version"`
 	UpgradeVersion        string `json:"upgradeVersion"`
 	Provider              string `json:"provider"`

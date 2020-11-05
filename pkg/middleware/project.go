@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -44,7 +43,7 @@ func queryProjectRoles(ctx context.Context) ([]string, error) {
 	var project model.Project
 	notFound := db.DB.Where(model.Project{Name: projectName}).First(&project).RecordNotFound()
 	if notFound {
-		return nil, errors.New(fmt.Sprintf("project: %s not found", projectName))
+		return nil, fmt.Errorf("project: %s not found", projectName)
 	}
 	ctx.Values().Set("project", projectName)
 	// admin 拥有一切权限

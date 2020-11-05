@@ -83,10 +83,10 @@ func (z zoneRepository) Delete(name string) error {
 func (z zoneRepository) Batch(operation string, items []model.Zone) error {
 	switch operation {
 	case constant.BatchOperationDelete:
-		var zoneIds []string
-		for _, item := range items {
-			zoneIds = append(zoneIds, item.ID)
-		}
+		//var zoneIds []string
+		//for _, item := range items {
+		//	zoneIds = append(zoneIds, item.ID)
+		//}
 		var ids []string
 		for _, item := range items {
 			ids = append(ids, item.ID)

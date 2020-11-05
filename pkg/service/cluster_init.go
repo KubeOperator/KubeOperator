@@ -87,7 +87,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 	}
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
-	statusChan := make(chan adm.Cluster, 0)
+	statusChan := make(chan adm.Cluster)
 	cluster.Status.Phase = constant.ClusterInitializing
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
 

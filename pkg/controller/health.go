@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -14,6 +15,8 @@ func HealthController(ctx context.Context) {
 		Status: "1",
 		Msg: "Success",
 	}
-	ctx.JSON(info)
+	if _, err := ctx.JSON(info); err != nil {
+		fmt.Printf("HealthController err: %v", err)
+	}
 }
 

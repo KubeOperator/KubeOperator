@@ -155,31 +155,22 @@ func Tr(title string) string {
 	switch title {
 	case constant.ClusterInstall:
 		result = "集群安装"
-		break
 	case constant.ClusterUnInstall:
 		result = "集群卸载"
-		break
 	case constant.ClusterUpgrade:
 		result = "集群升级"
-		break
 	case constant.ClusterScale:
 		result = "集群伸缩"
-		break
 	case constant.ClusterAddWorker:
 		result = "集群扩容"
-		break
 	case constant.ClusterRemoveWorker:
 		result = "集群缩容"
-		break
 	case constant.ClusterRestore:
 		result = "集群恢复"
-		break
 	case constant.ClusterBackup:
 		result = "集群备份"
-		break
 	case constant.ClusterEventWarning:
 		result = "集群事件告警"
-		break
 	}
 	return result
 }

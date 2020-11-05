@@ -25,11 +25,11 @@ type Dashboard struct {
 func NewDashboard(dataSourceName string) *Dashboard {
 	var dashboard Dashboard
 	_ = json.Unmarshal([]byte(constant.DefaultDashboardTemplate), &dashboard)
-	for i, _ := range dashboard.Panels {
+	for i := range dashboard.Panels {
 		dashboard.Panels[i]["datasource"] = dataSourceName
 	}
 	for _, v := range dashboard.Templating {
-		for i, _ := range v {
+		for i := range v {
 			v[i]["datasource"] = dataSourceName
 		}
 	}

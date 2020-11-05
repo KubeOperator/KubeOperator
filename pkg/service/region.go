@@ -94,7 +94,9 @@ func (r regionService) Delete(name string) error {
 		return err
 	}
 	if len(regions) > 0 {
-		errors.New(DeleteRegionError)
+		if err := errors.New(DeleteRegionError); err != nil {
+			return err
+		}
 	}
 	err = r.regionRepo.Delete(name)
 	if err != nil {

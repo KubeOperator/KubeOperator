@@ -194,7 +194,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 	if !res.Success {
 		return errors.New(res.GetOutput())
 	}
-	res, err = k.Apply()
+	_, err = k.Apply()
 	if err != nil {
 		return err
 	}

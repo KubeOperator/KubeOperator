@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
@@ -90,8 +91,7 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 			continue
 		}
 
-		var clusterData map[string]interface{}
-		clusterData = make(map[string]interface{})
+		clusterData := make(map[string]interface{})
 
 		clusterData["cluster"] = d.ManagedEntity.Name
 		networks, _ := v.GetNetwork(d.ComputeResource.Network)
@@ -129,8 +129,7 @@ func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
 	}
 
 	for _, vm := range vms {
-		var template map[string]string
-		template = make(map[string]string)
+		template := make(map[string]string)
 		if vm.Summary.Config.Template {
 			template["imageName"] = vm.Summary.Config.Name
 			template["guestId"] = vm.Summary.Config.GuestId
@@ -204,7 +203,11 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer vi.Destroy(ctx)
+	defer func() {
+		if err := vi.Destroy(ctx); err != nil {
+			fmt.Printf("vi.Destroy(ctx)出现了错误：%v\n", err)
+		}
+	}()
 	var networks []mo.Network
 	err = vi.Retrieve(ctx, []string{"Network"}, []string{}, &networks)
 	if err != nil {

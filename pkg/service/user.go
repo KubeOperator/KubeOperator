@@ -179,7 +179,7 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 			return nil, UserNotFound
 		}
 	}
-	if dbUser.IsActive == false {
+	if !dbUser.IsActive {
 		return nil, UserIsNotActive
 	}
 

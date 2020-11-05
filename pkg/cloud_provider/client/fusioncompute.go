@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/client"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/cluster"
@@ -26,7 +25,11 @@ func (f *fusionComputeClient) ListDatacenter() ([]string, error) {
 	if err := c.Connect(); err != nil {
 		return nil, err
 	}
-	defer c.DisConnect()
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
 	sm := site.NewManager(c)
 	ss, err := sm.ListSite()
 	if err != nil {
@@ -45,7 +48,11 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 	if err := c.Connect(); err != nil {
 		return nil, err
 	}
-	defer c.DisConnect()
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
 	sm := site.NewManager(c)
 	ss, err := sm.ListSite()
 	if err != nil {
@@ -58,7 +65,7 @@ func (f *fusionComputeClient) ListClusters() ([]interface{}, error) {
 		}
 	}
 	if siteUri == "" {
-		return nil, errors.New(fmt.Sprintf("site %s not found", siteName))
+		return nil, fmt.Errorf("site %s not found", siteName)
 	}
 	cm := cluster.NewManager(c, siteUri)
 	cs, err := cm.ListCluster()

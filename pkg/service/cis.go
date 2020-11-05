@@ -322,7 +322,6 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 						log.Error(err)
 					}
 				}
-				break
 			}
 			return true, nil
 		}

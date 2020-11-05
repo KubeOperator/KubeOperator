@@ -339,7 +339,9 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 	_, err := os.Stat(targetPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			os.Mkdir(clusterPath, os.ModePerm)
+			if err := os.Mkdir(clusterPath, os.ModePerm); err != nil {
+				return err
+			}
 		} else {
 			return err
 		}
