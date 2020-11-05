@@ -76,7 +76,6 @@ func ErrorHandler(ctx context.Context, err error) {
 			} else {
 				result = err.Error()
 			}
-			break
 		}
 		warp.Msg = result
 		bf, _ := json.Marshal(&warp)

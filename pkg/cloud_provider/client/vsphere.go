@@ -83,9 +83,13 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	for _, d := range clusters {
 
 		var host mo.ManagedEntity
-		err = pc.RetrieveOne(v.Connect.Ctx, *d.Parent, []string{"name", "parent"}, &host)
+		if err := pc.RetrieveOne(v.Connect.Ctx, *d.Parent, []string{"name", "parent"}, &host); err != nil {
+			fmt.Printf("pc.RetrieveOne of host err: %v\n", err)
+		}
 		var datacenter mo.ManagedEntity
-		err = pc.RetrieveOne(v.Connect.Ctx, *host.Parent, []string{"name"}, &datacenter)
+		if err = pc.RetrieveOne(v.Connect.Ctx, *host.Parent, []string{"name"}, &datacenter); err != nil {
+			fmt.Printf("pc.RetrieveOne of datacenter err: %v\n", err)
+		}
 
 		if datacenter.Name != v.Vars["datacenter"] {
 			continue

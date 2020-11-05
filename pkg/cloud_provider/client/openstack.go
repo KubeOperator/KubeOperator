@@ -136,9 +136,12 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	if err != nil {
 		return result, err
 	}
-	blockStorageClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
+	blockStorageClient, errNewBlock := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
+	if errNewBlock != nil {
+		return result, err
+	}
 
 	vPages, err := volumetypes.List(blockStorageClient, volumetypes.ListOpts{}).AllPages()
 	if err != nil {

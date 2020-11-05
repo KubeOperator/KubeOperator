@@ -57,7 +57,7 @@ func (p projectMemberRepository) Batch(operation string, items []model.ProjectMe
 		}
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
-		for i, _ := range items {
+		for i := range items {
 			if err := tx.Model(model.ProjectMember{}).Create(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err
@@ -67,7 +67,7 @@ func (p projectMemberRepository) Batch(operation string, items []model.ProjectMe
 
 	case constant.BatchOperationUpdate:
 		tx := db.DB.Begin()
-		for i, _ := range items {
+		for i := range items {
 			if err := tx.Model(model.ProjectMember{}).Save(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err

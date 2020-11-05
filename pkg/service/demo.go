@@ -41,7 +41,7 @@ func (d *demoService) List() ([]dto.Demo, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i, _ := range ms {
+	for i := range ms {
 		demos = append(demos, dto.Demo{
 			Demo:  ms[i],
 			Order: 0,

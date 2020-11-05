@@ -89,7 +89,7 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 
 	case constant.BatchOperationCreate:
 		tx := db.DB.Begin()
-		for i, _ := range items {
+		for i := range items {
 			if err := tx.Model(model.ProjectResource{}).Create(&items[i]).Error; err != nil {
 				tx.Rollback()
 				return err

@@ -205,7 +205,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,create client error:", err.Error())
+				log.Errorf("send message failed,create client error: %v\n", err.Error())
 				continue
 			}
 			if msg.SendType == constant.WorkWeiXin {
@@ -213,7 +213,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 				if err != nil {
 					msg.SendStatus = constant.SendFailed
 					_ = userMsgRepo.Save(&msg)
-					log.Errorf("send message failed, get token error:", err.Error())
+					log.Errorf("send message failed, get token error: %v\n", err.Error())
 					continue
 				}
 				vars["TOKEN"] = token
@@ -226,7 +226,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,send message error:", err.Error())
+				log.Errorf("send message failed,send message error: %v\n", err.Error())
 				continue
 			}
 			_ = userMsgRepo.Save(&msg)

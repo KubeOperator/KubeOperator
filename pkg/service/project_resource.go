@@ -64,7 +64,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				result = append(result, hostDTO)
 			}
 			page.Items = result
-			break
 		case constant.ResourcePlan:
 			var result []model.Plan
 			err = db.DB.Table(model.Plan{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
@@ -72,7 +71,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				return nil, err
 			}
 			page.Items = result
-			break
 		case constant.ResourceBackupAccount:
 			var result []model.BackupAccount
 			err = db.DB.Table(model.BackupAccount{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
@@ -80,7 +78,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				return nil, err
 			}
 			page.Items = result
-			break
 		default:
 			return nil, err
 		}

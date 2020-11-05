@@ -281,7 +281,7 @@ func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]inte
 
 func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*model.Host {
 	groupMap := map[*model.Zone][]*model.Host{}
-	for i, _ := range hosts {
+	for i := range hosts {
 		hash := i % len(zones)
 		groupMap[&zones[hash]] = append(groupMap[&zones[hash]], hosts[i])
 		hosts[i].CredentialID = zones[hash].CredentialID
@@ -318,7 +318,7 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	}
 end:
 	for _, h := range hosts {
-		for i, _ := range ips {
+		for i := range ips {
 			if !exists(ips[i], pool) && !exists(ips[i], selectedIps) {
 				h.Ip = ips[i]
 				selectedIps = append(selectedIps, h.Ip)

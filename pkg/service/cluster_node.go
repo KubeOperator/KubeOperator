@@ -311,7 +311,7 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 	case constant.ClusterProviderPlan:
 		allNodes, _ := c.NodeRepo.List(cluster.Name)
 		var allHosts []*model.Host
-		for i, _ := range allNodes {
+		for i := range allNodes {
 			allHosts = append(allHosts, &allNodes[i].Host)
 		}
 		err := c.doCreateHosts(cluster, allHosts)
@@ -351,7 +351,7 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 		}
 	}
 	// 初始化init状态
-	for i, _ := range nodes {
+	for i := range nodes {
 		nodes[i].Status = constant.ClusterInitializing
 		if err := c.NodeRepo.Save(nodes[i]); err != nil {
 			log.Error(err.Error())
@@ -556,7 +556,7 @@ func (c *clusterNodeService) doNodeDelete(cluster *model.Cluster, nodes []*model
 	db.DB.Save(cluster)
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
-	for i, _ := range inventory.Groups {
+	for i := range inventory.Groups {
 		if inventory.Groups[i].Name == "del-worker" {
 			for _, n := range nodes {
 				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
@@ -594,7 +594,7 @@ func (c clusterNodeService) doNodeCreate(cluster *model.Cluster, nodes []*model.
 	db.DB.Save(cluster)
 	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
 	inventory := cluster.ParseInventory()
-	for i, _ := range inventory.Groups {
+	for i := range inventory.Groups {
 		if inventory.Groups[i].Name == "new-worker" {
 			for _, n := range nodes {
 				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
