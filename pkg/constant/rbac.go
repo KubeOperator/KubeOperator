@@ -26,6 +26,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/clusters/{**}/{**}/{**}",
 			"/api/v1/message/{**}",
 			"/api/v1/hosts/sync/{**}",
+			"/api/v1/event/npd/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
