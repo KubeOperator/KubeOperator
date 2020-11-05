@@ -23,6 +23,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/clusters",
 			"/api/v1/clusters/{**}",
 			"/api/v1/clusters/{**}/{**}",
+			"/api/v1/clusters/{**}/{**}/{**}",
 			"/api/v1/message/{**}",
 			"/api/v1/hosts/sync/{**}",
 		},
