@@ -77,7 +77,9 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		zoneDTO := new(dto.Zone)
 		m := make(map[string]interface{})
 		zoneDTO.Zone = mo
-		json.Unmarshal([]byte(mo.Vars), &m)
+		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
+			fmt.Printf("func (z zoneService) Page(num, size int) json.Unmarshal err: %v\n", err)
+		}
 		zoneDTO.CloudVars = m
 
 		zoneDTO.RegionName = mo.Region.Name
@@ -125,13 +127,10 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		switch region.Provider {
 		case constant.OpenStack:
 			param["imageName"] = constant.OpenStackImageName
-			break
 		case constant.VSphere:
 			param["imageName"] = constant.VSphereImageName
-			break
 		default:
 			param["imageName"] = constant.VSphereImageName
-			break
 		}
 		credentialService := NewCredentialService()
 		credential, err := credentialService.Get(constant.ImageCredentialName)

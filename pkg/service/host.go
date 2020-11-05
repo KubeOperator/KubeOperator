@@ -283,12 +283,12 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		}
 		devices := result["ansible_devices"].(map[string]interface{})
 		var volumes []model.Volume
-		for index, _ := range devices {
-			device := devices[index].(map[string]interface{})
+		for i := range devices {
+			device := devices[i].(map[string]interface{})
 			if "Virtual disk" == device["model"] {
 				v := model.Volume{
 					ID:     uuid.NewV4().String(),
-					Name:   "/dev/" + index,
+					Name:   "/dev/" + i,
 					Size:   device["size"].(string),
 					HostID: host.ID,
 				}

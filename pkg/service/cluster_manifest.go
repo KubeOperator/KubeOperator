@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -35,13 +36,19 @@ func (c clusterManifestService) List() ([]dto.ClusterManifest, error) {
 		clusterManifest.Version = mo.Version
 		clusterManifest.IsActive = mo.IsActive
 		var core []dto.NameVersion
-		json.Unmarshal([]byte(mo.CoreVars), &core)
+		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
+			fmt.Printf("func (c clusterManifestService) List(mo.CoreVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.CoreVars = core
 		var network []dto.NameVersion
-		json.Unmarshal([]byte(mo.NetworkVars), &network)
+		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
+			fmt.Printf("func (c clusterManifestService) List(mo.NetworkVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.NetworkVars = network
 		var other []dto.NameVersion
-		json.Unmarshal([]byte(mo.OtherVars), &other)
+		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
+			fmt.Printf("func (c clusterManifestService) List(mo.OtherVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)
 	}
@@ -60,13 +67,19 @@ func (c clusterManifestService) ListActive() ([]dto.ClusterManifest, error) {
 		clusterManifest.Version = mo.Version
 		clusterManifest.IsActive = mo.IsActive
 		var core []dto.NameVersion
-		json.Unmarshal([]byte(mo.CoreVars), &core)
+		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
+			fmt.Printf("func (c clusterManifestService) ListActive(mo.CoreVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.CoreVars = core
 		var network []dto.NameVersion
-		json.Unmarshal([]byte(mo.NetworkVars), &network)
+		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
+			fmt.Printf("func (c clusterManifestService) ListActive(mo.NetworkVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.NetworkVars = network
 		var other []dto.NameVersion
-		json.Unmarshal([]byte(mo.OtherVars), &other)
+		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
+			fmt.Printf("func (c clusterManifestService) ListActive(mo.OtherVars) json.Unmarshal err: %v\n", err)
+		}
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)
 	}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -65,6 +66,9 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 		return err
 	}
 	userMessages, err := m.GetUserMessages(msg)
+	if err != nil {
+		return err
+	}
 	if title == constant.ClusterUnInstall {
 		m.SendUserMessage(userMessages, clusterName)
 	} else {
@@ -76,7 +80,9 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
 	var result string
 	detail := make(map[string]string)
-	json.Unmarshal([]byte(content), &detail)
+	if err := json.Unmarshal([]byte(content), &detail); err != nil {
+		return ""
+	}
 	cluster, err := m.clusterRepo.Get(clusterName)
 	if err != nil {
 		return ""
@@ -356,7 +362,9 @@ func (m messageService) GetUserNotificationConfig(userId string, mType string) (
 		return nil, err
 	}
 	v := make(map[string]string)
-	json.Unmarshal([]byte(config.Vars), &v)
+	if err := json.Unmarshal([]byte(config.Vars), &v); err != nil {
+		fmt.Printf("func (m messageService) GetUserNotificationConfig() json.Unmarshal err: %v\n", err)
+	}
 	result = dto.UserNotificationConfigDTO{
 		ID:     config.ID,
 		UserID: config.UserID,
@@ -379,7 +387,9 @@ func (m messageService) GetUserReceiver(userId string) (*dto.UserReceiverDTO, er
 	result.ID = userReceiver.ID
 	result.UserID = userId
 	v := make(map[string]string)
-	json.Unmarshal([]byte(userReceiver.Vars), &v)
+	if err := json.Unmarshal([]byte(userReceiver.Vars), &v); err != nil {
+		fmt.Printf("func (m messageService) GetUserReceiver() json.Unmarshal err: %v\n", err)
+	}
 	result.Vars = v
 	return &result, err
 }

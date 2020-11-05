@@ -19,6 +19,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type vSphereClient struct {
@@ -240,7 +241,8 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 }
 
 func (v *vSphereClient) GetConnect() (Connect, error) {
-	ctx, _ := context.WithCancel(context.Background())
+	timeout := 10 * time.Second
+	ctx, _ := context.WithTimeout(context.Background(), timeout)
 	u, err := soap.ParseURL(v.Vars["host"].(string) + ":" + strconv.FormatFloat(v.Vars["port"].(float64), 'G', -1, 64))
 	if err != nil {
 		return Connect{}, err
@@ -255,7 +257,6 @@ func (v *vSphereClient) GetConnect() (Connect, error) {
 		Ctx:    ctx,
 	}
 	v.Connect = *connect
-	ctx.Done()
 	return *connect, nil
 }
 

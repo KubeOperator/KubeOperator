@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -79,7 +80,9 @@ func (p planService) Page(num, size int) (page.Page, error) {
 
 		planDTO := new(dto.Plan)
 		r := make(map[string]interface{})
-		json.Unmarshal([]byte(mo.Vars), &r)
+		if err := json.Unmarshal([]byte(mo.Vars), &r); err != nil {
+			fmt.Printf("func (p planService) Page(num, size int) json.Unmarshal err: %v\n", err)
+		}
 		planDTO.PlanVars = r
 		planDTO.Plan = mo
 		planDTO.RegionName = mo.Region.Name

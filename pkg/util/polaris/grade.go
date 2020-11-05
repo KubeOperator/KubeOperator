@@ -168,11 +168,11 @@ func GetCLusterGrade(data validator.AuditData) *dto.ClusterGrade {
 	clusterGrade.TotalSum = total
 	clusterGrade.ListSum = list
 	namespaceResults := data.GetResultsByNamespace()
-	for k, _ := range namespaceResults {
+	for i := range namespaceResults {
 		namespaceResult := dto.NamespaceResult{
-			Namespace: k,
+			Namespace: i,
 		}
-		for _, v := range namespaceResults[k] {
+		for _, v := range namespaceResults[i] {
 			detail := dto.NamespaceResultDetail{
 				Name: v.Name,
 				Kind: v.Kind,

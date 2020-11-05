@@ -91,6 +91,9 @@ func (c clusterIaasService) Init(name string) error {
 	}
 
 	nodes, err := c.createNodes(cluster, hosts)
+	if err != nil {
+		return err
+	}
 	if err := c.nodeRepo.BatchSave(nodes); err != nil {
 		return err
 	}
