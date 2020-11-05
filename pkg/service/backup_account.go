@@ -73,7 +73,9 @@ func (b backupAccountService) Page(num, size int) (page.Page, error) {
 	for _, mo := range mos {
 		backupDTO := new(dto.BackupAccount)
 		vars := make(map[string]interface{})
-		json.Unmarshal([]byte(mo.Credential), &vars)
+		if err := json.Unmarshal([]byte(mo.Credential), &vars); err != nil {
+			 return page, err
+		}
 		backupDTO.CredentialVars = vars
 		backupDTO.BackupAccount = mo
 

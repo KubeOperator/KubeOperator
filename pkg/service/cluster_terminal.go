@@ -79,8 +79,8 @@ func doBareMetalTerminal(wg *sync.WaitGroup, cluster *model.Cluster) {
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
 	})
-	for name, _ := range facts.DefaultFacts {
-		k.SetVar(name, facts.DefaultFacts[name])
+	for i := range facts.DefaultFacts {
+		k.SetVar(i, facts.DefaultFacts[i])
 	}
 	vars := cluster.GetKobeVars()
 	for key, value := range vars {

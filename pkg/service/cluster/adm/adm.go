@@ -73,8 +73,8 @@ func NewCluster(cluster model.Cluster, writer ...io.Writer) *Cluster {
 	c.Kobe = kobe.NewAnsible(&kobe.Config{
 		Inventory: c.ParseInventory(),
 	})
-	for name, _ := range facts.DefaultFacts {
-		c.Kobe.SetVar(name, facts.DefaultFacts[name])
+	for i := range facts.DefaultFacts {
+		c.Kobe.SetVar(i, facts.DefaultFacts[i])
 	}
 	clusterVars := cluster.GetKobeVars()
 	for k, v := range clusterVars {

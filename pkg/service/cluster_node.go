@@ -566,8 +566,8 @@ func (c *clusterNodeService) doNodeDelete(cluster *model.Cluster, nodes []*model
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
 	})
-	for name, _ := range facts.DefaultFacts {
-		k.SetVar(name, facts.DefaultFacts[name])
+	for i := range facts.DefaultFacts {
+		k.SetVar(i, facts.DefaultFacts[i])
 	}
 	clusterVars := cluster.GetKobeVars()
 	for j, v := range clusterVars {
@@ -604,8 +604,8 @@ func (c clusterNodeService) doNodeCreate(cluster *model.Cluster, nodes []*model.
 	k := kobe.NewAnsible(&kobe.Config{
 		Inventory: inventory,
 	})
-	for name, _ := range facts.DefaultFacts {
-		k.SetVar(name, facts.DefaultFacts[name])
+	for i := range facts.DefaultFacts {
+		k.SetVar(i, facts.DefaultFacts[i])
 	}
 	clusterVars := cluster.GetKobeVars()
 	for j, v := range clusterVars {

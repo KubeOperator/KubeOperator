@@ -103,21 +103,18 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 			if host.ClusterID != "" {
 				return errors.New("DELETE_HOST_FAILED_BY_CLUSTER")
 			}
-			break
 		case constant.ResourcePlan:
 			plan, err := NewPlanService().Get(item.ResourceName)
 			if err != nil {
 				return err
 			}
 			resourceId = plan.ID
-			break
 		case constant.ResourceBackupAccount:
 			plan, err := NewBackupAccountService().Get(item.ResourceName)
 			if err != nil {
 				return err
 			}
 			resourceId = plan.ID
-			break
 		}
 
 		var itemId string

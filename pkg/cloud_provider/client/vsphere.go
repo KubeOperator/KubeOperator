@@ -197,8 +197,9 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 }
 
 func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
-
-	_, err := v.GetConnect()
+	if _, err := v.GetConnect(); err != nil {
+		return nil, err
+	}
 	var results []string
 	c := v.Connect.Client.Client
 	ctx := context.Background()
@@ -254,6 +255,7 @@ func (v *vSphereClient) GetConnect() (Connect, error) {
 		Ctx:    ctx,
 	}
 	v.Connect = *connect
+	ctx.Done()
 	return *connect, nil
 }
 
@@ -412,7 +414,10 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 	}
 	f.SetDatacenter(datacenter)
 
-	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	vm, errVirtualMachine := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if errVirtualMachine != nil {
+		return false, errVirtualMachine
+	}
 	if vm != nil {
 		return true, nil
 	}

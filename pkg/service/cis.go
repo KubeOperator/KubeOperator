@@ -142,11 +142,15 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	client, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
+	client, errNewK8s := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
 		Host:  endpoint.Address,
 		Token: secret.KubernetesToken,
 		Port:  endpoint.Port,
 	})
+	if errNewK8s != nil {
+		tx.Rollback()
+		return nil, errNewK8s
+	}
 	tx.Commit()
 	go Do(&cluster, client, &task)
 	return &dto.CisTask{CisTask: task}, nil
