@@ -61,8 +61,8 @@ func (z ZoneController) GetBy(name string) (dto.Zone, error) {
 	return z.ZoneService.Get(name)
 }
 
-func (z ZoneController) GetListBy(regionId string) ([]dto.Zone, error) {
-	return z.ZoneService.ListByRegionId(regionId)
+func (z ZoneController) GetListBy(regionName string) ([]dto.Zone, error) {
+	return z.ZoneService.ListByRegionName(regionName)
 }
 
 // Create Zone

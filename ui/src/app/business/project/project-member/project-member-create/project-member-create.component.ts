@@ -20,7 +20,6 @@ export class ProjectMemberCreateComponent extends BaseModelDirective<ProjectMemb
     opened = false;
     item: ProjectMemberCreate = new ProjectMemberCreate();
     selectUsers: string[] = [];
-    roles: string[] = [];
     currentProject: Project = new Project();
     @Output() created = new EventEmitter();
     @ViewChild('memberForm') memberForm: NgForm;
@@ -43,7 +42,6 @@ export class ProjectMemberCreateComponent extends BaseModelDirective<ProjectMemb
     open() {
         this.opened = true;
         this.item = new ProjectMemberCreate();
-        this.getRoles();
     }
 
     onCancel() {
@@ -74,11 +72,5 @@ export class ProjectMemberCreateComponent extends BaseModelDirective<ProjectMemb
     selectedName(name) {
         this.item.userName = name;
         this.selectUsers = [];
-    }
-
-    getRoles() {
-        this.projectMemberService.getRoles().subscribe(res => {
-            this.roles = res;
-        });
     }
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/data"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/manifest"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/plugin"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
@@ -37,7 +36,6 @@ func Phases() []Phase {
 			Password: viper.GetString("db.password"),
 		},
 		&data.InitDataPhase{},
-		&manifest.InitManifestPhase{},
 		&plugin.InitPluginDBPhase{},
 		&cron.InitCronPhase{
 			Enable: viper.GetBool("cron.enable"),

@@ -269,6 +269,16 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAll,
 		},
 		{
+			Name:         "logging",
+			Version:      "v7.6.2",
+			Describe:     "",
+			Status:       constant.ClusterWaiting,
+			Logo:         "elasticsearch.png",
+			Frame:        false,
+			Url:          "/proxy/logging/{cluster_name}/root",
+			Architecture: supportedArchitectureAmd64,
+		},
+		{
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "",
@@ -345,7 +355,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 		result[facts.HelmVersionFactName] = c.Spec.HelmVersion
 	}
 	if c.Spec.NetworkInterface != "" {
-		result[facts.NetworkInterfaceFactName] = c.Spec.HelmVersion
+		result[facts.NetworkInterfaceFactName] = c.Spec.NetworkInterface
 	}
 	return result
 }

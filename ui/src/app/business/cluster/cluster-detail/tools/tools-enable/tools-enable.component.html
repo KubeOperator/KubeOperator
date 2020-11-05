@@ -50,7 +50,42 @@
                     </select>
                 </clr-select-container>
             </div>
-            <div *ngIf="item.name === 'efk'">
+            <div *ngIf="item.name === 'logging'">
+                <div *ngIf="isAlertShow" class="alert alert-danger" role="alert">
+                    <div class="alert-items">
+                        <div class="alert-item static">
+                            <div class="alert-icon-wrapper">
+                                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                            </div>
+                            <span class="alert-text">{{alertMsg}}</span>
+                        </div>
+                    </div>
+                </div>
+                <clr-input-container>
+                    <label>{{"APP_PREFIX"|translate}}{{"APP_INDEX"|translate}}</label>
+                    <input clrInput name="prefixIndex" pattern="{{esIndexPattern}}"
+                           [(ngModel)]="item.vars['fluentd-elasticsearch.elasticsearch.logstashPrefix']" size="34" (blur)="checkIsCorrect()" required/>
+                    <clr-control-helper>{{'APP_EFK_PREFIX_INDEX_HELPER'|translate}}</clr-control-helper>
+                    <clr-control-error>{{esIndexPatternHelper}}</clr-control-error>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{"APP_REPLICAS"|translate}}{{"APP_COUNT"|translate}}</label>
+                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="replicasNum"
+                           [(ngModel)]="item.vars['elasticsearch.replicas']" (blur)="checkIsCorrect()" required>
+                    <clr-control-helper>{{'APP_EFK_REPLICAS_HELPER'|translate}}{{nodeNum}}</clr-control-helper>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{"APP_MAX"|translate}}{{"APP_HEAP"|translate}}(GB)</label>
+                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="maxMemory"
+                           [(ngModel)]="item.vars['elasticsearch.esJavaOpts[0]']" (blur)="checkIsCorrect()" required>
+                    <clr-control-helper>{{'APP_EFK_MAX_MEMORY_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{"APP_MIN"|translate}}{{"APP_HEAP"|translate}}(GB)</label>
+                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="minMemory"
+                           [(ngModel)]="item.vars['elasticsearch.esJavaOpts[1]']" (blur)="checkIsCorrect()" required>
+                    <clr-control-helper>{{'APP_EFK_MIN_MEMORY_HELPER'|translate}}</clr-control-helper>
+                </clr-input-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"

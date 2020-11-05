@@ -29,7 +29,7 @@ export class LoggingQueryComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.parent.data.subscribe(data => {
-            this.currentCluster =data.cluster;
+            this.currentCluster = data.cluster;
             this.listNamespace();
         });
         this.initTerminal();
@@ -50,14 +50,14 @@ export class LoggingQueryComponent implements OnInit {
     }
 
     search() {
-        this.service.search(this.currentCluster.name, this.namespace.metadata.name,
-            this.pod.metadata.name, this.container.name).subscribe(data => {
-            this.term.clear();
-            console.log(data);
-            for (const hit of data.hits.hits) {
-                this.term.writeln(hit._source.message);
-            }
-        });
+        // this.service.search(this.currentCluster.name, this.namespace.metadata.name,
+        //     this.pod.metadata.name, this.container.name).subscribe(data => {
+        //     this.term.clear();
+        //     console.log(data);
+        //     for (const hit of data.hits.hits) {
+        //         this.term.writeln(hit._source.message);
+        //     }
+        // });
     }
 
     listNamespace() {

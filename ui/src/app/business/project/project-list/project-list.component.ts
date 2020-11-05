@@ -6,6 +6,10 @@ import {BaseModelDirective} from '../../../shared/class/BaseModelDirective';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {TranslateService} from '@ngx-translate/core';
+import {SessionService} from "../../../shared/auth/session.service";
+import {SessionUser} from "../../../shared/auth/session-user";
+import {ProjectMemberService} from "../project-member/project-member.service";
+import {ProjectMember} from "../project-member/project-member";
 
 @Component({
     selector: 'app-project-list',
@@ -18,18 +22,20 @@ export class ProjectListComponent extends BaseModelDirective<Project> implements
     constructor(private projectService: ProjectService,
                 private permissionService: PermissionService,
                 private commonAlertService: CommonAlertService,
-                private translateService: TranslateService) {
+                private translateService: TranslateService,
+                private sessionService: SessionService) {
         super(projectService);
     }
 
+    user: SessionUser;
+
     ngOnInit(): void {
         super.ngOnInit();
+        const profile = this.sessionService.getCacheProfile();
+        this.user = profile.user;
+        if (!this.user.isAdmin) {
+        }
     }
-
-    getProjectRole(projectName: string) {
-        return this.permissionService.getProjectRole(projectName);
-    }
-
 
     onUpdate(item: Project) {
         this.permissionService.authOperate('PROJECT.UPDATE', item.name).then(result => {

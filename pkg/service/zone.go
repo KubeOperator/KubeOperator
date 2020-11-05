@@ -29,7 +29,7 @@ type ZoneService interface {
 	Batch(op dto.ZoneOp) error
 	ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error)
 	ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error)
-	ListByRegionId(regionId string) ([]dto.Zone, error)
+	ListByRegionName(regionName string) ([]dto.Zone, error)
 }
 
 type zoneService struct {
@@ -308,9 +308,13 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	return nil
 }
 
-func (z zoneService) ListByRegionId(regionId string) ([]dto.Zone, error) {
+func (z zoneService) ListByRegionName(regionName string) ([]dto.Zone, error) {
 	var zoneDTOs []dto.Zone
-	mos, err := z.zoneRepo.ListByRegionId(regionId)
+	zone, err := z.zoneRepo.Get(regionName)
+	if err != nil {
+		return nil, err
+	}
+	mos, err := z.zoneRepo.ListByRegionId(zone.ID)
 	if err != nil {
 		return zoneDTOs, err
 	}

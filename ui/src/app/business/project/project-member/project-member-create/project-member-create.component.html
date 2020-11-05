@@ -30,7 +30,8 @@
                     <label>{{"APP_ROLE"|translate}}</label>
                     <select clrSelect [(ngModel)]="item.role" name="role" required>
                         <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
-                        <option *ngFor="let item of roles" [value]="item">{{item|translate}}</option>
+                        <option value="CLUSTER_MANAGER">{{"CLUSTER_MANAGER"|translate}}</option>
+                        <option value="PROJECT_MANAGER">{{"PROJECT_MANAGER"|translate}}</option>
                     </select>
                 </clr-select-container>
             </div>
