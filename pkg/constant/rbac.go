@@ -36,6 +36,7 @@ var SystemRules = loader.AdvancedRules{
 		Host: []string{"*"},
 		Path: []string{
 			"/api/v1/users",
+			"/api/v1/users/{**}",
 			"/api/v1/users/batch",
 			"/api/v1/regions",
 			"/api/v1/regions/{**}",
