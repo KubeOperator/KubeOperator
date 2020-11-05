@@ -43,6 +43,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/regions/list/{**}",
 			"/api/v1/zones",
 			"/api/v1/zones/{**}",
+			"/api/v1/zones/list/{**}",
 			"/api/v1/vm/configs/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
