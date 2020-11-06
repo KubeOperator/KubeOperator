@@ -47,8 +47,7 @@ export class F5Component implements OnInit {
             this.currentCluster = data.cluster;
             this.createItem = this.item;
             this.f5Service.create(this.createItem).subscribe(d => {
-                // @ts-ignore
-                if ( d.status === "Running" ) {
+                if ( d.status === 'Running' ) {
                     this.loading = true;
                     this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
                     window.location.reload();
@@ -64,8 +63,7 @@ export class F5Component implements OnInit {
             this.currentCluster = data.cluster;
             this.createItem = this.item;
             this.f5Service.update(this.createItem).subscribe(d => {
-                // @ts-ignore
-                if ( d.status === "Running" ) {
+                if ( d.status === 'Running' ) {
                     this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
                     this.loading = true;
                 }
