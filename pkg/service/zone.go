@@ -78,7 +78,7 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		m := make(map[string]interface{})
 		zoneDTO.Zone = mo
 		if err := json.Unmarshal([]byte(mo.Vars), &m); err != nil {
-			fmt.Printf("func (z zoneService) Page(num, size int) json.Unmarshal err: %v\n", err)
+			return page, err
 		}
 		zoneDTO.CloudVars = m
 

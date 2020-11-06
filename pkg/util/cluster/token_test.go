@@ -21,6 +21,6 @@ func TestGetClusterToken(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	result, errget := GetClusterToken(client)
-	fmt.Println(result, errget.Error())
+	result, err := GetClusterToken(client)
+	fmt.Println(result, err.Error())
 }

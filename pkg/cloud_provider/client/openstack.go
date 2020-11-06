@@ -119,10 +119,10 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 		panic(err)
 	}
 
-	networkClient, errOpenstack := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
+	networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
-	if errOpenstack != nil {
+	if err != nil {
 		return result, err
 	}
 
@@ -136,10 +136,10 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	if err != nil {
 		return result, err
 	}
-	blockStorageClient, errNewBlock := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
+	blockStorageClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
-	if errNewBlock != nil {
+	if err != nil {
 		return result, err
 	}
 

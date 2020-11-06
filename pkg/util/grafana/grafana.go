@@ -94,9 +94,9 @@ func (c Client) CreateDashboard(dataSourceName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	body, errReadAll := ioutil.ReadAll(resp.Body)
-	if errReadAll != nil {
-		return "", errReadAll
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
 	}
 	msg := string(body)
 	if resp.StatusCode != 200 {

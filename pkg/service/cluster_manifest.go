@@ -37,17 +37,17 @@ func (c clusterManifestService) List() ([]dto.ClusterManifest, error) {
 		clusterManifest.IsActive = mo.IsActive
 		var core []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.CoreVars), &core); err != nil {
-			fmt.Printf("func (c clusterManifestService) List(mo.CoreVars) json.Unmarshal err: %v\n", err)
+			return clusterManifests, err
 		}
 		clusterManifest.CoreVars = core
 		var network []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.NetworkVars), &network); err != nil {
-			fmt.Printf("func (c clusterManifestService) List(mo.NetworkVars) json.Unmarshal err: %v\n", err)
+			return clusterManifests, err
 		}
 		clusterManifest.NetworkVars = network
 		var other []dto.NameVersion
 		if err := json.Unmarshal([]byte(mo.OtherVars), &other); err != nil {
-			fmt.Printf("func (c clusterManifestService) List(mo.OtherVars) json.Unmarshal err: %v\n", err)
+			return clusterManifests, err
 		}
 		clusterManifest.OtherVars = other
 		clusterManifests = append(clusterManifests, clusterManifest)

@@ -53,20 +53,14 @@ func ErrorHandler(ctx context.Context, err error) {
 			Msg string `json:"msg"`
 		}{err.Error()}
 		var result string
-		switch err.(type) {
+		switch errType := err.(type) {
 		case gorm.Errors:
 			errorSet := make(map[string]string)
-			errors, ok := err.(gorm.Errors)
-			if ok {
-				for _, er := range errors {
-					tr := ctx.Tr(er.Error())
-					if tr != "" {
-						errorMsg := tr
-						errorSet[er.Error()] = errorMsg
-					}
-				}
-				for _, set := range errorSet {
-					result = result + set + " "
+			for _, er := range errType {
+				tr := ctx.Tr(er.Error())
+				if tr != "" {
+					errorMsg := tr
+					errorSet[er.Error()] = errorMsg
 				}
 			}
 		case error:
