@@ -34,6 +34,7 @@ type ZoneService interface {
 
 type zoneService struct {
 	zoneRepo             repository.ZoneRepository
+	regionRepo           repository.RegionRepository
 	systemSettingService SystemSettingService
 }
 
@@ -41,6 +42,7 @@ func NewZoneService() ZoneService {
 	return &zoneService{
 		zoneRepo:             repository.NewZoneRepository(),
 		systemSettingService: NewSystemSettingService(),
+		regionRepo:           repository.NewRegionRepository(),
 	}
 }
 
@@ -310,11 +312,11 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 
 func (z zoneService) ListByRegionName(regionName string) ([]dto.Zone, error) {
 	var zoneDTOs []dto.Zone
-	zone, err := z.zoneRepo.Get(regionName)
+	region, err := z.regionRepo.Get(regionName)
 	if err != nil {
 		return nil, err
 	}
-	mos, err := z.zoneRepo.ListByRegionId(zone.ID)
+	mos, err := z.zoneRepo.ListByRegionId(region.ID)
 	if err != nil {
 		return zoneDTOs, err
 	}
