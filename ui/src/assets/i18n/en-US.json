@@ -509,5 +509,6 @@
   "ENABLE_NPD": "Enable NPD",
   "NETWORK_INTERFACE": "NIC name",
   "NETWORK_HELPER": "The multi-NIC environment needs to specify the name of the NIC used, and the single NIC environment does not need to fill in",
-  "APP_CONNECT": "Connect"
+  "APP_CONNECT": "Connect",
+  "NAMESPACE_INVALID": "Namespace name does not meet the specification"
 }

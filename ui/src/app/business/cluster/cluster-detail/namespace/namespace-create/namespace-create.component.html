@@ -4,8 +4,9 @@
         <form clrForm #namespaceForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}:</label>
-                <input clrInput size=45 maxlength="30" [(ngModel)]="namespace"
+                <input clrInput size=45 maxlength="30" [(ngModel)]="namespace" pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])"
                        name="name" required>
+                <clr-control-helper>{{'NAMESPACE_INVALID'|translate}}</clr-control-helper>
             </clr-input-container>
         </form>
         <div class="modal-footer">
