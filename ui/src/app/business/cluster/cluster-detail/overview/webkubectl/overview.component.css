@@ -1,6 +1,5 @@
-
 table tr td:first-child {
-    font-weight: bold
+    font-weight: bold;
 }
 
 .count span {
@@ -16,5 +15,5 @@ tr td:nth-child(2) {
 }
 
 .solid {
-    border-left:1px solid #AAAAAA
+    border-left: 1px solid #AAAAAA;
 }
