@@ -8,5 +8,5 @@ export class F5 extends BaseModel {
     password: string;
     partition: string;
     publicIP: string;
-    status: boolean;
+    status: string;
 }
