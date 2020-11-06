@@ -29,15 +29,11 @@ export class NamespaceListComponent implements OnInit {
     }
 
     refresh() {
-        console.log('test1');
-        console.log(this.currentCluster.name);
         this.loading = true;
         this.service.listNamespaces(this.currentCluster.name).subscribe(data => {
-            console.log('test2');
             this.loading = false;
             this.items = data.items;
         });
-        console.log('test3');
     }
 
     onDelete(item: V1Namespace) {

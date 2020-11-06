@@ -30,7 +30,6 @@ export class StorageProvisionerDeleteComponent implements OnInit {
         this.service.batch(this.currentCluster.name, this.items).subscribe(data => {
             this.opened = false;
             this.deleted.emit();
-            console.log(data);
         });
     }
 

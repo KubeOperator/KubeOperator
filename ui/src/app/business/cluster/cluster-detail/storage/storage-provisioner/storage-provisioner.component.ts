@@ -59,7 +59,6 @@ export class StorageProvisionerComponent implements OnInit {
 
 
     openSelected(item: CreateStorageProvisionerRequest) {
-        console.log(item.name);
         switch (item.type) {
             case 'nfs':
                 this.nfs.open(item);
