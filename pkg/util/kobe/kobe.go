@@ -20,7 +20,7 @@ type Config struct {
 
 type Kobe struct {
 	Project   string
-	Inventory api.Inventory
+	Inventory *api.Inventory
 	client    *kobeClient.KobeClient
 }
 
@@ -30,7 +30,7 @@ func NewAnsible(c *Config) *Kobe {
 	port := viper.GetInt("kobe.port")
 	return &Kobe{
 		Project:   "ko",
-		Inventory: c.Inventory,
+		Inventory: &c.Inventory,
 		client:    kobeClient.NewKobeClient(host, port),
 	}
 }
