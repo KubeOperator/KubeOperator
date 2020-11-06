@@ -45,7 +45,6 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
             return;
         }
         this.isSubmitGoing = true;
-        console.log(this.item);
         this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
             this.isSubmitGoing = false;
             this.opened = false;

@@ -61,7 +61,7 @@ export class PasswordComponent implements OnInit {
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_CHANGE_PASSWORD_SUCCESS'), AlertLevels.SUCCESS);
             setTimeout(() => {
-                this.router.navigateByUrl(CommonRoutes.LOGIN).then(r => console.log('logout success'));
+                this.router.navigateByUrl(CommonRoutes.LOGIN);
             }, 1500);
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);

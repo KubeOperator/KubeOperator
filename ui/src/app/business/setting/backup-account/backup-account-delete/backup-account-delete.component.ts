@@ -42,7 +42,6 @@ export class BackupAccountDeleteComponent extends BaseModelDirective<BackupAccou
             this.opened = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
-            console.log(error.error.msg);
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

@@ -35,7 +35,6 @@ export class UserSubscribeComponent implements OnInit {
     }
 
     updateConfig(updateItem, type) {
-        console.log(updateItem.vars[type]);
         if (updateItem.vars[type] === 'DISABLE') {
             updateItem.vars[type] = 'ENABLE';
         } else {
