@@ -360,7 +360,7 @@ func (c Cluster) GetKobeVars() map[string]string {
 	return result
 }
 
-func (c Cluster) ParseInventory() api.Inventory {
+func (c Cluster) ParseInventory() *api.Inventory {
 	var masters []string
 	var workers []string
 	var chrony []string
@@ -381,7 +381,7 @@ func (c Cluster) ParseInventory() api.Inventory {
 	if len(masters) > 0 {
 		chrony = append(chrony, masters[0])
 	}
-	return api.Inventory{
+	return &api.Inventory{
 		Hosts: hosts,
 		Groups: []*api.Group{
 			{

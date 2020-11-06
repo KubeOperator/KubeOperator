@@ -15,7 +15,7 @@ type Interface interface {
 }
 
 type Config struct {
-	Inventory api.Inventory
+	Inventory *api.Inventory
 }
 
 type Kobe struct {
@@ -30,7 +30,7 @@ func NewAnsible(c *Config) *Kobe {
 	port := viper.GetInt("kobe.port")
 	return &Kobe{
 		Project:   "ko",
-		Inventory: &c.Inventory,
+		Inventory: c.Inventory,
 		client:    kobeClient.NewKobeClient(host, port),
 	}
 }
