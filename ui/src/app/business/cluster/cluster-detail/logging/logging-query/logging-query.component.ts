@@ -53,7 +53,6 @@ export class LoggingQueryComponent implements OnInit {
         // this.service.search(this.currentCluster.name, this.namespace.metadata.name,
         //     this.pod.metadata.name, this.container.name).subscribe(data => {
         //     this.term.clear();
-        //     console.log(data);
         //     for (const hit of data.hits.hits) {
         //         this.term.writeln(hit._source.message);
         //     }

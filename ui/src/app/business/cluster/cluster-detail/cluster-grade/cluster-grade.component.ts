@@ -32,7 +32,6 @@ export class ClusterGradeComponent implements OnInit {
                 this.initData(this.item);
                 this.item.grade = this.getGrade(this.item.score);
                 this.loading = false;
-                console.log(this.item);
             }, error => {
                 this.loading = false;
             });

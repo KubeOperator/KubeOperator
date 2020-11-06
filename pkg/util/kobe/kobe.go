@@ -15,12 +15,12 @@ type Interface interface {
 }
 
 type Config struct {
-	Inventory api.Inventory
+	Inventory *api.Inventory
 }
 
 type Kobe struct {
 	Project   string
-	Inventory api.Inventory
+	Inventory *api.Inventory
 	client    *kobeClient.KobeClient
 }
 

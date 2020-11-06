@@ -110,7 +110,6 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.cloudZones.forEach(cloudZone => {
             if (cloudZone.cluster === this.item.cloudVars['cluster']) {
                 this.cloudZone = cloudZone;
-                console.log(this.cloudZone);
             }
         });
     }

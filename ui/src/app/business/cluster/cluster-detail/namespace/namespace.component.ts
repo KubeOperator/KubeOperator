@@ -2,6 +2,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {NamespaceDeleteComponent} from './namespace-delete/namespace-delete.component';
 import {NamespaceListComponent} from './namespace-list/namespace-list.component';
 import {NamespaceCreateComponent} from './namespace-create/namespace-create.component';
+import {ActivatedRoute} from '@angular/router';
+import {Cluster} from '../../cluster';
 
 @Component({
     selector: 'app-namespace',
@@ -19,11 +21,17 @@ export class NamespaceComponent implements OnInit {
     @ViewChild(NamespaceCreateComponent, {static: true})
     create: NamespaceCreateComponent;
 
-    constructor() {
+    currentCluster: Cluster;
+
+    constructor(private route: ActivatedRoute) {
     }
 
+
     ngOnInit(): void {
-        this.list.list();
+        this.route.parent.data.subscribe(data => {
+            this.currentCluster = data.cluster;
+            this.list.refresh();
+        });
     }
 
     onDelete(item) {
@@ -31,7 +39,7 @@ export class NamespaceComponent implements OnInit {
     }
 
     refresh() {
-        this.list.list();
+        this.list.refresh();
     }
 
     onCreate() {

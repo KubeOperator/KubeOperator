@@ -198,7 +198,6 @@ export class ClusterCreateComponent implements OnInit {
     }
 
     onSubmit() {
-        console.log(this.item);
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();

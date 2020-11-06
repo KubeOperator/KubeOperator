@@ -201,7 +201,7 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		return err
 	}
 	ansible := kobe.NewAnsible(&kobe.Config{
-		Inventory: api.Inventory{
+		Inventory: &api.Inventory{
 			Hosts: []*api.Host{
 				{
 					Ip:         host.Ip,

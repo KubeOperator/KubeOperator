@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
 import {CommonAlertService} from '../../../../../layout/common-alert/common-alert.service';
@@ -17,7 +17,7 @@ export class NamespaceDeleteComponent implements OnInit {
     opened = false;
     namespace;
     @Output() deleted = new EventEmitter();
-    currentCluster: Cluster;
+    @Input() currentCluster: Cluster;
 
     constructor(private service: KubernetesService, private route: ActivatedRoute,
                 private commonAlertService: CommonAlertService,
@@ -34,16 +34,13 @@ export class NamespaceDeleteComponent implements OnInit {
     }
 
     onSubmit() {
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.service.deleteNamespace(this.currentCluster.name, this.namespace).subscribe(res => {
-                this.opened = false;
-                this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
-                this.deleted.emit();
-            }, error => {
-                this.opened = false;
-                this.commonAlertService.showAlert(error.error.message, AlertLevels.ERROR);
-            });
+        this.service.deleteNamespace(this.currentCluster.name, this.namespace).subscribe(res => {
+            this.opened = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+            this.deleted.emit();
+        }, error => {
+            this.opened = false;
+            this.commonAlertService.showAlert(error.error.message, AlertLevels.ERROR);
         });
     }
 

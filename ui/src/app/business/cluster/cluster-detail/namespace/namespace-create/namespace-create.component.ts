@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AlertLevels} from '../../../../../layout/app-alert/alert';
 import {V1Namespace} from '@kubernetes/client-node';
 import {V1ObjectMeta} from '@kubernetes/client-node/dist/gen/model/v1ObjectMeta';
@@ -15,12 +15,11 @@ import {Cluster} from '../../../cluster';
 })
 export class NamespaceCreateComponent implements OnInit {
 
-
-    currentCluster: Cluster;
     opened = false;
     isSubmitGoing = false;
     namespace: string;
     @Output() created = new EventEmitter();
+    @Input() currentCluster: Cluster;
 
     constructor(private service: KubernetesService, private route: ActivatedRoute,
                 private commonAlertService: CommonAlertService,
@@ -44,19 +43,16 @@ export class NamespaceCreateComponent implements OnInit {
     onSubmit() {
         const item = this.newV1NameSpace();
         this.isSubmitGoing = true;
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.service.createNamespace(this.currentCluster.name, item).subscribe(res => {
-                this.opened = false;
-                this.isSubmitGoing = false;
-                this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-                this.created.emit();
-            }, error => {
-                this.opened = false;
-                this.isSubmitGoing = false;
-                this.namespace = '';
-                this.commonAlertService.showAlert(error.error.message, AlertLevels.ERROR);
-            });
+        this.service.createNamespace(this.currentCluster.name, item).subscribe(res => {
+            this.opened = false;
+            this.isSubmitGoing = false;
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            this.created.emit();
+        }, error => {
+            this.opened = false;
+            this.isSubmitGoing = false;
+            this.namespace = '';
+            this.commonAlertService.showAlert(error.error.message, AlertLevels.ERROR);
         });
     }
 

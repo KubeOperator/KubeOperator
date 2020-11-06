@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/adal v0.9.2 // indirect
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.2
-	github.com/KubeOperator/kobe v0.0.0-20200927025215-e66b2838a503
+	github.com/KubeOperator/kobe v0.0.8
 	github.com/KubeOperator/kotf v0.0.8
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751

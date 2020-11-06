@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../../cluster';
@@ -11,27 +11,24 @@ import {V1Namespace} from '@kubernetes/client-node';
 })
 export class NamespaceListComponent implements OnInit {
 
-    loading = true;
+    loading = false;
     selected = [];
     items: V1Namespace[] = [];
     page = 1;
-    currentCluster: Cluster;
     @Output() deleteEvent = new EventEmitter<string>();
     @Output() createEvent = new EventEmitter<string>();
     defaultNamespaces: string[] = ['default', 'kube-node-lease', 'kube-operator', 'kube-public', 'kube-system'];
+    @Input() currentCluster: Cluster;
 
     constructor(private service: KubernetesService, private route: ActivatedRoute) {
     }
 
 
     ngOnInit(): void {
-        this.route.parent.data.subscribe(data => {
-            this.currentCluster = data.cluster;
-            this.list();
-        });
+        this.refresh();
     }
 
-    list() {
+    refresh() {
         this.loading = true;
         this.service.listNamespaces(this.currentCluster.name).subscribe(data => {
             this.loading = false;
