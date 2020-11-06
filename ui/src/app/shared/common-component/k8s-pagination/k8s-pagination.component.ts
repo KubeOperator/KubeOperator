@@ -21,7 +21,6 @@ export class K8sPaginationComponent implements OnInit {
     }
 
     onNext() {
-        console.log(this.nextToken);
         this.page++;
         this.previousToken = this.continueToken;
         this.continueToken = this.nextToken;

@@ -27,6 +27,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/message/{**}",
 			"/api/v1/hosts/sync/{**}",
 			"/api/v1/event/npd/{**}",
+			"/api/v1/users/change/password",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
@@ -93,6 +94,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/credentials",
 			"/api/v1/backupaccounts/{**}",
 			"/api/v1/message/setting/{**}",
+			"/api/v1/projects/{**}",
 		},
 		Method: []string{"POST", "PUT", "PATCH", "DELETE"},
 		Permission: &grbac.Permission{

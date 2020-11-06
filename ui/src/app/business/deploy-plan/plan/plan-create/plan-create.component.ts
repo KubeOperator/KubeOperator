@@ -104,7 +104,7 @@ export class PlanCreateComponent extends BaseModelDirective<Plan> implements OnI
     }
 
     listZones() {
-        this.zoneService.listByRegionId(this.regionName).subscribe(res => {
+        this.zoneService.listByRegionName(this.regionName).subscribe(res => {
             this.zones = res;
         });
     }

@@ -31,12 +31,10 @@ export class ManifestListComponent implements OnInit {
     }
 
     onDetail(item: Manifest) {
-        console.log(item);
         this.detailEvent.emit(item);
     }
 
     update(item: Manifest) {
-        console.log(item);
         const updateItem = new Manifest();
         Object.assign(updateItem, item);
         updateItem.isActive = !item.isActive;

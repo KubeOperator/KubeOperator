@@ -74,7 +74,6 @@ export class StorageClassCreateComponent implements OnInit {
                     this.item.parameters['csi.storage.k8s.io/fstype'] = 'ext4';
                     break;
                 case 'vsphere':
-                    console.log(this.provisioner);
                     this.item.parameters['datastore'] = this.provisioner.vars['datastore'];
                     break;
             }
