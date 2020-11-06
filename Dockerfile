@@ -34,18 +34,21 @@ RUN if [ "$XPACK" = "yes" ] ; then  cd xpack && sed -i 's/ ..\/KubeOperator/ \..
 FROM ubuntu:18.04
 RUN apt update && apt install wget curl -y
 
-RUN cd /usr/local/bin/ \
-    && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 \
+WORKDIR /usr/local/bin
+
+RUN wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_arm64 \
     && wget https://fit2cloud-support.oss-cn-beijing.aliyuncs.com/xpack-license/validator_linux_amd64
 
-RUN cd /usr/local/bin/ \
-    && chmod +x validator_linux_arm64 \
+RUN chmod +x validator_linux_arm64 \
     && chmod +x validator_linux_amd64
 
-RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O /tmp/polaris.tar.gz \
-    && cd /tmp \
-    && tar zxvf /tmp/polaris.tar.gz \
-    && mv /tmp/polaris-1.2.1/checks/ /checks
+WORKDIR /tmp
+
+RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polaris.tar.gz \
+    && tar zxvf ./polaris.tar.gz \
+    && mv ./polaris-1.2.1/checks/ /checks
+
+WORKDIR /
 
 COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /usr/local/go/lib/time/zoneinfo.zip /opt/zoneinfo.zip
@@ -55,5 +58,6 @@ COPY --from=stage-build /build/ko/dist/etc /etc/
 COPY --from=stage-build /build/ko/dist/usr /usr/
 
 EXPOSE 8080
+
 
 CMD ["ko-server"]
