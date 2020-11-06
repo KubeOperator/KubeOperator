@@ -25,7 +25,7 @@ export class ZoneService extends BaseModelService<Zone> {
         return this.http.post<any>(itemUrl, item);
     }
 
-    listByRegionId(regionName: string): Observable<any> {
+    listByRegionName(regionName: string): Observable<any> {
         const itemUrl = `${this.baseUrl}/list/` + regionName + '/';
         return this.http.get<any>(itemUrl);
     }
