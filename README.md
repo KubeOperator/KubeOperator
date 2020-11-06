@@ -1,5 +1,6 @@
 # KubeOperator - 从这里开启您的 Kubernetes 之旅
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9cb491920f0d4058aa273500a38e3abf)](https://www.codacy.com/gh/KubeOperator/KubeOperator/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KubeOperator/KubeOperator&amp;utm_campaign=Badge_Grade)
 [![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/kubeoperator/kubeoperator/blob/master/LICENSE)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/kubeoperator/kubeoperator)](https://github.com/kubeoperator/kubeoperator/releases/latest)
 [![GitHub All Releases](https://img.shields.io/github/downloads/kubeoperator/kubeoperator/total)](https://github.com/kubeoperator/kubeoperator/releases)

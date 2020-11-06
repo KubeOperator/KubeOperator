@@ -33,8 +33,6 @@ export class ProjectListComponent extends BaseModelDirective<Project> implements
         super.ngOnInit();
         const profile = this.sessionService.getCacheProfile();
         this.user = profile.user;
-        if (!this.user.isAdmin) {
-        }
     }
 
     onUpdate(item: Project) {
