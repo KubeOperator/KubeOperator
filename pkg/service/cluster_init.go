@@ -82,6 +82,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 			cluster.Status.Phase = constant.ClusterFailed
 			cluster.Status.Message = err.Error()
 			_ = c.clusterStatusRepo.Save(&cluster.Status)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, err.Error()), cluster.Name, constant.ClusterInstall)
 			return
 		}
 	}
@@ -99,7 +100,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 		switch cluster.Status.Phase {
 		case constant.ClusterFailed:
 			cancel()
-			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, ""), cluster.Name, constant.ClusterInstall)
+			_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterInstall, false, cluster.Status.Message), cluster.Name, constant.ClusterInstall)
 			return
 		case constant.ClusterRunning:
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
