@@ -277,15 +277,18 @@ export class KubernetesService {
         return this.client.get<V1PodList>(url);
     }
 
-    listEventsByNamespace(clusterName: string, namespace: string): Observable<V1EventList> {
-        let url = this.proxyUrl.replace('{cluster_name}', clusterName);
-        url = url.replace('{resource_url}', this.eventByNamespaceUrl).replace('{namespace}', namespace);
-        return this.client.get<V1EventList>(url);
-    }
 
-    listEvents(clusterName: string): Observable<V1EventList> {
+    listEvents(clusterName: string, continueToken?: string, namespace?: string): Observable<V1EventList> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName);
-        url = url.replace('{resource_url}', this.eventsUrl);
+        url += '?limit=' + this.limit;
+        if (continueToken) {
+            url += '&continue=' + continueToken;
+        }
+        if (namespace){
+            url = url.replace('{resource_url}', this.eventByNamespaceUrl).replace('{namespace}', namespace);
+        }else {
+            url = url.replace('{resource_url}', this.eventsUrl);
+        }
         return this.client.get<V1EventList>(url);
     }
 

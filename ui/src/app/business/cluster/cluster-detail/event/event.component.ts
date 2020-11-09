@@ -20,6 +20,9 @@ export class EventComponent implements OnInit {
     events;
     currentNamespace: string;
     npdExists = false;
+    nextToken = '';
+    previousToken = '';
+    continueToken = '';
 
     constructor(private kubernetesService: KubernetesService,
                 private route: ActivatedRoute,
@@ -32,21 +35,22 @@ export class EventComponent implements OnInit {
         this.loading = true;
         this.route.parent.data.subscribe(data => {
             this.currentCluster = data.cluster;
-            this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(res => {
-                this.namespaces = res.items;
-                if (this.namespaces.length > 0) {
-                    const namespace = this.namespaces[0];
-                    this.currentNamespace = namespace.metadata.name;
-                    this.listEvents(this.currentNamespace);
-                }
-            });
+            // this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(res => {
+            //     this.namespaces = res.items;
+            //     if (this.namespaces.length > 0) {
+            //         const namespace = this.namespaces[0];
+            //         this.currentNamespace = namespace.metadata.name;
+            //         this.listEvents(this.currentNamespace);
+            //     }
+            // });
+            this.listEvents();
             this.getNpdExists();
         });
     }
 
-    listEvents(namespace: string) {
+    listEvents() {
         this.loading = true;
-        this.kubernetesService.listEvents(this.currentCluster.name).subscribe(res => {
+        this.kubernetesService.listEvents(this.currentCluster.name, this.continueToken).subscribe(res => {
             this.events = res.items;
             this.loading = false;
         });
