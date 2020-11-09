@@ -513,5 +513,8 @@
   "NETWORK_INTERFACE": "网卡名称",
   "NETWORK_HELPER": "多网卡环境需要指定使用的网卡名称,单网卡环境可不填",
   "APP_CONNECT": "连接",
+  "APP_LICENSE_VALID_STATUS": "正常",
+  "APP_LICENSE_INVALID_STATUS": "无效",
+  "APP_LICENSE_EXPIRED_STATUS": "已过期",
   "NAMESPACE_INVALID": "namespace名称不符合规范"
 }
