@@ -9,6 +9,7 @@ import (
 	"github.com/kataras/iris/v12/context"
 	"github.com/storyicon/grbac"
 	"net/http"
+	"net/url"
 )
 
 func ProjectMiddleware(ctx context.Context) {
@@ -39,7 +40,11 @@ func ProjectMiddleware(ctx context.Context) {
 func queryProjectRoles(ctx context.Context) ([]string, error) {
 	var roles []string
 	u := ctx.Values().Get("user").(dto.SessionUser)
-	projectName := ctx.Request().Header.Get("project")
+	projectNameUnDecode := ctx.Request().Header.Get("project")
+	projectName, err := url.QueryUnescape(projectNameUnDecode)
+	if err != nil {
+		return nil, fmt.Errorf("decode error: %s", projectName)
+	}
 	var project model.Project
 	notFound := db.DB.Where(model.Project{Name: projectName}).First(&project).RecordNotFound()
 	if notFound {
