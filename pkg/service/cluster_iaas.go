@@ -28,6 +28,7 @@ func NewClusterIaasService() ClusterIaasService {
 		hostRepo:            repository.NewHostRepository(),
 		planRepo:            repository.NewPlanRepository(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
+		vmConfigRepo:        repository.NewVmConfigRepository(),
 	}
 }
 
@@ -37,6 +38,7 @@ type clusterIaasService struct {
 	nodeRepo            repository.ClusterNodeRepository
 	planRepo            repository.PlanRepository
 	projectResourceRepo repository.ProjectResourceRepository
+	vmConfigRepo        repository.VmConfigRepository
 }
 
 func (c clusterIaasService) Init(name string) error {
@@ -134,6 +136,9 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 	if plan.DeployTemplate != constant.SINGLE {
 		masterAmount = 3
 	}
+	planVars := map[string]string{}
+	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
+
 	for i := 0; i < masterAmount; i++ {
 		host := model.Host{
 			BaseModel: common.BaseModel{},
@@ -141,6 +146,15 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			Port:      22,
 			Status:    constant.ClusterCreating,
 			ClusterID: cluster.ID,
+		}
+		if plan.Region.Provider != constant.OpenStack {
+			role := getHostRole(host.Name)
+			masterConfig, err := c.vmConfigRepo.Get(planVars[fmt.Sprintf("%sModel", role)])
+			if err != nil {
+				return nil, err
+			}
+			host.CpuCore = masterConfig.Cpu
+			host.Memory = masterConfig.Memory * 1024
 		}
 		hosts = append(hosts, &host)
 	}
@@ -151,6 +165,15 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 			Port:      22,
 			Status:    constant.ClusterCreating,
 			ClusterID: cluster.ID,
+		}
+		if plan.Region.Provider != constant.OpenStack {
+			role := getHostRole(host.Name)
+			workerConfig, err := c.vmConfigRepo.Get(planVars[fmt.Sprintf("%sModel", role)])
+			if err != nil {
+				return nil, err
+			}
+			host.CpuCore = workerConfig.Cpu
+			host.Memory = workerConfig.Memory * 1024
 		}
 		hosts = append(hosts, &host)
 	}
@@ -222,18 +245,15 @@ func parseHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
 
 func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
 	var results []map[string]interface{}
-	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
 	for _, h := range hosts {
 		var zoneVars map[string]interface{}
 		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
 		zoneVars["key"] = formatZoneName(h.Zone.Name)
-		role := getHostRole(h.Name)
 		hMap := map[string]interface{}{}
 		hMap["name"] = h.Name
 		hMap["shortName"] = h.Name
-		hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
-		hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
+		hMap["cpu"] = h.CpuCore
+		hMap["memory"] = h.Memory
 		hMap["ip"] = h.Ip
 		hMap["zone"] = zoneVars
 		results = append(results, hMap)
@@ -243,18 +263,15 @@ func parseVsphereHosts(hosts []*model.Host, plan model.Plan) []map[string]interf
 
 func parseFusionComputeHosts(hosts []*model.Host, plan model.Plan) []map[string]interface{} {
 	var results []map[string]interface{}
-	planVars := map[string]string{}
-	_ = json.Unmarshal([]byte(plan.Vars), &planVars)
 	for _, h := range hosts {
 		var zoneVars map[string]interface{}
 		_ = json.Unmarshal([]byte(h.Zone.Vars), &zoneVars)
 		zoneVars["key"] = formatZoneName(h.Zone.Name)
-		role := getHostRole(h.Name)
 		hMap := map[string]interface{}{}
 		hMap["name"] = h.Name
 		hMap["shortName"] = h.Name
-		hMap["cpu"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Cpu
-		hMap["memory"] = constant.VmConfigList[planVars[fmt.Sprintf("%sModel", role)]].Memory * 1024
+		hMap["cpu"] = h.CpuCore
+		hMap["memory"] = h.Memory
 		hMap["ip"] = h.Ip
 		hMap["zone"] = zoneVars
 		results = append(results, hMap)
