@@ -37,7 +37,9 @@ export class ClusterDetailComponent implements OnInit {
             });
         });
         this.licenseService.get().subscribe(data => {
-            this.hasLicense = true;
+            if (data.status === 'valid') {
+                this.hasLicense = true;
+            }
         });
     }
 

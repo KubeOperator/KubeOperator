@@ -10,7 +10,7 @@ import {License} from "./license";
 })
 export class LicenseComponent implements OnInit {
     license: License = new License();
-
+    licenseStatus = 'invalid'
     constructor(private licenseService: LicenseService) {
     }
 
@@ -28,6 +28,7 @@ export class LicenseComponent implements OnInit {
     refresh() {
         this.licenseService.get().subscribe(data => {
             this.license = data;
+            this.licenseStatus = this.license.status
         });
     }
 
