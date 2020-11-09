@@ -19,13 +19,13 @@ export class ProjectMemberService extends BaseModelService<any> {
     pageBy(page, size, projectName): Observable<Page<ProjectMember>> {
         const pageUrl = `${this.baseUrl}/?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<ProjectMember>>(pageUrl, {
-            headers: {project: projectName},
+            headers: {project: encodeURI(projectName)},
         });
     }
 
     getByUser(username: string, projectName: string): Observable<ProjectMember> {
         return this.http.get<ProjectMember>(`${this.baseUrl}/${username}`, {
-            headers: {project: projectName},
+            headers: {project: encodeURI(projectName)},
         });
     }
 
