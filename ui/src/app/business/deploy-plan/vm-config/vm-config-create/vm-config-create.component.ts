@@ -7,7 +7,9 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
-import {ConfigPattern, ConfigPatternHelper, NamePattern, NamePatternHelper} from '../../../../constant/pattern';
+import {
+    VmConfigPattern, VmConfigPatternHelper
+} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-vm-config-create',
@@ -22,8 +24,8 @@ export class VmConfigCreateComponent extends BaseModelDirective<VmConfig> implem
     isSubmitGoing = false;
     @ViewChild('vmConfigForm', {static: true}) vmConfigForm: NgForm;
     @Output() created = new EventEmitter();
-    namePattern = ConfigPattern;
-    namePatternHelper = ConfigPatternHelper;
+    namePattern = VmConfigPattern;
+    namePatternHelper = VmConfigPatternHelper;
 
     constructor(private vmConfigService: VmConfigService,
                 private modalAlertService: ModalAlertService,
