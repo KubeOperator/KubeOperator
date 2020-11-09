@@ -516,5 +516,6 @@
   "APP_LICENSE_VALID_STATUS": "正常",
   "APP_LICENSE_INVALID_STATUS": "无效",
   "APP_LICENSE_EXPIRED_STATUS": "已过期",
+  "APP_LICENSE_EXPIRED_MSG": "你的 KubeOperator 许可证即将过期",
   "NAMESPACE_INVALID": "namespace名称不符合规范"
 }
