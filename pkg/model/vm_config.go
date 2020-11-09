@@ -32,9 +32,9 @@ func (v *VmConfig) BeforeDelete() error {
 	if err := db.DB.Find(&plans).Error; err != nil {
 		return err
 	}
-	for _, v := range plans {
+	for _, p := range plans {
 		planVars := map[string]string{}
-		_ = json.Unmarshal([]byte(v.Vars), &planVars)
+		_ = json.Unmarshal([]byte(p.Vars), &planVars)
 		if planVars["masterModel"] == v.Name {
 			return errors.New("VM_CONFIG_DELETE_FAILED")
 		}
