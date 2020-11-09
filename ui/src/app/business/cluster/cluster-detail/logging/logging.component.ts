@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Cluster} from '../../cluster';
 import {LoggingService} from './logging.service';
@@ -50,8 +50,8 @@ export class LoggingComponent implements OnInit {
     }
     refresh() {
         const queryArry = [];
-        let beginDate = '';
-        let endDate = '';
+        let beginDate;
+        let endDate;
         let queryIndex = '';
         if (this.searchInfo !== '') {
             queryArry.push({match: {message: {query: this.searchInfo}}});
@@ -74,13 +74,34 @@ export class LoggingComponent implements OnInit {
         queryIndex = queryIndex.substr(0, queryIndex.length - 1);
         if (this.isExpertShow) {
             if (this.namespace !== '') {
-                queryArry.push({match: {'kubernetes.namespace_name': {query: this.namespace}}});
+                if (this.namespace.indexOf('-') === -1) {
+                    queryArry.push({term: {'kubernetes.namespace_name': this.namespace}});
+                } else {
+                    const namespaceArry = this.namespace.split('-');
+                    for (const n of namespaceArry) {
+                        queryArry.push({term: {'kubernetes.namespace_name': n}});
+                    }
+                }
             }
             if (this.pod !== '') {
-                queryArry.push({match: {'kubernetes.pod_name': {query: this.pod}}});
+                if (this.pod.indexOf('-') === -1) {
+                    queryArry.push({term: {'kubernetes.pod_name': this.pod}});
+                } else {
+                    const podArry = this.pod.split('-');
+                    for (const p of podArry) {
+                        queryArry.push({term: {'kubernetes.pod_name': p}});
+                    }
+                }
             }
             if (this.container !== '') {
-                queryArry.push({match: {'kubernetes.container_name': {query: this.container}}});
+                if (this.container.indexOf('-') === -1) {
+                    queryArry.push({term: {'kubernetes.container_name': this.container}});
+                } else {
+                    const containerArry = this.container.split('-');
+                    for (const c of containerArry) {
+                        queryArry.push({term: {'kubernetes.container_name': c}});
+                    }
+                }
             }
         }
         this.service.Search(this.currentCluster.name, queryArry, queryIndex, beginDate, endDate, this.page, this.size).subscribe(data => {
@@ -90,8 +111,7 @@ export class LoggingComponent implements OnInit {
                 const timeItem = new Date(item._source['@timestamp']);
                 item.timestamp = timeItem.getFullYear() + '-' + (timeItem.getMonth() + 1) + '-' + timeItem.getDate() + ' ' +
                     timeItem.getHours() + ':' + timeItem.getMinutes() + ':' + timeItem.getSeconds();
-                const sourceStr = JSON.stringify(item._source);
-                item._source = sourceStr;
+                item._source = JSON.stringify(item._source);
             }
             this.loading = false;
         });

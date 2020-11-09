@@ -159,6 +159,8 @@ definitions:
         type: string
       name:
         type: string
+      networkInterface:
+        type: string
       networkType:
         type: string
       nodes:
@@ -372,14 +374,6 @@ definitions:
     type: object
   dto.Profile:
     properties:
-      permissions:
-        items:
-          $ref: '#/definitions/permission.UserPermission'
-        type: array
-      roleMenus:
-        items:
-          $ref: '#/definitions/permission.UserMenu'
-        type: array
       token:
         type: string
       user:
@@ -680,8 +674,6 @@ definitions:
     type: object
   model.ClusterSpec:
     properties:
-      _:
-        type: string
       architectures:
         type: string
       calicoIpv4PoolIpip:
@@ -715,6 +707,8 @@ definitions:
       kubernetesAudit:
         type: string
       lbKubeApiserverIp:
+        type: string
+      networkInterface:
         type: string
       networkType:
         type: string
@@ -752,39 +746,6 @@ definitions:
         type: object
       total:
         type: integer
-    type: object
-  permission.UserMenu:
-    properties:
-      menus:
-        items:
-          type: string
-        type: array
-      projectId:
-        type: string
-      projectName:
-        type: string
-    type: object
-  permission.UserPermission:
-    properties:
-      projectId:
-        type: string
-      projectName:
-        type: string
-      projectRole:
-        type: string
-      userPermissionRoles:
-        items:
-          $ref: '#/definitions/permission.UserPermissionRole'
-        type: array
-    type: object
-  permission.UserPermissionRole:
-    properties:
-      operation:
-        type: string
-      roles:
-        items:
-          type: string
-        type: array
     type: object
 info:
   contact:
@@ -895,14 +856,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  backupAccount by name
+      description: delete a  credential by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a backupAccount
+      summary: Delete a credential
       tags:
-      - backupAccounts
+      - credentials
     patch:
       consumes:
       - application/json
