@@ -101,7 +101,7 @@ func (h hostRepository) Save(host *model.Host) error {
 	} else {
 		tx := db.DB.Begin()
 		if len(host.Volumes) > 0 {
-			for i, _ := range host.Volumes {
+			for i := range host.Volumes {
 				var volume model.Volume
 				if notFound := tx.Where(model.Volume{HostID: host.ID, Name: host.Volumes[i].Name}).
 					First(&volume).RecordNotFound(); notFound {
@@ -144,7 +144,7 @@ func (h hostRepository) ListByClusterId(clusterId string) ([]model.Host, error) 
 
 func (h hostRepository) BatchSave(hosts []*model.Host) error {
 	tx := db.DB.Begin()
-	for i, _ := range hosts {
+	for i := range hosts {
 		if db.DB.NewRecord(hosts[i]) {
 			if err := tx.Create(hosts[i]).Error; err != nil {
 				tx.Rollback()

@@ -150,7 +150,7 @@ func (c clusterNodeRepository) Save(node *model.ClusterNode) error {
 
 func (c clusterNodeRepository) BatchSave(nodes []*model.ClusterNode) error {
 	tx := db.DB.Begin()
-	for i, _ := range nodes {
+	for i := range nodes {
 		if db.DB.NewRecord(nodes[i]) {
 			if err := db.DB.Create(nodes[i]).Error; err != nil {
 				tx.Rollback()

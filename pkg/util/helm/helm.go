@@ -195,7 +195,11 @@ func addRepo(name string, url string, username string, password string) error {
 	defer cancel()
 	locked, err := fileLock.TryLockContext(lockCtx, time.Second)
 	if err == nil && locked {
-		defer fileLock.Unlock()
+		defer func() {
+			if err := fileLock.Unlock(); err != nil {
+				fmt.Printf("fileLock.Unlock()出现错误： %v\n",err.Error())
+			}
+		}()
 	}
 	if err != nil {
 		return err

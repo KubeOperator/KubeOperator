@@ -8,12 +8,12 @@ import (
 
 type ClusterStatusCondition struct {
 	common.BaseModel
-	ID              string `json:"_"`
+	ID              string `json:"-"`
 	Name            string `json:"name"`
-	ClusterStatusID string `json:"_"`
+	ClusterStatusID string `json:"-"`
 	Status          string `json:"status"`
-	Message         string `json:"message"gorm:"type:text"`
-	OrderNum        int    `json:"_"`
+	Message         string `json:"message" gorm:"type:text"`
+	OrderNum        int    `json:"-"`
 	LastProbeTime   time.Time
 }
 

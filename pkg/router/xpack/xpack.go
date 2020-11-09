@@ -17,7 +17,7 @@ func XPack(parent iris.Party) {
 		}
 		fu, ok := f.(func(parent iris.Party))
 		if !ok {
-			log.Errorf("load xPack error: %s", ok)
+			log.Errorf("load xPack error: %v", ok)
 		}
 		fu(parent)
 	}

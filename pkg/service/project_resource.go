@@ -64,7 +64,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				result = append(result, hostDTO)
 			}
 			page.Items = result
-			break
 		case constant.ResourcePlan:
 			var result []model.Plan
 			err = db.DB.Table(model.Plan{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
@@ -72,7 +71,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				return nil, err
 			}
 			page.Items = result
-			break
 		case constant.ResourceBackupAccount:
 			var result []model.BackupAccount
 			err = db.DB.Table(model.BackupAccount{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
@@ -80,7 +78,6 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 				return nil, err
 			}
 			page.Items = result
-			break
 		default:
 			return nil, err
 		}
@@ -106,21 +103,18 @@ func (p projectResourceService) Batch(op dto.ProjectResourceOp) error {
 			if host.ClusterID != "" {
 				return errors.New("DELETE_HOST_FAILED_BY_CLUSTER")
 			}
-			break
 		case constant.ResourcePlan:
 			plan, err := NewPlanService().Get(item.ResourceName)
 			if err != nil {
 				return err
 			}
 			resourceId = plan.ID
-			break
 		case constant.ResourceBackupAccount:
 			plan, err := NewBackupAccountService().Get(item.ResourceName)
 			if err != nil {
 				return err
 			}
 			resourceId = plan.ID
-			break
 		}
 
 		var itemId string

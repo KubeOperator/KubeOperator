@@ -75,7 +75,9 @@ func (w workWeixin) SendMessage(vars map[string]interface{}) error {
 		return err
 	} else {
 		result := make(map[string]interface{})
-		json.Unmarshal([]byte(re), &result)
+		if err := json.Unmarshal([]byte(re), &result); err != nil {
+			return err
+		}
 		if result["errcode"].(float64) == 0 {
 			return nil
 		} else {
@@ -96,7 +98,9 @@ func GetToken(vars map[string]interface{}) (string, error) {
 		return "", err
 	} else {
 		result := make(map[string]interface{})
-		json.Unmarshal([]byte(re), &result)
+		if err := json.Unmarshal([]byte(re), &result); err != nil {
+			return "", err
+		}
 		if result["errcode"].(float64) == 0 {
 			return result["access_token"].(string), nil
 		} else {

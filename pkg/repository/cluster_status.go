@@ -63,7 +63,7 @@ func (c clusterStatusRepository) Save(status *model.ClusterStatus) error {
 		}
 	}
 	// 保存最新的conditons
-	for i, _ := range status.ClusterStatusConditions {
+	for i := range status.ClusterStatusConditions {
 		status.ClusterStatusConditions[i].ClusterStatusID = status.ID
 		if tx.NewRecord(status.ClusterStatusConditions[i]) {
 			var temp model.ClusterStatusCondition

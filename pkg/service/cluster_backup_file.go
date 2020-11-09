@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
@@ -120,7 +121,9 @@ func (c cLusterBackupFileService) Delete(name string) error {
 		return err
 	}
 	vars := make(map[string]interface{})
-	json.Unmarshal([]byte(backupAccount.Credential), &vars)
+	if err := json.Unmarshal([]byte(backupAccount.Credential), &vars); err != nil {
+		return err
+	}
 	vars["type"] = backupAccount.Type
 	vars["bucket"] = backupAccount.Bucket
 	client, err := cloud_storage.NewCloudStorageClient(vars)
@@ -216,7 +219,9 @@ func (c cLusterBackupFileService) doBackup(cluster model.Cluster, creation dto.C
 			return
 		}
 		vars := make(map[string]interface{})
-		json.Unmarshal([]byte(backupAccount.Credential), &vars)
+		if err := json.Unmarshal([]byte(backupAccount.Credential), &vars); err != nil {
+			fmt.Printf("func (c cLusterBackupFileService) doBackup json.Unmarshal err: %v\n", err)
+		}
 		vars["type"] = backupAccount.Type
 		vars["bucket"] = backupAccount.Bucket
 		client, err := cloud_storage.NewCloudStorageClient(vars)
@@ -297,7 +302,9 @@ func (c cLusterBackupFileService) doRestore(restore dto.ClusterBackupFileRestore
 	}
 
 	vars := make(map[string]interface{})
-	json.Unmarshal([]byte(restore.BackupAccount.Credential), &vars)
+	if err := json.Unmarshal([]byte(restore.BackupAccount.Credential), &vars); err != nil {
+		fmt.Printf("func (c cLusterBackupFileService) doRestore json.Unmarshal err: %v\n", err)
+	}
 	vars["type"] = restore.BackupAccount.Type
 	vars["bucket"] = restore.BackupAccount.Bucket
 	client, err := cloud_storage.NewCloudStorageClient(vars)
@@ -339,7 +346,9 @@ func (c cLusterBackupFileService) LocalRestore(clusterName string, file []byte) 
 	_, err := os.Stat(targetPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			os.Mkdir(clusterPath, os.ModePerm)
+			if err := os.Mkdir(clusterPath, os.ModePerm); err != nil {
+				return err
+			}
 		} else {
 			return err
 		}

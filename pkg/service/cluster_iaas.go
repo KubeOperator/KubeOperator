@@ -91,6 +91,9 @@ func (c clusterIaasService) Init(name string) error {
 	}
 
 	nodes, err := c.createNodes(cluster, hosts)
+	if err != nil {
+		return err
+	}
 	if err := c.nodeRepo.BatchSave(nodes); err != nil {
 		return err
 	}
@@ -194,7 +197,7 @@ func doInit(k *kotf.Kotf, plan model.Plan, hosts []*model.Host) error {
 	if !res.Success {
 		return errors.New(res.GetOutput())
 	}
-	res, err = k.Apply()
+	_, err = k.Apply()
 	if err != nil {
 		return err
 	}
@@ -281,7 +284,7 @@ func parseOpenstackHosts(hosts []*model.Host, plan model.Plan) []map[string]inte
 
 func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*model.Host {
 	groupMap := map[*model.Zone][]*model.Host{}
-	for i, _ := range hosts {
+	for i := range hosts {
 		hash := i % len(zones)
 		groupMap[&zones[hash]] = append(groupMap[&zones[hash]], hosts[i])
 		hosts[i].CredentialID = zones[hash].CredentialID
@@ -318,7 +321,7 @@ func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, 
 	}
 end:
 	for _, h := range hosts {
-		for i, _ := range ips {
+		for i := range ips {
 			if !exists(ips[i], pool) && !exists(ips[i], selectedIps) {
 				h.Ip = ips[i]
 				selectedIps = append(selectedIps, h.Ip)

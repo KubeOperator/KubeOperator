@@ -177,6 +177,9 @@ func (c clusterService) GetPlan(name string) (dto.Plan, error) {
 		return plan, err
 	}
 	p, err := c.planRepo.GetById(cluster.PlanID)
+	if err != nil {
+		return plan, err
+	}
 	plan.Plan = p
 	return plan, nil
 }

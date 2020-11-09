@@ -59,7 +59,9 @@ func (v *openStackClient) ListDatacenter() ([]string, error) {
 	resp, _ := client.Do(req)
 	body, _ := ioutil.ReadAll(resp.Body)
 	m := make(map[string]interface{})
-	json.Unmarshal([]byte(body), &m)
+	if err := json.Unmarshal([]byte(body), &m); err != nil {
+		return result, err
+	}
 	key, exist := m["regions"]
 	if exist {
 		regions := key.([]interface{})
@@ -120,6 +122,9 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
+	if err != nil {
+		return result, err
+	}
 
 	networkPager, err := networks.List(networkClient, networks.ListOpts{}).AllPages()
 	if err != nil {
@@ -134,6 +139,9 @@ func (v *openStackClient) ListClusters() ([]interface{}, error) {
 	blockStorageClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
 		Region: v.Vars["datacenter"].(string),
 	})
+	if err != nil {
+		return result, err
+	}
 
 	vPages, err := volumetypes.List(blockStorageClient, volumetypes.ListOpts{}).AllPages()
 	if err != nil {

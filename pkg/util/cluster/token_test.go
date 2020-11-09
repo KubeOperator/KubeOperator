@@ -22,5 +22,5 @@ func TestGetClusterToken(t *testing.T) {
 		t.Error(err)
 	}
 	result, err := GetClusterToken(client)
-	fmt.Println(result)
+	fmt.Println(result, err.Error())
 }

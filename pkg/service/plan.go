@@ -76,10 +76,11 @@ func (p planService) Page(num, size int) (page.Page, error) {
 		return page, err
 	}
 	for _, mo := range mos {
-
 		planDTO := new(dto.Plan)
 		r := make(map[string]interface{})
-		json.Unmarshal([]byte(mo.Vars), &r)
+		if err := json.Unmarshal([]byte(mo.Vars), &r); err != nil {
+			return page, err
+		}
 		planDTO.PlanVars = r
 		planDTO.Plan = mo
 		planDTO.RegionName = mo.Region.Name

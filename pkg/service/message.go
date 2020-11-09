@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -65,6 +66,9 @@ func (m messageService) SendMessage(mType string, result bool, content string, c
 		return err
 	}
 	userMessages, err := m.GetUserMessages(msg)
+	if err != nil {
+		return err
+	}
 	if title == constant.ClusterUnInstall {
 		m.SendUserMessage(userMessages, clusterName)
 	} else {
@@ -76,7 +80,9 @@ func (m messageService) GetContentByTitleAndType(content, title, sendType, clust
 	date := time.Now().Add(time.Hour * 8).Format("2006-01-02 15:04:05")
 	var result string
 	detail := make(map[string]string)
-	json.Unmarshal([]byte(content), &detail)
+	if err := json.Unmarshal([]byte(content), &detail); err != nil {
+		return ""
+	}
 	cluster, err := m.clusterRepo.Get(clusterName)
 	if err != nil {
 		return ""
@@ -155,31 +161,22 @@ func Tr(title string) string {
 	switch title {
 	case constant.ClusterInstall:
 		result = "集群安装"
-		break
 	case constant.ClusterUnInstall:
 		result = "集群卸载"
-		break
 	case constant.ClusterUpgrade:
 		result = "集群升级"
-		break
 	case constant.ClusterScale:
 		result = "集群伸缩"
-		break
 	case constant.ClusterAddWorker:
 		result = "集群扩容"
-		break
 	case constant.ClusterRemoveWorker:
 		result = "集群缩容"
-		break
 	case constant.ClusterRestore:
 		result = "集群恢复"
-		break
 	case constant.ClusterBackup:
 		result = "集群备份"
-		break
 	case constant.ClusterEventWarning:
 		result = "集群事件告警"
-		break
 	}
 	return result
 }
@@ -214,7 +211,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,create client error:", err.Error())
+				log.Errorf("send message failed,create client error: %v\n", err.Error())
 				continue
 			}
 			if msg.SendType == constant.WorkWeiXin {
@@ -222,7 +219,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 				if err != nil {
 					msg.SendStatus = constant.SendFailed
 					_ = userMsgRepo.Save(&msg)
-					log.Errorf("send message failed, get token error:", err.Error())
+					log.Errorf("send message failed, get token error: %v\n", err.Error())
 					continue
 				}
 				vars["TOKEN"] = token
@@ -235,7 +232,7 @@ func (m messageService) SendUserMessage(messages []model.UserMessage, clusterNam
 			if err != nil {
 				msg.SendStatus = constant.SendFailed
 				_ = userMsgRepo.Save(&msg)
-				log.Errorf("send message failed,send message error:", err.Error())
+				log.Errorf("send message failed,send message error: %v\n", err.Error())
 				continue
 			}
 			_ = userMsgRepo.Save(&msg)
@@ -365,7 +362,9 @@ func (m messageService) GetUserNotificationConfig(userId string, mType string) (
 		return nil, err
 	}
 	v := make(map[string]string)
-	json.Unmarshal([]byte(config.Vars), &v)
+	if err := json.Unmarshal([]byte(config.Vars), &v); err != nil {
+		fmt.Printf("func (m messageService) GetUserNotificationConfig() json.Unmarshal err: %v\n", err)
+	}
 	result = dto.UserNotificationConfigDTO{
 		ID:     config.ID,
 		UserID: config.UserID,
@@ -388,7 +387,9 @@ func (m messageService) GetUserReceiver(userId string) (*dto.UserReceiverDTO, er
 	result.ID = userReceiver.ID
 	result.UserID = userId
 	v := make(map[string]string)
-	json.Unmarshal([]byte(userReceiver.Vars), &v)
+	if err := json.Unmarshal([]byte(userReceiver.Vars), &v); err != nil {
+		fmt.Printf("func (m messageService) GetUserReceiver() json.Unmarshal err: %v\n", err)
+	}
 	result.Vars = v
 	return &result, err
 }

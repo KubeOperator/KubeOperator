@@ -50,7 +50,7 @@ func (c *Cluster) BeforeCreate() error {
 	c.SpecID = c.Spec.ID
 	c.StatusID = c.Status.ID
 	c.SecretID = c.Secret.ID
-	for i, _ := range c.Nodes {
+	for i := range c.Nodes {
 		c.Nodes[i].ClusterID = c.ID
 		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
 			tx.Rollback()

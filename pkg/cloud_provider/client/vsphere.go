@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
@@ -21,13 +22,8 @@ import (
 )
 
 type vSphereClient struct {
-	Vars    map[string]interface{}
-	Connect Connect
-}
-
-type Connect struct {
-	Client govmomi.Client
-	Ctx    context.Context
+	Vars   map[string]interface{}
+	Client *govmomi.Client
 }
 
 func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
@@ -37,16 +33,16 @@ func NewVSphereClient(vars map[string]interface{}) *vSphereClient {
 }
 
 func (v *vSphereClient) ListDatacenter() ([]string, error) {
-	_, err := v.GetConnect()
+	 err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 	var result []string
 
 	var datacenters []*object.Datacenter
 	f := find.NewFinder(client, true)
-	datacenters, err = f.DatacenterList(v.Connect.Ctx, "*")
+	datacenters, err = f.DatacenterList(context.TODO(), "*")
 	if err != nil {
 		return nil, err
 	}
@@ -59,21 +55,21 @@ func (v *vSphereClient) ListDatacenter() ([]string, error) {
 }
 
 func (v *vSphereClient) ListClusters() ([]interface{}, error) {
-	_, err := v.GetConnect()
+	 err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 	var result []interface{}
 
 	m := view.NewManager(client)
 
-	view, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
+	view, err := m.CreateContainerView(context.TODO(), client.ServiceContent.RootFolder, []string{"ClusterComputeResource"}, true)
 	if err != nil {
 		return result, err
 	}
 	var clusters []mo.ClusterComputeResource
-	err = view.Retrieve(v.Connect.Ctx, []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
+	err = view.Retrieve(context.TODO(), []string{"ClusterComputeResource"}, []string{"summary", "name", "resourcePool", "network", "datastore", "parent"}, &clusters)
 	if err != nil {
 		return result, err
 	}
@@ -82,16 +78,19 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 	for _, d := range clusters {
 
 		var host mo.ManagedEntity
-		err = pc.RetrieveOne(v.Connect.Ctx, *d.Parent, []string{"name", "parent"}, &host)
+		if err := pc.RetrieveOne(context.TODO(), *d.Parent, []string{"name", "parent"}, &host); err != nil {
+			return result, err
+		}
 		var datacenter mo.ManagedEntity
-		err = pc.RetrieveOne(v.Connect.Ctx, *host.Parent, []string{"name"}, &datacenter)
+		if err := pc.RetrieveOne(context.TODO(), *host.Parent, []string{"name"}, &datacenter); err != nil {
+			return result, err
+		}
 
 		if datacenter.Name != v.Vars["datacenter"] {
 			continue
 		}
 
-		var clusterData map[string]interface{}
-		clusterData = make(map[string]interface{})
+		clusterData := make(map[string]interface{})
 
 		clusterData["cluster"] = d.ManagedEntity.Name
 		networks, _ := v.GetNetwork(d.ComputeResource.Network)
@@ -108,29 +107,28 @@ func (v *vSphereClient) ListClusters() ([]interface{}, error) {
 }
 
 func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
-	_, err := v.GetConnect()
+	err := v.GetConnect()
 	if err != nil {
 		return nil, err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 	var result []interface{}
 
 	m := view.NewManager(client)
 
-	w, err := m.CreateContainerView(v.Connect.Ctx, client.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
+	w, err := m.CreateContainerView(context.TODO(), client.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
 	if err != nil {
 		return result, err
 	}
 
 	var vms []mo.VirtualMachine
-	err = w.Retrieve(v.Connect.Ctx, []string{"VirtualMachine"}, []string{"summary", "name"}, &vms)
+	err = w.Retrieve(context.TODO(), []string{"VirtualMachine"}, []string{"summary", "name"}, &vms)
 	if err != nil {
 		return result, err
 	}
 
 	for _, vm := range vms {
-		var template map[string]string
-		template = make(map[string]string)
+		template := make(map[string]string)
 		if vm.Summary.Config.Template {
 			template["imageName"] = vm.Summary.Config.Name
 			template["guestId"] = vm.Summary.Config.GuestId
@@ -143,10 +141,10 @@ func (v *vSphereClient) ListTemplates() ([]interface{}, error) {
 
 func (v *vSphereClient) GetNetwork(mos []types.ManagedObjectReference) ([]string, error) {
 
-	pc := property.DefaultCollector(v.Connect.Client.Client)
+	pc := property.DefaultCollector(v.Client.Client)
 	rps := []mo.Network{}
 	var data []string
-	err := pc.Retrieve(v.Connect.Ctx, mos, []string{"summary", "name"}, &rps)
+	err := pc.Retrieve(context.TODO(), mos, []string{"summary", "name"}, &rps)
 	if err != nil {
 		return data, err
 	}
@@ -158,10 +156,10 @@ func (v *vSphereClient) GetNetwork(mos []types.ManagedObjectReference) ([]string
 
 func (v *vSphereClient) GetDatastore(mos []types.ManagedObjectReference) ([]string, error) {
 
-	pc := property.DefaultCollector(v.Connect.Client.Client)
+	pc := property.DefaultCollector(v.Client.Client)
 	rps := []mo.Datastore{}
 	var data []string
-	err := pc.Retrieve(v.Connect.Ctx, mos, []string{"summary", "name"}, &rps)
+	err := pc.Retrieve(context.TODO(), mos, []string{"summary", "name"}, &rps)
 	if err != nil {
 		return data, err
 	}
@@ -172,17 +170,17 @@ func (v *vSphereClient) GetDatastore(mos []types.ManagedObjectReference) ([]stri
 }
 
 func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]string, error) {
-	pc := property.DefaultCollector(v.Connect.Client.Client)
+	pc := property.DefaultCollector(v.Client.Client)
 	rp := mo.ResourcePool{}
 	var data []string
-	err := pc.RetrieveOne(v.Connect.Ctx, m, []string{"summary", "name", "resourcePool"}, &rp)
+	err := pc.RetrieveOne(context.TODO(), m, []string{"summary", "name", "resourcePool"}, &rp)
 	if err != nil {
 		return data, err
 	}
 	data = append(data, rp.Name)
 
 	rps := []mo.ResourcePool{}
-	err = pc.Retrieve(v.Connect.Ctx, rp.ResourcePool, []string{"summary", "name"}, &rps)
+	err = pc.Retrieve(context.TODO(), rp.ResourcePool, []string{"summary", "name"}, &rps)
 	if err != nil {
 		return data, err
 	}
@@ -194,17 +192,23 @@ func (v *vSphereClient) GetResourcePools(m types.ManagedObjectReference) ([]stri
 }
 
 func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
+	if err := v.GetConnect(); err != nil {
+		return nil, err
+	}
 
-	_, err := v.GetConnect()
 	var results []string
-	c := v.Connect.Client.Client
-	ctx := context.Background()
+	c := v.Client.Client
+	ctx := context.TODO()
 	m := view.NewManager(c)
 	vi, err := m.CreateContainerView(ctx, c.ServiceContent.RootFolder, []string{"VirtualMachine", "Network"}, true)
 	if err != nil {
 		return nil, err
 	}
-	defer vi.Destroy(ctx)
+	defer func() {
+		if err := vi.Destroy(ctx); err != nil {
+			fmt.Printf("func (v *vSphereClient) GetIpInUsed vi.Destroy(ctx) err: %v\n", err)
+		}
+	}()
 	var networks []mo.Network
 	err = vi.Retrieve(ctx, []string{"Network"}, []string{}, &networks)
 	if err != nil {
@@ -231,23 +235,18 @@ func (v *vSphereClient) GetIpInUsed(network string) ([]string, error) {
 	return results, nil
 }
 
-func (v *vSphereClient) GetConnect() (Connect, error) {
-	ctx, _ := context.WithCancel(context.Background())
+func (v *vSphereClient) GetConnect() error {
 	u, err := soap.ParseURL(v.Vars["host"].(string) + ":" + strconv.FormatFloat(v.Vars["port"].(float64), 'G', -1, 64))
 	if err != nil {
-		return Connect{}, err
+		return err
 	}
 	u.User = url.UserPassword(v.Vars["username"].(string), v.Vars["password"].(string))
-	c, err := govmomi.NewClient(ctx, u, true)
+	c, err := govmomi.NewClient(context.TODO(), u, true)
 	if err != nil {
-		return Connect{}, err
+		return err
 	}
-	connect := &Connect{
-		Client: *c,
-		Ctx:    ctx,
-	}
-	v.Connect = *connect
-	return *connect, nil
+	v.Client = c
+	return nil
 }
 
 func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
@@ -255,11 +254,10 @@ func (v *vSphereClient) ListFlavors() ([]interface{}, error) {
 }
 
 func (v *vSphereClient) UploadImage() error {
-	_, err := v.GetConnect()
-	if err != nil {
+	if err := v.GetConnect(); err != nil {
 		return err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 
 	ctx := context.TODO()
 
@@ -383,7 +381,7 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 		return nil, 0, err
 	}
 	client := soap.NewClient(u, false)
-	f, size, err := client.Download(context.Background(), u, &soap.DefaultDownload)
+	f, size, err := client.Download(context.TODO(), u, &soap.DefaultDownload)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -391,12 +389,10 @@ func OpenRemoteFile(remoteUrl string) (io.ReadCloser, int64, error) {
 }
 
 func (v *vSphereClient) DefaultImageExist() (bool, error) {
-
-	_, err := v.GetConnect()
-	if err != nil {
+	if err := v.GetConnect(); err != nil {
 		return false, err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 	ctx := context.TODO()
 	f := find.NewFinder(client, true)
 	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))
@@ -406,6 +402,9 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 	f.SetDatacenter(datacenter)
 
 	vm, err := f.VirtualMachine(ctx, constant.VSphereImageName)
+	if err != nil {
+		return false, nil
+	}
 	if vm != nil {
 		return true, nil
 	}
@@ -413,11 +412,10 @@ func (v *vSphereClient) DefaultImageExist() (bool, error) {
 }
 
 func (v *vSphereClient) CreateDefaultFolder() error {
-	_, err := v.GetConnect()
-	if err != nil {
+	if err := v.GetConnect(); err != nil {
 		return err
 	}
-	client := v.Connect.Client.Client
+	client := v.Client.Client
 	ctx := context.TODO()
 	f := find.NewFinder(client, true)
 	datacenter, err := f.Datacenter(ctx, v.Vars["datacenter"].(string))

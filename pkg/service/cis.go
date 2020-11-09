@@ -147,6 +147,10 @@ func (c *cisService) Create(clusterName string) (*dto.CisTask, error) {
 		Token: secret.KubernetesToken,
 		Port:  endpoint.Port,
 	})
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 	tx.Commit()
 	go Do(&cluster, client, &task)
 	return &dto.CisTask{CisTask: task}, nil
@@ -322,7 +326,6 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 						log.Error(err)
 					}
 				}
-				break
 			}
 			return true, nil
 		}

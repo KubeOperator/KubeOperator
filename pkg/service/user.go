@@ -158,7 +158,7 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 	if err != nil {
 		return err
 	}
-	if success == false {
+	if !success {
 		return OriginalNotMatch
 	}
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
@@ -179,7 +179,7 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 			return nil, UserNotFound
 		}
 	}
-	if dbUser.IsActive == false {
+	if !dbUser.IsActive {
 		return nil, UserIsNotActive
 	}
 

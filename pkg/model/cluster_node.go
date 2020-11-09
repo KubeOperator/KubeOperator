@@ -10,10 +10,10 @@ import (
 
 type ClusterNode struct {
 	common.BaseModel
-	ID        string `json:"_"`
+	ID        string `json:"-"`
 	Name      string `json:"name"`
-	HostID    string `json:"_"`
-	Host      Host   `json:"_" gorm:"save_associations:false"`
+	HostID    string `json:"-"`
+	Host      Host   `json:"-" gorm:"save_associations:false"`
 	ClusterID string `json:"clusterId"`
 	Role      string `json:"role"`
 	Status    string `json:"status"`

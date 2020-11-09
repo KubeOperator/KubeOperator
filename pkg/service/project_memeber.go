@@ -157,7 +157,7 @@ func (p projectMemberService) Get(name string, projectName string) (*dto.Project
 		ProjectID: pj.ID,
 	}).First(&pm).RecordNotFound()
 	if notFound {
-		return nil, errors.New(fmt.Sprintf("project member: %s not found in project %s", name, projectName))
+		return nil, fmt.Errorf("project member: %s not found in project %s", name, projectName)
 	}
 	return &dto.ProjectMember{
 		ProjectMember: pm,

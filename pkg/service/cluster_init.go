@@ -52,7 +52,7 @@ func (c clusterInitService) Init(name string) error {
 		return err
 	}
 	if len(cluster.Status.ClusterStatusConditions) > 0 {
-		for i, _ := range cluster.Status.ClusterStatusConditions {
+		for i := range cluster.Status.ClusterStatusConditions {
 			if cluster.Status.ClusterStatusConditions[i].Status == constant.ConditionFalse {
 				cluster.Status.ClusterStatusConditions[i].Status = constant.ConditionUnknown
 				cluster.Status.ClusterStatusConditions[i].Message = ""
@@ -87,7 +87,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 	}
 	cluster.Nodes, _ = c.clusterNodeRepo.List(cluster.Name)
 	ctx, cancel := context.WithCancel(context.Background())
-	statusChan := make(chan adm.Cluster, 0)
+	statusChan := make(chan adm.Cluster)
 	cluster.Status.Phase = constant.ClusterInitializing
 	_ = c.clusterStatusRepo.Save(&cluster.Status)
 
@@ -103,7 +103,7 @@ func (c clusterInitService) do(cluster model.Cluster, writer io.Writer) {
 			return
 		case constant.ClusterRunning:
 			_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterInstall, true, ""), cluster.Name, constant.ClusterInstall)
-			for i, _ := range cluster.Nodes {
+			for i := range cluster.Nodes {
 				cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 				_ = c.clusterSpecRepo.Save(&cluster.Spec)
 				cluster.Nodes[i].Status = constant.ClusterRunning
