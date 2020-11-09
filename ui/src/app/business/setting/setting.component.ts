@@ -15,7 +15,9 @@ export class SettingComponent implements OnInit {
 
     ngOnInit(): void {
         this.licenseService.get().subscribe(data => {
-            this.hasLicense = true;
+            if (data.status === 'valid') {
+                this.hasLicense = true;
+            }
         });
     }
 }
