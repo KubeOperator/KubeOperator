@@ -80,6 +80,8 @@ CIS_TASK_ALREADY_RUNNING: "已存在扫描中的任务"
 
 #vmConfig
 VM_CONFIG_EXISTS: "配置已存在"
+VM_CONFIG_DELETE_FAILED: "配置已经属于部署计划！不能进行此操作！"
+
 
 
 

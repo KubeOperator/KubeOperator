@@ -51,7 +51,9 @@ export class HeaderComponent implements OnInit {
         if (profile != null) {
             this.user = profile.user;
             this.licenseService.get().subscribe(data => {
-                this.hasLicense = true;
+                if (data.status === 'valid') {
+                    this.hasLicense = true;
+                }
                 this.listUnreadMsg(this.user.name);
                 this.timer = setInterval(() => {
                     this.listUnreadMsg(this.user.name);

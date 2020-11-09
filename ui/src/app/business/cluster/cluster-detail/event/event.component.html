@@ -5,13 +5,13 @@
             <input clrToggle class="clr-checkbox" type="checkbox" name="supper" [checked]="npdExists"
                    (change)="changeNpd(npdExists)"/>
         </clr-checkbox-wrapper>
-<!--        <div class="clr-select-wrapper">-->
-<!--            <label>Namespace</label>-->
-<!--            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">-->
-<!--                <option *ngFor="let b of namespaces"-->
-<!--                        value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>-->
-<!--            </select>-->
-<!--        </div>-->
+        <!--        <div class="clr-select-wrapper">-->
+        <!--            <label>Namespace</label>-->
+        <!--            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">-->
+        <!--                <option *ngFor="let b of namespaces"-->
+        <!--                        value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>-->
+        <!--            </select>-->
+        <!--        </div>-->
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_EVENT_MSG'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_EVENT_TYPE'|translate}}</clr-dg-column>
@@ -25,4 +25,10 @@
         <clr-dg-cell>{{item.metadata.namespace}}</clr-dg-cell>
         <clr-dg-cell>{{item.firstTimestamp|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
+    <clr-dg-footer>
+        <app-k8s-pagination [(continueToken)]="continueToken"
+                            [nextToken]="nextToken"
+                            [previousToken]="previousToken"
+                            (pageChange)="listEvents()"></app-k8s-pagination>
+    </clr-dg-footer>
 </clr-datagrid>

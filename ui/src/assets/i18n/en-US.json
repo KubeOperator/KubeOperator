@@ -292,9 +292,9 @@
   "APP_BACKUP_ACCOUNT_HELPER": "The backup account needs to be authorized to the project first",
   "APP_BACKUP_ACCOUNT": "Backup Account",
   "APP_CORPORATION": "Corporation",
-  "APP_COUNT": "count",
-  "APP_EXPIRED": "expired",
-  "APP_EDITION": "edition",
+  "APP_COUNT": "Count",
+  "APP_EXPIRED": "Expired",
+  "APP_EDITION": "Edition",
   "APP_TOOLS": "Tools",
   "APP_DATA": "Data",
   "APP_RETENTION": "Retention",
@@ -510,5 +510,8 @@
   "NETWORK_INTERFACE": "NIC name",
   "NETWORK_HELPER": "The multi-NIC environment needs to specify the name of the NIC used, and the single NIC environment does not need to fill in",
   "APP_CONNECT": "Connect",
+  "APP_LICENSE_VALID_STATUS": "valid",
+  "APP_LICENSE_INVALID_STATUS": "invalid",
+  "APP_LICENSE_EXPIRED_STATUS": "expired",
   "NAMESPACE_INVALID": "namespace name does not meet the specification"
 }

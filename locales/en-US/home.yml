@@ -80,6 +80,7 @@ CIS_TASK_ALREADY_RUNNING: "cis task already running"
 
 #vmConfig
 VM_CONFIG_EXISTS: "Configuration already exists"
+VM_CONFIG_DELETE_FAILED: "The configuration already belongs to the deployment plan! This operation cannot be performed!"
 
 
 
