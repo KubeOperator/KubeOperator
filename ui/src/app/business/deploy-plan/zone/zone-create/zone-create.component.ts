@@ -39,6 +39,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     subnetList: Subnet[] = [];
     credentials: Credential[] = [];
     portgroups: string[] = [];
+    isSubmitGoing = false;
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -84,12 +85,15 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     onSubmit(): void {
+        this.isSubmitGoing = true;
         this.zoneService.create(this.item).subscribe(res => {
             this.doFinish();
             this.onCancel();
             this.created.emit();
+            this.isSubmitGoing = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
