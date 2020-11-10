@@ -8,7 +8,7 @@ import {Observable} from 'rxjs';
 })
 export class BackupService {
 
-    baseUrl = '/api/v1/cluster/backup/strategy';
+    baseUrl = '/api/v1/clusters/backup/strategy';
 
     constructor(private http: HttpClient) {
     }

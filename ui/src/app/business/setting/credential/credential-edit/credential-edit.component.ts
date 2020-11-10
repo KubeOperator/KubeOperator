@@ -28,13 +28,14 @@ export class CredentialEditComponent implements OnInit {
     }
 
     open(item: Credential) {
-        this.item = item;
+        Object.assign(this.item, item);
         this.item.password = '';
         this.opened = true;
     }
 
     onCancel() {
         this.item = new Credential();
+        this.credentialForm.resetForm(this.item);
         this.opened = false;
     }
 

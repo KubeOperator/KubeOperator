@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {BaseModelDirective} from '../../../../shared/class/BaseModelDirective';
 import {Zone, ZoneUpdateRequest} from '../zone';
 import {ZoneService} from '../zone.service';
@@ -8,6 +8,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import * as ipaddr from 'ipaddr.js';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
+import {NgForm} from '@angular/forms';
 
 
 @Component({
@@ -21,6 +22,7 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     item: ZoneUpdateRequest = new ZoneUpdateRequest();
     networkError = [];
     @Output() updated = new EventEmitter();
+    @ViewChild('editForm') editForm: NgForm;
 
     constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
                 private translateService: TranslateService, private commonAlertService: CommonAlertService) {
@@ -31,7 +33,7 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     open(item) {
-        this.item = item;
+        Object.assign(this.item, item);
         this.item.cloudVars = JSON.parse(item.vars);
         this.opened = true;
     }
@@ -65,6 +67,8 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
 
     onCancel() {
         this.opened = false;
+        this.networkError = [];
+        this.editForm.resetForm(this.networkError);
     }
 
     onConfirm() {

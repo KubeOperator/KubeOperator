@@ -22,7 +22,6 @@ export class RegionCreateComponent extends BaseModelDirective<Region> implements
     opened = false;
     isSubmitGoing = false;
     item: RegionCreateRequest = new RegionCreateRequest();
-    cloudProviders: string[] = [];
     isParamsValid;
     isParamsCheckGoing = false;
     cloudRegions: [] = [];
@@ -89,12 +88,15 @@ export class RegionCreateComponent extends BaseModelDirective<Region> implements
 
 
     onSubmit() {
+        this.isSubmitGoing = true;
         this.regionService.create(this.item).subscribe(res => {
             this.created.emit();
             this.doFinish();
             this.onCancel();
+            this.isSubmitGoing = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

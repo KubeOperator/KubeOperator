@@ -13,6 +13,7 @@ export class StorageProvisionerCreateOceanStorComponent implements OnInit {
 
     item: CreateStorageProvisionerRequest = new CreateStorageProvisionerRequest();
     opened = false;
+    isSubmitGoing = false;
     @ViewChild('storForm') storForm: NgForm;
     @Input() currentCluster: Cluster;
     @Output() created = new EventEmitter();
@@ -32,11 +33,14 @@ export class StorageProvisionerCreateOceanStorComponent implements OnInit {
 
     onCancel() {
         this.opened = false;
+        this.isSubmitGoing = false;
     }
 
     onSubmit() {
+        this.isSubmitGoing = true;
         this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
             this.opened = false;
+            this.isSubmitGoing = false;
             this.created.emit();
         });
     }
