@@ -514,5 +514,7 @@
   "APP_LICENSE_INVALID_STATUS": "invalid",
   "APP_LICENSE_EXPIRED_STATUS": "expired",
   "APP_LICENSE_EXPIRED_MSG": "Your KubeOperator license is about to expire",
-  "NAMESPACE_INVALID": "namespace name does not meet the specification"
+  "NAMESPACE_INVALID": "namespace name does not meet the specification",
+  "PROVISIONER_DELETE_FAILED": "This storage provider is already bound to the storage class and cannot be deleted!"
+
 }
