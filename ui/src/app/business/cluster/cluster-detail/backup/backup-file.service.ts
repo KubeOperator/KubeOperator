@@ -10,7 +10,7 @@ import {Page} from '../../../../shared/class/Page';
 })
 export class BackupFileService extends BaseModelService<BackupFile> {
 
-    baseUrl = '/api/v1/cluster/backup/files';
+    baseUrl = '/api/v1/clusters/backup/files';
 
     constructor(http: HttpClient) {
         super(http);
