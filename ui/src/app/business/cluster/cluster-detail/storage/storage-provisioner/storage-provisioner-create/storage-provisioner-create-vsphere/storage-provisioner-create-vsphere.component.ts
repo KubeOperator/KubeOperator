@@ -3,6 +3,8 @@ import {StorageProvisionerService} from "../../storage-provisioner.service";
 import {CreateStorageProvisionerRequest} from "../../storage-provisioner";
 import {Cluster} from "../../../../../cluster";
 import {NgForm} from "@angular/forms";
+import {ModalAlertService} from '../../../../../../../shared/common-component/modal-alert/modal-alert.service';
+import {AlertLevels} from '../../../../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-storage-provisioner-create-vsphere',
@@ -11,7 +13,7 @@ import {NgForm} from "@angular/forms";
 })
 export class StorageProvisionerCreateVsphereComponent implements OnInit {
 
-    constructor(private storageProvisionerService: StorageProvisionerService) {
+    constructor(private storageProvisionerService: StorageProvisionerService,private modalAlertService: ModalAlertService) {
     }
 
     opened = false;
@@ -43,6 +45,8 @@ export class StorageProvisionerCreateVsphereComponent implements OnInit {
         this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();
+        }, error => {
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

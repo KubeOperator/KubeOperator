@@ -3,6 +3,8 @@ import {Cluster} from '../../../../../cluster';
 import {CreateStorageProvisionerRequest} from '../../storage-provisioner';
 import {NgForm} from '@angular/forms';
 import {StorageProvisionerService} from '../../storage-provisioner.service';
+import {AlertLevels} from '../../../../../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../../../../../shared/common-component/modal-alert/modal-alert.service';
 
 @Component({
     selector: 'app-storage-provisioner-create-ocean-stor',
@@ -18,7 +20,7 @@ export class StorageProvisionerCreateOceanStorComponent implements OnInit {
     @Input() currentCluster: Cluster;
     @Output() created = new EventEmitter();
 
-    constructor(private storageProvisionerService: StorageProvisionerService) {
+    constructor(private storageProvisionerService: StorageProvisionerService, private modalAlertService: ModalAlertService) {
     }
 
     ngOnInit(): void {
@@ -42,6 +44,9 @@ export class StorageProvisionerCreateOceanStorComponent implements OnInit {
             this.opened = false;
             this.isSubmitGoing = false;
             this.created.emit();
+        }, error => {
+            this.isSubmitGoing = false;
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }
