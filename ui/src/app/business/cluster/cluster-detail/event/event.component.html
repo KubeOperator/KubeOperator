@@ -28,6 +28,6 @@
         <app-k8s-pagination [(continueToken)]="continueToken"
                             [nextToken]="nextToken"
                             [previousToken]="previousToken"
-                            (pageChange)="listEvents()"></app-k8s-pagination>
+                            (pageChange)="listEvents(currentNamespace)"></app-k8s-pagination>
     </clr-dg-footer>
 </clr-datagrid>
