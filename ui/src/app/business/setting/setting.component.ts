@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {LicenseService} from "./license/license.service";
+import {BusinessLicenseService} from '../../shared/service/business-license.service';
 
 @Component({
     selector: 'app-setting',
@@ -8,16 +8,17 @@ import {LicenseService} from "./license/license.service";
 })
 export class SettingComponent implements OnInit {
 
-    constructor(private licenseService: LicenseService) {
+    constructor(public businessLicenseService: BusinessLicenseService) {
     }
 
     hasLicense = false;
 
     ngOnInit(): void {
-        this.licenseService.get().subscribe(data => {
-            if (data.status === 'valid') {
-                this.hasLicense = true;
-            }
-        });
+        // this.licenseService.get().subscribe(data => {
+        //     if (data.status === 'valid') {
+        //         this.hasLicense = true;
+        //     }
+        // });
+        this.hasLicense = this.businessLicenseService.licenseValid;
     }
 }

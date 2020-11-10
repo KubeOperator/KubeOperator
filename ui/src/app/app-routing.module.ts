@@ -52,6 +52,7 @@ import {MessageComponent} from './business/setting/message/message.component';
 import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.component';
 import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-grade/cluster-grade.component';
 import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
+import {BusinessResolverService} from './shared/service/business-resolver.service';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -61,6 +62,7 @@ const routes: Routes = [
         component: LayoutComponent,
         canActivate: [AuthUserService],
         canActivateChild: [AuthUserService],
+        resolve: {hasLicense: BusinessResolverService},
         children: [
             {path: '', redirectTo: 'projects', pathMatch: 'full'},
             {
