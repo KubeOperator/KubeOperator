@@ -51,12 +51,12 @@ func (c clusterNodeRepository) Page(num, size int, clusterName string) (int, []m
 	if err := db.DB.
 		Model(model.ClusterNode{}).
 		Where(model.ClusterNode{ClusterID: cluster.ID}).
+		Count(&total).
 		Offset((num - 1) * size).
 		Limit(size).
 		Preload("Host").
 		Preload("Host.Credential").
 		Preload("Host.Zone").
-		Count(&total).
 		Order("substring_index(name, '-', 2), cast(substring_index(name, '-', -1) as UNSIGNED INTEGER)").
 		Find(&nodes).Error; err != nil {
 		return 0, nodes, err
