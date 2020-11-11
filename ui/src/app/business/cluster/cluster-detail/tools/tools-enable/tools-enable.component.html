@@ -75,16 +75,10 @@
                     <clr-control-helper>{{'APP_EFK_REPLICAS_HELPER'|translate}}{{nodeNum}}</clr-control-helper>
                 </clr-input-container>
                 <clr-input-container>
-                    <label>{{"APP_MAX"|translate}}{{"APP_HEAP"|translate}}(GB)</label>
-                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="maxMemory"
-                           [(ngModel)]="item.vars['elasticsearch.esJavaOpts[0]']" (blur)="checkIsCorrect()" required>
-                    <clr-control-helper>{{'APP_EFK_MAX_MEMORY_HELPER'|translate}}</clr-control-helper>
-                </clr-input-container>
-                <clr-input-container>
-                    <label>{{"APP_MIN"|translate}}{{"APP_HEAP"|translate}}(GB)</label>
-                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="minMemory"
-                           [(ngModel)]="item.vars['elasticsearch.esJavaOpts[1]']" (blur)="checkIsCorrect()" required>
-                    <clr-control-helper>{{'APP_EFK_MIN_MEMORY_HELPER'|translate}}</clr-control-helper>
+                    <label>{{"APP_HEAP_MEMORY"|translate}}</label>
+                    <input clrInput oninput="if(value<1)value=1" min="1" type="number" name="heapMemory"
+                           [(ngModel)]="item.vars['elasticsearch.esJavaOpts.item']" required>
+                    <clr-control-helper>{{'APP_HEAP_MEMORY_HELPER'|translate}}</clr-control-helper>
                 </clr-input-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
