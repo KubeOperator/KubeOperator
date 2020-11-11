@@ -1,6 +1,9 @@
 package constant
 
-import "github.com/kataras/iris/v12/sessions"
+import (
+	"github.com/kataras/iris/v12/sessions"
+	"time"
+)
 
 const (
 	SessionUserKey         = "user"
@@ -10,4 +13,4 @@ const (
 	AuthMethodJWT     = "jwt"
 )
 
-var Sess = sessions.New(sessions.Config{Cookie: cookieNameForSessionID})
+var Sess = sessions.New(sessions.Config{Cookie: cookieNameForSessionID, Expires: 2 * time.Hour})
