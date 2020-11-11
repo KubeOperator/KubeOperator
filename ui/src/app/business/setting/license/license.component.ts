@@ -25,11 +25,7 @@ export class LicenseComponent implements OnInit {
             const curDate = new Date(c.getTime() + 168 * 60 * 60 * 1000);
             const endDate = new Date(endDateStr);
             if (curDate >= endDate) {
-                if (c >= endDate){
-                    return false;
-                }else {
-                    return true;
-                }
+                return c < endDate;
             }
             return false;
         }
