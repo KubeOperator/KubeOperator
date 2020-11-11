@@ -28,15 +28,11 @@ func (c EFK) setDefaultValue() {
 	values["elasticsearch.image"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, ElasticSearchImageName)
 	values["elasticsearch.imageTag"] = ElasticSearchTag
 
-	if _, ok := values["elasticsearch.esJavaOpts[0]"]; !ok {
-		values["elasticsearch.esJavaOpts[0]"] = 1
+	if _, ok := values["elasticsearch.esJavaOpts.item"]; !ok {
+		values["elasticsearch.esJavaOpts.item"] = 1
 	}
-	if _, ok := values["elasticsearch.esJavaOpts[1]"]; !ok {
-		values["elasticsearch.esJavaOpts[1]"] = 1
-	}
-	values["elasticsearch.esJavaOpts"] = fmt.Sprintf("-Xmx%vg -Xms%vg", values["elasticsearch.esJavaOpts[0]"], values["elasticsearch.esJavaOpts[1]"])
-	delete(values, "elasticsearch.esJavaOpts[0]")
-	delete(values, "elasticsearch.esJavaOpts[1]")
+	values["elasticsearch.esJavaOpts"] = fmt.Sprintf("-Xmx%vg -Xms%vg", values["elasticsearch.esJavaOpts.item"], values["elasticsearch.esJavaOpts.item"])
+	delete(values, "elasticsearch.esJavaOpts.item")
 
 	if _, ok := values["elasticsearch.volumeClaimTemplate.resources.requests.storage"]; ok {
 		values["elasticsearch.volumeClaimTemplate.resources.requests.storage"] = fmt.Sprintf("%vGi", values["elasticsearch.volumeClaimTemplate.resources.requests.storage"])
