@@ -134,12 +134,12 @@ func (c Cluster) BeforeDelete() error {
 						return err
 					}
 					var projectResources []ProjectResource
-					if err := db.DB.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
+					if err := tx.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 						return err
 					}
 					if len(projectResources) > 0 {
 						for _, p := range projectResources {
-							db.DB.Delete(&p)
+							tx.Delete(&p)
 						}
 					}
 					if err := tx.Delete(&host).Error; err != nil {
@@ -150,6 +150,17 @@ func (c Cluster) BeforeDelete() error {
 				}
 			}
 		}
+	}
+	if c.Spec.Provider == constant.ClusterProviderBareMetal {
+		var hosts []Host
+		tx.Where(Host{ClusterID: c.ID}).Find(&hosts)
+		if len(hosts) > 0 {
+			for i := range hosts {
+				hosts[i].ClusterID = ""
+				tx.Save(&hosts[i])
+			}
+		}
+
 	}
 	if len(cluster.Tools) > 0 {
 		for _, tool := range cluster.Tools {
