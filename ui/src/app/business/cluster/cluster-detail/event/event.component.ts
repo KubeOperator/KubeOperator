@@ -52,6 +52,7 @@ export class EventComponent implements OnInit {
         this.kubernetesService.listEvents(this.currentCluster.name, this.continueToken, namespace).subscribe(res => {
             this.events = res.items;
             this.loading = false;
+            this.nextToken = res.metadata[this.kubernetesService.continueTokenKey] ? res.metadata[this.kubernetesService.continueTokenKey] : '';
         });
     }
 
