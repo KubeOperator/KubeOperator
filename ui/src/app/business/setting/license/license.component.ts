@@ -13,7 +13,7 @@ import {AlertLevels} from '../../../layout/common-alert/alert';
 })
 export class LicenseComponent implements OnInit {
     license: License = new License();
-    licenseStatus = 'invalid'
+    licenseStatus = false
     constructor(private licenseService: LicenseService,
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService) {
@@ -49,7 +49,7 @@ export class LicenseComponent implements OnInit {
     refresh() {
         this.licenseService.get().subscribe(data => {
             this.license = data;
-            this.licenseStatus = this.license.status
+            this.licenseStatus = true
             if (this.licDate.isDuringDate(data.expired)) {
                 this.commonAlertService.showAlert(this.translateService.instant('APP_LICENSE_EXPIRED_MSG'), AlertLevels.ERROR);
             }
