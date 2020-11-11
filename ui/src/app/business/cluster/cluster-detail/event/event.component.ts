@@ -77,6 +77,7 @@ export class EventComponent implements OnInit {
         this.eventService.changeNpd(this.currentCluster.name, op).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_UPDATE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.npdExists = exists;
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
