@@ -5,6 +5,7 @@ import {ToolsService} from './tools/tools.service';
 import {ClusterTool} from './tools/tools';
 import {ClusterService} from '../cluster.service';
 import {LicenseService} from '../../setting/license/license.service';
+import {BusinessLicenseService} from '../../../shared/service/business-license.service';
 
 @Component({
     selector: 'app-cluster-detail',
@@ -13,8 +14,11 @@ import {LicenseService} from '../../setting/license/license.service';
 })
 export class ClusterDetailComponent implements OnInit {
 
-    constructor(private router: Router, private route: ActivatedRoute, private toolsService: ToolsService,
-                private clusterService: ClusterService, private licenseService: LicenseService) {
+    constructor(private router: Router,
+                private route: ActivatedRoute,
+                private toolsService: ToolsService,
+                private businessLicenseService: BusinessLicenseService,
+                private clusterService: ClusterService) {
     }
 
     currentCluster: Cluster;
@@ -36,11 +40,7 @@ export class ClusterDetailComponent implements OnInit {
                 this.ready = true;
             });
         });
-        this.licenseService.get().subscribe(data => {
-            if (data.status === 'valid') {
-                this.hasLicense = true;
-            }
-        });
+        this.hasLicense = this.businessLicenseService.licenseValid;
     }
 
     showApp(toolName: string) {

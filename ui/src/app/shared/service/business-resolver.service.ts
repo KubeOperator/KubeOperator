@@ -18,15 +18,19 @@ export class BusinessResolverService implements Resolve<boolean> {
         });
     }
 
-    async initLicense()  {
-        const data = await this.getLicense();
-        if (data.status === 'valid') {
-            this.businessLicenseService.update(true);
-            return true;
-        } else {
-            this.businessLicenseService.update(false);
+    async initLicense() {
+        try {
+            const data = await this.getLicense();
+            if (data && data.status === 'valid') {
+                this.businessLicenseService.update(true);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (e) {
             return false;
         }
+
     }
 
     getLicense() {
