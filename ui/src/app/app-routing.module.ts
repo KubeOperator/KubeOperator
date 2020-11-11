@@ -62,7 +62,7 @@ const routes: Routes = [
         component: LayoutComponent,
         canActivate: [AuthUserService],
         canActivateChild: [AuthUserService],
-        // resolve: {hasLicense: BusinessResolverService},
+        resolve: {hasLicense: BusinessResolverService},
         children: [
             {path: '', redirectTo: 'projects', pathMatch: 'full'},
             {

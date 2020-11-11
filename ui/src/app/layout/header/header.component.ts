@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {SessionService} from '../../shared/auth/session.service';
 import {SessionUser} from '../../shared/auth/session-user';
 import {Router} from '@angular/router';
@@ -8,13 +8,14 @@ import {AboutComponent} from './about/about.component';
 import {NoticeService} from '../../business/message-center/mailbox/notice.service';
 import {LicenseService} from '../../business/setting/license/license.service';
 import {TranslateService} from '@ngx-translate/core';
+import {BusinessLicenseService} from '../../shared/service/business-license.service';
 
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
     user: SessionUser = new SessionUser();
     unreadAlert = 0;
@@ -32,7 +33,7 @@ export class HeaderComponent implements OnInit {
     timer;
 
     constructor(private sessionService: SessionService, private router: Router,
-                private noticeService: NoticeService, private licenseService: LicenseService,
+                private noticeService: NoticeService, private businessLicenseService: BusinessLicenseService,
                 private translateService: TranslateService) {
     }
 
@@ -50,19 +51,16 @@ export class HeaderComponent implements OnInit {
         const profile = this.sessionService.getCacheProfile();
         if (profile != null) {
             this.user = profile.user;
-            this.licenseService.get().subscribe(data => {
-                if (data.status === 'valid') {
-                    this.hasLicense = true;
-                }
+            this.hasLicense = this.businessLicenseService.licenseValid;
+            if (this.hasLicense) {
                 this.listUnreadMsg(this.user.name);
                 this.timer = setInterval(() => {
                     this.listUnreadMsg(this.user.name);
                 }, 60000);
-            });
+            }
         }
     }
 
-    // tslint:disable-next-line:use-lifecycle-interface
     ngOnDestroy() {
         if (this.timer) {
             clearInterval(this.timer);
