@@ -26,10 +26,10 @@
                                 </tr>
                                 <tr>
                                     <th>{{"APP_STATUS"|translate}}</th>
-                                    <td *ngIf="!licenseStatus"></td>
-                                    <td *ngIf="license.status == 'valid'" [ngStyle]="{'color': licenseStatus ? 'green' : 'red' }">{{"APP_LICENSE_VALID_STATUS"|translate}}</td>
-                                    <td *ngIf="license.status == 'expired'" [ngStyle]="{'color': licenseStatus ? 'green' : 'red' }">{{"APP_LICENSE_EXPIRED_STATUS"|translate}}</td>
-                                    <td *ngIf="license.status == 'invalid'" [ngStyle]="{'color': licenseStatus ? 'green' : 'red' }">{{"APP_LICENSE_INVALID_STATUS"|translate}}</td>
+                                    <td *ngIf="licenseStatus === ''"></td>
+                                    <td *ngIf="license.status == 'valid'" [ngStyle]="{'color': licenseStatus == 'valid' ? 'green' : 'red' }">{{"APP_LICENSE_VALID_STATUS"|translate}}</td>
+                                    <td *ngIf="license.status == 'expired'" [ngStyle]="{'color': licenseStatus == 'valid' ? 'green' : 'red' }">{{"APP_LICENSE_EXPIRED_STATUS"|translate}}</td>
+                                    <td *ngIf="license.status == 'invalid'" [ngStyle]="{'color': licenseStatus == 'valid' ? 'green' : 'red' }">{{"APP_LICENSE_INVALID_STATUS"|translate}}</td>
                                 </tr>
                                 </tbody>
                             </table>
