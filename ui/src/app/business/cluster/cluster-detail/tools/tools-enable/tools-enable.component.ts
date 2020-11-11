@@ -52,11 +52,6 @@ export class ToolsEnableComponent implements OnInit {
                 this.alertMsg = this.translateService.instant('APP_EFK_CREATE_REPLICAS');
                 return;
             }
-            if (this.item.vars['elasticsearch.esJavaOpts[0]'] < this.item.vars['elasticsearch.esJavaOpts[1]']) {
-                this.isAlertShow = true;
-                this.alertMsg = this.translateService.instant('APP_EFK_CREATE_HEAP');
-                return;
-            }
             this.isAlertShow = false;
         }
     }
@@ -116,8 +111,7 @@ export class ToolsEnableComponent implements OnInit {
                 break;
             case 'logging':
                 item.vars = {
-                    'elasticsearch.esJavaOpts[0]': 1,
-                    'elasticsearch.esJavaOpts[1]': 1,
+                    'elasticsearch.esJavaOpts.item': 1,
                     'elasticsearch.replicas': 1,
                     'elasticsearch.persistence.enabled': false,
                     'elasticsearch.volumeClaimTemplate.resources.requests.storage': 10,

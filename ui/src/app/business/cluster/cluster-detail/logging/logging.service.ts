@@ -15,7 +15,7 @@ export class LoggingService {
            beginDate: string, endDate: string, pageFrom: number, pageSize: number): Observable<any> {
         const index = queryIndex;
         const query = {
-            from: pageFrom,
+            from: (pageFrom - 1) * pageSize,
             size: pageSize,
             query: {
                 bool: {
