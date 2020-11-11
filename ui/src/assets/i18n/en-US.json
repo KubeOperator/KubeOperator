@@ -308,7 +308,7 @@
   "APP_HEAP_MEMORY_HELPER": "The default value is 1G",
   "APP_SEARCH": "Search",
   "APP_QUERY_INFO": "Query info",
-  "APP_OPEN_EXPERT_SEARCH": "Enable expert query",
+  "APP_OPEN_EXPERT_SEARCH": "Advanced",
   "APP_SEARCH_BEGIN_DATE": "Start date",
   "APP_SEARCH_END_DATE": "End date",
   "APP_DAY": "Day",
