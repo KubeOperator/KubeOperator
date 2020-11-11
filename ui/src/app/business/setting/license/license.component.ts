@@ -2,6 +2,9 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {LicenseImportComponent} from "./license-import/license-import.component";
 import {LicenseService} from "./license.service";
 import {License} from "./license";
+import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
+import {TranslateService} from '@ngx-translate/core';
+import {AlertLevels} from '../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-license',
@@ -10,8 +13,26 @@ import {License} from "./license";
 })
 export class LicenseComponent implements OnInit {
     license: License = new License();
-    licenseStatus = 'invalid'
-    constructor(private licenseService: LicenseService) {
+    licenseStatus = false
+    constructor(private licenseService: LicenseService,
+                private commonAlertService: CommonAlertService,
+                private translateService: TranslateService) {
+    }
+
+    licDate = {
+        isDuringDate: function (endDateStr) {
+            let c = new Date(),
+                curDate = new Date(c.getTime() + 168*60*60*1000 )
+            let endDate = new Date(endDateStr);
+            if (curDate >= endDate) {
+                if (c >= endDate){
+                    return false
+                }else {
+                    return true
+                }
+            }
+            return false;
+        }
     }
 
     @ViewChild(LicenseImportComponent, {static: true})
@@ -28,7 +49,10 @@ export class LicenseComponent implements OnInit {
     refresh() {
         this.licenseService.get().subscribe(data => {
             this.license = data;
-            this.licenseStatus = this.license.status
+            this.licenseStatus = true
+            if (this.licDate.isDuringDate(data.expired)) {
+                this.commonAlertService.showAlert(this.translateService.instant('APP_LICENSE_EXPIRED_MSG'), AlertLevels.ERROR);
+            }
         });
     }
 

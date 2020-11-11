@@ -50,7 +50,7 @@ export class ProjectMemberCreateComponent extends BaseModelDirective<ProjectMemb
 
     onSubmit() {
         this.item.projectName = this.currentProject.name;
-        this.projectMemberService.create(this.item).subscribe(res => {
+        this.projectMemberService.create(this.item, this.currentProject.name).subscribe(res => {
             this.opened = false;
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
@@ -64,7 +64,7 @@ export class ProjectMemberCreateComponent extends BaseModelDirective<ProjectMemb
     }
 
     handleValidation() {
-        this.projectMemberService.getUsers(this.item.userName).subscribe(res => {
+        this.projectMemberService.getUsers(this.item.userName, this.currentProject.name).subscribe(res => {
             this.selectUsers = res.items;
         });
     }

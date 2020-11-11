@@ -34,6 +34,7 @@ export class PlanCreateComponent extends BaseModelDirective<Plan> implements OnI
     projects: Project[] = [];
     regionId: string;
     currentProvider: string;
+    isSubmitGoing = false;
     @Output() created = new EventEmitter();
     @ViewChild('basicForm', {static: true}) basicForm: NgForm;
     @ViewChild('planForm', {static: true}) planForm: NgForm;
@@ -69,11 +70,14 @@ export class PlanCreateComponent extends BaseModelDirective<Plan> implements OnI
             this.item.zones = [];
             this.item.zones.push(this.item.zone);
         }
+        this.isSubmitGoing = true;
         this.planService.create(this.item).subscribe(res => {
             this.onCancel();
             this.created.emit();
+            this.isSubmitGoing = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

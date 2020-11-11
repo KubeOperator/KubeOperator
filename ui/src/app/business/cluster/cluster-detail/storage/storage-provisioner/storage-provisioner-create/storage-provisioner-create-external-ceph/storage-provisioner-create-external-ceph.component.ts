@@ -3,6 +3,8 @@ import {StorageProvisionerService} from "../../storage-provisioner.service";
 import {CreateStorageProvisionerRequest} from "../../storage-provisioner";
 import {Cluster} from "../../../../../cluster";
 import {NgForm} from "@angular/forms";
+import {AlertLevels} from '../../../../../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../../../../../shared/common-component/modal-alert/modal-alert.service';
 
 @Component({
     selector: 'app-storage-provisioner-create-external-ceph',
@@ -11,7 +13,7 @@ import {NgForm} from "@angular/forms";
 })
 export class StorageProvisionerCreateExternalCephComponent implements OnInit {
 
-    constructor(private storageProvisionerService: StorageProvisionerService) {
+    constructor(private storageProvisionerService: StorageProvisionerService, private modalAlertService: ModalAlertService) {
     }
 
     opened = false;
@@ -42,6 +44,8 @@ export class StorageProvisionerCreateExternalCephComponent implements OnInit {
         this.storageProvisionerService.create(this.currentCluster.name, this.item).subscribe(data => {
             this.opened = false;
             this.created.emit();
+        }, error => {
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 }

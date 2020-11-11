@@ -511,8 +511,10 @@
   "NETWORK_INTERFACE": "网卡名称",
   "NETWORK_HELPER": "多网卡环境需要指定使用的网卡名称,单网卡环境可不填",
   "APP_CONNECT": "连接",
-  "APP_LICENSE_VALID_STATUS": "正常",
+  "APP_LICENSE_VALID_STATUS": "有效",
   "APP_LICENSE_INVALID_STATUS": "无效",
   "APP_LICENSE_EXPIRED_STATUS": "已过期",
-  "NAMESPACE_INVALID": "namespace名称不符合规范"
+  "APP_LICENSE_EXPIRED_MSG": "你的 KubeOperator 许可证即将过期",
+  "NAMESPACE_INVALID": "namespace名称不符合规范",
+  "PROVISIONER_DELETE_FAILED": "此存储提供商已经绑定到存储类，不能删除！"
 }

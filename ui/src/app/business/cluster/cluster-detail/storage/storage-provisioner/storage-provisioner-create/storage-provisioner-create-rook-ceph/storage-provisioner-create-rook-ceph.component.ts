@@ -3,6 +3,8 @@ import {StorageProvisionerService} from "../../storage-provisioner.service";
 import {CreateStorageProvisionerRequest} from "../../storage-provisioner";
 import {Cluster} from "../../../../../cluster";
 import {NgForm} from "@angular/forms";
+import {ModalAlertService} from '../../../../../../../shared/common-component/modal-alert/modal-alert.service';
+import {AlertLevels} from '../../../../../../../layout/common-alert/alert';
 
 @Component({
     selector: 'app-storage-provisioner-create-rook-ceph',
@@ -11,7 +13,7 @@ import {NgForm} from "@angular/forms";
 })
 export class StorageProvisionerCreateRookCephComponent implements OnInit {
 
-    constructor(private storageProvisionerService: StorageProvisionerService) {
+    constructor(private storageProvisionerService: StorageProvisionerService, private modalAlertService: ModalAlertService) {
     }
 
     opened = false;
@@ -49,6 +51,9 @@ export class StorageProvisionerCreateRookCephComponent implements OnInit {
             this.isSubmitGoing = false;
             this.opened = false;
             this.created.emit();
+        }, error => {
+            this.isSubmitGoing = false;
+            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 

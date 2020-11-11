@@ -57,7 +57,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
             useClass: SessionInterceptor,
             multi: true,
         },
-        {provide: ErrorHandler, useClass: AppGlobalErrorHandler}
+        {provide: ErrorHandler, useClass: AppGlobalErrorHandler},
     ],
     bootstrap: [AppComponent],
 

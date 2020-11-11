@@ -27,7 +27,8 @@
             </clr-select-container>
             <clr-input-container>
                 <label>{{"APP_OCEAN_URL"|translate}}</label>
-                <input clrInput [(ngModel)]="item.vars['oceanstor_urls']" name="oceanstor_urls" size="34" placeholder="10.1.1.1,10.1.1.2"
+                <input clrInput [(ngModel)]="item.vars['oceanstor_urls']" name="oceanstor_urls" size="34"
+                       placeholder="10.1.1.1,10.1.1.2"
                        required>
             </clr-input-container>
             <clr-input-container>
@@ -41,12 +42,14 @@
             </clr-password-container>
             <clr-input-container>
                 <label>{{"APP_OCEAN_POOL"|translate}}</label>
-                <input clrInput [size]="32" name="oceanstor_pools" [(ngModel)]="item.vars['oceanstor_pools']" placeholder="pool1,pool2"
+                <input clrInput [size]="32" name="oceanstor_pools" [(ngModel)]="item.vars['oceanstor_pools']"
+                       placeholder="pool1,pool2"
                        required/>
             </clr-input-container>
             <clr-input-container *ngIf="item.vars['oceanstor_type']==='nfs'">
                 <label>{{"APP_OCEAN_PORTAL_NFS"|translate}}</label>
-                <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']" placeholder="test1,test2"
+                <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']"
+                       placeholder="test1,test2"
                        required/>
             </clr-input-container>
             <clr-input-container *ngIf="item.vars['oceanstor_type']==='iscsi'">
@@ -54,11 +57,15 @@
                 <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']"
                        required/>
             </clr-input-container>
+            <app-modal-alert></app-modal-alert>
         </form>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="storForm.invalid">{{'APP_COMMIT'|translate}}</button>
+                [disabled]="storForm.invalid || isSubmitGoing">
+            <span *ngIf="isSubmitGoing" class="spinner spinner-sm">Loading...</span>
+            {{'APP_COMMIT'|translate}}
+        </button>
     </div>
 </clr-modal>

@@ -110,7 +110,8 @@
         <ng-template clrPageButtons>
             <clr-wizard-button [type]="'cancel'">{{'APP_CANCEL'|translate}}</clr-wizard-button>
             <clr-wizard-button [type]="'previous'">{{'APP_BACK'|translate}}</clr-wizard-button>
-            <clr-wizard-button [type]="'custom-finish'">{{'APP_FINISH'|translate}}</clr-wizard-button>
+            <clr-wizard-button [type]="'custom-finish'"
+                               [clrWizardButtonDisabled]="isSubmitGoing">{{'APP_FINISH'|translate}}</clr-wizard-button>
         </ng-template>
     </clr-wizard-page>
 </clr-wizard>
