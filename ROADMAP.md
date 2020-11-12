@@ -127,7 +127,7 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] restapi 开启 rbac 认证；
  - [x] 支持 session 和 jwt 两种认证方式；
 
- ## v3.3 (计划中)
+ ## v3.4 (计划中)
  
  - [ ] 多集群配置管理（X-Pack）；
  - [ ] GPU 支持；
