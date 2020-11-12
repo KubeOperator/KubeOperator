@@ -111,25 +111,29 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 支持实时查看任务执行返回日志；
  - [x] 应用商店增加 Redmine；
  
- ## v3.3 (开发中，计划 11 月 12 日发布)
+ ## v3.3 (已发布)
 
- - [ ] FusionCompute 支持自动部署模式；
- - [ ] FusionStorage CSI 支持；
- - [ ] 集群日志，支持 EFK；
- - [ ] 集群健康评估（X-Pack）；
- - [ ] F5 对接（X-Pack）；
- - [ ] 支持动态管理 Kubernetes 及组件版本；
- - [ ] 自动模式支持自定义 cpu、内存规格；
- - [ ] 集群创建支持指定网卡信息、helm版本；
- - [ ] 支持登录验证码；
- - [ ] 支持添加、删除 namespace；
- - [ ] 集群事件支持启用、禁用 npd；
- - [ ] 支持 session 和 jwt 两种认证方式；
+ - [x] FusionCompute 支持自动部署模式；
+ - [x] FusionStorage CSI 支持；
+ - [x] 集群日志，支持 EFK；
+ - [x] 集群健康评估（X-Pack）；
+ - [x] F5 对接（X-Pack）；
+ - [x] 支持动态管理 Kubernetes 及组件版本；
+ - [x] 自动模式支持自定义 cpu、内存规格；
+ - [x] 集群创建支持指定网卡信息、helm版本；
+ - [x] 支持登录验证码；
+ - [x] 支持添加、删除 namespace；
+ - [x] 集群事件支持启用、禁用 npd；
+ - [x] restapi 开启 rbac 认证；
+ - [x] 支持 session 和 jwt 两种认证方式；
 
  ## v3.3 (计划中)
  
  - [ ] 多集群配置管理（X-Pack）；
  - [ ] GPU 支持；
+ - [ ] 系统操作日志；
  - [ ] 集群日志，支持 Loki；
  - [ ] 备份支持到本地盘和 SFTP；
+ - [ ] 批量导入主机；
+ - [ ] 忘记密码；
  - [ ] 应用商店增加 Kuboard；
