@@ -41,6 +41,7 @@ func NewClusterNodeService() ClusterNodeService {
 		clusterLogService:   NewClusterLogService(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		messageService:      NewMessageService(),
+		vmConfigRepo:        repository.NewVmConfigRepository(),
 	}
 }
 
@@ -53,6 +54,7 @@ type clusterNodeService struct {
 	clusterLogService   ClusterLogService
 	projectResourceRepo repository.ProjectResourceRepository
 	messageService      MessageService
+	vmConfigRepo        repository.VmConfigRepository
 }
 
 func (c *clusterNodeService) Get(clusterName, name string) (*dto.Node, error) {
@@ -473,11 +475,23 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 				break
 			}
 		}
-		newHosts = append(newHosts, &model.Host{
+		newHost := &model.Host{
 			Name:   name,
 			Port:   22,
 			Status: constant.ClusterCreating,
-		})
+		}
+		newHosts = append(newHosts, newHost)
+		if cluster.Plan.Region.Provider != constant.OpenStack {
+			planVars := map[string]string{}
+			_ = json.Unmarshal([]byte(cluster.Plan.Vars), &planVars)
+			role := getHostRole(newHost.Name)
+			workerConfig, err := c.vmConfigRepo.Get(planVars[fmt.Sprintf("%sModel", role)])
+			if err != nil {
+				return nil, err
+			}
+			newHost.CpuCore = workerConfig.Cpu
+			newHost.Memory = workerConfig.Memory * 1024
+		}
 	}
 	group := allocateZone(cluster.Plan.Zones, newHosts)
 	var selectedIps []string
