@@ -100,7 +100,6 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
             this.created.emit();
             this.opened = false;
         }, error => {
-            console.log(error);
             this.alert.showAlert(error.error.message, AlertLevels.ERROR);
             this.isSubmitGoing = false;
         });
