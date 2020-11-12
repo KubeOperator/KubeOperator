@@ -1,11 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {KubernetesService} from "../../../../../kubernetes.service";
 import {
-    V1HostPathVolumeSource,
     V1LocalVolumeSource,
     V1NodeSelector,
     V1NodeSelectorTerm,
-    V1PersistentVolume, V1StorageClass
+    V1PersistentVolume,
+    V1StorageClass
 } from "@kubernetes/client-node";
 import {Cluster} from "../../../../../cluster";
 import {NgForm} from "@angular/forms";
@@ -13,6 +13,8 @@ import {V1NodeSelectorRequirement} from "@kubernetes/client-node/dist/gen/model/
 import {V1ObjectMeta} from "@kubernetes/client-node/dist/gen/model/v1ObjectMeta";
 import {V1VolumeNodeAffinity} from "@kubernetes/client-node/dist/gen/model/v1VolumeNodeAffinity";
 import {V1PersistentVolumeSpec} from "@kubernetes/client-node/dist/gen/model/v1PersistentVolumeSpec";
+import {ModalAlertService} from "../../../../../../../shared/common-component/modal-alert/modal-alert.service";
+import {AlertLevels} from "../../../../../../../layout/common-alert/alert";
 
 @Component({
     selector: 'app-persistent-volume-create-local-storage',
@@ -21,7 +23,7 @@ import {V1PersistentVolumeSpec} from "@kubernetes/client-node/dist/gen/model/v1P
 })
 export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
 
-    constructor(private kubernetesService: KubernetesService) {
+    constructor(private kubernetesService: KubernetesService, private alert: ModalAlertService) {
     }
 
     opened = false;
@@ -97,6 +99,10 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
             this.isSubmitGoing = false;
             this.created.emit();
             this.opened = false;
+        }, error => {
+            console.log(error);
+            this.alert.showAlert(error.error.message, AlertLevels.ERROR);
+            this.isSubmitGoing = false;
         });
     }
 
