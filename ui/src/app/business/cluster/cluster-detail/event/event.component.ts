@@ -23,6 +23,7 @@ export class EventComponent implements OnInit {
     nextToken = '';
     previousToken = '';
     continueToken = '';
+    showPage = true;
 
     constructor(private kubernetesService: KubernetesService,
                 private route: ActivatedRoute,
@@ -45,6 +46,16 @@ export class EventComponent implements OnInit {
             });
             this.getNpdExists();
         });
+    }
+
+    changeNamespace(namespace) {
+        this.currentNamespace = namespace;
+        this.nextToken = '';
+        this.previousToken = '';
+        this.continueToken = '';
+        this.showPage = false;
+        setTimeout(x => this.showPage = true);
+        this.listEvents(namespace);
     }
 
     listEvents(namespace) {
