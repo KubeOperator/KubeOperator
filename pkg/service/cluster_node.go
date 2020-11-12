@@ -480,7 +480,6 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 			Port:   22,
 			Status: constant.ClusterCreating,
 		}
-		newHosts = append(newHosts, newHost)
 		if cluster.Plan.Region.Provider != constant.OpenStack {
 			planVars := map[string]string{}
 			_ = json.Unmarshal([]byte(cluster.Plan.Vars), &planVars)
@@ -492,6 +491,7 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 			newHost.CpuCore = workerConfig.Cpu
 			newHost.Memory = workerConfig.Memory * 1024
 		}
+		newHosts = append(newHosts, newHost)
 	}
 	group := allocateZone(cluster.Plan.Zones, newHosts)
 	var selectedIps []string
