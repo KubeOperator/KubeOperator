@@ -70,12 +70,22 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
         }
         this.isSubmitGoing = true;
         this.item.spec.accessModes.push(this.accessMode);
-        if (this.selectorKey && this.selectorOperation && this.selectorValue) {
-            this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0] = {
-                key: this.selectorKey,
-                operator: this.selectorOperation,
-                values: this.selectorValue.split(',')
-            } as V1NodeSelectorRequirement;
+        if (this.selectorOperation && this.selectorKey) {
+            if (['Exists', 'DoesNotExist'].includes(this.selectorOperation)) {
+                this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0] = {
+                    key: this.selectorKey,
+                    operator: this.selectorOperation,
+                } as V1NodeSelectorRequirement;
+            }
+            if (['In', 'NotIn'].includes(this.selectorOperation)) {
+                this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0] = {
+                    key: this.selectorKey,
+                    operator: this.selectorOperation,
+                } as V1NodeSelectorRequirement;
+                if (this.selectorValue) {
+                    this.item.spec.nodeAffinity.required.nodeSelectorTerms[0].matchExpressions[0].values = this.selectorValue.split(',');
+                }
+            }
         } else {
             delete this.item.spec['nodeAffinity'];
         }
