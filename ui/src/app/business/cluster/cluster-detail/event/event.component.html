@@ -6,7 +6,7 @@
                    (change)="changeNpd(npdExists)"/>
         </clr-checkbox-wrapper>
         <div class="clr-select-wrapper">
-            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="listEvents(currentNamespace)">
+            <select class="clr-select" [(ngModel)]="currentNamespace" (change)="changeNamespace(currentNamespace)">
                 <option *ngFor="let b of namespaces"
                         value="{{b['metadata'].name}}">{{b['metadata'].name}}</option>
             </select>
@@ -25,7 +25,7 @@
         <clr-dg-cell>{{item.firstTimestamp|date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
-        <app-k8s-pagination [(continueToken)]="continueToken"
+        <app-k8s-pagination *ngIf="showPage" [(continueToken)]="continueToken"
                             [nextToken]="nextToken"
                             [previousToken]="previousToken"
                             (pageChange)="listEvents(currentNamespace)"></app-k8s-pagination>
