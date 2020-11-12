@@ -52,6 +52,7 @@ export class PersistentVolumeCreateHostPathComponent implements OnInit {
     }
 
     reset() {
+        this.isSubmitGoing = false;
         this.item = this.newHostPathPv();
         this.pvForm.resetForm();
     }

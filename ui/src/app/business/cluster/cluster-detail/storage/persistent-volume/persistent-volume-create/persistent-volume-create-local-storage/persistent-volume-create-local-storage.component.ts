@@ -54,7 +54,7 @@ export class PersistentVolumeCreateLocalStorageComponent implements OnInit {
     }
 
     reset() {
-
+        this.isSubmitGoing = false;
         this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
             this.storageClazz = data.items.filter((sc) => {
                 return sc.provisioner === 'kubernetes.io/no-provisioner';

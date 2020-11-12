@@ -37,6 +37,7 @@ export class StorageClassCreateComponent implements OnInit {
     }
 
     reset() {
+        this.isSubmitGoing = false;
         this.itemForm.resetForm();
         this.item = this.newV1StorageClass();
         this.provisioner = null;

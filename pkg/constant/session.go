@@ -13,4 +13,4 @@ const (
 	AuthMethodJWT     = "jwt"
 )
 
-var Sess = sessions.New(sessions.Config{Cookie: cookieNameForSessionID, Expires: 2 * time.Hour})
+var Sess = sessions.New(sessions.Config{Cookie: cookieNameForSessionID, Expires: 12 * time.Hour})
