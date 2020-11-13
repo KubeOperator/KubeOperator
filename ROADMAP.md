@@ -138,4 +138,4 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [ ] 备份支持到本地盘和 SFTP；
  - [ ] 批量导入主机；
  - [ ] 忘记密码；
- - [ ] 应用商店增加 Kuboard；
+ - [ ] 应用商店增加 Kuboard、TensorFlow；
