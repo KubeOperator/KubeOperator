@@ -16,6 +16,7 @@ import { AboutComponent } from './header/about/about.component';
         NavigationComponent, AppAlertComponent, CommonAlertComponent, PasswordComponent, AboutComponent],
     exports: [
         LayoutComponent,
+        CommonAlertComponent,
     ],
     imports: [
         CoreModule,
