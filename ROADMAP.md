@@ -111,6 +111,8 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 支持实时查看任务执行返回日志；
  - [x] 应用商店增加 Redmine；
  
+ Release Note: https://blog.fit2cloud.com/?p=1516
+ 
  ## v3.3 (已发布)
 
  - [x] FusionCompute 支持自动部署模式；
