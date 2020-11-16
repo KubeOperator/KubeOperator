@@ -54,6 +54,7 @@ import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-g
 import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
 import {AdminAuthService} from './shared/auth/admin-auth.service';
+import {EmailComponent} from './business/setting/email/email.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -136,6 +137,7 @@ const routes: Routes = [
                     {path: 'system', component: SystemComponent},
                     {path: 'credential', component: CredentialComponent},
                     {path: 'backupAccounts', component: BackupAccountComponent},
+                    {path: 'email', component: EmailComponent},
                     {path: 'license', component: LicenseComponent},
                     {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
