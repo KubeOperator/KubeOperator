@@ -53,6 +53,8 @@ import {VmConfigComponent} from './business/deploy-plan/vm-config/vm-config.comp
 import {ClusterGradeComponent} from './business/cluster/cluster-detail/cluster-grade/cluster-grade.component';
 import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
+import {AdminAuthService} from './shared/auth/admin-auth.service';
+import {EmailComponent} from './business/setting/email/email.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -123,15 +125,19 @@ const routes: Routes = [
             {
                 path: 'hosts',
                 component: HostComponent,
+                canActivate: [AdminAuthService]
             },
             {
                 path: 'setting',
                 component: SettingComponent,
+                canActivate: [AdminAuthService],
+                canActivateChild: [AdminAuthService],
                 children: [
                     {path: '', redirectTo: 'system', pathMatch: 'full'},
                     {path: 'system', component: SystemComponent},
                     {path: 'credential', component: CredentialComponent},
                     {path: 'backupAccounts', component: BackupAccountComponent},
+                    {path: 'email', component: EmailComponent},
                     {path: 'license', component: LicenseComponent},
                     {path: 'ldap', component: LdapComponent},
                     {path: 'theme', component: ThemeComponent},
@@ -141,6 +147,7 @@ const routes: Routes = [
             {
                 path: 'deploy',
                 component: DeployPlanComponent,
+                canActivate: [AdminAuthService],
                 children: [
                     {path: '', redirectTo: 'region', pathMatch: 'full'},
                     {path: 'region', component: RegionComponent},
@@ -151,10 +158,12 @@ const routes: Routes = [
             }, {
                 path: 'manifests',
                 component: ManifestComponent,
+                canActivate: [AdminAuthService],
             },
             {
                 path: 'users',
                 component: UserComponent,
+                canActivate: [AdminAuthService],
             },
             {
                 path: 'message',

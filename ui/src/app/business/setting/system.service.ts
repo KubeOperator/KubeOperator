@@ -24,4 +24,9 @@ export class SystemService extends BaseModelService<System> {
         const itemUrl = `${this.baseUrl}/ip`;
         return this.http.get<string>(itemUrl);
     }
+
+    checkBy(type, item): Observable<System> {
+        const itemUrl = `${this.baseUrl}/check/` + type;
+        return this.http.post<System>(itemUrl, item);
+    }
 }

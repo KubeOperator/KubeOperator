@@ -15,6 +15,7 @@ func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
 	authParty := v1.Party("/auth")
 	mvc.New(authParty.Party("/session")).HandleError(ErrorHandler).Handle(controller.NewSessionController())
+	mvc.New(v1.Party("/user")).HandleError(ErrorHandler).Handle(controller.NewForgotPasswordController())
 	authScope := v1.Party("/")
 	authScope.Use(middleware.JWTMiddleware().Serve)
 	authScope.Use(middleware.UserMiddleware)

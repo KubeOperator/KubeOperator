@@ -21,17 +21,25 @@
                 <input type="password" name="password" clrPassword placeholder="Password"
                        [(ngModel)]="loginCredential.password" required autocomplete/>
             </clr-password-container>
-            <img width="120" src="{{captcha.image}}" (click)="createCaptcha()" *ngIf="hasCode">
-            <clr-input-container *ngIf="hasCode" style="width: 120px;">
-                <input type="text" size="20" name="code" clrInput [(ngModel)]="loginCredential.code"
-                       required/>
-            </clr-input-container>
+            <div>
+                <img width="120" src="{{captcha.image}}" (click)="createCaptcha()" *ngIf="hasCode">
+                <clr-input-container *ngIf="hasCode" style="width: 120px;">
+                    <input type="text" size="20" name="code" clrInput [(ngModel)]="loginCredential.code"
+                           required/>
+                </clr-input-container>
+            </div>
             <div *ngIf="isError" class="error active">
                 {{message}}
             </div>
             <app-modal-alert></app-modal-alert>
             <button type="submit" class="btn btn-primary" (click)="login()"
                     [disabled]="loginForm.invalid">{{'APP_LOGIN'|translate}}</button>
+            <div>
+                <br>
+                <a style="position: absolute;right: 12%" (click)="forgotPassword()"
+                   class="more-info-link">{{ '忘记密码' | translate }}</a>
+            </div>
         </div>
     </form>
 </div>
+<app-forgot-password></app-forgot-password>

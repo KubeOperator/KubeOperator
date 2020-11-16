@@ -48,3 +48,21 @@ func (s SystemSettingController) Post() ([]dto.SystemSetting, error) {
 func (s SystemSettingController) GetIp() string {
 	return s.SystemSettingService.GetLocalHostName()
 }
+
+func (s SystemSettingController) PostCheckBy(typeName string) error {
+	var req dto.SystemSettingCreate
+	err := s.Ctx.ReadJSON(&req)
+	if err != nil {
+		return err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return err
+	}
+	err = s.SystemSettingService.CheckSettingByType(typeName, req)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -118,6 +118,13 @@ export class ToolsEnableComponent implements OnInit {
                     'elasticsearch.volumeClaimTemplate.storageClassName': '',
                 };
                 break;
+            case 'loki':
+                item.vars = {
+                    'loki.persistence.enabled': false,
+                    'loki.persistence.size': 8,
+                    'loki.persistence.storageClassName': '',
+                };
+                break;
             case 'kubeapps':
                 item.vars = {
                     'postgresql.persistence.enabled': false,

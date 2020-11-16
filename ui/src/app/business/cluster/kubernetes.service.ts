@@ -36,36 +36,36 @@ export class KubernetesService {
     constructor(private client: HttpClient) {
     }
 
-    namespaceUrl = '/api/v1/namespaces';
-    namespaceOpUrl = '/api/v1/namespaces/{namespace}';
+    namespaceUrl = 'api/v1/namespaces';
+    namespaceOpUrl = 'api/v1/namespaces/{namespace}';
     serviceUrl = 'api/v1/services';
     namespaceServiceUrl = 'api/v1/namespaces/{namespace}/services';
-    persistentVolumesUrl = '/api/v1/persistentvolumes';
-    storageClassUrl = '/apis/storage.k8s.io/v1/storageclasses';
-    persistentVolumeClaimsUrl = '/api/v1/persistentvolumeclaims';
-    namespacePersistentVolumeClaimsUrl = '/api/v1/namespaces/{namespace}/deployments';
+    persistentVolumesUrl = 'api/v1/persistentvolumes';
+    storageClassUrl = 'apis/storage.k8s.io/v1/storageclasses';
+    persistentVolumeClaimsUrl = 'api/v1/persistentvolumeclaims';
+    namespacePersistentVolumeClaimsUrl = 'api/v1/namespaces/{namespace}/deployments';
     deploymentUrl = 'apis/apps/v1/deployments';
     namespaceDeploymentUrl = 'apis/apps/v1/namespaces/{namespace}/deployments';
-    daemonSetUrl = '/apis/apps/v1/daemonsets/';
-    statefulSetUrl = '/apis/apps/v1/statefulsets/';
-    namespaceStatefulSet = '/apis/apps/v1/namespaces/{namespace}/statefulsets/';
-    namespaceDaemonSetUrl = '/apis/apps/v1/namespaces/{namespace}/daemonsets/';
+    daemonSetUrl = 'apis/apps/v1/daemonsets/';
+    statefulSetUrl = 'apis/apps/v1/statefulsets/';
+    namespaceStatefulSet = 'apis/apps/v1/namespaces/{namespace}/statefulsets/';
+    namespaceDaemonSetUrl = 'apis/apps/v1/namespaces/{namespace}/daemonsets/';
     cornJobUrl = 'apis/batch/v1beta1/cronjobs';
     namespaceCornJobUrl = 'apis/batch/v1beta1/namespaces/{namespace}/cronjobs';
-    jobUrl = '/apis/batch/v1/jobs';
-    namespaceJobUrl = '/apis/batch/v1/namespaces/{namespace}/jobs';
-    ingressUrl = '/apis/networking.k8s.io/v1beta1/ingresses';
-    namespaceIngressUrl = '/apis/networking.k8s.io/v1beta1/namespaces/{namespace}/ingresses';
-    configMapUrl = '/api/v1/configmaps';
-    namespaceConfigMapUrl = '/api/v1/namespaces/{namespace}/configmaps';
-    secretUrl = '/api/v1/secrets';
-    namespaceSecretUrl = '/api/v1/secrets';
-    podUrl = '/api/v1/pods';
-    namespacePodUrl = '/api/v1/namespaces/{namespace}/pods/';
+    jobUrl = 'apis/batch/v1/jobs';
+    namespaceJobUrl = 'apis/batch/v1/namespaces/{namespace}/jobs';
+    ingressUrl = 'apis/networking.k8s.io/v1beta1/ingresses';
+    namespaceIngressUrl = 'apis/networking.k8s.io/v1beta1/namespaces/{namespace}/ingresses';
+    configMapUrl = 'api/v1/configmaps';
+    namespaceConfigMapUrl = 'api/v1/namespaces/{namespace}/configmaps';
+    secretUrl = 'api/v1/secrets';
+    namespaceSecretUrl = 'api/v1/secrets';
+    podUrl = 'api/v1/pods';
+    namespacePodUrl = 'api/v1/namespaces/{namespace}/pods/';
     nodesUrl = 'api/v1/nodes';
     nodeStatsSummaryUrl = 'apis/metrics.k8s.io/v1beta1/nodes';
-    eventByNamespaceUrl = '/api/v1/namespaces/{namespace}/events';
-    eventsUrl = '/api/v1/events';
+    eventByNamespaceUrl = 'api/v1/namespaces/{namespace}/events';
+    eventsUrl = 'api/v1/events';
 
     listNodesUsage(clusterName: string, continueToken?: string): Observable<any> {
         let url = this.proxyUrl.replace('{cluster_name}', clusterName).replace('{resource_url}', this.nodeStatsSummaryUrl);

@@ -290,6 +290,16 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Architecture: supportedArchitectureAmd64,
 		},
 		{
+			Name:         "loki",
+			Version:      "v2.0.0",
+			Describe:     "",
+			Status:       constant.ClusterWaiting,
+			Logo:         "loki.png",
+			Frame:        false,
+			Url:          "/proxy/loki/{cluster_name}/root",
+			Architecture: supportedArchitectureAmd64,
+		},
+		{
 			Name:         "chartmuseum",
 			Version:      "v0.12.0",
 			Describe:     "",
