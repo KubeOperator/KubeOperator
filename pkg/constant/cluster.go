@@ -45,6 +45,7 @@ const (
 	DefaultIngress            = "apps.ko.com"
 	DefaultPrometheusIngress  = "prometheus." + DefaultIngress
 	DefaultLoggingIngress     = "logging." + DefaultIngress
+	DefaultLokiIngress        = "loki." + DefaultIngress
 	DefaultChartmuseumIngress = "chartmuseum." + DefaultIngress
 	DefaultRegistryIngress    = "registry." + DefaultIngress
 	DefaultDashboardIngress   = "dashboard." + DefaultIngress
@@ -54,6 +55,7 @@ const (
 	DockerRegistryChartName = "nexus/docker-registry"
 	PrometheusChartName     = "nexus/prometheus"
 	LoggingChartName        = "nexus/logging"
+	LokiChartName           = "nexus/loki-stack"
 	DashboardChartName      = "nexus/kubernetes-dashboard"
 	KubeappsChartName       = "nexus/kubeapps"
 
@@ -61,6 +63,7 @@ const (
 	DefaultChartmuseumServiceName = "chartmuseum-chartmuseum"
 	DefaultDashboardServiceName   = "dashboard-kubernetes-dashboard"
 	DefaultLoggingServiceName     = "elasticsearch-master"
+	DefaultLokiServiceName        = "loki"
 	DefaultPrometheusServiceName  = "prometheus-server"
 	DefaultKubeappsServiceName    = "kubeapps"
 
@@ -68,6 +71,7 @@ const (
 	DefaultChartmuseumIngressName = "chartmuseum-ingress"
 	DefaultDashboardIngressName   = "dashboard-ingress"
 	DefaultLoggingIngressName     = "logging-ingress"
+	DefaultLokiIngressName        = "loki-ingress"
 	DefaultPrometheusIngressName  = "prometheus-ingress"
 	DefaultKubeappsIngressName    = "kubeapps-ingress"
 
@@ -76,5 +80,6 @@ const (
 	DefaultDashboardDeploymentName   = "dashboard-kubernetes-dashboard"
 	DefaultKubeappsDeploymentName    = "kubeapps"
 	DefaultLoggingStateSetsfulName   = "elasticsearch-master"
+	DefaultLokiStateSetsfulName      = "loki"
 	DefaultPrometheusDeploymentName  = "prometheus-server"
 )
