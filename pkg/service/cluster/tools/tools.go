@@ -73,6 +73,8 @@ func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto
 		return NewPrometheus(c, localIP.Value, tool)
 	case "logging":
 		return NewEFK(c, localIP.Value, tool)
+	case "loki":
+		return NewLoki(c, localIP.Value, tool)
 	case "registry":
 		return NewRegistry(c, localIP.Value, tool)
 	case "dashboard":
