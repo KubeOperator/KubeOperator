@@ -7,8 +7,8 @@ import {CommonRoutes} from '../constant/route';
 import {TranslateService} from '@ngx-translate/core';
 import {Theme} from '../business/setting/theme/theme';
 import {ThemeService} from '../business/setting/theme/theme.service';
-import {LicenseService} from '../business/setting/license/license.service';
-import {Captcha} from "../shared/auth/session-user";
+import {Captcha} from '../shared/auth/session-user';
+import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
 
 @Component({
     selector: 'app-login',
@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
 
     @ViewChild('loginForm', {static: true}) loginForm: NgForm;
     @Input() loginCredential: LoginCredential = new LoginCredential();
+    @ViewChild(ForgotPasswordComponent, {static: true}) forgotPwdDialog: ForgotPasswordComponent;
     message: string;
     isError = false;
     theme: Theme;
@@ -109,5 +110,9 @@ export class LoginComponent implements OnInit {
                 this.createCaptcha();
             }
         }
+    }
+
+    forgotPassword() {
+        this.forgotPwdDialog.open();
     }
 }

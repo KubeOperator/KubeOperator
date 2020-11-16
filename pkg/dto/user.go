@@ -39,3 +39,8 @@ type UserChangePassword struct {
 	Password string `json:"password"`
 	Original string `json:"original"`
 }
+
+type UserForgotPassword struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+}
