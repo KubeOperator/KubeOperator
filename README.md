@@ -71,7 +71,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 
 <table class="subscription-level-table">
     <tr class="subscription-level-tr-border">
-        <td class="features-first-td-background-style" rowspan="16">Day 0 规划</td>
+        <td class="features-first-td-background-style" rowspan="18">Day 0 规划</td>
         </td>
         <td class="features-third-td-background-style" rowspan="2">集群模式
         </td>
@@ -83,7 +83,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="4">计算方案
+        <td class="features-third-td-background-style" rowspan="5">计算方案
         </td>
         <td class="features-third-td-background-style">独立主机：支持自行准备的虚机、公有云主机和物理机
         </td>  
@@ -97,11 +97,15 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">FusionCompute 平台：支持自动创建主机 （使用 Terraform）
+        </td>
+    </tr>    
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">支持 x86 和 Arm64 CPU 架构
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style" rowspan="3">存储方案
+        <td class="features-third-td-background-style" rowspan="4">存储方案
         </td>
         <td class="features-third-td-background-style">独立主机：支持 NFS / Ceph RBD / Local Volume
         </td>
@@ -110,10 +114,14 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         <td class="features-third-td-background-style">vSphere 平台：支持 vSphere Datastore （vSAN 及 vSphere 兼容的集中存储）
         </td>
     </tr> 
-     <tr class="subscription-level-tr-border">
+    <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style">Openstack 平台：支持 Openstack Cinder （Ceph 及 Cinder 兼容的集中存储）
         </td>
     </tr>
+    <tr class="subscription-level-tr-border">
+        <td class="features-third-td-background-style">FusionCompute 平台：支持 FusionStorage
+        </td>
+    </tr>    
     <tr class="subscription-level-tr-border">
         <td class="features-third-td-background-style" rowspan="4">网络方案
         </td>
