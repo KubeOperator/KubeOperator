@@ -55,6 +55,7 @@ import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
 import {AdminAuthService} from './shared/auth/admin-auth.service';
 import {EmailComponent} from './business/setting/email/email.component';
+import {MultiClusterComponent} from "./business/multi-cluster/multi-cluster.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -126,6 +127,10 @@ const routes: Routes = [
                 path: 'hosts',
                 component: HostComponent,
                 canActivate: [AdminAuthService]
+            },
+            {
+                path: 'muticluster',
+                component: MultiClusterComponent,
             },
             {
                 path: 'setting',

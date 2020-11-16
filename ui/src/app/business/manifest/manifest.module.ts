@@ -3,6 +3,8 @@ import {CommonModule} from '@angular/common';
 import {ManifestComponent} from "./manifest.component";
 import {ManifestListComponent} from "./manifest-list/manifest-list.component";
 import {ManifestDetailComponent} from "./manifest-detail/manifest-detail.component";
+import {CoreModule} from "../../core/core.module";
+import {SharedModule} from "../../shared/shared.module";
 
 
 @NgModule({
@@ -10,7 +12,8 @@ import {ManifestDetailComponent} from "./manifest-detail/manifest-detail.compone
         ManifestComponent, ManifestListComponent, ManifestDetailComponent
     ],
     imports: [
-        CommonModule
+        CoreModule,
+        SharedModule
     ]
 })
 export class ManifestModule {

@@ -10,6 +10,7 @@ import {ProjectModule} from './project/project.module';
 import {MessageCenterModule} from './message-center/message-center.module';
 import {UserModule} from "./user/user.module";
 import {ManifestModule} from "./manifest/manifest.module";
+import {MultiClusterModule} from "./multi-cluster/multi-cluster.module";
 
 
 @NgModule({
@@ -18,12 +19,15 @@ import {ManifestModule} from "./manifest/manifest.module";
         CoreModule,
         ClusterModule,
         SettingModule,
+        UserModule,
         HostModule,
         SharedModule,
         RouterModule,
         DeployPlanModule,
         ProjectModule,
         MessageCenterModule,
+        MultiClusterModule,
+        ManifestModule
     ],
     exports: [
         ClusterModule,
