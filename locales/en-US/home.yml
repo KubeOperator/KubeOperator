@@ -11,6 +11,8 @@ CLUSTER_IS_NOT_LOCAL: "Import cluster cannot be upgraded"
 DELETE_FAILED_RESOURCE: "Failed to delete! There is an associated host under this key"
 DELETE_FAILED_RESOURCE_ZONE: "Failed to delete! There is an associated zone under this key"
 DEFAULT_CREDENTIAL_CAN_NOT_DELETE: "Default credential cannot be deleted"
+NAME_CHECK_FAILED: "The credential name cannot be the same as the user name"
+
 
 #host
 HOST_ALREADY_EXISTS: "Host already exists"

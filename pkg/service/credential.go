@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	hostIsNotNull       = "delete credential error, there are some hosts use this key"
-	CredentialNameExist = "NAME_EXISTS"
+	hostIsNotNull             = "delete credential error, there are some hosts use this key"
+	CredentialNameExist       = "NAME_EXISTS"
+	CredentialNameCheckFailed = "NAME_CHECK_FAILED"
 )
 
 type CredentialService interface {
@@ -92,6 +93,10 @@ func (c credentialService) Page(num, size int) (page.Page, error) {
 }
 
 func (c credentialService) Create(creation dto.CredentialCreate) (*dto.Credential, error) {
+
+	if creation.Name == creation.Username {
+		return nil, errors.New(CredentialNameCheckFailed)
+	}
 
 	old, _ := c.Get(creation.Name)
 	if old.ID != "" {

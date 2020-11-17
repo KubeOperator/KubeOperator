@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {CredentialCreateRequest} from '../credential';
-import {NgForm} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, NgForm, Validators} from '@angular/forms';
 import {CredentialService} from '../credential.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
@@ -23,6 +23,7 @@ export class CredentialCreateComponent implements OnInit {
     @ViewChild('credentialForm') credentialForm: NgForm;
     @Output() created = new EventEmitter();
 
+
     constructor(private service: CredentialService, private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService, private translateService: TranslateService) {
     }
@@ -44,6 +45,10 @@ export class CredentialCreateComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.item.name === this.item.username) {
+            this.modalAlertService.showAlert(this.translateService.instant('CREDENTIAL_USERNAME_INVALID'), AlertLevels.ERROR);
+            return;
+        }
         this.isSubmitGoing = true;
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
@@ -54,4 +59,11 @@ export class CredentialCreateComponent implements OnInit {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
+
+    validate() {
+        return true;
+    }
+
 }
+
+
