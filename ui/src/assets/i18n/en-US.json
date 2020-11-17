@@ -519,5 +519,4 @@
   "RESET_PWD_SUCCESS": "Password reset successfully! Please check mail",
   "APP_MULTI_CLUSTER": "Multi Cluster",
   "CREDENTIAL_USERNAME_INVALID": "Username cannot be the same as name"
-
 }

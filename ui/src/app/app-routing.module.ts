@@ -131,6 +131,7 @@ const routes: Routes = [
             {
                 path: 'muticluster',
                 component: MultiClusterComponent,
+                canActivate: [AdminAuthService]
             },
             {
                 path: 'setting',
