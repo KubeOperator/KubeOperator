@@ -116,7 +116,7 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  ## v3.3 (已发布)
 
  - [x] FusionCompute 支持自动部署模式；
- - [x] FusionStorage CSI 支持；
+ - [x] 持久化存储支持 OceanStor；
  - [x] 集群日志，支持 EFK；
  - [x] 集群健康评估（X-Pack）；
  - [x] F5 对接（X-Pack）；

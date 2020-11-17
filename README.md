@@ -119,7 +119,7 @@ v1.1.0 是 v1.0.0 之后的功能版本。
         </td>
     </tr>
     <tr class="subscription-level-tr-border">
-        <td class="features-third-td-background-style">FusionCompute 平台：支持 FusionStorage
+        <td class="features-third-td-background-style">FusionCompute 平台：支持 OceanStor
         </td>
     </tr>    
     <tr class="subscription-level-tr-border">
