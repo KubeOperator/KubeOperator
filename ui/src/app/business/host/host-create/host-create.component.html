@@ -25,10 +25,11 @@
         </form>
     </div>
     <div class="modal-footer">
+        <span class="spinner spinner-inline loading-top" [hidden]="isSubmitGoing === false"></span>
         <button type="button" class="btn btn-outline" (click)="onCancel()"
                 [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="hostForm.invalid">{{'APP_COMMIT'|translate}}
+                [disabled]="hostForm.invalid || isSubmitGoing">{{'APP_COMMIT'|translate}}
         </button>
     </div>
 </clr-modal>
