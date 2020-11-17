@@ -7,6 +7,7 @@ import {CredentialListComponent} from './credential-list/credential-list.compone
 import {CredentialComponent} from './credential.component';
 import {CredentialCreateComponent} from './credential-create/credential-create.component';
 import {SharedModule} from '../../../shared/shared.module';
+import {ReactiveFormsModule} from '@angular/forms';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import {SharedModule} from '../../../shared/shared.module';
     imports: [
         CommonModule,
         CoreModule,
-        SharedModule
+        SharedModule,
+        ReactiveFormsModule
     ]
 })
 export class CredentialModule {
