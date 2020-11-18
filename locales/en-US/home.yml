@@ -33,7 +33,7 @@ LDAP_CAN_NOT_UPDATE: "The ldap user cannot be edited!"
 VERIFY_CODE_FAILED: "Verification code error"
 EMAIL_DISABLE: "Mail settings are disabled! Please contact the administrator"
 EMAIL_NOT_MATCH: "Email match failed！"
-
+NAME_PASSWORD_SAME_FAILED: "Username cannot be the same as password"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"

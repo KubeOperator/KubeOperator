@@ -33,6 +33,7 @@ LDAP_CAN_NOT_UPDATE: "LDAP 用户不能修改！"
 VERIFY_CODE_FAILED: "验证码错误"
 EMAIL_DISABLE: "邮件设置被禁用！请联系管理员"
 EMAIL_NOT_MATCH: "邮件匹配失败！"
+NAME_PASSWORD_SAME_FAILED: "用户名不能与密码相同"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"

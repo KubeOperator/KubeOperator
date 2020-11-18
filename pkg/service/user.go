@@ -22,6 +22,7 @@ var (
 	UserIsNotActive  = errors.New("USER_IS_NOT_ACTIVE")
 	UserNameExist    = errors.New("NAME_EXISTS")
 	LdapDisable      = errors.New("LDAP_DISABLE")
+	NamePwdFailed    = errors.New("NAME_PASSWORD_SAME_FAILED")
 	EmailDisable     = errors.New("EMAIL_DISABLE")
 	EmailNotMatch    = errors.New("EMAIL_NOT_MATCH")
 )
@@ -76,6 +77,10 @@ func (u userService) List() ([]dto.User, error) {
 
 func (u userService) Create(creation dto.UserCreate) (*dto.User, error) {
 
+	if creation.Name == creation.Password {
+		return nil, NamePwdFailed
+	}
+
 	old, _ := u.Get(creation.Name)
 	if old.ID != "" {
 		return nil, UserNameExist
@@ -112,9 +117,7 @@ func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
 		Name:     update.Name,
 		Email:    update.Email,
 		IsActive: update.IsActive,
-		Language: update.Language,
 		IsAdmin:  update.IsAdmin,
-		Password: update.Password,
 		Type:     constant.Local,
 	}
 	err = u.userRepo.Save(&user)
