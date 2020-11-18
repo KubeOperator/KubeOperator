@@ -856,14 +856,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: delete a  credential by name
+      description: delete a  backupAccount by name
       produces:
       - application/json
       security:
       - ApiKeyAuth: []
-      summary: Delete a credential
+      summary: Delete a backupAccount
       tags:
-      - credentials
+      - backupAccounts
     patch:
       consumes:
       - application/json
