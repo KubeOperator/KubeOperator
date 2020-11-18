@@ -46,6 +46,10 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
     }
 
     onSubmit() {
+        if (this.item.name === this.item.password) {
+            this.modalAlertService.showAlert(this.translateService.instant('USERNAME_PWD_INVALID'), AlertLevels.ERROR);
+            return;
+        }
         this.isSubmitGoing = true;
         this.userService.create(this.item).subscribe(data => {
             this.opened = false;

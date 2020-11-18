@@ -31,6 +31,7 @@ ADMIN_CAN_NOT_DELETE: "The default admin user cannot be deleted!"
 USER_IS_NOT_RELATED_PROJECT: "User has no associated project！"
 LDAP_CAN_NOT_UPDATE: "The ldap user cannot be edited!"
 VERIFY_CODE_FAILED: "Verification code error"
+NAME_PASSWORD_SAME_FAILED: "Username cannot be the same as password"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associated with the zone"

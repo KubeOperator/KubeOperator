@@ -24,8 +24,6 @@ type UserUpdate struct {
 	Email    string `json:"email" binding:"required"`
 	IsActive bool   `json:"isActive"`
 	IsAdmin  bool   `json:"isAdmin" binding:"required"`
-	Language string `json:"language"`
-	Password string `json:"password"`
 }
 
 type UserOp struct {

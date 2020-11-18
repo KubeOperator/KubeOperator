@@ -45,10 +45,6 @@ export class CredentialCreateComponent implements OnInit {
     }
 
     onSubmit() {
-        if (this.item.name === this.item.username) {
-            this.modalAlertService.showAlert(this.translateService.instant('CREDENTIAL_USERNAME_INVALID'), AlertLevels.ERROR);
-            return;
-        }
         this.isSubmitGoing = true;
         this.service.create(this.item).subscribe(data => {
             this.opened = false;
@@ -56,6 +52,7 @@ export class CredentialCreateComponent implements OnInit {
             this.created.emit();
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }

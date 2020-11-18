@@ -31,6 +31,7 @@ ADMIN_CAN_NOT_DELETE: "默认 admin 用户不能被删除！"
 USER_IS_NOT_RELATED_PROJECT: "用户没有关联项目"
 LDAP_CAN_NOT_UPDATE: "LDAP 用户不能修改！"
 VERIFY_CODE_FAILED: "验证码错误"
+NAME_PASSWORD_SAME_FAILED: "用户名不能与密码相同"
 
 #region
 DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"

@@ -189,7 +189,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "delete a  credential by name",
+                "description": "delete a  backupAccount by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -197,9 +197,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "credentials"
+                    "backupAccounts"
                 ],
-                "summary": "Delete a credential"
+                "summary": "Delete a backupAccount"
             },
             "patch": {
                 "security": [

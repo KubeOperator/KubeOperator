@@ -521,5 +521,6 @@
   "RESET_PWD_HELPER": "请输入接收邮件的邮箱",
   "RESET_PWD_SUCCESS": "重置密码成功！请检查邮件",
   "APP_MULTI_CLUSTER": "多集群",
-  "CREDENTIAL_USERNAME_INVALID": "用户名不能与名称相同"
+  "CREDENTIAL_USERNAME_INVALID": "用户名不能与名称相同",
+  "USERNAME_PWD_INVALID": "用户名不能与密码相同"
 }
