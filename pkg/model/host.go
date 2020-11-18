@@ -69,12 +69,12 @@ func (h *Host) BeforeDelete(tx *gorm.DB) error {
 		}
 
 	}
-	var PlanResources []ProjectResource
-	err := tx.Where(ProjectResource{ResourceId: h.ID}).Find(&PlanResources).Error
+	var projectResources []ProjectResource
+	err := tx.Where(ProjectResource{ResourceId: h.ID}).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}
-	if len(PlanResources) > 0 {
+	if len(projectResources) > 0 {
 		return errors.New("DELETE_HOST_FAILED_BY_PROJECT")
 	}
 
