@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SystemLogService} from './system-log.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
     selector: 'app-system-log',
@@ -12,7 +13,7 @@ export class SystemLogComponent implements OnInit {
     page = 1;
     size = 10;
     items = [];
-    constructor(private service: SystemLogService) {}
+    constructor(private service: SystemLogService, public translate: TranslateService) {}
 
     ngOnInit(): void {
         this.refresh()
@@ -20,7 +21,19 @@ export class SystemLogComponent implements OnInit {
     refresh() {
         this.loading = true;
         this.service.list(this.page, this.size).subscribe(data => {
+            const currentLanguage = localStorage.getItem('currentLanguage') || this.translate.getBrowserCultureLang();
             this.items = data.items;
+            if (this.items != null) {
+                for (const item of this.items) {
+                    if (currentLanguage == 'en-US') {
+                        item.operation = item.operation.split('|')[1]
+                        item.operation_unit = item.operation_unit.split('|')[1]
+                    } else {
+                        item.operation = item.operation.split('|')[0]
+                        item.operation_unit = item.operation_unit.split('|')[0]
+                    }
+                }
+            }
             this.total = data.total;
             this.loading = false;
         });
