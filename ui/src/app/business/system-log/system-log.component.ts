@@ -1,5 +1,5 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {SystemLogListComponent} from './system-log-list/system-log-list.component';
+import {Component, OnInit} from '@angular/core';
+import {SystemLogService} from './system-log.service';
 
 @Component({
     selector: 'app-system-log',
@@ -7,11 +7,22 @@ import {SystemLogListComponent} from './system-log-list/system-log-list.componen
     styleUrls: ['./system-log.component.css']
 })
 export class SystemLogComponent implements OnInit {
-    @ViewChild(SystemLogListComponent)
-    list: SystemLogListComponent;
-
-    constructor(){}
+    loading = false;
+    total = 0;
+    page = 1;
+    size = 10;
+    items = [];
+    constructor(private service: SystemLogService) {}
 
     ngOnInit(): void {
+        this.refresh()
+    }
+    refresh() {
+        this.loading = true;
+        this.service.list(this.page, this.size).subscribe(data => {
+            this.items = data.items;
+            this.total = data.total;
+            this.loading = false;
+        });
     }
 }

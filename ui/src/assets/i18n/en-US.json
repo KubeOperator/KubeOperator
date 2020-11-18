@@ -424,6 +424,8 @@
   "APP_ALERTS": "Alerts",
   "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first",
   "APP_LOGGING": "Logging",
+  "APP_OPERATION_UNIT": "Operation Unit",
+  "APP_OPERATION": "Operation",
   "APP_MESSAGE": "Message",
   "APP_SMTP_ADDRESS": "SMTP Address",
   "APP_SMTP_PORT": "Port",

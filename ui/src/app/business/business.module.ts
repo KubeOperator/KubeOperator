@@ -11,7 +11,7 @@ import {MessageCenterModule} from './message-center/message-center.module';
 import {UserModule} from "./user/user.module";
 import {ManifestModule} from "./manifest/manifest.module";
 import {MultiClusterModule} from "./multi-cluster/multi-cluster.module";
-
+import {SystemLogModule} from './system-log/system-log.module';
 
 @NgModule({
     declarations: [],
@@ -27,7 +27,8 @@ import {MultiClusterModule} from "./multi-cluster/multi-cluster.module";
         ProjectModule,
         MessageCenterModule,
         MultiClusterModule,
-        ManifestModule
+        ManifestModule,
+        SystemLogModule,
     ],
     exports: [
         ClusterModule,
@@ -37,6 +38,7 @@ import {MultiClusterModule} from "./multi-cluster/multi-cluster.module";
         HostModule,
         DeployPlanModule,
         MessageCenterModule,
+        SystemLogModule,
     ]
 })
 export class BusinessModule {

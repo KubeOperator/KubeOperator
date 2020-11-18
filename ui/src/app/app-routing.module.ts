@@ -55,6 +55,7 @@ import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
 import {AdminAuthService} from './shared/auth/admin-auth.service';
 import {EmailComponent} from './business/setting/email/email.component';
+import {SystemLogComponent} from './business/system-log/system-log.component';
 import {MultiClusterComponent} from "./business/multi-cluster/multi-cluster.component";
 
 const routes: Routes = [
@@ -169,6 +170,11 @@ const routes: Routes = [
             {
                 path: 'users',
                 component: UserComponent,
+                canActivate: [AdminAuthService],
+            },
+            {
+                path: 'system-log',
+                component: SystemLogComponent,
                 canActivate: [AdminAuthService],
             },
             {
