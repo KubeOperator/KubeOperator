@@ -5,6 +5,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
+	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -58,18 +59,18 @@ func (h *Host) BeforeCreate() error {
 	return nil
 }
 
-func (h *Host) BeforeDelete() error {
+func (h *Host) BeforeDelete(tx *gorm.DB) error {
 	if h.ClusterID != "" {
 		var cluster Cluster
 		cluster.ID = h.ClusterID
-		notFound := db.DB.First(&cluster).RecordNotFound()
+		notFound := tx.First(&cluster).RecordNotFound()
 		if !notFound {
 			return errors.New("DELETE_HOST_FAILED")
 		}
 
 	}
 	var PlanResources []ProjectResource
-	err := db.DB.Where(ProjectResource{ResourceId: h.ID}).Find(&PlanResources).Error
+	err := tx.Where(ProjectResource{ResourceId: h.ID}).Find(&PlanResources).Error
 	if err != nil {
 		return err
 	}
