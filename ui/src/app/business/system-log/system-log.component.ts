@@ -11,8 +11,10 @@ export class SystemLogComponent implements OnInit {
     loading = false;
     total = 0;
     page = 1;
-    size = 10;
+    size = 15;
     items = [];
+    queryOption = 'name';
+    queryInfo = '';
     constructor(private service: SystemLogService, public translate: TranslateService) {}
 
     ngOnInit(): void {
@@ -20,7 +22,7 @@ export class SystemLogComponent implements OnInit {
     }
     refresh() {
         this.loading = true;
-        this.service.list(this.page, this.size).subscribe(data => {
+        this.service.list(this.page, this.size, this.queryOption, this.queryInfo).subscribe(data => {
             const currentLanguage = localStorage.getItem('currentLanguage') || this.translate.getBrowserCultureLang();
             this.items = data.items;
             if (this.items != null) {

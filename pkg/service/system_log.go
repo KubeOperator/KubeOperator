@@ -9,8 +9,7 @@ import (
 
 type SystemLogService interface {
 	Create(creation dto.SystemLogCreate) error
-	Page(num, size int) (page.Page, error)
-	List() ([]dto.SystemLog, error)
+	Page(num, size int, queryOption, queryInfo string) (page.Page, error)
 }
 
 type systemLogService struct {
@@ -36,10 +35,10 @@ func (s systemLogService) Create(creation dto.SystemLogCreate) error {
 	return nil
 }
 
-func (u systemLogService) Page(num, size int) (page.Page, error) {
+func (u systemLogService) Page(num, size int, queryOption, queryInfo string) (page.Page, error) {
 	var page page.Page
 	var systemLogResults []dto.SystemLog
-	total, mos, err := u.systemLogRepo.Page(num, size)
+	total, mos, err := u.systemLogRepo.Page(num, size, queryOption, queryInfo)
 	if err != nil {
 		return page, err
 	}
@@ -49,16 +48,4 @@ func (u systemLogService) Page(num, size int) (page.Page, error) {
 	page.Total = total
 	page.Items = systemLogResults
 	return page, err
-}
-
-func (u systemLogService) List() ([]dto.SystemLog, error) {
-	var logDTOS []dto.SystemLog
-	mos, err := u.systemLogRepo.List()
-	if err != nil {
-		return logDTOS, err
-	}
-	for _, mo := range mos {
-		logDTOS = append(logDTOS, dto.SystemLog{SystemLog: mo})
-	}
-	return logDTOS, err
 }
