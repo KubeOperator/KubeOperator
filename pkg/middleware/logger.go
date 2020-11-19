@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
-	"strings"
 )
 
 const phaseName = "log middleware"
@@ -142,8 +143,6 @@ func initApiMap() map[string]string {
 	apiMap["backupaccounts/buckets"] = "系统设置-备份-获取桶|system settings - backups - bucket"
 	apiMap["settings/check/EMAIL"] = "系统设置-邮件验证|system settings - mail verification"
 	apiMap["license"] = "系统设置-许可|system settings - license"
-	apiMap["message/setting"] = "消息配置|message settings"
-
-	apiMap["logs"] = "日志|cluster"
+	apiMap["message/setting"] = "消息配置|message setting"
 	return apiMap
 }

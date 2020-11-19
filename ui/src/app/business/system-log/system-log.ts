@@ -1,7 +1,8 @@
 export class SystemLog {
     name: string;
-    operation_unit: string;
+    operationUnit: string;
     operation: string;
+    requestPath: string;
 }
 
 export class Page<T> {

@@ -8,7 +8,7 @@ type SystemLog struct {
 
 type SystemLogCreate struct {
 	Name          string `json:"name" gorm:"type:varchar(256);not null;"`
-	OperationUnit string `json:"operation_unit" gorm:"type:varchar(256);not null;"`
+	OperationUnit string `json:"operationUnit" gorm:"type:varchar(256);not null;"`
 	Operation     string `json:"operation" gorm:"type:varchar(256);not null;"`
-	RequestPath   string `json:"request_path" gorm:"type:varchar(256);not null;"`
+	RequestPath   string `json:"requestPath" gorm:"type:varchar(256);not null;"`
 }
