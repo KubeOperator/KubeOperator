@@ -2,8 +2,8 @@ package model
 
 import (
 	"errors"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
+	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -31,9 +31,9 @@ func (p Plan) TableName() string {
 	return "ko_plan"
 }
 
-func (p *Plan) BeforeDelete() (err error) {
+func (p *Plan) BeforeDelete(tx *gorm.DB) (err error) {
 	var PlanResources []ProjectResource
-	err = db.DB.Where(ProjectResource{ResourceId: p.ID}).Find(&PlanResources).Error
+	err = tx.Where(ProjectResource{ResourceId: p.ID}).Find(&PlanResources).Error
 	if err != nil {
 		return err
 	}
