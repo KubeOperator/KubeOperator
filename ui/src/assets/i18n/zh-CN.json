@@ -429,6 +429,7 @@
   "APP_LOGGING": "日志",
   "APP_OPERATION_UNIT": "操作单元",
   "APP_OPERATION": "操作",
+  "APP_REQUEST_PATH": "请求接口",
   "APP_MESSAGE": "消息",
   "APP_SMTP_ADDRESS": "SMTP 地址",
   "APP_SMTP_PORT": "端口",
