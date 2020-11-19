@@ -24,7 +24,7 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
-        <clr-dg-cell>{{item.bucket}}</clr-dg-cell>
+        <clr-dg-cell>{{item.bucket}} <span *ngIf="item.type==='SFTP'">({{item.credentialVars['address']}})</span></clr-dg-cell>
         <clr-dg-cell>{{item.type}}</clr-dg-cell>
         <clr-dg-cell>
             <span [outerHTML]="item.status | backupAccountStatus"></span>

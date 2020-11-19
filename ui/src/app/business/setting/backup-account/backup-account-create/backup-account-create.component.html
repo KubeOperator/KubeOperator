@@ -13,9 +13,10 @@
             <clr-select-container>
                 <label>{{'APP_TYPE'|translate}}:</label>
                 <select clrSelect name="type" [(ngModel)]="item.type" (ngModelChange)="changeType(item)" required>
-                    <option value="OSS">oss</option>
-                    <option value="S3">s3</option>
-                    <option value="AZURE">azure</option>
+                    <option value="OSS">OSS</option>
+                    <option value="S3">S3</option>
+                    <option value="AZURE">Azure</option>
+                    <option value="SFTP">SFTP</option>
                 </select>
             </clr-select-container>
             <div *ngIf="item.type=='OSS' || item.type=='S3'">
@@ -51,35 +52,67 @@
                            required>
                 </clr-password-container>
             </div>
-            <clr-input-container>
-                <label>{{'APP_ENDPOINT'|translate}}</label>
-                <input clrInput size=45 type="text" [(ngModel)]="item.credentialVars['endpoint']" name="endpoint"
-                       required>
-                <clr-control-helper *ngIf="item.type=='S3'">
-                    S3: http://s3.REGION_NAME.amazonaws.com.cn
-                </clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='S3'">
-                    {{'APP_EXAMPLE'|translate}}: http://s3.cn-north-1.amazonaws.com.cn
-                </clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='OSS'">
-                    OSS: http://REGION_NAME.aliyuncs.com
-                </clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='OSS'">
-                    {{'APP_EXAMPLE'|translate}}:http://oss-cn-hangzhou.aliyuncs.com
-                </clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='AZURE'">China: blob.core.chinacloudapi.cn</clr-control-helper>
-                <clr-control-helper *ngIf="item.type=='AZURE'">International: blob.core.windows.net</clr-control-helper>
-            </clr-input-container>
-            <clr-select-container>
-                <label>{{'APP_BUCKET'|translate}}</label>
-                <select clrSelect name="bucket" [(ngModel)]="item.bucket" required>
-                    <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
-                </select>
-            </clr-select-container>
+            <div *ngIf="item.type!='SFTP'">
+                <clr-input-container>
+                    <label>{{'APP_ENDPOINT'|translate}}</label>
+                    <input clrInput size=45 type="text" [(ngModel)]="item.credentialVars['endpoint']" name="endpoint"
+                           required>
+                    <clr-control-helper *ngIf="item.type=='S3'">
+                        S3: http://s3.REGION_NAME.amazonaws.com.cn
+                    </clr-control-helper>
+                    <clr-control-helper *ngIf="item.type=='S3'">
+                        {{'APP_EXAMPLE'|translate}}: http://s3.cn-north-1.amazonaws.com.cn
+                    </clr-control-helper>
+                    <clr-control-helper *ngIf="item.type=='OSS'">
+                        OSS: http://REGION_NAME.aliyuncs.com
+                    </clr-control-helper>
+                    <clr-control-helper *ngIf="item.type=='OSS'">
+                        {{'APP_EXAMPLE'|translate}}:http://oss-cn-hangzhou.aliyuncs.com
+                    </clr-control-helper>
+                    <clr-control-helper *ngIf="item.type=='AZURE'">China: blob.core.chinacloudapi.cn
+                    </clr-control-helper>
+                    <clr-control-helper *ngIf="item.type=='AZURE'">International: blob.core.windows.net
+                    </clr-control-helper>
+                </clr-input-container>
+                <clr-select-container>
+                    <label>{{'APP_BUCKET'|translate}}</label>
+                    <select clrSelect name="bucket" [(ngModel)]="item.bucket" required>
+                        <option *ngFor="let bucket of buckets" value="{{bucket}}">{{bucket}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+            <div *ngIf="item.type=='SFTP'">
+                <clr-input-container>
+                    <label>{{'APP_LDAP_ADDRESS'|translate}}</label>
+                    <input clrInput size=45 maxlength="100" type="text" [(ngModel)]="item.credentialVars['address']"
+                           name="address" required>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{'APP_LDAP_PORT'|translate}}</label>
+                    <input clrInput size=45 type="number" [(ngModel)]="item.credentialVars['port']"
+                           name="port" required>
+                </clr-input-container>
+                <clr-input-container>
+                    <label>{{'APP_LDAP_USERNAME'|translate}}</label>
+                    <input clrInput size=45 type="text" [(ngModel)]="item.credentialVars['username']"
+                           name="username" required>
+                </clr-input-container>
+                <clr-password-container>
+                    <label>{{'APP_LDAP_PASSWORD'|translate}}</label>
+                    <input clrPassword size=45 type="password" [(ngModel)]="item.credentialVars['password']"
+                           name="password" required>
+                </clr-password-container>
+                <clr-input-container>
+                    <label>{{'BACKUP_PATH'|translate}}</label>
+                    <input clrInput size=45 maxlength="100" type="text" [(ngModel)]="item.bucket"
+                           name="bucket" required>
+                </clr-input-container>
+            </div>
             <app-modal-alert></app-modal-alert>
         </form>
         <div class="modal-footer">
-            <button type="button" class="btn btn-success-outline" [clrLoading]="getBucketGoing" (click)="getBuckets()"
+            <button *ngIf="item.type!='SFTP'" type="button" class="btn btn-success-outline"
+                    [clrLoading]="getBucketGoing" (click)="getBuckets()"
                     [disabled]="isSubmitGoing">
                 {{'APP_GET_BUCKET'|translate}}
             </button>

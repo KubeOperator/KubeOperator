@@ -85,7 +85,7 @@ func (d dingTalk) SendMessage(vars map[string]interface{}) error {
 		if err := json.Unmarshal([]byte(re), &result); err != nil {
 			return err
 		}
-		if result["errcode"].(float64) == 0 {
+		if result["errcode"] != nil && result["errcode"].(float64) == 0 {
 			return nil
 		} else {
 			return errors.New(result["errmsg"].(string))
@@ -105,7 +105,7 @@ func getUrl(webhook, secret string) string {
 	*b = append(*b, '\n')
 	*b = append(*b, secret...)
 	h := hmac.New(sha256.New, []byte(secret))
-	if _, err := h.Write(*b); err!= nil {
+	if _, err := h.Write(*b); err != nil {
 		fmt.Printf("getUrl err: %v\n", err)
 	}
 	sign := base64.StdEncoding.EncodeToString(h.Sum(nil))

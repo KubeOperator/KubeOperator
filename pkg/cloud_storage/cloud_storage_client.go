@@ -28,5 +28,8 @@ func NewCloudStorageClient(vars map[string]interface{}) (CloudStorageClient, err
 	if vars["type"] == constant.OSS {
 		return client.NewOssClient(vars)
 	}
+	if vars["type"] == constant.Sftp {
+		return client.NewSftpClient(vars)
+	}
 	return nil, errors.New(NotSupport)
 }

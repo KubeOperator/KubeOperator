@@ -522,5 +522,6 @@
   "RESET_PWD_SUCCESS": "Password reset successfully! Please check mail",
   "APP_MULTI_CLUSTER": "Multi Cluster",
   "CREDENTIAL_USERNAME_INVALID": "Username cannot be the same as name",
-  "USERNAME_PWD_INVALID": "Username cannot be the same as password"
+  "USERNAME_PWD_INVALID": "Username cannot be the same as password",
+  "BACKUP_PATH": "Path"
 }

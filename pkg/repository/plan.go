@@ -176,12 +176,13 @@ func (p planRepository) Batch(operation string, items []model.Plan) error {
 		}
 
 		tx := db.DB.Begin()
-		err := db.DB.Where("id in (?)", ids).Delete(&items).Error
+		err := tx.Where("id in (?)", ids).Delete(&items).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
-		err = tx.Where("plan_id in (?)", ids).Delete(&model.PlanZones{}).Error
+		var planZones []model.PlanZones
+		err = tx.Where("plan_id in (?)", ids).Delete(&planZones).Error
 		if err != nil {
 			tx.Rollback()
 			return err
