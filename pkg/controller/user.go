@@ -155,18 +155,3 @@ func (u UserController) PostChangePassword() error {
 	}
 	return err
 }
-
-//
-//func (u UserController) PostForgotPassword() error {
-//	var req dto.UserForgotPassword
-//	err := u.Ctx.ReadJSON(&req)
-//	if err != nil {
-//		return err
-//	}
-//	validate := validator.New()
-//	err = validate.Struct(req)
-//	if err != nil {
-//		return err
-//	}
-//	return u.UserService.ResetPassword(req)
-//}

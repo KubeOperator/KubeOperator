@@ -6,6 +6,6 @@
     </div>
     <div class="modal-footer">
         <button class="btn" (click)="onCancel()">{{"APP_CANCEL"|translate}}</button>
-        <button class="btn btn-primary" (click)="onSubmit()">{{"APP_COMMIT"|translate}}</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [clrLoading]="loading">{{"APP_COMMIT"|translate}}</button>
     </div>
 </clr-modal>

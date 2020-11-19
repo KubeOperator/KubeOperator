@@ -19,6 +19,7 @@ export class BackupListComponent extends BaseModelDirective<BackupFile> implemen
     items: BackupFile[] = [];
     deleteOpen = false;
     deleteName = '';
+    loading = false;
 
     constructor(private route: ActivatedRoute,
                 private backupFileService: BackupFileService,
@@ -52,21 +53,24 @@ export class BackupListComponent extends BaseModelDirective<BackupFile> implemen
     }
 
     deleteFile(name) {
-        this.deleteName = name
+        this.deleteName = name;
         this.deleteOpen = true;
     }
 
     cancelDelete() {
-        this.deleteName = ""
+        this.deleteName = '';
         this.deleteOpen = false;
     }
 
     submitDelete() {
+        this.loading = true;
         this.backupFileService.delete(this.deleteName).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
+            this.loading = false;
             this.pageby();
             this.cancelDelete();
         }, error => {
+            this.loading = false;
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
             this.cancelDelete();
         });

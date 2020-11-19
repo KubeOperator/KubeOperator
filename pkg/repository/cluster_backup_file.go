@@ -31,11 +31,7 @@ func (c clusterBackupFileRepository) Page(num, size int, clusterId string) (int,
 
 func (c clusterBackupFileRepository) Get(name string) (model.ClusterBackupFile, error) {
 	var file model.ClusterBackupFile
-	file.Name = name
-	if err := db.DB.Where(file).First(&file).Error; err != nil {
-		return file, err
-	}
-	if err := db.DB.First(&file).Related(&file.ClusterBackupStrategy).Related(&file.CLuster).Error; err != nil {
+	if err := db.DB.Where(model.ClusterBackupFile{Name: name}).Preload("ClusterBackupStrategy").Preload("ClusterBackupStrategy.BackupAccount").Find(&file).Error; err != nil {
 		return file, err
 	}
 	return file, nil

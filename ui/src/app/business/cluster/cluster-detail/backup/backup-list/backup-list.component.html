@@ -5,7 +5,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="cancelDelete()">{{'APP_CANCEL'|translate}}</button>
-        <button type="submit" class="btn btn-primary" (click)="submitDelete()">{{'APP_COMMIT'|translate}}</button>
+        <button type="submit" class="btn btn-primary" [clrLoading]="loading" (click)="submitDelete()">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>
 <h3>{{'APP_BACKUP_FILE_LIST'|translate}}</h3>

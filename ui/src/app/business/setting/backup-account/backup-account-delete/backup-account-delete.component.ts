@@ -16,6 +16,7 @@ export class BackupAccountDeleteComponent extends BaseModelDirective<BackupAccou
 
     opened = false;
     items: BackupAccount[] = [];
+    loading = false;
     @Output() deleted = new EventEmitter();
 
     constructor(private backupAccountService: BackupAccountService, private modalAlertService: ModalAlertService,
@@ -37,11 +38,14 @@ export class BackupAccountDeleteComponent extends BaseModelDirective<BackupAccou
     }
 
     onSubmit() {
+        this.loading = true;
         this.service.batch('delete', this.items).subscribe(data => {
             this.deleted.emit();
             this.opened = false;
+            this.loading = false;
             this.commonAlertService.showAlert(this.translateService.instant('APP_DELETE_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {
+            this.loading = false;
             this.commonAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
