@@ -75,12 +75,12 @@
         </form>
         <div class="modal-footer">
             <button type="button" class="btn btn-success-outline" (click)="getBuckets()"
-                    [disabled]="isSubmitGoing">
+                    [disabled]="isSubmitGoing" [clrLoading]="loadingBucket">
                 {{'APP_GET_BUCKET'|translate}}
             </button>
             <button type="button" class="btn btn-outline" (click)="onCancel()"
                     [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
-            <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
                     [disabled]="backupAccountForm.invalid">{{'APP_COMMIT'|translate}}
             </button>
         </div>
