@@ -23,6 +23,6 @@ export class ClusterLoggerService {
     }
 
     openLogger(clusterName: string, nodeName?: string) {
-        window.open(`/ui/logger?clusterName=${clusterName}`, 'blank', 'height=820, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=yes,location=no, status=no');
+        window.open(`/ui/logger?clusterName=${clusterName}`, '_blank', 'height=820, width=800, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=yes,location=no, status=no');
     }
 }
