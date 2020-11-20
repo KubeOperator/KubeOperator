@@ -26,21 +26,11 @@ func NewSystemLogController() *SystemLogController {
 // @Produce  json
 // @Success 200 {object} page.Page
 // @Security ApiKeyAuth
-// @Router /system_logs/ [get]
+// @Router /logs/ [get]
 func (u SystemLogController) Get() (page.Page, error) {
-	p, _ := u.Ctx.Values().GetBool("page")
-	if p {
-		num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
-		size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
-		return u.SystemLogService.Page(num, size)
-	} else {
-		var page page.Page
-		items, err := u.SystemLogService.List()
-		if err != nil {
-			return page, err
-		}
-		page.Items = items
-		page.Total = len(items)
-		return page, nil
-	}
+	num, _ := u.Ctx.Values().GetInt(constant.PageNumQueryKey)
+	size, _ := u.Ctx.Values().GetInt(constant.PageSizeQueryKey)
+	queryOption := u.Ctx.URLParam("option")
+	queryInfo := u.Ctx.URLParam("info")
+	return u.SystemLogService.Page(num, size, queryOption, queryInfo)
 }

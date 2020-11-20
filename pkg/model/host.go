@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/encrypt"
 	"github.com/jinzhu/gorm"

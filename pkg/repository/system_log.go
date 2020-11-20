@@ -6,8 +6,7 @@ import (
 )
 
 type SystemLogRepository interface {
-	Page(num, size int) (int, []model.SystemLog, error)
-	List() ([]model.SystemLog, error)
+	Page(num, size int, queryOption, queryInfo string) (int, []model.SystemLog, error)
 	Save(item *model.SystemLog) error
 }
 
@@ -18,11 +17,22 @@ func NewSystemLogRepository() SystemLogRepository {
 	return &systemLogRepository{}
 }
 
-func (u systemLogRepository) Page(num, size int) (int, []model.SystemLog, error) {
-	var total int
-	var systemLogs []model.SystemLog
-	err := db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
-	return total, systemLogs, err
+func (u systemLogRepository) Page(num, size int, queryOption, queryInfo string) (total int, systemLogs []model.SystemLog, err error) {
+	if len(queryInfo) != 0 {
+		switch queryOption {
+		case "name":
+			err = db.DB.Model(model.SystemLog{}).Where("name LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
+		case "operationUnit":
+			err = db.DB.Model(model.SystemLog{}).Where("operation_unit LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
+		case "operation":
+			err = db.DB.Model(model.SystemLog{}).Where("operation LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
+		case "requestPath":
+			err = db.DB.Model(model.SystemLog{}).Where("request_path LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
+		}
+	} else {
+		err = db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Find(&systemLogs).Offset((num - 1) * size).Limit(size).Error
+	}
+	return
 }
 
 func (u systemLogRepository) Save(item *model.SystemLog) error {
@@ -31,10 +41,4 @@ func (u systemLogRepository) Save(item *model.SystemLog) error {
 	} else {
 		return db.DB.Save(&item).Error
 	}
-}
-
-func (u systemLogRepository) List() ([]model.SystemLog, error) {
-	var logs []model.SystemLog
-	err := db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Find(&logs).Error
-	return logs, err
 }

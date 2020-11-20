@@ -11,9 +11,9 @@ export class SystemLogService {
     }
     baseUrl = '/api/v1/logs';
 
-    list(page, size): Observable<Page<SystemLog>> {
+    list(page, size, queryOption, queryInfo): Observable<Page<SystemLog>> {
         const url = this.baseUrl
-        const pageUrl = `${url}?pageNum=${page}&pageSize=${size}`;
+        const pageUrl = `${url}?option=${queryOption}&info=${queryInfo}&pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<SystemLog>>(pageUrl);
     }
 }

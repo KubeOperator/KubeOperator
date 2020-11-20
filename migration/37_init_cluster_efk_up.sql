@@ -29,4 +29,4 @@ INSERT INTO `ko_cluster_tool`(
          s.architectures AS `architecture`
          FROM `ko_cluster` c
 LEFT JOIN ko_cluster_spec s ON c.spec_id = s.id
-WHERE c.id NOT IN (SELECT t.cluster_id FROM ko_cluster_tool t WHERE t.name = 'logging');
+WHERE c.id NOT IN (SELECT t.cluster_id FROM ko_cluster_tool t WHERE t.name = 'logging')
