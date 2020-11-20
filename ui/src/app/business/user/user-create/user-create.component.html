@@ -4,7 +4,8 @@
         <form clrForm #userForm='ngForm'>
             <clr-input-container>
                 <label>{{"APP_NAME"|translate}}</label>
-                <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}" required/>
+                <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}"
+                       required/>
                 <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
                 <clr-control-error>{{namePatternHelper}}</clr-control-error>
             </clr-input-container>
@@ -18,22 +19,32 @@
             <clr-password-container>
                 <label>{{"APP_PASSWORD"|translate}}</label>
                 <input style="display:none">
-                <input clrPassword [size]="32" name="password" [(ngModel)]="item.password" (change)="checkPassword()"
+                <input clrPassword [size]="32" name="password" id="password" [(ngModel)]="item.password"
+                       (blur)="handleValidation('password')"
                        pattern="{{passwordPattern}}"
                        required/>
-                <clr-control-helper
-                        *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
-                <clr-control-error>{{'APP_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+                <clr-control-error *ngIf="!getValidationState('namePwd')">
+                    {{'USERNAME_PWD_INVALID'|translate}}
+                </clr-control-error>
+                <clr-control-error *ngIf="!getValidationState('password')">
+                    {{'APP_PASSWORD_ERROR_MSG'|translate}}
+                </clr-control-error>
+                <clr-control-error *ngIf="!getValidationState('rePwdCheck')">
+                    {{'APP_PASSWORD_HELP_MSG'|translate}}
+                </clr-control-error>
             </clr-password-container>
             <clr-password-container>
                 <label>{{"APP_CONFIRM_PASSWORD"|translate}}</label>
                 <input style="display:none">
-                <input clrPassword [size]="32" name="confirmPassword" [(ngModel)]="item.confirmPassword"
-                       (change)="checkPassword()"
+                <input clrPassword [size]="32" name="rePassword" [(ngModel)]="item.confirmPassword"
+                       (blur)="handleValidation('rePassword')"
                        pattern="{{passwordPattern}}" required/>
-                <clr-control-helper
-                        *ngIf="item.password && item.confirmPassword && ( item.password != item.confirmPassword)">{{'APP_PASSWORD_HELP_MSG'|translate}}</clr-control-helper>
-                <clr-control-error>{{'APP_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
+                <clr-control-error *ngIf="!getValidationState('rePwdCheck')">
+                    {{'APP_PASSWORD_HELP_MSG'|translate}}
+                </clr-control-error>
+                <clr-control-error *ngIf="!getValidationState('rePassword')">
+                    {{'APP_PASSWORD_ERROR_MSG'|translate}}
+                </clr-control-error>
             </clr-password-container>
             <clr-checkbox-container>
                 <label>{{"APP_USER_ADMIN"|translate}}</label>
@@ -48,7 +59,7 @@
         <button type="button" class="btn btn-outline" (click)="onCancel()"
                 [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
         <button type="submit" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="userForm.invalid || !isPasswordMatch">{{'APP_COMMIT'|translate}}
+                [disabled]="userForm.invalid || !isValid">{{'APP_COMMIT'|translate}}
         </button>
     </div>
 </clr-modal>

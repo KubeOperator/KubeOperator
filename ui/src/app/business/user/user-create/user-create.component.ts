@@ -27,12 +27,26 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
     @ViewChild('userForm') userForm: NgForm;
     @Output() created = new EventEmitter();
 
+    private validationStateMap: any = {
+        password: true,
+        rePassword: true,
+        namePwd: true,
+        rePwdCheck: true,
+    };
+
     constructor(private userService: UserService, private modalAlertService: ModalAlertService,
                 private commonAlertService: CommonAlertService, private translateService: TranslateService) {
         super(userService);
     }
 
     ngOnInit(): void {
+    }
+
+    public get isValid(): boolean {
+        if (this.userForm && this.userForm.form.get('password')) {
+            return this.userForm.valid && (this.userForm.form.get('password').value === this.userForm.form.get('rePassword').value);
+        }
+        return false;
     }
 
     open() {
@@ -43,6 +57,36 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
 
     onCancel() {
         this.opened = false;
+    }
+
+    getValidationState(key: string): boolean {
+        return this.validationStateMap[key];
+    }
+
+    handleValidation(key) {
+        const cont = this.userForm.controls[key];
+        if (cont && cont.invalid && !cont.hasError) {
+            this.validationStateMap[key] = false;
+            return;
+        }
+        this.validationStateMap[key] = true;
+        
+        if (this.userForm.form.get('password').value === this.userForm.form.get('name').value) {
+            this.userForm.controls['password'].setErrors({namePwdError: false});
+            this.validationStateMap['namePwd'] = false;
+            return;
+        } else {
+            this.validationStateMap['namePwd'] = true;
+        }
+
+        if (this.userForm.form.get('rePassword').value !== null && this.userForm.form.get('password').value !== this.userForm.form.get('rePassword').value) {
+            this.userForm.controls[key].setErrors({rePwdError: false});
+            this.validationStateMap['rePwdCheck'] = false;
+        } else {
+            this.validationStateMap['rePwdCheck'] = true;
+            this.userForm.controls['password'].setErrors(null);
+            this.userForm.controls['rePassword'].setErrors(null);
+        }
     }
 
     onSubmit() {
@@ -60,9 +104,5 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
             this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
-    }
-
-    checkPassword() {
-        this.isPasswordMatch = this.item.password === this.item.confirmPassword;
     }
 }

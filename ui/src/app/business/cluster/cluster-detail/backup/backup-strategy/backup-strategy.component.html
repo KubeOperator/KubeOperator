@@ -38,7 +38,8 @@
             <button class="btn btn-info-outline" (click)="onBackup()" [disabled]="backupStrategy.id == ''">
                 {{'APP_BACKUP_NOW'|translate}}
             </button>
-            <button class="btn btn-info-outline clr-col-1" (click)="onSubmit()">{{'APP_COMMIT'|translate}}
+            <button class="btn btn-info-outline clr-col-1" [disabled]="backupStrategyForm.invalid"
+                    (click)="onSubmit()">{{'APP_COMMIT'|translate}}
             </button>
         </div>
     </div>
@@ -51,7 +52,8 @@
                     <label class="clr-control-label"></label>
                     <div class="clr-control-container">
                         <div class="clr-file-wrapper">
-                            <input type="file" id="basic-default" placeholder="Enter value here" (change)="upload($event)" required/>
+                            <input type="file" id="basic-default" placeholder="Enter value here"
+                                   (change)="upload($event)" required/>
                         </div>
                         <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
                     </div>

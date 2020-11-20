@@ -28,8 +28,7 @@ export class BackupStrategyComponent implements OnInit {
                 private backupService: BackupService,
                 private commonAlertService: CommonAlertService,
                 private translateService: TranslateService,
-                private backupFileService: BackupFileService,
-                private http: HttpClient) {
+                private backupFileService: BackupFileService) {
     }
 
     ngOnInit(): void {
