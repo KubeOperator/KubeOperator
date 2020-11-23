@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -69,6 +70,10 @@ func (p ProjectMemberController) Post() (*dto.ProjectMember, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.BIND_PROJECT_MEMBER, req.ProjectName+"-"+req.Username)
+
 	return result, nil
 }
 
@@ -87,6 +92,19 @@ func (p ProjectMemberController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	delMembers, delProject := "", ""
+	for _, item := range req.Items {
+		delMembers += (item.Username + ",")
+		delProject = item.ProjectName
+	}
+	if req.Operation == "update" {
+		go log_save.LogSave(operator, constant.UPDATE_PROJECT_MEMBER_ROLE, delProject+"-"+delMembers)
+	} else {
+		go log_save.LogSave(operator, constant.UNBIND_PROJECT_MEMBER, delProject+"-"+delMembers)
+	}
+
 	return err
 }
 

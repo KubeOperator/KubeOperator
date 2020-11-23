@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -77,6 +78,10 @@ func (u UserController) Post() (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := u.Ctx.Values().GetString("operator")
+	log_save.LogSave(operator, constant.CREATE_USER, req.Name)
+
 	return u.UserService.Create(req)
 }
 
@@ -89,6 +94,9 @@ func (u UserController) Post() (*dto.User, error) {
 // @Security ApiKeyAuth
 // @Router /users/{name}/ [delete]
 func (u UserController) Delete(name string) error {
+	operator := u.Ctx.Values().GetString("operator")
+	log_save.LogSave(operator, constant.DELETE_USER, name)
+
 	return u.UserService.Delete(name)
 }
 
@@ -117,6 +125,10 @@ func (u UserController) PatchBy(name string) (*dto.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := u.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_USER, name)
+
 	return user, err
 }
 
@@ -135,6 +147,14 @@ func (u UserController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := u.Ctx.Values().GetString("operator")
+	delUser := ""
+	for _, userItem := range req.Items {
+		delUser += (userItem.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_USER, delUser)
+
 	return err
 }
 
@@ -153,5 +173,9 @@ func (u UserController) PostChangePassword() error {
 	if err != nil {
 		return err
 	}
+
+	operator := u.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_USER_PASSWORD, req.Name)
+
 	return err
 }

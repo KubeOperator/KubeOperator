@@ -1,10 +1,13 @@
 package controller
 
 import (
+	"io/ioutil"
+
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
-	"io/ioutil"
 )
 
 type LicenseController struct {
@@ -31,5 +34,9 @@ func (l *LicenseController) Post() (*dto.License, error) {
 		return nil, err
 	}
 	defer f.Close()
+
+	operator := l.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.IMPORT_LICENCE, "")
+
 	return l.LicenseService.Save(string(bs))
 }

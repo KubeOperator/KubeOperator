@@ -2,7 +2,9 @@ package controller
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -112,6 +114,10 @@ func (h HostController) Post() (*dto.Host, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := h.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_HOST, req.Name)
+
 	return &item, nil
 }
 
@@ -124,6 +130,9 @@ func (h HostController) Post() (*dto.Host, error) {
 // @Security ApiKeyAuth
 // @Router /hosts/{name}/ [delete]
 func (h HostController) Delete(name string) error {
+	operator := h.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_HOST, name)
+
 	return h.HostService.Delete(name)
 }
 
@@ -146,5 +155,13 @@ func (h HostController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := h.Ctx.Values().GetString("operator")
+	delHost := ""
+	for _, item := range req.Items {
+		delHost += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_HOST, delHost)
+
 	return err
 }

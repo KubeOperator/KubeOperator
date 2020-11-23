@@ -2,13 +2,15 @@ package controller
 
 import (
 	"errors"
+	"io"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ansible"
 	"github.com/kataras/iris/v12/context"
-	"io"
 )
 
 type ClusterController struct {
@@ -115,10 +117,17 @@ func (c ClusterController) Post() (*dto.Cluster, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_CLUSTER, req.Name)
+
 	return &item, nil
 }
 
 func (c ClusterController) PostInitBy(name string) error {
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.INIT_CLUSTER, name)
+
 	return c.ClusterInitService.Init(name)
 }
 
@@ -128,6 +137,10 @@ func (c ClusterController) PostUpgrade() error {
 	if err != nil {
 		return err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPGRADE_CLUSTER, req.ClusterName+"-"+req.ClusterName)
+
 	return c.ClusterUpgradeService.Upgrade(req)
 }
 
@@ -148,10 +161,17 @@ func (c ClusterController) PostProvisionerBy(name string) (*dto.ClusterStoragePr
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_CLUSTER_STORAGE_SUPPLIER, name+"-"+req.Name+"("+req.Type+")")
+
 	return &p, nil
 }
 
 func (c ClusterController) DeleteProvisionerBy(clusterName string, name string) error {
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+name)
+
 	return c.ClusterStorageProvisionerService.DeleteStorageProvisioner(clusterName, name)
 }
 
@@ -160,6 +180,14 @@ func (c ClusterController) PostProvisionerBatchBy(clusterName string) error {
 	if err := c.Ctx.ReadJSON(&batch); err != nil {
 		return err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	delClus := ""
+	for _, item := range batch.Items {
+		delClus += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_CLUSTER_STORAGE_SUPPLIER, clusterName+"-"+delClus)
+
 	return c.ClusterStorageProvisionerService.BatchStorageProvisioner(clusterName, batch)
 }
 
@@ -180,6 +208,10 @@ func (c ClusterController) PostToolEnableBy(clusterName string) (*dto.ClusterToo
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.ENABLE_CLUSTER_TOOL, clusterName+"-"+req.Name)
+
 	return &cts, nil
 }
 
@@ -192,6 +224,10 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DISABLE_CLUSTER_TOOL, clusterName+"-"+req.Name)
+
 	return &cts, nil
 }
 
@@ -204,6 +240,9 @@ func (c ClusterController) PostToolDisableBy(clusterName string) (*dto.ClusterTo
 // @Security ApiKeyAuth
 // @Router /clusters/{name}/ [delete]
 func (c ClusterController) Delete(name string) error {
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_CLUSTER, name)
+
 	return c.ClusterService.Delete(name)
 }
 
@@ -221,6 +260,10 @@ func (c ClusterController) PostImport() error {
 	if err != nil {
 		return err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.IMPORT_CLUSTER, req.Name)
+
 	return c.ClusterImportService.Import(req)
 }
 
@@ -232,6 +275,14 @@ func (c ClusterController) PostBatch() error {
 	if err := c.ClusterService.Batch(batch); err != nil {
 		return err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	clusters := ""
+	for _, item := range batch.Items {
+		clusters += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_CLUSTER, clusters)
+
 	return nil
 }
 
@@ -268,6 +319,18 @@ func (c ClusterController) PostNodeBatchBy(clusterName string) ([]dto.Node, erro
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	node := ""
+	for _, item := range req.Nodes {
+		node += (item + ",")
+	}
+	if req.Operation == "delete" {
+		go log_save.LogSave(operator, constant.DELETE_CLUSTER_NODE, clusterName+"-"+node)
+	} else {
+		go log_save.LogSave(operator, constant.CREATE_CLUSTER_NODE, clusterName+"-"+node)
+	}
+
 	return cns, nil
 }
 
@@ -323,10 +386,17 @@ func (c ClusterController) DeleteCisBy(clusterName string, id string) error {
 	if clusterName == "" || id == "" {
 		return errors.New("params is not set")
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_CLUSTER_CIS_SCAN_RESULT, clusterName+"-"+id)
+
 	return c.CisService.Delete(clusterName, id)
 }
 
 func (c ClusterController) PostCisBy(clusterName string) (*dto.CisTask, error) {
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.START_CLUSTER_CIS_SCAN, clusterName)
+
 	return c.CisService.Create(clusterName)
 }
 

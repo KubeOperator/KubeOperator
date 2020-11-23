@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -93,6 +94,10 @@ func (p ProjectController) Post() (*dto.Project, error) {
 	if err != nil {
 		return result, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_PROJECT, req.Name)
+
 	return nil, err
 }
 
@@ -121,6 +126,10 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_PROJECT_INFO, name)
+
 	return &result, nil
 }
 
@@ -133,6 +142,9 @@ func (p ProjectController) PatchBy(name string) (*dto.Project, error) {
 // @Security ApiKeyAuth
 // @Router /projects/{name}/ [delete]
 func (p ProjectController) Delete(name string) error {
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_PROJECT, name)
+
 	return p.ProjectService.Delete(name)
 }
 
@@ -151,5 +163,13 @@ func (p ProjectController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	delProjects := ""
+	for _, item := range req.Items {
+		delProjects += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_PROJECT, delProjects)
+
 	return err
 }

@@ -424,7 +424,7 @@
   "APP_ALERTS": "Alerts",
   "APP_CLUSTER_HOST_HELPER": "The host needs to be authorized in the project-resource first",
   "APP_LOGGING": "Logging",
-  "APP_OPERATION_UNIT": "Operation Unit",
+  "APP_OPERATION_INFO": "Operation Info",
   "APP_OPERATION": "Operation",
   "APP_REQUEST_PATH": "Request path",
   "APP_MESSAGE": "Message",

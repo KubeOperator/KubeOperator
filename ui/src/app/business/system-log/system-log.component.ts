@@ -29,10 +29,8 @@ export class SystemLogComponent implements OnInit {
                 for (const item of this.items) {
                     if (currentLanguage == 'en-US') {
                         item.operation = item.operation.split('|')[1]
-                        item.operationUnit = item.operationUnit.split('|')[1]
                     } else {
                         item.operation = item.operation.split('|')[0]
-                        item.operationUnit = item.operationUnit.split('|')[0]
                     }
                 }
             }

@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kataras/iris/v12/context"
-	"net/http"
 )
 
 func UserMiddleware(ctx context.Context) {
@@ -29,5 +30,6 @@ func UserMiddleware(ctx context.Context) {
 	}
 	// set roles
 	ctx.Values().Set("user", u)
+	ctx.Values().Set("operator", u.Name)
 	ctx.Next()
 }

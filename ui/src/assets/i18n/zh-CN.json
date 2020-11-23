@@ -427,7 +427,7 @@
   "APP_ALERTS": "警告",
   "APP_CLUSTER_HOST_HELPER": "主机需要先在项目-资源中授权",
   "APP_LOGGING": "日志",
-  "APP_OPERATION_UNIT": "操作单元",
+  "APP_OPERATION_INFO": "操作内容",
   "APP_OPERATION": "操作",
   "APP_REQUEST_PATH": "请求接口",
   "APP_MESSAGE": "消息",

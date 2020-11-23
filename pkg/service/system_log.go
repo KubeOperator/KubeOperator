@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -25,27 +26,46 @@ func NewSystemLogService() SystemLogService {
 func (s systemLogService) Create(creation dto.SystemLogCreate) error {
 	log := model.SystemLog{
 		Name:          creation.Name,
-		OperationUnit: creation.OperationUnit,
 		Operation:     creation.Operation,
-		RequestPath:   creation.RequestPath,
+		OperationInfo: creation.OperationInfo,
 	}
-	if err := s.systemLogRepo.Save(&log); err != nil {
-		return err
+
+	if db.DB.NewRecord(log) {
+		return db.DB.Create(&log).Error
+	} else {
+		return db.DB.Save(&log).Error
 	}
-	return nil
 }
 
 func (u systemLogService) Page(num, size int, queryOption, queryInfo string) (page.Page, error) {
-	var page page.Page
-	var systemLogResults []dto.SystemLog
-	total, mos, err := u.systemLogRepo.Page(num, size, queryOption, queryInfo)
+	var (
+		page      page.Page
+		logsOfDB  []model.SystemLog
+		logsOfDTO []dto.SystemLog
+		total     int
+		err       error
+	)
+
+	if len(queryInfo) != 0 {
+		switch queryOption {
+		case "name":
+			err = db.DB.Model(model.SystemLog{}).Where("name LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+		case "operation":
+			err = db.DB.Model(model.SystemLog{}).Where("operation LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+		case "operationInfo":
+			err = db.DB.Model(model.SystemLog{}).Where("operation_info LIKE ?", "%"+queryInfo+"%").Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+		}
+	} else {
+		err = db.DB.Model(model.SystemLog{}).Order("updated_at DESC").Count(&total).Find(&logsOfDB).Offset((num - 1) * size).Limit(size).Error
+	}
+
 	if err != nil {
 		return page, err
 	}
-	for _, mo := range mos {
-		systemLogResults = append(systemLogResults, dto.SystemLog{SystemLog: mo})
+	for _, mo := range logsOfDB {
+		logsOfDTO = append(logsOfDTO, dto.SystemLog{SystemLog: mo})
 	}
 	page.Total = total
-	page.Items = systemLogResults
+	page.Items = logsOfDTO
 	return page, err
 }

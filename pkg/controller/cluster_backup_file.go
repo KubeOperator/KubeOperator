@@ -1,13 +1,15 @@
 package controller
 
 import (
+	"io/ioutil"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12/context"
-	"io/ioutil"
 )
 
 type BackupFileController struct {
@@ -46,6 +48,9 @@ func (b BackupFileController) Get() (*page.Page, error) {
 // @Security ApiKeyAuth
 // @Router /cluster/backup/files/{name}/ [delete]
 func (b BackupFileController) DeleteBy(name string) error {
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_RECOVERY_LIST, name)
+
 	return b.ClusterBackupFileService.Delete(name)
 }
 
@@ -64,6 +69,14 @@ func (b BackupFileController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	delBackup := ""
+	for _, item := range req.Items {
+		delBackup += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_RECOVERY_LIST, delBackup)
+
 	return err
 }
 
@@ -92,6 +105,10 @@ func (b BackupFileController) PostBackup() error {
 	if err != nil {
 		return err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.START_CLUSTER_BACKUP, req.ClusterName+"-"+req.Name)
+
 	return err
 }
 
@@ -120,6 +137,10 @@ func (b BackupFileController) PostRestore() error {
 	if err != nil {
 		return err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.RECOVER_FROM_RECOVERY, req.ClusterName+"-"+req.Name)
+
 	return err
 }
 
@@ -135,5 +156,9 @@ func (b BackupFileController) PostRestoreLocal() error {
 	}
 	defer f.Close()
 	clusterName := b.Ctx.FormValue("clusterName")
+
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPLOAD_LOCAL_RECOVERY_FILE, clusterName)
+
 	return b.ClusterBackupFileService.LocalRestore(clusterName, bs)
 }

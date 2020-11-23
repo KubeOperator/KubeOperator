@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
 	"github.com/kataras/iris/v12/context"
@@ -54,5 +56,9 @@ func (c ClusterBackupStrategyController) PostStrategy() (*dto.ClusterBackupStrat
 	if err != nil {
 		return nil, err
 	}
+
+	operator := c.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_CLUSTER_BACKUP_STRATEGY, req.ClusterName)
+
 	return cb, nil
 }

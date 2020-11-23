@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -58,6 +59,18 @@ func (p ProjectResourceController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	delResources := ""
+	for _, item := range req.Items {
+		delResources += (item.ResourceType + "-" + item.ResourceName + ",")
+	}
+	if req.Operation == "create" {
+		go log_save.LogSave(operator, constant.BIND_PROJECT_RESOURCE, delResources)
+	} else {
+		go log_save.LogSave(operator, constant.UNBIND_PROJECT_RESOURCE, delResources)
+	}
+
 	return err
 }
 

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -68,6 +69,10 @@ func (v VmConfigController) Post() (*dto.VmConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := v.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_VM_CONFIG, req.Name)
+
 	return v.VmConfigService.Create(req)
 }
 
@@ -96,6 +101,10 @@ func (v VmConfigController) PatchBy(name string) (*dto.VmConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := v.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_VM_CONFIG, name)
+
 	return result, nil
 }
 
@@ -114,5 +123,13 @@ func (v VmConfigController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := v.Ctx.Values().GetString("operator")
+	delConfs := ""
+	for _, item := range req.Items {
+		delConfs += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_VM_CONFIG, delConfs)
+
 	return err
 }

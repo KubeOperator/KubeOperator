@@ -7,25 +7,22 @@
                     <div class="clr-select-wrapper" style="display: inline;">
                         <select class="clr-select" (change)="refresh()" [(ngModel)]="queryOption">
                             <option value="name">{{'APP_NAME'|translate}}</option>
-                            <option value="operationUnit">{{'APP_OPERATION_UNIT'|translate}}</option>
                             <option value="operation">{{'APP_OPERATION'|translate}}</option>
-                            <option value="requestPath">{{'APP_REQUEST_PATH'|translate}}</option>
+                            <option value="operationInfo">{{'APP_OPERATION_INFO'|translate}}</option>
                         </select>
                     </div>
                     <input clrInput name="queryInfo" (keyup)="refresh()" [(ngModel)]="queryInfo" />
                 </div>
             </clr-dg-action-bar>
             <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
-            <clr-dg-column>{{'APP_OPERATION_UNIT'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION'|translate}}</clr-dg-column>
-            <clr-dg-column>{{'APP_REQUEST_PATH'|translate}}</clr-dg-column>
+            <clr-dg-column>{{'APP_OPERATION_INFO'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_CREATED_DATE'|translate}}</clr-dg-column>
            
             <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
                 <clr-dg-cell>{{item.name}}</clr-dg-cell>
-                <clr-dg-cell>{{item.operationUnit}}</clr-dg-cell>
                 <clr-dg-cell>{{item.operation}}</clr-dg-cell>
-                <clr-dg-cell>{{item.requestPath}}</clr-dg-cell>
+                <clr-dg-cell>{{item.operationInfo}}</clr-dg-cell>
                 <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
             </clr-dg-row>
             <clr-dg-footer>

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -83,6 +84,10 @@ func (p PlanController) Post() (*dto.Plan, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_PLAN, req.Name)
+
 	return p.PlanService.Create(req)
 }
 
@@ -95,6 +100,9 @@ func (p PlanController) Post() (*dto.Plan, error) {
 // @Security ApiKeyAuth
 // @Router /plans/{name}/ [delete]
 func (p PlanController) Delete(name string) error {
+	operator := p.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_PLAN, name)
+
 	return p.PlanService.Delete(name)
 }
 
@@ -113,6 +121,14 @@ func (p PlanController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := p.Ctx.Values().GetString("operator")
+	delPlans := ""
+	for _, item := range req.Items {
+		delPlans += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_PLAN, delPlans)
+
 	return err
 }
 

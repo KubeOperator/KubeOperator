@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -86,6 +87,10 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := z.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_ZONE, req.Name)
+
 	return z.ZoneService.Create(req)
 }
 
@@ -98,6 +103,9 @@ func (z ZoneController) Post() (*dto.Zone, error) {
 // @Security ApiKeyAuth
 // @Router /zones/{name}/ [delete]
 func (z ZoneController) Delete(name string) error {
+	operator := z.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_ZONE, name)
+
 	return z.ZoneService.Delete(name)
 }
 
@@ -112,6 +120,10 @@ func (z ZoneController) PatchBy(name string) (dto.Zone, error) {
 	if err != nil {
 		return dto.Zone{}, err
 	}
+
+	operator := z.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_ZONE, name)
+
 	return z.ZoneService.Update(req)
 }
 
@@ -130,6 +142,14 @@ func (z ZoneController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := z.Ctx.Values().GetString("operator")
+	delZone := ""
+	for _, item := range req.Items {
+		delZone += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_ZONE, delZone)
+
 	return err
 }
 

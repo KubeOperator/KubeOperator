@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/controller/log_save"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/service"
@@ -70,6 +71,10 @@ func (b BackupAccountController) Post() (*dto.BackupAccount, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.CREATE_BACKUP_ACCOUNT, req.Name)
+
 	return b.BackupAccountService.Create(req)
 }
 
@@ -88,6 +93,14 @@ func (b BackupAccountController) PostBatch() error {
 	if err != nil {
 		return err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	delAccs := ""
+	for _, item := range req.Items {
+		delAccs += (item.Name + ",")
+	}
+	go log_save.LogSave(operator, constant.DELETE_BACKUP_ACCOUNT, delAccs)
+
 	return err
 }
 
@@ -112,6 +125,10 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 	if err != nil {
 		return nil, err
 	}
+
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.UPDATE_BACKUP_ACCOUNT, name)
+
 	return b.BackupAccountService.Update(req)
 }
 
@@ -124,6 +141,9 @@ func (b BackupAccountController) PatchBy(name string) (*dto.BackupAccount, error
 // @Security ApiKeyAuth
 // @Router /backupAccounts/{name}/ [delete]
 func (b BackupAccountController) Delete(name string) error {
+	operator := b.Ctx.Values().GetString("operator")
+	go log_save.LogSave(operator, constant.DELETE_BACKUP_ACCOUNT, name)
+
 	return b.BackupAccountService.Delete(name)
 }
 

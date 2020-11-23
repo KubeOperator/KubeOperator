@@ -2,12 +2,12 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
 	"github.com/KubeOperator/KubeOperator/pkg/data"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/logger"
-	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/KubeOperator/KubeOperator/pkg/migrate"
 	"github.com/KubeOperator/KubeOperator/pkg/plugin"
 	"github.com/KubeOperator/KubeOperator/pkg/router"
@@ -41,7 +41,6 @@ func Phases() []Phase {
 		&cron.InitCronPhase{
 			Enable: viper.GetBool("cron.enable"),
 		},
-		&middleware.InitLogMiddlewarePhase{},
 	}
 }
 
