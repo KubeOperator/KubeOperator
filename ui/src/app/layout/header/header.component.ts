@@ -83,11 +83,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     openDoc() {
-        window.open('https://kubeoperator.io/docs/', 'blank');
+        window.open('https://kubeoperator.io/docs/', '_blank');
     }
 
     openSwagger() {
-        window.open('/swagger/index.html', 'blank');
+        window.open('/swagger/index.html', '_blank');
     }
 
     setLogo(logo: string) {

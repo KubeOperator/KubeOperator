@@ -19,10 +19,12 @@ export class BackupAccountUpdateComponent extends BaseModelDirective<BackupAccou
     buckets: [] = [];
     isSubmitGoing = false;
     @Output() updated = new EventEmitter();
+    loadingBucket = false;
 
-
-    constructor(private backupAccountService: BackupAccountService, private modalAlertService: ModalAlertService,
-                private commonAlertService: CommonAlertService, private translateService: TranslateService) {
+    constructor(private backupAccountService: BackupAccountService,
+                private modalAlertService: ModalAlertService,
+                private commonAlertService: CommonAlertService,
+                private translateService: TranslateService) {
         super(backupAccountService);
     }
 
@@ -30,14 +32,19 @@ export class BackupAccountUpdateComponent extends BaseModelDirective<BackupAccou
     }
 
     open(item) {
+        Object.assign(this.item, item);
+        this.item.bucket = '';
         this.opened = true;
-        this.item = item;
     }
 
     getBuckets() {
+        this.loadingBucket = true;
         this.backupAccountService.listBuckets(this.item).subscribe(res => {
+            this.loadingBucket = false;
             this.buckets = res;
         }, error => {
+            this.loadingBucket = false;
+            this.buckets = [];
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
@@ -48,6 +55,7 @@ export class BackupAccountUpdateComponent extends BaseModelDirective<BackupAccou
     }
 
     onSubmit() {
+        this.isSubmitGoing = true;
         this.backupAccountService.update(this.item.name, this.item).subscribe(res => {
             this.isSubmitGoing = false;
             this.updated.emit();
