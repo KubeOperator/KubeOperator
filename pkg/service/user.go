@@ -16,15 +16,15 @@ import (
 )
 
 var (
-	PasswordNotMatch = errors.New("PASSWORD_NOT_MATCH")
-	OriginalNotMatch = errors.New("ORIGINAL_NOT_MATCH")
-	UserNotFound     = errors.New("USER_NOT_FOUND")
-	UserIsNotActive  = errors.New("USER_IS_NOT_ACTIVE")
-	UserNameExist    = errors.New("NAME_EXISTS")
-	LdapDisable      = errors.New("LDAP_DISABLE")
-	NamePwdFailed    = errors.New("NAME_PASSWORD_SAME_FAILED")
-	EmailDisable     = errors.New("EMAIL_DISABLE")
-	EmailNotMatch    = errors.New("EMAIL_NOT_MATCH")
+	OriginalNotMatch  = errors.New("ORIGINAL_NOT_MATCH")
+	UserNotFound      = errors.New("USER_NOT_FOUND")
+	UserIsNotActive   = errors.New("USER_IS_NOT_ACTIVE")
+	UserNameExist     = errors.New("NAME_EXISTS")
+	LdapDisable       = errors.New("LDAP_DISABLE")
+	NamePwdFailed     = errors.New("NAME_PASSWORD_SAME_FAILED")
+	EmailDisable      = errors.New("EMAIL_DISABLE")
+	EmailNotMatch     = errors.New("EMAIL_NOT_MATCH")
+	NameOrPasswordErr = errors.New("NAME_PASSWORD_ERROR")
 )
 
 type UserService interface {
@@ -187,7 +187,7 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 	var dbUser model.User
 	if db.DB.Where("name = ?", name).First(&dbUser).RecordNotFound() {
 		if db.DB.Where("email = ?", name).First(&dbUser).RecordNotFound() {
-			return nil, UserNotFound
+			return nil, NameOrPasswordErr
 		}
 	}
 	if !dbUser.IsActive {
@@ -221,7 +221,7 @@ func (u userService) UserAuth(name string, password string) (user *model.User, e
 			return nil, err
 		}
 		if dbUser.Password != password {
-			return nil, PasswordNotMatch
+			return nil, NameOrPasswordErr
 		}
 	}
 	return &dbUser, nil
