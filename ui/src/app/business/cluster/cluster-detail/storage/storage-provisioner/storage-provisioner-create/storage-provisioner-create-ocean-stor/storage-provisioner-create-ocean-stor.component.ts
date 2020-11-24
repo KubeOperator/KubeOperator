@@ -31,6 +31,8 @@ export class StorageProvisionerCreateOceanStorComponent implements OnInit {
         this.item.name = 'csi.huawei.com';
         this.opened = true;
         this.storForm.resetForm(this.item);
+        this.item.vars['oceanstor_controller_type'] = 'single';
+        this.item.vars['oceanstor_is_multipath'] = 'no';
     }
 
     onCancel() {

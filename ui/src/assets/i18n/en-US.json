@@ -523,5 +523,13 @@
   "APP_MULTI_CLUSTER": "Multi Cluster",
   "CREDENTIAL_USERNAME_INVALID": "Username cannot be the same as name",
   "USERNAME_PWD_INVALID": "Username cannot be the same as password",
-  "BACKUP_PATH": "Path"
+  "BACKUP_PATH": "Path",
+  "OCREN_STOR_URL_HELPER": "Multiple management IPs are separated by commas, for example：\"10.1.1.1,10.1.1.2\"",
+  "OCREN_STOR_POOL_HELPER": "Multiple Pool are separated by commas, for example：\"pool1,pool2\"",
+  "OCREN_STOR_PORTAL_HELPER": "Multiple Logical port IP are separated by commas, for example：\"test1,test2\"",
+  "OCEAN_STOR_ISCSI_HELPER": "Multiple Logical business IP are separated by commas, for example\"10.1.1.1,10.1.1.2\"",
+  "OCEAN_STOR_DEPLOYMENT_TYPE": "Deployment type",
+  "OCEAN_STOR_MULTIPATH_NETWORKING": "Multipath networking",
+  "APP_YES": "yes",
+  "APP_NO": "no"
 }

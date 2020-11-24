@@ -8,6 +8,24 @@
                        required>
             </clr-input-container>
             <clr-select-container>
+                <label>{{"OCEAN_STOR_DEPLOYMENT_TYPE"|translate}}</label>
+                <select clrSelect [(ngModel)]="item.vars['oceanstor_controller_type']" name="oceanstor_controller_type"
+                        required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="single">single</option>
+                    <option value="multi">multi</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container>
+                <label>{{"OCEAN_STOR_MULTIPATH_NETWORKING"|translate}}</label>
+                <select clrSelect [(ngModel)]="item.vars['oceanstor_is_multipath']" name="oceanstor_is_multipath"
+                        required>
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="yes">{{'APP_YES'|translate}}</option>
+                    <option value="no">{{'APP_NO'|translate}}</option>
+                </select>
+            </clr-select-container>
+            <clr-select-container>
                 <label>{{"APP_TYPE"|translate}}</label>
                 <select clrSelect [(ngModel)]="item.vars['oceanstor_type']" name="oceanstor_type" required>
                     <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
@@ -30,6 +48,7 @@
                 <input clrInput [(ngModel)]="item.vars['oceanstor_urls']" name="oceanstor_urls" size="34"
                        placeholder="10.1.1.1,10.1.1.2"
                        required>
+                <clr-control-helper>{{'OCEAN_STOR_URL_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_USERNAME"|translate}}</label>
@@ -45,17 +64,21 @@
                 <input clrInput [size]="32" name="oceanstor_pools" [(ngModel)]="item.vars['oceanstor_pools']"
                        placeholder="pool1,pool2"
                        required/>
+                <clr-control-helper>{{'OCEAN_STOR_POOL_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
             <clr-input-container *ngIf="item.vars['oceanstor_type']==='nfs'">
                 <label>{{"APP_OCEAN_PORTAL_NFS"|translate}}</label>
                 <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']"
                        placeholder="test1,test2"
                        required/>
+                <clr-control-helper>{{'OCEAN_STOR_PORTAL_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
             <clr-input-container *ngIf="item.vars['oceanstor_type']==='iscsi'">
                 <label>{{"APP_OCEAN_PORTAL_ISCSI"|translate}}</label>
                 <input clrInput [size]="32" name="oceanstor_portal" [(ngModel)]="item.vars['oceanstor_portal']"
+                       placeholder="10.1.1.1,10.1.1.2"
                        required/>
+                <clr-control-helper>{{'OCEAN_STOR_ISCSI_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
             <app-modal-alert></app-modal-alert>
         </form>
@@ -63,8 +86,7 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
         <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="storForm.invalid || isSubmitGoing">
-            <span *ngIf="isSubmitGoing" class="spinner spinner-sm">Loading...</span>
+                [disabled]="storForm.invalid" [clrLoading]="isSubmitGoing">
             {{'APP_COMMIT'|translate}}
         </button>
     </div>
