@@ -113,6 +113,8 @@ func (u userService) Update(update dto.UserUpdate) (*dto.User, error) {
 		IsActive: update.IsActive,
 		IsAdmin:  update.IsAdmin,
 		Type:     constant.Local,
+		Password: old.Password,
+		Language: model.ZH,
 	}
 	err = u.userRepo.Save(&user)
 	if err != nil {
