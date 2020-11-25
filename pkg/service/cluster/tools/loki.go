@@ -3,6 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -27,9 +28,6 @@ func (c Loki) setDefaultValue() {
 	values["loki.image.tag"] = LokiTag
 	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, PromtailImageName)
 	values["promtail.image.tag"] = PromtailTag
-	values["promtail.dockerPath"] = "/data/docker"
-	//values["loki.service.type"] = "NodePort"
-	//values["grafana.enabled"] = true
 
 	if _, ok := values["loki.persistence.size"]; ok {
 		values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])
@@ -52,7 +50,7 @@ func (c Loki) Install() error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.LokiChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 9200, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	if err := waitForStatefulSetsRunning(constant.DefaultLokiStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {

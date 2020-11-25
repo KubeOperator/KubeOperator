@@ -19,7 +19,7 @@
             <div class="card-footer">
                 <div style="text-align: right">
                     <button *ngIf="item.status === 'Waiting' || item.status === 'Failed'" class="btn btn-sm btn-primary"
-                            (click)="onEnable(item)">
+                        [disabled]='item.isDisable' (click)="onEnable(item)">
                         {{'APP_ENABLE'|translate}}
                     </button>
 

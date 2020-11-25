@@ -22,7 +22,7 @@
                 {{"APP_EVENT"|translate}}
             </a>
         </li>
-        <li class="nav-item" *ngIf="ready&&showApp('logging')">
+        <li class="nav-item" *ngIf="ready&&(showApp('logging')||showApp('loki'))">
             <a class="nav-link" href="javascript:void(0)" routerLink="logging"
                routerLinkActive="active">{{"APP_LOGGING"|translate}}</a>
         </li>

@@ -28,6 +28,7 @@ export class ToolsEnableComponent implements OnInit {
     alertMsg = '';
     item: ClusterTool = new ClusterTool();
     storageClazz: V1StorageClass[] = [];
+    buttonLoading = false;
     @ViewChild('itemForm') itemForm: NgForm;
     @Output() enabled = new EventEmitter();
     @Input() currentCluster: Cluster;
@@ -37,12 +38,21 @@ export class ToolsEnableComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.item.name === 'loki') {
+            this.item.vars['promtail.dockerPath'] = this.currentCluster.spec.dockerStorageDir
+        }
+        this.buttonLoading = true
         this.checkIsCorrect();
         if (!this.isAlertShow) {
             this.toolsService.enable(this.currentCluster.name, this.item).subscribe(data => {
                 this.opened = false;
                 this.enabled.emit();
+                this.buttonLoading = false
+            }, error => {
+                this.buttonLoading = false;
             });
+        } else {
+            this.buttonLoading = false;
         }
     }
     checkIsCorrect() {

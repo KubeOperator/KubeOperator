@@ -10,4 +10,5 @@ export class ClusterTool extends BaseModel {
     url: string;
     frame: boolean;
     vars: {} = {};
+    isDisable: boolean;
 }

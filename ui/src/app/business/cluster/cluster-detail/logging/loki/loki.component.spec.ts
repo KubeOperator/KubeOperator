@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LoggingQueryComponent } from './logging-query.component';
+import { LokiComponent } from './loki.component';
 
-describe('LoggingQueryComponent', () => {
-  let component: LoggingQueryComponent;
-  let fixture: ComponentFixture<LoggingQueryComponent>;
+describe('LokiComponent', () => {
+  let component: LokiComponent;
+  let fixture: ComponentFixture<LokiComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoggingQueryComponent ]
+      declarations: [ LokiComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LoggingQueryComponent);
+    fixture = TestBed.createComponent(LokiComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

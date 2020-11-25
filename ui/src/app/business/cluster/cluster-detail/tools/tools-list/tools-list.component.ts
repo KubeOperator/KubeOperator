@@ -31,6 +31,20 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     refresh() {
         this.service.list(this.currentCluster.name).subscribe(data => {
+            let j = 0;
+            let k = 0;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].name === 'logging') {
+                    j = i
+                } else if(data[i].name === 'loki') {
+                    k = i
+                } else {
+                    data[i].isDisable = false
+                }
+                
+            }
+            data[k].isDisable = (data[j].status !== 'Waiting')
+            data[j].isDisable = (data[k].status !== 'Waiting')
             this.items = data;
         });
     }

@@ -12,6 +12,7 @@ export class Cluster extends BaseModel {
 }
 
 export class Spec {
+    dockerStorageDir: string;
     version: string;
     upgradeVersion: string;
     networkType: string;

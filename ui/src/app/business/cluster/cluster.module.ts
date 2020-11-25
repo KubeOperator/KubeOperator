@@ -22,7 +22,8 @@ import {NodeDetailComponent} from './cluster-detail/node/node-detail/node-detail
 import {PersistentVolumeClaimListComponent} from './cluster-detail/storage/persistent-volume-claim/persistent-volume-claim-list/persistent-volume-claim-list.component';
 import {StorageClassListComponent} from './cluster-detail/storage/storage-class/storage-class-list/storage-class-list.component';
 import {LoggingComponent} from './cluster-detail/logging/logging.component';
-import {LoggingQueryComponent} from './cluster-detail/logging/logging-query/logging-query.component';
+import {EfComponent} from './cluster-detail/logging/ef/ef.component';
+import {LokiComponent} from './cluster-detail/logging/loki/loki.component';
 
 import {NgCircleProgressModule} from 'ng-circle-progress';
 import {MonitorComponent} from './cluster-detail/monitor/monitor.component';
@@ -81,7 +82,7 @@ import { F5Component } from './cluster-detail/f5/f5.component';
         OverviewComponent, ClusterConditionComponent, NodeComponent, NamespaceComponent, NamespaceListComponent,
         StorageComponent, PersistentVolumeComponent, PersistentVolumeClaimComponent, StorageClassComponent, PersistentVolumeListComponent,
         NodeListComponent, NodeDetailComponent, PersistentVolumeClaimListComponent,
-        StorageClassListComponent, LoggingComponent, LoggingQueryComponent,
+        StorageClassListComponent, LoggingComponent, EfComponent, LokiComponent,
         MonitorComponent, MonitorDashboardComponent,
         ClusterImportComponent,
         StorageClassCreateComponent,
