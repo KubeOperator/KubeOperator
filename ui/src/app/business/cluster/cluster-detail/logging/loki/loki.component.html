@@ -1,13 +1,14 @@
 <form  clrForm clrLayout="horizontal">
-    <clr-input-container>
+    <clr-date-container>
         <label>{{'APP_SEARCH_BEGIN_DATE'|translate}}</label>
-        <input class="myDateInput" clrInput type="datetime-local" name="searchBeginDate" [(ngModel)]="searchBeginDate">
-    </clr-input-container>
-    
-    <clr-input-container>
-        <label>{{'APP_SEARCH_BEGIN_DATE'|translate}}</label>
-        <input class="myDateInput" clrInput type="datetime-local" name="searchEndDate" [(ngModel)]="searchEndDate">
-    </clr-input-container>
+        <input type="date" clrDate name="searchBeginDate" [(ngModel)]="searchBeginDate">
+    </clr-date-container>
+
+    <clr-date-container>
+        <label>{{'APP_SEARCH_END_DATE'|translate}}</label>
+        <input type="date" clrDate name="searchEndDate" [(ngModel)]="searchEndDate">
+    </clr-date-container>
+
 
     <clr-select-container>
         <label>{{'APP_LOG_LABEL'|translate}}</label>

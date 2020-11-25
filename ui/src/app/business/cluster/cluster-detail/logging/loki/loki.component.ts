@@ -25,8 +25,6 @@ export class LokiComponent implements OnInit {
     logs: LokiData[]= [];
 
     ngOnInit(): void {
-        this.loading = true;
-        this.refresh();
         this.getLabels();
     }
     getLabels () {
@@ -43,22 +41,16 @@ export class LokiComponent implements OnInit {
     refresh() {
         this.loading = true;
         let paramInfo = 'limit=1000';
-        let start: number
-        let end: number
-        if (this.searchBeginDate !== undefined && this.searchEndDate !== undefined) {
-            start = new Date(this.searchBeginDate).getTime();
-            end = new Date(this.searchEndDate).getTime();
-            paramInfo = paramInfo + ('&start=' + start + '&end=' + end)
+        let start: number = new Date(this.searchBeginDate).getTime();
+        let end: number = new Date(this.searchEndDate).getTime();
+        if (!isNaN(start) && !isNaN(end)) {
+            paramInfo = paramInfo + ('&start=' + start + '&end=' + (end + 86400000))
         }
-        if (this.searchBeginDate === undefined && this.searchEndDate !== undefined) {
-            end = new Date(this.searchEndDate).getTime();
-            start = end - 10800000
-            paramInfo = paramInfo + ('&start=' + start + '&end=' + end)
+        if (isNaN(start) && !isNaN(end)) {
+            paramInfo = paramInfo + ('&start=' + end + '&end=' + end + 86400000)
         }
-        if (this.searchBeginDate !== undefined && this.searchEndDate === undefined) {
-            start = new Date(this.searchBeginDate).getTime();
-            end = start + 10800000
-            paramInfo = paramInfo + ('&start=' + start + '&end=' + end)
+        if (!isNaN(start) && isNaN(end)) {
+            paramInfo = paramInfo + ('&start=' + start + '&end=' + (start + 86400000))
         }
 
         if (this.label !== '' && this.value !== '') {
