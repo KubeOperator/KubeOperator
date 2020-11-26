@@ -538,5 +538,7 @@
   "OCEAN_STOR_DEPLOYMENT_TYPE": "部署类型",
   "OCEAN_STOR_MULTIPATH_NETWORKING": "多路径组网",
   "APP_YES": "是",
-  "APP_NO": "否"
+  "APP_NO": "否",
+  "APP_IMPORT_HOST": "批量导入",
+  "APP_DOWNLOAD_TEMPLATE": "下载模板"
 }

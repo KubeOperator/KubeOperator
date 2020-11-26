@@ -1,0 +1,39 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_IMPORT_HOST'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #itemForm="ngForm" enctype="multipart/form-data">
+            <a style="color:#0000FF" (click)="download()">{{'APP_DOWNLOAD_TEMPLATE'|translate}}</a>
+            <div class="clr-form-control">
+                <label class="clr-control-label">
+                </label>
+                <div class="clr-control-container">
+                    <div class="clr-file-wrapper">
+                        <input type="file" id="basic-default" placeholder="Enter value here"
+                               (change)="upload($event)" required/>
+                    </div>
+                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+                </div>
+            </div>
+            <div *ngIf="errMsg!==''" class="alert alert-danger" role="alert">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                        </div>
+                        <span class="alert-text" style="white-space:pre-wrap;">
+                            {{errMsg}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <app-modal-alert></app-modal-alert>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="itemForm.invalid" [clrLoading]="isSubmitGoing">{{'APP_COMMIT'|translate}}
+        </button>
+    </div>
+</clr-modal>

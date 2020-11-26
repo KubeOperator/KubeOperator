@@ -2,11 +2,12 @@
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <h2> {{ 'APP_HOST' | translate }}</h2>
         <app-host-list (createEvent)="openCreate()" (deleteEvent)="openDelete($event)"
-                       (detailEvent)="openDetail($event)"
+                       (detailEvent)="openDetail($event)" (importEvent)="openImport()"
                        (statusDetailEvent)="openStatusDetail($event)"></app-host-list>
         <app-host-delete (deleted)="refresh()"></app-host-delete>
         <app-host-create (created)="refresh()"></app-host-create>
         <app-host-detail (detail)="refresh()"></app-host-detail>
         <app-host-status-detail></app-host-status-detail>
+        <app-host-import (import)="refresh()"></app-host-import>
     </div>
 </div>
