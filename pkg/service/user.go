@@ -172,6 +172,9 @@ func (u userService) ChangePassword(ch dto.UserChangePassword) error {
 	if !success {
 		return OriginalNotMatch
 	}
+	if ch.Password == user.Name {
+		return NamePwdFailed
+	}
 	user.Password, err = encrypt.StringEncrypt(ch.Password)
 	if err != nil {
 		return err
