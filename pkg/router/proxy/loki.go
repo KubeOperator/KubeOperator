@@ -3,11 +3,12 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
-	"github.com/kataras/iris/v12/context"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/kataras/iris/v12/context"
 )
 
 func LokiProxy(ctx context.Context) {

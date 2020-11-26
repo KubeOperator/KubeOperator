@@ -311,6 +311,8 @@
   "APP_OPEN_EXPERT_SEARCH": "Advanced",
   "APP_SEARCH_BEGIN_DATE": "Start date",
   "APP_SEARCH_END_DATE": "End date",
+  "APP_LOG_LABEL": "Log label",
+  "APP_LOG_LABEL_VALUE": "Log label value",
   "APP_DAY": "Day",
   "APP_SIZE": "Size",
   "APP_GO": "go",

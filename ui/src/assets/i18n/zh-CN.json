@@ -314,6 +314,8 @@
   "APP_OPEN_EXPERT_SEARCH": "启用高级查询",
   "APP_SEARCH_BEGIN_DATE": "起始日期",
   "APP_SEARCH_END_DATE": "截止日期",
+  "APP_LOG_LABEL": "日志标签",
+  "APP_LOG_LABEL_VALUE": "日志标签值",
   "APP_DAY": "天",
   "APP_SIZE": "大小",
   "APP_GO": "转到",

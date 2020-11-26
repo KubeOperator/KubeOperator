@@ -1,0 +1,57 @@
+<form  clrForm clrLayout="horizontal">
+    <clr-input-container>
+        <label>{{'APP_QUERY_INFO'|translate}}</label>
+        <input size="20" clrInput [(ngModel)]="searchInfo" name="searchInfo"/>
+    </clr-input-container>
+
+    <clr-checkbox-wrapper style="float: right" >
+        <label>{{'APP_OPEN_EXPERT_SEARCH'|translate}}</label>
+        <input clrToggle class="clr-checkbox" type="checkbox" name="searchType" [checked]="isExpertShow" (change)="changeSearchType(isExpertShow)"/>
+    </clr-checkbox-wrapper>
+
+    <clr-date-container>
+        <label>{{'APP_SEARCH_BEGIN_DATE'|translate}}</label>
+        <input type="date" clrDate name="searchBeginDate" [(ngModel)]="searchBeginDate">
+    </clr-date-container>
+
+    <clr-date-container>
+        <label>{{'APP_SEARCH_END_DATE'|translate}}</label>
+        <input type="date" clrDate name="searchEndDate" [(ngModel)]="searchEndDate">
+    </clr-date-container>
+
+    <div *ngIf="isExpertShow">
+        <clr-input-container>
+            <label>Namespace</label>
+            <input size="20" clrInput [(ngModel)]="namespace" name="namespace"/>
+        </clr-input-container>
+        <clr-input-container>
+            <label>Pod</label>
+            <input size="20" clrInput [(ngModel)]="pod" name="pod"/>
+        </clr-input-container>
+        <clr-input-container>
+            <label>Container</label>
+            <input size="20" clrInput [(ngModel)]="container" name="container"/>
+        </clr-input-container>
+    </div>
+
+    <button class="btn btn-primary" type="button"  (click)="refresh()">{{'APP_SEARCH'|translate}}</button>
+</form>
+
+<clr-datagrid [clrDgLoading]="loading">
+    <clr-dg-column>{{'APP_EVENT_DATE'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_MSG_CONTENT'|translate}}</clr-dg-column>
+    <clr-dg-row *ngFor="let item of logs" [clrDgItem]="item">
+        <clr-dg-cell>{{item.timestamp}}</clr-dg-cell>
+        <clr-dg-cell>{{item._source}}</clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
+                           (clrDgPageChange)="refresh()">
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_LOGGING"|translate}}
+        </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>
+
+
+
