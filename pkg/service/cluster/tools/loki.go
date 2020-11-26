@@ -50,15 +50,15 @@ func (c Loki) Install() error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.LokiChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(c.Cluster.Namespace, constant.DefaultLokiIngressName, constant.DefaultLokiIngress, constant.DefaultLokiServiceName, 3100, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForStatefulSetsRunning(constant.DefaultLokiStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForStatefulSetsRunning(c.Cluster.Namespace, constant.DefaultLokiStateSetsfulName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Loki) Uninstall() error {
-	return uninstall(c.Tool, constant.DefaultLokiIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultLokiIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }

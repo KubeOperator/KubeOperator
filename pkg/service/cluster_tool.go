@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -64,7 +65,16 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	if err != nil {
 		return tool, err
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret)
+
+	itemValue, ok := tool.Vars["namespace"]
+	namespace := ""
+	if !ok {
+		namespace = constant.DefaultNamespace
+	} else {
+		namespace = itemValue.(string)
+	}
+
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace)
 	if err != nil {
 		return tool, err
 	}
@@ -101,11 +111,20 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
-	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), constant.DefaultNamespace, metav1.GetOptions{})
+
+	itemValue, ok := tool.Vars["namespace"]
+	namespace := ""
+	if !ok {
+		namespace = constant.DefaultNamespace
+	} else {
+		namespace = itemValue.(string)
+	}
+
+	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if ns.ObjectMeta.Name == "" {
 		n := &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: constant.DefaultNamespace,
+				Name: namespace,
 			},
 		}
 		_, err = kubeClient.CoreV1().Namespaces().Create(context.TODO(), n, metav1.CreateOptions{})
@@ -113,7 +132,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace)
 	if err != nil {
 		return tool, err
 	}

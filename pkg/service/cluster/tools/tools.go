@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -17,7 +18,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	"time"
 )
 
 type Interface interface {
@@ -26,20 +26,21 @@ type Interface interface {
 }
 
 type Cluster struct {
+	Namespace string
 	model.Cluster
 	HelmClient helm.Interface
 	KubeClient *kubernetes.Clientset
 }
 
-func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret) (*Cluster, error) {
+func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
-
+	c.Namespace = namespace
 	helmClient, err := helm.NewClient(helm.Config{
 		ApiServer:     fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
 		BearerToken:   secret.KubernetesToken,
-		Namespace:     constant.DefaultNamespace,
+		Namespace:     namespace,
 		Architectures: cluster.Spec.Architectures,
 	})
 	if err != nil {
@@ -58,13 +59,14 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret) (Interface, error) {
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, namespace string) (Interface, error) {
 	systemRepo := repository.NewSystemSettingRepository()
 	localIP, err := systemRepo.Get("ip")
 	if err != nil || localIP.Value == "" {
 		return nil, errors.New("invalid system setting: ip")
 	}
-	c, err := NewCluster(cluster, endpoint, secret)
+
+	c, err := NewCluster(cluster, endpoint, secret, namespace)
 	if err != nil {
 		return nil, err
 	}
@@ -138,12 +140,12 @@ func installChart(h helm.Interface, tool *model.ClusterTool, chartName string) e
 	return nil
 }
 
-func preCreateRoute(ingressName string, kubeClient *kubernetes.Clientset) error {
+func preCreateRoute(namespace string, ingressName string, kubeClient *kubernetes.Clientset) error {
 	ingress, _ := kubeClient.NetworkingV1beta1().
-		Ingresses(constant.DefaultNamespace).
+		Ingresses(namespace).
 		Get(context.TODO(), ingressName, metav1.GetOptions{})
 	if ingress.Name != "" {
-		err := kubeClient.NetworkingV1beta1().Ingresses(constant.DefaultNamespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
+		err := kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
 		if err != nil {
 			return err
 		}
@@ -151,12 +153,12 @@ func preCreateRoute(ingressName string, kubeClient *kubernetes.Clientset) error 
 	return nil
 }
 
-func createRoute(ingressName string, ingressUrl string, serviceName string, port int, kubeClient *kubernetes.Clientset) error {
-	if err := preCreateRoute(ingressName, kubeClient); err != nil {
+func createRoute(namespace string, ingressName string, ingressUrl string, serviceName string, port int, kubeClient *kubernetes.Clientset) error {
+	if err := preCreateRoute(namespace, ingressName, kubeClient); err != nil {
 		return err
 	}
 	service, err := kubeClient.CoreV1().
-		Services(constant.DefaultNamespace).
+		Services(namespace).
 		Get(context.TODO(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		return err
@@ -164,7 +166,7 @@ func createRoute(ingressName string, ingressUrl string, serviceName string, port
 	ingress := v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      ingressName,
-			Namespace: constant.DefaultNamespace,
+			Namespace: namespace,
 		},
 		Spec: v1beta1.IngressSpec{
 			Rules: []v1beta1.IngressRule{
@@ -186,17 +188,17 @@ func createRoute(ingressName string, ingressUrl string, serviceName string, port
 			},
 		},
 	}
-	_, err = kubeClient.NetworkingV1beta1().Ingresses(constant.DefaultNamespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
+	_, err = kubeClient.NetworkingV1beta1().Ingresses(namespace).Create(context.TODO(), &ingress, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func waitForRunning(deploymentName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
+func waitForRunning(namespace string, deploymentName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
-		d, err := kubeClient.AppsV1().Deployments(constant.DefaultNamespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
+		d, err := kubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -211,10 +213,10 @@ func waitForRunning(deploymentName string, minReplicas int32, kubeClient *kubern
 	return nil
 }
 
-func waitForStatefulSetsRunning(statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
+func waitForStatefulSetsRunning(namespace string, statefulSetsName string, minReplicas int32, kubeClient *kubernetes.Clientset) error {
 	kubeClient.CoreV1()
 	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
-		d, err := kubeClient.AppsV1().StatefulSets(constant.DefaultNamespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
+		d, err := kubeClient.AppsV1().StatefulSets(namespace).Get(context.TODO(), statefulSetsName, metav1.GetOptions{})
 		if err != nil {
 			return true, err
 		}
@@ -229,7 +231,7 @@ func waitForStatefulSetsRunning(statefulSetsName string, minReplicas int32, kube
 	return nil
 }
 
-func uninstall(tool *model.ClusterTool, ingressName string, h helm.Interface, kubeClient *kubernetes.Clientset) error {
+func uninstall(namespace string, tool *model.ClusterTool, ingressName string, h helm.Interface, kubeClient *kubernetes.Clientset) error {
 	rs, err := h.List()
 	if err != nil {
 		return err
@@ -239,6 +241,6 @@ func uninstall(tool *model.ClusterTool, ingressName string, h helm.Interface, ku
 			_, _ = h.Uninstall(tool.Name)
 		}
 	}
-	_ = kubeClient.NetworkingV1beta1().Ingresses(constant.DefaultNamespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
+	_ = kubeClient.NetworkingV1beta1().Ingresses(namespace).Delete(context.TODO(), ingressName, metav1.DeleteOptions{})
 	return nil
 }
