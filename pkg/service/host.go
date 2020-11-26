@@ -340,7 +340,6 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	//index := xlsx.GetSheetIndex("Sheet1")
 	rows := xlsx.GetRows("Sheet1")
 	var hosts []model.Host
 	var errMsg string
@@ -377,14 +376,16 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 	}
 
 	if errMsg != "" {
-		errMsg = "fail import " + strconv.Itoa(failedNum) + "rows \n" + errMsg
+		errMsg = "failed import " + strconv.Itoa(failedNum) + "rows \n" + errMsg
 	}
 
 	for _, host := range hosts {
 		err = h.hostRepo.Save(&host)
 		if err != nil {
-			errMsg = "fail save host " + host.Name + " reason :" + err.Error() + "\n"
+			errMsg = errMsg + "failed save host " + host.Name + " reason :" + err.Error() + "\n"
+			continue
 		}
+		go h.RunGetHostConfig(host)
 	}
 	var res dto.ImportHostResponse
 	res.Success = true

@@ -16,6 +16,7 @@ export class HostImportComponent implements OnInit {
     opened = false;
     isSubmitGoing = false;
     file;
+    errMsg = '';
     @Output() import = new EventEmitter();
 
     constructor(private hostService: HostService, private modalAlertService: ModalAlertService,
@@ -38,9 +39,15 @@ export class HostImportComponent implements OnInit {
         formData.append('file', this.file);
         this.isSubmitGoing = true;
         this.hostService.upload(formData).subscribe(res => {
-            // this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
             this.isSubmitGoing = false;
-            console.log(res)
+            if (res.success) {
+                this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+                this.opened = false;
+                this.import.emit();
+            } else {
+                this.errMsg = res.msg;
+                console.log(res.msg);
+            }
         }, error => {
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });

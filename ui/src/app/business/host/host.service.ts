@@ -26,7 +26,7 @@ export class HostService extends BaseModelService<Host> {
         return this.http.get<Page<Host>>(itemUrl);
     }
 
-    upload(file) {
+    upload(file): Observable<any> {
         const itemUrl = `${this.baseUrl}/upload`;
         return this.http.post(itemUrl, file);
     }
