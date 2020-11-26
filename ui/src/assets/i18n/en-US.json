@@ -531,5 +531,7 @@
   "OCEAN_STOR_DEPLOYMENT_TYPE": "Deployment type",
   "OCEAN_STOR_MULTIPATH_NETWORKING": "Multipath networking",
   "APP_YES": "yes",
-  "APP_NO": "no"
+  "APP_NO": "no",
+  "APP_IMPORT_HOST": "Batch Import",
+  "APP_DOWNLOAD_TEMPLATE": "Download Template"
 }

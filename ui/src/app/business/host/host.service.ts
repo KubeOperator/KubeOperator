@@ -17,11 +17,17 @@ export class HostService extends BaseModelService<Host> {
     }
 
     sync(name: string): Observable<Host> {
-        const itemUrl = `${this.baseUrl}/sync/${name}/`;
+        const itemUrl = `${this.baseUrl}/sync/${name}`;
         return this.http.post<Host>(itemUrl, {});
     }
+
     listByProjectName(projectName: string): Observable<Page<Host>> {
         const itemUrl = `${this.baseUrl}/?projectName=${projectName}`;
         return this.http.get<Page<Host>>(itemUrl);
+    }
+
+    upload(file) {
+        const itemUrl = `${this.baseUrl}/upload`;
+        return this.http.post(itemUrl, file);
     }
 }

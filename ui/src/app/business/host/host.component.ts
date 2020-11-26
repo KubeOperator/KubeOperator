@@ -4,7 +4,8 @@ import {HostCreateComponent} from './host-create/host-create.component';
 import {HostDeleteComponent} from './host-delete/host-delete.component';
 import {Host} from './host';
 import {HostDetailComponent} from './host-detail/host-detail.component';
-import {HostStatusDetailComponent} from "./host-status-detail/host-status-detail.component";
+import {HostStatusDetailComponent} from './host-status-detail/host-status-detail.component';
+import {HostImportComponent} from './host-import/host-import.component';
 
 @Component({
     selector: 'app-host',
@@ -27,6 +28,9 @@ export class HostComponent implements OnInit {
 
     @ViewChild(HostStatusDetailComponent, {static: true})
     statusDetail: HostStatusDetailComponent;
+
+    @ViewChild(HostImportComponent, {static: true})
+    import: HostImportComponent;
 
     constructor() {
     }
@@ -55,4 +59,7 @@ export class HostComponent implements OnInit {
         this.statusDetail.open(item);
     }
 
+    openImport() {
+        this.import.open();
+    }
 }

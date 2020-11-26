@@ -24,3 +24,8 @@ type HostOp struct {
 	Operation string `json:"operation" validate:"required"`
 	Items     []Host `json:"items" validate:"required"`
 }
+
+type ImportHostResponse struct {
+	Msg     string `json:"msg"`
+	Success bool   `json:"success"`
+}

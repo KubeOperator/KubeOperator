@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -13,7 +14,10 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
+	"io/ioutil"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -25,15 +29,19 @@ type HostService interface {
 	Delete(name string) error
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
+	DownloadTemplateFile() error
+	ImportHosts(file []byte) (*dto.ImportHostResponse, error)
 }
 
 type hostService struct {
-	hostRepo repository.HostRepository
+	hostRepo       repository.HostRepository
+	credentialRepo repository.CredentialRepository
 }
 
 func NewHostService() HostService {
 	return &hostService{
-		hostRepo: repository.NewHostRepository(),
+		hostRepo:       repository.NewHostRepository(),
+		credentialRepo: repository.NewCredentialRepository(),
 	}
 }
 
@@ -298,4 +306,91 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		host.Volumes = volumes
 	}
 	return nil
+}
+
+func (h hostService) DownloadTemplateFile() error {
+	f := excelize.NewFile()
+	f.SetCellValue("Sheet1", "A1", "name")
+	f.SetCellValue("Sheet1", "B1", "ip")
+	f.SetCellValue("Sheet1", "C1", "port")
+	f.SetCellValue("Sheet1", "D1", "credential (系统设置-凭据中的名称)")
+	file, err := os.Create("./demo.xlsx")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = f.WriteTo(file)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
+	f, err := os.Create("./import.xlsx")
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	err = ioutil.WriteFile("./import.xlsx", file, 0775)
+	if err != nil {
+		return nil, err
+	}
+	xlsx, err := excelize.OpenFile("./import.xlsx")
+	if err != nil {
+		return nil, err
+	}
+	//index := xlsx.GetSheetIndex("Sheet1")
+	rows := xlsx.GetRows("Sheet1")
+	var hosts []model.Host
+	var errMsg string
+	var failedNum int
+	for index, row := range rows {
+		if index == 0 {
+			continue
+		}
+		if row[0] == "" || row[1] == "" || row[2] == "" || row[3] == "" {
+			errMsg = errMsg + ", index " + strconv.Itoa(index) + " row of data has null values \n"
+			failedNum++
+			continue
+		}
+		port, err := strconv.Atoi(row[2])
+		if err != nil {
+			errMsg = errMsg + ", index " + strconv.Itoa(index) + " row of data port wrong format \n"
+			failedNum++
+			continue
+		}
+		credential, err := h.credentialRepo.Get(row[3])
+		if err != nil {
+			errMsg = errMsg + ", index " + strconv.Itoa(index) + " get  credential error" + err.Error() + "\n"
+			failedNum++
+			continue
+		}
+		host := model.Host{
+			Name:         row[0],
+			Ip:           row[1],
+			Port:         port,
+			CredentialID: credential.ID,
+			Status:       constant.ClusterInitializing,
+		}
+		hosts = append(hosts, host)
+	}
+
+	if errMsg != "" {
+		errMsg = "fail import " + strconv.Itoa(failedNum) + "rows \n" + errMsg
+	}
+
+	for _, host := range hosts {
+		err = h.hostRepo.Save(&host)
+		if err != nil {
+			errMsg = "fail save host " + host.Name + " reason :" + err.Error() + "\n"
+		}
+	}
+	var res dto.ImportHostResponse
+	res.Success = true
+	if errMsg != "" {
+		res.Success = false
+		res.Msg = errMsg
+	}
+	return &res, nil
 }

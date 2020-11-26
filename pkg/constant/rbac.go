@@ -49,8 +49,8 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/zones/{**}",
 			"/api/v1/zones/{**}/{**}",
 			"/api/v1/vm/configs/{**}",
-			"/api/v1/hosts/batch",
-			"/api/v1/hosts/sync/{**}",
+			"/api/v1/hosts/{**}",
+			"/api/v1/hosts/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{
