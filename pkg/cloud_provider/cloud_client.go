@@ -1,6 +1,7 @@
-package client
+package cloud_provider
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 )
 
@@ -18,11 +19,11 @@ type CloudClient interface {
 func NewCloudClient(vars map[string]interface{}) CloudClient {
 	switch vars["provider"] {
 	case constant.OpenStack:
-		return NewOpenStackClient(vars)
+		return client.NewOpenStackClient(vars)
 	case constant.VSphere:
-		return NewVSphereClient(vars)
+		return client.NewVSphereClient(vars)
 	case constant.FusionCompute:
-		return NewFusionComputeClient(vars)
+		return client.NewFusionComputeClient(vars)
 	}
 	return nil
 }

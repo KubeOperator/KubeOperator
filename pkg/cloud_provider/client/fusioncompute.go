@@ -10,7 +10,7 @@ import (
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/vm"
 )
 
-func NewFusionComputeClient(vars map[string]interface{}) CloudClient {
+func NewFusionComputeClient(vars map[string]interface{}) *fusionComputeClient {
 	return &fusionComputeClient{
 		Vars: vars,
 	}
