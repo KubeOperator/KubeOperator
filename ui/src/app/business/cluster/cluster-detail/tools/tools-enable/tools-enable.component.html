@@ -3,6 +3,18 @@
     <div class="modal-body modal-height">
         <form clrForm #itemForm='ngForm'>
             <div *ngIf="item.name === 'chartmuseum'">
+                <clr-select-container>
+                    <label>Node</label>
+                    <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
@@ -23,7 +35,20 @@
                     </select>
                 </clr-select-container>
             </div>
+
             <div *ngIf="item.name === 'prometheus'">
+                <clr-select-container>
+                    <label>Node</label>
+                    <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['server.nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
                 <clr-input-container>
                     <label>{{"APP_DATA"|translate}}{{"APP_RETENTION"|translate}}({{"APP_DAY"|translate}})</label>
                     <input clrInput name="retention" type="number"
@@ -50,6 +75,7 @@
                     </select>
                 </clr-select-container>
             </div>
+
             <div *ngIf="item.name === 'logging'">
                 <div *ngIf="isAlertShow" class="alert alert-danger" role="alert">
                     <div class="alert-items">
@@ -61,6 +87,12 @@
                         </div>
                     </div>
                 </div>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
                 <clr-input-container>
                     <label>{{"APP_PREFIX"|translate}}{{"APP_INDEX"|translate}}</label>
                     <input clrInput name="prefixIndex" pattern="{{esIndexPattern}}"
@@ -105,7 +137,28 @@
                 </clr-select-container>
             </div>
 
+            <div *ngIf="item.name === 'dashboard'">
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+            </div>
+
             <div *ngIf="item.name === 'loki'">
+                <clr-select-container>
+                    <label>Node</label>
+                    <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['loki.nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
@@ -132,6 +185,18 @@
             </div>
 
             <div *ngIf="item.name === 'registry'">
+                <clr-select-container>
+                    <label>Node</label>
+                    <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"
@@ -158,6 +223,35 @@
             </div>
 
             <div *ngIf="item.name === 'kubeapps'">
+                <div *ngIf="isAlertShow" class="alert alert-danger" role="alert">
+                    <div class="alert-items">
+                        <div class="alert-item static">
+                            <div class="alert-icon-wrapper">
+                                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                            </div>
+                            <span class="alert-text">{{alertMsg}}</span>
+                        </div>
+                    </div>
+                </div>
+                <clr-select-container>
+                    <label>MasterNode</label>
+                    <select clrSelect class="clr-select" name="masternode" [(ngModel)]="item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>SlaveNode</label>
+                    <select clrSelect class="clr-select" name="slavenode" [(ngModel)]="item.vars['postgresql.slave.nodeSelector.kubernetes\\.io/hostname']" required>
+                        <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+                <clr-select-container>
+                    <label>NameSpace</label>
+                    <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
+                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                    </select>
+                </clr-select-container>
+
                 <clr-toggle-container>
                     <clr-toggle-wrapper>
                         <input type="checkbox" clrToggle name="pv"

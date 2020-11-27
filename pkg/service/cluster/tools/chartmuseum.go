@@ -3,6 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -46,15 +47,15 @@ func (c Chartmuseum) Install() error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.ChartmuseumChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultChartmuseumIngressName, constant.DefaultChartmuseumIngress, constant.DefaultChartmuseumServiceName, 8080, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(c.Cluster.Namespace, constant.DefaultChartmuseumIngressName, constant.DefaultChartmuseumIngress, constant.DefaultChartmuseumServiceName, 8080, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(constant.DefaultChartmuseumDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultChartmuseumDeploymentName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Chartmuseum) Uninstall() error {
-	return uninstall(c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultChartmuseumIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }

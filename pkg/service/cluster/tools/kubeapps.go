@@ -3,6 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -41,7 +42,7 @@ func (k Kubeapps) setDefaultValue() {
 }
 
 func (k Kubeapps) Uninstall() error {
-	return uninstall(k.Tool, constant.DefaultKubeappsIngress, k.Cluster.HelmClient, k.Cluster.KubeClient)
+	return uninstall(k.Cluster.Namespace, k.Tool, constant.DefaultKubeappsIngress, k.Cluster.HelmClient, k.Cluster.KubeClient)
 }
 
 func (c Kubeapps) Install() error {
@@ -49,10 +50,10 @@ func (c Kubeapps) Install() error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.KubeappsChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(c.Cluster.Namespace, constant.DefaultKubeappsIngressName, constant.DefaultKubeappsIngress, constant.DefaultKubeappsServiceName, 80, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(constant.DefaultKubeappsDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultKubeappsDeploymentName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
