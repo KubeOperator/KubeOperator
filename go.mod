@@ -3,10 +3,8 @@ module github.com/KubeOperator/KubeOperator
 go 1.14
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Azure/azure-storage-blob-go v0.10.0
-	github.com/Azure/go-autorest/autorest v0.11.4 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.2 // indirect
-	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.2
 	github.com/KubeOperator/kobe v0.0.8
 	github.com/KubeOperator/kotf v0.0.8
@@ -18,9 +16,7 @@ require (
 	github.com/benmanns/goworker v0.1.3
 	github.com/c-robinson/iplib v0.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
-	github.com/coreos/etcd v3.3.13+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/distribution v2.7.1+incompatible
 	github.com/fairwindsops/polaris v0.0.0-20201005190522-9cce9fcec757
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/ghodss/yaml v1.0.0

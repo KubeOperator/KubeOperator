@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -145,7 +145,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if region.Provider == constant.VSphere {
 		regionVars := region.RegionVars.(map[string]interface{})
 		regionVars["datacenter"] = region.Datacenter
-		cloudClient := client.NewCloudClient(regionVars)
+		cloudClient := cloud_provider.NewCloudClient(regionVars)
 		err = cloudClient.CreateDefaultFolder()
 		if err != nil {
 			return nil, err
@@ -212,7 +212,7 @@ func (z zoneService) Batch(op dto.ZoneOp) error {
 }
 
 func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{}, error) {
-	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
 	var result []interface{}
 	if cloudClient != nil {
 		result, err := cloudClient.ListClusters()
@@ -228,7 +228,7 @@ func (z zoneService) ListClusters(creation dto.CloudZoneRequest) ([]interface{},
 }
 
 func (z zoneService) ListTemplates(creation dto.CloudZoneRequest) ([]interface{}, error) {
-	cloudClient := client.NewCloudClient(creation.CloudVars.(map[string]interface{}))
+	cloudClient := cloud_provider.NewCloudClient(creation.CloudVars.(map[string]interface{}))
 	var result []interface{}
 	if cloudClient != nil {
 		result, err := cloudClient.ListTemplates()
@@ -292,7 +292,7 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	if region.Provider == constant.OpenStack {
 		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
 	}
-	cloudClient := client.NewCloudClient(regionVars)
+	cloudClient := cloud_provider.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
 		if err != nil {

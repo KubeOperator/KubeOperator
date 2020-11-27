@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {ClusterTool} from '../tools';
-import {V1StorageClass} from '@kubernetes/client-node';
+import {V1Namespace, V1StorageClass} from '@kubernetes/client-node';
 import {NgForm} from '@angular/forms';
 import {Cluster} from '../../../cluster';
 import {ToolsService} from '../tools.service';
@@ -28,6 +28,8 @@ export class ToolsEnableComponent implements OnInit {
     alertMsg = '';
     item: ClusterTool = new ClusterTool();
     storageClazz: V1StorageClass[] = [];
+    namespaceList: string[] = [];
+    nodeList: string[] = [];
     buttonLoading = false;
     @ViewChild('itemForm') itemForm: NgForm;
     @Output() enabled = new EventEmitter();
@@ -35,12 +37,11 @@ export class ToolsEnableComponent implements OnInit {
 
 
     ngOnInit(): void {
+        this.listStorageClass();
+        this.listNode()
+        this.listNamespaces()
     }
-
     onSubmit() {
-        if (this.item.name === 'loki') {
-            this.item.vars['promtail.dockerPath'] = this.currentCluster.spec.dockerStorageDir
-        }
         this.buttonLoading = true
         this.checkIsCorrect();
         if (!this.isAlertShow) {
@@ -62,8 +63,14 @@ export class ToolsEnableComponent implements OnInit {
                 this.alertMsg = this.translateService.instant('APP_EFK_CREATE_REPLICAS');
                 return;
             }
-            this.isAlertShow = false;
+        } else if (this.item.name === 'kubeapps') {
+            if (this.item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname'] === this.item.vars['postgresql.slave.nodeSelector.kubernetes\\.io/hostname']) {
+                this.isAlertShow = true;
+                this.alertMsg = this.translateService.instant('APP_KUBEAPPS_NODE_CHOOSE');
+                return; 
+            }
         }
+        this.isAlertShow = false;
     }
     onCancel() {
         this.opened = false;
@@ -71,25 +78,34 @@ export class ToolsEnableComponent implements OnInit {
 
     reset() {
         this.itemForm.resetForm();
-        this.listStorageClass();
     }
 
     open(item: ClusterTool) {
-        this.nodeNumGet();
         this.reset();
         this.opened = true;
         this.setDefaultVars(item);
         this.item = item;
     }
-
     listStorageClass() {
         this.kubernetesService.listStorageClass(this.currentCluster.name, '', true).subscribe(data => {
             this.storageClazz = data.items;
         });
     }
-    nodeNumGet() {
+    listNamespaces() {
+        this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(data => {
+            this.namespaceList = []
+            data.items.forEach(item => {
+                this.namespaceList.push(item.metadata.name)
+            });
+        });
+    }
+    listNode() {
         this.kubernetesService.listNodes(this.currentCluster.name).subscribe(data => {
-            this.nodeNum = data.items.length;
+            this.nodeList = []
+            data.items.forEach(item => {
+                this.nodeList.push(item.metadata.name)
+            });
+            this.nodeNum = this.nodeList.length;
         });
     }
 
@@ -133,13 +149,14 @@ export class ToolsEnableComponent implements OnInit {
                     'loki.persistence.enabled': false,
                     'loki.persistence.size': 8,
                     'loki.persistence.storageClassName': '',
+                    'promtail.dockerPath': this.currentCluster.spec.dockerStorageDir,
                 };
                 break;
             case 'kubeapps':
                 item.vars = {
                     'postgresql.persistence.enabled': false,
                     'postgresql.persistence.size': 10,
-                    'global.storageClass': ''
+                    'global.storageClass': '',
                 };
                 break;
             case 'dashboard':

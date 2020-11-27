@@ -3,6 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 )
@@ -50,15 +51,15 @@ func (c Dashboard) Install() error {
 	if err := installChart(c.Cluster.HelmClient, c.Tool, constant.DashboardChartName); err != nil {
 		return err
 	}
-	if err := createRoute(constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, c.Cluster.KubeClient); err != nil {
+	if err := createRoute(c.Cluster.Namespace, constant.DefaultDashboardIngressName, constant.DefaultDashboardIngress, constant.DefaultDashboardServiceName, 9090, c.Cluster.KubeClient); err != nil {
 		return err
 	}
-	if err := waitForRunning(constant.DefaultDashboardDeploymentName, 1, c.Cluster.KubeClient); err != nil {
+	if err := waitForRunning(c.Cluster.Namespace, constant.DefaultDashboardDeploymentName, 1, c.Cluster.KubeClient); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c Dashboard) Uninstall() error {
-	return uninstall(c.Tool, constant.DefaultDashboardIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
+	return uninstall(c.Cluster.Namespace, c.Tool, constant.DefaultDashboardIngressName, c.Cluster.HelmClient, c.Cluster.KubeClient)
 }

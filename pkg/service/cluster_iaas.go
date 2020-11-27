@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -183,7 +183,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = plan.Region.Provider
 		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
-		cloudClient := client.NewCloudClient(providerVars)
+		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, selectedIps)
 		if err != nil {
 			return nil, err
@@ -311,7 +311,7 @@ func allocateZone(zones []model.Zone, hosts []*model.Host) map[*model.Zone][]*mo
 	return groupMap
 }
 
-func allocateIpAddr(p client.CloudClient, zone model.Zone, hosts []*model.Host, selectedIps []string) error {
+func allocateIpAddr(p cloud_provider.CloudClient, zone model.Zone, hosts []*model.Host, selectedIps []string) error {
 	zoneVars := map[string]string{}
 	_ = json.Unmarshal([]byte(zone.Vars), &zoneVars)
 	pool, err := p.GetIpInUsed(zoneVars["network"])

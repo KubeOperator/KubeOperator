@@ -252,6 +252,7 @@
   "APP_SUBNET_HELPER": "Subnet 的 CIDR 表示, 例如: 172.16.10.0/24",
   "APP_IP_RANGE_INVALID": "IP 范围无效",
   "APP_INITIALIZING": "初始化中",
+  "APP_TERMINATING": "销毁中",
   "APP_FAILED": "错误",
   "APP_RUNNING": "运行中",
   "APP_PROJECT_RESOURCE": "没有资源可添加",
@@ -302,6 +303,7 @@
   "APP_DATA": "数据",
   "APP_RETENTION": "保留",
   "APP_EFK_CREATE_REPLICAS": "请确保副本数目小于等于节点数目！",
+  "APP_KUBEAPPS_NODE_CHOOSE": "请确保MasterNode与SlaveNode不处于一个Node上",
   "APP_PREFIX": "前缀",
   "APP_INDEX": "索引",
   "APP_REPLICAS": "副本",
@@ -536,5 +538,7 @@
   "OCEAN_STOR_DEPLOYMENT_TYPE": "部署类型",
   "OCEAN_STOR_MULTIPATH_NETWORKING": "多路径组网",
   "APP_YES": "是",
-  "APP_NO": "否"
+  "APP_NO": "否",
+  "APP_IMPORT_HOST": "批量导入",
+  "APP_DOWNLOAD_TEMPLATE": "下载模板"
 }
