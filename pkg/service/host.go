@@ -14,6 +14,7 @@ import (
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"strings"
 	"time"
 )
 
@@ -115,6 +116,7 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 		return dto.Host{}, err
 	}
 	go h.RunGetHostConfig(host)
+	go h.GetHostGpu(&host)
 	return dto.Host{Host: host}, err
 }
 
@@ -128,6 +130,10 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
 		_ = h.hostRepo.Save(&host)
+		return dto.Host{Host: host}, err
+	}
+	err = h.GetHostGpu(&host)
+	if err != nil {
 		return dto.Host{Host: host}, err
 	}
 	host.Status = constant.ClusterRunning
@@ -173,8 +179,22 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		host.Status = model.Disconnect
 		return err
 	}
+	result, _, _, err := client.Exec("lspci|grep -i NVIDIA")
+	if err != nil {
+		host.HasGpu = false
+		host.GpuNum = 0
+	}
+	host.GpuNum = strings.Count(result, "NVIDIA")
+	if host.GpuNum > 0 {
+		host.HasGpu = true
+		s := strings.Index(result, "[")
+		t := strings.Index(result, "]")
+		host.Gpus = result[s+1 : t]
+	}
+	_ = h.hostRepo.Save(host)
 	return err
 }
+
 func (h hostService) RunGetHostConfig(host model.Host) {
 	host.Status = constant.ClusterInitializing
 	_ = h.hostRepo.Save(&host)
