@@ -32,7 +32,10 @@
 
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
-        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a></clr-dg-cell>
+
+        <clr-dg-cell><a (click)="onDetail(item)" href="javascript:void(0)">{{item.name}}</a>
+            &nbsp;<img *ngIf="item.hasGpu" src="assets/images/nvidia.ico" height="24px" width="24px">
+        </clr-dg-cell>
         <clr-dg-cell>{{item.clusterName}}</clr-dg-cell>
         <clr-dg-cell>{{item.zoneName}}</clr-dg-cell>
         <clr-dg-cell>{{item.ip}}</clr-dg-cell>

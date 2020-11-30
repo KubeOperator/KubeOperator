@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider/client"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -148,7 +148,7 @@ func (r regionService) Batch(op dto.RegionOp) error {
 }
 
 func (r regionService) ListDatacenter(creation dto.RegionDatacenterRequest) ([]string, error) {
-	cloudClient := client.NewCloudClient(creation.RegionVars.(map[string]interface{}))
+	cloudClient := cloud_provider.NewCloudClient(creation.RegionVars.(map[string]interface{}))
 	var result []string
 	if cloudClient != nil {
 		result, err := cloudClient.ListDatacenter()

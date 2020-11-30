@@ -18,6 +18,8 @@ export class Host extends BaseModel {
     clusterId: string;
     zoneName: string;
     message: string;
+    hasGpu: boolean;
+    gpus: string;
 }
 
 export class Volume extends BaseModel {
