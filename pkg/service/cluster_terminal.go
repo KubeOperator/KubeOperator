@@ -41,11 +41,11 @@ func (c clusterTerminalService) Terminal(cluster model.Cluster) {
 	var waitGroup sync.WaitGroup
 	switch cluster.Spec.Provider {
 	case constant.ClusterProviderBareMetal:
+		waitGroup.Add(1)
 		go doBareMetalTerminal(&waitGroup, &cluster)
-		waitGroup.Add(1)
 	case constant.ClusterProviderPlan:
-		go doPlanTerminal(&waitGroup, &cluster)
 		waitGroup.Add(1)
+		go doPlanTerminal(&waitGroup, &cluster)
 	default:
 		return
 	}
