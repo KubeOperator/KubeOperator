@@ -105,8 +105,8 @@ func gatherClusterInfo(cluster *model.Cluster) error {
 	}
 	var wg sync.WaitGroup
 	for _, f := range funcList {
-		go f(cluster, c, &wg)
 		wg.Add(1)
+		go f(cluster, c, &wg)
 	}
 	wg.Wait()
 	return nil
