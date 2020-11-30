@@ -32,3 +32,8 @@ export class HostCreateRequest extends BaseRequest {
     port: string;
     credentialId: string;
 }
+
+export class Project {
+    id: string;
+    name: string;
+}

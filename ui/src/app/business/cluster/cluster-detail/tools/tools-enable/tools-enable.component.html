@@ -77,16 +77,7 @@
             </div>
 
             <div *ngIf="item.name === 'logging'">
-                <div *ngIf="isAlertShow" class="alert alert-danger" role="alert">
-                    <div class="alert-items">
-                        <div class="alert-item static">
-                            <div class="alert-icon-wrapper">
-                                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
-                            </div>
-                            <span class="alert-text">{{alertMsg}}</span>
-                        </div>
-                    </div>
-                </div>
+                <app-modal-alert></app-modal-alert>
                 <clr-select-container>
                     <label>NameSpace</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
@@ -223,16 +214,7 @@
             </div>
 
             <div *ngIf="item.name === 'kubeapps'">
-                <div *ngIf="isAlertShow" class="alert alert-danger" role="alert">
-                    <div class="alert-items">
-                        <div class="alert-item static">
-                            <div class="alert-icon-wrapper">
-                                <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
-                            </div>
-                            <span class="alert-text">{{alertMsg}}</span>
-                        </div>
-                    </div>
-                </div>
+                <app-modal-alert></app-modal-alert>
                 <clr-select-container>
                     <label>MasterNode</label>
                     <select clrSelect class="clr-select" name="masternode" [(ngModel)]="item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname']" required>

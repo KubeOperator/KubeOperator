@@ -22,5 +22,7 @@ export class BackupAccountUpdateRequest extends BaseRequest {
     credentialVars: {} = {};
 }
 
-
-
+export class Project {
+    id: string;
+    name: string;
+}

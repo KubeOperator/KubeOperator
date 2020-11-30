@@ -6,6 +6,7 @@ import {Host} from './host';
 import {HostDetailComponent} from './host-detail/host-detail.component';
 import {HostStatusDetailComponent} from './host-status-detail/host-status-detail.component';
 import {HostImportComponent} from './host-import/host-import.component';
+import {HostGrantComponent} from './host-grant/host-grant.component';
 
 @Component({
     selector: 'app-host',
@@ -31,6 +32,9 @@ export class HostComponent implements OnInit {
 
     @ViewChild(HostImportComponent, {static: true})
     import: HostImportComponent;
+
+    @ViewChild(HostGrantComponent, {static: true})
+    grant: HostGrantComponent;
 
     constructor() {
     }
@@ -61,5 +65,9 @@ export class HostComponent implements OnInit {
 
     openImport() {
         this.import.open();
+    }
+
+    openGrant(items: Host[]) {
+        this.grant.open(items);
     }
 }

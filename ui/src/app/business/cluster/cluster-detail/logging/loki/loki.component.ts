@@ -57,9 +57,9 @@ export class LokiComponent implements OnInit {
             paramInfo += ('&query={' + this.label + '="' + this.value + '"}')
         }
         this.service.LokiSearch(this.clusterName, paramInfo).subscribe(data => {
-            for (let i = 0; i < data.data.result.length; i++) {
-                for (let j = 0; j < data.data.result[i].values.length; j++) {
-                    let logItem = this.dataParser(data.data.result[i].values[j][1])
+            for (const item1 of data.data.result) {
+                for (const item2 of item1.values) {
+                    let logItem = this.dataParser(item2[1])
                     this.logs.push(logItem)
                 }
             }
@@ -74,12 +74,12 @@ export class LokiComponent implements OnInit {
             info: Str,
         }
         let dataArry = Str.split(' ')
-        for (let i = 0; i < dataArry.length; i++) {
-            if (dataArry[i].indexOf('ts=') !== -1) {
-                logItem.ts = new Date(dataArry[i].split('=')[1])
+        for (const item of dataArry) {
+            if (item.indexOf('ts=') !== -1) {
+                logItem.ts = new Date(item.split('=')[1])
                 break
-            } else if (dataArry[i].indexOf('[') !== -1 && dataArry[i].indexOf(']') !== -1) {
-                logItem.ts = new Date(dataArry[i].replace('[', '').replace(']', ''))
+            } else if (item.indexOf('[') !== -1 && item.indexOf(']') !== -1) {
+                logItem.ts = new Date(item.replace('[', '').replace(']', ''))
                 break
             }
         }

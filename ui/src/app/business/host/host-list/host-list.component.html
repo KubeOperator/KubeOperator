@@ -14,6 +14,10 @@
             <clr-icon shape="import"></clr-icon>
             {{"APP_IMPORT_HOST"|translate}}
         </button>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="openGrant()" [disabled]="selected.length<1">
+            <clr-icon shape="cog"></clr-icon>
+            {{"APP_GRANT"|translate}}
+        </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_CLUSTER'|translate}}</clr-dg-column>

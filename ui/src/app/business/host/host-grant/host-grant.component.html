@@ -1,0 +1,18 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'APP_GRANT_HOST'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <app-modal-alert></app-modal-alert>
+        <form clrForm #hostForm='ngForm'>
+            <clr-radio-container clrInline clrInline *ngFor="let item of projects; let i = index" >
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio name="proname" required value="{{i}}" [(ngModel)]="projectIndex"/>
+                    <label>{{item.name}}</label>
+                </clr-radio-wrapper>
+            </clr-radio-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()" [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" [clrLoading]="isSubmitGoing" (click)="onSubmit()" [disabled]="hostForm.invalid">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

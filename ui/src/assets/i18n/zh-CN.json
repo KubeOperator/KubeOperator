@@ -258,6 +258,9 @@
   "APP_PROJECT_RESOURCE": "没有资源可添加",
   "APP_PLAN_PROJECT_HELPER": "部署计划需要授权到项目才可用",
   "APP_DELETE_HOST": "删除主机",
+  "APP_HOST_BOUND": "存在已绑定主机",
+  "APP_BACKUP_ACCOUNT_BOUND": "存在已绑定备份账号",
+  "APP_GRANT_SUCCESS": "授权成功",
   "APP_START_TIME": "开始时间",
   "APP_END_TIME": "结束时间",
   "APP_LOG_DETAIL": "日志详情",
@@ -540,5 +543,8 @@
   "APP_YES": "是",
   "APP_NO": "否",
   "APP_IMPORT_HOST": "批量导入",
+  "APP_GRANT": "授权",
+  "APP_GRANT_HOST": "主机授权",
+  "APP_GRANT_BACKUP_ACCOUNT": "备份账号授权",
   "APP_DOWNLOAD_TEMPLATE": "下载模板"
 }

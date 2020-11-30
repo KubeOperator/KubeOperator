@@ -537,5 +537,10 @@
   "APP_YES": "yes",
   "APP_NO": "no",
   "APP_IMPORT_HOST": "Batch Import",
+  "APP_GRANT": "Grant",
+  "APP_GRANT_HOST": "Host Grant",
+  "APP_GRANT_BACKUP_ACCOUNT": "Backup Account Grant",
+  "APP_HOST_BOUND": "There are bound hosts",
+  "APP_BACKUP_ACCOUNT_BOUND": "There are bound backup accounts",
   "APP_DOWNLOAD_TEMPLATE": "Download Template"
 }

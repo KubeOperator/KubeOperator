@@ -15,6 +15,10 @@
                 {{"APP_DELETE"|translate}}
             </button>
         </div>
+        <button type="button" class="btn btn-sm btn-secondary" (click)="openGrant()" [disabled]="selected.length<1">
+            <clr-icon shape="cog"></clr-icon>
+            {{"APP_GRANT"|translate}}
+        </button>
     </clr-dg-action-bar>
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
     <clr-dg-column>{{'APP_BUCKET'|translate}}</clr-dg-column>

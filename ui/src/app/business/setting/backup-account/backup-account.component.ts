@@ -3,6 +3,7 @@ import {BackupAccountListComponent} from './backup-account-list/backup-account-l
 import {BackupAccountCreateComponent} from './backup-account-create/backup-account-create.component';
 import {BackupAccountUpdateComponent} from './backup-account-update/backup-account-update.component';
 import {BackupAccountDeleteComponent} from './backup-account-delete/backup-account-delete.component';
+import {BackupAccountGrantComponent} from './backup-account-grant/backup-account-grant.component';
 
 @Component({
     selector: 'app-backup-account',
@@ -22,6 +23,9 @@ export class BackupAccountComponent implements OnInit {
 
     @ViewChild(BackupAccountDeleteComponent, {static: true})
     delete: BackupAccountDeleteComponent;
+
+    @ViewChild(BackupAccountGrantComponent, {static: true})
+    grant: BackupAccountGrantComponent;
 
     constructor() {
     }
@@ -45,5 +49,9 @@ export class BackupAccountComponent implements OnInit {
 
     onUpdate(item) {
         this.update.open(item);
+    }
+
+    openGrant(items) {
+        this.grant.open(items);
     }
 }

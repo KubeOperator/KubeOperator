@@ -13,6 +13,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
     @Output() detailEvent = new EventEmitter<Host>();
     @Output() statusDetailEvent = new EventEmitter<Host>();
     @Output() importEvent = new EventEmitter<Host>();
+    @Output() grantEvent = new EventEmitter<Host[]>();
     timer;
 
     constructor(private hostService: HostService) {
@@ -75,5 +76,9 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
 
     openImport() {
         this.importEvent.emit();
+    }
+
+    openGrant() {
+        this.grantEvent.emit(this.selected);
     }
 }

@@ -1,12 +1,14 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {KubernetesService} from '../../../kubernetes.service';
 import {ClusterTool} from '../tools';
-import {V1Namespace, V1StorageClass} from '@kubernetes/client-node';
+import {V1StorageClass} from '@kubernetes/client-node';
 import {NgForm} from '@angular/forms';
 import {Cluster} from '../../../cluster';
 import {ToolsService} from '../tools.service';
 import {EsIndexPattern, EsIndexPatternHelper} from './../../../../../constant/pattern';
 import {TranslateService} from '@ngx-translate/core';
+import {AlertLevels} from '../../../../../layout/common-alert/alert';
+import {ModalAlertService} from '../../../../../shared/common-component/modal-alert/modal-alert.service';
 
 @Component({
     selector: 'app-tools-enable',
@@ -17,15 +19,15 @@ export class ToolsEnableComponent implements OnInit {
 
     constructor(private kubernetesService: KubernetesService,
                 private toolsService: ToolsService,
-                private translateService: TranslateService
+                private modalAlertService: ModalAlertService,
+                private translateService: TranslateService,
     ) {}
     esIndexPattern = EsIndexPattern;
     esIndexPatternHelper = EsIndexPatternHelper;
     opened = false;
     isSubmitGoing = false;
     nodeNum = 0;
-    isAlertShow = false;
-    alertMsg = '';
+    isCorrect = true;
     item: ClusterTool = new ClusterTool();
     storageClazz: V1StorageClass[] = [];
     namespaceList: string[] = [];
@@ -44,7 +46,7 @@ export class ToolsEnableComponent implements OnInit {
     onSubmit() {
         this.buttonLoading = true
         this.checkIsCorrect();
-        if (!this.isAlertShow) {
+        if (this.isCorrect) {
             this.toolsService.enable(this.currentCluster.name, this.item).subscribe(data => {
                 this.opened = false;
                 this.enabled.emit();
@@ -59,18 +61,17 @@ export class ToolsEnableComponent implements OnInit {
     checkIsCorrect() {
         if (this.item.name === 'logging') {
             if (this.item.vars['elasticsearch.replicas'] > this.nodeNum) {
-                this.isAlertShow = true;
-                this.alertMsg = this.translateService.instant('APP_EFK_CREATE_REPLICAS');
+                this.isCorrect = false
+                this.modalAlertService.showAlert(this.translateService.instant('APP_EFK_CREATE_REPLICAS'), AlertLevels.ERROR);
                 return;
             }
         } else if (this.item.name === 'kubeapps') {
             if (this.item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname'] === this.item.vars['postgresql.slave.nodeSelector.kubernetes\\.io/hostname']) {
-                this.isAlertShow = true;
-                this.alertMsg = this.translateService.instant('APP_KUBEAPPS_NODE_CHOOSE');
+                this.isCorrect = false
+                this.modalAlertService.showAlert(this.translateService.instant('APP_KUBEAPPS_NODE_CHOOSE'), AlertLevels.ERROR);
                 return; 
             }
         }
-        this.isAlertShow = false;
     }
     onCancel() {
         this.opened = false;
