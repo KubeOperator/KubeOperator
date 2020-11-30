@@ -542,5 +542,8 @@
   "APP_GRANT_BACKUP_ACCOUNT": "Backup Account Grant",
   "APP_HOST_BOUND": "There are bound hosts",
   "APP_BACKUP_ACCOUNT_BOUND": "There are bound backup accounts",
-  "APP_DOWNLOAD_TEMPLATE": "Download Template"
+  "APP_DOWNLOAD_TEMPLATE": "Download Template",
+  "APP_FLIE_UPLOAD": "File upload",
+  "APP_UPLOAD": "Upload",
+  "APP_FLIE_UPLOAD_NOTHING": "File not uploaded"
 }

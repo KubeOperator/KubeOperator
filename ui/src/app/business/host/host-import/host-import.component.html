@@ -3,15 +3,14 @@
     <div class="modal-body modal-height">
         <form clrForm #itemForm="ngForm" enctype="multipart/form-data">
             <a style="color:#0000FF" (click)="download()">{{'APP_DOWNLOAD_TEMPLATE'|translate}}</a>
-            <div class="clr-form-control">
-                <label class="clr-control-label">
-                </label>
-                <div class="clr-control-container">
-                    <div class="clr-file-wrapper">
-                        <input type="file" id="basic-default" placeholder="Enter value here"
-                               (change)="upload($event)" required/>
-                    </div>
-                    <clr-icon class="clr-validate-icon" shape="exclamation-circle"></clr-icon>
+            <div style="display: inline-flex;">
+                <clr-input-container class="clr-control-container clr-col-md-9">
+                    <label class="clr-col-md-4">{{"APP_FLIE_UPLOAD"|translate}}</label>
+                    <input class="clr-col-md-8" clrInput name="name"  placeholder="{{this.file?.name || 'APP_FLIE_UPLOAD_NOTHING' | translate}}" disabled/>
+                </clr-input-container>
+                <div style="margin-top: 1.2rem;" class="clr-col-md-3">
+                    <label style="margin-left: 15px;" for="chart" class="btn btn-secondary btn-sm file-browser-btn">{{"APP_UPLOAD"|translate}}</label>
+                    <input style="display: none;" class="file-input" type="file" id="chart" name="chart" ngModel (change)="upload($event)">
                 </div>
             </div>
             <div *ngIf="errMsg!==''" class="alert alert-danger" role="alert">

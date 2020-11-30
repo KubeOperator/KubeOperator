@@ -546,5 +546,8 @@
   "APP_GRANT": "授权",
   "APP_GRANT_HOST": "主机授权",
   "APP_GRANT_BACKUP_ACCOUNT": "备份账号授权",
-  "APP_DOWNLOAD_TEMPLATE": "下载模板"
+  "APP_DOWNLOAD_TEMPLATE": "下载模板",
+  "APP_FLIE_UPLOAD": "文件上传",
+  "APP_UPLOAD": "上传",
+  "APP_FLIE_UPLOAD_NOTHING": "未上传文件"
 }
