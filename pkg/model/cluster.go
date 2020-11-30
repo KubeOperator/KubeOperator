@@ -1,13 +1,14 @@
 package model
 
 import (
+	"strconv"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"strconv"
 )
 
 type Cluster struct {
@@ -297,7 +298,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Logo:         "loki.png",
 			Frame:        false,
 			Url:          "/proxy/loki/{cluster_name}/root",
-			Architecture: supportedArchitectureAmd64,
+			Architecture: supportedArchitectureAll,
 		},
 		{
 			Name:         "chartmuseum",
@@ -307,7 +308,7 @@ func (c Cluster) PrepareTools() []ClusterTool {
 			Logo:         "chartmuseum.png",
 			Frame:        false,
 			Url:          "",
-			Architecture: supportedArchitectureAmd64,
+			Architecture: supportedArchitectureAll,
 		},
 		{
 			Name:         "registry",

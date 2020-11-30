@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	ChartmuseumImageName = "chartmuseum/chartmuseum"
-	ChartmuseumTag       = "v0.12.0"
+	ChartmuseumImageNameAmd64Name = "chartmuseum/chartmuseum"
+	ChartmuseumTagAmd64Name       = "v0.12.0"
+	ChartmuseumImageNameArm64Name = "kubeoperator/chartmuseum"
+	ChartmuseumTagArm64Name       = "v0.12.0-arm64"
 )
 
 type Chartmuseum struct {
@@ -32,8 +34,15 @@ func (c Chartmuseum) setDefaultValue() {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["env.open.DISABLE_API"] = false
-	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, ChartmuseumImageName)
-	values["image.tag"] = ChartmuseumTag
+
+	if c.Cluster.Spec.Architectures == "amd64" {
+		values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, ChartmuseumImageNameAmd64Name)
+		values["image.tag"] = ChartmuseumTagAmd64Name
+	} else {
+		values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, ChartmuseumImageNameArm64Name)
+		values["image.tag"] = ChartmuseumTagArm64Name
+	}
+
 	if _, ok := values["persistence.size"]; ok {
 		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 	}
