@@ -125,7 +125,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
-	if creation.CredentialId == "" || (param["templateType"] != nil && param["templateType"].(string) == "default") {
+	if creation.CredentialId == "" && (param["templateType"] != nil && param["templateType"].(string) == "default") {
 		switch region.Provider {
 		case constant.OpenStack:
 			param["imageName"] = constant.OpenStackImageName
