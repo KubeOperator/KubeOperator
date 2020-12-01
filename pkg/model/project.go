@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -50,8 +51,4 @@ func (p *Project) BeforeDelete() (err error) {
 		}
 	}
 	return err
-}
-
-func (p Project) TableName() string {
-	return "ko_project"
 }

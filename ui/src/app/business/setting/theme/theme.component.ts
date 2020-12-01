@@ -16,6 +16,7 @@ export class ThemeComponent implements OnInit {
     }
 
     item: Theme = new Theme();
+    file: File;
     logoBase64: string;
 
     ngOnInit(): void {
@@ -29,6 +30,7 @@ export class ThemeComponent implements OnInit {
     }
 
     onLogoChange(e: any) {
+        this.file = e.target.files[0];
         const r = new FileReader();
         r.readAsDataURL(e.target.files[0]);
         r.onload = (b) => {

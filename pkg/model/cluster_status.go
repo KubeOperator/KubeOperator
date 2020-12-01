@@ -39,7 +39,3 @@ func (s ClusterStatus) BeforeDelete() (err error) {
 	tx.Commit()
 	return nil
 }
-
-func (s ClusterStatus) TableName() string {
-	return "ko_cluster_status"
-}

@@ -38,7 +38,3 @@ func (s *ClusterSpec) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (s ClusterSpec) TableName() string {
-	return "ko_cluster_spec"
-}

@@ -20,7 +20,3 @@ func (c *ClusterBackupStrategy) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c ClusterBackupStrategy) TableName() string {
-	return "ko_cluster_backup_strategy"
-}

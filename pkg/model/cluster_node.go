@@ -52,6 +52,3 @@ func (n ClusterNode) ToSSHConfig() ssh.Config {
 		Retry:       3,
 	}
 }
-func (n ClusterNode) TableName() string {
-	return "ko_cluster_node"
-}

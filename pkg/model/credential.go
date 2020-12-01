@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
@@ -31,8 +32,4 @@ func (c *Credential) BeforeDelete() (err error) {
 		return errors.New(DefaultCredentialCanNotDelete)
 	}
 	return err
-}
-
-func (c Credential) TableName() string {
-	return "ko_credential"
 }

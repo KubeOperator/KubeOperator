@@ -17,7 +17,3 @@ func (s *SystemLog) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return err
 }
-
-func (s SystemLog) TableName() string {
-	return "ko_system_log"
-}

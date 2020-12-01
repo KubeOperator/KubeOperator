@@ -20,7 +20,3 @@ func (s *F5Setting) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return err
 }
-
-func (s F5Setting) TableName() string {
-	return "ko_f5_setting"
-}

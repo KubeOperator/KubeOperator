@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -66,14 +67,14 @@ func (p projectResourceService) Page(num, size int, projectName string, resource
 			page.Items = result
 		case constant.ResourcePlan:
 			var result []model.Plan
-			err = db.DB.Table(model.Plan{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Model(model.Plan{}).Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
 				return nil, err
 			}
 			page.Items = result
 		case constant.ResourceBackupAccount:
 			var result []model.BackupAccount
-			err = db.DB.Table(model.BackupAccount{}.TableName()).Where("id in (?)", resourceIds).Find(&result).Error
+			err = db.DB.Model(model.BackupAccount{}).Where("id in (?)", resourceIds).Find(&result).Error
 			if err != nil {
 				return nil, err
 			}

@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
@@ -24,10 +25,6 @@ type BackupAccount struct {
 func (b *BackupAccount) BeforeCreate() (err error) {
 	b.ID = uuid.NewV4().String()
 	return err
-}
-
-func (b BackupAccount) TableName() string {
-	return "ko_backup_account"
 }
 
 func (b *BackupAccount) BeforeDelete() (err error) {

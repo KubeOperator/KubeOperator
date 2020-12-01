@@ -18,7 +18,3 @@ func (p *ProjectMember) BeforeCreate() (err error) {
 	p.ID = uuid.NewV4().String()
 	return err
 }
-
-func (p ProjectMember) TableName() string {
-	return "ko_project_member"
-}

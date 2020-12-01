@@ -20,7 +20,3 @@ func (m *ClusterManifest) BeforeCreate() (err error) {
 	m.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (m ClusterManifest) TableName() string {
-	return "ko_cluster_manifest"
-}

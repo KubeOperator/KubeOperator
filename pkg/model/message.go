@@ -20,7 +20,3 @@ func (m *Message) BeforeCreate() error {
 	m.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (m Message) TableName() string {
-	return "ko_message"
-}

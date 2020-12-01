@@ -15,7 +15,3 @@ func (n *License) BeforeCreate() (err error) {
 	n.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (n License) TableName() string {
-	return "ko_license"
-}

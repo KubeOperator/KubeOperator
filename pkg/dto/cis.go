@@ -7,7 +7,7 @@ type CisTask struct {
 }
 
 type CisResult struct {
-	model.CisResult
+	model.CisTaskResult
 }
 
 type CisBatch struct {

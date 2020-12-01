@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -349,11 +350,7 @@ func (c clusterService) Delete(name string) error {
 					}
 				}
 			} else {
-				_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-				err = c.clusterRepo.Delete(name)
-				if err != nil {
-					return err
-				}
+				go c.clusterTerminalService.Terminal(cluster.Cluster)
 			}
 		}
 	case constant.ClusterSourceExternal:

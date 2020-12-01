@@ -31,7 +31,3 @@ func (c *ClusterTool) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c ClusterTool) TableName() string {
-	return "ko_cluster_tool"
-}
