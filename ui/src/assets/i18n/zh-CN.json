@@ -547,7 +547,7 @@
   "APP_GRANT_HOST": "主机授权",
   "APP_GRANT_BACKUP_ACCOUNT": "备份账号授权",
   "APP_DOWNLOAD_TEMPLATE": "下载模板",
-  "APP_FLIE": "文件",
-  "APP_FLIE_SELECT": "文件选择",
+  "APP_FILE": "文件",
+  "APP_FILE_SELECT": "文件选择",
   "APP_FILE_SELECTED_NOTHING": "未选择文件"
 }
