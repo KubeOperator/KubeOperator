@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
@@ -33,6 +34,9 @@ func (n ClusterNode) ToKobeHost() *api.Host {
 		User:       n.Host.Credential.Username,
 		Password:   password,
 		PrivateKey: string(privateKey),
+		Vars: map[string]string{
+			"has_gpu": fmt.Sprintf("%v", n.Host.HasGpu),
+		},
 	}
 }
 

@@ -1830,6 +1830,9 @@ var doc = `{
                 },
                 "workerAmount": {
                     "type": "integer"
+                },
+                "supportGpu": {
+                    "type": "string"
                 }
             }
         },

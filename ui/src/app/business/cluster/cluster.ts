@@ -63,6 +63,7 @@ export class ClusterCreateRequest extends BaseModel {
     projectName: string;
     helmVersion: string;
     networkInterface: string;
+    supportGpu: string;
 }
 
 export class CLusterImportRequest {

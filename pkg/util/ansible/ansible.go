@@ -14,7 +14,10 @@ func CreateAnsibleLogWriter(clusterName string) (string, io.Writer, error) {
 	logId := uuid.NewV4().String()
 	dirName := path.Join(constant.DefaultAnsibleLogDir, clusterName)
 	if !file.Exists(dirName) {
-		_ = os.MkdirAll(dirName, 0755)
+		err := os.MkdirAll(dirName, 0755)
+		if err != nil {
+			return "", nil, err
+		}
 	}
 	fileName := path.Join(dirName, fmt.Sprintf("%s.log", logId))
 	writer, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)

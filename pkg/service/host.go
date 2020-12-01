@@ -197,7 +197,7 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		host.HasGpu = true
 		s := strings.Index(result, "[")
 		t := strings.Index(result, "]")
-		host.Gpus = result[s+1 : t]
+		host.GpuInfo = result[s+1 : t]
 	}
 	_ = h.hostRepo.Save(host)
 	return err
