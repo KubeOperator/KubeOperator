@@ -16,7 +16,3 @@ func (c *Theme) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c Theme) TableName() string {
-	return "ko_theme"
-}

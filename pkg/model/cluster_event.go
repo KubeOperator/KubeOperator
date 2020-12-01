@@ -25,7 +25,3 @@ func (c *ClusterEvent) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c ClusterEvent) TableName() string {
-	return "ko_cluster_event"
-}

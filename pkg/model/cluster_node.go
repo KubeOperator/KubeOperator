@@ -1,11 +1,12 @@
 package model
 
 import (
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/kobe/api"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type ClusterNode struct {
@@ -47,7 +48,4 @@ func (n ClusterNode) ToSSHConfig() ssh.Config {
 		DialTimeOut: 5 * time.Second,
 		Retry:       3,
 	}
-}
-func (n ClusterNode) TableName() string {
-	return "ko_cluster_node"
 }

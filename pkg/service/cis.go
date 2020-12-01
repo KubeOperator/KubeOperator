@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -18,7 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	"time"
 )
 
 type CisService interface {
@@ -303,11 +304,11 @@ func Do(cluster *model.Cluster, client *kubernetes.Clientset, task *model.CisTas
 					if err != nil {
 						return true, err
 					}
-					var results []model.CisResult
+					var results []model.CisTaskResult
 					for _, summary := range summarys {
 						for _, test := range summary.Tests {
 							for _, res := range test.Results {
-								results = append(results, model.CisResult{
+								results = append(results, model.CisTaskResult{
 									ID:          uuid.NewV4().String(),
 									CisTaskId:   task.ID,
 									Number:      res.TestNumber,

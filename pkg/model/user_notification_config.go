@@ -17,7 +17,3 @@ func (u *UserNotificationConfig) BeforeCreate() error {
 	u.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (u UserNotificationConfig) TableName() string {
-	return "ko_user_notification_config"
-}

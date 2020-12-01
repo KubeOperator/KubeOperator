@@ -18,7 +18,3 @@ func (c *Region) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return err
 }
-
-func (c Region) TableName() string {
-	return "ko_region"
-}

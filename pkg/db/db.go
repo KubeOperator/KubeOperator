@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
@@ -29,6 +30,11 @@ func (i *InitDBPhase) Init() error {
 	if err != nil {
 		return err
 	}
+
+	gorm.DefaultTableNameHandler = func(DB *gorm.DB, defaultTableName string) string {
+		return "ko_" + defaultTableName
+	}
+	db.SingularTable(true)
 	DB = db
 	DB.LogMode(false)
 	return nil

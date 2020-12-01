@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
@@ -25,10 +26,6 @@ type Zone struct {
 func (z *Zone) BeforeCreate() (err error) {
 	z.ID = uuid.NewV4().String()
 	return err
-}
-
-func (z Zone) TableName() string {
-	return "ko_zone"
 }
 
 func (z *Zone) BeforeDelete() (err error) {

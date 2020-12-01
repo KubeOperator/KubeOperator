@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
@@ -18,17 +19,13 @@ type Plan struct {
 	RegionID       string `json:"regionId" grom:"type:varchar(64)"`
 	DeployTemplate string `json:"deployTemplate" grom:"type:varchar(64)"`
 	Vars           string `json:"vars" gorm:"type text(65535)"`
-	Zones          []Zone `json:"-" gorm:"many2many:ko_plan_zones"`
+	Zones          []Zone `json:"-" gorm:"many2many:plan_zones"`
 	Region         Region `json:"-"`
 }
 
 func (p *Plan) BeforeCreate() (err error) {
 	p.ID = uuid.NewV4().String()
 	return err
-}
-
-func (p Plan) TableName() string {
-	return "ko_plan"
 }
 
 func (p *Plan) BeforeDelete(tx *gorm.DB) (err error) {

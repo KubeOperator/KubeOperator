@@ -12,7 +12,3 @@ func (p *PlanZones) BeforeCreate() (err error) {
 	p.ID = uuid.NewV4().String()
 	return err
 }
-
-func (p PlanZones) TableName() string {
-	return "ko_plan_zones"
-}

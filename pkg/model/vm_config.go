@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
@@ -21,10 +22,6 @@ type VmConfig struct {
 func (v *VmConfig) BeforeCreate() error {
 	v.ID = uuid.NewV4().String()
 	return nil
-}
-
-func (v VmConfig) TableName() string {
-	return "ko_vm_config"
 }
 
 func (v *VmConfig) BeforeDelete() error {

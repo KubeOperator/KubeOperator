@@ -20,7 +20,3 @@ func (c *ClusterStorageProvisioner) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c ClusterStorageProvisioner) TableName() string {
-	return "ko_cluster_storage_provisioner"
-}

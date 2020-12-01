@@ -17,7 +17,3 @@ func (s *SystemSetting) BeforeCreate() (err error) {
 	s.ID = uuid.NewV4().String()
 	return err
 }
-
-func (s SystemSetting) TableName() string {
-	return "ko_system_setting"
-}

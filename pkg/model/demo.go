@@ -10,7 +10,3 @@ type Demo struct {
 func (d *Demo) BeforeCreate() {
 	d.ID = uuid.NewV4().String()
 }
-
-func (d Demo) TableName() string {
-	return "ko_demo"
-}

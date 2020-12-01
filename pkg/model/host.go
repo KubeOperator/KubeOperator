@@ -82,7 +82,3 @@ func (h *Host) BeforeDelete(tx *gorm.DB) error {
 
 	return nil
 }
-
-func (h Host) TableName() string {
-	return "ko_host"
-}

@@ -16,7 +16,3 @@ func (u *UserReceiver) BeforeCreate() error {
 	u.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (u UserReceiver) TableName() string {
-	return "ko_user_receiver"
-}

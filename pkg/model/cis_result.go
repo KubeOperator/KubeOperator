@@ -5,7 +5,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type CisResult struct {
+type CisTaskResult struct {
 	common.BaseModel
 	ID          string `json:"-"`
 	CisTaskId   string `json:"cisTaskId"`
@@ -16,11 +16,7 @@ type CisResult struct {
 	Scored      bool   `json:"scored"`
 }
 
-func (c *CisResult) BeforeCreate() (err error) {
+func (c *CisTaskResult) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return nil
-}
-
-func (c CisResult) TableName() string {
-	return "ko_cis_task_result"
 }

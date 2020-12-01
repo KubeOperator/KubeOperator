@@ -1,9 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type ClusterStatusCondition struct {
@@ -20,8 +21,4 @@ type ClusterStatusCondition struct {
 func (c *ClusterStatusCondition) BeforeCreate() (err error) {
 	c.ID = uuid.NewV4().String()
 	return nil
-}
-
-func (c ClusterStatusCondition) TableName() string {
-	return "ko_cluster_status_condition"
 }

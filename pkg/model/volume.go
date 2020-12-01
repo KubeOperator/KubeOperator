@@ -17,7 +17,3 @@ func (v *Volume) BeforeCreate() (err error) {
 	v.ID = uuid.NewV4().String()
 	return err
 }
-
-func (v Volume) TableName() string {
-	return "ko_volume"
-}

@@ -17,7 +17,3 @@ func (p *ProjectResource) BeforeCreate() (err error) {
 	p.ID = uuid.NewV4().String()
 	return err
 }
-
-func (p ProjectResource) TableName() string {
-	return "ko_project_resource"
-}

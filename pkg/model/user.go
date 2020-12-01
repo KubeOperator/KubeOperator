@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -105,10 +106,6 @@ func (u *User) BeforeUpdate() (err error) {
 		return errors.New(LdapCanNotUpdate)
 	}
 	return err
-}
-
-func (u User) TableName() string {
-	return "ko_user"
 }
 
 func (u *User) ValidateOldPassword(password string) (bool, error) {

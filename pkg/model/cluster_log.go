@@ -1,9 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 type ClusterLog struct {
@@ -20,8 +21,4 @@ type ClusterLog struct {
 func (n *ClusterLog) BeforeCreate() (err error) {
 	n.ID = uuid.NewV4().String()
 	return nil
-}
-
-func (n ClusterLog) TableName() string {
-	return "ko_cluster_log"
 }

@@ -29,10 +29,6 @@ type Cluster struct {
 	Tools    []ClusterTool `gorm:"save_associations:false" json:"-"`
 }
 
-func (c Cluster) TableName() string {
-	return "ko_cluster"
-}
-
 func (c *Cluster) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
 	tx := db.DB.Begin()

@@ -20,7 +20,3 @@ func (c *ClusterBackupFile) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
 	return nil
 }
-
-func (c ClusterBackupFile) TableName() string {
-	return "ko_cluster_backup_file"
-}
