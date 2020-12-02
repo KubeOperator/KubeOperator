@@ -29,38 +29,50 @@ export class LokiComponent implements OnInit {
     }
     getLabels () {
         this.service.LokiLabels(this.clusterName).subscribe(data => {
-            this.labels = data.data
+            this.labels = data.data;
         });
     }
     getLabelValues () {
         this.service.LokiLabelValues(this.clusterName, this.label).subscribe(data => {
-            this.values = data.data
+            if (data.data === undefined) {
+                this.values = [];
+                this.value = '';
+            } else {
+                if (data.data.length > 0) {
+                    this.values = data.data;
+                    this.value = this.values[0];
+                } else {
+                    this.values = [];
+                    this.value = '';
+                }
+            }
         });
     }
     
     refresh() {
         this.loading = true;
-        let paramInfo = 'limit=1000';
+        this.logs = []
+        let paramInfo = 'direction=backward&limit=1000&step=8&regexp=';
         let start: number = new Date(this.searchBeginDate).getTime();
         let end: number = new Date(this.searchEndDate).getTime();
         if (!isNaN(start) && !isNaN(end)) {
-            paramInfo = paramInfo + ('&start=' + start + '&end=' + (end + 86400000))
+            paramInfo = paramInfo + ('&start=' + start + '000000&end=' + (end + 86400000) + '000000');
         }
         if (isNaN(start) && !isNaN(end)) {
-            paramInfo = paramInfo + ('&start=' + end + '&end=' + end + 86400000)
+            paramInfo = paramInfo + ('&start=' + end + '000000&end=' + (end + 86400000) + '000000');
         }
         if (!isNaN(start) && isNaN(end)) {
-            paramInfo = paramInfo + ('&start=' + start + '&end=' + (start + 86400000))
+            paramInfo = paramInfo + ('&start=' + start + '000000&end=' + (start + 86400000) + '000000');
         }
 
         if (this.label !== '' && this.value !== '') {
-            paramInfo += ('&query={' + this.label + '="' + this.value + '"}')
+            paramInfo += ('&query={' + this.label + '="' + this.value + '"}');
         }
         this.service.LokiSearch(this.clusterName, paramInfo).subscribe(data => {
             for (const item1 of data.data.result) {
                 for (const item2 of item1.values) {
-                    let logItem = this.dataParser(item2[1])
-                    this.logs.push(logItem)
+                    let logItem = this.dataParser(item2);
+                    this.logs.push(logItem);
                 }
             }
             this.loading = false;
@@ -68,21 +80,11 @@ export class LokiComponent implements OnInit {
             this.loading = false;
         });
     }
-    dataParser (Str): LokiData{
+    dataParser (data: any): LokiData{
         let logItem:LokiData= {
-            ts: new Date,
-            info: Str,
+            ts: new Date(parseInt(data[0].substring(0 ,13))),
+            info: data[1],
         }
-        let dataArry = Str.split(' ')
-        for (const item of dataArry) {
-            if (item.indexOf('ts=') !== -1) {
-                logItem.ts = new Date(item.split('=')[1])
-                break
-            } else if (item.indexOf('[') !== -1 && item.indexOf(']') !== -1) {
-                logItem.ts = new Date(item.replace('[', '').replace(']', ''))
-                break
-            }
-        }
-        return logItem
+        return logItem;
     }
 }

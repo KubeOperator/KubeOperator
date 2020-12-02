@@ -9,10 +9,13 @@ import (
 )
 
 const (
-	LokiImageName     = "grafana/loki"
-	LokiTag           = "2.0.0"
-	PromtailImageName = "grafana/promtail"
-	PromtailTag       = "2.0.0"
+	LokiImageName    = "grafana/loki"
+	LokiTagAmd64Name = "2.0.0-amd64"
+	LokiTagArm64Name = "2.0.0-arm64"
+
+	PromtailImageName    = "grafana/promtail"
+	PromtailTagAmd64Name = "2.0.0-amd64"
+	PromtailTagArm64Name = "2.0.0-arm64"
 )
 
 type Loki struct {
@@ -25,9 +28,15 @@ func (c Loki) setDefaultValue() {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["loki.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, LokiImageName)
-	values["loki.image.tag"] = LokiTag
 	values["promtail.image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalHostName, constant.LocalDockerRepositoryPort, PromtailImageName)
-	values["promtail.image.tag"] = PromtailTag
+
+	if c.Cluster.Spec.Architectures == "amd64" {
+		values["loki.image.tag"] = LokiTagAmd64Name
+		values["promtail.image.tag"] = PromtailTagAmd64Name
+	} else {
+		values["loki.image.tag"] = LokiTagArm64Name
+		values["promtail.image.tag"] = PromtailTagArm64Name
+	}
 
 	if _, ok := values["loki.persistence.size"]; ok {
 		values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])

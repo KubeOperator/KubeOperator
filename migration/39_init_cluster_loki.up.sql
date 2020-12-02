@@ -26,7 +26,6 @@ INSERT INTO `ko_cluster_tool`(
          '' AS `vars`,
          0 AS `frame`,
          '/proxy/loki/{cluster_name}/root' AS `url`,
-         s.architectures AS `architecture`
+         'all' AS `architecture`
          FROM `ko_cluster` c
-LEFT JOIN ko_cluster_spec s ON c.spec_id = s.id
 WHERE c.id NOT IN (SELECT t.cluster_id FROM ko_cluster_tool t WHERE t.name = 'loki');
