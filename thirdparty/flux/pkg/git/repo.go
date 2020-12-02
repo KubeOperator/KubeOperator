@@ -498,3 +498,8 @@ func (r *Repo) workingClone(ctx context.Context, ref string) (string, error) {
 	}
 	return path, err
 }
+
+//hack
+func (r *Repo) SetReady() {
+	r.setReady()
+}
