@@ -1,0 +1,6 @@
+nested:
+  deeper:
+    deepest:
+      image:
+        name: some-other-image
+        tag: 1.0.1

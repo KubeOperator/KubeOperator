@@ -1,0 +1,4 @@
+resources:
+  - flux-helm-release-crd.yaml
+  - flux-helm-operator-account.yaml
+  - helm-operator-deployment.yaml

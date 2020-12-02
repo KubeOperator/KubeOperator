@@ -1,0 +1,15 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: configmap-values
+spec:
+  releaseName: configmap-values
+  chart:
+    repository: https://stefanprodan.github.io/podinfo
+    name: podinfo
+    version: 3.2.0
+  valuesFrom:
+    - configMapKeyRef:
+        name: podinfo-values
+  values: {}

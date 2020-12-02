@@ -1,0 +1,23 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: podinfo-helm-repository
+  namespace: demo
+spec:
+  releaseName: podinfo-helm-repository
+  timeout: 15
+  wait: true
+  rollback:
+    enable: true
+    wait: true
+  chart:
+    repository: https://stefanprodan.github.io/podinfo
+    name: podinfo
+    version: 3.2.0
+  values:
+    replicaCount: 2
+
+    faults:
+      # Setting this to 'true' will make the release fail
+      unready: false

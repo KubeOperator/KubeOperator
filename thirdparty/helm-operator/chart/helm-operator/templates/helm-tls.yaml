@@ -1,0 +1,9 @@
+{{- if and .Values.tls.enable .Values.tls.verify .Values.tls.caContent -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "helm-operator.fullname" . }}-helm-tls-ca-config
+data:
+  ca.crt: |
+{{ .Values.tls.caContent | indent 4 }}
+{{- end -}}

@@ -1,0 +1,15 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: external-source-values
+spec:
+  releaseName: external-source-values
+  chart:
+    repository: https://stefanprodan.github.io/podinfo
+    name: podinfo
+    version: 3.2.0
+  valuesFrom:
+    - externalSourceRef:
+        url: https://raw.githubusercontent.com/stefanprodan/podinfo/3.2.0/charts/podinfo/values.yaml
+  values: {}

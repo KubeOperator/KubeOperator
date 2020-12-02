@@ -1,0 +1,200 @@
+# Default values for helm-operator
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: docker.io/fluxcd/helm-operator
+  tag: 1.0.0-rc9
+  pullPolicy: IfNotPresent
+  pullSecret:
+
+service:
+  type: ClusterIP
+  port: 3030
+
+# Include the HelmRelease definition on install
+createCRD: false
+# Limit the operator scope to a single namespace
+allowNamespace:
+# Update dependencies for charts
+updateChartDeps: true
+# Log format can be fmt or json
+logFormat: fmt
+# Log the diff when a chart release diverges
+logReleaseDiffs: false
+# Period on which to reconcile the Helm releases with `HelmRelease` resources
+chartsSyncInterval: "3m"
+# Period on which to update the Helm release status in `HelmRelease` resources
+statusUpdateInterval:
+# Amount of workers processing releases
+workers: 2
+
+# Helm versions supported by this operator instance
+helm:
+  versions: "v2,v3"
+
+# Tiller settings
+# If a hostname or IP is given here, that will be combined with the
+# tillerPort and used for connecting to Tiller. Otherwise, the
+# cluster-ip of the `tiller-deploy` service in .tillerNamespace is looked up.
+tillerHost:
+tillerPort: 44134
+tillerNamespace: kube-system
+tls:
+  secretName: "helm-client-certs"
+  verify: false
+  enable: false
+  keyFile: "tls.key"
+  certFile: "tls.crt"
+  caContent: ""
+  hostname: ""
+
+# ADVANCED: Allow for deploying Tiller as a sidecar (restricted to 'localhost' for security reasons).
+# When enabled, either .clusterRole.create should be true or .clusterRole.name should be set to the name of a cluster role granting the required privileges.
+# Please make extra sure you know what you are doing before enabling this. :)
+tillerSidecar:
+  enabled: false
+  image:
+    repository: gcr.io/kubernetes-helm/tiller
+    tag: v2.16.1
+  storage: secret
+
+# For charts stored in Helm repositories other than stable
+# mount repositories.yaml configuration in a volume
+configureRepositories:
+  enable: false
+  volumeName: repositories-yaml
+  secretName: flux-helm-repositories
+  cacheVolumeName: repositories-cache
+  repositories:
+    # - name: bitnami
+    #   url: https://charts.bitnami.com
+    #   username:
+    #   password:
+    #   caFile:
+    #   certFile:
+    #   keyFile:
+
+# Helm plugins to initialize before starting the operator.
+initPlugins:
+  enable: false
+  cacheVolumeName: plugins-cache
+  plugins:
+  # - helmVersion: v3
+  #   plugin: https://github.com/hypnoglow/helm-s3.git
+  #   version: 0.9.2
+
+# For charts stored in Git repos set the SSH private key secret
+git:
+  # Period on which to poll git chart sources for changes
+  pollInterval: "5m"
+  timeout: "20s"
+  # Ref to clone chart from if ref is unspecified in a HelmRelease,
+  # empty defaults to `master`
+  defaultRef: ""
+  # Overrides for git over SSH. If you use your own git server, you
+  # will likely need to provide a host key for it in this field.
+  ssh:
+    # Generate a SSH key named identity: ssh-keygen -q -N "" -f ./identity
+    # create a Kubernetes secret: kubectl -n flux create secret generic helm-ssh --from-file=./identity
+    # delete the private key: rm ./identity
+    # add ./identity.pub as a read-only deployment key in your Git repo where the charts are
+    # set the secret name (helm-ssh) below
+    secretName: ""
+    known_hosts: ""
+    # You may want to configure access to multiple repositories via multiple deploy keys
+    # flux-helm-operator is configured in /etc/ssh/ssh_config to use for all hosts the file /etc/fluxd/ssh/identity
+    # this file is mounted from the above secret
+    # all entries in the secret are mounted in the same place /etc/fluxd/ssh/
+    # so we can add more entries by providing this config map with a key of config that refer to other files in /etc/fluxd/ssh/
+    # e.g. in the above secret create another key for example myprivatehelmrepo
+    # in the below config map create a key config and input the following
+    #
+    # Host *
+    # StrictHostKeyChecking yes
+    # IdentityFile /etc/fluxd/ssh/identity
+    # IdentityFile /var/fluxd/keygen/identity
+    # IdentityFile /var/fluxd/keygen/myprivatehelmrepo
+    # LogLevel error
+    #
+    # add the public key to the other repository as a deploy key and enjoy
+    configMapName: ""
+  # Global Git configuration See https://git-scm.com/docs/git-config for more details.
+  config:
+    enabled: false
+    secretName: ""
+    data: ""
+    # data: |
+    #   [credential "https://github.com"]
+    #           username = foo
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+  # Specifies whether PSP resources should be created
+  pspEnabled: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Service account annotations
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# If create is `false` and no name is given, the Helm
+# Operator will be restricted to the namespace where it is
+# deployed, and the kubeconfig default context will be set to that
+# namespace.
+clusterRole:
+  create: true
+  # The name of a cluster role to bind to; if not set and create is
+  # true, a name based on fullname is generated
+  name:
+
+kube:
+  # Override for kubectl default config
+  config: |
+    apiVersion: v1
+    clusters: []
+    contexts:
+    - context:
+        cluster: ""
+        namespace: default
+        user: ""
+      name: default
+    current-context: default
+    kind: Config
+    preferences: {}
+    users: []
+
+prometheus:
+  enabled: false
+  serviceMonitor:
+    # Enables ServiceMonitor creation for the Prometheus Operator
+    create: false
+    interval:
+    scrapeTimeout:
+    namespace:
+    additionalLabels: {}
+
+# Additional environment variables to set
+extraEnvs: []
+# extraEnvs:
+#   - name: FOO
+#     value: bar
+
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+extraVolumeMounts: []
+extraVolumes: []
+initContainers: []
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi

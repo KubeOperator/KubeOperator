@@ -1,0 +1,23 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: podinfo-git
+  namespace: demo
+spec:
+  releaseName: podinfo-git
+  timeout: 15
+  wait: true
+  rollback:
+    enable: true
+    wait: true
+  chart:
+    git: ssh://git@gitsrv/git-server/repos/cluster.git
+    ref: master
+    path: charts/podinfo
+  values:
+    replicaCount: 2
+
+    faults:
+      # Setting this to 'true' will make the release fail
+      unready: false

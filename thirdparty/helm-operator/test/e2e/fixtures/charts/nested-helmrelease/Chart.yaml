@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Nested HelmRelease chart
+name: nested-helmrelease
+version: 0.1.0

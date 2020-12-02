@@ -17,9 +17,15 @@ require (
 	github.com/c-robinson/iplib v0.3.1
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/docker/spdystream v0.0.0-20170912183627-bc6354cbbc29 // indirect
+	github.com/elazarl/goproxy v0.0.0-20190421051319-9d40249d3c2f // indirect
+	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/fairwindsops/polaris v0.0.0-20201005190522-9cce9fcec757
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
+	github.com/fluxcd/flux v1.17.2-0.20200121140732-3903cf8e71c3
+	github.com/fluxcd/helm-operator v1.0.0-rc6
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-git/go-git/v5 v5.2.0
 	github.com/go-ldap/ldap v3.0.3+incompatible
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
@@ -40,7 +46,6 @@ require (
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/klauspost/compress v1.10.8 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.3 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mojocn/base64Captcha v1.3.1
@@ -70,11 +75,20 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	helm.sh/helm/v3 v3.2.3
 	k8s.io/api v0.18.8
+	k8s.io/apiextensions-apiserver v0.18.6
 	k8s.io/apimachinery v0.18.8
 	k8s.io/cli-runtime v0.18.0
-	k8s.io/client-go v0.18.6
+	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
+replace k8s.io/client-go => k8s.io/client-go v0.18.6
+
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
+
+replace (
+	github.com/fluxcd/flux => ./thirdparty/flux
+	github.com/fluxcd/helm-operator => ./thirdparty/helm-operator
+	github.com/fluxcd/helm-operator/pkg/install => ./thirdparty/helm-operator/pkg/install
+)

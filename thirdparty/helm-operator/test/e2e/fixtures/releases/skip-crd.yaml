@@ -1,0 +1,16 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: skip-crd
+  namespace: demo
+spec:
+  releaseName: skip-crd
+  skipCRDs: true
+  chart:
+    repository: https://charts.konghq.com/
+    name: kong
+    version: 1.1.1
+  values:
+    ingressController:
+      installCRDs: false

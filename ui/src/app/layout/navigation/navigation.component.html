@@ -15,10 +15,10 @@
         <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
         {{ 'APP_USER_MANAGEMENT' | translate }}
     </a>
-<!--    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/muticluster">-->
-<!--        <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>-->
-<!--        {{'APP_MULTI_CLUSTER'|translate}}-->
-<!--    </a>-->
+    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/multicluster">
+        <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
+        {{'APP_MULTI_CLUSTER'|translate}}
+    </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/manifests">
         <clr-icon shape="blocks-group" clrVerticalNavIcon></clr-icon>
         {{ 'APP_MANIFEST' | translate }}

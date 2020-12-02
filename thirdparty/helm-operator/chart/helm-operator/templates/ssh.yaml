@@ -1,0 +1,17 @@
+{{- if .Values.git.ssh.known_hosts -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "helm-operator.fullname" . }}-ssh-config
+data:
+  known_hosts: |
+    {{- if .Values.git.ssh.known_hosts }}
+      {{- if contains "\n" .Values.git.ssh.known_hosts }}
+        {{- range $value := .Values.git.ssh.known_hosts | splitList "\n" }}
+          {{ print $value }}
+        {{- end }}
+      {{- else }}
+        {{ .Values.git.ssh.known_hosts }}
+      {{- end }}
+    {{- end }}
+{{- end -}}

@@ -1,0 +1,26 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="lg">
+    <h3 class="modal-title">{{'APP_DETAIL'|translate}}</h3>
+    <div class="modal-body">
+        <div *ngFor="let clusterLog of item.clusterLogs">
+            <h3>{{"APP_CLUSTER"|translate}}: {{clusterLog.clusterName}}</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Resource Name</th>
+                    <th>Source File</th>
+                    <th>Result</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let resourceLog of clusterLog.resourceLogs">
+                    <td>{{resourceLog.resourceName}}</td>
+                    <td>{{resourceLog.sourceFile}}</td>
+                    <td>{{resourceLog.status}}</td>
+                    <td>{{resourceLog.message}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</clr-modal>

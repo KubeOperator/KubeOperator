@@ -1,0 +1,77 @@
+<div class="clr-row" style="margin-top: 20px;height: 85%;max-height: 960px">
+    <app-file-create [currentRepository]="currentRepository" (created)="refresh()"></app-file-create>
+    <app-file-delete [currentRepository]="currentRepository" (deleted)="refresh()"></app-file-delete>
+    <div class="clr-col-2" style="height: 100%">
+        <div class="btn-group  btn-icon" style="margin-bottom: 10px;text-align: right">
+            <clr-button-group [clrMenuPosition]="'bottom-right'">
+                <clr-button class="btn" (click)="pullRemoteRepository()" [disabled]="remoteLoading||isSubmitGoing">
+                    Pull
+                </clr-button>
+                <clr-button class="btn" (click)="pushRemoteRepository()" [disabled]="remoteLoading||isSubmitGoing">
+                    Push
+                </clr-button>
+            </clr-button-group>
+            <clr-spinner clrInline *ngIf="remoteLoading"></clr-spinner>
+        </div>
+        <br/>
+        <div style="background-color: #ffffff;border-color: #000000;height: 100%">
+            <clr-tree *ngIf="tree">
+                <clr-tree-node *clrRecursiveFor="let file of tree.children; getChildren: getChildren">
+                        <span [ngClass]="{'git-changed': file.changed}"
+                              style="width: 100%">
+                        {{file.name}}
+                        </span>
+                    <div>
+                        <clr-dropdown>
+                            <button clrDropdownTrigger aria-label="Dropdown demo button">
+                                <clr-icon shape="caret down"></clr-icon>
+                            </button>
+                            <clr-dropdown-menu *clrIfOpen>
+                                <label class="dropdown-header" aria-hidden="true">选项</label>
+                                <clr-dropdown *ngIf="file.dir">
+                                    <button clrDropdownTrigger>新建</button>
+                                    <clr-dropdown-menu>
+                                        <button clrDropdownItem (click)="openCreate(file,'file')">文件</button>
+                                        <button clrDropdownItem (click)="openCreate(file,'dir')">目录</button>
+                                    </clr-dropdown-menu>
+                                </clr-dropdown>
+                                <div aria-label="Dropdown header Action 1" (click)="onOpenFile(file)" *ngIf="!file.dir"
+                                     clrDropdownItem>编辑
+                                </div>
+                                <div aria-label="Dropdown header Action 1" clrDropdownItem (click)="openDelete(file)">删除
+                                </div>
+                                <div aria-label="Dropdown header Action 2" clrDropdownItem>重命名</div>
+
+                            </clr-dropdown-menu>
+                        </clr-dropdown>
+                    </div>
+                </clr-tree-node>
+            </clr-tree>
+
+        </div>
+    </div>
+
+
+    <div class="clr-col-10" style="padding-left: 30px;padding-right: 30px" *ngIf="editFiles.length>0">
+        <clr-tabs>
+            <clr-tab *ngFor="let file of editFiles">
+                <button clrTabLink [id]="file.path">
+                    <span [ngClass]="{'git-changed': file.changed}">
+                        {{file.name}}
+                    </span>
+                    <clr-icon shape="times" (click)="closeFile(file)"></clr-icon>
+                </button>
+                <clr-tab-content [id]="file.path" *clrIfActive="file.active">
+                    <br>
+                    <clr-button-group [clrMenuPosition]="'bottom-right'" style="margin-bottom: 10px">
+                        <clr-button class="btn" (click)="onResetContent(file)">Reset</clr-button>
+                        <clr-button class="btn" (click)="saveContent(file)">Save</clr-button>
+                    </clr-button-group>
+                    <codemirror [(ngModel)]="file.content"
+                                [config]="cmOptions" (change)="onContentChange(file)">
+                    </codemirror>
+                </clr-tab-content>
+            </clr-tab>
+        </clr-tabs>
+    </div>
+</div>

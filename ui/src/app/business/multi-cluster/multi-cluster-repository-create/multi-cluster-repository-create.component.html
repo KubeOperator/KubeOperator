@@ -1,0 +1,38 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <app-modal-alert></app-modal-alert>
+        <form clrForm #itemForm='ngForm'>
+            <clr-input-container>
+                <label>{{"APP_NAME"|translate}}</label>
+                <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" required/>
+            </clr-input-container>
+            <clr-input-container>
+                <label>{{"APP_SOURCE"|translate}}</label>
+                <input clrInput [size]="32" name="source" [(ngModel)]="item.source" required/>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{"APP_BRANCH"|translate}}</label>
+                <input clrInput [size]="32" name="branch" [(ngModel)]="item.branch" required/>
+            </clr-input-container>
+
+            <clr-input-container>
+                <label>{{"APP_USERNAME"|translate}}</label>
+                <input clrInput [size]="32" maxlength="30" name="username" [(ngModel)]="item.username" required/>
+            </clr-input-container>
+
+            <clr-password-container>
+                <label>{{"APP_PASSWORD"|translate}}</label>
+                <input clrPassword [size]="32" maxlength="30" name="password" [(ngModel)]="item.password" required/>
+            </clr-password-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()"
+                [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()"
+                [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}
+        </button>
+    </div>
+</clr-modal>

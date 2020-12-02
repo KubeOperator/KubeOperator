@@ -1,0 +1,19 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: nested-helmrelease
+  namespace: demo
+spec:
+  releaseName: nested-helmrelease
+  chart:
+    repository: http://chartmuseum:8080
+    name: nested-helmrelease
+    version: 0.1.0
+  values:
+    nested:
+      deeper:
+        deepest:
+          image:
+            name: some-other-image
+            tag: 1.0.1
