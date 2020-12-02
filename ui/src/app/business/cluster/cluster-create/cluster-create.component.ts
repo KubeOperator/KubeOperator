@@ -84,6 +84,7 @@ export class ClusterCreateComponent implements OnInit {
         this.item.workerAmount = 1;
         this.item.architectures = 'amd64';
         this.item.helmVersion = 'v3';
+        this.item.supportGpu = 'disable';
     }
 
     onNameCheck() {

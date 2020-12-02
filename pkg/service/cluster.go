@@ -210,6 +210,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) 
 		KubeApiServerPort:     constant.DefaultApiServerPort,
 		HelmVersion:           creation.HelmVersion,
 		NetworkInterface:      creation.NetworkInterface,
+		SupportGpu:            creation.SupportGpu,
 	}
 
 	status := model.ClusterStatus{Phase: constant.ClusterWaiting}

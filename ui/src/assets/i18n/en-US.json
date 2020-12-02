@@ -272,7 +272,7 @@
   "APP_BACKUP": "Backup",
   "APP_ARCHITECTURE": "architectures",
   "local": "local",
-  "APP_DISABLE": "disable",
+  "APP_DISABLE": "Disable",
   "APP_ADD_BACKUP_ACCOUNT": "Add Backup Account",
   "APP_UPDATE_BACKUP_ACCOUNT": "Update Backup Account",
   "APP_BACKUP_ACCOUNT_NAME": "Account Name",
@@ -545,5 +545,6 @@
   "APP_DOWNLOAD_TEMPLATE": "Download Template",
   "APP_FILE": "File",
   "APP_FILE_SELECT": "Browse",
-  "APP_FILE_SELECTED_NOTHING": "No file selected"
+  "APP_FILE_SELECTED_NOTHING": "No file selected",
+  "APP_GPU_INSTALL": "Install GPU kit"
 }

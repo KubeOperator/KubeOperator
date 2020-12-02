@@ -61,6 +61,7 @@ export class HostListComponent extends BaseModelDirective<Host> implements OnIni
                                     item.status = n.status;
                                     item.volumes = n.volumes;
                                     item.clusterName = n.clusterName;
+                                    item.hasGpu = n.hasGpu;
                                 }
                             }
                         });

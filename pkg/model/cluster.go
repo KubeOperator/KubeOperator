@@ -375,6 +375,9 @@ func (c Cluster) GetKobeVars() map[string]string {
 	if c.Spec.NetworkInterface != "" {
 		result[facts.NetworkInterfaceFactName] = c.Spec.NetworkInterface
 	}
+	if c.Spec.SupportGpu != "" {
+		result[facts.SupportGpuName] = c.Spec.SupportGpu
+	}
 	return result
 }
 

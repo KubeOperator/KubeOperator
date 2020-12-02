@@ -164,6 +164,15 @@
                 </select>
             </clr-select-container>
 
+            <clr-select-container>
+                <label>{{"APP_GPU_INSTALL"|translate}}</label>
+                <select clrSelect name="support_gpu" [(ngModel)]="item.supportGpu">
+                    <option value="">{{"APP_DEFAULT_OPTION"|translate}}</option>
+                    <option value="enable">{{"APP_ENABLE"|translate}}</option>
+                    <option value="disable">{{"APP_DISABLE"|translate}}</option>
+                </select>
+            </clr-select-container>
+
             <clr-input-container>
                 <label>{{"NETWORK_INTERFACE"|translate}}</label>
                 <input clrInput type="text" size="34" name="kube_network_interface" [(ngModel)]="item.networkInterface">

@@ -124,7 +124,6 @@ func (h hostService) Create(creation dto.HostCreate) (dto.Host, error) {
 		return dto.Host{}, err
 	}
 	go h.RunGetHostConfig(host)
-	go h.GetHostGpu(&host)
 	return dto.Host{Host: host}, err
 }
 
@@ -197,7 +196,7 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 		host.HasGpu = true
 		s := strings.Index(result, "[")
 		t := strings.Index(result, "]")
-		host.Gpus = result[s+1 : t]
+		host.GpuInfo = result[s+1 : t]
 	}
 	_ = h.hostRepo.Save(host)
 	return err
@@ -210,6 +209,14 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 	if err != nil {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
+		_ = h.hostRepo.Save(&host)
+		return
+	}
+	err = h.GetHostGpu(&host)
+	if err != nil {
+		host.GpuNum = 0
+		host.GpuInfo = ""
+		host.HasGpu = false
 		_ = h.hostRepo.Save(&host)
 		return
 	}

@@ -55,6 +55,7 @@ const (
 	TraefikIngressVersionFactName        = "traefik_ingress_version"
 	MetricsServerVersionFactName         = "metrics_server_version"
 	NetworkInterfaceFactName             = "network_interface"
+	SupportGpuName                       = "support_gpu"
 )
 
 var DefaultFacts = map[string]string{
@@ -64,9 +65,9 @@ var DefaultFacts = map[string]string{
 	LbModeFactName:                       "haproxy",
 	LbKubeApiserverPortFactName:          "8443",
 	KubeDnsDomainFactName:                "cluster.local",
-	KubePodSubnetFactName:                "179.10.0.0/16",
-	KubeServiceSubnetFactName:            "179.20.0.0/16",
-	DockerSubnetFactName:                 "179.30.0.1/16",
+	KubePodSubnetFactName:                "10.244.0.0/18",
+	KubeServiceSubnetFactName:            "10.244.64.0/18",
+	DockerSubnetFactName:                 "172.17.0.1/16",
 	KubeNetworkNodePrefixFactName:        "24",
 	KubeMaxPodsFactName:                  "110",
 	KubeProxyModeFactName:                "iptables",
@@ -110,4 +111,5 @@ var DefaultFacts = map[string]string{
 	TraefikIngressVersionFactName:        "v2.2.1",
 	MetricsServerVersionFactName:         "v0.3.6",
 	NetworkInterfaceFactName:             "",
+	SupportGpuName:                       "disable",
 }
