@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	RegistryImageName    = "registry"
+	RegistryImageName    = "kubeoperator/registry"
 	RegistryTagAmd64Name = "2.7.1-amd64"
 	RegistryTagArm64Name = "2.7.1-arm64"
 )
