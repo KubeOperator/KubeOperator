@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	RegistryImageName = "registry"
-	RegistryTag       = "2.7.1"
+	RegistryImageName    = "registry"
+	RegistryTagAmd64Name = "2.7.1-amd64"
+	RegistryTagArm64Name = "2.7.1-arm64"
 )
 
 type Registry struct {
@@ -32,7 +33,12 @@ func (c Registry) setDefaultValue() {
 	values := map[string]interface{}{}
 	_ = json.Unmarshal([]byte(c.Tool.Vars), &values)
 	values["image.repository"] = fmt.Sprintf("%s:%d/%s", c.LocalhostName, constant.LocalDockerRepositoryPort, RegistryImageName)
-	values["image.tag"] = RegistryTag
+
+	if c.Cluster.Spec.Architectures == "amd64" {
+		values["image.tag"] = RegistryTagAmd64Name
+	} else {
+		values["image.tag"] = RegistryTagArm64Name
+	}
 
 	if _, ok := values["persistence.size"]; ok {
 		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
