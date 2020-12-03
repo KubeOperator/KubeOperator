@@ -29,6 +29,7 @@ export class MultiClusterLogDetailComponent implements OnInit {
 
     refresh() {
         this.multiClusterRepositoryService.getLogDetail(this.currentRepository.name, this.logId).subscribe(data => {
+            console.log(data);
             this.item = data;
         });
     }

@@ -51,6 +51,11 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/vm/configs/{**}",
 			"/api/v1/hosts/{**}",
 			"/api/v1/hosts/{**}/{**}",
+			"/api/v1/multicluster/repositories",
+			"/api/v1/multicluster/repositories/{**}",
+			"/api/v1/multicluster/repositories/{**}/{**}",
+			"/api/v1/multicluster/repositories/{**}/{**}/{**}",
+			"/api/v1/multicluster/repositories/{**}/{**}/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

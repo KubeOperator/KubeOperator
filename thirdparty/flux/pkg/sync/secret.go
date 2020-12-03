@@ -54,7 +54,7 @@ func (p NativeSyncProvider) String() string {
 
 // GetRevision gets the revision of the current sync marker (representing the place flux has synced to).
 func (p NativeSyncProvider) GetRevision(ctx context.Context) (string, error) {
-	resource, err := p.resourceAPI.Get(p.resourceName, meta_v1.GetOptions{})
+	resource, err := p.resourceAPI.Get(context.TODO(), p.resourceName, meta_v1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -82,9 +82,11 @@ func (p NativeSyncProvider) setRevision(revision string) error {
 	}
 
 	_, err = p.resourceAPI.Patch(
+		context.TODO(),
 		p.resourceName,
 		types.StrategicMergePatchType,
 		jsonPatch,
+		meta_v1.PatchOptions{},
 	)
 	return err
 }

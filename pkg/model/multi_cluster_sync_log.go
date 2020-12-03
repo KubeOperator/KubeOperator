@@ -8,9 +8,10 @@ import (
 
 type MultiClusterSyncLog struct {
 	common.BaseModel
-	ID                       string `json:"-"`
+	ID                       string `json:"id"`
 	Status                   string `json:"status"`
 	Message                  string `json:"message"`
+	GitCommitId              string `json:"gitCommitId"`
 	MultiClusterRepositoryID string `json:"multiClusterRepositoryId"`
 }
 
@@ -23,8 +24,8 @@ func (m *MultiClusterSyncLog) BeforeDelete() error {
 	}
 	tx := db.DB.Begin()
 	for m := range mls {
-		if err:=db.DB.Delete(&m).Error;err!=nil{
-			tx.Rollback();
+		if err := db.DB.Delete(&m).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
 	}

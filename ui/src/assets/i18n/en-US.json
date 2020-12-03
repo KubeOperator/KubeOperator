@@ -546,5 +546,9 @@
   "APP_FILE": "File",
   "APP_FILE_SELECT": "Browse",
   "APP_FILE_SELECTED_NOTHING": "No file selected",
-  "APP_GPU_INSTALL": "Install GPU kit"
+  "APP_GPU_INSTALL": "Install GPU kit",
+  "APP_RELATION": "Relation",
+  "APP_SETTING": "Setting",
+  "APP_LOG": "Log",
+  "APP_BRANCH": "Branch"
 }

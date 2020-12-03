@@ -24,3 +24,27 @@ type UpdateRelationRequest struct {
 	ClusterNames []string `json:"clusterNames"`
 	Delete       bool     `json:"delete"`
 }
+
+type ClusterRelation struct {
+	model.ClusterMultiClusterRepository
+	ClusterName string `json:"clusterName"`
+}
+
+type MultiClusterSyncClusterLog struct {
+	model.MultiClusterSyncClusterLog
+	MultiClusterSyncClusterResourceLogs []model.MultiClusterSyncClusterResourceLog `json:"multiClusterSyncClusterResourceLogs"`
+	ClusterName                         string                                     `json:"clusterName"`
+}
+
+type MultiClusterSyncLogDetail struct {
+	model.MultiClusterSyncLog
+	MultiClusterSyncClusterLogs []MultiClusterSyncClusterLog `json:"multiClusterSyncClusterLogs"`
+}
+
+type MultiClusterSyncLog struct {
+	model.MultiClusterSyncLog
+}
+type MultiClusterRepositoryBatch struct {
+	Operation string                   `json:"operation" validate:"required"`
+	Items     []MultiClusterRepository `json:"items" validate:"required"`
+}

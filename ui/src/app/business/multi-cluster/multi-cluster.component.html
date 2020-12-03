@@ -1,7 +1,10 @@
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <h2> {{ 'APP_MANIFEST' | translate }}</h2>
-        <app-multi-cluster-browser></app-multi-cluster-browser>
+        <h2> {{ 'APP_MULTI_CLUSTER' | translate }}</h2>
+        <app-multi-cluster-repository-list (createEvent)="openCreate()"
+                                           (deleteEvent)="openDelete($event)"></app-multi-cluster-repository-list>
+        <app-multi-cluster-repository-create (created)="refresh()"></app-multi-cluster-repository-create>
+        <app-multi-cluster-repository-delete (deleted)="refresh()"></app-multi-cluster-repository-delete>
     </div>
 </div>

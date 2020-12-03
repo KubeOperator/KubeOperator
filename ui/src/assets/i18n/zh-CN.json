@@ -550,5 +550,9 @@
   "APP_FILE": "文件",
   "APP_FILE_SELECT": "文件选择",
   "APP_FILE_SELECTED_NOTHING": "未选择文件",
-  "APP_GPU_INSTALL": "安装GPU套件"
+  "APP_GPU_INSTALL": "安装GPU套件",
+  "APP_RELATION": "关联",
+  "APP_SETTING": "设置",
+  "APP_LOG": "日志",
+  "APP_BRANCH": "分支"
 }

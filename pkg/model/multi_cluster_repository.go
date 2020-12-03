@@ -22,7 +22,7 @@ type MultiClusterRepository struct {
 	Status       string    `json:"status"`
 	Message      string    `json:"message"`
 	Branch       string    `json:"branch"`
-	GitCommitId  string    `json:"gitCommitId"`
+	LastSyncHead string    `json:"lastSyncHead"`
 	LastSyncTime time.Time `json:"lastSyncTime"`
 	SyncInterval int64     `json:"syncInterval"`
 	GitTimeout   int64     `json:"gitTimeout"`
@@ -43,8 +43,8 @@ func (m *MultiClusterRepository) BeforeDelete() error {
 	}
 	tx := db.DB.Begin()
 	for m := range mls {
-		if err:=db.DB.Delete(&m).Error;err!=nil{
-			tx.Rollback();
+		if err := db.DB.Delete(&m).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
 	}

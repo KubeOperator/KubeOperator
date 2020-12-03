@@ -8,6 +8,7 @@ require (
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.2
 	github.com/KubeOperator/kobe v0.0.8
 	github.com/KubeOperator/kotf v0.0.8
+	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
@@ -77,7 +78,7 @@ require (
 	k8s.io/api v0.18.8
 	k8s.io/apiextensions-apiserver v0.18.6
 	k8s.io/apimachinery v0.18.8
-	k8s.io/cli-runtime v0.18.0
+	k8s.io/cli-runtime v0.18.6
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect

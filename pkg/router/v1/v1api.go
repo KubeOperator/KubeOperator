@@ -39,6 +39,7 @@ func V1(parent iris.Party) {
 	mvc.New(authScope.Party("/manifests")).HandleError(ErrorHandler).Handle(controller.NewManifestController())
 	mvc.New(authScope.Party("/vm/configs")).HandleError(ErrorHandler).Handle(controller.NewVmConfigController())
 	mvc.New(authScope.Party("/events")).HandleError(ErrorHandler).Handle(controller.NewClusterEventController())
+	mvc.New(authScope.Party("/multicluster/repositories")).HandleError(ErrorHandler).Handle(controller.NewMultiClusterRepositoryController())
 	projectScope := authScope.Party("/")
 	projectScope.Use(middleware.ProjectMiddleware)
 	mvc.New(projectScope.Party("/project/resources")).HandleError(ErrorHandler).Handle(controller.NewProjectResourceController())

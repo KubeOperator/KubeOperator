@@ -1,7 +1,7 @@
 <clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="lg">
     <h3 class="modal-title">{{'APP_DETAIL'|translate}}</h3>
     <div class="modal-body">
-        <div *ngFor="let clusterLog of item.clusterLogs">
+        <div *ngFor="let clusterLog of item.multiClusterSyncClusterLogs">
             <h3>{{"APP_CLUSTER"|translate}}: {{clusterLog.clusterName}}</h3>
             <table class="table">
                 <thead>
@@ -13,7 +13,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let resourceLog of clusterLog.resourceLogs">
+                <tr *ngFor="let resourceLog of clusterLog.multiClusterSyncClusterResourceLogs">
                     <td>{{resourceLog.resourceName}}</td>
                     <td>{{resourceLog.sourceFile}}</td>
                     <td>{{resourceLog.status}}</td>

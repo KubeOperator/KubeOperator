@@ -48,8 +48,8 @@ export class ReadFileRequest {
 }
 
 export class RelatedCluster {
-    name: string;
-    relatedStatus: string;
+    clusterName: string;
+    status: string;
     message: string;
     createdAt: string;
 }
@@ -75,10 +75,10 @@ export class ResourceLog extends BaseModel {
 
 export class MultiClusterSyncClusterLog extends BaseModel {
     clusterName: string;
-    resourceLogs: ResourceLog[] = [];
+    multiClusterSyncClusterResourceLogs: ResourceLog[] = [];
 }
 
 
 export class MultiClusterSyncLogDetail extends BaseModel {
-    clusterLogs: MultiClusterSyncClusterLog[] = [];
+    multiClusterSyncClusterLogs: MultiClusterSyncClusterLog[] = [];
 }

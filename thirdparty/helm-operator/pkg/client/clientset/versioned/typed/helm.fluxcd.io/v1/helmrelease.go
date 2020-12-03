@@ -19,6 +19,7 @@ limitations under the License.
 package v1
 
 import (
+	"context"
 	"time"
 
 	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
@@ -71,7 +72,7 @@ func (c *helmReleases) Get(name string, options metav1.GetOptions) (result *v1.H
 		Resource("helmreleases").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -88,7 +89,7 @@ func (c *helmReleases) List(opts metav1.ListOptions) (result *v1.HelmReleaseList
 		Resource("helmreleases").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -105,7 +106,7 @@ func (c *helmReleases) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 		Resource("helmreleases").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch()
+		Watch(context.TODO())
 }
 
 // Create takes the representation of a helmRelease and creates it.  Returns the server's representation of the helmRelease, and an error, if there is any.
@@ -115,7 +116,7 @@ func (c *helmReleases) Create(helmRelease *v1.HelmRelease) (result *v1.HelmRelea
 		Namespace(c.ns).
 		Resource("helmreleases").
 		Body(helmRelease).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -128,7 +129,7 @@ func (c *helmReleases) Update(helmRelease *v1.HelmRelease) (result *v1.HelmRelea
 		Resource("helmreleases").
 		Name(helmRelease.Name).
 		Body(helmRelease).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -144,7 +145,7 @@ func (c *helmReleases) UpdateStatus(helmRelease *v1.HelmRelease) (result *v1.Hel
 		Name(helmRelease.Name).
 		SubResource("status").
 		Body(helmRelease).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -156,7 +157,7 @@ func (c *helmReleases) Delete(name string, options *metav1.DeleteOptions) error 
 		Resource("helmreleases").
 		Name(name).
 		Body(options).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -172,7 +173,7 @@ func (c *helmReleases) DeleteCollection(options *metav1.DeleteOptions, listOptio
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Timeout(timeout).
 		Body(options).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -185,7 +186,7 @@ func (c *helmReleases) Patch(name string, pt types.PatchType, data []byte, subre
 		SubResource(subresources...).
 		Name(name).
 		Body(data).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }

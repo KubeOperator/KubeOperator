@@ -18,11 +18,11 @@ require (
 	github.com/stretchr/testify v1.4.0
 	google.golang.org/grpc v1.24.0
 	helm.sh/helm/v3 v3.2.3
-	k8s.io/api v0.0.0-20191016110408-35e52d86657a // kubernetes-1.16.2
-	k8s.io/apiextensions-apiserver v0.0.0-20191016113550-5357c4baaf65 // kubernetes-1.16.2
-	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8 // kubernetes-1.16.2
-	k8s.io/cli-runtime v0.0.0-20191016114015-74ad18325ed5
-	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/api v0.18.6 // kubernetes-1.16.2
+	k8s.io/apiextensions-apiserver v0.18.6 // kubernetes-1.16.2
+	k8s.io/apimachinery v0.18.6 // kubernetes-1.16.2
+	k8s.io/cli-runtime v0.18.6
+	k8s.io/client-go v0.18.6
 	k8s.io/helm v2.16.1+incompatible
 	k8s.io/klog v1.0.0
 	k8s.io/kubectl v0.0.0-20191016120415-2ed914427d51 // kubernetes-1.16.2
@@ -45,7 +45,7 @@ replace github.com/docker/docker => github.com/docker/docker v0.7.3-0.2019032701
 //         +-> k8s.io/client-go@v11.0.0+incompatible
 //         +-> github.com/weaveworks/flux@v0.0.0-20190729133003-c78ccd3706b5
 //             +-> k8s.io/client-go@v11.0.0+incompatible
-replace k8s.io/client-go => k8s.io/client-go v0.0.0-20191016111102-bec269661e48 // kubernetes-1.16.2
+replace k8s.io/client-go => k8s.io/client-go v0.18.6 // kubernetes-1.16.2
 
 // Pin Flux to master branch to break weaveworks/flux circular dependency (to be removed on Flux 1.18)
 replace github.com/fluxcd/flux => github.com/fluxcd/flux v1.17.2-0.20200121140732-3903cf8e71c3

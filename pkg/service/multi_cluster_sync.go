@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/fluxcd/flux/pkg/cluster"
 	"github.com/fluxcd/flux/pkg/cluster/kubernetes"
@@ -130,6 +131,10 @@ func (m *MultiClusterRepositorySync) Sync() {
 	if interval < m.Repo.SyncInterval || m.Repo.Status == constant.StatusPending {
 		return
 	}
+	m.Repo.Status = constant.StatusRunning
+	m.Repo.LastSyncTime = time.Now()
+	db.DB.Save(m.Repo)
+
 	err := m.Repo.Pull()
 	if err != nil {
 		log.Error(err)
@@ -138,30 +143,67 @@ func (m *MultiClusterRepositorySync) Sync() {
 	newSyncHead, err := m.GitRepo.BranchHead(context.TODO())
 	if err != nil {
 		log.Error(err)
-	}
-	if m.Repo.GitCommitId == newSyncHead {
 		return
 	}
+	if m.Repo.LastSyncHead == newSyncHead {
+		return
+	}
+
+	var syncLog model.MultiClusterSyncLog
+	syncLog.Status = constant.StatusRunning
+	syncLog.MultiClusterRepositoryID = m.Repo.ID
+	db.DB.Create(&syncLog)
 	hash := makeGitConfigHash(m.GitRepo.Origin(), m.Repo.Branch)
 	wg := &sync.WaitGroup{}
 	for _, c := range m.Clusters {
+		c := c
 		go func() {
 			wg.Add(1)
+			var clusterSyncLog model.MultiClusterSyncClusterLog
+			clusterSyncLog.MultiClusterSyncLogID = syncLog.ID
+			clusterSyncLog.Status = constant.StatusRunning
+			db.DB.Create(&clusterSyncLog)
 			store, clean, err := m.getManifestStoreByRevision(context.TODO(), c.Manifests, newSyncHead)
 			if err != nil {
 				log.Error(err)
+				clusterSyncLog.Status = constant.StatusFailed
+				clusterSyncLog.Message = err.Error()
+				db.DB.Save(&syncLog)
 				return
 			}
 			resourceMap, errEvents, err := doSync(context.TODO(), store, c.Cluster, hash)
 			if err != nil {
 				log.Error(err)
+				clusterSyncLog.Status = constant.StatusFailed
+				clusterSyncLog.Message = err.Error()
+				db.DB.Save(&syncLog)
 				return
+			}
+			clusterSyncLog.Status = constant.StatusSuccess
+			db.DB.Save(&syncLog)
+
+			for _, v := range resourceMap {
+				var resourceLog model.MultiClusterSyncClusterResourceLog
+				resourceLog.MultiClusterSyncClusterLogID = clusterSyncLog.ID
+				resourceLog.ResourceName = v.ResourceID().String()
+				resourceLog.SourceFile = v.Source()
+				resourceLog.Status, resourceLog.Message = func() (string, string) {
+					for i := range errEvents {
+						if errEvents[i].ID.String() == v.ResourceID().String() {
+							return constant.StatusFailed, errEvents[i].Error
+						}
+					}
+					return constant.StatusSuccess, ""
+				}()
+				db.DB.Create(&resourceLog)
 			}
 			wg.Done()
 			defer clean()
 		}()
 	}
 	wg.Wait()
+	syncLog.Status = constant.StatusSuccess
+	db.DB.Save(&syncLog)
 	if err := refresh(context.TODO(), m.GitTimeout, m.GitRepo); err != nil {
 		log.Error(err)
 		return

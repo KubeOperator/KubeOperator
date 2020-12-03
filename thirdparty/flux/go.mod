@@ -19,11 +19,11 @@ replace (
 
 // Pin kubernetes dependencies to 1.17.11
 replace (
-	k8s.io/api => k8s.io/api v0.17.11
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.11
-	k8s.io/apimachinery => k8s.io/apimachinery v0.17.11
-	k8s.io/client-go => k8s.io/client-go v0.17.11
-	k8s.io/code-generator => k8s.io/code-generator v0.17.11
+	k8s.io/api => k8s.io/api v0.18.6
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.6
+	k8s.io/apimachinery => k8s.io/apimachinery v0.18.6
+	k8s.io/client-go => k8s.io/client-go v0.18.6
+	k8s.io/code-generator => k8s.io/code-generator v0.18.6
 )
 
 // github.com/fluxcd/flux/pkg/install lives in this very repository, so use that

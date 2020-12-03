@@ -1,8 +1,10 @@
 package kubernetes
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"path/filepath"
 	"sync"
@@ -128,7 +130,7 @@ func (skr *sshKeyRing) Regenerate() error {
 		return err
 	}
 
-	_, err = skr.SecretAPI.Patch(skr.SecretName, types.StrategicMergePatchType, jsonPatch)
+	_, err = skr.SecretAPI.Patch(context.TODO(), skr.SecretName, types.StrategicMergePatchType, jsonPatch, metav1.PatchOptions{})
 	if err != nil {
 		return err
 	}

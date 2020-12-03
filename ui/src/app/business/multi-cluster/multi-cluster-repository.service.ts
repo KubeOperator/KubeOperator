@@ -68,6 +68,7 @@ export class MultiClusterRepositoryService extends BaseModelService<MultiCluster
         const req = new RelateClusterRequest();
         req.delete = true;
         req.clusterNames = clusterNames;
+        console.log(req);
         return this.http.post(`${this.baseUrl}/relations/${name}`, req);
     }
 

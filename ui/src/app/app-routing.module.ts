@@ -144,8 +144,7 @@ const routes: Routes = [
                 component: MultiClusterRepositoryDetailComponent,
                 resolve: {repo: MultiClusterRoutingResolverService},
                 children: [
-                    {path: '', redirectTo: 'browser', pathMatch: 'full'},
-                    {path: 'browser', component: MultiClusterBrowserComponent},
+                    {path: '', redirectTo: 'relation', pathMatch: 'full'},
                     {path: 'relation', component: MultiClusterRelationComponent},
                     {path: 'log', component: MultiClusterLogComponent},
                     {path: 'setting', component: MultiClusterSettingComponent},

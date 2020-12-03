@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -121,7 +122,7 @@ func newHelmClient(kubeClient *kubernetes.Clientset, opts TillerOptions) (*helmv
 // in case of any failure during the resolving of the service it returns the error.
 func tillerHost(kubeClient *kubernetes.Clientset, opts TillerOptions) (string, error) {
 	if opts.Host == "" || opts.Port == "" {
-		ts, err := kubeClient.CoreV1().Services(opts.Namespace).Get("tiller-deploy", metav1.GetOptions{})
+		ts, err := kubeClient.CoreV1().Services(opts.Namespace).Get(context.TODO(), "tiller-deploy", metav1.GetOptions{})
 		if err != nil {
 			return "", err
 		}

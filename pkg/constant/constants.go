@@ -18,8 +18,10 @@ const (
 	LocalDockerRepositoryPort = 8082
 
 	DefaultResourceName = "kubeoperator"
-	StatusPending       = "pending"
-	StatusRunning       = "running"
+	StatusPending       = "Pending"
+	StatusRunning       = "Running"
+	StatusSuccess       = "Success"
+	StatusFailed        = "Failed"
 )
 
 var (

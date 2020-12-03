@@ -336,7 +336,7 @@ func (c *Cluster) listAllowedResources(
 	if !namespaced {
 		// The resource is not namespaced, everything is allowed
 		resourceClient := c.client.dynamicClient.Resource(gvr)
-		data, err := resourceClient.List(options)
+		data, err := resourceClient.List(context.TODO(), options)
 		if err != nil {
 			return nil, err
 		}
@@ -350,7 +350,7 @@ func (c *Cluster) listAllowedResources(
 	}
 	var result []unstructured.Unstructured
 	for _, ns := range namespaces {
-		data, err := c.client.dynamicClient.Resource(gvr).Namespace(ns).List(options)
+		data, err := c.client.dynamicClient.Resource(gvr).Namespace(ns).List(context.TODO(), options)
 		if err != nil {
 			return result, err
 		}
