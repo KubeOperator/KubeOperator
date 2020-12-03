@@ -1,13 +1,17 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/client"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/cluster"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/network"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/site"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/storage"
+	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/task"
 	"github.com/KubeOperator/FusionComputeGolangSDK/pkg/vm"
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"time"
 )
 
 func NewFusionComputeClient(vars map[string]interface{}) *fusionComputeClient {
@@ -137,11 +141,164 @@ func (f *fusionComputeClient) GetIpInUsed(network string) ([]string, error) {
 }
 
 func (f *fusionComputeClient) UploadImage() error {
+	siteName := f.Vars["datacenter"].(string)
+	clusterName := f.Vars["cluster"].(string)
+	datastoreName := f.Vars["datastore"].(string)
+	portgroupName := f.Vars["portgroup"].(string)
+	ovfPath := f.Vars["ovfPath"].(string)
+	c := f.newFusionComputeClient()
+	if err := c.Connect(); err != nil {
+		return err
+	}
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
+	sm := site.NewManager(c)
+	ss, err := sm.ListSite()
+	if err != nil {
+		return err
+	}
+	siteUri := ""
+	for _, s := range ss {
+		if s.Name == siteName {
+			siteUri = s.Uri
+		}
+	}
+
+	cm := cluster.NewManager(c, siteUri)
+	cs, err := cm.ListCluster()
+	if err != nil {
+		return err
+	}
+	clusterUrn := ""
+	for _, cc := range cs {
+		if cc.Name == clusterName {
+			clusterUrn = cc.Urn
+		}
+	}
+	dm := storage.NewManager(c, siteUri)
+	ds, err := dm.ListDataStore()
+	if err != nil {
+		return err
+	}
+	datastoreUrn := ""
+	for _, d := range ds {
+		if d.Name == datastoreName {
+			datastoreUrn = d.Urn
+		}
+	}
+	nm := network.NewManager(c, siteUri)
+	dss, err := nm.ListDVSwitch()
+	if err != nil {
+		return err
+	}
+	portGroupUrn := ""
+	for _, ds := range dss {
+		ps, err := nm.ListPortGroupBySwitch(ds.Uri)
+		if err != nil {
+			return err
+		}
+		for _, p := range ps {
+			if p.Name == portgroupName {
+				portGroupUrn = p.Urn
+			}
+		}
+	}
+	vmm := vm.NewManager(c, siteUri)
+	res, err := vmm.UploadImage(siteUri+"/vms", vm.ImportTemplateRequest{
+		Name:        constant.FusionComputeImageName,
+		Description: "KubeOperator默认模版",
+		VmConfig: vm.Config{
+			Cpu:    vm.Cpu{Quantity: 4, Reservation: 0},
+			Memory: vm.Memory{QuantityMB: 4096, Reservation: 4096},
+			Disks: []vm.Disk{
+				{
+					SequenceNum:  1,
+					QuantityGB:   50,
+					IsDataCopy:   true,
+					DatastoreUrn: datastoreUrn,
+					IsThin:       true,
+				},
+			},
+			Nics: []vm.Nic{
+				{
+					Name:         "Network Adapter 0",
+					PortGroupUrn: portGroupUrn,
+				},
+			},
+		},
+		OsOptions: vm.OsOption{
+			OsType:      "Linux",
+			OsVersion:   1202,
+			GuestOSName: "CentOS 7.6 64bit",
+		},
+		Location:   clusterUrn,
+		Protocol:   "nfs",
+		Url:        ovfPath,
+		IsTemplate: true,
+	})
+	if err != nil {
+		return err
+	}
+	tm := task.NewManager(c, siteUri)
+	taskRes, err := tm.Get(res.TaskUri)
+	for {
+		time.Sleep(5 * time.Second)
+		tt, err := tm.Get(res.TaskUri)
+		if err != nil {
+			return err
+		}
+		if tt.Status != "running" {
+			if tt.Status == "success" {
+				break
+			} else {
+				return errors.New(tt.ReasonDes)
+			}
+		}
+	}
 	return nil
 }
 
 func (f *fusionComputeClient) DefaultImageExist() (bool, error) {
-	return false, nil
+	siteName := f.Vars["datacenter"].(string)
+	c := f.newFusionComputeClient()
+	if err := c.Connect(); err != nil {
+		return false, err
+	}
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
+	sm := site.NewManager(c)
+	ss, err := sm.ListSite()
+	if err != nil {
+		return false, err
+	}
+	siteUri := ""
+	for _, s := range ss {
+		if s.Name == siteName {
+			siteUri = s.Uri
+		}
+	}
+	if siteUri == "" {
+		return false, fmt.Errorf("site %s not found", siteName)
+	}
+	vmm := vm.NewManager(c, siteUri)
+	vms, err := vmm.ListVm(true)
+	if err != nil {
+		return false, err
+	}
+	result := false
+	for _, tem := range vms {
+		if tem.Name == constant.VSphereImageName {
+			result = true
+			break
+		}
+	}
+	return result, nil
 }
 
 func (f *fusionComputeClient) CreateDefaultFolder() error {

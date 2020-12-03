@@ -10,19 +10,14 @@ const (
 	VSphereImageVMDkPath     = "http://%s:8081/repository/oss-proxy/terraform/images/vsphere/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810-1.vmdk"
 	VSphereImageOvfPath      = "http://%s:8081/repository/oss-proxy/terraform/images/vsphere/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810.ovf"
 	VSphereFolder            = "kubeoperator"
-	ImageDefaultPassword     = "KubeOperator@2019"
 	ImageCredentialName      = "kubeoperator"
-	ImageUserName            = "root"
-	ImagePasswordType        = "password"
 	OpenStackImageLocalPath  = "/opt/kubeoperator_centos_7.6.1810-1.qcow2"
-
-	FusionCompute = "FusionCompute"
+	FusionCompute            = "FusionCompute"
+	FusionComputeImageName   = "kubeoperator_centos_7.6.1810"
+	FusionComputeOvfPath     = "http://%s:8081/repository/oss-proxy/terraform/images/fusioncompute/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810.ovf"
+	FusionComputeVhdPath     = "http://%s:8081/repository/oss-proxy/terraform/images/fusioncompute/kubeoperator_centos_7.6.1810/kubeoperator_centos_7.6.1810-vda.vhd"
+	FusionComputeOvfName     = "kubeoperator_centos_7.6.1810.ovf"
+	FusionComputeVhdName     = "kubeoperator_centos_7.6.1810-vda.vhd"
+	FusionComputeOvfLocal    = "./kubeoperator_centos_7.6.1810.ovf"
+	FusionComputeVhdLocal    = "./kubeoperator_centos_7.6.1810-vda.vhd"
 )
-
-type CloudProvider string
-
-var SupportedCloudProviders = []CloudProvider{
-	OpenStack,
-	VSphere,
-	FusionCompute,
-}

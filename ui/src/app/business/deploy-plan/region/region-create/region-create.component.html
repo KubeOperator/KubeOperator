@@ -52,15 +52,14 @@
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_FUSION_PASSWORD_HELPER'|translate}}</clr-control-helper>
                 </clr-password-container>
-                <button class="btn" [disabled]="paramsForm.invalid || isParamsCheckGoing" (click)="onCheckParams()">
-                    <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>
+                <button class="btn" [disabled]="paramsForm.invalid" [clrLoading]="isParamsCheckGoing" (click)="onCheckParams()">
                     {{'APP_REGION_VCENTER_CHECK'|translate}}
                 </button>
                 <br>
                 <span *ngIf="isParamsValid&&!isParamsCheckGoing&&paramsForm.valid"
                       style="color: #859900;"> {{'APP_REGION_VCENTER_PARAM_VALID'|translate}}</span>
                 <span *ngIf="isParamsValid==false&&!isParamsCheckGoing&&paramsForm.valid"
-                      style="color: #e02200;"> {{'APP_REGION_VCENTER_PARAM_INVALID'|translate}}</span>
+                      style="color: #e02200;"> {{'APP_REGION_FUSIONCOMPUTE_PARAM_INVALID'|translate}}</span>
             </div>
             <div *ngIf="item.provider === 'vSphere'">
                 <clr-input-container>
