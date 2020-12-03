@@ -41,6 +41,12 @@ func (c Loki) setDefaultValue() {
 	if _, ok := values["loki.persistence.size"]; ok {
 		values["loki.persistence.size"] = fmt.Sprintf("%vGi", values["loki.persistence.size"])
 	}
+	if va, ok := values["loki.persistence.enabled"]; ok {
+		if hasPers, _ := va.(bool); !hasPers {
+			delete(values, "loki.nodeSelector.kubernetes\\.io/hostname")
+		}
+	}
+
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }

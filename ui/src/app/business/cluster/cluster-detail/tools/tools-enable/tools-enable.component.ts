@@ -40,17 +40,17 @@ export class ToolsEnableComponent implements OnInit {
 
     ngOnInit(): void {
         this.listStorageClass();
-        this.listNode()
-        this.listNamespaces()
+        this.listNode();
+        this.listNamespaces();
     }
     onSubmit() {
-        this.buttonLoading = true
+        this.buttonLoading = true;
         this.checkIsCorrect();
         if (this.isCorrect) {
             this.toolsService.enable(this.currentCluster.name, this.item).subscribe(data => {
                 this.opened = false;
                 this.enabled.emit();
-                this.buttonLoading = false
+                this.buttonLoading = false;
             }, error => {
                 this.buttonLoading = false;
             });
@@ -61,15 +61,9 @@ export class ToolsEnableComponent implements OnInit {
     checkIsCorrect() {
         if (this.item.name === 'logging') {
             if (this.item.vars['elasticsearch.replicas'] > this.nodeNum) {
-                this.isCorrect = false
+                this.isCorrect = false;
                 this.modalAlertService.showAlert(this.translateService.instant('APP_EFK_CREATE_REPLICAS'), AlertLevels.ERROR);
                 return;
-            }
-        } else if (this.item.name === 'kubeapps') {
-            if (this.item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname'] === this.item.vars['postgresql.slave.nodeSelector.kubernetes\\.io/hostname']) {
-                this.isCorrect = false
-                this.modalAlertService.showAlert(this.translateService.instant('APP_KUBEAPPS_NODE_CHOOSE'), AlertLevels.ERROR);
-                return; 
             }
         }
     }
@@ -94,17 +88,17 @@ export class ToolsEnableComponent implements OnInit {
     }
     listNamespaces() {
         this.kubernetesService.listNamespaces(this.currentCluster.name).subscribe(data => {
-            this.namespaceList = []
+            this.namespaceList = [];
             data.items.forEach(item => {
-                this.namespaceList.push(item.metadata.name)
+                this.namespaceList.push(item.metadata.name);
             });
         });
     }
     listNode() {
         this.kubernetesService.listNodes(this.currentCluster.name).subscribe(data => {
-            this.nodeList = []
+            this.nodeList = [];
             data.items.forEach(item => {
-                this.nodeList.push(item.metadata.name)
+                this.nodeList.push(item.metadata.name);
             });
             this.nodeNum = this.nodeList.length;
         });

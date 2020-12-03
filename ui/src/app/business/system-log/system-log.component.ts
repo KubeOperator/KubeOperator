@@ -18,7 +18,7 @@ export class SystemLogComponent implements OnInit {
     constructor(private service: SystemLogService, public translate: TranslateService) {}
 
     ngOnInit(): void {
-        this.refresh()
+        this.refresh();
     }
     refresh() {
         this.loading = true;
@@ -28,9 +28,9 @@ export class SystemLogComponent implements OnInit {
             if (this.items != null) {
                 for (const item of this.items) {
                     if (currentLanguage == 'en-US') {
-                        item.operation = item.operation.split('|')[1]
+                        item.operation = item.operation.split('|')[1];
                     } else {
-                        item.operation = item.operation.split('|')[0]
+                        item.operation = item.operation.split('|')[0];
                     }
                 }
             }

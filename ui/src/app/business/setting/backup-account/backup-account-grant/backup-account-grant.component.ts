@@ -36,19 +36,19 @@ export class BackupAccountGrantComponent implements OnInit {
 
     listProjects() {
         this.projectService.list().subscribe(res => {
-            this.projects = []
+            this.projects = [];
             for (let pro of res.items) {
                 this.projects.push({
                     id: pro.id, 
-                    name: pro.name
+                    name: pro.name,
                 })
             }
         })
     }
 
     open(items) {
-        this.backupAccounts = items
-        this.listProjects()
+        this.backupAccounts = items;
+        this.listProjects();
         this.opened = true;
     }
 
@@ -61,11 +61,11 @@ export class BackupAccountGrantComponent implements OnInit {
         this.projectResourceService.listResources(this.resourceType, this.projects[this.projectIndex].name).subscribe(res => {
             const items = [];
             for (const ho of this.backupAccounts) {
-                let isExit = false
+                let isExit = false;
                 for (const re of res) {
                     if (ho.name === re.name) {
-                        isExit = true
-                        break
+                        isExit = true;
+                        break;
                     }
                 }
                 if (!isExit) {

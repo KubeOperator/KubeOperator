@@ -60,6 +60,11 @@ func (p Prometheus) setDefaultValue() {
 	if _, ok := values["server.persistentVolume.size"]; ok {
 		values["server.persistentVolume.size"] = fmt.Sprintf("%vGi", values["server.persistentVolume.size"])
 	}
+	if va, ok := values["server.persistentVolume.enabled"]; ok {
+		if hasPers, _ := va.(bool); !hasPers {
+			delete(values, "server.nodeSelector.kubernetes\\.io/hostname")
+		}
+	}
 	str, _ := json.Marshal(&values)
 	p.Tool.Vars = string(str)
 }

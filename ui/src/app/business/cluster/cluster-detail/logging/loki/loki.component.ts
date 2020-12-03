@@ -51,12 +51,14 @@ export class LokiComponent implements OnInit {
     
     refresh() {
         this.loading = true;
-        this.logs = []
-        let paramInfo = 'direction=backward&limit=1000&step=8&regexp=';
+        this.logs = [];
+        let step: number = 8;
+        let paramInfo = 'direction=backward&limit=1000&regexp=';
         let start: number = new Date(this.searchBeginDate).getTime();
         let end: number = new Date(this.searchEndDate).getTime();
         if (!isNaN(start) && !isNaN(end)) {
             paramInfo = paramInfo + ('&start=' + start + '000000&end=' + (end + 86400000) + '000000');
+            step = (((end - start) / 86400000) + 1) * 8;
         }
         if (isNaN(start) && !isNaN(end)) {
             paramInfo = paramInfo + ('&start=' + end + '000000&end=' + (end + 86400000) + '000000');
@@ -64,6 +66,7 @@ export class LokiComponent implements OnInit {
         if (!isNaN(start) && isNaN(end)) {
             paramInfo = paramInfo + ('&start=' + start + '000000&end=' + (start + 86400000) + '000000');
         }
+        paramInfo = paramInfo + '&step=' + step;
 
         if (this.label !== '' && this.value !== '') {
             paramInfo += ('&query={' + this.label + '="' + this.value + '"}');

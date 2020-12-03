@@ -43,6 +43,12 @@ func (c Chartmuseum) setDefaultValue() {
 		values["image.tag"] = ChartmuseumTagArm64Name
 	}
 
+	if va, ok := values["persistence.enabled"]; ok {
+		if hasPers, _ := va.(bool); !hasPers {
+			delete(values, "nodeSelector.kubernetes\\.io/hostname")
+		}
+	}
+
 	if _, ok := values["persistence.size"]; ok {
 		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 	}
