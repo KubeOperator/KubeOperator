@@ -22,7 +22,7 @@ export class LoggingComponent implements OnInit {
     }
 
     loading = false;
-    loggingTools = ''
+    loggingTools = '';
     clusterName = '';
     indexPrefix = '';
 
@@ -32,14 +32,14 @@ export class LoggingComponent implements OnInit {
             this.toolsService.list(this.clusterName).subscribe(tools => {
                 for (const tool of tools) {
                     if (tool.name === 'logging' && tool.status === 'Running') {
-                        this.loggingTools = 'ef'
-                        this.indexPrefix = tool.vars['fluentd-elasticsearch.elasticsearch.logstashPrefix'] + '-'
+                        this.loggingTools = 'ef';
+                        this.indexPrefix = tool.vars['fluentd-elasticsearch.elasticsearch.logstashPrefix'] + '-';
                         this.loading = true;
                         break;
                     } else if (tool.name === 'loki' && tool.status === 'Running') {
-                        this.loggingTools = 'loki'
-                        // this.loki.currentClusterName = this.clusterName
+                        this.loggingTools = 'loki';
                         this.loading = true;
+                        break;
                     }
                 }
             })

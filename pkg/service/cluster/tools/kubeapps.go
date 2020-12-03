@@ -36,6 +36,15 @@ func (k Kubeapps) setDefaultValue() {
 	if _, ok := values["postgresql.persistence.size"]; ok {
 		values["postgresql.persistence.size"] = fmt.Sprintf("%vGi", values["postgresql.persistence.size"])
 	}
+	if va, ok := values["postgresql.persistence.enabled"]; ok {
+		if hasPers, _ := va.(bool); hasPers {
+			if va, ok := values["nodeSelector"]; ok {
+				values["postgresql.master.nodeSelector.kubernetes\\.io/hostname"] = va
+				values["postgresql.slave.nodeSelector.kubernetes\\.io/hostname"] = va
+			}
+		}
+	}
+	delete(values, "nodeSelector")
 
 	str, _ := json.Marshal(&values)
 	k.Tool.Vars = string(str)

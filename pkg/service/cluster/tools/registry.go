@@ -43,7 +43,11 @@ func (c Registry) setDefaultValue() {
 	if _, ok := values["persistence.size"]; ok {
 		values["persistence.size"] = fmt.Sprintf("%vGi", values["persistence.size"])
 	}
-
+	if va, ok := values["persistence.enabled"]; ok {
+		if hasPers, _ := va.(bool); !hasPers {
+			delete(values, "nodeSelector.kubernetes\\.io/hostname")
+		}
+	}
 	str, _ := json.Marshal(&values)
 	c.Tool.Vars = string(str)
 }
