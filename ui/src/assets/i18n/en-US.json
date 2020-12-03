@@ -548,5 +548,12 @@
   "APP_FILE": "File",
   "APP_FILE_SELECT": "Browse",
   "APP_FILE_SELECTED_NOTHING": "No file selected",
-  "APP_GPU_INSTALL": "Install GPU kit"
+  "APP_GPU_INSTALL": "Install GPU kit",
+  "APP_REGION_FUSIONCOMPUTE_PARAM_INVALID": "Verification failed, please check FusionCompute connection information",
+  "APP_NFS_HELPER": "Please fill in the NFS server address, for example: 172.16.10.10",
+  "APP_NFS_ADDRESS": "NFS server address",
+  "APP_NFS_FOLDER": "NFS server folder",
+  "APP_NFS_USERNAME": "NFS server user name",
+  "APP_NFS_PASSWORD": "NFS server password",
+  "APP_NFS_PORT": "NFS server port"
 }

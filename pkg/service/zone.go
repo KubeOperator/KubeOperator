@@ -5,12 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/cloud_provider"
+	"github.com/KubeOperator/KubeOperator/pkg/cloud_storage"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"io"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -125,12 +129,14 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 	if err != nil {
 		return nil, err
 	}
-	if creation.CredentialId == "" && (param["templateType"] != nil && param["templateType"].(string) == "default") {
+	if param["templateType"] != nil && param["templateType"].(string) == "default" {
 		switch region.Provider {
 		case constant.OpenStack:
 			param["imageName"] = constant.OpenStackImageName
 		case constant.VSphere:
 			param["imageName"] = constant.VSphereImageName
+		case constant.FusionCompute:
+			param["imageName"] = constant.FusionComputeImageName
 		default:
 			param["imageName"] = constant.VSphereImageName
 		}
@@ -292,6 +298,19 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 	if region.Provider == constant.OpenStack {
 		regionVars["imagePath"] = fmt.Sprintf(constant.OpenStackImagePath, ip.Value)
 	}
+	if region.Provider == constant.FusionCompute {
+		zoneVars := creation.CloudVars.(map[string]interface{})
+		if zoneVars["cluster"] != nil {
+			regionVars["cluster"] = zoneVars["cluster"]
+		}
+		if zoneVars["datastore"] != nil {
+			regionVars["datastore"] = zoneVars["datastore"]
+		}
+		if zoneVars["portgroup"] != nil {
+			regionVars["portgroup"] = zoneVars["portgroup"]
+		}
+	}
+
 	cloudClient := cloud_provider.NewCloudClient(regionVars)
 	if cloudClient != nil {
 		result, err := cloudClient.DefaultImageExist()
@@ -300,6 +319,64 @@ func (z zoneService) uploadImage(creation dto.ZoneCreate) error {
 		}
 		if result {
 			return nil
+		}
+		if region.Provider == constant.FusionCompute {
+			zoneVars := creation.CloudVars.(map[string]interface{})
+			nfsVars := make(map[string]interface{})
+			nfsVars["type"] = "SFTP"
+			nfsVars["address"] = zoneVars["nfsAddress"]
+			nfsVars["port"] = zoneVars["nfsPort"]
+			nfsVars["username"] = zoneVars["nfsUsername"]
+			nfsVars["password"] = zoneVars["nfsPassword"]
+			nfsVars["bucket"] = zoneVars["nfsFolder"]
+			client, err := cloud_storage.NewCloudStorageClient(nfsVars)
+			if err != nil {
+				return err
+			}
+			ovfResp, err := http.Get(fmt.Sprintf(constant.FusionComputeOvfPath, ip.Value))
+			if err != nil {
+				return err
+			}
+			if ovfResp.StatusCode == 404 {
+				return errors.New(constant.FusionComputeOvfName + "not found")
+			}
+			defer ovfResp.Body.Close()
+			ovfOut, err := os.Create(constant.FusionComputeOvfLocal)
+			if err != nil {
+				return err
+			}
+			defer ovfOut.Close()
+			_, err = io.Copy(ovfOut, ovfResp.Body)
+			if err != nil {
+				return err
+			}
+			vhdResp, err := http.Get(fmt.Sprintf(constant.FusionComputeVhdPath, ip.Value))
+			if err != nil {
+				return err
+			}
+			if vhdResp.StatusCode == 404 {
+				return errors.New(constant.FusionComputeVhdName + "not found")
+			}
+			defer vhdResp.Body.Close()
+			vhdOut, err := os.Create(constant.FusionComputeVhdLocal)
+			if err != nil {
+				return err
+			}
+			defer vhdOut.Close()
+			_, err = io.Copy(vhdOut, vhdResp.Body)
+			if err != nil {
+				return err
+			}
+			result, err = client.Upload(constant.FusionComputeOvfLocal, constant.FusionComputeOvfName)
+			if err != nil {
+				return err
+			}
+			result, err = client.Upload(constant.FusionComputeVhdLocal, constant.FusionComputeVhdName)
+			if err != nil {
+				return err
+			}
+			regionVars["ovfPath"] = zoneVars["nfsAddress"].(string) + ":" + zoneVars["nfsFolder"].(string) + "/" + constant.FusionComputeOvfName
+			cloudClient = cloud_provider.NewCloudClient(regionVars)
 		}
 		err = cloudClient.UploadImage()
 		if err != nil {
