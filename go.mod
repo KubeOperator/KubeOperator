@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/Azure/azure-storage-blob-go v0.10.0
-	github.com/KubeOperator/FusionComputeGolangSDK v0.0.2
+	github.com/KubeOperator/FusionComputeGolangSDK v0.0.4
 	github.com/KubeOperator/kobe v0.0.8
 	github.com/KubeOperator/kotf v0.0.8
 	github.com/ajg/form v1.5.1 // indirect

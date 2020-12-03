@@ -101,8 +101,8 @@ github.com/Joker/hpp v1.0.0/go.mod h1:8x5n+M1Hp5hC0g8okX3sR3vFQwynaX/UgSOM9MeBKz
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7 h1:mreN1m/5VJ/Zc3b4pzj9qU6D9SRQ6Vm+3KfI328t3S8=
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4KhCrqr6GRJjdC/gNfTdxkIXvuGZZda2VM=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
-github.com/KubeOperator/FusionComputeGolangSDK v0.0.2 h1:6VyJrBsLF/vTPuK6RdqTxCGV62gP8Zz2/QBXtLNMjy4=
-github.com/KubeOperator/FusionComputeGolangSDK v0.0.2/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.4 h1:IvGPzD4eeZad6cEWXExm3/CfoxuFMf6Qid7/9rNXozM=
+github.com/KubeOperator/FusionComputeGolangSDK v0.0.4/go.mod h1:YK/Wwg+8TG5WSAHM9Bcbwv82ztzTmW8tLm0VkAPI1+g=
 github.com/KubeOperator/kobe v0.0.8 h1:NN0TCmSh1oTt0n9CEf45fnf462iQjw07AzU1xfsi0Lw=
 github.com/KubeOperator/kobe v0.0.8/go.mod h1:j/c4nIGxnh57NSJdkOi1qEOCANfkxB77llaDD6eG66I=
 github.com/KubeOperator/kotf v0.0.8 h1:uo9WeEeZMZkZjuLIqBWPVT/ei2TYmChQWusxSbNgzF8=
