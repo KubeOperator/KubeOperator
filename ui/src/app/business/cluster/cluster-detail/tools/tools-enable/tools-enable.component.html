@@ -4,13 +4,13 @@
         <form clrForm #itemForm='ngForm'>
             <div *ngIf="item.name === 'chartmuseum'">
                 <clr-select-container>
-                    <label>Node</label>
+                    <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -38,13 +38,13 @@
 
             <div *ngIf="item.name === 'prometheus'">
                 <clr-select-container>
-                    <label>Node</label>
+                    <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['server.nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -79,7 +79,7 @@
             <div *ngIf="item.name === 'logging'">
                 <app-modal-alert></app-modal-alert>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -130,7 +130,7 @@
 
             <div *ngIf="item.name === 'dashboard'">
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -139,13 +139,13 @@
 
             <div *ngIf="item.name === 'loki'">
                 <clr-select-container>
-                    <label>Node</label>
+                    <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['loki.nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -177,13 +177,13 @@
 
             <div *ngIf="item.name === 'registry'">
                 <clr-select-container>
-                    <label>Node</label>
+                    <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>
@@ -216,19 +216,19 @@
             <div *ngIf="item.name === 'kubeapps'">
                 <app-modal-alert></app-modal-alert>
                 <clr-select-container>
-                    <label>MasterNode</label>
+                    <label>{{"APP_MASTER_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="masternode" [(ngModel)]="item.vars['postgresql.master.nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>SlaveNode</label>
+                    <label>{{"APP_SLAVE_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="slavenode" [(ngModel)]="item.vars['postgresql.slave.nodeSelector.kubernetes\\.io/hostname']" required>
                         <option *ngFor="let item of nodeList" [value]="item">{{item}}</option>
                     </select>
                 </clr-select-container>
                 <clr-select-container>
-                    <label>NameSpace</label>
+                    <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
                         <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
                     </select>

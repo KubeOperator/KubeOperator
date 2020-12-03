@@ -328,6 +328,8 @@
   "CLUSTER_RESTORE": "Cluster Restore",
   "APP_OVERVIEW": "Overview",
   "APP_NODE": "Node",
+  "APP_MASTER_NODE": "MasterNode",
+  "APP_SLAVE_NODE": "SlaveNode",
   "APP_HISTORY": "History",
   "APP_IP_INVALID": "IP is Invalid！",
   "APP_HELP": "Help",

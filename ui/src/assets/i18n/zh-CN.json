@@ -334,6 +334,8 @@
   "CLUSTER_RESTORE": "集群恢复",
   "APP_OVERVIEW": "概览",
   "APP_NODE": "节点",
+  "APP_MASTER_NODE": "主节点",
+  "APP_SLAVE_NODE": "从节点",
   "APP_HISTORY": "历史",
   "APP_IP_INVALID": "IP 格式错误",
   "APP_DOCUMENTATION": "文档",
