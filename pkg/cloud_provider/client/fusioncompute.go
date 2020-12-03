@@ -243,7 +243,6 @@ func (f *fusionComputeClient) UploadImage() error {
 		return err
 	}
 	tm := task.NewManager(c, siteUri)
-	taskRes, err := tm.Get(res.TaskUri)
 	for {
 		time.Sleep(5 * time.Second)
 		tt, err := tm.Get(res.TaskUri)
