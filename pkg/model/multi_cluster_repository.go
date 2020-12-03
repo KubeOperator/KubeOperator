@@ -27,6 +27,7 @@ type MultiClusterRepository struct {
 	SyncInterval int64     `json:"syncInterval"`
 	GitTimeout   int64     `json:"gitTimeout"`
 	SyncEnable   bool      `json:"syncEnable"`
+	SyncStatus   string    `json:"syncStatus"`
 }
 
 func (m *MultiClusterRepository) BeforeCreate() error {

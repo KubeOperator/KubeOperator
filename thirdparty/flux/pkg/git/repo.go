@@ -503,3 +503,7 @@ func (r *Repo) workingClone(ctx context.Context, ref string) (string, error) {
 func (r *Repo) SetReady() {
 	r.setReady()
 }
+
+func (r *Repo) SetDIr(dir string) {
+	r.dir = dir
+}

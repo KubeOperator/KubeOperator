@@ -13,7 +13,6 @@ type MultiClusterSyncClusterResourceLog struct {
 	Status                       string `json:"status"`
 	Message                      string `json:"message"`
 	MultiClusterSyncClusterLogID string `json:"multiClusterSyncLogId"`
-	ClusterID                    string `json:"clusterId"`
 }
 
 

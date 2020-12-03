@@ -23,6 +23,7 @@ import (
 	k8sclient "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"os/exec"
+	"path"
 	"sync"
 	"time"
 )
@@ -31,6 +32,12 @@ type Cluster struct {
 	cluster.Cluster
 	KoCluster model.Cluster
 	Manifests manifests.Manifests
+}
+
+type TodoLogger struct{}
+
+func (t *TodoLogger) Log(keyvals ...interface{}) error {
+	return nil
 }
 
 func NewCluster(clusterName string) (*Cluster, error) {
@@ -84,15 +91,21 @@ func NewCluster(clusterName string) (*Cluster, error) {
 		client := kubernetes.MakeClusterClientset(clientset, dynamicClientset, hrClientset, discoClientset)
 		kubectlApplier := kubernetes.NewKubectl(kubectl, &restClientConfig)
 		allowedNamespaces := make(map[string]struct{})
-		k8sInst := kubernetes.NewCluster(client, kubectlApplier, sshKeyRing, nil, allowedNamespaces, nil, []string{})
+		k8sInst := kubernetes.NewCluster(client, kubectlApplier, sshKeyRing, &TodoLogger{}, allowedNamespaces, nil, []string{})
 		if err := k8sInst.Ping(); err != nil {
 			return nil, err
 		}
+		k8s = k8sInst
 		namespacer, err := kubernetes.NewNamespacer(discoClientset, constant.DefaultNamespace)
 		if err != nil {
 			return nil, err
 		}
 		k8sManifests = kubernetes.NewManifests(namespacer, nil)
+		v, err := clientset.ServerVersion()
+		if err != nil {
+			return nil, err
+		}
+		log.Infof(v.String())
 	}
 	return &Cluster{
 		Cluster:   k8s,
@@ -122,43 +135,44 @@ func NewMultiClusterRepositorySync(repository *model.MultiClusterRepository, clu
 	}
 	gitRemote := git.Remote{URL: repository.Source}
 	repo := git.NewRepo(gitRemote, git.PollInterval(repository.SyncInterval), git.Timeout(ms.GitTimeout), git.Branch(repository.Branch), git.IsReadOnly(true))
+	repo.SetDIr(path.Join(constant.DefaultRepositoryDir, repository.Name))
 	ms.GitRepo = repo
 	return &ms, nil
 }
 
 func (m *MultiClusterRepositorySync) Sync() {
-	interval := (time.Now().UnixNano() - m.Repo.LastSyncTime.UnixNano()) / 1e6
-	if interval < m.Repo.SyncInterval || m.Repo.Status == constant.StatusPending {
-		return
-	}
-	m.Repo.Status = constant.StatusRunning
+	log.Infof("repository %s start sync", m.Repo.Name)
+	m.Repo.SyncStatus = constant.StatusRunning
 	m.Repo.LastSyncTime = time.Now()
 	db.DB.Save(m.Repo)
-
+	log.Infof("repository %s pull code change", m.Repo.Name)
 	err := m.Repo.Pull()
 	if err != nil {
 		log.Error(err)
 		return
 	}
+	m.GitRepo.SetReady()
 	newSyncHead, err := m.GitRepo.BranchHead(context.TODO())
 	if err != nil {
 		log.Error(err)
 		return
 	}
 	if m.Repo.LastSyncHead == newSyncHead {
+		log.Infof("repository %s no change,skip it", m.Repo.Name)
 		return
 	}
-
 	var syncLog model.MultiClusterSyncLog
 	syncLog.Status = constant.StatusRunning
 	syncLog.MultiClusterRepositoryID = m.Repo.ID
+	syncLog.GitCommitId = newSyncHead
 	db.DB.Create(&syncLog)
 	hash := makeGitConfigHash(m.GitRepo.Origin(), m.Repo.Branch)
 	wg := &sync.WaitGroup{}
 	for _, c := range m.Clusters {
 		c := c
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
+			log.Infof("repository %s sync change to cluster %s", m.Repo.Name, c.KoCluster.Name)
 			var clusterSyncLog model.MultiClusterSyncClusterLog
 			clusterSyncLog.MultiClusterSyncLogID = syncLog.ID
 			clusterSyncLog.Status = constant.StatusRunning
@@ -181,7 +195,6 @@ func (m *MultiClusterRepositorySync) Sync() {
 			}
 			clusterSyncLog.Status = constant.StatusSuccess
 			db.DB.Save(&syncLog)
-
 			for _, v := range resourceMap {
 				var resourceLog model.MultiClusterSyncClusterResourceLog
 				resourceLog.MultiClusterSyncClusterLogID = clusterSyncLog.ID
@@ -203,6 +216,9 @@ func (m *MultiClusterRepositorySync) Sync() {
 	}
 	wg.Wait()
 	syncLog.Status = constant.StatusSuccess
+	db.DB.Save(&syncLog)
+	m.Repo.SyncStatus = constant.StatusPending
+	m.Repo.LastSyncHead = newSyncHead
 	db.DB.Save(&syncLog)
 	if err := refresh(context.TODO(), m.GitTimeout, m.GitRepo); err != nil {
 		log.Error(err)
