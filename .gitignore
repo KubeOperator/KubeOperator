@@ -1,5 +1,7 @@
 .idea
 *.json
+./kubeoperator_centos_7.6.1810.ovf
+./kubeoperator_centos_7.6.1810-vda.vhd
 resource/*/.DS_Store
 resource/.DS_Store
 KubeOperator

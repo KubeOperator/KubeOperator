@@ -176,7 +176,7 @@
                             </clr-input-container>
                             <clr-password-container>
                                 <label>{{'APP_NFS_PASSWORD'|translate}}</label>
-                                <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['nfsPassword']" name="nfsPassword"
+                                <input clrPassword size=45 type="password" [(ngModel)]="item.cloudVars['nfsPassword']" name="nfsPassword"
                                        required>
                                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             </clr-password-container>
