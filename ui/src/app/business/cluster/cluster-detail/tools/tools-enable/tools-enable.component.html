@@ -6,7 +6,7 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-toggle-container>
@@ -15,11 +15,6 @@
                         <input type="checkbox" clrToggle name="pv" [(ngModel)]="item.vars['persistence.enabled']"/>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
-                <clr-input-container *ngIf="item.vars['persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
-                    <input type="number" size="34" clrInput name="size"
-                           [(ngModel)]="item.vars['persistence.size']"/>
-                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc" [(ngModel)]="item.vars['persistence.storageClass']" required>
@@ -27,6 +22,11 @@
                         <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
                     </select>
                 </clr-select-container>
+                <clr-input-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input type="number" size="34" clrInput name="size"
+                           [(ngModel)]="item.vars['persistence.size']"/>
+                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
@@ -40,11 +40,11 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-input-container>
-                    <label>{{"APP_DATA"|translate}}{{"APP_RETENTION"|translate}}({{"APP_DAY"|translate}})</label>
+                    <label>{{"APP_DATA"|translate}}{{"APP_RETENTION"|translate}}（{{"APP_DAY"|translate}}）</label>
                     <input clrInput name="retention" type="number"
                            [(ngModel)]="item.vars['server.retention']" size="34"/>
                 </clr-input-container>
@@ -55,11 +55,6 @@
                         <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
-                <clr-input-container *ngIf="item.vars['server.persistentVolume.enabled']">
-                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
-                    <input clrInput name="size"
-                           [(ngModel)]="item.vars['server.persistentVolume.size']" type="number" size="34"/>
-                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['server.persistentVolume.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc" [(ngModel)]="item.vars['server.persistentVolume.storageClass']"
@@ -68,6 +63,11 @@
                         <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
                     </select>
                 </clr-select-container>
+                <clr-input-container *ngIf="item.vars['server.persistentVolume.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input clrInput name="size"
+                           [(ngModel)]="item.vars['server.persistentVolume.size']" type="number" size="34"/>
+                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['server.persistentVolume.enabled']">
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['server.nodeSelector.kubernetes\\.io/hostname']">
@@ -82,7 +82,7 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-input-container>
@@ -111,13 +111,6 @@
                         <label>{{"APP_ENABLE"|translate}}{{"APP_STORAGE"|translate}}</label>
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
-                <clr-input-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
-                    <input clrInput name="size"
-                           [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.resources.requests.storage']"
-                           type="number"
-                           size="34"/>
-                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc"
@@ -127,13 +120,20 @@
                         <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
                     </select>
                 </clr-select-container>
+                <clr-input-container *ngIf="item.vars['elasticsearch.persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input clrInput name="size"
+                           [(ngModel)]="item.vars['elasticsearch.volumeClaimTemplate.resources.requests.storage']"
+                           type="number"
+                           size="34"/>
+                </clr-input-container>
             </div>
 
             <div *ngIf="item.name === 'dashboard'">
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
             </div>
@@ -142,7 +142,7 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-toggle-container>
@@ -153,11 +153,6 @@
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
 
-                <clr-input-container *ngIf="item.vars['loki.persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
-                    <input type="number" size="34" clrInput name="size"
-                           [(ngModel)]="item.vars['loki.persistence.size']"/>
-                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['loki.persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc"
@@ -167,6 +162,11 @@
                         <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
                     </select>
                 </clr-select-container>
+                <clr-input-container *ngIf="item.vars['loki.persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input type="number" size="34" clrInput name="size"
+                           [(ngModel)]="item.vars['loki.persistence.size']"/>
+                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['loki.persistence.enabled']">
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['loki.nodeSelector.kubernetes\\.io/hostname']">
@@ -180,7 +180,7 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-toggle-container>
@@ -191,11 +191,6 @@
                     </clr-toggle-wrapper>
                 </clr-toggle-container>
 
-                <clr-input-container *ngIf="item.vars['persistence.enabled']">
-                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
-                    <input type="number" size="34" clrInput name="size"
-                           [(ngModel)]="item.vars['persistence.size']"/>
-                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_STORAGE_CLASS"|translate}}</label>
                     <select clrSelect name="sc"
@@ -205,6 +200,11 @@
                         <option *ngFor="let sc of storageClazz" [value]="sc.metadata.name">{{sc.metadata.name}}</option>
                     </select>
                 </clr-select-container>
+                <clr-input-container *ngIf="item.vars['persistence.enabled']">
+                    <label>{{"APP_SIZE"|translate}}(Gi)</label>
+                    <input type="number" size="34" clrInput name="size"
+                           [(ngModel)]="item.vars['persistence.size']"/>
+                </clr-input-container>
                 <clr-select-container *ngIf="item.vars['persistence.enabled']">
                     <label>{{"APP_NODE"|translate}}</label>
                     <select clrSelect class="clr-select" name="node" [(ngModel)]="item.vars['nodeSelector.kubernetes\\.io/hostname']">
@@ -218,7 +218,7 @@
                 <clr-select-container>
                     <label>{{"APP_NAMESPACE"|translate}}</label>
                     <select clrSelect class="clr-select" name="namespace" [(ngModel)]="item.vars['namespace']" required>
-                        <option *ngFor="let item of namespaceList" [value]="item">{{item}}</option>
+                        <option *ngFor="let ns of namespaceList" [value]="ns">{{ns}}</option>
                     </select>
                 </clr-select-container>
                 <clr-toggle-container>

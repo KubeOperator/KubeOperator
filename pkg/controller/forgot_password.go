@@ -32,8 +32,7 @@ func (u ForgotPasswordController) PostForgotPassword() error {
 		return err
 	}
 
-	operator := u.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.FORGOT_USER_PASSWORD, req.Username)
+	go log_save.LogSave("N/A", constant.FORGOT_USER_PASSWORD, req.Username)
 
 	return u.UserService.ResetPassword(req)
 }

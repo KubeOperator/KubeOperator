@@ -553,5 +553,7 @@
   "APP_NFS_FOLDER": "NFS server folder",
   "APP_NFS_USERNAME": "NFS server user name",
   "APP_NFS_PASSWORD": "NFS server password",
-  "APP_NFS_PORT": "NFS server port"
+  "APP_NFS_PORT": "NFS server port",
+  "APP_START_REFRESH": "Start refresh",
+  "APP_STOP_REFRESH": "Stop refresh"
 }

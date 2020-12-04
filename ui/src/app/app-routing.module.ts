@@ -175,7 +175,6 @@ const routes: Routes = [
             {
                 path: 'system-log',
                 component: SystemLogComponent,
-                canActivate: [AdminAuthService],
             },
             {
                 path: 'message',

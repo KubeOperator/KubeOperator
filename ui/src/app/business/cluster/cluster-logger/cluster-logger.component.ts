@@ -11,6 +11,7 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
 
     term: Terminal;
     timer;
+    isRun: boolean = true; 
     @ViewChild('terminal', {static: true}) terminal: ElementRef;
 
 
@@ -40,17 +41,23 @@ export class ClusterLoggerComponent implements OnInit, OnDestroy {
         }, 3000);
         const clusterName = this.getQueryVariable('clusterName');
         this.timer = setInterval(() => {
-            this.loggerService.getClusterLog(clusterName).subscribe(data => {
-                this.term.clear();
-                const text = data.msg.replace(/\n/g, '\r\n');
-                this.term.write(text);
-                setTimeout(() => {
-                    this.term.scrollToBottom();
-                }, 100);
-            }, error => {
-                this.term.write('no log to show');
-            });
+            if (this.isRun) {
+                this.loggerService.getClusterLog(clusterName).subscribe(data => {
+                    this.term.clear();
+                    const text = data.msg.replace(/\n/g, '\r\n');
+                    this.term.write(text);
+                    setTimeout(() => {
+                        this.term.scrollToBottom();
+                    }, 100);
+                }, error => {
+                    this.term.write('no log to show');
+                });
+            }
         }, 5000);
+    }
+
+    changeMode() {
+        this.isRun = !this.isRun;
     }
 
     getQueryVariable(variable): string {

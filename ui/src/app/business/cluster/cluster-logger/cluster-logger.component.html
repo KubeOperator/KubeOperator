@@ -1,1 +1,6 @@
 <div #terminal></div>
+
+<div>
+    <button *ngIf="isRun" class="btn btn-primary" (click)="changeMode()" style="width: 100%;max-width: 2000px;">{{"APP_STOP_REFRESH"|translate}}</button>
+    <button *ngIf="!isRun" class="btn btn-primary" (click)="changeMode()" style="width: 100%;max-width: 2000px;">{{"APP_START_REFRESH"|translate}}</button>
+</div>

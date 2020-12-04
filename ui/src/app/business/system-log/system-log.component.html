@@ -3,15 +3,17 @@
         <h2> {{ 'APP_LOGGING' | translate }}</h2>
         <clr-datagrid [clrDgLoading]="loading">
             <clr-dg-action-bar>
-                <div style="display: inline;">
-                    <div class="clr-select-wrapper" style="display: inline;">
-                        <select class="clr-select" (change)="refresh()" [(ngModel)]="queryOption">
-                            <option value="name">{{'APP_NAME'|translate}}</option>
-                            <option value="operation">{{'APP_OPERATION'|translate}}</option>
-                            <option value="operationInfo">{{'APP_OPERATION_INFO'|translate}}</option>
-                        </select>
+                <div style="display: inline-flexbox;" >
+                    <div>
+                        <div class="clr-select-wrapper" style="display: inline;float:left;">
+                            <select class="clr-select" (change)="refresh()" [(ngModel)]="queryOption">
+                                <option value="name">{{'APP_NAME'|translate}}</option>
+                                <option value="operation">{{'APP_OPERATION'|translate}}</option>
+                                <option value="operationInfo">{{'APP_OPERATION_INFO'|translate}}</option>
+                            </select>
+                        </div>
                     </div>
-                    <input clrInput name="queryInfo" (keyup)="refresh()" [(ngModel)]="queryInfo" />
+                    <input style="float:left;margin-left: 50px;" clrInput name="queryInfo" (keyup)="refresh()" [(ngModel)]="queryInfo" />
                 </div>
             </clr-dg-action-bar>
             <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>

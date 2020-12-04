@@ -36,7 +36,7 @@ func (l *LicenseController) Post() (*dto.License, error) {
 	defer f.Close()
 
 	operator := l.Ctx.Values().GetString("operator")
-	go log_save.LogSave(operator, constant.IMPORT_LICENCE, "")
+	go log_save.LogSave(operator, constant.IMPORT_LICENCE, "-")
 
 	return l.LicenseService.Save(string(bs))
 }
