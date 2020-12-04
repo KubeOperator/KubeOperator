@@ -21,8 +21,7 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
 
     constructor(private noticeService: NoticeService,
                 private commonAlertService: CommonAlertService,
-                private translateService: TranslateService,
-                private sessionService: SessionService) {
+                private translateService: TranslateService) {
         super(noticeService);
     }
 
@@ -34,6 +33,7 @@ export class MailboxListComponent extends BaseModelDirective<Notice> implements 
         this.loading = true;
         this.noticeService.pageBy(this.page, this.size).subscribe(res => {
             this.items = res.items;
+            this.total = res.total;
             this.loading = false;
         }, error => {
             this.loading = false;
