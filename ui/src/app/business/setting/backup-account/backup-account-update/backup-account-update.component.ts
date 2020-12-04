@@ -33,7 +33,9 @@ export class BackupAccountUpdateComponent extends BaseModelDirective<BackupAccou
 
     open(item) {
         Object.assign(this.item, item);
-        this.item.bucket = '';
+        if (item.type !== 'SFTP') {
+            this.item.bucket = '';
+        }
         this.opened = true;
     }
 

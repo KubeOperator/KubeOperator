@@ -40,6 +40,7 @@ export class EmailComponent implements OnInit {
 
     onSubmit() {
         this.createItem.vars = this.item.vars;
+        this.createItem.tab = 'EMAIL';
         this.systemService.create(this.createItem).subscribe(res => {
             this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
         }, error => {

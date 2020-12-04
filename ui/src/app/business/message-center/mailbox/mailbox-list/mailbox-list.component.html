@@ -28,7 +28,7 @@
         {{'APP_CREATED_DATE'|translate}}
     </clr-dg-column>
 
-    <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
+    <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell style="cursor: pointer;overflow: hidden;text-overflow:ellipsis;
     white-space: nowrap;" [ngStyle]="{'color':item.readStatus==='UNREAD'?'#0079b8':'#969696'}" (click)="onDetail(item)"
                      href="javascript:void(0)">

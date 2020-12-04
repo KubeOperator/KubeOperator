@@ -76,6 +76,7 @@ func (s systemSettingService) Create(creation dto.SystemSettingCreate) ([]dto.Sy
 			if gorm.IsRecordNotFoundError(err) {
 				systemSetting.Key = k
 				systemSetting.Value = v
+				systemSetting.Tab = creation.Tab
 				err := s.systemSettingRepo.Save(&systemSetting)
 				if err != nil {
 					return result, err

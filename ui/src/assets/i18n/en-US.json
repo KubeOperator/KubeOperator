@@ -555,5 +555,7 @@
   "APP_NFS_PASSWORD": "NFS server password",
   "APP_NFS_PORT": "NFS server port",
   "APP_START_REFRESH": "Start refresh",
-  "APP_STOP_REFRESH": "Stop refresh"
+  "APP_STOP_REFRESH": "Stop refresh",
+  "APP_REGION_NAME_HELPER": "Support Chinese and English numbers, underscores, and do not start with a number",
+  "APP_VM_CONFIG_NAME_HELPER": "Support English and numbers"
 }

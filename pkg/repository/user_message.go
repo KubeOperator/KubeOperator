@@ -26,13 +26,13 @@ func (u userMessageRepository) Page(num int, size int, userId string) (int, []mo
 	if err := db.DB.
 		Model(model.UserMessage{}).
 		Where(model.UserMessage{UserID: userId}).
+		Count(&total).
+		Order("created_at desc").
 		Preload("Message").
 		Preload("Message.Cluster").
-		Order("created_at desc").
-		Count(&total).
-		Find(&userMessages).
 		Offset((num - 1) * size).
 		Limit(size).
+		Find(&userMessages).
 		Error; err != nil {
 		return total, nil, err
 	}

@@ -398,6 +398,7 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 			Port:         port,
 			CredentialID: credential.ID,
 			Status:       constant.ClusterInitializing,
+			Credential:   credential,
 		}
 		hosts = append(hosts, host)
 	}

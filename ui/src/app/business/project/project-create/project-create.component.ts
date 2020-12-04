@@ -7,7 +7,7 @@ import {CommonAlertService} from '../../../layout/common-alert/common-alert.serv
 import {TranslateService} from '@ngx-translate/core';
 import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
-import {NamePattern, NamePatternHelper} from '../../../constant/pattern';
+import {NamePattern} from '../../../constant/pattern';
 import {SessionService} from '../../../shared/auth/session.service';
 
 @Component({
@@ -18,7 +18,6 @@ import {SessionService} from '../../../shared/auth/session.service';
 export class ProjectCreateComponent extends BaseModelDirective<Project> implements OnInit {
 
     namePattern = NamePattern;
-    namePatternHelper = NamePatternHelper;
     opened = false;
     item: ProjectCreateRequest = new ProjectCreateRequest();
     isSubmitGoing = false;

@@ -6,8 +6,8 @@
                 <label>{{"APP_NAME"|translate}}</label>
                 <input clrInput [size]="32" maxlength="30" name="name" [(ngModel)]="item.name" pattern="{{namePattern}}"
                        required/>
-                <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
-                <clr-control-error>{{namePatternHelper}}</clr-control-error>
+                <clr-control-helper>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-error>
             </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_EMAIL"|translate}}</label>
