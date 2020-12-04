@@ -149,16 +149,22 @@ func (m *MultiClusterRepositorySync) Sync() {
 	err := m.Repo.Pull()
 	if err != nil {
 		log.Error(err)
+		m.Repo.SyncStatus = constant.StatusPending
+		db.DB.Save(m.Repo)
 		return
 	}
 	m.GitRepo.SetReady()
 	newSyncHead, err := m.GitRepo.BranchHead(context.TODO())
 	if err != nil {
 		log.Error(err)
+		m.Repo.SyncStatus = constant.StatusPending
+		db.DB.Save(m.Repo)
 		return
 	}
 	if m.Repo.LastSyncHead == newSyncHead {
 		log.Infof("repository %s no change,skip it", m.Repo.Name)
+		m.Repo.SyncStatus = constant.StatusPending
+		db.DB.Save(m.Repo)
 		return
 	}
 	var syncLog model.MultiClusterSyncLog
@@ -176,13 +182,14 @@ func (m *MultiClusterRepositorySync) Sync() {
 			var clusterSyncLog model.MultiClusterSyncClusterLog
 			clusterSyncLog.MultiClusterSyncLogID = syncLog.ID
 			clusterSyncLog.Status = constant.StatusRunning
+			clusterSyncLog.ClusterID = c.KoCluster.ID
 			db.DB.Create(&clusterSyncLog)
 			store, clean, err := m.getManifestStoreByRevision(context.TODO(), c.Manifests, newSyncHead)
 			if err != nil {
 				log.Error(err)
 				clusterSyncLog.Status = constant.StatusFailed
 				clusterSyncLog.Message = err.Error()
-				db.DB.Save(&syncLog)
+				db.DB.Save(&clusterSyncLog)
 				return
 			}
 			resourceMap, errEvents, err := doSync(context.TODO(), store, c.Cluster, hash)
@@ -190,11 +197,11 @@ func (m *MultiClusterRepositorySync) Sync() {
 				log.Error(err)
 				clusterSyncLog.Status = constant.StatusFailed
 				clusterSyncLog.Message = err.Error()
-				db.DB.Save(&syncLog)
+				db.DB.Save(&clusterSyncLog)
 				return
 			}
 			clusterSyncLog.Status = constant.StatusSuccess
-			db.DB.Save(&syncLog)
+			db.DB.Save(&clusterSyncLog)
 			for _, v := range resourceMap {
 				var resourceLog model.MultiClusterSyncClusterResourceLog
 				resourceLog.MultiClusterSyncClusterLogID = clusterSyncLog.ID
@@ -210,6 +217,7 @@ func (m *MultiClusterRepositorySync) Sync() {
 				}()
 				db.DB.Create(&resourceLog)
 			}
+			log.Infof("repository %s sync change to cluster %s completed", m.Repo.Name, c.KoCluster.Name)
 			wg.Done()
 			defer clean()
 		}()
@@ -217,14 +225,13 @@ func (m *MultiClusterRepositorySync) Sync() {
 	wg.Wait()
 	syncLog.Status = constant.StatusSuccess
 	db.DB.Save(&syncLog)
-	m.Repo.SyncStatus = constant.StatusPending
 	m.Repo.LastSyncHead = newSyncHead
-	db.DB.Save(&syncLog)
+	m.Repo.SyncStatus = constant.StatusPending
+	db.DB.Save(m.Repo)
 	if err := refresh(context.TODO(), m.GitTimeout, m.GitRepo); err != nil {
 		log.Error(err)
 		return
 	}
-
 }
 
 func makeGitConfigHash(remote git.Remote, branch string) string {

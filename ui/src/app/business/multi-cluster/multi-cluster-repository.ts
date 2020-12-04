@@ -75,6 +75,8 @@ export class ResourceLog extends BaseModel {
 
 export class MultiClusterSyncClusterLog extends BaseModel {
     clusterName: string;
+    status: string;
+    message: string;
     multiClusterSyncClusterResourceLogs: ResourceLog[] = [];
 }
 

@@ -554,5 +554,8 @@
   "APP_RELATION": "关联",
   "APP_SETTING": "设置",
   "APP_LOG": "日志",
-  "APP_BRANCH": "分支"
+  "APP_BRANCH": "分支",
+  "APP_RESOURCE_NAME": "资源名称",
+  "APP_SOURCE_FILE": "源文件",
+  "APP_RESULT": "结果"
 }

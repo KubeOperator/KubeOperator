@@ -125,6 +125,7 @@ func (m *multiClusterRepositoryService) UpdateClusterRelations(name string, req 
 				return err
 			}
 		} else {
+			relation.Status = constant.StatusRunning
 			if err := db.DB.Create(&relation).Error; err != nil {
 				return err
 			}
@@ -187,7 +188,7 @@ func (m *multiClusterRepositoryService) Create(req dto.MultiClusterRepositoryCre
 		SyncEnable:   true,
 		SyncInterval: 5,
 		LastSyncTime: time.Now(),
-		Status:       constant.StatusRunning,
+		Status:       constant.ClusterInitializing,
 	}
 	if err := db.DB.Create(&mo).Error; err != nil {
 		return nil, err
@@ -197,6 +198,7 @@ func (m *multiClusterRepositoryService) Create(req dto.MultiClusterRepositoryCre
 			mo.Status = constant.ClusterFailed
 			mo.Message = err.Error()
 			db.DB.Save(&mo)
+			return
 		}
 		mo.Status = constant.ClusterRunning
 		db.DB.Save(&mo)

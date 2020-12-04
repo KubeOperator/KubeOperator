@@ -20,12 +20,13 @@ import { MultiClusterLogComponent } from './multi-cluster-repository-detail/mult
 import { MultiClusterRepositoryDeleteComponent } from './multi-cluster-repository-delete/multi-cluster-repository-delete.component';
 import { MultiClusterLogListComponent } from './multi-cluster-repository-detail/multi-cluster-log/multi-cluster-log-list/multi-cluster-log-list.component';
 import { MultiClusterLogDetailComponent } from './multi-cluster-repository-detail/multi-cluster-log/multi-cluster-log-detail/multi-cluster-log-detail.component';
+import { MultiClusterRepositoryErrorDetailComponent } from './multi-cluster-repository-error-detail/multi-cluster-repository-error-detail.component';
 
 
 @NgModule({
     declarations: [MultiClusterSettingComponent, MultiClusterBrowserComponent,
         MultiClusterComponent, MultiClusterRepositoryListComponent,
-        MultiClusterRepositoryCreateComponent, MultiClusterRepositoryDetailComponent, FileCreateComponent, FileDeleteComponent, MultiClusterRelationComponent, MultiClusterRelationListComponent, MultiClusterRelationCreateComponent, MultiClusterRelationDeleteComponent, MultiClusterLogComponent, MultiClusterRepositoryDeleteComponent, MultiClusterLogListComponent, MultiClusterLogDetailComponent],
+        MultiClusterRepositoryCreateComponent, MultiClusterRepositoryDetailComponent, FileCreateComponent, FileDeleteComponent, MultiClusterRelationComponent, MultiClusterRelationListComponent, MultiClusterRelationCreateComponent, MultiClusterRelationDeleteComponent, MultiClusterLogComponent, MultiClusterRepositoryDeleteComponent, MultiClusterLogListComponent, MultiClusterLogDetailComponent, MultiClusterRepositoryErrorDetailComponent],
     imports: [
         CoreModule,
         RouterModule,

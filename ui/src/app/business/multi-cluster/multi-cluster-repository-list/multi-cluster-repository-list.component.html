@@ -21,7 +21,11 @@
                                                         (click)="onDetail(item.name)">{{item.name}}</a></clr-dg-cell>
         <clr-dg-cell *ngIf="item.status!=='Running'">{{item.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.source}}</clr-dg-cell>
-        <clr-dg-cell>{{item.status |translate}}
+        <clr-dg-cell *ngIf="item.status === 'Failed'">
+            <a href="javascript:void(0)"
+               (click)="onErrorDetail(item)">{{item.status|translate}}</a>
+        </clr-dg-cell>
+        <clr-dg-cell *ngIf="item.status!=='Failed'">{{item.status |translate}}
             <clr-spinner clrAssertive clrInline
                          *ngIf="item.status === 'Initializing'">
                 Loading...

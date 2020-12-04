@@ -23,8 +23,10 @@ func (m *MultiClusterSyncJob) Run() {
 		log.Error(err)
 		return
 	}
+	if len(repos) > 0 {
+		log.Infof("scan job to sync...")
+	}
 	wg := &sync.WaitGroup{}
-	log.Infof("scan job to sync...")
 	for _, repo := range repos {
 		interval := (time.Now().UnixNano() - repo.LastSyncTime.UnixNano()) / 1e6
 		if repo.SyncStatus == constant.StatusPending && repo.SyncEnable && interval > repo.SyncInterval*time.Minute.Milliseconds() {
@@ -32,6 +34,10 @@ func (m *MultiClusterSyncJob) Run() {
 			relations, err := m.multiClusterRepositoryService.GetClusterRelations(repo.Name)
 			if err != nil {
 				log.Error(err)
+				return
+			}
+			if !(len(relations) > 0) {
+				log.Info("repository not have related cluster. skip it")
 				return
 			}
 			clusterNames := func() []string {
@@ -49,6 +55,7 @@ func (m *MultiClusterSyncJob) Run() {
 			go func() {
 				wg.Add(1)
 				s.Sync()
+				log.Infof("repository %s sync completed", repo.Name)
 				wg.Done()
 			}()
 		}

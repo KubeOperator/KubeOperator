@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MultiClusterRepository, MultiClusterSyncLogDetail} from "../../../multi-cluster-repository";
-import {MultiAlertService} from "@clr/angular/emphasis/alert/providers/multi-alert.service";
 import {MultiClusterRepositoryService} from "../../../multi-cluster-repository.service";
 
 @Component({

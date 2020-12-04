@@ -63,11 +63,13 @@ func (m multiClusterSyncLogService) Detail(name, logId string) (*dto.MultiCluste
 		if err := db.DB.Where(model.MultiClusterSyncClusterResourceLog{MultiClusterSyncClusterLogID: cl.ID}).Find(&resourceLogs).Error; err != nil {
 			return nil, err
 		}
-		var cluster model.Cluster
-		if err := db.DB.Where(model.Cluster{ID: cl.ClusterID}).First(&cluster).Error; err != nil {
-			return nil, err
+		if cl.ClusterID != "" {
+			var cluster model.Cluster
+			if err := db.DB.Where(model.Cluster{ID: cl.ClusterID}).First(&cluster).Error; err != nil {
+				return nil, err
+			}
+			clDto.ClusterName = cluster.Name
 		}
-		clDto.ClusterName = cluster.Name
 		clDto.MultiClusterSyncClusterResourceLogs = append(clDto.MultiClusterSyncClusterResourceLogs, resourceLogs...)
 		item.MultiClusterSyncClusterLogs = append(item.MultiClusterSyncClusterLogs, clDto)
 	}

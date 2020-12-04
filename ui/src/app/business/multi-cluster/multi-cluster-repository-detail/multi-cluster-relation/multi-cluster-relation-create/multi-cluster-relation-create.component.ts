@@ -65,9 +65,9 @@ export class MultiClusterRelationCreateComponent implements OnInit {
     listClusters() {
         this.clusterService.list().subscribe(data => {
             const s = [];
-            console.log(data);
             for (const d of data.items.filter((item) => {
-                return !item.multiClusterRepositoryName;
+                console.log(item.multiClusterRepository);
+                return !item.multiClusterRepository;
             })) {
                 s.push({id: d.name, text: d.name});
             }

@@ -4,11 +4,12 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type Cluster struct {
 	model.Cluster
-	NodeSize      int    `json:"nodeSize"`
-	Status        string `json:"status"`
-	PreStatus     string `json:"preStatus"`
-	Provider      string `json:"provider"`
-	Architectures string `json:"architectures"`
+	NodeSize               int    `json:"nodeSize"`
+	Status                 string `json:"status"`
+	PreStatus              string `json:"preStatus"`
+	Provider               string `json:"provider"`
+	Architectures          string `json:"architectures"`
+	MultiClusterRepository string `json:"multiClusterRepository"`
 }
 
 type ClusterPage struct {

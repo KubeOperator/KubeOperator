@@ -54,7 +54,7 @@ func (m *MultiClusterRepository) BeforeDelete() error {
 }
 
 func (m *MultiClusterRepository) AfterDelete() error {
-	_ = os.RemoveAll(path.Join(constant.DefaultDataDir, m.Name))
+	_ = os.RemoveAll(path.Join(constant.DefaultRepositoryDir, m.Name))
 	return nil
 }
 

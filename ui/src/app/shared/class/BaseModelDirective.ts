@@ -1,6 +1,7 @@
 import {BaseModelService} from './BaseModelService';
-import { EventEmitter, OnInit, Output, Directive } from '@angular/core';
+import {EventEmitter, OnInit, Output, Directive} from '@angular/core';
 import {BaseModel} from './BaseModel';
+import {MultiClusterRepository} from "../../business/multi-cluster/multi-cluster-repository";
 
 @Directive()
 export abstract class BaseModelDirective<T extends BaseModel> implements OnInit {
@@ -14,6 +15,7 @@ export abstract class BaseModelDirective<T extends BaseModel> implements OnInit 
     @Output() createEvent = new EventEmitter();
     @Output() deleteEvent = new EventEmitter<T[]>();
     @Output() updateEvent = new EventEmitter<T>();
+    @Output() errorDetailEvent = new EventEmitter<string>();
 
     protected constructor(protected service: BaseModelService<T>) {
     }
@@ -28,6 +30,10 @@ export abstract class BaseModelDirective<T extends BaseModel> implements OnInit 
 
     onDelete() {
         this.deleteEvent.emit(this.selected);
+    }
+
+    onErrorDetail(item: MultiClusterRepository) {
+        this.errorDetailEvent.emit(item.message);
     }
 
     reset() {

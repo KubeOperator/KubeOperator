@@ -550,5 +550,8 @@
   "APP_RELATION": "Relation",
   "APP_SETTING": "Setting",
   "APP_LOG": "Log",
-  "APP_BRANCH": "Branch"
+  "APP_BRANCH": "Branch",
+  "APP_RESOURCE_NAME": "Resource Name",
+  "APP_SOURCE_FILE": "Source File",
+  "APP_RESULT": "Result",
 }

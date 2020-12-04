@@ -9,7 +9,7 @@ export class Cluster extends BaseModel {
     provider: string;
     projectName: string;
     source: string;
-    multiClusterRepositoryName: string;
+    multiClusterRepository: string;
 }
 
 export class Spec {
