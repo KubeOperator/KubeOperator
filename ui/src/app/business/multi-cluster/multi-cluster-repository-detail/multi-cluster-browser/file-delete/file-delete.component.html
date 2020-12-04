@@ -1,0 +1,11 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_DELETE"|translate}}</h3>
+    <div class="modal-body">
+        是否确认删除 {{item.path}} ?
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
+        <button type="button" class="btn btn-primary" [disabled]="isSubmitGoing"
+                (click)="onSubmit()">{{'APP_COMMIT'|translate}}</button>
+    </div>
+</clr-modal>

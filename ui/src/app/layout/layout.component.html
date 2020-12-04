@@ -7,9 +7,6 @@
                 <div class="alert-text" style="text-align: center;">
                     <clr-icon class="alert-icon" shape="info-circle"></clr-icon>
                     {{'APP_HEADER_MSG'|translate}}
-<!--                    <button type="button" class="btn btn-icon" aria-label="settings">-->
-<!--                        <clr-icon shape="cog"></clr-icon>-->
-<!--                    </button>-->
                 </div>
             </div>
         </div>
@@ -17,7 +14,7 @@
     <app-app-alert></app-app-alert>
     <app-header></app-header>
     <div class="content-container">
-        <div class="content-area">
+        <div class="content-area" style="height: 100%">
             <app-common-alert></app-common-alert>
             <router-outlet></router-outlet>
         </div>

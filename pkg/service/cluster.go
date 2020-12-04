@@ -80,6 +80,10 @@ func (c clusterService) Get(name string) (dto.Cluster, error) {
 	clusterDTO.Status = mo.Status.Phase
 	clusterDTO.PreStatus = mo.Status.PrePhase
 	clusterDTO.Architectures = mo.Spec.Architectures
+	if len(mo.MultiClusterRepositories) > 0 {
+		clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+	}
+
 	return clusterDTO, nil
 }
 
@@ -90,14 +94,18 @@ func (c clusterService) List() ([]dto.Cluster, error) {
 		return clusterDTOS, nil
 	}
 	for _, mo := range mos {
-		clusterDTOS = append(clusterDTOS, dto.Cluster{
+		clusterDTO := dto.Cluster{
 			Cluster:       mo,
 			NodeSize:      len(mo.Nodes),
 			Status:        mo.Status.Phase,
 			Provider:      mo.Spec.Provider,
 			PreStatus:     mo.Status.PrePhase,
 			Architectures: mo.Spec.Architectures,
-		})
+		}
+		if len(mo.MultiClusterRepositories) > 0 {
+			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+		}
+		clusterDTOS = append(clusterDTOS, clusterDTO)
 	}
 	return clusterDTOS, err
 }
@@ -109,14 +117,18 @@ func (c clusterService) Page(num, size int, projectName string) (dto.ClusterPage
 		return page, nil
 	}
 	for _, mo := range mos {
-		page.Items = append(page.Items, dto.Cluster{
+		clusterDTO := dto.Cluster{
 			Cluster:       mo,
 			NodeSize:      len(mo.Nodes),
 			Status:        mo.Status.Phase,
 			Provider:      mo.Spec.Provider,
 			PreStatus:     mo.Status.PrePhase,
 			Architectures: mo.Spec.Architectures,
-		})
+		}
+		if len(mo.MultiClusterRepositories) > 0 {
+			clusterDTO.MultiClusterRepository = mo.MultiClusterRepositories[0].Name
+		}
+		page.Items = append(page.Items, clusterDTO)
 	}
 	page.Total = total
 	return page, err

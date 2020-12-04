@@ -13,20 +13,21 @@ import (
 
 type Cluster struct {
 	common.BaseModel
-	ID       string        `json:"-"`
-	Name     string        `json:"name" gorm:"not null;unique"`
-	Source   string        `json:"source"`
-	SpecID   string        `json:"-"`
-	SecretID string        `json:"-"`
-	StatusID string        `json:"-"`
-	PlanID   string        `json:"-"`
-	LogId    string        `json:"logId"`
-	Plan     Plan          `json:"-"`
-	Spec     ClusterSpec   `gorm:"save_associations:false" json:"spec"`
-	Secret   ClusterSecret `gorm:"save_associations:false" json:"-"`
-	Status   ClusterStatus `gorm:"save_associations:false" json:"-"`
-	Nodes    []ClusterNode `gorm:"save_associations:false" json:"-"`
-	Tools    []ClusterTool `gorm:"save_associations:false" json:"-"`
+	ID                       string                   `json:"-"`
+	Name                     string                   `json:"name" gorm:"not null;unique"`
+	Source                   string                   `json:"source"`
+	SpecID                   string                   `json:"-"`
+	SecretID                 string                   `json:"-"`
+	StatusID                 string                   `json:"-"`
+	PlanID                   string                   `json:"-"`
+	LogId                    string                   `json:"logId"`
+	Plan                     Plan                     `json:"-"`
+	Spec                     ClusterSpec              `gorm:"save_associations:false" json:"spec"`
+	Secret                   ClusterSecret            `gorm:"save_associations:false" json:"-"`
+	Status                   ClusterStatus            `gorm:"save_associations:false" json:"-"`
+	Nodes                    []ClusterNode            `gorm:"save_associations:false" json:"-"`
+	Tools                    []ClusterTool            `gorm:"save_associations:false" json:"-"`
+	MultiClusterRepositories []MultiClusterRepository `gorm:"many2many:cluster_multi_cluster_repository"`
 }
 
 func (c *Cluster) BeforeCreate() error {
@@ -240,6 +241,39 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
+	if len(c.MultiClusterRepositories) > 0 {
+		for _, repo := range c.MultiClusterRepositories {
+			if repo.ID != "" {
+				if err := tx.Delete(&repo).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+		var clusterSyncLogs []MultiClusterSyncClusterLog
+		if err := tx.Where(MultiClusterSyncClusterLog{ClusterID: c.ID}).Find(&clusterSyncLogs).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, clusterLog := range clusterSyncLogs {
+			if clusterLog.ID != "" {
+				if err := tx.Delete(&clusterLog).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+			var clusterResourceSyncLogs []MultiClusterSyncClusterResourceLog
+			if err := tx.Where(MultiClusterSyncClusterResourceLog{MultiClusterSyncClusterLogID: clusterLog.ID}).Find(&clusterResourceSyncLogs).Error; err != nil {
+				return err
+			}
+			for _, resourceLog := range clusterResourceSyncLogs {
+				if err := tx.Delete(&resourceLog).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+	}
 	tx.Commit()
 	return nil
 }

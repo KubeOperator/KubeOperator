@@ -1,30 +1,23 @@
 package cron
 
 import (
-	"github.com/KubeOperator/KubeOperator/pkg/config"
-	"github.com/KubeOperator/KubeOperator/pkg/db"
-	"github.com/spf13/viper"
-	"log"
+	"fmt"
+	"github.com/robfig/cron"
 	"testing"
 )
 
 func TestInitCronPhase_Init(t *testing.T) {
-	config.Init()
-	dbi := db.InitDBPhase{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetInt("db.port"),
-		Name:     viper.GetString("db.name"),
-		User:     viper.GetString("db.user"),
-		Password: viper.GetString("db.password"),
+	Cron := cron.New()
+
+	Cron.AddFunc("@every 10s", func() {
+		fmt.Println("job1 run")
+	})
+
+	Cron.Start()
+	Cron.AddFunc("@every 10s", func() {
+		fmt.Println("job2 run")
+	})
+	select {
+
 	}
-	err := dbi.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	icp := InitCronPhase{}
-	err = icp.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	select {}
 }

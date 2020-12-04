@@ -55,8 +55,14 @@ import {F5Component} from './business/cluster/cluster-detail/f5/f5.component';
 import {BusinessResolverService} from './shared/service/business-resolver.service';
 import {AdminAuthService} from './shared/auth/admin-auth.service';
 import {EmailComponent} from './business/setting/email/email.component';
-import {SystemLogComponent} from './business/system-log/system-log.component';
 import {MultiClusterComponent} from "./business/multi-cluster/multi-cluster.component";
+import {MultiClusterRepositoryDetailComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-repository-detail.component";
+import {MultiClusterRoutingResolverService} from "./business/multi-cluster/multi-cluster-routing-resolver.service";
+import {MultiClusterBrowserComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-browser/multi-cluster-browser.component";
+import {MultiClusterRelationComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-relation/multi-cluster-relation.component";
+import {MultiClusterLogComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-log/multi-cluster-log.component";
+import {MultiClusterSettingComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-setting/multi-cluster-setting.component";
+import {SystemLogComponent} from "./business/system-log/system-log.component";
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -130,9 +136,19 @@ const routes: Routes = [
                 canActivate: [AdminAuthService]
             },
             {
-                path: 'muticluster',
+                path: 'multicluster',
                 component: MultiClusterComponent,
-                canActivate: [AdminAuthService]
+            },
+            {
+                path: 'multicluster/:name',
+                component: MultiClusterRepositoryDetailComponent,
+                resolve: {repo: MultiClusterRoutingResolverService},
+                children: [
+                    {path: '', redirectTo: 'relation', pathMatch: 'full'},
+                    {path: 'relation', component: MultiClusterRelationComponent},
+                    {path: 'log', component: MultiClusterLogComponent},
+                    {path: 'setting', component: MultiClusterSettingComponent},
+                ]
             },
             {
                 path: 'setting',

@@ -1,0 +1,25 @@
+<form clrForm #itemForm='ngForm'>
+    <clr-input-container>
+        <label>Git Timeout(分钟)</label>
+        <input clrInput name="timeout" type="number" min="0" [(ngModel)]="item.gitTimeout" required>
+    </clr-input-container>
+
+    <clr-toggle-container>
+        <label>集群同步</label>
+        <clr-checkbox-wrapper>
+            <input type="checkbox" clrToggle name="sync" [(ngModel)]="item.syncEnable">
+        </clr-checkbox-wrapper>
+    </clr-toggle-container>
+
+    <clr-input-container>
+        <label>同步间隔(分钟)</label>
+        <input clrInput name="interval" type="number" min="0" [(ngModel)]="item.syncInterval" required>
+    </clr-input-container>
+</form>
+<button class="btn btn-info-outline" (click)="onReset()" [disabled]="isSubmitGoing">重置</button>
+<button class="btn btn-info-outline" (click)="onSubmit()" [disabled]="isSubmitGoing||itemForm.invalid">提交</button>
+
+
+
+
+

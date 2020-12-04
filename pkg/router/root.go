@@ -6,7 +6,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/i18n"
 	"github.com/KubeOperator/KubeOperator/pkg/router/proxy"
 	v1 "github.com/KubeOperator/KubeOperator/pkg/router/v1"
-	"github.com/KubeOperator/KubeOperator/pkg/router/xpack"
 	"github.com/iris-contrib/swagger/v12"
 	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/iris/v12"
@@ -31,6 +30,5 @@ func Server() *iris.Application {
 	proxy.RegisterProxy(app)
 	api := app.Party("/api")
 	v1.V1(api)
-	xpack.XPack(api)
 	return app
 }

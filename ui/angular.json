@@ -28,7 +28,10 @@
               "node_modules/@clr/ui/clr-ui.min.css",
               "node_modules/xterm/css/xterm.css",
               "src/styles.css",
-              "node_modules/select2/dist/css/select2.min.css"
+              "node_modules/select2/dist/css/select2.min.css",
+              "node_modules/codemirror/lib/codemirror.css",
+              "node_modules/codemirror/addon/hint/show-hint.css",
+              "node_modules/codemirror/theme/neo.css"
             ],
             "scripts": [
               "node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js",
