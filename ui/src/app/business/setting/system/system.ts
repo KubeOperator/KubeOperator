@@ -6,4 +6,5 @@ export class System extends BaseModel {
 
 export class SystemCreateRequest extends BaseRequest {
     vars: {} = {};
+    tab: string;
 }
