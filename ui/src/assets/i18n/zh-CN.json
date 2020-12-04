@@ -550,6 +550,13 @@
   "APP_FILE_SELECT": "文件选择",
   "APP_FILE_SELECTED_NOTHING": "未选择文件",
   "APP_GPU_INSTALL": "安装GPU套件",
+  "APP_RELATION": "关联",
+  "APP_SETTING": "设置",
+  "APP_LOG": "日志",
+  "APP_BRANCH": "分支",
+  "APP_RESOURCE_NAME": "资源名称",
+  "APP_SOURCE_FILE": "源文件",
+  "APP_RESULT": "结果",
   "APP_REGION_FUSIONCOMPUTE_PARAM_INVALID": "验证未通过,请检查 FusionCompute 连接信息",
   "APP_NFS_HELPER": "请填写NFS服务器地址，例如：172.16.10.10",
   "APP_NFS_ADDRESS": "NFS服务器地址",
@@ -563,4 +570,3 @@
   "APP_REGION_NAME_HELPER": "支持中文英文数字、下划线,且不以数字开头",
   "APP_VM_CONFIG_NAME_HELPER": "支持英文和数字"
 }
-

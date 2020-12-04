@@ -546,7 +546,6 @@
   "APP_FILE": "File",
   "APP_FILE_SELECT": "Browse",
   "APP_FILE_SELECTED_NOTHING": "No file selected",
-  "APP_GPU_INSTALL": "Install GPU kit",
   "APP_REGION_FUSIONCOMPUTE_PARAM_INVALID": "Verification failed, please check FusionCompute connection information",
   "APP_NFS_HELPER": "Please fill in the NFS server address, for example: 172.16.10.10",
   "APP_NFS_ADDRESS": "NFS server address",
@@ -557,5 +556,13 @@
   "APP_START_REFRESH": "Start refresh",
   "APP_STOP_REFRESH": "Stop refresh",
   "APP_REGION_NAME_HELPER": "Support Chinese and English numbers, underscores, and do not start with a number",
-  "APP_VM_CONFIG_NAME_HELPER": "Support English and numbers"
+  "APP_VM_CONFIG_NAME_HELPER": "Support English and numbers",
+  "APP_GPU_INSTALL": "Install GPU kit",
+  "APP_RELATION": "Relation",
+  "APP_SETTING": "Setting",
+  "APP_LOG": "Log",
+  "APP_BRANCH": "Branch",
+  "APP_RESOURCE_NAME": "Resource Name",
+  "APP_SOURCE_FILE": "Source File",
+  "APP_RESULT": "Result"
 }

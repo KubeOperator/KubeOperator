@@ -18,6 +18,10 @@ const (
 	LocalDockerRepositoryPort = 8082
 
 	DefaultResourceName = "kubeoperator"
+	StatusPending       = "Pending"
+	StatusRunning       = "Running"
+	StatusSuccess       = "Success"
+	StatusFailed        = "Failed"
 )
 
 var (
@@ -30,4 +34,5 @@ var (
 	DefaultDataDir       = "/var/ko/data"
 	DefaultAnsibleLogDir = path.Join(DefaultDataDir, "ansible")
 	BackupDir            = path.Join(DefaultDataDir, "backup")
+	DefaultRepositoryDir = path.Join(DefaultDataDir, "git")
 )

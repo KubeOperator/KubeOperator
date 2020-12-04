@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/plugin/xpack"
 
 	"github.com/KubeOperator/KubeOperator/pkg/config"
 	"github.com/KubeOperator/KubeOperator/pkg/cron"
@@ -58,6 +59,10 @@ func Start() error {
 		log.Infof("start phase [%s] success", phase.PhaseName())
 	}
 	s := router.Server()
+	// load xpack plugin must behead router init,so can not create an phase for it.
+	if err := xpack.LoadXpackPlugin(); err != nil {
+		log.Error("xpack load failed, xpack can not be registered")
+	}
 	bind := fmt.Sprintf("%s:%d",
 		viper.GetString("bind.host"),
 		viper.GetInt("bind.port"))

@@ -1,0 +1,43 @@
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="true" clrModalSize="lg">
+    <h3 class="modal-title">{{'APP_DETAIL'|translate}}</h3>
+    <div class="modal-body">
+        <div *ngFor="let clusterLog of item.multiClusterSyncClusterLogs">
+            <hr/>
+            <h5>{{"APP_CLUSTER"|translate}}: {{clusterLog.clusterName}}</h5>
+            <div *ngIf="clusterLog.status!=='Success'">
+                <table class="table table-vertical">
+                    <tbody>
+                    <tr>
+                        <th>{{"APP_RESULT"|translate}}</th>
+                        <td>{{clusterLog.status |translate}}</td>
+                    </tr>
+                    <tr>
+                        <th>{{"APP_MESSAGE"|translate}}</th>
+                        <td>{{clusterLog.message}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="clusterLog.status==='Success'">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>{{"APP_RESOURCE_NAME"|translate}}</th>
+                        <th>{{"APP_SOURCE_FILE"|translate}}</th>
+                        <th>{{"APP_RESULT"|translate}}</th>
+                        <th>{{"APP_MESSAGE"|translate}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let resourceLog of clusterLog.multiClusterSyncClusterResourceLogs">
+                        <td>{{resourceLog.resourceName}}</td>
+                        <td>{{resourceLog.sourceFile}}</td>
+                        <td>{{resourceLog.status|translate}}</td>
+                        <td>{{resourceLog.message}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</clr-modal>
