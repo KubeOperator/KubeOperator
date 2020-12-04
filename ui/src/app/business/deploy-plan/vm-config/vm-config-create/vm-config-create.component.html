@@ -4,24 +4,27 @@
         <form clrForm #vmConfigForm="ngForm">
             <clr-input-container>
                 <label>{{'APP_NAME'|translate}}:</label>
-                <input clrInput size=20 maxlength="30" [(ngModel)]="item.name" pattern="{{namePattern}}" name="name" required>
-                <clr-control-helper>{{namePatternHelper}}</clr-control-helper>
-                <clr-control-error>{{namePatternHelper}}</clr-control-error>
+                <input clrInput size=20 maxlength="30" [(ngModel)]="item.name" pattern="{{namePattern}}" name="name"
+                       required>
+                <clr-control-helper>{{'APP_VM_CONFIG_NAME_HELPER'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_VM_CONFIG_NAME_HELPER'|translate}}</clr-control-error>
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_CPU'|translate}}:</label>
-                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1" [(ngModel)]="item.cpu" name="cpu" required>
+                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1" [(ngModel)]="item.cpu"
+                       name="cpu" required>
             </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_HOST_MEMORY_GB'|translate}}:</label>
-                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1"  [(ngModel)]="item.memory" name="memory" required>
+                <input clrInput type="number" min="1" max="500" oninput="if(value<1)value=1" [(ngModel)]="item.memory"
+                       name="memory" required>
             </clr-input-container>
-<!--            <clr-select-container>-->
-<!--                <label>{{'APP_PROVIDER'|translate}}</label>-->
-<!--                <select clrSelect [(ngModel)]="item.provider" name="provider" required>-->
-<!--                    <option value='vSphere'>vSphere</option>-->
-<!--                </select>-->
-<!--            </clr-select-container>-->
+            <!--            <clr-select-container>-->
+            <!--                <label>{{'APP_PROVIDER'|translate}}</label>-->
+            <!--                <select clrSelect [(ngModel)]="item.provider" name="provider" required>-->
+            <!--                    <option value='vSphere'>vSphere</option>-->
+            <!--                </select>-->
+            <!--            </clr-select-container>-->
         </form>
         <app-modal-alert></app-modal-alert>
         <div class="modal-footer">

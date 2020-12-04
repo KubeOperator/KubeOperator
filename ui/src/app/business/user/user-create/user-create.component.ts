@@ -5,7 +5,7 @@ import {UserService} from '../user.service';
 import {NgForm} from '@angular/forms';
 import {AlertLevels} from '../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../shared/common-component/modal-alert/modal-alert.service';
-import {NamePattern, NamePatternHelper, PasswordPattern} from '../../../constant/pattern';
+import {NamePattern, PasswordPattern} from '../../../constant/pattern';
 import {CommonAlertService} from '../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 
@@ -22,8 +22,6 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
     item: UserCreateRequest = new UserCreateRequest();
     passwordPattern = PasswordPattern;
     namePattern = NamePattern;
-    namePatternHelper = NamePatternHelper;
-    isPasswordMatch = false;
     @ViewChild('userForm') userForm: NgForm;
     @Output() created = new EventEmitter();
 
@@ -70,7 +68,6 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
             return;
         }
         this.validationStateMap[key] = true;
-        
         if (this.userForm.form.get('password').value === this.userForm.form.get('name').value) {
             this.userForm.controls['password'].setErrors({namePwdError: false});
             this.validationStateMap['namePwd'] = false;

@@ -14,7 +14,7 @@ import {ZoneService} from '../../zone/zone.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ProjectService} from '../../../project/project.service';
 import {Project} from '../../../project/project';
-import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
+import {NamePattern} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-plan-create',
@@ -24,7 +24,6 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 export class PlanCreateComponent extends BaseModelDirective<Plan> implements OnInit {
 
     namePattern = NamePattern;
-    namePatternHelper = NamePatternHelper;
     opened = false;
     regions: Region[] = [];
     zones: Zone[] = [];

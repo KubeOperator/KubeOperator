@@ -1,12 +1,12 @@
 import {Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {CredentialCreateRequest} from '../credential';
-import {AbstractControl, FormBuilder, FormGroup, NgForm, Validators} from '@angular/forms';
+import {NgForm} from '@angular/forms';
 import {CredentialService} from '../credential.service';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {ModalAlertService} from '../../../../shared/common-component/modal-alert/modal-alert.service';
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
-import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
+import {NamePattern} from '../../../../constant/pattern';
 
 @Component({
     selector: 'app-credential-create',
@@ -16,7 +16,6 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 export class CredentialCreateComponent implements OnInit {
 
     namePattern = NamePattern;
-    namePatternHelper = NamePatternHelper;
     opened = false;
     isSubmitGoing = false;
     item: CredentialCreateRequest = new CredentialCreateRequest();

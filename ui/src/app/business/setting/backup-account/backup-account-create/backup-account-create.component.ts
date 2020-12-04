@@ -7,7 +7,7 @@ import {ModalAlertService} from '../../../../shared/common-component/modal-alert
 import {CommonAlertService} from '../../../../layout/common-alert/common-alert.service';
 import {TranslateService} from '@ngx-translate/core';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
-import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
+import {NamePattern} from '../../../../constant/pattern';
 
 
 @Component({
@@ -18,7 +18,6 @@ import {NamePattern, NamePatternHelper} from '../../../../constant/pattern';
 export class BackupAccountCreateComponent extends BaseModelDirective<BackupAccount> implements OnInit {
 
     namePattern = NamePattern;
-    namePatternHelper = NamePatternHelper;
     opened = false;
     isSubmitGoing = false;
     getBucketGoing = false;
