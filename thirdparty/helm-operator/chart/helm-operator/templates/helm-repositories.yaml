@@ -1,9 +1,0 @@
-{{- if .Values.configureRepositories.repositories -}}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.configureRepositories.secretName }}
-type: Opaque
-data:
-  repositories.yaml: {{ include "helm-operator.customRepositories" . | b64enc }}
-{{- end -}}

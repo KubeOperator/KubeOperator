@@ -8,7 +8,6 @@ require (
 	github.com/KubeOperator/FusionComputeGolangSDK v0.0.2
 	github.com/KubeOperator/kobe v0.0.8
 	github.com/KubeOperator/kotf v0.0.8
-	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
@@ -23,8 +22,6 @@ require (
 	github.com/elazarl/goproxy/ext v0.0.0-20190421051319-9d40249d3c2f // indirect
 	github.com/fairwindsops/polaris v0.0.0-20201005190522-9cce9fcec757
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
-	github.com/fluxcd/flux v1.17.2-0.20200121140732-3903cf8e71c3
-	github.com/fluxcd/helm-operator v1.0.0-rc6
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/go-ldap/ldap v3.0.3+incompatible
@@ -47,6 +44,7 @@ require (
 	github.com/kataras/iris/v12 v12.1.8
 	github.com/klauspost/compress v1.10.8 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.3 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mojocn/base64Captcha v1.3.1
@@ -55,6 +53,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
+	github.com/robfig/cron v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.7.0
@@ -76,20 +75,22 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	helm.sh/helm/v3 v3.2.3
 	k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver v0.18.6
 	k8s.io/apimachinery v0.18.8
 	k8s.io/cli-runtime v0.18.6
-	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/client-go v0.18.6
 	k8s.io/kubernetes v1.13.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 )
 
-replace k8s.io/client-go => k8s.io/client-go v0.18.6
+replace (
+	k8s.io/api => k8s.io/api v0.18.8
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.6
+	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
+	k8s.io/client-go => k8s.io/client-go v0.18.6
+)
+
+replace github.com/mattn/go-colorable => github.com/mattn/go-colorable v0.1.8
 
 replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.2
 
-replace (
-	github.com/fluxcd/flux => ./thirdparty/flux
-	github.com/fluxcd/helm-operator => ./thirdparty/helm-operator
-	github.com/fluxcd/helm-operator/pkg/install => ./thirdparty/helm-operator/pkg/install
-)
+replace github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.12

@@ -15,7 +15,7 @@
         <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
         {{ 'APP_USER_MANAGEMENT' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/multicluster">
+    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin && hasLicense" routerLink="/multicluster">
         <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
         {{'APP_MULTI_CLUSTER'|translate}}
     </a>
