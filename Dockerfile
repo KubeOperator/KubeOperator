@@ -48,7 +48,7 @@ RUN wget https://github.com/FairwindsOps/polaris/archive/1.2.1.tar.gz -O ./polar
     && tar zxvf ./polaris.tar.gz \
     && mv ./polaris-1.2.1/checks/ /checks
 
-RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-amd64.tar.gz && https://dl.k8s.io/v1.18.6/kubernetes-client-linux-arm64.tar.gz
+RUN wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-amd64.tar.gz && wget https://dl.k8s.io/v1.18.6/kubernetes-client-linux-arm64.tar.gz
 RUN tar -zvxf kubernetes-client-linux-amd64.tar.gz && tar -zvxf kubernetes-client-linux-arm64.tar.gz
 RUN cp ./kubernetes/client/bin/* /usr/local/bin
 
