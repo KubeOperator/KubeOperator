@@ -1,21 +1,22 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <h2> {{ 'APP_LOGGING' | translate }}</h2>
-        <clr-datagrid [clrDgLoading]="loading">
-            <clr-dg-action-bar>
-                <div style="display: inline-flexbox;" >
-                    <div>
-                        <div class="clr-select-wrapper" style="display: inline;float:left;">
-                            <select class="clr-select" (change)="refresh()" [(ngModel)]="queryOption">
-                                <option value="name">{{'APP_NAME'|translate}}</option>
-                                <option value="operation">{{'APP_OPERATION'|translate}}</option>
-                                <option value="operationInfo">{{'APP_OPERATION_INFO'|translate}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <input style="float:left;margin-left: 50px;" clrInput name="queryInfo" (keyup)="refresh()" [(ngModel)]="queryInfo" />
-                </div>
-            </clr-dg-action-bar>
+        <div class="action-head-pos">
+            <div class="select filter-tag clr-select-wrapper" [hidden]="!isOpenFilterTag">
+                <select id="selectKey" (change)="selectFilterKey($event)">
+                    <option value="name">{{'APP_NAME'|translate}}</option>
+                    <option value="operation">{{'APP_OPERATION'|translate}}</option>
+                    <option value="operationInfo">{{'APP_OPERATION_INFO'|translate}}</option>
+                </select>
+            </div>
+            <ko-filter [withDivider]="true" filterPlaceholder='{{"APP_LOG_FILTER" | translate}}' (filterEvt)="doFilter($event)"
+                (openFlag)="openFilter($event)" [currentValue]="currentTerm"></ko-filter>
+            <span (click)="refresh()" class="refresh-btn">
+                <clr-icon shape="refresh" [hidden]="inProgress" ng-disabled="inProgress"></clr-icon>
+                <span class="spinner spinner-inline" [hidden]="!inProgress"></span>
+            </span>
+        </div>
+        <clr-datagrid  (clrDgRefresh)="load($event)" [clrDgLoading]="loading">
             <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION'|translate}}</clr-dg-column>
             <clr-dg-column>{{'APP_OPERATION_INFO'|translate}}</clr-dg-column>
@@ -28,8 +29,7 @@
                 <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
             </clr-dg-row>
             <clr-dg-footer>
-                <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
-                                   (clrDgPageChange)="refresh()">
+                <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total">
                     {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
                     {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_LOGGING"|translate}}
                 </clr-dg-pagination>

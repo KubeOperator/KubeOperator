@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {SystemLogService} from './system-log.service';
 import {TranslateService} from '@ngx-translate/core';
+import { ClrDatagridStateInterface } from '@clr/angular';
 
 @Component({
     selector: 'app-system-log',
@@ -13,16 +14,53 @@ export class SystemLogComponent implements OnInit {
     page = 1;
     size = 15;
     items = [];
-    queryOption = 'name';
-    queryInfo = '';
+    defaultFilter = 'name';
+    currentTerm: string = '';
+    isOpenFilterTag: boolean;
     constructor(private service: SystemLogService, public translate: TranslateService) {}
 
     ngOnInit(): void {
-        this.refresh();
     }
-    refresh() {
+    
+    get inProgress(): boolean {
+        return this.loading;
+    }
+
+    public doFilter(terms: string): void {
+        // allow search by null characters
+        if (terms === undefined || terms === null) {
+            return;
+        }
+        this.currentTerm = terms.trim();
         this.loading = true;
-        this.service.list(this.page, this.size, this.queryOption, this.queryInfo).subscribe(data => {
+        this.page = 1;
+        this.total = 0;
+        this.load();
+    }
+
+    refresh(): void {
+        this.doFilter("");
+    }
+
+    filter() {
+        this.load();
+    }
+
+    openFilter(isOpen: boolean) {
+        this.isOpenFilterTag = isOpen;
+    }
+
+    selectFilterKey($event: any): void {
+        this.defaultFilter = $event['target'].value;
+        this.doFilter(this.currentTerm);
+    }
+
+    load(state?: ClrDatagridStateInterface) {
+        if (state && state.page) {
+            this.size = state.page.size;
+        }
+        this.loading = true;
+        this.service.list(this.page, this.size, this.defaultFilter, this.currentTerm).subscribe(data => {
             const currentLanguage = localStorage.getItem('currentLanguage') || this.translate.getBrowserCultureLang();
             this.items = data.items;
             if (this.items != null) {
@@ -37,5 +75,6 @@ export class SystemLogComponent implements OnInit {
             this.total = data.total;
             this.loading = false;
         });
+        this.loading = false;
     }
 }

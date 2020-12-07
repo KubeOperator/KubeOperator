@@ -564,5 +564,6 @@
   "APP_BRANCH": "Branch",
   "APP_RESOURCE_NAME": "Resource Name",
   "APP_SOURCE_FILE": "Source File",
-  "APP_RESULT": "Result"
+  "APP_RESULT": "Result",
+  "APP_LOG_FILTER": "Filter Logs"
 }

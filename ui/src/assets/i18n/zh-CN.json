@@ -568,5 +568,6 @@
   "APP_START_REFRESH": "启用刷新",
   "APP_STOP_REFRESH": "停止刷新",
   "APP_REGION_NAME_HELPER": "支持中文英文数字、下划线,且不以数字开头",
-  "APP_VM_CONFIG_NAME_HELPER": "支持英文和数字"
+  "APP_VM_CONFIG_NAME_HELPER": "支持英文和数字",
+  "APP_LOG_FILTER": "日志过滤"
 }
