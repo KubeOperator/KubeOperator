@@ -14,10 +14,10 @@
             <label>{{'APP_SMTP_USERNAME'|translate}}</label>
             <input clrInput name="smtp_username" [(ngModel)]="item.vars['SMTP_USERNAME']" size=45 required/>
         </clr-input-container>
-        <clr-password-container>
+        <clr-input-container>
             <label>{{'APP_SMTP_PASSWORD'|translate}}</label>
-            <input clrPassword name="smtp_password" [(ngModel)]="item.vars['SMTP_PASSWORD']" size=45 required/>
-        </clr-password-container>
+            <input clrInput  type="password" name="smtp_password" [(ngModel)]="item.vars['SMTP_PASSWORD']" size=45 required/>
+        </clr-input-container>
         <clr-input-container>
             <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
             <input clrInput name="weixin_test" [(ngModel)]="item.vars['SMTP_TEST_USER']" size=45/>

@@ -41,6 +41,7 @@ export class ClusterConditionComponent implements OnInit {
                 if (co.message.length !== 0) {
                     let msgItem = JSON.stringify(co.message);
                     co.message = msgItem.replace(/[\\]/g, '');
+                    co.message = (co.message === '"waiting process"') ? '' : co.message;
                 }
             }
             this.item = data;
@@ -86,6 +87,7 @@ export class ClusterConditionComponent implements OnInit {
                     if (co.message.length !== 0) {
                         let msgItem = JSON.stringify(co.message);
                         co.message = msgItem.replace(/[\\]/g, '');
+                        co.message = (co.message === '"waiting process"') ? '' : co.message;
                     }
                 }
                 if (this.item.phase !== 'Running') {

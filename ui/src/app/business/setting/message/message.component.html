@@ -4,20 +4,20 @@
         <button clrTabLink (click)="changeTab('WORK_WEIXIN')">{{'APP_WORK_WEIXIN_TAB'|translate}}</button>
         <clr-tab-content *clrIfActive>
             <form clrForm #wechatForm="ngForm">
-                <clr-password-container>
+                <clr-input-container>
                     <label>corpid</label>
-                    <input clrPassword name="weixin_corp_id" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_ID']" size=45
+                    <input clrInput type="password" name="weixin_corp_id" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_ID']" size=45
                            required/>
-                </clr-password-container>
+                </clr-input-container>
                 <clr-input-container>
                     <label>agentid</label>
                     <input clrInput name="weixin_agentid" [(ngModel)]="item.vars['WORK_WEIXIN_AGENT_ID']" size=45 required/>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>secret</label>
-                    <input clrPassword name="weixin_secret" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_SECRET']" size=45
+                    <input clrInput type="password" name="weixin_secret" [(ngModel)]="item.vars['WORK_WEIXIN_CORP_SECRET']" size=45
                            required/>
-                </clr-password-container>
+                </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
                     <input clrInput name="weixin_test" [(ngModel)]="item.vars['WORK_WEIXIN_TEST_USER']" size=45/>
@@ -57,11 +57,11 @@
                     <input clrInput name="dingtalk_webhook" [(ngModel)]="item.vars['DING_TALK_WEBHOOK']" size=100
                            required/>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>secret</label>
-                    <input clrPassword name="dingtalk_secret" [(ngModel)]="item.vars['DING_TALK_SECRET']" size=100
+                    <input clrInput type="password" name="dingtalk_secret" [(ngModel)]="item.vars['DING_TALK_SECRET']" size=100
                            required/>
-                </clr-password-container>
+                </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_WORK_WEIXIN_USER'|translate}}</label>
                     <input clrInput name="dingtalk_test" [(ngModel)]="item.vars['DING_TALK_TEST_USER']" size=45 required/>

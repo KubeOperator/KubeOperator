@@ -44,14 +44,14 @@
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_FUSION_USER_HELPER'|translate}}</clr-control-helper>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>{{'APP_REGION_FUSION_PASSWORD'|translate}}</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.regionVars['password']"
+                    <input clrInput size=45 type="password" [(ngModel)]="item.regionVars['password']"
                            name="fcPassword"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_FUSION_PASSWORD_HELPER'|translate}}</clr-control-helper>
-                </clr-password-container>
+                </clr-input-container>
                 <button class="btn" [disabled]="paramsForm.invalid" [clrLoading]="isParamsCheckGoing" (click)="onCheckParams()">
                     {{'APP_REGION_VCENTER_CHECK'|translate}}
                 </button>
@@ -82,14 +82,14 @@
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_USER_HELP'|translate}}</clr-control-helper>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>{{'APP_PASSWORD'|translate}}</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.regionVars['password']"
+                    <input clrInput size=45 type="password" [(ngModel)]="item.regionVars['password']"
                            name="vcPassword"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_REGION_VCENTER_PASSWORD_HELP'|translate}}</clr-control-helper>
-                </clr-password-container>
+                </clr-input-container>
                 <button class="btn" [disabled]="paramsForm.invalid || isParamsCheckGoing" (click)="onCheckParams()">
                     <i *ngIf="isParamsCheckGoing" class="fa fa-spinner fa-pulse"></i>
                     {{'APP_REGION_VCENTER_CHECK'|translate}}
@@ -116,14 +116,14 @@
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_USERNAME'|translate}}</clr-control-helper>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>{{'APP_PASSWORD'|translate}}</label>
-                    <input clrPassword type="text" size=45 [(ngModel)]="item.regionVars['password']"
+                    <input clrInput type="password" size=45 [(ngModel)]="item.regionVars['password']"
                            name="openstack_password"
                            required>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                     <clr-control-helper>{{'APP_OPENSTACK_PASSWORD'|translate}}</clr-control-helper>
-                </clr-password-container>
+                </clr-input-container>
                 <clr-input-container>
                     <label>{{'APP_OPENSTACK_PROJECT'|translate}}</label>
                     <input clrInput type="text" size=45 [(ngModel)]="item.regionVars['projectId']" name="projectId"

@@ -16,11 +16,11 @@
                        [(ngModel)]="loginCredential.username"
                        required/>
             </clr-input-container>
-            <clr-password-container>
+            <clr-input-container>
                 <label class="clr-sr-only">{{'APP_PASSWORD'|translate}}</label>
-                <input type="password" name="password" clrPassword placeholder="Password"
+                <input type="password" name="password" clrInput placeholder="Password"
                        [(ngModel)]="loginCredential.password" required autocomplete/>
-            </clr-password-container>
+            </clr-input-container>
             <div>
                 <img width="120" src="{{captcha.image}}" (click)="createCaptcha()" *ngIf="hasCode">
                 <clr-input-container *ngIf="hasCode" style="width: 120px;">

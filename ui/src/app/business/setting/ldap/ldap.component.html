@@ -14,10 +14,10 @@
                 <input clrInput [(ngModel)]="item.vars['ldap_username']" name="username" size=45/>
                 <clr-control-helper>{{'APP_LDAP_USERNAME_HELPER'|translate}}</clr-control-helper>
             </clr-input-container>
-            <clr-password-container>
+            <clr-input-container>
                 <label>{{"APP_LDAP_PASSWORD"|translate}}</label>
-                <input clrPassword size="45" name="password" [(ngModel)]="item.vars['ldap_password']"/>
-            </clr-password-container>
+                <input clrInput  type="password" size="45" name="password" [(ngModel)]="item.vars['ldap_password']"/>
+            </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_LDAP_DN'|translate}}</label>
                 <input clrInput [(ngModel)]="item.vars['ldap_dn']" name="dn" size=45/>

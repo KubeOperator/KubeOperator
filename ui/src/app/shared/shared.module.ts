@@ -7,11 +7,12 @@ import {ZoneStatusPipe} from './pipe/zone-status.pipe';
 import {CommonStatusPipe} from './pipe/common-status.pipe';
 import {BackupAccountStatusPipe} from './pipe/backup-account-status.pipe';
 import { UserTypePipe } from './pipe/user-type.pipe';
+import { EmailShowPipe } from './pipe/email-show.pipe';
 import { MessageTypePipe } from './pipe/message-type.pipe';
 
 
 @NgModule({
-    declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, CommonStatusPipe, BackupAccountStatusPipe, UserTypePipe, MessageTypePipe
+    declarations: [ModalAlertComponent, K8sPaginationComponent, ZoneStatusPipe, CommonStatusPipe, BackupAccountStatusPipe, UserTypePipe,EmailShowPipe, MessageTypePipe
     ],
     exports: [
         ModalAlertComponent,
@@ -20,6 +21,7 @@ import { MessageTypePipe } from './pipe/message-type.pipe';
         CommonStatusPipe,
         BackupAccountStatusPipe,
         UserTypePipe,
+        EmailShowPipe,
         MessageTypePipe
     ],
     imports: [

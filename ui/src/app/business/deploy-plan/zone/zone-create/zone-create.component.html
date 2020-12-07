@@ -174,12 +174,12 @@
                                        required>
                                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             </clr-input-container>
-                            <clr-password-container>
+                            <clr-input-container>
                                 <label>{{'APP_NFS_PASSWORD'|translate}}</label>
-                                <input clrPassword size=45 type="password" [(ngModel)]="item.cloudVars['nfsPassword']" name="nfsPassword"
+                                <input clrInput size=45 type="password" [(ngModel)]="item.cloudVars['nfsPassword']" name="nfsPassword"
                                        required>
                                 <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            </clr-password-container>
+                            </clr-input-container>
                         </div>
                         <div *ngIf="item.cloudVars['templateType'] === 'customize'">
                             <clr-select-container>

@@ -19,11 +19,11 @@
                     <input clrInput size=45 type="text" [(ngModel)]="item.credentialVars['accessKey']" name="accessKey"
                            required>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>SecretKey</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.credentialVars['secretKey']"
+                    <input clrInput size=45 type="password" [(ngModel)]="item.credentialVars['secretKey']"
                            name="secretKey" required>
-                </clr-password-container>
+                </clr-input-container>
                 <div *ngIf="item.type=='S3'">
                     <clr-input-container>
                         <label>{{'APP_REGION'|translate}}</label>
@@ -39,12 +39,12 @@
                            name="accountName"
                            required>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>{{'APP_BACKUP_ACCOUNT_KEY'|translate}}</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.credentialVars['accountKey']"
+                    <input clrInput size=45 type="password" [(ngModel)]="item.credentialVars['accountKey']"
                            name="accountKey"
                            required>
-                </clr-password-container>
+                </clr-input-container>
             </div>
             <div *ngIf="item.type!='SFTP'">
                 <clr-input-container>
@@ -92,11 +92,11 @@
                     <input clrInput size=45 type="text" [(ngModel)]="item.credentialVars['username']"
                            name="username" required>
                 </clr-input-container>
-                <clr-password-container>
+                <clr-input-container>
                     <label>{{'APP_LDAP_PASSWORD'|translate}}</label>
-                    <input clrPassword size=45 type="password" [(ngModel)]="item.credentialVars['password']"
+                    <input clrInput size=45 type="password" [(ngModel)]="item.credentialVars['password']"
                            name="password" required>
-                </clr-password-container>
+                </clr-input-container>
                 <clr-input-container>
                     <label>{{'BACKUP_PATH'|translate}}</label>
                     <input clrInput size=45 maxlength="100" type="text" [(ngModel)]="item.bucket"

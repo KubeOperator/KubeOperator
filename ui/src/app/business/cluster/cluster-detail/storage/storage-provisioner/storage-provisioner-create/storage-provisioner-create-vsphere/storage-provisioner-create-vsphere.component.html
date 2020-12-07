@@ -15,10 +15,10 @@
                 <input clrInput [(ngModel)]="item.vars['vc_username']" name="vc_username" size="34" required>
             </clr-input-container>
 
-            <clr-password-container>
+            <clr-input-container>
                 <label>vCenter {{"APP_PASSWORD"|translate}}</label>
-                <input clrPassword [(ngModel)]="item.vars['vc_password']" name="vc_password" size="34" required>
-            </clr-password-container>
+                <input clrInput type="password" [(ngModel)]="item.vars['vc_password']" name="vc_password" size="34" required>
+            </clr-input-container>
 
             <clr-input-container>
                 <label>vCenter {{"APP_HOST"|translate}}</label>
