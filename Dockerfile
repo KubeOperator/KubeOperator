@@ -10,7 +10,7 @@ ENV GO111MODULE=on
 ENV GOOS=linux
 ENV CGO_ENABLED=1
 
-RUN apt update && apt install unzip
+RUN apt-get update && apt-get install unzip
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -35,7 +35,7 @@ FROM ubuntu:18.04
 
 ARG GOARCH
 
-RUN apt update && apt install wget curl -y
+RUN apt-get update && apt-get -y install wget curl git
 
 WORKDIR /usr/local/bin
 
