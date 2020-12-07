@@ -29,7 +29,7 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item" [clrDgSelectable]="item.userName!==user.name">
         <clr-dg-cell>{{item.userName}}</clr-dg-cell>
-        <clr-dg-cell>{{item.email}}</clr-dg-cell>
+        <clr-dg-cell>{{item.email | emailShow}}</clr-dg-cell>
         <clr-dg-cell>{{item.role | translate}}</clr-dg-cell>
         <clr-dg-cell>{{item.createdAt |date:'yyyy-MM-dd HH:mm:ss'}}</clr-dg-cell>
     </clr-dg-row>

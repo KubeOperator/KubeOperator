@@ -55,10 +55,10 @@
                 <input clrInput [(ngModel)]="item.vars['oceanstor_user']" name="oceanstor_user" size="34"
                        required>
             </clr-input-container>
-            <clr-password-container>
+            <clr-input-container>
                 <label>{{"APP_PASSWORD"|translate}}</label>
-                <input clrPassword [size]="32" name="password" [(ngModel)]="item.vars['oceanstor_password']" required/>
-            </clr-password-container>
+                <input clrInput type="password" [size]="32" name="password" [(ngModel)]="item.vars['oceanstor_password']" required/>
+            </clr-input-container>
             <clr-input-container>
                 <label>{{"APP_OCEAN_POOL"|translate}}</label>
                 <input clrInput [size]="32" name="oceanstor_pools" [(ngModel)]="item.vars['oceanstor_pools']"

@@ -11,11 +11,11 @@
                 <label>{{'APP_F5_USER'|translate}}</label>
                 <input clrInput placeholder="admin" name="user" size="25"  [(ngModel)]="item.user" required/>
             </clr-input-container>
-            <clr-password-container>
+            <clr-input-container>
                 <label>{{'APP_F5_PASSWORD'|translate}}</label>
-                <input clrPassword placeholder="Password" name="password" size="25"  [(ngModel)]="item.password" required/>
+                <input clrInput  type="password" placeholder="Password" name="password" size="25"  [(ngModel)]="item.password" required/>
                 <clr-control-error>{{'APP_F5_PASSWORD_ERROR_MSG'|translate}}</clr-control-error>
-            </clr-password-container>
+            </clr-input-container>
             <clr-input-container>
                 <label>{{'APP_F5_PARTITION'|translate}}</label>
                 <input clrInput placeholder="Partition Name" name="partition" size="25"  [(ngModel)]="item.partition" required/>

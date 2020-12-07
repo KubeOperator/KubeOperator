@@ -25,7 +25,7 @@
 
     <clr-dg-row *clrDgItems="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
-        <clr-dg-cell>{{item.email}}</clr-dg-cell>
+        <clr-dg-cell>{{item.email | emailShow}}</clr-dg-cell>
         <clr-dg-cell>{{item.type | userType}}</clr-dg-cell>
         <clr-dg-cell>
             <input clrToggle type="checkbox" name="supper" [(ngModel)]="item.isActive" (change)="updateUser(item)"/>
