@@ -132,13 +132,15 @@ func getPhase(provisioner model.ClusterStorageProvisioner) phases.Interface {
 		}
 	case "oceanstor":
 		p = &storage.OceanStorPhase{
-			OceanStorType:     fmt.Sprintf("%v", vars["oceanstor_type"]),
-			OceanstorProduct:  fmt.Sprintf("%v", vars["oceanstor_product"]),
-			OceanstorURLs:     fmt.Sprintf("%v", vars["oceanstor_urls"]),
-			OceanstorUser:     fmt.Sprintf("%v", vars["oceanstor_user"]),
-			OceanstorPassword: fmt.Sprintf("%v", vars["oceanstor_password"]),
-			OceanstorPools:    fmt.Sprintf("%v", vars["oceanstor_pools"]),
-			OceanstorPortal:   fmt.Sprintf("%v", vars["oceanstor_portal"]),
+			OceanStorType:           fmt.Sprintf("%v", vars["oceanstor_type"]),
+			OceanstorProduct:        fmt.Sprintf("%v", vars["oceanstor_product"]),
+			OceanstorURLs:           fmt.Sprintf("%v", vars["oceanstor_urls"]),
+			OceanstorUser:           fmt.Sprintf("%v", vars["oceanstor_user"]),
+			OceanstorPassword:       fmt.Sprintf("%v", vars["oceanstor_password"]),
+			OceanstorPools:          fmt.Sprintf("%v", vars["oceanstor_pools"]),
+			OceanstorPortal:         fmt.Sprintf("%v", vars["oceanstor_portal"]),
+			OceanstorControllerType: fmt.Sprintf("%v", vars["oceanstor_controller_type"]),
+			OceanstorIsMultipath:    fmt.Sprintf("%v", vars["oceanstor_is_multipath"]),
 		}
 	}
 

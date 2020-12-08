@@ -368,6 +368,9 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 		return nil, err
 	}
 	rows := xlsx.GetRows("Sheet1")
+	if len(rows) == 0 {
+		return nil, errors.New("HOST_IMPORT_ERROR_NULL")
+	}
 	var hosts []model.Host
 	var errMsg string
 	var failedNum int
@@ -393,8 +396,8 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 			continue
 		}
 		host := model.Host{
-			Name:         row[0],
-			Ip:           row[1],
+			Name:         strings.Trim(row[0], " "),
+			Ip:           strings.Trim(row[1], " "),
 			Port:         port,
 			CredentialID: credential.ID,
 			Status:       constant.ClusterInitializing,

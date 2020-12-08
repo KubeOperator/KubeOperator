@@ -582,5 +582,7 @@
   "APP_LOG_FILTER": "日志过滤",
   "APP_MENU": "菜单",
   "APP_RENAME": "重命名",
-  "APP_GPU_INFO": "显卡信息"
+  "APP_GPU_INFO": "显卡信息",
+  "APP_LOG_FILTER": "日志过滤",
+  "APP_HOST_IMPORT_FILE_ERROR": "不支持的文件格式"
 }

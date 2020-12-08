@@ -21,6 +21,8 @@ DELETE_HOST_FAILED_BY_PROJECT: "Failed to delete! The host is already associated
 SYSTEM_IP_NOT_FOUND: "Please fill in the local IP first！"
 NO_IP_AVAILABLE: "No Ip available"
 IS_LOCAL_HOST: "can not import local host"
+HOST_IMPORT_ERROR_NULL: "No data to import was found! Please check the import file!"
+
 
 #user
 PASSWORD_NOT_MATCH: "The password is incorrect"
