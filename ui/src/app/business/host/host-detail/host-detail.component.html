@@ -20,10 +20,10 @@
             </clr-datagrid>
             <br/>
                         <div *ngIf="item.hasGpu">
-                            <h5>显卡信息</h5>
+                            <h5>{{'APP_GPU_INFO'|translate}}</h5>
                             <hr/>
                             <clr-datagrid>
-                                <clr-dg-column>名称</clr-dg-column>
+                                <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
                                 <clr-dg-row>
                                     <clr-dg-cell>{{item.gpuInfo}}</clr-dg-cell>
                                 </clr-dg-row>

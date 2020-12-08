@@ -99,7 +99,7 @@ export class ClusterListComponent extends BaseModelDirective<Cluster> implements
 
     onUpgrade(item: Cluster) {
         if (item.source !== 'local') {
-            this.commonAlert.showAlert(this.translateService.instant('APP_LOCAL_CLUSTER_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
+            this.commonAlert.showAlert(this.translateService.instant('APP_CLUSTER_IMPORT_CAN_NOT_UPGRADE'), AlertLevels.ERROR);
             return;
         }
         if (item.status !== 'Running') {

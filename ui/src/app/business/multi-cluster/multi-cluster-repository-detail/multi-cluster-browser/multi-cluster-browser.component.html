@@ -27,20 +27,20 @@
                                 <clr-icon shape="caret down"></clr-icon>
                             </button>
                             <clr-dropdown-menu *clrIfOpen>
-                                <label class="dropdown-header" aria-hidden="true">选项</label>
+                                <label class="dropdown-header" aria-hidden="true">{{'APP_OPTION'|translate}}</label>
                                 <clr-dropdown *ngIf="file.dir">
-                                    <button clrDropdownTrigger>新建</button>
+                                    <button clrDropdownTrigger>{{'APP_ADD'|translate}}</button>
                                     <clr-dropdown-menu>
-                                        <button clrDropdownItem (click)="openCreate(file,'file')">文件</button>
-                                        <button clrDropdownItem (click)="openCreate(file,'dir')">目录</button>
+                                        <button clrDropdownItem (click)="openCreate(file,'file')">{{'APP_FILE'|translate}}</button>
+                                        <button clrDropdownItem (click)="openCreate(file,'dir')">{{'APP_MENU'|translate}}</button>
                                     </clr-dropdown-menu>
                                 </clr-dropdown>
                                 <div aria-label="Dropdown header Action 1" (click)="onOpenFile(file)" *ngIf="!file.dir"
-                                     clrDropdownItem>编辑
+                                     clrDropdownItem>{{'APP_EDIT'|translate}}
                                 </div>
-                                <div aria-label="Dropdown header Action 1" clrDropdownItem (click)="openDelete(file)">删除
+                                <div aria-label="Dropdown header Action 1" clrDropdownItem (click)="openDelete(file)">{{'APP_DELETE'|translate}}
                                 </div>
-                                <div aria-label="Dropdown header Action 2" clrDropdownItem>重命名</div>
+                                <div aria-label="Dropdown header Action 2" clrDropdownItem>{{'APP_RENAME'|translate}}</div>
 
                             </clr-dropdown-menu>
                         </clr-dropdown>
