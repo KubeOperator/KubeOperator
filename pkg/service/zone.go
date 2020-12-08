@@ -136,7 +136,7 @@ func (z zoneService) Create(creation dto.ZoneCreate) (*dto.Zone, error) {
 		case constant.VSphere:
 			param["imageName"] = constant.VSphereImageName
 		case constant.FusionCompute:
-			param["imageName"] = constant.FusionComputeImageName
+			param["template"] = constant.FusionComputeImageName
 		default:
 			param["imageName"] = constant.VSphereImageName
 		}
