@@ -28,6 +28,7 @@ export class HostImportComponent implements OnInit {
 
     open() {
         this.opened = true;
+        this.errMsg = '';
     }
 
     onCancel() {
