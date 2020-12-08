@@ -74,7 +74,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 		namespace = itemValue.(string)
 	}
 
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace, namespace)
 	if err != nil {
 		return tool, err
 	}
@@ -89,6 +89,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	if err != nil {
 		return tool, err
 	}
+
 	tool.ClusterID = cluster.ID
 	mo := tool.ClusterTool
 	buf, _ := json.Marshal(&tool.Vars)
@@ -112,14 +113,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 		return tool, err
 	}
 
-	itemValue, ok := tool.Vars["namespace"]
-	namespace := ""
-	if !ok {
-		namespace = constant.DefaultNamespace
-	} else {
-		namespace = itemValue.(string)
-	}
-
+	oldNamespace, namespace := c.getNamespace(clusterName, tool)
 	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if ns.ObjectMeta.Name == "" {
 		n := &v1.Namespace{
@@ -132,7 +126,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, oldNamespace, namespace)
 	if err != nil {
 		return tool, err
 	}
@@ -157,4 +151,26 @@ func (c clusterToolService) doUninstall(p tools.Interface, tool *model.ClusterTo
 	_ = p.Uninstall()
 	tool.Status = constant.ClusterWaiting
 	_ = c.toolRepo.Save(tool)
+}
+
+func (c clusterToolService) getNamespace(clusterName string, tool dto.ClusterTool) (string, string) {
+	namespace := ""
+	Sp, ok := tool.Vars["namespace"]
+	if !ok {
+		namespace = constant.DefaultNamespace
+	} else {
+		namespace = Sp.(string)
+	}
+	oldTools, err := c.toolRepo.Get(clusterName, tool.Name)
+	if err != nil {
+		return namespace, namespace
+	}
+	oldVars := map[string]interface{}{}
+	_ = json.Unmarshal([]byte(oldTools.Vars), &oldVars)
+	oldSp, ok := oldVars["namespace"]
+	if !ok {
+		return namespace, namespace
+	} else {
+		return oldSp.(string), namespace
+	}
 }
