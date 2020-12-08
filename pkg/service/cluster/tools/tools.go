@@ -26,13 +26,14 @@ type Interface interface {
 }
 
 type Cluster struct {
-	Namespace string
+	OldNamespace string
+	Namespace    string
 	model.Cluster
 	HelmClient helm.Interface
 	KubeClient *kubernetes.Clientset
 }
 
-func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, namespace string) (*Cluster, error) {
+func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
@@ -40,6 +41,7 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	helmClient, err := helm.NewClient(helm.Config{
 		ApiServer:     fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
 		BearerToken:   secret.KubernetesToken,
+		OldNamespace:  oldNamespace,
 		Namespace:     namespace,
 		Architectures: cluster.Spec.Architectures,
 	})
@@ -59,14 +61,14 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, namespace string) (Interface, error) {
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, oldNamespace, namespace string) (Interface, error) {
 	systemRepo := repository.NewSystemSettingRepository()
 	localIP, err := systemRepo.Get("ip")
 	if err != nil || localIP.Value == "" {
 		return nil, errors.New("invalid system setting: ip")
 	}
 
-	c, err := NewCluster(cluster, endpoint, secret, namespace)
+	c, err := NewCluster(cluster, endpoint, secret, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}
