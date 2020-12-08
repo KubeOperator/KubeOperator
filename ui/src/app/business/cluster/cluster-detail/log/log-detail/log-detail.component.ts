@@ -18,6 +18,7 @@ export class LogDetailComponent implements OnInit {
     }
 
     open(item: ClusterLog) {
+        item.message = item.message.replace(/[\\]/g, '');
         this.item = item;
         this.opened = true;
     }
