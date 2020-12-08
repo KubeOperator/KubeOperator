@@ -9,13 +9,15 @@ import (
 const oceanStor = "10-plugin-cluster-storage-oceanstor.yml"
 
 type OceanStorPhase struct {
-	OceanStorType     string
-	OceanstorProduct  string
-	OceanstorURLs     string
-	OceanstorUser     string
-	OceanstorPassword string
-	OceanstorPools    string
-	OceanstorPortal   string
+	OceanStorType           string
+	OceanstorProduct        string
+	OceanstorURLs           string
+	OceanstorUser           string
+	OceanstorPassword       string
+	OceanstorPools          string
+	OceanstorPortal         string
+	OceanstorControllerType string
+	OceanstorIsMultipath    string
 }
 
 func (o OceanStorPhase) Name() string {
@@ -44,6 +46,11 @@ func (o OceanStorPhase) Run(b kobe.Interface, writer io.Writer) error {
 	if o.OceanstorPortal != "" {
 		b.SetVar("oceanstor_portal", o.OceanstorPortal)
 	}
-
+	if o.OceanstorControllerType != "" {
+		b.SetVar("oceanstor_controller_type", o.OceanstorControllerType)
+	}
+	if o.OceanstorIsMultipath != "" {
+		b.SetVar("oceanstor_is_multipath", o.OceanstorIsMultipath)
+	}
 	return phases.RunPlaybookAndGetResult(b, oceanStor, writer)
 }
