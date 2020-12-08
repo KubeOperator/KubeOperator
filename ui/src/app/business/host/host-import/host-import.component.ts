@@ -28,6 +28,7 @@ export class HostImportComponent implements OnInit {
 
     open() {
         this.opened = true;
+        this.isSubmitGoing = false;
         this.errMsg = '';
     }
 
@@ -36,6 +37,10 @@ export class HostImportComponent implements OnInit {
     }
 
     onSubmit() {
+        if (this.file && this.file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
+            return;
+        }
         const formData = new FormData();
         formData.append('file', this.file);
         this.isSubmitGoing = true;
@@ -47,9 +52,9 @@ export class HostImportComponent implements OnInit {
                 this.import.emit();
             } else {
                 this.errMsg = res.msg;
-                console.log(res.msg);
             }
         }, error => {
+            this.isSubmitGoing = false;
             this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
