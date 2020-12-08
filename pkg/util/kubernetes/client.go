@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	extensionClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 type Config struct {
@@ -13,7 +14,6 @@ type Config struct {
 }
 
 func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
-	var clientSet kubernetes.Clientset
 	kubeConf := &rest.Config{
 		Host:        fmt.Sprintf("%s:%d", c.Host, c.Port),
 		BearerToken: c.Token,
@@ -21,9 +21,17 @@ func NewKubernetesClient(c *Config) (*kubernetes.Clientset, error) {
 			Insecure: true,
 		},
 	}
-	api, err := kubernetes.NewForConfig(kubeConf)
-	if err != nil {
-		return &clientSet, err
+	return kubernetes.NewForConfig(kubeConf)
+}
+
+func NewKubernetesExtensionClient(c *Config) (*extensionClientSet.Clientset, error) {
+	kubeConf := &rest.Config{
+		Host:        fmt.Sprintf("%s:%d", c.Host, c.Port),
+		BearerToken: c.Token,
+		TLSClientConfig: rest.TLSClientConfig{
+			Insecure: true,
+		},
 	}
-	return api, err
+	return extensionClientSet.NewForConfig(kubeConf)
+
 }

@@ -8,7 +8,7 @@ import {Grade} from './grade';
 })
 export class ClusterGradeService {
 
-    baseUrl = '/api/v1/grade';
+    baseUrl = '/api/v1/clusters/grade';
 
     constructor(private http: HttpClient) {
     }
