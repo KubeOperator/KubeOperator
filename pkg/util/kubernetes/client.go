@@ -2,9 +2,9 @@ package kubernetes
 
 import (
 	"fmt"
+	extensionClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	extensionClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 type Config struct {
@@ -33,5 +33,4 @@ func NewKubernetesExtensionClient(c *Config) (*extensionClientSet.Clientset, err
 		},
 	}
 	return extensionClientSet.NewForConfig(kubeConf)
-
 }

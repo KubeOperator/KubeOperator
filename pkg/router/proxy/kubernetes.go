@@ -35,5 +35,11 @@ func KubernetesClientProxy(ctx context.Context) {
 	token := fmt.Sprintf("%s %s", keyPrefix, secret.KubernetesToken)
 	ctx.Request().Header.Add(AuthorizationHeader, token)
 	ctx.Request().URL.Path = proxyPath
+	proxy.ModifyResponse = func(response *http.Response) error {
+		if response.StatusCode == http.StatusUnauthorized {
+			response.StatusCode = http.StatusInternalServerError
+		}
+		return nil
+	}
 	proxy.ServeHTTP(ctx.ResponseWriter(), ctx.Request())
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
@@ -31,7 +32,7 @@ type HostService interface {
 	Sync(name string) (dto.Host, error)
 	Batch(op dto.HostOp) error
 	DownloadTemplateFile() error
-	ImportHosts(file []byte) (*dto.ImportHostResponse, error)
+	ImportHosts(file []byte) error
 }
 
 type hostService struct {
@@ -353,45 +354,46 @@ func (h hostService) DownloadTemplateFile() error {
 	return nil
 }
 
-func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
+func (h hostService) ImportHosts(file []byte) error {
 	f, err := os.Create("./import.xlsx")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer f.Close()
 	err = ioutil.WriteFile("./import.xlsx", file, 0775)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	xlsx, err := excelize.OpenFile("./import.xlsx")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rows := xlsx.GetRows("Sheet1")
 	if len(rows) == 0 {
-		return nil, errors.New("HOST_IMPORT_ERROR_NULL")
+		return errors.New("HOST_IMPORT_ERROR_NULL")
 	}
 	var hosts []model.Host
-	var errMsg string
+	//var errMsg string
 	var failedNum int
+	var errs errorf.CErrFs
 	for index, row := range rows {
 		if index == 0 {
 			continue
 		}
 		if row[0] == "" || row[1] == "" || row[2] == "" || row[3] == "" {
-			errMsg = errMsg + ", index " + strconv.Itoa(index) + " row of data has null values \n"
+			errs = errs.Add(errorf.New("HOST_IMPORT_NULL_VALUE", strconv.Itoa(index)))
 			failedNum++
 			continue
 		}
 		port, err := strconv.Atoi(row[2])
 		if err != nil {
-			errMsg = errMsg + ", index " + strconv.Itoa(index) + " row of data port wrong format \n"
+			errs = errs.Add(errorf.New("HOST_IMPORT_WRONG_FORMAT", strconv.Itoa(index)))
 			failedNum++
 			continue
 		}
 		credential, err := h.credentialRepo.Get(row[3])
 		if err != nil {
-			errMsg = errMsg + ", index " + strconv.Itoa(index) + " get  credential error" + err.Error() + "\n"
+			errs = errs.Add(errorf.New("HOST_IMPORT_CREDENTIAL_NOT_FOUND", strconv.Itoa(index)))
 			failedNum++
 			continue
 		}
@@ -406,23 +408,21 @@ func (h hostService) ImportHosts(file []byte) (*dto.ImportHostResponse, error) {
 		hosts = append(hosts, host)
 	}
 
-	if errMsg != "" {
-		errMsg = "failed import " + strconv.Itoa(failedNum) + "rows \n" + errMsg
+	if len(errs) > 0 {
+		errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_NUM", strconv.Itoa(failedNum)))
 	}
 
 	for _, host := range hosts {
 		err = h.hostRepo.Save(&host)
 		if err != nil {
-			errMsg = errMsg + "failed save host " + host.Name + " reason :" + err.Error() + "\n"
+			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_SAVE", host.Name, err.Error()))
 			continue
 		}
 		go h.RunGetHostConfig(host)
 	}
-	var res dto.ImportHostResponse
-	res.Success = true
-	if errMsg != "" {
-		res.Success = false
-		res.Msg = errMsg
+	if len(errs) > 0 {
+		return errs
+	} else {
+		return nil
 	}
-	return &res, nil
 }

@@ -34,10 +34,18 @@ export class HostImportComponent implements OnInit {
 
     onCancel() {
         this.opened = false;
+        this.errMsg = '';
     }
 
     onSubmit() {
-        if (this.file && this.file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        const startIndex = this.file.name.lastIndexOf('.');
+        if (startIndex !== -1) {
+            const fileType = this.file.name.substring(startIndex + 1, this.file.name.length).toLowerCase();
+            if (fileType !== 'xlsx') {
+                this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
+                return;
+            }
+        } else {
             this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
             return;
         }
@@ -46,16 +54,12 @@ export class HostImportComponent implements OnInit {
         this.isSubmitGoing = true;
         this.hostService.upload(formData).subscribe(res => {
             this.isSubmitGoing = false;
-            if (res.success) {
-                this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-                this.opened = false;
-                this.import.emit();
-            } else {
-                this.errMsg = res.msg;
-            }
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            this.opened = false;
+            this.import.emit();
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.errMsg = error.error.msg;
         });
     }
 

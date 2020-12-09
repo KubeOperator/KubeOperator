@@ -1,6 +1,7 @@
 package dto
 
 import "github.com/KubeOperator/KubeOperator/pkg/model"
+import "github.com/KubeOperator/KubeOperator/pkg/errorf"
 
 type Host struct {
 	model.Host
@@ -26,6 +27,6 @@ type HostOp struct {
 }
 
 type ImportHostResponse struct {
-	Msg     string `json:"msg"`
-	Success bool   `json:"success"`
+	Errs    errorf.CErrFs `json:"errs"`
+	Success bool          `json:"success"`
 }

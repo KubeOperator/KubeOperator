@@ -22,6 +22,16 @@ SYSTEM_IP_NOT_FOUND: "Please fill in the local IP first！"
 NO_IP_AVAILABLE: "No Ip available"
 IS_LOCAL_HOST: "can not import local host"
 HOST_IMPORT_ERROR_NULL: "No data to import was found! Please check the import file!"
+HOST_IMPORT_NULL_VALUE: "Empty data on line %s"
+HOST_IMPORT_WRONG_FORMAT: "Incorrect port format on line %s"
+HOST_IMPORT_CREDENTIAL_NOT_FOUND: "Credential not found on line %s"
+HOST_IMPORT_FAILED_NUM: "A total of %s rows of data are abnormal, skip"
+HOST_IMPORT_FAILED_SAVE: "Failed to save host %s, reason:%s"
+
+
+
+
+
 
 
 #user
