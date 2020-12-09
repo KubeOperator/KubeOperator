@@ -37,6 +37,7 @@ export class HostImportComponent implements OnInit {
     }
 
     onSubmit() {
+        console.log(this.file);
         if (this.file && this.file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
             this.modalAlertService.showAlert(this.translateService.instant('APP_HOST_IMPORT_FILE_ERROR'), AlertLevels.ERROR);
             return;

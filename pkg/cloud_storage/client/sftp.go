@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
 	"net"
 	"os"
 	"path"
@@ -73,14 +74,11 @@ func (s sftpClient) Upload(src, target string) (bool, error) {
 		return false, err
 	}
 	defer dstFile.Close()
-	buf := make([]byte, 2048)
-	for {
-		n, _ := srcFile.Read(buf)
-		if n == 0 {
-			break
-		}
-		dstFile.Write(buf)
+	ff, err := ioutil.ReadAll(srcFile)
+	if err != nil {
+		return false, err
 	}
+	dstFile.Write(ff)
 	return true, nil
 }
 
