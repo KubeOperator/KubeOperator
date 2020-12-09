@@ -47,16 +47,13 @@ export class HostImportComponent implements OnInit {
         this.isSubmitGoing = true;
         this.hostService.upload(formData).subscribe(res => {
             this.isSubmitGoing = false;
-            if (res.success) {
-                this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
-                this.opened = false;
-                this.import.emit();
-            } else {
-                this.errMsg = res.msg;
-            }
+            this.commonAlertService.showAlert(this.translateService.instant('APP_ADD_SUCCESS'), AlertLevels.SUCCESS);
+            this.opened = false;
+            this.import.emit();
         }, error => {
             this.isSubmitGoing = false;
-            this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
+            this.errMsg = error.error.msg;
+            // this.modalAlertService.showAlert(error.error.msg, AlertLevels.ERROR);
         });
     }
 

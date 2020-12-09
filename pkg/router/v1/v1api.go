@@ -2,17 +2,20 @@ package v1
 
 import (
 	"encoding/json"
-	"net/http"
 	"github.com/KubeOperator/KubeOperator/pkg/controller"
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/middleware"
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/mvc"
+	E "github.com/pkg/errors"
+	"net/http"
 )
 
 var AuthScope iris.Party
 var WhiteScope iris.Party
+
 func V1(parent iris.Party) {
 	v1 := parent.Party("/v1")
 	authParty := v1.Party("/auth")
@@ -67,12 +70,27 @@ func ErrorHandler(ctx context.Context, err error) {
 					errorSet[er.Error()] = errorMsg
 				}
 			}
+			for _, set := range errorSet {
+				result = result + set + " "
+			}
 		case error:
-			tr := ctx.Tr(err.Error())
-			if tr != "" {
-				result = tr
-			} else {
-				result = err.Error()
+			switch err := E.Cause(err).(type) {
+			case errorf.CErrFs:
+				errs := err.Get()
+				for _, er := range errs {
+					args := er.Args.([]interface{})
+					tr := ctx.Tr(er.Msg, args...)
+					if tr != "" {
+						result = result + tr + "\n "
+					}
+				}
+			default:
+				tr := ctx.Tr(err.Error())
+				if tr != "" {
+					result = tr
+				} else {
+					result = err.Error()
+				}
 			}
 		}
 		warp.Msg = result

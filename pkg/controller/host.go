@@ -194,14 +194,14 @@ func (h HostController) GetTemplate() error {
 // @Produce  json
 // @Security ApiKeyAuth
 // @Router /hosts/upload/ [post]
-func (h HostController) PostUpload() (*dto.ImportHostResponse, error) {
+func (h HostController) PostUpload() error {
 	f, _, err := h.Ctx.FormFile("file")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	bs, err := ioutil.ReadAll(f)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer f.Close()
 	return h.HostService.ImportHosts(bs)

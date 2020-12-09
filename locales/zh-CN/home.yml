@@ -21,6 +21,11 @@ SYSTEM_IP_NOT_FOUND: "请先填写本机IP！"
 NO_IP_AVAILABLE: "IP 资源不足"
 IS_LOCAL_HOST: "无法导入本机"
 HOST_IMPORT_ERROR_NULL: "未找到可导入的数据！请检查导入文件！"
+HOST_IMPORT_NULL_VALUE: "%s 行有空数据"
+HOST_IMPORT_WRONG_FORMAT: "%s 行端口格式不正确"
+HOST_IMPORT_CREDENTIAL_NOT_FOUND: "%s 行找不到密钥"
+HOST_IMPORT_FAILED_NUM: "共 %s 行数据不正常，跳过"
+HOST_IMPORT_FAILED_SAVE: "主机 %s 保存失败，原因：%s"
 
 
 #user
