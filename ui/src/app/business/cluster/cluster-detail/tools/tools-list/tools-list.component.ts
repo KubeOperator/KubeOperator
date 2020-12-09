@@ -31,20 +31,20 @@ export class ToolsListComponent implements OnInit, OnDestroy {
 
     refresh() {
         this.service.list(this.currentCluster.name).subscribe(data => {
-            let j = 0;
-            let k = 0;
+            let j = -1;
+            let k = -1;
             for (let i = 0; i < data.length; i++) {
+                data[i].isDisable = false;
                 if (data[i].name === 'logging') {
-                    j = i
+                    j = i;
                 } else if(data[i].name === 'loki') {
-                    k = i
-                } else {
-                    data[i].isDisable = false
+                    k = i;
                 }
-                
             }
-            data[k].isDisable = (data[j].status !== 'Waiting')
-            data[j].isDisable = (data[k].status !== 'Waiting')
+            if (j !== -1 && k !== -1) {
+                data[k].isDisable = (data[j].status !== 'Waiting');
+                data[j].isDisable = (data[k].status !== 'Waiting');
+            }
             this.items = data;
         });
     }
