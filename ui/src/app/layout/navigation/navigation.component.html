@@ -11,10 +11,6 @@
         <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
         {{ 'APP_DEPLOY_PLAN' | translate }}
     </a>
-    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/users">
-        <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
-        {{ 'APP_USER_MANAGEMENT' | translate }}
-    </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin && hasLicense" routerLink="/multicluster">
         <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
         {{'APP_MULTI_CLUSTER'|translate}}
@@ -26,6 +22,10 @@
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="hasLicense" routerLink="/message">
         <clr-icon shape="envelope" clrVerticalNavIcon></clr-icon>
         {{ 'APP_SYSTEM_MESSAGE' | translate }}
+    </a>
+    <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/users">
+        <clr-icon shape="user" clrVerticalNavIcon></clr-icon>
+        {{ 'APP_USER_MANAGEMENT' | translate }}
     </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/setting">
         <clr-icon shape="cog" clrVerticalNavIcon></clr-icon>

@@ -535,7 +535,7 @@
   "RESET_PWD": "重置密码",
   "RESET_PWD_HELPER": "请输入接收邮件的邮箱",
   "RESET_PWD_SUCCESS": "重置密码成功！请检查邮件",
-  "APP_MULTI_CLUSTER": "多集群",
+  "APP_MULTI_CLUSTER": "多集群管理",
   "APP_GIT_TIMEOUT": "超时时间(分钟)",
   "APP_CLUSTER_SYNC": "集群同步",
   "APP_CLUSTER_SYNC_INTERVAL": "同步间隔(分钟)",
