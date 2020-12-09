@@ -32,7 +32,7 @@ export class MultiClusterRelationListComponent implements OnInit {
 
     onDelete() {
         const names = [];
-        for (const cluster of this.items) {
+        for (const cluster of this.selected) {
             names.push(cluster.clusterName);
         }
         this.deleteEvent.emit(names);
