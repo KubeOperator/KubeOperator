@@ -84,6 +84,7 @@ func (c Cluster) BeforeDelete() error {
 		Preload("Spec").
 		Preload("Nodes").
 		Preload("Tools").
+		Preload("MultiClusterRepositories").
 		First(&cluster).Error; err != nil {
 		return err
 	}
@@ -241,8 +242,8 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
-	if len(c.MultiClusterRepositories) > 0 {
-		for _, repo := range c.MultiClusterRepositories {
+	if len(cluster.MultiClusterRepositories) > 0 {
+		for _, repo := range cluster.MultiClusterRepositories {
 			if repo.ID != "" {
 				if err := tx.Delete(&repo).Error; err != nil {
 					tx.Rollback()
