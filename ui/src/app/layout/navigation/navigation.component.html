@@ -12,7 +12,7 @@
         {{ 'APP_DEPLOY_PLAN' | translate }}
     </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin && hasLicense" routerLink="/multicluster">
-        <clr-icon shape="clock" clrVerticalNavIcon></clr-icon>
+        <clr-icon shape="data-cluster" clrVerticalNavIcon></clr-icon>
         {{'APP_MULTI_CLUSTER'|translate}}
     </a>
     <a clrVerticalNavLink routerLinkActive="active" *ngIf="user.isAdmin" routerLink="/manifests">
