@@ -244,13 +244,17 @@ func (c Cluster) BeforeDelete() error {
 
 	if len(cluster.MultiClusterRepositories) > 0 {
 		for _, repo := range cluster.MultiClusterRepositories {
-			if repo.ID != "" {
-				if err := tx.Delete(&repo).Error; err != nil {
-					tx.Rollback()
-					return err
-				}
+			var clusterMultiClusterRepository ClusterMultiClusterRepository
+			if err := tx.Where(ClusterMultiClusterRepository{ClusterID: c.ID, MultiClusterRepositoryID: repo.ID}).First(&clusterMultiClusterRepository).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := tx.Delete(&clusterMultiClusterRepository).Error; err != nil {
+				tx.Rollback()
+				return err
 			}
 		}
+
 		var clusterSyncLogs []MultiClusterSyncClusterLog
 		if err := tx.Where(MultiClusterSyncClusterLog{ClusterID: c.ID}).Find(&clusterSyncLogs).Error; err != nil {
 			tx.Rollback()
