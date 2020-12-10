@@ -119,6 +119,7 @@ export class ToolsEnableComponent implements OnInit {
                     'persistence.enabled': false,
                     'env.open.DISABLE_API': false,
                     'persistence.storageClass': '',
+                    'service.type': 'NodePort',
                     'persistence.size': 10,
                 };
                 break;

@@ -149,7 +149,7 @@ func (c Cluster) BeforeDelete() error {
 			}
 		}
 	}
-	if c.Spec.Provider == constant.ClusterProviderBareMetal {
+	if cluster.Spec.Provider == constant.ClusterProviderBareMetal {
 		var hosts []Host
 		tx.Where(Host{ClusterID: c.ID}).Find(&hosts)
 		if len(hosts) > 0 {
