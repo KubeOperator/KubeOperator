@@ -67,7 +67,7 @@ export class MultiClusterRelationCreateComponent implements OnInit {
             const s = [];
             for (const d of data.items.filter((item) => {
                 console.log(item.multiClusterRepository);
-                return !item.multiClusterRepository;
+                return !item.multiClusterRepository && item.status === 'Running';
             })) {
                 s.push({id: d.name, text: d.name});
             }
