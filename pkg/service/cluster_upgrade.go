@@ -23,6 +23,7 @@ func NewClusterUpgradeService() ClusterUpgradeService {
 		clusterService:    NewClusterService(),
 		clusterStatusRepo: repository.NewClusterStatusRepository(),
 		messageService:    NewMessageService(),
+		clusterLogService: NewClusterLogService(),
 	}
 }
 
@@ -30,6 +31,7 @@ type clusterUpgradeService struct {
 	clusterService    ClusterService
 	clusterStatusRepo repository.ClusterStatusRepository
 	messageService    MessageService
+	clusterLogService ClusterLogService
 }
 
 func (c clusterUpgradeService) Upgrade(upgrade dto.ClusterUpgrade) error {
@@ -88,6 +90,14 @@ func (c clusterUpgradeService) prepareUpgrade(cluster *model.Cluster) error {
 }
 
 func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, version string) {
+
+	var clog model.ClusterLog
+	clog.Type = constant.ClusterLogTypeUpgrade
+	clog.StartTime = time.Now()
+	clog.EndTime = time.Now()
+	_ = c.clusterLogService.Save(cluster.Name, &clog)
+	_ = c.clusterLogService.Start(&clog)
+
 	admCluster := adm.NewCluster(*cluster)
 	p := &upgrade.UpgradeClusterPhase{
 		Version: version,
@@ -107,6 +117,7 @@ func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, vers
 		cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Message = err.Error()
 		_ = c.clusterStatusRepo.Save(&cluster.Status)
 		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUpgrade, false, err.Error()), cluster.Name, constant.ClusterUpgrade)
+		_ = c.clusterLogService.End(&clog, false, err.Error())
 		return
 	}
 	cluster.Status.ClusterStatusConditions[len(cluster.Status.ClusterStatusConditions)-1].Status = constant.ConditionTrue
@@ -115,4 +126,5 @@ func (c clusterUpgradeService) do(cluster *model.Cluster, writer io.Writer, vers
 	cluster.Spec.Version = version
 	db.DB.Save(&cluster.Spec)
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUpgrade, true, ""), cluster.Name, constant.ClusterUpgrade)
+	_ = c.clusterLogService.End(&clog, true, "")
 }
