@@ -14,7 +14,7 @@ import {CoreModule} from './core/core.module';
 import {SessionInterceptor} from './shared/auth/session-interceptor';
 import {AppGlobalErrorHandler} from './shared/handler/app-global-error-handler';
 import {NgCircleProgressModule} from 'ng-circle-progress';
-import {CodemirrorModule} from "ng2-codemirror";
+import {CodemirrorModule} from 'ng2-codemirror';
 
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
