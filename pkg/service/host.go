@@ -234,7 +234,7 @@ func (h hostService) GetHostMem(host *model.Host) error {
 	if err != nil {
 		return err
 	}
-	host.Memory, _ = strconv.Atoi(result)
+	host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
 	_ = h.hostRepo.Save(host)
 	return err
 }
