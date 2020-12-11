@@ -182,19 +182,19 @@
     </clr-wizard-page>
 
 
-    <clr-wizard-page [clrWizardPageNextDisabled]="masters.length===0 || workers.length === 0"
+    <clr-wizard-page [clrWizardPageNextDisabled]="!(masters.length===1 || masters.length===3) || workers.length === 0"
                      (clrWizardPageNext)="fullNodes()" *ngIf="item.provider === 'bareMetal'">
         <ng-template clrPageTitle>{{"APP_NODE_INFO"|translate}}</ng-template>
         <span>{{'APP_CLUSTER_HOST_HELPER'|translate}}</span>
         <form>
             <div>
-                <h3>masters</h3>
+                <h3>Masters ({{"APP_MASTER_HELPER"|translate}})</h3>
                 <hr/>
                 <l-select2 name="masters" [(ngModel)]="masters" [data]="hosts" [options]="options"
                            (valueChange)="toggle('master')"></l-select2>
             </div>
             <div>
-                <h3>workers</h3>
+                <h3>Workers</h3>
                 <hr/>
                 <l-select2 name="workers" [(ngModel)]="workers" [data]="hosts" [options]="options"
                            (valueChange)="toggle('worker')"></l-select2>
