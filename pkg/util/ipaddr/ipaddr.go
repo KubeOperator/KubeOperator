@@ -13,7 +13,7 @@ func GenerateIps(ip string, mask int, startIp string, endIp string) []string {
 	n := iplib.NewNet(net.ParseIP(ip), mask)
 	i := n.FirstAddress()
 	for {
-		if isBiggerThan(i.String(), startIp) >= 0 && isBiggerThan(endIp, i.String()) >= 0 {
+		if isBiggerThan(i.String(), startIp) >= 0 && isBiggerThan(endIp, i.String()) >= 0 && isAvailableIp(i) {
 			ips = append(ips, i.String())
 		}
 		i, _ = n.NextIP(i)
@@ -28,6 +28,10 @@ func isBiggerThan(a string, b string) int {
 	aIp := net.ParseIP(a)
 	bIp := net.ParseIP(b)
 	return bytes.Compare(aIp, bIp)
+}
+
+func isAvailableIp(ip net.IP) bool {
+	return ip[3] != 0 && ip[3] != 255
 }
 
 func ParseMask(num int) (mask string, err error) {
