@@ -137,7 +137,37 @@ func (f *fusionComputeClient) ListFlavors() ([]interface{}, error) {
 }
 
 func (f *fusionComputeClient) GetIpInUsed(network string) ([]string, error) {
-	return []string{}, nil
+	siteName := f.Vars["datacenter"].(string)
+	var result []string
+	c := f.newFusionComputeClient()
+	if err := c.Connect(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := c.DisConnect(); err != nil {
+			fmt.Printf("c.DisConnect()出现了错误：%v\n", err)
+		}
+	}()
+	sm := site.NewManager(c)
+	ss, err := sm.ListSite()
+	if err != nil {
+		return nil, err
+	}
+	siteUri := ""
+	for _, s := range ss {
+		if s.Name == siteName {
+			siteUri = s.Uri
+		}
+	}
+	vmm := vm.NewManager(c, siteUri)
+	vms, err := vmm.ListVm(false)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range vms {
+		result = append(result, v.VmConfig.Nics[0].Ip)
+	}
+	return result, nil
 }
 
 func (f *fusionComputeClient) UploadImage() error {

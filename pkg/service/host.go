@@ -145,6 +145,10 @@ func (h hostService) Sync(name string) (dto.Host, error) {
 		return dto.Host{Host: host}, err
 	}
 	host.Status = constant.ClusterRunning
+	err = h.GetHostMem(&host)
+	if err != nil {
+		return dto.Host{Host: host}, err
+	}
 	err = h.hostRepo.Save(&host)
 	if err != nil {
 		return dto.Host{Host: host}, err
@@ -203,6 +207,38 @@ func (h hostService) GetHostGpu(host *model.Host) error {
 	return err
 }
 
+func (h hostService) GetHostMem(host *model.Host) error {
+	password, privateKey, err := host.GetHostPasswordAndPrivateKey()
+	if err != nil {
+		return err
+	}
+	client, err := ssh.New(&ssh.Config{
+		User:        host.Credential.Username,
+		Host:        host.Ip,
+		Port:        host.Port,
+		Password:    password,
+		PrivateKey:  privateKey,
+		PassPhrase:  nil,
+		DialTimeOut: 5 * time.Second,
+		Retry:       3,
+	})
+	if err != nil {
+		host.Status = model.SshError
+		return err
+	}
+	if err := client.Ping(); err != nil {
+		host.Status = model.Disconnect
+		return err
+	}
+	result, _, _, err := client.Exec("dmidecode -t 17 | grep \"Size.*MB\" | awk '{s+=$2} END {print s}'")
+	if err != nil {
+		return err
+	}
+	host.Memory, _ = strconv.Atoi(strings.Trim(result, "\n"))
+	_ = h.hostRepo.Save(host)
+	return err
+}
+
 func (h hostService) RunGetHostConfig(host model.Host) {
 	host.Status = constant.ClusterInitializing
 	_ = h.hostRepo.Save(&host)
@@ -211,6 +247,10 @@ func (h hostService) RunGetHostConfig(host model.Host) {
 		host.Status = constant.ClusterFailed
 		host.Message = err.Error()
 		_ = h.hostRepo.Save(&host)
+		return
+	}
+	err = h.GetHostMem(&host)
+	if err != nil {
 		return
 	}
 	err = h.GetHostGpu(&host)
@@ -311,9 +351,6 @@ func (h hostService) GetHostConfig(host *model.Host) error {
 		}
 		host.Os = result["ansible_distribution"].(string)
 		host.OsVersion = result["ansible_distribution_version"].(string)
-		if result["ansible_memtotal_mb"] != nil {
-			host.Memory = int(result["ansible_memtotal_mb"].(float64))
-		}
 		if result["ansible_processor_vcpus"] != nil {
 			host.CpuCore = int(result["ansible_processor_vcpus"].(float64))
 		}
