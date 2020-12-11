@@ -577,8 +577,8 @@
   "APP_RESULT": "Result",
   "APP_LOG_FILTER": "Filter Logs",
   "APP_HOST_IMPORT_FILE_ERROR": "Unsupported file format",
-  "APP_LOG_FILTER": "Filter Logs",
   "APP_MENU": "Menu",
   "APP_RENAME": "Rename",
-  "APP_GPU_INFO": "GPU info"
+  "APP_GPU_INFO": "GPU info",
+  "APP_MASTER_HELPER":"The number of master nodes must be 1 or 3"
 }
