@@ -10,9 +10,9 @@ import (
 func TestGetClusterToken(t *testing.T) {
 	client, err := ssh.New(&ssh.Config{
 		User:        "root",
-		Host:        "172.16.10.184",
+		Host:        "172.16.10.210",
 		Port:        22,
-		Password:    "Calong@2015",
+		Password:    "KubeOperator@2019",
 		PrivateKey:  nil,
 		PassPhrase:  nil,
 		DialTimeOut: 5 * time.Second,
@@ -21,6 +21,12 @@ func TestGetClusterToken(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	result, err := GetClusterToken(client)
-	fmt.Println(result, err.Error())
+	by, err := client.CombinedOutput("kubectl", "get sa -A | grep default")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(by)
+
+	//result, err := GetClusterToken(client)
+	//fmt.Println(result, err.Error())
 }

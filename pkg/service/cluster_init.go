@@ -144,7 +144,7 @@ func (c clusterInitService) GatherKubernetesToken(cluster model.Cluster) error {
 	if err != nil {
 		return err
 	}
-	master, err := c.clusterNodeRepo.FistMaster(cluster.ID)
+	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
 		return err
 	}
