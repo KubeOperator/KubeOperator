@@ -12,7 +12,7 @@ type ClusterNodeRepository interface {
 	List(clusterName string) ([]model.ClusterNode, error)
 	ListByRole(clusterName string, role string) ([]model.ClusterNode, error)
 	Save(node *model.ClusterNode) error
-	FistMaster(ClusterId string) (model.ClusterNode, error)
+	FirstMaster(ClusterId string) (model.ClusterNode, error)
 	Delete(id string) error
 	BatchSave(nodes []*model.ClusterNode) error
 }
@@ -101,7 +101,7 @@ func (c clusterNodeRepository) ListByRole(clusterName string, role string) ([]mo
 
 }
 
-func (c clusterNodeRepository) FistMaster(ClusterId string) (model.ClusterNode, error) {
+func (c clusterNodeRepository) FirstMaster(ClusterId string) (model.ClusterNode, error) {
 	var master model.ClusterNode
 	if err := db.DB.
 		Where(model.ClusterNode{ClusterID: ClusterId, Role: constant.NodeRoleNameMaster}).

@@ -298,7 +298,7 @@ func (c clusterService) GetApiServerEndpoint(name string) (dto.Endpoint, error) 
 		endpoint.Address = cluster.Spec.LbKubeApiserverIp
 		return endpoint, nil
 	}
-	master, err := c.clusterNodeRepo.FistMaster(cluster.ID)
+	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
 		return endpoint, err
 	}
@@ -393,7 +393,7 @@ func (c clusterService) GetKubeconfig(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	m, err := c.clusterNodeRepo.FistMaster(cluster.ID)
+	m, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
 		return "", err
 	}
