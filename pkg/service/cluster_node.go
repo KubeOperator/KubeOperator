@@ -601,37 +601,37 @@ func (c *clusterNodeService) doNodeDelete(cluster *model.Cluster, nodes []*model
 const addWorkerPlaybook = "91-add-worker.yml"
 
 func (c clusterNodeService) doNodeCreate(cluster *model.Cluster, nodes []*model.ClusterNode) error {
-	//logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
-	//if err != nil {
-	//	log.Error(err)
-	//}
-	//cluster.LogId = logId
-	//db.DB.Save(cluster)
-	//cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
-	//inventory := cluster.ParseInventory()
-	//for i := range inventory.Groups {
-	//	if inventory.Groups[i].Name == "new-worker" {
-	//		for _, n := range nodes {
-	//			inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
-	//		}
-	//	}
-	//}
-	//k := kobe.NewAnsible(&kobe.Config{
-	//	Inventory: inventory,
-	//})
-	//for i := range facts.DefaultFacts {
-	//	k.SetVar(i, facts.DefaultFacts[i])
-	//}
-	//clusterVars := cluster.GetKobeVars()
-	//for j, v := range clusterVars {
-	//	k.SetVar(j, v)
-	//}
-	//k.SetVar(facts.ClusterNameFactName, cluster.Name)
-	//val, _ := c.systemSettingRepo.Get("ip")
-	//k.SetVar(facts.LocalHostnameFactName, val.Value)
-	//err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, writer)
-	//if err != nil {
-	//	return err
-	//}
-	return errors.New("bbbbbb")
+	logId, writer, err := ansible.CreateAnsibleLogWriter(cluster.Name)
+	if err != nil {
+		log.Error(err)
+	}
+	cluster.LogId = logId
+	db.DB.Save(cluster)
+	cluster.Nodes, _ = c.NodeRepo.List(cluster.Name)
+	inventory := cluster.ParseInventory()
+	for i := range inventory.Groups {
+		if inventory.Groups[i].Name == "new-worker" {
+			for _, n := range nodes {
+				inventory.Groups[i].Hosts = append(inventory.Groups[i].Hosts, n.Name)
+			}
+		}
+	}
+	k := kobe.NewAnsible(&kobe.Config{
+		Inventory: inventory,
+	})
+	for i := range facts.DefaultFacts {
+		k.SetVar(i, facts.DefaultFacts[i])
+	}
+	clusterVars := cluster.GetKobeVars()
+	for j, v := range clusterVars {
+		k.SetVar(j, v)
+	}
+	k.SetVar(facts.ClusterNameFactName, cluster.Name)
+	val, _ := c.systemSettingRepo.Get("ip")
+	k.SetVar(facts.LocalHostnameFactName, val.Value)
+	err = phases.RunPlaybookAndGetResult(k, addWorkerPlaybook, writer)
+	if err != nil {
+		return err
+	}
+	return nil
 }
