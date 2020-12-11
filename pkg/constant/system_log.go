@@ -1,6 +1,9 @@
 package constant
 
 const (
+	LOGIN  = "登录|Login"
+	LOGOUT = "退出|Logout"
+
 	CREATE_PROJECT      = "创建项目|Create project"
 	UPDATE_PROJECT_INFO = "更新项目信息|Update project information"
 	DELETE_PROJECT      = "删除项目|Delete project"
@@ -66,5 +69,6 @@ const (
 	CREATE_BACKUP_ACCOUNT = "添加备份账号|Create backup account"
 	UPDATE_BACKUP_ACCOUNT = "修改备份账号信息|Update backup account information"
 	DELETE_BACKUP_ACCOUNT = "删除备份账号|Delete backup account"
+	CREATE_EMAIL          = "设置系统邮箱|Set system mailbox"
 	IMPORT_LICENCE        = "导入许可证书|import licence"
 )
