@@ -42,7 +42,6 @@ export class MultiClusterRelationComponent implements OnInit {
     }
 
     refresh() {
-        console.log('123');
         this.list.refresh();
     }
 }
