@@ -103,11 +103,14 @@ func (c clusterEventService) GetNpd(clusterName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return false, err
+	}
 	if cluster.Status == constant.ClusterRunning {
 		client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 			Token: secret.KubernetesToken,
-			Port:  cluster.Spec.KubeApiServerPort,
-			Host:  cluster.Spec.KubeRouter,
+			Hosts: endpoints,
 		})
 		if err != nil {
 			return false, err
@@ -140,11 +143,14 @@ func (c clusterEventService) CreateNpd(clusterName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return false, err
+	}
 	if cluster.Status == constant.ClusterRunning {
 		client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 			Token: secret.KubernetesToken,
-			Port:  cluster.Spec.KubeApiServerPort,
-			Host:  cluster.Spec.KubeRouter,
+			Hosts: endpoints,
 		})
 		if err != nil {
 			return false, err
@@ -331,11 +337,14 @@ func (c clusterEventService) DeleteNpd(clusterName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return false, err
+	}
 	if cluster.Status == constant.ClusterRunning {
 		client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 			Token: secret.KubernetesToken,
-			Port:  cluster.Spec.KubeApiServerPort,
-			Host:  cluster.Spec.KubeRouter,
+			Hosts: endpoints,
 		})
 		if err != nil {
 			return false, err

@@ -34,11 +34,11 @@ func (c *ClusterEvent) Run() {
 		if err != nil {
 			continue
 		}
+		endpoints, err := c.clusterService.GetApiServerEndpoints(cluster.Name)
 		if cluster.Status == constant.ClusterRunning {
 			client, err := kubernetes.NewKubernetesClient(&kubernetes.Config{
 				Token: secret.KubernetesToken,
-				Port:  cluster.Spec.KubeApiServerPort,
-				Host:  cluster.Spec.KubeRouter,
+				Hosts: endpoints,
 			})
 			if err != nil {
 				continue

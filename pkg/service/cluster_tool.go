@@ -57,7 +57,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
-	endpoint, err := c.clusterService.GetApiServerEndpoint(clusterName)
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
 		return tool, err
 	}
@@ -74,7 +74,7 @@ func (c clusterToolService) Disable(clusterName string, tool dto.ClusterTool) (d
 		namespace = itemValue.(string)
 	}
 
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, namespace, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, namespace, namespace)
 	if err != nil {
 		return tool, err
 	}
@@ -95,24 +95,23 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 	buf, _ := json.Marshal(&tool.Vars)
 	mo.Vars = string(buf)
 	tool.ClusterTool = mo
-	endpoint, err := c.clusterService.GetApiServerEndpoint(clusterName)
+
+	endpoints, err := c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
 		return tool, err
 	}
+
 	secret, err := c.clusterService.GetSecrets(clusterName)
 	if err != nil {
 		return tool, err
 	}
-
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		return tool, err
 	}
-
 	oldNamespace, namespace := c.getNamespace(clusterName, tool)
 	ns, _ := kubeClient.CoreV1().Namespaces().Get(context.TODO(), namespace, metav1.GetOptions{})
 	if ns.ObjectMeta.Name == "" {
@@ -126,7 +125,7 @@ func (c clusterToolService) Enable(clusterName string, tool dto.ClusterTool) (dt
 			return tool, err
 		}
 	}
-	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoint, secret.ClusterSecret, oldNamespace, namespace)
+	ct, err := tools.NewClusterTool(&tool.ClusterTool, cluster.Cluster, endpoints, secret.ClusterSecret, oldNamespace, namespace)
 	if err != nil {
 		return tool, err
 	}

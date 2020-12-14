@@ -3,6 +3,7 @@ package helm
 import (
 	"context"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -42,7 +43,7 @@ type Interface interface {
 }
 
 type Config struct {
-	ApiServer     string
+	Hosts         []kubernetes.Host
 	BearerToken   string
 	OldNamespace  string
 	Namespace     string
@@ -56,14 +57,20 @@ type Client struct {
 	Architectures         string
 }
 
-func NewClient(config Config) (*Client, error) {
+func NewClient(config *Config) (*Client, error) {
+	var aliveHost kubernetes.Host
+	aliveHost, err := kubernetes.SelectAliveHost(config.Hosts)
+	if err != nil {
+		return nil, err
+	}
 	client := Client{
 		Architectures: config.Architectures,
 	}
 	client.settings = GetSettings()
 	cf := genericclioptions.NewConfigFlags(true)
 	inscure := true
-	cf.APIServer = &config.ApiServer
+	apiServer := fmt.Sprintf("https://%s", aliveHost)
+	cf.APIServer = &apiServer
 	cf.BearerToken = &config.BearerToken
 	cf.Insecure = &inscure
 	if config.Namespace == "" {

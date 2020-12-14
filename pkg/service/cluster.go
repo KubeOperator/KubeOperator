@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -21,7 +22,8 @@ type ClusterService interface {
 	GetSecrets(name string) (dto.ClusterSecret, error)
 	GetSpec(name string) (dto.ClusterSpec, error)
 	GetPlan(name string) (dto.Plan, error)
-	GetApiServerEndpoint(name string) (dto.Endpoint, error)
+	GetApiServerEndpoint(name string) (kubernetes.Host, error)
+	GetApiServerEndpoints(name string) ([]kubernetes.Host, error)
 	GetRouterEndpoint(name string) (dto.Endpoint, error)
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
@@ -287,23 +289,44 @@ func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) 
 	return dto.Cluster{Cluster: cluster}, nil
 }
 
-func (c clusterService) GetApiServerEndpoint(name string) (dto.Endpoint, error) {
+func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
+	var result kubernetes.Host
 	cluster, err := c.clusterRepo.Get(name)
-	var endpoint dto.Endpoint
 	if err != nil {
-		return endpoint, err
+		return "", err
 	}
-	endpoint.Port = cluster.Spec.KubeApiServerPort
+	port := cluster.Spec.KubeApiServerPort
 	if cluster.Spec.LbKubeApiserverIp != "" {
-		endpoint.Address = cluster.Spec.LbKubeApiserverIp
-		return endpoint, nil
+		result = kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port))
+		return result, nil
 	}
 	master, err := c.clusterNodeRepo.FirstMaster(cluster.ID)
 	if err != nil {
-		return endpoint, err
+		return "", err
 	}
-	endpoint.Address = master.Host.Ip
-	return endpoint, nil
+	result = kubernetes.Host(fmt.Sprintf("%s:%d", master.Host.Ip, port))
+	return result, nil
+}
+
+func (c clusterService) GetApiServerEndpoints(name string) ([]kubernetes.Host, error) {
+	var result []kubernetes.Host
+	cluster, err := c.clusterRepo.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	port := cluster.Spec.KubeApiServerPort
+	if cluster.Spec.LbKubeApiserverIp != "" {
+		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", cluster.Spec.LbKubeApiserverIp, port)))
+		return result, nil
+	}
+	masters, err := c.clusterNodeRepo.AllMaster(cluster.ID)
+	if err != nil {
+		return nil, err
+	}
+	for i := range masters {
+		result = append(result, kubernetes.Host(fmt.Sprintf("%s:%d", masters[i].Host.Ip, port)))
+	}
+	return result, nil
 }
 
 func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
@@ -318,11 +341,15 @@ func (c clusterService) GetRouterEndpoint(name string) (dto.Endpoint, error) {
 
 func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, error) {
 	var token dto.WebkubectlToken
-	endpoint, err := c.GetApiServerEndpoint(name)
+	endpoints, err := c.GetApiServerEndpoints(name)
 	if err != nil {
 		return token, err
 	}
-	addr := fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port)
+	aliveHost, err := kubernetes.SelectAliveHost(endpoints)
+	if err != nil {
+		return token, err
+	}
+	addr := fmt.Sprintf("https://%s", aliveHost)
 	secret, err := c.GetSecrets(name)
 	if err != nil {
 		return token, nil
