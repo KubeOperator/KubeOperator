@@ -30,6 +30,9 @@ func (c *ClusterEvent) Run() {
 	sem := make(chan struct{}, 5) // 信号量
 	clusters, _ := c.clusterService.List()
 	for _, cluster := range clusters {
+		if cluster.Status != constant.StatusRunning {
+			return
+		}
 		secret, err := c.clusterService.GetSecrets(cluster.Name)
 		if err != nil {
 			continue
