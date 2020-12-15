@@ -58,11 +58,11 @@ import {EmailComponent} from './business/setting/email/email.component';
 import {MultiClusterComponent} from "./business/multi-cluster/multi-cluster.component";
 import {MultiClusterRepositoryDetailComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-repository-detail.component";
 import {MultiClusterRoutingResolverService} from "./business/multi-cluster/multi-cluster-routing-resolver.service";
-import {MultiClusterBrowserComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-browser/multi-cluster-browser.component";
 import {MultiClusterRelationComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-relation/multi-cluster-relation.component";
 import {MultiClusterLogComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-log/multi-cluster-log.component";
 import {MultiClusterSettingComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-setting/multi-cluster-setting.component";
 import {SystemLogComponent} from "./business/system-log/system-log.component";
+import {IpPoolComponent} from './business/deploy-plan/ip-pool/ip-pool.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -176,7 +176,8 @@ const routes: Routes = [
                     {path: 'region', component: RegionComponent},
                     {path: 'zone', component: ZoneComponent},
                     {path: 'plan', component: PlanComponent},
-                    {path: 'vmConfig', component: VmConfigComponent}
+                    {path: 'vm-config', component: VmConfigComponent},
+                    {path: 'ip-pool', component: IpPoolComponent}
                 ]
             }, {
                 path: 'manifests',

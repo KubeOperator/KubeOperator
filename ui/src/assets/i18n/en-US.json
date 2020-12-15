@@ -580,5 +580,6 @@
   "APP_MENU": "Menu",
   "APP_RENAME": "Rename",
   "APP_GPU_INFO": "GPU info",
-  "APP_MASTER_HELPER":"The number of master nodes must be 1 or 3"
+  "APP_MASTER_HELPER":"The number of master nodes must be 1 or 3",
+  "APP_IP_POOL": "IP Pool"
 }

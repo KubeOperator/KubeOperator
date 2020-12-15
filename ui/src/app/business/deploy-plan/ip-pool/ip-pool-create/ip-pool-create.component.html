@@ -1,0 +1,23 @@
+<clr-modal [(clrModalOpen)]="opened">
+    <h3 class="modal-title">{{'APP_ADD'|translate}}</h3>
+    <div class="modal-body modal-height">
+        <form clrForm #ipPoolForm="ngForm">
+            <clr-input-container>
+                <label>{{'APP_NAME'|translate}}:</label>
+                <input clrInput size=45 maxlength="30" [(ngModel)]="item.name" pattern="{{namePattern}}"
+                       name="name" required>
+                <clr-control-helper>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-helper>
+                <clr-control-error>{{'APP_REGION_NAME_HELPER'|translate}}</clr-control-error>
+            </clr-input-container>
+        </form>
+        <app-modal-alert></app-modal-alert>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="onCancel()"
+                    [disabled]="isSubmitGoing">{{'APP_CANCEL'|translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                    [disabled]="ipPoolForm.invalid">{{'APP_COMMIT'|translate}}
+            </button>
+        </div>
+    </div>
+</clr-modal>
+
