@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
-
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -28,7 +27,7 @@ type ClusterService interface {
 	GetWebkubectlToken(name string) (dto.WebkubectlToken, error)
 	GetKubeconfig(name string) (string, error)
 	Delete(name string) error
-	Create(creation dto.ClusterCreate) (dto.Cluster, error)
+	Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	List() ([]dto.Cluster, error)
 	Page(num, size int, projectName string) (dto.ClusterPage, error)
 	Batch(batch dto.ClusterBatch) error
@@ -199,7 +198,7 @@ func (c clusterService) GetPlan(name string) (dto.Plan, error) {
 	return plan, nil
 }
 
-func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) {
+func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error) {
 	cluster := model.Cluster{
 		Name:   creation.Name,
 		Source: constant.ClusterSourceLocal,
@@ -234,59 +233,93 @@ func (c clusterService) Create(creation dto.ClusterCreate) (dto.Cluster, error) 
 	cluster.Spec = spec
 	cluster.Status = status
 	cluster.Secret = secret
-	if cluster.Spec.Provider != constant.ClusterProviderBareMetal {
+
+	tx := db.DB.Begin()
+	if err := tx.Create(&cluster.Spec).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Create(&cluster.Status).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Create(&cluster.Secret).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	cluster.SpecID = cluster.Spec.ID
+	cluster.StatusID = cluster.Status.ID
+	cluster.SecretID = cluster.Secret.ID
+	if err := tx.Create(&cluster).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	switch cluster.Spec.Provider {
+	case constant.ClusterProviderPlan:
 		cluster.Spec.WorkerAmount = creation.WorkerAmount
-		plan, err := c.planRepo.Get(creation.Plan)
-		if err != nil {
-			return dto.Cluster{}, err
+		var plan model.Plan
+		if err := tx.Where(model.Plan{Name: creation.Plan}).First(&plan).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
 		}
 		cluster.PlanID = plan.ID
-	}
-	workerNo := 1
-	masterNo := 1
-	for _, nc := range creation.Nodes {
-		node := model.ClusterNode{
-			ClusterID: cluster.ID,
-			Role:      nc.Role,
+	case constant.ClusterProviderBareMetal:
+		workerNo := 1
+		masterNo := 1
+		for _, nc := range creation.Nodes {
+			n := model.ClusterNode{
+				ClusterID: cluster.ID,
+				Role:      nc.Role,
+			}
+			switch n.Role {
+			case constant.NodeRoleNameMaster:
+				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
+				masterNo++
+			case constant.NodeRoleNameWorker:
+				n.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
+				workerNo++
+			}
+			var host model.Host
+			if err := tx.Where(model.Host{Name: nc.HostName}).First(&host).Error; err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("can not query host %s reason %s", nc.HostName, err.Error())
+			}
+			host.ClusterID = cluster.ID
+			if err := tx.Save(&host).Error; err != nil {
+				return nil, fmt.Errorf("can not save  host %s reason %s", nc.HostName, err.Error())
+			}
+			if err := tx.Create(&n).Error; err != nil {
+				return nil, fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
+			}
+			n.Host = host
+			cluster.Nodes = append(cluster.Nodes, n)
 		}
-		switch node.Role {
-		case constant.NodeRoleNameMaster:
-			node.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameMaster, masterNo)
-			masterNo++
-		case constant.NodeRoleNameWorker:
-			node.Name = fmt.Sprintf("%s-%s-%d", cluster.Name, constant.NodeRoleNameWorker, workerNo)
-			workerNo++
+		if len(cluster.Nodes) > 0 {
+			cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
 		}
-		host, err := c.hostRepo.Get(nc.HostName)
-		if err != nil {
-			return dto.Cluster{}, err
-		}
-		node.HostID = host.ID
-		node.Host = host
-		cluster.Nodes = append(cluster.Nodes, node)
 	}
-	if len(cluster.Nodes) > 0 {
-		cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
+	if err := tx.Save(&cluster.Spec).Error; err != nil {
+		tx.Rollback()
+		return nil, err
 	}
-	if err := c.clusterRepo.Save(&cluster); err != nil {
-		return dto.Cluster{}, err
+	var project model.Project
+	if err := tx.Where(model.Project{Name: creation.ProjectName}).First(&project).Error; err != nil {
+		return nil, fmt.Errorf("can not load project %s reason %s", project.Name, err.Error())
 	}
-	project, err := c.projectRepository.Get(creation.ProjectName)
-	if err != nil {
-		return dto.Cluster{}, err
-
-	}
-	if err := c.projectResourceRepository.Create(model.ProjectResource{
-		ResourceId:   cluster.ID,
+	projectResource := model.ProjectResource{
+		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
-	}); err != nil {
-		return dto.Cluster{}, err
 	}
+	if err := tx.Create(&projectResource).Error; err != nil {
+		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
+	}
+	tx.Commit()
 	if err := c.clusterInitService.Init(cluster.Name); err != nil {
-		return dto.Cluster{}, err
+		return nil, err
 	}
-	return dto.Cluster{Cluster: cluster}, nil
+	return &dto.Cluster{Cluster: cluster}, nil
 }
 
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {

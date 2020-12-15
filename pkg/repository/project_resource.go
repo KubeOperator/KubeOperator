@@ -11,8 +11,8 @@ type ProjectResourceRepository interface {
 	PageByProjectIdAndType(num, size int, projectId string, resourceType string) (int, []model.ProjectResource, error)
 	Batch(operation string, items []model.ProjectResource) error
 	Create(resource model.ProjectResource) error
-	ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error)
-	DeleteByResourceIdAnyResourceType(resourceId string, resourceType string) error
+	ListByResourceIDAndType(resourceId string, resourceType string) ([]model.ProjectResource, error)
+	DeleteByResourceIDAnyResourceType(resourceId string, resourceType string) error
 	ListByProjectNameAndType(projectName string, resourceType string) ([]model.ProjectResource, error)
 }
 
@@ -50,9 +50,9 @@ func (p projectResourceRepository) ListByProjectNameAndType(projectName string, 
 	return projectResources, nil
 }
 
-func (p projectResourceRepository) ListByResourceIdAndType(resourceId string, resourceType string) ([]model.ProjectResource, error) {
+func (p projectResourceRepository) ListByResourceIDAndType(resourceId string, resourceType string) ([]model.ProjectResource, error) {
 	var projectResources []model.ProjectResource
-	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
+	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceID: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
 	return projectResources, err
 }
 
@@ -71,7 +71,7 @@ func (p projectResourceRepository) Batch(operation string, items []model.Project
 				if len(clusterResources) > 0 {
 					for _, clusterResource := range clusterResources {
 						var backupStrategy model.ClusterBackupStrategy
-						err = tx.Where(model.ClusterBackupStrategy{BackupAccountID: item.ResourceId, ClusterID: clusterResource.ResourceId}).Delete(&backupStrategy).Error
+						err = tx.Where(model.ClusterBackupStrategy{BackupAccountID: item.ResourceID, ClusterID: clusterResource.ResourceID}).Delete(&backupStrategy).Error
 						if err != nil {
 							tx.Rollback()
 							return err
@@ -106,12 +106,12 @@ func (p projectResourceRepository) Create(resource model.ProjectResource) error 
 	return db.DB.Model(model.ProjectResource{}).Create(&resource).Error
 }
 
-func (p projectResourceRepository) DeleteByResourceIdAnyResourceType(resourceId string, resourceType string) error {
+func (p projectResourceRepository) DeleteByResourceIDAnyResourceType(resourceId string, resourceType string) error {
 	var projectResources []model.ProjectResource
 	if resourceId == "" {
 		return nil
 	}
-	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceId: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
+	err := db.DB.Model(model.ProjectResource{}).Where(model.ProjectResource{ResourceID: resourceId, ResourceType: resourceType}).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}

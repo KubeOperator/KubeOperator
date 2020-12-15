@@ -121,7 +121,7 @@ func (c ClusterController) Post() (*dto.Cluster, error) {
 	operator := c.Ctx.Values().GetString("operator")
 	go log_save.LogSave(operator, constant.CREATE_CLUSTER, req.Name)
 
-	return &item, nil
+	return item, nil
 }
 
 func (c ClusterController) PostInitBy(name string) error {

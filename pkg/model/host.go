@@ -71,7 +71,7 @@ func (h *Host) BeforeDelete(tx *gorm.DB) error {
 
 	}
 	var projectResources []ProjectResource
-	err := tx.Where(ProjectResource{ResourceId: h.ID}).Find(&projectResources).Error
+	err := tx.Where(ProjectResource{ResourceID: h.ID}).Find(&projectResources).Error
 	if err != nil {
 		return err
 	}

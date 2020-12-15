@@ -81,7 +81,7 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 	}
 	if err := c.projectResourceRepository.Create(model.ProjectResource{
-		ResourceId:   cluster.ID,
+		ResourceID:   cluster.ID,
 		ProjectID:    project.ID,
 		ResourceType: constant.ResourceCluster,
 	}); err != nil {

@@ -243,7 +243,7 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		if cluster.Spec.Provider == constant.ClusterProviderPlan {
 			db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
 			db.DB.Delete(model.Host{ID: nodes[i].HostID})
-			hostResources, err := c.projectResourceRepo.ListByResourceIdAndType(nodes[i].HostID, constant.ResourceHost)
+			hostResources, err := c.projectResourceRepo.ListByResourceIDAndType(nodes[i].HostID, constant.ResourceHost)
 			if err != nil {
 				log.Error(err)
 			}
@@ -337,13 +337,13 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 			if err != nil {
 				log.Error(err)
 			}
-			clusterResources, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+			clusterResources, err := c.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 			if err != nil {
 				log.Error(err)
 			}
 			if len(clusterResources) > 0 {
 				if err := db.DB.Create(&model.ProjectResource{
-					ResourceId:   nodes[i].Host.ID,
+					ResourceID:   nodes[i].Host.ID,
 					ResourceType: constant.ResourceHost,
 					ProjectID:    clusterResources[0].ProjectID,
 				}).Error; err != nil {

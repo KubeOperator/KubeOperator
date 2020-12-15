@@ -69,7 +69,7 @@ func (h hostRepository) List(projectName string) ([]model.Host, error) {
 		}
 		var resourceIds []string
 		for _, pr := range projectResources {
-			resourceIds = append(resourceIds, pr.ResourceId)
+			resourceIds = append(resourceIds, pr.ResourceID)
 		}
 		err = db.DB.Model(model.Host{}).Where("id in (?)", resourceIds).Find(&hosts).Error
 		return hosts, err

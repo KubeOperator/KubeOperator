@@ -64,7 +64,7 @@ func (p planRepository) List(projectName string) ([]model.Plan, error) {
 		}
 		var resourceIds []string
 		for _, pr := range projectResources {
-			resourceIds = append(resourceIds, pr.ResourceId)
+			resourceIds = append(resourceIds, pr.ResourceID)
 		}
 		err = db.DB.Model(model.Zone{}).Where("id in (?)", resourceIds).Find(&plans).Error
 		return plans, err

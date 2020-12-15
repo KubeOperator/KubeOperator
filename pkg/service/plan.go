@@ -135,7 +135,7 @@ func (p planService) Create(creation dto.PlanCreate) (*dto.Plan, error) {
 		}
 		err = p.projectResourceRepo.Create(model.ProjectResource{
 			ResourceType: constant.ResourcePlan,
-			ResourceId:   plan.ID,
+			ResourceID:   plan.ID,
 			ProjectID:    project.ID,
 		})
 		if err != nil {

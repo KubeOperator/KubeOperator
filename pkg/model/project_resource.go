@@ -9,7 +9,7 @@ type ProjectResource struct {
 	common.BaseModel
 	ID           string `json:"id" gorm:"type:varchar(64)"`
 	ResourceType string `json:"resourceType" gorm:"type:varchar(128)"`
-	ResourceId   string `json:"resourceId" gorm:"type:varchar(64)"`
+	ResourceID   string `json:"resourceId" gorm:"type:varchar(64)"`
 	ProjectID    string `json:"projectId" gorm:"type:varchar(64)"`
 }
 

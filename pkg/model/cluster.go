@@ -32,6 +32,8 @@ type Cluster struct {
 
 func (c *Cluster) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
+
+
 	tx := db.DB.Begin()
 	if err := tx.Create(&c.Spec).Error; err != nil {
 		tx.Rollback()
@@ -133,7 +135,7 @@ func (c Cluster) BeforeDelete() error {
 						return err
 					}
 					var projectResources []ProjectResource
-					if err := tx.Where(ProjectResource{ResourceId: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
+					if err := tx.Where(ProjectResource{ResourceID: host.ID, ResourceType: constant.ResourceHost}).Find(&projectResources).Error; err != nil {
 						return err
 					}
 					if len(projectResources) > 0 {
@@ -193,7 +195,7 @@ func (c Cluster) BeforeDelete() error {
 	}
 
 	var projectResource ProjectResource
-	tx.Where(ProjectResource{ResourceId: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
+	tx.Where(ProjectResource{ResourceID: c.ID, ResourceType: constant.ResourceCluster}).First(&projectResource)
 	if projectResource.ID != "" {
 		if err := tx.Delete(&projectResource).Error; err != nil {
 			tx.Rollback()

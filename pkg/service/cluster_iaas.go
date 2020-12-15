@@ -76,14 +76,14 @@ func (c clusterIaasService) Init(name string) error {
 	}
 
 	var projectResources []model.ProjectResource
-	prs, err := c.projectResourceRepo.ListByResourceIdAndType(cluster.ID, constant.ResourceCluster)
+	prs, err := c.projectResourceRepo.ListByResourceIDAndType(cluster.ID, constant.ResourceCluster)
 	if err != nil {
 		return err
 	}
 	for _, host := range hosts {
 		projectResources = append(projectResources, model.ProjectResource{
 			ProjectID:    prs[0].ProjectID,
-			ResourceId:   host.ID,
+			ResourceID:   host.ID,
 			ResourceType: constant.ResourceHost,
 		})
 	}
