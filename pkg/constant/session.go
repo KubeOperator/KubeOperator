@@ -7,10 +7,10 @@ import (
 
 const (
 	SessionUserKey         = "user"
-	cookieNameForSessionID = "ksession"
+	CookieNameForSessionID = "ksession"
 
 	AuthMethodSession = "session"
 	AuthMethodJWT     = "jwt"
 )
 
-var Sess = sessions.New(sessions.Config{Cookie: cookieNameForSessionID, Expires: 12 * time.Hour})
+var Sess = sessions.New(sessions.Config{Cookie: CookieNameForSessionID, Expires: 12 * time.Hour})

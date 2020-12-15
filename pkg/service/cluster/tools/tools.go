@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
@@ -33,13 +32,13 @@ type Cluster struct {
 	KubeClient *kubernetes.Clientset
 }
 
-func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, oldNamespace, namespace string) (*Cluster, error) {
+func NewCluster(cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string) (*Cluster, error) {
 	c := Cluster{
 		Cluster: cluster,
 	}
 	c.Namespace = namespace
-	helmClient, err := helm.NewClient(helm.Config{
-		ApiServer:     fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
+	helmClient, err := helm.NewClient(&helm.Config{
+		Hosts:         endpoints,
 		BearerToken:   secret.KubernetesToken,
 		OldNamespace:  oldNamespace,
 		Namespace:     namespace,
@@ -50,9 +49,8 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	}
 	c.HelmClient = helmClient
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		return nil, err
@@ -61,14 +59,14 @@ func NewCluster(cluster model.Cluster, endpoint dto.Endpoint, secret model.Clust
 	return &c, nil
 }
 
-func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, oldNamespace, namespace string) (Interface, error) {
+func NewClusterTool(tool *model.ClusterTool, cluster model.Cluster, endpoints []kubernetesUtil.Host, secret model.ClusterSecret, oldNamespace, namespace string) (Interface, error) {
 	systemRepo := repository.NewSystemSettingRepository()
 	localIP, err := systemRepo.Get("ip")
 	if err != nil || localIP.Value == "" {
 		return nil, errors.New("invalid system setting: ip")
 	}
 
-	c, err := NewCluster(cluster, endpoint, secret, oldNamespace, namespace)
+	c, err := NewCluster(cluster, endpoints, secret, oldNamespace, namespace)
 	if err != nil {
 		return nil, err
 	}

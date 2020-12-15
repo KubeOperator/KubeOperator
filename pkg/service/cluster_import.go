@@ -92,9 +92,8 @@ func (c clusterImportService) Import(clusterImport dto.ClusterImport) error {
 
 func gatherClusterInfo(cluster *model.Cluster) error {
 	c, err := kubeUtil.NewKubernetesClient(&kubeUtil.Config{
-		Host:  cluster.Spec.LbKubeApiserverIp,
+		Hosts: []kubeUtil.Host{kubeUtil.Host(cluster.Spec.LbKubeApiserverIp)},
 		Token: cluster.Secret.KubernetesToken,
-		Port:  cluster.Spec.KubeApiServerPort,
 	})
 	if err != nil {
 		return err

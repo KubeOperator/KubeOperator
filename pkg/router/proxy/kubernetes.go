@@ -3,6 +3,7 @@ package proxy
 import (
 	"crypto/tls"
 	"fmt"
+	kubeUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
@@ -13,12 +14,14 @@ import (
 func KubernetesClientProxy(ctx context.Context) {
 	clusterName := ctx.Params().Get("cluster_name")
 	proxyPath := ctx.Params().Get("p")
-	endpoint, err := clusterService.GetApiServerEndpoint(clusterName)
+	endpoints, err := clusterService.GetApiServerEndpoints(clusterName)
+
+	aliveHost, err := kubeUtil.SelectAliveHost(endpoints)
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return
 	}
-	u, err := url.Parse(fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port))
+	u, err := url.Parse(fmt.Sprintf("https://%s", aliveHost))
 	if err != nil {
 		_, _ = ctx.JSON(iris.StatusInternalServerError)
 		return

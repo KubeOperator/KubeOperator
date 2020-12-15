@@ -84,18 +84,19 @@ func (c clusterNodeService) Page(num, size int, clusterName string) (*dto.NodePa
 		return nil, err
 	}
 
-	endpoint, err := c.ClusterService.GetApiServerEndpoint(clusterName)
-	if err != nil {
-		return nil, err
-	}
 	secret, err := c.ClusterService.GetSecrets(clusterName)
 	if err != nil {
 		return nil, err
 	}
+
+	endpoints, err := c.ClusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return nil, err
+	}
+
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		return nil, err
@@ -133,18 +134,17 @@ func (c clusterNodeService) List(clusterName string) ([]dto.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	endpoint, err := c.ClusterService.GetApiServerEndpoint(clusterName)
-	if err != nil {
-		return nil, err
-	}
 	secret, err := c.ClusterService.GetSecrets(clusterName)
 	if err != nil {
 		return nil, err
 	}
+	endpoints, err := c.ClusterService.GetApiServerEndpoints(clusterName)
+	if err != nil {
+		return nil, err
+	}
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		return nil, err
