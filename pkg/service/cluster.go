@@ -145,12 +145,6 @@ func (c clusterService) GetSecrets(name string) (dto.ClusterSecret, error) {
 	if err != nil {
 		return secret, err
 	}
-	if cs.KubernetesToken == "" {
-		err := c.clusterInitService.GatherKubernetesToken(cluster)
-		if err != nil {
-			return secret, err
-		}
-	}
 	secret.ClusterSecret = cs
 
 	return secret, nil
@@ -230,34 +224,30 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	secret := model.ClusterSecret{
 		KubeadmToken: clusterUtil.GenerateKubeadmToken(),
 	}
-	cluster.Spec = spec
-	cluster.Status = status
-	cluster.Secret = secret
-
 	tx := db.DB.Begin()
-	if err := tx.Create(&cluster.Spec).Error; err != nil {
+	if err := tx.Create(&spec).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Create(&cluster.Status).Error; err != nil {
+	if err := tx.Create(&status).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	if err := tx.Create(&cluster.Secret).Error; err != nil {
+	if err := tx.Create(&secret).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	cluster.SpecID = cluster.Spec.ID
-	cluster.StatusID = cluster.Status.ID
-	cluster.SecretID = cluster.Secret.ID
+	cluster.SpecID = spec.ID
+	cluster.StatusID = status.ID
+	cluster.SecretID = secret.ID
 	if err := tx.Create(&cluster).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	switch cluster.Spec.Provider {
+	switch spec.Provider {
 	case constant.ClusterProviderPlan:
-		cluster.Spec.WorkerAmount = creation.WorkerAmount
+		spec.WorkerAmount = creation.WorkerAmount
 		var plan model.Plan
 		if err := tx.Where(model.Plan{Name: creation.Plan}).First(&plan).Error; err != nil {
 			tx.Rollback()
@@ -289,6 +279,7 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			if err := tx.Save(&host).Error; err != nil {
 				return nil, fmt.Errorf("can not save  host %s reason %s", nc.HostName, err.Error())
 			}
+			n.HostID = host.ID
 			if err := tx.Create(&n).Error; err != nil {
 				return nil, fmt.Errorf("can not create  node %s reason %s", n.Name, err.Error())
 			}
@@ -296,10 +287,10 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			cluster.Nodes = append(cluster.Nodes, n)
 		}
 		if len(cluster.Nodes) > 0 {
-			cluster.Spec.KubeRouter = cluster.Nodes[0].Host.Ip
+			spec.KubeRouter = cluster.Nodes[0].Host.Ip
 		}
 	}
-	if err := tx.Save(&cluster.Spec).Error; err != nil {
+	if err := tx.Save(&spec).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -314,6 +305,14 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	}
 	if err := tx.Create(&projectResource).Error; err != nil {
 		return nil, fmt.Errorf("can not create project  %s resource reason %s", project.Name, err.Error())
+	}
+	for _, tool := range cluster.PrepareTools() {
+		tool.ClusterID = cluster.ID
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("can not prepare cluster tool %s reason %s", tool.Name, err.Error())
+		}
 	}
 	tx.Commit()
 	if err := c.clusterInitService.Init(cluster.Name); err != nil {

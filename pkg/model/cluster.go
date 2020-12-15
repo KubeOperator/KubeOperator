@@ -32,48 +32,6 @@ type Cluster struct {
 
 func (c *Cluster) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
-
-
-	tx := db.DB.Begin()
-	if err := tx.Create(&c.Spec).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Create(&c.Status).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Create(&c.Secret).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	c.SpecID = c.Spec.ID
-	c.StatusID = c.Status.ID
-	c.SecretID = c.Secret.ID
-	for i := range c.Nodes {
-		c.Nodes[i].ClusterID = c.ID
-		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-		if c.Nodes[i].Host.ID != "" {
-			c.Nodes[i].Host.ClusterID = c.ID
-			err := tx.Save(&c.Nodes[i].Host).Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
-	for _, tool := range c.PrepareTools() {
-		tool.ClusterID = c.ID
-		err := tx.Create(&tool).Error
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-	tx.Commit()
 	return nil
 }
 
