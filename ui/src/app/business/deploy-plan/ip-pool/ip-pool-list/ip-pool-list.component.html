@@ -19,7 +19,7 @@
     <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
         <clr-dg-cell>{{item.subnet}}</clr-dg-cell>
-        <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
+        <clr-dg-cell><a routerLink="{{item.name}}">{{item.ipUsed}}/{{item.ips.length}}</a></clr-dg-cell>
         <clr-dg-cell>{{item.description}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
