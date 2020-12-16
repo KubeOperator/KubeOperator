@@ -12,16 +12,21 @@
             </button>
         </div>
     </clr-dg-action-bar>
-    、
     <clr-dg-column>{{'APP_NAME'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_SUBNET'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_IP_POOL_STATUS'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_DESCRIPTION'|translate}}</clr-dg-column>
     <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
         <clr-dg-cell>{{item.name}}</clr-dg-cell>
+        <clr-dg-cell>{{item.subnet}}</clr-dg-cell>
+        <clr-dg-cell><a routerLink="{{item.name}}">{{item.name}}</a></clr-dg-cell>
+        <clr-dg-cell>{{item.description}}</clr-dg-cell>
     </clr-dg-row>
     <clr-dg-footer>
         <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
                            (clrDgPageChange)="refresh()">
             {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
-            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_PLAN"|translate}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_IP_POOL"|translate}}
         </clr-dg-pagination>
     </clr-dg-footer>
 </clr-datagrid>

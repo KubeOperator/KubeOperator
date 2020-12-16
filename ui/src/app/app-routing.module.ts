@@ -63,6 +63,9 @@ import {MultiClusterLogComponent} from "./business/multi-cluster/multi-cluster-r
 import {MultiClusterSettingComponent} from "./business/multi-cluster/multi-cluster-repository-detail/multi-cluster-setting/multi-cluster-setting.component";
 import {SystemLogComponent} from "./business/system-log/system-log.component";
 import {IpPoolComponent} from './business/deploy-plan/ip-pool/ip-pool.component';
+import {IpComponent} from './business/deploy-plan/ip-pool/ip/ip.component';
+import {IpPoolRoutingResolverService} from './business/deploy-plan/ip-pool/ip-pool-routing-resolver.service';
+import {IpListComponent} from './business/deploy-plan/ip-pool/ip/ip-list/ip-list.component';
 
 const routes: Routes = [
     {path: 'login', component: LoginComponent},
@@ -177,7 +180,15 @@ const routes: Routes = [
                     {path: 'zone', component: ZoneComponent},
                     {path: 'plan', component: PlanComponent},
                     {path: 'vm-config', component: VmConfigComponent},
-                    {path: 'ip-pool', component: IpPoolComponent}
+                    {
+                        path: 'ip-pool',
+                        component: IpPoolComponent,
+                    },
+                    {
+                        path: 'ip-pool/:name',
+                        component: IpComponent,
+                        resolve: {ipPool: IpPoolRoutingResolverService},
+                    }
                 ]
             }, {
                 path: 'manifests',

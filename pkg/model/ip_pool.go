@@ -7,8 +7,10 @@ import (
 
 type IpPool struct {
 	common.BaseModel
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Subnet      string `json:"subnet"`
 }
 
 func (i *IpPool) BeforeCreate() (err error) {

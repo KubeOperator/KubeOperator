@@ -90,3 +90,16 @@ func (i IpPoolController) PostBatch() error {
 	}
 	return nil
 }
+
+// Get IpPool
+// @Tags ippools
+// @Summary Get IpPool
+// @Description get a IpPool
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.IpPool
+// @Security ApiKeyAuth
+// @Router /ippools/{name} [get]
+func (i IpPoolController) GetBy(name string) (dto.IpPool, error) {
+	return i.IpPoolService.Get(name)
+}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
@@ -17,11 +18,13 @@ type IpPoolService interface {
 
 type ipPoolService struct {
 	ipPoolRepo repository.IpPoolRepository
+	ipService  IpService
 }
 
 func NewIpPoolService() IpPoolService {
 	return &ipPoolService{
 		ipPoolRepo: repository.NewIpPoolRepository(),
+		ipService:  NewIpService(),
 	}
 }
 
@@ -55,15 +58,35 @@ func (i ipPoolService) Page(num, size int) (page.Page, error) {
 }
 
 func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
+	var ipPoolDTO dto.IpPool
 	ipPool := model.IpPool{
-		BaseModel: common.BaseModel{},
-		Name:      creation.Name,
+		BaseModel:   common.BaseModel{},
+		Name:        creation.Name,
+		Description: creation.Description,
+		Subnet:      creation.Subnet,
 	}
-	err := i.ipPoolRepo.Save(&ipPool)
+	tx := db.DB.Begin()
+	err := tx.Create(&ipPool).Error
 	if err != nil {
-		return dto.IpPool{}, err
+		tx.Rollback()
+		return ipPoolDTO, err
 	}
-	return dto.IpPool{ipPool}, err
+	err = i.ipService.Create(dto.IpCreate{
+		StartIp:  creation.IpStart,
+		EndIp:    creation.IpEnd,
+		Gateway:  creation.Gateway,
+		Subnet:   creation.Subnet,
+		IpPoolID: ipPool.ID,
+		DNS1:     creation.DNS1,
+		DNS2:     creation.DNS2,
+	})
+	if err != nil {
+		tx.Rollback()
+		return ipPoolDTO, err
+	}
+	tx.Commit()
+	ipPoolDTO.IpPool = ipPool
+	return ipPoolDTO, err
 }
 
 func (i ipPoolService) Batch(op dto.IpPoolOp) error {
