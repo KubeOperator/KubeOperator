@@ -59,6 +59,10 @@ func (s *SessionController) Post() (*dto.Profile, error) {
 			return nil, err
 		}
 		profile = p
+		sId := s.Ctx.GetCookie(constant.CookieNameForSessionID)
+		if sId != "" {
+			s.Ctx.RemoveCookie(constant.CookieNameForSessionID)
+		}
 		session := constant.Sess.Start(s.Ctx)
 		session.Set(constant.SessionUserKey, profile)
 	}
