@@ -1,0 +1,31 @@
+<clr-datagrid [clrDgLoading]="loading" [(clrDgSelected)]="selected">
+<!--    <clr-dg-action-bar>-->
+<!--        <div class="btn-group">-->
+<!--            <button type="button" class="btn btn-sm btn-secondary" (click)="onCreate()">-->
+<!--                <clr-icon shape="plus" size="16"></clr-icon>-->
+<!--                {{"APP_ADD"|translate}}-->
+<!--            </button>-->
+<!--            <button type="button" class="btn btn-sm btn-secondary" (click)="onDelete()" [disabled]="selected.length<1">-->
+<!--                <clr-icon shape="close"></clr-icon>-->
+<!--                {{"APP_DELETE"|translate}}-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </clr-dg-action-bar>-->
+    <clr-dg-column>{{'APP_IP'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_NETWORK_GATEWAY'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_NETWORK_DNS1'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'APP_NETWORK_DNS2'|translate}}</clr-dg-column>
+    <clr-dg-row *ngFor="let item of items" [clrDgItem]="item">
+        <clr-dg-cell>{{item.ip}}</clr-dg-cell>
+        <clr-dg-cell>{{item.gateway}}</clr-dg-cell>
+        <clr-dg-cell>{{item.dns1}}</clr-dg-cell>
+        <clr-dg-cell>{{item.dns2}}</clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>
+        <clr-dg-pagination #pagination [(clrDgPage)]="page" [clrDgPageSize]="size" [clrDgTotalItems]="total"
+                           (clrDgPageChange)="refresh()">
+            {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+            {{"APP_PAGER_TOTAL"|translate}} {{pagination.totalItems}} {{"APP_IP"|translate}}
+        </clr-dg-pagination>
+    </clr-dg-footer>
+</clr-datagrid>

@@ -7,7 +7,14 @@ type IpPool struct {
 }
 
 type IpPoolCreate struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Subnet      string `json:"subnet"`
+	IpStart     string `json:"ipStart"`
+	IpEnd       string `json:"ipEnd"`
+	Gateway     string `json:"gateway"`
+	DNS1        string `json:"dns1"`
+	DNS2        string `json:"dns2"`
 }
 
 type IpPoolOp struct {
