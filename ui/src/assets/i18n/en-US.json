@@ -360,6 +360,7 @@
   "APP_LABEL": "Label",
   "Ready": "Ready",
   "Waiting": "Waiting",
+  "Lost": "Lost",
   "APP_DOWNLOAD": "Download",
   "APP_SECURITY": "CIS Scan",
   "APP_LDAP_ADDRESS": "Address",
@@ -581,6 +582,6 @@
   "APP_RENAME": "Rename",
   "APP_GPU_INFO": "GPU info",
   "APP_SYSTEM_LOG": "System Log",
-  "APP_MASTER_HELPER":"The number of master nodes must be 1 or 3",
+  "APP_MASTER_HELPER": "The number of master nodes must be 1 or 3",
   "APP_IP_POOL": "IP Pool"
 }

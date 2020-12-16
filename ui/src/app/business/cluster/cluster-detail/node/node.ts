@@ -4,7 +4,7 @@ import {BaseModel} from "../../../../shared/class/BaseModel";
 export class Node extends BaseModel {
     name: string;
     status: string;
-    message: string;
+    ip: string;
     info: V1Node;
 }
 
