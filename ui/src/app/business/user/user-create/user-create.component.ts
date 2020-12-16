@@ -75,6 +75,15 @@ export class UserCreateComponent extends BaseModelDirective<User> implements OnI
         } else {
             this.validationStateMap['namePwd'] = true;
         }
+        const r = /^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!@#$%^&*]{6,30}$/g;
+        r.lastIndex = 0;
+        if (!r.test(this.userForm.form.get('password').value)) {
+            this.userForm.controls['password'].setErrors({passwordError: false});
+            this.validationStateMap['password'] = false;
+            return;
+        } else {
+            this.validationStateMap['password'] = true;
+        }
 
         if (this.userForm.form.get('rePassword').value !== null && this.userForm.form.get('password').value !== this.userForm.form.get('rePassword').value) {
             this.userForm.controls[key].setErrors({rePwdError: false});
