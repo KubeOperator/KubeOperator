@@ -22,6 +22,7 @@ const (
 	StatusRunning       = "Running"
 	StatusSuccess       = "Success"
 	StatusFailed        = "Failed"
+	StatusLost          = "Lost"
 )
 
 var (

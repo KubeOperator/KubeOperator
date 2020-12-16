@@ -366,6 +366,7 @@
   "APP_LABEL": "标签",
   "Ready": "就绪",
   "Waiting": "等待就绪",
+  "Lost": "失联",
   "APP_DOWNLOAD": "下载",
   "APP_SECURITY": "CIS 扫描",
   "APP_LDAP_ADDRESS": "地址",

@@ -105,16 +105,26 @@ func (c clusterNodeService) Page(num, size int, clusterName string) (*dto.NodePa
 	if err != nil {
 		return nil, err
 	}
+exit:
 	for _, node := range mNodes {
 		n := dto.Node{
 			ClusterNode: node,
+			Ip:          node.Host.Ip,
 		}
-		if node.Status == constant.ClusterRunning {
-			for _, kn := range kubeNodes.Items {
-				if node.Name == kn.Name {
-					n.Info = kn
-				}
+		for _, kn := range kubeNodes.Items {
+			if node.Name == kn.Name {
+				n.Info = kn
+				nodes = append(nodes, n)
+				continue exit
 			}
+		}
+		if n.Status == constant.StatusRunning {
+			n.Status = constant.StatusLost
+			go func() {
+				if err := db.DB.Save(&n.ClusterNode).Error; err != nil {
+					log.Error(err)
+				}
+			}()
 		}
 		nodes = append(nodes, n)
 	}
@@ -173,7 +183,7 @@ func (c clusterNodeService) Batch(clusterName string, item dto.NodeBatch) ([]dto
 	// 判断是否存在正在运行的节点变更任务
 	nodes, _ := c.NodeRepo.List(clusterName)
 	for _, node := range nodes {
-		if node.Status != constant.ClusterRunning && node.Status != constant.ClusterFailed {
+		if node.Status != constant.ClusterRunning && node.Status != constant.ClusterFailed && node.Status != constant.StatusLost {
 			return nil, errors.New("NODE_ALREADY_RUNNING_TASK")
 		}
 	}

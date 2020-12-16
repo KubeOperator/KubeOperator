@@ -360,6 +360,7 @@
   "APP_LABEL": "Label",
   "Ready": "Ready",
   "Waiting": "Waiting",
+  "Lost": "Lost",
   "APP_DOWNLOAD": "Download",
   "APP_SECURITY": "CIS Scan",
   "APP_LDAP_ADDRESS": "Address",
