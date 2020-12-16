@@ -33,7 +33,6 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.reset();
         const currentLanguage = localStorage.getItem('currentLanguage');
         if (currentLanguage) {
             this.loginCredential.language = currentLanguage;

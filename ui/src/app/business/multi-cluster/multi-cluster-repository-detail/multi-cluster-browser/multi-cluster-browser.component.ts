@@ -157,9 +157,8 @@ export class MultiClusterBrowserComponent implements OnInit {
             root.name = '/';
             root.dir = true;
             root.children.push(data);
-            this.tree = root
+            this.tree = root;
         }, error => {
-            console.log(error);
         });
     }
 
