@@ -144,7 +144,7 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  
  Release Note: https://blog.fit2cloud.com/?p=1669
 
- ## v3.5 (计划中)
+ ## v3.5 (开发中)
  
  - [ ] 集群异常状态诊断及修复；
  - [ ] 支持 Istio；
