@@ -1,1 +1,11 @@
-<p>ip-delete works!</p>
+<clr-modal [(clrModalOpen)]="opened" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"APP_DELETE"|translate}}</h3>
+    <div class="modal-body">
+        <p>{{"APP_DEFAULT_DELETE_WARNING"|translate}}</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" [disabled]="isSubmitGoing" (click)="onCancel()">{{"APP_CANCEL"|translate}}</button>
+        <button class="btn btn-primary" [clrLoading]="isSubmitGoing"
+                (click)="onSubmit()">{{"APP_COMMIT"|translate}}</button>
+    </div>
+</clr-modal>

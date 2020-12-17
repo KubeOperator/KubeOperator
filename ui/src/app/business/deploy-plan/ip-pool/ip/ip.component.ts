@@ -34,4 +34,16 @@ export class IpComponent implements OnInit {
     backToIpPool() {
         this.router.navigate(['deploy/ip-pool']);
     }
+
+    openCreate() {
+    }
+
+    openDelete(items) {
+        this.delete.open(items);
+    }
+
+    refresh() {
+        this.list.reset();
+        this.list.refresh();
+    }
 }

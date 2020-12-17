@@ -4,6 +4,7 @@ import {Ip} from './ip';
 import {HttpClient} from '@angular/common/http';
 import {Page} from '../../../../shared/class/Page';
 import {Observable} from 'rxjs';
+import {Batch} from '../../../../shared/class/Batch';
 
 @Injectable({
     providedIn: 'root'
@@ -23,5 +24,14 @@ export class IpService extends BaseModelService<Ip> {
         }
         const pageUrl = `${url}?pageNum=${page}&pageSize=${size}`;
         return this.http.get<Page<Ip>>(pageUrl);
+    }
+
+    batch(method: string, items: Ip[], ipPoolName?: string): Observable<any> {
+        let batchUrl = this.baseUrl + '/batch/';
+        if (ipPoolName) {
+            batchUrl = batchUrl.replace('{name}', ipPoolName);
+        }
+        const b = new Batch<Ip>(method, items);
+        return this.http.post(batchUrl, b);
     }
 }

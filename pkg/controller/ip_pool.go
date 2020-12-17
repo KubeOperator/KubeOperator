@@ -84,11 +84,7 @@ func (i IpPoolController) PostBatch() error {
 	if err != nil {
 		return err
 	}
-	err = i.IpPoolService.Batch(req)
-	if err != nil {
-		return err
-	}
-	return nil
+	return i.IpPoolService.Batch(req)
 }
 
 // Get IpPool

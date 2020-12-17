@@ -60,6 +60,7 @@ var SystemRules = loader.AdvancedRules{
 			"/api/v1/ippools",
 			"/api/v1/ippools/{**}",
 			"/api/v1/ippools/{**}/{**}",
+			"/api/v1/ippools/{**}/{**}/{**}",
 		},
 		Method: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 		Permission: &grbac.Permission{

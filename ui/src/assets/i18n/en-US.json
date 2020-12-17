@@ -584,5 +584,6 @@
   "APP_SYSTEM_LOG": "System Log",
   "APP_MASTER_HELPER":"The number of master nodes must be 1 or 3",
   "APP_IP_POOL": "IP Pool",
-  "APP_IP_POOL_STATUS": "IP usage"
+  "APP_IP_POOL_STATUS": "IP usage",
+  "IP_AVAILABLE": "Available"
 }

@@ -80,13 +80,13 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 		return ipPoolDTO, err
 	}
 	err = i.ipService.Create(dto.IpCreate{
-		StartIp:  creation.IpStart,
-		EndIp:    creation.IpEnd,
-		Gateway:  creation.Gateway,
-		Subnet:   creation.Subnet,
-		IpPoolID: ipPool.ID,
-		DNS1:     creation.DNS1,
-		DNS2:     creation.DNS2,
+		StartIp:    creation.IpStart,
+		EndIp:      creation.IpEnd,
+		Gateway:    creation.Gateway,
+		Subnet:     creation.Subnet,
+		IpPoolName: ipPool.Name,
+		DNS1:       creation.DNS1,
+		DNS2:       creation.DNS2,
 	})
 	if err != nil {
 		tx.Rollback()

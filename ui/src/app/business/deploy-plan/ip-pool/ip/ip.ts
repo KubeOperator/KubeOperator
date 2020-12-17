@@ -1,7 +1,7 @@
 import {BaseModel} from '../../../../shared/class/BaseModel';
 
 export class Ip extends BaseModel {
-    ip: string;
+    address: string;
     gateway: string;
     dns1: string;
     dns2: string;

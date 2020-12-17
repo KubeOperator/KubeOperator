@@ -8,7 +8,7 @@ import (
 type Ip struct {
 	common.BaseModel
 	ID       string `json:"id" gorm:"type:varchar(64)"`
-	Ip       string `json:"ip" gorm:"type:varchar(255)"`
+	Address  string `json:"address" gorm:"type:varchar(255)"`
 	Gateway  string `json:"gateway" gorm:"type:varchar(255)"`
 	DNS1     string `json:"dns1" gorm:"type:varchar(255)"`
 	DNS2     string `json:"dns2" gorm:"type:varchar(255)"`

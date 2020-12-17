@@ -8,11 +8,16 @@ type Ip struct {
 }
 
 type IpCreate struct {
-	StartIp  string `json:"startIp"`
-	EndIp    string `json:"endIp"`
-	Subnet   string `json:"subnet"`
-	Gateway  string `json:"gateway"`
-	DNS1     string `json:"dns1"`
-	DNS2     string `json:"dns2"`
-	IpPoolID string `json:"ipPoolId"`
+	StartIp    string `json:"startIp"`
+	EndIp      string `json:"endIp"`
+	Subnet     string `json:"subnet"`
+	Gateway    string `json:"gateway"`
+	DNS1       string `json:"dns1"`
+	DNS2       string `json:"dns2"`
+	IpPoolName string `json:"ipPoolName"`
+}
+
+type IpOp struct {
+	Operation string `json:"operation"  validate:"required"`
+	Items     []Ip   `json:"items"  validate:"required"`
 }
