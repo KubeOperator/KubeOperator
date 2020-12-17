@@ -23,6 +23,9 @@ const (
 	StatusSuccess       = "Success"
 	StatusFailed        = "Failed"
 	StatusLost          = "Lost"
+	StatusCreating      = "Creating"
+	StatusInitializing  = "Initializing"
+	StatusTerminating   = "Terminating"
 )
 
 var (
