@@ -19,7 +19,6 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 type ClusterNodeService interface {
@@ -38,7 +37,6 @@ func NewClusterNodeService() ClusterNodeService {
 		HostRepo:            repository.NewHostRepository(),
 		PlanRepo:            repository.NewPlanRepository(),
 		systemSettingRepo:   repository.NewSystemSettingRepository(),
-		clusterLogService:   NewClusterLogService(),
 		projectResourceRepo: repository.NewProjectResourceRepository(),
 		messageService:      NewMessageService(),
 		vmConfigRepo:        repository.NewVmConfigRepository(),
@@ -51,7 +49,6 @@ type clusterNodeService struct {
 	HostRepo            repository.HostRepository
 	PlanRepo            repository.PlanRepository
 	systemSettingRepo   repository.SystemSettingRepository
-	clusterLogService   ClusterLogService
 	projectResourceRepo repository.ProjectResourceRepository
 	messageService      MessageService
 	vmConfigRepo        repository.VmConfigRepository
@@ -227,10 +224,6 @@ func (c clusterNodeService) batchDelete(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.ClusterNode) {
-	clog := c.initClusterLog(cluster.Name)
-	if err := c.clusterLogService.Start(clog); err != nil {
-		log.Error(err)
-	}
 	for i := range nodes {
 		nodes[i].Status = constant.ClusterTerminating
 		db.DB.Save(&nodes[i])
@@ -264,10 +257,6 @@ func (c *clusterNodeService) doDelete(cluster *model.Cluster, nodes []*model.Clu
 		_ = c.NodeRepo.Delete(nodes[i].ID)
 	}
 	_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterRemoveWorker, true, ""), cluster.Name, constant.ClusterRemoveWorker)
-	e := c.clusterLogService.End(clog, true, "")
-	if e != nil {
-		log.Error(e)
-	}
 }
 
 func (c *clusterNodeService) destroyHosts(cluster *model.Cluster, nodes []*model.ClusterNode) error {
@@ -318,7 +307,6 @@ func (c clusterNodeService) batchCreate(clusterName string, item dto.NodeBatch) 
 }
 
 func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.ClusterNode) {
-	clog := c.initClusterLog(cluster.Name)
 	switch cluster.Spec.Provider {
 	case constant.ClusterProviderPlan:
 		allNodes, _ := c.NodeRepo.List(cluster.Name)
@@ -329,10 +317,6 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 		err := c.doCreateHosts(cluster, allHosts)
 		// 处理创建主机错误
 		if err != nil {
-			e := c.clusterLogService.End(clog, false, err.Error())
-			if e != nil {
-				log.Error(e)
-			}
 			// 删除主机和节点
 			for i := range nodes {
 				db.DB.Delete(model.ClusterNode{ID: nodes[i].ID})
@@ -402,9 +386,6 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 				db.DB.Delete(model.Host{ID: nodes[i].HostID})
 			}
 		}
-		if e := c.clusterLogService.End(clog, false, err.Error()); e != nil {
-			log.Error(e.Error())
-		}
 		if e := c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterAddWorker, false, err.Error()), cluster.Name, constant.ClusterAddWorker); e != nil {
 			log.Error(e.Error())
 		}
@@ -416,28 +397,11 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 			log.Error(err.Error())
 		}
 	}
-	if e := c.clusterLogService.End(clog, true, ""); e != nil {
-		log.Error(e.Error())
-	}
 	if e := c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterAddWorker, true, ""), cluster.Name, constant.ClusterAddWorker); e != nil {
 		log.Error(e.Error())
 	}
 }
 
-func (c *clusterNodeService) initClusterLog(clusterName string) *model.ClusterLog {
-	clog := model.ClusterLog{
-		Type:      constant.ClusterLogTypeAddNode,
-		StartTime: time.Now(),
-		EndTime:   time.Now(),
-	}
-	if err := c.clusterLogService.Save(clusterName, &clog); err != nil {
-		log.Error(err.Error())
-	}
-	if err := c.clusterLogService.Start(&clog); err != nil {
-		log.Error(err.Error())
-	}
-	return &clog
-}
 
 func (c clusterNodeService) doBareMetalCreateNodes(cluster model.Cluster, item dto.NodeBatch) ([]*model.ClusterNode, error) {
 	var hosts []*model.Host
