@@ -18,6 +18,7 @@ type ClusterNode struct {
 	ClusterID string `json:"clusterId"`
 	Role      string `json:"role"`
 	Status    string `json:"status"`
+	Dirty     bool   `json:"dirty"`
 }
 
 func (n *ClusterNode) BeforeCreate() (err error) {

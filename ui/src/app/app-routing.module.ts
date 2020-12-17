@@ -34,7 +34,6 @@ import {ProjectDetailComponent} from './business/project/project-detail/project-
 import {ProjectRoutingResolverService} from './business/project/project-routing-resolver.service';
 import {ProjectResourceComponent} from './business/project/project-resource/project-resource.component';
 import {ProjectMemberComponent} from './business/project/project-member/project-member.component';
-import {LogComponent} from './business/cluster/cluster-detail/log/log.component';
 import {BackupAccountComponent} from './business/setting/backup-account/backup-account.component';
 import {BackupComponent} from './business/cluster/cluster-detail/backup/backup.component';
 import {LicenseComponent} from './business/setting/license/license.component';
@@ -128,7 +127,6 @@ const routes: Routes = [
                     },
                     {path: 'tool', component: ToolsComponent},
                     {path: 'backup', component: BackupComponent},
-                    {path: 'logs', component: LogComponent},
                     {path: 'grade', component: ClusterGradeComponent},
                     {path: 'f5', component: F5Component}
                 ],
