@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -46,9 +47,15 @@ func (i ipService) Create(create dto.IpCreate) error {
 	}
 	cs := strings.Split(create.Subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
-	ips := ipaddr.GenerateIps(cs[0], mask, create.StartIp, create.EndIp)
+	ips := ipaddr.GenerateIps(cs[0], mask, create.IpStart, create.IpEnd)
 	tx := db.DB.Begin()
 	for _, ip := range ips {
+		var old model.Ip
+		tx.Where(model.Ip{Address: ip}).First(&old)
+		if old.ID != "" {
+			tx.Rollback()
+			return errors.New("IP_EXISTS")
+		}
 		err := tx.Create(&model.Ip{
 			Address:  ip,
 			Gateway:  create.Gateway,

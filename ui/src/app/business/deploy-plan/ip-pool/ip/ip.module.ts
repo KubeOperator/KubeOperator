@@ -5,6 +5,7 @@ import {IpCreateComponent} from './ip-create/ip-create.component';
 import {IpDeleteComponent} from './ip-delete/ip-delete.component';
 import {IpListComponent} from './ip-list/ip-list.component';
 import {CoreModule} from '../../../../core/core.module';
+import {SharedModule} from '../../../../shared/shared.module';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import {CoreModule} from '../../../../core/core.module';
     ],
     imports: [
         CommonModule,
-        CoreModule
+        CoreModule,
+        SharedModule
     ]
 })
 export class IpModule {

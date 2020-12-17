@@ -36,6 +36,7 @@ export class IpComponent implements OnInit {
     }
 
     openCreate() {
+        this.create.open();
     }
 
     openDelete(items) {
