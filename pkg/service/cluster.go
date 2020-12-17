@@ -1,16 +1,19 @@
 package service
 
 import (
-	"errors"
 	"fmt"
-	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/repository"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/facts"
+	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/adm/phases"
 	clusterUtil "github.com/KubeOperator/KubeOperator/pkg/util/cluster"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kobe"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kotf"
 	"github.com/KubeOperator/KubeOperator/pkg/util/kubeconfig"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	"github.com/KubeOperator/KubeOperator/pkg/util/ssh"
 	"github.com/KubeOperator/KubeOperator/pkg/util/webkubectl"
 )
@@ -44,7 +47,6 @@ func NewClusterService() ClusterService {
 		hostRepo:                   repository.NewHostRepository(),
 		clusterInitService:         NewClusterInitService(),
 		planRepo:                   repository.NewPlanRepository(),
-		clusterTerminalService:     NewCLusterTerminalService(),
 		projectRepository:          repository.NewProjectRepository(),
 		projectResourceRepository:  repository.NewProjectResourceRepository(),
 		clusterLogService:          NewClusterLogService(),
@@ -62,7 +64,6 @@ type clusterService struct {
 	hostRepo                   repository.HostRepository
 	planRepo                   repository.PlanRepository
 	clusterInitService         ClusterInitService
-	clusterTerminalService     ClusterTerminalService
 	projectRepository          repository.ProjectRepository
 	projectResourceRepository  repository.ProjectResourceRepository
 	clusterLogService          ClusterLogService
@@ -321,6 +322,93 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 	return &dto.Cluster{Cluster: cluster}, nil
 }
 
+func (c *clusterService) Delete(name string) error {
+	cluster, err := c.Get(name)
+	if err != nil {
+		return fmt.Errorf("can not get cluster %s reason %s", name, err)
+	}
+	if cluster.Dirty {
+		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+			return fmt.Errorf("can not delete cluster %s reason %s", name, err)
+		}
+		return nil
+	}
+	switch cluster.Source {
+	case constant.ClusterSourceLocal:
+		switch cluster.Status {
+		case constant.StatusRunning, constant.StatusLost, constant.StatusFailed:
+			cluster.Cluster.Status.Phase = constant.StatusTerminating
+			if err := db.DB.Save(&cluster.Cluster.Status).Error; err != nil {
+				return fmt.Errorf("can not update cluster %s status", cluster.Name)
+			}
+			switch cluster.Spec.Provider {
+			case constant.ClusterProviderBareMetal:
+				go func() {
+					log.Infof("start uninstall cluster %s", cluster.Name)
+					if err := c.uninstallCluster(&cluster.Cluster); err != nil {
+						log.Errorf("uninstall cluster %s error %s", cluster.Name, err.Error())
+					}
+					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+						log.Errorf("delete cluster error %s", err.Error())
+					}
+					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+				}()
+			case constant.ClusterProviderPlan:
+				go func() {
+					log.Infof("start destroy cluster %s", cluster.Name)
+					if err := c.destroyCluster(&cluster.Cluster); err != nil {
+						log.Errorf("destroy cluster %s error %s", cluster.Name, err.Error())
+					}
+					if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+						log.Errorf("delete cluster error %s", err.Error())
+					}
+					_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+				}()
+			}
+		case constant.StatusCreating, constant.StatusInitializing:
+			return fmt.Errorf("can not delete cluster %s in this  status %s", cluster.Name, cluster.Status)
+		case constant.StatusTerminating:
+			return fmt.Errorf("cluster %s already in status %s", cluster.Name, cluster.Status)
+		}
+	case constant.ClusterSourceExternal:
+		if err := db.DB.Delete(&cluster.Cluster).Error; err != nil {
+			return err
+		}
+		_ = c.messageService.SendMessage(constant.System, false, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
+	}
+	return nil
+}
+
+const terminalPlaybookName = "99-reset-cluster.yml"
+
+func (c *clusterService) uninstallCluster(cluster *model.Cluster) error {
+	inventory := cluster.ParseInventory()
+	k := kobe.NewAnsible(&kobe.Config{
+		Inventory: inventory,
+	})
+	for i := range facts.DefaultFacts {
+		k.SetVar(i, facts.DefaultFacts[i])
+	}
+	vars := cluster.GetKobeVars()
+	for key, value := range vars {
+		k.SetVar(key, value)
+	}
+	err := phases.RunPlaybookAndGetResult(k, terminalPlaybookName, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *clusterService) destroyCluster(cluster *model.Cluster) error {
+	k := kotf.NewTerraform(&kotf.Config{Cluster: cluster.Name})
+	_, err := k.Destroy()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c clusterService) GetApiServerEndpoint(name string) (kubernetes.Host, error) {
 	var result kubernetes.Host
 	cluster, err := c.clusterRepo.Get(name)
@@ -393,45 +481,6 @@ func (c clusterService) GetWebkubectlToken(name string) (dto.WebkubectlToken, er
 	}
 
 	return token, nil
-}
-
-func (c clusterService) Delete(name string) error {
-	cluster, err := c.Get(name)
-	if err != nil {
-		return err
-	}
-	switch cluster.Source {
-	case constant.ClusterSourceLocal:
-		switch cluster.Status {
-		case constant.ClusterRunning:
-			go c.clusterTerminalService.Terminal(cluster.Cluster)
-		case constant.ClusterCreating, constant.ClusterInitializing:
-			return errors.New("CLUSTER_DELETE_FAILED")
-		case constant.ClusterFailed:
-			if cluster.Spec.Provider == constant.ClusterProviderPlan {
-				var hosts []model.Host
-				db.DB.Where(model.Host{ClusterID: cluster.ID}).Find(&hosts)
-				if len(hosts) > 0 {
-					go c.clusterTerminalService.Terminal(cluster.Cluster)
-				} else {
-					_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-					err = c.clusterRepo.Delete(name)
-					if err != nil {
-						return err
-					}
-				}
-			} else {
-				go c.clusterTerminalService.Terminal(cluster.Cluster)
-			}
-		}
-	case constant.ClusterSourceExternal:
-		_ = c.messageService.SendMessage(constant.System, true, GetContent(constant.ClusterUnInstall, true, ""), cluster.Name, constant.ClusterUnInstall)
-		err = c.clusterRepo.Delete(name)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (c clusterService) Batch(batch dto.ClusterBatch) error {
