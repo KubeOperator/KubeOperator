@@ -128,6 +128,8 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 集群事件支持启用、禁用 npd；
  - [x] restapi 开启 rbac 认证；
  - [x] 支持 session 和 jwt 两种认证方式；
+ 
+ Release Note: https://blog.fit2cloud.com/?p=1612
 
  ## v3.4 (已发布)
  
@@ -139,11 +141,13 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [x] 批量导入主机；
  - [x] 忘记密码；
  - [x] 应用商店增加 Kuboard、TensorFlow；
-
- ## v3.5 (计划中)
  
- - [ ] 集群诊断、修复；
- - [ ] 支持 istio；
+ Release Note: https://blog.fit2cloud.com/?p=1669
+
+ ## v3.5 (开发中)
+ 
+ - [ ] 集群异常状态诊断及修复；
+ - [ ] 支持 Istio；
  - [ ] 自动模式创建主机支持 IP 池；
- - [ ] 自定义 ansible、terraform 并发参数；
- - [ ] 版本管理支持上传 k8s 离线包；
+ - [ ] 支持自定义 Ansible、Terraform 并发参数；
+ - [ ] 版本管理支持上传 K8s 离线包；
