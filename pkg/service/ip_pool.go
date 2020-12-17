@@ -80,8 +80,8 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 		return ipPoolDTO, err
 	}
 	err = i.ipService.Create(dto.IpCreate{
-		StartIp:    creation.IpStart,
-		EndIp:      creation.IpEnd,
+		IpStart:    creation.IpStart,
+		IpEnd:      creation.IpEnd,
 		Gateway:    creation.Gateway,
 		Subnet:     creation.Subnet,
 		IpPoolName: ipPool.Name,

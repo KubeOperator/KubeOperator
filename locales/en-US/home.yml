@@ -29,11 +29,6 @@ HOST_IMPORT_FAILED_NUM: "A total of %s rows of data are abnormal, skip"
 HOST_IMPORT_FAILED_SAVE: "Failed to save host %s, reason:%s"
 
 
-
-
-
-
-
 #user
 PASSWORD_NOT_MATCH: "The password is incorrect"
 ORIGINAL_NOT_MATCH: "The original password is incorrect"
@@ -99,6 +94,9 @@ CIS_TASK_ALREADY_RUNNING: "cis task already running"
 #vmConfig
 VM_CONFIG_EXISTS: "Configuration already exists"
 VM_CONFIG_DELETE_FAILED: "The configuration already belongs to the deployment plan! This operation cannot be performed!"
+
+#ip
+IP_EXISTS: "The entered IP segment conflicts with the existing IP segment, please fill in again"
 
 
 
