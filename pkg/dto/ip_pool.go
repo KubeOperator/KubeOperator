@@ -4,6 +4,7 @@ import "github.com/KubeOperator/KubeOperator/pkg/model"
 
 type IpPool struct {
 	model.IpPool
+	IpUsed int `json:"ipUsed"`
 }
 
 type IpPoolCreate struct {

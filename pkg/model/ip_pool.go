@@ -11,6 +11,7 @@ type IpPool struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Subnet      string `json:"subnet"`
+	Ips         []Ip   `json:"ips"`
 }
 
 func (i *IpPool) BeforeCreate() (err error) {

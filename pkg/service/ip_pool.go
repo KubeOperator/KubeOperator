@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
@@ -34,22 +35,29 @@ func (i ipPoolService) Get(name string) (dto.IpPool, error) {
 	if err != nil {
 		return ipPoolDTO, err
 	}
-	ipPoolDTO = dto.IpPool{
-		ipPool,
-	}
+	ipPoolDTO.IpPool = ipPool
 	return ipPoolDTO, nil
 }
 
 func (i ipPoolService) Page(num, size int) (page.Page, error) {
 	var page page.Page
 	var ipPoolDTOS []dto.IpPool
-	total, mos, err := i.ipPoolRepo.Page(num, size)
+	var total int
+	var ipPools []model.IpPool
+	err := db.DB.Model(model.IpPool{}).Preload("Ips").Count(&total).Find(&ipPools).Offset((num - 1) * size).Limit(size).Error
 	if err != nil {
 		return page, err
 	}
-	for _, mo := range mos {
+	for _, mo := range ipPools {
+		ipUsed := 0
+		for _, ip := range mo.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
 		ipPoolDTOS = append(ipPoolDTOS, dto.IpPool{
 			IpPool: mo,
+			IpUsed: ipUsed,
 		})
 	}
 	page.Total = total
@@ -97,5 +105,27 @@ func (i ipPoolService) Batch(op dto.IpPoolOp) error {
 			Name:      item.Name,
 		})
 	}
-	return i.ipPoolRepo.Batch(op.Operation, opItems)
+	tx := db.DB.Begin()
+	switch op.Operation {
+	case constant.BatchOperationDelete:
+		for i := range opItems {
+			var ipPool model.IpPool
+			if err := tx.Where(model.IpPool{Name: opItems[i].Name}).First(&ipPool).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := tx.Delete(&ipPool).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := tx.Where(model.Ip{IpPoolID: ipPool.ID}).Delete(&model.Ip{}).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	default:
+		return constant.NotSupportedBatchOperation
+	}
+	tx.Commit()
+	return nil
 }

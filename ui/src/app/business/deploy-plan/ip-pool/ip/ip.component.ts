@@ -2,6 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {IpListComponent} from './ip-list/ip-list.component';
 import {IpCreateComponent} from './ip-create/ip-create.component';
 import {IpDeleteComponent} from './ip-delete/ip-delete.component';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
     selector: 'app-ip',
@@ -9,6 +10,8 @@ import {IpDeleteComponent} from './ip-delete/ip-delete.component';
     styleUrls: ['./ip.component.css']
 })
 export class IpComponent implements OnInit {
+
+    ipPoolName: string;
 
     @ViewChild(IpListComponent, {static: true})
     list: IpListComponent;
@@ -19,11 +22,16 @@ export class IpComponent implements OnInit {
     @ViewChild(IpDeleteComponent, {static: true})
     delete: IpDeleteComponent;
 
-
-    constructor() {
+    constructor(private router: Router, private route: ActivatedRoute) {
+        this.route.data.subscribe(data => {
+            this.ipPoolName = data.ipPool.name;
+        });
     }
 
     ngOnInit(): void {
     }
 
+    backToIpPool() {
+        this.router.navigate(['deploy/ip-pool']);
+    }
 }
