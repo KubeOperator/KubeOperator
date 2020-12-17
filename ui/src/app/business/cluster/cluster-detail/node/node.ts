@@ -6,6 +6,7 @@ export class Node extends BaseModel {
     status: string;
     ip: string;
     info: V1Node;
+    message: string;
 }
 
 export class Class {
