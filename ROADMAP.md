@@ -145,8 +145,5 @@ Release Note: https://blog.fit2cloud.com/?p=1416
  - [ ] 集群诊断、修复；
  - [ ] 支持 istio；
  - [ ] 自动模式创建主机支持 IP 池；
- - [ ] 版本管理支持上传 k8s 离线包；
- - [ ] F5 动态管理 ingress（X-Pack）；
  - [ ] 自定义 ansible、terraform 并发参数；
- - [ ] 支持 grafana、cert-manager；
- - [ ] 持久化存储使用 out-of-tree 插件；
+ - [ ] 版本管理支持上传 k8s 离线包；
