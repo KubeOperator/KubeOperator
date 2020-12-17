@@ -13,9 +13,9 @@ func TestKotfIint(t *testing.T) {
 	// vsphere example
 	provider := `{
     "name": "vSphere",
-    "username": "administrator@vsphere.local",
-    "password": "Calong@2015",
-    "host": "172.16.10.20"
+    "username": "",
+    "password": "",
+    "host": ""
   }`
 	cloudRegion := `{
     "datacenter": "Datacenter",
