@@ -96,10 +96,13 @@ func (h hostRepository) Save(host *model.Host) error {
 	if host.Name == "" {
 		return nil
 	}
+	tx := db.DB.Begin()
 	if db.DB.NewRecord(host) {
-		return db.DB.Create(&host).Error
+		if err := tx.Create(&host).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	} else {
-		tx := db.DB.Begin()
 		if len(host.Volumes) > 0 {
 			for i := range host.Volumes {
 				var volume model.Volume
@@ -123,9 +126,18 @@ func (h hostRepository) Save(host *model.Host) error {
 			tx.Rollback()
 			return err
 		}
-		tx.Commit()
-		return nil
 	}
+	var ip model.Ip
+	tx.Where(model.Ip{Address: host.Ip}).First(&ip)
+	if ip.ID != "" && ip.Status != constant.IpUsed {
+		ip.Status = constant.IpUsed
+		if err := tx.Save(&ip).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
 }
 
 func (h hostRepository) ListByClusterId(clusterId string) ([]model.Host, error) {
@@ -152,6 +164,15 @@ func (h hostRepository) BatchSave(hosts []*model.Host) error {
 			}
 		} else {
 			if err := tx.Save(hosts[i]).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		var ip model.Ip
+		tx.Where(model.Ip{Address: hosts[i].Ip}).First(&ip)
+		if ip.ID != "" && ip.Status != constant.IpUsed {
+			ip.Status = constant.IpUsed
+			if err := tx.Save(&ip).Error; err != nil {
 				tx.Rollback()
 				return err
 			}

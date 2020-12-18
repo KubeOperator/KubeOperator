@@ -590,5 +590,6 @@
   "APP_IP_POOL": "IP 池",
   "APP_IP_POOL_STATUS": "IP 使用情况",
   "IP_AVAILABLE": "可用",
-  "IP_LOCK": "占用"
+  "IP_LOCK": "占用",
+  "IP_USED": "使用中"
 }

@@ -586,5 +586,6 @@
   "APP_IP_POOL": "IP Pool",
   "APP_IP_POOL_STATUS": "IP usage",
   "IP_AVAILABLE": "Available",
-  "IP_LOCK": "Lock"
+  "IP_LOCK": "Lock",
+  "IP_USED": "Using"
 }
