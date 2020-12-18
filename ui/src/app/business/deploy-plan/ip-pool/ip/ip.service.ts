@@ -43,4 +43,12 @@ export class IpService extends BaseModelService<Ip> {
         }
         return this.http.post<Ip>(url, item);
     }
+
+    update(name: string, item: BaseRequest, ipPoolName?: string): Observable<Ip> {
+        let url = this.baseUrl;
+        if (ipPoolName) {
+            url = this.baseUrl.replace('{name}', ipPoolName);
+        }
+        return this.http.patch<Ip>(url, item);
+    }
 }

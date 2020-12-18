@@ -21,3 +21,8 @@ type IpOp struct {
 	Operation string `json:"operation"  validate:"required"`
 	Items     []Ip   `json:"items"  validate:"required"`
 }
+
+type IpUpdate struct {
+	Address   string `json:"address"`
+	Operation string `json:"operation"`
+}

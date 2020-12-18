@@ -78,3 +78,27 @@ func (i IpController) PostBatch() error {
 	}
 	return i.IpService.Batch(req)
 }
+
+// Update Ip
+// @Tags ips
+// @Summary Update a Ip
+// @Description Update a Ip
+// @Accept  json
+// @Produce  json
+// @Param request body dto.IpUpdate true "request"
+// @Success 200 {object} dto.Ip
+// @Security ApiKeyAuth
+// @Router /ippools/{name}/ips  [patch]
+func (i IpController) Patch() (*dto.Ip, error) {
+	var req dto.IpUpdate
+	err := i.Ctx.ReadJSON(&req)
+	if err != nil {
+		return nil, err
+	}
+	validate := validator.New()
+	err = validate.Struct(req)
+	if err != nil {
+		return nil, err
+	}
+	return i.IpService.Update(req)
+}

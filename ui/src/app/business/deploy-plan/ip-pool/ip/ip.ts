@@ -17,3 +17,8 @@ export class IpCreate extends BaseRequest {
     ipPoolName: string;
     subnet: string;
 }
+
+export class IpUpdate extends BaseRequest {
+    address: string;
+    operation: string;
+}

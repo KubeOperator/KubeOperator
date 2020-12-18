@@ -17,6 +17,7 @@ type IpService interface {
 	Create(create dto.IpCreate) error
 	Page(num, size int, ipPoolName string) (page.Page, error)
 	Batch(op dto.IpOp) error
+	Update(update dto.IpUpdate) (*dto.Ip, error)
 }
 
 type ipService struct {
@@ -117,4 +118,29 @@ func (i ipService) Batch(op dto.IpOp) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (i ipService) Update(update dto.IpUpdate) (*dto.Ip, error) {
+	tx := db.DB.Begin()
+	var ip model.Ip
+	err := tx.Where(model.Ip{Address: update.Address}).First(&ip).Error
+	if err != nil {
+		return nil, err
+	}
+	switch update.Operation {
+	case "LOCK":
+		ip.Status = constant.IpLock
+		break
+	case "UNLOCK":
+		ip.Status = constant.IpAvailable
+		break
+	default:
+		break
+	}
+	err = tx.Save(&ip).Error
+	if err != nil {
+		return nil, err
+	}
+	tx.Commit()
+	return &dto.Ip{Ip: ip}, err
 }

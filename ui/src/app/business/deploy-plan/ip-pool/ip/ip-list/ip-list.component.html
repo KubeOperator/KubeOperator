@@ -24,10 +24,10 @@
         <clr-dg-cell>{{item.dns2}}</clr-dg-cell>
         <clr-dg-cell>{{item.status | translate}}</clr-dg-cell>
         <clr-dg-cell>
-            <span class="color-square" *ngIf="item.status === 'IP_AVAILABLE'">
+            <span class="color-square" *ngIf="item.status === 'IP_AVAILABLE'" (click)="update(item,'LOCK')">
                 <clr-icon shape="lock"></clr-icon>
             </span>
-            <span class="color-square" *ngIf="item.status !== 'IP_AVAILABLE'">
+            <span class="color-square" *ngIf="item.status !== 'IP_AVAILABLE'" (click)="update(item,'UNLOCK')">
                  <clr-icon shape="unlock"></clr-icon>
             </span>
         </clr-dg-cell>
