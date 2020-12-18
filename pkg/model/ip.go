@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/KubeOperator/KubeOperator/pkg/constant"
+	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/model/common"
 	uuid "github.com/satori/go.uuid"
 )
@@ -19,4 +21,14 @@ type Ip struct {
 func (i *Ip) BeforeCreate() (err error) {
 	i.ID = uuid.NewV4().String()
 	return err
+}
+
+func (i *Ip) BeforeDelete() (err error) {
+	if i.Status != constant.IpAvailable {
+		var errs errorf.CErrFs
+		errs = errs.Add(errorf.New("IP_NOT_AVAILABLE", i.Address))
+		return errs
+	} else {
+		return nil
+	}
 }

@@ -96,7 +96,7 @@ VM_CONFIG_DELETE_FAILED: "配置已经属于部署计划！不能进行此操作
 
 #ip
 IP_EXISTS: "填写的IP段与已有IP段冲突，请重新填写"
-
+IP_NOT_AVAILABLE: "IP %s 被占用，不能被释放"
 
 
 

@@ -97,6 +97,7 @@ VM_CONFIG_DELETE_FAILED: "The configuration already belongs to the deployment pl
 
 #ip
 IP_EXISTS: "The entered IP segment conflicts with the existing IP segment, please fill in again"
+IP_NOT_AVAILABLE: "IP %s is occupied and cannot be released"
 
 
 
