@@ -182,6 +182,7 @@ func (c clusterIaasService) createHosts(cluster model.Cluster, plan model.Plan) 
 	for k, v := range group {
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = plan.Region.Provider
+		providerVars["datacenter"] = plan.Region.Datacenter
 		_ = json.Unmarshal([]byte(plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
 		err := allocateIpAddr(cloudClient, *k, v, selectedIps)
