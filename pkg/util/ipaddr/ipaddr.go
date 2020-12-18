@@ -2,10 +2,14 @@ package ipaddr
 
 import (
 	"bytes"
+	"errors"
+	"flag"
 	"fmt"
 	"github.com/c-robinson/iplib"
+	"github.com/go-ping/ping"
 	"net"
 	"strconv"
+	"time"
 )
 
 func GenerateIps(ip string, mask int, startIp string, endIp string) []string {
@@ -49,4 +53,35 @@ func ParseMask(num int) (mask string, err error) {
 	d, _ := strconv.ParseUint(masker[24:32], 2, 64)
 	resultMask := fmt.Sprintf("%v.%v.%v.%v", a, b, c, d)
 	return resultMask, nil
+}
+
+func Ping(host string) error {
+
+	timeout := flag.Duration("t", time.Second*3, "")
+	interval := flag.Duration("i", time.Second, "")
+	count := flag.Int("c", -1, "")
+	privileged := flag.Bool("privileged", false, "")
+
+	pinger, err := ping.NewPinger(host)
+	if err != nil {
+		return err
+	}
+
+	pinger.OnRecv = func(pkt *ping.Packet) {}
+	pinger.OnFinish = func(stats *ping.Statistics) {}
+	pinger.Count = *count
+	pinger.Interval = *interval
+	pinger.Timeout = *timeout
+	pinger.SetPrivileged(*privileged)
+
+	err = pinger.Run()
+	if err != nil {
+		return err
+	}
+	stats := pinger.Statistics()
+	if stats.PacketsRecv >= 1 {
+		return nil
+	} else {
+		return errors.New("request timeout")
+	}
 }
