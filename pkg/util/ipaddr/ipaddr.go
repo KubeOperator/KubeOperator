@@ -3,7 +3,6 @@ package ipaddr
 import (
 	"bytes"
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/c-robinson/iplib"
 	"github.com/go-ping/ping"
@@ -57,11 +56,6 @@ func ParseMask(num int) (mask string, err error) {
 
 func Ping(host string) error {
 
-	timeout := flag.Duration("t", time.Second*3, "")
-	interval := flag.Duration("i", time.Second, "")
-	count := flag.Int("c", -1, "")
-	privileged := flag.Bool("privileged", false, "")
-
 	pinger, err := ping.NewPinger(host)
 	if err != nil {
 		return err
@@ -69,10 +63,10 @@ func Ping(host string) error {
 
 	pinger.OnRecv = func(pkt *ping.Packet) {}
 	pinger.OnFinish = func(stats *ping.Statistics) {}
-	pinger.Count = *count
-	pinger.Interval = *interval
-	pinger.Timeout = *timeout
-	pinger.SetPrivileged(*privileged)
+	pinger.Count = -1
+	pinger.Interval = time.Second
+	pinger.Timeout = time.Second * 3
+	pinger.SetPrivileged(false)
 
 	err = pinger.Run()
 	if err != nil {

@@ -203,6 +203,17 @@ func (c Cluster) BeforeDelete() error {
 		}
 	}
 
+	var ips []Ip
+	tx.Where(Ip{ClusterID: c.ID}).Find(&ips)
+	if len(ips) > 0 {
+		for _, i := range ips {
+			if err := tx.Delete(&i).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
 	if len(cluster.MultiClusterRepositories) > 0 {
 		for _, repo := range cluster.MultiClusterRepositories {
 			var clusterMultiClusterRepository ClusterMultiClusterRepository

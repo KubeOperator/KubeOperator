@@ -14,6 +14,8 @@ import {CredentialService} from '../../../setting/credential/credential.service'
 import {Credential} from '../../../setting/credential/credential';
 import {NgForm} from '@angular/forms';
 import {NamePattern} from '../../../../constant/pattern';
+import {IpPoolService} from '../../ip-pool/ip-pool.service';
+import {IpPool} from '../../ip-pool/ip-pool';
 
 
 @Component({
@@ -34,11 +36,12 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
     cloudZone: CloudZone;
     templateLoading = false;
     networkError = [];
-    networkValid = false;
+    networkValid = true;
     subnetList: Subnet[] = [];
     credentials: Credential[] = [];
     portgroups: string[] = [];
     isSubmitGoing = false;
+    ipPools: IpPool[] = [];
     @Output() created = new EventEmitter();
     @ViewChild('wizard') wizard: ClrWizard;
     @ViewChild('finishPage') finishPage: ClrWizardPage;
@@ -48,7 +51,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
 
     constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
                 private translateService: TranslateService, private commonAlertService: CommonAlertService,
-                private credentialService: CredentialService) {
+                private credentialService: CredentialService, private ipPoolService: IpPoolService) {
         super(zoneService);
     }
 
@@ -61,6 +64,7 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.opened = true;
         this.listRegions();
         this.listCredentials();
+        this.listIpPool();
         this.item.cloudVars['templateType'] = 'default';
     }
 
@@ -223,4 +227,11 @@ export class ZoneCreateComponent extends BaseModelDirective<Zone> implements OnI
         this.networkValid = true;
     }
 
+
+    listIpPool() {
+        this.ipPoolService.list().subscribe(res => {
+            this.ipPools = res.items;
+        }, error => {
+        });
+    }
 }

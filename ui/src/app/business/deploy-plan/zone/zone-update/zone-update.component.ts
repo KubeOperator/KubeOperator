@@ -9,6 +9,8 @@ import {CommonAlertService} from '../../../../layout/common-alert/common-alert.s
 import * as ipaddr from 'ipaddr.js';
 import {AlertLevels} from '../../../../layout/common-alert/alert';
 import {NgForm} from '@angular/forms';
+import {IpPool} from '../../ip-pool/ip-pool';
+import {IpPoolService} from '../../ip-pool/ip-pool.service';
 
 
 @Component({
@@ -21,11 +23,16 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     opened = false;
     item: ZoneUpdateRequest = new ZoneUpdateRequest();
     networkError = [];
+    ipPools: IpPool[] = [];
     @Output() updated = new EventEmitter();
     @ViewChild('editForm') editForm: NgForm;
 
-    constructor(private zoneService: ZoneService, private regionService: RegionService, private modalAlertService: ModalAlertService,
-                private translateService: TranslateService, private commonAlertService: CommonAlertService) {
+    constructor(private zoneService: ZoneService,
+                private regionService: RegionService,
+                private modalAlertService: ModalAlertService,
+                private translateService: TranslateService,
+                private commonAlertService: CommonAlertService,
+                private ipPoolService: IpPoolService) {
         super(zoneService);
     }
 
@@ -36,6 +43,15 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
         Object.assign(this.item, item);
         this.item.cloudVars = JSON.parse(item.vars);
         this.opened = true;
+        this.listIpPool();
+    }
+
+
+    listIpPool() {
+        this.ipPoolService.list().subscribe(res => {
+            this.ipPools = res.items;
+        }, error => {
+        });
     }
 
     checkIp() {

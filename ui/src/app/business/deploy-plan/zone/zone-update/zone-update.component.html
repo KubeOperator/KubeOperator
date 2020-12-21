@@ -3,20 +3,15 @@
     <div class="modal-body">
         <div *ngIf="item">
             <form clrForm #editForm='ngForm'>
-                <clr-input-container>
-                    <label>{{'APP_NETWORK_START_IP'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ip_start" (change)="checkIp()"
-                           required>
+                <clr-select-container>
+                    <label>{{'APP_IP_POOL'|translate}}</label>-->
+                    <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect>
+                        <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                        <option *ngFor="let ipPool of ipPools"
+                                [value]="ipPool.name">{{ipPool.name}}</option>
+                    </select>
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                </clr-input-container>
-                <clr-input-container>
-                    <label>{{'APP_NETWORK_END_IP'|translate}}</label>
-                    <input clrInput type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ip_end" (change)="checkIp()" required>
-                    <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                </clr-input-container>
-                <ul>
-                    <li *ngFor="let error of networkError">{{error}}</li>
-                </ul>
+                </clr-select-container>
             </form>
             <div class="modal-footer">
                 <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>

@@ -15,6 +15,7 @@ type ZoneCreate struct {
 	RegionID     string      `json:"regionID" validate:"required"`
 	RegionName   string      `json:"regionName" validate:"required"`
 	CredentialId string      `json:"credentialId"`
+	IpPoolName   string      `json:"ipPoolName"`
 }
 
 type ZoneOp struct {
@@ -32,8 +33,9 @@ type CloudZoneRequest struct {
 }
 
 type ZoneUpdate struct {
-	ID        string      `json:"id" validate:"required"`
-	Name      string      `json:"name" validate:"required"`
-	CloudVars interface{} `json:"cloudVars" validate:"required"`
-	RegionID  string      `json:"regionID" validate:"required"`
+	ID         string      `json:"id" validate:"required"`
+	Name       string      `json:"name" validate:"required"`
+	CloudVars  interface{} `json:"cloudVars" validate:"required"`
+	RegionID   string      `json:"regionID" validate:"required"`
+	IpPoolName string      `json:"ipPoolName" validate:"required"`
 }

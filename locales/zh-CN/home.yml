@@ -50,6 +50,8 @@ DELETE_REGION_FAILED_RESOURCE: "删除失败！该区域已经关联可用区"
 DELETE_ZONE_FAILED_RESOURCE: "删除失败！该可用区已经关联部署计划"
 CLUSTER_IS_NULL: "获取不到集群！请检查配置！"
 IMAGE_IS_NULL: "获取不到镜像！请检查配置！"
+IP_SHORT: "Ip 不足"
+
 
 #openstack
 GET_REGION_ERROR: "找不到区域"

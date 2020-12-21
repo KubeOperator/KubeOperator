@@ -19,12 +19,14 @@ export class ZoneCreateRequest extends BaseRequest {
     cloudVars: {} = {};
     provider: string;
     credentialId: string;
+    ipPoolName: string;
 }
 
 export class ZoneUpdateRequest extends BaseRequest {
     vars: string;
     regionID: string;
     cloudVars: {} = {};
+    ipPoolName: string;
 }
 
 export class CloudZoneRequest extends BaseRequest {

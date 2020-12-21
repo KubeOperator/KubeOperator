@@ -85,48 +85,57 @@
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             <clr-control-helper>{{'APP_NETWORK_HELPER'|translate}}</clr-control-helper>
                         </clr-select-container>
-                        <clr-input-container>
-                            <label>{{'APP_SUBNET'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"
-                                   required>
+                        <clr-select-container>
+                            <label>{{'APP_IP_POOL'|translate}}</label>-->
+                            <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let ipPool of ipPools"
+                                        [value]="ipPool.name">{{ipPool.name}}</option>
+                            </select>
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_IP_START'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_IP_END'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['gateway']" name="gateway"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_DNS1'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns1']" name="dns1"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_DNS2'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns2']" name="dns2"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+                        </clr-select-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_SUBNET'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_START'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_END'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['gateway']" name="gateway"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_DNS1'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns1']" name="dns1"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_DNS2'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns2']" name="dns2"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
                         <h3>{{'APP_TEMPLATE'|translate}}</h3>
                         <hr/>
@@ -294,63 +303,73 @@
                         <h3>{{'APP_NETWORK'|translate}}</h3>
                         <hr/>
                         <clr-select-container>
-                            <label>{{'APP_NETWORK_ADAPTER'|translate}}</label>
-                            <select [(ngModel)]="item.cloudVars['network']" name="network" required clrSelect>
+                            <label>{{'APP_IP_POOL'|translate}}</label>-->
+                            <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect>
                                 <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
-                                <option *ngFor="let network of cloudZone.networks"
-                                        [value]="network">{{network}}</option>
+                                <option *ngFor="let ipPool of ipPools"
+                                        [value]="ipPool.name">{{ipPool.name}}</option>
                             </select>
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_HELPER'|translate}}</clr-control-helper>
                         </clr-select-container>
 
-                        <clr-input-container>
-                            <label>{{'APP_SUBNET'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-select-container>-->
+<!--                            <label>{{'APP_NETWORK_ADAPTER'|translate}}</label>-->
+<!--                            <select [(ngModel)]="item.cloudVars['network']" name="network" required clrSelect>-->
+<!--                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>-->
+<!--                                <option *ngFor="let network of cloudZone.networks"-->
+<!--                                        [value]="network">{{network}}</option>-->
+<!--                            </select>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_NETWORK_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-select-container>-->
+
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_SUBNET'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnet']" name="subnet"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
 
-                        <clr-input-container>
-                            <label>{{'APP_IP_START'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_START'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
-                        <clr-input-container>
-                            <label>{{'APP_IP_END'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_END'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['gateway']" name="gateway"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_DNS1'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns1']" name="dns1"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_GATEWAY'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['gateway']" name="gateway"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_GATEWAY_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_DNS1'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns1']" name="dns1"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
-                        <clr-input-container>
-                            <label>{{'APP_NETWORK_DNS2'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns2']" name="dns2"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_NETWORK_DNS2'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['dns2']" name="dns2"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_NETWORK_DNS_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
                     </div>
                 </div>
 
@@ -487,30 +506,39 @@
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                             <clr-control-helper>{{'APP_OPENSTACK_FLOATING_IP_HELPER'|translate}}</clr-control-helper>
                         </clr-select-container>
-
-                        <clr-input-container>
-                            <label>{{'APP_SUBNET'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnetCidr']" name="subnet"
-                                   required>
+                        <clr-select-container>
+                            <label>{{'APP_IP_POOL'|translate}}</label>-->
+                            <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect>
+                                <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
+                                <option *ngFor="let ipPool of ipPools"
+                                        [value]="ipPool.name">{{ipPool.name}}</option>
+                            </select>
                             <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+                        </clr-select-container>
 
-                        <clr-input-container>
-                            <label>{{'APP_IP_START'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_SUBNET'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['subnetCidr']" name="subnet"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_SUBNET_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
 
-                        <clr-input-container>
-                            <label>{{'APP_IP_END'|translate}}</label>
-                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"
-                                   required>
-                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
-                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>
-                        </clr-input-container>
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_START'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipStart']" name="ipStart"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_START_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
+
+<!--                        <clr-input-container>-->
+<!--                            <label>{{'APP_IP_END'|translate}}</label>-->
+<!--                            <input clrInput size=45 type="text" [(ngModel)]="item.cloudVars['ipEnd']" name="ipEnd"-->
+<!--                                   required>-->
+<!--                            <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>-->
+<!--                            <clr-control-helper>{{'APP_IP_END_HELPER'|translate}}</clr-control-helper>-->
+<!--                        </clr-input-container>-->
                     </div>
                 </div>
             </div>
@@ -522,16 +550,16 @@
                                [clrWizardButtonDisabled]="!networkValid || isSubmitGoing">{{'APP_FINISH'|translate}}</clr-wizard-button>
         </ng-template>
         <br>
-        <div>
-            <div>
-                <button class="btn" (click)="checkNetwork()"
-                        [disabled]="paramsForm.invalid">{{'APP_IP_CHECK'|translate}}</button>
-            </div>
-            <ul>
-                <li *ngFor="let error of networkError">{{error}}</li>
-            </ul>
-            <span *ngIf="networkValid">{{'APP_IP_CHECK_SUCCESS'|translate}}</span>
-        </div>
+<!--        <div>-->
+<!--            <div>-->
+<!--                <button class="btn" (click)="checkNetwork()"-->
+<!--                        [disabled]="paramsForm.invalid">{{'APP_IP_CHECK'|translate}}</button>-->
+<!--            </div>-->
+<!--            <ul>-->
+<!--                <li *ngFor="let error of networkError">{{error}}</li>-->
+<!--            </ul>-->
+<!--            <span *ngIf="networkValid">{{'APP_IP_CHECK_SUCCESS'|translate}}</span>-->
+<!--        </div>-->
         <app-modal-alert></app-modal-alert>
     </clr-wizard-page>
 </clr-wizard>

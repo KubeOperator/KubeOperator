@@ -50,7 +50,7 @@ DELETE_REGION_FAILED_RESOURCE: "Failed to delete! The region is already associat
 DELETE_ZONE_FAILED_RESOURCE: "Failed to delete! The zone is already associated with the plan"
 CLUSTER_IS_NULL: "Cannot get the cluster! Please check the configuration！"
 IMAGE_IS_NULL: "Cannot get the image! Please check the configuration！"
-
+IP_SHORT: "Insufficient Ip"
 
 #openstack
 GET_REGION_ERROR: "No region found"
@@ -98,6 +98,7 @@ VM_CONFIG_DELETE_FAILED: "The configuration already belongs to the deployment pl
 #ip
 IP_EXISTS: "The entered IP segment conflicts with the existing IP segment, please fill in again"
 IP_NOT_AVAILABLE: "IP %s is occupied and cannot be released"
+
 
 
 

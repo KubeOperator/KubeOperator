@@ -402,7 +402,6 @@ func (c *clusterNodeService) doCreate(cluster *model.Cluster, nodes []*model.Clu
 	}
 }
 
-
 func (c clusterNodeService) doBareMetalCreateNodes(cluster model.Cluster, item dto.NodeBatch) ([]*model.ClusterNode, error) {
 	var hosts []*model.Host
 	for _, h := range item.Hosts {
@@ -469,13 +468,12 @@ func (c clusterNodeService) createPlanHosts(cluster model.Cluster, increase int)
 		newHosts = append(newHosts, newHost)
 	}
 	group := allocateZone(cluster.Plan.Zones, newHosts)
-	var selectedIps []string
 	for k, v := range group {
 		providerVars := map[string]interface{}{}
 		providerVars["provider"] = cluster.Plan.Region.Provider
 		_ = json.Unmarshal([]byte(cluster.Plan.Region.Vars), &providerVars)
 		cloudClient := cloud_provider.NewCloudClient(providerVars)
-		err := allocateIpAddr(cloudClient, *k, v, selectedIps)
+		err := allocateIpAddr(cloudClient, *k, v, cluster.ID)
 		if err != nil {
 			return nil, err
 		}
