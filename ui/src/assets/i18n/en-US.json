@@ -361,6 +361,7 @@
   "Ready": "Ready",
   "Waiting": "Waiting",
   "Lost": "Lost",
+  "Creating": "Creating",
   "APP_DOWNLOAD": "Download",
   "APP_SECURITY": "CIS Scan",
   "APP_LDAP_ADDRESS": "Address",

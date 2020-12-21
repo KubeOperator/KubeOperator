@@ -3,8 +3,6 @@
     <div class="modal-body modal-height">
         <form clrForm #itemForm='ngForm'>
             <div *ngIf="currentCluster.provider==='bareMetal'">
-                <h4>Select Host</h4>
-                <br>
                 <l-select2 name="workers" [(ngModel)]="workers" [data]="hosts" [options]="options" required></l-select2>
             </div>
 

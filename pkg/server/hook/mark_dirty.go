@@ -22,7 +22,7 @@ func markClusterDirtyData() error {
 	}
 	var clusterIds []string
 	for _, cluster := range clusters {
-		if cluster.Status == constant.StatusCreating || cluster.Status == constant.StatusTerminating || cluster.Status == constant.StatusInitializing {
+		if cluster.Status == constant.StatusCreating || cluster.Status == constant.StatusTerminating || cluster.Status == constant.StatusInitializing || cluster.Status == constant.StatusWaiting {
 			clusterIds = append(clusterIds, cluster.ID)
 		}
 	}
@@ -34,7 +34,7 @@ func markClusterDirtyData() error {
 
 // cluster node
 func markClusterNodeDirtyData() error {
-	var status = []string{constant.StatusTerminating, constant.StatusInitializing, constant.StatusCreating}
+	var status = []string{constant.StatusTerminating, constant.StatusInitializing, constant.StatusCreating, constant.StatusWaiting}
 	if err := db.DB.Model(model.ClusterNode{}).Where("status in (?)", status).Updates(map[string]interface{}{"dirty": 1}).Error; err != nil {
 		return err
 	}
