@@ -18,7 +18,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
-        <button type="button" class="btn btn-primary" (click)="onSubmit()"
-                [disabled]="isSubmitGoing||itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="onSubmit()" [clrLoading]="isSubmitGoing"
+                [disabled]="itemForm.invalid">{{'APP_COMMIT'|translate}}</button>
     </div>
 </clr-modal>

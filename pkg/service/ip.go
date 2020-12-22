@@ -52,7 +52,9 @@ func (i ipService) Create(create dto.IpCreate, tx *gorm.DB) error {
 	}
 	cs := strings.Split(create.Subnet, "/")
 	mask, _ := strconv.Atoi(cs[1])
-	ips := ipaddr.GenerateIps(cs[0], mask, create.IpStart, create.IpEnd)
+	startIp := strings.Replace(create.IpStart, " ", "", -1)
+	endIp := strings.Replace(create.IpEnd, " ", "", -1)
+	ips := ipaddr.GenerateIps(cs[0], mask, startIp, endIp)
 	for _, ip := range ips {
 		var old model.Ip
 		tx.Where(model.Ip{Address: ip}).First(&old)
