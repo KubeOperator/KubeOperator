@@ -8,6 +8,7 @@ type Zone struct {
 	RegionName string      `json:"regionName"`
 	Provider   string      `json:"provider"`
 	IpPoolName string      `json:"ipPoolName"`
+	IpPool     IpPool      `json:"ipPool"`
 }
 
 type ZoneCreate struct {

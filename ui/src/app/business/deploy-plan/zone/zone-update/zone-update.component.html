@@ -5,7 +5,8 @@
             <form clrForm #editForm='ngForm'>
                 <clr-select-container>
                     <label>{{'APP_IP_POOL'|translate}}</label>-->
-                    <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect>
+                    <select [(ngModel)]="item.ipPoolName" name="ipPool" required clrSelect
+                            (ngModelChange)="changeIpPool(item.ipPoolName)">
                         <option value=''>{{'APP_DEFAULT_OPTION'|translate}}</option>
                         <option *ngFor="let ipPool of ipPools"
                                 [value]="ipPool.name">{{ipPool.name}}</option>
@@ -13,6 +14,34 @@
                     <clr-control-error>{{'APP_REQUIRED_ERROR'|translate}}</clr-control-error>
                 </clr-select-container>
             </form>
+            <table class="table table-vertical table-noborder table-compact">
+                <tbody>
+                <tr>
+                    <th>{{'APP_NAME'|translate}}</th>
+                    <td>{{currentPool.name}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_SUBNET'|translate}}</th>
+                    <td>{{currentPool.subnet}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_GATEWAY'|translate}}</th>
+                    <td>{{currentPool.ips[0].gateway}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS1'|translate}}</th>
+                    <td>{{currentPool.ips[0].dns1}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_NETWORK_DNS2'|translate}}</th>
+                    <td>{{currentPool.ips[0].dns2}}</td>
+                </tr>
+                <tr>
+                    <th>{{'APP_STATUS'|translate}}</th>
+                    <td>{{currentPool.ipUsed}}/{{currentPool.ips.length}}</td>
+                </tr>
+                </tbody>
+            </table>
             <div class="modal-footer">
                 <button type="button" class="btn" (click)="onCancel()">{{'APP_CANCEL'|translate}}</button>
                 <button type="button" class="btn btn-primary" (click)="onConfirm()"

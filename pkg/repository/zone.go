@@ -54,6 +54,7 @@ func (z zoneRepository) Page(num, size int) (int, []model.Zone, error) {
 		Count(&total).
 		Preload("Region").
 		Preload("IpPool").
+		Preload("IpPool.Ips").
 		Find(&zones).
 		Offset((num - 1) * size).
 		Limit(size).

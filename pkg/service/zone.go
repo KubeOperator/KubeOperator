@@ -91,6 +91,16 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 		zoneDTO.CloudVars = m
 		zoneDTO.RegionName = mo.Region.Name
 		zoneDTO.Provider = mo.Region.Provider
+		ipUsed := 0
+		for _, ip := range mo.IpPool.Ips {
+			if ip.Status != constant.IpAvailable {
+				ipUsed++
+			}
+		}
+		zoneDTO.IpPool = dto.IpPool{
+			IpUsed: ipUsed,
+			IpPool: mo.IpPool,
+		}
 		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}

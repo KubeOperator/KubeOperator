@@ -62,7 +62,7 @@ func (i IpController) Post() error {
 	if err != nil {
 		return err
 	}
-	return i.IpService.Create(req)
+	return i.IpService.Create(req, nil)
 }
 
 func (i IpController) PostBatch() error {

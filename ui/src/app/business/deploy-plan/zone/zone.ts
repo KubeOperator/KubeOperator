@@ -11,7 +11,7 @@ export class Zone extends BaseModel {
     regionName: string;
     provider: string;
     status: string;
-    IpPoolName: string;
+    ipPool: IpPool = new IpPool();
 }
 
 export class ZoneCreateRequest extends BaseRequest {

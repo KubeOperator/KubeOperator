@@ -110,7 +110,7 @@ func (i ipPoolService) Create(creation dto.IpPoolCreate) (dto.IpPool, error) {
 		IpPoolName: ipPool.Name,
 		DNS1:       creation.DNS1,
 		DNS2:       creation.DNS2,
-	})
+	}, tx)
 	if err != nil {
 		tx.Rollback()
 		return ipPoolDTO, err
