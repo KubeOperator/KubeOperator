@@ -1,5 +1,6 @@
 import {BaseModel, BaseRequest} from '../../../shared/class/BaseModel';
 import {Region} from '../region/region';
+import {IpPool} from '../ip-pool/ip-pool';
 
 export class Zone extends BaseModel {
     id: string;
@@ -10,6 +11,7 @@ export class Zone extends BaseModel {
     regionName: string;
     provider: string;
     status: string;
+    IpPoolName: string;
 }
 
 export class ZoneCreateRequest extends BaseRequest {

@@ -7,6 +7,7 @@ type Zone struct {
 	CloudVars  interface{} `json:"cloudVars"`
 	RegionName string      `json:"regionName"`
 	Provider   string      `json:"provider"`
+	IpPoolName string      `json:"ipPoolName"`
 }
 
 type ZoneCreate struct {

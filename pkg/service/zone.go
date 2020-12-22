@@ -89,10 +89,9 @@ func (z zoneService) Page(num, size int) (page.Page, error) {
 			return page, err
 		}
 		zoneDTO.CloudVars = m
-
 		zoneDTO.RegionName = mo.Region.Name
 		zoneDTO.Provider = mo.Region.Provider
-
+		zoneDTO.IpPoolName = mo.IpPool.Name
 		zoneDTOs = append(zoneDTOs, *zoneDTO)
 	}
 	page.Total = total
