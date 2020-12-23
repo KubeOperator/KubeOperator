@@ -1,0 +1,137 @@
+<div>
+    <app-modal-alert></app-modal-alert>
+    <form clrForm #istioForm="ngForm" style="margin-top: 30px;">
+        <clr-accordion clrLoading="accordionLoading" clrAccordionMultiPanel="true"> 
+            <clr-accordion-panel clrAccordionPanelOpen=true>
+                <clr-accordion-title>istio-pilot</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded> 
+                    <div class="trigger-item" *ngIf="pilotCfg.cluster_istio.status === 'Failed'">
+                        <clr-signpost>
+                            <button class="btn btn-link" style="color: red;" clrSignpostTrigger>{{"APP_ISTIO_ERROR_MSG"|translate}}</button>
+                            <clr-signpost-content style="max-width: 50rem;" *clrIfOpen>{{pilotCfg.cluster_istio.message}}</clr-signpost-content>
+                        </clr-signpost>
+                    </div>
+                    
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_LIMIT"|translate}}</label>
+                        <input clrInput name="pilot-limits-cpu" [(ngModel)]="pilotCfg.vars['pilot.resources.limits.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_LIMIT"|translate}}</label>
+                        <input clrInput name="pilot-limits-memory" [(ngModel)]="pilotCfg.vars['pilot.resources.limits.memory']" required/>
+                    </clr-input-container>
+
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_REQUEST"|translate}}</label>
+                        <input clrInput  name="pilot-requests-cpu"  [(ngModel)]="pilotCfg.vars['pilot.resources.requests.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_REQUEST"|translate}}</label>
+                        <input clrInput name="pilot-requests-memory" [(ngModel)]="pilotCfg.vars['pilot.resources.requests.memory']" required/>
+                    </clr-input-container>
+
+                    <clr-input-container class="clr-col-6" style="float: left;margin-bottom: 10px;">
+                        <label>{{"APP_ISTIO_TRACE_SAMPLING"|translate}}</label>
+                        <input clrInput name="pilot-trace" [(ngModel)]="pilotCfg.vars['pilot.traceSampling']" required/>
+                    </clr-input-container>
+                </clr-accordion-content>
+            </clr-accordion-panel>
+
+            <clr-accordion-panel clrAccordionPanelOpen=true>
+                <clr-accordion-title>istio-ingress</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <clr-toggle-container>
+                        <clr-toggle-wrapper>
+                            <label>{{"APP_ENABLE"|translate}}</label>
+                            <input type="checkbox" clrToggle name="ingress-checkbox" [(ngModel)]="ingressCfg.enable"/>
+                        </clr-toggle-wrapper>
+                    </clr-toggle-container>
+                    <div class="trigger-item" *ngIf="ingressCfg.cluster_istio.status === 'Failed'">
+                        <clr-signpost>
+                            <button class="btn btn-link" style="color: red;" clrSignpostTrigger>{{"APP_ISTIO_ERROR_MSG"|translate}}</button>
+                            <clr-signpost-content style="max-width: 50rem;" *clrIfOpen>{{ingressCfg.cluster_istio.message}}</clr-signpost-content>
+                        </clr-signpost>
+                    </div>
+
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_LIMIT"|translate}}</label>
+                        <input clrInput name="ingress-limits-cpu" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.resources.limits.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_LIMIT"|translate}}</label>
+                        <input clrInput name="ingress-limits-memory" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.resources.limits.memory']" required/>
+                    </clr-input-container>
+                    
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_REQUEST"|translate}}</label>
+                        <input clrInput name="ingress-requests-cpu" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.resources.requests.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_REQUEST"|translate}}</label>
+                        <input clrInput name="ingress-requests-memory" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.resources.requests.memory']" required/>
+                    </clr-input-container>
+                </clr-accordion-content>
+                <clr-select-container class="clr-col-6" style="float: left;margin-bottom: 10px;">
+                    <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
+                    <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="ingressCfg.vars['gateways.istio-ingressgateway.type']" required>
+                        <option>NodePort</option>
+                        <option>ClusterIP</option>
+                        <option>LoadBalancer</option>
+                    </select>
+                </clr-select-container>
+            </clr-accordion-panel>
+
+            <clr-accordion-panel clrAccordionPanelOpen=true>
+                <clr-accordion-title>istio-egress</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <clr-toggle-container>
+                        <clr-toggle-wrapper>
+                            <label>{{"APP_ENABLE"|translate}}</label>
+                            <input type="checkbox" clrToggle name="egress-checkbox" [(ngModel)]="egressCfg.enable"/>
+                        </clr-toggle-wrapper>
+                    </clr-toggle-container>
+                    <div class="trigger-item" *ngIf="egressCfg.cluster_istio.status === 'Failed'">
+                        <clr-signpost>
+                            <button class="btn btn-link" style="color: red;" clrSignpostTrigger>{{"APP_ISTIO_ERROR_MSG"|translate}}</button>
+                            <clr-signpost-content style="max-width: 50rem;" *clrIfOpen>{{egressCfg.cluster_istio.message}}</clr-signpost-content>
+                        </clr-signpost>
+                    </div>
+
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_LIMIT"|translate}}</label>
+                        <input clrInput name="egress-limits-cpu" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.resources.limits.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_LIMIT"|translate}}</label>
+                        <input clrInput name="egress-limits-memory" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.resources.limits.memory']" required/>
+                    </clr-input-container>
+                    
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_CPU_REQUEST"|translate}}</label>
+                        <input clrInput name="egress-requests-cpu" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.resources.requests.cpu']" required/>
+                    </clr-input-container>
+                    <clr-input-container class="clr-col-6" style="float: left;">
+                        <label>{{"APP_ISTIO_MEMERY_REQUEST"|translate}}</label>
+                        <input clrInput name="egress-requests-memory" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.resources.requests.memory']" required/>
+                    </clr-input-container>
+
+                    <clr-select-container class="clr-col-6" style="float: left;margin-bottom: 10px;">
+                        <label>{{"APP_ISTIO_GATEWAY_TYPE"|translate}}</label>
+                        <select clrSelect  class="clr-select" class="clr-select" name="label" [(ngModel)]="egressCfg.vars['gateways.istio-egressgateway.type']" required>
+                            <option>NodePort</option>
+                            <option>ClusterIP</option>
+                            <option>LoadBalancer</option>
+                        </select>
+                    </clr-select-container>
+                </clr-accordion-content>
+            </clr-accordion-panel>
+        </clr-accordion>
+    </form>
+</div>
+
+<button class="btn btn-sm btn-primary" [clrLoading]="enableLoading" *ngIf="!baseCfg.enable" type="button"  (click)="submit('start')">{{'APP_ENABLE'|translate}} Istio</button>
+<button class="btn btn-sm btn-primary" [clrLoading]="enableLoading" *ngIf="baseCfg.enable" type="button"  (click)="submit('restart')">{{'APP_ISTIO_RESAVE'|translate}}</button>
+<button class="btn btn-sm btn-danger" [clrLoading]="disableLoading" *ngIf="baseCfg.enable" type="button"  (click)="stopIstio()">{{'APP_DISABLE'|translate}} Istio</button>
+
+
+

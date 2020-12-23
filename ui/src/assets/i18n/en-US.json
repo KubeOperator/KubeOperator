@@ -577,8 +577,18 @@
   "APP_RESULT": "Result",
   "APP_LOG_FILTER": "Filter Logs",
   "APP_HOST_IMPORT_FILE_ERROR": "Unsupported file format",
-  "APP_LOG_FILTER": "Filter Logs",
   "APP_MENU": "Menu",
   "APP_RENAME": "Rename",
-  "APP_GPU_INFO": "GPU info"
+  "APP_GPU_INFO": "GPU info",
+  "APP_ISTIO": "Istio",
+  "APP_ISTIO_ERROR_MSG": "Error Msg",
+  "APP_ISTIO_CPU_REQUEST": "CPU Requests(m)",
+  "APP_ISTIO_CPU_LIMIT": "CPU Limits(m)",
+  "APP_ISTIO_MEMERY_REQUEST": "Memory Requests(Mb)",
+  "APP_ISTIO_MEMERY_LIMIT": "Memory Limits(Mb)",
+  "APP_ISTIO_TRACE_SAMPLING": "TraceSampling",
+  "APP_ISTIO_GATEWAY_TYPE": "Gatewat type",
+  "APP_ISTIO_RESAVE": "Restore",
+  "APP_ISTIO_START_SUCCESS": "Enable success",
+  "APP_ISTIO_STOP_SUCCESS": "Disable success"
 }

@@ -583,6 +583,16 @@
   "APP_MENU": "菜单",
   "APP_RENAME": "重命名",
   "APP_GPU_INFO": "显卡信息",
-  "APP_LOG_FILTER": "日志过滤",
-  "APP_HOST_IMPORT_FILE_ERROR": "不支持的文件格式"
+  "APP_ISTIO": "Istio",
+  "APP_HOST_IMPORT_FILE_ERROR": "不支持的文件格式",
+  "APP_ISTIO_ERROR_MSG": "错误信息",
+  "APP_ISTIO_CPU_REQUEST": "CPU预留(m)",
+  "APP_ISTIO_CPU_LIMIT": "CPU限制(m)",
+  "APP_ISTIO_MEMERY_REQUEST": "Memory预留(Mb)",
+  "APP_ISTIO_MEMERY_LIMIT": "Memory限制(Mb)",
+  "APP_ISTIO_TRACE_SAMPLING": "跟踪抽样比例(%)",
+  "APP_ISTIO_GATEWAY_TYPE": "网关服务类型",
+  "APP_ISTIO_RESAVE": "重新保存",
+  "APP_ISTIO_START_SUCCESS": "启用成功",
+  "APP_ISTIO_STOP_SUCCESS": "禁用成功"
 }

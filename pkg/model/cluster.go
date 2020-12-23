@@ -71,6 +71,17 @@ func (c *Cluster) BeforeCreate() error {
 			return err
 		}
 	}
+	if c.Spec.Architectures == "amd64" {
+		for _, istio := range c.PrepareIstios() {
+			istio.ClusterID = c.ID
+			err := tx.Create(&istio).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
 	tx.Commit()
 	return nil
 }
@@ -281,6 +292,35 @@ func (c Cluster) BeforeDelete() error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c Cluster) PrepareIstios() []ClusterIstio {
+	return []ClusterIstio{
+		{
+			Name:     "base",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "pilot",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "ingress",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "egress",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+	}
 }
 
 func (c Cluster) PrepareTools() []ClusterTool {

@@ -17,6 +17,7 @@ import {PersistentVolumeClaimComponent} from './business/cluster/cluster-detail/
 import {UserComponent} from './business/user/user.component';
 import {AuthUserService} from './shared/auth/auth-user.service';
 import {LoggingComponent} from './business/cluster/cluster-detail/logging/logging.component';
+import {IstioComponent} from './business/cluster/cluster-detail/istio/istio.component';
 import {MonitorComponent} from './business/cluster/cluster-detail/monitor/monitor.component';
 import {StorageClassComponent} from './business/cluster/cluster-detail/storage/storage-class/storage-class.component';
 import {RegionComponent} from './business/deploy-plan/region/region.component';
@@ -124,6 +125,7 @@ const routes: Routes = [
                         ]
                     },
                     {path: 'tool', component: ToolsComponent},
+                    {path: 'istio', component: IstioComponent},
                     {path: 'backup', component: BackupComponent},
                     {path: 'logs', component: LogComponent},
                     {path: 'grade', component: ClusterGradeComponent},
