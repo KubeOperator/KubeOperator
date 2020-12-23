@@ -174,8 +174,12 @@ func (i ipService) Sync(ipPoolName string) error {
 		if ips[i].Status != constant.IpUsed && ips[i].Status != constant.IpLock {
 			go func(i int) {
 				err := ipaddr.Ping(ips[i].Address)
-				if err == nil {
+				if err == nil && ips[i].Status != constant.IpReachable {
 					ips[i].Status = constant.IpReachable
+					db.DB.Save(&ips[i])
+				}
+				if err != nil && ips[i].Status == constant.IpReachable {
+					ips[i].Status = constant.IpAvailable
 					db.DB.Save(&ips[i])
 				}
 			}(i)

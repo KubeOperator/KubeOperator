@@ -21,7 +21,6 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
 
     opened = false;
     item: ZoneUpdateRequest = new ZoneUpdateRequest();
-    networkError = [];
     ipPools: IpPool[] = [];
     currentPool: IpPool = new IpPool();
     @Output() updated = new EventEmitter();
@@ -40,12 +39,12 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     open(item) {
-        Object.assign(this.item, item);
-        this.item.cloudVars = JSON.parse(item.vars);
-        this.opened = true;
         this.ipPoolService.list().subscribe(res => {
             this.ipPools = res.items;
+            Object.assign(this.item, item);
+            this.item.cloudVars = JSON.parse(item.vars);
             this.changeIpPool(this.item.ipPoolName);
+            this.opened = true;
         }, error => {
         });
     }
@@ -53,8 +52,8 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
 
     onCancel() {
         this.opened = false;
-        this.networkError = [];
-        this.editForm.resetForm(this.networkError);
+        this.currentPool = new IpPool();
+        this.editForm.resetForm(this.currentPool);
     }
 
     onConfirm() {
@@ -69,11 +68,19 @@ export class ZoneUpdateComponent extends BaseModelDirective<Zone> implements OnI
     }
 
     changeIpPool(ipPoolName) {
+        if (ipPoolName === '') {
+            return;
+        }
+        this.item.ipPoolName = ipPoolName;
         for (const p of this.ipPools) {
             if (ipPoolName === p.name) {
                 this.currentPool = p;
                 break;
             }
+        }
+        if (this.currentPool.name === '') {
+            this.currentPool = new IpPool();
+            return;
         }
     }
 }

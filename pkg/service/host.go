@@ -6,6 +6,7 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/controller/page"
+	"github.com/KubeOperator/KubeOperator/pkg/db"
 	"github.com/KubeOperator/KubeOperator/pkg/dto"
 	"github.com/KubeOperator/KubeOperator/pkg/errorf"
 	"github.com/KubeOperator/KubeOperator/pkg/model"
@@ -448,6 +449,12 @@ func (h hostService) ImportHosts(file []byte) error {
 		if err != nil {
 			errs = errs.Add(errorf.New("HOST_IMPORT_FAILED_SAVE", host.Name, err.Error()))
 			continue
+		}
+		var ip model.Ip
+		db.DB.Where(model.Ip{Address: host.Ip}).First(&ip)
+		if ip.ID != "" {
+			ip.Status = constant.IpUsed
+			db.DB.Save(&ip)
 		}
 		go h.RunGetHostConfig(host)
 	}
