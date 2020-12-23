@@ -13,7 +13,7 @@ export class EmailShowPipe implements PipeTransform {
     transform(value: string, ...args: unknown[]): unknown {
         let result = '';
         if (value.indexOf('@') === -1 || value.indexOf('.') === -1) {
-            return result
+            return value
         }
         const aiteIndex = value.indexOf('@')
         const pointIndex = value.lastIndexOf('.')

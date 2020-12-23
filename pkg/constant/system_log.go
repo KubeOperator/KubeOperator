@@ -29,8 +29,10 @@ const (
 	ENABLE_CLUSTER_NPD  = "启用NPD|Enable cluster NPD"
 	DISABLE_CLUSTER_NPD = "关闭NPD|Disable cluster NPD"
 
-	ENABLE_CLUSTER_TOOL  = "启用集群工具|Enable cluster tools"
-	DISABLE_CLUSTER_TOOL = "禁用集群工具|Disable cluster tools"
+	ENABLE_CLUSTER_TOOL   = "启用集群工具|Enable cluster tools"
+	DISABLE_CLUSTER_TOOL  = "禁用集群工具|Disable cluster tools"
+	ENABLE_CLUSTER_ISTIO  = "启用/修改集群 Istio|Enable/Update cluster Istio"
+	DISABLE_CLUSTER_ISTIO = "禁用集群Istio|Disable cluster Istio"
 
 	CREATE_CLUSTER_BACKUP_STRATEGY = "添加集群备份策略|Create cluster backup strategy"
 	START_CLUSTER_BACKUP           = "开始备份|Start cluster backup"
@@ -69,6 +71,6 @@ const (
 	CREATE_BACKUP_ACCOUNT = "添加备份账号|Create backup account"
 	UPDATE_BACKUP_ACCOUNT = "修改备份账号信息|Update backup account information"
 	DELETE_BACKUP_ACCOUNT = "删除备份账号|Delete backup account"
-	CREATE_EMAIL          = "设置系统邮箱|Set system mailbox"
+	CREATE_EMAIL          = "设置系统配置|Set system config"
 	IMPORT_LICENCE        = "导入许可证书|import licence"
 )

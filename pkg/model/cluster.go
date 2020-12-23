@@ -33,6 +33,57 @@ type Cluster struct {
 
 func (c *Cluster) BeforeCreate() error {
 	c.ID = uuid.NewV4().String()
+	tx := db.DB.Begin()
+	if err := tx.Create(&c.Spec).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Create(&c.Status).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Create(&c.Secret).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	c.SpecID = c.Spec.ID
+	c.StatusID = c.Status.ID
+	c.SecretID = c.Secret.ID
+	for i := range c.Nodes {
+		c.Nodes[i].ClusterID = c.ID
+		if err := tx.Create(&c.Nodes[i]).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		if c.Nodes[i].Host.ID != "" {
+			c.Nodes[i].Host.ClusterID = c.ID
+			err := tx.Save(&c.Nodes[i].Host).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	for _, tool := range c.PrepareTools() {
+		tool.ClusterID = c.ID
+		err := tx.Create(&tool).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	if c.Spec.Architectures == "amd64" {
+		for _, istio := range c.PrepareIstios() {
+			istio.ClusterID = c.ID
+			err := tx.Create(&istio).Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	tx.Commit()
 	return nil
 }
 
@@ -253,6 +304,35 @@ func (c Cluster) BeforeDelete() error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func (c Cluster) PrepareIstios() []ClusterIstio {
+	return []ClusterIstio{
+		{
+			Name:     "base",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "pilot",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "ingress",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+		{
+			Name:     "egress",
+			Version:  "v1.8.0",
+			Describe: "",
+			Status:   constant.ClusterWaiting,
+		},
+	}
 }
 
 func (c Cluster) PrepareTools() []ClusterTool {
