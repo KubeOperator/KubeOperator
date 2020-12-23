@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/KubeOperator/KubeOperator/pkg/constant"
 	"github.com/KubeOperator/KubeOperator/pkg/db"
@@ -12,6 +11,7 @@ import (
 	"github.com/KubeOperator/KubeOperator/pkg/model"
 	"github.com/KubeOperator/KubeOperator/pkg/service/cluster/istios"
 	"github.com/KubeOperator/KubeOperator/pkg/util/helm"
+	"github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	kubernetesUtil "github.com/KubeOperator/KubeOperator/pkg/util/kubernetes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -55,15 +55,15 @@ func (c clusterIstioService) List(clusterName string) ([]dto.ClusterIstio, error
 }
 
 func (c clusterIstioService) Enable(clusterName string, istioDtos []dto.ClusterIstio) ([]dto.ClusterIstio, error) {
-	cluster, endpoint, secret, err := c.getBaseParams(clusterName)
+	cluster, endpoints, secret, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return istioDtos, err
 	}
-	if err := getNs(endpoint, secret, constant.IstioNamespace); err != nil {
+	if err := getNs(endpoints, secret, constant.IstioNamespace); err != nil {
 		return istioDtos, err
 	}
 
-	helminfo, err := NewIstioHelmInfo(cluster.Cluster, endpoint, secret.ClusterSecret, constant.IstioNamespace)
+	helminfo, err := NewIstioHelmInfo(cluster.Cluster, endpoints, secret.ClusterSecret, constant.IstioNamespace)
 	if err != nil {
 		return istioDtos, err
 	}
@@ -120,12 +120,12 @@ func (c clusterIstioService) Enable(clusterName string, istioDtos []dto.ClusterI
 }
 
 func (c clusterIstioService) Disable(clusterName string, istioDtos []dto.ClusterIstio) ([]dto.ClusterIstio, error) {
-	cluster, endpoint, secret, err := c.getBaseParams(clusterName)
+	cluster, endpoints, secret, err := c.getBaseParams(clusterName)
 	if err != nil {
 		return istioDtos, err
 	}
 
-	helminfo, err := NewIstioHelmInfo(cluster.Cluster, endpoint, secret.ClusterSecret, constant.IstioNamespace)
+	helminfo, err := NewIstioHelmInfo(cluster.Cluster, endpoints, secret.ClusterSecret, constant.IstioNamespace)
 	if err != nil {
 		return istioDtos, err
 	}
@@ -157,27 +157,27 @@ func (c clusterIstioService) Disable(clusterName string, istioDtos []dto.Cluster
 	return istioDtos, nil
 }
 
-func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, dto.Endpoint, dto.ClusterSecret, error) {
+func (c clusterIstioService) getBaseParams(clusterName string) (dto.Cluster, []kubernetes.Host, dto.ClusterSecret, error) {
 	var (
-		cluster  dto.Cluster
-		endpoint dto.Endpoint
-		secret   dto.ClusterSecret
-		err      error
+		cluster   dto.Cluster
+		endpoints []kubernetes.Host
+		secret    dto.ClusterSecret
+		err       error
 	)
 	if err := db.DB.Where(model.Cluster{Name: clusterName}).Preload("Spec").Find(&cluster).Error; err != nil {
-		return cluster, endpoint, secret, err
+		return cluster, endpoints, secret, err
 	}
 
-	endpoint, err = c.clusterService.GetApiServerEndpoint(clusterName)
+	endpoints, err = c.clusterService.GetApiServerEndpoints(clusterName)
 	if err != nil {
-		return cluster, endpoint, secret, err
+		return cluster, endpoints, secret, err
 	}
 	secret, err = c.clusterService.GetSecrets(clusterName)
 	if err != nil {
-		return cluster, endpoint, secret, err
+		return cluster, endpoints, secret, err
 	}
 
-	return cluster, endpoint, secret, nil
+	return cluster, endpoints, secret, nil
 }
 
 func (c clusterIstioService) doInstall(p istios.IstioInterface, istio *model.ClusterIstio) {
@@ -213,11 +213,10 @@ func saveIstio(istio *model.ClusterIstio) error {
 	return nil
 }
 
-func getNs(endpoint dto.Endpoint, secret dto.ClusterSecret, namespace string) error {
+func getNs(endpoints []kubernetes.Host, secret dto.ClusterSecret, namespace string) error {
 	kubeClient, err := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	if err != nil {
 		return err
@@ -238,7 +237,7 @@ func getNs(endpoint dto.Endpoint, secret dto.ClusterSecret, namespace string) er
 	return nil
 }
 
-func NewIstioHelmInfo(cluster model.Cluster, endpoint dto.Endpoint, secret model.ClusterSecret, namespace string) (istios.IstioHelmInfo, error) {
+func NewIstioHelmInfo(cluster model.Cluster, endpoints []kubernetes.Host, secret model.ClusterSecret, namespace string) (istios.IstioHelmInfo, error) {
 	var (
 		p       istios.IstioHelmInfo
 		localIP model.SystemSetting
@@ -248,8 +247,8 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoint dto.Endpoint, secret model
 		return p, errors.New("invalid system setting: ip")
 	}
 	p.LocalhostName = localIP.Value
-	helmClient, err := helm.NewClient(helm.Config{
-		ApiServer:     fmt.Sprintf("https://%s:%d", endpoint.Address, endpoint.Port),
+	helmClient, err := helm.NewClient(&helm.Config{
+		Hosts:         endpoints,
 		BearerToken:   secret.KubernetesToken,
 		OldNamespace:  namespace,
 		Namespace:     namespace,
@@ -260,9 +259,8 @@ func NewIstioHelmInfo(cluster model.Cluster, endpoint dto.Endpoint, secret model
 	}
 	p.HelmClient = helmClient
 	kubeClient, _ := kubernetesUtil.NewKubernetesClient(&kubernetesUtil.Config{
-		Host:  endpoint.Address,
+		Hosts: endpoints,
 		Token: secret.KubernetesToken,
-		Port:  endpoint.Port,
 	})
 	p.KubeClient = kubeClient
 	return p, nil
