@@ -253,6 +253,10 @@ func (c clusterService) Create(creation dto.ClusterCreate) (*dto.Cluster, error)
 			return nil, fmt.Errorf("can not query plan %s reason %s", creation.Plan, err.Error())
 		}
 		cluster.PlanID = plan.ID
+		if err := tx.Save(&cluster).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	case constant.ClusterProviderBareMetal:
 		workerNo := 1
 		masterNo := 1
